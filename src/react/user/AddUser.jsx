@@ -1,8 +1,8 @@
 // @flow
 
-import { Button, Input } from '@scality/core-ui';
+import { Button, Input, Modal } from '@scality/core-ui';
 import React from 'react';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 
 type Props = {
     createUser: (userName: string) => void,
@@ -10,33 +10,15 @@ type Props = {
 
 type State = {
     userName: string,
+    showModal: boolean,
 };
-
-const FormSection = styled.form`
-    display: flex;
-    align-items: baseline;
-    justify-content: space-around;
-    .sc-input {
-      flex: 0 0 370px;
-      box-sizing: border-box;
-      .sc-input-wrapper {
-        flex: 1;
-      }
-      .sc-input-type{
-        background-color: #000;
-      }
-    }
-    .sc-button {
-      flex: 0 1 auto;
-      width: 50px
-    }
-  `;
 
 export default class AddUser extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
             userName: '',
+            showModal: false,
         };
     }
 
@@ -45,7 +27,7 @@ export default class AddUser extends React.Component<Props, State> {
             e.preventDefault();
         }
         this.props.createUser(this.state.userName);
-        this.setState({ userName: '' });
+        this.setState({ userName: '', showModal: false });
     }
 
     handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
@@ -57,10 +39,34 @@ export default class AddUser extends React.Component<Props, State> {
         });
     }
 
+    close = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.setState({
+            showModal: false,
+        });
+    }
+
+    show = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.setState({
+            showModal: true,
+        });
+    }
+
     render() {
         return (
             <div className="list-group-item flex-row-reverse">
-                <FormSection onSubmit={this.submit}>
+                <Button size="default" text="Add" type="submit"
+                    id="add-account-btn"
+                    onClick={this.show} />
+                <Modal close={this.close}
+                    footer={<div style={{display: 'flex', justifyContent: 'space-between'}}> <Button onClick={this.close} size="small" text="Cancel"/> <Button onClick={this.submit} size="small" text="Add"/> </div>}
+                    isOpen={this.state.showModal}
+                    title="Add User">
                     <Input
                         type="text"
                         name="userName"
@@ -68,11 +74,7 @@ export default class AddUser extends React.Component<Props, State> {
                         onChange={this.handleChange}
                         value={this.state.userName}
                         autoComplete="off" />
-                    <span className="icon icon-add-user"></span>
-                    <Button size="default" text="Add" type="submit"
-                        id="add-account-btn"
-                        onClick={this.submit} />
-                </FormSection>
+                </Modal>
             </div>
         );
     }

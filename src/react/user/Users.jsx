@@ -5,6 +5,7 @@ import AddUser from './AddUser';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
 import React from 'react';
+import ShowUser from './ShowUser';
 import type { User } from '../../types/user';
 import UserList from './UserList';
 import { connect } from 'react-redux';
@@ -12,6 +13,7 @@ import styled from 'styled-components';
 
 const UsersContainer = styled.div`
     display: flex;
+    width: 100%;
 `;
 
 const UserLeftSection = styled.div`
@@ -30,7 +32,7 @@ const UserRightSection = styled.div`
     color: #fff;
 
 
-    width: calc(100vw - 350px);
+    width: calc(100vw - 450px);
     background: deepskyblue;
     padding: 10px;
 `;
@@ -72,6 +74,7 @@ class Users extends React.Component<Props>{
                     </ManageUserSection>
                 </UserLeftSection>
                 <UserRightSection>
+                    <ShowUser />
                 </UserRightSection>
             </UsersContainer>
         );
