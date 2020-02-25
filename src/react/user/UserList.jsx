@@ -1,3 +1,4 @@
+// @noflow
 import React from 'react';
 import styled from 'styled-components';
 
@@ -10,10 +11,24 @@ const TableSection = styled.div`
     }
     td {
         border-top: 1px solid #424242;
+        padding: 5px;
+    }
+    tr:hover{
+        background-color: grey;
     }
 `;
 
+const Row = styled.tr`
+    cursor: pointer;
+`;
+
 export default class UserList extends React.Component {
+    rowClicked = (e, userName) => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.props.getUser(userName);
+    }
     render() {
         return (
             <TableSection>
@@ -21,18 +36,14 @@ export default class UserList extends React.Component {
                     <tbody>
                         <tr>
                             <th> UserName </th>
-                            <th> ARN </th>
                             <th> Create time</th>
-                            <th> User ID</th>
                         </tr>
                         {
                             this.props.userList.map(u =>
-                                <tr key={u.UserId}>
+                                <Row onClick={e => this.rowClicked(e, u.UserName)} key={u.UserName}>
                                     <td> {u.UserName} </td>
-                                    <td> {u.Arn} </td>
                                     <td> {u.CreateDate.toString()} </td>
-                                    <td> {u.UserId} </td>
-                                </tr>)
+                                </Row>)
                         }
                     </tbody>
                 </table>

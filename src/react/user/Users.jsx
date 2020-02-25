@@ -1,6 +1,6 @@
 // @flow
 
-import { createUser, listUsers } from '../actions';
+import { createUser, getUser, listUsers } from '../actions';
 import AddUser from './AddUser';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
@@ -52,6 +52,7 @@ type DispatchProps = {
 
 type StateProps = {
     userList: ?Array<User>,
+    userShown: User,
 };
 
 type Props = StateProps & DispatchProps;
@@ -70,11 +71,11 @@ class Users extends React.Component<Props>{
                 <UserLeftSection>
                     <ManageUserSection>
                         <AddUser createUser={this.props.createUser} />
-                        <UserList userList={this.props.userList}/>
+                        <UserList getUser={this.props.getUser} userList={this.props.userList}/>
                     </ManageUserSection>
                 </UserLeftSection>
                 <UserRightSection>
-                    <ShowUser />
+                    <ShowUser userShown={this.props.userShown} />
                 </UserRightSection>
             </UsersContainer>
         );
@@ -83,9 +84,10 @@ class Users extends React.Component<Props>{
 }
 
 function mapStateToProps(state: AppState): StateProps{
-    console.log('User: mapStateToProps: state.user.list!!!', state.user.list);
+    console.log('User: mapStateToProps: state.user!!!', state.user);
     return {
         userList: state.user.list,
+        userShown: state.user.userShown,
     };
 }
 
@@ -93,6 +95,7 @@ function mapDispatchToProps(dispatch): DispatchProps{
     return {
         listUsers: () => dispatch(listUsers()),
         createUser: (userName: string) => dispatch(createUser(userName)),
+        getUser: (userName: string) => dispatch(getUser(userName)),
     };
 }
 

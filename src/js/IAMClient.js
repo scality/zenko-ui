@@ -18,7 +18,13 @@ export default class IAMClient {
 
     listUsers() {
         return this.client.listUsers({
-            MaxItems: 10,
+            MaxItems: 20,
+        }).promise();
+    }
+
+    getUser(userName) {
+        return this.client.getUser({
+            UserName: userName,
         }).promise();
     }
 
