@@ -21,3 +21,7 @@ export function errorParser(error) {
     }
     return { message };
 }
+
+export function formatDate(d) {
+    return `${d.toDateString()}`;
+}

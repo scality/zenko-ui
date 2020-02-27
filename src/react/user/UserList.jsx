@@ -1,22 +1,8 @@
 // @noflow
 import React from 'react';
+import TableSection from '../ui-elements/TableSection';
+import {formatDate} from '../utils';
 import styled from 'styled-components';
-
-const TableSection = styled.div`
-    display: flex;
-    margin-top: 20px;
-    font-size: 11px;
-    table {
-        border-collapse: collapse;
-    }
-    td {
-        border-top: 1px solid #424242;
-        padding: 5px;
-    }
-    tr:hover{
-        background-color: grey;
-    }
-`;
 
 const Row = styled.tr`
     cursor: pointer;
@@ -42,7 +28,7 @@ export default class UserList extends React.Component {
                             this.props.userList.map(u =>
                                 <Row onClick={e => this.rowClicked(e, u.UserName)} key={u.UserName}>
                                     <td> {u.UserName} </td>
-                                    <td> {u.CreateDate.toString()} </td>
+                                    <td> {formatDate(u.CreateDate)} </td>
                                 </Row>)
                         }
                     </tbody>

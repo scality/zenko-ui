@@ -28,6 +28,23 @@ export default class IAMClient {
         }).promise();
     }
 
+    listAccessKeys(userName) {
+        return this.client.listAccessKeys({
+            UserName: userName,
+        }).promise();
+    }
+
+    listAttachedUserPolicies(userName) {
+        return this.client.listAttachedUserPolicies({
+            UserName: userName,
+        }).promise();
+    }
+
+    listGroupsForUser(userName) {
+        return this.client.listGroupsForUser({
+            UserName: userName,
+        }).promise();
+    }
 }
 
 

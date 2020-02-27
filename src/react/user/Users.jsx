@@ -1,12 +1,12 @@
 // @flow
 
-import { createUser, getUser, listUsers } from '../actions';
+import { createUser, getUser, listAccessKeys, listUsers } from '../actions';
 import AddUser from './AddUser';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
 import React from 'react';
-import ShowUser from './ShowUser';
 import type { User } from '../../types/user';
+import UserDisplay from './UserDisplay';
 import UserList from './UserList';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -52,7 +52,7 @@ type DispatchProps = {
 
 type StateProps = {
     userList: ?Array<User>,
-    userShown: User,
+    displayedUser: User,
 };
 
 type Props = StateProps & DispatchProps;
@@ -75,7 +75,9 @@ class Users extends React.Component<Props>{
                     </ManageUserSection>
                 </UserLeftSection>
                 <UserRightSection>
-                    <ShowUser userShown={this.props.userShown} />
+                    <UserDisplay
+                        displayedUser={this.props.displayedUser}
+                    />
                 </UserRightSection>
             </UsersContainer>
         );
@@ -84,10 +86,10 @@ class Users extends React.Component<Props>{
 }
 
 function mapStateToProps(state: AppState): StateProps{
-    console.log('User: mapStateToProps: state.user!!!', state.user);
     return {
         userList: state.user.list,
-        userShown: state.user.userShown,
+        displayedUser: state.user.displayedUser,
+        attachedPoliciesList: state.user.attachedPoliciesList,
     };
 }
 
