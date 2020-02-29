@@ -1,4 +1,5 @@
 import { handleApiError, handleClientError } from './error';
+import { addSecret } from './secrets';
 
 export function updateUsersList(list) {
     return {
@@ -35,12 +36,40 @@ export function showUser(user) {
     };
 }
 
+export function createAccessKey(userName) {
+    return (dispatch, getState) => {
+        const client = getState().iamClient.client;
+        client.createAccessKey(userName)
+            .then(resp => {
+                dispatch(addSecret({
+                    accessKey: resp.AccessKey.AccessKeyId,
+                    secretKey: resp.AccessKey.SecretAccessKey,
+                }));
+                dispatch(listAccessKeys(userName));
+            })
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')));
+    };
+}
+
 export function createUser(userName) {
     return (dispatch, getState) => {
         const client = getState().iamClient.client;
         client.createUser(userName)
             .then(() => {
-                return dispatch(listUsers());
+                dispatch(listUsers());
+            })
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')));
+    };
+}
+
+export function deleteAccessKey(accessKey, userName) {
+    return (dispatch, getState) => {
+        const client = getState().iamClient.client;
+        client.deleteAccessKey(accessKey, userName)
+            .then(() => {
+                dispatch(listAccessKeys(userName));
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')));
@@ -52,7 +81,6 @@ export function listUsers() {
         const client = getState().iamClient.client;
         client.listUsers()
             .then(resp => {
-                console.log('resp!!!', resp);
                 dispatch(updateUsersList(resp.Users));
             })
             .catch(error => dispatch(handleClientError(error)))
@@ -95,7 +123,6 @@ export function listGroupsForUser(userName) {
             .catch(error => dispatch(handleApiError(error, 'byModal')));
     };
 }
-
 
 export function getUser(userName) {
     return (dispatch, getState) => {

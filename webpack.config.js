@@ -41,19 +41,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                include: /node_modules/,
-                use: [
-                    {
-                        loader: 'style-loader',
-                    },
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            // importLoaders: 1,
-                            modules: false,
-                        },
-                    },
-                ],
+                loader: 'style-loader!css-loader',
             },
         ],
     },

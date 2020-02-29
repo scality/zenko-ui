@@ -60,12 +60,10 @@ type Props = StateProps & DispatchProps;
 class Users extends React.Component<Props>{
 
     componentDidMount() {
-        console.log("componentDidMount!!!");
         this.props.listUsers();
     }
 
     render() {
-        console.log('User render()');
         return (
             <UsersContainer>
                 <UserLeftSection>

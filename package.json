@@ -41,6 +41,7 @@
     "@scality/core-ui": "github:scality/core-ui.git#add-dist-folder",
     "aws-sdk": "^2.616.0",
     "file-loader": "^5.0.2",
+    "immutable": "^4.0.0-rc.12",
     "polished": "3.4.1",
     "rc-tooltip": "^3.7.3",
     "react": "^16.12.0",

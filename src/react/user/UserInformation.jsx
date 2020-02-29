@@ -1,6 +1,11 @@
+// @noflow
+
+import { createAccessKey, deleteAccessKey, deleteSecret } from '../actions';
 import { Button } from '@scality/core-ui';
 import React from 'react';
+import ShowSecretKeyButton from './ShowSecretKeyButton';
 import TableSection from '../ui-elements/TableSection';
+import type { User } from '../../types/user';
 import { connect } from 'react-redux';
 import {formatDate} from '../utils';
 import styled from 'styled-components';
@@ -13,7 +18,7 @@ const Wrapper = styled.div`
 const TableWrapper = styled.div`
     margin-top: 20px;
     min-height: 130px;
-`
+`;
 
 const Title = styled.div`
   display: flex;
@@ -22,8 +27,38 @@ const Title = styled.div`
   justify-content: space-between;
 `;
 
+type DispatchProps = {
+    listUsers: () => void,
+    createAccessKey: (userName: string) => void,
+    deleteAccessKey: (accessKey: string, userName: string) => void,
+};
 
-class UserInformation extends React.Component{
+type StateProps = {
+    userList: Array<User>,
+    displayedUser: User,
+    accessKeyList: Array<>,
+    attachedPoliciesList: Array<>,
+    groupList: Array<>,
+    secretKeys: { [string]: string },
+};
+
+type Props = StateProps & DispatchProps;
+
+class UserInformation extends React.Component<Props>{
+
+    createKey = e => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.props.createAccessKey(this.props.displayedUser.UserName);
+    }
+
+    deleteKey = (e, accessKey) => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.props.deleteAccessKey(accessKey, this.props.displayedUser.UserName);
+    }
 
     render() {
         return <Wrapper>
@@ -32,7 +67,10 @@ class UserInformation extends React.Component{
                     <div>
                         User Keys ({this.props.accessKeyList.length})
                     </div>
-                    <Button size="small" text="Create Key"/>
+                    {
+                        !!this.props.displayedUser.UserName &&
+                        <Button size="small" text="Create Key" onClick={this.createKey}/>
+                    }
                 </Title>
                 <TableSection hide={this.props.accessKeyList.length === 0}>
                     <table>
@@ -41,6 +79,7 @@ class UserInformation extends React.Component{
                                 <th> Status </th>
                                 <th> Access Key </th>
                                 <th> Create On</th>
+                                <th> Actions </th>
                             </tr>
                             {
                                 this.props.accessKeyList.map(a =>
@@ -48,6 +87,14 @@ class UserInformation extends React.Component{
                                         <td> {a.Status} </td>
                                         <td> {a.AccessKeyId} </td>
                                         <td> {formatDate(a.CreateDate)} </td>
+                                        <td>
+                                            <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
+                                            <ShowSecretKeyButton
+                                                keys={a}
+                                                secretKey={this.props.secrets.get(a.AccessKeyId)}
+                                                deleteSecret={this.props.deleteSecret}
+                                            />
+                                        </td>
                                     </tr>)
                             }
                         </tbody>
@@ -107,16 +154,20 @@ class UserInformation extends React.Component{
 
 function mapStateToProps(state){
     return {
+        displayedUser: state.user.displayedUser,
         accessKeyList: state.user.accessKeyList,
         attachedPoliciesList: state.user.attachedPoliciesList,
         groupList: state.user.groupList,
+        secrets: state.secrets,
     };
 }
 
-// function mapDispatchToProps(dispatch){
-//     return {
-//
-//     }
-// }
+function mapDispatchToProps(dispatch){
+    return {
+        createAccessKey: userName => dispatch(createAccessKey(userName)),
+        deleteAccessKey: (accessKey, userName) => dispatch(deleteAccessKey(accessKey, userName)),
+        deleteSecret: accessKey => dispatch(deleteSecret(accessKey)),
+    };
+}
 
-export default connect(mapStateToProps)(UserInformation);
+export default connect(mapStateToProps, mapDispatchToProps)(UserInformation);

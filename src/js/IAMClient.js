@@ -10,15 +10,22 @@ export default class IAMClient {
         });
     }
 
+    createAccessKey(userName) {
+        return this.client.createAccessKey({
+            UserName: userName,
+        }).promise();
+    }
+
     createUser(userName) {
         return this.client.createUser({
             UserName: userName,
         }).promise();
     }
 
-    listUsers() {
-        return this.client.listUsers({
-            MaxItems: 20,
+    deleteAccessKey(accessKey, userName) {
+        return this.client.deleteAccessKey({
+            AccessKeyId: accessKey,
+            UserName: userName,
         }).promise();
     }
 
@@ -43,6 +50,12 @@ export default class IAMClient {
     listGroupsForUser(userName) {
         return this.client.listGroupsForUser({
             UserName: userName,
+        }).promise();
+    }
+
+    listUsers() {
+        return this.client.listUsers({
+            MaxItems: 20,
         }).promise();
     }
 }
