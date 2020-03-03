@@ -996,7 +996,7 @@
 
 "@scality/core-ui@github:scality/core-ui.git#add-dist-folder":
   version "0.4.0"
-  resolved "https://codeload.github.com/scality/core-ui/tar.gz/f4dadde1663edfece42ca512ebb2a197e088b802"
+  resolved "https://codeload.github.com/scality/core-ui/tar.gz/6e547ea3b16350cb795d463b8709f9d6a754d3eb"
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"

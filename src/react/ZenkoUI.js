@@ -1,4 +1,4 @@
-import {clearError, initIamClient} from './actions';
+import {clearError, initIamClient, initS3Client, listBuckets} from './actions';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import React from 'react';
 import Users from './user/Users';
@@ -19,7 +19,9 @@ class ZenkoUI extends React.Component {
     }
 
     componentDidMount() {
+        // TODO: move them to a gobal action
         this.props.dispatch(initIamClient());
+        this.props.dispatch(initS3Client());
     }
 
     render(){

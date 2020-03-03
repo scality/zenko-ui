@@ -1,6 +1,7 @@
 // @noflow
 
 import { Button, Tabs } from '@scality/core-ui';
+import UserBuckets from './UserBuckets';
 import UserInformation from './UserInformation';
 import React from 'react';
 import styled from 'styled-components';
@@ -63,6 +64,25 @@ const UserInfo = styled.div`
 `;
 
 class UserDisplay extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            tab: 0,
+        };
+    }
+
+    setTab(e, tab){
+        if (e) {
+            e.preventDefault();
+        }
+        this.setState({
+            tab,
+        });
+    }
+
+    isSelected(tab){
+        return tab === this.state.tab;
+    }
     render() {
         const user = this.props.displayedUser;
         return <div>
@@ -78,23 +98,24 @@ class UserDisplay extends React.Component {
                 <Tabs
                     items={[
                         {
-                            onClick: function noRefCheck(){},
-                            selected: true,
+                            onClick: e => this.setTab(e, 0),
+                            selected: this.isSelected(0),
                             title: 'Information',
                         },
                         {
-                            onClick: function noRefCheck(){},
-                            selected: false,
+                            onClick: e => this.setTab(e, 1),
+                            selected: this.isSelected(1),
                             title: 'Buckets',
                         },
                         {
-                            onClick: function noRefCheck(){},
-                            selected: false,
+                            onClick: e => this.setTab(e, 2),
+                            selected: this.isSelected(2),
                             title: 'Key Metrics',
                         },
                     ]}
                 >
-                    <UserInformation/>
+                    {this.state.tab === 0 && <UserInformation/>}
+                    {this.state.tab === 1 && <UserBuckets/>}
                 </Tabs>
             </Content>
         </div>;

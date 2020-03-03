@@ -27,12 +27,11 @@ const UserLeftSection = styled.div`
 
 const UserRightSection = styled.div`
     display: flex;
-    flex: 0 1 auto;
+    flex: 0 1 calc(100vw - 450px);
     flex-direction: column;
     color: #fff;
 
 
-    width: calc(100vw - 450px);
     background: deepskyblue;
     padding: 10px;
 `;

@@ -1,7 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { addSecret } from './secrets';
 
-export function updateUsersList(list) {
+export function updateUserList(list) {
     return {
         type: 'UPDATE_USER_LIST',
         list,
@@ -81,7 +81,7 @@ export function listUsers() {
         const client = getState().iamClient.client;
         client.listUsers()
             .then(resp => {
-                dispatch(updateUsersList(resp.Users));
+                dispatch(updateUserList(resp.Users));
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')));

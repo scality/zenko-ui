@@ -2,10 +2,10 @@
 
 import type {DispatchFunction} from '../../types/actions';
 import IAMClient from '../../js/IAMClient';
-import type {ZenkoClient} from '../../types/state';
+import type {IAMClientType} from '../../types/state';
 import creds from '../../../creds';
 
-export function createIamClient(client: ZenkoClient) {
+export function createIamClient(client: IAMClientType) {
     return {
         type:'CREATE_IAM_CLIENT',
         client,

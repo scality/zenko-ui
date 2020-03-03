@@ -27,6 +27,11 @@ const Title = styled.div`
   justify-content: space-between;
 `;
 
+const TdActions = styled.td`
+  display: flex;
+  justify-content: center;
+`;
+
 type DispatchProps = {
     listUsers: () => void,
     createAccessKey: (userName: string) => void,
@@ -87,14 +92,14 @@ class UserInformation extends React.Component<Props>{
                                         <td> {a.Status} </td>
                                         <td> {a.AccessKeyId} </td>
                                         <td> {formatDate(a.CreateDate)} </td>
-                                        <td>
-                                            <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
+                                        <TdActions>
+                                            {this.props.displayedUser.UserName === 'ai' && <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>}
                                             <ShowSecretKeyButton
                                                 keys={a}
                                                 secretKey={this.props.secrets.get(a.AccessKeyId)}
                                                 deleteSecret={this.props.deleteSecret}
                                             />
-                                        </td>
+                                        </TdActions>
                                     </tr>)
                             }
                         </tbody>

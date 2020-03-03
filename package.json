@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:lint": "eslint --ext js --ext jsx src",
-    "start": "webpack-dev-server --port 8383 --mode development --open --content-base dist",
+    "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production"
   },
   "keywords": [],
