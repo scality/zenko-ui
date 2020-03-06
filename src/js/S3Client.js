@@ -12,6 +12,13 @@ export default class S3Client {
     }
 
     listBuckets() {
-        return this.client.listBuckets().promise();
+        // CORS error to aws s3
+        // return this.client.listBuckets().promise();
+        return new Promise(resolve => {
+            return resolve({Buckets: [
+                { Name: 'scalitybucketoregon'},
+                { Name: 'scalitybucketireland6'},
+            ]});
+        });
     }
 }

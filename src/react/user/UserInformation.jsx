@@ -29,7 +29,10 @@ const Title = styled.div`
 
 const TdActions = styled.td`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  button {
+      margin-left:5px;
+  }
 `;
 
 type DispatchProps = {
@@ -84,7 +87,7 @@ class UserInformation extends React.Component<Props>{
                                 <th> Status </th>
                                 <th> Access Key </th>
                                 <th> Create On</th>
-                                <th> Actions </th>
+                                <th> </th>
                             </tr>
                             {
                                 this.props.accessKeyList.map(a =>
@@ -93,12 +96,12 @@ class UserInformation extends React.Component<Props>{
                                         <td> {a.AccessKeyId} </td>
                                         <td> {formatDate(a.CreateDate)} </td>
                                         <TdActions>
-                                            {this.props.displayedUser.UserName === 'ai' && <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>}
                                             <ShowSecretKeyButton
                                                 keys={a}
                                                 secretKey={this.props.secrets.get(a.AccessKeyId)}
                                                 deleteSecret={this.props.deleteSecret}
                                             />
+                                            <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
                                         </TdActions>
                                     </tr>)
                             }

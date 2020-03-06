@@ -22,6 +22,7 @@ class ZenkoUI extends React.Component {
         // TODO: move them to a gobal action
         this.props.dispatch(initIamClient());
         this.props.dispatch(initS3Client());
+        this.props.dispatch(listBuckets());
     }
 
     render(){
