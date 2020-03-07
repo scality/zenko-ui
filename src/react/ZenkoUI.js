@@ -1,4 +1,5 @@
 import {clearError, initIamClient, initS3Client, listBuckets} from './actions';
+import Activity from './ui-elements/Activity';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import React from 'react';
 import Users from './user/Users';
@@ -34,6 +35,7 @@ class ZenkoUI extends React.Component {
                     close={() => this.props.dispatch(clearError())} >
                     {this.props.errorMessage}
                 </ErrorHandlerModal>
+                <Activity/>
             </Layout>
         );
     }

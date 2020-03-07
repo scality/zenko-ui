@@ -10,10 +10,8 @@ function updateBucketList(list) {
 export function listBuckets(){
     return (dispatch, getState) => {
         const client = getState().s3Client.client;
-        console.log('client!!!', client);
         return client.listBuckets()
             .then(resp => {
-                console.log('resp!!!', resp);
                 dispatch(updateBucketList(resp.Buckets));
             })
             .catch(error => dispatch(handleClientError(error)))
