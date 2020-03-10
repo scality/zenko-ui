@@ -57,7 +57,7 @@ class ShowSecretKeyButton extends React.Component {
         return <div>
             <Modal
                 close={this.close}
-                footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button onClick={this.copySecretToClipboard} size="small" text={this.state.copied ? 'Copied' : 'Copy'}/> <Button onClick={this.close} size="small" text="Close"/> </div>}
+                footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={this.copySecretToClipboard} size="small" text={this.state.copied ? 'Copied' : 'Copy'}/> <Button outlined onClick={this.close} size="small" text="Close"/> </div>}
                 isOpen={this.state.isModal}
                 title="Create New Keys">
                 <div style={{margin: '0px 0px 20px'}}>

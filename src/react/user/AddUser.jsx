@@ -64,7 +64,7 @@ export default class AddUser extends React.Component<Props, State> {
                     id="add-account-btn"
                     onClick={this.show} />
                 <Modal close={this.close}
-                    footer={<div style={{display: 'flex', justifyContent: 'space-between'}}> <Button onClick={this.close} size="small" text="Cancel"/> <Button onClick={this.submit} size="small" text="Add"/> </div>}
+                    footer={<div style={{display: 'flex', justifyContent: 'space-between'}}> <Button outlined onClick={this.close} size="small" text="Cancel"/> <Button outlined onClick={this.submit} size="small" text="Add"/> </div>}
                     isOpen={this.state.showModal}
                     title="Add User">
                     <Input

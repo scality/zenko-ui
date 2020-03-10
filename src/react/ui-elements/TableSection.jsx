@@ -17,7 +17,7 @@ const TableSection = styled.div`
         padding: 5px;
     }
     tr:not(:first-child):hover{
-        background-color: grey;
+        background-color: #000;
     }
     ${({ hide }) => hide && `
         display: none;

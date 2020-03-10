@@ -32,7 +32,7 @@ const UserRightSection = styled.div`
     color: #fff;
 
 
-    background: deepskyblue;
+    background: #111112;
     padding: 10px;
 `;
 
