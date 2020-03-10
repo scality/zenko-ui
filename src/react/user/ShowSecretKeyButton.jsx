@@ -69,7 +69,7 @@ class ShowSecretKeyButton extends React.Component {
                 </div>
             </Modal>
             {
-                this.props.secretKey && <Button size="small" text="Show" onClick={this.showModal}/>
+                this.props.secretKey && <Button outlined size="small" text="Show" onClick={this.showModal}/>
             }
         </div>;
     }

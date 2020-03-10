@@ -1,9 +1,9 @@
 // @noflow
 
 import { Button, Tabs } from '@scality/core-ui';
+import React from 'react';
 import UserBuckets from './UserBuckets';
 import UserInformation from './UserInformation';
-import React from 'react';
 import styled from 'styled-components';
 
 const Head = styled.div`
@@ -91,7 +91,7 @@ class UserDisplay extends React.Component {
                 <UserInfo>
                     <div className='username'> {user.UserName} </div>
                     <div className='arn'> {user.Arn} </div>
-                    <Button className='connect-as' size="small" text="Connect as"> </Button>
+                    <Button outlined className='connect-as' size="small" text="Connect as"> </Button>
                 </UserInfo>
             </Head>
             <Content>

@@ -77,7 +77,7 @@ class UserInformation extends React.Component<Props>{
                     </div>
                     {
                         !!this.props.displayedUser.UserName &&
-                        <Button size="small" text="Create Key" onClick={this.createKey}/>
+                        <Button outlined size="small" text="Create Key" onClick={this.createKey}/>
                     }
                 </Title>
                 <TableSection hide={this.props.accessKeyList.length === 0}>
@@ -101,7 +101,7 @@ class UserInformation extends React.Component<Props>{
                                                 secretKey={this.props.secrets.get(a.AccessKeyId)}
                                                 deleteSecret={this.props.deleteSecret}
                                             />
-                                            <Button size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
+                                            <Button outlined size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
                                         </TdActions>
                                     </tr>)
                             }

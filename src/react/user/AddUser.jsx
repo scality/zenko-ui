@@ -60,7 +60,7 @@ export default class AddUser extends React.Component<Props, State> {
     render() {
         return (
             <div className="list-group-item flex-row-reverse">
-                <Button size="default" text="Add" type="submit"
+                <Button outlined size="default" text="Add" type="submit"
                     id="add-account-btn"
                     onClick={this.show} />
                 <Modal close={this.close}

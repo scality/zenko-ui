@@ -1,18 +1,40 @@
 import {clearError, initIamClient, initS3Client, listBuckets} from './actions';
+import {
+    jade,
+    turquoise,
+    yellowOrange,
+    warmRed,
+    white,
+} from '@scality/core-ui/src/lib/style/theme';
 import Activity from './ui-elements/Activity';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import React from 'react';
-import Users from './user/Users';
+import Routes from './Routes';
+import { ThemeProvider } from 'styled-components';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
 
-const Layout = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  overflow: scroll;
-  background-color: #0c0c0d;
-`;
+
+const theme = {
+    name: "Dark Theme",
+    brand: {
+        // Navbar
+        base: '#19161D',
+        baseContrast1: '#26232A',
+        // App
+        // primary: "#111112",
+        primary: white,
+        secondary: white,
+        success: jade,
+        info: turquoise,
+        warning: yellowOrange,
+        danger: warmRed,
+        background: '#26232A',
+        backgroundContrast1: '#161617',
+        backgroundContrast2: '#08080A',
+        text: white,
+        border: white,
+    },
+};
 
 class ZenkoUI extends React.Component {
     constructor(props){
@@ -28,15 +50,17 @@ class ZenkoUI extends React.Component {
 
     render(){
         return (
-            <Layout>
-                { this.props.isLoaded && <Users /> }
-                <ErrorHandlerModal
-                    show={this.props.showError}
-                    close={() => this.props.dispatch(clearError())} >
-                    {this.props.errorMessage}
-                </ErrorHandlerModal>
-                <Activity/>
-            </Layout>
+            <ThemeProvider theme={theme}>
+                <div>
+                    { this.props.isLoaded && <Routes/> }
+                    <ErrorHandlerModal
+                        show={this.props.showError}
+                        close={() => this.props.dispatch(clearError())} >
+                        {this.props.errorMessage}
+                    </ErrorHandlerModal>
+                    <Activity/>
+                </div>
+            </ThemeProvider>
         );
     }
 }
