@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const TableSection = styled.div`
+const TableContainer = styled.div`
     display: flex;
     margin-top: 20px;
     font-size: 15px;
@@ -24,4 +24,4 @@ const TableSection = styled.div`
     `}
 `;
 
-export default TableSection;
+export default TableContainer;

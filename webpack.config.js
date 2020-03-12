@@ -51,5 +51,14 @@ module.exports = {
         port: 8383,
         open: true,
         historyApiFallback: true,
+        proxy: {
+            '/s3': {
+                target: 'http://127.0.0.1:8381',
+                pathRewrite: {'^/s3' : ''},
+                bypass: function(req) {
+                    req.headers.proxy_path = req.path;
+                },
+            },
+        },
     },
 };

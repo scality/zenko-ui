@@ -12,6 +12,8 @@ export function listBuckets(){
         const client = getState().s3Client.client;
         return client.listBuckets()
             .then(resp => {
+                const buckets = resp.Buckets;
+                
                 dispatch(updateBucketList(resp.Buckets));
             })
             .catch(error => dispatch(handleClientError(error)))

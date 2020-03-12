@@ -1,6 +1,6 @@
 // @noflow
 import React from 'react';
-import TableSection from '../ui-elements/TableSection';
+import TableContainer from '../ui-elements/TableContainer';
 import {formatDate} from '../utils';
 import styled from 'styled-components';
 
@@ -17,7 +17,7 @@ export default class UserList extends React.Component {
     }
     render() {
         return (
-            <TableSection>
+            <TableContainer>
                 <table>
                     <tbody>
                         <tr>
@@ -33,7 +33,7 @@ export default class UserList extends React.Component {
                         }
                     </tbody>
                 </table>
-            </TableSection>
+            </TableContainer>
         );
     }
 }

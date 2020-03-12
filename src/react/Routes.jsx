@@ -1,4 +1,5 @@
 import { Link, Route } from 'react-router-dom';
+import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
@@ -11,6 +12,8 @@ const Layout = styled.div`
   width: 100%;
   height: 100vh;
   overflow: scroll;
+
+  color: #fff;
   background-color: #0c0c0d;
   flex-direction:column;
 `;
@@ -49,11 +52,16 @@ class Routes extends React.Component{
                             link: <Link to="/users">Users</Link>,
                             selected: isSelected(location, '/users'),
                         },
+                        {
+                            link: <Link to="/databrowser">Data Browser</Link>,
+                            selected: isSelected(location, '/databrowser'),
+                        },
                     ]}
                 />
             </NavbarContainer>
             <Route path="/users" component={Users} />
             <Route path="/groups" component={Groups} />
+            <Route path="/databrowser" component={DataBrowser} />
         </Layout>;
     }
 }

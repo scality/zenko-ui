@@ -19,7 +19,6 @@ const UsersContainer = styled.div`
 const UserLeftSection = styled.div`
     flex: 0 0 450px;
     flex-direction: column;
-    color: #fff;
 
     padding: 10px;
     background: #111112;
@@ -29,8 +28,6 @@ const UserRightSection = styled.div`
     display: flex;
     flex: 0 1 calc(100vw - 450px);
     flex-direction: column;
-    color: #fff;
-
 
     background: #111112;
     padding: 10px;

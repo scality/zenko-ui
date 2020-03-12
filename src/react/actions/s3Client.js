@@ -1,5 +1,7 @@
+//@noflow
+
 import S3Client from '../../js/S3Client';
-import creds from '../../../creds';
+// import creds from '../../../creds';
 
 export function createS3Client(client) {
     return {
@@ -9,10 +11,10 @@ export function createS3Client(client) {
 }
 
 export function initS3Client(){
-    return (dispatch: DispatchFunction) => {
+    return (dispatch) => {
         const client = new S3Client({
-            accessKey: creds.accessKey,
-            secretKey: creds.secretKey,
+            accessKey: 'accessKey1',
+            secretKey: 'verySecretKey1',
         });
         dispatch(createS3Client(client));
     };

@@ -4,7 +4,7 @@ import { createAccessKey, deleteAccessKey, deleteSecret } from '../actions';
 import { Button } from '@scality/core-ui';
 import React from 'react';
 import ShowSecretKeyButton from './ShowSecretKeyButton';
-import TableSection from '../ui-elements/TableSection';
+import TableContainer from '../ui-elements/TableContainer';
 import type { User } from '../../types/user';
 import { connect } from 'react-redux';
 import {formatDate} from '../utils';
@@ -80,7 +80,7 @@ class UserInformation extends React.Component<Props>{
                         <Button outlined size="small" text="Create Key" onClick={this.createKey}/>
                     }
                 </Title>
-                <TableSection hide={this.props.accessKeyList.length === 0}>
+                <TableContainer hide={this.props.accessKeyList.length === 0}>
                     <table>
                         <tbody>
                             <tr>
@@ -107,11 +107,11 @@ class UserInformation extends React.Component<Props>{
                             }
                         </tbody>
                     </table>
-                </TableSection>
+                </TableContainer>
             </TableWrapper>
             <TableWrapper>
                 <Title> User Policies ({this.props.attachedPoliciesList.length})</Title>
-                <TableSection hide={this.props.attachedPoliciesList.length === 0}>
+                <TableContainer hide={this.props.attachedPoliciesList.length === 0}>
                     <table>
                         <tbody>
                             <tr>
@@ -127,11 +127,11 @@ class UserInformation extends React.Component<Props>{
                             }
                         </tbody>
                     </table>
-                </TableSection>
+                </TableContainer>
             </TableWrapper>
             <TableWrapper>
                 <Title> Linked Groups ({this.props.groupList.length})</Title>
-                <TableSection hide={this.props.groupList.length === 0}>
+                <TableContainer hide={this.props.groupList.length === 0}>
                     <table>
                         <tbody>
                             <tr>
@@ -153,7 +153,7 @@ class UserInformation extends React.Component<Props>{
                             }
                         </tbody>
                     </table>
-                </TableSection>
+                </TableContainer>
             </TableWrapper>
         </Wrapper>;
     }
