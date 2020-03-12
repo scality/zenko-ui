@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk';
+const async = require('async');
 
 export default class S3Client {
     constructor(creds) {
@@ -22,8 +23,25 @@ export default class S3Client {
         // });
     }
 
-    getBucketLocation(bucketName) {
-        return this.client.getBucketLocation({ Bucket: bucketName }).promise();
+    listBucketsWithLocation() {
+        return new Promise((resolve, reject) => {
+            this.client.listBuckets((error, list) => {
+                if (error) {
+                    return reject(error);
+                }
+                return async.eachOf(list.Buckets, (bucket, key, cb) => {
+                    return this.client.getBucketLocation({ Bucket: bucket.Name },
+                        (error, data) => {
+                            if (error) {
+                                return cb(error);
+                            }
+                            list.Buckets[key].LocationConstraint =
+                            data.LocationConstraint;
+                            return cb(null);
+                        });
+                }, err => err ? reject(error) : resolve(list));
+            });
+        });
     }
 
 }
