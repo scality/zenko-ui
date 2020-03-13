@@ -1,4 +1,4 @@
-import {clearError, initIamClient, initS3Client, listBuckets} from './actions';
+import {clearError, initIamClient, initPensieveClient, initS3Client, listBuckets} from './actions';
 import {
     jade,
     turquoise,
@@ -43,12 +43,14 @@ class ZenkoUI extends React.Component {
 
     componentDidMount() {
         // TODO: move them to a gobal action
+        this.props.dispatch(initPensieveClient());
         this.props.dispatch(initIamClient());
         this.props.dispatch(initS3Client());
         this.props.dispatch(listBuckets());
     }
 
     render(){
+        console.log('this.props.pensieveClient!!!', this.props.pensieveClient);
         return (
             <ThemeProvider theme={theme}>
                 <div>

@@ -13,8 +13,8 @@ export function createS3Client(client) {
 export function initS3Client(){
     return (dispatch) => {
         const client = new S3Client({
-            accessKey: 'accessKey1',
-            secretKey: 'verySecretKey1',
+            accessKey: 'TM2IJ7SQJ45VIMRWV14W',
+            secretKey: '4xqazjiGUIh0LOXFk1LH1TBVES8ZLezkV31MvwMc',
         });
         dispatch(createS3Client(client));
     };

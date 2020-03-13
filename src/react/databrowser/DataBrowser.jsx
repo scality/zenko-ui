@@ -1,3 +1,4 @@
+import { ProgressBar } from '@scality/core-ui';
 import React from 'react';
 import TableContainer from '../ui-elements/TableContainer';
 import { connect } from 'react-redux';
@@ -14,7 +15,7 @@ const Head = styled.div`
   color: #fff;
   margin: 10px;
   border-radius: 5px;
-  height: 110px;
+  height: 130px;
   background: repeating-radial-gradient(
     circle at 5% 5%,
     #212127,
@@ -30,10 +31,23 @@ const HeadLeft = styled.div`
   text-align: center;
 
 
-  width: 110px;
+  width: 130px;
   background-color: #00000069;
   .number{
       font-size: 4em;
+      margin-top:10px;
+  }
+`;
+
+const HeadSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  text-align: center;
+
+  .title {
+      font-size: 14px;
+      margin: 10px 0px;
   }
 `;
 
@@ -48,15 +62,28 @@ const BucketSection = styled.div`
 
 class DataBrowser extends React.Component{
     render() {
+        const { bucketList, stats } = this.props;
         return <DataBrowserContainer>
             <Head>
 
                 <HeadLeft>
 
-                    <div className='number'> {this.props.bucketList.length} </div>
-                    <div> bucket{this.props.bucketList.length > 1 && 's'} </div>
+                    <div className='number'> {bucketList.length} </div>
+                    <div> bucket{bucketList.length > 1 && 's'} </div>
 
                 </HeadLeft>
+
+                <HeadSection>
+                    <div className="title"> ACCOUNT CONSUMPTION </div>
+                    <ProgressBar
+                        bottomLeftLabel="50GB Used"
+                        bottomRightLabel="50GB Free"
+                        percentage={50}
+                        size="smaller"
+                        topLeftLabel="50%"
+                        topRightLabel="100GB Total"
+                    />
+                </HeadSection>
 
             </Head>
 
@@ -87,6 +114,7 @@ class DataBrowser extends React.Component{
 function mapStateToProps(state) {
     return {
         bucketList: state.bucket.list,
+        stats: state.stats.allStats,
     };
 }
 
