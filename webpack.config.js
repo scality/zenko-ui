@@ -59,6 +59,13 @@ module.exports = {
                     req.headers.proxy_path = req.path;
                 },
             },
+            '/iam': {
+                target: 'http://127.0.0.1:8600',
+                pathRewrite: {'^/iam' : ''},
+                bypass: function(req) {
+                    req.headers.proxy_path = req.path;
+                },
+            },
         },
     },
 };

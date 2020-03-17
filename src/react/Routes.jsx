@@ -4,6 +4,7 @@ import Groups from './group/Groups';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
 import Users from './user/Users';
+import Workflows from './workflow/Workflows';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
@@ -56,12 +57,17 @@ class Routes extends React.Component{
                             link: <Link to="/databrowser">Data Browser</Link>,
                             selected: isSelected(location, '/databrowser'),
                         },
+                        {
+                            link: <Link to="/workflow">Data Workflow</Link>,
+                            selected: isSelected(location, '/workflow'),
+                        },
                     ]}
                 />
             </NavbarContainer>
             <Route path="/users" component={Users} />
             <Route path="/groups" component={Groups} />
             <Route path="/databrowser" component={DataBrowser} />
+            <Route path="/workflow" component={Workflows} />
         </Layout>;
     }
 }

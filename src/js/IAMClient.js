@@ -3,7 +3,8 @@ import AWS from 'aws-sdk';
 export default class IAMClient {
     constructor(creds) {
         this.client = new AWS.IAM({
-            endpoint: 'https://iam.amazonaws.com',
+            // endpoint: 'https://iam.amazonaws.com',
+            endpoint: 'http://127.0.0.1:8383/iam',
             accessKeyId: creds.accessKey,
             secretAccessKey: creds.secretKey,
             region: 'us-east-1',
