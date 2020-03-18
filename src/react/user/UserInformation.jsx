@@ -1,6 +1,6 @@
 // @noflow
 
-import { createAccessKey, deleteAccessKey, deleteSecret } from '../actions';
+import { closeSecretDialog, createAccessKey, deleteAccessKey, deleteSecret, openSecretDialog } from '../actions';
 import { Button } from '@scality/core-ui';
 import React from 'react';
 import ShowSecretKeyButton from './ShowSecretKeyButton';
@@ -97,6 +97,9 @@ class UserInformation extends React.Component<Props>{
                                                 keys={a}
                                                 secretKey={this.props.secrets.get(a.AccessKeyId)}
                                                 deleteSecret={this.props.deleteSecret}
+                                                openSecretDialog={this.props.openSecretDialog}
+                                                closeSecretDialog={this.props.closeSecretDialog}
+                                                secretShown={a.AccessKeyId === this.props.showSecret}
                                             />
                                             <Button outlined size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
                                         </TdActions>
@@ -164,6 +167,7 @@ function mapStateToProps(state){
         attachedPoliciesList: state.user.attachedPoliciesList,
         groupList: state.user.groupList,
         secrets: state.secrets,
+        showSecret: state.uiUser.showSecret,
     };
 }
 
@@ -172,6 +176,8 @@ function mapDispatchToProps(dispatch){
         createAccessKey: userName => dispatch(createAccessKey(userName)),
         deleteAccessKey: (accessKey, userName) => dispatch(deleteAccessKey(accessKey, userName)),
         deleteSecret: accessKey => dispatch(deleteSecret(accessKey)),
+        openSecretDialog: keyName => dispatch(openSecretDialog(keyName)),
+        closeSecretDialog: () => dispatch(closeSecretDialog()),
     };
 }
 

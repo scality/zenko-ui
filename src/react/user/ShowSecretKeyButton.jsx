@@ -20,27 +20,16 @@ class ShowSecretKeyButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isModal: false,
             copied: false,
         };
     }
-    showModal = e => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState({
-            isModal: true,
-        });
-    };
 
     close = e => {
         if (e) {
             e.preventDefault();
         }
         this.props.deleteSecret(this.props.keys.AccessKeyId);
-        this.setState({
-            isModal: false,
-        });
+        this.props.closeSecretDialog()
     };
 
     copySecretToClipboard = e => {
@@ -53,23 +42,32 @@ class ShowSecretKeyButton extends React.Component {
             e.preventDefault();
         }
     }
+
+    openModal = e => {
+        if (e) {
+            e.preventDefault();
+        }
+        this.props.openSecretDialog(this.props.keys.AccessKeyId)
+    }
     render() {
         return <div>
-            <Modal
-                close={this.close}
-                footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={this.copySecretToClipboard} size="small" text={this.state.copied ? 'Copied' : 'Copy'}/> <Button outlined onClick={this.close} size="small" text="Close"/> </div>}
-                isOpen={this.state.isModal}
-                title="Create New Keys">
-                <div style={{margin: '0px 0px 20px'}}>
-                    <div>Secret Key for {this.props.keys.UserName}</div>
-                    <InputWrapper>
-                        <input type="text" readOnly value={this.props.secretKey} ref={n => this.clipboardInput = n} />
-                    </InputWrapper>
-                    <small>It is shown in cleartext this one time only.</small>
-                </div>
-            </Modal>
             {
-                this.props.secretKey && <Button outlined size="small" text="Show" onClick={this.showModal}/>
+                this.props.secretShown && <Modal
+                    close={this.close}
+                    footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={this.copySecretToClipboard} size="small" text={this.state.copied ? 'Copied' : 'Copy'}/> <Button outlined onClick={this.close} size="small" text="Close"/> </div>}
+                    isOpen={true}
+                    title="Create New Keys">
+                    <div style={{margin: '0px 0px 20px'}}>
+                        <div>Secret Key for {this.props.keys.UserName}</div>
+                        <InputWrapper>
+                            <input type="text" readOnly value={this.props.secretKey} ref={n => this.clipboardInput = n} />
+                        </InputWrapper>
+                        <small>It is shown in cleartext this one time only.</small>
+                    </div>
+                </Modal>
+            }
+            {
+                this.props.secretKey && <Button outlined size="small" text="Show" onClick={this.openModal}/>
             }
         </div>;
     }

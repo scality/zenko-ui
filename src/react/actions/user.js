@@ -50,6 +50,19 @@ export function closeUserDeleteDialog() {
     };
 }
 
+export function openSecretDialog(keyName){
+    return {
+        type: 'OPEN_SECRET_DIALOG',
+        keyName,
+    };
+}
+
+export function closeSecretDialog(){
+    return {
+        type: 'CLOSE_SECRET_DIALOG',
+    };
+}
+
 export function hideUser() {
     return dispatch => {
         dispatch(displayUser({}));
