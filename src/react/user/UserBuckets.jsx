@@ -15,7 +15,6 @@ class UserBuckets extends React.Component{
 }
 
 function mapStateToProps(state){
-    console.log('state!!!', state);
     return {
         buckets: state.bucket.list,
     };

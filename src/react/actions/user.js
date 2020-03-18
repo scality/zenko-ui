@@ -1,6 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { addSecret } from './secrets';
+import { push } from 'connected-react-router'
 
 export function updateUserList(list) {
     return {
@@ -30,10 +31,19 @@ export function updateGroupsForUserList(list){
     };
 }
 
-export function showUser(user) {
+export function displayUser(user) {
     return {
-        type: 'SHOW_USER',
+        type: 'DISPLAY_USER',
         user: user,
+    };
+}
+
+export function hideUser() {
+    return dispatch => {
+        dispatch(displayUser({}));
+        dispatch(updateAccessKeysList([]));
+        dispatch(updateAttachedUserPoliciesList([]));
+        dispatch(updateGroupsForUserList([]));
     };
 }
 
@@ -61,7 +71,8 @@ export function createUser(userName) {
         dispatch(networkStart('Saving user'));
         client.createUser(userName)
             .then(() => {
-                dispatch(listUsers());
+                // dispatch(listUsers());
+                dispatch(push('/users'));
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
@@ -76,6 +87,21 @@ export function deleteAccessKey(accessKey, userName) {
         client.deleteAccessKey(accessKey, userName)
             .then(() => {
                 dispatch(listAccessKeys(userName));
+            })
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function deleteUser(userName) {
+    return (dispatch, getState) => {
+        const client = getState().iamClient.client;
+        dispatch(networkStart('Deleting user'));
+        client.deleteUser(userName)
+            .then(() => {
+                dispatch(listUsers());
+                dispatch(hideUser());
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
@@ -145,7 +171,7 @@ export function getUser(userName) {
         dispatch(networkStart('Retrieving user'));
         client.getUser(userName)
             .then(resp => {
-                dispatch(showUser(resp.User));
+                dispatch(displayUser(resp.User));
                 return resp.User;
             })
             .then(user => {

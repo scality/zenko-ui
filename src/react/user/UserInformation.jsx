@@ -3,6 +3,7 @@
 import { createAccessKey, deleteAccessKey, deleteSecret } from '../actions';
 import { Button } from '@scality/core-ui';
 import React from 'react';
+import Show from '../ui-elements/Show';
 import ShowSecretKeyButton from './ShowSecretKeyButton';
 import TableContainer from '../ui-elements/TableContainer';
 import type { User } from '../../types/user';
@@ -75,10 +76,9 @@ class UserInformation extends React.Component<Props>{
                     <div>
                         User Keys ({this.props.accessKeyList.length})
                     </div>
-                    {
-                        !!this.props.displayedUser.UserName &&
+                    <Show isShown={!!this.props.displayedUser.UserName}>
                         <Button outlined size="small" text="Create Key" onClick={this.createKey}/>
-                    }
+                    </Show>
                 </Title>
                 <TableContainer hide={this.props.accessKeyList.length === 0}>
                     <table>

@@ -1,4 +1,5 @@
 import { Link, Route } from 'react-router-dom';
+import AddUser from './user/AddUser';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
 import { Navbar } from '@scality/core-ui';
@@ -64,7 +65,8 @@ class Routes extends React.Component{
                     ]}
                 />
             </NavbarContainer>
-            <Route path="/users" component={Users} />
+            <Route exact path="/users" component={Users} />
+            <Route path="/users/add" component={AddUser} />
             <Route path="/groups" component={Groups} />
             <Route path="/databrowser" component={DataBrowser} />
             <Route path="/workflow" component={Workflows} />

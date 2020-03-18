@@ -1,9 +1,9 @@
 // @flow
 
-import { createUser, getUser, listAccessKeys, listUsers } from '../actions';
-import AddUser from './AddUser';
+import { createUser, deleteUser, getUser, listUsers } from '../actions';
 import type { AppState } from '../../types/state';
-import type { DispatchAPI } from 'redux';
+import { Button } from '@scality/core-ui';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import type { User } from '../../types/user';
 import UserDisplay from './UserDisplay';
@@ -44,6 +44,7 @@ const ManageUserSection = styled.div`
 type DispatchProps = {
     listUsers: () => void,
     createUser: (userName: string) => void,
+    deleteUser: (userName: string) => void,
 };
 
 type StateProps = {
@@ -64,13 +65,15 @@ class Users extends React.Component<Props>{
             <UsersContainer>
                 <UserLeftSection>
                     <ManageUserSection>
-                        <AddUser createUser={this.props.createUser} />
+                        <Link to="/users/add"><Button outlined size="default" text="Add" type="submit" />
+                        </Link>
                         <UserList getUser={this.props.getUser} userList={this.props.userList}/>
                     </ManageUserSection>
                 </UserLeftSection>
                 <UserRightSection>
                     <UserDisplay
                         displayedUser={this.props.displayedUser}
+                        deleteUser={this.props.deleteUser}
                     />
                 </UserRightSection>
             </UsersContainer>
@@ -89,6 +92,7 @@ function mapStateToProps(state: AppState): StateProps{
 
 function mapDispatchToProps(dispatch): DispatchProps{
     return {
+        deleteUser: (userName: string) => dispatch(deleteUser(userName)),
         listUsers: () => dispatch(listUsers()),
         createUser: (userName: string) => dispatch(createUser(userName)),
         getUser: (userName: string) => dispatch(getUser(userName)),

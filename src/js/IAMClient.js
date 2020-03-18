@@ -30,6 +30,12 @@ export default class IAMClient {
         }).promise();
     }
 
+    deleteUser(userName) {
+        return this.client.deleteUser({
+            UserName: userName,
+        }).promise();
+    }
+
     getUser(userName) {
         return this.client.getUser({
             UserName: userName,

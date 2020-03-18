@@ -20,7 +20,7 @@ export default function user(state = { list: [], displayedUser: {}, accessKeyLis
             ...state,
             groupList: action.list,
         };
-    case 'SHOW_USER':
+    case 'DISPLAY_USER':
         return {
             ...state,
             displayedUser: action.user,

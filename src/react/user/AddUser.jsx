@@ -1,7 +1,48 @@
 // @flow
-
-import { Button, Input, Modal } from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui';
 import React from 'react';
+import { connect } from 'react-redux';
+import { createUser } from '../actions';
+import { push } from 'connected-react-router'
+import styled from 'styled-components';
+
+const Container = styled.div`
+
+    display: flex;
+    flex-direction: column;
+
+    max-width: 600px;
+    margin: 10px;
+    padding: 20px;
+    background-color: #1c1c20;
+    border-radius: 5px;
+    text-transform: uppercase;
+
+    .title {
+        display: flex;
+        margin-bottom: 60px;
+        font-size: 19px;
+    }
+    .input{
+        display: flex;
+        align-items: baseline;
+        input{
+            margin-left: 50px;
+            width: 300px;
+        }
+    }
+    .footer {
+      display: flex;
+      justify-content: flex-end;
+
+      text-transform: lowercase;
+      margin-top: 60px;
+
+      button{
+          margin-left: 5px;
+      }
+    }
+`;
 // import styled from 'styled-components';
 
 type Props = {
@@ -10,15 +51,13 @@ type Props = {
 
 type State = {
     userName: string,
-    showModal: boolean,
 };
 
-export default class AddUser extends React.Component<Props, State> {
+class AddUser extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
             userName: '',
-            showModal: false,
         };
     }
 
@@ -27,7 +66,7 @@ export default class AddUser extends React.Component<Props, State> {
             e.preventDefault();
         }
         this.props.createUser(this.state.userName);
-        this.setState({ userName: '', showModal: false });
+        this.setState({ userName: ''});
     }
 
     handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
@@ -39,43 +78,42 @@ export default class AddUser extends React.Component<Props, State> {
         });
     }
 
-    close = (e: SyntheticInputEvent<HTMLInputElement>) => {
+    redirect = (e: SyntheticInputEvent<HTMLInputElement>) => {
         if (e) {
             e.preventDefault();
         }
-        this.setState({
-            showModal: false,
-        });
-    }
-
-    show = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState({
-            showModal: true,
-        });
+        this.props.redirect();
     }
 
     render() {
+        console.log('adduser!!!');
         return (
-            <div className="list-group-item flex-row-reverse">
-                <Button outlined size="default" text="Add" type="submit"
-                    id="add-account-btn"
-                    onClick={this.show} />
-                <Modal close={this.close}
-                    footer={<div style={{display: 'flex', justifyContent: 'space-between'}}> <Button outlined onClick={this.close} size="small" text="Cancel"/> <Button outlined onClick={this.submit} size="small" text="Add"/> </div>}
-                    isOpen={this.state.showModal}
-                    title="Add User">
+            <Container>
+                <div className='title'> create new user </div>
+                <div className='input'>
+                    <div className='name'> name: </div>
                     <Input
-                        type="text"
-                        name="userName"
-                        placeholder="User Name"
+                        type='text'
+                        name='userName'
+                        placeholder='User Name'
                         onChange={this.handleChange}
                         value={this.state.userName}
-                        autoComplete="off" />
-                </Modal>
-            </div>
+                        autoComplete='off' />
+                </div>
+                <div className='footer'>
+                    <Button outlined onClick={this.redirect} size='small' text='Cancel'/>
+                    <Button outlined onClick={this.submit} size='small' text='Add'/>
+                </div>
+            </Container>
         );
     }
 }
+
+function mapDispatchToProps(dispatch): DispatchProps{
+    return {
+        createUser: (userName: string) => dispatch(createUser(userName)),
+        redirect: () => dispatch(push('/users')),
+    };
+}
+
+export default connect<any, any, any, any, any, any>(null, mapDispatchToProps)(AddUser);

@@ -1,7 +1,9 @@
 // @noflow
 
 import { Button, Tabs } from '@scality/core-ui';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import React from 'react';
+import Show from '../ui-elements/Show';
 import UserBuckets from './UserBuckets';
 import UserInformation from './UserInformation';
 import styled from 'styled-components';
@@ -9,6 +11,7 @@ import styled from 'styled-components';
 const Head = styled.div`
   display: flex;
 
+  height: 100px;
   border-radius: 5px;
   padding: 15px;
   background: repeating-radial-gradient(
@@ -45,20 +48,19 @@ const Picture = styled.div`
 
 const UserInfo = styled.div`
   display: flex;
-  flow-direction: row;
   flex-wrap: wrap;
 
   height: 100px;
+  width: calc(80% - 10px);
   margin-left: 20px;
   align-items: baseline;
+  justify-content: space-between;
+
   .username{
     font-size: 25px;
   }
   .arn{
     font-size: 20px;
-    margin-left: 10px;
-  }
-  .connect-as{
     margin-left: 10px;
   }
 `;
@@ -87,12 +89,13 @@ class UserDisplay extends React.Component {
         const user = this.props.displayedUser;
         return <div>
             <Head>
-                <Picture> </Picture>
-                <UserInfo>
-                    <div className='username'> {user.UserName} </div>
-                    <div className='arn'> {user.Arn} </div>
-                    <Button outlined className='connect-as' size="small" text="Connect as"> </Button>
-                </UserInfo>
+                <Show isShown={!!user.UserName}>
+                    <Picture> </Picture>
+                    <UserInfo>
+                        <div className='username'> {user.UserName} </div>
+                        <DeleteConfirmation delete={() => this.props.deleteUser(this.props.displayedUser.UserName)} buttonText="Delete user" titleText={`Are you sure you want to delete user: ${user.UserName} ?`}/>
+                    </UserInfo>
+                </Show>
             </Head>
             <Content>
                 <Tabs

@@ -50,7 +50,6 @@ class ZenkoUI extends React.Component {
     }
 
     render(){
-        console.log('this.props.pensieveClient!!!', this.props.pensieveClient);
         return (
             <ThemeProvider theme={theme}>
                 <div>
