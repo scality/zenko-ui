@@ -1,14 +1,14 @@
 // @flow
 
-import { createUser, deleteUser, getUser, listUsers } from '../actions';
+import { closeUserDeleteDialog, createUser, deleteUser, getUser, listUsers, openUserDeleteDialog } from '../actions';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
-import { Link } from 'react-router-dom';
 import React from 'react';
 import type { User } from '../../types/user';
 import UserDisplay from './UserDisplay';
 import UserList from './UserList';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const UsersContainer = styled.div`
@@ -45,6 +45,7 @@ type DispatchProps = {
     listUsers: () => void,
     createUser: (userName: string) => void,
     deleteUser: (userName: string) => void,
+    redirect: (path: string) => void,
 };
 
 type StateProps = {
@@ -60,13 +61,20 @@ class Users extends React.Component<Props>{
         this.props.listUsers();
     }
 
+    redirect = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        if (e) {
+            e.preventDefault();
+        }
+        console.log('this.props!!!', this.props);
+        return this.props.redirect('/users/create');
+    }
+
     render() {
         return (
             <UsersContainer>
                 <UserLeftSection>
                     <ManageUserSection>
-                        <Link to="/users/add"><Button outlined size="default" text="Add" type="submit" />
-                        </Link>
+                        <Button outlined onClick={this.redirect} size="default" text="Add" type="submit" />
                         <UserList getUser={this.props.getUser} userList={this.props.userList}/>
                     </ManageUserSection>
                 </UserLeftSection>
@@ -74,6 +82,9 @@ class Users extends React.Component<Props>{
                     <UserDisplay
                         displayedUser={this.props.displayedUser}
                         deleteUser={this.props.deleteUser}
+                        openUserDeleteDialog={this.props.openUserDeleteDialog}
+                        closeUserDeleteDialog={this.props.closeUserDeleteDialog}
+                        showDelete={this.props.showDelete}
                     />
                 </UserRightSection>
             </UsersContainer>
@@ -87,6 +98,7 @@ function mapStateToProps(state: AppState): StateProps{
         userList: state.user.list,
         displayedUser: state.user.displayedUser,
         attachedPoliciesList: state.user.attachedPoliciesList,
+        showDelete: state.uiUser.showDelete,
     };
 }
 
@@ -96,6 +108,9 @@ function mapDispatchToProps(dispatch): DispatchProps{
         listUsers: () => dispatch(listUsers()),
         createUser: (userName: string) => dispatch(createUser(userName)),
         getUser: (userName: string) => dispatch(getUser(userName)),
+        openUserDeleteDialog: () => dispatch(openUserDeleteDialog()),
+        closeUserDeleteDialog: () => dispatch(closeUserDeleteDialog()),
+        redirect: (path: string) => dispatch(push(path)),
     };
 }
 

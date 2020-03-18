@@ -2,8 +2,8 @@
 
 import { Button, Tabs } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import Hide from '../ui-elements/Hide';
 import React from 'react';
-import Show from '../ui-elements/Show';
 import UserBuckets from './UserBuckets';
 import UserInformation from './UserInformation';
 import styled from 'styled-components';
@@ -73,7 +73,7 @@ class UserDisplay extends React.Component {
         };
     }
 
-    setTab(e, tab){
+    setTab = (e, tab) => {
         if (e) {
             e.preventDefault();
         }
@@ -82,44 +82,56 @@ class UserDisplay extends React.Component {
         });
     }
 
-    isSelected(tab){
+    isSelected = tab => {
         return tab === this.state.tab;
     }
+
+    deleteDialog = () => {
+        if (!this.props.showDelete) {
+            return null;
+        }
+        return <DeleteConfirmation cancel={this.props.closeUserDeleteDialog} approve={() => this.props.deleteUser(this.props.displayedUser.UserName)} titleText={`Are you sure you want to delete user: ${this.props.displayedUser.UserName} ?`}/>;
+    }
+
     render() {
         const user = this.props.displayedUser;
         return <div>
+            {this.deleteDialog()}
             <Head>
-                <Show isShown={!!user.UserName}>
+                <Hide isHidden={!user.UserName}>
                     <Picture> </Picture>
                     <UserInfo>
                         <div className='username'> {user.UserName} </div>
-                        <DeleteConfirmation delete={() => this.props.deleteUser(this.props.displayedUser.UserName)} buttonText="Delete user" titleText={`Are you sure you want to delete user: ${user.UserName} ?`}/>
+                        <Button outlined size="small" text='Delete user' type="submit"
+                            onClick={this.props.openUserDeleteDialog} />
                     </UserInfo>
-                </Show>
+                </Hide>
             </Head>
             <Content>
-                <Tabs
-                    items={[
-                        {
-                            onClick: e => this.setTab(e, 0),
-                            selected: this.isSelected(0),
-                            title: 'Information',
-                        },
-                        {
-                            onClick: e => this.setTab(e, 1),
-                            selected: this.isSelected(1),
-                            title: 'Buckets',
-                        },
-                        {
-                            onClick: e => this.setTab(e, 2),
-                            selected: this.isSelected(2),
-                            title: 'Key Metrics',
-                        },
-                    ]}
-                >
-                    {this.state.tab === 0 && <UserInformation/>}
-                    {this.state.tab === 1 && <UserBuckets/>}
-                </Tabs>
+                <Hide isHidden={!user.UserName}>
+                    <Tabs
+                        items={[
+                            {
+                                onClick: e => this.setTab(e, 0),
+                                selected: this.isSelected(0),
+                                title: 'Information',
+                            },
+                            {
+                                onClick: e => this.setTab(e, 1),
+                                selected: this.isSelected(1),
+                                title: 'Buckets',
+                            },
+                            {
+                                onClick: e => this.setTab(e, 2),
+                                selected: this.isSelected(2),
+                                title: 'Key Metrics',
+                            },
+                        ]}
+                    >
+                        {this.state.tab === 0 && <UserInformation/>}
+                        {this.state.tab === 1 && <UserBuckets/>}
+                    </Tabs>
+                </Hide>
             </Content>
         </div>;
     }

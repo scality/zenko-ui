@@ -9,6 +9,7 @@ import s3Client from './s3Client';
 import secrets from './secrets';
 import stats from './stats';
 import uiErrors from './uiErrors';
+import uiUser from './uiUser';
 import user from './user';
 
 const zenkoUIReducer = history => combineReducers({
@@ -18,6 +19,7 @@ const zenkoUIReducer = history => combineReducers({
     iamClient,
     networkActivity,
     uiErrors,
+    uiUser,
     pensieveClient,
     s3Client,
     secrets,

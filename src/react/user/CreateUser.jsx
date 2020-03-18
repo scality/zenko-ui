@@ -3,7 +3,7 @@ import { Button, Input } from '@scality/core-ui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { createUser } from '../actions';
-import { push } from 'connected-react-router'
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -47,13 +47,14 @@ const Container = styled.div`
 
 type Props = {
     createUser: (userName: string) => void,
+    redirect: (path: string) => void,
 };
 
 type State = {
     userName: string,
 };
 
-class AddUser extends React.Component<Props, State> {
+class CreateUser extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -82,11 +83,10 @@ class AddUser extends React.Component<Props, State> {
         if (e) {
             e.preventDefault();
         }
-        this.props.redirect();
+        this.props.redirect('/users');
     }
 
     render() {
-        console.log('adduser!!!');
         return (
             <Container>
                 <div className='title'> create new user </div>
@@ -101,8 +101,8 @@ class AddUser extends React.Component<Props, State> {
                         autoComplete='off' />
                 </div>
                 <div className='footer'>
-                    <Button outlined onClick={this.redirect} size='small' text='Cancel'/>
-                    <Button outlined onClick={this.submit} size='small' text='Add'/>
+                    <Button outlined onClick={this.redirect} text='Cancel'/>
+                    <Button outlined onClick={this.submit} text='Add'/>
                 </div>
             </Container>
         );
@@ -112,8 +112,8 @@ class AddUser extends React.Component<Props, State> {
 function mapDispatchToProps(dispatch): DispatchProps{
     return {
         createUser: (userName: string) => dispatch(createUser(userName)),
-        redirect: () => dispatch(push('/users')),
+        redirect: (path: string) => dispatch(push(path)),
     };
 }
 
-export default connect<any, any, any, any, any, any>(null, mapDispatchToProps)(AddUser);
+export default connect<any, any, any, any, any, any>(null, mapDispatchToProps)(CreateUser);

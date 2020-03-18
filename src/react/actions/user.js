@@ -1,7 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { addSecret } from './secrets';
-import { push } from 'connected-react-router'
+import { push } from 'connected-react-router';
 
 export function updateUserList(list) {
     return {
@@ -35,6 +35,18 @@ export function displayUser(user) {
     return {
         type: 'DISPLAY_USER',
         user: user,
+    };
+}
+
+export function openUserDeleteDialog() {
+    return {
+        type: 'OPEN_USER_DELETE_DIALOG',
+    };
+}
+
+export function closeUserDeleteDialog() {
+    return {
+        type: 'CLOSE_USER_DELETE_DIALOG',
     };
 }
 
@@ -102,6 +114,7 @@ export function deleteUser(userName) {
             .then(() => {
                 dispatch(listUsers());
                 dispatch(hideUser());
+                dispatch(closeUserDeleteDialog());
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
