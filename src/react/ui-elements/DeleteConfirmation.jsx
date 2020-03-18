@@ -8,6 +8,9 @@ const ModalContainer = styled.div`
     .sc-modal-footer{
       display: flex;
       justify-content: flex-end;
+      button{
+          margin-left: 5px;
+      }
     }
 `;
 

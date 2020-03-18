@@ -1,5 +1,5 @@
 
-export default function uiUser(state = { showDelete: false, showSecret: null }, action) {
+export default function uiUser(state = { showDelete: false, showSecret: null, showDeleteKey: null }, action) {
     switch (action.type) {
     case 'OPEN_USER_DELETE_DIALOG':
         return {
@@ -11,10 +11,21 @@ export default function uiUser(state = { showDelete: false, showSecret: null }, 
             ...state,
             showDelete: false,
         };
+
+    case 'OPEN_KEY_DELETE_DIALOG':
+        return {
+            ...state,
+            showDeleteKey: action.accessKey,
+        };
+    case 'CLOSE_KEY_DELETE_DIALOG':
+        return {
+            ...state,
+            showDeleteKey: null,
+        };
     case 'OPEN_SECRET_DIALOG':
         return {
             ...state,
-            showSecret: action.keyName,
+            showSecret: action.accessKey,
         };
     case 'CLOSE_SECRET_DIALOG':
         return {

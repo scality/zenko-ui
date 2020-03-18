@@ -1,9 +1,9 @@
 // @noflow
 
-import { closeSecretDialog, createAccessKey, deleteAccessKey, deleteSecret, openSecretDialog } from '../actions';
-import { Button } from '@scality/core-ui';
+import { Button, Chips } from '@scality/core-ui';
+import { closeKeyDeleteDialog, closeSecretDialog, createAccessKey, deleteAccessKey, deleteSecret, openKeyDeleteDialog, openSecretDialog } from '../actions';
+import AccessKey from './AccessKey';
 import React from 'react';
-import ShowSecretKeyButton from './ShowSecretKeyButton';
 import TableContainer from '../ui-elements/TableContainer';
 import type { User } from '../../types/user';
 import { connect } from 'react-redux';
@@ -61,13 +61,6 @@ class UserInformation extends React.Component<Props>{
         this.props.createAccessKey(this.props.displayedUser.UserName);
     }
 
-    deleteKey = (e, accessKey) => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.props.deleteAccessKey(accessKey, this.props.displayedUser.UserName);
-    }
-
     render() {
         return <Wrapper>
             <TableWrapper>
@@ -89,19 +82,26 @@ class UserInformation extends React.Component<Props>{
                             {
                                 this.props.accessKeyList.map(a =>
                                     <tr key={a.AccessKeyId}>
-                                        <td> {a.Status} </td>
+                                        <td> <Chips
+                                            text={a.Status}
+                                            variant={a.Status === 'Active' ? 'success' : 'danger' }/>
+                                        </td>
                                         <td> {a.AccessKeyId} </td>
                                         <td> {formatDate(a.CreateDate)} </td>
                                         <TdActions>
-                                            <ShowSecretKeyButton
+                                            <AccessKey
                                                 keys={a}
                                                 secretKey={this.props.secrets.get(a.AccessKeyId)}
                                                 deleteSecret={this.props.deleteSecret}
                                                 openSecretDialog={this.props.openSecretDialog}
                                                 closeSecretDialog={this.props.closeSecretDialog}
                                                 secretShown={a.AccessKeyId === this.props.showSecret}
+
+                                                deleteAccessKey={this.props.deleteAccessKey}
+                                                openKeyDeleteDialog={this.props.openKeyDeleteDialog}
+                                                closeKeyDeleteDialog={this.props.closeKeyDeleteDialog}
+                                                deleteShown={a.AccessKeyId === this.props.showDeleteKey}
                                             />
-                                            <Button outlined size="small" text="Delete" onClick={e => this.deleteKey(e, a.AccessKeyId)}/>
                                         </TdActions>
                                     </tr>)
                             }
@@ -168,6 +168,7 @@ function mapStateToProps(state){
         groupList: state.user.groupList,
         secrets: state.secrets,
         showSecret: state.uiUser.showSecret,
+        showDeleteKey: state.uiUser.showDeleteKey,
     };
 }
 
@@ -178,6 +179,8 @@ function mapDispatchToProps(dispatch){
         deleteSecret: accessKey => dispatch(deleteSecret(accessKey)),
         openSecretDialog: keyName => dispatch(openSecretDialog(keyName)),
         closeSecretDialog: () => dispatch(closeSecretDialog()),
+        openKeyDeleteDialog: accessKey => dispatch(openKeyDeleteDialog(accessKey)),
+        closeKeyDeleteDialog: () => dispatch(closeKeyDeleteDialog()),
     };
 }
 

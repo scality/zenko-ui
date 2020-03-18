@@ -50,10 +50,23 @@ export function closeUserDeleteDialog() {
     };
 }
 
-export function openSecretDialog(keyName){
+export function openKeyDeleteDialog(accessKey) {
+    return {
+        type: 'OPEN_KEY_DELETE_DIALOG',
+        accessKey,
+    };
+}
+
+export function closeKeyDeleteDialog() {
+    return {
+        type: 'CLOSE_KEY_DELETE_DIALOG',
+    };
+}
+
+export function openSecretDialog(accessKey){
     return {
         type: 'OPEN_SECRET_DIALOG',
-        keyName,
+        accessKey,
     };
 }
 

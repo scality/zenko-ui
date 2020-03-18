@@ -43,7 +43,7 @@ const Picture = styled.div`
   display: flex;
   width: 20%;
   height: 100px;
-  background-color: #fff;
+  background-color: transparent;
 `;
 
 const UserInfo = styled.div`
@@ -51,8 +51,9 @@ const UserInfo = styled.div`
   flex-wrap: wrap;
 
   height: 100px;
-  width: calc(80% - 10px);
-  margin-left: 20px;
+  // width: calc(80% - 10px);
+  // margin-left: 20px;
+  width: 100%;
   align-items: baseline;
   justify-content: space-between;
 
@@ -99,7 +100,6 @@ class UserDisplay extends React.Component {
             {this.deleteDialog()}
             <Head>
                 <Hide isHidden={!user.UserName}>
-                    <Picture> </Picture>
                     <UserInfo>
                         <div className='username'> {user.UserName} </div>
                         <Button outlined size="small" text='Delete user' type="submit"
