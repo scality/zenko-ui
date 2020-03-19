@@ -111,6 +111,7 @@ export function createUser(userName) {
             .then(() => {
                 // dispatch(listUsers());
                 dispatch(push('/users'));
+                dispatch(getUser(userName));
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

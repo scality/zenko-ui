@@ -13,8 +13,9 @@ export function createS3Client(client) {
 export function initS3Client(){
     return (dispatch) => {
         const client = new S3Client({
-            accessKey: '4GCO5LBINTODY8XQ9OZK',
-            secretKey: '7I6U/681cVJEiMn=pXr0ml2qLlMchzkVaC23V=ga',
+            // MADEUP KEYS
+            accessKey: 'BX0SXCJ0N8VJAGDVJSYA',
+            secretKey: 'RWUmQUjru0qcidHl+FwF0w=rnxAwX=SB5ngywFfX',
         });
         dispatch(createS3Client(client));
     };

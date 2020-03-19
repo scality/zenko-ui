@@ -72,7 +72,7 @@ class AccessKey extends React.Component {
                     close={this.closeSecretModal}
                     footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={this.copySecretToClipboard} size="small" text={this.state.copied ? 'Copied' : 'Copy'}/> <Button outlined onClick={this.closeSecretModal} size="small" text="Close"/> </div>}
                     isOpen={true}
-                    title="Create New Keys">
+                    title="Copy Secret Key">
                     <div style={{margin: '0px 0px 20px'}}>
                         <div>Secret Key for {this.props.keys.UserName}</div>
                         <InputWrapper>
