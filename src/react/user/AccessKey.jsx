@@ -25,10 +25,7 @@ class AccessKey extends React.Component {
         };
     }
 
-    closeSecretModal = e => {
-        if (e) {
-            e.preventDefault();
-        }
+    closeSecretModal = () => {
         this.props.deleteSecret(this.props.keys.AccessKeyId);
         this.props.closeSecretDialog()
     };
@@ -44,24 +41,15 @@ class AccessKey extends React.Component {
         }
     }
 
-    openSecretModal = e => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.props.openSecretDialog(this.props.keys.AccessKeyId)
+    openSecretModal = () => {
+        this.props.openSecretDialog(this.props.keys.AccessKeyId);
     }
 
-    deleteKey = (e) => {
-        if (e) {
-            e.preventDefault();
-        }
+    deleteKey = () => {
         this.props.deleteAccessKey(this.props.keys.AccessKeyId, this.props.keys.UserName);
     }
 
-    openKeyDeleteDialog = (e) => {
-        if (e) {
-            e.preventDefault();
-        }
+    openKeyDeleteDialog = () => {
         this.props.openKeyDeleteDialog(this.props.keys.AccessKeyId);
     }
 

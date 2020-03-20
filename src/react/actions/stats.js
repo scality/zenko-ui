@@ -15,7 +15,6 @@ export function loadInstanceStats(){
         const client = getState().pensieveClient.client;
         return client.getInstanceStats({ uuid: instanceId})
             .then(res => {
-                console.log('getLatestInstanceStatus => res.body!!!', res.body);
                 dispatch(receiveInstanceStats(res.body));
             })
             .catch(error => dispatch(handleClientError(error)))

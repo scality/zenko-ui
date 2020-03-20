@@ -7,6 +7,7 @@ export default function stats(state = {}, action){
         return {
             ...state,
             allStats: action.stats,
+            bucketList: action.stats.stats['item-counts'].bucketList,
         };
     default:
         return state;

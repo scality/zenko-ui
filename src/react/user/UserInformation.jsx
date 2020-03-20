@@ -54,10 +54,7 @@ type Props = StateProps & DispatchProps;
 
 class UserInformation extends React.Component<Props>{
 
-    createKey = e => {
-        if (e) {
-            e.preventDefault();
-        }
+    createKey = () => {
         this.props.createAccessKey(this.props.displayedUser.UserName);
     }
 

@@ -9,10 +9,7 @@ class UserBucket extends React.Component{
         };
     }
 
-    expand = e => {
-        if (e) {
-            e.preventDefault();
-        }
+    expand = () => {
         this.setState({
             expanded: !this.state.expanded,
         });

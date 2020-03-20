@@ -65,7 +65,6 @@ class Users extends React.Component<Props>{
         if (e) {
             e.preventDefault();
         }
-        console.log('this.props!!!', this.props);
         return this.props.redirect('/users/create');
     }
 
@@ -75,7 +74,7 @@ class Users extends React.Component<Props>{
                 <UserLeftSection>
                     <ManageUserSection>
                         <Button outlined onClick={this.redirect} size="default" text="Add" type="submit" />
-                        <UserList getUser={this.props.getUser} userList={this.props.userList}/>
+                        <UserList getUser={this.props.getUser} userList={this.props.userList} displayedUser={this.props.displayedUser}/>
                     </ManageUserSection>
                 </UserLeftSection>
                 <UserRightSection>

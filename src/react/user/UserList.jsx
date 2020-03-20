@@ -6,6 +6,7 @@ import styled from 'styled-components';
 
 const Row = styled.tr`
     cursor: pointer;
+    background-color: ${props => props.selected ? '#000' : 'inherit'};
 `;
 
 export default class UserList extends React.Component {
@@ -14,6 +15,10 @@ export default class UserList extends React.Component {
             e.preventDefault();
         }
         this.props.getUser(userName);
+    }
+
+    isSelected(userName) {
+        return this.props.displayedUser.UserName && this.props.displayedUser.UserName === userName;
     }
     render() {
         return (
@@ -26,7 +31,7 @@ export default class UserList extends React.Component {
                         </tr>
                         {
                             this.props.userList.map(u =>
-                                <Row onClick={e => this.rowClicked(e, u.UserName)} key={u.UserName}>
+                                <Row onClick={e => this.rowClicked(e, u.UserName)} selected={this.isSelected(u.UserName)} key={u.UserName}>
                                     <td> {u.UserName} </td>
                                     <td> {formatDate(u.CreateDate)} </td>
                                 </Row>)

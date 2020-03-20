@@ -74,10 +74,7 @@ class UserDisplay extends React.Component {
         };
     }
 
-    setTab = (e, tab) => {
-        if (e) {
-            e.preventDefault();
-        }
+    setTab = (tab) => {
         this.setState({
             tab,
         });
@@ -112,17 +109,17 @@ class UserDisplay extends React.Component {
                     <Tabs
                         items={[
                             {
-                                onClick: e => this.setTab(e, 0),
+                                onClick: () => this.setTab(0),
                                 selected: this.isSelected(0),
                                 title: 'Information',
                             },
                             {
-                                onClick: e => this.setTab(e, 1),
+                                onClick: () => this.setTab(1),
                                 selected: this.isSelected(1),
                                 title: 'Buckets',
                             },
                             {
-                                onClick: e => this.setTab(e, 2),
+                                onClick: () => this.setTab(2),
                                 selected: this.isSelected(2),
                                 title: 'Key Metrics',
                             },

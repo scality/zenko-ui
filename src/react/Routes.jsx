@@ -1,9 +1,10 @@
 import { Link, Route } from 'react-router-dom';
-import CreateUser from './user/CreateUser';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
+import ReplicationCreate from './workflow/replication/ReplicationCreate';
+import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
 import { connect } from 'react-redux';
@@ -66,10 +67,11 @@ class Routes extends React.Component{
                 />
             </NavbarContainer>
             <Route exact path="/users" component={Users} />
-            <Route path="/users/create" component={CreateUser} />
+            <Route path="/users/create" component={UserCreate} />
             <Route path="/groups" component={Groups} />
             <Route path="/databrowser" component={DataBrowser} />
-            <Route path="/workflow" component={Workflows} />
+            <Route exact path="/workflow" component={Workflows} />
+            <Route path="/workflow/replication/create" component={ReplicationCreate} />
         </Layout>;
     }
 }

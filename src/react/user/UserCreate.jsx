@@ -1,48 +1,12 @@
 // @flow
 import { Button, Input } from '@scality/core-ui';
+import CreateContainer from '../ui-elements/CreateContainer';
 import React from 'react';
 import { connect } from 'react-redux';
 import { createUser } from '../actions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
-const Container = styled.div`
-
-    display: flex;
-    flex-direction: column;
-
-    max-width: 600px;
-    margin: 10px;
-    padding: 20px;
-    background-color: #1c1c20;
-    border-radius: 5px;
-    text-transform: uppercase;
-
-    .title {
-        display: flex;
-        margin-bottom: 60px;
-        font-size: 19px;
-    }
-    .input{
-        display: flex;
-        align-items: baseline;
-        input{
-            margin-left: 50px;
-            width: 300px;
-        }
-    }
-    .footer {
-      display: flex;
-      justify-content: flex-end;
-
-      text-transform: lowercase;
-      margin-top: 60px;
-
-      button{
-          margin-left: 5px;
-      }
-    }
-`;
 // import styled from 'styled-components';
 
 type Props = {
@@ -54,7 +18,7 @@ type State = {
     userName: string,
 };
 
-class CreateUser extends React.Component<Props, State> {
+class UserCreate extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -71,27 +35,21 @@ class CreateUser extends React.Component<Props, State> {
     }
 
     handleChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
         this.setState({
             userName: e.target.value,
         });
     }
 
-    redirect = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
+    redirect = () => {
         this.props.redirect('/users');
     }
 
     render() {
         return (
-            <Container>
+            <CreateContainer>
                 <div className='title'> create new user </div>
                 <div className='input'>
-                    <div className='name'> name: </div>
+                    <div className='name'> name </div>
                     <Input
                         type='text'
                         name='userName'
@@ -104,7 +62,7 @@ class CreateUser extends React.Component<Props, State> {
                     <Button outlined onClick={this.redirect} text='Cancel'/>
                     <Button outlined onClick={this.submit} text='Add'/>
                 </div>
-            </Container>
+            </CreateContainer>
         );
     }
 }
@@ -116,4 +74,4 @@ function mapDispatchToProps(dispatch): DispatchProps{
     };
 }
 
-export default connect<any, any, any, any, any, any>(null, mapDispatchToProps)(CreateUser);
+export default connect<any, any, any, any, any, any>(null, mapDispatchToProps)(UserCreate);
