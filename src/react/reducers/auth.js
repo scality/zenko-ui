@@ -1,9 +1,9 @@
-export default function iamClient(state = {}, action){
+export default function auth(state = {}, action) {
     switch (action.type) {
-    case 'CREATE_IAM_CLIENT':
+    case 'LOG_IN':
         return {
             ...state,
-            client: action.client,
+            clients: action.clients,
         };
     default:
         return state;

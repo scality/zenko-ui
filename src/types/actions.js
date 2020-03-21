@@ -1,8 +1,13 @@
 // @flow
 
+import type { AppState } from './state';
+
 export type ErrorViewType = 'byModal' | 'byComponent' | 'byAuth';
 
 export type DispatchFunction = (Action) => any;
+
+export type GetStateFunction = () => AppState;
+
 
 export interface ApiError extends Error {
     status: 200 | 401 | 403 | 422 | 500 | 503;

@@ -1,5 +1,10 @@
 export default function stats(state = {}, action){
     switch (action.type) {
+    case 'INSTANCE_STATUS':
+        return {
+            ...state,
+            bucketList: action.status.metrics['item-counts'].bucketList,
+        };
     case 'RECEIVE_INSTANCE_STATS':
         if (!action.stats) {
             return state;
@@ -7,7 +12,6 @@ export default function stats(state = {}, action){
         return {
             ...state,
             allStats: action.stats,
-            bucketList: action.stats.stats['item-counts'].bucketList,
         };
     default:
         return state;

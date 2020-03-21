@@ -1,4 +1,4 @@
-import {clearError, initIamClient, initPensieveClient, initS3Client, listBuckets} from './actions';
+import {clearError, initIamClient, initPensieveClient, initS3Client, listBuckets, loadCredentials} from './actions';
 import {
     jade,
     turquoise,
@@ -39,21 +39,27 @@ const theme = {
 class ZenkoUI extends React.Component {
     constructor(props){
         super(props);
+        this.state = {
+            loaded: false,
+        };
     }
 
     componentDidMount() {
         // TODO: move them to a gobal action
-        this.props.dispatch(initPensieveClient());
-        this.props.dispatch(initIamClient());
-        this.props.dispatch(initS3Client());
-        this.props.dispatch(listBuckets());
+        this.props.dispatch(loadCredentials()).then(() => {
+            this.setState({ loaded: true });
+        });
+        // this.props.dispatch(initPensieveClient());
+        // this.props.dispatch(initIamClient());
+        // this.props.dispatch(initS3Client());
+        // this.props.dispatch(listBuckets());
     }
 
     render(){
         return (
             <ThemeProvider theme={theme}>
                 <div>
-                    { this.props.isLoaded && <Routes/> }
+                    { this.state.loaded && <Routes/> }
                     <ErrorHandlerModal
                         show={this.props.showError}
                         close={() => this.props.dispatch(clearError())} >
@@ -71,7 +77,7 @@ function mapStateToProps(state) {
         showError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
         errorMessage: state.uiErrors.errorMsg,
         // needReauth: state.networkActivity.authFailure,
-        isLoaded: !!state.iamClient.client,
+        // isLoaded: !!(state.auth.clients && state.auth.clients.iamClient),
     };
 }
 

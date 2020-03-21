@@ -1,5 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import { getClients } from '../utils/actions';
+
 
 function updateBucketList(list) {
     return {
@@ -10,9 +12,9 @@ function updateBucketList(list) {
 
 export function listBuckets(){
     return (dispatch, getState) => {
-        const client = getState().s3Client.client;
+        const { s3Client } = getClients(getState());
         dispatch(networkStart('Listing buckets'));
-        return client.listBucketsWithLocation()
+        return s3Client.listBucketsWithLocation()
             .then(res => dispatch(updateBucketList(res.Buckets)))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

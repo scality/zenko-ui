@@ -2,8 +2,7 @@
 import { networkEnd, networkStart } from './network';
 import type { ConfigurationOverlay } from '../../types/config';
 import creds from '../../../creds';
-
-const instanceId = creds.instanceId;
+import { getClients } from '../utils/actions';
 
 export function newConfiguration(configuration: ConfigurationOverlay) {
     return {
@@ -14,8 +13,8 @@ export function newConfiguration(configuration: ConfigurationOverlay) {
 
 export function updateConfiguration() {
     return async (dispatch, getState) => {
-        const client = getState().pensieveClient.client;
-        return client.getConfigurationOverlayView({ uuid: instanceId })
+        const { pensieveClient, instanceId } = getClients(getState());
+        return pensieveClient.getConfigurationOverlayView({ uuid: instanceId })
             .then(res => {
                 dispatch(newConfiguration(res.body));
             })

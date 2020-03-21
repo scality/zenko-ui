@@ -1,6 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { addSecret } from './secrets';
+import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 
 export function updateUserList(list) {
@@ -87,9 +88,9 @@ export function hideUser() {
 
 export function createAccessKey(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Saving access key'));
-        client.createAccessKey(userName)
+        iamClient.createAccessKey(userName)
             .then(resp => {
                 dispatch(addSecret({
                     accessKey: resp.AccessKey.AccessKeyId,
@@ -105,9 +106,9 @@ export function createAccessKey(userName) {
 
 export function createUser(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Saving user'));
-        client.createUser(userName)
+        iamClient.createUser(userName)
             .then(() => {
                 // dispatch(listUsers());
                 dispatch(push('/users'));
@@ -121,9 +122,9 @@ export function createUser(userName) {
 
 export function deleteAccessKey(accessKey, userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Deleting access key'));
-        client.deleteAccessKey(accessKey, userName)
+        iamClient.deleteAccessKey(accessKey, userName)
             .then(() => {
                 dispatch(listAccessKeys(userName));
             })
@@ -135,9 +136,9 @@ export function deleteAccessKey(accessKey, userName) {
 
 export function deleteUser(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Deleting user'));
-        client.deleteUser(userName)
+        iamClient.deleteUser(userName)
             .then(() => {
                 dispatch(listUsers());
                 dispatch(hideUser());
@@ -151,9 +152,10 @@ export function deleteUser(userName) {
 
 export function listUsers() {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Listing users'));
-        client.listUsers()
+        iamClient.listUsers()
             .then(resp => {
                 dispatch(updateUserList(resp.Users));
             })
@@ -165,9 +167,9 @@ export function listUsers() {
 
 export function listAccessKeys(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Listing access keys'));
-        client.listAccessKeys(userName)
+        iamClient.listAccessKeys(userName)
             .then(resp => {
                 dispatch(updateAccessKeysList(resp.AccessKeyMetadata));
             })
@@ -179,9 +181,9 @@ export function listAccessKeys(userName) {
 
 export function listAttachedUserPolicies(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Listing attached user policies'));
-        client.listAttachedUserPolicies(userName)
+        iamClient.listAttachedUserPolicies(userName)
             .then(resp => {
                 dispatch(updateAttachedUserPoliciesList(resp.AttachedPolicies));
             })
@@ -193,9 +195,9 @@ export function listAttachedUserPolicies(userName) {
 
 export function listGroupsForUser(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Listing user groups'));
-        client.listGroupsForUser(userName)
+        iamClient.listGroupsForUser(userName)
             .then(resp => {
                 dispatch(updateGroupsForUserList(resp.Groups));
             })
@@ -207,9 +209,9 @@ export function listGroupsForUser(userName) {
 
 export function getUser(userName) {
     return (dispatch, getState) => {
-        const client = getState().iamClient.client;
+        const { iamClient } = getClients(getState());
         dispatch(networkStart('Retrieving user'));
-        client.getUser(userName)
+        iamClient.getUser(userName)
             .then(resp => {
                 dispatch(displayUser(resp.User));
                 return resp.User;
