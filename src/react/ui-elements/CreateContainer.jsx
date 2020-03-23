@@ -22,9 +22,13 @@ const CreateContainer = styled.div`
     .input{
         display: flex;
         flex-direction: column;
+        margin-bottom: 20px;
         .sc-input-wrapper{ width:100%; }
+        .name {
+            margin-bottom: 10px;
+        }
         input{
-            margin-top: 10px;
+            margin-bottom: 10px;
             width:90%;
         }
     }
