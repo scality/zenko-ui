@@ -3,6 +3,7 @@ import bucket from './bucket';
 import { combineReducers } from 'redux';
 import configuration from './configuration';
 import { connectRouter } from 'connected-react-router';
+import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
 import secrets from './secrets';
@@ -16,6 +17,7 @@ const zenkoUIReducer = history => combineReducers({
     bucket,
     configuration,
     user,
+    instanceStatus,
     instances,
     networkActivity,
     uiErrors,

@@ -5,7 +5,7 @@ import type { LocationDetails as LocationFormDetails, LocationType } from '../..
 import React from 'react';
 import { Tooltip } from '@scality/core-ui';
 // import { TextWithTooltip } from '../../../ui-elements/TooltipComponents';
-import { calculateTimeDiffInHours } from '../../../utils';
+// import { calculateTimeDiffInHours } from '../../../utils';
 import { storageOptions } from './storageOptions';
 
 type Props = {
@@ -45,7 +45,8 @@ export default class LocationDetails extends React.Component<Props> {
         'for replication to this location will be processed on resume.';
 
         if (this.props.repSchedule) {
-            const diff = calculateTimeDiffInHours(this.props.repSchedule);
+            // const diff = calculateTimeDiffInHours(this.props.repSchedule);
+            const diff = 'TODO';
             if (diff && this.props.repSchedule) {
                 const overlay = new Date(this.props.repSchedule).toString();
                 msg = (

@@ -140,7 +140,7 @@ function ReplicationCreate(props){
                     onChange={handleSelectChange}
                     options={selectSourceOptions()}
                     placeholder="Select a bucket"
-                    isOptionDisabled={(option) => { console.log('option!!!', option); return option.isDisabled === true }}
+                    isOptionDisabled={(option) => option.isDisabled === true }
                 />
             </div>
             <div className='input'>
