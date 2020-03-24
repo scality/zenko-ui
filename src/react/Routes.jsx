@@ -1,6 +1,7 @@
 import { Link, Route } from 'react-router-dom';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
+import LocationCreate from './monitor/location/LocationCreate';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
 import ReplicationCreate from './workflow/replication/ReplicationCreate';
@@ -72,6 +73,7 @@ class Routes extends React.Component{
             <Route path="/databrowser" component={DataBrowser} />
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
+            <Route path="/location/create" component={LocationCreate} />
         </Layout>;
     }
 }

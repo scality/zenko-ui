@@ -39,7 +39,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.7.2",
     "@scality/core-ui": "github:scality/core-ui.git#add-dist-folder",
-    "@scality/pensieve-front": "file:../pensieve-front",
     "async": "^3.2.0",
     "aws-sdk": "^2.616.0",
     "connected-react-router": "^6.7.0",
