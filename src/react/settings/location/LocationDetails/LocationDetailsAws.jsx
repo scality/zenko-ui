@@ -1,5 +1,6 @@
-// @flow
-
+// @noflow
+import { Checkbox } from '@scality/core-ui';
+import Input from '../../../ui-elements/Input';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -60,12 +61,11 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <fieldset className="form-group">
+                <fieldset>
                     <label htmlFor="accessKey">AWS Access Key</label>
-                    <input
+                    <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
                         placeholder="AKI5HMPCLRB86WCKTN2C"
                         value={this.state.accessKey}
@@ -73,12 +73,11 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                         autoComplete="off"
                     />
                 </fieldset>
-                <fieldset className="form-group">
+                <fieldset>
                     <label htmlFor="secretKey">AWS Secret Key</label>
-                    <input
+                    <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
                         placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
                         value={this.state.secretKey}
@@ -90,12 +89,11 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
                 </fieldset>
-                <fieldset className="form-group">
+                <fieldset>
                     <label htmlFor="bucketName">Target Bucket Name</label>
-                    <input
+                    <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
                         placeholder="Bucket Name"
                         value={this.state.bucketName}
@@ -105,15 +103,16 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                 </fieldset>
                 <fieldset className="form-group">
                     <label className="form-check-label">
-                        <input
+                        <Checkbox
                             name="bucketMatch"
                             className="form-check-input"
-                            type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             disabled={this.props.editingExisting}
-                            onChange={this.onChange} />
-                        <span>Write objects without prefix</span><br />
+                            onChange={this.onChange}
+                            label="Write objects without prefix"
+                        />
+                        <br />
                         <small> Use this option for mirroring. <br /> </small>
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {
@@ -129,13 +128,14 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                 </fieldset>
                 <fieldset className="form-group">
                     <label className="form-check-label">
-                        <input
+                        <Checkbox
                             name="serverSideEncryption"
                             className="form-check-input"
-                            type="checkbox"
                             value={this.state.serverSideEncryption}
                             checked={this.state.serverSideEncryption}
-                            onChange={this.onChange} />
+                            onChange={this.onChange}
+                            label="Server-Side Encryption"
+                        />
                         <span>Server-Side Encryption</span>
                     </label>
                 </fieldset>

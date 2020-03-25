@@ -1,5 +1,6 @@
 // @flow
-
+import { Checkbox } from '@scality/core-ui';
+import Input from '../../../ui-elements/Input';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -65,7 +66,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
             <div>
                 <fieldset className="form-group">
                     <label htmlFor="accessKey">Wasabi Access Key</label>
-                    <input
+                    <Input
                         name="accessKey"
                         id="accessKey"
                         className="form-control"
@@ -78,7 +79,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="secretKey">Wasabi Secret Key</label>
-                    <input
+                    <Input
                         name="secretKey"
                         id="secretKey"
                         className="form-control"
@@ -95,7 +96,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="bucketName">Wasabi Target Bucket Name</label>
-                    <input
+                    <Input
                         name="bucketName"
                         id="bucketName"
                         className="form-control"
@@ -109,7 +110,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 </fieldset>
                 <fieldset className="form-group" hidden>
                     <label htmlFor="endpoint">Wasabi Endpoint</label>
-                    <input
+                    <Input
                         name="endpoint"
                         className="form-control"
                         type="text"
@@ -120,15 +121,17 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                 </fieldset>
                 <fieldset className="form-group">
                     <label className="form-check-label">
-                        <input
+                        <Checkbox
                             name="bucketMatch"
                             className="form-check-input"
                             type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             disabled={this.props.editingExisting}
-                            onChange={this.onChange} />
-                        <span>Write objects without prefix</span><br />
+                            onChange={this.onChange}
+                            label="Write objects without prefix"
+                        />
+                        <br />
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {
                             this.state.bucketMatch &&

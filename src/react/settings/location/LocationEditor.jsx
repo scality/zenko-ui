@@ -1,14 +1,16 @@
-import { Button, Input, Select } from '@scality/core-ui';
+import { Button, Select } from '@scality/core-ui';
+import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
 import React, { useState } from 'react';
+import { convertToLocation, newLocationForm } from './utils';
 import CreateContainer from '../../ui-elements/CreateContainer';
+import Input from '../../ui-elements/Input';
+import LocationOptions from './LocationOptions';
 import { connect } from 'react-redux';
-import { newLocationForm } from './utils';
 import { saveLocation } from '../../actions';
 import { selectStorageOptions } from '../../utils/storageOptions';
-import { storageOptions } from './LocationDetails';
 
 // TODO: edit location with locationInfo state
-// Remember when editing location name and type have to be disabled
+// Remember when editing location name and type fields have to be disabled
 function LocationEditor(props) {
     const [location, setLocation] = useState(newLocationForm());
 
@@ -18,7 +20,7 @@ function LocationEditor(props) {
             ...location,
             [e.target.name]: value,
         };
-        setLocation({ l });
+        setLocation(l);
     };
 
     const save = (e) => {
@@ -26,6 +28,7 @@ function LocationEditor(props) {
             e.preventDefault();
         }
         console.log('location!!!', location);
+        props.saveLocation(convertToLocation(location));
     };
 
     const cancel = () => {
@@ -44,8 +47,28 @@ function LocationEditor(props) {
         }
     };
 
+    const onDetailsChange = (details) => {
+        const l = {
+            ...location,
+            details,
+        };
+        setLocation(l);
+    };
+
+    const onOptionsChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+        const l = {
+            ...location,
+            options: {
+                ...location.options,
+                [e.target.name]: value,
+            },
+        };
+        setLocation(l);
+    };
+
     // TODO: add icon
-    function makeLabel(locationType, assetRoot) {
+    const makeLabel = (locationType, assetRoot) => {
         const details = storageOptions[locationType];
         return (
             <div>
@@ -53,32 +76,60 @@ function LocationEditor(props) {
                 <span>{details.name}</span>
             </div>
         );
-    }
+    };
 
+    const maybeShowDetails = () => {
+        if (location.locationType === defaultLocationType) {
+            return null;
+        }
+        return (
+            <div className="form-group">
+                <LocationDetails
+                    edit
+                    locationType={location.locationType}
+                    details={location.details}
+                    onChange={onDetailsChange}
+                    editingExisting={false}
+                    capabilities={props.capabilities}
+                />
+            </div>
+        );
+    };
+
+    const locationOption = selectStorageOptions(null, props.capabilities, makeLabel);
     return <CreateContainer>
         <div className='title'> Add new storage location </div>
-        <div className='input'>
-            <div className='name'> location name </div>
+        <fieldset>
+            <label htmlFor="name"> Location Name </label>
             <Input
+                id='name'
                 type='text'
                 name='name'
+                debounceTimeout={0}
                 onChange={onChange}
                 value={location.name}
                 placeholder="zenko-us-west-2"
                 // disabled={props.editingExisting}
                 autoComplete='off' />
-        </div>
-        <div className='input'>
-            <div className='name'> Location Type </div>
+        </fieldset>
+        <fieldset>
+            <label htmlFor="locationType"> Location Type </label>
             <Select
-                menuContainerStyle={{ zIndex: 5 }}
+                id='locationType'
                 name="locationType"
-                options={selectStorageOptions(null, props.capabilities, makeLabel)}
+                options={locationOption}
                 isOptionDisabled={(option) => option.disabled === true }
                 onChange={onTypeChange}
                 // disabled={props.editingExisting}
+                value = {locationOption.find(l => l.value === location.locationType)}
             />
-        </div>
+        </fieldset>
+        {maybeShowDetails()}
+        <LocationOptions
+            locationType={location.locationType}
+            locationOptions={location.options}
+            onChange={onOptionsChange}
+        />
         <div className='footer'>
             <Button outlined onClick={cancel} text='Cancel'/>
             <Button outlined onClick={save} text='Add'/>

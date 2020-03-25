@@ -20,7 +20,7 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
             pensieveClient.createConfigurationOverlayLocation(params);
         return op.then(() => dispatch(updateConfiguration()))
             .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }

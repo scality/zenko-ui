@@ -1,5 +1,6 @@
 // @flow
-
+import { Checkbox } from '@scality/core-ui';
+import Input from '../../../ui-elements/Input';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
@@ -71,7 +72,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
             <div>
                 <fieldset className="form-group">
                     <label htmlFor="accessKey">Access Key: WARNING isIngest hardcoded to true</label>
-                    <input
+                    <Input
                         name="accessKey"
                         id="accessKey"
                         className="form-control"
@@ -84,7 +85,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="secretKey">Secret Key</label>
-                    <input
+                    <Input
                         name="secretKey"
                         id="secretKey"
                         className="form-control"
@@ -101,7 +102,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="bucketName">Target Bucket Name</label>
-                    <input
+                    <Input
                         name="bucketName"
                         id="bucketName"
                         className="form-control"
@@ -115,7 +116,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="endpoint">Endpoint</label>
-                    <input
+                    <Input
                         name="endpoint"
                         className="form-control"
                         type="text"
@@ -130,15 +131,16 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                 </fieldset>
                 <fieldset className="form-group">
                     <label className="form-check-label">
-                        <input
+                        <Checkbox
                             name="bucketMatch"
                             disabled={this.props.editingExisting}
                             className="form-check-input"
-                            type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
-                            onChange={this.onChange} />
-                        <span>Write objects without prefix</span><br />
+                            onChange={this.onChange}
+                            label="Write objects without prefix"
+                        />
+                        <br />
                         { isIngest && <small> Use this option for mirroring. <br /> </small> }
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {

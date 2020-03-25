@@ -17,6 +17,23 @@ function newLocationForm(): LocationForm {
     };
 }
 
+function convertToLocation(locationState: LocationForm): Location {
+    const { options } = locationState;
+    const ret = {
+        name: locationState.name,
+        locationType: locationState.locationType,
+        details: locationState.details,
+        objectId: locationState.objectId,
+        isTransient: options.isTransient,
+        isBuiltin: options.isBuiltin,
+        sizeLimitGB: options.isSizeLimitChecked && options.sizeLimitGB ?
+            parseInt(options.sizeLimitGB, 10) : 0,
+        legacyAwsBehavior: locationState.options.legacyAwsBehavior,
+    };
+    return ret;
+}
+
 export {
     newLocationForm,
+    convertToLocation,
 };

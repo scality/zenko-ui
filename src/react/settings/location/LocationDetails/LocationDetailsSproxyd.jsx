@@ -1,6 +1,7 @@
 // @flow
 
-// import InputList from '../../../ui-elements/InputList';
+import Input from '../../../ui-elements/Input';
+import InputList from '../../../ui-elements/InputList';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -69,25 +70,23 @@ export default class LocationDetailsSproxyd extends React.Component<Props, State
         this.updateForm();
     }
 
-    // <InputList
-    //     name="bootstrapList"
-    //     id="bootstrapList"
-    //     className="form-control"
-    //     entries={this.state.bootstrapList}
-    //     listLimit={SPROXYD_LIMIT}
-    //     onUpdate={this.onListChange}
-    // />
-
     render() {
         return (
             <div>
                 <fieldset className="form-group">
                     <label htmlFor="bootstrapList">Bootstrap List <small>(max. 6 entries)</small></label>
-                    <div> InputList </div>
+                    <InputList
+                        name="bootstrapList"
+                        id="bootstrapList"
+                        className="form-control"
+                        entries={this.state.bootstrapList}
+                        listLimit={SPROXYD_LIMIT}
+                        onUpdate={this.onListChange}
+                    />
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="">Proxy Path</label>
-                    <input
+                    <Input
                         name="proxyPath"
                         id="proxyPath"
                         className="form-control"
@@ -100,7 +99,7 @@ export default class LocationDetailsSproxyd extends React.Component<Props, State
                 </fieldset>
                 <fieldset className="form-group">
                     <label htmlFor="chordCos">Replication Factor for Small Objects</label>
-                    <input
+                    <Input
                         name="chordCos"
                         id="chordCos"
                         className="form-control"
