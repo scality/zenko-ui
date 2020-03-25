@@ -1,11 +1,12 @@
 // @flow
-import { Button, Input } from '@scality/core-ui';
+import { Button } from '@scality/core-ui';
 import CreateContainer from '../ui-elements/CreateContainer';
+import Input from '../ui-elements/Input';
 import React from 'react';
 import { connect } from 'react-redux';
 import { createUser } from '../actions';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 
 // import styled from 'styled-components';
 
@@ -48,16 +49,17 @@ class UserCreate extends React.Component<Props, State> {
         return (
             <CreateContainer>
                 <div className='title'> create new user </div>
-                <div className='input'>
-                    <div className='name'> name </div>
+                <fieldset>
+                    <label htmlFor='userName'> Name </label>
                     <Input
                         type='text'
+                        id='userName'
                         name='userName'
                         placeholder='User Name'
                         onChange={this.handleChange}
                         value={this.state.userName}
                         autoComplete='off' />
-                </div>
+                </fieldset>
                 <div className='footer'>
                     <Button outlined onClick={this.redirect} text='Cancel'/>
                     <Button outlined onClick={this.submit} text='Add'/>
