@@ -5,4 +5,5 @@ export * from './location';
 export * from './network';
 export * from './replication';
 export * from './secrets';
+export * from './stats';
 export * from './user';

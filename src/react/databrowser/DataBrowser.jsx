@@ -1,8 +1,12 @@
+import { Button, ProgressBar } from '@scality/core-ui';
 import { Head, HeadLeft } from '../ui-elements/Head';
-import { ProgressBar } from '@scality/core-ui';
-import React from 'react';
+import React, { useEffect } from 'react';
 import TableContainer from '../ui-elements/TableContainer';
 import { connect } from 'react-redux';
+import {formatDate} from '../utils';
+import { getLocationName } from '../utils/storageOptions';
+import { listBuckets } from '../actions';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const DataBrowserContainer = styled.div`
@@ -24,69 +28,98 @@ const HeadSection = styled.div`
 
 const BucketSection = styled.div`
   display: flex;
+  flex-direction: column;
 
   background-color: #1c1c20;
   border-radius: 5px;
   padding: 1em;
 `;
 
+const BucketSectionTop = styled.div`
+  display: flex;
+  justify-content: flex-end;
 
-class DataBrowser extends React.Component{
-    render() {
-        const { bucketList, stats } = this.props;
-        return <DataBrowserContainer>
-            <Head>
+  width: 100%;
+`;
 
-                <HeadLeft>
+function DataBrowser(props){
+    const { bucketList, stats, redirect, configuration } = props;
 
-                    <div className='number'> {bucketList.length} </div>
-                    <div> bucket{bucketList.length > 1 && 's'} </div>
+    useEffect(() => {
+        console.log('useEffect!!!', bucketList);
+        props.listBuckets();
+    }, []);
 
-                </HeadLeft>
+    const createBucket = () => {
+        redirect('/databrowser/create');
+    };
 
-                <HeadSection>
-                    <div className="title"> ACCOUNT CONSUMPTION </div>
-                    <ProgressBar
-                        bottomLeftLabel="50GB Used"
-                        bottomRightLabel="50GB Free"
-                        percentage={50}
-                        size="smaller"
-                        topLeftLabel="50%"
-                        topRightLabel="100GB Total"
-                    />
-                </HeadSection>
+    return <DataBrowserContainer>
+        <Head>
 
-            </Head>
+            <HeadLeft>
 
-            <BucketSection>
+                <div className='number'> {bucketList.length} </div>
+                <div> bucket{bucketList.length > 1 && 's'} </div>
 
-                <TableContainer hide={this.props.bucketList.length === 0}>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <th> Name </th>
-                            </tr>
-                            {
-                                this.props.bucketList.map(b =>
-                                    <tr key={b.Name}>
-                                        <td> {b.Name} </td>
-                                    </tr>)
-                            }
-                        </tbody>
-                    </table>
-                </TableContainer>
-            </BucketSection>
+            </HeadLeft>
+
+            <HeadSection>
+                <div className="title"> ACCOUNT CONSUMPTION </div>
+                <ProgressBar
+                    bottomLeftLabel="50GB Used"
+                    bottomRightLabel="50GB Free"
+                    percentage={50}
+                    size="smaller"
+                    topLeftLabel="50%"
+                    topRightLabel="100GB Total"
+                />
+            </HeadSection>
+
+        </Head>
+
+        <BucketSection>
+            <BucketSectionTop>
+                <Button outlined text="Create bucket" onClick={createBucket} />
+            </BucketSectionTop>
+            <TableContainer hide={props.bucketList.length === 0}>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th> Name </th>
+                            <th> Creation date </th>
+                            <th> Location Constraint </th>
+                        </tr>
+                        {
+                            props.bucketList.map(b =>
+                                <tr key={b.Name}>
+                                    <td> {b.Name} </td>
+                                    <td> {formatDate(b.CreationDate)} </td>
+                                    <td> {b.LocationConstraint || 'us-east-1'} / {getLocationName(b.LocationConstraint, configuration)} </td>
+                                </tr>)
+                        }
+                    </tbody>
+                </table>
+            </TableContainer>
+        </BucketSection>
 
 
-        </DataBrowserContainer>;
-    }
+    </DataBrowserContainer>;
 }
 
 function mapStateToProps(state) {
     return {
         bucketList: state.bucket.list,
         stats: state.stats.allStats,
+        configuration: state.configuration.latest,
     };
 }
 
-export default connect(mapStateToProps)(DataBrowser);
+function mapDispatchToProps(dispatch) {
+    return {
+        redirect: path => dispatch(push(path)),
+        listBuckets: () => dispatch(listBuckets()),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DataBrowser);

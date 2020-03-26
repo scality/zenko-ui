@@ -44,4 +44,14 @@ export default class S3Client {
         });
     }
 
+    createBucket(newBucket) {
+        const params = {
+            Bucket: newBucket.name,
+            CreateBucketConfiguration: {
+                LocationConstraint: newBucket.locationConstraint,
+            },
+        };
+        return this.client.createBucket(params).promise();
+    }
+
 }

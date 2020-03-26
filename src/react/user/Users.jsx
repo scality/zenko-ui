@@ -37,7 +37,7 @@ const ManageUserSection = styled.div`
     background-color: #1c1c20;
     padding: 10px;
     border-radius: 5px;
-    height: 100%;
+    height: calc(100% - 20px);
 `;
 
 

@@ -1,4 +1,4 @@
-import {clearError, initIamClient, initPensieveClient, initS3Client, listBuckets, loadCredentials} from './actions';
+import {clearError, loadCredentials, loadInstanceLatestStatus, loadInstanceStats} from './actions';
 import {
     jade,
     turquoise,
@@ -49,12 +49,16 @@ class ZenkoUI extends React.Component {
         this.props.dispatch(loadCredentials()).then(() => {
             this.setState({ loaded: true });
         });
-        // this.props.dispatch(initPensieveClient());
-        // this.props.dispatch(initIamClient());
-        // this.props.dispatch(initS3Client());
-        // this.props.dispatch(listBuckets());
+        this.refreshIntervalStatsUnit = setInterval(
+            () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
+        this.refreshIntervalStatsSeries = setInterval(
+            () => this.props.dispatch(loadInstanceStats()), 10000);
     }
 
+    componentWillUnmount() {
+        clearInterval(this.refreshIntervalStatsUnit);
+        clearInterval(this.refreshIntervalStatsSeries);
+    }
     render(){
         return (
             <ThemeProvider theme={theme}>

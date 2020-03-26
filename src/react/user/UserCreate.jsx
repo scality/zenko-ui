@@ -48,7 +48,7 @@ class UserCreate extends React.Component<Props, State> {
     render() {
         return (
             <CreateContainer>
-                <div className='title'> create new user </div>
+                <div className='sc-title'> create new user </div>
                 <fieldset>
                     <label htmlFor='userName'> Name </label>
                     <Input

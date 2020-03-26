@@ -1,4 +1,5 @@
 import { Link, Route } from 'react-router-dom';
+import BucketCreate from './databrowser/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
 import LocationEditor from './settings/location/LocationEditor';
@@ -70,10 +71,11 @@ class Routes extends React.Component{
             <Route exact path="/users" component={Users} />
             <Route path="/users/create" component={UserCreate} />
             <Route path="/groups" component={Groups} />
-            <Route path="/databrowser" component={DataBrowser} />
+            <Route exact path="/databrowser" component={DataBrowser} />
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
             <Route path="/location/editor" component={LocationEditor} />
+            <Route path="/databrowser/create" component={BucketCreate} />
         </Layout>;
     }
 }

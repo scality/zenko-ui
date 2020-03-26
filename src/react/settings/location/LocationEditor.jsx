@@ -98,7 +98,7 @@ function LocationEditor(props) {
 
     const locationOption = selectStorageOptions(null, props.capabilities, makeLabel);
     return <CreateContainer>
-        <div className='title'> Add new storage location </div>
+        <div className='sc-title'> Add new storage location </div>
         <fieldset>
             <label htmlFor="name"> Location Name </label>
             <Input

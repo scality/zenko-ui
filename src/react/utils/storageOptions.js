@@ -1,6 +1,13 @@
 // @noflow
 import { storageOptions } from '../settings/location/LocationDetails';
 
+export function getLocationName(locationConstraint, configuration) {
+    const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+    const locationType = configuration && configuration.locations[constraint] ? configuration.locations[constraint].locationType : '';
+    const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
+    return locationTypeName;
+}
+
 export function selectStorageOptions(
     assetRoot: string,
     capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,

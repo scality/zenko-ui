@@ -27,7 +27,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
 
-  height: calc(100vh - 150px);
+  min-height: calc(100vh - 150px);
   margin-top: 10px;
   background-color: #1c1c20;
   border-radius: 5px;

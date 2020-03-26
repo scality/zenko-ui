@@ -10,11 +10,11 @@ const TableContainer = styled.div`
     }
     td {
         border-top: 1px solid #424242;
-        padding: 5px;
+        padding: 0.75rem;
     }
     th {
         text-align:left;
-        padding: 5px;
+        padding: 0.75rem;
     }
     tr:not(:first-child):hover{
         background-color: #000;

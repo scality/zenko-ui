@@ -130,7 +130,7 @@ function ReplicationCreate(props){
 
 
     return <CreateContainer>
-        <div className='title'> create replication </div>
+        <div className='sc-title'> create replication </div>
         <div>
             <div className='input'>
                 <div className='name'> source </div>

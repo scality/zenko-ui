@@ -11,14 +11,19 @@ const CreateContainer = styled.div`
     background-color: #1c1c20;
     border-radius: 5px;
 
-    .title {
+    // TODO: fix inside core-ui
+    .sc-select__single-value{
+        width:100%;
+    }
+
+    .sc-title {
         display: flex;
 
         text-transform: uppercase;
         margin-bottom: 20px;
         font-size: 19px;
     }
-    fieldset{
+    .sc-fieldset, fieldset{
         display: flex;
         flex-direction: column;
         border: 0;
