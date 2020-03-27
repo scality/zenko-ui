@@ -1,11 +1,12 @@
 import { Button, Select } from '@scality/core-ui';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import CreateContainer from '../ui-elements/CreateContainer';
 import Input from '../ui-elements/Input';
 import { connect } from 'react-redux';
 import { createBucket } from '../actions';
+import { locationWithIngestion } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../settings/location/LocationDetails';
+import { storageOptions } from '../monitor/location/LocationDetails';
 import styled from 'styled-components';
 
 const SelectOption = styled.div`
@@ -18,26 +19,34 @@ const SelectOption = styled.div`
     }
 `;
 
-
-const locationOptions = locations => {
-    console.log('locationOptions!!!');
-    return Object.keys(locations).map(locationName => {
-        return {
-            label: locationName,
-            value: locationName,
-        };
-    });
-};
+//
+// const locationOptions = locations => {
+//     return Object.keys(locations).map(locationName => {
+//         return {
+//             label: locationName,
+//             value: locationName,
+//         };
+//     });
+// };
 
 function BucketCreate(props) {
 
     const [ bucket, setBucket ] = useState({ name: '', locationConstraint: 'us-east-1' });
 
+    const [ selectLocations, setSelectLocations ] = useState([]);
+
+    useEffect(() => {
+        setSelectLocations(locationWithIngestion(props.locations, props.capabilities));
+    }, []);
+
+    // const selectLocationOptions = locationOptions(locationWithIngestion(props.locations, props.capabilities));
+
     const save = (e) => {
         if (e) {
             e.preventDefault();
         }
-        props.createBucket(bucket);
+        console.log('bucket!!!', bucket);
+        // props.createBucket(bucket);
     };
 
     const cancel = () => {
@@ -58,22 +67,20 @@ function BucketCreate(props) {
     };
 
     const renderLocation = (option) => {
-        const locationType = props.locations[option.value].locationType;
-        const mirrorMode = props.locations[option.value].mirrorMode;
+        const locationType = option.locationType;
+        const mirrorMode = option.mirrorMode;
         const locationTypeName = storageOptions[locationType].name;
         return (
             <SelectOption>
                 {
                     mirrorMode ?
-                        <span>{option.label.split(':ingest')[0]} <small>(Mirror mode)</small></span> :
-                        <span>{option.label}</span>
+                        <span>{option.value.split(':ingest')[0]} <small>(Mirror mode)</small></span> :
+                        <span>{option.value}</span>
                 }
                 <span className="float-right">{locationTypeName}</span>
             </SelectOption>
         );
     };
-
-    const selectLocationOptions = locationOptions(props.locations);
 
     return <CreateContainer>
         <div className='sc-title'> create  bucket </div>
@@ -95,9 +102,9 @@ function BucketCreate(props) {
                 name='locationConstraint'
                 placeholder='Location Name'
                 onChange={onSelectChange}
-                options={selectLocationOptions}
+                options={selectLocations}
                 formatOptionLabel={renderLocation}
-                value={selectLocationOptions.find(l => l.value === bucket.locationConstraint)}
+                value={selectLocations.find(l => l.value === bucket.locationConstraint)}
                 autoComplete='off' />
         </fieldset>
         <div className='footer'>
@@ -110,6 +117,7 @@ function BucketCreate(props) {
 function mapStateToProps(state) {
     return {
         locations: state.configuration.latest.locations,
+        capabilities: state.instanceStatus.latest.state.capabilities || {},
     };
 }
 

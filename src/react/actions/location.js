@@ -2,6 +2,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
+import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 
 export function saveLocation(location: Location): ThunkStatePromisedAction {
@@ -18,8 +19,10 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
             pensieveClient.updateConfigurationOverlayLocation(params)
             :
             pensieveClient.createConfigurationOverlayLocation(params);
-        return op.then(() => dispatch(updateConfiguration()))
-            .catch(error => dispatch(handleClientError(error)))
+        return op.then(() => {
+            dispatch(updateConfiguration());
+            dispatch(push('/'));
+        }).catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };

@@ -1,5 +1,5 @@
 // @noflow
-import { storageOptions } from '../settings/location/LocationDetails';
+import { storageOptions } from '../monitor/location/LocationDetails';
 
 export function getLocationName(locationConstraint, configuration) {
     const constraint = locationConstraint || 'us-east-1'; // defaults to empty
@@ -22,11 +22,24 @@ export function selectStorageOptions(
         return o;
     }).map(o => {
         const check = storageOptions[o].checkCapability;
-        console.log('disabled!!!', !!check && !!capabilities && !capabilities[check]);
         return {
             value: o,
             label: labelFn ? labelFn(o, assetRoot) : o,
             disabled: !!check && !!capabilities && !capabilities[check],
         };
     });
+}
+
+export function locationWithIngestion(locations, capabilities) {
+    return Object.keys(locations).reduce((r, key) => {
+        const locationType = locations[key].locationType;
+        r.push({ value: key, locationType, mirrorMode: false });
+        const ingestCapability = storageOptions[locationType].ingestCapability;
+        if (!!ingestCapability && !!capabilities[ingestCapability]) {
+            if (locationType === 'location-nfs-mount-v1' || (locations[key].details && locations[key].details.bucketMatch)) {
+                r.push({ value: `${key}:ingest`, locationType, mirrorMode: true });
+            }
+        }
+        return r;
+    }, []);
 }

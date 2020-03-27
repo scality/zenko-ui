@@ -6,6 +6,7 @@ import CreateContainer from '../../ui-elements/CreateContainer';
 import Input from '../../ui-elements/Input';
 import LocationOptions from './LocationOptions';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 import { saveLocation } from '../../actions';
 import { selectStorageOptions } from '../../utils/storageOptions';
 
@@ -32,7 +33,7 @@ function LocationEditor(props) {
     };
 
     const cancel = () => {
-        console.log('cannot cancel yet!');
+        props.redirect('/');
     };
 
     const onTypeChange = (v: LocationSelectOption) => {
@@ -96,7 +97,8 @@ function LocationEditor(props) {
         );
     };
 
-    const locationOption = selectStorageOptions(null, props.capabilities, makeLabel);
+    // URGENT: move it to state
+    const selectOptions = selectStorageOptions(null, props.capabilities, makeLabel);
     return <CreateContainer>
         <div className='sc-title'> Add new storage location </div>
         <fieldset>
@@ -117,11 +119,11 @@ function LocationEditor(props) {
             <Select
                 id='locationType'
                 name="locationType"
-                options={locationOption}
+                options={selectOptions}
                 isOptionDisabled={(option) => option.disabled === true }
                 onChange={onTypeChange}
                 // disabled={props.editingExisting}
-                value = {locationOption.find(l => l.value === location.locationType)}
+                value = {selectOptions.find(l => l.value === location.locationType)}
             />
         </fieldset>
         {maybeShowDetails()}
@@ -146,6 +148,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
     return {
         saveLocation: (location: Location) => { dispatch(saveLocation(location)); },
+        redirect: path => dispatch(push(path)),
     };
 }
 

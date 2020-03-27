@@ -4,7 +4,7 @@ import { Button, Chips } from '@scality/core-ui';
 import { closeKeyDeleteDialog, closeSecretDialog, createAccessKey, deleteAccessKey, deleteSecret, openKeyDeleteDialog, openSecretDialog } from '../actions';
 import AccessKey from './AccessKey';
 import React from 'react';
-import TableContainer from '../ui-elements/TableContainer';
+import { TableContainer } from '../ui-elements/Table';
 import type { User } from '../../types/user';
 import { connect } from 'react-redux';
 import {formatDate} from '../utils';

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const TableContainer = styled.div`
+export const TableContainer = styled.div`
     display: flex;
     margin-top: 20px;
     font-size: 15px;
@@ -24,4 +24,7 @@ const TableContainer = styled.div`
     `}
 `;
 
-export default TableContainer;
+export const Row = styled.tr`
+    cursor: pointer;
+    background-color: ${props => props.selected ? '#000' : 'inherit'};
+`;

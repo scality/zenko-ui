@@ -11,6 +11,31 @@ function updateBucketList(list) {
     };
 }
 
+export function selectBucket(bucketName) {
+    return {
+        type: 'SELECT_BUCKET',
+        bucketName,
+    };
+}
+
+export function resetSelectBucket() {
+    return {
+        type: 'RESET_SELECT_BUCKET',
+    };
+}
+
+export function openBucketDeleteDialog() {
+    return {
+        type: 'OPEN_BUCKET_DELETE_DIALOG',
+    };
+}
+
+export function closeBucketDeleteDialog() {
+    return {
+        type: 'CLOSE_BUCKET_DELETE_DIALOG',
+    };
+}
+
 export function listBuckets(){
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
@@ -29,6 +54,20 @@ export function createBucket(bucket){
         dispatch(networkStart('Creating bucket'));
         return s3Client.createBucket(bucket)
             .then(() => dispatch(push('/databrowser')))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function deleteBucket(bucketName){
+    return (dispatch, getState) => {
+        const { s3Client } = getClients(getState());
+        dispatch(closeBucketDeleteDialog());
+        dispatch(resetSelectBucket());
+        dispatch(networkStart('Deleting bucket'));
+        return s3Client.deleteBucket(bucketName)
+            .then(() => dispatch(listBuckets()))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

@@ -1,4 +1,3 @@
-
 export default function uiErrors(state = { errorMsg: null, errorType: null }, action) {
     switch (action.type) {
     case 'HANDLE_ERROR':

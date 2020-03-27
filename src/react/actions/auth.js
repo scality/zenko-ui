@@ -38,8 +38,8 @@ export function loadCredentials() {
                     }),
                     new S3Client({
                         // MADEUP KEYS
-                        accessKey: 'BX0SXCJ0N8VJAGDVJSYA',
-                        secretKey: 'RWUmQUjru0qcidHl+FwF0w=rnxAwX=SB5ngywFfX',
+                        accessKey: '82XRRF5KN3XBPOSXLVAB',
+                        secretKey: 'PCJukX09Vk2D/LMdxnp4enETgaJuIIc2BC3T6CxV',
                     }),
                 ]);
             })

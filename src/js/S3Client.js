@@ -44,14 +44,21 @@ export default class S3Client {
         });
     }
 
-    createBucket(newBucket) {
+    createBucket(bucket) {
         const params = {
-            Bucket: newBucket.name,
+            Bucket: bucket.name,
             CreateBucketConfiguration: {
-                LocationConstraint: newBucket.locationConstraint,
+                LocationConstraint: bucket.locationConstraint,
             },
         };
         return this.client.createBucket(params).promise();
+    }
+
+    deleteBucket(bucketName) {
+        const params = {
+            Bucket: bucketName,
+        };
+        return this.client.deleteBucket(params).promise();
     }
 
 }

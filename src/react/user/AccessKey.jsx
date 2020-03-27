@@ -73,16 +73,9 @@ class AccessKey extends React.Component {
             {
                 this.props.secretKey && <Button outlined size="small" text="Show" onClick={this.openSecretModal}/>
             }
-            {this.deleteDialog()}
             <Button outlined size="small" text="Delete" onClick={this.openKeyDeleteDialog}/>
+            <DeleteConfirmation show={this.props.deleteShown} cancel={this.props.closeKeyDeleteDialog} approve={this.deleteKey} titleText={`Are you sure you want to delete key: ${this.props.keys.AccessKeyId} ?`}/>
         </div>;
-    }
-
-    deleteDialog = () => {
-        if (!this.props.deleteShown) {
-            return null;
-        }
-        return <DeleteConfirmation cancel={this.props.closeKeyDeleteDialog} approve={this.deleteKey} titleText={`Are you sure you want to delete key: ${this.props.keys.AccessKeyId} ?`}/>;
     }
 
 }

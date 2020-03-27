@@ -123,6 +123,7 @@ export function createUser(userName) {
 export function deleteAccessKey(accessKey, userName) {
     return (dispatch, getState) => {
         const { iamClient } = getClients(getState());
+        dispatch(closeKeyDeleteDialog());
         dispatch(networkStart('Deleting access key'));
         iamClient.deleteAccessKey(accessKey, userName)
             .then(() => {
@@ -137,12 +138,12 @@ export function deleteAccessKey(accessKey, userName) {
 export function deleteUser(userName) {
     return (dispatch, getState) => {
         const { iamClient } = getClients(getState());
+        dispatch(hideUser());
+        dispatch(closeUserDeleteDialog());
         dispatch(networkStart('Deleting user'));
         iamClient.deleteUser(userName)
             .then(() => {
                 dispatch(listUsers());
-                dispatch(hideUser());
-                dispatch(closeUserDeleteDialog());
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

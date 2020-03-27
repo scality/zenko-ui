@@ -8,6 +8,7 @@ import instances from './instances';
 import networkActivity from './networkActivity';
 import secrets from './secrets';
 import stats from './stats';
+import uiBucket from './uiBucket';
 import uiErrors from './uiErrors';
 import uiUser from './uiUser';
 import user from './user';
@@ -20,6 +21,7 @@ const zenkoUIReducer = history => combineReducers({
     instanceStatus,
     instances,
     networkActivity,
+    uiBucket,
     uiErrors,
     uiUser,
     secrets,

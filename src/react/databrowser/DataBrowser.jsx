@@ -1,11 +1,12 @@
-import { Button, ProgressBar } from '@scality/core-ui';
 import { Head, HeadLeft } from '../ui-elements/Head';
 import React, { useEffect } from 'react';
-import TableContainer from '../ui-elements/TableContainer';
+import { Row, TableContainer } from '../ui-elements/Table';
+import { closeBucketDeleteDialog, deleteBucket, listBuckets, openBucketDeleteDialog, selectBucket } from '../actions';
+import { Button } from '@scality/core-ui';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
 import {formatDate} from '../utils';
 import { getLocationName } from '../utils/storageOptions';
-import { listBuckets } from '../actions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
@@ -33,6 +34,8 @@ const BucketSection = styled.div`
   background-color: #1c1c20;
   border-radius: 5px;
   padding: 1em;
+
+  height: calc(100vh - 240px);
 `;
 
 const BucketSectionTop = styled.div`
@@ -40,13 +43,17 @@ const BucketSectionTop = styled.div`
   justify-content: flex-end;
 
   width: 100%;
+  button {
+      margin-left: 5px;
+  }
 `;
 
+
+
 function DataBrowser(props){
-    const { bucketList, stats, redirect, configuration } = props;
+    const { bucketList, stats, redirect, configuration, selectedBucketName } = props;
 
     useEffect(() => {
-        console.log('useEffect!!!', bucketList);
         props.listBuckets();
     }, []);
 
@@ -54,7 +61,25 @@ function DataBrowser(props){
         redirect('/databrowser/create');
     };
 
+    const deleteSelectedBucket = () => {
+        props.deleteBucket(selectedBucketName);
+    }
+
+    // TODO: add HeadSection inside <HEAD>
+    // <HeadSection>
+    //     <div className="title"> ACCOUNT CONSUMPTION </div>
+    //     <ProgressBar
+    //         bottomLeftLabel="50GB Used"
+    //         bottomRightLabel="50GB Free"
+    //         percentage={50}
+    //         size="smaller"
+    //         topLeftLabel="50%"
+    //         topRightLabel="100GB Total"
+    //     />
+    // </HeadSection>
+
     return <DataBrowserContainer>
+        <DeleteConfirmation show={props.showDelete} cancel={props.closeBucketDeleteDialog} approve={deleteSelectedBucket} titleText={`Are you sure you want to delete bucket: ${selectedBucketName} ?`}/>
         <Head>
 
             <HeadLeft>
@@ -64,23 +89,12 @@ function DataBrowser(props){
 
             </HeadLeft>
 
-            <HeadSection>
-                <div className="title"> ACCOUNT CONSUMPTION </div>
-                <ProgressBar
-                    bottomLeftLabel="50GB Used"
-                    bottomRightLabel="50GB Free"
-                    percentage={50}
-                    size="smaller"
-                    topLeftLabel="50%"
-                    topRightLabel="100GB Total"
-                />
-            </HeadSection>
-
         </Head>
 
         <BucketSection>
             <BucketSectionTop>
-                <Button outlined text="Create bucket" onClick={createBucket} />
+                <Button variant="danger" disabled={!selectedBucketName} icon={<i className="fa fa-trash" />} text="&nbsp; Delete bucket" onClick={props.openBucketDeleteDialog} />
+                <Button outlined icon={<i className="fa fa-plus-circle" />} text="&nbsp; Create bucket" onClick={createBucket} />
             </BucketSectionTop>
             <TableContainer hide={props.bucketList.length === 0}>
                 <table>
@@ -92,11 +106,11 @@ function DataBrowser(props){
                         </tr>
                         {
                             props.bucketList.map(b =>
-                                <tr key={b.Name}>
+                                <Row key={b.Name} selected={b.Name === selectedBucketName}  onClick={() => props.selectBucket(b.Name)}>
                                     <td> {b.Name} </td>
                                     <td> {formatDate(b.CreationDate)} </td>
                                     <td> {b.LocationConstraint || 'us-east-1'} / {getLocationName(b.LocationConstraint, configuration)} </td>
-                                </tr>)
+                                </Row>)
                         }
                     </tbody>
                 </table>
@@ -112,13 +126,19 @@ function mapStateToProps(state) {
         bucketList: state.bucket.list,
         stats: state.stats.allStats,
         configuration: state.configuration.latest,
+        selectedBucketName: state.uiBucket.selectedBucketName,
+        showDelete: state.uiBucket.showDelete,
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
+        deleteBucket: bucketName => dispatch(deleteBucket(bucketName)),
         redirect: path => dispatch(push(path)),
         listBuckets: () => dispatch(listBuckets()),
+        openBucketDeleteDialog: () => dispatch(openBucketDeleteDialog()),
+        closeBucketDeleteDialog: () => dispatch(closeBucketDeleteDialog()),
+        selectBucket: bucketName => dispatch(selectBucket(bucketName)),
     };
 }
 

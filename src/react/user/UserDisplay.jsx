@@ -84,17 +84,10 @@ class UserDisplay extends React.Component {
         return tab === this.state.tab;
     }
 
-    deleteDialog = () => {
-        if (!this.props.showDelete) {
-            return null;
-        }
-        return <DeleteConfirmation cancel={this.props.closeUserDeleteDialog} approve={() => this.props.deleteUser(this.props.displayedUser.UserName)} titleText={`Are you sure you want to delete user: ${this.props.displayedUser.UserName} ?`}/>;
-    }
-
     render() {
         const user = this.props.displayedUser;
         return <div>
-            {this.deleteDialog()}
+            <DeleteConfirmation show={this.props.showDelete} cancel={this.props.closeUserDeleteDialog} approve={() => this.props.deleteUser(this.props.displayedUser.UserName)} titleText={`Are you sure you want to delete user: ${this.props.displayedUser.UserName} ?`}/>
             <Head>
                 <Hide isHidden={!user.UserName}>
                     <UserInfo>

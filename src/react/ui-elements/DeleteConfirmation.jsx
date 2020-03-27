@@ -30,6 +30,9 @@ export default class DeleteConfirmation extends React.Component<Props> {
     }
 
     render() {
+        if (!this.props.show) {
+            return null;
+        }
         return (
             <ModalContainer>
                 <Modal

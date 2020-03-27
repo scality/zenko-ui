@@ -1,13 +1,8 @@
 // @noflow
 import React from 'react';
-import TableContainer from '../ui-elements/TableContainer';
+import { TableContainer, Row } from '../ui-elements/Table';
 import {formatDate} from '../utils';
 import styled from 'styled-components';
-
-const Row = styled.tr`
-    cursor: pointer;
-    background-color: ${props => props.selected ? '#000' : 'inherit'};
-`;
 
 export default class UserList extends React.Component {
     rowClicked = (e, userName) => {

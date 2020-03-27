@@ -49,10 +49,10 @@ class ZenkoUI extends React.Component {
         this.props.dispatch(loadCredentials()).then(() => {
             this.setState({ loaded: true });
         });
-        this.refreshIntervalStatsUnit = setInterval(
-            () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
-        this.refreshIntervalStatsSeries = setInterval(
-            () => this.props.dispatch(loadInstanceStats()), 10000);
+        // this.refreshIntervalStatsUnit = setInterval(
+        //     () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
+        // this.refreshIntervalStatsSeries = setInterval(
+        //     () => this.props.dispatch(loadInstanceStats()), 10000);
     }
 
     componentWillUnmount() {
