@@ -18,7 +18,6 @@ export function selectStorageOptions(
     capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
     labelFn?: LabelFunction,
 ): Array<StorageOptionSelect> {
-    console.log('capabilities!!!', capabilities);
     return Object.keys(storageOptions).filter(o => {
         const isOldVersion = !!storageOptions[o].isOldVersion;
         if (isOldVersion) {

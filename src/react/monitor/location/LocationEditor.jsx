@@ -1,6 +1,6 @@
 import { Button, Select } from '@scality/core-ui';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
-import React, {  useEffect, useState } from 'react';
+import React, {  useMemo, useState } from 'react';
 import { convertToLocation, newLocationForm } from './utils';
 import CreateContainer from '../../ui-elements/CreateContainer';
 import Input from '../../ui-elements/Input';
@@ -10,14 +10,25 @@ import { push } from 'connected-react-router';
 import { saveLocation } from '../../actions';
 import { selectStorageOptions } from '../../utils/storageOptions';
 
+
+// TODO: add icon
+const makeLabel = (locationType, assetRoot) => {
+    const details = storageOptions[locationType];
+    return (
+        <div>
+            &nbsp;
+            <span>{details.name}</span>
+        </div>
+    );
+};
+
 // TODO: edit location with locationInfo state
 // Remember when editing location name and type fields have to be disabled
 function LocationEditor(props) {
     const [location, setLocation] = useState(newLocationForm());
-    const [selectOptions, setSelectOptions] = useState([]);
 
-    useEffect(() => {
-        setSelectOptions(selectStorageOptions(null, props.capabilities, makeLabel));
+    const selectOptions = useMemo(() => {
+        return selectStorageOptions(null, props.capabilities, makeLabel);
     }, [props.capabilities]);
 
     const onChange = (e) => {
@@ -33,7 +44,6 @@ function LocationEditor(props) {
         if (e) {
             e.preventDefault();
         }
-        console.log('location!!!', location);
         props.saveLocation(convertToLocation(location));
     };
 
@@ -71,17 +81,6 @@ function LocationEditor(props) {
             },
         };
         setLocation(l);
-    };
-
-    // TODO: add icon
-    const makeLabel = (locationType, assetRoot) => {
-        const details = storageOptions[locationType];
-        return (
-            <div>
-                &nbsp;
-                <span>{details.name}</span>
-            </div>
-        );
     };
 
     const maybeShowDetails = () => {

@@ -1,8 +1,8 @@
 import { Head, HeadLeft } from '../ui-elements/Head';
+import React, { useMemo } from 'react';
 import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog, selectLocation } from '../actions';
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import React from 'react';
 import { connect } from 'react-redux';
 import { getLocationType } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
@@ -93,11 +93,11 @@ const LocationContainer = styled.div`
 `;
 
 function StorageMonitor(props) {
-    const locations = Object.keys(props.locations);
+    const locations = useMemo(() => Object.keys(props.locations), [props.locations]);
 
     const deleteSelectedLocation = () => {
         props.deleteLocation(props.selectedLocationName);
-    }
+    };
 
     // TODO: disable deleting location if used for bucket or lifecycle workflows.
 

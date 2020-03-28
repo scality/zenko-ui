@@ -1,5 +1,5 @@
 import { Button, Select } from '@scality/core-ui';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import CreateContainer from '../ui-elements/CreateContainer';
 import Input from '../ui-elements/Input';
 import { connect } from 'react-redux';
@@ -30,13 +30,10 @@ const SelectOption = styled.div`
 // };
 
 function BucketCreate(props) {
-
     const [ bucket, setBucket ] = useState({ name: '', locationConstraint: 'us-east-1' });
 
-    const [ selectLocations, setSelectLocations ] = useState([]);
-
-    useEffect(() => {
-        setSelectLocations(locationWithIngestion(props.locations, props.capabilities));
+    const selectLocations = useMemo(() => {
+        return locationWithIngestion(props.locations, props.capabilities);
     }, [props.locations, props.capabilities]);
 
     // const selectLocationOptions = locationOptions(locationWithIngestion(props.locations, props.capabilities));
