@@ -1,7 +1,12 @@
 // @noflow
 import { storageOptions } from '../monitor/location/LocationDetails';
 
-export function getLocationName(locationConstraint, configuration) {
+export function getLocationType(locationType) {
+    const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
+    return locationTypeName;
+}
+
+export function getLocationTypeFromName(locationConstraint, configuration) {
     const constraint = locationConstraint || 'us-east-1'; // defaults to empty
     const locationType = configuration && configuration.locations[constraint] ? configuration.locations[constraint].locationType : '';
     const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';

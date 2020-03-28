@@ -24,6 +24,11 @@ const HeadLeft = styled.div`
 
   width: 130px;
   background-color: #00000069;
+
+  .title {
+      margin-top: 10px;
+      font-size: 15px;
+  }
   .number{
       font-size: 4em;
       margin-top:10px;

@@ -34,7 +34,7 @@ const UserRightSection = styled.div`
 `;
 
 const ManageUserSection = styled.div`
-    background-color: #1c1c20;
+    background-color: ${props => props.theme.brand.backgroundContrast1};
     padding: 10px;
     border-radius: 5px;
     height: calc(100% - 20px);

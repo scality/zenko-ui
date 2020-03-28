@@ -37,7 +37,7 @@ function BucketCreate(props) {
 
     useEffect(() => {
         setSelectLocations(locationWithIngestion(props.locations, props.capabilities));
-    }, []);
+    }, [props.locations, props.capabilities]);
 
     // const selectLocationOptions = locationOptions(locationWithIngestion(props.locations, props.capabilities));
 
@@ -45,8 +45,7 @@ function BucketCreate(props) {
         if (e) {
             e.preventDefault();
         }
-        console.log('bucket!!!', bucket);
-        // props.createBucket(bucket);
+        props.createBucket(bucket);
     };
 
     const cancel = () => {

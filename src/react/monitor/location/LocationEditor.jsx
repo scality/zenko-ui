@@ -1,6 +1,6 @@
 import { Button, Select } from '@scality/core-ui';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
-import React, { useState } from 'react';
+import React, {  useEffect, useState } from 'react';
 import { convertToLocation, newLocationForm } from './utils';
 import CreateContainer from '../../ui-elements/CreateContainer';
 import Input from '../../ui-elements/Input';
@@ -14,6 +14,11 @@ import { selectStorageOptions } from '../../utils/storageOptions';
 // Remember when editing location name and type fields have to be disabled
 function LocationEditor(props) {
     const [location, setLocation] = useState(newLocationForm());
+    const [selectOptions, setSelectOptions] = useState([]);
+
+    useEffect(() => {
+        setSelectOptions(selectStorageOptions(null, props.capabilities, makeLabel));
+    }, [props.capabilities]);
 
     const onChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -97,8 +102,6 @@ function LocationEditor(props) {
         );
     };
 
-    // URGENT: move it to state
-    const selectOptions = selectStorageOptions(null, props.capabilities, makeLabel);
     return <CreateContainer>
         <div className='sc-title'> Add new storage location </div>
         <fieldset>

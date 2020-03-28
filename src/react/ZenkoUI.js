@@ -28,8 +28,8 @@ const theme = {
         info: turquoise,
         warning: yellowOrange,
         danger: warmRed,
-        background: '#26232A',
-        backgroundContrast1: '#161617',
+        background: '#0a0a0b',
+        backgroundContrast1: '#16161a',
         backgroundContrast2: '#08080A',
         text: white,
         border: white,
@@ -49,10 +49,10 @@ class ZenkoUI extends React.Component {
         this.props.dispatch(loadCredentials()).then(() => {
             this.setState({ loaded: true });
         });
-        // this.refreshIntervalStatsUnit = setInterval(
-        //     () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
-        // this.refreshIntervalStatsSeries = setInterval(
-        //     () => this.props.dispatch(loadInstanceStats()), 10000);
+        this.refreshIntervalStatsUnit = setInterval(
+            () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
+        this.refreshIntervalStatsSeries = setInterval(
+            () => this.props.dispatch(loadInstanceStats()), 10000);
     }
 
     componentWillUnmount() {

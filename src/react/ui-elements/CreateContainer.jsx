@@ -8,7 +8,7 @@ const CreateContainer = styled.div`
     max-width: 600px;
     margin: 10px;
     padding: 20px;
-    background-color: #1c1c20;
+    background-color: ${props => props.theme.brand.backgroundContrast1};
     border-radius: 5px;
 
     // TODO: fix inside core-ui

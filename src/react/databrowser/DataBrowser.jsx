@@ -6,7 +6,7 @@ import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
 import {formatDate} from '../utils';
-import { getLocationName } from '../utils/storageOptions';
+import { getLocationTypeFromName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
@@ -31,7 +31,7 @@ const BucketSection = styled.div`
   display: flex;
   flex-direction: column;
 
-  background-color: #1c1c20;
+  background-color: ${props => props.theme.brand.backgroundContrast1};
   border-radius: 5px;
   padding: 1em;
 
@@ -109,7 +109,7 @@ function DataBrowser(props){
                                 <Row key={b.Name} selected={b.Name === selectedBucketName}  onClick={() => props.selectBucket(b.Name)}>
                                     <td> {b.Name} </td>
                                     <td> {formatDate(b.CreationDate)} </td>
-                                    <td> {b.LocationConstraint || 'us-east-1'} / {getLocationName(b.LocationConstraint, configuration)} </td>
+                                    <td> {b.LocationConstraint || 'us-east-1'} / {getLocationTypeFromName(b.LocationConstraint, configuration)} </td>
                                 </Row>)
                         }
                     </tbody>

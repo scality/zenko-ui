@@ -20,7 +20,7 @@ const Layout = styled.div`
   overflow: scroll;
 
   color: #fff;
-  background-color: #0c0c0d;
+  background-color: ${props => props.theme.brand.background};
   flex-direction:column;
 `;
 
