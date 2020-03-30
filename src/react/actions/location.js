@@ -1,6 +1,7 @@
 // @noflow
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import { batch } from 'react-redux';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
@@ -45,8 +46,10 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
             :
             pensieveClient.createConfigurationOverlayLocation(params);
         return op.then(() => {
-            dispatch(updateConfiguration());
-            dispatch(push('/'));
+            batch(() => {
+                dispatch(updateConfiguration());
+                dispatch(push('/'));
+            });
         }).catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

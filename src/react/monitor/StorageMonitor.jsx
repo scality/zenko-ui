@@ -62,10 +62,10 @@ const SectionRight = styled.div`
 const LocationContainer = styled.div`
     display: flex;
     flex-direction: column;
-    flex-shrink: 2;
+    flex-basis: 130px;
 
     cursor: pointer;
-    width: 130px;
+    min-width: 130px;
     margin: 10px 5px;
     padding: 10px;
     border-radius: 5px;
@@ -85,11 +85,14 @@ const LocationContainer = styled.div`
         /* display: flex; */
         /* justify-content: space-between;
         align-items: baseline; */
+        word-break: break-all;
+        .maintitle{
+        }
+        .subtitle {
+            margin-top: 5px;
+            font-size: 12px;
+        }
     };
-    .subtitle {
-        margin-top: 5px;
-        font-size: 12px;
-    }
 `;
 
 function StorageMonitor(props) {
@@ -123,7 +126,7 @@ function StorageMonitor(props) {
                         locations.map(l => {
                             return (<LocationContainer key={l} clicked={l === props.selectedLocationName} onClick={() => props.selectLocation(l)}>
                                 <div className='title'>
-                                    <div> {l} </div>
+                                    <div className='maintitle'> {l} </div>
                                     <div className='subtitle'> {getLocationType(props.locations[l].locationType)} </div>
                                 </div>
                             </LocationContainer>);

@@ -1,7 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { addSecret } from './secrets';
-import { batch } from 'react-redux'
+import { batch } from 'react-redux';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 

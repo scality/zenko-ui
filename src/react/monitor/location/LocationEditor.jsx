@@ -44,6 +44,7 @@ function LocationEditor(props) {
         if (e) {
             e.preventDefault();
         }
+        // console.log('location!!!', location);
         props.saveLocation(convertToLocation(location));
     };
 
