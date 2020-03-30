@@ -1,50 +1,12 @@
 // @noflow
-
-import { Button, Tabs } from '@scality/core-ui';
+import { closeUserDeleteDialog, deleteUser, openUserDeleteDialog } from '../actions';
+import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import Hide from '../ui-elements/Hide';
 import React from 'react';
-import UserBuckets from './UserBuckets';
-import UserInformation from './UserInformation';
+import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
-
-const Head = styled.div`
-  display: flex;
-
-  height: 100px;
-  border-radius: 5px;
-  padding: 15px;
-  background: repeating-radial-gradient(
-    circle at 5% 5%,
-    #212127,
-    #212127 3px,
-    #32323a 3px,
-    #32323a 15px
-  );
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  min-height: calc(100vh - 150px);
-  margin-top: 10px;
-  background-color: ${props => props.theme.brand.backgroundContrast1};
-  border-radius: 5px;
-  .sc-tabs{
-      width: 100%;
-  }
-  .sc-tabs-item{
-      min-width: 100px;
-  }
-`;
-
-const Picture = styled.div`
-  display: flex;
-  width: 20%;
-  height: 100px;
-  background-color: transparent;
-`;
 
 const UserInfo = styled.div`
   display: flex;
@@ -64,6 +26,11 @@ const UserInfo = styled.div`
     font-size: 20px;
     margin-left: 10px;
   }
+`;
+
+const UserDisplayContainer = styled.div`
+    display: flex;
+    width: 100%;
 `;
 
 class UserDisplay extends React.Component {
@@ -86,45 +53,33 @@ class UserDisplay extends React.Component {
 
     render() {
         const user = this.props.displayedUser;
-        return <div>
+        return <UserDisplayContainer>
             <DeleteConfirmation show={this.props.showDelete} cancel={this.props.closeUserDeleteDialog} approve={() => this.props.deleteUser(this.props.displayedUser.UserName)} titleText={`Are you sure you want to delete user: ${this.props.displayedUser.UserName} ?`}/>
-            <Head>
-                <Hide isHidden={!user.UserName}>
-                    <UserInfo>
-                        <div className='username'> {user.UserName} </div>
-                        <Button outlined size="small" text='Delete user' type="submit"
-                            onClick={this.props.openUserDeleteDialog} />
-                    </UserInfo>
-                </Hide>
-            </Head>
-            <Content>
-                <Hide isHidden={!user.UserName}>
-                    <Tabs
-                        items={[
-                            {
-                                onClick: () => this.setTab(0),
-                                selected: this.isSelected(0),
-                                title: 'Information',
-                            },
-                            {
-                                onClick: () => this.setTab(1),
-                                selected: this.isSelected(1),
-                                title: 'Buckets',
-                            },
-                            {
-                                onClick: () => this.setTab(2),
-                                selected: this.isSelected(2),
-                                title: 'Key Metrics',
-                            },
-                        ]}
-                    >
-                        {this.state.tab === 0 && <UserInformation/>}
-                        {this.state.tab === 1 && <UserBuckets/>}
-                    </Tabs>
-                </Hide>
-            </Content>
-        </div>;
+            <Hide isHidden={!user.UserName}>
+                <UserInfo>
+                    <div className='username'> {user.UserName} </div>
+                    <Button outlined size="small" text='Delete user' type="submit"
+                        onClick={this.props.openUserDeleteDialog} />
+                </UserInfo>
+            </Hide>
+        </UserDisplayContainer>;
     }
 }
 
-export default UserDisplay;
+function mapStateToProps(state: AppState): StateProps{
+    return {
+        displayedUser: state.user.displayedUser,
+        showDelete: state.uiUser.showDelete,
+    };
+}
+
+function mapDispatchToProps(dispatch): DispatchProps{
+    return {
+        deleteUser: (userName: string) => dispatch(deleteUser(userName)),
+        openUserDeleteDialog: () => dispatch(openUserDeleteDialog()),
+        closeUserDeleteDialog: () => dispatch(closeUserDeleteDialog()),
+        redirect: (path: string) => dispatch(push(path)),
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserDisplay);

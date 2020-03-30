@@ -1,6 +1,7 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { addSecret } from './secrets';
+import { batch } from 'react-redux'
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 
@@ -110,9 +111,12 @@ export function createUser(userName) {
         dispatch(networkStart('Saving user'));
         iamClient.createUser(userName)
             .then(() => {
-                // dispatch(listUsers());
-                dispatch(push('/users'));
-                dispatch(getUser(userName));
+                // to have a single render update out of these multiple batches
+                batch(() => {
+                    dispatch(push('/users'));
+                    dispatch(listUsers());
+                    dispatch(getUser(userName));
+                });
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
@@ -215,11 +219,8 @@ export function getUser(userName) {
         iamClient.getUser(userName)
             .then(resp => {
                 dispatch(displayUser(resp.User));
-                return resp.User;
-            })
-            .then(user => {
-                dispatch(listAccessKeys(user.UserName));
-                dispatch(listAttachedUserPolicies(user.UserName));
+                dispatch(listAccessKeys(userName));
+                dispatch(listAttachedUserPolicies(userName));
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

@@ -1,4 +1,4 @@
-export default function user(state = { list: [], displayedUser: {}, accessKeyList: [], attachedPoliciesList: [], groupList: []}, action) {
+export default function user(state = { list: [], accessKeyList: [], attachedPoliciesList: [], groupList: [], displayedUser: {}}, action) {
     switch (action.type){
     case 'UPDATE_USER_LIST':
         return {
@@ -6,11 +6,17 @@ export default function user(state = { list: [], displayedUser: {}, accessKeyLis
             list: action.list,
         };
     case 'UPDATE_ACCESS_KEY_LIST':
+        if (state.accessKeyList.length === action.list.length && action.list.length === 0) {
+            return state;
+        }
         return {
             ...state,
             accessKeyList: action.list,
         };
     case 'UPDATE_ATTACHED_USER_POLICIES_LIST':
+        if (state.attachedPoliciesList.length === action.list.length && action.list.length === 0) {
+            return state;
+        }
         return {
             ...state,
             attachedPoliciesList: action.list,

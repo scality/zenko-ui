@@ -1,5 +1,4 @@
-import { handleApiError, handleClientError } from './error';
-import {loadInstanceLatestStatus, loadInstanceStats} from './stats';
+import { handleApiError, handleClientError, listBuckets, listUsers, loadInstanceLatestStatus, loadInstanceStats} from './';
 import IAMClient from '../../js/IAMClient';
 import S3Client from '../../js/S3Client';
 import creds from '../../../creds';
@@ -48,6 +47,8 @@ export function loadCredentials() {
                 return Promise.all([
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
+                    dispatch(listBuckets()),
+                    dispatch(listUsers()),
                 ]);
             })
             .then(() => {})

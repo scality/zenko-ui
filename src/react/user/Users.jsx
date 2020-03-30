@@ -1,14 +1,11 @@
 // @flow
 
-import { closeUserDeleteDialog, createUser, deleteUser, getUser, listUsers, openUserDeleteDialog } from '../actions';
 import type { AppState } from '../../types/state';
-import { Button } from '@scality/core-ui';
 import React from 'react';
 import type { User } from '../../types/user';
 import UserDisplay from './UserDisplay';
+import UserInformation from './UserInformation';
 import UserList from './UserList';
-import { connect } from 'react-redux';
-import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const UsersContainer = styled.div`
@@ -33,13 +30,36 @@ const UserRightSection = styled.div`
     padding: 10px;
 `;
 
-const ManageUserSection = styled.div`
-    background-color: ${props => props.theme.brand.backgroundContrast1};
-    padding: 10px;
+const UserRightHead = styled.div`
+    display: flex;
+
+    height: 100px;
     border-radius: 5px;
-    height: calc(100% - 20px);
+    padding: 15px;
+    background: repeating-radial-gradient(
+      circle at 5% 5%,
+      #212127,
+      #212127 3px,
+      #32323a 3px,
+      #32323a 15px
+    );
 `;
 
+const UserRightContent = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  min-height: calc(100vh - 150px);
+  margin-top: 10px;
+  background-color: ${props => props.theme.brand.backgroundContrast1};
+  border-radius: 5px;
+  .sc-tabs{
+      width: 100%;
+  }
+  .sc-tabs-item{
+      min-width: 100px;
+  }
+`;
 
 type DispatchProps = {
     listUsers: () => void,
@@ -57,10 +77,6 @@ type Props = StateProps & DispatchProps;
 
 class Users extends React.Component<Props>{
 
-    componentDidMount() {
-        this.props.listUsers();
-    }
-
     redirect = (e: SyntheticInputEvent<HTMLInputElement>) => {
         if (e) {
             e.preventDefault();
@@ -72,19 +88,15 @@ class Users extends React.Component<Props>{
         return (
             <UsersContainer>
                 <UserLeftSection>
-                    <ManageUserSection>
-                        <Button outlined onClick={this.redirect} size="default" text="Add" type="submit" />
-                        <UserList getUser={this.props.getUser} userList={this.props.userList} displayedUser={this.props.displayedUser}/>
-                    </ManageUserSection>
+                    <UserList/>
                 </UserLeftSection>
                 <UserRightSection>
-                    <UserDisplay
-                        displayedUser={this.props.displayedUser}
-                        deleteUser={this.props.deleteUser}
-                        openUserDeleteDialog={this.props.openUserDeleteDialog}
-                        closeUserDeleteDialog={this.props.closeUserDeleteDialog}
-                        showDelete={this.props.showDelete}
-                    />
+                    <UserRightHead>
+                        <UserDisplay/>
+                    </UserRightHead>
+                    <UserRightContent>
+                        <UserInformation/>
+                    </UserRightContent>
                 </UserRightSection>
             </UsersContainer>
         );
@@ -92,25 +104,4 @@ class Users extends React.Component<Props>{
 
 }
 
-function mapStateToProps(state: AppState): StateProps{
-    return {
-        userList: state.user.list,
-        displayedUser: state.user.displayedUser,
-        attachedPoliciesList: state.user.attachedPoliciesList,
-        showDelete: state.uiUser.showDelete,
-    };
-}
-
-function mapDispatchToProps(dispatch): DispatchProps{
-    return {
-        deleteUser: (userName: string) => dispatch(deleteUser(userName)),
-        listUsers: () => dispatch(listUsers()),
-        createUser: (userName: string) => dispatch(createUser(userName)),
-        getUser: (userName: string) => dispatch(getUser(userName)),
-        openUserDeleteDialog: () => dispatch(openUserDeleteDialog()),
-        closeUserDeleteDialog: () => dispatch(closeUserDeleteDialog()),
-        redirect: (path: string) => dispatch(push(path)),
-    };
-}
-
-export default connect<any, any, any, any, any, any>(mapStateToProps, mapDispatchToProps)(Users);
+export default Users;

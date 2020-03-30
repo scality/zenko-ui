@@ -1,5 +1,5 @@
 import { Head, HeadLeft } from '../ui-elements/Head';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Row, TableContainer } from '../ui-elements/Table';
 import { closeBucketDeleteDialog, deleteBucket, listBuckets, openBucketDeleteDialog, selectBucket } from '../actions';
 import { Button } from '@scality/core-ui';
@@ -53,9 +53,9 @@ const BucketSectionTop = styled.div`
 function DataBrowser(props){
     const { bucketList, stats, redirect, configuration, selectedBucketName } = props;
 
-    useEffect(() => {
-        props.listBuckets();
-    }, []);
+    // useEffect(() => {
+    //     props.listBuckets();
+    // }, []);
 
     const createBucket = () => {
         redirect('/databrowser/create');
@@ -135,7 +135,7 @@ function mapDispatchToProps(dispatch) {
     return {
         deleteBucket: bucketName => dispatch(deleteBucket(bucketName)),
         redirect: path => dispatch(push(path)),
-        listBuckets: () => dispatch(listBuckets()),
+        // listBuckets: () => dispatch(listBuckets()),
         openBucketDeleteDialog: () => dispatch(openBucketDeleteDialog()),
         closeBucketDeleteDialog: () => dispatch(closeBucketDeleteDialog()),
         selectBucket: bucketName => dispatch(selectBucket(bucketName)),

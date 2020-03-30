@@ -7,8 +7,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ZenkoUI from './ZenkoUI';
 import { createBrowserHistory as createHistory } from 'history';
+import logger from 'redux-logger';
 import thunk from 'redux-thunk';
 import zenkoUIReducer from './reducers';
+
+const whyDidYouRender = require('@welldone-software/why-did-you-render');
+whyDidYouRender(React, {
+    trackAllPureComponents: true,
+});
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 

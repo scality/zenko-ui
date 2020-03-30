@@ -42,8 +42,8 @@ const Activity = ({ working, message }: Props) => {
 
 function mapStateToProps(state: AppState) {
     return {
-        working: state.networkActivity.counter > 0,
-        message: state.networkActivity.messages.first(),
+        // working: state.networkActivity.counter > 0,
+        // message: state.networkActivity.messages.first(),
     };
 }
 

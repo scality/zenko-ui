@@ -13,10 +13,12 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+
+  padding: 15px;
 `;
 
 const TableWrapper = styled.div`
-    margin-top: 20px;
+    margin-bottom: 20px;
     min-height: 130px;
 `;
 
@@ -59,6 +61,9 @@ class UserInformation extends React.Component<Props>{
     }
 
     render() {
+        if (!this.props.displayedUser.UserName) {
+            return null;
+        }
         return <Wrapper>
             <TableWrapper>
                 <Title>
