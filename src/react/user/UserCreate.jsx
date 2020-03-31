@@ -1,6 +1,6 @@
 // @flow
 import { Button } from '@scality/core-ui';
-import CreateContainer from '../ui-elements/CreateContainer';
+import FormContainer from '../ui-elements/FormContainer';
 import Input from '../ui-elements/Input';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -48,7 +48,7 @@ class UserCreate extends React.Component<Props, State> {
     render() {
         console.log('render!!!!');
         return (
-            <CreateContainer>
+            <FormContainer>
                 <div className='sc-title'> create new user </div>
                 <fieldset>
                     <label htmlFor='userName'> Name </label>
@@ -65,7 +65,7 @@ class UserCreate extends React.Component<Props, State> {
                     <Button outlined onClick={this.redirect} text='Cancel'/>
                     <Button outlined onClick={this.submit} text='Add'/>
                 </div>
-            </CreateContainer>
+            </FormContainer>
         );
     }
 }

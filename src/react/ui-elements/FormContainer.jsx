@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const CreateContainer = styled.div`
+const FormContainer = styled.div`
 
     display: flex;
     flex-direction: column;
@@ -46,12 +46,19 @@ const CreateContainer = styled.div`
             width:auto;
         }
     }
+
     .footer {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
 
       text-transform: lowercase;
       margin-top: 40px;
+
+      .zk-banner {
+          width: calc(100% - 140px);
+          height: 52px;
+      }
 
       button{
           margin-left: 5px;
@@ -63,4 +70,4 @@ const CreateContainer = styled.div`
     }
 `;
 
-export default CreateContainer;
+export default FormContainer;

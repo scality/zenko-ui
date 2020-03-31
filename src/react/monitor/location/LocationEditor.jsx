@@ -1,11 +1,12 @@
-import { Button, Select } from '@scality/core-ui';
+import { Banner, Button, Select } from '@scality/core-ui';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
 import React, {  useMemo, useState } from 'react';
 import { convertToLocation, newLocationForm } from './utils';
-import CreateContainer from '../../ui-elements/CreateContainer';
+import FormContainer from '../../ui-elements/FormContainer';
 import Input from '../../ui-elements/Input';
 import LocationOptions from './LocationOptions';
 import { connect } from 'react-redux';
+import locationFormCheck from './locationFormCheck';
 import { push } from 'connected-react-router';
 import { saveLocation } from '../../actions';
 import { selectStorageOptions } from '../../utils/storageOptions';
@@ -102,7 +103,9 @@ function LocationEditor(props) {
         );
     };
 
-    return <CreateContainer>
+    const { disable, errorMessage } = locationFormCheck(location);
+
+    return <FormContainer>
         <div className='sc-title'> Add new storage location </div>
         <fieldset>
             <label htmlFor="name"> Location Name </label>
@@ -136,10 +139,20 @@ function LocationEditor(props) {
             onChange={onOptionsChange}
         />
         <div className='footer'>
+            <div className='zk-banner'>
+                {
+                    errorMessage && <Banner
+                        icon={<i className="fas fa-exclamation-triangle" />}
+                        title="Error"
+                        variant="danger">
+                        {errorMessage}
+                    </Banner>
+                }
+            </div>
             <Button outlined onClick={cancel} text='Cancel'/>
-            <Button outlined onClick={save} text='Add'/>
+            <Button outlined disabled={disable} onClick={save} text='Add'/>
         </div>
-    </CreateContainer>;
+    </FormContainer>;
 }
 
 function mapStateToProps(state) {

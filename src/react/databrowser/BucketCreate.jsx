@@ -1,6 +1,6 @@
 import { Button, Select } from '@scality/core-ui';
 import React, {useEffect, useMemo, useState} from 'react';
-import CreateContainer from '../ui-elements/CreateContainer';
+import FormContainer from '../ui-elements/FormContainer';
 import Input from '../ui-elements/Input';
 import { connect } from 'react-redux';
 import { createBucket } from '../actions';
@@ -78,7 +78,7 @@ function BucketCreate(props) {
         );
     };
 
-    return <CreateContainer>
+    return <FormContainer>
         <div className='sc-title'> create  bucket </div>
         <fieldset>
             <label htmlFor='userName'> Name </label>
@@ -107,7 +107,7 @@ function BucketCreate(props) {
             <Button outlined onClick={cancel} text='Cancel'/>
             <Button outlined onClick={save} text='Add'/>
         </div>
-    </CreateContainer>;
+    </FormContainer>;
 }
 
 function mapStateToProps(state) {

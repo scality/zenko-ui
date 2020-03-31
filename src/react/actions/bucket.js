@@ -1,5 +1,6 @@
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import { batch } from 'react-redux';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 
@@ -53,7 +54,12 @@ export function createBucket(bucket){
         const { s3Client } = getClients(getState());
         dispatch(networkStart('Creating bucket'));
         return s3Client.createBucket(bucket)
-            .then(() => dispatch(push('/databrowser')))
+            .then(() => {
+                batch(() => {
+                    dispatch(push('/databrowser'));
+                    dispatch(listBuckets());
+                });
+            })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

@@ -1,7 +1,7 @@
 import { Button, Input, MultiSelect, Select } from '@scality/core-ui';
 import React, { useState } from 'react';
 import { convertToReplicationStream, generateStreamName, newReplicationForm } from './utils';
-import CreateContainer from '../../ui-elements/CreateContainer';
+import FormContainer from '../../ui-elements/FormContainer';
 // import ReplicationCreateForm from './ReplicationCreateForm';
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -129,7 +129,7 @@ function ReplicationCreate(props){
     };
 
 
-    return <CreateContainer>
+    return <FormContainer>
         <div className='sc-title'> create replication </div>
         <div>
             <div className='input'>
@@ -172,7 +172,7 @@ function ReplicationCreate(props){
             <Button outlined onClick={cancel} text='Cancel'/>
             <Button outlined onClick={save} text='Save'/>
         </div>
-    </CreateContainer>;
+    </FormContainer>;
 }
 
 
