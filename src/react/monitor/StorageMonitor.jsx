@@ -102,7 +102,37 @@ function StorageMonitor(props) {
         props.deleteLocation(props.selectedLocationName);
     };
 
-    // TODO: disable deleting location if used for bucket or lifecycle workflows.
+    // TODO: add specific tooltip message about why location can not be deleted
+    const canDeleteLocation = (locationName) => {
+        if (!locationName) {
+            return false;
+        }
+        const isBuiltin = props.locations[locationName] && props.locations[locationName].isBuiltin;
+        if (isBuiltin){
+            return false;
+        }
+        const checkStreamLocations = props.replicationStreams.every(r => {
+            // legacy $FlowFixMe
+            if (r.destination.location) {
+                return r.destination.location !== locationName;
+            }
+            return r.destination.locations.every(destLocation => {
+                return destLocation.name !== locationName;
+            });
+        });
+        if (!checkStreamLocations){
+            return false;
+        }
+        const checkBucketLocations = props.buckets.every(bucket => bucket.location !== locationName);
+        if (!checkBucketLocations) {
+            return false;
+        }
+        const checkEndpointLocations = props.endpoints.every(e => e.locationName !== locationName);
+        if (!checkEndpointLocations) {
+            return false;
+        }
+        return true;
+    };
 
     return <div>
         <DeleteConfirmation show={props.showDeleteLocation} cancel={props.closeLocationDeleteDialog} approve={deleteSelectedLocation} titleText={`Are you sure you want to delete location: ${props.selectedLocationName} ?`}/>
@@ -118,7 +148,7 @@ function StorageMonitor(props) {
                     </div>
                     <div className='bottom'>
                         <Button outlined text="ADD" size="small" onClick={() => props.redirect('/monitor/location/editor')}/>
-                        <Button variant="danger" disabled={!props.selectedLocationName} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
+                        <Button variant="danger" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
                     </div>
                 </SectionLeft>
                 <SectionRight>
@@ -143,6 +173,9 @@ const mapStateToProps = state => {
         locations: state.configuration.latest.locations,
         selectedLocationName: state.uiLocation.selectedLocationName,
         showDeleteLocation: state.uiLocation.showDeleteLocation,
+        replicationStreams: state.configuration.latest.replicationStreams,
+        buckets: state.stats.bucketList,
+        endpoints: state.configuration.latest.endpoints,
     };
 };
 
