@@ -1,6 +1,6 @@
 import { Head, HeadLeft } from '../ui-elements/Head';
 import React, { useMemo } from 'react';
-import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog, selectLocation } from '../actions';
+import { closeLocationDeleteDialog, deleteLocation, editLocation, openLocationDeleteDialog, selectLocation } from '../actions';
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
@@ -11,7 +11,7 @@ import styled from 'styled-components';
 const Sections = styled.div`
   display: flex;
   flex-direction: column;
-  height: 150px;
+  height: 210px;
 `;
 
 const Section = styled.div`
@@ -45,7 +45,7 @@ const SectionLeft = styled.div`
   }
 
   .bottom {
-      padding: 15px;
+      padding: 0px 15px;
       button{
           width: 80px;
           margin-bottom: 5px;
@@ -134,6 +134,22 @@ function StorageMonitor(props) {
         return true;
     };
 
+    const canEditLocation = (locationName) => {
+        if (!locationName){
+            return false;
+        }
+        const isBuiltin = props.locations[locationName] && props.locations[locationName].isBuiltin;
+        if (isBuiltin){
+            return false;
+        }
+        return true;
+    };
+
+    const editLocation = () => {
+        props.editLocation(props.locations[props.selectedLocationName]);
+        props.redirect('/monitor/location/editor');
+    }
+
     return <div>
         <DeleteConfirmation show={props.showDeleteLocation} cancel={props.closeLocationDeleteDialog} approve={deleteSelectedLocation} titleText={`Are you sure you want to delete location: ${props.selectedLocationName} ?`}/>
         <Head>
@@ -148,7 +164,8 @@ function StorageMonitor(props) {
                     </div>
                     <div className='bottom'>
                         <Button outlined text="ADD" size="small" onClick={() => props.redirect('/monitor/location/editor')}/>
-                        <Button variant="danger" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
+                        <Button outlined variant="secondary" text='EDIT' size='small' onClick={editLocation} disabled={!canEditLocation(props.selectedLocationName)}/>
+                        <Button outlined variant="danger" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
                     </div>
                 </SectionLeft>
                 <SectionRight>
@@ -186,6 +203,7 @@ const mapDispatchToProps = (dispatch) => {
         deleteLocation: locationName => dispatch(deleteLocation(locationName)),
         openLocationDeleteDialog: () => dispatch(openLocationDeleteDialog()),
         closeLocationDeleteDialog: () => dispatch(closeLocationDeleteDialog()),
+        editLocation: location => dispatch(editLocation(location)),
     };
 };
 

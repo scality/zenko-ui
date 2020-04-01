@@ -1,14 +1,14 @@
 import { Banner, Button, Select } from '@scality/core-ui';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
 import React, {  useMemo, useState } from 'react';
-import { convertToLocation, newLocationForm } from './utils';
+import { convertToForm, convertToLocation, newLocationDetails, newLocationForm } from './utils';
+import { resetEditLocation, saveLocation } from '../../actions';
 import FormContainer from '../../ui-elements/FormContainer';
 import Input from '../../ui-elements/Input';
 import LocationOptions from './LocationOptions';
 import { connect } from 'react-redux';
 import locationFormCheck from './locationFormCheck';
 import { push } from 'connected-react-router';
-import { saveLocation } from '../../actions';
 import { selectStorageOptions } from '../../utils/storageOptions';
 
 
@@ -26,11 +26,15 @@ const makeLabel = (locationType, assetRoot) => {
 // TODO: edit location with locationInfo state
 // Remember when editing location name and type fields have to be disabled
 function LocationEditor(props) {
-    const [location, setLocation] = useState(newLocationForm());
+    const [location, setLocation] = useState(convertToForm(Object.assign({}, newLocationDetails(), props.locationEditing)));
 
     const selectOptions = useMemo(() => {
         return selectStorageOptions(null, props.capabilities, makeLabel);
     }, [props.capabilities]);
+
+    const editingExisting = useMemo(() => {
+        return !!(props.locationEditing && props.locationEditing.objectId);
+    }, [props.locationEditing]);
 
     const onChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -50,6 +54,7 @@ function LocationEditor(props) {
     };
 
     const cancel = () => {
+        props.resetEditLocation();
         props.redirect('/');
     };
 
@@ -96,7 +101,7 @@ function LocationEditor(props) {
                     locationType={location.locationType}
                     details={location.details}
                     onChange={onDetailsChange}
-                    editingExisting={false}
+                    editingExisting={editingExisting}
                     capabilities={props.capabilities}
                 />
             </div>
@@ -117,7 +122,7 @@ function LocationEditor(props) {
                 onChange={onChange}
                 value={location.name}
                 placeholder="zenko-us-west-2"
-                // disabled={props.editingExisting}
+                disabled={editingExisting}
                 autoComplete='off' />
         </fieldset>
         <fieldset>
@@ -128,7 +133,7 @@ function LocationEditor(props) {
                 options={selectOptions}
                 isOptionDisabled={(option) => option.disabled === true }
                 onChange={onTypeChange}
-                // disabled={props.editingExisting}
+                isDisabled={editingExisting}
                 value = {selectOptions.find(l => l.value === location.locationType)}
             />
         </fieldset>
@@ -158,6 +163,7 @@ function LocationEditor(props) {
 function mapStateToProps(state) {
     return {
         capabilities: state.instanceStatus.latest.state.capabilities || {},
+        locationEditing: state.uiLocation.locationEditing,
     };
 }
 
@@ -165,6 +171,7 @@ function mapDispatchToProps(dispatch) {
     return {
         saveLocation: (location: Location) => { dispatch(saveLocation(location)); },
         redirect: path => dispatch(push(path)),
+        resetEditLocation: () => dispatch(resetEditLocation()),
     };
 }
 

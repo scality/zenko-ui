@@ -2,6 +2,18 @@
 
 import { defaultLocationType } from './LocationDetails';
 
+function newLocationDetails(): Location {
+    return {
+        name: '',
+        locationType: defaultLocationType,
+        details: {},
+        objectId: '',
+        isTransient: false,
+        isBuiltin: false,
+        sizeLimitGB: 0,
+    };
+}
+
 function newLocationForm(): LocationForm {
     return {
         name: '',
@@ -33,7 +45,27 @@ function convertToLocation(locationState: LocationForm): Location {
     return ret;
 }
 
+function convertToForm(locationProps: Location): LocationForm {
+    const ret = {
+        name: locationProps.name,
+        locationType: locationProps.locationType,
+        details: locationProps.details,
+        objectId: locationProps.objectId,
+        options: {
+            isTransient: locationProps.isTransient,
+            isBuiltin: locationProps.isBuiltin,
+            isSizeLimitChecked: !!locationProps.sizeLimitGB,
+            sizeLimitGB: locationProps.sizeLimitGB ?
+                `${locationProps.sizeLimitGB}` : '',
+            legacyAwsBehavior: locationProps.legacyAwsBehavior,
+        },
+    };
+    return ret;
+}
+
 export {
     newLocationForm,
     convertToLocation,
+    convertToForm,
+    newLocationDetails,
 };

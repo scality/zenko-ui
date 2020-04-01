@@ -1,5 +1,5 @@
 // @noflow
-import { Checkbox } from '@scality/core-ui';
+import { Banner, Checkbox } from '@scality/core-ui';
 import Input from '../../../ui-elements/Input';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
@@ -117,11 +117,13 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {
                             this.state.bucketMatch &&
-                            <div>
-                                <small className="text-danger">
-                                    <i className="fa fa-exclamation-circle"></i>
-                                    &nbsp; Storing multiple buckets in a location with this option enabled can lead to data loss.
-                                </small>
+                            <div style={{'margin-top': '10px'}}>
+                                <Banner
+                                    icon={<i className="fa fa-exclamation-circle" />}
+                                    variant="danger"
+                                >
+                                  Storing multiple buckets in a location with this option enabled can lead to data loss.
+                                </Banner>
                             </div>
                         }
                     </label>
@@ -136,7 +138,6 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                             onChange={this.onChange}
                             label="Server-Side Encryption"
                         />
-                        <span>Server-Side Encryption</span>
                     </label>
                 </fieldset>
             </div>

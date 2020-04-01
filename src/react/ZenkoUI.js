@@ -23,7 +23,7 @@ const theme = {
         // App
         // primary: "#111112",
         primary: white,
-        secondary: white,
+        secondary: '#a7a7a7',
         success: jade,
         info: turquoise,
         warning: yellowOrange,

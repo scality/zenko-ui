@@ -6,6 +6,19 @@ import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 
+export function editLocation(location) {
+    return {
+        type: 'EDIT_LOCATION',
+        location,
+    };
+}
+
+export function resetEditLocation() {
+    return {
+        type: 'RESET_EDIT_LOCATION',
+    };
+}
+
 export function selectLocation(locationName) {
     return {
         type: 'SELECT_LOCATION',
