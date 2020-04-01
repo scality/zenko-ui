@@ -1,4 +1,4 @@
-import '../../public/assets/css/index.css';
+import '../css/index.css';
 
 import { ConnectedRouter, routerMiddleware } from 'connected-react-router';
 import { applyMiddleware, compose, createStore } from 'redux';
