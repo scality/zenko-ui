@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -7,7 +8,7 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'public/assets/js'),
-        publicPath: 'http://127.0.0.1:8383/',
+        publicPath: '/',
     },
     resolve: {
         modules: ['node_modules'],
@@ -45,6 +46,12 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new HtmlWebPackPlugin({
+            template: './dist/index.html',
+            filename: './index.html',
+        }),
+    ],
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         host: '127.0.0.1',
@@ -62,9 +69,6 @@ module.exports = {
             '/iam': {
                 target: 'http://127.0.0.1:8600',
                 pathRewrite: {'^/iam' : ''},
-                bypass: function(req) {
-                    req.headers.proxy_path = req.path;
-                },
             },
         },
     },
