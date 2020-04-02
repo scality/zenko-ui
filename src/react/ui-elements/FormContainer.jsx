@@ -20,7 +20,7 @@ const FormContainer = styled.div`
         display: flex;
 
         text-transform: uppercase;
-        margin-bottom: 20px;
+        margin-bottom: 40px;
         font-size: 19px;
     }
     .sc-fieldset, fieldset{

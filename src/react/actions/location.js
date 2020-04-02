@@ -6,19 +6,6 @@ import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 
-export function editLocation(location) {
-    return {
-        type: 'EDIT_LOCATION',
-        location,
-    };
-}
-
-export function resetEditLocation() {
-    return {
-        type: 'RESET_EDIT_LOCATION',
-    };
-}
-
 export function selectLocation(locationName) {
     return {
         type: 'SELECT_LOCATION',
@@ -64,7 +51,7 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
                 dispatch(push('/'));
             });
         }).catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }

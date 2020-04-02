@@ -2,10 +2,12 @@ import { Banner, Button, Select } from '@scality/core-ui';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
 import React, {  useMemo, useState } from 'react';
 import { convertToForm, convertToLocation, newLocationDetails, newLocationForm } from './utils';
-import { resetEditLocation, saveLocation } from '../../actions';
+import { clearError, saveLocation } from '../../actions';
+import { Container } from '../../ui-elements/Container';
 import FormContainer from '../../ui-elements/FormContainer';
 import Input from '../../ui-elements/Input';
 import LocationOptions from './LocationOptions';
+import { batch } from 'react-redux';
 import { connect } from 'react-redux';
 import locationFormCheck from './locationFormCheck';
 import { push } from 'connected-react-router';
@@ -23,18 +25,30 @@ const makeLabel = (locationType, assetRoot) => {
     );
 };
 
-// TODO: edit location with locationInfo state
-// Remember when editing location name and type fields have to be disabled
 function LocationEditor(props) {
+    const editingExisting = !!(props.locationEditing && props.locationEditing.objectId);
+
+    // Display error if location does not exist.
+    if (props.match.params.locationName && !editingExisting){
+        return <Container> <Banner
+            icon={<i className="fas fa-exclamation-triangle" />}
+            title="Error"
+            variant="danger">
+            This location does not exist.
+        </Banner>
+        <br/>
+        <div className='button-align-right'>
+            <Button outlined onClick={() => props.redirect('/')} text='Back'/>
+        </div>
+        </Container>;
+    }
+
+
     const [location, setLocation] = useState(convertToForm(Object.assign({}, newLocationDetails(), props.locationEditing)));
 
     const selectOptions = useMemo(() => {
         return selectStorageOptions(null, props.capabilities, makeLabel);
     }, [props.capabilities]);
-
-    const editingExisting = useMemo(() => {
-        return !!(props.locationEditing && props.locationEditing.objectId);
-    }, [props.locationEditing]);
 
     const onChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -42,6 +56,9 @@ function LocationEditor(props) {
             ...location,
             [e.target.name]: value,
         };
+        if (props.hasError) {
+            props.clearError();
+        }
         setLocation(l);
     };
 
@@ -49,16 +66,26 @@ function LocationEditor(props) {
         if (e) {
             e.preventDefault();
         }
-        // console.log('location!!!', location);
+
+        if (props.hasError) {
+            props.clearError();
+        }
         props.saveLocation(convertToLocation(location));
     };
 
     const cancel = () => {
-        props.resetEditLocation();
-        props.redirect('/');
+        batch(() => {
+            if (props.hasError) {
+                props.clearError();
+            }
+            props.redirect('/');
+        });
     };
 
     const onTypeChange = (v: LocationSelectOption) => {
+        if (props.hasError) {
+            props.clearError();
+        }
         if (location.locationType !== v.value) {
             const l = {
                 ...newLocationForm(),
@@ -71,6 +98,9 @@ function LocationEditor(props) {
     };
 
     const onDetailsChange = (details) => {
+        if (props.hasError) {
+            props.clearError();
+        }
         const l = {
             ...location,
             details,
@@ -79,6 +109,9 @@ function LocationEditor(props) {
     };
 
     const onOptionsChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        if (props.hasError) {
+            props.clearError();
+        }
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         const l = {
             ...location,
@@ -109,6 +142,12 @@ function LocationEditor(props) {
     };
 
     const { disable, errorMessage } = locationFormCheck(location);
+    let displayErrorMessage;
+    if (!!errorMessage) {
+        displayErrorMessage = errorMessage;
+    } else if (props.hasError) {
+        displayErrorMessage = `Could not save: ${props.errorMessage}`;
+    }
 
     return <FormContainer>
         <div className='sc-title'> Add new storage location </div>
@@ -146,11 +185,11 @@ function LocationEditor(props) {
         <div className='footer'>
             <div className='zk-banner'>
                 {
-                    errorMessage && <Banner
+                    displayErrorMessage && <Banner
                         icon={<i className="fas fa-exclamation-triangle" />}
                         title="Error"
                         variant="danger">
-                        {errorMessage}
+                        {displayErrorMessage}
                     </Banner>
                 }
             </div>
@@ -160,10 +199,14 @@ function LocationEditor(props) {
     </FormContainer>;
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+    const locationName = ownProps.match.params.locationName;
+    const locationEditing = state.configuration.latest.locations[locationName];
     return {
-        capabilities: state.instanceStatus.latest.state.capabilities || {},
-        locationEditing: state.uiLocation.locationEditing,
+        capabilities: state.instanceStatus.latest.state.capabilities,
+        locationEditing: {...locationEditing},
+        hasError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
+        errorMessage: state.uiErrors.errorMsg,
     };
 }
 
@@ -171,7 +214,7 @@ function mapDispatchToProps(dispatch) {
     return {
         saveLocation: (location: Location) => { dispatch(saveLocation(location)); },
         redirect: path => dispatch(push(path)),
-        resetEditLocation: () => dispatch(resetEditLocation()),
+        clearError: () => dispatch(clearError()),
     };
 }
 

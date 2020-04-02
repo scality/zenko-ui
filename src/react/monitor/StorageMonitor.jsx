@@ -1,6 +1,6 @@
 import { Head, HeadLeft } from '../ui-elements/Head';
 import React, { useMemo } from 'react';
-import { closeLocationDeleteDialog, deleteLocation, editLocation, openLocationDeleteDialog, selectLocation } from '../actions';
+import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog, selectLocation } from '../actions';
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
@@ -90,6 +90,7 @@ const LocationContainer = styled.div`
         }
         .subtitle {
             margin-top: 5px;
+            word-break: break-word;
             font-size: 12px;
         }
     };
@@ -146,8 +147,7 @@ function StorageMonitor(props) {
     };
 
     const editLocation = () => {
-        props.editLocation(props.locations[props.selectedLocationName]);
-        props.redirect('/monitor/location/editor');
+        props.redirect(`/monitor/location/editor/${props.selectedLocationName}`);
     }
 
     return <div>
@@ -203,7 +203,6 @@ const mapDispatchToProps = (dispatch) => {
         deleteLocation: locationName => dispatch(deleteLocation(locationName)),
         openLocationDeleteDialog: () => dispatch(openLocationDeleteDialog()),
         closeLocationDeleteDialog: () => dispatch(closeLocationDeleteDialog()),
-        editLocation: location => dispatch(editLocation(location)),
     };
 };
 

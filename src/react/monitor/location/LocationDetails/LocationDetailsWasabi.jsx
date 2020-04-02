@@ -135,7 +135,7 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {
                             this.state.bucketMatch &&
-                            <div style={{'margin-top': '10px'}}>
+                            <div style={{'marginTop': '10px'}}>
                                 <Banner
                                     icon={<i className="fa fa-exclamation-circle" />}
                                     variant="danger"
