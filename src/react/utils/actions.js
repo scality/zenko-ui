@@ -3,7 +3,7 @@ import { Map } from 'immutable';
 
 export function getClients(state) {
     return {
-        ...state.auth.clients,
+        apiClient: state.auth.apiClient,
         instanceId: state.instances.selectedId,
     };
 }

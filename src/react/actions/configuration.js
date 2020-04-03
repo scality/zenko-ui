@@ -1,7 +1,6 @@
 // @noflow
 import { networkEnd, networkStart } from './network';
 import type { ConfigurationOverlay } from '../../types/config';
-import creds from '../../../creds';
 import { getClients } from '../utils/actions';
 
 export function newConfiguration(configuration: ConfigurationOverlay) {
@@ -13,8 +12,8 @@ export function newConfiguration(configuration: ConfigurationOverlay) {
 
 export function updateConfiguration() {
     return async (dispatch, getState) => {
-        const { pensieveClient, instanceId } = getClients(getState());
-        return pensieveClient.getConfigurationOverlayView({ uuid: instanceId })
+        const { apiClient, instanceId } = getClients(getState());
+        return apiClient.getConfigurationOverlayView({ uuid: instanceId })
             .then(res => {
                 dispatch(newConfiguration(res.body));
             })

@@ -19,8 +19,8 @@ export function receiveInstanceStats(stats) {
 
 export function loadInstanceStats(){
     return (dispatch, getState) => {
-        const { pensieveClient, instanceId } = getClients(getState());
-        return pensieveClient.getInstanceStats({ uuid: instanceId})
+        const { apiClient, instanceId } = getClients(getState());
+        return apiClient.getInstanceStats({ uuid: instanceId})
             .then(res => {
                 dispatch(receiveInstanceStats(res.body));
             })
@@ -31,8 +31,8 @@ export function loadInstanceStats(){
 
 export function loadInstanceLatestStatus(){
     return (dispatch, getState) => {
-        const { pensieveClient, instanceId } = getClients(getState());
-        return pensieveClient.getLatestInstanceStatus({ uuid: instanceId})
+        const { apiClient, instanceId } = getClients(getState());
+        return apiClient.getLatestInstanceStatus({ uuid: instanceId})
             .then(res => {
                 dispatch(instanceStatus(res.body));
             })
