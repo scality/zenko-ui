@@ -14,18 +14,30 @@ export function login(instanceId, clients) {
     };
 }
 
-function getAuth() {
-    return new Promise((resolve) => {
-        return resolve({
-            instanceId: creds.instanceId,
-            oidcToken: 'oidc',
+// function getConfig() {
+//     return new Promise((resolve) => {
+//         return resolve({
+//             instanceId: creds.instanceId,
+//             oidcToken: 'oidc',
+//         });
+//     });
+// }
+
+function getConfig() {
+    return fetch('/config.json', { credentials: 'same-origin' })
+        .then(response => { console.log('response!!!', response); return response.json(); })
+        .then((jsonResp) => {
+            console.log('jsonResp!!!', jsonResp);
+            return {
+                instanceId: creds.instanceId,
+                oidcToken: 'oidc',
+            };
         });
-    });
 }
 
 export function loadCredentials() {
     return dispatch => {
-        return getAuth()
+        return getConfig()
             .then((resp) => {
                 return Promise.all([
                     resp.instanceId,
@@ -37,8 +49,8 @@ export function loadCredentials() {
                     }),
                     new S3Client({
                         // MADEUP KEYS
-                        accessKey: '82XRRF5KN3XBPOSXLVAB',
-                        secretKey: 'PCJukX09Vk2D/LMdxnp4enETgaJuIIc2BC3T6CxV',
+                        accessKey: 'GS8DHPT3K9BNZ1JGR9YO',
+                        secretKey: 'VfkJmYyHLG+G1QRTb7OkgvqlglB+EMeYyHDJ+Q5F',
                     }),
                 ]);
             })
