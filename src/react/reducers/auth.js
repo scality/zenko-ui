@@ -3,7 +3,7 @@ export default function auth(state = {}, action) {
     case 'LOG_IN':
         return {
             ...state,
-            clients: action.clients,
+            apiClient: action.apiClient,
         };
     default:
         return state;

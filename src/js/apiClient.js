@@ -1,21 +1,23 @@
 import Swagger from 'swagger-client';
 
-function makePensieveClient(apiEndpoint, instanceId){
+function makeApiClient(apiEndpoint, instanceId){
     const request = {
         url: `${apiEndpoint}/api/v1/management/${instanceId}/token`,
         method: 'GET',
         headers: { 'X-Management-Authentication-Token': 'coco' },
     };
 
-    return Swagger.http(request)
-        .then((res) => {
-            return Swagger(apiEndpoint + '/swagger.json',
-                { authorizations: { 'public-api': res.body.token } });
-        })
+    return Swagger(apiEndpoint + '/swagger.json')
         .then(client => {
+            client.requestInterceptor = (r) => {
+                return Swagger.http(request).then((res) => {
+                    r.headers['X-Authentication-Token'] = res.body.token;
+                    return r;
+                });
+            };
             client.spec.schemes = [apiEndpoint.split(':')[0]];
-            const pensieveClient = client.apis['ui-facing'];
-            return pensieveClient;
+            const apiClient = client.apis['ui-facing'];
+            return apiClient;
         })
         .catch(error => {
             throw new Error(
@@ -23,4 +25,4 @@ function makePensieveClient(apiEndpoint, instanceId){
         });
 }
 
-export default makePensieveClient;
+export default makeApiClient;
