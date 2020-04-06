@@ -9,6 +9,7 @@ function makeApiClient(apiEndpoint, instanceId){
 
     return Swagger(apiEndpoint + '/swagger.json')
         .then(client => {
+            // TODO: use refreshToken API
             client.requestInterceptor = (r) => {
                 return Swagger.http(request).then((res) => {
                     r.headers['X-Authentication-Token'] = res.body.token;

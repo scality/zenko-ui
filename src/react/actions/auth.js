@@ -9,15 +9,6 @@ export function login(instanceId, apiClient) {
     };
 }
 
-// function getConfig() {
-//     return new Promise((resolve) => {
-//         return resolve({
-//             instanceId: creds.instanceId,
-//             oidcToken: 'oidc',
-//         });
-//     });
-// }
-
 function getConfig() {
     return fetch('/config.json', { credentials: 'same-origin' })
         .then(response => response.json())
