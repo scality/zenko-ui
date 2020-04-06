@@ -47,3 +47,8 @@ export function locationWithIngestion(locations, capabilities) {
         return r;
     }, []);
 }
+
+export function isIngestSource(storageOptions: { [name: string]: any }, locationType: string, capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>): boolean {
+    return !!storageOptions[locationType].ingestCapability &&
+    !!capabilities[storageOptions[locationType].ingestCapability];
+}

@@ -149,7 +149,7 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                 <fieldset className="form-group">
                     <label htmlFor="nfs-protocol">NFS Protocol</label>
                     <Select type="select" name="protocol" id="nfs-protocol"
-                        disabled={editingExisting}
+                        isDisabled={editingExisting}
                         onChange={this.onProtocolChange}
                         options={NFS_PROTOCOLS}
                         value = {NFS_PROTOCOLS.find(v => v.value === this.state.protocol)}
@@ -158,7 +158,7 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                 <fieldset className="form-group">
                     <label htmlFor="nfs-version">NFS Version</label>
                     <Select type="select" name="version" id="nfs-version"
-                        disabled={editingExisting}
+                        isDisabled={editingExisting}
                         onChange={this.onVersionChange}
                         options={NFS_VERSIONS}
                         value = {NFS_VERSIONS.find(v => v.value === this.state.version)}

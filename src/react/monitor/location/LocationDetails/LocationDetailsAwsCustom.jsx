@@ -1,11 +1,11 @@
 // @flow
-import { Checkbox } from '@scality/core-ui';
+import { Banner, Checkbox } from '@scality/core-ui';
 import Input from '../../../ui-elements/Input';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
-// import { isIngestSource } from '../../../utils/storageOptions';
-// import { storageOptions } from './storageOptions';
+import { isIngestSource } from '../../../utils/storageOptions';
+import { storageOptions } from './storageOptions';
 
 type Props = {
     editingExisting: boolean,
@@ -66,12 +66,11 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
     }
 
     render() {
-        // const isIngest = isIngestSource(storageOptions, this.props.locationType, this.props.capabilities);
-        const isIngest = true;
+        const isIngest = isIngestSource(storageOptions, this.props.locationType, this.props.capabilities);
         return (
             <div>
                 <fieldset className="form-group">
-                    <label htmlFor="accessKey">Access Key: WARNING isIngest hardcoded to true</label>
+                    <label htmlFor="accessKey">Access Key</label>
                     <Input
                         name="accessKey"
                         id="accessKey"
@@ -145,11 +144,13 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                         <small>Store objects in the target bucket without a source-bucket prefix.</small>
                         {
                             this.state.bucketMatch &&
-                            <div>
-                                <small className="text-danger">
-                                    <i className="fa fa-exclamation-circle"></i>
-                                    &nbsp; Storing multiple buckets in a location with this option enabled can lead to data loss.
-                                </small>
+                            <div style={{'marginTop': '10px'}}>
+                                <Banner
+                                    icon={<i className="fa fa-exclamation-circle" />}
+                                    variant="danger"
+                                >
+                                  Storing multiple buckets in a location with this option enabled can lead to data loss.
+                                </Banner>
                             </div>
                         }
                     </label>

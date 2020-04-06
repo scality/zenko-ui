@@ -51,7 +51,7 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
                 dispatch(push('/'));
             });
         }).catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
