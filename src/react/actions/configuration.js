@@ -1,7 +1,6 @@
 // @noflow
 import { networkEnd, networkStart } from './network';
 import type { ConfigurationOverlay } from '../../types/config';
-import creds from '../../../creds';
 import { getClients } from '../utils/actions';
 
 export function newConfiguration(configuration: ConfigurationOverlay) {
