@@ -1,0 +1,63 @@
+---
+version: 0.2
+
+branches:
+  default:
+    stage: pre-merge
+
+models:
+  - env: &deploy-env
+      DEPLOY_WHITELIST_BRANCH: development/*
+      SCALITY_OCI_REPO: registry.scality.com/sf-eng/zenko-ui
+
+stages:
+  pre-merge:
+    worker:
+      type: kube_pod
+      path: eve/workers/worker.yaml
+      images:
+        build: eve/workers/build
+    steps:
+      - Git:
+          name: fetch source
+          repourl: '%(prop:git_reference)s'
+          shallow: True
+          retryFetch: True
+          haltOnFailure: True
+      - ShellCommand:
+          name: install dependencies
+          command: yarn install --frozen-lockfile
+          haltOnFailure: True
+      # - ShellCommand:
+      #     name: run test suite
+      #     command: yarn test
+      #     haltOnFailure: True
+      - ShellCommand:
+          name: build assets
+          command: yarn build
+          haltOnFailure: True
+      - ShellCommand:
+          name: restrict deploy pipeline to master branch
+          command: >-
+            test "%(prop:branch)s" = "${DEPLOY_WHITELIST_BRANCH}"
+          haltOnFailure: True
+          flunkOnFailure: False
+          env:
+            <<: *deploy-env
+      - ShellCommand:
+          name: build docker image
+          command: >-
+            set -exu;
+            docker build --pull -t ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s .;
+          haltOnFailure: True
+          env:
+            <<: *deploy-env
+      - ShellCommand:
+          name: publish docker image to Scality OCI registry
+          command: >-
+            set -exu;
+            docker login --username "%(secret:harbor_login)s" --password "%(secret:harbor_password)s" ${SCALITY_OCI_REPO};
+            docker push ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s;
+          haltOnFailure: True
+          env:
+            <<: *deploy-env
