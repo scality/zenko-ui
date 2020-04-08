@@ -8,7 +8,7 @@ branches:
 models:
   - env: &deploy-env
       DEPLOY_WHITELIST_BRANCH: development/*
-      SCALITY_OCI_REPO: registry.scality.com/sf-eng/zenko-ui
+      SCALITY_OCI_REPO: registry.scality.com/scality/zenko-ui
 
 stages:
   pre-merge:
