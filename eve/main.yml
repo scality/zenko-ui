@@ -37,7 +37,7 @@ stages:
           command: yarn build
           haltOnFailure: True
       - ShellCommand:
-          name: restrict deploy pipeline to master branch
+          name: restrict deploy pipeline to development/* branch
           command: >-
             test "%(prop:branch)s" = "${DEPLOY_WHITELIST_BRANCH}"
           haltOnFailure: True
