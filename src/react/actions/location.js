@@ -33,7 +33,7 @@ export function closeLocationDeleteDialog() {
 
 export function saveLocation(location: Location): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { pensieveClient, instanceId } = getClients(getState());
+        const { apiClient, instanceId } = getClients(getState());
         const params = {
             uuid: instanceId,
             location,
@@ -42,9 +42,9 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
 
         dispatch(networkStart('Saving Location'));
         const op = location.objectId ?
-            pensieveClient.updateConfigurationOverlayLocation(params)
+            apiClient.updateConfigurationOverlayLocation(params)
             :
-            pensieveClient.createConfigurationOverlayLocation(params);
+            apiClient.createConfigurationOverlayLocation(params);
         return op.then(() => {
             batch(() => {
                 dispatch(updateConfiguration());
@@ -58,7 +58,7 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
 
 export function deleteLocation(locationName: LocationName): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { pensieveClient, instanceId } = getClients(getState());
+        const { apiClient, instanceId } = getClients(getState());
         const params = {
             uuid: instanceId,
             locationName,
@@ -66,7 +66,7 @@ export function deleteLocation(locationName: LocationName): ThunkStatePromisedAc
 
         dispatch(resetSelectLocation());
         dispatch(networkStart('Deleting Location'));
-        return pensieveClient.deleteConfigurationOverlayLocation(params)
+        return apiClient.deleteConfigurationOverlayLocation(params)
             .then(() => {
                 dispatch(updateConfiguration());
                 dispatch(closeLocationDeleteDialog());

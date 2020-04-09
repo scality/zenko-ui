@@ -1,54 +1,42 @@
-import { handleApiError, handleClientError, listBuckets, listUsers, loadInstanceLatestStatus, loadInstanceStats} from './';
-import IAMClient from '../../js/IAMClient';
-import S3Client from '../../js/S3Client';
-import creds from '../../../creds';
-import makePensieveClient from '../../js/pensieveClient';
+import { handleApiError, handleClientError, loadInstanceLatestStatus, loadInstanceStats} from './';
+import makeApiClient from '../../js/apiClient';
 
-const apiEndpoint = 'http://127.0.0.1:5000';
-
-export function login(instanceId, clients) {
+export function login(instanceId, apiClient) {
     return {
         type: 'LOG_IN',
         instanceId,
-        clients,
+        apiClient,
     };
 }
 
-function getAuth() {
-    return new Promise((resolve) => {
-        return resolve({
-            instanceId: creds.instanceId,
-            oidcToken: 'oidc',
+function getConfig() {
+    return fetch('/config.json', { credentials: 'same-origin' })
+        .then(response => response.json())
+        // TODO: validate configuration file
+        .then((jsonResp) => {
+            return {
+                instanceId: jsonResp.instanceId,
+                apiEndpoint: jsonResp.apiEndpoint,
+                oidcToken: 'oidc',
+            };
         });
-    });
 }
 
 export function loadCredentials() {
     return dispatch => {
-        return getAuth()
+        return getConfig()
             .then((resp) => {
                 return Promise.all([
                     resp.instanceId,
                     // TODO: use oidc token
-                    makePensieveClient(apiEndpoint, resp.instanceId),
-                    new IAMClient({
-                        accessKey: creds.accessKey,
-                        secretKey: creds.secretKey,
-                    }),
-                    new S3Client({
-                        // MADEUP KEYS
-                        accessKey: '82XRRF5KN3XBPOSXLVAB',
-                        secretKey: 'PCJukX09Vk2D/LMdxnp4enETgaJuIIc2BC3T6CxV',
-                    }),
+                    makeApiClient(resp.apiEndpoint, resp.instanceId),
                 ]);
             })
-            .then(([instanceId, pensieveClient, iamClient, s3Client]) => {
-                dispatch(login(instanceId, {pensieveClient, iamClient, s3Client}));
+            .then(([instanceId, apiClient]) => {
+                dispatch(login(instanceId, apiClient));
                 return Promise.all([
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
-                    dispatch(listBuckets()),
-                    dispatch(listUsers()),
                 ]);
             })
             .then(() => {})

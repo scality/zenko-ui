@@ -58,14 +58,14 @@ class Routes extends React.Component{
                         //     link: <Link to="/groups">Groups</Link>,
                         //     selected: isSelected(location, '/groups'),
                         // },
-                        {
-                            link: <Link to="/users">Users</Link>,
-                            selected: isSelected(location, '/users'),
-                        },
-                        {
-                            link: <Link to="/databrowser">Data Browser</Link>,
-                            selected: isSelected(location, '/databrowser'),
-                        },
+                        // {
+                        //     link: <Link to="/users">Users</Link>,
+                        //     selected: isSelected(location, '/users'),
+                        // },
+                        // {
+                        //     link: <Link to="/databrowser">Data Browser</Link>,
+                        //     selected: isSelected(location, '/databrowser'),
+                        // },
                         // {
                         //     link: <Link to="/workflow">Data Workflow</Link>,
                         //     selected: isSelected(location, '/workflow'),
