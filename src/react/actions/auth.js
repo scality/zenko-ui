@@ -1,4 +1,4 @@
-import { handleApiError, handleClientError, loadInstanceLatestStatus, loadInstanceStats} from './';
+import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure} from './';
 import makeApiClient from '../../js/apiClient';
 
 export function login(instanceId, apiClient) {
@@ -40,7 +40,11 @@ export function loadCredentials() {
                 ]);
             })
             .then(() => {})
-            .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')));
+            .catch(error => {
+                if (error.message) {
+                    dispatch(handleErrorMessage(error.message, 'byAuth'));
+                }
+                dispatch(networkAuthFailure());
+            });
     };
 }

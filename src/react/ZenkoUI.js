@@ -9,6 +9,7 @@ import {
 import Activity from './ui-elements/Activity';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import React from 'react';
+import ReauthDialog from './ui-elements/ReauthDialog';
 import Routes from './Routes';
 import { ThemeProvider } from 'styled-components';
 import { connect } from 'react-redux';
@@ -63,6 +64,7 @@ class ZenkoUI extends React.Component {
         return (
             <ThemeProvider theme={theme}>
                 <div>
+                    <ReauthDialog/>
                     { this.state.loaded && <Routes/> }
                     <ErrorHandlerModal
                         show={this.props.showError}

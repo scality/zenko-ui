@@ -63,13 +63,12 @@ export function deleteLocation(locationName: LocationName): ThunkStatePromisedAc
             uuid: instanceId,
             locationName,
         };
-
+        dispatch(closeLocationDeleteDialog());
         dispatch(resetSelectLocation());
         dispatch(networkStart('Deleting Location'));
         return apiClient.deleteConfigurationOverlayLocation(params)
             .then(() => {
                 dispatch(updateConfiguration());
-                dispatch(closeLocationDeleteDialog());
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

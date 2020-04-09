@@ -16,16 +16,16 @@ export default function networkActivity(state={counter: 0, messages: List()}, ac
             counter: Math.max(state.counter - 1, 0),
             messages: state.messages.shift(),
         };
-    // case 'NETWORK_AUTH_FAILURE':
-    //     return {
-    //         ...state,
-    //         authFailure: true,
-    //     };
-    // case 'NETWORK_AUTH_RESET':
-    //     return {
-    //         ...state,
-    //         authFailure: false,
-    //     };
+    case 'NETWORK_AUTH_FAILURE':
+        return {
+            ...state,
+            authFailure: true,
+        };
+    case 'NETWORK_AUTH_RESET':
+        return {
+            ...state,
+            authFailure: false,
+        };
     default:
         return state;
     }
