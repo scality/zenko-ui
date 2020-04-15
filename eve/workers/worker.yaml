@@ -9,11 +9,11 @@ spec:
     image: {{ images.build }}
     resources:
       requests:
-        cpu: "1"
-        memory: 1Gi
+        cpu: "3"
+        memory: 4Gi
       limits:
-        cpu: "1"
-        memory: 1Gi
+        cpu: "3"
+        memory: 4Gi
     env:
     - name: DOCKER_HOST
       value: localhost
