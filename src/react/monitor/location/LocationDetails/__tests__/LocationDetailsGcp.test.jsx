@@ -44,19 +44,19 @@ describe('class <LocationDetailsGcp />', () => {
         const component = mount(
             <LocationDetailsGcp {...props} />
         );
-        expect(component.find('input[name="accessKey"]')).not.toBeEmpty();
+        expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('');
 
-        expect(component.find('input[name="secretKey"]')).not.toBeEmpty();
+        expect(component.find('input[name="secretKey"]')).toHaveLength(1);
         expect(component.find('input[name="secretKey"]').props().value).toEqual('');
 
-        expect(component.find('input[name="bucketName"]')).not.toBeEmpty();
+        expect(component.find('input[name="bucketName"]')).toHaveLength(1);
         expect(component.find('input[name="bucketName"]').props().value).toEqual('');
 
-        expect(component.find('input[name="mpuBucketName"]')).not.toBeEmpty();
+        expect(component.find('input[name="mpuBucketName"]')).toHaveLength(1);
         expect(component.find('input[name="mpuBucketName"]').props().value).toEqual('');
 
-        expect(component.find('input[name="bucketMatch"]')).not.toBeEmpty();
+        expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(false);
     });
 
@@ -71,20 +71,20 @@ describe('class <LocationDetailsGcp />', () => {
         const component = mount(
             <LocationDetailsGcp {...props} details={locationDetails} />
         );
-        expect(component.find('input[name="accessKey"]')).not.toBeEmpty();
+        expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('ak');
 
-        expect(component.find('input[name="secretKey"]')).not.toBeEmpty();
+        expect(component.find('input[name="secretKey"]')).toHaveLength(1);
         // for now we just set it as empty since it's encrypted
         expect(component.find('input[name="secretKey"]').props().value).toEqual('');
 
-        expect(component.find('input[name="bucketName"]')).not.toBeEmpty();
+        expect(component.find('input[name="bucketName"]')).toHaveLength(1);
         expect(component.find('input[name="bucketName"]').props().value).toEqual('bn');
 
-        expect(component.find('input[name="mpuBucketName"]')).not.toBeEmpty();
+        expect(component.find('input[name="mpuBucketName"]')).toHaveLength(1);
         expect(component.find('input[name="mpuBucketName"]').props().value).toEqual('mbn');
 
-        expect(component.find('input[name="bucketMatch"]')).not.toBeEmpty();
+        expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(true);
     });
 

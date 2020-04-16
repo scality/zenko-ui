@@ -1,4 +1,6 @@
-export default function bucket(state = { list: []}, action) {
+import {initialBucketState} from './initialConstants';
+
+export default function bucket(state = initialBucketState, action) {
     switch (action.type){
     case 'UPDATE_BUCKET_LIST':
         return {

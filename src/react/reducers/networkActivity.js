@@ -1,8 +1,7 @@
 // @noflow
-import { List } from 'immutable';
+import {initialNetworkActivityState} from './initialConstants';
 
-
-export default function networkActivity(state={counter: 0, messages: List()}, action) {
+export default function networkActivity(state=initialNetworkActivityState, action) {
     switch (action.type) {
     case 'NETWORK_START':
         return {

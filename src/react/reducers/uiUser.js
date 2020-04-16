@@ -1,5 +1,6 @@
+import {initialUserUIState} from './initialConstants';
 
-export default function uiUser(state = { showDelete: false, showSecret: null, showDeleteKey: null }, action) {
+export default function uiUser(state = initialUserUIState, action) {
     switch (action.type) {
     case 'OPEN_USER_DELETE_DIALOG':
         return {

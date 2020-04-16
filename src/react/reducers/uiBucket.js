@@ -1,4 +1,6 @@
-export default function uiBucket(state = { showDelete: false }, action) {
+import {initialBucketUIState} from './initialConstants';
+
+export default function uiBucket(state = initialBucketUIState, action) {
     switch (action.type) {
     case 'SELECT_BUCKET':
         return {

@@ -60,7 +60,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
             <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />
         );
         expect(component.find('InputList #addbtn').last().hasClass('visible')).toEqual(true);
-        expect(component.find('InputList #addbtn').last().hasClass('disabled')).toEqual(true);
+        expect(component.find('InputList #addbtn').last().props().disabled).toEqual(true);
     });
 
     it('should add entry and save hyperdrive location details', () => {

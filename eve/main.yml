@@ -42,11 +42,10 @@ stages:
     steps:
       - Git: *clone
       - ShellCommand: *yarn-install
-      # TODO: run tests
-      # - ShellCommand:
-      #     name: run test suite
-      #     command: yarn test
-      #     haltOnFailure: True
+      - ShellCommand:
+          name: run test suite
+          command: yarn test
+          haltOnFailure: True
       - ShellCommand: *yarn-build
       - ShellCommand: *docker-build
   post-merge:

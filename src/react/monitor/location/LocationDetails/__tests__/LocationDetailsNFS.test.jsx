@@ -81,25 +81,27 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} />
         );
-        expect(component.find('Input[name="protocol"]')).not.toBeEmpty();
-        expect(component.find('Input[name="protocol"]').props().value).toEqual('tcp');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBeFalsy();
+        expect(component.find('SelectBox#nfs-protocol')).toHaveLength(1);
+        expect(component.find('SelectBox#nfs-protocol').text()).toEqual('TCP');
+        expect(component.find('SelectBox#nfs-protocol').props().value.value).toEqual('tcp');
+        expect(component.find('SelectBox#nfs-protocol').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="version"]')).not.toBeEmpty();
-        expect(component.find('Input[name="version"]').props().value).toEqual('v3');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBeFalsy();
+        expect(component.find('SelectBox#nfs-version')).toHaveLength(1);
+        expect(component.find('SelectBox#nfs-version').text()).toEqual('V3');
+        expect(component.find('SelectBox#nfs-version').props().value.value).toEqual('v3');
+        expect(component.find('SelectBox#nfs-version').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="server"]')).not.toBeEmpty();
-        expect(component.find('Input[name="server"]').props().value).toEqual('');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBeFalsy();
+        expect(component.find('input[name="server"]')).toHaveLength(1);
+        expect(component.find('input[name="server"]').props().value).toEqual('');
+        expect(component.find('input[name="protocol"]').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="path"]')).not.toBeEmpty();
-        expect(component.find('Input[name="path"]').props().value).toEqual('');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBeFalsy();
+        expect(component.find('input[name="path"]')).toHaveLength(1);
+        expect(component.find('input[name="path"]').props().value).toEqual('');
+        expect(component.find('input[name="protocol"]').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="options"]')).not.toBeEmpty();
-        expect(component.find('Input[name="options"]').props().value).toEqual('');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBeFalsy();
+        expect(component.find('input[name="options"]')).toHaveLength(1);
+        expect(component.find('input[name="options"]').props().value).toEqual('');
+        expect(component.find('input[name="protocol"]').props().disabled).toBeFalsy();
     });
 
     it('should show NFS details when editing an existing location', () => {
@@ -110,25 +112,27 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} editingExisting={true} details={locationDetails} />
         );
-        expect(component.find('Input[name="protocol"]')).not.toBeEmpty();
-        expect(component.find('Input[name="protocol"]').props().value).toEqual('tcp');
-        expect(component.find('Input[name="protocol"]').props().disabled).toBe(true);
+        expect(component.find('SelectBox#nfs-protocol')).toHaveLength(1);
+        expect(component.find('SelectBox#nfs-protocol').text()).toEqual('TCP');
+        expect(component.find('SelectBox#nfs-protocol').props().value.value).toEqual('tcp');
+        expect(component.find('SelectBox#nfs-protocol').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="version"]')).not.toBeEmpty();
-        expect(component.find('Input[name="version"]').props().value).toEqual('v3');
-        expect(component.find('Input[name="version"]').props().disabled).toBe(true);
+        expect(component.find('SelectBox#nfs-version')).toHaveLength(1);
+        expect(component.find('SelectBox#nfs-version').text()).toEqual('V3');
+        expect(component.find('SelectBox#nfs-version').props().value.value).toEqual('v3');
+        expect(component.find('SelectBox#nfs-version').props().disabled).toBeFalsy();
 
-        expect(component.find('Input[name="server"]')).not.toBeEmpty();
-        expect(component.find('Input[name="server"]').props().value).toEqual('ep');
-        expect(component.find('Input[name="server"]').props().disabled).toBe(true);
+        expect(component.find('input[name="server"]')).toHaveLength(1);
+        expect(component.find('input[name="server"]').props().value).toEqual('ep');
+        expect(component.find('input[name="server"]').props().disabled).toBe(true);
 
-        expect(component.find('Input[name="path"]')).not.toBeEmpty();
-        expect(component.find('Input[name="path"]').props().value).toEqual('/export/path');
-        expect(component.find('Input[name="path"]').props().disabled).toBe(true);
+        expect(component.find('input[name="path"]')).toHaveLength(1);
+        expect(component.find('input[name="path"]').props().value).toEqual('/export/path');
+        expect(component.find('input[name="path"]').props().disabled).toBe(true);
 
-        expect(component.find('Input[name="options"]')).not.toBeEmpty();
-        expect(component.find('Input[name="options"]').props().value).toEqual('hard&async');
-        expect(component.find('Input[name="options"]').props().disabled).toBe(true);
+        expect(component.find('input[name="options"]')).toHaveLength(1);
+        expect(component.find('input[name="options"]').props().value).toEqual('hard&async');
+        expect(component.find('input[name="options"]').props().disabled).toBe(true);
     });
 
     it('should call onChange on location details updates', () => {
@@ -139,16 +143,8 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} onChange={l => location = l} />
         );
-        component.find('select[name="version"]').simulate('change', { target: {
-            name: 'protocol',
-            value: 'udp',
-            type: 'select',
-        } });
-        component.find('select[name="version"]').simulate('change', { target: {
-            name: 'version',
-            value: 'v4',
-            type: 'select',
-        } });
+        component.find('Select#nfs-protocol').props().onChange({value: 'udp'});
+        component.find('Select#nfs-version').props().onChange({value: 'v4'});
         updateInputText(component, 'server', 'ep');
         updateInputText(component, 'path', '/export/path');
         updateInputText(component, 'options', 'hard&async');

@@ -40,10 +40,10 @@ describe('class <LocationDetailsSproxyd />', () => {
         const component = mount(
             <LocationDetailsSproxyd {...props} />
         );
-        expect(component.find('input[name="proxyPath"]')).not.toBeEmpty();
+        expect(component.find('input[name="proxyPath"]')).toHaveLength(1);
         expect(component.find('input[name="proxyPath"]').props().value).toEqual('');
 
-        expect(component.find('input[name="chordCos"]')).not.toBeEmpty();
+        expect(component.find('input[name="chordCos"]')).toHaveLength(1);
         expect(component.find('input[name="chordCos"]').props().value).toEqual(0);
 
         expect(component.find('InputList').props().entries).toEqual(['']);
@@ -58,10 +58,10 @@ describe('class <LocationDetailsSproxyd />', () => {
         const component = mount(
             <LocationDetailsSproxyd {...props} details={locationDetails} />
         );
-        expect(component.find('input[name="proxyPath"]')).not.toBeEmpty();
+        expect(component.find('input[name="proxyPath"]')).toHaveLength(1);
         expect(component.find('input[name="proxyPath"]').props().value).toEqual('/proxy/path/');
 
-        expect(component.find('input[name="chordCos"]')).not.toBeEmpty();
+        expect(component.find('input[name="chordCos"]')).toHaveLength(1);
         expect(component.find('input[name="chordCos"]').props().value).toEqual(3);
 
         expect(component.find('InputList').props().entries).toEqual(['localhost:42', 'localhost:43', 'localhost:44']);

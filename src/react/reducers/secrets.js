@@ -1,6 +1,6 @@
-import { Map } from 'immutable';
+import { initialSecretsState } from './initialConstants';
 
-export default function secrets(state = Map(), action){
+export default function secrets(state = initialSecretsState, action){
     switch (action.type) {
     case 'ADD_SECRET':
         return state.set(action.keys.accessKey, action.keys.secretKey);

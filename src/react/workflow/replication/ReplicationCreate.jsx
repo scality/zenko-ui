@@ -59,7 +59,6 @@ function ReplicationCreate(props){
                 // isDisabled: false,
             };
         });
-        console.log('buckets!!!', buckets);
         return buckets;
     };
 

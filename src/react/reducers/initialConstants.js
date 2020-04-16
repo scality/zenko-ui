@@ -1,4 +1,10 @@
 // @noflow
+import { List, Map } from 'immutable';
+
+export const initialAuthState = {};
+
+export const initialBucketState = { list: []};
+export const initialBucketUIState = { showDelete: false };
 
 export const initialConfiguration: ConfigurationState = {
     latest: {
@@ -17,6 +23,8 @@ export const initialConfiguration: ConfigurationState = {
     },
 };
 
+export const initialErrorsUIState = { errorMsg: null, errorType: null };
+export const initialInstancesState = {};
 export const initialInstanceStatus: InstanceStatusState = {
     latest: {
         state: {
@@ -90,4 +98,31 @@ export const initialInstanceStatus: InstanceStatusState = {
             },
         },
     },
+};
+export const initialLocationsUIState = { showDeleteLocation: false };
+export const initialNetworkActivityState = {counter: 0, messages: List()};
+export const initialSecretsState = Map();
+export const initialStatsState = {};
+export const initialUserUIState = { showDelete: false, showSecret: null, showDeleteKey: null };
+export const initialUserState = {
+    list: [],
+    accessKeyList: [],
+    attachedPoliciesList: [],
+    groupList: [],
+    displayedUser: {},
+};
+
+export const initialFullState = {
+    auth: initialAuthState,
+    configuration: initialConfiguration,
+    instanceStatus: initialInstanceStatus,
+    instances: initialInstancesState,
+    networkActivity: initialNetworkActivityState,
+    secrets: initialSecretsState,
+    stats: initialStatsState,
+    uiUser: initialUserUIState,
+    uiLocations: initialLocationsUIState,
+    uiErrors: initialErrorsUIState,
+    uiBucket: initialBucketUIState,
+    user: initialUserState,
 };

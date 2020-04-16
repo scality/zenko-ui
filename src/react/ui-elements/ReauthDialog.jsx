@@ -28,6 +28,7 @@ const ReauthDialog = (props: Props) => {
 
     return (
         <Modal
+            id="reauth-dialog-modal"
             close={reauth}
             footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={reauth} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
             isOpen={true}

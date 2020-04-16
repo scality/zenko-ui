@@ -1,4 +1,6 @@
-export default function user(state = { list: [], accessKeyList: [], attachedPoliciesList: [], groupList: [], displayedUser: {}}, action) {
+import {initialUserState} from './initialConstants';
+
+export default function user(state = initialUserState, action) {
     switch (action.type){
     case 'UPDATE_USER_LIST':
         return {

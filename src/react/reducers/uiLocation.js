@@ -1,4 +1,6 @@
-export default function uiLocation(state = { showDeleteLocation: false }, action) {
+import {initialLocationsUIState} from './initialConstants';
+
+export default function uiLocation(state = initialLocationsUIState, action) {
     switch (action.type) {
     case 'SELECT_LOCATION':
         return {

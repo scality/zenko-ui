@@ -1,4 +1,6 @@
-export default function uiErrors(state = { errorMsg: null, errorType: null }, action) {
+import {initialErrorsUIState} from './initialConstants';
+
+export default function uiErrors(state = initialErrorsUIState, action) {
     switch (action.type) {
     case 'HANDLE_ERROR':
         return {
