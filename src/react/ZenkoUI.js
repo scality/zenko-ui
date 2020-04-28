@@ -29,7 +29,7 @@ const theme = {
         info: turquoise,
         warning: yellowOrange,
         danger: warmRed,
-        background: '#0a0a0b',
+        background: '#111112',
         backgroundContrast1: '#16161a',
         backgroundContrast2: '#08080A',
         text: white,
@@ -47,9 +47,7 @@ class ZenkoUI extends React.Component {
 
     componentDidMount() {
         // TODO: move them to a gobal action
-        this.props.dispatch(loadCredentials()).then(() => {
-            this.setState({ loaded: true });
-        });
+        this.props.dispatch(loadCredentials());
         // this.refreshIntervalStatsUnit = setInterval(
         //     () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
         // this.refreshIntervalStatsSeries = setInterval(
@@ -65,7 +63,7 @@ class ZenkoUI extends React.Component {
             <ThemeProvider theme={theme}>
                 <div>
                     <ReauthDialog/>
-                    { this.state.loaded && <Routes/> }
+                    { this.props.isLoaded && <Routes/> }
                     <ErrorHandlerModal
                         show={this.props.showError}
                         close={() => this.props.dispatch(clearError())} >
@@ -83,7 +81,7 @@ function mapStateToProps(state) {
         showError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
         errorMessage: state.uiErrors.errorMsg,
         // needReauth: state.networkActivity.authFailure,
-        // isLoaded: !!(state.auth.clients && state.auth.clients.iamClient),
+        isLoaded: state.ui.loaded,
     };
 }
 

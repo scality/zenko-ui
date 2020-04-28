@@ -1,3 +1,4 @@
+import account from './account';
 import auth from './auth';
 import bucket from './bucket';
 import { combineReducers } from 'redux';
@@ -8,6 +9,7 @@ import instances from './instances';
 import networkActivity from './networkActivity';
 import secrets from './secrets';
 import stats from './stats';
+import ui from './ui';
 import uiBucket from './uiBucket';
 import uiErrors from './uiErrors';
 import uiLocation from './uiLocation';
@@ -15,6 +17,7 @@ import uiUser from './uiUser';
 import user from './user';
 
 const zenkoUIReducer = history => combineReducers({
+    account,
     auth,
     bucket,
     configuration,
@@ -22,6 +25,7 @@ const zenkoUIReducer = history => combineReducers({
     instanceStatus,
     instances,
     networkActivity,
+    ui,
     uiBucket,
     uiErrors,
     uiLocation,

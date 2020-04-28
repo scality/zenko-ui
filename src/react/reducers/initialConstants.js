@@ -1,6 +1,11 @@
 // @noflow
 import { List, Map } from 'immutable';
 
+export const initialAccountState = {
+    list: [],
+    // accessKeyList: [],
+    // displayedAccount: {},
+};
 export const initialAuthState = {};
 
 export const initialBucketState = { list: []};
@@ -103,6 +108,7 @@ export const initialLocationsUIState = { showDeleteLocation: false };
 export const initialNetworkActivityState = {counter: 0, messages: List()};
 export const initialSecretsState = Map();
 export const initialStatsState = {};
+export const initialUIState = { loaded: false };
 export const initialUserUIState = { showDelete: false, showSecret: null, showDeleteKey: null };
 export const initialUserState = {
     list: [],
@@ -113,6 +119,7 @@ export const initialUserState = {
 };
 
 export const initialFullState = {
+    account: initialAccountState,
     auth: initialAuthState,
     configuration: initialConfiguration,
     instanceStatus: initialInstanceStatus,
@@ -120,6 +127,7 @@ export const initialFullState = {
     networkActivity: initialNetworkActivityState,
     secrets: initialSecretsState,
     stats: initialStatsState,
+    ui: initialUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiErrors: initialErrorsUIState,

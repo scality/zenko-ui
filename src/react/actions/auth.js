@@ -9,6 +9,12 @@ export function login(instanceId, apiClient) {
     };
 }
 
+export function uiLoaded() {
+    return {
+        type: 'UI_LOADED',
+    };
+}
+
 function getConfig() {
     return fetch('/config.json', { credentials: 'same-origin' })
         .then(response => response.json())
@@ -39,7 +45,9 @@ export function loadCredentials() {
                     dispatch(loadInstanceStats()),
                 ]);
             })
-            .then(() => {})
+            .then(() => {
+                dispatch(uiLoaded());
+            })
             .catch(error => {
                 if (error.message) {
                     dispatch(handleErrorMessage(error.message, 'byAuth'));
