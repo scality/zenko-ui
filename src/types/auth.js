@@ -10,24 +10,24 @@ export type AuthUser = {
   +profile: Profile,
   +expires_at: number,
   +state: any,
-  +expires_in: number,
-  +expired: boolean,
-  +scopes: string[],
+  +expires_in?: number,
+  +expired?: boolean,
+  +scopes?: string[],
 };
 
 export type Profile = IDTokenClaims & ProfileStandardClaims;
 
 export type IDTokenClaims = {
   /** Issuer Identifier */
-  iss: string,
+  iss?: string,
   /** Subject identifier */
   sub: string,
   /** Audience(s): client_id ... */
-  aud: string,
+  aud?: string,
   /** Expiration time */
-  exp: number,
+  exp?: number,
   /** Issued at */
-  iat: number,
+  iat?: number,
   /** Time when the End-User authentication occurred */
   auth_time?: number,
   /** Time when the End-User authentication occurred */

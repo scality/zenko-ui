@@ -74,6 +74,15 @@ export type NetworkActivityAuthFailureAction = {|
     +type: 'NETWORK_AUTH_FAILURE',
 |};
 
+export type NetworkActivityStartAction = {|
+    +type: 'NETWORK_START',
+    +message: string,
+|};
+
+export type NetworkActivityStopAction = {|
+    +type: 'NETWORK_END',
+|};
+
 export type Action =
     ThunkStatePromisedAction |
     ThunkNonStateAction |
@@ -88,4 +97,6 @@ export type Action =
     ConfigAuthFailureAction |
     SignoutStartAction |
     SignoutEndAction |
-    NetworkActivityAuthFailureAction;
+    NetworkActivityAuthFailureAction |
+    NetworkActivityStartAction |
+    NetworkActivityStopAction;

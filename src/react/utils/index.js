@@ -4,8 +4,6 @@ export function errorParser(error) {
     if (error.response && error.response.body && error.response.body.message) {
         message = error.response.body.message;
     //! $FlowFixMe
-    } else if (error.message) {
-        message = error.message;
     } else if (error.status === 401) {
         message = 'The request is missing valid authentication credentials.';
     } else if (error.status === 403) {
@@ -16,6 +14,8 @@ export function errorParser(error) {
         message = 'An item with the same identifier already exists.';
     } else if (error.status === 500 || error.status === 503) {
         message = 'The server is temporarily unavailable.';
+    } else if (error.message) {
+        message = error.message;
     } else {
         message = `Failed with error status: ${String(error.status)}`;
     }
