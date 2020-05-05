@@ -1,4 +1,5 @@
 import { Link, Route } from 'react-router-dom';
+import AccountCreate from './account/AccountCreate';
 import BucketCreate from './databrowser/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
@@ -77,6 +78,8 @@ class Routes extends React.Component{
             <Route exact path="/" component={StorageMonitor} />
             <Route exact path="/monitor/location/editor" component={LocationEditor} />
             <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
+
+            <Route exact path="/accounts/create" component={AccountCreate} />
 
             <Route exact path="/users" component={Users} />
             <Route path="/users/create" component={UserCreate} />

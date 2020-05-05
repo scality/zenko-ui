@@ -150,7 +150,7 @@ function LocationEditor(props) {
     }
 
     return <FormContainer>
-        <div className='sc-title'> Add new storage location </div>
+        <div className='zk-title'> Add new storage location </div>
         <fieldset>
             <label htmlFor="name"> Location Name </label>
             <Input
@@ -182,7 +182,7 @@ function LocationEditor(props) {
             locationOptions={location.options}
             onChange={onOptionsChange}
         />
-        <div className='footer'>
+      <div className='zk-footer'>
             <div className='zk-banner'>
                 {
                     displayErrorMessage && <Banner

@@ -16,7 +16,7 @@ const FormContainer = styled.div`
         width:100%;
     }
 
-    .sc-title {
+    .zk-title {
         display: flex;
 
         text-transform: uppercase;
@@ -47,7 +47,7 @@ const FormContainer = styled.div`
         }
     }
 
-    .footer {
+    .zk-footer {
       display: flex;
       justify-content: flex-end;
       align-items: center;
