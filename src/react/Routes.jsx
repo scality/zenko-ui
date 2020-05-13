@@ -1,8 +1,10 @@
 import { Link, Route } from 'react-router-dom';
 import BucketCreate from './databrowser/BucketCreate';
+import Callback from './oidc/Callback';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
 import LocationEditor from './monitor/location/LocationEditor';
+import Login from './oidc/Login';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
 import ReplicationCreate from './workflow/replication/ReplicationCreate';
@@ -89,6 +91,8 @@ class Routes extends React.Component{
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
 
+            <Route exact path="/login" component={Login}/>
+            <Route exact path="/login/callback" component={Callback}/>
         </Layout>;
     }
 }
