@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import userManager from '../../js/userManager';
+import { userManager } from '../../js/userManager';
 
 function Callback(props) {
 

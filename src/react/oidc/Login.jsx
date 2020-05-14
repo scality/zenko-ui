@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { Button } from '@scality/core-ui';
-import userManager from '../../js/userManager';
+import { userManager } from '../../js/userManager';
 
 function Login(props) {
     const login = () => {
