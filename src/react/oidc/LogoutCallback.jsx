@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { signinCallback } from '../actions';
+import { signoutCallback } from '../actions';
 
-function Callback(props) {
+function LogoutCallback(props) {
 
     useEffect(() => {
-        props.signinCallback();
+        props.signoutCallback();
     },[]);
 
     return <div>
@@ -15,8 +15,8 @@ function Callback(props) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        signinCallback: () => dispatch(signinCallback()),
+        signoutCallback: () => dispatch(signoutCallback()),
     };
 }
 
-export default connect(null, mapDispatchToProps)(Callback);
+export default connect(null, mapDispatchToProps)(LogoutCallback);

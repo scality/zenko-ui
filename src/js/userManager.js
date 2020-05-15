@@ -7,9 +7,13 @@ export function makeUserManager({ oidcAuthority: authority, oidcClientId: client
         // client_id: 'myclient',
         client_id: clientId,
         redirect_uri: 'http://127.0.0.1:8383/login/callback',
-        post_logout_redirect_uri: 'http://127.0.0.1:8383/login',
+        post_logout_redirect_uri: 'http://127.0.0.1:8383/logout/callback',
         response_type: 'code',
         scope: 'openid email roles',
+
+        automaticSilentRenew: true,
+        silent_redirect_uri: 'http://127.0.0.1:8383/silent/refresh',
+        accessTokenExpiringNotificationTime: 5,
         // filterProtocolClaims: false,
         // loadUserInfo: true,
     };

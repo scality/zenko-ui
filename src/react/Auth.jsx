@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { clearError, loadConfig } from './actions';
-import Callback from './oidc/Callback';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Login from './oidc/Login';
+import LoginCallback from './oidc/LoginCallback';
+import LogoutCallback from './oidc/LogoutCallback';
 import PrivateRoute from './ui-elements/PrivateRoute';
 import ReauthDialog from './ui-elements/ReauthDialog';
+import SilentRefresh from './oidc/SilentRefresh';
 import ZenkoUI from './ZenkoUI';
 import { connect } from 'react-redux';
 
@@ -14,12 +16,11 @@ function Auth(props) {
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
+        console.log('AUTH useEffect!!!');
         props.dispatch(loadConfig()).then(() => {
             setLoaded(true);
         });
     },[]);
-
-    console.log('loaded!!!', loaded);
 
     return <div>
         <ReauthDialog/>
@@ -31,7 +32,9 @@ function Auth(props) {
         { loaded &&
             <Switch>
                 <Route exact path="/login" component={Login}/>
-                <Route exact path="/login/callback" component={Callback}/>
+                <Route exact path="/login/callback" component={LoginCallback}/>
+                <Route exact path="/silent/refresh" component={SilentRefresh}/>
+                <Route exact path="/logout/callback" component={LogoutCallback}/>
                 <PrivateRoute component={ZenkoUI} />
             </Switch>
         }

@@ -1,4 +1,4 @@
-import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure} from './';
+import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure} from './index';
 import makeApiClient from '../../js/apiClient';
 import  { makeUserManager } from '../../js/UserManager';
 import { push } from 'connected-react-router';
@@ -25,6 +25,12 @@ export function userFound(user) {
     };
 }
 
+export function sessionTerminated() {
+    return {
+        type: 'SESSION_TERMINATED',
+    };
+}
+
 export function setConfig(config) {
     return {
         type: 'SET_CONFIG',
@@ -43,9 +49,41 @@ export function signinCallback() {
     return (dispatch, getState) => {
         const userManager = getState().auth.userManager;
         userManager.signinRedirectCallback()
-            .then(() => {
-                dispatch(loadUser()).then(() => dispatch(push('/')));
-            })
+            // .then(() => dispatch(loadUser()))
+            .then(() => dispatch(push('/')))
+            .catch(error => {
+                if (error.message) {
+                    dispatch(handleErrorMessage(error.message, 'byAuth'));
+                }
+                dispatch(networkAuthFailure());
+            });
+    };
+}
+
+export function signoutCallback() {
+    return (dispatch, getState) => {
+        const userManager = getState().auth.userManager;
+        userManager.signoutRedirectCallback()
+            .then(() => userManager.removeUser())
+            .then(() => dispatch(sessionTerminated()))
+            .then(() => dispatch(push('/')))
+            .catch(error => {
+                if (error.message) {
+                    dispatch(handleErrorMessage(error.message, 'byAuth'));
+                }
+                dispatch(networkAuthFailure());
+            });
+    };
+}
+
+export function signinSilentCallback() {
+    return (dispatch, getState) => {
+        const userManager = getState().auth.userManager;
+        alert('signinSilentCallback!!!');
+        userManager.signinSilentCallback()
+            // .then(() => {
+            //     dispatch(loadUser()).then(() => dispatch(push('/')));
+            // })
             .catch(error => {
                 if (error.message) {
                     dispatch(handleErrorMessage(error.message, 'byAuth'));
@@ -76,6 +114,23 @@ function getConfig() {
         });
 }
 
+// export function loadUser() {
+//     return (dispatch, getState) => {
+//         const userManager = getState().auth.userManager;
+//         return userManager.getUser()
+//             .then(user => {
+//                 console.log("loadUser!!!", user);
+//                 dispatch(userFound(user));
+//             })
+//             .catch(error => {
+//                 if (error.message) {
+//                     dispatch(handleErrorMessage(error.message, 'byAuth'));
+//                 }
+//                 dispatch(networkAuthFailure());
+//             });
+//     };
+// }
+
 export function loadConfig() {
     return dispatch => {
         return getConfig()
@@ -86,25 +141,29 @@ export function loadConfig() {
                 return userManager;
             })
             .then(userManager => {
+                console.log('INSIDE loadConfig!!!');
+                // userManager.signinSilent();
+                userManager.events.addSilentRenewError(error => {
+                    console.log('addSilentRenewError => error!!!', error);
+                });
+                userManager.events.addUserLoaded(user => {
+                    console.log('addUserLoaded => user!!!', user);
+                    dispatch(userFound(user));
+                });
+                userManager.events.addUserSignedOut(() => {
+                    // dispatch(signoutCallback());
+                    alert('addUserSignedOut!!');
+                });
+                userManager.events.addAccessTokenExpired(() => {
+                    // dispatch(signoutCallback());
+                    alert('accessTokenExpired!!');
+                });
+                userManager.events.addUserUnloaded(() => {
+                    // dispatch(signoutCallback());
+                    alert('addUserUnloaded!!');
+                });
                 return userManager.getUser();
             })
-            .then(user => {
-                console.log('user!!!', user);
-                dispatch(userFound(user));
-            })
-            .catch(error => {
-                if (error.message) {
-                    dispatch(handleErrorMessage(error.message, 'byAuth'));
-                }
-                dispatch(networkAuthFailure());
-            });
-    };
-}
-
-export function loadUser() {
-    return (dispatch, getState) => {
-        const userManager = getState().auth.userManager;
-        return userManager.getUser()
             .then(user => {
                 console.log('user!!!', user);
                 dispatch(userFound(user));

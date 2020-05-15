@@ -20,6 +20,11 @@ export default function auth(state = {}, action) {
             ...state,
             user: action.user,
         };
+    case 'SESSION_TERMINATED':
+        return {
+            ...state,
+            user: null,
+        };
     default:
         return state;
     }
