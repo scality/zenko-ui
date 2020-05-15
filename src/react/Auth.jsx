@@ -19,6 +19,8 @@ function Auth(props) {
         });
     },[]);
 
+    console.log('loaded!!!', loaded);
+
     return <div>
         <ReauthDialog/>
         <ErrorHandlerModal

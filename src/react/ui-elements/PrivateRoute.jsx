@@ -14,9 +14,8 @@ class PrivateRoute extends Component {
 }
 
 function mapStateToProps(state) {
-    console.log('state.auth!!!', state.auth);
     return {
-        authenticated: !!state.auth.user
+        authenticated: !!state.auth.user && !state.auth.user.expired,
     };
 }
 

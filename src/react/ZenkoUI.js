@@ -1,4 +1,4 @@
-import {clearError, loadCredentials, loadInstanceLatestStatus, loadInstanceStats} from './actions';
+import {clearError, loadAPIs, loadInstanceLatestStatus, loadInstanceStats} from './actions';
 import {
     jade,
     turquoise,
@@ -45,7 +45,7 @@ class ZenkoUI extends React.Component {
 
     componentDidMount() {
         // TODO: move them to a gobal action
-        this.props.dispatch(loadCredentials()).then(() => {
+        this.props.dispatch(loadAPIs()).then(() => {
             this.setState({ loaded: true });
         });
         // this.refreshIntervalStatsUnit = setInterval(
@@ -74,7 +74,6 @@ function mapStateToProps(state) {
     return {
         showError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
         errorMessage: state.uiErrors.errorMsg,
-        oidcUser: state.auth.user,
         // needReauth: state.networkActivity.authFailure,
         // isLoaded: !!(state.auth.clients && state.auth.clients.iamClient),
     };

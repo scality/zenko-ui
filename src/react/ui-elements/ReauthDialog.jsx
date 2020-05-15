@@ -1,11 +1,12 @@
 // @flow
 import { Button, Modal } from '@scality/core-ui';
-import { loadCredentials, networkAuthReset } from '../actions';
+import { networkAuthReset } from '../actions';
 import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 type DispatchProps = {
     reauth: () => void,
@@ -51,7 +52,7 @@ function mapDispatchToProps(dispatch: DispatchAPI<Action>): DispatchProps {
     return {
         reauth: () => {
             dispatch(networkAuthReset());
-            dispatch(loadCredentials());
+            dispatch(push('/'));
         },
     };
 }
