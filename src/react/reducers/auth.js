@@ -10,9 +10,14 @@ export default function auth(state = {}, action) {
             ...state,
             userManager: action.userManager,
         };
+    case 'SET_CONFIG':
+        return {
+            ...state,
+            config: action.config,
+        };
     case 'USER_FOUND':
         return {
-            type: 'USER_FOUND',
+            ...state,
             user: action.user,
         };
     default:

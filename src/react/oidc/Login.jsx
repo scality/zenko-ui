@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
 import { Button } from '@scality/core-ui';
-import { userManager } from '../../js/userManager';
+import { connect } from 'react-redux';
+import { signin } from '../actions';
 
 function Login(props) {
     const login = () => {
-        userManager.signinRedirect();
+        props.signin();
     };
 
     return <div>
@@ -12,4 +13,10 @@ function Login(props) {
     </div>;
 }
 
-export default Login;
+function mapDispatchToProps(dispatch) {
+    return {
+        signin: () => dispatch(signin()),
+    };
+}
+
+export default connect(null, mapDispatchToProps)(Login);

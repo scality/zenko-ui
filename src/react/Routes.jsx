@@ -1,4 +1,4 @@
-import { Link, Route } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import BucketCreate from './databrowser/BucketCreate';
 import Callback from './oidc/Callback';
 import DataBrowser from './databrowser/DataBrowser';
@@ -13,7 +13,9 @@ import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
 import { connect } from 'react-redux';
+import {signout} from './actions';
 import styled from 'styled-components';
+
 
 const Layout = styled.div`
   display: flex;
@@ -46,9 +48,10 @@ class Routes extends React.Component{
                 <Navbar
                     rightActions={[
                         {
-                            type: 'dropdown',
-                            text: 'Nicolas2bert',
+                            text: `logout ${this.props.userName}`,
                             icon: <i className='fas fa-user' />,
+                            type: 'button',
+                            onClick: () => this.props.dispatch(signout()),
                         },
                     ]}
                     tabs={[
@@ -75,24 +78,25 @@ class Routes extends React.Component{
                     ]}
                 />
             </NavbarContainer>
+            <Switch>
+                <Route exact path="/" component={StorageMonitor} />
+                <Route exact path="/monitor/location/editor" component={LocationEditor} />
+                <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
 
-            <Route exact path="/" component={StorageMonitor} />
-            <Route exact path="/monitor/location/editor" component={LocationEditor} />
-            <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
+                <Route exact path="/users" component={Users} />
+                <Route path="/users/create" component={UserCreate} />
 
-            <Route exact path="/users" component={Users} />
-            <Route path="/users/create" component={UserCreate} />
+                <Route path="/groups" component={Groups} />
 
-            <Route path="/groups" component={Groups} />
+                <Route exact path="/databrowser" component={DataBrowser} />
+                <Route path="/databrowser/create" component={BucketCreate} />
 
-            <Route exact path="/databrowser" component={DataBrowser} />
-            <Route path="/databrowser/create" component={BucketCreate} />
+                <Route exact path="/workflow" component={Workflows} />
+                <Route path="/workflow/replication/create" component={ReplicationCreate} />
 
-            <Route exact path="/workflow" component={Workflows} />
-            <Route path="/workflow/replication/create" component={ReplicationCreate} />
-
-            <Route exact path="/login" component={Login}/>
-            <Route exact path="/login/callback" component={Callback}/>
+                <Route exact path="/login" component={Login}/>
+                <Route exact path="/login/callback" component={Callback}/>
+            </Switch>
         </Layout>;
     }
 }
@@ -100,6 +104,7 @@ class Routes extends React.Component{
 function mapStateToProps(state) {
     return {
         location: state.router.location,
+        userName: state.auth.user.profile.name || '',
     };
 }
 

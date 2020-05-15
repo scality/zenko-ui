@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect } from 'react';
-import { userManager } from '../../js/userManager';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { signinCallback } from '../actions';
 
 function Callback(props) {
 
-    console.log('here!!!');
     useEffect(() => {
-        userManager.signinRedirectCallback()
-            .then((user) => {console.log('user!!!', user);})
-            .catch((error) => {console.log('error!!!', error);});
+        props.signinCallback();
     },[]);
 
     return <div>
@@ -15,4 +13,10 @@ function Callback(props) {
     </div>;
 }
 
-export default Callback;
+function mapDispatchToProps(dispatch) {
+    return {
+        signinCallback: () => dispatch(signinCallback()),
+    };
+}
+
+export default connect(null, mapDispatchToProps)(Callback);
