@@ -144,15 +144,15 @@ export function loadConfig() {
                 console.log('INSIDE loadConfig!!!');
                 // userManager.signinSilent();
                 userManager.events.addSilentRenewError(error => {
-                    console.log('addSilentRenewError => error!!!', error);
+                    alert('addSilentRenewError => error!!!', error);
                 });
                 userManager.events.addUserLoaded(user => {
                     console.log('addUserLoaded => user!!!', user);
                     dispatch(userFound(user));
                 });
                 userManager.events.addUserSignedOut(() => {
-                    // dispatch(signoutCallback());
-                    alert('addUserSignedOut!!');
+                    alert('signoutCallback!!!');
+                    dispatch(signoutCallback());
                 });
                 userManager.events.addAccessTokenExpired(() => {
                     // dispatch(signoutCallback());
@@ -176,6 +176,19 @@ export function loadConfig() {
             });
     };
 }
+
+// TODO
+// export function unLoadConfig() {
+//     return (dispatch, getState) => {
+//         const userManager = getState().auth.userManager;
+//         userManager.events.removeUserLoaded(userSignedOut);
+//         this.userManager.events.removeSilentRenewError(...);
+//         this.userManager.events.removeAccessTokenExpired(...);
+//         this.userManager.events.removeAccessTokenExpiring(...);
+//         this.userManager.events.removeUserUnloaded(...);
+//         this.userManager.events.removeUserSignedOut(...);
+//     };
+// }
 
 export function loadAPIs() {
     return (dispatch, getState) => {
