@@ -8,13 +8,8 @@ export default function uiErrors(state = initialErrorsUIState, action) {
             errorMsg: action.errorMsg,
             errorType: action.errorType,
         };
-    case 'CLEAR_ERROR':
-        return {
-            ...state,
-            errorMsg: null,
-            errorType: null,
-        };
     case 'NETWORK_AUTH_RESET':
+    case 'CLEAR_ERROR':
         return {
             ...state,
             errorMsg: null,

@@ -2,13 +2,18 @@ import React from 'react';
 import ReauthDialog from '../ReauthDialog';
 import { reduxMount } from '../../utils/test';
 
-const defaultMessage = 'We need to log you in periodically';
+const defaultMessage = 'We need to log you in.';
 
 describe('class <ReauthDialog />', () => {
     it('should not render the ReauthDialog component if the network activity authFailure is false', () => {
         const { component } = reduxMount(<ReauthDialog/>, {
             networkActivity: {
                 authFailure: false,
+            },
+            router: {
+                location: {
+                    pathname: '/',
+                },
             },
         });
         expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(0);
@@ -23,6 +28,11 @@ describe('class <ReauthDialog />', () => {
                 errorMsg: 'error message test',
                 errorType: 'byAuth',
             },
+            router: {
+                location: {
+                    pathname: '/',
+                },
+            },
         });
         expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(0);
     });
@@ -31,6 +41,11 @@ describe('class <ReauthDialog />', () => {
         const { component } = reduxMount(<ReauthDialog/>, {
             networkActivity: {
                 authFailure: true,
+            },
+            router: {
+                location: {
+                    pathname: '/',
+                },
             },
         });
         expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);
@@ -47,6 +62,11 @@ describe('class <ReauthDialog />', () => {
                 errorMsg: errorMessage,
                 errorType: 'byAuth',
             },
+            router: {
+                location: {
+                    pathname: '/',
+                },
+            },
         });
         expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);
         expect(component.find('div.sc-modal-body').text()).toContain(errorMessage);
@@ -61,6 +81,11 @@ describe('class <ReauthDialog />', () => {
             uiErrors: {
                 errorMsg: errorMessage,
                 errorType: 'byModal',
+            },
+            router: {
+                location: {
+                    pathname: '/',
+                },
             },
         });
         expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);

@@ -2,12 +2,12 @@ import AWS from 'aws-sdk';
 const async = require('async');
 
 export default class S3Client {
-    constructor(creds) {
+    constructor(params) {
         this.client = new AWS.S3({
-            // endpoint: 'https://s3.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/s3',
-            accessKeyId: creds.accessKey,
-            secretAccessKey: creds.secretKey,
+            endpoint: params.endpoint,
+            accessKeyId: params.accessKey,
+            secretAccessKey: params.secretKey,
+            sessionToken: params.sessionToken,
             region: 'us-east-1',
             s3ForcePathStyle: true,
         });

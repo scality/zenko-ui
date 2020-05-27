@@ -1,6 +1,6 @@
 // @flow
 import { Button, Modal } from '@scality/core-ui';
-import { loadCredentials, networkAuthReset } from '../actions';
+import { networkAuthReset, signin, signout } from '../actions';
 import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 
 type DispatchProps = {
     reauth: () => void,
+    logout: () => void,
 };
 
 type StateProps = {
@@ -18,10 +19,10 @@ type StateProps = {
 
 type Props = StateProps & DispatchProps;
 
-const DEFAULT_MESSAGE = 'We need to log you in periodically';
+const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = (props: Props) => {
-    const { needReauth, reauth, errorMessage } = props;
+    const { needReauth, reauth, errorMessage, pathname } = props;
     if (!needReauth) {
         return null;
     }
@@ -29,10 +30,10 @@ const ReauthDialog = (props: Props) => {
     return (
         <Modal
             id="reauth-dialog-modal"
-            close={reauth}
-            footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={reauth} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
+            close={props.logout}
+            footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
             isOpen={true}
-            title={errorMessage ? 'Authentication Error' : 'Your session has expired'}>
+            title='Authentication Error'>
             <div style={{margin: '10px 0px 20px'}}>
                 { errorMessage || DEFAULT_MESSAGE }
             </div>
@@ -45,15 +46,17 @@ function mapStateToProps(state: AppState): StateProps {
         needReauth: state.networkActivity.authFailure,
         errorMessage: state.uiErrors.errorType === 'byAuth' ?
             state.uiErrors.errorMsg : null,
+        pathname: state.router.location.pathname,
     };
 }
 
 function mapDispatchToProps(dispatch: DispatchAPI<Action>): DispatchProps {
     return {
-        reauth: () => {
+        reauth: pathname => {
             dispatch(networkAuthReset());
-            dispatch(loadCredentials());
+            dispatch(signin(pathname));
         },
+        logout: () => dispatch(signout()),
     };
 }
 

@@ -11,18 +11,8 @@ import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
 import { connect } from 'react-redux';
+import { signout } from './actions';
 import styled from 'styled-components';
-
-const Layout = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  overflow: scroll;
-
-  color: #fff;
-  background-color: ${props => props.theme.brand.background};
-  flex-direction:column;
-`;
 
 const NavbarContainer = styled.div`
   display: flex;
@@ -38,15 +28,16 @@ function isSelected(location, tabName){
 
 class Routes extends React.Component{
     render() {
-        const location = this.props.location;
-        return <Layout>
+        const { location, userName } = this.props;
+        return <div>
             <NavbarContainer>
                 <Navbar
                     rightActions={[
                         {
-                            type: 'dropdown',
-                            text: 'Nicolas2bert',
+                            text: `logout ${userName}`,
                             icon: <i className='fas fa-user' />,
+                            type: 'button',
+                            onClick: () => this.props.dispatch(signout()),
                         },
                     ]}
                     tabs={[
@@ -62,10 +53,10 @@ class Routes extends React.Component{
                         //     link: <Link to="/users">Users</Link>,
                         //     selected: isSelected(location, '/users'),
                         // },
-                        // {
-                        //     link: <Link to="/databrowser">Data Browser</Link>,
-                        //     selected: isSelected(location, '/databrowser'),
-                        // },
+                        {
+                            link: <Link to="/databrowser">Data Browser</Link>,
+                            selected: isSelected(location, '/databrowser'),
+                        },
                         // {
                         //     link: <Link to="/workflow">Data Workflow</Link>,
                         //     selected: isSelected(location, '/workflow'),
@@ -89,13 +80,14 @@ class Routes extends React.Component{
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
 
-        </Layout>;
+        </div>;
     }
 }
 
 function mapStateToProps(state) {
     return {
         location: state.router.location,
+        userName: state.oidc.user.profile.name || '',
     };
 }
 

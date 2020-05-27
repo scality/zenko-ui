@@ -1,7 +1,7 @@
 // @noflow
 import { List, Map } from 'immutable';
 
-export const initialAuthState = {};
+export const initialAuthState = {isUserLoaded: false, configFailure: false, isSigningOut: false};
 
 export const initialBucketState = { list: []};
 export const initialBucketUIState = { showDelete: false };
