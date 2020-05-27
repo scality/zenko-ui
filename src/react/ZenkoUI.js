@@ -1,89 +1,53 @@
-import {clearError, loadCredentials, loadInstanceLatestStatus, loadInstanceStats} from './actions';
-import {
-    jade,
-    turquoise,
-    yellowOrange,
-    warmRed,
-    white,
-} from '@scality/core-ui/src/lib/style/theme';
+import React, { useEffect, useState } from 'react';
+import {clearError, loadClients, loadInstanceLatestStatus, loadInstanceStats} from './actions';
 import Activity from './ui-elements/Activity';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
-import React from 'react';
-import ReauthDialog from './ui-elements/ReauthDialog';
+import Loader from './ui-elements/Loader';
 import Routes from './Routes';
-import { ThemeProvider } from 'styled-components';
 import { connect } from 'react-redux';
 
+function ZenkoUI(props) {
 
-const theme = {
-    name: "Dark Theme",
-    brand: {
-        // Navbar
-        base: '#19161D',
-        baseContrast1: '#26232A',
-        // App
-        // primary: "#111112",
-        primary: white,
-        secondary: '#a7a7a7',
-        success: jade,
-        info: turquoise,
-        warning: yellowOrange,
-        danger: warmRed,
-        background: '#0a0a0b',
-        backgroundContrast1: '#16161a',
-        backgroundContrast2: '#08080A',
-        text: white,
-        border: white,
-    },
-};
+    const [ loaded, setLoaded ] = useState(false);
 
-class ZenkoUI extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            loaded: false,
-        };
-    }
-
-    componentDidMount() {
-        // TODO: move them to a gobal action
-        this.props.dispatch(loadCredentials()).then(() => {
-            this.setState({ loaded: true });
+    // When tokens are renewed, clients are updated with the new ID token.
+    useEffect(() => {
+        props.dispatch(loadClients()).then(() => {
+            setLoaded(true);
         });
-        // this.refreshIntervalStatsUnit = setInterval(
-        //     () => this.props.dispatch(loadInstanceLatestStatus()), 10000);
-        // this.refreshIntervalStatsSeries = setInterval(
-        //     () => this.props.dispatch(loadInstanceStats()), 10000);
-    }
+    }, [props.idToken, props.instanceIds]);
 
-    componentWillUnmount() {
-        clearInterval(this.refreshIntervalStatsUnit);
-        clearInterval(this.refreshIntervalStatsSeries);
-    }
-    render(){
-        return (
-            <ThemeProvider theme={theme}>
-                <div>
-                    <ReauthDialog/>
-                    { this.state.loaded && <Routes/> }
-                    <ErrorHandlerModal
-                        show={this.props.showError}
-                        close={() => this.props.dispatch(clearError())} >
-                        {this.props.errorMessage}
-                    </ErrorHandlerModal>
-                    <Activity/>
-                </div>
-            </ThemeProvider>
-        );
-    }
+    useEffect(() => {
+        const refreshIntervalStatsUnit = setInterval(
+            () => props.dispatch(loadInstanceLatestStatus()), 10000);
+        const refreshIntervalStatsSeries = setInterval(
+            () => props.dispatch(loadInstanceStats()), 10000);
+        return () => {
+            clearInterval(refreshIntervalStatsUnit);
+            clearInterval(refreshIntervalStatsSeries);
+        };
+    }, []);
+
+    return (
+        <div>
+            { loaded ? <Routes/> : <Loader> Loading </Loader> }
+            <ErrorHandlerModal
+                show={props.showError}
+                close={() => props.dispatch(clearError())} >
+                {props.errorMessage}
+            </ErrorHandlerModal>
+            <Activity/>
+        </div>
+    );
 }
+
 
 function mapStateToProps(state) {
     return {
         showError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
         errorMessage: state.uiErrors.errorMsg,
-        // needReauth: state.networkActivity.authFailure,
-        // isLoaded: !!(state.auth.clients && state.auth.clients.iamClient),
+        idToken: state.oidc.user.id_token,
+        instanceIds: state.oidc.user.profile.instanceIds,
     };
 }
 

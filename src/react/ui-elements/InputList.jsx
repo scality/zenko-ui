@@ -41,7 +41,6 @@ export default class InputList extends React.Component<Props, State> {
                 ...this.props.entries,
             ],
         };
-        console.log('constructor this.state!!!', this.state);
     }
 
     insertEntry = () => {
@@ -81,8 +80,6 @@ export default class InputList extends React.Component<Props, State> {
         if (this.props.listLimit > 0 &&
             this.state.entries.length >= this.props.listLimit ||
             this.state.entries[index] === '') {
-            console.log('this.props.listLimit!!!', this.props.listLimit);
-            console.log('this.state.entries!!!', this.state.entries);
             isDisabled = true;
             onClickFn = () => {};
         }

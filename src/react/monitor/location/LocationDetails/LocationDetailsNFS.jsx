@@ -91,7 +91,6 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
 
     onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
         const target = e.target;
-        console.log('target!!!', target);
         let value;
         switch (target.name) {
         case 'server':
@@ -143,7 +142,6 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
 
     render() {
         const { editingExisting } = this.props;
-        console.log('this.state!!!', this.state);
         return (
             <div>
                 <fieldset className="form-group">

@@ -1,9 +1,9 @@
 export default function instances(state = {}, action) {
     switch (action.type){
-    case 'LOG_IN':
+    case 'SELECT_INSTANCE':
         return {
             ...state,
-            selectedId: action.instanceId,
+            selectedId: action.selectedId,
         };
     default:
         return state;

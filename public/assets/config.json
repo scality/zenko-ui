@@ -1,4 +1,7 @@
 {
-    "apiEndpoint": "http://127.0.0.1:5000",
-    "instanceId": "c4a88541-2a25-4896-a1f4-65dd7e88fab3"
+    "managementEndpoint": "http://127.0.0.1:5000",
+    "oidcAuthority": "http://localhost:8080/auth/realms/myrealm",
+    "oidcClientId": "myclient2",
+    "stsEndpoint": "https://sts.amazonaws.com",
+    "s3Endpoint": "https://s3.amazonaws.com"
 }
