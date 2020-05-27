@@ -1,6 +1,6 @@
 {
     "apiEndpoint": "http://127.0.0.1:5000",
     "instanceId": "57e9b6c9-1e78-48b2-ab88-d8c0845bdd69",
-    "oidcAuthority": "http://localhost:8080/auth/realms/myrealm",
+    "oidcAuthority": "http://127.0.0.1:8080/auth/realms/myrealm",
     "oidcClientId": "myclient"
 }

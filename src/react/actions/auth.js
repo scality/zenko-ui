@@ -102,17 +102,14 @@ export function loadConfig() {
 }
 
 export function loadCredentials() {
-    return dispatch => {
-        return getConfig()
-            .then((resp) => {
-                return Promise.all([
-                    resp.instanceId,
-                    // TODO: use oidc token
-                    makeApiClient(resp.apiEndpoint, resp.instanceId),
-                ]);
-            })
-            .then(([instanceId, apiClient]) => {
-                dispatch(login(instanceId, apiClient));
+    return (dispatch, getState) => {
+        const { config } = getState().auth;
+        const oidc = getState().oidc;
+        console.log('config!!!', config);
+        console.log('oidc!!!', oidc);
+        return makeApiClient(config.apiEndpoint, config.instanceId, oidc.user.id_token)
+            .then(apiClient => {
+                dispatch(login(config.instanceId, apiClient));
                 return Promise.all([
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
