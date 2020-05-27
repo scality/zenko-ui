@@ -2,10 +2,10 @@ import '../css/index.css';
 
 import { ConnectedRouter, routerMiddleware } from 'connected-react-router';
 import { applyMiddleware, compose, createStore } from 'redux';
+import Auth from './Auth';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ZenkoUI from './ZenkoUI';
 import { createBrowserHistory as createHistory } from 'history';
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
@@ -20,7 +20,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const history = createHistory();
 
-const store = createStore(
+export const store = createStore(
     zenkoUIReducer(history),
     composeEnhancers(applyMiddleware(thunk, routerMiddleware(history))),
 );
@@ -29,7 +29,7 @@ const store = createStore(
 ReactDOM.render(
     <Provider store={store}>
         <ConnectedRouter history={history}>
-            <ZenkoUI/>
+            <Auth/>
         </ConnectedRouter>
     </Provider>,
     document.getElementById('app'));

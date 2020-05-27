@@ -38,15 +38,17 @@ function isSelected(location, tabName){
 
 class Routes extends React.Component{
     render() {
-        const location = this.props.location;
+        const { location, userName, userManager } = this.props;
         return <Layout>
             <NavbarContainer>
                 <Navbar
                     rightActions={[
                         {
-                            type: 'dropdown',
-                            text: 'Nicolas2bert',
+                            text: `logout ${userName}`,
                             icon: <i className='fas fa-user' />,
+                            type: 'button',
+                            onClick: () => userManager.removeUser()
+                                .then(() => userManager.signoutRedirect()),
                         },
                     ]}
                     tabs={[
@@ -96,6 +98,8 @@ class Routes extends React.Component{
 function mapStateToProps(state) {
     return {
         location: state.router.location,
+        userManager: state.auth.userManager,
+        userName: state.oidc.user.profile.name || '',
     };
 }
 
