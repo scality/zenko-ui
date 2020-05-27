@@ -51,7 +51,7 @@ const BucketSectionTop = styled.div`
 
 
 function DataBrowser(props){
-    const { bucketList, stats, redirect, configuration, selectedBucketName } = props;
+    const { bucketList, redirect, configuration, selectedBucketName } = props;
 
     // useEffect(() => {
     //     props.listBuckets();
@@ -95,6 +95,7 @@ function DataBrowser(props){
             <BucketSectionTop>
                 <Button variant="danger" disabled={!selectedBucketName} icon={<i className="fa fa-trash" />} text="&nbsp; Delete bucket" onClick={props.openBucketDeleteDialog} />
                 <Button outlined icon={<i className="fa fa-plus-circle" />} text="&nbsp; Create bucket" onClick={createBucket} />
+                <Button outlined icon={<i className="fas fa-sync" />} text="&nbsp; Refresh" onClick={props.listBuckets} />
             </BucketSectionTop>
             <TableContainer hide={props.bucketList.length === 0}>
                 <table>
@@ -124,7 +125,6 @@ function DataBrowser(props){
 function mapStateToProps(state) {
     return {
         bucketList: state.bucket.list,
-        stats: state.stats.allStats,
         configuration: state.configuration.latest,
         selectedBucketName: state.uiBucket.selectedBucketName,
         showDelete: state.uiBucket.showDelete,
@@ -135,7 +135,7 @@ function mapDispatchToProps(dispatch) {
     return {
         deleteBucket: bucketName => dispatch(deleteBucket(bucketName)),
         redirect: path => dispatch(push(path)),
-        // listBuckets: () => dispatch(listBuckets()),
+        listBuckets: () => dispatch(listBuckets()),
         openBucketDeleteDialog: () => dispatch(openBucketDeleteDialog()),
         closeBucketDeleteDialog: () => dispatch(closeBucketDeleteDialog()),
         selectBucket: bucketName => dispatch(selectBucket(bucketName)),

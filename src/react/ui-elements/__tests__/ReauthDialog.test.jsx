@@ -2,7 +2,7 @@ import React from 'react';
 import ReauthDialog from '../ReauthDialog';
 import { reduxMount } from '../../utils/test';
 
-const defaultMessage = 'We need to log you in periodically';
+const defaultMessage = 'We need to log you in.';
 
 describe('class <ReauthDialog />', () => {
     it('should not render the ReauthDialog component if the network activity authFailure is false', () => {

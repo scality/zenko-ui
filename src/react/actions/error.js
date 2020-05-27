@@ -39,10 +39,19 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
             dispatch(networkAuthFailure());
             break;
         default:
-            if (typeof error.status === 'number' &&
-                error.status >= 500 && window.Raven) {
-                window.Raven.captureException(error);
-            }
+            throw error;
+        }
+    };
+}
+
+export function handleS3Error(error): ThunkNonStateAction {
+    return (dispatch: DispatchFunction) => {
+        switch (error.statusCode) {
+        case 401:
+        case 403:
+            dispatch(networkAuthFailure());
+            break;
+        default:
             throw error;
         }
     };

@@ -1,5 +1,16 @@
 import styled from 'styled-components';
 
+const MainContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: scroll;
+
+  color: #fff;
+  background-color: ${props => props.theme.brand.background};
+  flex-direction:column;
+`;
+
 const Container = styled.div`
     display: flex;
     flex-direction: column;
@@ -16,4 +27,11 @@ const Container = styled.div`
     }
 `;
 
-export {Container};
+const LoaderContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
+export {Container, LoaderContainer, MainContainer};

@@ -12,8 +12,8 @@ export function newConfiguration(configuration: ConfigurationOverlay) {
 
 export function updateConfiguration() {
     return async (dispatch, getState) => {
-        const { apiClient, instanceId } = getClients(getState());
-        return apiClient.getConfigurationOverlayView({ uuid: instanceId })
+        const { managementClient, instanceId } = getClients(getState());
+        return managementClient.getConfigurationOverlayView({ uuid: instanceId })
             .then(res => {
                 dispatch(newConfiguration(res.body));
             })
