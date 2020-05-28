@@ -10,7 +10,7 @@ export type GetStateFunction = () => AppState;
 
 
 export interface ApiError extends Error {
-    status: 200 | 401 | 403 | 422 | 500 | 503;
+    status: 200 | 400 | 401 | 403 | 422 | 500 | 503;
 }
 
 export type ThunkNonStateAction = (DispatchFunction) => void;

@@ -1,4 +1,4 @@
-import { handleApiError, handleClientError } from './error';
+import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { batch } from 'react-redux';
 import { getClients } from '../utils/actions';
@@ -44,7 +44,7 @@ export function listBuckets(){
         dispatch(networkStart('Listing buckets'));
         return s3Client.listBucketsWithLocation()
             .then(res => dispatch(updateBucketList(res.Buckets)))
-            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
@@ -61,7 +61,7 @@ export function createBucket(bucket){
                     dispatch(listBuckets());
                 });
             })
-            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
@@ -75,7 +75,7 @@ export function deleteBucket(bucketName){
         dispatch(networkStart('Deleting bucket'));
         return s3Client.deleteBucket(bucketName)
             .then(() => dispatch(listBuckets()))
-            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };

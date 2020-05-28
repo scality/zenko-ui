@@ -17,7 +17,7 @@ function LoginCallback(props) {
                 // alert("error");
                 // alert(error.message);
                 props.dispatch(push('/'));
-                console.error(error);
+                // console.log('CallbackComponent error!!!:', error);
             }}
         >
             <div>Redirecting...</div>

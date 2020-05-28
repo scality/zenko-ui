@@ -9,7 +9,8 @@ export function makeUserManager({ oidcAuthority: authority, oidcClientId: client
         redirect_uri: 'http://127.0.0.1:8383/login/callback',
         post_logout_redirect_uri: 'http://127.0.0.1:8383/logout/callback',
         response_type: 'id_token token',
-        scope: 'openid email',
+        // response_type: 'code',
+        scope: 'openid profile email',
 
         automaticSilentRenew: true,
         // silent_redirect_uri: 'http://127.0.0.1:8383/silent/refresh',
