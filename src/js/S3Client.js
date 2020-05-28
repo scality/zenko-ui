@@ -4,10 +4,11 @@ const async = require('async');
 export default class S3Client {
     constructor(creds) {
         this.client = new AWS.S3({
-            // endpoint: 'https://s3.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/s3',
-            accessKeyId: creds.accessKey,
-            secretAccessKey: creds.secretKey,
+            endpoint: 'https://s3.amazonaws.com',
+            // endpoint: 'http://127.0.0.1:8383/s3',
+            accessKeyId: creds.AccessKeyId,
+            secretAccessKey: creds.SecretAccessKey,
+            sessionToken: creds.SessionToken,
             region: 'us-east-1',
             s3ForcePathStyle: true,
         });

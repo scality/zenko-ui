@@ -40,6 +40,7 @@ export function closeBucketDeleteDialog() {
 export function listBuckets(){
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
+        console.log('s3Client!!!', s3Client);
         dispatch(networkStart('Listing buckets'));
         return s3Client.listBucketsWithLocation()
             .then(res => dispatch(updateBucketList(res.Buckets)))

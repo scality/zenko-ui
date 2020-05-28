@@ -19,8 +19,8 @@ export function receiveInstanceStats(stats) {
 
 export function loadInstanceStats(){
     return (dispatch, getState) => {
-        const { apiClient, instanceId } = getClients(getState());
-        return apiClient.getInstanceStats({ uuid: instanceId})
+        const { managementClient, instanceId } = getClients(getState());
+        return managementClient.getInstanceStats({ uuid: instanceId})
             .then(res => {
                 dispatch(receiveInstanceStats(res.body));
             })
@@ -31,8 +31,8 @@ export function loadInstanceStats(){
 
 export function loadInstanceLatestStatus(){
     return (dispatch, getState) => {
-        const { apiClient, instanceId } = getClients(getState());
-        return apiClient.getLatestInstanceStatus({ uuid: instanceId})
+        const { managementClient, instanceId } = getClients(getState());
+        return managementClient.getLatestInstanceStatus({ uuid: instanceId})
             .then(res => {
                 dispatch(instanceStatus(res.body));
             })

@@ -8,11 +8,14 @@ function LoginCallback(props) {
         <CallbackComponent
             userManager={props.userManager}
             successCallback={user => {
-                console.log('user.state!!!', user.state);
+                // alert("user");
+                // alert(JSON.stringify(user));
                 const path = (user.state && user.state.path) || '/';
                 props.dispatch(push(path));
             }}
             errorCallback={error => {
+                // alert("error");
+                // alert(error.message);
                 props.dispatch(push('/'));
                 console.error(error);
             }}

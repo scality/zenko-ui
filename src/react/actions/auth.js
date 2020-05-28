@@ -1,15 +1,19 @@
-import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure} from './';
+import { handleErrorMessage, loadInstanceLatestStatus, listBuckets, loadInstanceStats, networkAuthFailure} from './index';
+import S3Client from '../../js/S3Client';
+import STSClient from '../../js/STSClient';
 import { loadUser } from 'redux-oidc';
-import makeApiClient from '../../js/apiClient';
+import makeApiClient from '../../js/managementClient';
 import  { makeUserManager } from '../../js/UserManager';
 import { push } from 'connected-react-router';
 import { store } from '../App';
 
-export function login(instanceId, apiClient) {
+export function initClients(instanceId, managementClient, s3Client) {
+    console.log('s3Client!!!', s3Client);
     return {
-        type: 'LOG_IN',
+        type: 'INIT_CLIENTS',
         instanceId,
-        apiClient,
+        managementClient,
+        s3Client,
     };
 }
 
@@ -105,17 +109,19 @@ export function loadCredentials() {
     return (dispatch, getState) => {
         const { config } = getState().auth;
         const oidc = getState().oidc;
-        console.log('config!!!', config);
-        console.log('oidc!!!', oidc);
-        return makeApiClient(config.apiEndpoint, config.instanceId, oidc.user.id_token)
-            .then(apiClient => {
-                dispatch(login(config.instanceId, apiClient));
+        const sts = new STSClient(config, oidc.user.id_token);
+        return Promise.all([
+            sts.assumeRoleWithWebIdentity(),
+            makeApiClient(config, oidc.user.id_token),
+        ])
+            .then(([creds, managementClient]) => {
+                dispatch(initClients(config.instanceId, managementClient, new S3Client(creds.Credentials)));
                 return Promise.all([
+                    dispatch(listBuckets()),
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
                 ]);
             })
-            .then(() => {})
             .catch(error => {
                 if (error.message) {
                     dispatch(handleErrorMessage(error.message, 'byAuth'));

@@ -3,8 +3,9 @@ import { Map } from 'immutable';
 
 export function getClients(state) {
     return {
-        apiClient: state.auth.apiClient,
         instanceId: state.instances.selectedId,
+        managementClient: state.auth.managementClient,
+        s3Client: state.auth.s3Client,
     };
 }
 

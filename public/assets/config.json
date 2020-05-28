@@ -1,6 +1,7 @@
 {
     "apiEndpoint": "http://127.0.0.1:5000",
     "instanceId": "57e9b6c9-1e78-48b2-ab88-d8c0845bdd69",
-    "oidcAuthority": "http://127.0.0.1:8080/auth/realms/myrealm",
-    "oidcClientId": "myclient"
+    "oidcAuthority": "https://accounts.google.com",
+    "oidcClientId": "155771583535-b153m0mlnqtn16e7cqcb60gtfk92dqjk.apps.googleusercontent.com",
+    "stsEndpoint": "https://sts.amazonaws.com"
 }

@@ -1,6 +1,7 @@
 import Swagger from 'swagger-client';
 
-function makeApiClient(apiEndpoint, instanceId, token){
+function makeApiClient(config, token){
+    const {apiEndpoint, instanceId} = config;
     // NOTE: This is not production-ready.
     // It implements an authentication call based on a hardcoded OIDC token and an instance ID set in the `config.json` file.
     // This call returns a JWT token which allows the user to access "pensieve-api" resources that are permitted with that token.
@@ -18,8 +19,8 @@ function makeApiClient(apiEndpoint, instanceId, token){
         })
         .then(client => {
             client.spec.schemes = [apiEndpoint.split(':')[0]];
-            const apiClient = client.apis['ui-facing'];
-            return apiClient;
+            const managementClient = client.apis['ui-facing'];
+            return managementClient;
         })
         .catch(error => {
             throw new Error(

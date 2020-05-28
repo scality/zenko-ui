@@ -1,9 +1,11 @@
 export default function auth(state = { isUserLoaded: false }, action) {
     switch (action.type) {
-    case 'LOG_IN':
+    case 'INIT_CLIENTS':
+        console.log('action!!!', action);
         return {
             ...state,
-            apiClient: action.apiClient,
+            managementClient: action.managementClient,
+            s3Client: action.s3Client,
         };
     case 'SET_USER_MANAGER':
         return {
