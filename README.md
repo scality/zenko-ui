@@ -11,9 +11,12 @@ It provides a User Interface to
 - Add a storage location
 - Have informations about S3 data access
 
-# How to start
+## How to start
 
 ```
 yarn install
 yarn start
 ```
+
+## Authentication
+[documentation](documentation/AUTHENTICATION.md)
