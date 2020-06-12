@@ -11,7 +11,7 @@ import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
 import { connect } from 'react-redux';
-import { signout } from './actions';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const NavbarContainer = styled.div`
@@ -37,7 +37,7 @@ class Routes extends React.Component{
                             text: `logout ${userName}`,
                             icon: <i className='fas fa-user' />,
                             type: 'button',
-                            onClick: () => this.props.dispatch(signout()),
+                            onClick: () => this.props.dispatch(push('/logout')),
                         },
                     ]}
                     tabs={[

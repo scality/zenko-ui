@@ -6,6 +6,7 @@ import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'connected-react-router';
 
 type DispatchProps = {
     reauth: () => void,
@@ -55,7 +56,10 @@ function mapDispatchToProps(dispatch: DispatchAPI<Action>): DispatchProps {
             dispatch(networkAuthReset());
             dispatch(signin());
         },
-        logout: () => dispatch(signout()),
+        logout: () => {
+            dispatch(networkAuthReset());
+            dispatch(push('/logout'));
+        },
     };
 }
 

@@ -10,7 +10,7 @@ function LogoutCallback(props) {
     },[]);
 
     return <Loader>
-        You are getting logged out
+        You are logged out.
     </Loader>;
 }
 

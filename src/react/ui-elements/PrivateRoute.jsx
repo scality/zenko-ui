@@ -1,16 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import Loader from './Loader';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { signin } from '../actions';
 
 function PrivateRoute(props) {
-    const { component, ...rest } = props;
-    if (props.authenticated) {
+    const { component, authenticated, pathname, ...rest } = props;
+    useEffect(() => {
+        if (!authenticated) {
+            props.signin(pathname);
+        }
+    });
+
+    if (authenticated) {
         return <Route {...rest} component={component} />;
-    } else {
-        props.signin(props.pathname);
-        return null;
     }
+
+    return <Loader> Redirecting to the login in page </Loader>;
 }
 
 function mapStateToProps(state) {

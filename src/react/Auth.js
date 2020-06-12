@@ -4,6 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import { Banner } from '@scality/core-ui';
 import Loader from './ui-elements/Loader';
 import LoginCallback from './auth/LoginCallback';
+import Logout from './auth/Logout';
 import LogoutCallback from './auth/LogoutCallback';
 import { OidcProvider } from 'redux-oidc';
 import PrivateRoute from './ui-elements/PrivateRoute';
@@ -34,13 +35,14 @@ function Auth(props) {
             return <OidcProvider store={store} userManager={props.userManager}>
                 <Switch>
                     <Route exact path="/login/callback" component={LoginCallback}/>
+                    <Route exact path="/logout" component={Logout}/>
                     <Route exact path="/logout/callback" component={LogoutCallback}/>
                     <PrivateRoute component={ZenkoUI} />
                 </Switch>
             </OidcProvider>;
         }
 
-        return <Loader> Login in </Loader>;
+        return <Loader> Check for user session </Loader>;
     }
 
     return <MainContainer>
