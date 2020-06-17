@@ -1,10 +1,17 @@
 import { Provider } from 'react-redux';
 import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount } from 'enzyme';
+import thunk from 'redux-thunk';
 
-export const newTestStore = (state) => configureStore([])({
+const theme = {
+    name: 'Dark Theme',
+    brand: {},
+};
+
+export const newTestStore = (state) => configureStore([thunk])({
     ...initialFullState,
     ...(state || {}),
 });
@@ -13,7 +20,10 @@ export const reduxMount = (component, testState) => {
     const store = newTestStore(testState);
     return {
         component: mount(
-            <Provider store={store}>{component}</Provider>),
+            <ThemeProvider theme={theme}>
+                <Provider store={store}>{component}</Provider>
+            </ThemeProvider>
+        ),
     };
 };
 

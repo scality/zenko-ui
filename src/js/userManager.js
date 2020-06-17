@@ -1,8 +1,12 @@
+// @flow
+
+import type { UserManager as UserManagerInterface } from '../types/auth';
+
 import { createUserManager } from 'redux-oidc';
 
 const currentEndpoint = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
 
-export function makeUserManager({ oidcAuthority: authority, oidcClientId: clientId }) {
+export function makeUserManager({ oidcAuthority: authority, oidcClientId: clientId }): UserManagerInterface {
     const config =  {
         authority: authority,
         client_id: clientId,

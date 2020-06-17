@@ -1,6 +1,31 @@
+// @flow
+
+import type { AppConfig, InstanceId } from '../../types/entities';
+
+import type {
+    ConfigAuthFailureAction,
+    InitClientsAction,
+    LoadUserSuccessAction,
+    SetAppConfigAction,
+    SetUserManagerAction,
+    SignoutEndAction,
+    SignoutStartAction,
+    ThunkNonStateAction,
+    ThunkStatePromisedAction,
+}  from '../../types/actions';
+
 import { handleErrorMessage, loadInstanceLatestStatus, listBuckets, loadInstanceStats, networkAuthFailure} from './index';
+
+import type { ManagementClient as ManagementClientInterface }  from '../../types/managementClient';
+
 import S3Client from '../../js/S3Client';
+
+import type { S3Client as S3ClientInterface }  from '../../types/s3Client';
+
 import STSClient from '../../js/STSClient';
+
+import type { UserManager as UserManagerInterface }  from '../../types/auth';
+
 import { getAppConfig } from '../../js/config';
 import { loadUser } from 'redux-oidc';
 import makeMgtClient from '../../js/managementClient';
@@ -8,7 +33,7 @@ import  { makeUserManager } from '../../js/userManager';
 import { push } from 'connected-react-router';
 import { store } from '../store';
 
-export function initClients(managementClient, s3Client) {
+export function initClients(managementClient: ManagementClientInterface, s3Client: S3ClientInterface): InitClientsAction {
     return {
         type: 'INIT_CLIENTS',
         managementClient,
@@ -16,52 +41,52 @@ export function initClients(managementClient, s3Client) {
     };
 }
 
-export function setUserManager(userManager) {
+export function setUserManager(userManager: UserManagerInterface): SetUserManagerAction {
     return {
         type: 'SET_USER_MANAGER',
         userManager,
     };
 }
 
-export function setAppConfig(config) {
+export function setAppConfig(config: AppConfig): SetAppConfigAction {
     return {
         type: 'SET_APP_CONFIG',
         config,
     };
 }
 
-export function loadUserSuccess() {
-    return {
-        type: 'LOAD_USER_SUCCESS',
-    };
-}
-
-export function selectInstance(selectedId) {
+export function selectInstance(selectedId: InstanceId) {
     return {
         type: 'SELECT_INSTANCE',
         selectedId,
     };
 }
 
-export function configAuthFailure() {
+export function loadUserSuccess(): LoadUserSuccessAction {
+    return {
+        type: 'LOAD_USER_SUCCESS',
+    };
+}
+
+export function configAuthFailure(): ConfigAuthFailureAction {
     return {
         type: 'CONFIG_AUTH_FAILURE',
     };
 }
 
-export function signoutStart() {
+export function signoutStart(): SignoutStartAction {
     return {
         type: 'SIGNOUT_START',
     };
 }
 
-export function signoutEnd() {
+export function signoutEnd(): SignoutEndAction {
     return {
         type: 'SIGNOUT_END',
     };
 }
 
-export function signin(pathname) {
+export function signin(pathname: string): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const userManager = getState().auth.userManager;
         return userManager.signinRedirect({ state: { path: pathname } })
@@ -73,7 +98,7 @@ export function signin(pathname) {
     };
 }
 
-export function signinCallback() {
+export function signinCallback(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const userManager = getState().auth.userManager;
         return userManager.signinRedirectCallback()
@@ -99,7 +124,7 @@ export function signinCallback() {
     };
 }
 
-export function signout() {
+export function signout(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         dispatch(signoutStart());
         const userManager = getState().auth.userManager;
@@ -113,10 +138,10 @@ export function signout() {
     };
 }
 
-export function signoutCallback() {
+export function signoutCallback(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const userManager = getState().auth.userManager;
-        userManager.signoutPopupCallback()
+        return userManager.signoutPopupCallback()
             .catch(error => {
                 const message = `An error occurred during the logout process: ${error.message || '(unknown reason)'}`;
                 dispatch(handleErrorMessage(message, 'byAuth'));
@@ -125,7 +150,7 @@ export function signoutCallback() {
     };
 }
 
-export function loadAppConfig() {
+export function loadAppConfig(): ThunkNonStateAction {
     return dispatch => {
         return getAppConfig()
             .then(config => {
@@ -146,11 +171,11 @@ export function loadAppConfig() {
 }
 
 // loadClients is called when the ID token gets renewed prior to its expiration.
-export function loadClients() {
+export function loadClients(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const { oidc, auth: { config } } = getState();
 
-        const instanceIds = oidc.user.profile.instanceIds;
+        const instanceIds = oidc.user && oidc.user.profile && oidc.user.profile.instanceIds;
         if (!instanceIds || instanceIds.length === 0) {
             dispatch(handleErrorMessage('missing the "instanceIds" claim in ID token', 'byAuth'));
             dispatch(networkAuthFailure());

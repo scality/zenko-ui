@@ -31,7 +31,6 @@ function Login(props) {
 
 function mapStateToProps(state) {
     return {
-        userManager: state.auth.userManager,
         authenticated: !!state.oidc.user && !state.oidc.user.expired,
         isSigningOut: !!state.auth.isSigningOut,
     };
