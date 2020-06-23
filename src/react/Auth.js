@@ -20,6 +20,8 @@ function Auth(props) {
     },[]);
 
     function content() {
+        console.log('props.configFailure!!!', props.configFailure);
+        console.log('props.isUserLoaded!!!', props.isUserLoaded);
         if (props.configFailure) {
             return <Container>
                 <Banner
@@ -53,6 +55,7 @@ function Auth(props) {
 
 
 function mapStateToProps(state) {
+    console.log('state!!!', state);
     return {
         isUserLoaded: state.auth.isUserLoaded,
         userManager: state.auth.userManager,

@@ -39,6 +39,7 @@ stages:
       path: eve/workers/worker.yaml
       images:
         build: eve/workers/build
+        keycloak-config: eve/workers/keycloakconfig
     steps:
       - Git: *clone
       - ShellCommand: *yarn-install
@@ -48,6 +49,11 @@ stages:
           haltOnFailure: True
       - ShellCommand: *yarn-build
       - ShellCommand: *docker-build
+      - ShellCommand:
+          name: wait for keycloak
+          command: >-
+            set -exu;
+            bash wait_for_local_port.bash 8080 40;
   post-merge:
     worker: *worker
     steps:

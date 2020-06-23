@@ -7,7 +7,9 @@
     "test": "jest",
     "test:lint": "eslint --ext js --ext jsx src",
     "start:dev": "webpack-dev-server --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "build": "webpack --config webpack.prod.js",
+    "cypress:run": "cypress run",
+    "cypress:open": "CYPRESS_KEYCLOAK_REALM=myrealm CYPRESS_KEYCLOAK_CLIENT_ID=myclient CYPRESS_USERNAME=nicolas2bert CYPRESS_PASSWORD=123 cypress open"
   },
   "keywords": [],
   "author": "",
@@ -22,9 +24,11 @@
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.4.2",
+    "cypress": "^4.8.0",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^6.8.0",
+    "eslint-plugin-cypress": "^2.11.1",
     "eslint-plugin-flowtype": "^4.6.0",
     "eslint-plugin-flowtype-errors": "^4.1.0",
     "eslint-plugin-import": "^2.20.1",

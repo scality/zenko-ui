@@ -50,7 +50,8 @@
         "plugin:react/recommended",
         "plugin:jest/recommended",
         "plugin:flowtype/recommended",
-        "plugin:react-hooks/recommended"
+        "plugin:react-hooks/recommended",
+        "plugin:cypress/recommended"
     ],
     "settings": {
         "react": {

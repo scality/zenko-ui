@@ -4,15 +4,23 @@ kind: Pod
 metadata:
   name: "zenko-ui-worker"
 spec:
+  initContainers:
+    - name: keycloak-config
+      image: {{ images['keycloak-config'] }}
+      command: ['sh', '-c']
+      args: ['cp /config/keycloak-realm.json /keycloak/']
+      volumeMounts:
+        - name: keycloak-config
+          mountPath: /keycloak
   containers:
   - name: build
     image: {{ images.build }}
     resources:
       requests:
-        cpu: "3"
+        cpu: "2"
         memory: 4Gi
       limits:
-        cpu: "3"
+        cpu: "2"
         memory: 4Gi
     env:
     - name: DOCKER_HOST
@@ -20,6 +28,19 @@ spec:
     volumeMounts:
     - name: workspace
       mountPath: /home/eve/workspace
+  - name: keycloak
+    image: jboss/keycloak:10.0.2
+    resources:
+      requests:
+        cpu: "1"
+        memory: 1Gi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    args: ['-b 0.0.0.0 -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/keycloak-realm.json']
+    volumeMounts:
+      - name: keycloak-config
+        mountPath: /tmp
   - name: dind-daemon
     image: docker:18.09.2-dind
     resources:
@@ -40,4 +61,6 @@ spec:
   - name: workspace
     emptyDir: {}
   - name: docker-storage
+    emptyDir: {}
+  - name: keycloak-config
     emptyDir: {}
