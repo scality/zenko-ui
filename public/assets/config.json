@@ -1,6 +1,6 @@
 {
     "managementEndpoint": "http://127.0.0.1:5000",
-    "oidcAuthority": "http://localhost:8080/auth/realms/myrealm",
+    "oidcAuthority": "http://127.0.0.1:8080/auth/realms/myrealm",
     "oidcClientId": "myclient",
     "stsEndpoint": "https://sts.amazonaws.com",
     "s3Endpoint": "https://s3.amazonaws.com"

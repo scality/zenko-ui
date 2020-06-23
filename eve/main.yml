@@ -10,6 +10,14 @@ branches:
 models:
   - env: &deploy-env
       SCALITY_OCI_REPO: registry.scality.com/scality/zenko-ui
+  - env: &keycloak-env
+      KEYCLOAK_ROOT: "http://127.0.0.1:8080"
+      KEYCLOAK_REALM: "myrealm"
+      KEYCLOAK_CLIENT_ID: "myclient"
+      KEYCLOAK_USERNAME: "bartsimpson"
+      KEYCLOAK_PASSWORD: "123"
+      KEYCLOAK_USER_FIRSTNAME: "Bart"
+      KEYCLOAK_USER_LASTNAME: "Simpson"
   - Git: &clone
       name: fetch source
       repourl: '%(prop:git_reference)s'
@@ -39,6 +47,10 @@ stages:
       path: eve/workers/worker.yaml
       images:
         build: eve/workers/build
+        keycloakconfig: eve/workers/keycloakconfig
+      vars:
+        keycloakconfig:
+          env: *keycloak-env
     steps:
       - Git: *clone
       - ShellCommand: *yarn-install
@@ -48,6 +60,23 @@ stages:
           haltOnFailure: True
       - ShellCommand: *yarn-build
       - ShellCommand: *docker-build
+      - ShellCommand:
+          name: run end-to-end tests
+          command: >-
+            docker run -d -p 8383:8383 ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s;
+            set -exu;
+            bash wait_for_local_port.bash 8080 40;
+            bash wait_for_local_port.bash 8383 40;
+            CYPRESS_KEYCLOAK_USER_FULLNAME="${KEYCLOAK_USER_FIRSTNAME} ${KEYCLOAK_USER_LASTNAME}"
+            CYPRESS_KEYCLOAK_USERNAME=${KEYCLOAK_USERNAME}
+            CYPRESS_KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
+            CYPRESS_KEYCLOAK_ROOT=${KEYCLOAK_ROOT}
+            CYPRESS_KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+            CYPRESS_KEYCLOAK_REALM=${KEYCLOAK_REALM} yarn run cypress:run;
+          haltOnFailure: True
+          env:
+            <<: *deploy-env
+            <<: *keycloak-env
   post-merge:
     worker: *worker
     steps:

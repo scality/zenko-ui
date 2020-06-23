@@ -9,10 +9,10 @@ spec:
     image: {{ images.build }}
     resources:
       requests:
-        cpu: "3"
+        cpu: "2"
         memory: 4Gi
       limits:
-        cpu: "3"
+        cpu: "2"
         memory: 4Gi
     env:
     - name: DOCKER_HOST
@@ -20,6 +20,22 @@ spec:
     volumeMounts:
     - name: workspace
       mountPath: /home/eve/workspace
+  - name: keycloak
+    image: {{ images.keycloakconfig }}
+    resources:
+      requests:
+        cpu: "1"
+        memory: 1Gi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    {% if vars.keycloakconfig.env is defined %}
+    env:
+    {% for key, value in vars.keycloakconfig.env.items() %}
+    - name: "{{ key }}"
+      value: "{{ value }}"
+    {% endfor %}
+    {% endif %}
   - name: dind-daemon
     image: docker:18.09.2-dind
     resources:
