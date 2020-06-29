@@ -9,7 +9,7 @@
     "start:dev": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "cypress:run": "cypress run",
-    "cypress:open": "CYPRESS_KEYCLOAK_REALM=myrealm CYPRESS_KEYCLOAK_CLIENT_ID=myclient CYPRESS_USERNAME=nicolas2bert CYPRESS_PASSWORD=123 cypress open"
+    "cypress:open": "cypress open"
   },
   "keywords": [],
   "author": "",
