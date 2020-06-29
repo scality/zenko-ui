@@ -29,9 +29,6 @@ spec:
       limits:
         cpu: "1"
         memory: 1Gi
-    volumeMounts:
-      - name: keycloak-config
-        mountPath: /tmp
   - name: dind-daemon
     image: docker:18.09.2-dind
     resources:
@@ -52,6 +49,4 @@ spec:
   - name: workspace
     emptyDir: {}
   - name: docker-storage
-    emptyDir: {}
-  - name: keycloak-config
     emptyDir: {}
