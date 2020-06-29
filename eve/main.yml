@@ -39,7 +39,7 @@ stages:
       path: eve/workers/worker.yaml
       images:
         build: eve/workers/build
-        keycloak-config: eve/workers/keycloakconfig
+        keycloakconfig: eve/workers/keycloakconfig
     steps:
       - Git: *clone
       - ShellCommand: *yarn-install

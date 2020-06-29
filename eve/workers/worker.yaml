@@ -4,14 +4,6 @@ kind: Pod
 metadata:
   name: "zenko-ui-worker"
 spec:
-  initContainers:
-    - name: keycloak-config
-      image: {{ images['keycloak-config'] }}
-      command: ['sh', '-c']
-      args: ['cp /config/keycloak-realm.json /keycloak/']
-      volumeMounts:
-        - name: keycloak-config
-          mountPath: /keycloak
   containers:
   - name: build
     image: {{ images.build }}
@@ -29,7 +21,7 @@ spec:
     - name: workspace
       mountPath: /home/eve/workspace
   - name: keycloak
-    image: jboss/keycloak:10.0.2
+    image: {{ images.keycloakconfig }}
     resources:
       requests:
         cpu: "1"
@@ -37,7 +29,6 @@ spec:
       limits:
         cpu: "1"
         memory: 1Gi
-    args: ['-b 0.0.0.0 -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/keycloak-realm.json']
     volumeMounts:
       - name: keycloak-config
         mountPath: /tmp

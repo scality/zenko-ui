@@ -9,7 +9,7 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
-COPY ./zenko_packages.list ./buildbot_worker_packages.list /tmp/
+COPY ./zenko_packages.list ./buildbot_worker_packages.list ./cypress_packages.list /tmp/
 RUN apt-get update \
     && cat /tmp/*packages.list | xargs apt-get install -y
 
