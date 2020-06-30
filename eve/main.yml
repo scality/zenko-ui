@@ -10,6 +10,12 @@ branches:
 models:
   - env: &deploy-env
       SCALITY_OCI_REPO: registry.scality.com/scality/zenko-ui
+  - env: &keycloak-env
+      KEYCLOAK_ROOT: "http://127.0.0.1:8080"
+      KEYCLOAK_REALM: "myrealm"
+      KEYCLOAK_CLIENT_ID: "myclient"
+      KEYCLOAK_USERNAME: "nicolas2bert"
+      KEYCLOAK_PASSWORD: "123"
   - Git: &clone
       name: fetch source
       repourl: '%(prop:git_reference)s'
@@ -56,9 +62,11 @@ stages:
             set -exu;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;
-            CYPRESS_USERNAME=nicolas2bert CYPRESS_PASSWORD=123 yarn run cypress:run;
+            CYPRESS_KEYCLOAK_USERNAME=${KEYCLOAK_USERNAME} CYPRESS_KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD} CYPRESS_KEYCLOAK_ROOT=${KEYCLOAK_ROOT} CYPRESS_KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID} CYPRESS_KEYCLOAK_REALM=${KEYCLOAK_REALM} yarn run cypress:run;
           haltOnFailure: True
-          env: *deploy-env
+          env:
+            <<: *deploy-env
+            <<: *keycloak-env
   post-merge:
     worker: *worker
     steps:

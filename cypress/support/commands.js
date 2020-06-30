@@ -11,8 +11,13 @@ function getAuthCodeFromLocation(location: string): string | undefined {
 
 Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
     Cypress.log({ name: 'Login' });
-    const userName =  username || Cypress.env('USERNAME');
-    const passWord = password || Cypress.env('PASSWORD');
+    const kcUsername =  username || Cypress.env('KEYCLOAK_USERNAME');
+    const kcPassword = password || Cypress.env('KEYCLOAK_PASSWORD');
+
+    if (!kcUsername || !kcPassword) {
+        throw new Error('missing CYPRESS_KEYCLOAK_USERNAME and/or CYPRESS_KEYCLOAK_PASSWORD environment variable');
+    }
+
     const profile = userProfile || {};
 
     const keycloakRoot = Cypress.env('KEYCLOAK_ROOT') || 'http://127.0.0.1:8080';
@@ -37,24 +42,22 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
 
         const form = html.getElementsByTagName('form')[0];
         const url = form.action;
-        console.log('url!!!', url);
         const postLoginBody = {
             method: 'POST',
             url,
             followRedirect: false,
             form: true,
             body: {
-                username: userName,
-                password: passWord,
+                username: kcUsername,
+                password: kcPassword,
             },
         };
-        // Step 2
         return cy.request(postLoginBody);
-        // Keycloak cookies now set
 
     }).then(response => {
+        cy.log('response!!!', response);
         const code = getAuthCodeFromLocation(response.headers['location']);
-        console.log('code!!!', code);
+        cy.log('code!!!', code);
         return cy.request({
             method: 'POST',
             url: `${keycloakRoot}/auth/realms/${keycloakRealm}/protocol/openid-connect/token`,
@@ -69,7 +72,6 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
         });
     }).then(response => {
         const { access_token, expires_in, id_token, refresh_token, session_state, token_type, scope} = response.body;
-        console.log('tokens!!!', response.body);
         const t = {
             access_token,
             expires_at: expires_in * 1000 + new Date().getTime(),
@@ -80,9 +82,7 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
             session_state,
             token_type,
         };
-        console.log('t!!!', t);
         window.sessionStorage.setItem(`oidc.user:${keycloakRoot}/auth/realms/${keycloakRealm}:${keycloakClientID}`, JSON.stringify(t));
-        console.log('FINISHHHH!!!');
     });
 });
 
