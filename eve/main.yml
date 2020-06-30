@@ -50,17 +50,15 @@ stages:
       - ShellCommand: *yarn-build
       - ShellCommand: *docker-build
       - ShellCommand:
-          name: run test suite
-          command: docker run -d -p 8383:8383 ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s
-          haltOnFailure: True
-          env: *deploy-env
-      - ShellCommand:
-          name: wait for keycloak and Zenko UI to be up and running and then run e2e tests
+          name: run end-to-end tests
           command: >-
+            docker run -d -p 8383:8383 ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s;
             set -exu;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;
             CYPRESS_USERNAME=nicolas2bert CYPRESS_PASSWORD=123 yarn run cypress:run;
+          haltOnFailure: True
+          env: *deploy-env
   post-merge:
     worker: *worker
     steps:
