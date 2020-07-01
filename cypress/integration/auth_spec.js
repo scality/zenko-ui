@@ -3,13 +3,13 @@ const userProfile = {
     name: 'Nicolas Humbert',
 };
 
-describe('Authentication', () => {
-    describe('Dummy test', () => {
+describe('Authentication with keycloak', () => {
+    describe('User authenticated', () => {
         beforeEach(() =>  {
             cy.kcLogin();
         });
 
-        it('should render logged user name somewhere on the page', () =>  {
+        it('should render user name', () =>  {
             cy.visit('/');
             cy.get('.sc-navbar').should('exist');
             cy.get('.sc-navbar').should('contain', userProfile.name);
@@ -17,44 +17,40 @@ describe('Authentication', () => {
 
         afterEach(() =>  {
             cy.kcLogout();
-            cy.clearSession();
         });
     });
 
-    // describe('Dummy test2', () => {
-    //     beforeEach(() =>  {
-    //         cy.kcFakeLogin(userProfile);
-    //     });
-    //
-    //     it('should render logged user name somewhere on the page', () =>  {
-    //         console.log('VISIT!!!');
-    //         cy.visit('/');
-    //         cy.get('.sc-navbar').should('exist');
-    //         cy.get('.sc-navbar').should('contain', userProfile.name);
-    //     });
-    //
-    //     afterEach(() =>  {
-    //         cy.kcFakeLogout();
-    //     });
-    // });
+    describe('User not authenticated', () => {
+        it('should not render user name', () =>  {
+            cy.visit('/');
+            cy.get('.sc-navbar').should('not.exist');
+            cy.url();
+        });
+    });
+});
 
-    describe('Dummy test2', () => {
+describe('Authentication with mocked authentication process', () => {
+    describe('User authenticated', () => {
         beforeEach(() => {
             cy.kcFakeLogin(userProfile);
         });
 
-        it('visit1', () =>  {
+        it('should render user name', () =>  {
             cy.visit('/');
             cy.get('.sc-navbar').should('exist');
             cy.get('.sc-navbar').should('contain', userProfile.name);
         });
 
-        it('visit2', () =>  {
-            cy.visit('/');
-        });
-
         afterEach(() =>  {
             cy.clearSession();
+        });
+    });
+
+    describe('User not authenticated', () => {
+        it('should not render user name', () =>  {
+            cy.visit('/');
+            cy.get('.sc-navbar').should('not.exist');
+            cy.url();
         });
     });
 });

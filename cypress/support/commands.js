@@ -33,8 +33,6 @@ Cypress.Commands.add('kcLogin', (username, password) => {
             client_id: keycloakClientID,
         },
     };
-    // Step 1
-    let session;
     return cy.request(getStartBody).then(response => {
         const html = document.createElement('html');
         html.innerHTML = response.body;
@@ -52,46 +50,6 @@ Cypress.Commands.add('kcLogin', (username, password) => {
             },
         };
         return cy.request(postLoginBody);
-
-    }).then(response => {
-        cy.log('response!!!', response);
-        const code = getAuthCodeFromLocation(response.headers['location']);
-        cy.log('code!!!', code);
-        return cy.request({
-            method: 'POST',
-            url: `${keycloakRoot}/auth/realms/${keycloakRealm}/protocol/openid-connect/token`,
-            body: {
-                client_id: keycloakClientID,
-                redirect_uri: Cypress.config('baseUrl') + '/login/callback',
-                code,
-                grant_type: 'authorization_code',
-            },
-            form: true,
-            followRedirect: false,
-        });
-    }).then(response => {
-        const { access_token, expires_in, id_token, refresh_token, session_state, token_type, scope} = response.body;
-        session = {
-            access_token,
-            expires_at: expires_in * 1000 + new Date().getTime(),
-            id_token,
-            refresh_token,
-            scope,
-            session_state,
-            token_type,
-        };
-        return cy.request({
-            method: 'GET',
-            url: `${keycloakRoot}/auth/realms/${keycloakRealm}/protocol/openid-connect/userinfo`,
-            headers: {
-                'Accept': 'application/json',
-                Authorization: `Bearer ${access_token}`,
-            },
-        });
-    }).then(response => {
-        cy.log('userinfo!!!!', response);
-        session.profile = response.body;
-        window.sessionStorage.setItem(`oidc.user:${keycloakRoot}/auth/realms/${keycloakRealm}:${keycloakClientID}`, JSON.stringify(session));
     });
 });
 
@@ -99,30 +57,31 @@ Cypress.Commands.add('kcLogout', () => {
     Cypress.log({ name: 'Logout' });
     const keycloakRoot = Cypress.env('KEYCLOAK_ROOT') || 'http://127.0.0.1:8080';
     const keycloakRealm = Cypress.env('KEYCLOAK_REALM') || 'myrealm';
+    cy.clearSession();
     return cy.request({
         url: `${keycloakRoot}/auth/realms/${keycloakRealm}/protocol/openid-connect/logout`,
     });
 });
 
 Cypress.Commands.add('kcFakeLogin', (userProfile) => {
-    Cypress.log({ name: 'Login' });
+    Cypress.log({ name: 'Fake Login' });
     const keycloakRoot = Cypress.env('KEYCLOAK_ROOT') || 'http://127.0.0.1:8080';
     const keycloakRealm = Cypress.env('KEYCLOAK_REALM') || 'myrealm';
     const keycloakClientID = Cypress.env('KEYCLOAK_CLIENT_ID') || 'myclient';
     const t = {
-        access_token: '123',
-        expires_at: 999999999 * 1000 + new Date().getTime(),
-        id_token: '123',
+        access_token: 'fake_access_token',
+        expires_at: 15 * 60 * 1000 + new Date().getTime(),
+        id_token: 'fake_id_token',
         profile: userProfile || {},
-        refresh_token: '123',
+        refresh_token: 'fake_refresh_token',
         scope: 'openid profile email',
-        session_state: '123',
+        session_state: 'fake_session_state',
         token_type: 'bearer',
     };
     window.sessionStorage.setItem(`oidc.user:${keycloakRoot}/auth/realms/${keycloakRealm}:${keycloakClientID}`, JSON.stringify(t));
 });
 
 Cypress.Commands.add('clearSession', () => {
-    Cypress.log({ name: 'Logout' });
+    Cypress.log({ name: 'Clear Session' });
     cy.window().then(window => window.sessionStorage.clear());
 });
