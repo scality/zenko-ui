@@ -9,7 +9,7 @@ function getAuthCodeFromLocation(location: string): string | undefined {
     }
 }
 
-Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
+Cypress.Commands.add('kcLogin', (username, password) => {
     Cypress.log({ name: 'Login' });
     const kcUsername =  username || Cypress.env('KEYCLOAK_USERNAME');
     const kcPassword = password || Cypress.env('KEYCLOAK_PASSWORD');
@@ -17,8 +17,6 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
     if (!kcUsername || !kcPassword) {
         throw new Error('missing CYPRESS_KEYCLOAK_USERNAME and/or CYPRESS_KEYCLOAK_PASSWORD environment variable');
     }
-
-    const profile = userProfile || {};
 
     const keycloakRoot = Cypress.env('KEYCLOAK_ROOT') || 'http://127.0.0.1:8080';
     const keycloakRealm = Cypress.env('KEYCLOAK_REALM') || 'myrealm';
@@ -36,6 +34,7 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
         },
     };
     // Step 1
+    let session;
     return cy.request(getStartBody).then(response => {
         const html = document.createElement('html');
         html.innerHTML = response.body;
@@ -72,17 +71,27 @@ Cypress.Commands.add('kcLogin', (userProfile, username, password) => {
         });
     }).then(response => {
         const { access_token, expires_in, id_token, refresh_token, session_state, token_type, scope} = response.body;
-        const t = {
+        session = {
             access_token,
             expires_at: expires_in * 1000 + new Date().getTime(),
             id_token,
-            profile,
             refresh_token,
             scope,
             session_state,
             token_type,
         };
-        window.sessionStorage.setItem(`oidc.user:${keycloakRoot}/auth/realms/${keycloakRealm}:${keycloakClientID}`, JSON.stringify(t));
+        return cy.request({
+            method: 'GET',
+            url: `${keycloakRoot}/auth/realms/${keycloakRealm}/protocol/openid-connect/userinfo`,
+            headers: {
+                'Accept': 'application/json',
+                Authorization: `Bearer ${access_token}`,
+            },
+        });
+    }).then(response => {
+        cy.log('userinfo!!!!', response);
+        session.profile = response.body;
+        window.sessionStorage.setItem(`oidc.user:${keycloakRoot}/auth/realms/${keycloakRealm}:${keycloakClientID}`, JSON.stringify(session));
     });
 });
 

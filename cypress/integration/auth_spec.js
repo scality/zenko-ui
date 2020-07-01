@@ -1,12 +1,12 @@
 /* eslint jest/expect-expect: 0 */
 const userProfile = {
-    name: 'FirstName LastName',
+    name: 'Nicolas Humbert',
 };
 
 describe('Authentication', () => {
     describe('Dummy test', () => {
         beforeEach(() =>  {
-            cy.kcLogin(userProfile);
+            cy.kcLogin();
         });
 
         it('should render logged user name somewhere on the page', () =>  {
