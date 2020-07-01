@@ -1,6 +1,6 @@
 // @flow
 import { ApiErrorObject } from '../../../../js/mock/error';
-import { ErrorUserManager } from '../../../../js/mock/userManager';
+import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -45,6 +45,25 @@ export function errorUserManagerState(): AppState {
         auth: {
             ...state.auth,
             userManager: new ErrorUserManager(USER_MANAGER_ERROR),
+        },
+    };
+}
+
+export function signinRedirectCallbackState(path: string): AppState {
+    const state = initState;
+    const userManager = new MockUserManager();
+    userManager.signinRedirectCallback = () => {
+        return Promise.resolve({
+            state: {
+                path,
+            },
+        });
+    };
+    return {
+        ...state,
+        auth: {
+            ...state.auth,
+            userManager,
         },
     };
 }

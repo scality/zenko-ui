@@ -8,7 +8,7 @@ import { signin } from '../actions';
 
 function Login(props) {
     const { authenticated, dispatch, isSigningOut, location } = props;
-    const path = location && location.state && location.state.path && location.state.path !== '/login' ? props.location.state.path : '/';
+    const path = location && location.state && location.state.path || '/';
     useEffect(() => {
         if (!authenticated && !isSigningOut) {
             dispatch(signin(path));

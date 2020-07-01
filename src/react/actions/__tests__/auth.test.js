@@ -7,6 +7,7 @@ import {
     USER_MANAGER_ERROR_MSG,
     errorUserManagerState,
     initState,
+    signinRedirectCallbackState,
     testActionFunction,
     testDispatchFunction,
 } from './utils/testUtil';
@@ -81,6 +82,30 @@ describe('auth actions', () => {
             it: 'signinCallback: should return expected actions',
             fn: actions.signinCallback(),
             storeState: initState,
+            expectedActions: [
+                dispatchAction.LOCATION_PUSH_ACTION('/'),
+            ],
+        },
+        {
+            it: 'signinCallback: should return push action with expected path "/data"',
+            fn: actions.signinCallback(),
+            storeState: signinRedirectCallbackState('/data'),
+            expectedActions: [
+                dispatchAction.LOCATION_PUSH_ACTION('/data'),
+            ],
+        },
+        {
+            it: 'signinCallback: should return push action with expected path "/" if state path set to "/login"',
+            fn: actions.signinCallback(),
+            storeState: signinRedirectCallbackState('/login'),
+            expectedActions: [
+                dispatchAction.LOCATION_PUSH_ACTION('/'),
+            ],
+        },
+        {
+            it: 'signinCallback: should return push action with expected path "/" if state path set to "/login/callback"',
+            fn: actions.signinCallback(),
+            storeState: signinRedirectCallbackState('/login/callback'),
             expectedActions: [
                 dispatchAction.LOCATION_PUSH_ACTION('/'),
             ],

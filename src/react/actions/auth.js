@@ -103,7 +103,10 @@ export function signinCallback(): ThunkStatePromisedAction {
         const userManager = getState().auth.userManager;
         return userManager.signinRedirectCallback()
             .then(user => {
-                const path = (user.state && user.state.path) || '/';
+                const path = user.state &&
+                user.state.path &&
+                user.state.path !== '/login' &&
+                user.state.path !== '/login/callback' ? user.state.path : '/';
                 dispatch(push(path));
             })
             .catch(error => {
