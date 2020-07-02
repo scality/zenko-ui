@@ -21,7 +21,7 @@ spec:
     - name: workspace
       mountPath: /home/eve/workspace
   - name: keycloak
-    image: {{ images.keycloakconfig }}
+    image: jboss/keycloak:10.0.2
     resources:
       requests:
         cpu: "1"
