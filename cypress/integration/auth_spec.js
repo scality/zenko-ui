@@ -10,7 +10,11 @@ describe('Authentication with keycloak', () => {
             cy.visit('/');
             cy.get('.sc-navbar').should('exist');
             // NOTE: this value is based on "eve/workers/keycloakconfig/keycloak-realm.json"
-            cy.get('.sc-navbar').should('contain', 'Nicolas Humbert');
+            const kcUserFullname = Cypress.env('KEYCLOAK_USER_FULLNAME');
+            if (!kcUserFullname) {
+                throw new Error('missing CYPRESS_KEYCLOAK_USER_FULLNAME environment variable');
+            }
+            cy.get('.sc-navbar').should('contain', kcUserFullname);
         });
 
         afterEach(() =>  {

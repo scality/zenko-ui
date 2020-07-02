@@ -16,6 +16,7 @@ models:
       KEYCLOAK_CLIENT_ID: "myclient"
       KEYCLOAK_USERNAME: "nicolas2bert"
       KEYCLOAK_PASSWORD: "123"
+      KEYCLOAK_USER_FULLNAME: "Nicolas Humbert"
   - Git: &clone
       name: fetch source
       repourl: '%(prop:git_reference)s'
@@ -62,6 +63,7 @@ stages:
             set -exu;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;
+            CYPRESS_KEYCLOAK_USER_FULLNAME=${KEYCLOAK_USER_FULLNAME}
             CYPRESS_KEYCLOAK_USERNAME=${KEYCLOAK_USERNAME}
             CYPRESS_KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
             CYPRESS_KEYCLOAK_ROOT=${KEYCLOAK_ROOT}
