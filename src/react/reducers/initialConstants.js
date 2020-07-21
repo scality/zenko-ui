@@ -6,6 +6,10 @@ import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/s3Client';
 import { MockUserManager } from '../../js/mock/userManager';
 
+export const initialAccountState = {
+    display: {},
+};
+
 export const initialAuthState: AuthState = {
     isUserLoaded: false,
     configFailure: false,
@@ -131,6 +135,7 @@ export const initialUserState = {
 };
 
 export const initialFullState = {
+    account: initialAccountState,
     auth: initialAuthState,
     configuration: initialConfiguration,
     instanceStatus: initialInstanceStatus,

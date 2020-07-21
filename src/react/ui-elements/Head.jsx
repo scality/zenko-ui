@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+
+// WARNING: Head and HeadLeft are depreciated, use ListLayout.Head components instead.
 const Head = styled.div`
   display: flex;
 

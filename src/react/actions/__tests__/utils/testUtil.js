@@ -1,8 +1,8 @@
 // @flow
+import { ErrorMockManagementClient, account, latestOverlay } from '../../../../js/mock/managementClient';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
-import { ErrorMockManagementClient } from '../../../../js/mock/managementClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -41,6 +41,9 @@ export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
 
 export const USER_MANAGER_ERROR = new ApiErrorObject(USER_MANAGER_ERROR_MSG, 500);
 export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
+
+export const LATEST_OVERLAY = latestOverlay;
+export const ACCOUNT = account;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

@@ -1,9 +1,10 @@
 // @flow
-import type { AuthUser } from './auth';
+import type { AuthUser, UserManager as UserManagerInterface } from './auth';
+import type { Account } from './account';
+import type { ConfigurationOverlay } from './config';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { S3Client as S3ClientInterface } from './s3Client';
 import type { User } from './user';
-import type { UserManager as UserManagerInterface } from './auth';
 
 export type IAMResp = {};
 
@@ -45,8 +46,18 @@ export type UIErrorState = {|
     +errorType: string,
 |};
 
+export type ConfigurationState = {|
+    +latest: ConfigurationOverlay,
+|};
+
+export type AccountState = {|
+    +display: Account,
+|};
+
 export type AppState = {
+    +account: AccountState,
     +auth: AuthState,
+    +configuration: ConfigurationState,
     +oidc: OIDCState,
     +user: UserState,
     +uiErrors: UIErrorState,

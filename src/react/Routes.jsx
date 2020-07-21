@@ -1,5 +1,6 @@
 import { Link, Route } from 'react-router-dom';
 import AccountCreate from './account/AccountCreate';
+import Accounts from './account/Accounts';
 import BucketCreate from './databrowser/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
 import Groups from './group/Groups';
@@ -44,7 +45,11 @@ class Routes extends React.Component{
                     tabs={[
                         {
                             link: <Link to="/">Storage Monitoring</Link>,
-                            selected: isSelected(location, '/system'),
+                            selected: isSelected(location, '/'),
+                        },
+                        {
+                            link: <Link to="/accounts">Accounts</Link>,
+                            selected: isSelected(location, '/accounts'),
                         },
                         // {
                         //     link: <Link to="/groups">Groups</Link>,
@@ -54,10 +59,10 @@ class Routes extends React.Component{
                         //     link: <Link to="/users">Users</Link>,
                         //     selected: isSelected(location, '/users'),
                         // },
-                        {
-                            link: <Link to="/databrowser">Data Browser</Link>,
-                            selected: isSelected(location, '/databrowser'),
-                        },
+                        // {
+                        //     link: <Link to="/databrowser">Data Browser</Link>,
+                        //     selected: isSelected(location, '/databrowser'),
+                        // },
                         // {
                         //     link: <Link to="/workflow">Data Workflow</Link>,
                         //     selected: isSelected(location, '/workflow'),
@@ -70,7 +75,8 @@ class Routes extends React.Component{
             <Route exact path="/monitor/location/editor" component={LocationEditor} />
             <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
 
-            <Route exact path="/accounts/create" component={AccountCreate} />
+            <Route exact path='/accounts' component={Accounts} />
+            <Route path="/accounts/create" component={AccountCreate} />
 
             <Route exact path="/users" component={Users} />
             <Route path="/users/create" component={UserCreate} />

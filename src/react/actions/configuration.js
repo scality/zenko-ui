@@ -1,17 +1,18 @@
-// @noflow
-import { networkEnd, networkStart } from './network';
+// @flow
+
+import type { ConfigurationVersionAction, ThunkStatePromisedAction } from '../../types/actions';
 import type { ConfigurationOverlay } from '../../types/config';
 import { getClients } from '../utils/actions';
 
-export function newConfiguration(configuration: ConfigurationOverlay) {
+export function newConfiguration(configuration: ConfigurationOverlay): ConfigurationVersionAction {
     return {
         type: 'CONFIGURATION_VERSION',
         configuration,
     };
 }
 
-export function updateConfiguration() {
-    return async (dispatch, getState) => {
+export function updateConfiguration(): ThunkStatePromisedAction {
+    return (dispatch, getState) => {
         const { managementClient, instanceId } = getClients(getState());
         return managementClient.getConfigurationOverlayView({ uuid: instanceId })
             .then(res => {

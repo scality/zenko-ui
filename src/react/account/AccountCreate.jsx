@@ -1,11 +1,10 @@
 // @flow
-import * as Form from '../ui-elements/FormLayout';
 import { Banner, Button } from '@scality/core-ui';
+import Form, * as F from '../ui-elements/FormLayout';
 import { accountEmailValidation, accountNameValidation, accountQuotaValidation } from '../utils/validator';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import Input from '../ui-elements/Input';
 import React from 'react';
 import { push } from 'connected-react-router';
 import { useInput } from '../utils/hooks';
@@ -52,62 +51,56 @@ function AccountCreate() {
 
     const redirect = () => {
         // TODO: need to change redirect path
-        dispatch(push('/'));
+        dispatch(push('/accounts'));
     };
 
-    return <Form.Container autoComplete='off'>
-        <Form.Title> create new account </Form.Title>
-        <Form.Fieldset>
-            <Form.Label tooltipMessages={['Must be unique']}>
+    return <Form autoComplete='off'>
+        <F.Title> create new account </F.Title>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['Must be unique']}>
                 Name
-            </Form.Label>
-            <Form.InputContainer>
-                <Input
-                    type='text'
-                    id='name'
-                    value={name}
-                    onChange={e => onChangeWithClearError(e, onChangeName)}
-                    onBlur={e => validationName(e.target.value)}
-                    hasError={hasErrorName}
-                    autoComplete='new-password' />
-            </Form.InputContainer>
-            <Form.ErrorInput id='error-name' hasError={hasErrorName}> {errorName} </Form.ErrorInput>
-        </Form.Fieldset>
-        <Form.Fieldset>
-            <Form.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
+            </F.Label>
+            <F.Input
+                type='text'
+                id='name'
+                value={name}
+                onChange={e => onChangeWithClearError(e, onChangeName)}
+                onBlur={e => validationName(e.target.value)}
+                hasError={hasErrorName}
+                autoComplete='new-password' />
+            <F.ErrorInput id='error-name' hasError={hasErrorName}> {errorName} </F.ErrorInput>
+        </F.Fieldset>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
                 Root Account Email
-            </Form.Label>
-            <Form.InputContainer>
-                <Input
-                    type='text'
-                    id='email'
-                    value={email}
-                    onChange={e => onChangeWithClearError(e, onChangeEmail)}
-                    onBlur={e => validationEmail(e.target.value)}
-                    hasError={hasErrorEmail}
-                    autoComplete='off' />
-            </Form.InputContainer>
-            <Form.ErrorInput id='error-email' hasError={hasErrorEmail}> {errorEmail} </Form.ErrorInput>
-        </Form.Fieldset>
-        <Form.Fieldset>
-            <Form.Label tooltipMessages={['Hard quota: the account cannot go over the limit', 'The limit can be changed after the creation', 'If the field is empty, there will be no limit']}>
+            </F.Label>
+            <F.Input
+                type='text'
+                id='email'
+                value={email}
+                onChange={e => onChangeWithClearError(e, onChangeEmail)}
+                onBlur={e => validationEmail(e.target.value)}
+                hasError={hasErrorEmail}
+                autoComplete='off' />
+            <F.ErrorInput id='error-email' hasError={hasErrorEmail}> {errorEmail} </F.ErrorInput>
+        </F.Fieldset>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['Hard quota: the account cannot go over the limit', 'The limit can be changed after the creation', 'If the field is empty, there will be no limit']}>
                 Quota in GB (optional)
-            </Form.Label>
-            <Form.InputContainer>
-                <Input
-                    type='number'
-                    id='quota'
-                    value={quotaMax}
-                    onChange={e => onChangeWithClearError(e, onChangeQuotaMax)}
-                    min="0"
-                    onBlur={e => validationQuota(e.target.value)}
-                    hasError={hasErrorQuota}
-                    autoComplete='off' />
-            </Form.InputContainer>
-            <Form.ErrorInput id='error-quota' hasError={hasErrorQuota}> {errorQuota} </Form.ErrorInput>
-        </Form.Fieldset>
-        <Form.Footer>
-            <Form.FooterError>
+            </F.Label>
+            <F.Input
+                type='number'
+                id='quota'
+                value={quotaMax}
+                onChange={e => onChangeWithClearError(e, onChangeQuotaMax)}
+                min="0"
+                onBlur={e => validationQuota(e.target.value)}
+                hasError={hasErrorQuota}
+                autoComplete='off' />
+            <F.ErrorInput id='error-quota' hasError={hasErrorQuota}> {errorQuota} </F.ErrorInput>
+        </F.Fieldset>
+        <F.Footer>
+            <F.FooterError>
                 {
                     hasError && <Banner
                         id="zk-error-banner"
@@ -117,13 +110,13 @@ function AccountCreate() {
                         {errorMessage}
                     </Banner>
                 }
-            </Form.FooterError>
-            <Form.FooterButtons>
+            </F.FooterError>
+            <F.FooterButtons>
                 <Button variant="secondary" onClick={redirect} text='Cancel'/>
                 <Button id='create-account-btn' variant="info" onClick={submit} text='Create'/>
-            </Form.FooterButtons>
-        </Form.Footer>
-    </Form.Container>;
+            </F.FooterButtons>
+        </F.Footer>
+    </Form>;
 }
 
 export default AccountCreate;

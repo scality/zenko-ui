@@ -2,14 +2,26 @@ import * as actions from '../account';
 import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
+    ACCOUNT,
     errorManagementState,
     initState,
+    testActionFunction,
     testDispatchFunction,
 } from './utils/testUtil';
 
 const createAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating account');
 
 describe('account actions', () => {
+    const syncTests = [
+        {
+            it: 'should return DISPLAY_ACCOUNT action',
+            fn: actions.displayAccount(ACCOUNT),
+            expectedActions: [dispatchAction.DISPLAY_ACCOUNT_ACTION],
+        },
+    ];
+
+    syncTests.forEach(testActionFunction);
+
     const asyncTests = [
         {
             it: 'createAccount: should return expected actions',
@@ -17,7 +29,8 @@ describe('account actions', () => {
             storeState: initState,
             expectedActions: [
                 createAccountNetworkAction,
-                dispatchAction.LOCATION_PUSH_ACTION('/'),
+                dispatchAction.CONFIGURATION_VERSION_ACTION,
+                dispatchAction.LOCATION_PUSH_ACTION('/accounts'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },

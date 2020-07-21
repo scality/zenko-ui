@@ -1,7 +1,8 @@
 // @flow
-
 import type { AppConfig, InstanceId } from './entities';
+import type { Account } from './account';
 import type { AppState } from './state';
+import type { ConfigurationOverlay } from './config';
 import type { ManagementClient } from './managementClient';
 import type { S3Client } from './s3Client';
 import type { UserManager } from './auth';
@@ -83,6 +84,16 @@ export type NetworkActivityStopAction = {|
     +type: 'NETWORK_END',
 |};
 
+export type ConfigurationVersionAction = {|
+    +type: 'CONFIGURATION_VERSION',
+    +configuration: ConfigurationOverlay,
+|};
+
+export type DisplayAccountAction = {|
+    +type: 'DISPLAY_ACCOUNT',
+    +account: Account,
+|};
+
 export type Action =
     ThunkStatePromisedAction |
     ThunkNonStateAction |
@@ -99,4 +110,6 @@ export type Action =
     SignoutEndAction |
     NetworkActivityAuthFailureAction |
     NetworkActivityStartAction |
-    NetworkActivityStopAction;
+    NetworkActivityStopAction |
+    ConfigurationVersionAction |
+    DisplayAccountAction;

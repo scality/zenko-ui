@@ -1,12 +1,16 @@
 // @flow
 
 import {
+    ACCOUNT,
     APP_CONFIG,
     INSTANCE_ID,
+    LATEST_OVERLAY,
 } from './testUtil';
 
 import type {
     ConfigAuthFailureAction,
+    ConfigurationVersionAction,
+    DisplayAccountAction,
     HandleErrorAction,
     InitClientsAction,
     LoadUserSuccessAction,
@@ -63,6 +67,10 @@ export const LOCATION_PUSH_ACTION = (path: string) => ({
     type: CALL_HISTORY_METHOD, payload: { args: [path], method: 'push' },
 });
 
+// * config actions
+export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction =
+    { type: 'CONFIGURATION_VERSION', configuration: LATEST_OVERLAY };
+
 // * network actions
 export const NETWORK_START_ACTION =
     (msg: string): NetworkActivityStartAction => ({ type: 'NETWORK_START', message: msg });
@@ -72,3 +80,7 @@ export const NETWORK_END_ACTION: NetworkActivityStopAction =
 
 export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
         { type: 'NETWORK_AUTH_FAILURE' };
+
+// * account actions
+export const DISPLAY_ACCOUNT_ACTION: DisplayAccountAction =
+    { type: 'DISPLAY_ACCOUNT', account: ACCOUNT };

@@ -6,7 +6,7 @@ const MainContainer = styled.div`
   height: 100vh;
   overflow: scroll;
 
-  color: #fff;
+  color: ${props => props.theme.brand.text};
   background-color: ${props => props.theme.brand.background};
   flex-direction:column;
 `;
@@ -20,11 +20,6 @@ const Container = styled.div`
     padding: 20px;
     background-color: ${props => props.theme.brand.backgroundContrast1};
     border-radius: 5px;
-
-    .button-align-right{
-        display: flex;
-        justify-content: flex-end;
-    }
 `;
 
 const ContainerFooter = styled.div`

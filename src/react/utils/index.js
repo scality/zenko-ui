@@ -23,5 +23,5 @@ export function errorParser(error) {
 }
 
 export function formatDate(d) {
-    return `${d.toDateString()}`;
+    return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
