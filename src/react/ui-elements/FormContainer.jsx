@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
-const FormContainer = styled.div`
+// WARNING: FormContainer is depreciated, use FormLayout components instead.
+const FormContainer = styled.form`
 
     display: flex;
     flex-direction: column;
@@ -16,7 +17,7 @@ const FormContainer = styled.div`
         width:100%;
     }
 
-    .sc-title {
+    .zk-form-title {
         display: flex;
 
         text-transform: uppercase;
@@ -38,8 +39,9 @@ const FormContainer = styled.div`
         small {
             margin-bottom: 10px;
         }
+
         input{
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             // width:90%;
         }
         input.form-check-input{
@@ -47,7 +49,7 @@ const FormContainer = styled.div`
         }
     }
 
-    .footer {
+    .zk-form-footer {
       display: flex;
       justify-content: flex-end;
       align-items: center;
@@ -55,7 +57,7 @@ const FormContainer = styled.div`
       text-transform: lowercase;
       margin-top: 40px;
 
-      .zk-banner {
+      .zk-form-banner {
           width: calc(100% - 140px);
           height: 52px;
       }

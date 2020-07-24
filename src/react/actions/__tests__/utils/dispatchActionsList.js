@@ -11,6 +11,8 @@ import type {
     InitClientsAction,
     LoadUserSuccessAction,
     NetworkActivityAuthFailureAction,
+    NetworkActivityStartAction,
+    NetworkActivityStopAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetUserManagerAction,
@@ -49,13 +51,24 @@ export const SIGNOUT_START_ACTION: SignoutStartAction =
 export const SIGNOUT_END_ACTION: SignoutEndAction =
     { type: 'SIGNOUT_END' };
 
+// * error action
 export function HANDLE_ERROR_AUTH_ACTION(errorMsg: string): HandleErrorAction {
     return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byAuth' };
 }
-
-export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
-    { type: 'NETWORK_AUTH_FAILURE' };
+export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
+    return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byComponent' };
+}
 
 export const LOCATION_PUSH_ACTION = (path: string) => ({
     type: CALL_HISTORY_METHOD, payload: { args: [path], method: 'push' },
 });
+
+// * network actions
+export const NETWORK_START_ACTION =
+    (msg: string): NetworkActivityStartAction => ({ type: 'NETWORK_START', message: msg });
+
+export const NETWORK_END_ACTION: NetworkActivityStopAction =
+    { type: 'NETWORK_END' };
+
+export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
+        { type: 'NETWORK_AUTH_FAILURE' };

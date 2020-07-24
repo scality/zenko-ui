@@ -1,6 +1,5 @@
 import {
     jade,
-    turquoise,
     yellowOrange,
     warmRed,
     white,
@@ -14,7 +13,7 @@ export const theme = {
         primary: white,
         secondary: '#a7a7a7',
         success: jade,
-        info: turquoise,
+        info: '#007AFF',
         warning: yellowOrange,
         danger: warmRed,
         background: '#0a0a0b',

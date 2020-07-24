@@ -37,10 +37,17 @@ export type AuthState = {|
 
 export type OIDCState = {|
     +user: AuthUser,
+    +isLoadingUser: boolean,
+|};
+
+export type UIErrorState = {|
+    +errorMsg: string,
+    +errorType: string,
 |};
 
 export type AppState = {
     +auth: AuthState,
     +oidc: OIDCState,
     +user: UserState,
+    +uiErrors: UIErrorState,
 };

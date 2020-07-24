@@ -1,6 +1,8 @@
 // @flow
-import { ApiErrorObject } from '../../../../js/mock/error';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
+import { ApiErrorObject } from '../../../../js/mock/error';
+import type { AppState } from '../../../../types/state';
+import { ErrorMockManagementClient } from '../../../../js/mock/managementClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -35,8 +37,10 @@ export const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
 export const initState: AppState = initialFullState;
 
 export const USER_MANAGER_ERROR_MSG = 'User Manager Error Response';
+export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
 
 export const USER_MANAGER_ERROR = new ApiErrorObject(USER_MANAGER_ERROR_MSG, 500);
+export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
 
 export function errorUserManagerState(): AppState {
     const state = initState;
@@ -45,6 +49,17 @@ export function errorUserManagerState(): AppState {
         auth: {
             ...state.auth,
             userManager: new ErrorUserManager(USER_MANAGER_ERROR),
+        },
+    };
+}
+
+export function errorManagementState(): AppState {
+    const state = initState;
+    return {
+        ...state,
+        auth: {
+            ...state.auth,
+            managementClient: new ErrorMockManagementClient(MANAGEMENT_ERROR),
         },
     };
 }
@@ -136,13 +151,12 @@ export const testActionFunction = (test: ActionTestObject) => {
  */
 
 export const testDispatchFunction = (test: DispatchTestObject) => {
-    (test.skip ? it.skip : it)(test.it, async () => {
+    (test.skip ? it.skip : it)(test.it, () => {
         const store = mockStore()(test.storeState);
-        try {
-            await store.dispatch(test.fn);
-        } catch (error) {
-            throw new Error(`Expected success, but got error ${error.message}`);
-        }
-        expect(store.getActions()).toEqual(test.expectedActions);
+        return store.dispatch(test.fn)
+            .then(() => expect(store.getActions()).toEqual(test.expectedActions))
+            .catch(error => {
+                throw new Error(`Expected success, but got error ${error.message}`);
+            });
     });
 };

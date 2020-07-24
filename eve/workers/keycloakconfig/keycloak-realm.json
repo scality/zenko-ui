@@ -16,7 +16,7 @@
     "lastName" : "your_last_name",
     "email" : "sampleaccount1@sampling.com",
     "attributes" : {
-      "instanceIds" : [ "c304a58e-9d8c-412d-b451-5afc906263dc" ],
+      "instanceIds" : [ "edd56f6e-4092-4b89-a1f9-65bb2db58398" ],
       "role" : [ "user" ]
     },
     "credentials" : [ {
