@@ -36,7 +36,6 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^3.0.0",
     "flow-bin": "^0.118.0",
-    "flow-type": "^1.0.1",
     "flow-typed": "^2.6.2",
     "html-loader": "^1.0.0",
     "html-webpack-plugin": "^4.0.3",
