@@ -31,6 +31,11 @@ export class MockManagementClient implements ManagementClientInterface {
             body: account,
         });
     }
+
+    deleteConfigurationOverlayUser(): Promise<void> {
+        return Promise.resolve();
+    }
+
     getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
         return Promise.resolve({
             body: latestOverlay,
@@ -46,6 +51,10 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
+        return Promise.reject(this._error);
+    }
+
+    deleteConfigurationOverlayUser(): Promise<void> {
         return Promise.reject(this._error);
     }
 

@@ -77,7 +77,7 @@ export const Cell = styled.td`
 `;
 
 // * table search
-export const SearchForm = styled.form`
+export const Search = styled.div`
     display: flex;
     justify-content: space-between;
 `;

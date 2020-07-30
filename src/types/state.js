@@ -74,6 +74,10 @@ export type NetworkActivityState = {|
     +messages: List<string>,
 |};
 
+export type UIAccountState = {|
+    +showDelete: boolean,
+|};
+
 export type AppState = {
     +account: AccountState,
     +auth: AuthState,
@@ -84,4 +88,5 @@ export type AppState = {
     +user: UserState,
     +uiErrors: ErrorsUIState,
     +router: RouterState,
+    +uiAccount: UIAccountState,
 };

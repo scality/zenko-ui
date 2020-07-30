@@ -57,11 +57,13 @@ function AccountList() {
     }, useFilters, useSortBy);
 
     useEffect(() => {
-        // NOTE: render the first/newest account after the mount (not on every render).
+        // NOTE: display the first/newest account after the mount or when an account gets deleted (not on every render).
         if (rows.length > 0) {
             dispatch(displayAccount(rows[0].original));
+        } else {
+            dispatch(displayAccount({}));
         }
-    }, []);
+    }, [rows.length]);
 
     const handleRowClick = (account: Account) => {
         if (account.userName !== accountNameSelected) {
@@ -80,10 +82,10 @@ function AccountList() {
 
     return (
         <div id='account-list'>
-            <T.SearchForm>
+            <T.Search>
                 <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
                 <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/accounts/create'))} size="default" type="submit" />
-            </T.SearchForm>
+            </T.Search>
             <T.Container>
                 <Table {...getTableProps()}>
                     <T.Head>

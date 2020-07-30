@@ -10,6 +10,8 @@ export const initialAccountState: AccountState = {
     display: {},
 };
 
+export const initialAccountUIState = { showDelete: false };
+
 export const initialAuthState: AuthState = {
     isUserLoaded: false,
     configFailure: false,
@@ -143,6 +145,7 @@ export const initialFullState = {
     networkActivity: initialNetworkActivityState,
     secrets: initialSecretsState,
     stats: initialStatsState,
+    uiAccount: initialAccountUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiErrors: initialErrorsUIState,

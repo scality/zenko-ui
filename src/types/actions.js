@@ -131,6 +131,15 @@ export type ConfigurationVersionAction = {|
 
 export type ConfigurationAction = InstanceStatusAction | ConfigurationVersionAction;
 
+export type OpenAccountDeleteDialogAction = {|
+    +type: 'OPEN_ACCOUNT_DELETE_DIALOG',
+|};
+
+export type CloseAccountDeleteDialogAction = {|
+    +type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
+|};
+
+export type AccountsUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction;
 
 export type Action =
     AuthAction |
@@ -140,5 +149,6 @@ export type Action =
     ErrorsUIAction |
     SelectInstanceAction |
     NetworkActivityAction |
-    ConfigurationVersionAction |
-    DisplayAccountAction;
+    ConfigurationAction |
+    DisplayAccountAction |
+    AccountsUIAction;
