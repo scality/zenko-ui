@@ -8,6 +8,7 @@ import {
 } from './testUtil';
 
 import type {
+    CloseAccountDeleteDialogAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
     DisplayAccountAction,
@@ -17,6 +18,7 @@ import type {
     NetworkActivityAuthFailureAction,
     NetworkActivityEndAction,
     NetworkActivityStartAction,
+    OpenAccountDeleteDialogAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetUserManagerAction,
@@ -56,6 +58,10 @@ export const SIGNOUT_END_ACTION: SignoutEndAction =
     { type: 'SIGNOUT_END' };
 
 // * error action
+export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
+    return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byModal' };
+}
+
 export function HANDLE_ERROR_AUTH_ACTION(errorMsg: string): HandleErrorAction {
     return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byAuth' };
 }
@@ -84,3 +90,9 @@ export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
 // * account actions
 export const DISPLAY_ACCOUNT_ACTION: DisplayAccountAction =
     { type: 'DISPLAY_ACCOUNT', account: ACCOUNT };
+
+export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
+    { type: 'OPEN_ACCOUNT_DELETE_DIALOG' };
+
+export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction =
+    { type: 'CLOSE_ACCOUNT_DELETE_DIALOG' };

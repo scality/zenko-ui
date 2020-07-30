@@ -1,6 +1,11 @@
 // @flow
 import type { Account, CreateAccountRequest } from '../../types/account';
-import type { DisplayAccountAction, ThunkStatePromisedAction }  from '../../types/actions';
+import type {
+    CloseAccountDeleteDialogAction,
+    DisplayAccountAction,
+    OpenAccountDeleteDialogAction,
+    ThunkStatePromisedAction,
+}  from '../../types/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -11,6 +16,18 @@ export function displayAccount(account: Account): DisplayAccountAction {
     return {
         type: 'DISPLAY_ACCOUNT',
         account,
+    };
+}
+
+export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
+    return {
+        type: 'OPEN_ACCOUNT_DELETE_DIALOG',
+    };
+}
+
+export function closeAccountDeleteDialog(): CloseAccountDeleteDialogAction {
+    return {
+        type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
     };
 }
 
@@ -25,5 +42,22 @@ export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAct
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
+    };
+}
+
+
+export function deleteAccount(accountName: string): ThunkStatePromisedAction {
+    return (dispatch, getState) => {
+        const { managementClient, instanceId } = getClients(getState());
+        const params = { uuid: instanceId, accountName };
+        dispatch(networkStart('Deleting account'));
+        return managementClient.deleteConfigurationOverlayUser(params)
+            .then(() => dispatch(updateConfiguration()))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => {
+                dispatch(networkEnd());
+                dispatch(closeAccountDeleteDialog());
+            });
     };
 }

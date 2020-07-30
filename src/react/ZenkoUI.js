@@ -9,7 +9,6 @@ import Loader from './ui-elements/Loader';
 import Routes from './Routes';
 
 function ZenkoUI() {
-
     const [ loaded, setLoaded ] = useState(false);
 
     const showError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal');

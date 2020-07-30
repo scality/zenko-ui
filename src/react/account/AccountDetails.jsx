@@ -18,7 +18,6 @@ const TableContainer = styled.div`
 `;
 
 function AccountDetails() {
-
     const account = useSelector((state: AppState) => state.account.display);
 
     if (!account.id) {

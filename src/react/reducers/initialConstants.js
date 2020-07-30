@@ -1,6 +1,6 @@
 // @noflow
 
-import type { AccountState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
+import type { AccountState, AccountUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/s3Client';
@@ -9,6 +9,8 @@ import { MockUserManager } from '../../js/mock/userManager';
 export const initialAccountState: AccountState = {
     display: {},
 };
+
+export const initialAccountUIState: AccountUIState = { showDelete: false };
 
 export const initialAuthState: AuthState = {
     isUserLoaded: false,
@@ -143,6 +145,7 @@ export const initialFullState = {
     networkActivity: initialNetworkActivityState,
     secrets: initialSecretsState,
     stats: initialStatsState,
+    uiAccount: initialAccountUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiErrors: initialErrorsUIState,

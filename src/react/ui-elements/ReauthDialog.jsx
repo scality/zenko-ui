@@ -1,10 +1,11 @@
 // @flow
-import { Button, Modal } from '@scality/core-ui';
 import { networkAuthReset, signin, signout } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
+import { Button } from '@scality/core-ui';
 import type { DispatchAPI } from 'redux';
+import { CustomModal as Modal } from './Modal';
 import React from 'react';
 
 const DEFAULT_MESSAGE = 'We need to log you in.';
@@ -32,13 +33,16 @@ const ReauthDialog = () => {
     return (
         <Modal
             id="reauth-dialog-modal"
-            close={logout}
-            footer={<div style={{ display: 'flex', justifyContent: 'flex-end' }}> <Button outlined onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
+            close={() => reauth(pathname)}
+            footer={
+                <div>
+                    <Button variant="danger" onClick={() => logout()} size="small" text="Log out"/>
+                    <Button variant="secondary" onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/>
+                </div>
+            }
             isOpen={true}
             title='Authentication Error'>
-            <div style={{ margin: '10px 0px 20px' }}>
-                { errorMessage || DEFAULT_MESSAGE }
-            </div>
+            { errorMessage || DEFAULT_MESSAGE }
         </Modal>
     );
 };
