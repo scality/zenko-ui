@@ -1,4 +1,4 @@
-// flow-typed signature: 222b2ffad696dad05062ea91a4fd89d3
+// flow-typed signature: 590b9d4ee8be4299bb7645477811b57d
 // flow-typed version: <<STUB>>/aws-sdk_v^2.616.0/flow_v0.118.0
 
 /**
@@ -167,6 +167,10 @@ declare module 'aws-sdk/clients/cloudwatchevents' {
 }
 
 declare module 'aws-sdk/clients/cloudwatchlogs' {
+  declare module.exports: any;
+}
+
+declare module 'aws-sdk/clients/codeartifact' {
   declare module.exports: any;
 }
 
@@ -426,6 +430,10 @@ declare module 'aws-sdk/clients/health' {
   declare module.exports: any;
 }
 
+declare module 'aws-sdk/clients/honeycode' {
+  declare module.exports: any;
+}
+
 declare module 'aws-sdk/clients/iam' {
   declare module.exports: any;
 }
@@ -478,7 +486,15 @@ declare module 'aws-sdk/clients/iotsecuretunneling' {
   declare module.exports: any;
 }
 
+declare module 'aws-sdk/clients/iotsitewise' {
+  declare module.exports: any;
+}
+
 declare module 'aws-sdk/clients/iotthingsgraph' {
+  declare module.exports: any;
+}
+
+declare module 'aws-sdk/clients/ivs' {
   declare module.exports: any;
 }
 
@@ -551,6 +567,10 @@ declare module 'aws-sdk/clients/machinelearning' {
 }
 
 declare module 'aws-sdk/clients/macie' {
+  declare module.exports: any;
+}
+
+declare module 'aws-sdk/clients/macie2' {
   declare module.exports: any;
 }
 
@@ -859,6 +879,10 @@ declare module 'aws-sdk/clients/support' {
 }
 
 declare module 'aws-sdk/clients/swf' {
+  declare module.exports: any;
+}
+
+declare module 'aws-sdk/clients/synthetics' {
   declare module.exports: any;
 }
 
@@ -1506,11 +1530,11 @@ declare module 'aws-sdk/scripts/lib/visit-related-shape-names' {
   declare module.exports: any;
 }
 
-declare module 'aws-sdk/scripts/region-checker' {
+declare module 'aws-sdk/scripts/region-checker/allowlist' {
   declare module.exports: any;
 }
 
-declare module 'aws-sdk/scripts/region-checker/whitelist' {
+declare module 'aws-sdk/scripts/region-checker' {
   declare module.exports: any;
 }
 
@@ -1641,6 +1665,9 @@ declare module 'aws-sdk/clients/cloudwatchevents.js' {
 }
 declare module 'aws-sdk/clients/cloudwatchlogs.js' {
   declare module.exports: $Exports<'aws-sdk/clients/cloudwatchlogs'>;
+}
+declare module 'aws-sdk/clients/codeartifact.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/codeartifact'>;
 }
 declare module 'aws-sdk/clients/codebuild.js' {
   declare module.exports: $Exports<'aws-sdk/clients/codebuild'>;
@@ -1834,6 +1861,9 @@ declare module 'aws-sdk/clients/guardduty.js' {
 declare module 'aws-sdk/clients/health.js' {
   declare module.exports: $Exports<'aws-sdk/clients/health'>;
 }
+declare module 'aws-sdk/clients/honeycode.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/honeycode'>;
+}
 declare module 'aws-sdk/clients/iam.js' {
   declare module.exports: $Exports<'aws-sdk/clients/iam'>;
 }
@@ -1873,8 +1903,14 @@ declare module 'aws-sdk/clients/iotjobsdataplane.js' {
 declare module 'aws-sdk/clients/iotsecuretunneling.js' {
   declare module.exports: $Exports<'aws-sdk/clients/iotsecuretunneling'>;
 }
+declare module 'aws-sdk/clients/iotsitewise.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/iotsitewise'>;
+}
 declare module 'aws-sdk/clients/iotthingsgraph.js' {
   declare module.exports: $Exports<'aws-sdk/clients/iotthingsgraph'>;
+}
+declare module 'aws-sdk/clients/ivs.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/ivs'>;
 }
 declare module 'aws-sdk/clients/kafka.js' {
   declare module.exports: $Exports<'aws-sdk/clients/kafka'>;
@@ -1929,6 +1965,9 @@ declare module 'aws-sdk/clients/machinelearning.js' {
 }
 declare module 'aws-sdk/clients/macie.js' {
   declare module.exports: $Exports<'aws-sdk/clients/macie'>;
+}
+declare module 'aws-sdk/clients/macie2.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/macie2'>;
 }
 declare module 'aws-sdk/clients/managedblockchain.js' {
   declare module.exports: $Exports<'aws-sdk/clients/managedblockchain'>;
@@ -2160,6 +2199,9 @@ declare module 'aws-sdk/clients/support.js' {
 }
 declare module 'aws-sdk/clients/swf.js' {
   declare module.exports: $Exports<'aws-sdk/clients/swf'>;
+}
+declare module 'aws-sdk/clients/synthetics.js' {
+  declare module.exports: $Exports<'aws-sdk/clients/synthetics'>;
 }
 declare module 'aws-sdk/clients/textract.js' {
   declare module.exports: $Exports<'aws-sdk/clients/textract'>;
@@ -2656,14 +2698,14 @@ declare module 'aws-sdk/scripts/lib/ts-generator.js' {
 declare module 'aws-sdk/scripts/lib/visit-related-shape-names.js' {
   declare module.exports: $Exports<'aws-sdk/scripts/lib/visit-related-shape-names'>;
 }
+declare module 'aws-sdk/scripts/region-checker/allowlist.js' {
+  declare module.exports: $Exports<'aws-sdk/scripts/region-checker/allowlist'>;
+}
 declare module 'aws-sdk/scripts/region-checker/index' {
   declare module.exports: $Exports<'aws-sdk/scripts/region-checker'>;
 }
 declare module 'aws-sdk/scripts/region-checker/index.js' {
   declare module.exports: $Exports<'aws-sdk/scripts/region-checker'>;
-}
-declare module 'aws-sdk/scripts/region-checker/whitelist.js' {
-  declare module.exports: $Exports<'aws-sdk/scripts/region-checker/whitelist'>;
 }
 declare module 'aws-sdk/scripts/services-table-generator.js' {
   declare module.exports: $Exports<'aws-sdk/scripts/services-table-generator'>;

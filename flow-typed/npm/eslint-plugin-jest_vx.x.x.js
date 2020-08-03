@@ -1,4 +1,4 @@
-// flow-typed signature: b4758fd3b1f1b7d173d8ce76f792f074
+// flow-typed signature: a36a816146e89485f507f14a6421252d
 // flow-typed version: <<STUB>>/eslint-plugin-jest_v^23.7.0/flow_v0.118.0
 
 /**
@@ -22,10 +22,6 @@ declare module 'eslint-plugin-jest' {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
-declare module 'eslint-plugin-jest/lib/__tests__/rules.test' {
-  declare module.exports: any;
-}
-
 declare module 'eslint-plugin-jest/lib' {
   declare module.exports: any;
 }
@@ -51,6 +47,14 @@ declare module 'eslint-plugin-jest/lib/rules/no-alias-methods' {
 }
 
 declare module 'eslint-plugin-jest/lib/rules/no-commented-out-tests' {
+  declare module.exports: any;
+}
+
+declare module 'eslint-plugin-jest/lib/rules/no-conditional-expect' {
+  declare module.exports: any;
+}
+
+declare module 'eslint-plugin-jest/lib/rules/no-deprecated-functions' {
   declare module.exports: any;
 }
 
@@ -86,6 +90,10 @@ declare module 'eslint-plugin-jest/lib/rules/no-if' {
   declare module.exports: any;
 }
 
+declare module 'eslint-plugin-jest/lib/rules/no-interpolation-in-snapshots' {
+  declare module.exports: any;
+}
+
 declare module 'eslint-plugin-jest/lib/rules/no-jasmine-globals' {
   declare module.exports: any;
 }
@@ -99,6 +107,10 @@ declare module 'eslint-plugin-jest/lib/rules/no-large-snapshots' {
 }
 
 declare module 'eslint-plugin-jest/lib/rules/no-mocks-import' {
+  declare module.exports: any;
+}
+
+declare module 'eslint-plugin-jest/lib/rules/no-restricted-matchers' {
   declare module.exports: any;
 }
 
@@ -199,9 +211,6 @@ declare module 'eslint-plugin-jest/lib/rules/valid-title' {
 }
 
 // Filename aliases
-declare module 'eslint-plugin-jest/lib/__tests__/rules.test.js' {
-  declare module.exports: $Exports<'eslint-plugin-jest/lib/__tests__/rules.test'>;
-}
 declare module 'eslint-plugin-jest/lib/index' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib'>;
 }
@@ -225,6 +234,12 @@ declare module 'eslint-plugin-jest/lib/rules/no-alias-methods.js' {
 }
 declare module 'eslint-plugin-jest/lib/rules/no-commented-out-tests.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-commented-out-tests'>;
+}
+declare module 'eslint-plugin-jest/lib/rules/no-conditional-expect.js' {
+  declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-conditional-expect'>;
+}
+declare module 'eslint-plugin-jest/lib/rules/no-deprecated-functions.js' {
+  declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-deprecated-functions'>;
 }
 declare module 'eslint-plugin-jest/lib/rules/no-disabled-tests.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-disabled-tests'>;
@@ -250,6 +265,9 @@ declare module 'eslint-plugin-jest/lib/rules/no-identical-title.js' {
 declare module 'eslint-plugin-jest/lib/rules/no-if.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-if'>;
 }
+declare module 'eslint-plugin-jest/lib/rules/no-interpolation-in-snapshots.js' {
+  declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-interpolation-in-snapshots'>;
+}
 declare module 'eslint-plugin-jest/lib/rules/no-jasmine-globals.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-jasmine-globals'>;
 }
@@ -261,6 +279,9 @@ declare module 'eslint-plugin-jest/lib/rules/no-large-snapshots.js' {
 }
 declare module 'eslint-plugin-jest/lib/rules/no-mocks-import.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-mocks-import'>;
+}
+declare module 'eslint-plugin-jest/lib/rules/no-restricted-matchers.js' {
+  declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-restricted-matchers'>;
 }
 declare module 'eslint-plugin-jest/lib/rules/no-standalone-expect.js' {
   declare module.exports: $Exports<'eslint-plugin-jest/lib/rules/no-standalone-expect'>;

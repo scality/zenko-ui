@@ -1,4 +1,4 @@
-// flow-typed signature: 266916a657868d27ee2efd316fe99830
+// flow-typed signature: 35f04f278b1e0d772f35402f639ac633
 // flow-typed version: <<STUB>>/vega-lite_v^4.0.0-beta.10/flow_v0.118.0
 
 /**
@@ -22,6 +22,14 @@ declare module 'vega-lite' {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
+declare module 'vega-lite/babel.config' {
+  declare module.exports: any;
+}
+
+declare module 'vega-lite/build-es5/vega-lite' {
+  declare module.exports: any;
+}
+
 declare module 'vega-lite/build/src/aggregate' {
   declare module.exports: any;
 }
@@ -63,10 +71,6 @@ declare module 'vega-lite/build/src/compile/axis/parse' {
 }
 
 declare module 'vega-lite/build/src/compile/axis/properties' {
-  declare module.exports: any;
-}
-
-declare module 'vega-lite/build/src/compile/baseconcat' {
   declare module.exports: any;
 }
 
@@ -238,6 +242,10 @@ declare module 'vega-lite/build/src/compile/facet' {
   declare module.exports: any;
 }
 
+declare module 'vega-lite/build/src/compile/format' {
+  declare module.exports: any;
+}
+
 declare module 'vega-lite/build/src/compile/guide' {
   declare module.exports: any;
 }
@@ -298,6 +306,10 @@ declare module 'vega-lite/build/src/compile/legend/properties' {
   declare module.exports: any;
 }
 
+declare module 'vega-lite/build/src/compile/mark/arc' {
+  declare module.exports: any;
+}
+
 declare module 'vega-lite/build/src/compile/mark/area' {
   declare module.exports: any;
 }
@@ -307,6 +319,10 @@ declare module 'vega-lite/build/src/compile/mark/bar' {
 }
 
 declare module 'vega-lite/build/src/compile/mark/base' {
+  declare module.exports: any;
+}
+
+declare module 'vega-lite/build/src/compile/mark/encode/aria' {
   declare module.exports: any;
 }
 
@@ -363,6 +379,10 @@ declare module 'vega-lite/build/src/compile/mark/encode/tooltip' {
 }
 
 declare module 'vega-lite/build/src/compile/mark/encode/valueref' {
+  declare module.exports: any;
+}
+
+declare module 'vega-lite/build/src/compile/mark/encode/zindex' {
   declare module.exports: any;
 }
 
@@ -423,14 +443,6 @@ declare module 'vega-lite/build/src/compile/projection/component' {
 }
 
 declare module 'vega-lite/build/src/compile/projection/parse' {
-  declare module.exports: any;
-}
-
-declare module 'vega-lite/build/src/compile/repeat' {
-  declare module.exports: any;
-}
-
-declare module 'vega-lite/build/src/compile/repeater' {
   declare module.exports: any;
 }
 
@@ -638,6 +650,10 @@ declare module 'vega-lite/build/src/normalize/rangestep' {
   declare module.exports: any;
 }
 
+declare module 'vega-lite/build/src/normalize/repeater' {
+  declare module.exports: any;
+}
+
 declare module 'vega-lite/build/src/normalize/ruleforrangedline' {
   declare module.exports: any;
 }
@@ -659,10 +675,6 @@ declare module 'vega-lite/build/src/scale' {
 }
 
 declare module 'vega-lite/build/src/selection' {
-  declare module.exports: any;
-}
-
-declare module 'vega-lite/build/src/signal' {
   declare module.exports: any;
 }
 
@@ -722,10 +734,6 @@ declare module 'vega-lite/build/src/transform' {
   declare module.exports: any;
 }
 
-declare module 'vega-lite/build/src/transformextract' {
-  declare module.exports: any;
-}
-
 declare module 'vega-lite/build/src/type' {
   declare module.exports: any;
 }
@@ -747,6 +755,12 @@ declare module 'vega-lite/build/vega-lite.min' {
 }
 
 // Filename aliases
+declare module 'vega-lite/babel.config.js' {
+  declare module.exports: $Exports<'vega-lite/babel.config'>;
+}
+declare module 'vega-lite/build-es5/vega-lite.js' {
+  declare module.exports: $Exports<'vega-lite/build-es5/vega-lite'>;
+}
 declare module 'vega-lite/build/src/aggregate.js' {
   declare module.exports: $Exports<'vega-lite/build/src/aggregate'>;
 }
@@ -779,9 +793,6 @@ declare module 'vega-lite/build/src/compile/axis/parse.js' {
 }
 declare module 'vega-lite/build/src/compile/axis/properties.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/axis/properties'>;
-}
-declare module 'vega-lite/build/src/compile/baseconcat.js' {
-  declare module.exports: $Exports<'vega-lite/build/src/compile/baseconcat'>;
 }
 declare module 'vega-lite/build/src/compile/buildmodel.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/buildmodel'>;
@@ -912,6 +923,9 @@ declare module 'vega-lite/build/src/compile/data/window.js' {
 declare module 'vega-lite/build/src/compile/facet.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/facet'>;
 }
+declare module 'vega-lite/build/src/compile/format.js' {
+  declare module.exports: $Exports<'vega-lite/build/src/compile/format'>;
+}
 declare module 'vega-lite/build/src/compile/guide.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/guide'>;
 }
@@ -957,6 +971,9 @@ declare module 'vega-lite/build/src/compile/legend/parse.js' {
 declare module 'vega-lite/build/src/compile/legend/properties.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/legend/properties'>;
 }
+declare module 'vega-lite/build/src/compile/mark/arc.js' {
+  declare module.exports: $Exports<'vega-lite/build/src/compile/mark/arc'>;
+}
 declare module 'vega-lite/build/src/compile/mark/area.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/mark/area'>;
 }
@@ -965,6 +982,9 @@ declare module 'vega-lite/build/src/compile/mark/bar.js' {
 }
 declare module 'vega-lite/build/src/compile/mark/base.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/mark/base'>;
+}
+declare module 'vega-lite/build/src/compile/mark/encode/aria.js' {
+  declare module.exports: $Exports<'vega-lite/build/src/compile/mark/encode/aria'>;
 }
 declare module 'vega-lite/build/src/compile/mark/encode/base.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/mark/encode/base'>;
@@ -1011,6 +1031,9 @@ declare module 'vega-lite/build/src/compile/mark/encode/tooltip.js' {
 declare module 'vega-lite/build/src/compile/mark/encode/valueref.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/mark/encode/valueref'>;
 }
+declare module 'vega-lite/build/src/compile/mark/encode/zindex.js' {
+  declare module.exports: $Exports<'vega-lite/build/src/compile/mark/encode/zindex'>;
+}
 declare module 'vega-lite/build/src/compile/mark/geoshape.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/mark/geoshape'>;
 }
@@ -1055,12 +1078,6 @@ declare module 'vega-lite/build/src/compile/projection/component.js' {
 }
 declare module 'vega-lite/build/src/compile/projection/parse.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/projection/parse'>;
-}
-declare module 'vega-lite/build/src/compile/repeat.js' {
-  declare module.exports: $Exports<'vega-lite/build/src/compile/repeat'>;
-}
-declare module 'vega-lite/build/src/compile/repeater.js' {
-  declare module.exports: $Exports<'vega-lite/build/src/compile/repeater'>;
 }
 declare module 'vega-lite/build/src/compile/resolve.js' {
   declare module.exports: $Exports<'vega-lite/build/src/compile/resolve'>;
@@ -1230,6 +1247,9 @@ declare module 'vega-lite/build/src/normalize/pathoverlay.js' {
 declare module 'vega-lite/build/src/normalize/rangestep.js' {
   declare module.exports: $Exports<'vega-lite/build/src/normalize/rangestep'>;
 }
+declare module 'vega-lite/build/src/normalize/repeater.js' {
+  declare module.exports: $Exports<'vega-lite/build/src/normalize/repeater'>;
+}
 declare module 'vega-lite/build/src/normalize/ruleforrangedline.js' {
   declare module.exports: $Exports<'vega-lite/build/src/normalize/ruleforrangedline'>;
 }
@@ -1247,9 +1267,6 @@ declare module 'vega-lite/build/src/scale.js' {
 }
 declare module 'vega-lite/build/src/selection.js' {
   declare module.exports: $Exports<'vega-lite/build/src/selection'>;
-}
-declare module 'vega-lite/build/src/signal.js' {
-  declare module.exports: $Exports<'vega-lite/build/src/signal'>;
 }
 declare module 'vega-lite/build/src/sort.js' {
   declare module.exports: $Exports<'vega-lite/build/src/sort'>;
@@ -1295,9 +1312,6 @@ declare module 'vega-lite/build/src/title.js' {
 }
 declare module 'vega-lite/build/src/transform.js' {
   declare module.exports: $Exports<'vega-lite/build/src/transform'>;
-}
-declare module 'vega-lite/build/src/transformextract.js' {
-  declare module.exports: $Exports<'vega-lite/build/src/transformextract'>;
 }
 declare module 'vega-lite/build/src/type.js' {
   declare module.exports: $Exports<'vega-lite/build/src/type'>;

@@ -1,4 +1,4 @@
-// flow-typed signature: 4ffc4b56504c09d654fb30ac66ff5a1a
+// flow-typed signature: e57516059de00206ff49e016df09f203
 // flow-typed version: <<STUB>>/vega_v^5.7.3/flow_v0.118.0
 
 /**
@@ -26,6 +26,10 @@ declare module 'vega/build-es5/vega-core' {
   declare module.exports: any;
 }
 
+declare module 'vega/build-es5/vega-core.min' {
+  declare module.exports: any;
+}
+
 declare module 'vega/build-es5/vega-module' {
   declare module.exports: any;
 }
@@ -35,6 +39,10 @@ declare module 'vega/build-es5/vega-node' {
 }
 
 declare module 'vega/build-es5/vega' {
+  declare module.exports: any;
+}
+
+declare module 'vega/build-es5/vega.min' {
   declare module.exports: any;
 }
 
@@ -66,6 +74,9 @@ declare module 'vega/build/vega.min' {
 declare module 'vega/build-es5/vega-core.js' {
   declare module.exports: $Exports<'vega/build-es5/vega-core'>;
 }
+declare module 'vega/build-es5/vega-core.min.js' {
+  declare module.exports: $Exports<'vega/build-es5/vega-core.min'>;
+}
 declare module 'vega/build-es5/vega-module.js' {
   declare module.exports: $Exports<'vega/build-es5/vega-module'>;
 }
@@ -74,6 +85,9 @@ declare module 'vega/build-es5/vega-node.js' {
 }
 declare module 'vega/build-es5/vega.js' {
   declare module.exports: $Exports<'vega/build-es5/vega'>;
+}
+declare module 'vega/build-es5/vega.min.js' {
+  declare module.exports: $Exports<'vega/build-es5/vega.min'>;
 }
 declare module 'vega/build/vega-core.js' {
   declare module.exports: $Exports<'vega/build/vega-core'>;

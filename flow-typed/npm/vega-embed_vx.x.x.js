@@ -1,4 +1,4 @@
-// flow-typed signature: 1b74ae1d3b0b1370792fe519d344618f
+// flow-typed signature: 6ba18d43e4cceb271c7110ad62e3b127
 // flow-typed version: <<STUB>>/vega-embed_v^6.0.0/flow_v0.118.0
 
 /**
@@ -22,6 +22,10 @@ declare module 'vega-embed' {
  * require those files directly. Feel free to delete any files that aren't
  * needed.
  */
+declare module 'vega-embed/build-es5/vega-embed' {
+  declare module.exports: any;
+}
+
 declare module 'vega-embed/build/src/container' {
   declare module.exports: any;
 }
@@ -59,6 +63,9 @@ declare module 'vega-embed/build/vega-embed.min' {
 }
 
 // Filename aliases
+declare module 'vega-embed/build-es5/vega-embed.js' {
+  declare module.exports: $Exports<'vega-embed/build-es5/vega-embed'>;
+}
 declare module 'vega-embed/build/src/container.js' {
   declare module.exports: $Exports<'vega-embed/build/src/container'>;
 }
