@@ -1,5 +1,5 @@
 // @flow
-import { Head, HeadCenter, HeadLeft, HeadRight, HeadTitle, IconCircle} from '../ui-elements/ListLayout';
+import { Head, HeadCenter, HeadLeft, HeadRight, HeadTitle, IconCircle } from '../ui-elements/ListLayout';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
 import React from 'react';

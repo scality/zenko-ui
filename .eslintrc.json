@@ -43,7 +43,8 @@
         "flowtype/type-import-style": ["error", "declaration"],
         "flowtype/type-id-match": ["error", "^([A-Z][a-zA-Z0-9]*)$"],
         "flowtype/no-dupe-keys": "error",
-        "import/no-duplicates": "warn"
+        "import/no-duplicates": "warn",
+        "object-curly-spacing" : ["error", "always"]
     },
     "extends": [
         "eslint:recommended",

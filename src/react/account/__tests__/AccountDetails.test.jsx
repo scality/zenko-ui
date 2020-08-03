@@ -16,7 +16,7 @@ const account1 = {
     userName: 'bart',
 };
 
-function testRow(rowWrapper, { key, value, extraCellComponent}) {
+function testRow(rowWrapper, { key, value, extraCellComponent }) {
     expect(rowWrapper.find(T.Key).text()).toContain(key);
     expect(rowWrapper.find(T.Value).text()).toContain(value);
     if (extraCellComponent) {
@@ -53,16 +53,16 @@ describe('AccountDetails', () => {
         testRow(secondRow, { key: 'Name', value: account1.userName, extraCellComponent: 'Clipboard' });
 
         const thirdRow = rows.at(2);
-        testRow(thirdRow, { key: 'Creation Date', value: formatDate(new Date(account1.createDate))});
+        testRow(thirdRow, { key: 'Creation Date', value: formatDate(new Date(account1.createDate)) });
 
         const fourthRow = rows.at(3);
-        testRow(fourthRow, { key: 'Quota', value: account1.quotaMax});
+        testRow(fourthRow, { key: 'Quota', value: account1.quotaMax });
 
         const fifthRow = rows.at(4);
-        testRow(fifthRow, { key: 'Root User Email', value: account1.email, extraCellComponent: 'Clipboard'});
+        testRow(fifthRow, { key: 'Root User Email', value: account1.email, extraCellComponent: 'Clipboard' });
 
         const sixthRow = rows.at(5);
-        testRow(sixthRow, { key: 'Root User ARN', value: account1.arn, extraCellComponent: 'Clipboard'});
+        testRow(sixthRow, { key: 'Root User ARN', value: account1.arn, extraCellComponent: 'Clipboard' });
     });
 
 });

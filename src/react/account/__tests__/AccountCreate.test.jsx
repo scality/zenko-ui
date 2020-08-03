@@ -216,7 +216,7 @@ describe('AccountCreate', () => {
 
     it('Simulate blur: should render error if email is too long (> 256)', () => {
         const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#email').simulate('change', { target: { value: `${'b'.repeat(257)}@long.com`} });
+        component.find('input#email').simulate('change', { target: { value: `${'b'.repeat(257)}@long.com` } });
         component.find('input#email').simulate('blur');
 
         expect(component.find('ErrorInput#error-name').text()).toBeFalsy();

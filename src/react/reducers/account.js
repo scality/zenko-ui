@@ -1,4 +1,4 @@
-import {initialAccountState} from './initialConstants';
+import { initialAccountState } from './initialConstants';
 
 export default function account(state = initialAccountState, action) {
     switch (action.type){

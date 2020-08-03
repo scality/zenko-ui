@@ -1,5 +1,5 @@
 // @flow
-import {default as BasicInput} from './Input';
+import { default as BasicInput } from './Input';
 import type { Node } from 'react';
 
 import React from 'react';

@@ -48,10 +48,13 @@ function AccountList() {
         rows,
         setFilter,
         prepareRow,
-    } = useTable({ columns, data: accountList, initialState: { sortBy: initialSortBy }, autoResetFilters: false, autoResetSortBy: false},
-        useFilters,
-        useSortBy,
-    );
+    } = useTable({
+        columns,
+        data: accountList,
+        initialState: { sortBy: initialSortBy },
+        autoResetFilters: false,
+        autoResetSortBy: false,
+    }, useFilters, useSortBy);
 
     useEffect(() => {
         // NOTE: render the first/newest account after the mount (not on every render).
