@@ -1,4 +1,4 @@
-import {initialBucketUIState} from './initialConstants';
+import { initialBucketUIState } from './initialConstants';
 
 export default function uiBucket(state = initialBucketUIState, action) {
     switch (action.type) {

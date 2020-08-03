@@ -1,4 +1,4 @@
-// @flow
+/* eslint-disable */
 
 import { Button, Modal } from '@scality/core-ui';
 import React from 'react';

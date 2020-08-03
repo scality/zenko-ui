@@ -70,6 +70,7 @@ export function errorManagementState(): AppState {
 export function signinRedirectCallbackState(path: string): AppState {
     const state = initState;
     const userManager = new MockUserManager();
+    /*eslint-disable flowtype-errors/show-errors*/
     userManager.signinRedirectCallback = () => {
         return Promise.resolve({
             state: {
@@ -77,6 +78,7 @@ export function signinRedirectCallbackState(path: string): AppState {
             },
         });
     };
+    /*eslint-enable */
     return {
         ...state,
         auth: {

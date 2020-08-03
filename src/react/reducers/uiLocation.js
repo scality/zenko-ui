@@ -1,4 +1,4 @@
-import {initialLocationsUIState} from './initialConstants';
+import { initialLocationsUIState } from './initialConstants';
 
 export default function uiLocation(state = initialLocationsUIState, action) {
     switch (action.type) {

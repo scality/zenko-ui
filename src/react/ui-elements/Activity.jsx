@@ -1,5 +1,4 @@
 // @noflow
-import type { AppState } from '../../types/state';
 import { Loader } from '@scality/core-ui';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -40,11 +39,11 @@ const Activity = ({ working, message }: Props) => {
     );
 };
 
-function mapStateToProps(state: AppState) {
-    return {
-        // working: state.networkActivity.counter > 0,
-        // message: state.networkActivity.messages.first(),
-    };
-}
+// function mapStateToProps(state: AppState) {
+//     return {
+//         // working: state.networkActivity.counter > 0,
+//         // message: state.networkActivity.messages.first(),
+//     };
+// }
 
-export default connect(mapStateToProps)(Activity);
+export default connect()(Activity);

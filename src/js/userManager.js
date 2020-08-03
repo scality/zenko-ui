@@ -4,9 +4,14 @@ import type { UserManager as UserManagerInterface } from '../types/auth';
 
 import { createUserManager } from 'redux-oidc';
 
-const currentEndpoint = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+type UserManagerType = {
+    oidcAuthority: string,
+    oidcClientId: string,
+};
 
-export function makeUserManager({ oidcAuthority: authority, oidcClientId: clientId }): UserManagerInterface {
+const currentEndpoint: string = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+
+export function makeUserManager({ oidcAuthority: authority, oidcClientId: clientId }: UserManagerType): UserManagerInterface {
     const config =  {
         authority: authority,
         client_id: clientId,

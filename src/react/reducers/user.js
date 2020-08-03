@@ -1,4 +1,4 @@
-import {initialUserState} from './initialConstants';
+import { initialUserState } from './initialConstants';
 
 export default function user(state = initialUserState, action) {
     switch (action.type){

@@ -1,55 +1,52 @@
+// @flow
+
 import React, { useEffect, useState } from 'react';
-import {clearError, loadClients, loadInstanceLatestStatus, loadInstanceStats} from './actions';
-import Activity from './ui-elements/Activity';
+import { clearError, loadClients, loadInstanceLatestStatus, loadInstanceStats } from './actions';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../types/state';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import Routes from './Routes';
-import { connect } from 'react-redux';
 
-function ZenkoUI(props) {
+function ZenkoUI() {
 
     const [ loaded, setLoaded ] = useState(false);
 
+    const showError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal');
+    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const idToken = useSelector((state: AppState) => state.oidc.user.id_token);
+    const instanceIds = useSelector((state: AppState) => state.oidc.user.profile.instanceIds);
+
+    const dispatch = useDispatch();
+
     // When tokens are renewed, clients are updated with the new ID token.
     useEffect(() => {
-        props.dispatch(loadClients()).then(() => {
+        dispatch(loadClients()).then(() => {
             setLoaded(true);
         });
-    }, [props.idToken, props.instanceIds]);
+    }, [dispatch, idToken, instanceIds]);
 
     useEffect(() => {
         const refreshIntervalStatsUnit = setInterval(
-            () => props.dispatch(loadInstanceLatestStatus()), 10000);
+            () => dispatch(loadInstanceLatestStatus()), 10000);
         const refreshIntervalStatsSeries = setInterval(
-            () => props.dispatch(loadInstanceStats()), 10000);
+            () => dispatch(loadInstanceStats()), 10000);
         return () => {
             clearInterval(refreshIntervalStatsUnit);
             clearInterval(refreshIntervalStatsSeries);
         };
-    }, []);
+    }, [dispatch]);
 
     return (
         <div>
             { loaded ? <Routes/> : <Loader> Loading </Loader> }
             <ErrorHandlerModal
-                show={props.showError}
-                close={() => props.dispatch(clearError())} >
-                {props.errorMessage}
+                show={showError}
+                close={() => dispatch(clearError())} >
+                {errorMessage}
             </ErrorHandlerModal>
-            <Activity/>
         </div>
     );
 }
 
-
-function mapStateToProps(state) {
-    return {
-        showError: !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
-        errorMessage: state.uiErrors.errorMsg,
-        idToken: state.oidc.user.id_token,
-        instanceIds: state.oidc.user.profile.instanceIds,
-    };
-}
-
-
-export default connect(mapStateToProps)(ZenkoUI);
+export default ZenkoUI;

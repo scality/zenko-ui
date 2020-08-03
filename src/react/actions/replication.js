@@ -12,7 +12,7 @@ export function saveReplication(replication) {
             replicationStream: replication,
         };
         const op = replication.streamId ?
-            pensieveClient.updateConfigurationOverlayReplicationStream({...params, streamId: replication.streamId}) :
+            pensieveClient.updateConfigurationOverlayReplicationStream({ ...params, streamId: replication.streamId }) :
             pensieveClient.createConfigurationOverlayReplicationStream(replication);
         op.then(() => updateConfiguration())
             .catch(error => dispatch(handleClientError(error)))

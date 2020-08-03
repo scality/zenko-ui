@@ -1,4 +1,4 @@
-import {initialUserUIState} from './initialConstants';
+import { initialUserUIState } from './initialConstants';
 
 export default function uiUser(state = initialUserUIState, action) {
     switch (action.type) {

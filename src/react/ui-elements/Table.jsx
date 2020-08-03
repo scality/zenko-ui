@@ -1,4 +1,4 @@
-// @flow
+// @noflow
 import { Button } from '@scality/core-ui';
 import Input from './Input';
 import type { Node } from 'react';
@@ -108,7 +108,6 @@ const EmptyStateTitle = styled.div`
 const EmptyStateButton = styled.div`
     margin-top: 15px;
 `;
-
 
 type EmptyStateProps = {
     header?: Node,

@@ -1,6 +1,9 @@
+// @flow
+import type { AuthAction } from '../../types/actions';
+import type { AuthState } from '../../types/state';
 import { initialAuthState } from './initialConstants';
 
-export default function auth(state = initialAuthState, action) {
+export default function auth(state: AuthState = initialAuthState, action: AuthAction) {
     switch (action.type) {
     case 'INIT_CLIENTS':
         return {

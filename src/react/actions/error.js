@@ -4,10 +4,11 @@ import type {
     ApiError,
     ClearErrorAction,
     DispatchFunction,
-    ErrorViewType,
     HandleErrorAction,
+    S3Error,
     ThunkNonStateAction,
 } from '../../types/actions';
+import type { ErrorViewType } from '../../types/ui';
 import { errorParser } from '../utils';
 import { networkAuthFailure } from './network';
 
@@ -44,7 +45,7 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
     };
 }
 
-export function handleS3Error(error): ThunkNonStateAction {
+export function handleS3Error(error: S3Error): ThunkNonStateAction {
     return (dispatch: DispatchFunction) => {
         switch (error.statusCode) {
         case 401:

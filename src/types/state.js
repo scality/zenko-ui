@@ -1,8 +1,14 @@
 // @flow
+
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
 import type { Account } from './account';
 import type { ConfigurationOverlay } from './config';
+import type { ErrorViewType } from './ui';
+import type { InstanceId } from './entities';
+import type { InstanceStatus } from './stats';
+import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
+import type { RouterState } from 'connected-react-router';
 import type { S3Client as S3ClientInterface } from './s3Client';
 import type { User } from './user';
 
@@ -41,9 +47,9 @@ export type OIDCState = {|
     +isLoadingUser: boolean,
 |};
 
-export type UIErrorState = {|
-    +errorMsg: string,
-    +errorType: string,
+export type ErrorsUIState = {|
+    +errorMsg: string | null,
+    +errorType: ErrorViewType | null,
 |};
 
 export type ConfigurationState = {|
@@ -54,11 +60,28 @@ export type AccountState = {|
     +display: Account,
 |};
 
+export type InstancesState =  {|
+    +selectedId: InstanceId | null,
+|};
+
+export type InstanceStatusState = {|
+    +latest: InstanceStatus,
+|};
+
+export type NetworkActivityState = {|
+    +counter: number,
+    +authFailure: boolean,
+    +messages: List<string>,
+|};
+
 export type AppState = {
     +account: AccountState,
     +auth: AuthState,
     +configuration: ConfigurationState,
+    +instances: InstancesState,
+    +networkActivity: NetworkActivityState,
     +oidc: OIDCState,
     +user: UserState,
-    +uiErrors: UIErrorState,
+    +uiErrors: ErrorsUIState,
+    +router: RouterState,
 };

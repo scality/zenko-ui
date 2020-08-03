@@ -1,11 +1,17 @@
-import React, { useEffect } from 'react';
-import Loader from '../ui-elements/Loader';
-import { connect } from 'react-redux';
-import { signoutCallback } from '../actions';
+// @flow
 
-function LogoutCallback(props) {
+import React, { useEffect } from 'react';
+import type { Action } from '../../types/actions';
+import type { DispatchAPI } from 'redux';
+import Loader from '../ui-elements/Loader';
+import { signoutCallback } from '../actions';
+import { useDispatch } from 'react-redux';
+
+function LogoutCallback() {
+    const dispatch: DispatchAPI<Action> = useDispatch();
+
     useEffect(() => {
-        props.signoutCallback();
+        dispatch(signoutCallback());
     });
 
     return <Loader>
@@ -13,10 +19,4 @@ function LogoutCallback(props) {
     </Loader>;
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        signoutCallback: () => dispatch(signoutCallback()),
-    };
-}
-
-export default connect(null, mapDispatchToProps)(LogoutCallback);
+export default LogoutCallback;

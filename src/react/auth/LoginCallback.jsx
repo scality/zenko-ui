@@ -1,13 +1,17 @@
+// @flow
+
 import React, { useEffect } from 'react';
-
+import type { Action } from '../../types/actions';
+import type { DispatchAPI } from 'redux';
 import Loader from '../ui-elements/Loader';
-import { connect } from 'react-redux';
 import { signinCallback } from '../actions';
+import { useDispatch } from 'react-redux';
 
-function LoginCallback(props) {
+function LoginCallback() {
+    const dispatch: DispatchAPI<Action> = useDispatch();
 
     useEffect(() => {
-        props.dispatch(signinCallback());
+        dispatch(signinCallback());
     });
 
     return (
@@ -15,10 +19,4 @@ function LoginCallback(props) {
     );
 }
 
-function mapStateToProps(state) {
-    return {
-        userManager: state.auth.userManager,
-    };
-}
-
-export default connect(mapStateToProps)(LoginCallback);
+export default LoginCallback;

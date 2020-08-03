@@ -1,28 +1,30 @@
 // @flow
 import { Button, Modal } from '@scality/core-ui';
 import { networkAuthReset, signin, signout } from '../actions';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
 import type { DispatchAPI } from 'redux';
 import React from 'react';
-import { connect } from 'react-redux';
-
-type DispatchProps = {
-    reauth: () => void,
-    logout: () => void,
-};
-
-type StateProps = {
-    needReauth: boolean,
-    errorMessage: string | null,
-};
-
-type Props = StateProps & DispatchProps;
 
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
-const ReauthDialog = (props: Props) => {
-    const { needReauth, reauth, errorMessage, pathname } = props;
+const ReauthDialog = () => {
+    const needReauth = useSelector((state: AppState) => state.networkActivity.authFailure);
+    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null);
+    const pathname = useSelector((state: AppState) => state.router.location.pathname);
+
+    const dispatch: DispatchAPI<Action> = useDispatch();
+
+    const reauth = pathname => {
+        dispatch(networkAuthReset());
+        dispatch(signin(pathname));
+    };
+
+    const logout = () => {
+        dispatch(signout());
+    };
+
     if (!needReauth) {
         return null;
     }
@@ -30,34 +32,15 @@ const ReauthDialog = (props: Props) => {
     return (
         <Modal
             id="reauth-dialog-modal"
-            close={props.logout}
-            footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
+            close={logout}
+            footer={<div style={{ display: 'flex', justifyContent: 'flex-end' }}> <Button outlined onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/> </div>}
             isOpen={true}
             title='Authentication Error'>
-            <div style={{margin: '10px 0px 20px'}}>
+            <div style={{ margin: '10px 0px 20px' }}>
                 { errorMessage || DEFAULT_MESSAGE }
             </div>
         </Modal>
     );
 };
 
-function mapStateToProps(state: AppState): StateProps {
-    return {
-        needReauth: state.networkActivity.authFailure,
-        errorMessage: state.uiErrors.errorType === 'byAuth' ?
-            state.uiErrors.errorMsg : null,
-        pathname: state.router.location.pathname,
-    };
-}
-
-function mapDispatchToProps(dispatch: DispatchAPI<Action>): DispatchProps {
-    return {
-        reauth: pathname => {
-            dispatch(networkAuthReset());
-            dispatch(signin(pathname));
-        },
-        logout: () => dispatch(signout()),
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReauthDialog);
+export default ReauthDialog;

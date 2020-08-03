@@ -36,4 +36,4 @@ const LoaderContainer = styled.div`
   height: 100vh;
 `;
 
-export {Container, LoaderContainer, MainContainer, ContainerFooter};
+export { Container, LoaderContainer, MainContainer, ContainerFooter };

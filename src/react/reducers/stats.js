@@ -1,4 +1,4 @@
-import {initialStatsState} from './initialConstants';
+import { initialStatsState } from './initialConstants';
 
 export default function stats(state = initialStatsState, action){
     switch (action.type) {

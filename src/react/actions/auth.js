@@ -14,7 +14,7 @@ import type {
     ThunkStatePromisedAction,
 }  from '../../types/actions';
 
-import { handleErrorMessage, loadInstanceLatestStatus, listBuckets, loadInstanceStats, networkAuthFailure} from './index';
+import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
 
 import type { ManagementClient as ManagementClientInterface }  from '../../types/managementClient';
 
@@ -22,7 +22,7 @@ import S3Client from '../../js/S3Client';
 
 import type { S3Client as S3ClientInterface }  from '../../types/s3Client';
 
-import STSClient from '../../js/STSClient';
+// import STSClient from '../../js/STSClient';
 
 import type { UserManager as UserManagerInterface }  from '../../types/auth';
 
@@ -196,7 +196,7 @@ export function loadClients(): ThunkStatePromisedAction {
         // }
         return Promise.all([
             // sts.assumeRoleWithWebIdentity(assumeRoleParams),
-            {Credentials: {}},
+            { Credentials: {} },
             makeMgtClient(config.managementEndpoint, oidc.user.id_token),
         ])
             .then(([creds, managementClient]) => {

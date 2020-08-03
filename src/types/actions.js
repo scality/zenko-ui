@@ -3,11 +3,11 @@ import type { AppConfig, InstanceId } from './entities';
 import type { Account } from './account';
 import type { AppState } from './state';
 import type { ConfigurationOverlay } from './config';
+import type { ErrorViewType } from './ui';
+import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { S3Client } from './s3Client';
 import type { UserManager } from './auth';
-
-export type ErrorViewType = 'byModal' | 'byComponent' | 'byAuth';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
@@ -17,12 +17,17 @@ export interface ApiError extends Error {
     status: 200 | 401 | 403 | 422 | 500 | 503;
 }
 
+export interface S3Error extends Error {
+    statusCode: 200 | 401 | 403 | 422 | 500 | 503;
+}
+
 export type PromiseAction = Promise<Action>;
 export type ThunkStatePromisedAction = (DispatchFunction, GetStateFunction) => Promise<mixed>;
 export type ThunkStateAction = (DispatchFunction, GetStateFunction) => void;
 export type ThunkNonStatePromisedAction = (DispatchFunction) => Promise<void>;
 export type ThunkNonStateAction = (DispatchFunction) => void;
 
+// error action
 export type ClearErrorAction = {|
     +type: 'CLEAR_ERROR',
 |};
@@ -32,6 +37,11 @@ export type HandleErrorAction = {|
     +errorMsg: string | void,
     +errorType: ErrorViewType,
 |};
+
+export type ErrorsUIAction =
+    HandleErrorAction |
+    ClearErrorAction |
+    NetworkActivityAuthResetAction;
 
 // auth actions
 export type InitClientsAction = {|
@@ -50,17 +60,12 @@ export type SetAppConfigAction = {|
     +config: AppConfig,
 |};
 
-export type  SelectInstanceAction = {|
-    +type: 'SELECT_INSTANCE',
-    +selectedId: InstanceId,
+export type  ConfigAuthFailureAction = {|
+    +type: 'CONFIG_AUTH_FAILURE',
 |};
 
 export type  LoadUserSuccessAction = {|
     +type: 'LOAD_USER_SUCCESS',
-|};
-
-export type  ConfigAuthFailureAction = {|
-    +type: 'CONFIG_AUTH_FAILURE',
 |};
 
 export type  SignoutStartAction = {|
@@ -71,6 +76,21 @@ export type  SignoutEndAction = {|
     +type: 'SIGNOUT_END',
 |};
 
+export type AuthAction = InitClientsAction |
+  SetUserManagerAction |
+  SetAppConfigAction |
+  ConfigAuthFailureAction |
+  LoadUserSuccessAction |
+  SignoutStartAction |
+  SignoutEndAction;
+
+// instances actions
+export type  SelectInstanceAction = {|
+    +type: 'SELECT_INSTANCE',
+    +selectedId: InstanceId,
+|};
+
+// networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
     +type: 'NETWORK_AUTH_FAILURE',
 |};
@@ -80,8 +100,28 @@ export type NetworkActivityStartAction = {|
     +message: string,
 |};
 
-export type NetworkActivityStopAction = {|
+export type NetworkActivityEndAction = {|
     +type: 'NETWORK_END',
+|};
+
+export type NetworkActivityAuthResetAction = {|
+    +type: 'NETWORK_AUTH_RESET',
+|};
+
+export type NetworkActivityAction = NetworkActivityAuthFailureAction |
+    NetworkActivityStartAction |
+    NetworkActivityEndAction |
+    NetworkActivityAuthResetAction;
+
+export type DisplayAccountAction = {|
+    +type: 'DISPLAY_ACCOUNT',
+    +account: Account,
+|};
+
+// configuration actions
+export type InstanceStatusAction = {|
+    +type: 'INSTANCE_STATUS',
+    +status: InstanceStatus,
 |};
 
 export type ConfigurationVersionAction = {|
@@ -89,27 +129,16 @@ export type ConfigurationVersionAction = {|
     +configuration: ConfigurationOverlay,
 |};
 
-export type DisplayAccountAction = {|
-    +type: 'DISPLAY_ACCOUNT',
-    +account: Account,
-|};
+export type ConfigurationAction = InstanceStatusAction | ConfigurationVersionAction;
+
 
 export type Action =
+    AuthAction |
     ThunkStatePromisedAction |
     ThunkNonStateAction |
     ThunkStatePromisedAction |
-    ClearErrorAction |
-    HandleErrorAction |
-    InitClientsAction |
-    SetUserManagerAction |
-    SetAppConfigAction |
+    ErrorsUIAction |
     SelectInstanceAction |
-    LoadUserSuccessAction |
-    ConfigAuthFailureAction |
-    SignoutStartAction |
-    SignoutEndAction |
-    NetworkActivityAuthFailureAction |
-    NetworkActivityStartAction |
-    NetworkActivityStopAction |
+    NetworkActivityAction |
     ConfigurationVersionAction |
     DisplayAccountAction;

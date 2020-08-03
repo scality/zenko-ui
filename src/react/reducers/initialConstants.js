@@ -1,12 +1,12 @@
 // @noflow
 
-import type { AuthState, OIDCState } from '../../types/state';
+import type { AccountState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/s3Client';
 import { MockUserManager } from '../../js/mock/userManager';
 
-export const initialAccountState = {
+export const initialAccountState: AccountState = {
     display: {},
 };
 
@@ -21,7 +21,7 @@ export const initialAuthState: AuthState = {
     },
 };
 
-export const initialBucketState = { list: []};
+export const initialBucketState = { list: [] };
 export const initialBucketUIState = { showDelete: false };
 
 export const initialConfiguration: ConfigurationState = {
@@ -41,7 +41,7 @@ export const initialConfiguration: ConfigurationState = {
     },
 };
 
-export const initialErrorsUIState = { errorMsg: null, errorType: null };
+export const initialErrorsUIState: UIErrorState = { errorMsg: null, errorType: null };
 export const initialInstancesState = {};
 export const initialInstanceStatus: InstanceStatusState = {
     latest: {
@@ -118,7 +118,7 @@ export const initialInstanceStatus: InstanceStatusState = {
     },
 };
 export const initialLocationsUIState = { showDeleteLocation: false };
-export const initialNetworkActivityState = {counter: 0, messages: List()};
+export const initialNetworkActivityState: NetworkActivityState = { counter: 0, messages: List() };
 export const initialOidc: OIDCState = {
     user: null,
     isLoadingUser: false,

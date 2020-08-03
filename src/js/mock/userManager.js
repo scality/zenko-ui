@@ -1,27 +1,36 @@
 // @flow
-
+import type { AuthUser, UserManager as UserManagerInterface } from '../../types/auth';
 import { ApiErrorObject } from './error';
-import type { UserManager as UserManagerInterface } from '../../types/auth';
 
-export class MockUserManager implements UserManagerInterface {
+const authUser: AuthUser = {
+    id_token: 'id_token',
+    access_token: 'access_token',
+    token_type: 'bearer',
+    scope: 'openid profile email',
+    profile: { sub: 'uuid' },
+    expires_at: 1596428238,
+    state: {},
+};
+
+export class MockUserManager {
     signinRedirect() {
-        return Promise.resolve({});
+        return Promise.resolve();
     }
 
     signinRedirectCallback() {
-        return Promise.resolve({});
+        return Promise.resolve(authUser);
     }
 
     removeUser() {
-        return Promise.resolve({});
+        return Promise.resolve();
     }
 
     signoutPopup() {
-        return Promise.resolve({});
+        return Promise.resolve();
     }
 
     signoutPopupCallback() {
-        return Promise.resolve({});
+        return Promise.resolve();
     }
 }
 

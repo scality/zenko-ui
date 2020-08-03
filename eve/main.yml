@@ -55,6 +55,10 @@ stages:
       - Git: *clone
       - ShellCommand: *yarn-install
       - ShellCommand:
+          name: run eslint test
+          command: yarn test:lint
+          haltOnFailure: True
+      - ShellCommand:
           name: run test suite
           command: yarn test
           haltOnFailure: True

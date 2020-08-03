@@ -1,6 +1,6 @@
 // @flow
 import type { Account, CreateAccountRequest } from '../../types/account';
-import type { DisplayAccountAction, ThunkStatePromisedAction}  from '../../types/actions';
+import type { DisplayAccountAction, ThunkStatePromisedAction }  from '../../types/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';

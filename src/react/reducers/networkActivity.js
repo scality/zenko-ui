@@ -1,7 +1,9 @@
-// @noflow
-import {initialNetworkActivityState} from './initialConstants';
+// @flow
+import type { NetworkActivityAction } from '../../types/actions';
+import type { NetworkActivityState } from '../../types/state';
+import { initialNetworkActivityState } from './initialConstants';
 
-export default function networkActivity(state=initialNetworkActivityState, action) {
+export default function networkActivity(state: NetworkActivityState=initialNetworkActivityState, action: NetworkActivityAction) {
     switch (action.type) {
     case 'NETWORK_START':
         return {

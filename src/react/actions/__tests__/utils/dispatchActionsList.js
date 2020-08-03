@@ -15,8 +15,8 @@ import type {
     InitClientsAction,
     LoadUserSuccessAction,
     NetworkActivityAuthFailureAction,
+    NetworkActivityEndAction,
     NetworkActivityStartAction,
-    NetworkActivityStopAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetUserManagerAction,
@@ -75,7 +75,7 @@ export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction =
 export const NETWORK_START_ACTION =
     (msg: string): NetworkActivityStartAction => ({ type: 'NETWORK_START', message: msg });
 
-export const NETWORK_END_ACTION: NetworkActivityStopAction =
+export const NETWORK_END_ACTION: NetworkActivityEndAction =
     { type: 'NETWORK_END' };
 
 export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =

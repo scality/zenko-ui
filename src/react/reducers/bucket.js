@@ -1,4 +1,4 @@
-import {initialBucketState} from './initialConstants';
+import { initialBucketState } from './initialConstants';
 
 export default function bucket(state = initialBucketState, action) {
     switch (action.type){

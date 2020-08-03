@@ -17,6 +17,13 @@
         "flowtype",
         "flowtype-errors"
     ],
+    "ignorePatterns": [
+        "src/react/databrowser",
+        "src/react/group",
+        "src/react/monitor",
+        "src/react/user",
+        "src/react/workflow"
+    ],
     "rules": {
         "semi": "error",
         "indent": "error",

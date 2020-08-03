@@ -18,10 +18,10 @@ class ErrorHandlerModal extends React.Component<Props> {
         return (
             <Modal
                 close={this.props.close}
-                footer={<div style={{display: 'flex', justifyContent: 'flex-end'}}> <Button outlined onClick={this.props.close} size="small" text="Close"/> </div>}
+                footer={<div style={{ display: 'flex', justifyContent: 'flex-end' }}> <Button outlined onClick={this.props.close} size="small" text="Close"/> </div>}
                 isOpen={this.props.show}
                 title="Error">
-                <div style={{margin: '10px 0px 20px'}}>
+                <div style={{ margin: '10px 0px 20px' }}>
                     {this.props.children}
                 </div>
             </Modal>

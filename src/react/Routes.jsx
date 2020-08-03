@@ -1,8 +1,14 @@
+// @flow
+
 import { Link, Route } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
+import type { Action } from '../types/actions';
+import type { AppState } from '../types/state';
 import BucketCreate from './databrowser/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
+import type { DispatchAPI } from 'redux';
 import Groups from './group/Groups';
 import LocationEditor from './monitor/location/LocationEditor';
 import { Navbar } from '@scality/core-ui';
@@ -12,7 +18,6 @@ import StorageMonitor from './monitor/StorageMonitor';
 import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
-import { connect } from 'react-redux';
 import { signout } from './actions';
 import styled from 'styled-components';
 
@@ -28,10 +33,13 @@ function isSelected(location, tabName){
     return location.pathname === tabName;
 }
 
-class Routes extends React.Component{
-    render() {
-        const { location, userName } = this.props;
-        return <div>
+function Routes() {
+    const location = useSelector((state: AppState) => state.router.location);
+    const userName = useSelector((state: AppState) => state.oidc.user.profile.name || '');
+
+    const dispatch: DispatchAPI<Action> = useDispatch();
+    return (
+        <div>
             <NavbarContainer>
                 <Navbar
                     rightActions={[
@@ -39,7 +47,7 @@ class Routes extends React.Component{
                             text: `logout ${userName}`,
                             icon: <i className='fas fa-user' />,
                             type: 'button',
-                            onClick: () => this.props.dispatch(signout()),
+                            onClick: () => dispatch(signout()),
                         },
                     ]}
                     tabs={[
@@ -89,15 +97,8 @@ class Routes extends React.Component{
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
 
-        </div>;
-    }
+        </div>
+    );
 }
 
-function mapStateToProps(state) {
-    return {
-        location: state.router.location,
-        userName: state.oidc.user.profile.name || '',
-    };
-}
-
-export default connect(mapStateToProps)(Routes);
+export default Routes;

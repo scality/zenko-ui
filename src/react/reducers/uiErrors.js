@@ -1,6 +1,9 @@
-import {initialErrorsUIState} from './initialConstants';
+// @flow
+import type { ErrorsUIAction } from '../../types/actions';
+import type { ErrorsUIState } from '../../types/state';
+import { initialErrorsUIState } from './initialConstants';
 
-export default function uiErrors(state = initialErrorsUIState, action) {
+export default function uiErrors(state: ErrorsUIState = initialErrorsUIState, action: ErrorsUIAction) {
     switch (action.type) {
     case 'HANDLE_ERROR':
         return {

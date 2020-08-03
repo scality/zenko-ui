@@ -1,4 +1,5 @@
-// @noflow
+/* eslint-disable */
+
 import { storageOptions } from '../monitor/location/LocationDetails';
 
 export function getLocationType(locationType) {
