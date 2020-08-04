@@ -139,7 +139,7 @@ export type CloseAccountDeleteDialogAction = {|
     +type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
 |};
 
-export type AccountsUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction;
+export type AccountUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction;
 
 export type Action =
     AuthAction |
@@ -151,4 +151,4 @@ export type Action =
     NetworkActivityAction |
     ConfigurationAction |
     DisplayAccountAction |
-    AccountsUIAction;
+    AccountUIAction;
