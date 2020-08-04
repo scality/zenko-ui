@@ -5,10 +5,14 @@ import { initialAuthState } from './initialConstants';
 
 export default function auth(state: AuthState = initialAuthState, action: AuthAction) {
     switch (action.type) {
-    case 'INIT_CLIENTS':
+    case 'SET_MANAGEMENT_CLIENT':
         return {
             ...state,
             managementClient: action.managementClient,
+        };
+    case 'SET_S3_CLIENT':
+        return {
+            ...state,
             s3Client: action.s3Client,
         };
     case 'SET_USER_MANAGER':

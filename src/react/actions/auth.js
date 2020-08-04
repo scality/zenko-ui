@@ -22,7 +22,7 @@ import S3Client from '../../js/S3Client';
 
 import type { S3Client as S3ClientInterface } from '../../types/s3Client';
 
-// import STSClient from '../../js/STSClient';
+import STSClient from '../../js/STSClient';
 
 import type { UserManager as UserManagerInterface } from '../../types/auth';
 
@@ -33,10 +33,16 @@ import { makeUserManager } from '../../js/userManager';
 import { push } from 'connected-react-router';
 import { store } from '../store';
 
-export function initClients(managementClient: ManagementClientInterface, s3Client: S3ClientInterface): InitClientsAction {
+export function setManagementClient(managementClient: ManagementClientInterface): SetManagementClientAction {
     return {
-        type: 'INIT_CLIENTS',
+        type: 'SET_MANAGEMENT_CLIENT',
         managementClient,
+    };
+}
+
+export function setS3Client(s3Client: S3ClientInterface): SetS3ClientAction {
+    return {
+        type: 'SET_S3_CLIENT',
         s3Client,
     };
 }
@@ -173,6 +179,42 @@ export function loadAppConfig(): ThunkNonStateAction {
     };
 }
 
+export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
+    return (dispatch, getState) => {
+        const { oidc, auth: { config }, configuration } = getState();
+        let roleArn = role;
+        if (!role) {
+            if (configuration.latest.users.length === 0) {
+                return;
+            }
+            // TODO: which one should we pick?
+            roleArn = configuration.latest.users[0].arn;
+        }
+        const sts = new STSClient(config);
+        const assumeRoleParams = {
+            idToken: oidc.user.id_token,
+            // roleArn will not be hardcoded but discovered from user's role.
+            // roleArn: 'arn:aws:iam::236423648091:role/zenko-ui-role',
+            roleArn,
+        };
+        sts.assumeRoleWithWebIdentity(assumeRoleParams)
+        .then(creds => {
+            const s3Params = {
+                accessKey: creds.Credentials.AccessKeyId,
+                secretKey: creds.Credentials.SecretAccessKey,
+                sessionToken: creds.Credentials.SessionToken,
+                endpoint: config.s3Endpoint,
+            };
+            dispatch(setS3Client(new S3Client(s3Params)));
+        })
+        .catch(error => {
+            const message = `Failed to returns a set of temporary security credentials: ${error.message || '(unknown reason)'}`;
+            dispatch(handleErrorMessage(message, 'byAuth'));
+            dispatch(networkAuthFailure());
+        });
+    };
+};
+
 // loadClients is called when the ID token gets renewed prior to its expiration.
 export function loadClients(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
@@ -187,31 +229,17 @@ export function loadClients(): ThunkStatePromisedAction {
         // TODO: Give the user the ability to select an instance.
         dispatch(selectInstance(instanceIds[0]));
 
-        // TODO: uncomment once STS.assumeRoleWithWebIdentity is implemented in Vault.
-        // const sts = new STSClient(config);
-        // const assumeRoleParams = {
-        //     idToken: oidc.user.id_token,
-        //     // roleArn will not be hardcoded but discovered from user's role.
-        //     roleArn: 'arn:aws:iam::236423648091:role/zenko-ui-role',
-        // }
-        return Promise.all([
-            // sts.assumeRoleWithWebIdentity(assumeRoleParams),
-            { Credentials: {} },
-            makeMgtClient(config.managementEndpoint, oidc.user.id_token),
-        ])
-            .then(([creds, managementClient]) => {
-                const s3Params = {
-                    accessKey: creds.Credentials.AccessKeyId,
-                    secretKey: creds.Credentials.SecretAccessKey,
-                    sessionToken: creds.Credentials.SessionToken,
-                    endpoint: config.s3Endpoint,
-                };
-                dispatch(initClients(managementClient, new S3Client(s3Params)));
+        return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
+            .then(managementClient => {
+                dispatch(setManagementClient(managementClient));
                 return Promise.all([
                     // dispatch(listBuckets()),
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
                 ]);
+            })
+            .then(() => {
+                dispatch(assumeRoleWithWebIdentity());
             })
             .catch(error => {
                 if (error.message) {
