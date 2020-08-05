@@ -2,19 +2,11 @@ import { Head, HeadCenter, HeadLeft, HeadRight, HeadTitle } from '../../ui-eleme
 import AccountHead from '../AccountHead';
 import React from 'react';
 import { reduxMount } from '../../utils/test';
-
-const account1 = {
-    arn: 'arn1',
-    canonicalId: 'canonicalId1',
-    createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
-    email: 'test@email1.com',
-    id: '1',
-    quotaMax: 1,
-    userName: 'bart',
-};
+import router from 'react-router';
 
 describe('AccountHead', () => {
     it('should render empty AccountHead component if state is empty', () => {
+        jest.spyOn(router, 'useParams').mockReturnValue({});
         const { component } = reduxMount(<AccountHead/>);
 
         expect(component.find(Head)).toHaveLength(1);
@@ -24,11 +16,8 @@ describe('AccountHead', () => {
     });
 
     it('should render AccountHead component', () => {
-        const { component } = reduxMount(<AccountHead/>, {
-            account: {
-                display: account1,
-            },
-        });
+        jest.spyOn(router, 'useParams').mockReturnValue({ accountName: 'bart' });
+        const { component } = reduxMount(<AccountHead/>);
 
         expect(component.find(Head)).toHaveLength(1);
         expect(component.find(HeadTitle).text()).toContain('bart');

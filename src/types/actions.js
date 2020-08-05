@@ -1,6 +1,5 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
-import type { Account } from './account';
 import type { AppState } from './state';
 import type { ConfigurationOverlay } from './config';
 import type { ErrorViewType } from './ui';
@@ -113,11 +112,6 @@ export type NetworkActivityAction = NetworkActivityAuthFailureAction |
     NetworkActivityEndAction |
     NetworkActivityAuthResetAction;
 
-export type DisplayAccountAction = {|
-    +type: 'DISPLAY_ACCOUNT',
-    +account: Account,
-|};
-
 // configuration actions
 export type InstanceStatusAction = {|
     +type: 'INSTANCE_STATUS',
@@ -150,5 +144,4 @@ export type Action =
     SelectInstanceAction |
     NetworkActivityAction |
     ConfigurationAction |
-    DisplayAccountAction |
     AccountUIAction;

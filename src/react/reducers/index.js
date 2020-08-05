@@ -1,4 +1,3 @@
-import account from './account';
 import auth from './auth';
 import bucket from './bucket';
 import { combineReducers } from 'redux';
@@ -18,7 +17,6 @@ import uiUser from './uiUser';
 import user from './user';
 
 const zenkoUIReducer = history => combineReducers({
-    account,
     auth,
     bucket,
     configuration,

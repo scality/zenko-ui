@@ -6,13 +6,14 @@ import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 function AccountHead() {
     const dispatch = useDispatch();
-    const account = useSelector((state: AppState) => state.account.display);
+    const { accountName: accountNameParams } = useParams();
     const showDelete = useSelector((state: AppState) => state.uiAccount.showDelete);
 
-    if (!account.id) {
+    if (!accountNameParams) {
         return <Head/>;
     }
 
@@ -21,7 +22,7 @@ function AccountHead() {
     };
 
     const handleDeleteApprove = () => {
-        dispatch(deleteAccount(account.userName));
+        dispatch(deleteAccount(accountNameParams));
     };
 
     const handleDeleteCancel = () => {
@@ -30,10 +31,10 @@ function AccountHead() {
 
     return (
         <Head>
-            <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/>
+            <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${accountNameParams} ?`}/>
             <HeadLeft> <IconCircle className="fas fa-wallet"></IconCircle> </HeadLeft>
             <HeadCenter>
-                <HeadTitle> {account.userName} </HeadTitle>
+                <HeadTitle> {accountNameParams} </HeadTitle>
             </HeadCenter>
             <HeadRight>
                 <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="small" variant="danger" text='Delete account' />

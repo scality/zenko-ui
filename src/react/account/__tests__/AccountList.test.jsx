@@ -1,8 +1,10 @@
 import * as T from '../../ui-elements/Table';
 import AccountList from '../AccountList';
 import React from 'react';
+import { Warning } from '../../ui-elements/Warning';
 import { formatDate } from '../../utils';
 import { reduxMount } from '../../utils/test';
+import router from 'react-router';
 
 const account1 = {
     arn: 'arn1',
@@ -35,8 +37,8 @@ const account3 = {
 };
 
 describe('AccountList', () => {
-
     it('should render empty AccountList component if state is empty', () => {
+        jest.spyOn(router, 'useParams').mockReturnValue({});
         const { component } = reduxMount(<AccountList/>, {
             configuration: {
                 latest: {
@@ -46,23 +48,21 @@ describe('AccountList', () => {
         });
 
         expect(component.find('#account-list')).toHaveLength(0);
-        expect(component.find(T.EmptyState)).toHaveLength(1);
+        expect(component.find(Warning)).toHaveLength(1);
     });
 
     it('should render AccountList component with users sorted by creation date and homer row selected', () => {
+        jest.spyOn(router, 'useParams').mockReturnValue({ accountName: 'homer' });
         const { component } = reduxMount(<AccountList/>, {
             configuration: {
                 latest: {
                     users: [ account1, account2, account3 ],
                 },
             },
-            account: {
-                display: account3,
-            },
         });
 
         expect(component.find('#account-list')).toHaveLength(1);
-        expect(component.find(T.EmptyState)).toHaveLength(0);
+        expect(component.find(Warning)).toHaveLength(0);
 
         const rows = component.find(T.Row);
         expect(rows).toHaveLength(3);
