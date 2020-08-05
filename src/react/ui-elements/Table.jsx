@@ -1,8 +1,6 @@
 // @noflow
 import { Button } from '@scality/core-ui';
 import Input from './Input';
-import type { Node } from 'react';
-import React from 'react';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -89,40 +87,6 @@ export const SearchInput = styled(Input)`
 export const ExtraButton = styled(Button)`
     flex: 0 0 auto;
 `;
-
-// * empty state
-const EmptyStateContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    justify-content: center;
-    color: ${props => props.theme.brand.textSecondary};
-
-    height: 100%;
-`;
-
-const EmptyStateTitle = styled.div`
-    margin-top: 10px;
-`;
-
-const EmptyStateButton = styled.div`
-    margin-top: 15px;
-`;
-
-type EmptyStateProps = {
-    header?: Node,
-    title: string,
-    btnTitle: string,
-    btnAction: () => void,
-};
-
-export const EmptyState = ({ header, title, btnTitle, btnAction }: EmptyStateProps) => (
-    <EmptyStateContainer>
-        { header && <div> {header} </div> }
-        <EmptyStateTitle> {title} </EmptyStateTitle>
-        <EmptyStateButton> <Button text={btnTitle} variant='info' onClick={btnAction} /> </EmptyStateButton>
-    </EmptyStateContainer>
-);
 
 const Table = styled.table`
     width: 100%;

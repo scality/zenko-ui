@@ -50,7 +50,7 @@ export const Head = styled.div`
     flex-direction: row;
     justify-content: space-between;
 
-    height: 100px;
+    min-height: 80px;
     border-radius: 5px;
     padding: 15px;
     background: repeating-radial-gradient(
@@ -99,7 +99,6 @@ export const Details = styled.div`
     display: flex;
     flex-direction: column;
     min-height: calc(100% - 140px);
-    overflow: scroll;
 
     padding: 10px;
     margin-top: 10px;

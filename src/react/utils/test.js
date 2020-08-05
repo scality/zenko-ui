@@ -21,7 +21,19 @@ export const reduxMount = (component, testState) => {
     return {
         component: mount(
             <ThemeProvider theme={theme}>
-                <Provider store={store}>{component}</Provider>
+                <Provider store={store}>
+                    {component}
+                </Provider>
+            </ThemeProvider>
+        ),
+    };
+};
+
+export const themeMount = component => {
+    return {
+        component: mount(
+            <ThemeProvider theme={theme}>
+                {component}
             </ThemeProvider>
         ),
     };

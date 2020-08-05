@@ -6,4 +6,7 @@ export const CustomTabs = styled(Tabs)`
     .sc-tabs-item{
         min-width: 190px;
     }
+    .sc-tabs-bar{
+        min-height: 50px;
+    }
 `;

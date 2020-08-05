@@ -1,76 +1,76 @@
 // @flow
-import Table, * as T from '../ui-elements/TableKeyValue';
+import { Redirect, Route, Switch, matchPath, useRouteMatch } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
-import { Clipboard } from '../ui-elements/Clipboard';
 import { CustomTabs } from '../ui-elements/Tabs';
+import Keys from './details/Keys';
+import Locations from './details/Locations';
+import Properties from './details/Properties';
 import React from 'react';
-import { formatDate } from '../utils';
+import { Warning } from '../ui-elements/Warning';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
 
-const Title = styled.div`
-    font-size: 17px;
+const Tabs = styled(CustomTabs)`
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .sc-tabs-item-content{
+      display: flex;
+      overflow-y: auto;
+    }
 `;
 
-const TableContainer = styled.div`
-    width: fit-content;
-    margin: 15px 0 0 30px;
-`;
+type Props = {
+    account: ?Account,
+};
 
-function AccountDetails() {
-    const account = useSelector((state: AppState) => state.account.display);
+const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' title='Account not found.' />;
 
-    if (!account.id) {
-        return null;
+function AccountDetails({ account }: Props) {
+    const pathname = useSelector((state: AppState) => state.router.location.pathname);
+    const dispatch = useDispatch();
+    const { path, url } = useRouteMatch();
+
+    if (!account) {
+        return <NotFound/>;
     }
 
     return (
-        <CustomTabs
+        <Tabs
             items={[
                 {
-                    onClick: function noRefCheck(){},
-                    selected: true,
-                    title: 'Properties and keys',
+                    onClick: () => dispatch(push(url)),
+                    selected: !!matchPath(pathname, { path: `${path}`, exact: true }),
+                    title: 'Properties',
+                },
+                {
+                    onClick: () => dispatch(push(`${url}/keys`)),
+                    selected: !!matchPath(pathname, { path: `${path}/keys` }),
+                    title: 'Keys',
+                },
+                {
+                    onClick: () => dispatch(push(`${url}/locations`)),
+                    selected: !!matchPath(pathname, { path: `${path}/locations` }),
+                    title: 'Locations',
                 },
             ]}
         >
-            <Title> Account details </Title>
-            <TableContainer>
-                <Table id='account-details-table'>
-                    <T.Body>
-                        <T.Row>
-                            <T.Key> Account ID </T.Key>
-                            <T.Value> {account.id} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.id}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Name </T.Key>
-                            <T.Value> {account.userName} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.userName}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Creation Date </T.Key>
-                            <T.Value> {formatDate(new Date(account.createDate))} </T.Value>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Quota (GB) </T.Key>
-                            <T.Value> {account.quotaMax || 'N/A'} </T.Value>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Root User Email </T.Key>
-                            <T.Value> {account.email} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.email}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Root User ARN </T.Key>
-                            <T.Value> {account.arn} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.arn}/> </T.ExtraCell>
-                        </T.Row>
-                    </T.Body>
-                </Table>
-            </TableContainer>
-
-        </CustomTabs>
+            <Switch>
+                <Route exact path={path}>
+                    <Properties account={account}/>
+                </Route>
+                <Route path={`${path}/keys`}>
+                    <Keys/>
+                </Route>
+                <Route path={`${path}/locations`}>
+                    <Locations/>
+                </Route>
+                <Redirect to={url}/>
+            </Switch>
+        </Tabs>
     );
 }
 

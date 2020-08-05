@@ -1,26 +1,38 @@
 // @flow
-import { Head, HeadCenter, HeadLeft, HeadRight, HeadTitle, IconCircle } from '../ui-elements/ListLayout';
+import { HeadCenter, HeadLeft, HeadRight, HeadTitle, IconCircle } from '../ui-elements/ListLayout';
 import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
+import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import React from 'react';
+import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
 
-function AccountHead() {
+const Container = styled.div`
+    display: flex;
+    width: 100%;
+`;
+
+type Props = {
+    account: ?Account,
+};
+
+function AccountHead({ account }: Props) {
     const dispatch = useDispatch();
-    const account = useSelector((state: AppState) => state.account.display);
     const showDelete = useSelector((state: AppState) => state.uiAccount.showDelete);
 
-    if (!account.id) {
-        return <Head/>;
-    }
+    const { accountName: accountNameParam } = useParams();
 
     const handleDeleteClick = () => {
         dispatch(openAccountDeleteDialog());
     };
 
     const handleDeleteApprove = () => {
+        if (!account) {
+            return;
+        }
         dispatch(deleteAccount(account.userName));
     };
 
@@ -29,16 +41,16 @@ function AccountHead() {
     };
 
     return (
-        <Head>
-            <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/>
+        <Container>
+            { !!account && <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/> }
             <HeadLeft> <IconCircle className="fas fa-wallet"></IconCircle> </HeadLeft>
             <HeadCenter>
-                <HeadTitle> {account.userName} </HeadTitle>
+                <HeadTitle> {accountNameParam} </HeadTitle>
             </HeadCenter>
             <HeadRight>
-                <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="small" variant="danger" text='Delete account' />
+                { !!account && <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="small" variant="danger" text='Delete account' /> }
             </HeadRight>
-        </Head>
+        </Container>
     );
 }
 

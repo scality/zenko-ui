@@ -80,11 +80,12 @@ function Routes() {
             </NavbarContainer>
 
             <Route exact path="/" component={StorageMonitor} />
+
             <Route exact path="/monitor/location/editor" component={LocationEditor} />
             <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
 
-            <Route exact path='/accounts' component={Accounts} />
-            <Route path="/accounts/create" component={AccountCreate} />
+            <Route path='/accounts/:accountName?' component={Accounts} />
+            <Route path="/createAccount" component={AccountCreate} />
 
             <Route exact path="/users" component={Users} />
             <Route path="/users/create" component={UserCreate} />
@@ -96,7 +97,6 @@ function Routes() {
 
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />
-
         </div>
     );
 }

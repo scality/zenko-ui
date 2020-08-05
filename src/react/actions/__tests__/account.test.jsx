@@ -2,7 +2,6 @@ import * as actions from '../account';
 import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
-    ACCOUNT,
     errorManagementState,
     initState,
     testActionFunction,
@@ -14,11 +13,6 @@ const deleteAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting
 
 describe('account actions', () => {
     const syncTests = [
-        {
-            it: 'should return DISPLAY_ACCOUNT action',
-            fn: actions.displayAccount(ACCOUNT),
-            expectedActions: [dispatchAction.DISPLAY_ACCOUNT_ACTION],
-        },
         {
             it: 'should return OPEN_ACCOUNT_DELETE_DIALOG action',
             fn: actions.openAccountDeleteDialog(),
@@ -41,7 +35,7 @@ describe('account actions', () => {
             expectedActions: [
                 createAccountNetworkAction,
                 dispatchAction.CONFIGURATION_VERSION_ACTION,
-                dispatchAction.LOCATION_PUSH_ACTION('/accounts'),
+                dispatchAction.LOCATION_PUSH_ACTION('/accounts/bart'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -63,6 +57,7 @@ describe('account actions', () => {
             expectedActions: [
                 deleteAccountNetworkAction,
                 dispatchAction.CONFIGURATION_VERSION_ACTION,
+                dispatchAction.LOCATION_PUSH_ACTION('/accounts'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION,
             ],

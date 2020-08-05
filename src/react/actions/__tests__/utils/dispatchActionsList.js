@@ -1,7 +1,6 @@
 // @flow
 
 import {
-    ACCOUNT,
     APP_CONFIG,
     INSTANCE_ID,
     LATEST_OVERLAY,
@@ -11,7 +10,6 @@ import type {
     CloseAccountDeleteDialogAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
-    DisplayAccountAction,
     HandleErrorAction,
     InitClientsAction,
     LoadUserSuccessAction,
@@ -88,8 +86,6 @@ export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
         { type: 'NETWORK_AUTH_FAILURE' };
 
 // * account actions
-export const DISPLAY_ACCOUNT_ACTION: DisplayAccountAction =
-    { type: 'DISPLAY_ACCOUNT', account: ACCOUNT };
 
 export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
     { type: 'OPEN_ACCOUNT_DELETE_DIALOG' };
