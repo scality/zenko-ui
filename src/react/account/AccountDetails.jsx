@@ -1,20 +1,20 @@
 // @flow
-import Table, * as T from '../ui-elements/TableKeyValue';
 import type { AppState } from '../../types/state';
-import { Clipboard } from '../ui-elements/Clipboard';
 import { CustomTabs } from '../ui-elements/Tabs';
+import Properties from './details/Properties';
 import React from 'react';
-import { formatDate } from '../utils';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
-const Title = styled.div`
-    font-size: 17px;
-`;
+const Tabs = styled(CustomTabs)`
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 
-const TableContainer = styled.div`
-    width: fit-content;
-    margin: 15px 0 0 30px;
+    .sc-tabs-item-content{
+      display: flex;
+      overflow-y: auto;
+    }
 `;
 
 function AccountDetails() {
@@ -25,53 +25,24 @@ function AccountDetails() {
     }
 
     return (
-        <CustomTabs
+        <Tabs
             items={[
                 {
                     onClick: function noRefCheck(){},
                     selected: true,
-                    title: 'Properties and keys',
+                    title: 'Properties',
+                },
+                {
+                    onClick: function noRefCheck(){},
+                    selected: false,
+                    title: 'Keys',
                 },
             ]}
         >
-            <Title> Account details </Title>
-            <TableContainer>
-                <Table id='account-details-table'>
-                    <T.Body>
-                        <T.Row>
-                            <T.Key> Account ID </T.Key>
-                            <T.Value> {account.id} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.id}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Name </T.Key>
-                            <T.Value> {account.userName} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.userName}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Creation Date </T.Key>
-                            <T.Value> {formatDate(new Date(account.createDate))} </T.Value>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Quota (GB) </T.Key>
-                            <T.Value> {account.quotaMax || 'N/A'} </T.Value>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Root User Email </T.Key>
-                            <T.Value> {account.email} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.email}/> </T.ExtraCell>
-                        </T.Row>
-                        <T.Row>
-                            <T.Key> Root User ARN </T.Key>
-                            <T.Value> {account.arn} </T.Value>
-                            <T.ExtraCell> <Clipboard text={account.arn}/> </T.ExtraCell>
-                        </T.Row>
-                    </T.Body>
-                </Table>
-            </TableContainer>
-
-        </CustomTabs>
+            <Properties/>
+        </Tabs>
     );
 }
+// USE https://reactrouter.com/web/example/nesting
 
 export default AccountDetails;
