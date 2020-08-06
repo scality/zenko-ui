@@ -26,6 +26,10 @@ if [[ "$KEYCLOAK_USER_LASTNAME" ]] ; then
     JQ_FILTERS_REALM="$JQ_FILTERS_REALM | .users[0].lastName=\"$KEYCLOAK_USER_LASTNAME\""
 fi
 
+if [[ "$KEYCLOAK_USER_INSTANCE_ID" ]] ; then
+    JQ_FILTERS_REALM="$JQ_FILTERS_REALM | .users[0].attributes.instanceIds[0]=\"$KEYCLOAK_USER_INSTANCE_ID\""
+fi
+
 if [[ $JQ_FILTERS_REALM != "." ]]; then
     jq "$JQ_FILTERS_REALM" keycloak-realm.json > keycloak-realm.json.tmp
     mv keycloak-realm.json.tmp keycloak-realm.json
