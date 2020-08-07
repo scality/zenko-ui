@@ -14,7 +14,7 @@ function AccountContent() {
     const accountList = useSelector((state: AppState) => state.configuration.latest.users);
     const { accountName: accountNameParams } = useParams();
     const account = useMemo(() => accountList.find(a => { return a.userName === accountNameParams; }), [accountList, accountNameParams]);
-
+    // const account = {};
     // empty state
     if (!account) {
         return <L.ContentSection>
