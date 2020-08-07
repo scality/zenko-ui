@@ -1,4 +1,5 @@
 import * as L from '../ui-elements/ListLayout';
+import AccountContent from './AccountContent';
 import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
 import AccountList from './AccountList';
@@ -10,12 +11,7 @@ const Accounts = () => {
             <L.ListSection>
                 <AccountList/>
             </L.ListSection>
-            <L.ContentSection>
-                <AccountHead/>
-                <L.Details>
-                    <AccountDetails/>
-                </L.Details>
-            </L.ContentSection>
+            <AccountContent/>
         </L.Container>
     );
 };

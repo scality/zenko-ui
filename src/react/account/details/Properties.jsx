@@ -17,7 +17,7 @@ const TableContainer = styled.div`
 `;
 
 type Props = {
-    account: Account,
+    account: ?Account,
 };
 
 function Properties({ account }: Props) {

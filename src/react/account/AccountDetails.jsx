@@ -24,16 +24,18 @@ const Tabs = styled(CustomTabs)`
 
 const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' title='Account not found.' />;
 
-function AccountDetails() {
-    const accountList = useSelector((state: AppState) => state.configuration.latest.users);
+type Props = {
+    account: ?Account,
+    accountList: Array<Account>,
+}
+
+function AccountDetails({ account, accountList }: Props) {
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
 
     const dispatch = useDispatch();
 
     const { accountName: accountNameParams } = useParams();
     const { path, url } = useRouteMatch();
-
-    const account = useMemo(() => accountList.find(a => { return a.userName === accountNameParams; }), [accountList, accountNameParams]);
 
     if (accountList.length === 0) {
         if (accountNameParams) {
