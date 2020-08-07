@@ -47,7 +47,7 @@ describe('AccountList', () => {
             },
         });
 
-        expect(component.find('#account-list')).toHaveLength(0);
+        expect(component.find('div#account-list')).toHaveLength(0);
         expect(component.find(Warning)).toHaveLength(1);
         expect(component.find(Warning).text()).toContain('Let\'s start, create your first account.');
     });
@@ -61,8 +61,7 @@ describe('AccountList', () => {
                 },
             },
         });
-
-        expect(component.find('#account-list')).toHaveLength(1);
+        expect(component.find('div#account-list')).toHaveLength(1);
         expect(component.find(Warning)).toHaveLength(0);
 
         const rows = component.find(T.Row);

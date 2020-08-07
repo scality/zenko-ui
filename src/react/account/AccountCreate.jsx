@@ -6,7 +6,7 @@ import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import React from 'react';
-import { push } from 'connected-react-router';
+import { goBack } from 'connected-react-router';
 import { useInput } from '../utils/hooks';
 
 
@@ -50,8 +50,7 @@ function AccountCreate() {
     };
 
     const redirect = () => {
-        // TODO: need to change redirect path
-        dispatch(push('/accounts'));
+        dispatch(goBack());
     };
 
     return <Form autoComplete='off'>

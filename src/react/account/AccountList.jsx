@@ -1,10 +1,11 @@
 // @flow
-import React, { useEffect } from 'react';
+import MemoRow, { createItemData } from './AccountRow';
+import React, { useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
-import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
+import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
@@ -34,9 +35,16 @@ const initialSortBy = [
     },
 ];
 
+const Container = styled.div`
+    min-width: 430px;
+`;
+
 function AccountList() {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
+
+    const listRef = useRef<FixedSizeList<T> | null>(null);
+
     // NOTE: accountList do not need to be memoized.
     // "accountList"'s reference changes when a new configuration is set.
     const accountList = useSelector((state: AppState) => state.configuration.latest.users);
@@ -52,6 +60,7 @@ function AccountList() {
         columns,
         data: accountList,
         initialState: { sortBy: initialSortBy },
+        disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
     }, useFilters, useSortBy);
@@ -61,17 +70,17 @@ function AccountList() {
         if (!accountNameParam && rows.length > 0) {
             dispatch(push(`/accounts/${rows[0].original.userName}`));
         }
-    }, [accountNameParam, rows.length]);
+    }, [accountNameParam, dispatch, rows.length]);
 
-    const handleRowClick = (account: Account) => {
-        if (account.userName !== accountNameParam) {
-            dispatch(push(`/accounts/${account.userName}`));
+
+    useEffect(() => {
+        if (listRef && listRef.current && accountNameParam && rows.length > 0) {
+            listRef.current.scrollToItem(
+                rows.findIndex(r => r.values.userName === accountNameParam),
+                'smart'
+            );
         }
-    };
-
-    const rowSelected = (accountName: string): boolean => {
-        return accountName === accountNameParam;
-    };
+    }, [listRef]);
 
     // NOTE: empty state component
     if (accountList.length === 0) {
@@ -79,7 +88,7 @@ function AccountList() {
     }
 
     return (
-        <div id='account-list'>
+        <Container id='account-list'>
             <T.Search>
                 <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
                 <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
@@ -90,7 +99,13 @@ function AccountList() {
                         {headerGroups.map(headerGroup => (
                             <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())} >
+                                    <T.HeadCell onClick={e => {
+                                        e.persist();
+                                        if (listRef && listRef.current) {
+                                            listRef.current.scrollToItem(0);
+                                        }
+                                        column.toggleSortBy();
+                                    }} key={column.id} {...column.getHeaderProps()} >
                                         {column.render('Header')}
                                         <Icon>
                                             {column.isSorted
@@ -105,24 +120,24 @@ function AccountList() {
                         ))}
                     </T.Head>
                     <T.Body {...getTableBodyProps()}>
-                        {rows.map(row => {
-                            prepareRow(row);
-                            return (
-                                <T.Row isSelected={rowSelected(row.values.userName)} onClick={() => handleRowClick(row.original)} key={row.id} {...row.getRowProps()}>
-                                    {row.cells.map(cell => {
-                                        return (
-                                            <T.Cell key={cell.id} {...cell.getCellProps()} >
-                                                {cell.render('Cell')}
-                                            </T.Cell>
-                                        );
-                                    })}
-                                </T.Row>
-                            );
-                        })}
+                        {
+                            // ISSUE: https://github.com/bvaughn/react-window/issues/504
+                            // eslint-disable-next-line flowtype-errors/show-errors
+                            <FixedSizeList
+                                ref={listRef}
+                                height={500}
+                                itemCount={rows.length}
+                                itemSize={45}
+                                width='100%'
+                                itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
+                            >
+                                {MemoRow}
+                            </FixedSizeList>
+                        }
                     </T.Body>
                 </Table>
             </T.Container>
-        </div>
+        </Container>
     );
 }
 

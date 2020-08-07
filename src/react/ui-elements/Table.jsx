@@ -37,6 +37,7 @@ export const Head = styled.thead`
 
 export const HeadRow = styled.tr`
     width:100%;
+    cursor: pointer;
 
     // following is needed to display scroll bar onto the table
     display:table;
@@ -71,7 +72,8 @@ export const Row = styled(HeadRow)`
 export const Cell = styled.td`
     border-top: 1px solid #424242;
     padding: 0.75rem;
-    overflow-wrap: break-word;
+    text-overflow: ellipsis;
+    overflow: hidden;
 `;
 
 // * table search

@@ -19,7 +19,7 @@ const account1 = {
 describe('AccountDetails', () => {
     beforeEach(() => {
         jest.spyOn(router, 'useParams').mockReturnValue({});
-        jest.spyOn(router, 'useRouteMatch').mockReturnValue({});
+        jest.spyOn(router, 'useRouteMatch').mockReturnValue({ url: '/' });
     });
 
     it('should render empty AccountDetails component if no account props', () => {
