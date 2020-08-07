@@ -1,5 +1,5 @@
 // @flow
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
@@ -35,9 +35,16 @@ const initialSortBy = [
     },
 ];
 
+const Container = styled.div`
+    min-width: 430px;
+`;
+
 function AccountList() {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
+
+    const listRef = useRef();
+
     // NOTE: accountList do not need to be memoized.
     // "accountList"'s reference changes when a new configuration is set.
     const accountList = useSelector((state: AppState) => state.configuration.latest.users);
@@ -49,7 +56,6 @@ function AccountList() {
         rows,
         setFilter,
         prepareRow,
-        totalColumnsWidth,
     } = useTable({
         columns,
         data: accountList,
@@ -63,18 +69,24 @@ function AccountList() {
         if (!accountNameParam && rows.length > 0) {
             dispatch(push(`/accounts/${rows[0].original.userName}`));
         }
-    }, [accountNameParam, rows.length]);
+        // NOTE: Center align the item within the list.
+        if (listRef.current && accountNameParam && rows.length > 0) {
+            const index = rows.findIndex(r => r.values.userName === accountNameParam);
+            listRef.current.scrollToItem(index, 'smart');
+        }
+    }, [accountNameParam, dispatch, rows.length]);
 
-    const handleRowClick = (account: Account) => {
+    const handleRowClick = useCallback((account: Account) => {
         if (account.userName !== accountNameParam) {
             dispatch(push(`/accounts/${account.userName}`));
         }
-    };
+    }, [accountNameParam, dispatch]);
 
-    const rowSelected = (accountName: string): boolean => {
+    const rowSelected = useCallback((accountName: string): boolean => {
         return accountName === accountNameParam;
-    };
+    }, [accountNameParam]);
 
+    // https://codesandbox.io/s/github/tannerlinsley/react-table/tree/master/examples/virtualized-rows?file=/src/App.js:1057-1561
     const RenderRow = useCallback(({ index, style }) => {
         const row = rows[index];
         prepareRow(row);
@@ -89,7 +101,7 @@ function AccountList() {
                 })}
             </T.Row>
         );
-    },[prepareRow, rows]);
+    },[handleRowClick, prepareRow, rows, rowSelected]);
 
 
     // NOTE: empty state component
@@ -98,7 +110,7 @@ function AccountList() {
     }
 
     return (
-        <div id='account-list'>
+        <Container>
             <T.Search>
                 <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
                 <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
@@ -125,17 +137,18 @@ function AccountList() {
                     </T.Head>
                     <T.Body {...getTableBodyProps()}>
                         <FixedSizeList
+                            ref={listRef}
                             height={500}
                             itemCount={rows.length}
-                            itemSize={35}
-                            width={totalColumnsWidth}
+                            itemSize={45}
+                            width='100%'
                         >
                             {RenderRow}
                         </FixedSizeList>
                     </T.Body>
                 </Table>
             </T.Container>
-        </div>
+        </Container>
     );
 }
 
