@@ -15,6 +15,7 @@ function AccountContent() {
     const { accountName: accountNameParams } = useParams();
     const account = useMemo(() => accountList.find(a => { return a.userName === accountNameParams; }), [accountList, accountNameParams]);
 
+    // empty state
     if (!account) {
         return <L.ContentSection>
             <L.Head> </L.Head>
