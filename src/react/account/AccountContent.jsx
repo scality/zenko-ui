@@ -1,43 +1,33 @@
 // @flow
 import * as L from '../ui-elements/ListLayout';
 import React, { useMemo } from 'react';
-import { Redirect, Route, Switch, matchPath, useParams, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
-import { CustomTabs } from '../ui-elements/Tabs';
-import Keys from './details/Keys';
-import Locations from './details/Locations';
-import Properties from './details/Properties';
-import { push } from 'connected-react-router';
-import styled from 'styled-components';
-import AccountHead from './AccountHead';
 import AccountDetails from './AccountDetails';
+import AccountHead from './AccountHead';
+import type { AppState } from '../../types/state';
+import { Warning } from '../ui-elements/Warning';
+import { useParams } from 'react-router-dom';
+import {  useSelector } from 'react-redux';
 
-const Tabs = styled(CustomTabs)`
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-
-    .sc-tabs-item-content{
-      display: flex;
-      overflow-y: auto;
-    }
-`;
-
-type Props = {
-    account: Account,
-};
+const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' title='Account not found.' />;
 
 function AccountContent() {
     const accountList = useSelector((state: AppState) => state.configuration.latest.users);
     const { accountName: accountNameParams } = useParams();
     const account = useMemo(() => accountList.find(a => { return a.userName === accountNameParams; }), [accountList, accountNameParams]);
 
+    if (!account) {
+        return <L.ContentSection>
+            <L.Head> </L.Head>
+            <L.Details> { accountList.length > 0 && <NotFound/>} </L.Details>
+        </L.ContentSection>;
+    }
     return (
         <L.ContentSection>
-            <AccountHead accountList={accountList} account={account}/>
+            <L.Head>
+                <AccountHead account={account}/>
+            </L.Head>
             <L.Details>
-                <AccountDetails accountList={accountList} account={account}  />
+                <AccountDetails account={account}  />
             </L.Details>
         </L.ContentSection>
     );

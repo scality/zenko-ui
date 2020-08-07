@@ -17,13 +17,10 @@ const TableContainer = styled.div`
 `;
 
 type Props = {
-    account: ?Account,
+    account: Account,
 };
 
 function Properties({ account }: Props) {
-    if (!account) {
-        return null;
-    }
     return (
         <div>
             <Title> Account details </Title>

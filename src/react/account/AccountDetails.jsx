@@ -1,13 +1,13 @@
 // @flow
-import React, { useMemo } from 'react';
-import { Redirect, Route, Switch, matchPath, useParams, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Switch, matchPath, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Keys from './details/Keys';
 import Locations from './details/Locations';
 import Properties from './details/Properties';
-import { Warning } from '../ui-elements/Warning';
+import React from 'react';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
@@ -22,31 +22,14 @@ const Tabs = styled(CustomTabs)`
     }
 `;
 
-const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' title='Account not found.' />;
-
 type Props = {
-    account: ?Account,
-    accountList: Array<Account>,
-}
+    account: Account,
+};
 
-function AccountDetails({ account, accountList }: Props) {
+function AccountDetails({ account }: Props) {
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
-
     const dispatch = useDispatch();
-
-    const { accountName: accountNameParams } = useParams();
     const { path, url } = useRouteMatch();
-
-    if (accountList.length === 0) {
-        if (accountNameParams) {
-            return <NotFound />;
-        }
-        return null;
-    }
-
-    if (!account) {
-        return <NotFound />;
-    }
 
     return (
         <Tabs
