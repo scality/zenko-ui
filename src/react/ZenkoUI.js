@@ -25,16 +25,16 @@ function ZenkoUI() {
         });
     }, [dispatch, idToken, instanceIds]);
 
-    useEffect(() => {
-        const refreshIntervalStatsUnit = setInterval(
-            () => dispatch(loadInstanceLatestStatus()), 10000);
-        const refreshIntervalStatsSeries = setInterval(
-            () => dispatch(loadInstanceStats()), 10000);
-        return () => {
-            clearInterval(refreshIntervalStatsUnit);
-            clearInterval(refreshIntervalStatsSeries);
-        };
-    }, [dispatch]);
+    // useEffect(() => {
+    //     const refreshIntervalStatsUnit = setInterval(
+    //         () => dispatch(loadInstanceLatestStatus()), 10000);
+    //     const refreshIntervalStatsSeries = setInterval(
+    //         () => dispatch(loadInstanceStats()), 10000);
+    //     return () => {
+    //         clearInterval(refreshIntervalStatsUnit);
+    //         clearInterval(refreshIntervalStatsSeries);
+    //     };
+    // }, [dispatch]);
 
     return (
         <div>
