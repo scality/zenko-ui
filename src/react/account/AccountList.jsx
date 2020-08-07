@@ -1,10 +1,11 @@
 // @flow
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
+import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
@@ -48,6 +49,7 @@ function AccountList() {
         rows,
         setFilter,
         prepareRow,
+        totalColumnsWidth,
     } = useTable({
         columns,
         data: accountList,
@@ -72,6 +74,23 @@ function AccountList() {
     const rowSelected = (accountName: string): boolean => {
         return accountName === accountNameParam;
     };
+
+    const RenderRow = useCallback(({ index, style }) => {
+        const row = rows[index];
+        prepareRow(row);
+        return (
+            <T.Row isSelected={rowSelected(row.values.userName)} onClick={() => handleRowClick(row.original)} key={row.id} {...row.getRowProps({ style })}>
+                {row.cells.map(cell => {
+                    return (
+                        <T.Cell key={cell.id} {...cell.getCellProps()} >
+                            {cell.render('Cell')}
+                        </T.Cell>
+                    );
+                })}
+            </T.Row>
+        );
+    },[prepareRow, rows]);
+
 
     // NOTE: empty state component
     if (accountList.length === 0) {
@@ -105,20 +124,14 @@ function AccountList() {
                         ))}
                     </T.Head>
                     <T.Body {...getTableBodyProps()}>
-                        {rows.map(row => {
-                            prepareRow(row);
-                            return (
-                                <T.Row isSelected={rowSelected(row.values.userName)} onClick={() => handleRowClick(row.original)} key={row.id} {...row.getRowProps()}>
-                                    {row.cells.map(cell => {
-                                        return (
-                                            <T.Cell key={cell.id} {...cell.getCellProps()} >
-                                                {cell.render('Cell')}
-                                            </T.Cell>
-                                        );
-                                    })}
-                                </T.Row>
-                            );
-                        })}
+                        <FixedSizeList
+                            height={500}
+                            itemCount={rows.length}
+                            itemSize={35}
+                            width={totalColumnsWidth}
+                        >
+                            {RenderRow}
+                        </FixedSizeList>
                     </T.Body>
                 </Table>
             </T.Container>
