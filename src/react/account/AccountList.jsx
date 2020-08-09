@@ -1,15 +1,16 @@
 // @flow
-import React, { useCallback, useEffect, useRef } from 'react';
+import { FixedSizeList, areEqual } from 'react-window';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../types/state';
-import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
+import memoize from 'memoize-one';
 
 export const Icon = styled.i`
     margin-left: 5px;
@@ -37,6 +38,33 @@ const initialSortBy = [
 const Container = styled.div`
     min-width: 430px;
 `;
+
+// https://react-window.now.sh/#/examples/list/memoized-list-items
+const Row = memo(({ data: { rows, prepareRow }, index, style }) => {
+    const dispatch = useDispatch();
+    const { accountName: accountNameParam } = useParams();
+    const row = rows[index];
+    prepareRow(row);
+    const accountName = row.original.userName;
+    return (
+        <T.Row isSelected={accountName === accountNameParam} onClick={() => {
+            if (accountName !== accountNameParam) {
+                dispatch(push(`/accounts/${accountName}`));
+            }
+        }} key={row.id} {...row.getRowProps({ style })}>
+            {row.cells.map(cell => {
+                return (
+                    <T.Cell key={cell.id} {...cell.getCellProps()} >
+                        {cell.render('Cell')}
+                    </T.Cell>
+                );
+            })}
+        </T.Row>
+    );
+}, areEqual);
+
+
+const createItemData = memoize((rows, prepareRow) => ({ rows, prepareRow }));
 
 function AccountList() {
     const dispatch = useDispatch();
@@ -107,7 +135,7 @@ function AccountList() {
                 })}
             </T.Row>
         );
-    },[ prepareRow, dispatch, accountNameParam ]);
+    },[ prepareRow, dispatch ]);
 
 
     // NOTE: empty state component
@@ -148,9 +176,9 @@ function AccountList() {
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={rows}
+                            itemData={createItemData(rows, prepareRow)}
                         >
-                            {RenderRow}
+                            {Row}
                         </FixedSizeList>
                     </T.Body>
                 </Table>
