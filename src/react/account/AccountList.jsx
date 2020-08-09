@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
-import type { Account } from '../../types/account';
 import type { AppState } from '../../types/state';
 import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
@@ -72,13 +71,14 @@ function AccountList() {
         // NOTE: Center align the item within the list.
         if (listRef.current && accountNameParam && rows.length > 0) {
             const index = rows.findIndex(r => r.values.userName === accountNameParam);
+            // eslint-disable-next-line flowtype-errors/show-errors
             listRef.current.scrollToItem(index, 'smart');
         }
     }, [accountNameParam, dispatch, rows.length]);
 
-    const handleRowClick = useCallback((account: Account) => {
-        if (account.userName !== accountNameParam) {
-            dispatch(push(`/accounts/${account.userName}`));
+    const handleRowClick = useCallback((accountName: string) => {
+        if (accountName !== accountNameParam) {
+            dispatch(push(`/accounts/${accountName}`));
         }
     }, [accountNameParam, dispatch]);
 
@@ -90,8 +90,9 @@ function AccountList() {
     const RenderRow = useCallback(({ index, style }) => {
         const row = rows[index];
         prepareRow(row);
+        const accountName = row.original.userName;
         return (
-            <T.Row isSelected={rowSelected(row.values.userName)} onClick={() => handleRowClick(row.original)} key={row.id} {...row.getRowProps({ style })}>
+            <T.Row isSelected={rowSelected(accountName)} onClick={() => handleRowClick(accountName)} key={row.id} {...row.getRowProps({ style })}>
                 {row.cells.map(cell => {
                     return (
                         <T.Cell key={cell.id} {...cell.getCellProps()} >
