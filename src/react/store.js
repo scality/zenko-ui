@@ -11,5 +11,5 @@ export const history = createHistory();
 
 export const store = createStore(
     zenkoUIReducer(history),
-    composeEnhancers(applyMiddleware(thunk, routerMiddleware(history), logger)),
+    composeEnhancers(applyMiddleware(thunk, routerMiddleware(history))),
 );

@@ -9,13 +9,13 @@ import ReactDOM from 'react-dom';
 import { ThemeProvider } from 'styled-components';
 import { theme } from './theme';
 
-// const whyDidYouRender = require('@welldone-software/why-did-you-render');
-// whyDidYouRender(React, {
-//     trackAllPureComponents: true,
-//     trackExtraHooks: [
-//         [require('react-redux/lib'), 'useSelector'],
-//     ],
-// });
+const whyDidYouRender = require('@welldone-software/why-did-you-render');
+whyDidYouRender(React, {
+    trackAllPureComponents: true,
+    trackExtraHooks: [
+        [require('react-redux/lib'), 'useSelector'],
+    ],
+});
 
 ReactDOM.render(
     <Provider store={store}>

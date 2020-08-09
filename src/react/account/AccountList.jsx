@@ -69,30 +69,35 @@ function AccountList() {
             dispatch(push(`/accounts/${rows[0].original.userName}`));
         }
         // NOTE: Center align the item within the list.
-        if (listRef.current && accountNameParam && rows.length > 0) {
-            const index = rows.findIndex(r => r.values.userName === accountNameParam);
-            // eslint-disable-next-line flowtype-errors/show-errors
-            listRef.current.scrollToItem(index, 'smart');
-        }
+        // if (listRef.current && accountNameParam && rows.length > 0) {
+        //     const index = rows.findIndex(r => r.values.userName === accountNameParam);
+        //     // eslint-disable-next-line flowtype-errors/show-errors
+        //     listRef.current.scrollToItem(index, 'smart');
+        // }
     }, [accountNameParam, dispatch, rows.length]);
 
-    const handleRowClick = useCallback((accountName: string) => {
-        if (accountName !== accountNameParam) {
-            dispatch(push(`/accounts/${accountName}`));
-        }
-    }, [accountNameParam, dispatch]);
-
-    const rowSelected = useCallback((accountName: string): boolean => {
-        return accountName === accountNameParam;
-    }, [accountNameParam]);
+    // const handleRowClick = (accountName: string) => {
+    //     if (accountName !== accountNameParam) {
+    //         dispatch(push(`/accounts/${accountName}`));
+    //     }
+    // };
+    //
+    // const rowSelected = useCallback((accountName: string): boolean => {
+    //     return accountName === accountNameParam;
+    // }, [accountNameParam]);
 
     // https://codesandbox.io/s/github/tannerlinsley/react-table/tree/master/examples/virtualized-rows?file=/src/App.js:1057-1561
-    const RenderRow = useCallback(({ index, style }) => {
-        const row = rows[index];
+    const RenderRow = useCallback(({ index, style, data }) => {
+        console.log('RenderRow!!!');
+        const row = data[index];
         prepareRow(row);
         const accountName = row.original.userName;
         return (
-            <T.Row isSelected={rowSelected(accountName)} onClick={() => handleRowClick(accountName)} key={row.id} {...row.getRowProps({ style })}>
+            <T.Row isSelected={accountName === accountNameParam} onClick={() => {
+                if (accountName !== accountNameParam) {
+                    dispatch(push(`/accounts/${accountName}`));
+                }
+            }} key={row.id} {...row.getRowProps({ style })}>
                 {row.cells.map(cell => {
                     return (
                         <T.Cell key={cell.id} {...cell.getCellProps()} >
@@ -102,7 +107,7 @@ function AccountList() {
                 })}
             </T.Row>
         );
-    },[handleRowClick, prepareRow, rows, rowSelected]);
+    },[ prepareRow, dispatch, accountNameParam ]);
 
 
     // NOTE: empty state component
@@ -143,6 +148,7 @@ function AccountList() {
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
+                            itemData={rows}
                         >
                             {RenderRow}
                         </FixedSizeList>
