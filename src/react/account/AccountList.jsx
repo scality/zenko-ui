@@ -1,16 +1,16 @@
 // @flow
 import { FixedSizeList, areEqual } from 'react-window';
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../types/state';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
+import memoize from 'memoize-one';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import memoize from 'memoize-one';
 
 export const Icon = styled.i`
     margin-left: 5px;
@@ -39,8 +39,16 @@ const Container = styled.div`
     min-width: 430px;
 `;
 
+type RowProps = {
+    data: {
+        rows: Array<T>,
+        prepareRow: (T) => void,
+    },
+    index: number,
+    style: Object,
+};
 // https://react-window.now.sh/#/examples/list/memoized-list-items
-const Row = memo(({ data: { rows, prepareRow }, index, style }) => {
+const Row = ({ data: { rows, prepareRow }, index, style }: RowProps) => {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
     const row = rows[index];
@@ -61,9 +69,14 @@ const Row = memo(({ data: { rows, prepareRow }, index, style }) => {
             })}
         </T.Row>
     );
-}, areEqual);
+};
 
+// using React.memo to avoid unnecessary re-renders.
+const MemoRow = memo(Row, areEqual);
 
+// createItemData: This helper function memoizes incoming props,
+// To avoid causing unnecessary re-renders pure MemoRow components.
+// This is only needed since we are passing multiple props with a wrapper object.
 const createItemData = memoize((rows, prepareRow) => ({ rows, prepareRow }));
 
 function AccountList() {
@@ -97,46 +110,12 @@ function AccountList() {
             dispatch(push(`/accounts/${rows[0].original.userName}`));
         }
         // NOTE: Center align the item within the list.
-        // if (listRef.current && accountNameParam && rows.length > 0) {
-        //     const index = rows.findIndex(r => r.values.userName === accountNameParam);
-        //     // eslint-disable-next-line flowtype-errors/show-errors
-        //     listRef.current.scrollToItem(index, 'smart');
-        // }
+        if (listRef.current && accountNameParam && rows.length > 0) {
+            const index = rows.findIndex(r => r.values.userName === accountNameParam);
+            // eslint-disable-next-line flowtype-errors/show-errors
+            listRef.current.scrollToItem(index, 'smart');
+        }
     }, [accountNameParam, dispatch, rows.length]);
-
-    // const handleRowClick = (accountName: string) => {
-    //     if (accountName !== accountNameParam) {
-    //         dispatch(push(`/accounts/${accountName}`));
-    //     }
-    // };
-    //
-    // const rowSelected = useCallback((accountName: string): boolean => {
-    //     return accountName === accountNameParam;
-    // }, [accountNameParam]);
-
-    // https://codesandbox.io/s/github/tannerlinsley/react-table/tree/master/examples/virtualized-rows?file=/src/App.js:1057-1561
-    const RenderRow = useCallback(({ index, style, data }) => {
-        console.log('RenderRow!!!');
-        const row = data[index];
-        prepareRow(row);
-        const accountName = row.original.userName;
-        return (
-            <T.Row isSelected={accountName === accountNameParam} onClick={() => {
-                if (accountName !== accountNameParam) {
-                    dispatch(push(`/accounts/${accountName}`));
-                }
-            }} key={row.id} {...row.getRowProps({ style })}>
-                {row.cells.map(cell => {
-                    return (
-                        <T.Cell key={cell.id} {...cell.getCellProps()} >
-                            {cell.render('Cell')}
-                        </T.Cell>
-                    );
-                })}
-            </T.Row>
-        );
-    },[ prepareRow, dispatch ]);
-
 
     // NOTE: empty state component
     if (accountList.length === 0) {
@@ -178,7 +157,7 @@ function AccountList() {
                             width='100%'
                             itemData={createItemData(rows, prepareRow)}
                         >
-                            {Row}
+                            {MemoRow}
                         </FixedSizeList>
                     </T.Body>
                 </Table>
