@@ -134,7 +134,11 @@ function AccountList() {
                         {headerGroups.map(headerGroup => (
                             <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())} >
+                                    <T.HeadCell onClick={e => {
+                                        e.persist();
+                                        listRef.current.scrollToItem(0);
+                                        column.toggleSortBy();
+                                    }} key={column.id} {...column.getHeaderProps()} >
                                         {column.render('Header')}
                                         <Icon>
                                             {column.isSorted
