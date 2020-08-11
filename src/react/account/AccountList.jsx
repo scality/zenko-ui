@@ -1,14 +1,13 @@
 // @flow
-import { FixedSizeList, areEqual } from 'react-window';
-import React, { memo, useEffect, useRef } from 'react';
+import MemoRow, { createItemData } from './AccountRow';
+import React, { useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../types/state';
+import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
-import isDeepEqual from 'lodash.isequal';
-import memoize from 'memoize-one';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
@@ -40,86 +39,13 @@ const Container = styled.div`
     min-width: 430px;
 `;
 
-type RowProps = {
-    data: {
-        rows: Array<T>,
-        prepareRow: (T) => void,
-        accountNameParam: string,
-    },
-    index: number,
-    style: Object,
-};
-// https://react-window.now.sh/#/examples/list/memoized-list-items
-const Row = ({ data: { rows, prepareRow, accountNameParam, dispatch }, index, style }: RowProps) => {
-    const row = rows[index];
-    prepareRow(row);
-    const accountName = row.original.userName;
-    return (
-        <T.Row isSelected={accountName === accountNameParam} onClick={() => {
-            if (accountName !== accountNameParam) {
-                dispatch(push(`/accounts/${accountName}`));
-            }
-        }} key={row.id} {...row.getRowProps({ style })}>
-            {row.cells.map(cell => {
-                return (
-                    <T.Cell key={cell.id} {...cell.getCellProps()} >
-                        {cell.render('Cell')}
-                    </T.Cell>
-                );
-            })}
-        </T.Row>
-    );
-};
-
-// shallow compare 2 objects.
-function shallowObjectDiffers(prev: Object, next: Object): boolean {
-  for (let attribute in prev) {
-    if (!(attribute in next)) {
-      return true;
-    }
-  }
-  for (let attribute in next) {
-    if (prev[attribute] !== next[attribute]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// using React.memo to avoid unnecessary re-renders.
-const MemoRow = memo(Row, (prevProps, nextProps) => {
-    // console.log('prevProps.data.rows[0]!!!', prevProps.data.rows[0]);
-    // console.log('nextProps.data.rows[0]!!!', nextProps.data.rows[0]);
-    // return areEqual(prevProps, nextProps);
-    // console.log('!shallowDiffers(prevProps.style, nextProps.style)!!!', !shallowDiffers(prevProps.style, nextProps.style));
-    // console.log('prevProps.data.prepareRow === nextProps.data.prepareRow!!!', prevProps.data.prepareRow === nextProps.data.prepareRow);
-    // console.log('prevProps.data.rows[0].id === nextProps.data.rows[0].id!!!', prevProps.data.rows[0].id === nextProps.data.rows[0].id);
-    // console.log('prevProps.data.rows.length === nextProps.data.rows.length!!!', prevProps.data.rows.length === nextProps.data.rows.length);
-
-    return !shallowObjectDiffers(prevProps.style, nextProps.style)
-        // WARNING: This optimization avoid rerendering when new instance status is loaded
-        // with data equal by value but not by reference (every 10 secs).
-        // NOTE: use react-window.areEqual instead if side effects occur.
-        // should only rerender when sorted
-        && prevProps.data.rows[0].id === nextProps.data.rows[0].id
-        // should only rerender when add new account/ delete account or filter
-        && prevProps.data.rows.length === nextProps.data.rows.length;
-});
-// const MemoRow = memo(Row, areEqual);
-
-// createItemData: This helper function memoizes incoming props,
-// To avoid causing unnecessary re-renders pure MemoRow components.
-// This is only needed since we are passing multiple props with a wrapper object.
-const createItemData = memoize((rows, prepareRow, accountNameParam, dispatch) =>
-    ({ rows, prepareRow, accountNameParam, dispatch }), isDeepEqual);
-
 // const listRef = React.createRef();
 
 function AccountList() {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
 
-    const listRef = useRef();
+    const listRef = useRef<FixedSizeList<T> | null>(null);
 
     // NOTE: accountList do not need to be memoized.
     // "accountList"'s reference changes when a new configuration is set.
@@ -157,13 +83,13 @@ function AccountList() {
 
 
     useEffect(() => {
-        console.log('NEW listRef.current!!!!', listRef.current);
-        if (accountNameParam && rows.length > 0) {
-            console.log('scroll!!!');
-            const index = rows.findIndex(r => r.values.userName === accountNameParam);
-            listRef.current.scrollToItem(index, 'smart');
+        if (listRef && listRef.current && accountNameParam && rows.length > 0) {
+            listRef.current.scrollToItem(
+                rows.findIndex(r => r.values.userName === accountNameParam),
+                'smart'
+            );
         }
-    }, [listRef.current]);
+    }, [listRef]);
 
     // NOTE: empty state component
     if (accountList.length === 0) {
