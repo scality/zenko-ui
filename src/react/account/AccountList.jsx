@@ -50,8 +50,7 @@ type RowProps = {
     style: Object,
 };
 // https://react-window.now.sh/#/examples/list/memoized-list-items
-const Row = ({ data: { rows, prepareRow, accountNameParam }, index, style }: RowProps) => {
-    const dispatch = useDispatch();
+const Row = ({ data: { rows, prepareRow, accountNameParam, dispatch }, index, style }: RowProps) => {
     const row = rows[index];
     prepareRow(row);
     const accountName = row.original.userName;
@@ -103,15 +102,16 @@ const MemoRow = memo(Row, (prevProps, nextProps) => {
         && prevProps.data.rows[0].id === nextProps.data.rows[0].id
         // should rerender when add new account/ delete account or filter
         && prevProps.data.rows.length === nextProps.data.rows.length
-        && prevProps.data.accountNameParam === nextProps.data.accountNameParam;
+        && prevProps.data.accountNameParam === nextProps.data.accountNameParam
+        && prevProps.data.dispatch === nextProps.data.dispatch;
 });
 // const MemoRow = memo(Row, areEqual);
 
 // createItemData: This helper function memoizes incoming props,
 // To avoid causing unnecessary re-renders pure MemoRow components.
 // This is only needed since we are passing multiple props with a wrapper object.
-const createItemData = memoize((rows, prepareRow, accountNameParam) =>
-    ({ rows, prepareRow, accountNameParam }), isDeepEqual);
+const createItemData = memoize((rows, prepareRow, accountNameParam, dispatch) =>
+    ({ rows, prepareRow, accountNameParam, dispatch }), isDeepEqual);
 
 // const listRef = React.createRef();
 
@@ -136,6 +136,7 @@ function AccountList() {
         columns,
         data: accountList,
         initialState: { sortBy: initialSortBy },
+        disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
     }, useFilters, useSortBy);
@@ -206,7 +207,7 @@ function AccountList() {
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={createItemData(rows, prepareRow, accountNameParam)}
+                            itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
                         >
                             {MemoRow}
                         </FixedSizeList>
