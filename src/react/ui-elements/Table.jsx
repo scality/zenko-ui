@@ -37,6 +37,7 @@ export const Head = styled.thead`
 
 export const HeadRow = styled.tr`
     width:100%;
+    cursor: pointer;
 
     // following is needed to display scroll bar onto the table
     display:table;

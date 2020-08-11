@@ -7,6 +7,7 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../types/state';
 import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
+import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -43,14 +44,14 @@ type RowProps = {
     data: {
         rows: Array<T>,
         prepareRow: (T) => void,
+        accountNameParam: string,
     },
     index: number,
     style: Object,
 };
 // https://react-window.now.sh/#/examples/list/memoized-list-items
-const Row = ({ data: { rows, prepareRow }, index, style }: RowProps) => {
+const Row = ({ data: { rows, prepareRow, accountNameParam }, index, style }: RowProps) => {
     const dispatch = useDispatch();
-    const { accountName: accountNameParam } = useParams();
     const row = rows[index];
     prepareRow(row);
     const accountName = row.original.userName;
@@ -71,13 +72,48 @@ const Row = ({ data: { rows, prepareRow }, index, style }: RowProps) => {
     );
 };
 
+// https://github.com/developit/preact-compat/blob/7c5de00e7c85e2ffd011bf3af02899b63f699d3a/src/index.js#L349
+function shallowDiffers(prev: Object, next: Object): boolean {
+  for (let attribute in prev) {
+    if (!(attribute in next)) {
+      return true;
+    }
+  }
+  for (let attribute in next) {
+    if (prev[attribute] !== next[attribute]) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // using React.memo to avoid unnecessary re-renders.
-const MemoRow = memo(Row, areEqual);
+const MemoRow = memo(Row, (prevProps, nextProps) => {
+    // console.log('prevProps.data.rows[0]!!!', prevProps.data.rows[0]);
+    // console.log('nextProps.data.rows[0]!!!', nextProps.data.rows[0]);
+    // return areEqual(prevProps, nextProps);
+    // console.log('!shallowDiffers(prevProps.style, nextProps.style)!!!', !shallowDiffers(prevProps.style, nextProps.style));
+    // console.log('prevProps.data.prepareRow === nextProps.data.prepareRow!!!', prevProps.data.prepareRow === nextProps.data.prepareRow);
+    // console.log('prevProps.data.rows[0].id === nextProps.data.rows[0].id!!!', prevProps.data.rows[0].id === nextProps.data.rows[0].id);
+    // console.log('prevProps.data.rows.length === nextProps.data.rows.length!!!', prevProps.data.rows.length === nextProps.data.rows.length);
+
+    return !shallowDiffers(prevProps.style, nextProps.style)
+        && prevProps.data.prepareRow === nextProps.data.prepareRow
+        // should rerender when sorted
+        && prevProps.data.rows[0].id === nextProps.data.rows[0].id
+        // should rerender when add new account/ delete account or filter
+        && prevProps.data.rows.length === nextProps.data.rows.length
+        && prevProps.data.accountNameParam === nextProps.data.accountNameParam;
+});
+// const MemoRow = memo(Row, areEqual);
 
 // createItemData: This helper function memoizes incoming props,
 // To avoid causing unnecessary re-renders pure MemoRow components.
 // This is only needed since we are passing multiple props with a wrapper object.
-const createItemData = memoize((rows, prepareRow) => ({ rows, prepareRow }));
+const createItemData = memoize((rows, prepareRow, accountNameParam) =>
+    ({ rows, prepareRow, accountNameParam }), isDeepEqual);
+
+// const listRef = React.createRef();
 
 function AccountList() {
     const dispatch = useDispatch();
@@ -110,12 +146,23 @@ function AccountList() {
             dispatch(push(`/accounts/${rows[0].original.userName}`));
         }
         // NOTE: Center align the item within the list.
-        if (listRef.current && accountNameParam && rows.length > 0) {
+        // if (listRef.current && accountNameParam && rows.length > 0) {
+        //     console.log('useEffect => scrollToItem!!!');
+        //     const index = rows.findIndex(r => r.values.userName === accountNameParam);
+        //     // eslint-disable-next-line flowtype-errors/show-errors
+        //     // listRef.current.scrollToItem(index, 'smart');
+        // }
+    }, [accountNameParam, dispatch, rows.length]);
+
+
+    useEffect(() => {
+        console.log('NEW listRef.current!!!!');
+        if (accountNameParam && rows.length > 0) {
+            console.log('scroll!!!');
             const index = rows.findIndex(r => r.values.userName === accountNameParam);
-            // eslint-disable-next-line flowtype-errors/show-errors
             listRef.current.scrollToItem(index, 'smart');
         }
-    }, [accountNameParam, dispatch, rows.length]);
+    }, [listRef.current]);
 
     // NOTE: empty state component
     if (accountList.length === 0) {
@@ -154,12 +201,12 @@ function AccountList() {
                     </T.Head>
                     <T.Body {...getTableBodyProps()}>
                         <FixedSizeList
-                            ref={listRef}
+                            ref={ref => listRef.current = ref}
                             height={500}
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={createItemData(rows, prepareRow)}
+                            itemData={createItemData(rows, prepareRow, accountNameParam)}
                         >
                             {MemoRow}
                         </FixedSizeList>
