@@ -71,8 +71,8 @@ const Row = ({ data: { rows, prepareRow, accountNameParam, dispatch }, index, st
     );
 };
 
-// https://github.com/developit/preact-compat/blob/7c5de00e7c85e2ffd011bf3af02899b63f699d3a/src/index.js#L349
-function shallowDiffers(prev: Object, next: Object): boolean {
+// shallow compare 2 objects.
+function shallowObjectDiffers(prev: Object, next: Object): boolean {
   for (let attribute in prev) {
     if (!(attribute in next)) {
       return true;
@@ -96,14 +96,14 @@ const MemoRow = memo(Row, (prevProps, nextProps) => {
     // console.log('prevProps.data.rows[0].id === nextProps.data.rows[0].id!!!', prevProps.data.rows[0].id === nextProps.data.rows[0].id);
     // console.log('prevProps.data.rows.length === nextProps.data.rows.length!!!', prevProps.data.rows.length === nextProps.data.rows.length);
 
-    return !shallowDiffers(prevProps.style, nextProps.style)
-        && prevProps.data.prepareRow === nextProps.data.prepareRow
-        // should rerender when sorted
+    return !shallowObjectDiffers(prevProps.style, nextProps.style)
+        // WARNING: This optimization avoid rerendering when new instance status is loaded
+        // with data equal by value but not by reference (every 10 secs).
+        // NOTE: use react-window.areEqual instead if side effects occur.
+        // should only rerender when sorted
         && prevProps.data.rows[0].id === nextProps.data.rows[0].id
-        // should rerender when add new account/ delete account or filter
-        && prevProps.data.rows.length === nextProps.data.rows.length
-        && prevProps.data.accountNameParam === nextProps.data.accountNameParam
-        && prevProps.data.dispatch === nextProps.data.dispatch;
+        // should only rerender when add new account/ delete account or filter
+        && prevProps.data.rows.length === nextProps.data.rows.length;
 });
 // const MemoRow = memo(Row, areEqual);
 
@@ -157,7 +157,7 @@ function AccountList() {
 
 
     useEffect(() => {
-        console.log('NEW listRef.current!!!!');
+        console.log('NEW listRef.current!!!!', listRef.current);
         if (accountNameParam && rows.length > 0) {
             console.log('scroll!!!');
             const index = rows.findIndex(r => r.values.userName === accountNameParam);
