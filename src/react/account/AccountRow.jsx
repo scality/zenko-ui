@@ -33,33 +33,6 @@ type RowProps = {
     index: number,
     style: Object,
 };
-// https://react-window.now.sh/#/examples/list/memoized-list-items
-const Row = ({
-    data: { rows, prepareRow, accountNameParam, dispatch },
-    index,
-    style,
-}: RowProps) => {
-    const row = rows[index];
-    prepareRow(row);
-    const accountName = row.original.userName;
-    return (
-        <T.Row isSelected={accountName === accountNameParam} onClick={() => {
-            if (accountName !== accountNameParam) {
-                dispatch(push(`/accounts/${accountName}`));
-            }
-        }} key={row.id} {...row.getRowProps({ style })}>
-            {row.cells.map(cell => {
-                return (
-                    <T.Cell key={cell.id} {...cell.getCellProps()} >
-                        {cell.render('Cell')}
-                    </T.Cell>
-                );
-            })}
-        </T.Row>
-    );
-};
-
-const MemoRow = memo<RowProps>(Row, areEqual);
 
 // createItemData: This helper function memoizes incoming props,
 // To avoid causing unnecessary re-renders pure MemoRow components.
@@ -69,6 +42,36 @@ export const createItemData = memoize((
     prepareRow: PrepareRow,
     accountNameParam: ?string,
     dispatch: DispatchAPI<Action>
-): Data => ({ rows, prepareRow, accountNameParam, dispatch }), isDeepEqual);
+): Data => ({
+    rows,
+    prepareRow,
+    accountNameParam,
+    dispatch,
+}), isDeepEqual);
 
-export default MemoRow;
+// https://react-window.now.sh/#/examples/list/memoized-list-items
+const Row = ({
+    data: { rows, prepareRow, accountNameParam, dispatch },
+    index,
+    style,
+}: RowProps) => {
+    const row = rows[index];
+    prepareRow(row);
+    const accountName = row.original.userName;
+    const isSelected = accountName === accountNameParam;
+    return (
+        <T.Row isSelected={isSelected} onClick={() => {
+            if (!isSelected) {
+                dispatch(push(`/accounts/${accountName}`));
+            }
+        }} {...row.getRowProps({ style })}>
+            {row.cells.map(cell => (
+                <T.Cell key={cell.id} {...cell.getCellProps()} >
+                    {cell.render('Cell')}
+                </T.Cell>
+            ))}
+        </T.Row>
+    );
+};
+
+export default memo<RowProps>(Row, areEqual);

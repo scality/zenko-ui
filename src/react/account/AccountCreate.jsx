@@ -49,10 +49,6 @@ function AccountCreate() {
         onChange(e);
     };
 
-    const redirect = () => {
-        dispatch(goBack());
-    };
-
     return <Form autoComplete='off'>
         <F.Title> create new account </F.Title>
         <F.Fieldset>
@@ -111,7 +107,7 @@ function AccountCreate() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button variant="secondary" onClick={redirect} text='Cancel'/>
+                <Button variant="secondary" onClick={() => dispatch(goBack())} text='Cancel'/>
                 <Button id='create-account-btn' variant="info" onClick={submit} text='Create'/>
             </F.FooterButtons>
         </F.Footer>

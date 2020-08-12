@@ -39,6 +39,13 @@ const Container = styled.div`
     min-width: 430px;
 `;
 
+const handleSortClick = (column, listRef) => {
+    if (listRef && listRef.current) {
+        listRef.current.scrollToItem(0);
+    }
+    column.toggleSortBy();
+};
+
 function AccountList() {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
@@ -99,13 +106,7 @@ function AccountList() {
                         {headerGroups.map(headerGroup => (
                             <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <T.HeadCell onClick={e => {
-                                        e.persist();
-                                        if (listRef && listRef.current) {
-                                            listRef.current.scrollToItem(0);
-                                        }
-                                        column.toggleSortBy();
-                                    }} key={column.id} {...column.getHeaderProps()} >
+                                    <T.HeadCell onClick={() => handleSortClick(column, listRef)} key={column.id} {...column.getHeaderProps()} >
                                         {column.render('Header')}
                                         <Icon>
                                             {column.isSorted
