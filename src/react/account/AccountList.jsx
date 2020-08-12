@@ -1,9 +1,9 @@
 // @flow
 import MemoRow, { createItemData } from './AccountRow';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
+import { useFilters, useRowSelect, useSortBy, useTable } from 'react-table';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../types/state';
 import { FixedSizeList } from 'react-window';
 import { Warning } from '../ui-elements/Warning';
@@ -28,16 +28,29 @@ const columns = [
     },
 ];
 
-const initialSortBy = [
-    {
-        id: 'createDate',
-        desc: true,
-    },
-];
+// const initialSortBy = [
+//     {
+//         id: 'createDate',
+//         desc: true,
+//     },
+// ];
 
 const Container = styled.div`
     min-width: 430px;
 `;
+
+function compare(a, b) {
+    const dateA = a.createDate;
+    const dateB = b.createDate;
+
+    let comparison = 0;
+    if (dateA > dateB) {
+        comparison = 1;
+    } else if (dateA < dateB) {
+        comparison = -1;
+    }
+    return comparison * -1;
+}
 
 // const listRef = React.createRef();
 
@@ -50,6 +63,8 @@ function AccountList() {
     // NOTE: accountList do not need to be memoized.
     // "accountList"'s reference changes when a new configuration is set.
     const accountList = useSelector((state: AppState) => state.configuration.latest.users);
+    const list = useMemo(() => accountList.sort(compare) , [accountList.length]);
+    const accountIndex = useMemo(() => list.findIndex(a => a.userName === accountNameParam), [accountNameParam, list]);
 
     const {
         getTableProps,
@@ -58,14 +73,17 @@ function AccountList() {
         rows,
         setFilter,
         prepareRow,
+        toggleRowSelected,
+        toggleAllRowsSelected,
     } = useTable({
         columns,
-        data: accountList,
-        initialState: { sortBy: initialSortBy },
+        data: list,
+        // initialState: initialState,
         disableSortRemove: true,
         autoResetFilters: false,
-        autoResetSortBy: false,
-    }, useFilters, useSortBy);
+        // autoResetSortBy: false,
+        // autoResetSelectedRows: false,
+    }, useFilters, useSortBy, useRowSelect);
 
     useEffect(() => {
         // NOTE: display the first/newest account after the mount or when an account gets deleted (not on every render).
@@ -81,6 +99,13 @@ function AccountList() {
         // }
     }, [accountNameParam, dispatch, rows.length]);
 
+    useEffect(() => {
+        if (accountIndex > 0) {
+            console.log('accountIndex!!!', accountIndex);
+            toggleAllRowsSelected(false);
+            toggleRowSelected(accountIndex);
+        }
+    }, [accountIndex]);
 
     useEffect(() => {
         if (listRef && listRef.current && accountNameParam && rows.length > 0) {
@@ -133,7 +158,7 @@ function AccountList() {
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
+                            itemData={createItemData(rows, prepareRow, dispatch)}
                         >
                             {MemoRow}
                         </FixedSizeList>
