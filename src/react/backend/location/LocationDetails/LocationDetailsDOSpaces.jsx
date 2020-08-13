@@ -1,13 +1,11 @@
 // @flow
-import { Banner, Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+import { Checkbox, CheckboxContainer, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
 type Props = {
     details: LocationDetails,
     onChange: (details: LocationDetails) => void,
-    editingExisting: boolean,
 };
 
 type State = {
@@ -26,13 +24,18 @@ const INIT_STATE: State = {
     endpoint: '',
 };
 
-export default class LocationDetailsWasabi extends React.Component<Props, State> {
+export default class LocationDetailsDOSpaces extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = Object.assign({}, INIT_STATE, this.props.details);
         // XXX disable changing it if not provided
         this.state.secretKey = '';
-        this.state.endpoint = 'https://s3.wasabisys.com';
+    }
+
+    onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        const target = e.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({ [target.name]: value });
     }
 
     updateForm = () => {
@@ -41,20 +44,12 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
         }
     }
 
-    onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        const target = e.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        this.setState({
-            [target.name]: value,
-        });
+    componentDidMount() {
+        this.updateForm();
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
         return this.state !== nextState;
-    }
-
-    componentDidMount() {
-        this.updateForm();
     }
 
     componentDidUpdate() {
@@ -64,25 +59,23 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="accessKey">Wasabi Access Key</label>
+                <Fieldset>
+                    <Label htmlFor="accessKey">Spaces Access Key</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
                         placeholder="AKI5HMPCLRB86WCKTN2C"
                         value={this.state.accessKey}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="secretKey">Wasabi Secret Key</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">Spaces Secret Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
                         placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
                         value={this.state.secretKey}
@@ -93,59 +86,44 @@ export default class LocationDetailsWasabi extends React.Component<Props, State>
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="bucketName">Wasabi Target Bucket Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Target Space Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
-                        placeholder="Wasabi Target Bucket Name"
+                        placeholder="zenko-space-target"
                         value={this.state.bucketName}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                    <small>Your Wasabi target bucket can be in any available Wasabi region.</small>
-                </fieldset>
-                <fieldset className="form-group" hidden>
-                    <label htmlFor="endpoint">Wasabi Endpoint</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="endpoint">Endpoint</Label>
                     <Input
                         name="endpoint"
-                        className="form-control"
                         type="text"
-                        disabled="disabled"
-                        value="https://s3.wasabisys.com"
+                        placeholder="nyc3.digitaloceanspaces.com"
+                        value={this.state.endpoint}
+                        onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label className="form-check-label">
+                    <small>As shown in the Settings page for this space</small>
+                </Fieldset>
+                <Fieldset style={{ display: 'non' }}>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
-                            className="form-check-input"
                             type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
-                            disabled={this.props.editingExisting}
                             onChange={this.onChange}
-                            label="Write objects without prefix"
                         />
-                        <br />
-                        <small>Store objects in the target bucket without a source-bucket prefix.</small>
-                        {
-                            this.state.bucketMatch &&
-                            <div style={{'marginTop': '10px'}}>
-                                <Banner
-                                    icon={<i className="fa fa-exclamation-circle" />}
-                                    variant="danger"
-                                >
-                                  Storing multiple buckets in a location with this option enabled can lead to data loss.
-                                </Banner>
-                            </div>
-                        }
-                    </label>
-                </fieldset>
+                        <span> Bucket Match </span>
+                    </CheckboxContainer>
+                    <small>Stores objects in the target container without a source-bucket prefix.</small>
+                </Fieldset>
             </div>
         );
     }

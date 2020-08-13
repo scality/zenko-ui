@@ -1,9 +1,10 @@
 // @flow
+import { Checkbox as BasicCheckbox, Select as BasicSelect, Tooltip } from '@scality/core-ui';
 import { default as BasicInput } from './Input';
+import { default as BasicInputList } from './InputList';
 import type { Node } from 'react';
 
 import React from 'react';
-import { Tooltip } from '@scality/core-ui';
 import styled from 'styled-components';
 
 // TEMPLATE:
@@ -43,13 +44,31 @@ export const Fieldset = styled.fieldset`
     margin-top: 15px;
 `;
 
+export const Select = styled(BasicSelect)`
+    margin: 10px 0px 5px 0px;
+`;
+
+export const CheckboxContainer = styled.div`
+    display: flex;
+    margin: 10px 0px 5px 0px;
+    align-items: baseline;
+`;
+
+export const Checkbox = styled(BasicCheckbox)`
+    margin-left: 15px;
+`;
+
 export const Input = styled(BasicInput)`
+    margin: 10px 0px 5px 0px;
+`;
+
+export const InputList = styled(BasicInputList)`
     margin: 10px 0px 5px 0px;
 `;
 
 // * ErrorInput
 const ErrorInputContainer = styled.div`
-    font-size: 11px;
+    font-size: 14px;
     height: 15px;
     color: ${props => props.theme.brand.danger};
 `;

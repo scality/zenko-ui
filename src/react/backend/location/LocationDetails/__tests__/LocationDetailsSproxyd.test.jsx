@@ -31,7 +31,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         const component = mount(
             <LocationDetailsSproxyd {...props} onChange={onChangeFn} />
         );
-        component.setState({...refLocation}, () => {
+        component.setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

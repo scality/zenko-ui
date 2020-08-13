@@ -1,6 +1,5 @@
 // @flow
-
-import InputList from '../../../ui-elements/InputList';
+import { Fieldset, InputList, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -19,7 +18,6 @@ const INIT_STATE = {
 
 const MAX_HYPERDRIVE = 10;
 
-// TODO: add inputListe
 export default class LocationDetailsHyperdriveV2 extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
@@ -41,17 +39,16 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<Props, 
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="bootstrapList">Bootstrap List</label>
+                <Fieldset>
+                    <Label htmlFor="bootstrapList">Bootstrap List</Label>
                     <InputList
                         name="bootstrapList"
                         id="bootstrapList"
-                        className="form-control"
                         entries={this.state.bootstrapList}
                         listLimit={MAX_HYPERDRIVE}
                         onUpdate={this.onListChange}
                     />
-                </fieldset>
+                </Fieldset>
             </div>
         );
     }

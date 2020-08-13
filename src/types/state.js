@@ -83,6 +83,7 @@ export type AppState = {
     +auth: AuthState,
     +configuration: ConfigurationState,
     +instances: InstancesState,
+    +instanceStatus: InstanceStatusState,
     +networkActivity: NetworkActivityState,
     +oidc: OIDCState,
     +user: UserState,

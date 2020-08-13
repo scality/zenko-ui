@@ -1,6 +1,5 @@
 // @flow
-import { Banner, Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+import { Checkbox, CheckboxContainer, ErrorInput, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
@@ -69,25 +68,23 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
         const isIngest = isIngestSource(storageOptions, this.props.locationType, this.props.capabilities);
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="accessKey">Access Key</label>
+                <Fieldset>
+                    <Label htmlFor="accessKey">Access Key</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
                         placeholder="AKI5HMPCLRB86WCKTN2C"
                         value={this.state.accessKey}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="secretKey">Secret Key</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">Secret Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
                         placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
                         value={this.state.secretKey}
@@ -98,13 +95,12 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="bucketName">Target Bucket Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Target Bucket Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
                         placeholder="Target Bucket Name"
                         value={this.state.bucketName}
@@ -112,12 +108,11 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                         autoComplete="off"
                         disabled={this.props.editingExisting}
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="endpoint">Endpoint</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="endpoint">Endpoint</Label>
                     <Input
                         name="endpoint"
-                        className="form-control"
                         type="text"
                         value={this.state.endpoint}
                         onChange={this.onChange}
@@ -127,34 +122,22 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                     <small>Endpoint to reach the S3 server, including scheme and port.
                         Zenko will use path-style access to buckets.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label className="form-check-label">
+                </Fieldset>
+                <Fieldset>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
                             disabled={this.props.editingExisting}
-                            className="form-check-input"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             onChange={this.onChange}
-                            label="Write objects without prefix"
                         />
-                        <br />
-                        { isIngest && <small> Use this option for mirroring. <br /> </small> }
-                        <small>Store objects in the target bucket without a source-bucket prefix.</small>
-                        {
-                            this.state.bucketMatch &&
-                            <div style={{'marginTop': '10px'}}>
-                                <Banner
-                                    icon={<i className="fa fa-exclamation-circle" />}
-                                    variant="danger"
-                                >
-                                  Storing multiple buckets in a location with this option enabled can lead to data loss.
-                                </Banner>
-                            </div>
-                        }
-                    </label>
-                </fieldset>
+                        <span> Write objects without prefix </span>
+                    </CheckboxContainer>
+                    { isIngest && <small> Use this option for mirroring. <br /> </small> }
+                    <small>Store objects in the target bucket without a source-bucket prefix.</small>
+                    <ErrorInput hasError={!!this.state.bucketMatch}> Storing multiple buckets in a location with this option enabled can lead to data loss. </ErrorInput>
+                </Fieldset>
             </div>
         );
     }

@@ -1,6 +1,5 @@
-// @noflow
-import { Banner, Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+// @flow
+import { Checkbox, CheckboxContainer, ErrorInput, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -11,33 +10,28 @@ type Props = {
 };
 
 type State = {
-    serverSideEncryption: boolean,
     bucketMatch: boolean,
     accessKey: string,
     secretKey: string,
     bucketName: string,
+    endpoint: string,
 };
 
 const INIT_STATE: State = {
-    serverSideEncryption: false,
     bucketMatch: false,
     accessKey: '',
     secretKey: '',
     bucketName: '',
+    endpoint: '',
 };
 
-export default class LocationDetailsAws extends React.Component<Props, State> {
+export default class LocationDetailsWasabi extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = Object.assign({}, INIT_STATE, this.props.details);
         // XXX disable changing it if not provided
         this.state.secretKey = '';
-    }
-
-    onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        const target = e.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        this.setState({ [target.name]: value });
+        this.state.endpoint = 'https://s3.wasabisys.com';
     }
 
     updateForm = () => {
@@ -46,12 +40,20 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
         }
     }
 
-    componentDidMount() {
-        this.updateForm();
+    onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+        const target = e.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        this.setState({
+            [target.name]: value,
+        });
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
         return this.state !== nextState;
+    }
+
+    componentDidMount() {
+        this.updateForm();
     }
 
     componentDidUpdate() {
@@ -61,8 +63,8 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <fieldset>
-                    <label htmlFor="accessKey">AWS Access Key</label>
+                <Fieldset>
+                    <Label htmlFor="accessKey">Wasabi Access Key</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
@@ -72,9 +74,9 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="secretKey">AWS Secret Key</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">Wasabi Secret Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
@@ -88,58 +90,45 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="bucketName">Target Bucket Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Wasabi Target Bucket Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
                         type="text"
-                        placeholder="Bucket Name"
+                        placeholder="Wasabi Target Bucket Name"
                         value={this.state.bucketName}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label className="form-check-label">
+                    <small>Your Wasabi target bucket can be in any available Wasabi region.</small>
+                </Fieldset>
+                <Fieldset style={{ display: 'none' }}>
+                    <Label htmlFor="endpoint">Wasabi Endpoint</Label>
+                    <Input
+                        name="endpoint"
+                        type="text"
+                        disabled="disabled"
+                        value="https://s3.wasabisys.com"
+                        autoComplete="off"
+                    />
+                </Fieldset>
+                <Fieldset>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
-                            className="form-check-input"
+                            type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             disabled={this.props.editingExisting}
                             onChange={this.onChange}
-                            label="Write objects without prefix"
                         />
-                        <br />
-                        <small> Use this option for mirroring. <br /> </small>
-                        <small>Store objects in the target bucket without a source-bucket prefix.</small>
-                        {
-                            this.state.bucketMatch &&
-                            <div style={{'marginTop': '10px'}}>
-                                <Banner
-                                    icon={<i className="fa fa-exclamation-circle" />}
-                                    variant="danger"
-                                >
-                                  Storing multiple buckets in a location with this option enabled can lead to data loss.
-                                </Banner>
-                            </div>
-                        }
-                    </label>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label className="form-check-label">
-                        <Checkbox
-                            name="serverSideEncryption"
-                            className="form-check-input"
-                            value={this.state.serverSideEncryption}
-                            checked={this.state.serverSideEncryption}
-                            onChange={this.onChange}
-                            label="Server-Side Encryption"
-                        />
-                    </label>
-                </fieldset>
+                        <span> Write objects without prefix </span>
+                    </CheckboxContainer>
+                    <small>Store objects in the target bucket without a source-bucket prefix.</small>
+                    <ErrorInput hasError={!!this.state.bucketMatch}> Storing multiple buckets in a location with this option enabled can lead to data loss. </ErrorInput>
+                </Fieldset>
             </div>
         );
     }

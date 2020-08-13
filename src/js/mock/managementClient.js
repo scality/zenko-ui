@@ -5,9 +5,20 @@ import type {
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
+import type { ConfigurationOverlay, Location } from '../../types/config';
 import type { Account } from '../../types/account';
 import { ApiErrorObject } from './error';
-import type { ConfigurationOverlay } from '../../types/config';
+import { toLocationType } from '../../types/config';
+
+export const location: Location = {
+    name: 'location1',
+    locationType: toLocationType('location-file-v1'),
+    details: {},
+    objectId: 'object-id',
+    isBuiltin: false,
+    isTransient: false,
+    sizeLimitGB: 10,
+};
 
 export const account: Account = {
     arn: 'arn:aws:iam::538641674554:/bart/',
@@ -20,9 +31,8 @@ export const account: Account = {
 };
 
 export const latestOverlay: ConfigurationOverlay = {
-    users: [
-        account,
-    ],
+    users: [ account ],
+    locations: { 'location1': location },
 };
 
 export class MockManagementClient implements ManagementClientInterface {
@@ -30,6 +40,14 @@ export class MockManagementClient implements ManagementClientInterface {
         return Promise.resolve({
             body: account,
         });
+    }
+
+    createConfigurationOverlayLocation(): Promise<Location> {
+        return Promise.resolve(location);
+    }
+
+    updateConfigurationOverlayLocation(): Promise<Location> {
+        return Promise.resolve(location);
     }
 
     deleteConfigurationOverlayUser(): Promise<void> {
@@ -51,6 +69,14 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
+        return Promise.reject(this._error);
+    }
+
+    createConfigurationOverlayLocation(): Promise<Location> {
+        return Promise.reject(this._error);
+    }
+
+    updateConfigurationOverlayLocation(): Promise<Location> {
         return Promise.reject(this._error);
     }
 

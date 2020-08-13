@@ -1,6 +1,5 @@
 // @flow
-import { Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+import { Checkbox, CheckboxContainer, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -14,7 +13,7 @@ type State = {
     accessKey: string,
     secretKey: string,
     bucketName: string,
-    mpuBucketName: string,
+    endpoint: string,
 };
 
 const INIT_STATE: State = {
@@ -22,10 +21,10 @@ const INIT_STATE: State = {
     accessKey: '',
     secretKey: '',
     bucketName: '',
-    mpuBucketName: '',
+    endpoint: '',
 };
 
-export default class LocationDetailsGcp extends React.Component<Props, State> {
+export default class LocationDetailsAzure extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = Object.assign({}, INIT_STATE, this.props.details);
@@ -59,80 +58,67 @@ export default class LocationDetailsGcp extends React.Component<Props, State> {
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="accessKey">GCP Access Key</label>
+                <Fieldset>
+                    <Label htmlFor="endpoint">Azure Storage Endpoint</Label>
+                    <Input
+                        name="endpoint"
+                        id="endpoint"
+                        type="text"
+                        placeholder="https://storagesample.blob.core.windows.net"
+                        value={this.state.endpoint}
+                        autoComplete="off"
+                        onChange={this.onChange} />
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="accessKey">Azure Account Name</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
-                        placeholder="GOOG1MPCLRB86WCKTN2C"
+                        placeholder="account-name"
                         value={this.state.accessKey}
-                        onChange={this.onChange}
                         autoComplete="off"
-                    />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="secretKey">GCP Secret Key</label>
+                        onChange={this.onChange} />
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">Azure Access Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
-                        placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+                        placeholder="azureSecretKey"
                         value={this.state.secretKey}
-                        onChange={this.onChange}
                         autoComplete="new-password"
-                    />
+                        onChange={this.onChange} />
                     <small>
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="bucketName">Target Bucket Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Target Azure Container Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
-                        placeholder="Bucket Name"
+                        placeholder="Container Name"
                         value={this.state.bucketName}
-                        onChange={this.onChange}
                         autoComplete="off"
-                    />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="mpuBucketName">Target Helper Bucket Name for Multi-part Uploads</label>
-                    <Input
-                        name="mpuBucketName"
-                        id="mpuBucketName"
-                        className="form-control"
-                        type="text"
-                        placeholder="MPU Bucket Name"
-                        value={this.state.mpuBucketName}
-                        onChange={this.onChange}
-                        autoComplete="off" />
-                    <small>
-                        A secondary Google Cloud Storage bucket required for handling multi-part uploads on
-                        GCP using AWS MPU initiate/complete/abort methods.
-                    </small>
-                </fieldset>
-                <fieldset className="form-group" hidden>
-                    <label className="form-check-label">
+                        onChange={this.onChange} />
+                </Fieldset>
+                <Fieldset style={{ display: 'none' }}>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
-                            className="form-check-input"
                             type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             onChange={this.onChange}
-                            label="Bucket Match"
                         />
-                        <br />
-                        <small>Stores objects in the target bucket without a source-bucket prefix.</small>
-                    </label>
-                </fieldset>
+                        <span> Bucket Match </span>
+                    </CheckboxContainer>
+                    <small>Stores objects in the target container without a source-bucket prefix.</small>
+                </Fieldset>
             </div>
         );
     }

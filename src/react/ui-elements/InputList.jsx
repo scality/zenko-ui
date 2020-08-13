@@ -1,11 +1,11 @@
 // @flow
-
-import { Button } from '@scality/core-ui';
-import Input from './Input';
+import { Button as BasicButton } from '@scality/core-ui';
+import { default as BasicInput } from './Input';
 import React from 'react';
 import styled from 'styled-components';
 
 type Props = {
+    className: string,
     entries: Array<string>,
     listLimit: number,
     onUpdate: (entries: Array<string>) => void,
@@ -22,13 +22,15 @@ const InputGroups = styled.div`
 
 const InputGroup = styled.div`
     display: flex;
-    button {
-        margin-left: 5px;
-        :disabled{
-            background-color: #dddddd;
-        }
-    }
-    .invisible {
+`;
+
+const Input = styled(BasicInput)`
+    margin-bottom: 5px;
+`;
+
+const Button = styled(BasicButton)`
+    margin-left: 5px;
+    &.invisible {
         visibility:hidden;
     }
 `;
@@ -85,7 +87,8 @@ export default class InputList extends React.Component<Props, State> {
         }
 
         return (
-            <Button outlined
+            <Button
+                variant="info"
                 className={isVisible}
                 title="Add"
                 disabled={isDisabled}
@@ -105,7 +108,8 @@ export default class InputList extends React.Component<Props, State> {
             onClickFn = () => this.deleteEntry(index);
         }
         return (
-            <Button outlined
+            <Button
+                variant="danger"
                 title="Remove"
                 disabled={isDisabled}
                 name={`delbtn${index}`}
@@ -144,7 +148,6 @@ export default class InputList extends React.Component<Props, State> {
                 name="listEntries"
             >
                 <Input
-                    className="form-control"
                     type="text"
                     name={`entry${index}`}
                     id={`entry${index}`}
@@ -163,7 +166,7 @@ export default class InputList extends React.Component<Props, State> {
         const { entries } = this.state;
         const lastEntry = entries.length - 1;
         return (
-            <InputGroups>
+            <InputGroups className={this.props.className}>
                 {entries.slice(0, -1).map(this.genEntry)}
                 <InputGroup>
                     <Input

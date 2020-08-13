@@ -1,5 +1,5 @@
 import { checkBox, updateInputText } from '../../../../utils/test';
-import LocationDetailsAws from '../LocationDetailsAws';
+import LocationDetailsAzure from '../LocationDetailsAzure';
 import React from 'react';
 import { mount } from 'enzyme';
 
@@ -8,41 +8,41 @@ const props = {
     onChange: () => {},
 };
 
-describe('class <LocationDetailsAws />', () => {
+describe('class <LocationDetailsAzure />', () => {
     it('should call onChange on mount', () => {
         const onChangeFn = jest.fn();
         mount(
-            <LocationDetailsAws {...props} onChange={onChangeFn} />
+            <LocationDetailsAzure {...props} onChange={onChangeFn} />
         );
         expect(onChangeFn).toHaveBeenCalledWith({
-            serverSideEncryption: false,
             bucketMatch: false,
             accessKey: '',
             secretKey: '',
             bucketName: '',
+            endpoint: '',
         });
     });
 
     it('should call onChange on state update', () => {
         const refLocation = {
-            secretKey: 'sk',
+            bucketMatch: false,
             accessKey: 'ak',
+            secretKey: 'sk',
             bucketName: 'bn',
-            bucketMatch: true,
-            serverSideEncryption: true,
+            endpoint: 'https://ep',
         };
         const onChangeFn = jest.fn();
         const component = mount(
-            <LocationDetailsAws {...props} onChange={onChangeFn} />
+            <LocationDetailsAzure {...props} onChange={onChangeFn} />
         );
-        component.setState({...refLocation}, () => {
+        component.setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });
 
-    it('should show aws details for empty details', () => {
+    it('should show azure details for empty details', () => {
         const component = mount(
-            <LocationDetailsAws {...props} />
+            <LocationDetailsAzure {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -56,23 +56,26 @@ describe('class <LocationDetailsAws />', () => {
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(false);
 
-        expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(1);
-        expect(component.find('input[name="serverSideEncryption"]').props().value).toEqual(false);
+        expect(component.find('input[name="endpoint"]')).toHaveLength(1);
+        expect(component.find('input[name="endpoint"]').props().value).toEqual('');
     });
 
-    it('should show aws details when editing an existing location', () => {
+    it('should show azure details when editing an existing location', () => {
         const locationDetails = {
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
             bucketMatch: true,
-            serverSideEncryption: true,
+            endpoint: 'https://ep',
         };
         const component = mount(
-            <LocationDetailsAws {...props} details={locationDetails} />
+            <LocationDetailsAzure {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('ak');
+
+        expect(component.find('input[name="endpoint"]')).toHaveLength(1);
+        expect(component.find('input[name="endpoint"]').props().value).toEqual('https://ep');
 
         expect(component.find('input[name="secretKey"]')).toHaveLength(1);
         // for now we just set it as empty since it's encrypted
@@ -83,9 +86,6 @@ describe('class <LocationDetailsAws />', () => {
 
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(true);
-
-        expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(1);
-        expect(component.find('input[name="serverSideEncryption"]').props().value).toEqual(true);
     });
 
     it('should call onChange on location details updates', () => {
@@ -94,17 +94,17 @@ describe('class <LocationDetailsAws />', () => {
             accessKey: 'ak',
             bucketName: 'bn',
             bucketMatch: true,
-            serverSideEncryption: true,
+            endpoint: 'https://ep',
         };
         let location = {};
         const component = mount(
-            <LocationDetailsAws {...props} onChange={l => location = l} />
+            <LocationDetailsAzure {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);
-        checkBox(component, 'serverSideEncryption', true);
         updateInputText(component, 'accessKey', 'ak');
         updateInputText(component, 'secretKey', 'sk');
         updateInputText(component, 'bucketName', 'bn');
+        updateInputText(component, 'endpoint', 'https://ep');
 
         expect(location).toEqual(refLocation);
     });

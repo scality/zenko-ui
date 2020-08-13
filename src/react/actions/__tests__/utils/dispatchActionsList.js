@@ -71,6 +71,10 @@ export const LOCATION_PUSH_ACTION = (path: string) => ({
     type: CALL_HISTORY_METHOD, payload: { args: [path], method: 'push' },
 });
 
+export const LOCATION_BACK_ACTION = {
+    type: CALL_HISTORY_METHOD, payload: { args: [], method: 'goBack' },
+};
+
 // * config actions
 export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction =
     { type: 'CONFIGURATION_VERSION', configuration: LATEST_OVERLAY };

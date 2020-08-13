@@ -27,7 +27,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
         const component = mount(
             <LocationDetailsHyperdriveV2 {...props} onChange={onChangeFn} />
         );
-        component.setState({...refLocation}, () => {
+        component.setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

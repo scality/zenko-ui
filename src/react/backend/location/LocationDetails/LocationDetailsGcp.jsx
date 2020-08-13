@@ -1,6 +1,5 @@
 // @flow
-import { Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+import { Checkbox, CheckboxContainer, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -14,7 +13,7 @@ type State = {
     accessKey: string,
     secretKey: string,
     bucketName: string,
-    endpoint: string,
+    mpuBucketName: string,
 };
 
 const INIT_STATE: State = {
@@ -22,14 +21,13 @@ const INIT_STATE: State = {
     accessKey: '',
     secretKey: '',
     bucketName: '',
-    endpoint: '',
+    mpuBucketName: '',
 };
 
-export default class LocationDetailsDOSpaces extends React.Component<Props, State> {
+export default class LocationDetailsGcp extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = Object.assign({}, INIT_STATE, this.props.details);
-        // XXX disable changing it if not provided
         this.state.secretKey = '';
     }
 
@@ -60,25 +58,23 @@ export default class LocationDetailsDOSpaces extends React.Component<Props, Stat
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="accessKey">Spaces Access Key</label>
+                <Fieldset>
+                    <Label htmlFor="accessKey">GCP Access Key</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
-                        placeholder="AKI5HMPCLRB86WCKTN2C"
+                        placeholder="GOOG1MPCLRB86WCKTN2C"
                         value={this.state.accessKey}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="secretKey">Spaces Secret Key</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">GCP Secret Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
                         placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
                         value={this.state.secretKey}
@@ -89,48 +85,47 @@ export default class LocationDetailsDOSpaces extends React.Component<Props, Stat
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="bucketName">Target Space Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Target Bucket Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
-                        placeholder="zenko-space-target"
+                        placeholder="Bucket Name"
                         value={this.state.bucketName}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="endpoint">Endpoint</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="mpuBucketName">Target Helper Bucket Name for Multi-part Uploads</Label>
                     <Input
-                        name="endpoint"
-                        className="form-control"
+                        name="mpuBucketName"
+                        id="mpuBucketName"
                         type="text"
-                        placeholder="nyc3.digitaloceanspaces.com"
-                        value={this.state.endpoint}
+                        placeholder="MPU Bucket Name"
+                        value={this.state.mpuBucketName}
                         onChange={this.onChange}
-                        autoComplete="off"
-                    />
-                    <small>As shown in the Settings page for this space</small>
-                </fieldset>
-                <fieldset className="form-group" hidden>
-                    <label className="form-check-label">
+                        autoComplete="off" />
+                    <small>
+                        A secondary Google Cloud Storage bucket required for handling multi-part uploads on
+                        GCP using AWS MPU initiate/complete/abort methods.
+                    </small>
+                </Fieldset>
+                <Fieldset style={{ display: 'none' }}>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
-                            className="form-check-input"
                             type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
                             onChange={this.onChange}
-                            label="Bucket Match"
                         />
-                        <br />
-                        <small>Stores objects in the target bucket without a source-bucket prefix.</small>
-                    </label>
-                </fieldset>
+                        <span> Bucket Match </span>
+                    </CheckboxContainer>
+                    <small>Stores objects in the target container without a source-bucket prefix.</small>
+                </Fieldset>
             </div>
         );
     }

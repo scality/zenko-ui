@@ -1,34 +1,35 @@
 // @flow
-import { Checkbox } from '@scality/core-ui';
-import Input from '../../../ui-elements/Input';
+import { Checkbox, CheckboxContainer, ErrorInput, Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
 type Props = {
     details: LocationDetails,
     onChange: (details: LocationDetails) => void,
+    editingExisting: boolean,
 };
 
 type State = {
+    serverSideEncryption: boolean,
     bucketMatch: boolean,
     accessKey: string,
     secretKey: string,
     bucketName: string,
-    endpoint: string,
 };
 
 const INIT_STATE: State = {
+    serverSideEncryption: false,
     bucketMatch: false,
     accessKey: '',
     secretKey: '',
     bucketName: '',
-    endpoint: '',
 };
 
-export default class LocationDetailsAzure extends React.Component<Props, State> {
+export default class LocationDetailsAws extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = Object.assign({}, INIT_STATE, this.props.details);
+        // XXX disable changing it if not provided
         this.state.secretKey = '';
     }
 
@@ -59,73 +60,72 @@ export default class LocationDetailsAzure extends React.Component<Props, State> 
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="endpoint">Azure Storage Endpoint</label>
-                    <Input
-                        name="endpoint"
-                        id="endpoint"
-                        className="form-control"
-                        type="text"
-                        placeholder="https://storagesample.blob.core.windows.net"
-                        value={this.state.endpoint}
-                        autoComplete="off"
-                        onChange={this.onChange} />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="accessKey">Azure Account Name</label>
+                <Fieldset>
+                    <Label htmlFor="accessKey">AWS Access Key</Label>
                     <Input
                         name="accessKey"
                         id="accessKey"
-                        className="form-control"
                         type="text"
-                        placeholder="account-name"
+                        placeholder="AKI5HMPCLRB86WCKTN2C"
                         value={this.state.accessKey}
+                        onChange={this.onChange}
                         autoComplete="off"
-                        onChange={this.onChange} />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="secretKey">Azure Access Key</label>
+                    />
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="secretKey">AWS Secret Key</Label>
                     <Input
                         name="secretKey"
                         id="secretKey"
-                        className="form-control"
                         type="password"
-                        placeholder="azureSecretKey"
+                        placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
                         value={this.state.secretKey}
+                        onChange={this.onChange}
                         autoComplete="new-password"
-                        onChange={this.onChange} />
+                    />
                     <small>
                         Your credentials are encrypted in transit, then at rest using your
                         Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="bucketName">Target Azure Container Name</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="bucketName">Target Bucket Name</Label>
                     <Input
                         name="bucketName"
                         id="bucketName"
-                        className="form-control"
                         type="text"
-                        placeholder="Container Name"
+                        placeholder="Bucket Name"
                         value={this.state.bucketName}
+                        onChange={this.onChange}
                         autoComplete="off"
-                        onChange={this.onChange} />
-                </fieldset>
-                <fieldset className="form-group" hidden>
-                    <label className="form-check-label">
+                    />
+                </Fieldset>
+                <Fieldset>
+                    <CheckboxContainer>
                         <Checkbox
                             name="bucketMatch"
-                            className="form-check-input"
-                            type="checkbox"
                             value={this.state.bucketMatch}
                             checked={this.state.bucketMatch}
+                            disabled={this.props.editingExisting}
                             onChange={this.onChange}
-                            label="Bucket Match"
                         />
-                        <br />
-                        <small>Stores objects in the target container without a source-bucket prefix.</small>
-                    </label>
-                </fieldset>
+                        <span> Write objects without prefix </span>
+                    </CheckboxContainer>
+                    <small> Use this option for mirroring. <br /> </small>
+                    <small>Store objects in the target bucket without a source-bucket prefix.</small>
+                    <ErrorInput hasError={!!this.state.bucketMatch}> Storing multiple buckets in a location with this option enabled can lead to data loss. </ErrorInput>
+                </Fieldset>
+                <Fieldset style={{ marginTop: '0px' }}>
+                    <CheckboxContainer>
+                        <Checkbox
+                            name="serverSideEncryption"
+                            value={this.state.serverSideEncryption}
+                            checked={this.state.serverSideEncryption}
+                            onChange={this.onChange}
+                        />
+                        <span> Server-Side Encryption </span>
+                    </CheckboxContainer>
+                </Fieldset>
             </div>
         );
     }

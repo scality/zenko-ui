@@ -26,24 +26,26 @@ describe('class <LocationDetailsNFS />', () => {
         });
     });
 
-    it('should correctly translate state values to location details', done => {
+    it('should correctly translate state values to location details', () => {
         const onChangeFn = jest.fn();
         const component = shallow(
             <LocationDetailsNFS {...props}
                 onChange={onChangeFn}
             />
         );
-        component.setState({
-            protocol: 'udp',
-            version: 'v4',
-            server: 'ep',
-            path: '/export/test/path',
-            options: 'soft&sync',
-        }, () => {
-            expect(onChangeFn).toHaveBeenCalledWith({
-                endpoint: 'udp+v4://ep/export/test/path?soft&sync',
+        return new Promise(done => {
+            component.setState({
+                protocol: 'udp',
+                version: 'v4',
+                server: 'ep',
+                path: '/export/test/path',
+                options: 'soft&sync',
+            }, () => {
+                expect(onChangeFn).toHaveBeenCalledWith({
+                    endpoint: 'udp+v4://ep/export/test/path?soft&sync',
+                });
+                done();
             });
-            done();
         });
     });
 
@@ -72,7 +74,7 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} onChange={onChangeFn} />
         );
-        component.setState({...refState}, () => {
+        component.setState({ ...refState }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });
@@ -143,8 +145,8 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} onChange={l => location = l} />
         );
-        component.find('Select#nfs-protocol').props().onChange({value: 'udp'});
-        component.find('Select#nfs-version').props().onChange({value: 'v4'});
+        component.find('Select#nfs-protocol').props().onChange({ value: 'udp' });
+        component.find('Select#nfs-version').props().onChange({ value: 'v4' });
         updateInputText(component, 'server', 'ep');
         updateInputText(component, 'path', '/export/path');
         updateInputText(component, 'options', 'hard&async');

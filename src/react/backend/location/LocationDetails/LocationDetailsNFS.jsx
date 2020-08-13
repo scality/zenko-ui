@@ -1,9 +1,8 @@
 // @flow
-import Input from '../../../ui-elements/Input';
+import { Fieldset, Input, Label, Select } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import type { Node } from 'react';
 import React from 'react';
-import { Select } from '@scality/core-ui';
 import urlParse from 'url-parse';
 
 type Props = {
@@ -60,7 +59,7 @@ function _convertToState(details: LocationDetails): State {
     };
 }
 
-function _convertToDetails({ protocol, version, server, path, options}: State): LocationDetails {
+function _convertToDetails({ protocol, version, server, path, options }: State): LocationDetails {
     return {
         endpoint: options ?
             `${protocol}+${version}://${server}${path}?${options}`
@@ -69,16 +68,21 @@ function _convertToDetails({ protocol, version, server, path, options}: State): 
     };
 }
 
-const NFS_PROTOCOLS: Array<Node> = ['udp', 'tcp'].map(p => {
+type Options = {
+    value: string,
+    label: Node,
+};
+
+const NFS_PROTOCOLS: Array<Options> = ['udp', 'tcp'].map(p => {
     return {
         value: p,
-        label: <option key={p} value={p}>{p.toUpperCase()}</option>
+        label: <option key={p} value={p}>{p.toUpperCase()}</option>,
     };
 });
-const NFS_VERSIONS: Array<Node> = ['v3', 'v4'].map(ver => {
+const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map(ver => {
     return {
         value: ver,
-        label: <option key={ver} value={ver}>{ver.toUpperCase()}</option>
+        label: <option key={ver} value={ver}>{ver.toUpperCase()}</option>,
     };
 });
 
@@ -110,13 +114,13 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
         });
     }
 
-    onProtocolChange = (p) => {
+    onProtocolChange = (p: any) => {
         this.setState({
             protocol: p.value,
         });
     };
 
-    onVersionChange = (v) => {
+    onVersionChange = (v: any) => {
         this.setState({
             version: v.value,
         });
@@ -144,26 +148,26 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
         const { editingExisting } = this.props;
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="nfs-protocol">NFS Protocol</label>
+                <Fieldset>
+                    <Label htmlFor="nfs-protocol">NFS Protocol</Label>
                     <Select type="select" name="protocol" id="nfs-protocol"
                         isDisabled={editingExisting}
                         onChange={this.onProtocolChange}
                         options={NFS_PROTOCOLS}
                         value = {NFS_PROTOCOLS.find(v => v.value === this.state.protocol)}
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="nfs-version">NFS Version</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="nfs-version">NFS Version</Label>
                     <Select type="select" name="version" id="nfs-version"
                         isDisabled={editingExisting}
                         onChange={this.onVersionChange}
                         options={NFS_VERSIONS}
                         value = {NFS_VERSIONS.find(v => v.value === this.state.version)}
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="nfs-server">Server</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="nfs-server">Server</Label>
                     <Input type="text" name="server" id="nfs-server"
                         disabled={editingExisting}
                         placeholder="nfsserver.example.com"
@@ -171,9 +175,9 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="nfs-path">Export Path</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="nfs-path">Export Path</Label>
                     <Input type="text" name="path" id="nfs-path"
                         disabled={editingExisting}
                         placeholder="/path/to/export"
@@ -181,9 +185,9 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="nfs-options">NFS Options</label>  {/*maybe add info*/}
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="nfs-options">NFS Options</Label>  {/*maybe add info*/}
                     <Input type="text" name="options" id="nfs-options"
                         disabled={editingExisting}
                         placeholder="rw,async"
@@ -191,7 +195,7 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
+                </Fieldset>
             </div>
         );
     }

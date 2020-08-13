@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { storageOptions } from '../monitor/location/LocationDetails';
+import { storageOptions } from '../backend/location/LocationDetails';
 
 export function getLocationType(locationType) {
     const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
@@ -15,7 +15,6 @@ export function getLocationTypeFromName(locationConstraint, configuration) {
 }
 
 export function selectStorageOptions(
-    assetRoot: string,
     capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
     labelFn?: LabelFunction,
 ): Array<StorageOptionSelect> {
@@ -29,7 +28,7 @@ export function selectStorageOptions(
         const check = storageOptions[o].checkCapability;
         return {
             value: o,
-            label: labelFn ? labelFn(o, assetRoot) : o,
+            label: labelFn ? labelFn(o) : o,
             disabled: !!check && !!capabilities && !capabilities[check],
         };
     });

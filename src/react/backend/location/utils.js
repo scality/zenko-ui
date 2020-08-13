@@ -1,4 +1,6 @@
-// @noflow
+// @flow
+import type { Location } from '../../../types/config';
+import type { LocationForm } from '../../../types/location';
 
 import { defaultLocationType } from './LocationDetails';
 

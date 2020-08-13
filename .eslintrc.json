@@ -20,9 +20,9 @@
     "ignorePatterns": [
         "src/react/databrowser",
         "src/react/group",
-        "src/react/monitor",
         "src/react/user",
-        "src/react/workflow"
+        "src/react/workflow",
+        "src/react/backend/StorageMonitor.jsx"
     ],
     "rules": {
         "semi": "error",

@@ -1,57 +1,48 @@
 import { checkBox, updateInputText } from '../../../../utils/test';
-import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
+import LocationDetailsGcp from '../LocationDetailsGcp';
 import React from 'react';
 import { mount } from 'enzyme';
 
 const props = {
     details: {},
     onChange: () => {},
-    locationType: 'location-scality-ring-s3-v1',
-    capabilities: {
-        locationTypeCephRadosGW: true,
-        locationTypeDigitalOcean: true,
-        locationTypeS3Custom: true,
-        locationTypeSproxyd: true,
-        locationTypeHyperdriveV2: true,
-        locationTypeNFS: true,
-    },
 };
 
-describe('class <LocationDetailsAwsCustom />', () => {
+describe('class <LocationDetailsGcp />', () => {
     it('should call onChange on mount', () => {
         const onChangeFn = jest.fn();
         mount(
-            <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />
+            <LocationDetailsGcp {...props} onChange={onChangeFn} />
         );
         expect(onChangeFn).toHaveBeenCalledWith({
             bucketMatch: false,
             accessKey: '',
             secretKey: '',
             bucketName: '',
-            endpoint: '',
+            mpuBucketName: '',
         });
     });
 
     it('should call onChange on state update', () => {
         const refLocation = {
-            endpoint: 'https://ep',
+            bucketMatch: true,
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
-            bucketMatch: true,
+            mpuBucketName: 'mbn',
         };
         const onChangeFn = jest.fn();
         const component = mount(
-            <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />
+            <LocationDetailsGcp {...props} onChange={onChangeFn} />
         );
-        component.setState({...refLocation}, () => {
+        component.setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });
 
-    it('should show custom details for empty details', () => {
+    it('should show gcp details for empty details', () => {
         const component = mount(
-            <LocationDetailsAwsCustom {...props} />
+            <LocationDetailsGcp {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -62,23 +53,23 @@ describe('class <LocationDetailsAwsCustom />', () => {
         expect(component.find('input[name="bucketName"]')).toHaveLength(1);
         expect(component.find('input[name="bucketName"]').props().value).toEqual('');
 
-        expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-        expect(component.find('input[name="endpoint"]').props().value).toEqual('');
+        expect(component.find('input[name="mpuBucketName"]')).toHaveLength(1);
+        expect(component.find('input[name="mpuBucketName"]').props().value).toEqual('');
 
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(false);
     });
 
-    it('should show custom details when editing an existing location', () => {
+    it('should show gcp details when editing an existing location', () => {
         const locationDetails = {
-            endpoint: 'https://ep',
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
+            mpuBucketName: 'mbn',
             bucketMatch: true,
         };
         const component = mount(
-            <LocationDetailsAwsCustom {...props} details={locationDetails} />
+            <LocationDetailsGcp {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('ak');
@@ -90,8 +81,8 @@ describe('class <LocationDetailsAwsCustom />', () => {
         expect(component.find('input[name="bucketName"]')).toHaveLength(1);
         expect(component.find('input[name="bucketName"]').props().value).toEqual('bn');
 
-        expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-        expect(component.find('input[name="endpoint"]').props().value).toEqual('https://ep');
+        expect(component.find('input[name="mpuBucketName"]')).toHaveLength(1);
+        expect(component.find('input[name="mpuBucketName"]').props().value).toEqual('mbn');
 
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(true);
@@ -99,21 +90,21 @@ describe('class <LocationDetailsAwsCustom />', () => {
 
     it('should call onChange on location details updates', () => {
         const refLocation = {
-            endpoint: 'https://ep',
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
+            mpuBucketName: 'mbn',
             bucketMatch: true,
         };
         let location = {};
         const component = mount(
-            <LocationDetailsAwsCustom {...props} onChange={l => location = l} />
+            <LocationDetailsGcp {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);
         updateInputText(component, 'accessKey', 'ak');
         updateInputText(component, 'secretKey', 'sk');
         updateInputText(component, 'bucketName', 'bn');
-        updateInputText(component, 'endpoint', 'https://ep');
+        updateInputText(component, 'mpuBucketName', 'mbn');
 
         expect(location).toEqual(refLocation);
     });

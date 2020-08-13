@@ -1,5 +1,5 @@
 import { checkBox, updateInputText } from '../../../../utils/test';
-import LocationDetailsWasabi from '../LocationDetailsWasabi';
+import LocationDetailsDOSpaces from '../LocationDetailsDOSpaces';
 import React from 'react';
 import { mount } from 'enzyme';
 
@@ -8,41 +8,41 @@ const props = {
     onChange: () => {},
 };
 
-describe('class <LocationDetailsWasabi />', () => {
+describe('class <LocationDetailsDOSpaces />', () => {
     it('should call onChange on mount', () => {
         const onChangeFn = jest.fn();
         mount(
-            <LocationDetailsWasabi {...props} onChange={onChangeFn} />
+            <LocationDetailsDOSpaces {...props} onChange={onChangeFn} />
         );
         expect(onChangeFn).toHaveBeenCalledWith({
             bucketMatch: false,
             accessKey: '',
             secretKey: '',
             bucketName: '',
-            endpoint: 'https://s3.wasabisys.com',
+            endpoint: '',
         });
     });
 
     it('should call onChange on state update', () => {
         const refLocation = {
-            bucketMatch: true,
-            accessKey: 'ak',
+            endpoint: 'https://ep',
             secretKey: 'sk',
+            accessKey: 'ak',
             bucketName: 'bn',
-            endpoint: 'https://s3.wasabisys.com',
+            bucketMatch: true,
         };
         const onChangeFn = jest.fn();
         const component = mount(
-            <LocationDetailsWasabi {...props} onChange={onChangeFn} />
+            <LocationDetailsDOSpaces {...props} onChange={onChangeFn} />
         );
-        component.setState({...refLocation}, () => {
+        component.setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });
 
-    it('should show wasabi details for empty details', () => {
+    it('should show spaces details for empty details', () => {
         const component = mount(
-            <LocationDetailsWasabi {...props} />
+            <LocationDetailsDOSpaces {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -54,22 +54,22 @@ describe('class <LocationDetailsWasabi />', () => {
         expect(component.find('input[name="bucketName"]').props().value).toEqual('');
 
         expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-        expect(component.find('input[name="endpoint"]').props().value).toEqual('https://s3.wasabisys.com');
+        expect(component.find('input[name="endpoint"]').props().value).toEqual('');
 
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(false);
     });
 
-    it('should show custom details when editing an existing location', () => {
+    it('should show spaces details when editing an existing location', () => {
         const locationDetails = {
-            endpoint: 'https://s3.wasabisys.com',
+            endpoint: 'https://ep',
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
             bucketMatch: true,
         };
         const component = mount(
-            <LocationDetailsWasabi {...props} details={locationDetails} />
+            <LocationDetailsDOSpaces {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
         expect(component.find('input[name="accessKey"]').props().value).toEqual('ak');
@@ -82,7 +82,7 @@ describe('class <LocationDetailsWasabi />', () => {
         expect(component.find('input[name="bucketName"]').props().value).toEqual('bn');
 
         expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-        expect(component.find('input[name="endpoint"]').props().value).toEqual('https://s3.wasabisys.com');
+        expect(component.find('input[name="endpoint"]').props().value).toEqual('https://ep');
 
         expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
         expect(component.find('input[name="bucketMatch"]').props().value).toEqual(true);
@@ -90,7 +90,7 @@ describe('class <LocationDetailsWasabi />', () => {
 
     it('should call onChange on location details updates', () => {
         const refLocation = {
-            endpoint: 'https://s3.wasabisys.com',
+            endpoint: 'https://ep',
             secretKey: 'sk',
             accessKey: 'ak',
             bucketName: 'bn',
@@ -98,7 +98,7 @@ describe('class <LocationDetailsWasabi />', () => {
         };
         let location = {};
         const component = mount(
-            <LocationDetailsWasabi {...props} onChange={l => location = l} />
+            <LocationDetailsDOSpaces {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);
         updateInputText(component, 'accessKey', 'ak');

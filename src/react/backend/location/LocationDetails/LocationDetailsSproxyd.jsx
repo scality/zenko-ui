@@ -1,7 +1,5 @@
 // @flow
-
-import Input from '../../../ui-elements/Input';
-import InputList from '../../../ui-elements/InputList';
+import { Fieldset, Input, InputList, Label } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 
@@ -73,43 +71,42 @@ export default class LocationDetailsSproxyd extends React.Component<Props, State
     render() {
         return (
             <div>
-                <fieldset className="form-group">
-                    <label htmlFor="bootstrapList">Bootstrap List <small>(max. 6 entries)</small></label>
+                <Fieldset>
+                    <Label htmlFor="bootstrapList" tooltipMessages={[`max. ${SPROXYD_LIMIT} entries`]}>
+                        Bootstrap List
+                    </Label>
                     <InputList
                         name="bootstrapList"
                         id="bootstrapList"
-                        className="form-control"
                         entries={this.state.bootstrapList}
                         listLimit={SPROXYD_LIMIT}
                         onUpdate={this.onListChange}
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="">Proxy Path</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="">Proxy Path</Label>
                     <Input
                         name="proxyPath"
                         id="proxyPath"
-                        className="form-control"
                         type="text"
                         placeholder="/proxy/path"
                         value={this.state.proxyPath}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
-                <fieldset className="form-group">
-                    <label htmlFor="chordCos">Replication Factor for Small Objects</label>
+                </Fieldset>
+                <Fieldset>
+                    <Label htmlFor="chordCos">Replication Factor for Small Objects</Label>
                     <Input
                         name="chordCos"
                         id="chordCos"
-                        className="form-control"
                         type="text"
                         placeholder="3"
                         value={this.state.chordCos}
                         onChange={this.onChange}
                         autoComplete="off"
                     />
-                </fieldset>
+                </Fieldset>
             </div>
         );
     }

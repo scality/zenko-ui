@@ -10,11 +10,11 @@ import BucketCreate from './databrowser/BucketCreate';
 import DataBrowser from './databrowser/DataBrowser';
 import type { DispatchAPI } from 'redux';
 import Groups from './group/Groups';
-import LocationEditor from './monitor/location/LocationEditor';
+import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
 import ReplicationCreate from './workflow/replication/ReplicationCreate';
-import StorageMonitor from './monitor/StorageMonitor';
+import StorageMonitor from './backend/StorageMonitor';
 import UserCreate from './user/UserCreate';
 import Users from './user/Users';
 import Workflows from './workflow/Workflows';
@@ -81,8 +81,8 @@ function Routes() {
 
             <Route exact path="/" component={StorageMonitor} />
 
-            <Route exact path="/monitor/location/editor" component={LocationEditor} />
-            <Route path="/monitor/location/editor/:locationName" component={LocationEditor} />
+            <Route exact path="/create-location" component={LocationEditor} />
+            <Route path="/locations/:locationName/edit" component={LocationEditor} />
 
             <Route path='/accounts/:accountName?' component={Accounts} />
             <Route path="/createAccount" component={AccountCreate} />

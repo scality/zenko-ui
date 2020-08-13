@@ -73,7 +73,7 @@ export default class LocationDetails extends React.Component<Props> {
             <div className="p-2">
                 <div>
                     Location Type:&nbsp;
-                    <span style={{fontFamily: 'nerissemibold'}} className="px-2">{storageOptions[this.props.locationType].name}</span><br/>
+                    <span style={{ fontFamily: 'nerissemibold' }} className="px-2">{storageOptions[this.props.locationType].name}</span><br/>
                 </div>
                 {
                     this.props.repStatus === 'disabled' ?
