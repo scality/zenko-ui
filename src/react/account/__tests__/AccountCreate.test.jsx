@@ -1,5 +1,6 @@
 import AccountCreate from '../AccountCreate';
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { reduxMount } from '../../utils/test';
 
 describe('AccountCreate', () => {
@@ -49,7 +50,7 @@ describe('AccountCreate', () => {
             name: '',
             email: 'test@test.com',
             quota: '1',
-            expectedNameError: 'Field cannot be left blank.',
+            expectedNameError: '"Name" is not allowed to be empty',
             expectedEmailError: '',
             expectedQuotaError: '',
         },
@@ -59,7 +60,7 @@ describe('AccountCreate', () => {
             email: '',
             quota: '1',
             expectedNameError: '',
-            expectedEmailError: 'Field cannot be left blank.',
+            expectedEmailError: '"Root Account Email" is not allowed to be empty',
             expectedQuotaError: '',
         },
         {
@@ -67,8 +68,8 @@ describe('AccountCreate', () => {
             name: '',
             email: '',
             quota: '1',
-            expectedNameError: 'Field cannot be left blank.',
-            expectedEmailError: 'Field cannot be left blank.',
+            expectedNameError: '"Name" is not allowed to be empty',
+            expectedEmailError: '"Root Account Email" is not allowed to be empty',
             expectedQuotaError: '',
         },
         {
@@ -76,7 +77,7 @@ describe('AccountCreate', () => {
             name: 'b',
             email: 'test@test.com',
             quota: '1',
-            expectedNameError: 'Account name should be at least 2 characters long.',
+            expectedNameError: '"Name" length must be at least 2 characters long',
             expectedEmailError: '',
             expectedQuotaError: '',
         },
@@ -85,7 +86,7 @@ describe('AccountCreate', () => {
             name: 'b'.repeat(65),
             email: 'test@test.com',
             quota: '1',
-            expectedNameError: 'The length of the property is too long. The maximum length is 64.',
+            expectedNameError: '"Name" length must be less than or equal to 64 characters long',
             expectedEmailError: '',
             expectedQuotaError: '',
         },
@@ -94,7 +95,7 @@ describe('AccountCreate', () => {
             name: '^^',
             email: 'test@test.com',
             quota: '1',
-            expectedNameError: 'Invalid account name.',
+            expectedNameError: 'Invalid Name',
             expectedEmailError: '',
             expectedQuotaError: '',
         },
@@ -104,7 +105,7 @@ describe('AccountCreate', () => {
             email: 'invalid',
             quota: '1',
             expectedNameError: '',
-            expectedEmailError: 'Invalid email address.',
+            expectedEmailError: 'Invalid Root Account Email',
             expectedQuotaError: '',
         },
         {
@@ -113,7 +114,7 @@ describe('AccountCreate', () => {
             email: `${'b'.repeat(257)}@long.com`,
             quota: '1',
             expectedNameError: '',
-            expectedEmailError: 'The length of the property is too long. The maximum length is 256.',
+            expectedEmailError: '"Root Account Email" length must be less than or equal to 256 characters long',
             expectedQuotaError: '',
         },
         {
@@ -123,17 +124,39 @@ describe('AccountCreate', () => {
             quota: '-1',
             expectedNameError: '',
             expectedEmailError: '',
-            expectedQuotaError: 'Quota has to be a positive number. 0 means no quota.',
+            expectedQuotaError: '"Quota" must be a positive number',
+        },
+        {
+            description: 'should render error if quota is set to 0',
+            name: 'bart',
+            email: 'test@test.com',
+            quota: '0',
+            expectedNameError: '',
+            expectedEmailError: '',
+            expectedQuotaError: '"Quota" must be a positive number',
         },
     ];
 
     tests.forEach(t => {
-        it(`Simulate click: ${t.description}`, () => {
+        it(`Simulate click: ${t.description}`, async () => {
             const { component } = reduxMount(<AccountCreate/>);
-            component.find('input#name').simulate('change', { target: { value: t.name } });
-            component.find('input#email').simulate('change', { target: { value: t.email } });
-            component.find('input#quota').simulate('change', { target: { value: t.quota } });
-            component.find('Button#create-account-btn').simulate('click');
+            // NOTE: All validation methods in React Hook Form are treated
+            // as async functions, so it's important to wrap async around your act.
+            await act(async () => {
+                const elementName = component.find('input#name');
+                elementName.getDOMNode().value = t.name;
+                elementName.getDOMNode().dispatchEvent(new Event('input'));
+
+                const elementEmail = component.find('input#email');
+                elementEmail.getDOMNode().value = t.email;
+                elementEmail.getDOMNode().dispatchEvent(new Event('input'));
+
+                const elementQuota = component.find('input#quota');
+                elementQuota.getDOMNode().value = t.quota;
+                elementQuota.getDOMNode().dispatchEvent(new Event('input'));
+
+                component.find('Button#create-account-btn').simulate('click');
+            });
 
             if (t.expectedNameError) {
                 expect(component.find('ErrorInput#error-name').text()).toContain(t.expectedNameError);
@@ -152,96 +175,4 @@ describe('AccountCreate', () => {
             }
         });
     });
-
-    //   * blur
-    it('Simulate blur: should render no error if name is valid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#name').simulate('change', { target: { value: 'ba' } });
-        component.find('input#name').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if name is too short', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#name').simulate('change', { target: { value: 'b' } });
-        component.find('input#name').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toContain('Account name should be at least 2 characters long.');
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if name is invalid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#name').simulate('change', { target: { value: '^^' } });
-        component.find('input#name').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toContain('Invalid account name.');
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if name is too long (> 64)', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#name').simulate('change', { target: { value: 'b'.repeat(65) } });
-        component.find('input#name').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toContain('The length of the property is too long. The maximum length is 64.');
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render no error if email is valid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#email').simulate('change', { target: { value: 'test@test.com' } });
-        component.find('input#email').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if email is invalid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#email').simulate('change', { target: { value: 'invalid' } });
-        component.find('input#email').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toContain('Invalid email address.');
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if email is too long (> 256)', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#email').simulate('change', { target: { value: `${'b'.repeat(257)}@long.com` } });
-        component.find('input#email').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toContain('The length of the property is too long. The maximum length is 256.');
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render no error if quota is valid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#quota').simulate('change', { quota: { value: '1' } });
-        component.find('input#quota').simulate('blur');
-
-        expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-    });
-
-    it('Simulate blur: should render error if quota is invalid', () => {
-        const { component } = reduxMount(<AccountCreate/>);
-        component.find('input#quota').simulate('change', { target: { value: '-1' } });
-        component.find('input#quota').simulate('blur');
-
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
-        expect(component.find('ErrorInput#error-quota').text()).toContain('Quota has to be a positive number. 0 means no quota.');
-    });
-
 });

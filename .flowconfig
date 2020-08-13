@@ -16,5 +16,6 @@ unsafe-getters-setters=warn
 
 [options]
 include_warnings=false
+esproposal.optional_chaining=enable
 
 [strict]

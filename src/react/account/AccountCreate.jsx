@@ -1,52 +1,44 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
 import Form, * as F from '../ui-elements/FormLayout';
-import { accountEmailValidation, accountNameValidation, accountQuotaValidation } from '../utils/validator';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
+import Joi from '@hapi/joi';
 import React from 'react';
 import { goBack } from 'connected-react-router';
-import { useInput } from '../utils/hooks';
+import { joiResolver } from '@hookform/resolvers';
+import { useForm } from 'react-hook-form';
 
+const regexpEmailAddress = /^\S+@\S+.\S+$/;
+const regexpName = /^[\w+=,.@ -]+$/;
+
+const schema = Joi.object({
+    name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
+    email: Joi.string().label('Root Account Email').required().max(256).regex(regexpEmailAddress).message('Invalid Root Account Email'),
+    quota: Joi.number().label('Quota').allow('').optional().positive().integer(),
+});
 
 function AccountCreate() {
-    const { value: name, onChange: onChangeName, errorMessage: errorName, hasError: hasErrorName, validation: validationName } = useInput('', accountNameValidation);
-    const { value: email, onChange: onChangeEmail, errorMessage: errorEmail, hasError: hasErrorEmail, validation: validationEmail } = useInput('', accountEmailValidation);
-    const { value: quotaMax, onChange: onChangeQuotaMax, errorMessage: errorQuota, hasError: hasErrorQuota, validation: validationQuota } = useInput('', accountQuotaValidation);
+    const { register, handleSubmit, errors } = useForm({
+        resolver: joiResolver(schema),
+    });
 
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
 
     const dispatch = useDispatch();
 
-    const isValid = (): boolean => {
-        const isValidName = validationName(name);
-        const isValidEmail = validationEmail(email);
-        const isValidQuota = validationQuota(quotaMax);
-        return isValidName && isValidEmail && isValidQuota;
-    };
-
-    const submit = (e: SyntheticInputEvent<HTMLButtonElement>) => {
-        if (e) {
-            e.preventDefault();
-        }
-        if (hasError) {
-            dispatch(clearError());
-        }
-        if (!isValid()) {
-            return;
-        }
-        const quotaMaxInt =  quotaMax ? parseInt(quotaMax, 10) : 0;
+    const onSubmit = ({ email, name, quota }) => {
+        const quotaMaxInt =  quota || 0;
         const payload = { userName: name, email, quotaMax: quotaMaxInt };
         dispatch(createAccount(payload));
     };
 
-    const onChangeWithClearError = (e, onChange) => {
+    const clearServerError = () => {
         if (hasError) {
             dispatch(clearError());
         }
-        onChange(e);
     };
 
     return <Form autoComplete='off'>
@@ -58,12 +50,11 @@ function AccountCreate() {
             <F.Input
                 type='text'
                 id='name'
-                value={name}
-                onChange={e => onChangeWithClearError(e, onChangeName)}
-                onBlur={e => validationName(e.target.value)}
-                hasError={hasErrorName}
+                name='name'
+                innerRef={register}
+                onChange={clearServerError}
                 autoComplete='new-password' />
-            <F.ErrorInput id='error-name' hasError={hasErrorName}> {errorName} </F.ErrorInput>
+            <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
         </F.Fieldset>
         <F.Fieldset>
             <F.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
@@ -72,12 +63,11 @@ function AccountCreate() {
             <F.Input
                 type='text'
                 id='email'
-                value={email}
-                onChange={e => onChangeWithClearError(e, onChangeEmail)}
-                onBlur={e => validationEmail(e.target.value)}
-                hasError={hasErrorEmail}
+                name='email'
+                innerRef={register}
+                onChange={clearServerError}
                 autoComplete='off' />
-            <F.ErrorInput id='error-email' hasError={hasErrorEmail}> {errorEmail} </F.ErrorInput>
+            <F.ErrorInput id='error-email' hasError={errors.email}> {errors.email?.message} </F.ErrorInput>
         </F.Fieldset>
         <F.Fieldset>
             <F.Label tooltipMessages={['Hard quota: the account cannot go over the limit', 'The limit can be changed after the creation', 'If the field is empty, there will be no limit']}>
@@ -86,13 +76,12 @@ function AccountCreate() {
             <F.Input
                 type='number'
                 id='quota'
-                value={quotaMax}
-                onChange={e => onChangeWithClearError(e, onChangeQuotaMax)}
                 min="0"
-                onBlur={e => validationQuota(e.target.value)}
-                hasError={hasErrorQuota}
+                name='quota'
+                innerRef={register}
+                onChange={clearServerError}
                 autoComplete='off' />
-            <F.ErrorInput id='error-quota' hasError={hasErrorQuota}> {errorQuota} </F.ErrorInput>
+            <F.ErrorInput id='error-quota' hasError={errors.quota}> {errors.quota?.message} </F.ErrorInput>
         </F.Fieldset>
         <F.Footer>
             <F.FooterError>
@@ -108,7 +97,7 @@ function AccountCreate() {
             </F.FooterError>
             <F.FooterButtons>
                 <Button variant="secondary" onClick={() => dispatch(goBack())} text='Cancel'/>
-                <Button id='create-account-btn' variant="info" onClick={submit} text='Create'/>
+                <Button id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>
     </Form>;
