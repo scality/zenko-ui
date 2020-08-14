@@ -28,7 +28,7 @@ export const Container = styled.div`
 `;
 
 export const ListSection = styled.div`
-    flex: 0 1 450px;
+    flex: 0 0 450px;
     flex-direction: column;
 
     height: calc(100% - 40px);

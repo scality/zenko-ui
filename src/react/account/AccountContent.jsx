@@ -20,12 +20,6 @@ function AccountContent() {
     const { accountName: accountNameParam } = useParams();
     const account = useMemo(() => accountList.find(a => a.userName === accountNameParam), [accountList, accountNameParam]);
 
-    // while loading/redirecting to the first account.
-    if (!accountNameParam && accountList.length > 0) {
-        // TODO: add a loader.
-        return <L.ContentSection> </L.ContentSection>;
-    }
-
     // empty state.
     if (accountList.length === 0) {
         return <EmptyState />;
