@@ -27,13 +27,6 @@ const columns = [
     },
 ];
 
-// const initialSortBy = [
-//     {
-//         id: 'createDate',
-//         desc: true,
-//     },
-// ];
-
 const Container = styled.div`
     min-width: 430px;
 `;
@@ -64,15 +57,14 @@ function AccountList({ accountList, accountIndex }: Props) {
     } = useTable({
         columns,
         data: accountList,
-        // initialState: { sortBy: initialSortBy },
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
     }, useFilters, useSortBy);
 
     useEffect(() => {
-        if (listRef && listRef.current && accountIndex) {
-            listRef.current.scrollToItem(accountIndex,'smart');
+        if (listRef && listRef.current && accountIndex > -1) {
+            listRef.current.scrollToItem(accountIndex, 'smart');
         }
     }, [listRef]);
 

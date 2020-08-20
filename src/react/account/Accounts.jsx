@@ -5,17 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import AccountContent from './AccountContent';
 import AccountList from './AccountList';
 import type { AppState } from '../../types/state';
-import Loader from '../ui-elements/Loader';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
-
-export const EmptyState = () => (
-    <L.ContentSection>
-        <L.Head/>
-        <L.Details/>
-    </L.ContentSection>
-);
 
 const sortByDate = (objs, desc) => objs.sort((a,b) => (a.createDate > b.createDate) ? (desc ? 1 : -1) : ((b.createDate > a.createDate) ? (desc ? -1 : 1) : 0));
 
@@ -37,7 +29,7 @@ const Accounts = () => {
 
     // while loading/redirecting to the first account.
     if (!accountNameParam && accountList.length > 0) {
-        return <Loader> Redirecting to the newest account </Loader>;
+        return null;
     }
 
     // empty state.
