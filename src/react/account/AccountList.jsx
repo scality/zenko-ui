@@ -15,17 +15,9 @@ export const Icon = styled.i`
     margin-left: 5px;
 `;
 
-const columns = [
-    {
-        Header: 'Name',
-        accessor: 'userName',
-    },
-    {
-        Header: 'Created on',
-        accessor: 'createDate',
-        Cell: ({ value }) => { return formatDate(new Date(value));},
-    },
-];
+export const CustomBody = styled(T.Body)`
+    height: calc(100vh - 200px);
+`;
 
 const Container = styled.div`
     min-width: 430px;
@@ -37,6 +29,18 @@ const handleSortClick = (column, listRef) => {
     }
     column.toggleSortBy();
 };
+
+const columns = [
+    {
+        Header: 'Account Name',
+        accessor: 'userName',
+    },
+    {
+        Header: 'Created on',
+        accessor: 'createDate',
+        Cell: ({ value }) => { return formatDate(new Date(value));},
+    },
+];
 
 type Props = {
     accountList: Array<Account>,
@@ -70,10 +74,12 @@ function AccountList({ accountList, accountIndex }: Props) {
 
     return (
         <Container id='account-list'>
-            <T.Search>
-                <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
-                <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
-            </T.Search>
+            <T.SearchContainer>
+                <T.Search>
+                    <T.SearchInput placeholder='Filter by Account Name' onChange={e => setFilter('userName', e.target.value)} />
+                </T.Search>
+                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='info' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
+            </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
                     <T.Head>
@@ -94,7 +100,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                             </T.HeadRow>
                         ))}
                     </T.Head>
-                    <T.Body {...getTableBodyProps()}>
+                    <CustomBody {...getTableBodyProps()}>
                         {
                             // ISSUE: https://github.com/bvaughn/react-window/issues/504
                             // eslint-disable-next-line flowtype-errors/show-errors
@@ -109,7 +115,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                                 {MemoRow}
                             </FixedSizeList>
                         }
-                    </T.Body>
+                    </CustomBody>
                 </Table>
             </T.Container>
         </Container>

@@ -33,6 +33,7 @@ export const Container = styled.div`
 
 // * table head
 export const Head = styled.thead`
+    border-bottom: 1px solid #424242;
 `;
 
 export const HeadRow = styled.tr`
@@ -53,7 +54,6 @@ export const HeadCell = styled.th`
 export const Body = styled.tbody`
     // following is needed to display scroll bar onto the table
     display: block;
-    height: calc(100vh - 200px);
     overflow: auto;
 `;
 
@@ -70,20 +70,23 @@ export const Row = styled(HeadRow)`
 `;
 
 export const Cell = styled.td`
-    border-top: 1px solid #424242;
     padding: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
 `;
 
 // * table search
-export const Search = styled.div`
+export const SearchContainer = styled.div`
     display: flex;
     justify-content: space-between;
 `;
 
+export const Search = styled.div`
+    flex: 0 0 220px;
+`;
+
 export const SearchInput = styled(Input)`
-    flex: 0 0 40%;
+    width: 100%;
 `;
 
 export const ExtraButton = styled(Button)`

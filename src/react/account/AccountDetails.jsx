@@ -15,12 +15,6 @@ import styled from 'styled-components';
 const Tabs = styled(CustomTabs)`
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-
-    .sc-tabs-item-content{
-      display: flex;
-      overflow-y: auto;
-    }
 `;
 
 type Props = {
@@ -46,11 +40,11 @@ function AccountDetails({ account }: Props) {
                     selected: !!matchPath(pathname, { path: `${path}`, exact: true }),
                     title: 'Properties',
                 },
-                {
-                    onClick: () => dispatch(push(`${url}/keys`)),
-                    selected: !!matchPath(pathname, { path: `${path}/keys` }),
-                    title: 'Keys',
-                },
+                // {
+                //     onClick: () => dispatch(push(`${url}/keys`)),
+                //     selected: !!matchPath(pathname, { path: `${path}/keys` }),
+                //     title: 'Keys',
+                // },
                 {
                     onClick: () => dispatch(push(`${url}/locations`)),
                     selected: !!matchPath(pathname, { path: `${path}/locations` }),

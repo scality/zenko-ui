@@ -12,6 +12,9 @@ const Title = styled.div`
 `;
 
 const TableContainer = styled.div`
+    display: block;
+    overflow-y: auto;
+    height: calc(100vh - 340px);
     width: fit-content;
     margin: 15px 0 0 30px;
 `;

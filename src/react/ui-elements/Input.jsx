@@ -7,14 +7,13 @@ const Input = styled.input`
 
     background-color: #161617;
     color: #ffffff;
-    border-width: thin;
+    border-width: 1px;
     border-style: solid;
     border-color: ${props => props.hasError ? props.theme.brand.danger : '#ffffff'};
-    padding: 8px 10px;
+    padding: 0px 10px;
     font-size: 14px;
-    display: block;
     border-radius: 4px;
-    height: 20px;
+    line-height: 36px;
 
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
