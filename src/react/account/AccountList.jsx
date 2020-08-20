@@ -39,7 +39,7 @@ const handleSortClick = (column, listRef) => {
 };
 
 type Props = {
-    accountList: Array<Account>,
+    accountList: Array<?Account>,
     accountIndex: number,
 };
 function AccountList({ accountList, accountIndex }: Props) {
