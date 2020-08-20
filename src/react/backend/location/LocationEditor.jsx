@@ -27,11 +27,7 @@ const makeLabel = (locationType) => {
 function LocationEditor() {
     const dispatch = useDispatch();
     const { locationName } = useParams();
-    const locationEditing = useSelector((state: AppState) => {
-        console.log('state.configuration.latest.locations!!!', state.configuration.latest.locations);
-        console.log('locationName!!!', locationName);
-        return state.configuration.latest.locations[locationName || ''];
-    });
+    const locationEditing = useSelector((state: AppState) => state.configuration.latest.locations[locationName || '']);
     const capabilities =  useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);

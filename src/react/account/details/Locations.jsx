@@ -59,6 +59,10 @@ function Locations() {
                 accessor: 'locationType',
             },
             {
+                Header: 'Target Bucket',
+                accessor: 'details.bucketName',
+            },
+            {
                 id: 'actions',
                 Header: '',
                 accessor: 'name',
@@ -70,7 +74,7 @@ function Locations() {
                     </Actions>;
                 },
             },
-        ], [dispatch]);
+        ], [dispatch, locations]);
 
     const {
         getTableProps,
