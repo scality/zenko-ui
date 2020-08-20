@@ -55,6 +55,7 @@ function Routes() {
                             link: <Link to="/">Storage Monitoring</Link>,
                             selected: isSelected(location, '/'),
                         },
+                        // TODO: isSelected not working here!
                         {
                             link: <Link to="/accounts">Accounts</Link>,
                             selected: isSelected(location, '/accounts'),
