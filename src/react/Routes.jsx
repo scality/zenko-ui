@@ -1,6 +1,6 @@
 // @flow
 
-import { Link, Route } from 'react-router-dom';
+import { Link, Route, matchPath } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
@@ -29,12 +29,8 @@ const NavbarContainer = styled.div`
   }
 `;
 
-function isSelected(location, tabName){
-    return location.pathname === tabName;
-}
-
 function Routes() {
-    const location = useSelector((state: AppState) => state.router.location);
+    const pathname = useSelector((state: AppState) => state.router.location.pathname);
     const userName = useSelector((state: AppState) => state.oidc.user.profile.name || '');
 
     const dispatch: DispatchAPI<Action> = useDispatch();
@@ -53,11 +49,11 @@ function Routes() {
                     tabs={[
                         {
                             link: <Link to="/">Storage Monitoring</Link>,
-                            selected: isSelected(location, '/'),
+                            selected: !!matchPath(pathname, { path: '/', exact: true }),
                         },
                         {
                             link: <Link to="/accounts">Accounts</Link>,
-                            selected: isSelected(location, '/accounts'),
+                            selected: !!matchPath(pathname, { path: '/accounts/:accountName?' }),
                         },
                         // {
                         //     link: <Link to="/groups">Groups</Link>,
