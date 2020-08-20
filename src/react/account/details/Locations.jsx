@@ -1,14 +1,19 @@
 // @flow
+import type { LocationName, Locations as LocationsType } from '../../../types/config';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import { Button } from '@scality/core-ui';
-import type { LocationName } from '../../../types/config';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+
+const canEditLocation = (locationName: LocationName, locations: LocationsType): boolean => {
+    const isBuiltin = locations[locationName] && locations[locationName].isBuiltin;
+    return !isBuiltin;
+};
 
 const initialSortBy = [
     {
@@ -60,8 +65,8 @@ function Locations() {
                 disableSortBy: true,
                 Cell({ value: locationName }: { value: LocationName}){
                     return <Actions>
-                        <ActionButton icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="info" text='' />
-                        <ActionButton icon={<i className="fas fa-trash" />} onClick={() => {}} size="smaller" variant="danger" text='' />
+                        <ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="info" text='' />
+                        <ActionButton disabled={true} icon={<i className="fas fa-trash" />} onClick={() => {}} size="smaller" variant="danger" text='' />
                     </Actions>;
                 },
             },
