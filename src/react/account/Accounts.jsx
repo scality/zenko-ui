@@ -1,15 +1,64 @@
+// @flow
 import * as L from '../ui-elements/ListLayout';
+import React, { useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import AccountContent from './AccountContent';
 import AccountList from './AccountList';
-import React from 'react';
+import type { AppState } from '../../types/state';
+import Loader from '../ui-elements/Loader';
+import { Warning } from '../ui-elements/Warning';
+import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
+
+export const EmptyState = () => (
+    <L.ContentSection>
+        <L.Head/>
+        <L.Details/>
+    </L.ContentSection>
+);
+
+const sortByDate = (objs, desc) => objs.sort((a,b) => (a.createDate > b.createDate) ? (desc ? 1 : -1) : ((b.createDate > a.createDate) ? (desc ? -1 : 1) : 0));
 
 const Accounts = () => {
+    const dispatch = useDispatch();
+
+    const { accountName: accountNameParam } = useParams();
+
+    const accounts = useSelector((state: AppState) => state.configuration.latest.users);
+    const accountList = useMemo(() => sortByDate(accounts, false), [accounts]);
+    const accountIndex = useMemo(() => accountList.findIndex(a => a.userName === accountNameParam), [accountList, accountNameParam]);
+
+    useEffect(() => {
+        // NOTE: display the first/newest account after the mount or when an account gets deleted (not on every render).
+        if (!accountNameParam && accountList.length > 0) {
+            dispatch(push(`/accounts/${accountList[0].userName}`));
+        }
+    }, [dispatch, accountNameParam, accountList.length]);
+
+    // while loading/redirecting to the first account.
+    if (!accountNameParam && accountList.length > 0) {
+        return <Loader> Redirecting to the newest account </Loader>;
+    }
+
+    // empty state.
+    if (accountList.length === 0) {
+        return <L.Container>
+            <L.EmptyStateSection>
+                <Warning
+                    iconClass="fas fa-5x fa-wallet"
+                    title='Let&apos;s start, create your first account.'
+                    btnTitle='Create Account'
+                    btnAction={() => dispatch(push('/createAccount'))} />
+            </L.EmptyStateSection>
+        </L.Container>;
+    }
+
     return (
         <L.Container>
             <L.ListSection>
-                <AccountList/>
+                <AccountList accountList={accountList} accountIndex={accountIndex}/>
             </L.ListSection>
-            <AccountContent/>
+            <AccountContent account={accountList[accountIndex]}/>
         </L.Container>
     );
 };

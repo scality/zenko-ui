@@ -1,29 +1,15 @@
 // @flow
 
 import * as L from '../ui-elements/ListLayout';
-import React, { useMemo } from 'react';
+import type { Account } from '../../types/account';
 import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
-import type { AppState } from '../../types/state';
-import { useParams } from 'react-router-dom';
-import {  useSelector } from 'react-redux';
+import React from 'react';
 
-export const EmptyState = () => (
-    <L.ContentSection>
-        <L.Head/>
-        <L.Details/>
-    </L.ContentSection>
-);
-
-function AccountContent() {
-    const accountList = useSelector((state: AppState) => state.configuration.latest.users);
-    const { accountName: accountNameParam } = useParams();
-    const account = useMemo(() => accountList.find(a => a.userName === accountNameParam), [accountList, accountNameParam]);
-
-    // empty state.
-    if (accountList.length === 0) {
-        return <EmptyState />;
-    }
+type Props = {
+    account: ?Account,
+};
+function AccountContent({ account }: Props) {
     return (
         <L.ContentSection>
             <L.Head>
