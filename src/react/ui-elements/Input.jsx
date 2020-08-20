@@ -14,7 +14,6 @@ const Input = styled.input`
     font-size: 14px;
     display: block;
     border-radius: 4px;
-    height: 20px;
 
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */

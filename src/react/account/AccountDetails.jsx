@@ -15,12 +15,12 @@ import styled from 'styled-components';
 const Tabs = styled(CustomTabs)`
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-
-    .sc-tabs-item-content{
-      display: flex;
-      overflow-y: auto;
-    }
+    // overflow: hidden;
+    //
+    // .sc-tabs-item-content{
+    //   display: flex;
+    //   overflow-y: auto;
+    // }
 `;
 
 type Props = {

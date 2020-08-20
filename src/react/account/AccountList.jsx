@@ -16,6 +16,10 @@ export const Icon = styled.i`
     margin-left: 5px;
 `;
 
+export const CustomBody = styled(T.Body)`
+    height: calc(100vh - 200px);
+`;
+
 const columns = [
     {
         Header: 'Name',
@@ -98,7 +102,7 @@ function AccountList() {
         <Container id='account-list'>
             <T.Search>
                 <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
-                <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
+                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
             </T.Search>
             <T.Container>
                 <Table {...getTableProps()}>
@@ -120,7 +124,7 @@ function AccountList() {
                             </T.HeadRow>
                         ))}
                     </T.Head>
-                    <T.Body {...getTableBodyProps()}>
+                    <CustomBody {...getTableBodyProps()}>
                         {
                             // ISSUE: https://github.com/bvaughn/react-window/issues/504
                             // eslint-disable-next-line flowtype-errors/show-errors
@@ -135,7 +139,7 @@ function AccountList() {
                                 {MemoRow}
                             </FixedSizeList>
                         }
-                    </T.Body>
+                    </CustomBody>
                 </Table>
             </T.Container>
         </Container>
