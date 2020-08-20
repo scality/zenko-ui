@@ -22,7 +22,7 @@ export const CustomBody = styled(T.Body)`
 
 const columns = [
     {
-        Header: 'Name',
+        Header: 'Account Name',
         accessor: 'userName',
     },
     {
@@ -101,7 +101,7 @@ function AccountList() {
     return (
         <Container id='account-list'>
             <T.Search>
-                <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
+                <T.SearchInput placeholder='Filter by Account Name' onChange={e => setFilter('userName', e.target.value)}/>
                 <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
             </T.Search>
             <T.Container>

@@ -51,11 +51,11 @@ function Locations() {
     const columns = useMemo(
         () => [
             {
-                Header: 'Name',
+                Header: 'Location Name',
                 accessor: 'name',
             },
             {
-                Header: 'Type',
+                Header: 'Location Type',
                 accessor: 'locationType',
             },
             {
@@ -100,7 +100,7 @@ function Locations() {
     return (
         <Container id='account-list'>
             <T.Search>
-                <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('name', e.target.value)}/>
+                <T.SearchInput placeholder='Filter by Location Name' onChange={e => setFilter('name', e.target.value)}/>
                 <T.ExtraButton text="Create Location" icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(push('/create-location'))} size="default" type="submit" />
             </T.Search>
             <T.Container>
