@@ -51,6 +51,7 @@ function Routes() {
                             link: <Link to="/">Storage Monitoring</Link>,
                             selected: !!matchPath(pathname, { path: '/', exact: true }),
                         },
+                        // TODO: isSelected not working here!
                         {
                             link: <Link to="/accounts">Accounts</Link>,
                             selected: !!matchPath(pathname, { path: '/accounts/:accountName?' }),

@@ -53,7 +53,6 @@ export const HeadCell = styled.th`
 export const Body = styled.tbody`
     // following is needed to display scroll bar onto the table
     display: block;
-    height: calc(100vh - 200px);
     overflow: auto;
 `;
 
