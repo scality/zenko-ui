@@ -2,14 +2,13 @@
 import MemoRow, { createItemData } from './AccountRow';
 import React, { useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
-import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
-import type { AppState } from '../../types/state';
+import type { Account } from '../../types/account';
 import { FixedSizeList } from 'react-window';
-import { Warning } from '../ui-elements/Warning';
 import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 export const Icon = styled.i`
@@ -28,13 +27,6 @@ const columns = [
     },
 ];
 
-const initialSortBy = [
-    {
-        id: 'createDate',
-        desc: true,
-    },
-];
-
 const Container = styled.div`
     min-width: 430px;
 `;
@@ -46,15 +38,14 @@ const handleSortClick = (column, listRef) => {
     column.toggleSortBy();
 };
 
-function AccountList() {
+type Props = {
+    accountList: Array<Account>,
+    accountIndex: number,
+};
+function AccountList({ accountList, accountIndex }: Props) {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
-
     const listRef = useRef<FixedSizeList<T> | null>(null);
-
-    // NOTE: accountList do not need to be memoized.
-    // "accountList"'s reference changes when a new configuration is set.
-    const accountList = useSelector((state: AppState) => state.configuration.latest.users);
 
     const {
         getTableProps,
@@ -66,39 +57,22 @@ function AccountList() {
     } = useTable({
         columns,
         data: accountList,
-        initialState: { sortBy: initialSortBy },
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
     }, useFilters, useSortBy);
 
     useEffect(() => {
-        // NOTE: display the first/newest account after the mount or when an account gets deleted (not on every render).
-        if (!accountNameParam && rows.length > 0) {
-            dispatch(push(`/accounts/${rows[0].original.userName}`));
-        }
-    }, [accountNameParam, dispatch, rows.length]);
-
-
-    useEffect(() => {
-        if (listRef && listRef.current && accountNameParam && rows.length > 0) {
-            listRef.current.scrollToItem(
-                rows.findIndex(r => r.values.userName === accountNameParam),
-                'smart'
-            );
+        if (listRef && listRef.current && accountIndex > -1) {
+            listRef.current.scrollToItem(accountIndex, 'smart');
         }
     }, [listRef]);
-
-    // NOTE: empty state component
-    if (accountList.length === 0) {
-        return <Warning iconClass="fas fa-5x fa-wallet" title='Let&apos;s start, create your first account.' btnTitle='Create Account' btnAction={() => dispatch(push('/createAccount'))} />;
-    }
 
     return (
         <Container id='account-list'>
             <T.Search>
                 <T.SearchInput placeholder='Filter by Name' onChange={e => setFilter('userName', e.target.value)}/>
-                <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/createAccount'))} size="default" type="submit" />
+                <T.ExtraButton text="Create Account" variant='info' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
             </T.Search>
             <T.Container>
                 <Table {...getTableProps()}>
