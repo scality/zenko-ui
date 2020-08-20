@@ -27,6 +27,17 @@ export const Container = styled.div`
     height: calc(100vh - 50px);
 `;
 
+export const EmptyStateSection = styled.div`
+    flex: 1 1 100%;
+    flex-direction: column;
+
+    height: calc(100% - 40px);
+    background-color: ${props => props.theme.brand.backgroundContrast1};
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+`;
+
 export const ListSection = styled.div`
     flex: 0 0 450px;
     flex-direction: column;

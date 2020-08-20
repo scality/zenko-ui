@@ -37,30 +37,10 @@ const account3 = {
 };
 
 describe('AccountList', () => {
-    it('should render empty AccountList component if state is empty', () => {
-        jest.spyOn(router, 'useParams').mockReturnValue({});
-        const { component } = reduxMount(<AccountList/>, {
-            configuration: {
-                latest: {
-                    users: [],
-                },
-            },
-        });
-
-        expect(component.find('div#account-list')).toHaveLength(0);
-        expect(component.find(Warning)).toHaveLength(1);
-        expect(component.find(Warning).text()).toContain('Let\'s start, create your first account.');
-    });
-
-    it('should render AccountList component with users sorted by creation date and homer row selected', () => {
+    it('should render AccountList component with homer row selected', () => {
         jest.spyOn(router, 'useParams').mockReturnValue({ accountName: 'homer' });
-        const { component } = reduxMount(<AccountList/>, {
-            configuration: {
-                latest: {
-                    users: [ account1, account2, account3 ],
-                },
-            },
-        });
+        const { component } = reduxMount(<AccountList accountList={[ account1, account2, account3 ]} />);
+
         expect(component.find('div#account-list')).toHaveLength(1);
         expect(component.find(Warning)).toHaveLength(0);
 
@@ -71,22 +51,22 @@ describe('AccountList', () => {
         expect(firstRow.prop('isSelected')).toEqual(false);
         const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
         expect(firstRowColumns.length).toEqual(2);
-        expect(firstRowColumns[0]).toEqual(account2.userName);
-        expect(firstRowColumns[1]).toEqual(formatDate(new Date(account2.createDate)));
+        expect(firstRowColumns[0]).toEqual(account1.userName);
+        expect(firstRowColumns[1]).toEqual(formatDate(new Date(account1.createDate)));
 
         const secondRow = rows.at(1);
-        expect(secondRow.prop('isSelected')).toEqual(true);
+        expect(secondRow.prop('isSelected')).toEqual(false);
         const secondRowColumns = secondRow.find(T.Cell).map(column => column.text());
         expect(secondRowColumns.length).toEqual(2);
-        expect(secondRowColumns[0]).toEqual(account3.userName);
-        expect(secondRowColumns[1]).toEqual(formatDate(new Date(account3.createDate)));
+        expect(secondRowColumns[0]).toEqual(account2.userName);
+        expect(secondRowColumns[1]).toEqual(formatDate(new Date(account2.createDate)));
 
         const thirdRow = rows.last();
-        expect(thirdRow.prop('isSelected')).toEqual(false);
+        expect(thirdRow.prop('isSelected')).toEqual(true);
         const thirdRowColumns = rows.last().find(T.Cell).map(column => column.text());
         expect(thirdRowColumns.length).toEqual(2);
-        expect(thirdRowColumns[0]).toEqual(account1.userName);
-        expect(thirdRowColumns[1]).toEqual(formatDate(new Date(account1.createDate)));
+        expect(thirdRowColumns[0]).toEqual(account3.userName);
+        expect(thirdRowColumns[1]).toEqual(formatDate(new Date(account3.createDate)));
     });
 
 });
