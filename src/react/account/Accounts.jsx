@@ -26,7 +26,7 @@ const Accounts = () => {
             <L.EmptyStateSection>
                 <Warning
                     iconClass="fas fa-5x fa-wallet"
-                    title='Let&apos;s start, create your first account.'
+                    title='Create your first account.'
                     btnTitle='Create Account'
                     btnAction={() => dispatch(push('/create-account'))} />
             </L.EmptyStateSection>
