@@ -12,24 +12,24 @@ import type {
     SignoutStartAction,
     ThunkNonStateAction,
     ThunkStatePromisedAction,
-}  from '../../types/actions';
+} from '../../types/actions';
 
 import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
 
-import type { ManagementClient as ManagementClientInterface }  from '../../types/managementClient';
+import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 
 import S3Client from '../../js/S3Client';
 
-import type { S3Client as S3ClientInterface }  from '../../types/s3Client';
+import type { S3Client as S3ClientInterface } from '../../types/s3Client';
 
 // import STSClient from '../../js/STSClient';
 
-import type { UserManager as UserManagerInterface }  from '../../types/auth';
+import type { UserManager as UserManagerInterface } from '../../types/auth';
 
 import { getAppConfig } from '../../js/config';
 import { loadUser } from 'redux-oidc';
 import makeMgtClient from '../../js/managementClient';
-import  { makeUserManager } from '../../js/userManager';
+import { makeUserManager } from '../../js/userManager';
 import { push } from 'connected-react-router';
 import { store } from '../store';
 

@@ -60,7 +60,7 @@ export type AccountState = {|
     +display: Account,
 |};
 
-export type InstancesState =  {|
+export type InstancesState = {|
     +selectedId: InstanceId | null,
 |};
 

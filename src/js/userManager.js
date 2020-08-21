@@ -12,7 +12,7 @@ type UserManagerType = {
 const currentEndpoint: string = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
 
 export function makeUserManager({ oidcAuthority: authority, oidcClientId: clientId }: UserManagerType): UserManagerInterface {
-    const config =  {
+    const config = {
         authority: authority,
         client_id: clientId,
         redirect_uri: `${currentEndpoint}/login/callback`,

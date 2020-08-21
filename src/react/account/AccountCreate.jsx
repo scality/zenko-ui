@@ -30,7 +30,7 @@ function AccountCreate() {
     const dispatch = useDispatch();
 
     const onSubmit = ({ email, name, quota }) => {
-        const quotaMaxInt =  quota || 0;
+        const quotaMaxInt = quota || 0;
         const payload = { userName: name, email, quotaMax: quotaMaxInt };
         dispatch(createAccount(payload));
     };

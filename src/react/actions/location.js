@@ -1,8 +1,8 @@
 // @flow
-import type { Location, LocationName }  from '../../types/config';
+import type { Location, LocationName } from '../../types/config';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import type { ThunkStatePromisedAction }  from '../../types/actions';
+import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 import { goBack } from 'connected-react-router';
 import { updateConfiguration } from './configuration';

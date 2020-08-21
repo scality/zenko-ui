@@ -59,19 +59,19 @@ export type SetAppConfigAction = {|
     +config: AppConfig,
 |};
 
-export type  ConfigAuthFailureAction = {|
+export type ConfigAuthFailureAction = {|
     +type: 'CONFIG_AUTH_FAILURE',
 |};
 
-export type  LoadUserSuccessAction = {|
+export type LoadUserSuccessAction = {|
     +type: 'LOAD_USER_SUCCESS',
 |};
 
-export type  SignoutStartAction = {|
+export type SignoutStartAction = {|
     +type: 'SIGNOUT_START',
 |};
 
-export type  SignoutEndAction = {|
+export type SignoutEndAction = {|
     +type: 'SIGNOUT_END',
 |};
 
@@ -84,7 +84,7 @@ export type AuthAction = InitClientsAction |
   SignoutEndAction;
 
 // instances actions
-export type  SelectInstanceAction = {|
+export type SelectInstanceAction = {|
     +type: 'SELECT_INSTANCE',
     +selectedId: InstanceId,
 |};

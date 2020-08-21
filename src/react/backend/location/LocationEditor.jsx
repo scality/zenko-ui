@@ -2,7 +2,7 @@
 import { Banner, Button } from '@scality/core-ui';
 import Form, * as F from '../../ui-elements/FormLayout';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
-import React, {  useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
 import { convertToForm, convertToLocation, newLocationDetails, newLocationForm } from './utils';
@@ -28,7 +28,7 @@ function LocationEditor() {
     const dispatch = useDispatch();
     const { locationName } = useParams();
     const locationEditing = useSelector((state: AppState) => state.configuration.latest.locations[locationName || '']);
-    const capabilities =  useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
+    const capabilities = useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
 

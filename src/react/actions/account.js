@@ -3,7 +3,7 @@ import type {
     CloseAccountDeleteDialogAction,
     OpenAccountDeleteDialogAction,
     ThunkStatePromisedAction,
-}  from '../../types/actions';
+} from '../../types/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import type { CreateAccountRequest } from '../../types/account';

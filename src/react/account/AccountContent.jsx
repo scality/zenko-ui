@@ -6,7 +6,7 @@ import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
 import type { AppState } from '../../types/state';
 import { useParams } from 'react-router-dom';
-import {  useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export const EmptyState = () => (
     <L.ContentSection>
@@ -30,7 +30,7 @@ function AccountContent() {
                 <AccountHead account={account}/>
             </L.Head>
             <L.Details>
-                <AccountDetails account={account}  />
+                <AccountDetails account={account} />
             </L.Details>
         </L.ContentSection>
     );
