@@ -10,7 +10,7 @@ const Input = styled.input`
     border-width: thin;
     border-style: solid;
     border-color: ${props => props.hasError ? props.theme.brand.danger : '#ffffff'};
-    padding: 8px 10px;
+    padding-left: 10px;
     font-size: 14px;
     display: block;
     border-radius: 4px;

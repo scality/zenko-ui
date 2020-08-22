@@ -5,7 +5,7 @@ import Table, * as T from '../../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button, Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -42,6 +42,22 @@ const Container = styled.div`
     min-width: 430px;
 `;
 
+const IconTooltip = styled.i`
+    margin-left: 5px;
+`;
+
+const Overlay = styled.div`
+    width: 200px;
+    text-align: left;
+`;
+
+const CustomHeader = () => <span>
+    Target Bucket
+    <Tooltip overlay={<Overlay> Name of the bucket/container created in the specific location (e.g. RING, Azure, AWS S3, GCP...) and where the data of your Zenko buckets that are attached to that location will be stored. </Overlay>} placement="right">
+        <IconTooltip className='far fa-question-circle'></IconTooltip >
+    </Tooltip>
+</span>;
+
 function Locations() {
     const dispatch = useDispatch();
 
@@ -59,7 +75,7 @@ function Locations() {
                 accessor: 'locationType',
             },
             {
-                Header: 'Target Bucket',
+                Header: CustomHeader,
                 accessor: 'details.bucketName',
             },
             {
@@ -94,7 +110,7 @@ function Locations() {
 
     // NOTE: empty state component
     if (locations.length === 0) {
-        return <Warning iconClass="fas fa-5x fa-wallet" title='Let&apos;s start, create your first storage location.' btnTitle='Create Location' btnAction={() => dispatch(push('/create-location'))} />;
+        return <Warning iconClass="fas fa-5x fa-wallet" title='Create your first storage location.' btnTitle='Create Location' btnAction={() => dispatch(push('/create-location'))} />;
     }
 
     return (
@@ -109,7 +125,7 @@ function Locations() {
                         {headerGroups.map(headerGroup => (
                             <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())} >
+                                    <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
                                         {column.render('Header')}
                                         <Icon>
                                             {!column.disableSortBy && (column.isSorted

@@ -82,7 +82,7 @@ export const Search = styled.div`
 `;
 
 export const SearchInput = styled(Input)`
-    flex: 0 0 40%;
+    flex: 0 0 220px;
 `;
 
 export const ExtraButton = styled(Button)`
