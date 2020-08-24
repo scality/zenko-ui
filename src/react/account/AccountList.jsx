@@ -19,6 +19,17 @@ export const CustomBody = styled(T.Body)`
     height: calc(100vh - 200px);
 `;
 
+const Container = styled.div`
+    min-width: 430px;
+`;
+
+const handleSortClick = (column, listRef) => {
+    if (listRef && listRef.current) {
+        listRef.current.scrollToItem(0);
+    }
+    column.toggleSortBy();
+};
+
 const columns = [
     {
         Header: 'Account Name',
@@ -30,17 +41,6 @@ const columns = [
         Cell: ({ value }) => { return formatDate(new Date(value));},
     },
 ];
-
-const Container = styled.div`
-    min-width: 430px;
-`;
-
-const handleSortClick = (column, listRef) => {
-    if (listRef && listRef.current) {
-        listRef.current.scrollToItem(0);
-    }
-    column.toggleSortBy();
-};
 
 type Props = {
     accountList: Array<Account>,
@@ -74,10 +74,12 @@ function AccountList({ accountList, accountIndex }: Props) {
 
     return (
         <Container id='account-list'>
-            <T.Search>
-                <T.SearchInput placeholder='Filter by Account Name' onChange={e => setFilter('userName', e.target.value)}/>
+            <T.SearchContainer>
+                <T.Search>
+                    <T.SearchInput placeholder='Filter by Account Name' onChange={e => setFilter('userName', e.target.value)} />
+                </T.Search>
                 <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='info' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
-            </T.Search>
+            </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
                     <T.Head>

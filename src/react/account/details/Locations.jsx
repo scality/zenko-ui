@@ -1,13 +1,14 @@
 // @flow
-import type { LocationName, Locations as LocationsType } from '../../../types/config';
+import { Button, Tooltip } from '@scality/core-ui';
+import type { LocationName, LocationType, Locations as LocationsType } from '../../../types/config';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
-import { Button, Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
+import { storageOptions } from '../../backend/location/LocationDetails/storageOptions';
 import styled from 'styled-components';
 
 const canEditLocation = (locationName: LocationName, locations: LocationsType): boolean => {
@@ -27,14 +28,14 @@ export const Icon = styled.i`
 `;
 
 export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 400px);
+    height: calc(100vh - 420px);
 `;
 
-const Actions = styled.div`
+export const Actions = styled.div`
     text-align: right;
 `;
 
-const ActionButton = styled(Button)`
+export const ActionButton = styled(Button)`
     margin-left: 5px;
 `;
 
@@ -47,7 +48,8 @@ const IconTooltip = styled.i`
 `;
 
 const Overlay = styled.div`
-    width: 200px;
+    width: 220px;
+    padding: 10px;
     text-align: left;
 `;
 
@@ -73,6 +75,9 @@ function Locations() {
             {
                 Header: 'Location Type',
                 accessor: 'locationType',
+                Cell({ value: locationType }: { value: LocationType }) {
+                    return storageOptions[locationType]?.name || 'N/A' ;
+                },
             },
             {
                 Header: CustomHeader,
@@ -114,11 +119,11 @@ function Locations() {
     }
 
     return (
-        <Container id='account-list'>
-            <T.Search>
-                <T.SearchInput placeholder='Filter by Location Name' onChange={e => setFilter('name', e.target.value)}/>
+        <Container id='location-list'>
+            <T.SearchContainer>
+                <T.Search> <T.SearchInput placeholder='Filter by Location Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
                 <T.ExtraButton text="Create Location" icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(push('/create-location'))} size="default" type="submit" />
-            </T.Search>
+            </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
                     <T.Head>

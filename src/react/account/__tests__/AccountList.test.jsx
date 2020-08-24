@@ -1,7 +1,6 @@
 import * as T from '../../ui-elements/Table';
 import AccountList from '../AccountList';
 import React from 'react';
-import { Warning } from '../../ui-elements/Warning';
 import { formatDate } from '../../utils';
 import { reduxMount } from '../../utils/test';
 import router from 'react-router';
@@ -42,7 +41,6 @@ describe('AccountList', () => {
         const { component } = reduxMount(<AccountList accountList={[ account1, account2, account3 ]} />);
 
         expect(component.find('div#account-list')).toHaveLength(1);
-        expect(component.find(Warning)).toHaveLength(0);
 
         const rows = component.find(T.Row);
         expect(rows).toHaveLength(3);
