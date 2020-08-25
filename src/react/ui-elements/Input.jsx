@@ -5,8 +5,8 @@ import styled from 'styled-components';
 const Input = styled.input`
     display: flex
 
-    background-color: #161617;
-    color: #ffffff;
+    background-color: transparent;
+    color: ${props => props.theme.brand.textPrimary};
     border-width: 1px;
     border-style: solid;
     border-color: ${props => props.hasError ? props.theme.brand.danger : '#ffffff'};

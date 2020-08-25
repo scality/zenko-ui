@@ -31,7 +31,7 @@ const BucketSection = styled.div`
   display: flex;
   flex-direction: column;
 
-  background-color: ${props => props.theme.brand.backgroundContrast1};
+  background-color: ${props => props.theme.brand.primary};
   border-radius: 5px;
   padding: 1em;
 

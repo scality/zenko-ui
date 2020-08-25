@@ -32,7 +32,7 @@ export const EmptyStateSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primaryDark1};
     margin: 10px;
     padding: 10px;
     border-radius: 5px;
@@ -43,7 +43,7 @@ export const ListSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primaryDark1};
     margin: 10px 0px 10px 10px;
     padding: 10px;
     border-radius: 5px;
@@ -102,8 +102,8 @@ export const IconCircle = styled.i`
     width: 40px;
     font-size: 40px
     padding: 20px;
-    color: ${props => props.theme.brand.textSecondary};
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    color: ${props => props.theme.brand.textPrimary};
+    background-color: ${props => props.theme.brand.primaryDark1};
 `;
 
 export const Details = styled.div`
@@ -113,6 +113,6 @@ export const Details = styled.div`
 
     padding: 10px;
     margin-top: 10px;
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primaryDark1};
     border-radius: 5px;
 `;

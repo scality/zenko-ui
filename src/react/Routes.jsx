@@ -40,12 +40,11 @@ function Routes() {
                 <Navbar
                     rightActions={[
                         {
-                            text: `logout ${userName}`,
-                            icon: <i className='fas fa-user' />,
-                            type: 'button',
-                            onClick: () => dispatch(signout()),
-                        },
-                    ]}
+                            text: `${userName}`,
+                            type: 'dropdown',
+                            items: [{ label: 'Log out', onClick: () => dispatch(signout()) } ],
+                        }]
+                    }
                     tabs={[
                         {
                             link: <Link to="/">Storage Monitoring</Link>,

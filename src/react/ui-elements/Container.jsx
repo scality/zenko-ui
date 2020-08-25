@@ -18,7 +18,7 @@ const Container = styled.div`
     max-width: 600px;
     margin: 10px;
     padding: 20px;
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primaryDark1};
     border-radius: 5px;
 `;
 

@@ -51,7 +51,7 @@ const UserRightContent = styled.div`
 
   min-height: calc(100vh - 150px);
   margin-top: 10px;
-  background-color: ${props => props.theme.brand.backgroundContrast1};
+  background-color: ${props => props.theme.brand.primaryDark1};
   border-radius: 5px;
   .sc-tabs{
       width: 100%;

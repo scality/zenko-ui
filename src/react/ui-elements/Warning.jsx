@@ -8,7 +8,7 @@ const Container = styled.div`
     flex-direction: column;
     text-align: center;
     justify-content: center;
-    color: ${props => props.theme.brand.textSecondary};
+    color: ${props => props.theme.brand.textPrimary};
 
     height: 100%;
 `;
