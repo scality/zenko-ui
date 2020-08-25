@@ -87,6 +87,22 @@ export const Search = styled.div`
 
 export const SearchInput = styled(Input)`
     width: 100%;
+    border-color: ${props => props.theme.brand.borderLight};
+    background-color: ${props => props.theme.brand.background};
+
+    // placeholder italics
+    ::-webkit-input-placeholder {
+       font-style: italic;
+    }
+    :-moz-placeholder {
+       font-style: italic;
+    }
+    ::-moz-placeholder {
+       font-style: italic;
+    }
+    :-ms-input-placeholder {
+       font-style: italic;
+    }
 `;
 
 export const ExtraButton = styled(Button)`

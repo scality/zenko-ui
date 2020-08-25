@@ -28,7 +28,7 @@ export const Icon = styled.i`
 `;
 
 export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 420px);
+    height: calc(100vh - 405px);
 `;
 
 export const Actions = styled.div`

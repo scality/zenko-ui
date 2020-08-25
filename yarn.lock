@@ -1449,7 +1449,7 @@
 
 "@scality/core-ui@github:scality/core-ui.git#zenko":
   version "0.5.0"
-  resolved "https://codeload.github.com/scality/core-ui/tar.gz/3dcce8e14d175c9752533f833394899c0139550f"
+  resolved "https://codeload.github.com/scality/core-ui/tar.gz/f48b416e884d1a688cb24a2415ebfe474dc02ff9"
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"
@@ -4029,9 +4029,9 @@ ee-first@1.1.1:
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
 
 electron-to-chromium@^1.3.523:
-  version "1.3.544"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.544.tgz#ac1f7d319f6060f3d6d122261d542ec77eb1427e"
-  integrity sha512-jx6H7M1db76Q/dI3MadZC4qwNTvpiq8tdYEJswxexrIm5bH+LKRdg+VAteMF1tJJbBLrcuogE9N3nxT3Dp1gag==
+  version "1.3.545"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.545.tgz#d9add694c78554b8c00bc6e6fc929d5ccd7d1b99"
+  integrity sha512-+0R/i17u5E1cwF3g0W8Niq3UUKTUMyyT4kLkutZUHG8mDNvFsAckK3HIanzGVtixe3b6rknD8k7gHiR6nKFkgg==
 
 elegant-spinner@^1.0.1:
   version "1.0.1"
@@ -8509,9 +8509,9 @@ react-dom@^16.12.0:
     scheduler "^0.19.1"
 
 react-hook-form@^6.3.3:
-  version "6.5.1"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.5.1.tgz#504389d09970f2e7fc8c5ec8db2c551c863bcde9"
-  integrity sha512-MakeW3CRj4n1FW4HuliM8vlWup+5keUWDduf5lPlori6OWQ616xGzxrUOKoDUIGh0ERgCebObrLb5UiFDlSxAQ==
+  version "6.5.3"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-6.5.3.tgz#77c153731a96950ea1875a934b2e5d39a5673087"
+  integrity sha512-ID0z1udMQueWta3cceQUBaWLqZZLwSNWkxXYcuxa0nbII+mnggmGiEQW7PuWBBkEXv6GdHlu4PNqRj/FoeDpRg==
 
 react-input-autosize@^2.2.1:
   version "2.2.2"

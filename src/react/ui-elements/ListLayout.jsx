@@ -101,12 +101,8 @@ export const IconCircle = styled.i`
 `;
 
 export const Details = styled.div`
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100% - 140px);
+    min-height: calc(100% - 120px);
+    height: calc(100% - 120px);
 
-    padding: 10px;
     margin-top: 10px;
-    background-color: ${props => props.theme.brand.primary};
-    border-radius: 5px;
 `;

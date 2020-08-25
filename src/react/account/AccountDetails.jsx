@@ -15,6 +15,7 @@ import styled from 'styled-components';
 const Tabs = styled(CustomTabs)`
     display: flex;
     flex-direction: column;
+    height: 100%;
 `;
 
 type Props = {

@@ -49,5 +49,6 @@ export const theme = {
         textPrimary: '#FFFFFF',
         textSecondary: '#B5B5B5',
         border: white,
+        borderLight: '#A5A5A5',
     },
 };
