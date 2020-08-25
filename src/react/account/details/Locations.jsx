@@ -115,7 +115,7 @@ function Locations() {
 
     // NOTE: empty state component
     if (locations.length === 0) {
-        return <Warning iconClass="fas fa-5x fa-wallet" title='Create your first storage location.' btnTitle='Create Location' btnAction={() => dispatch(push('/create-location'))} />;
+        return <Warning iconClass="fas fa-5x fa-map-marker-alt" title='Create your first storage location.' btnTitle='Create Location' btnAction={() => dispatch(push('/create-location'))} />;
     }
 
     return (
