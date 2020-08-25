@@ -9,7 +9,4 @@ export const CustomTabs = styled(Tabs)`
     .sc-tabs-bar{
         min-height: 50px;
     }
-    .sc-tabs-item-content{
-        background-color: ${props => props.theme.brand.primary};
-    }
 `;

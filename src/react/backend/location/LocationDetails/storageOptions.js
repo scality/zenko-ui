@@ -84,7 +84,7 @@ export const storageOptions: ({ [name: string]: any }) = {
         checkCapability: 'locationTypeHyperdriveV2',
     },
     'location-scality-ring-s3-v1': {
-        name: 'Scality RING with S3 Connector',
+        name: 'Scality RING with S3',
         short: 'RING',
         formDetails: LocationDetailsAwsCustom,
         supportsVersioning: true,
@@ -95,7 +95,7 @@ export const storageOptions: ({ [name: string]: any }) = {
         ingestCapability: 's3cIngestLocation',
     },
     'location-scality-sproxyd-v1': {
-        name: 'Scality RING with Sproxyd Connector',
+        name: 'Scality RING with Sproxyd',
         short: 'Sproxyd',
         formDetails: LocationDetailsSproxyd,
         supportsVersioning: true,

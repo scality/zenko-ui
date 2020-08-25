@@ -61,11 +61,11 @@ export const Row = styled(HeadRow)`
     cursor: pointer;
 
     &:hover{
-      background-color: ${props => props.theme.brand.background};
+      background-color: ${props => props.theme.brand.backgroundBluer};
     }
 
     ${({ isSelected, theme }) => isSelected && `
-        background-color: ${theme.brand.background};
+        background-color: ${theme.brand.backgroundBluer};
     `}
 `;
 

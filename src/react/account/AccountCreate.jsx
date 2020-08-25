@@ -96,7 +96,7 @@ function AccountCreate() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button variant="secondary" onClick={() => dispatch(goBack())} text='Cancel'/>
+                <Button outlined onClick={() => dispatch(goBack())} text='Cancel'/>
                 <Button id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>

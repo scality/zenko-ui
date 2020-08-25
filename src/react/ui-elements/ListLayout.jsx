@@ -32,7 +32,7 @@ export const EmptyStateSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.primary};
     margin: 10px;
     padding: 10px;
     border-radius: 5px;
@@ -43,7 +43,7 @@ export const ListSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.primary};
     margin: 10px 0px 10px 10px;
     padding: 10px;
     border-radius: 5px;
@@ -64,13 +64,7 @@ export const Head = styled.div`
     min-height: 80px;
     border-radius: 5px;
     padding: 15px;
-    background: repeating-radial-gradient(
-      circle at 55px 50%,
-      #212127,
-      #212127 3px,
-      #32323a 3px,
-      #32323a 15px
-    );
+    background-color: ${props => props.theme.brand.primary};
 `;
 
 export const HeadLeft = styled.div`
@@ -113,6 +107,6 @@ export const Details = styled.div`
 
     padding: 10px;
     margin-top: 10px;
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.primary};
     border-radius: 5px;
 `;

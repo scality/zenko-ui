@@ -186,7 +186,7 @@ function LocationEditor() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button variant="secondary" onClick={cancel} text='Cancel'/>
+                <Button outlined onClick={cancel} text='Cancel'/>
                 <Button variant="info" disabled={disable} onClick={save} text='Create'/>
             </F.FooterButtons>
         </F.Footer>

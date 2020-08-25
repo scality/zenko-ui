@@ -1449,7 +1449,7 @@
 
 "@scality/core-ui@github:scality/core-ui.git#zenko":
   version "0.5.0"
-  resolved "https://codeload.github.com/scality/core-ui/tar.gz/eaab5a2773d26600febb28a1337849e6e1f1d148"
+  resolved "https://codeload.github.com/scality/core-ui/tar.gz/3dcce8e14d175c9752533f833394899c0139550f"
 
 "@sindresorhus/is@^0.7.0":
   version "0.7.0"

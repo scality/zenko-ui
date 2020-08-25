@@ -40,6 +40,7 @@ function Routes() {
                 <Navbar
                     rightActions={[
                         {
+                            icon: <i className="fas fa-user"/>,
                             text: `${userName}`,
                             type: 'dropdown',
                             items: [{ label: 'Log out', onClick: () => dispatch(signout()) } ],

@@ -32,7 +32,7 @@ import {
 export const theme = {
     name: 'Dark Theme',
     brand: {
-        base: '#19161D',
+        base: '#7B7B7B',
         baseContrast1: '#26232A',
         primary: '#1D1D1D',
         secondary: '#055DFF',
@@ -41,6 +41,7 @@ export const theme = {
         warning: yellowOrange,
         danger: warmRed,
         primaryDark1: '#171717',
+        primaryDark2: '#0A0A0A',
         background: '#121212',
         backgroundBluer: '#192A41',
 
