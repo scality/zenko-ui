@@ -1,6 +1,4 @@
 import {
-    grayLight,
-    grayLighter,
     green,
     warmRed,
     white,
@@ -10,20 +8,23 @@ import {
 export const theme = {
     name: 'Dark Theme',
     brand: {
-        base: '#19161D',
+        base: '#7B7B7B',
         baseContrast1: '#26232A',
-        primary: white,
-        secondary: '#a7a7a7',
+        primary: '#1D1D1D',
+        secondary: '#055DFF',
         success: green,
         info: '#007AFF',
         warning: yellowOrange,
         danger: warmRed,
-        background: '#0a0a0b',
-        backgroundContrast1: '#16161a',
-        backgroundContrast2: '#08080A',
+        primaryDark1: '#171717',
+        primaryDark2: '#0A0A0A',
+        background: '#121212',
+        backgroundBluer: '#192A41',
+
         text: '#ECECEC',
-        textPrimary: grayLighter,
-        textSecondary: grayLight,
+        textPrimary: '#FFFFFF',
+        textSecondary: '#B5B5B5',
         border: white,
+        borderLight: '#A5A5A5',
     },
 };

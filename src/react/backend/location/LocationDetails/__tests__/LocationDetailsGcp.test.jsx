@@ -1,7 +1,6 @@
-import { checkBox, updateInputText } from '../../../../utils/test';
+import { checkBox, themeMount as mount, updateInputText } from '../../../../utils/test';
 import LocationDetailsGcp from '../LocationDetailsGcp';
 import React from 'react';
-import { mount } from 'enzyme';
 
 const props = {
     details: {},
@@ -35,7 +34,7 @@ describe('class <LocationDetailsGcp />', () => {
         const component = mount(
             <LocationDetailsGcp {...props} onChange={onChangeFn} />
         );
-        component.setState({ ...refLocation }, () => {
+        component.find(LocationDetailsGcp).setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

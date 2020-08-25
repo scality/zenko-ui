@@ -1,7 +1,6 @@
-import { addListEntry, delListEntry, editListEntry } from '../../../../utils/test';
+import { addListEntry, delListEntry, editListEntry, themeMount as mount } from '../../../../utils/test';
 import LocationDetailsHyperdriveV2 from '../LocationDetailsHyperdriveV2';
 import React from 'react';
-import { mount } from 'enzyme';
 
 const props = {
     details: {},
@@ -27,7 +26,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
         const component = mount(
             <LocationDetailsHyperdriveV2 {...props} onChange={onChangeFn} />
         );
-        component.setState({ ...refLocation }, () => {
+        component.find(LocationDetailsHyperdriveV2).setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

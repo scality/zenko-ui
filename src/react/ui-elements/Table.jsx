@@ -28,7 +28,6 @@ export const Container = styled.div`
     display: flex;
     margin-top: 20px;
     width: 100%;
-    min-width: 300px;
 `;
 
 // * table head
@@ -58,14 +57,12 @@ export const Body = styled.tbody`
 `;
 
 export const Row = styled(HeadRow)`
-    cursor: pointer;
-
     &:hover{
-      background-color: ${props => props.theme.brand.background};
+      background-color: ${props => props.theme.brand.backgroundBluer};
     }
 
     ${({ isSelected, theme }) => isSelected && `
-        background-color: ${theme.brand.background};
+        background-color: ${theme.brand.backgroundBluer};
     `}
 `;
 
@@ -87,6 +84,22 @@ export const Search = styled.div`
 
 export const SearchInput = styled(Input)`
     width: 100%;
+    border-color: ${props => props.theme.brand.borderLight};
+    background-color: ${props => props.theme.brand.background};
+
+    // placeholder italics
+    ::-webkit-input-placeholder {
+       font-style: italic;
+    }
+    :-moz-placeholder {
+       font-style: italic;
+    }
+    ::-moz-placeholder {
+       font-style: italic;
+    }
+    :-ms-input-placeholder {
+       font-style: italic;
+    }
 `;
 
 export const ExtraButton = styled(Button)`

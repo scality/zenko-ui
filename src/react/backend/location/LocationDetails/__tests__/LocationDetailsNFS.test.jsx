@@ -1,7 +1,7 @@
-import { mount, shallow } from 'enzyme';
+import { themeMount as mount, updateInputText } from '../../../../utils/test';
 import LocationDetailsNFS from '../LocationDetailsNFS';
 import React from 'react';
-import { updateInputText } from '../../../../utils/test';
+import { shallow } from 'enzyme';
 
 const props = {
     details: {},
@@ -74,7 +74,7 @@ describe('class <LocationDetailsNFS />', () => {
         const component = mount(
             <LocationDetailsNFS {...props} onChange={onChangeFn} />
         );
-        component.setState({ ...refState }, () => {
+        component.find(LocationDetailsNFS).setState({ ...refState }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

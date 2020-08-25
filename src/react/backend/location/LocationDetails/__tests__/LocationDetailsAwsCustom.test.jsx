@@ -40,7 +40,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
             bucketMatch: true,
         };
         const onChangeFn = jest.fn();
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />
         );
         component.find(LocationDetailsAwsCustom).setState({ ...refLocation }, () => {
@@ -49,7 +49,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     });
 
     it('should show custom details for empty details', () => {
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAwsCustom {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -76,7 +76,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
             bucketName: 'bn',
             bucketMatch: true,
         };
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAwsCustom {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -105,7 +105,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
             bucketMatch: true,
         };
         let location = {};
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAwsCustom {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);

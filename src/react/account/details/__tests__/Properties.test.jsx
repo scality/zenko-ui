@@ -28,7 +28,7 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 
 describe('Properties', () => {
     it('should render Properties component', () => {
-        const { component } = themeMount(<Properties account={account1} />);
+        const component = themeMount(<Properties account={account1} />);
 
         expect(component.find(Table)).toHaveLength(1);
 

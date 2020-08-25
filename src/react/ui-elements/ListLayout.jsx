@@ -32,7 +32,7 @@ export const EmptyStateSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primary};
     margin: 10px;
     padding: 10px;
     border-radius: 5px;
@@ -43,7 +43,7 @@ export const ListSection = styled.div`
     flex-direction: column;
 
     height: calc(100% - 40px);
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primary};
     margin: 10px 0px 10px 10px;
     padding: 10px;
     border-radius: 5px;
@@ -64,13 +64,7 @@ export const Head = styled.div`
     min-height: 80px;
     border-radius: 5px;
     padding: 15px;
-    background: repeating-radial-gradient(
-      circle at 55px 50%,
-      #212127,
-      #212127 3px,
-      #32323a 3px,
-      #32323a 15px
-    );
+    background-color: ${props => props.theme.brand.primary};
 `;
 
 export const HeadLeft = styled.div`
@@ -102,17 +96,13 @@ export const IconCircle = styled.i`
     width: 40px;
     font-size: 40px
     padding: 20px;
-    color: ${props => props.theme.brand.textSecondary};
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    color: ${props => props.theme.brand.textPrimary};
+    background-color: ${props => props.theme.brand.primaryDark1};
 `;
 
 export const Details = styled.div`
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100% - 140px);
+    min-height: calc(100% - 120px);
+    height: calc(100% - 120px);
 
-    padding: 10px;
     margin-top: 10px;
-    background-color: ${props => props.theme.brand.backgroundContrast1};
-    border-radius: 5px;
 `;

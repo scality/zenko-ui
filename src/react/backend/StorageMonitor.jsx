@@ -20,7 +20,7 @@ const Section = styled.div`
 
   margin: 10px;
   border-radius: 5px;
-  background-color: ${props => props.theme.brand.backgroundContrast1};
+  background-color: ${props => props.theme.brand.primary};
   /* background-color: blue; */
 `;
 

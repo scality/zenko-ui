@@ -1,7 +1,6 @@
-import { addListEntry, delListEntry, editListEntry, updateInputText } from '../../../../utils/test';
+import { addListEntry, delListEntry, editListEntry, themeMount as mount, updateInputText } from '../../../../utils/test';
 import LocationDetailsSproxyd from '../LocationDetailsSproxyd';
 import React from 'react';
-import { mount } from 'enzyme';
 
 const props = {
     details: {},
@@ -31,7 +30,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         const component = mount(
             <LocationDetailsSproxyd {...props} onChange={onChangeFn} />
         );
-        component.setState({ ...refLocation }, () => {
+        component.find(LocationDetailsSproxyd).setState({ ...refLocation }, () => {
             expect(onChangeFn).toHaveBeenCalledWith(refLocation);
         });
     });

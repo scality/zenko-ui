@@ -8,7 +8,23 @@ import thunk from 'redux-thunk';
 
 const theme = {
     name: 'Dark Theme',
-    brand: {},
+    brand: {
+        base: '#19161D',
+        baseContrast1: '#26232A',
+        primary: '#19161D',
+        secondary: '#a7a7a7',
+        success: '#19161D',
+        info: '#007AFF',
+        warning: '#19161D',
+        danger: '#19161D',
+        background: '#0a0a0b',
+        backgroundContrast1: '#16161a',
+        backgroundContrast2: '#08080A',
+        text: '#ECECEC',
+        textPrimary: '#19161D',
+        textSecondary: '#19161D',
+        border: '#19161D',
+    },
 };
 
 export const newTestStore = (state) => configureStore([thunk])({
@@ -30,13 +46,11 @@ export const reduxMount = (component, testState) => {
 };
 
 export const themeMount = component => {
-    return {
-        component: mount(
-            <ThemeProvider theme={theme}>
-                {component}
-            </ThemeProvider>
-        ),
-    };
+    return mount(
+        <ThemeProvider theme={theme}>
+            {component}
+        </ThemeProvider>
+    );
 };
 
 export function updateInputText(component, name, value) {

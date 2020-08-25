@@ -31,7 +31,7 @@ describe('class <LocationDetailsWasabi />', () => {
             endpoint: 'https://s3.wasabisys.com',
         };
         const onChangeFn = jest.fn();
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsWasabi {...props} onChange={onChangeFn} />
         );
         component.find(LocationDetailsWasabi).setState({ ...refLocation }, () => {
@@ -40,7 +40,7 @@ describe('class <LocationDetailsWasabi />', () => {
     });
 
     it('should show wasabi details for empty details', () => {
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsWasabi {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -67,7 +67,7 @@ describe('class <LocationDetailsWasabi />', () => {
             bucketName: 'bn',
             bucketMatch: true,
         };
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsWasabi {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -96,7 +96,7 @@ describe('class <LocationDetailsWasabi />', () => {
             bucketMatch: true,
         };
         let location = {};
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsWasabi {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);

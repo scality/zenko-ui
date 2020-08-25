@@ -9,7 +9,7 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const ManageUserSection = styled.div`
-    background-color: ${props => props.theme.brand.backgroundContrast1};
+    background-color: ${props => props.theme.brand.primaryDark1};
     padding: 10px;
     border-radius: 5px;
     height: calc(100% - 20px);

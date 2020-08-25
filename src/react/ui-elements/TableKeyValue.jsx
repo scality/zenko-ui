@@ -25,7 +25,7 @@ export const Row = styled.tr`
 `;
 
 export const Key = styled.td`
-    padding: 7px 0px;
+    padding: 10px 0px;
     color: ${props => props.theme.brand.textSecondary};
 `;
 

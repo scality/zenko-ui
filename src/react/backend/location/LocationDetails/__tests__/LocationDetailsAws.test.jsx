@@ -31,7 +31,7 @@ describe('class <LocationDetailsAws />', () => {
             serverSideEncryption: true,
         };
         const onChangeFn = jest.fn();
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAws {...props} onChange={onChangeFn} />
         );
         component.find(LocationDetailsAws).setState({ ...refLocation }, () => {
@@ -40,7 +40,7 @@ describe('class <LocationDetailsAws />', () => {
     });
 
     it('should show aws details for empty details', () => {
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAws {...props} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -67,7 +67,7 @@ describe('class <LocationDetailsAws />', () => {
             bucketMatch: true,
             serverSideEncryption: true,
         };
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAws {...props} details={locationDetails} />
         );
         expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -96,7 +96,7 @@ describe('class <LocationDetailsAws />', () => {
             serverSideEncryption: true,
         };
         let location = {};
-        const { component } = mount(
+        const component = mount(
             <LocationDetailsAws {...props} onChange={l => location = l} />
         );
         checkBox(component, 'bucketMatch', true);

@@ -28,7 +28,7 @@ export const Icon = styled.i`
 `;
 
 export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 420px);
+    height: calc(100vh - 400px);
 `;
 
 export const Actions = styled.div`
@@ -40,7 +40,7 @@ export const ActionButton = styled(Button)`
 `;
 
 const Container = styled.div`
-    min-width: 430px;
+    min-width: 500px;
 `;
 
 const IconTooltip = styled.i`

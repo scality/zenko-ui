@@ -10,12 +10,6 @@ import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
-
-const Tabs = styled(CustomTabs)`
-    display: flex;
-    flex-direction: column;
-`;
 
 type Props = {
     account: ?Account,
@@ -33,7 +27,7 @@ function AccountDetails({ account }: Props) {
     }
 
     return (
-        <Tabs
+        <CustomTabs
             items={[
                 {
                     onClick: () => dispatch(push(url)),
@@ -64,7 +58,7 @@ function AccountDetails({ account }: Props) {
                 </Route>
                 <Redirect to={url}/>
             </Switch>
-        </Tabs>
+        </CustomTabs>
     );
 }
 
