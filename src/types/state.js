@@ -1,11 +1,11 @@
 // @flow
 
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
+import type { BucketList, InstanceStatus } from './stats';
+import type { ConfigurationOverlay, LocationName } from './config';
 import type { Account } from './account';
-import type { ConfigurationOverlay } from './config';
 import type { ErrorViewType } from './ui';
 import type { InstanceId } from './entities';
-import type { InstanceStatus } from './stats';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
@@ -74,8 +74,16 @@ export type NetworkActivityState = {|
     +messages: List<string>,
 |};
 
-export type AccountUIState = {|
+export type AccountsUIState = {|
     +showDelete: boolean,
+|};
+
+export type LocationsUIState = {|
+    +showDeleteLocation: LocationName,
+|};
+
+export type StatsState = {|
+    +bucketList: BucketList,
 |};
 
 export type AppState = {
@@ -87,7 +95,9 @@ export type AppState = {
     +networkActivity: NetworkActivityState,
     +oidc: OIDCState,
     +user: UserState,
-    +uiErrors: ErrorsUIState,
     +router: RouterState,
-    +uiAccount: AccountUIState,
+    +uiErrors: ErrorsUIState,
+    +uiLocations: LocationsUIState,
+    +uiAccounts: AccountsUIState,
+    +stats: StatsState,
 };

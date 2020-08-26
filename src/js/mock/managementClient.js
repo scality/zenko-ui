@@ -33,6 +33,8 @@ export const account: Account = {
 export const latestOverlay: ConfigurationOverlay = {
     users: [ account ],
     locations: { 'location1': location },
+    endpoints: [],
+    replicationStreams: [],
 };
 
 export class MockManagementClient implements ManagementClientInterface {
@@ -40,6 +42,10 @@ export class MockManagementClient implements ManagementClientInterface {
         return Promise.resolve({
             body: account,
         });
+    }
+
+    deleteConfigurationOverlayUser(): Promise<void> {
+        return Promise.resolve();
     }
 
     createConfigurationOverlayLocation(): Promise<Location> {
@@ -50,7 +56,7 @@ export class MockManagementClient implements ManagementClientInterface {
         return Promise.resolve(location);
     }
 
-    deleteConfigurationOverlayUser(): Promise<void> {
+    deleteConfigurationOverlayLocation(): Promise<void> {
         return Promise.resolve();
     }
 
@@ -72,6 +78,10 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
         return Promise.reject(this._error);
     }
 
+    deleteConfigurationOverlayUser(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
     createConfigurationOverlayLocation(): Promise<Location> {
         return Promise.reject(this._error);
     }
@@ -80,7 +90,7 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
         return Promise.reject(this._error);
     }
 
-    deleteConfigurationOverlayUser(): Promise<void> {
+    deleteConfigurationOverlayLocation(): Promise<void> {
         return Promise.reject(this._error);
     }
 

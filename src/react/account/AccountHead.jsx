@@ -21,7 +21,7 @@ type Props = {
 
 function AccountHead({ account }: Props) {
     const dispatch = useDispatch();
-    const showDelete = useSelector((state: AppState) => state.uiAccount.showDelete);
+    const showDelete = useSelector((state: AppState) => state.uiAccounts.showDelete);
 
     const { accountName: accountNameParam } = useParams();
 

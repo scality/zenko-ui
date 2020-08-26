@@ -1,32 +1,20 @@
 // @flow
+import type { CloseLocationDeleteDialogAction, OpenLocationDeleteDialogAction, ThunkStatePromisedAction } from '../../types/actions';
 import type { Location, LocationName } from '../../types/config';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 import { goBack } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 
-export function selectLocation(locationName: LocationName) {
+export function openLocationDeleteDialog(locationName: LocationName): OpenLocationDeleteDialogAction {
     return {
-        type: 'SELECT_LOCATION',
+        type: 'OPEN_LOCATION_DELETE_DIALOG',
         locationName,
     };
 }
 
-export function resetSelectLocation() {
-    return {
-        type: 'RESET_SELECT_LOCATION',
-    };
-}
-
-export function openLocationDeleteDialog() {
-    return {
-        type: 'OPEN_LOCATION_DELETE_DIALOG',
-    };
-}
-
-export function closeLocationDeleteDialog() {
+export function closeLocationDeleteDialog(): CloseLocationDeleteDialogAction {
     return {
         type: 'CLOSE_LOCATION_DELETE_DIALOG',
     };
@@ -41,7 +29,7 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
             locationName: location.name,
         };
 
-        dispatch(networkStart('Saving Location'));
+        dispatch(networkStart('Saving location'));
         const op = location.objectId ?
             managementClient.updateConfigurationOverlayLocation(params)
             :
@@ -55,22 +43,23 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
     };
 }
 
-// export function deleteLocation(locationName: LocationName): ThunkStatePromisedAction {
-//     return (dispatch, getState) => {
-//         const { managementClient, instanceId } = getClients(getState());
-//         const params = {
-//             uuid: instanceId,
-//             locationName,
-//         };
-//         dispatch(closeLocationDeleteDialog());
-//         dispatch(resetSelectLocation());
-//         dispatch(networkStart('Deleting Location'));
-//         return managementClient.deleteConfigurationOverlayLocation(params)
-//             .then(() => {
-//                 dispatch(updateConfiguration());
-//             })
-//             .catch(error => dispatch(handleClientError(error)))
-//             .catch(error => dispatch(handleApiError(error, 'byModal')))
-//             .finally(() => dispatch(networkEnd()));
-//     };
-// }
+export function deleteLocation(locationName: LocationName): ThunkStatePromisedAction {
+    return (dispatch, getState) => {
+        const { managementClient, instanceId } = getClients(getState());
+        const params = {
+            uuid: instanceId,
+            locationName,
+        };
+        dispatch(networkStart('Deleting location'));
+        return managementClient.deleteConfigurationOverlayLocation(params)
+            .then(() => {
+                dispatch(updateConfiguration());
+            })
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => {
+                dispatch(networkEnd());
+                dispatch(closeLocationDeleteDialog());
+            });
+    };
+}

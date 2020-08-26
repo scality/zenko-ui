@@ -188,8 +188,8 @@ function StorageMonitor(props) {
 const mapStateToProps = state => {
     return {
         locations: state.configuration.latest.locations,
-        selectedLocationName: state.uiLocation.selectedLocationName,
-        showDeleteLocation: state.uiLocation.showDeleteLocation,
+        selectedLocationName: state.uiLocations.selectedLocationName,
+        showDeleteLocation: state.uiLocations.showDeleteLocation,
         replicationStreams: state.configuration.latest.replicationStreams,
         buckets: state.stats.bucketList,
         endpoints: state.configuration.latest.endpoints,

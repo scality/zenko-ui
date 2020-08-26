@@ -1,20 +1,18 @@
 // @flow
 import { Button, Tooltip } from '@scality/core-ui';
-import type { LocationName, LocationType, Locations as LocationsType } from '../../../types/config';
-import React, { useMemo } from 'react';
+import type { LocationName, LocationType } from '../../../types/config';
+import React, { useCallback, useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
+import { canDeleteLocation, canEditLocation } from '../../backend/location/utils';
+import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
+import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails/storageOptions';
 import styled from 'styled-components';
-
-const canEditLocation = (locationName: LocationName, locations: LocationsType): boolean => {
-    const isBuiltin = locations[locationName] && locations[locationName].isBuiltin;
-    return !isBuiltin;
-};
 
 const initialSortBy = [
     {
@@ -64,7 +62,15 @@ function Locations() {
     const dispatch = useDispatch();
 
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
+    const replicationStreams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
+    const buckets = useSelector((state: AppState) => state.stats.bucketList);
+    const endpoints = useSelector((state: AppState) => state.configuration.latest.endpoints);
     const data = useMemo(() => Object.values(locations), [locations]);
+
+    const showDeleteLocationName = useSelector((state: AppState) => state.uiLocations.showDeleteLocation);
+
+    const handleDeleteClick = useCallback(locationName =>
+        dispatch(openLocationDeleteDialog(locationName)), [dispatch]);
 
     const columns = useMemo(
         () => [
@@ -91,11 +97,11 @@ function Locations() {
                 Cell({ value: locationName }: { value: LocationName}){
                     return <Actions>
                         <ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="info" text='' />
-                        <ActionButton disabled={true} icon={<i className="fas fa-trash" />} onClick={() => {}} size="smaller" variant="danger" text='' />
+                        <ActionButton disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints )} icon={<i className="fas fa-trash" />} onClick={() => handleDeleteClick(locationName)} size="smaller" variant="danger" text='' />
                     </Actions>;
                 },
             },
-        ], [dispatch, locations]);
+        ], [dispatch, locations, buckets, endpoints, replicationStreams, handleDeleteClick]);
 
     const {
         getTableProps,
@@ -147,8 +153,14 @@ function Locations() {
                     <CustomBody {...getTableBodyProps()}>
                         {rows.map(row => {
                             prepareRow(row);
+                            const locationName = row.original.name;
                             return (
                                 <T.Row isSelected={false} key={row.id} {...row.getRowProps()}>
+                                    <DeleteConfirmation
+                                        show={showDeleteLocationName && showDeleteLocationName === locationName}
+                                        cancel={() => dispatch(closeLocationDeleteDialog())}
+                                        approve={() => dispatch(deleteLocation(locationName))}
+                                        titleText={`Are you sure you want to delete location: ${locationName} ?`} />
                                     {row.cells.map(cell => {
                                         return (
                                             <T.Cell key={cell.id} {...cell.getCellProps()} >

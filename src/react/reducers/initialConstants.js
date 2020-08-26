@@ -1,6 +1,6 @@
 // @noflow
 
-import type { AccountState, AccountUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
+import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/s3Client';
@@ -10,7 +10,7 @@ export const initialAccountState: AccountState = {
     display: {},
 };
 
-export const initialAccountUIState: AccountUIState = { showDelete: false };
+export const initialAccountsUIState: AccountsUIState = { showDelete: false };
 
 export const initialAuthState: AuthState = {
     isUserLoaded: false,
@@ -119,14 +119,16 @@ export const initialInstanceStatus: InstanceStatusState = {
         },
     },
 };
-export const initialLocationsUIState = { showDeleteLocation: false };
+export const initialLocationsUIState = { showDeleteLocation: '' };
 export const initialNetworkActivityState: NetworkActivityState = { counter: 0, messages: List() };
 export const initialOidc: OIDCState = {
     user: null,
     isLoadingUser: false,
 };
 export const initialSecretsState = Map();
-export const initialStatsState = {};
+export const initialStatsState = {
+    bucketList: [],
+};
 export const initialUserUIState = { showDelete: false, showSecret: null, showDeleteKey: null };
 export const initialUserState = {
     list: [],
@@ -145,7 +147,7 @@ export const initialFullState = {
     networkActivity: initialNetworkActivityState,
     secrets: initialSecretsState,
     stats: initialStatsState,
-    uiAccount: initialAccountUIState,
+    uiAccounts: initialAccountsUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiErrors: initialErrorsUIState,

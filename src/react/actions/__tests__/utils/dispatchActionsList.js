@@ -8,6 +8,7 @@ import {
 
 import type {
     CloseAccountDeleteDialogAction,
+    CloseLocationDeleteDialogAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
     HandleErrorAction,
@@ -17,6 +18,7 @@ import type {
     NetworkActivityEndAction,
     NetworkActivityStartAction,
     OpenAccountDeleteDialogAction,
+    OpenLocationDeleteDialogAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetUserManagerAction,
@@ -25,6 +27,8 @@ import type {
 } from '../../../../types/actions';
 
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
+
+import type { LocationName } from '../../../../types/config';
 
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockS3Client } from '../../../../js/mock/s3Client';
@@ -90,9 +94,15 @@ export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction =
         { type: 'NETWORK_AUTH_FAILURE' };
 
 // * account actions
-
 export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
     { type: 'OPEN_ACCOUNT_DELETE_DIALOG' };
 
 export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction =
     { type: 'CLOSE_ACCOUNT_DELETE_DIALOG' };
+
+// * location actions
+export const OPEN_LOCATION_DELETE_DIALOG_ACTION =
+    (locationName: LocationName): OpenLocationDeleteDialogAction => ({ type: 'OPEN_LOCATION_DELETE_DIALOG', locationName });
+
+export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction =
+    { type: 'CLOSE_LOCATION_DELETE_DIALOG' };

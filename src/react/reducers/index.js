@@ -9,10 +9,10 @@ import networkActivity from './networkActivity';
 import { reducer as oidcReducer } from 'redux-oidc';
 import secrets from './secrets';
 import stats from './stats';
-import uiAccount from './uiAccount';
+import uiAccounts from './uiAccounts';
 import uiBucket from './uiBucket';
 import uiErrors from './uiErrors';
-import uiLocation from './uiLocation';
+import uiLocations from './uiLocations';
 import uiUser from './uiUser';
 import user from './user';
 
@@ -24,10 +24,10 @@ const zenkoUIReducer = history => combineReducers({
     instanceStatus,
     instances,
     networkActivity,
-    uiAccount,
+    uiAccounts,
     uiBucket,
     uiErrors,
-    uiLocation,
+    uiLocations,
     uiUser,
     secrets,
     stats,

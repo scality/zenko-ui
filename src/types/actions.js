@@ -1,7 +1,7 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
+import type { ConfigurationOverlay, LocationName } from './config';
 import type { AppState } from './state';
-import type { ConfigurationOverlay } from './config';
 import type { ErrorViewType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
@@ -135,8 +135,20 @@ export type CloseAccountDeleteDialogAction = {|
 
 export type AccountUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction;
 
+export type OpenLocationDeleteDialogAction = {|
+    +type: 'OPEN_LOCATION_DELETE_DIALOG',
+    +locationName: LocationName,
+|};
+
+export type CloseLocationDeleteDialogAction = {|
+    +type: 'CLOSE_LOCATION_DELETE_DIALOG',
+|};
+
+export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDeleteDialogAction;
+
 export type Action =
     AuthAction |
+    LocationUIAction |
     ThunkStatePromisedAction |
     ThunkNonStateAction |
     ThunkStatePromisedAction |

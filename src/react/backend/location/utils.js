@@ -1,5 +1,6 @@
 // @flow
-import type { Location } from '../../../types/config';
+import type { Endpoint, Location, LocationName, Locations as LocationsType, Replication } from '../../../types/config';
+import type { BucketList } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 
 import { defaultLocationType } from './LocationDetails';
@@ -65,9 +66,54 @@ function convertToForm(locationProps: Location): LocationForm {
     return ret;
 }
 
+function canEditLocation(locationName: LocationName, locations: LocationsType): boolean {
+    const isBuiltin = locations[locationName] && locations[locationName].isBuiltin;
+    return !isBuiltin;
+}
+
+// TODO: add specific tooltip message about why location can not be deleted
+function canDeleteLocation(
+    locationName: LocationName,
+    locations: LocationsType,
+    replicationStreams: Array<Replication>,
+    buckets: BucketList ,
+    endpoints: Array<Endpoint>
+) {
+    if (!locationName) {
+        return false;
+    }
+    const isBuiltin = locations[locationName] && locations[locationName].isBuiltin;
+    if (isBuiltin){
+        return false;
+    }
+    const checkStreamLocations = replicationStreams.every(r => {
+        // legacy $FlowFixMe
+        if (r.destination.location) {
+            return r.destination.location !== locationName;
+        }
+        return r.destination.locations.every(destLocation => {
+            return destLocation.name !== locationName;
+        });
+    });
+    if (!checkStreamLocations){
+        return false;
+    }
+    const checkBucketLocations = buckets.every(bucket => bucket.location !== locationName);
+    if (!checkBucketLocations) {
+        return false;
+    }
+    const checkEndpointLocations = endpoints.every(e => e.locationName !== locationName);
+    if (!checkEndpointLocations) {
+        return false;
+    }
+    return true;
+}
+
 export {
     newLocationForm,
     convertToLocation,
     convertToForm,
     newLocationDetails,
+    canEditLocation,
+    canDeleteLocation,
 };

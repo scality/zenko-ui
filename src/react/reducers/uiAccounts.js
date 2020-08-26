@@ -1,10 +1,10 @@
 // @flow
 
 import type { AccountUIAction } from '../../types/actions';
-import type { AccountUIState } from '../../types/state';
-import { initialAccountUIState } from './initialConstants';
+import type { AccountsUIState } from '../../types/state';
+import { initialAccountsUIState } from './initialConstants';
 
-export default function uiAccount(state: AccountUIState = initialAccountUIState, action: AccountUIAction): AccountUIState {
+export default function uiAccounts(state: AccountsUIState = initialAccountsUIState, action: AccountUIAction): AccountsUIState {
     switch (action.type) {
     case 'OPEN_ACCOUNT_DELETE_DIALOG':
         return {

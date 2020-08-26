@@ -4,13 +4,31 @@ import {
     LOCATION,
     errorManagementState,
     initState,
+    testActionFunction,
     testDispatchFunction,
 } from './utils/testUtil';
 
 const locationObj = LOCATION;
-const saveLocationNetworkStart = dispatchAction.NETWORK_START_ACTION('Saving Location');
+const saveLocationNetworkStart = dispatchAction.NETWORK_START_ACTION('Saving location');
+const deleteLocationNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting location');
+
 
 describe('location actions', () => {
+    const locationName = 'loc1';
+    const syncTests = [
+        {
+            it: 'should return OPEN_LOCATION_DELETE_DIALOG action',
+            fn: actions.openLocationDeleteDialog(locationName),
+            expectedActions: [dispatchAction.OPEN_LOCATION_DELETE_DIALOG_ACTION(locationName)],
+        },
+        {
+            it: 'should return CLOSE_LOCATION_DELETE_DIALOG action',
+            fn: actions.closeLocationDeleteDialog(),
+            expectedActions: [dispatchAction.CLOSE_LOCATION_DELETE_DIALOG_ACTION],
+        },
+    ];
+
+    syncTests.forEach(testActionFunction);
 
     const asyncTests = [
         {
@@ -43,6 +61,29 @@ describe('location actions', () => {
                 saveLocationNetworkStart,
                 dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
                 dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+
+        {
+            it: 'deleteLocation: should return expected actions',
+            fn: actions.deleteLocation('loc1'),
+            storeState: initState,
+            expectedActions: [
+                deleteLocationNetworkAction,
+                dispatchAction.CONFIGURATION_VERSION_ACTION,
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_LOCATION_DELETE_DIALOG_ACTION,
+            ],
+        },
+        {
+            it: 'deleteLocation: should handle error',
+            fn: actions.deleteLocation('loc1'),
+            storeState: errorManagementState(),
+            expectedActions: [
+                deleteLocationNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_LOCATION_DELETE_DIALOG_ACTION,
             ],
         },
     ];

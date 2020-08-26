@@ -2,7 +2,6 @@ import * as T from '../../../ui-elements/Table';
 import Locations, { ActionButton } from '../Locations';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
-import router from 'react-router';
 
 const locationFile = {
     details: {
@@ -109,11 +108,12 @@ const nbrOfColumnsExpected = 4;
 
 describe('Locations', () => {
     it('should render Locations component alphabetically sorted', () => {
-        jest.spyOn(router, 'useParams').mockReturnValue({ accountName: 'homer' });
         const { component } = reduxMount(<Locations />, {
             configuration: {
                 latest: {
                     locations,
+                    replicationStreams: [],
+                    endpoints: [],
                 },
             },
         });
@@ -130,6 +130,8 @@ describe('Locations', () => {
         expect(firstRowColumns[2]).toEqual('bucketName1');
         // edit button
         expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const secondRow = rows.at(1);
         const secondRowColumns = secondRow.find(T.Cell).map(column => column.text());
@@ -139,6 +141,8 @@ describe('Locations', () => {
         expect(secondRowColumns[2]).toEqual('bucketName2');
         // edit button
         expect(secondRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(secondRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const thirdRow = rows.at(2);
         const thirdRowColumns = thirdRow.find(T.Cell).map(column => column.text());
@@ -148,6 +152,8 @@ describe('Locations', () => {
         expect(thirdRowColumns[2]).toEqual('');
         // edit button
         expect(thirdRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeTruthy();
+        // delete button
+        expect(thirdRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
 
         const fourthRow = rows.at(3);
         const fourthRowColumns = fourthRow.find(T.Cell).map(column => column.text());
@@ -157,6 +163,8 @@ describe('Locations', () => {
         expect(fourthRowColumns[2]).toEqual('');
         // edit button
         expect(fourthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(fourthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const fifthRow = rows.at(4);
         const fifthRowColumns = fifthRow.find(T.Cell).map(column => column.text());
@@ -166,6 +174,8 @@ describe('Locations', () => {
         expect(fifthRowColumns[2]).toEqual('');
         // edit button
         expect(fifthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(fifthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const sixthRow = rows.at(5);
         const sixthRowColumns = sixthRow.find(T.Cell).map(column => column.text());
@@ -175,6 +185,8 @@ describe('Locations', () => {
         expect(sixthRowColumns[2]).toEqual('bucketName3');
         // edit button
         expect(sixthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(sixthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const seventhRow = rows.at(6);
         const seventhRowColumns = seventhRow.find(T.Cell).map(column => column.text());
@@ -184,6 +196,104 @@ describe('Locations', () => {
         expect(seventhRowColumns[2]).toEqual('');
         // edit button
         expect(seventhRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(seventhRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+    });
+
+    it('should disable delete location button if location is being used for replication', () => {
+        const { component } = reduxMount(<Locations />, {
+            configuration: {
+                latest: {
+                    locations: { 'location-aws-s3': locationAwsS3 },
+                    replicationStreams: [{
+                        destination: {
+                            locations: [{
+                                name: 'location-aws-s3',
+                            }],
+                        },
+                    }],
+                    endpoints: [],
+                },
+            },
+        });
+
+        expect(component.find('div#location-list')).toHaveLength(1);
+        const rows = component.find(T.Row);
+        expect(rows).toHaveLength(1);
+
+        const firstRow = rows.first();
+        const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
+        expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+        expect(firstRowColumns[0]).toEqual('location-aws-s3');
+        expect(firstRowColumns[1]).toEqual('Amazon S3');
+        expect(firstRowColumns[2]).toEqual('bucketName1');
+        // edit button
+        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+    });
+
+    it('should disable delete location button if location is attached to a bucket', () => {
+        const { component } = reduxMount(<Locations />, {
+            configuration: {
+                latest: {
+                    locations: { 'location-aws-s3': locationAwsS3 },
+                    replicationStreams: [],
+                    endpoints: [],
+                },
+            },
+            stats: {
+                bucketList: [{
+                    name: 'bucket1',
+                    location: 'location-aws-s3',
+                }],
+            },
+        });
+
+        expect(component.find('div#location-list')).toHaveLength(1);
+        const rows = component.find(T.Row);
+        expect(rows).toHaveLength(1);
+
+        const firstRow = rows.first();
+        const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
+        expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+        expect(firstRowColumns[0]).toEqual('location-aws-s3');
+        expect(firstRowColumns[1]).toEqual('Amazon S3');
+        expect(firstRowColumns[2]).toEqual('bucketName1');
+        // edit button
+        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+    });
+
+    it('should disable delete location button if location is being used for endpoint', () => {
+        const { component } = reduxMount(<Locations />, {
+            configuration: {
+                latest: {
+                    locations: { 'location-aws-s3': locationAwsS3 },
+                    replicationStreams: [],
+                    endpoints: [{
+                        hostname: 'host1',
+                        locationName: 'location-aws-s3',
+                    }],
+                },
+            },
+        });
+
+        expect(component.find('div#location-list')).toHaveLength(1);
+        const rows = component.find(T.Row);
+        expect(rows).toHaveLength(1);
+
+        const firstRow = rows.first();
+        const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
+        expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+        expect(firstRowColumns[0]).toEqual('location-aws-s3');
+        expect(firstRowColumns[1]).toEqual('Amazon S3');
+        expect(firstRowColumns[2]).toEqual('bucketName1');
+        // edit button
+        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        // delete button
+        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
     });
 
 });
