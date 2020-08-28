@@ -1,6 +1,6 @@
 // @noflow
 
-import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
+import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, S3State, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/s3Client';
@@ -17,10 +17,17 @@ export const initialAuthState: AuthState = {
     configFailure: false,
     isSigningOut: false,
     managementClient: new MockManagementClient(),
-    s3Client: new MockS3Client,
     userManager: new MockUserManager(),
     config: {
     },
+};
+
+export const initialS3State: S3State = {
+    s3Client: new MockS3Client,
+    listBucketsResults: {
+        list: List(),
+        owner: {},
+    }
 };
 
 export const initialBucketState = { list: [] };

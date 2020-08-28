@@ -3,13 +3,13 @@
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
+import type { S3Bucket, S3Client as S3ClientInterface } from './s3';
 import type { Account } from './account';
 import type { ErrorViewType } from './ui';
 import type { InstanceId } from './entities';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
-import type { S3Client as S3ClientInterface } from './s3Client';
 import type { User } from './user';
 
 export type IAMResp = {};
@@ -31,7 +31,6 @@ export type AuthState = {|
     +configFailure: boolean,
     +isSigningOut: boolean,
     +managementClient: ManagementClientInterface,
-    +s3Client: S3ClientInterface,
     +userManager: UserManagerInterface,
     +config: {|
         +managementEndpoint: string,
@@ -86,6 +85,17 @@ export type StatsState = {|
     +bucketList: BucketList,
 |};
 
+export type S3State = {|
+    +s3Client: S3ClientInterface,
+    +listBucketsResults: {|
+        +list: Array<S3Bucket>,
+        +owner: {|
+            DisplayName: string,
+            ID: string,
+        |},
+    |},
+|};
+
 export type AppState = {
     +account: AccountState,
     +auth: AuthState,
@@ -100,4 +110,5 @@ export type AppState = {
     +uiLocations: LocationsUIState,
     +uiAccounts: AccountsUIState,
     +stats: StatsState,
+    +s3: S3State,
 };

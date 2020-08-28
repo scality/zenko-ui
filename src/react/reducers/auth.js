@@ -10,11 +10,6 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             managementClient: action.managementClient,
         };
-    case 'SET_S3_CLIENT':
-        return {
-            ...state,
-            s3Client: action.s3Client,
-        };
     case 'SET_USER_MANAGER':
         return {
             ...state,

@@ -1,73 +1,111 @@
+import * as L from '../ui-elements/ListLayout';
 import React, { useCallback, useEffect } from 'react';
+import Table, * as T from '../ui-elements/Table';
 
-function ListBuckets(){
-    const { bucketList, redirect, configuration, selectedBucketName } = props;
+import { useFilters, useSortBy, useTable } from 'react-table';
+import styled from 'styled-components';
+import { useDispatch, useSelector } from 'react-redux';
 
-    // useEffect(() => {
-    //     props.listBuckets();
-    // }, []);
+const initialSortBy = [
+    {
+        id: 'name',
+        desc: false,
+    },
+];
 
-    const createBucket = () => {
-        redirect('/databrowser/create');
-    };
+export default function ListBuckets(){
 
-    const deleteSelectedBucket = () => {
-        props.deleteBucket(selectedBucketName);
-    }
+    const Icon = styled.i`
+      margin-left: 5px;
+    `;
 
-    // TODO: add HeadSection inside <HEAD>
-    // <HeadSection>
-    //     <div className="title"> ACCOUNT CONSUMPTION </div>
-    //     <ProgressBar
-    //         bottomLeftLabel="50GB Used"
-    //         bottomRightLabel="50GB Free"
-    //         percentage={50}
-    //         size="smaller"
-    //         topLeftLabel="50%"
-    //         topRightLabel="100GB Total"
-    //     />
-    // </HeadSection>
+    const columns = [
+        {
+            Header: 'Location Name',
+            accessor: 'name',
+        },
+    ];
 
-    return <DataBrowserContainer>
-        <DeleteConfirmation show={props.showDelete} cancel={props.closeBucketDeleteDialog} approve={deleteSelectedBucket} titleText={`Are you sure you want to delete bucket: ${selectedBucketName} ?`}/>
-        <Head>
+    const data = [];
+    const coco = useSelector((state: AppState) => state.s3.listBucketsResults.list);
+    console.log('coco!!!', coco);
+    console.log('data!!!', data);
 
-            <HeadLeft>
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        setFilter,
+        prepareRow,
+    } = useTable({
+        columns,
+        data,
+        initialState: { sortBy: initialSortBy },
+        disableSortRemove: true,
+        autoResetFilters: false,
+        autoResetSortBy: false,
+    }, useFilters, useSortBy);
 
-                <div className='number'> {bucketList.length} </div>
-                <div> bucket{bucketList.length > 1 && 's'} </div>
+    return <L.Container>
+        <L.Head>
 
-            </HeadLeft>
+            <L.HeadLeft>
 
-        </Head>
+                <L.HeadLeft> <L.IconCircle className="fas fa-wallet"></L.IconCircle> </L.HeadLeft>
+                <L.HeadCenter>
+                    <L.HeadTitle>
+                        accountName
+                    </L.HeadTitle>
+                </L.HeadCenter>
+            </L.HeadLeft>
 
-        <BucketSection>
-            <BucketSectionTop>
-                <Button variant="danger" disabled={!selectedBucketName} icon={<i className="fa fa-trash" />} text="&nbsp; Delete bucket" onClick={props.openBucketDeleteDialog} />
-                <Button outlined icon={<i className="fa fa-plus-circle" />} text="&nbsp; Create bucket" onClick={createBucket} />
-                <Button outlined icon={<i className="fas fa-sync" />} text="&nbsp; Refresh" onClick={props.listBuckets} />
-            </BucketSectionTop>
-            <TableContainer hide={props.bucketList.length === 0}>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th> Name </th>
-                            <th> Creation date </th>
-                            <th> Location Constraint </th>
-                        </tr>
-                        {
-                            props.bucketList.map(b =>
-                                <Row key={b.Name} selected={b.Name === selectedBucketName}  onClick={() => props.selectBucket(b.Name)}>
-                                    <td> {b.Name} </td>
-                                    <td> {formatDate(b.CreationDate)} </td>
-                                    <td> {b.LocationConstraint || 'us-east-1'} / {getLocationTypeFromName(b.LocationConstraint, configuration)} </td>
-                                </Row>)
-                        }
-                    </tbody>
-                </table>
-            </TableContainer>
-        </BucketSection>
+        </L.Head>
+
+        <div id='location-list'>
+            <T.SearchContainer>
+                <T.Search> <T.SearchInput placeholder='Filter by Bucket Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
+            </T.SearchContainer>
+            <T.Container>
+                <Table {...getTableProps()}>
+                    <T.Head>
+                        {headerGroups.map(headerGroup => (
+                            <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
+                                {headerGroup.headers.map(column => (
+                                    <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
+                                        {column.render('Header')}
+                                        <Icon>
+                                            {!column.disableSortBy && (column.isSorted
+                                                ? column.isSortedDesc
+                                                    ? <i className='fas fa-sort-down' />
+                                                    : <i className='fas fa-sort-up' />
+                                                : <i className='fas fa-sort' />)}
+                                        </Icon>
+                                    </T.HeadCell>
+                                ))}
+                            </T.HeadRow>
+                        ))}
+                    </T.Head>
+                    <T.Body {...getTableBodyProps()}>
+                        {rows.map(row => {
+                            prepareRow(row);
+                            return (
+                                <T.Row isSelected={false} key={row.id} {...row.getRowProps()}>
+                                    {row.cells.map(cell => {
+                                        return (
+                                            <T.Cell key={cell.id} {...cell.getCellProps()} >
+                                                {cell.render('Cell')}
+                                            </T.Cell>
+                                        );
+                                    })}
+                                </T.Row>
+                            );
+                        })}
+                    </T.Body>
+                </Table>
+            </T.Container>
+        </div>
 
 
-    </DataBrowserContainer>;
+    </L.Container>;
 }

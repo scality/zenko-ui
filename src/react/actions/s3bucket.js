@@ -5,23 +5,11 @@ import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 
 
-function updateBucketList(list) {
+export function listBucketsSuccess(list, ownerName) {
     return {
-        type: 'UPDATE_BUCKET_LIST',
+        type: 'LIST_BUCKETS_SUCCESS',
         list,
-    };
-}
-
-export function selectBucket(bucketName) {
-    return {
-        type: 'SELECT_BUCKET',
-        bucketName,
-    };
-}
-
-export function resetSelectBucket() {
-    return {
-        type: 'RESET_SELECT_BUCKET',
+        ownerName,
     };
 }
 
@@ -42,9 +30,9 @@ export function listBuckets(){
         const { s3Client } = getClients(getState());
         dispatch(networkStart('Listing buckets'));
         return s3Client.listBucketsWithLocation()
-            .then(res => dispatch(updateBucketList(res.Buckets)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .then(res => dispatch(listBucketsSuccess(res.Buckets, res.Owner.DisplayName)))
+            //!\ errors will have to be handled by caller
+            .catch(error => { throw error; })
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -70,7 +58,6 @@ export function deleteBucket(bucketName){
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
         dispatch(closeBucketDeleteDialog());
-        dispatch(resetSelectBucket());
         dispatch(networkStart('Deleting bucket'));
         return s3Client.deleteBucket(bucketName)
             .then(() => dispatch(listBuckets()))

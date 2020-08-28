@@ -18,7 +18,6 @@
         "flowtype-errors"
     ],
     "ignorePatterns": [
-        "src/react/databrowser",
         "src/react/group",
         "src/react/user",
         "src/react/workflow",

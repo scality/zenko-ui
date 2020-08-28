@@ -14,7 +14,7 @@ import type {
     ThunkStatePromisedAction,
 } from '../../types/actions';
 
-import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
+import { handleErrorMessage, listBuckets, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
 
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 
@@ -190,7 +190,7 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
             // TODO: which one should we pick?
             roleArn = configuration.latest.users[0].arn;
         }
-        const sts = new STSClient(config);
+        const sts = new STSClient({ endpoint: config.stsEndpoint });
         const assumeRoleParams = {
             idToken: oidc.user.id_token,
             // roleArn will not be hardcoded but discovered from user's role.
@@ -205,7 +205,9 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
                 sessionToken: creds.Credentials.SessionToken,
                 endpoint: config.s3Endpoint,
             };
-            dispatch(setS3Client(new S3Client(s3Params)));
+            const s3Client = new S3Client(s3Params);
+            dispatch(setS3Client(s3Client));
+            // return dispatch(listBuckets());
         })
         .catch(error => {
             const message = `Failed to returns a set of temporary security credentials: ${error.message || '(unknown reason)'}`;

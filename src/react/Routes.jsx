@@ -7,7 +7,7 @@ import Accounts from './account/Accounts';
 import type { Action } from '../types/actions';
 import type { AppState } from '../types/state';
 import BucketCreate from './databrowser/BucketCreate';
-import DataBrowser from './databrowser/DataBrowser';
+import ListBuckets from './databrowser/ListBuckets';
 import type { DispatchAPI } from 'redux';
 import Groups from './group/Groups';
 import LocationEditor from './backend/location/LocationEditor';
@@ -63,10 +63,10 @@ function Routes() {
                         //     link: <Link to="/users">Users</Link>,
                         //     selected: isSelected(location, '/users'),
                         // },
-                        // {
-                        //     link: <Link to="/databrowser">Data Browser</Link>,
-                        //     selected: isSelected(location, '/databrowser'),
-                        // },
+                        {
+                            link: <Link to="/data">Data</Link>,
+                            selected: !!matchPath(pathname, { path: '/data' }),
+                        },
                         // {
                         //     link: <Link to="/workflow">Data Workflow</Link>,
                         //     selected: isSelected(location, '/workflow'),
@@ -88,8 +88,8 @@ function Routes() {
 
             <Route path="/groups" component={Groups} />
 
-            <Route exact path="/databrowser" component={DataBrowser} />
-            <Route path="/databrowser/create" component={BucketCreate} />
+            <Route path="/data" component={ListBuckets} />
+            <Route path="/create-bucket" component={BucketCreate} />
 
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />

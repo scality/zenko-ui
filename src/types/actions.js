@@ -43,10 +43,10 @@ export type ErrorsUIAction =
     NetworkActivityAuthResetAction;
 
 // auth actions
-export type InitClientsAction = {|
-    +type: 'INIT_CLIENTS',
+
+export type SetManagementClientAction = {|
+    +type: 'SET_MANAGEMENT_CLIENT',
     +managementClient: ManagementClient,
-    +s3Client: S3Client,
 |};
 
 export type SetUserManagerAction = {|
@@ -75,13 +75,22 @@ export type SignoutEndAction = {|
     +type: 'SIGNOUT_END',
 |};
 
-export type AuthAction = InitClientsAction |
+export type AuthAction =
+  SetManagementClientAction |
   SetUserManagerAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
   LoadUserSuccessAction |
   SignoutStartAction |
   SignoutEndAction;
+
+// s3 actions
+export type S3Action = SetS3ClientAction;
+
+export type SetS3ClientAction = {|
+    +type: 'SET_S3_CLIENT',
+    +s3Client: S3Client,
+|};
 
 // instances actions
 export type SelectInstanceAction = {|
@@ -147,6 +156,7 @@ export type CloseLocationDeleteDialogAction = {|
 export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDeleteDialogAction;
 
 export type Action =
+    SetS3ClientAction |
     AuthAction |
     LocationUIAction |
     ThunkStatePromisedAction |
