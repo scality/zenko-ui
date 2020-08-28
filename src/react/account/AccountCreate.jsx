@@ -26,6 +26,7 @@ function AccountCreate() {
 
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
 
     const dispatch = useDispatch();
 
@@ -96,8 +97,8 @@ function AccountCreate() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button outlined onClick={() => dispatch(goBack())} text='Cancel'/>
-                <Button id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
+                <Button disabled={loading} outlined onClick={() => dispatch(goBack())} text='Cancel'/>
+                <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>
     </Form>;

@@ -24,6 +24,10 @@ module.exports = merge(common, {
                 target: 'http://127.0.0.1:8600',
                 pathRewrite: {'^/iam' : ''},
             },
+            '/sts': {
+                target: 'http://127.0.0.1:8800',
+                pathRewrite: { '^/sts' : '' },
+            },
         },
     },
 });

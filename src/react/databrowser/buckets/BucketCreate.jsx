@@ -1,12 +1,12 @@
 import { Button, Select } from '@scality/core-ui';
 import React, {useEffect, useMemo, useState} from 'react';
-import FormContainer from '../ui-elements/FormContainer';
-import Input from '../ui-elements/Input';
+import FormContainer from '../../ui-elements/FormContainer';
+import Input from '../../ui-elements/Input';
 import { connect } from 'react-redux';
-import { createBucket } from '../actions';
-import { locationWithIngestion } from '../utils/storageOptions';
+import { createBucket } from '../../actions';
+import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../backend/location/LocationDetails';
+import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 
 const SelectOption = styled.div`

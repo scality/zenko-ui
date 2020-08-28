@@ -1,9 +1,10 @@
 // @noflow
 
-import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, UIErrorState } from '../../types/state';
+import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, S3State, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
-import { MockS3Client } from '../../js/mock/s3Client';
+import { MockS3Client } from '../../js/mock/S3Client';
+import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockUserManager } from '../../js/mock/userManager';
 
 export const initialAccountState: AccountState = {
@@ -16,10 +17,18 @@ export const initialAuthState: AuthState = {
     isUserLoaded: false,
     configFailure: false,
     isSigningOut: false,
+    stsClient: new MockSTSClient(),
     managementClient: new MockManagementClient(),
-    s3Client: new MockS3Client,
     userManager: new MockUserManager(),
     config: {
+    },
+};
+
+export const initialS3State: S3State = {
+    s3Client: new MockS3Client,
+    listBucketsResults: {
+        list: List(),
+        owner: {},
     },
 };
 
@@ -145,6 +154,7 @@ export const initialFullState = {
     instanceStatus: initialInstanceStatus,
     instances: initialInstancesState,
     networkActivity: initialNetworkActivityState,
+    s3: initialS3State,
     secrets: initialSecretsState,
     stats: initialStatsState,
     uiAccounts: initialAccountsUIState,

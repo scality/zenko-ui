@@ -7,6 +7,7 @@ import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
 import { reducer as oidcReducer } from 'redux-oidc';
+import s3 from './s3';
 import secrets from './secrets';
 import stats from './stats';
 import uiAccounts from './uiAccounts';
@@ -29,6 +30,7 @@ const zenkoUIReducer = history => combineReducers({
     uiErrors,
     uiLocations,
     uiUser,
+    s3,
     secrets,
     stats,
     oidc: oidcReducer,

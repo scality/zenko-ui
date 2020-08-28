@@ -13,15 +13,26 @@ import {
 } from './utils/testUtil';
 
 import { MockManagementClient } from '../../../js/mock/managementClient';
-import { MockS3Client } from '../../../js/mock/s3Client';
+import { MockS3Client } from '../../../js/mock/S3Client';
+import { MockSTSClient } from '../../../js/mock/STSClient';
 import { MockUserManager } from '../../../js/mock/userManager';
 
 describe('auth actions', () => {
     const syncTests = [
         {
-            it: 'should return INIT_CLIENTS action',
-            fn: actions.initClients(new MockManagementClient, new MockS3Client),
-            expectedActions: [dispatchAction.INIT_CLIENTS_ACTION],
+            it: 'should return SET_MANAGEMENT_CLIENT action',
+            fn: actions.setManagementClient(new MockManagementClient),
+            expectedActions: [dispatchAction.SET_MANAGEMENT_CLIENT_ACTION],
+        },
+        {
+            it: 'should return SET_S3_CLIENT action',
+            fn: actions.setS3Client(new MockS3Client),
+            expectedActions: [dispatchAction.SET_S3_CLIENT_ACTION(new MockS3Client)],
+        },
+        {
+            it: 'should return SET_STS_CLIENT action',
+            fn: actions.setSTSClient(new MockSTSClient),
+            expectedActions: [dispatchAction.SET_STS_CLIENT_ACTION],
         },
         {
             it: 'should return SET_USER_MANAGER action',

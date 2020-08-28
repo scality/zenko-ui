@@ -12,7 +12,7 @@ import type {
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
     HandleErrorAction,
-    InitClientsAction,
+    ListBucketsSuccessAction,
     LoadUserSuccessAction,
     NetworkActivityAuthFailureAction,
     NetworkActivityEndAction,
@@ -21,6 +21,9 @@ import type {
     OpenLocationDeleteDialogAction,
     SelectInstanceAction,
     SetAppConfigAction,
+    SetManagementClientAction,
+    SetS3ClientAction,
+    SetSTSClientAction,
     SetUserManagerAction,
     SignoutEndAction,
     SignoutStartAction,
@@ -29,14 +32,22 @@ import type {
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
 
 import type { LocationName } from '../../../../types/config';
-
 import { MockManagementClient } from '../../../../js/mock/managementClient';
-import { MockS3Client } from '../../../../js/mock/s3Client';
+import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockUserManager } from '../../../../js/mock/userManager';
+import type { S3Client as S3ClientInterface } from '../../../../types/s3';
+import { ownerName } from '../../../../js/mock/S3Client';
 
 // auth actions
-export const INIT_CLIENTS_ACTION: InitClientsAction =
-    { type: 'INIT_CLIENTS', managementClient: new MockManagementClient(), s3Client: new MockS3Client() };
+export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction =
+    { type: 'SET_MANAGEMENT_CLIENT', managementClient: new MockManagementClient() };
+
+export function SET_S3_CLIENT_ACTION(s3Client: S3ClientInterface): SetS3ClientAction {
+    return { type: 'SET_S3_CLIENT', s3Client };
+}
+
+export const SET_STS_CLIENT_ACTION: SetSTSClientAction =
+        { type: 'SET_STS_CLIENT', stsClient: new MockSTSClient() };
 
 export const SET_USER_MANAGER_ACTION: SetUserManagerAction =
     { type: 'SET_USER_MANAGER', userManager: new MockUserManager() };
@@ -106,3 +117,8 @@ export const OPEN_LOCATION_DELETE_DIALOG_ACTION =
 
 export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction =
     { type: 'CLOSE_LOCATION_DELETE_DIALOG' };
+
+// * buckets actions
+
+export const LIST_BUCKETS_SUCCESS_ACTION: ListBucketsSuccessAction =
+    { type: 'LIST_BUCKETS_SUCCESS', list: [], ownerName };

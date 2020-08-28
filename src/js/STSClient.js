@@ -3,7 +3,8 @@ import AWS from 'aws-sdk';
 export default class STSClient {
     constructor(conf) {
         this.client = new AWS.STS({
-            endpoint: conf.stsEndpoint,
+            endpoint: conf.endpoint,
+            region: 'us-east-1',
         });
     }
 
@@ -19,3 +20,23 @@ export default class STSClient {
     }
 
 }
+
+// TODO: Testing only, remove it once STS.assumeRoleWithWebIdentity is implemented in Vault.
+// export default class STSClient {
+//     constructor(conf) {
+//         this.client = new AWS.STS({
+//             endpoint: conf.endpoint,
+//         });
+//     }
+//
+//     assumeRoleWithWebIdentity() {
+//         return Promise.resolve({
+//             Credentials: {
+//                 AccessKeyId: 'accessKey1',
+//                 SecretAccessKey: 'verySecretKey1',
+//                 // SessionToken: 'AQoDYXdzEE0a8ANXXXXXXXXNO1ewxE5TijQyp+IEXAMPLE',
+//             },
+//         });
+//     }
+//
+// }

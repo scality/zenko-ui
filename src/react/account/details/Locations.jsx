@@ -21,10 +21,6 @@ const initialSortBy = [
     },
 ];
 
-export const Icon = styled.i`
-    margin-left: 5px;
-`;
-
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 400px);
 `;
@@ -138,13 +134,13 @@ function Locations() {
                                 {headerGroup.headers.map(column => (
                                     <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
                                         {column.render('Header')}
-                                        <Icon>
+                                        <T.Icon>
                                             {!column.disableSortBy && (column.isSorted
                                                 ? column.isSortedDesc
                                                     ? <i className='fas fa-sort-down' />
                                                     : <i className='fas fa-sort-up' />
                                                 : <i className='fas fa-sort' />)}
-                                        </Icon>
+                                        </T.Icon>
                                     </T.HeadCell>
                                 ))}
                             </T.HeadRow>

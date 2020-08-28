@@ -7,6 +7,7 @@ import type {
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import type { CreateAccountRequest } from '../../types/account';
+import { assumeRoleWithWebIdentity } from './index';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
@@ -29,6 +30,7 @@ export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAct
         const params = { uuid: instanceId, user };
         dispatch(networkStart('Creating account'));
         return managementClient.createConfigurationOverlayUser(params)
+            .then(resp => dispatch(assumeRoleWithWebIdentity(`arn:aws:iam::${resp.body.id}:role/roleForB`)))
             .then(() => dispatch(updateConfiguration()))
             .then(() => dispatch(push(`/accounts/${user.userName}`)))
             .catch(error => dispatch(handleClientError(error)))

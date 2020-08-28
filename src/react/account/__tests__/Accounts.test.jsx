@@ -7,7 +7,7 @@ import router, { MemoryRouter, Redirect } from 'react-router';
 import AccountContent from '../AccountContent';
 import AccountList from '../AccountList';
 import Accounts from '../Accounts';
-import { EmptyStateSection } from '../../ui-elements/ListLayout';
+import { EmptyStateContainer } from '../../ui-elements/Container';
 import React from 'react';
 import { reduxMount } from '../../utils/test';
 
@@ -39,7 +39,7 @@ describe('Accounts', () => {
         expect(component.find(AccountContent)).toHaveLength(0);
         expect(component.find(AccountList)).toHaveLength(0);
 
-        expect(component.find(EmptyStateSection)).toHaveLength(1);
+        expect(component.find(EmptyStateContainer)).toHaveLength(1);
     });
 
     it('should redirect to the first account', () => {
@@ -57,7 +57,7 @@ describe('Accounts', () => {
         expect(component.find(AccountContent)).toHaveLength(0);
         expect(component.find(AccountList)).toHaveLength(0);
 
-        expect(component.find(EmptyStateSection)).toHaveLength(0);
+        expect(component.find(EmptyStateContainer)).toHaveLength(0);
     });
 
     it('should render AccountList with accounts sorted by creation date', () => {
@@ -87,7 +87,7 @@ describe('Accounts', () => {
         expect(accountList.prop('accountList')[0]).toEqual(account2);
         expect(accountList.prop('accountList')[1]).toEqual(account1);
 
-        expect(component.find(EmptyStateSection)).toHaveLength(0);
+        expect(component.find(EmptyStateContainer)).toHaveLength(0);
     });
 
 });

@@ -1,11 +1,12 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
 import type { ConfigurationOverlay, LocationName } from './config';
+import type { S3Bucket, S3Client } from './s3';
 import type { AppState } from './state';
 import type { ErrorViewType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
-import type { S3Client } from './s3Client';
+import type { STSClient } from './sts';
 import type { UserManager } from './auth';
 
 export type DispatchFunction = (Action) => any;
@@ -43,10 +44,15 @@ export type ErrorsUIAction =
     NetworkActivityAuthResetAction;
 
 // auth actions
-export type InitClientsAction = {|
-    +type: 'INIT_CLIENTS',
+
+export type SetSTSClientAction = {|
+    +type: 'SET_STS_CLIENT',
+    +stsClient: STSClient,
+|};
+
+export type SetManagementClientAction = {|
+    +type: 'SET_MANAGEMENT_CLIENT',
     +managementClient: ManagementClient,
-    +s3Client: S3Client,
 |};
 
 export type SetUserManagerAction = {|
@@ -75,7 +81,10 @@ export type SignoutEndAction = {|
     +type: 'SIGNOUT_END',
 |};
 
-export type AuthAction = InitClientsAction |
+export type AuthAction =
+  SetS3ClientAction |
+  SetSTSClientAction |
+  SetManagementClientAction |
   SetUserManagerAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
@@ -88,6 +97,20 @@ export type SelectInstanceAction = {|
     +type: 'SELECT_INSTANCE',
     +selectedId: InstanceId,
 |};
+
+// s3 account actions
+export type SetS3ClientAction = {|
+    +type: 'SET_S3_CLIENT',
+    +s3Client: S3Client,
+|};
+
+export type ListBucketsSuccessAction = {|
+    +type: 'LIST_BUCKETS_SUCCESS',
+    +list: Array<S3Bucket>,
+    +ownerName: string,
+|};
+
+export type S3Action = SetS3ClientAction | ListBucketsSuccessAction;
 
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
@@ -149,6 +172,7 @@ export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDel
 export type Action =
     AuthAction |
     LocationUIAction |
+    ListBucketsSuccessAction |
     ThunkStatePromisedAction |
     ThunkNonStateAction |
     ThunkStatePromisedAction |

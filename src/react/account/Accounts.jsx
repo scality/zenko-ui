@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import AccountContent from './AccountContent';
 import AccountList from './AccountList';
 import type { AppState } from '../../types/state';
+import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
 
@@ -22,15 +23,13 @@ const Accounts = () => {
 
     // empty state.
     if (accountList.length === 0) {
-        return <L.Container>
-            <L.EmptyStateSection>
-                <Warning
-                    iconClass="fas fa-5x fa-wallet"
-                    title='Create your first account.'
-                    btnTitle='Create Account'
-                    btnAction={() => dispatch(push('/create-account'))} />
-            </L.EmptyStateSection>
-        </L.Container>;
+        return <EmptyStateContainer>
+            <Warning
+                iconClass="fas fa-5x fa-wallet"
+                title='Create your first account.'
+                btnTitle='Create Account'
+                btnAction={() => dispatch(push('/create-account'))} />
+        </EmptyStateContainer>;
     }
 
     // redirect to the first account.

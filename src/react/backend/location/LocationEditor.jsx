@@ -31,6 +31,7 @@ function LocationEditor() {
     const capabilities = useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
 
     const editingExisting = !!(locationEditing && locationEditing.objectId);
 
@@ -186,8 +187,8 @@ function LocationEditor() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button outlined onClick={cancel} text='Cancel'/>
-                <Button variant="info" disabled={disable} onClick={save} text='Create'/>
+                <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
+                <Button variant="info" disabled={disable || loading} onClick={save} text='Create'/>
             </F.FooterButtons>
         </F.Footer>
     </Form>;

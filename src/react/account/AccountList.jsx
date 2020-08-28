@@ -11,10 +11,6 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-export const Icon = styled.i`
-    margin-left: 5px;
-`;
-
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 200px);
 `;
@@ -88,13 +84,13 @@ function AccountList({ accountList, accountIndex }: Props) {
                                 {headerGroup.headers.map(column => (
                                     <T.HeadCell onClick={() => handleSortClick(column, listRef)} key={column.id} {...column.getHeaderProps()} >
                                         {column.render('Header')}
-                                        <Icon>
+                                        <T.Icon>
                                             {column.isSorted
                                                 ? column.isSortedDesc
                                                     ? <i className='fas fa-sort-down' />
                                                     : <i className='fas fa-sort-up' />
                                                 : <i className='fas fa-sort' />}
-                                        </Icon>
+                                        </T.Icon>
                                     </T.HeadCell>
                                 ))}
                             </T.HeadRow>

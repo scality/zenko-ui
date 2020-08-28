@@ -4,25 +4,24 @@ import type { AppConfig, InstanceId } from '../../types/entities';
 
 import type {
     ConfigAuthFailureAction,
-    InitClientsAction,
     LoadUserSuccessAction,
     SetAppConfigAction,
+    SetManagementClientAction,
+    SetS3ClientAction,
+    SetSTSClientAction,
     SetUserManagerAction,
     SignoutEndAction,
     SignoutStartAction,
     ThunkNonStateAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-
-import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
-
+import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, updateConfiguration } from './index';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 
-import S3Client from '../../js/S3Client';
+import type { S3Client as S3ClientInterface } from '../../types/s3';
 
-import type { S3Client as S3ClientInterface } from '../../types/s3Client';
-
-// import STSClient from '../../js/STSClient';
+import STSClient from '../../js/STSClient';
+import type { STSClient as STSClientInterface } from '../../types/sts';
 
 import type { UserManager as UserManagerInterface } from '../../types/auth';
 
@@ -33,11 +32,24 @@ import { makeUserManager } from '../../js/userManager';
 import { push } from 'connected-react-router';
 import { store } from '../store';
 
-export function initClients(managementClient: ManagementClientInterface, s3Client: S3ClientInterface): InitClientsAction {
+export function setManagementClient(managementClient: ManagementClientInterface): SetManagementClientAction {
     return {
-        type: 'INIT_CLIENTS',
+        type: 'SET_MANAGEMENT_CLIENT',
         managementClient,
+    };
+}
+
+export function setS3Client(s3Client: S3ClientInterface): SetS3ClientAction {
+    return {
+        type: 'SET_S3_CLIENT',
         s3Client,
+    };
+}
+
+export function setSTSClient(stsClient: STSClientInterface): SetSTSClientAction {
+    return {
+        type: 'SET_STS_CLIENT',
+        stsClient,
     };
 }
 
@@ -187,32 +199,19 @@ export function loadClients(): ThunkStatePromisedAction {
         // TODO: Give the user the ability to select an instance.
         dispatch(selectInstance(instanceIds[0]));
 
-        // TODO: uncomment once STS.assumeRoleWithWebIdentity is implemented in Vault.
-        // const sts = new STSClient(config);
-        // const assumeRoleParams = {
-        //     idToken: oidc.user.id_token,
-        //     // roleArn will not be hardcoded but discovered from user's role.
-        //     roleArn: 'arn:aws:iam::236423648091:role/zenko-ui-role',
-        // }
-        return Promise.all([
-            // sts.assumeRoleWithWebIdentity(assumeRoleParams),
-            { Credentials: {} },
-            makeMgtClient(config.managementEndpoint, oidc.user.id_token),
-        ])
-            .then(([creds, managementClient]) => {
-                const s3Params = {
-                    accessKey: creds.Credentials.AccessKeyId,
-                    secretKey: creds.Credentials.SecretAccessKey,
-                    sessionToken: creds.Credentials.SessionToken,
-                    endpoint: config.s3Endpoint,
-                };
-                dispatch(initClients(managementClient, new S3Client(s3Params)));
+        dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
+
+        return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
+            .then(managementClient => {
+                dispatch(setManagementClient(managementClient));
                 return Promise.all([
                     // dispatch(listBuckets()),
+                    dispatch(updateConfiguration()),
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
                 ]);
             })
+            .then(() => dispatch(assumeRoleWithWebIdentity()))
             .catch(error => {
                 if (error.message) {
                     dispatch(handleErrorMessage(error.message, 'byAuth'));

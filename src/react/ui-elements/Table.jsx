@@ -49,6 +49,10 @@ export const HeadCell = styled.th`
     padding: 0.75rem;
 `;
 
+export const Icon = styled.i`
+  margin-left: 5px;
+`;
+
 // * table body
 export const Body = styled.tbody`
     // following is needed to display scroll bar onto the table
@@ -104,6 +108,10 @@ export const SearchInput = styled(Input)`
 
 export const ExtraButton = styled(Button)`
     flex: 0 0 auto;
+`;
+
+export const Resizer = styled.div`
+    height: 100%;
 `;
 
 const Table = styled.table`
