@@ -23,13 +23,13 @@ const Accounts = () => {
     // empty state.
     if (accountList.length === 0) {
         return <L.Container>
-            <L.EmptyStateSection>
+            <L.FullSection>
                 <Warning
                     iconClass="fas fa-5x fa-wallet"
                     title='Create your first account.'
                     btnTitle='Create Account'
                     btnAction={() => dispatch(push('/create-account'))} />
-            </L.EmptyStateSection>
+            </L.FullSection>
         </L.Container>;
     }
 

@@ -27,7 +27,7 @@ export const Container = styled.div`
     height: calc(100vh - 50px);
 `;
 
-export const EmptyStateSection = styled.div`
+export const FullSection = styled.div`
     flex: 1 1 100%;
     flex-direction: column;
 
