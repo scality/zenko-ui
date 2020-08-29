@@ -40,12 +40,10 @@ type RowProps = {
 export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
-    accountNameParam: ?string,
     dispatch: DispatchAPI<Action>
 ): Data => ({
     rows,
     prepareRow,
-    accountNameParam,
     dispatch,
 }), isDeepEqual);
 
