@@ -29,17 +29,37 @@ export default class S3Client {
                 if (error) {
                     return reject(error);
                 }
-                return async.eachOf(list.Buckets, (bucket, key, cb) => {
-                    return this.client.getBucketLocation({ Bucket: bucket.Name },
-                        (error, data) => {
-                            if (error) {
-                                return cb(error);
-                            }
-                            list.Buckets[key].LocationConstraint =
-                            data.LocationConstraint;
-                            return cb(null);
-                        });
-                }, err => err ? reject(error) : resolve(list));
+                return resolve({
+                    Owner: { DisplayName: 'bart' },
+                    Buckets: [
+                        { Name: 'bucket1' },
+                        { Name: 'bucket2' },
+                        { Name: 'bucket3' },
+                        { Name: 'bucket4' },
+                        { Name: 'bucket5' },
+                        { Name: 'bucket6' },
+                        { Name: 'bucket7' },
+                        { Name: 'bucket8' },
+                        { Name: 'bucket9' },
+                        { Name: 'bucket10' },
+                        { Name: 'bucket11' },
+                        { Name: 'bucket12' },
+                        { Name: 'bucket13' },
+                        { Name: 'bucket14' },
+                        { Name: 'bucket15' },
+                    ]
+                });
+                // return async.eachOf(list.Buckets, (bucket, key, cb) => {
+                //     return this.client.getBucketLocation({ Bucket: bucket.Name },
+                //         (error, data) => {
+                //             if (error) {
+                //                 return cb(error);
+                //             }
+                //             list.Buckets[key].LocationConstraint =
+                //             data.LocationConstraint;
+                //             return cb(null);
+                //         });
+                // }, err => err ? reject(error) : resolve(list));
             });
         });
     }

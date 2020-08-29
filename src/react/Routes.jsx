@@ -6,8 +6,8 @@ import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
 import type { Action } from '../types/actions';
 import type { AppState } from '../types/state';
-import BucketCreate from './databrowser/BucketCreate';
-import ListBuckets from './databrowser/ListBuckets';
+import BucketCreate from './databrowser/buckets/BucketCreate';
+import BucketList from './databrowser/buckets/BucketList';
 import type { DispatchAPI } from 'redux';
 import Groups from './group/Groups';
 import LocationEditor from './backend/location/LocationEditor';
@@ -88,7 +88,7 @@ function Routes() {
 
             <Route path="/groups" component={Groups} />
 
-            <Route path="/data" component={ListBuckets} />
+            <Route path="/data" component={BucketList} />
             <Route path="/create-bucket" component={BucketCreate} />
 
             <Route exact path="/workflow" component={Workflows} />
