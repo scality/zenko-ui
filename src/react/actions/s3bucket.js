@@ -9,6 +9,7 @@ export function listBucketsSuccess(list, ownerName) {
     return {
         type: 'LIST_BUCKETS_SUCCESS',
         list,
+        // list: [{ Name: 'toto' }],
         ownerName,
     };
 }

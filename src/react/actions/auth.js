@@ -207,7 +207,7 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
             };
             const s3Client = new S3Client(s3Params);
             dispatch(setS3Client(s3Client));
-            // return dispatch(listBuckets());
+            return dispatch(listBuckets());
         })
         .catch(error => {
             const message = `Failed to returns a set of temporary security credentials: ${error.message || '(unknown reason)'}`;

@@ -6,29 +6,28 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 
+const Icon = styled.i`
+  margin-left: 5px;
+`;
+
 const initialSortBy = [
     {
-        id: 'name',
+        id: 'Name',
         desc: false,
     },
 ];
 
+const columns = [
+    {
+        Header: 'Bucket Name',
+        accessor: 'Name',
+    },
+];
 export default function ListBuckets(){
 
-    const Icon = styled.i`
-      margin-left: 5px;
-    `;
+    const data = useSelector((state: AppState) => state.s3.listBucketsResults.list);
 
-    const columns = [
-        {
-            Header: 'Location Name',
-            accessor: 'name',
-        },
-    ];
-
-    const data = [];
-    const coco = useSelector((state: AppState) => state.s3.listBucketsResults.list);
-    console.log('coco!!!', coco);
+    // console.log('coco!!!', coco);
     console.log('data!!!', data);
 
     const {
@@ -64,7 +63,7 @@ export default function ListBuckets(){
 
         <div id='location-list'>
             <T.SearchContainer>
-                <T.Search> <T.SearchInput placeholder='Filter by Bucket Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
+                <T.Search> <T.SearchInput placeholder='Filter by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
