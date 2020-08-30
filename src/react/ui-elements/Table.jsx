@@ -106,6 +106,10 @@ export const ExtraButton = styled(Button)`
     flex: 0 0 auto;
 `;
 
+export const Resizer = styled.div`
+    height: 100%;
+`;
+
 const Table = styled.table`
     width: 100%;
     border-collapse: collapse;

@@ -1,14 +1,15 @@
 // @flow
-
-import { FixedSizeList } from 'react-window';
-import MemoRow, { createItemData } from './BucketRow';
 import * as L from '../../ui-elements/ListLayout2';
-import React, { useCallback, useEffect, useRef } from 'react';
+
+import MemoRow, { createItemData } from './BucketRow';
+import React, { useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 
-import { useFilters, useSortBy, useTable } from 'react-table';
-import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { useFilters, useSortBy, useTable } from 'react-table';
+import { FixedSizeList } from 'react-window';
+import styled from 'styled-components';
+import { useHeight } from '../../utils/hooks';
 
 const Icon = styled.i`
   margin-left: 5px;
@@ -35,6 +36,9 @@ export default function BucketList(){
     const dispatch = useDispatch();
     const data = useSelector((state: AppState) => state.s3.listBucketsResults.list);
     const listRef = useRef<FixedSizeList<T> | null>(null);
+
+    const resizerRef = useRef<FixedSizeList<T> | null>(null);
+    const height = useHeight(resizerRef);
 
     // console.log('coco!!!', coco);
     console.log('data!!!', data);
@@ -90,10 +94,10 @@ export default function BucketList(){
                             ))}
                         </T.Head>
                         <CustomBody {...getTableBodyProps()}>
-                            {
+                            <T.Resizer innerRef={resizerRef}>
                                 <FixedSizeList
                                     ref={listRef}
-                                    height={500}
+                                    height={height}
                                     itemCount={rows.length}
                                     itemSize={45}
                                     width='100%'
@@ -101,7 +105,7 @@ export default function BucketList(){
                                 >
                                     {MemoRow}
                                 </FixedSizeList>
-                            }
+                            </T.Resizer>
                             {
                             // rows.map(row => {
                             //     prepareRow(row);

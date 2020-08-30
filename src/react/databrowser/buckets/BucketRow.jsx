@@ -14,7 +14,7 @@ type PrepareRow = (RowType) => void;
 
 type RowType = {
     id: number,
-    original: Account,
+    original: S3Bucket,
     cells: any,
     getRowProps: (any) => void,
 };
@@ -24,7 +24,6 @@ type RowsType = Array<RowType>;
 type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
-    accountNameParam: ?string,
     dispatch: DispatchAPI<Action>,
 };
 
