@@ -38,6 +38,7 @@ export const HeadSlice = styled.div`
     display: flex;
     flex: 0 1 100px;
     flex-direction: column;
+    justify-content: center;
 
     background-clor: red;
     text-align: center;

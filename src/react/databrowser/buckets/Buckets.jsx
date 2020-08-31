@@ -28,8 +28,6 @@ export default function Buckets(){
         <L.Body>
             <BucketList buckets={buckets} locations={locations} />
             <L.ContentSection>
-
-              22222
             </L.ContentSection>
         </L.Body>
 
