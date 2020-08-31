@@ -88,11 +88,8 @@ export type StatsState = {|
 export type S3State = {|
     +s3Client: S3ClientInterface,
     +listBucketsResults: {|
-        +list: Array<S3Bucket>,
-        +owner: {|
-            DisplayName: string,
-            ID: string,
-        |},
+        +list: List<S3Bucket>,
+        +ownerName: string,
     |},
 |};
 

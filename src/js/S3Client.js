@@ -29,25 +29,26 @@ export default class S3Client {
                 if (error) {
                     return reject(error);
                 }
+                console.log('list!!!', list);
                 return resolve({
                     Owner: { DisplayName: 'bart' },
                     Buckets: [
-                        { Name: 'bucket1' },
-                        { Name: 'bucket2' },
-                        { Name: 'bucket3' },
-                        { Name: 'bucket4' },
-                        { Name: 'bucket5' },
-                        { Name: 'bucket6' },
-                        { Name: 'bucket7' },
-                        { Name: 'bucket8' },
-                        { Name: 'bucket9' },
-                        { Name: 'bucket10' },
-                        { Name: 'bucket11' },
-                        { Name: 'bucket12' },
-                        { Name: 'bucket13' },
-                        { Name: 'bucket14' },
-                        { Name: 'bucket15' },
-                    ]
+                        { Name: 'bucket1', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket2', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket3', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket4', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket5', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket6', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket7', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket8', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket9', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket10', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket11', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket12', LocationConstraint: 'us-east-1' },
+                        { Name: 'bucket13', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket14', LocationConstraint: 'aws-s3' },
+                        { Name: 'bucket15', LocationConstraint: 'aws-s3' },
+                    ],
                 });
                 // return async.eachOf(list.Buckets, (bucket, key, cb) => {
                 //     return this.client.getBucketLocation({ Bucket: bucket.Name },

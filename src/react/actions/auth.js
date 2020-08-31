@@ -197,7 +197,7 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
             // roleArn: 'arn:aws:iam::236423648091:role/zenko-ui-role',
             roleArn,
         };
-        sts.assumeRoleWithWebIdentity(assumeRoleParams)
+        return sts.assumeRoleWithWebIdentity(assumeRoleParams)
         .then(creds => {
             const s3Params = {
                 accessKey: creds.Credentials.AccessKeyId,
@@ -241,7 +241,7 @@ export function loadClients(): ThunkStatePromisedAction {
                 ]);
             })
             .then(() => {
-                dispatch(assumeRoleWithWebIdentity());
+                return dispatch(assumeRoleWithWebIdentity());
             })
             .catch(error => {
                 if (error.message) {

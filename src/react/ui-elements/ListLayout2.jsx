@@ -10,6 +10,18 @@ export const Container = styled.div`
     height: calc(100vh - 48px);
 `;
 
+export const BreadcrumbContainer = styled.div`
+    margin: 0px 10px;
+    height: 22px;
+    display: flex;
+    min-height: 22px;
+    padding: 4px 0px;
+
+    .sc-breadcrumb_item {
+        font-size: 15px;
+    }
+`;
+
 export const Head = styled.div`
     display: flex;
     flex-direction: row;
@@ -24,8 +36,11 @@ export const Head = styled.div`
 
 export const HeadSlice = styled.div`
     display: flex;
-    flex: 1 1 20%;
+    flex: 0 1 100px;
+    flex-direction: column;
+
     background-clor: red;
+    text-align: center;
 `;
 
 export const Body = styled.div`
@@ -38,7 +53,7 @@ export const Body = styled.div`
 `;
 
 export const ListSection = styled.div`
-    flex: 0 0 650px;
+    flex: 3 1 70%;
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.primary};
@@ -48,7 +63,7 @@ export const ListSection = styled.div`
 `;
 
 export const ContentSection = styled.div`
-    flex: 0 1 calc(100vw - 650px);
+    flex: 1 1 30%;
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.primary};

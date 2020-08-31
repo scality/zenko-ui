@@ -7,9 +7,9 @@ export function getLocationType(locationType) {
     return locationTypeName;
 }
 
-export function getLocationTypeFromName(locationConstraint, configuration) {
+export function getLocationTypeFromName(locationConstraint, locations) {
     const constraint = locationConstraint || 'us-east-1'; // defaults to empty
-    const locationType = configuration && configuration.locations[constraint] ? configuration.locations[constraint].locationType : '';
+    const locationType = locations && locations[constraint] ? locations[constraint].locationType : '';
     const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
     return locationTypeName;
 }
