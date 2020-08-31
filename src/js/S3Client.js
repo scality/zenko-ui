@@ -29,38 +29,17 @@ export default class S3Client {
                 if (error) {
                     return reject(error);
                 }
-                console.log('list!!!', list);
-                return resolve({
-                    Owner: { DisplayName: 'bart' },
-                    Buckets: [
-                        { Name: 'bucket1', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket2', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket3', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket4', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket5', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket6', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket7', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket8', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket9', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket10', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket11', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket12', LocationConstraint: 'us-east-1' },
-                        { Name: 'bucket13', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket14', LocationConstraint: 'aws-s3' },
-                        { Name: 'bucket15', LocationConstraint: 'aws-s3' },
-                    ],
-                });
-                // return async.eachOf(list.Buckets, (bucket, key, cb) => {
-                //     return this.client.getBucketLocation({ Bucket: bucket.Name },
-                //         (error, data) => {
-                //             if (error) {
-                //                 return cb(error);
-                //             }
-                //             list.Buckets[key].LocationConstraint =
-                //             data.LocationConstraint;
-                //             return cb(null);
-                //         });
-                // }, err => err ? reject(error) : resolve(list));
+                return async.eachOf(list.Buckets, (bucket, key, cb) => {
+                    return this.client.getBucketLocation({ Bucket: bucket.Name },
+                        (error, data) => {
+                            if (error) {
+                                return cb(error);
+                            }
+                            list.Buckets[key].LocationConstraint =
+                            data.LocationConstraint;
+                            return cb(null);
+                        });
+                }, err => err ? reject(error) : resolve(list));
             });
         });
     }

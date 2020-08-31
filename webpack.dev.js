@@ -14,7 +14,7 @@ module.exports = merge(common, {
         hot: true,
         proxy: {
             '/s3': {
-                target: 'http://127.0.0.1:8381',
+                target: 'http://127.0.0.1:8000',
                 pathRewrite: {'^/s3' : ''},
                 bypass: function(req) {
                     req.headers.proxy_path = req.path;
@@ -23,6 +23,10 @@ module.exports = merge(common, {
             '/iam': {
                 target: 'http://127.0.0.1:8600',
                 pathRewrite: {'^/iam' : ''},
+            },
+            '/sts': {
+                target: 'http://127.0.0.1:8800',
+                pathRewrite: { '^/sts' : '' },
             },
         },
     },

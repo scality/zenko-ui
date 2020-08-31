@@ -4,25 +4,20 @@ import type { AppConfig, InstanceId } from '../../types/entities';
 
 import type {
     ConfigAuthFailureAction,
-    InitClientsAction,
     LoadUserSuccessAction,
     SetAppConfigAction,
+    SetManagementClientAction,
+    SetS3ClientAction,
     SetUserManagerAction,
     SignoutEndAction,
     SignoutStartAction,
     ThunkNonStateAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-
-import { handleErrorMessage, listBuckets, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
-
+import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 
-import S3Client from '../../js/S3Client';
-
-import type { S3Client as S3ClientInterface } from '../../types/s3Client';
-
-import STSClient from '../../js/STSClient';
+import type { S3Client as S3ClientInterface } from '../../types/s3';
 
 import type { UserManager as UserManagerInterface } from '../../types/auth';
 
@@ -178,44 +173,6 @@ export function loadAppConfig(): ThunkNonStateAction {
             });
     };
 }
-
-export function assumeRoleWithWebIdentity(role?: string): ThunkStateAction {
-    return (dispatch, getState) => {
-        const { oidc, auth: { config }, configuration } = getState();
-        let roleArn = role;
-        if (!role) {
-            if (configuration.latest.users.length === 0) {
-                return;
-            }
-            // TODO: which one should we pick?
-            roleArn = configuration.latest.users[0].arn;
-        }
-        const sts = new STSClient({ endpoint: config.stsEndpoint });
-        const assumeRoleParams = {
-            idToken: oidc.user.id_token,
-            // roleArn will not be hardcoded but discovered from user's role.
-            // roleArn: 'arn:aws:iam::236423648091:role/zenko-ui-role',
-            roleArn,
-        };
-        return sts.assumeRoleWithWebIdentity(assumeRoleParams)
-        .then(creds => {
-            const s3Params = {
-                accessKey: creds.Credentials.AccessKeyId,
-                secretKey: creds.Credentials.SecretAccessKey,
-                sessionToken: creds.Credentials.SessionToken,
-                endpoint: config.s3Endpoint,
-            };
-            const s3Client = new S3Client(s3Params);
-            dispatch(setS3Client(s3Client));
-            return dispatch(listBuckets());
-        })
-        .catch(error => {
-            const message = `Failed to returns a set of temporary security credentials: ${error.message || '(unknown reason)'}`;
-            dispatch(handleErrorMessage(message, 'byAuth'));
-            dispatch(networkAuthFailure());
-        });
-    };
-};
 
 // loadClients is called when the ID token gets renewed prior to its expiration.
 export function loadClients(): ThunkStatePromisedAction {
