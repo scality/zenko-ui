@@ -14,7 +14,7 @@ import type {
     ThunkNonStateAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure } from './index';
+import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, updateConfiguration } from './index';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 
 import type { S3Client as S3ClientInterface } from '../../types/s3';
@@ -193,6 +193,7 @@ export function loadClients(): ThunkStatePromisedAction {
                 dispatch(setManagementClient(managementClient));
                 return Promise.all([
                     // dispatch(listBuckets()),
+                    dispatch(updateConfiguration()),
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),
                 ]);
