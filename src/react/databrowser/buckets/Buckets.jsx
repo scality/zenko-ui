@@ -6,7 +6,9 @@ import { Breadcrumb } from '@scality/core-ui';
 import BucketHead from './BucketHead';
 import BucketList from './BucketList';
 import React from 'react';
+import { Warning } from '../../ui-elements/Warning';
 import { assumeRoleWithWebIdentity } from '../../actions';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 const Select = styled.select`
@@ -29,6 +31,16 @@ export default function Buckets(){
         }
         dispatch(assumeRoleWithWebIdentity(`arn:aws:iam::${account.id}:role/roleForB`));
     };
+
+    if (accounts.length === 0) {
+        return <L.Container>
+            <Warning
+                iconClass="fas fa-5x fa-wallet"
+                title='Before browsing your data, create your first account.'
+                btnTitle='Create Account'
+                btnAction={() => dispatch(push('/create-account'))} />
+        </L.Container>;
+    }
 
     return <L.Container>
         <L.BreadcrumbContainer>
