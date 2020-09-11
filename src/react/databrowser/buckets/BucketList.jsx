@@ -10,6 +10,7 @@ import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { S3Bucket } from '../../../types/s3';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
@@ -46,7 +47,7 @@ export default function BucketList({ buckets, locations }: Props){
             accessor: 'LocationConstraint',
             Cell({ value: locationName }: { value: LocationName }) {
                 const locationType = getLocationTypeFromName(locationName, locations);
-                return `${locationName || ''} / ${locationType}`;
+                return `${locationName || 'us-east-1'} / ${locationType}`;
             },
         },
     ], [locations]);
@@ -70,6 +71,7 @@ export default function BucketList({ buckets, locations }: Props){
     return <L.ListSection>
         <T.SearchContainer>
             <T.Search> <T.SearchInput placeholder='Filter by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
+            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant='info' onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
         </T.SearchContainer>
         <T.Container>
             <Table {...getTableProps()}>

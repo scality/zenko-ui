@@ -3,9 +3,11 @@ import type {
     ListBucketsSuccessAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
+import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import type { S3Bucket } from '../../types/s3';
 import { getClients } from '../utils/actions';
+import { push } from 'connected-react-router';
 
 export function listBucketsSuccess(list: Array<S3Bucket> , ownerName: string): ListBucketsSuccessAction {
     return {
@@ -39,23 +41,20 @@ export function listBuckets(): ThunkStatePromisedAction{
     };
 }
 
-// export function createBucket(bucket){
-//     return (dispatch, getState) => {
-//         const { s3Client } = getClients(getState());
-//         dispatch(networkStart('Creating bucket'));
-//         return s3Client.createBucket(bucket)
-//             .then(() => {
-//                 batch(() => {
-//                     dispatch(push('/databrowser'));
-//                     dispatch(listBuckets());
-//                 });
-//             })
-//             .catch(error => dispatch(handleS3Error(error)))
-//             .catch(error => dispatch(handleApiError(error, 'byModal')))
-//             .finally(() => dispatch(networkEnd()));
-//     };
-// }
-//
+export function createBucket(bucket){
+    return (dispatch, getState) => {
+        // TODO: credentials expired => s3Client out of date => s3Client.createBucket error.
+        const { s3Client } = getClients(getState());
+        dispatch(networkStart('Creating bucket'));
+        return s3Client.createBucket(bucket)
+            .then(() => dispatch(listBuckets()))
+            .then(() => dispatch(push('/buckets')))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
 // export function deleteBucket(bucketName){
 //     return (dispatch, getState) => {
 //         const { s3Client } = getClients(getState());
