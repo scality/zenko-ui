@@ -2,7 +2,7 @@
 import { Banner, Button } from '@scality/core-ui';
 import Form, * as F from '../../ui-elements/FormLayout';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
 import { convertToForm, convertToLocation, newLocationDetails, newLocationForm } from './utils';
@@ -12,6 +12,7 @@ import type { LocationSelectOption } from '../../../types/location';
 import { goBack } from 'connected-react-router';
 import locationFormCheck from './locationFormCheck';
 import { selectStorageOptions } from '../../utils/storageOptions';
+import { useOutsideClick } from '../../utils/hooks';
 import { useParams } from 'react-router-dom';
 
 const makeLabel = (locationType) => {
@@ -41,15 +42,22 @@ function LocationEditor() {
         return selectStorageOptions(capabilities, makeLabel);
     }, [capabilities]);
 
+    const clearServerError = () => {
+        if (hasError) {
+            dispatch(clearError());
+        }
+    };
+    // clear server errors if clicked on outside of element.
+    const formRef = useRef(null);
+    useOutsideClick(formRef, clearServerError);
+
     const onChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         const l = {
             ...location,
             [e.target.name]: value,
         };
-        if (hasError) {
-            dispatch(clearError());
-        }
+        clearServerError();
         setLocation(l);
     };
 
@@ -58,25 +66,19 @@ function LocationEditor() {
             e.preventDefault();
         }
 
-        if (hasError) {
-            dispatch(clearError());
-        }
+        clearServerError();
         dispatch(saveLocation(convertToLocation(location)));
     };
 
     const cancel = () => {
         batch(() => {
-            if (hasError) {
-                dispatch(clearError());
-            }
+            clearServerError();
             dispatch(goBack());
         });
     };
 
     const onTypeChange = (v: LocationSelectOption) => {
-        if (hasError) {
-            dispatch(clearError());
-        }
+        clearServerError();
         if (location.locationType !== v.value) {
             const l = {
                 ...newLocationForm(),
@@ -89,9 +91,7 @@ function LocationEditor() {
     };
 
     const onDetailsChange = (details) => {
-        if (hasError) {
-            dispatch(clearError());
-        }
+        clearServerError();
         const l = {
             ...location,
             details,
@@ -100,9 +100,7 @@ function LocationEditor() {
     };
 
     const onOptionsChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
-        if (hasError) {
-            dispatch(clearError());
-        }
+        clearServerError();
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         const l = {
             ...location,
@@ -140,7 +138,7 @@ function LocationEditor() {
         displayErrorMessage = `Could not save: ${errorMessage}`;
     }
 
-    return <Form>
+    return <Form innerRef={formRef}>
         <F.Title>
             { `${locationEditing ? 'Edit' : 'Add new'} storage location` }
         </F.Title>

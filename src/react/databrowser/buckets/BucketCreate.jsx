@@ -1,15 +1,28 @@
-import { Button, Select } from '@scality/core-ui';
-import React, {useEffect, useMemo, useState} from 'react';
-import FormContainer from '../../ui-elements/FormContainer';
-import Input from '../../ui-elements/Input';
-import { connect } from 'react-redux';
-import { createBucket } from '../../actions';
+// @flow
+import { Banner, Button } from '@scality/core-ui';
+import { Controller, useForm } from 'react-hook-form';
+import Form, * as F from '../../ui-elements/FormLayout';
+import React, { useMemo, useRef } from 'react';
+import { clearError, createBucket } from '../../actions';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../../../types/state';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers';
 import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
+import { useOutsideClick } from '../../utils/hooks';
+
+const Select = styled(F.Select)`
+    // to separate location name and location type.
+    .sc-select__single-value{
+        width: 100%;
+    }
+`;
 
 const SelectOption = styled.div`
+    // to separate location name and location type.
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -19,47 +32,43 @@ const SelectOption = styled.div`
     }
 `;
 
-//
-// const locationOptions = locations => {
-//     return Object.keys(locations).map(locationName => {
-//         return {
-//             label: locationName,
-//             value: locationName,
-//         };
-//     });
-// };
+const schema = Joi.object({
+    name: Joi.string().label('Name').required().min(3).max(63).message('Invalid Name'),
+    locationConstraint: Joi.object(),
+});
 
-function BucketCreate(props) {
-    const [ bucket, setBucket ] = useState({ name: '', locationConstraint: 'us-east-1' });
+function BucketCreate() {
+    // TODO: redirect to list buckets if no account
+    const { register, handleSubmit, errors, control } = useForm({
+        resolver: joiResolver(schema),
+    });
 
-    const selectLocations = useMemo(() => {
-        return locationWithIngestion(props.locations, props.capabilities);
-    }, [props.locations, props.capabilities]);
+    const dispatch = useDispatch();
 
-    // const selectLocationOptions = locationOptions(locationWithIngestion(props.locations, props.capabilities));
+    const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
+    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
 
-    const save = (e) => {
-        if (e) {
-            e.preventDefault();
+    const locations = useSelector((state: AppState) => state.configuration.latest.locations);
+    const capabilities = useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
+
+    const clearServerError = () => {
+        if (hasError) {
+            dispatch(clearError());
         }
-        props.createBucket(bucket);
+    };
+    // clear server errors if clicked on outside of element.
+    const formRef = useRef(null);
+    useOutsideClick(formRef, clearServerError);
+
+    const onSubmit = ({ name, locationConstraint }) => {
+        clearServerError();
+        dispatch(createBucket({ name, locationConstraint: locationConstraint?.value }));
     };
 
-    const cancel = () => {
-        props.redirect('/databrowser');
-    };
-
-    const onChange = (e) => {
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        const b = {
-            ...bucket,
-            [e.target.name]: value,
-        };
-        setBucket(b);
-    };
-
-    const onSelectChange = l => {
-        setBucket({ ...bucket, locationConstraint: l.value });
+    const handleCancel = () => {
+        clearServerError();
+        dispatch(push('/buckets'));
     };
 
     const renderLocation = (option) => {
@@ -78,50 +87,61 @@ function BucketCreate(props) {
         );
     };
 
-    return <FormContainer>
-        <div className='sc-title'> create  bucket </div>
-        <fieldset>
-            <label htmlFor='userName'> Name </label>
-            <Input
+    const selectLocations = useMemo(() => {
+        return locationWithIngestion(locations, capabilities);
+    }, [locations, capabilities]);
+
+    return <Form innerRef={formRef}>
+        <F.Title> create new bucket </F.Title>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['Must be unique']}>
+                Name
+            </F.Label>
+            <F.Input
                 type='text'
                 id='name'
                 name='name'
-                placeholder='User Name'
-                onChange={onChange}
-                value={bucket.name}
+                innerRef={register}
+                onChange={clearServerError}
                 autoComplete='off' />
-        </fieldset>
-        <fieldset>
+            <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
+        </F.Fieldset>
+        <F.Fieldset>
             <label htmlFor='locationConstraint'> Location Constraint </label>
-            <Select
+            <Controller
+                control={control}
                 id='locationConstraint'
                 name='locationConstraint'
-                placeholder='Location Name'
-                onChange={onSelectChange}
-                options={selectLocations}
-                formatOptionLabel={renderLocation}
-                value={selectLocations.find(l => l.value === bucket.locationConstraint)}
-                autoComplete='off' />
-        </fieldset>
-        <div className='footer'>
-            <Button outlined onClick={cancel} text='Cancel'/>
-            <Button outlined onClick={save} text='Add'/>
-        </div>
-    </FormContainer>;
+                defaultValue={{ value: 'us-east-1' }}
+                render={({ onChange, value: locationConstraintObj }) => {
+                    return <Select
+                        onChange={onChange}
+                        placeholder='Location Name'
+                        options={selectLocations}
+                        formatOptionLabel={renderLocation}
+                        value={selectLocations.find(l => l.value === locationConstraintObj.value)}
+                    />;
+                }}
+            />
+        </F.Fieldset>
+        <F.Footer>
+            <F.FooterError>
+                {
+                    hasError && <Banner
+                        id="zk-error-banner"
+                        icon={<i className="fas fa-exclamation-triangle" />}
+                        title="Error"
+                        variant="danger">
+                        {errorMessage}
+                    </Banner>
+                }
+            </F.FooterError>
+            <F.FooterButtons>
+                <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
+                <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
+            </F.FooterButtons>
+        </F.Footer>
+    </Form>;
 }
 
-function mapStateToProps(state) {
-    return {
-        locations: state.configuration.latest.locations,
-        capabilities: state.instanceStatus.latest.state.capabilities || {},
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        createBucket: bucket => dispatch(createBucket(bucket)),
-        redirect: path => dispatch(push(path)),
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(BucketCreate);
+export default BucketCreate;
