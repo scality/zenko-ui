@@ -25,8 +25,8 @@ export default function Buckets(){
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
 
-    const switchAccount = accountName => {
-        const account = accountName && accounts.find(a => a.userName === accountName);
+    const switchAccount = name => {
+        const account = name && name !== accountName && accounts.find(a => a.userName === name);
         if (!account) {
             return;
         }
@@ -47,7 +47,7 @@ export default function Buckets(){
         <L.BreadcrumbContainer>
             <Breadcrumb
                 paths={[
-                    <Select key={1} onChange={e => switchAccount(e.target.value) } name="cars" id="cars">
+                    <Select key={1} onChange={e => switchAccount(e.target.value) }>
                         { accounts.map(account => <option key={account.userName} selected={account.userName === accountName} value={account.userName}>{account.userName}</option>)}
                     </Select>,
                     <label key={2}>buckets</label>,

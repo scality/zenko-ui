@@ -22,8 +22,7 @@
         "src/react/user",
         "src/react/workflow",
         "src/react/backend/StorageMonitor.jsx",
-        "src/react/databrowser/DataBrowser.jsx",
-        "src/react/databrowser/buckets/BucketCreate.jsx"
+        "src/react/databrowser/DataBrowser.jsx"
     ],
     "rules": {
         "semi": "error",

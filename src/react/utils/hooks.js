@@ -21,3 +21,19 @@ export const useHeight = (myRef) => {
 
     return height;
 };
+
+export const useOutsideClick = (ref, actionFn) => {
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (ref.current && !ref.current.contains(event.target)) {
+                actionFn();
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [ref, actionFn]);
+};

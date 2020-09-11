@@ -94,7 +94,7 @@ const TooltipContainer = styled.div`
 `;
 
 const UlOverlay = styled.ul`
-    width: 100px;
+    width: 200px;
     text-align:left;
     padding: 0px 0px 0px 20px;
 `;

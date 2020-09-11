@@ -1,14 +1,15 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
 import Form, * as F from '../ui-elements/FormLayout';
+import React, { useRef } from 'react';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import Joi from '@hapi/joi';
-import React from 'react';
 import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers';
 import { useForm } from 'react-hook-form';
+import { useOutsideClick } from '../utils/hooks';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
@@ -31,9 +32,15 @@ function AccountCreate() {
     const dispatch = useDispatch();
 
     const onSubmit = ({ email, name, quota }) => {
+        clearServerError();
         const quotaMaxInt = quota || 0;
         const payload = { userName: name, email, quotaMax: quotaMaxInt };
         dispatch(createAccount(payload));
+    };
+
+    const handleCancel = () => {
+        clearServerError();
+        dispatch(goBack());
     };
 
     const clearServerError = () => {
@@ -42,7 +49,11 @@ function AccountCreate() {
         }
     };
 
-    return <Form autoComplete='off'>
+    // clear server errors if clicked on outside of element.
+    const formRef = useRef(null);
+    useOutsideClick(formRef, clearServerError);
+
+    return <Form autoComplete='off' innerRef={formRef}>
         <F.Title> create new account </F.Title>
         <F.Fieldset>
             <F.Label tooltipMessages={['Must be unique']}>
@@ -97,7 +108,7 @@ function AccountCreate() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button disabled={loading} outlined onClick={() => dispatch(goBack())} text='Cancel'/>
+                <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
                 <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>

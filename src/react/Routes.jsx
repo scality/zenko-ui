@@ -64,7 +64,7 @@ function Routes() {
                         //     selected: isSelected(location, '/users'),
                         // },
                         {
-                            link: <Link to="/buckets">Data</Link>,
+                            link: <Link to="/buckets">Data Browser</Link>,
                             selected: !!matchPath(pathname, { path: '/buckets' }),
                         },
                         // {
