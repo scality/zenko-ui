@@ -26,10 +26,7 @@ export default function Buckets(){
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
 
     const switchAccount = name => {
-        if (name === accountName) {
-            return;
-        }
-        const account = accountName && accounts.find(a => a.userName === name);
+        const account = name && name !== accountName && accounts.find(a => a.userName === name);
         if (!account) {
             return;
         }
