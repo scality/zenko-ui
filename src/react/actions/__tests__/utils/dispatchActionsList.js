@@ -28,6 +28,7 @@ import type {
     SignoutEndAction,
     SignoutStartAction,
 } from '../../../../types/actions';
+import type { S3Bucket, S3Client as S3ClientInterface } from '../../../../types/s3';
 
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
 
@@ -35,8 +36,6 @@ import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockUserManager } from '../../../../js/mock/userManager';
-import type { S3Client as S3ClientInterface } from '../../../../types/s3';
-import { ownerName } from '../../../../js/mock/S3Client';
 
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction =
@@ -119,6 +118,5 @@ export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogActio
     { type: 'CLOSE_LOCATION_DELETE_DIALOG' };
 
 // * buckets actions
-
-export const LIST_BUCKETS_SUCCESS_ACTION: ListBucketsSuccessAction =
-    { type: 'LIST_BUCKETS_SUCCESS', list: [], ownerName };
+export const LIST_BUCKETS_SUCCESS_ACTION = (list: Array<S3Bucket>, ownerName: string): ListBucketsSuccessAction =>
+    ({ type: 'LIST_BUCKETS_SUCCESS', list: [], ownerName });

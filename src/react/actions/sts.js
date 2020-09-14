@@ -1,6 +1,6 @@
 // @flow
 
-import { handleErrorMessage, listBuckets, networkAuthFailure, setS3Client } from './index';
+import { handleErrorMessage, listBuckets, listBucketsSuccess, networkAuthFailure, setS3Client } from './index';
 import S3Client from '../../js/S3Client';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 
@@ -11,6 +11,9 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStatePromisedActi
         let roleArn = role;
         if (!role) {
             if (configuration.latest.users.length === 0) {
+                // clean S3 client and buckets' list if no account.
+                dispatch(setS3Client(null));
+                dispatch(listBucketsSuccess([], ''));
                 return Promise.resolve();
             }
             // TODO: which one should we pick?`

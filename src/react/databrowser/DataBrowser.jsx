@@ -1,145 +1,65 @@
-import { Head, HeadLeft } from '../ui-elements/Head';
-import React, { useCallback, useEffect } from 'react';
-import { Row, TableContainer } from '../ui-elements/Table';
-import { closeBucketDeleteDialog, deleteBucket, listBuckets, openBucketDeleteDialog, selectBucket } from '../actions';
-import { Button } from '@scality/core-ui';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { connect } from 'react-redux';
-import {formatDate} from '../utils';
-import { getLocationTypeFromName } from '../utils/storageOptions';
+// @flow
+import * as L from '../ui-elements/ListLayout2';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../../types/state';
+import { Breadcrumb } from '@scality/core-ui';
+import BucketCreate from './buckets/BucketCreate';
+import Buckets from './buckets/Buckets';
+import { EmptyStateContainer } from '../ui-elements/Container';
+import React from 'react';
+import { Warning } from '../ui-elements/Warning';
+import { assumeRoleWithWebIdentity } from '../actions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
-const DataBrowserContainer = styled.div`
-    display: flex;
-    flex-direction: column;
+const Select = styled.select`
+    outline: 0px;
+    font-size: inherit;
 `;
 
-const HeadSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-width: 200px;
-  text-align: center;
+const breadcrumbName = url => {
+    return url.split('/')[1];
+};
 
-  .title {
-      font-size: 14px;
-      margin: 10px 0px;
-  }
-`;
+export default function DataBrowser(){
+    const dispatch = useDispatch();
+    const accountName = useSelector((state: AppState) => state.s3.listBucketsResults.ownerName);
+    const accounts = useSelector((state: AppState) => state.configuration.latest.users);
+    const { url } = useRouteMatch();
 
-const BucketSection = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  background-color: ${props => props.theme.brand.primary};
-  border-radius: 5px;
-  padding: 1em;
-
-  height: calc(100vh - 240px);
-`;
-
-const BucketSectionTop = styled.div`
-  display: flex;
-  justify-content: flex-end;
-
-  width: 100%;
-  button {
-      margin-left: 5px;
-  }
-`;
-
-
-
-function DataBrowser(props){
-    const { bucketList, redirect, configuration, selectedBucketName } = props;
-
-    // useEffect(() => {
-    //     props.listBuckets();
-    // }, []);
-
-    const createBucket = () => {
-        redirect('/databrowser/create');
+    const switchAccount = name => {
+        const account = name && name !== accountName && accounts.find(a => a.userName === name);
+        if (!account) {
+            return;
+        }
+        dispatch(assumeRoleWithWebIdentity(`arn:aws:iam::${account.id}:role/roleForB`))
+            .then(() => dispatch(push('/buckets')));
     };
 
-    const deleteSelectedBucket = () => {
-        props.deleteBucket(selectedBucketName);
+    if (accounts.length === 0) {
+        return <EmptyStateContainer>
+            <Warning
+                iconClass="fas fa-5x fa-wallet"
+                title='Before browsing your data, create your first account.'
+                btnTitle='Create Account'
+                btnAction={() => dispatch(push('/create-account'))} />
+        </EmptyStateContainer>;
     }
-
-    // TODO: add HeadSection inside <HEAD>
-    // <HeadSection>
-    //     <div className="title"> ACCOUNT CONSUMPTION </div>
-    //     <ProgressBar
-    //         bottomLeftLabel="50GB Used"
-    //         bottomRightLabel="50GB Free"
-    //         percentage={50}
-    //         size="smaller"
-    //         topLeftLabel="50%"
-    //         topRightLabel="100GB Total"
-    //     />
-    // </HeadSection>
-
-    return <DataBrowserContainer>
-        <DeleteConfirmation show={props.showDelete} cancel={props.closeBucketDeleteDialog} approve={deleteSelectedBucket} titleText={`Are you sure you want to delete bucket: ${selectedBucketName} ?`}/>
-        <Head>
-
-            <HeadLeft>
-
-                <div className='number'> {bucketList.length} </div>
-                <div> bucket{bucketList.length > 1 && 's'} </div>
-
-            </HeadLeft>
-
-        </Head>
-
-        <BucketSection>
-            <BucketSectionTop>
-                <Button variant="danger" disabled={!selectedBucketName} icon={<i className="fa fa-trash" />} text="&nbsp; Delete bucket" onClick={props.openBucketDeleteDialog} />
-                <Button outlined icon={<i className="fa fa-plus-circle" />} text="&nbsp; Create bucket" onClick={createBucket} />
-                <Button outlined icon={<i className="fas fa-sync" />} text="&nbsp; Refresh" onClick={props.listBuckets} />
-            </BucketSectionTop>
-            <TableContainer hide={props.bucketList.length === 0}>
-                <table>
-                    <tbody>
-                        <tr>
-                            <th> Name </th>
-                            <th> Creation date </th>
-                            <th> Location Constraint </th>
-                        </tr>
-                        {
-                            props.bucketList.map(b =>
-                                <Row key={b.Name} selected={b.Name === selectedBucketName}  onClick={() => props.selectBucket(b.Name)}>
-                                    <td> {b.Name} </td>
-                                    <td> {formatDate(b.CreationDate)} </td>
-                                    <td> {b.LocationConstraint || 'us-east-1'} / {getLocationTypeFromName(b.LocationConstraint, configuration)} </td>
-                                </Row>)
-                        }
-                    </tbody>
-                </table>
-            </TableContainer>
-        </BucketSection>
-
-
-    </DataBrowserContainer>;
+    return <L.Container>
+        <L.BreadcrumbContainer>
+            <Breadcrumb
+                paths={[
+                    <Select key={1} onChange={e => switchAccount(e.target.value) }>
+                        { accounts.map(account => <option key={account.userName} selected={account.userName === accountName} value={account.userName}>{account.userName}</option>)}
+                    </Select>,
+                    <label key={2}>{breadcrumbName(url)}</label>,
+                ]}
+            />
+        </L.BreadcrumbContainer>
+        <Switch>
+            <Route path="/buckets/:bucketName?" component={Buckets} />
+            <Route path="/create-bucket" component={BucketCreate} />
+        </Switch>
+    </L.Container>;
 }
-
-function mapStateToProps(state) {
-    return {
-        bucketList: state.bucket.list,
-        configuration: state.configuration.latest,
-        selectedBucketName: state.uiBucket.selectedBucketName,
-        showDelete: state.uiBucket.showDelete,
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        deleteBucket: bucketName => dispatch(deleteBucket(bucketName)),
-        redirect: path => dispatch(push(path)),
-        listBuckets: () => dispatch(listBuckets()),
-        openBucketDeleteDialog: () => dispatch(openBucketDeleteDialog()),
-        closeBucketDeleteDialog: () => dispatch(closeBucketDeleteDialog()),
-        selectBucket: bucketName => dispatch(selectBucket(bucketName)),
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(DataBrowser);

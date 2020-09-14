@@ -2,6 +2,7 @@ import * as actions from '../account';
 import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
+    OWNER_NAME,
     authenticatedUserState,
     errorManagementState,
     initState,
@@ -40,7 +41,7 @@ describe('account actions', () => {
                 expect(actions[0]).toEqual(createAccountNetworkAction);
                 expect(actions[1].type).toEqual('SET_S3_CLIENT');
                 expect(actions[2]).toEqual(listBucketsNetworkAction);
-                expect(actions[3]).toEqual(dispatchAction.LIST_BUCKETS_SUCCESS_ACTION);
+                expect(actions[3]).toEqual(dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME));
                 expect(actions[4]).toEqual(dispatchAction.NETWORK_END_ACTION);
                 expect(actions[5]).toEqual(dispatchAction.CONFIGURATION_VERSION_ACTION);
                 expect(actions[6]).toEqual(dispatchAction.LOCATION_PUSH_ACTION('/accounts/bart'));
@@ -71,8 +72,10 @@ describe('account actions', () => {
                 deleteAccountNetworkAction,
                 dispatchAction.CONFIGURATION_VERSION_ACTION,
                 dispatchAction.LOCATION_PUSH_ACTION('/accounts'),
-                dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION,
+                dispatchAction.SET_S3_CLIENT_ACTION(null),
+                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], ''),
+                dispatchAction.NETWORK_END_ACTION,
             ],
         },
         {
@@ -81,9 +84,9 @@ describe('account actions', () => {
             storeState: errorManagementState(),
             expectedActions: [
                 deleteAccountNetworkAction,
+                dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION,
                 dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
                 dispatchAction.NETWORK_END_ACTION,
-                dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION,
             ],
         },
     ];

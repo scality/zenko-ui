@@ -40,6 +40,7 @@ function AccountHead({ account }: Props) {
         dispatch(closeAccountDeleteDialog());
     };
 
+    // TODO: Should we let the user delete accounts that still owns buckets.
     return (
         <Container>
             { !!account && <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/> }
@@ -48,7 +49,7 @@ function AccountHead({ account }: Props) {
                 <HeadTitle> {accountNameParam} </HeadTitle>
             </HeadCenter>
             <HeadRight>
-                { !!account && <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="small" variant="danger" text='Delete account' /> }
+                { !!account && <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="small" variant="danger" text='Delete Account' /> }
             </HeadRight>
         </Container>
     );

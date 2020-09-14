@@ -79,6 +79,10 @@ export type AccountsUIState = {|
     +showDelete: boolean,
 |};
 
+export type BucketsUIState = {|
+    +showDelete: string,
+|};
+
 export type LocationsUIState = {|
     +showDeleteLocation: LocationName,
 |};
@@ -108,6 +112,7 @@ export type AppState = {
     +uiErrors: ErrorsUIState,
     +uiLocations: LocationsUIState,
     +uiAccounts: AccountsUIState,
+    +uiBuckets: BucketsUIState,
     +stats: StatsState,
     +s3: S3State,
 };

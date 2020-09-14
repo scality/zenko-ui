@@ -39,6 +39,6 @@ describe('AccountHead', () => {
 
         const button = component.find(HeadRight).find(Button);
         expect(button).toHaveLength(1);
-        expect(button.text()).toContain('Delete account');
+        expect(button.text()).toContain('Delete Account');
     });
 });

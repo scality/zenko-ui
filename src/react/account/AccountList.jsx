@@ -68,7 +68,6 @@ function AccountList({ accountList, accountIndex }: Props) {
         }
     }, [listRef]);
 
-    // TODO: Should we let the user delete accounts that still owns buckets.
     return (
         <Container id='account-list'>
             <T.SearchContainer>

@@ -48,11 +48,17 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
         return managementClient.deleteConfigurationOverlayUser(params)
             .then(() => dispatch(updateConfiguration()))
             .then(() => dispatch(push('/accounts')))
-            .catch(error => dispatch(handleClientError(error)))
+            .then(() => dispatch(closeAccountDeleteDialog()))
+            .then(() => dispatch(assumeRoleWithWebIdentity()))
+            .catch(error => {
+                // TODO: fix closeAccountDeleteDialog that might happen twice
+                // if assumeRoleWithWebIdentity() fails
+                dispatch(closeAccountDeleteDialog());
+                return dispatch(handleClientError(error));
+            })
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => {
                 dispatch(networkEnd());
-                dispatch(closeAccountDeleteDialog());
             });
     };
 }

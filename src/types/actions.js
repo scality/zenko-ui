@@ -110,7 +110,19 @@ export type ListBucketsSuccessAction = {|
     +ownerName: string,
 |};
 
-export type S3Action = SetS3ClientAction | ListBucketsSuccessAction;
+export type OpenBucketDeleteDialogAction = {|
+    +type: 'OPEN_BUCKET_DELETE_DIALOG',
+    +bucketName: string,
+|};
+
+export type CloseBucketDeleteDialogAction = {|
+    +type: 'CLOSE_BUCKET_DELETE_DIALOG',
+|};
+
+export type S3Action = SetS3ClientAction |
+    ListBucketsSuccessAction |
+    CloseBucketDeleteDialogAction |
+    OpenBucketDeleteDialogAction;
 
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
@@ -172,7 +184,7 @@ export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDel
 export type Action =
     AuthAction |
     LocationUIAction |
-    ListBucketsSuccessAction |
+    S3Action |
     ThunkStatePromisedAction |
     ThunkNonStateAction |
     ThunkStatePromisedAction |

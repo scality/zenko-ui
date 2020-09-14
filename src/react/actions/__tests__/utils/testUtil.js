@@ -5,6 +5,7 @@ import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
+import { ownerName } from '../../../../js/mock/S3Client';
 import thunk from 'redux-thunk';
 
 
@@ -45,6 +46,7 @@ export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
+export const OWNER_NAME = ownerName;
 
 export function errorUserManagerState(): AppState {
     const state = initState;
