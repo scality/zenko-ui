@@ -8,7 +8,7 @@ import type { S3Bucket } from '../../../types/s3';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
-// import { push } from 'connected-react-router';
+import { push } from 'connected-react-router';
 
 type PrepareRow = (RowType) => void;
 
@@ -24,6 +24,7 @@ type RowsType = Array<RowType>;
 type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
+    bucketNameParam: ?string,
     dispatch: DispatchAPI<Action>,
 };
 
@@ -39,24 +40,31 @@ type RowProps = {
 export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
+    bucketNameParam: ?string,
     dispatch: DispatchAPI<Action>
 ): Data => ({
     rows,
     prepareRow,
+    bucketNameParam,
     dispatch,
 }), isDeepEqual);
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-    data: { rows, prepareRow },
+    data: { rows, prepareRow, bucketNameParam, dispatch },
     index,
     style,
 }: RowProps) => {
     const row = rows[index];
     prepareRow(row);
-    const isSelected = false;
+    const bucketName = row.original.Name;
+    const isSelected = bucketNameParam === bucketName;
     return (
-        <T.Row isSelected={isSelected} onClick={() => {}} {...row.getRowProps({ style })}>
+        <T.Row isSelected={isSelected} onClick={() => {
+            if (!isSelected) {
+                dispatch(push(`/buckets/${bucketName}`));
+            }
+        }} {...row.getRowProps({ style })}>
             {row.cells.map(cell => (
                 <T.Cell key={cell.id} {...cell.getCellProps()} >
                     {cell.render('Cell')}

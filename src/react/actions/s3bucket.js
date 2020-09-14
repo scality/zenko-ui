@@ -1,9 +1,11 @@
 // @flow
-import type { CreateBucketRequest, S3Bucket } from '../../types/s3';
 import type {
+    CloseBucketDeleteDialogAction,
     ListBucketsSuccessAction,
+    OpenBucketDeleteDialogAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
+import type { CreateBucketRequest, S3Bucket } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -17,17 +19,18 @@ export function listBucketsSuccess(list: Array<S3Bucket> , ownerName: string): L
     };
 }
 
-// export function openBucketDeleteDialog() {
-//     return {
-//         type: 'OPEN_BUCKET_DELETE_DIALOG',
-//     };
-// }
-//
-// export function closeBucketDeleteDialog() {
-//     return {
-//         type: 'CLOSE_BUCKET_DELETE_DIALOG',
-//     };
-// }
+export function openBucketDeleteDialog(bucketName: string): OpenBucketDeleteDialogAction {
+    return {
+        type: 'OPEN_BUCKET_DELETE_DIALOG',
+        bucketName,
+    };
+}
+
+export function closeBucketDeleteDialog(): CloseBucketDeleteDialogAction {
+    return {
+        type: 'CLOSE_BUCKET_DELETE_DIALOG',
+    };
+}
 
 export function listBuckets(): ThunkStatePromisedAction{
     return (dispatch, getState) => {
@@ -55,15 +58,18 @@ export function createBucket(bucket: CreateBucketRequest): ThunkStatePromisedAct
     };
 }
 
-// export function deleteBucket(bucketName){
-//     return (dispatch, getState) => {
-//         const { s3Client } = getClients(getState());
-//         dispatch(closeBucketDeleteDialog());
-//         dispatch(networkStart('Deleting bucket'));
-//         return s3Client.deleteBucket(bucketName)
-//             .then(() => dispatch(listBuckets()))
-//             .catch(error => dispatch(handleS3Error(error)))
-//             .catch(error => dispatch(handleApiError(error, 'byModal')))
-//             .finally(() => dispatch(networkEnd()));
-//     };
-// }
+export function deleteBucket(bucketName: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3Client } = getClients(getState());
+        dispatch(networkStart('Deleting bucket'));
+        return s3Client.deleteBucket(bucketName)
+            .then(() => dispatch(listBuckets()))
+            .then(() => dispatch(push('/buckets')))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => {
+                dispatch(networkEnd());
+                dispatch(closeBucketDeleteDialog());
+            });
+    };
+}

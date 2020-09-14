@@ -33,7 +33,7 @@ export const initialS3State: S3State = {
 };
 
 export const initialBucketState = { list: [] };
-export const initialBucketUIState = { showDelete: false };
+export const initialBucketUIState = { showDelete: '' };
 
 export const initialConfiguration: ConfigurationState = {
     latest: {
@@ -161,7 +161,7 @@ export const initialFullState = {
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiErrors: initialErrorsUIState,
-    uiBucket: initialBucketUIState,
+    uiBuckets: initialBucketUIState,
     user: initialUserState,
     oidc: initialOidc,
 };

@@ -21,8 +21,7 @@
         "src/react/group",
         "src/react/user",
         "src/react/workflow",
-        "src/react/backend/StorageMonitor.jsx",
-        "src/react/databrowser/DataBrowser.jsx"
+        "src/react/backend/StorageMonitor.jsx"
     ],
     "rules": {
         "semi": "error",

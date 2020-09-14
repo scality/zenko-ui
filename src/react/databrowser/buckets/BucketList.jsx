@@ -9,22 +9,17 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { S3Bucket } from '../../../types/s3';
+import { formatDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
+import { useParams } from 'react-router-dom';
 
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 350px);
 `;
-
-const initialSortBy = [
-    {
-        id: 'Name',
-        desc: false,
-    },
-];
 
 type Props = {
     locations: Locations,
@@ -36,6 +31,8 @@ export default function BucketList({ buckets, locations }: Props){
 
     const resizerRef = useRef<FixedSizeList<T> | null>(null);
     const height = useHeight(resizerRef);
+
+    const { bucketName: bucketNameParam } = useParams();
 
     const columns = useMemo(() => [
         {
@@ -50,6 +47,11 @@ export default function BucketList({ buckets, locations }: Props){
                 return `${locationName || 'us-east-1'} / ${locationType}`;
             },
         },
+        {
+            Header: 'Created on',
+            accessor: 'CreationDate',
+            Cell: ({ value }) => { return formatDate(new Date(value));},
+        },
     ], [locations]);
 
     const {
@@ -62,7 +64,6 @@ export default function BucketList({ buckets, locations }: Props){
     } = useTable({
         columns,
         data: buckets,
-        initialState: { sortBy: initialSortBy },
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
@@ -104,7 +105,7 @@ export default function BucketList({ buckets, locations }: Props){
                                 itemCount={rows.length}
                                 itemSize={45}
                                 width='100%'
-                                itemData={createItemData(rows, prepareRow, dispatch)}
+                                itemData={createItemData(rows, prepareRow, bucketNameParam, dispatch)}
                             >
                                 {MemoRow}
                             </FixedSizeList>
