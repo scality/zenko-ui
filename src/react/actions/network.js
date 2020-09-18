@@ -6,6 +6,7 @@ import type {
     NetworkActivityEndAction,
     NetworkActivityStartAction,
 } from '../../types/actions';
+import type { FailureType } from '../../types/ui';
 
 export function networkAuthReset(): NetworkActivityAuthResetAction {
     return {
@@ -13,9 +14,10 @@ export function networkAuthReset(): NetworkActivityAuthResetAction {
     };
 }
 
-export function networkAuthFailure(): NetworkActivityAuthFailureAction {
+export function networkAuthFailure(failureType?: FailureType): NetworkActivityAuthFailureAction {
     return {
         type: 'NETWORK_AUTH_FAILURE',
+        failureType,
     };
 }
 

@@ -1,71 +1,76 @@
 // @flow
 import * as L from '../../ui-elements/ListLayout2';
-import type { LocationName, Locations } from '../../../types/config';
-import MemoRow, { createItemData } from './BucketRow';
+import MemoRow, { createItemData } from './ObjectRow';
+import type { Object, S3Object } from '../../../types/s3';
 import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
-import type { S3Bucket } from '../../../types/s3';
-import { formatDate } from '../../utils';
-import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
-import { useParams } from 'react-router-dom';
 
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 350px);
 `;
 
-type Props = {
-    locations: Locations,
-    buckets: List<S3Bucket>,
+export const Icon = styled.i`
+    margin-right: 5px;
+`;
+
+const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;
+
+type CellProps = {
+    row: {
+        original: Object,
+    },
 };
-export default function BucketList({ buckets, locations }: Props){
+
+type Props = {
+    objects: List<S3Object>,
+    bucketNameParam: string,
+    prefixParam: ?string,
+};
+export default function ObjectList({ objects, bucketNameParam, prefixParam }: Props){
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
 
     const resizerRef = useRef<FixedSizeList<T> | null>(null);
     const height = useHeight(resizerRef);
 
-    const { bucketName: bucketNameParam } = useParams();
-
     const columns = useMemo(() => [
         {
-            Header: 'Bucket Name',
-            accessor: 'Name',
-            Cell({ value: name }: { value: string }) {
-                return <T.CellLink to={{ pathname: `/buckets/${name}/objects` }}>{name}</T.CellLink>;
+            Header: 'Name',
+            Cell({ row: { original } }: CellProps) {
+                if (original.isFolder) {
+                    const name = stripTrailingSlash(original.name);
+                    const newPrefix = prefixParam ? `${stripTrailingSlash(prefixParam)}/${name}` : name;
+                    return <div> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketNameParam}/objects/${newPrefix}` }}>{original.name}</T.CellLink></div>;
+                }
+                return <div> <Icon className='far fa-file'></Icon> { original.name } </div>;
             },
         },
         {
-            Header: 'Storage Location',
-            accessor: 'LocationConstraint',
-            Cell({ value: locationName }: { value: LocationName }) {
-                const locationType = getLocationTypeFromName(locationName, locations);
-                return `${locationName || 'us-east-1'} / ${locationType}`;
-            },
+            Header: 'Modified on',
+            accessor: 'lastModified',
         },
         {
-            Header: 'Created on',
-            accessor: 'CreationDate',
-            Cell: ({ value }) => { return formatDate(new Date(value));},
+            Header: 'Size',
+            accessor: 'size',
         },
-    ], [locations]);
+    ], [bucketNameParam, prefixParam]);
 
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
         rows,
-        setFilter,
         prepareRow,
     } = useTable({
         columns,
-        data: buckets,
+        data: objects,
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
@@ -73,8 +78,7 @@ export default function BucketList({ buckets, locations }: Props){
 
     return <L.ListSection>
         <T.SearchContainer>
-            <T.Search> <T.SearchInput placeholder='Filter by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant='info' onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Upload" variant='info' onClick={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} size="default" type="submit" />
         </T.SearchContainer>
         <T.Container>
             <Table {...getTableProps()}>
@@ -107,7 +111,7 @@ export default function BucketList({ buckets, locations }: Props){
                                 itemCount={rows.length}
                                 itemSize={45}
                                 width='100%'
-                                itemData={createItemData(rows, prepareRow, bucketNameParam, dispatch)}
+                                itemData={createItemData(rows, prepareRow)}
                             >
                                 {MemoRow}
                             </FixedSizeList>

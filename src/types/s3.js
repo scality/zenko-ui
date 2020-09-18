@@ -13,3 +13,20 @@ export type S3Bucket = {|
     +CreationDate: string,
     +Name: string,
 |};
+
+export type S3Object = {|
+    +Key: string,
+    +LastModified: string,
+    +Size: number,
+|};
+
+export type CommonPrefix = {|
+    +Prefix: string,
+|};
+
+export type Object = {|
+    +name: string,
+    +lastModified?: string,
+    +isFolder: string,
+    +size: number,
+|};

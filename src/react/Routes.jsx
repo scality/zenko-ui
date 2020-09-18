@@ -87,7 +87,7 @@ function Routes() {
 
             <Route path="/groups" component={Groups} />
 
-            <Route path={['/buckets/:bucketName?', '/create-bucket']} component={DataBrowser} />
+            <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
 
             <Route exact path="/workflow" component={Workflows} />
             <Route path="/workflow/replication/create" component={ReplicationCreate} />

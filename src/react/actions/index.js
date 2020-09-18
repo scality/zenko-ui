@@ -7,6 +7,7 @@ export * from './network';
 export * from './replication';
 export * from './secrets';
 export * from './s3bucket';
+export * from './s3object';
 export * from './stats';
 export * from './sts';
 export * from './user';

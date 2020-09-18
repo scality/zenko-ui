@@ -61,4 +61,14 @@ export default class S3Client {
         return this.client.deleteBucket(params).promise();
     }
 
+    // objects
+    listObjects({ bucketName, prefix }) {
+        const params = {
+            Bucket: bucketName,
+            Delimiter: '/',
+            Prefix: prefix,
+        };
+        return this.client.listObjectsV2(params).promise();
+    }
+
 }

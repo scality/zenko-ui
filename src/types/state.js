@@ -3,9 +3,9 @@
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
-import type { S3Bucket, S3Client as S3ClientInterface } from './s3';
+import type { ErrorViewType, FailureType } from './ui';
+import type { Object, S3Bucket, S3Client as S3ClientInterface } from './s3';
 import type { Account } from './account';
-import type { ErrorViewType } from './ui';
 import type { InstanceId } from './entities';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
@@ -72,6 +72,7 @@ export type InstanceStatusState = {|
 export type NetworkActivityState = {|
     +counter: number,
     +authFailure: boolean,
+    +failureType?: FailureType,
     +messages: List<string>,
 |};
 
@@ -96,6 +97,9 @@ export type S3State = {|
     +listBucketsResults: {|
         +list: List<S3Bucket>,
         +ownerName: string,
+    |},
+    +listObjectsResults: {|
+        +list: List<Object>,
     |},
 |};
 

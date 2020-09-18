@@ -1,9 +1,9 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
+import type { CommonPrefix, S3Bucket, S3Client, S3Object } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
-import type { S3Bucket, S3Client } from './s3';
+import type { ErrorViewType, FailureType } from './ui';
 import type { AppState } from './state';
-import type { ErrorViewType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
@@ -119,14 +119,23 @@ export type CloseBucketDeleteDialogAction = {|
     +type: 'CLOSE_BUCKET_DELETE_DIALOG',
 |};
 
+export type ListObjectsSuccessAction = {|
+    +type: 'LIST_OBJECTS_SUCCESS',
+    +contents: Array<S3Object>,
+    +commonPrefixes: Array<CommonPrefix>,
+    +prefix: string,
+|};
+
 export type S3Action = SetS3ClientAction |
     ListBucketsSuccessAction |
     CloseBucketDeleteDialogAction |
-    OpenBucketDeleteDialogAction;
+    OpenBucketDeleteDialogAction |
+    ListObjectsSuccessAction;
 
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
     +type: 'NETWORK_AUTH_FAILURE',
+    +failureType?: FailureType,
 |};
 
 export type NetworkActivityStartAction = {|

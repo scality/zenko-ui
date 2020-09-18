@@ -1,6 +1,7 @@
 // @noflow
 import { Button } from '@scality/core-ui';
 import Input from './Input';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -74,6 +75,14 @@ export const Cell = styled.td`
     padding: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
+`;
+
+export const CellLink = styled(Link)`
+    color: ${props => props.theme.brand.text};
+    text-decoration: none;
+    &:hover{
+        text-decoration: underline;
+    }
 `;
 
 // * table search

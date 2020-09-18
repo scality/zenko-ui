@@ -8,9 +8,11 @@ import type {
     S3Error,
     ThunkNonStateAction,
 } from '../../types/actions';
-import type { ErrorViewType } from '../../types/ui';
+import type { ErrorViewType, FailureType } from '../../types/ui';
 import { errorParser } from '../utils';
 import { networkAuthFailure } from './network';
+
+export const S3_FAILURE_TYPE: FailureType = 's3';
 
 export function handleApiError(error: ApiError, errorType: ErrorViewType): HandleErrorAction {
     return {
@@ -50,7 +52,7 @@ export function handleS3Error(error: S3Error): ThunkNonStateAction {
         switch (error.statusCode) {
         case 401:
         case 403:
-            dispatch(networkAuthFailure());
+            dispatch(networkAuthFailure(S3_FAILURE_TYPE));
             break;
         default:
             throw error;

@@ -28,7 +28,10 @@ export const initialS3State: S3State = {
     s3Client: new MockS3Client,
     listBucketsResults: {
         list: List(),
-        owner: {},
+        ownerName: '',
+    },
+    listObjectsResults: {
+        list: List(),
     },
 };
 
