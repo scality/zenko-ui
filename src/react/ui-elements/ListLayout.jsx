@@ -83,7 +83,7 @@ export const IconCircle = styled.i`
     border-radius: 40px;
     height: 40px;
     width: 40px;
-    font-size: 40px
+    font-size: 40px;
     padding: 20px;
     color: ${props => props.theme.brand.textPrimary};
     background-color: ${props => props.theme.brand.primaryDark1};

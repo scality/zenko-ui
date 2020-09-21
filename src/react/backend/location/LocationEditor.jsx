@@ -138,7 +138,7 @@ function LocationEditor() {
         displayErrorMessage = `Could not save: ${errorMessage}`;
     }
 
-    return <Form innerRef={formRef}>
+    return <Form ref={formRef}>
         <F.Title>
             { `${locationEditing ? 'Edit' : 'Add new'} storage location` }
         </F.Title>

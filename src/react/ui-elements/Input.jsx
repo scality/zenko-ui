@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 // make my own import due to some imput event target undefined issue
 const Input = styled.input`
-    display: flex
+    display: flex;
 
     background-color: transparent;
     color: ${props => props.theme.brand.textPrimary};

@@ -95,7 +95,7 @@ export default function BucketList({ buckets, locations }: Props){
                     ))}
                 </T.Head>
                 <CustomBody {...getTableBodyProps()}>
-                    <T.Resizer innerRef={resizerRef}>
+                    <T.Resizer ref={resizerRef}>
                         {
                             // ISSUE: https://github.com/bvaughn/react-window/issues/504
                             // eslint-disable-next-line flowtype-errors/show-errors

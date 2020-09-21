@@ -53,7 +53,7 @@ function AccountCreate() {
     const formRef = useRef(null);
     useOutsideClick(formRef, clearServerError);
 
-    return <Form autoComplete='off' innerRef={formRef}>
+    return <Form autoComplete='off' ref={formRef}>
         <F.Title> create new account </F.Title>
         <F.Fieldset>
             <F.Label tooltipMessages={['Must be unique']}>
@@ -63,7 +63,7 @@ function AccountCreate() {
                 type='text'
                 id='name'
                 name='name'
-                innerRef={register}
+                ref={register}
                 onChange={clearServerError}
                 autoComplete='new-password' />
             <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
@@ -76,7 +76,7 @@ function AccountCreate() {
                 type='text'
                 id='email'
                 name='email'
-                innerRef={register}
+                ref={register}
                 onChange={clearServerError}
                 autoComplete='off' />
             <F.ErrorInput id='error-email' hasError={errors.email}> {errors.email?.message} </F.ErrorInput>
@@ -90,7 +90,7 @@ function AccountCreate() {
                 id='quota'
                 min="0"
                 name='quota'
-                innerRef={register}
+                ref={register}
                 onChange={clearServerError}
                 autoComplete='off' />
             <F.ErrorInput id='error-quota' hasError={errors.quota}> {errors.quota?.message} </F.ErrorInput>

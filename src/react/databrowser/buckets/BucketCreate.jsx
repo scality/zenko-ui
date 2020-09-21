@@ -91,7 +91,7 @@ function BucketCreate() {
         return locationWithIngestion(locations, capabilities);
     }, [locations, capabilities]);
 
-    return <Form innerRef={formRef}>
+    return <Form ref={formRef}>
         <F.Title> create a new bucket </F.Title>
         <F.Fieldset>
             <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']}>
@@ -101,7 +101,7 @@ function BucketCreate() {
                 type='text'
                 id='name'
                 name='name'
-                innerRef={register}
+                ref={register}
                 onChange={clearServerError}
                 autoComplete='off' />
             <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>

@@ -78,7 +78,7 @@
     "redux": "^4.0.5",
     "redux-oidc": "^4.0.0-beta1",
     "redux-thunk": "^2.3.0",
-    "styled-components": "^3.5.0-0",
+    "styled-components": "^5.2.0",
     "swagger-client": "^3.10.0",
     "url-loader": "^3.0.0",
     "vega": "^5.7.3",
