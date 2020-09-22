@@ -30,7 +30,7 @@ describe('Metadata', () => {
         // check if item row values are rendered
         const firstItem = items.first();
         expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('');
-        expect(firstItem.find('input#metadata-input-value').prop('value')).toBe('');
+        expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('');
     });
 
     it('should add new key/value metadata and should trigger function if save button is pressed', () => {
@@ -63,7 +63,7 @@ describe('Metadata', () => {
         expect(firstItem.find('Option')).toHaveLength(0);
 
         // add a value to the key
-        firstItem.find('input#metadata-input-value').simulate('change', { target: { value: 'value1' } });
+        firstItem.find('input.metadata-input-value').simulate('change', { target: { value: 'value1' } });
 
         // click on add button
         firstItem.find('Button#addbtn0').simulate('click');
@@ -104,7 +104,7 @@ describe('Metadata', () => {
         // check if item row values are rendered
         const firstItem = items.first();
         expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('CacheControl');
-        expect(firstItem.find('input#metadata-input-value').prop('value')).toBe('no-cache');
+        expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
     });
 
     it('should delete key/value if remove button is pressed', () => {
@@ -124,13 +124,13 @@ describe('Metadata', () => {
         // check if first item row values are rendered
         let firstItem = items.first();
         expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('CacheControl');
-        expect(firstItem.find('input#metadata-input-value').prop('value')).toBe('no-cache');
+        expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
 
         // check if second item row values are rendered
         let secondItem = items.at(1);
         expect(secondItem.find('input[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
-        expect(secondItem.find('input#metadata-input-extra-key').prop('value')).toBe('cache-type');
-        expect(secondItem.find('input#metadata-input-value').prop('value')).toBe('1');
+        expect(secondItem.find('input.metadata-input-extra-key').prop('value')).toBe('cache-type');
+        expect(secondItem.find('input.metadata-input-value').prop('value')).toBe('1');
 
         // check if first AddButton is hidden and second one is visible
         expect(firstItem.find('Button#addbtn0').prop('isVisible')).toBe(false);
@@ -146,7 +146,7 @@ describe('Metadata', () => {
         // check if item row values are rendered
         firstItem = items.first();
         expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
-        expect(firstItem.find('input#metadata-input-extra-key').prop('value')).toBe('cache-type');
-        expect(firstItem.find('input#metadata-input-value').prop('value')).toBe('1');
+        expect(firstItem.find('input.metadata-input-extra-key').prop('value')).toBe('cache-type');
+        expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('1');
     });
 });

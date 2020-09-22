@@ -64,7 +64,7 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             }
             isOpen={true}
             title='Create a folder'>
-            <Input id='folder-create-input' value={folderName} placeholder='New folder' onChange={handleChange}/>
+            <Input className='folder-create-input' value={folderName} placeholder='New folder' onChange={handleChange}/>
             <Description> <Icon className="fas fa-info-circle"></Icon>
               When you create a folder, Data Browser creates an object with
               the above name appended by suffix &quot;/&quot; and that object is displayed

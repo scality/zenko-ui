@@ -32,7 +32,7 @@ export const Clipboard = ({ text }: { text: string }) => {
                 <Tooltip overlay= "Copied!" placement="right" >
                     <IconSuccess className='fas fa-check'></IconSuccess>
                 </Tooltip>:
-                <i id='clipboard-icon-copy' className='far fa-clipboard' onClick={copyToClipboard}></i>
+                <i className='far fa-clipboard clipboard-icon-copy' onClick={copyToClipboard}></i>
         }
     </Container>;
 };

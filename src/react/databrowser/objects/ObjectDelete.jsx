@@ -84,7 +84,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
                     <T.Body>
                         {
                             toggled.map(s => (
-                                <T.Row key={s.name}>
+                                <T.Row key={s.key}>
                                     <T.Cell> {s.key} <br/>
                                         <small>{s.isFolder ?
                                             <span> <i className='fas fa-info-circle'></i> { INFO_DELETE_FOLDER } </span> :
