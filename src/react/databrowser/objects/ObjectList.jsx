@@ -7,7 +7,9 @@ import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
+import { openFolderCreateModal } from '../../actions';
 import { push } from 'connected-react-router';
+import { stripTrailingSlash } from '../../utils';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
@@ -19,8 +21,6 @@ export const CustomBody = styled(T.Body)`
 export const Icon = styled.i`
     margin-right: 5px;
 `;
-
-const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;
 
 type CellProps = {
     row: {
@@ -77,9 +77,10 @@ export default function ObjectList({ objects, bucketNameParam, prefixParam }: Pr
     }, useFilters, useSortBy);
 
     return <L.ListSection>
-        <T.SearchContainer>
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Upload" variant='info' onClick={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} size="default" type="submit" />
-        </T.SearchContainer>
+        <T.ButtonContainer>
+            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" type="submit" />
+        </T.ButtonContainer>
         <T.Container>
             <Table {...getTableProps()}>
                 <T.Head>

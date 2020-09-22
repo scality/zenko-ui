@@ -91,6 +91,13 @@ export const SearchContainer = styled.div`
     justify-content: space-between;
 `;
 
+export const ButtonContainer = styled.div`
+    display: flex;
+    & > * {
+        margin-right: 5px;
+    }
+`;
+
 export const Search = styled.div`
     flex: 0 0 220px;
 `;

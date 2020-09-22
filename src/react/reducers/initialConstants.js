@@ -137,6 +137,11 @@ export const initialOidc: OIDCState = {
     user: null,
     isLoadingUser: false,
 };
+
+export const initialObjectUIState = {
+    showFolderCreate: false,
+};
+
 export const initialSecretsState = Map();
 export const initialStatsState = {
     bucketList: [],

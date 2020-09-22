@@ -84,6 +84,10 @@ export type BucketsUIState = {|
     +showDelete: string,
 |};
 
+export type ObjectsUIState = {|
+    +showFolderCreate: boolean,
+|};
+
 export type LocationsUIState = {|
     +showDeleteLocation: LocationName,
 |};
@@ -117,6 +121,7 @@ export type AppState = {
     +uiLocations: LocationsUIState,
     +uiAccounts: AccountsUIState,
     +uiBuckets: BucketsUIState,
+    +uiObjects: ObjectsUIState,
     +stats: StatsState,
     +s3: S3State,
 };

@@ -62,13 +62,22 @@ export default class S3Client {
     }
 
     // objects
-    listObjects({ bucketName, prefix }) {
+    listObjects(bucketName, prefix) {
         const params = {
             Bucket: bucketName,
             Delimiter: '/',
             Prefix: prefix,
         };
         return this.client.listObjectsV2(params).promise();
+    }
+
+    createFolder(bucketName, prefixWithSlash, folderName) {
+        const key = `${prefixWithSlash}${folderName}`;
+        const params = {
+            Bucket: bucketName,
+            Key: key,
+        };
+        return this.client.putObject(params).promise();
     }
 
 }

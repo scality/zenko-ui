@@ -37,3 +37,6 @@ export function formatBytes(bytes, decimals = 2) {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+
+export const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;
+export const addTrailingSlash = name => name ? name.slice(-1) !== '/' ? `${name}/`: name : '';

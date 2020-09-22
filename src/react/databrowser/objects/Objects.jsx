@@ -6,10 +6,12 @@ import { clearError, listObjects } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { EmptyStateContainer } from '../../ui-elements/Container';
+import FolderCreate from './FolderCreate';
 import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import { Warning } from '../../ui-elements/Warning';
+import { addTrailingSlash } from '../../utils';
 import { push } from 'connected-react-router';
 
 export default function Objects(){
@@ -22,11 +24,11 @@ export default function Objects(){
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
 
     const { bucketName: bucketNameParam, '0': prefixParam } = useParams();
+    const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        const p = prefixParam ? prefixParam.slice(-1) === '/' ? prefixParam : `${prefixParam}/` : '';
-        dispatch(listObjects(bucketNameParam, p)).then(() => setLoaded(true));
-    }, [bucketNameParam, prefixParam, dispatch]);
+        dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
+    }, [bucketNameParam, prefixWithSlash, dispatch]);
 
     if (!loaded) {
         return <ObjectHead/>;
@@ -39,25 +41,26 @@ export default function Objects(){
     if (hasError) {
         return <EmptyStateContainer>
             <Warning
-                iconClass="fas fa-5x fa-exclamation-circle"
+                iconClass="fas fa-5x fa-exclamation-triangle"
                 title={errorMessage || 'An unexpected error has occurred.'}
                 btnTitle='Display buckets'
                 btnAction={() => { dispatch(clearError()); dispatch(push('/buckets')); }} />
         </EmptyStateContainer>;
     }
 
-    // empty state.
-    if (objects.size === 0) {
-        return <EmptyStateContainer>
-            <Warning
-                iconClass="fas fa-5x fa-wallet"
-                title='This bucket is empty. Upload new objects to get started.'
-                btnTitle='Upload'
-                btnAction={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} />
-        </EmptyStateContainer>;
-    }
+    // TODO: manage empty state
+    // if (objects.size === 0) {
+    //     return <EmptyStateContainer>
+    //         <Warning
+    //             iconClass="fas fa-5x fa-wallet"
+    //             title='This bucket is empty. Upload new objects to get started.'
+    //             btnTitle='Upload'
+    //             btnAction={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} />
+    //     </EmptyStateContainer>;
+    // }
 
     return <div>
+        <FolderCreate bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash}/>
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
