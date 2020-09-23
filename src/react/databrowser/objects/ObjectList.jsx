@@ -4,11 +4,10 @@ import MemoRow, { createItemData } from './ObjectRow';
 import type { Object, S3Object } from '../../../types/s3';
 import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
-import { useFilters, useSortBy, useTable } from 'react-table';
+import { openFolderCreateModal, openObjectUploadModal } from '../../actions';
+import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
-import { openFolderCreateModal } from '../../actions';
-import { push } from 'connected-react-router';
 import { stripTrailingSlash } from '../../utils';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -43,22 +42,26 @@ export default function ObjectList({ objects, bucketNameParam, prefixParam }: Pr
     const columns = useMemo(() => [
         {
             Header: 'Name',
+            accessor: 'name',
             Cell({ row: { original } }: CellProps) {
                 if (original.isFolder) {
                     const name = stripTrailingSlash(original.name);
                     const newPrefix = prefixParam ? `${stripTrailingSlash(prefixParam)}/${name}` : name;
-                    return <div> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketNameParam}/objects/${newPrefix}` }}>{original.name}</T.CellLink></div>;
+                    return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketNameParam}/objects/${newPrefix}` }}>{original.name}</T.CellLink></span>;
                 }
-                return <div> <Icon className='far fa-file'></Icon> { original.name } </div>;
+                return <span> <Icon className='far fa-file'></Icon> { original.name } </span>;
             },
+            width: 50,
         },
         {
             Header: 'Modified on',
             accessor: 'lastModified',
+            width: 40,
         },
         {
             Header: 'Size',
             accessor: 'size',
+            width: 10,
         },
     ], [bucketNameParam, prefixParam]);
 
@@ -74,11 +77,11 @@ export default function ObjectList({ objects, bucketNameParam, prefixParam }: Pr
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
-    }, useFilters, useSortBy);
+    }, useFilters, useSortBy, useFlexLayout);
 
     return <L.ListSection>
         <T.ButtonContainer>
-            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" type="submit" />
             <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" type="submit" />
         </T.ButtonContainer>
         <T.Container>

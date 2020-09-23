@@ -10,6 +10,7 @@ import FolderCreate from './FolderCreate';
 import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
+import ObjectUpload from './ObjectUpload';
 import { Warning } from '../../ui-elements/Warning';
 import { addTrailingSlash } from '../../utils';
 import { push } from 'connected-react-router';
@@ -60,6 +61,7 @@ export default function Objects(){
     // }
 
     return <div>
+        <ObjectUpload bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash}/>
         <FolderCreate bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash}/>
         <ObjectHead bucketNameParam={bucketNameParam}/>
 

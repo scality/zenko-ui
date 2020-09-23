@@ -1,11 +1,13 @@
 // @flow
 import type {
     CloseFolderCreateModalAction,
+    CloseObjectUploadModalAction,
     ListObjectsSuccessAction,
     OpenFolderCreateModalAction,
+    OpenObjectUploadModalAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-import type { CommonPrefix, S3Object } from '../../types/s3';
+import type { CommonPrefix, File, S3Object } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -31,6 +33,18 @@ export function closeFolderCreateModal(): CloseFolderCreateModalAction {
     };
 }
 
+export function openObjectUploadModal(): OpenObjectUploadModalAction {
+    return {
+        type: 'OPEN_OBJECT_UPLOAD_MODAL',
+    };
+}
+
+export function closeObjectUploadModal(): CloseObjectUploadModalAction {
+    return {
+        type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+    };
+}
+
 export function createFolder(bucketName: string, prefixWithSlash: string, folderName: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
@@ -50,8 +64,21 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
         dispatch(networkStart('Listing objects'));
-        return s3Client.listObjects( bucketName, prefixWithSlash )
+        return s3Client.listObjects(bucketName, prefixWithSlash)
             .then(res => dispatch(listObjectsSuccess(res.Contents, res.CommonPrefixes, res.Prefix)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function uploadFiles(bucketName: string, prefixWithSlash: string, files: Array<File>): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3Client } = getClients(getState());
+        dispatch(closeObjectUploadModal());
+        dispatch(networkStart('Uploading object(s)'));
+        return s3Client.uploadObject(bucketName, prefixWithSlash, files)
+            .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));

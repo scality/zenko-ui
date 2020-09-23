@@ -140,6 +140,7 @@ export const initialOidc: OIDCState = {
 
 export const initialObjectUIState = {
     showFolderCreate: false,
+    showObjectUpload: false,
 };
 
 export const initialSecretsState = Map();

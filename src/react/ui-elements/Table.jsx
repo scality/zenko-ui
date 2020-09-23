@@ -75,6 +75,7 @@ export const Cell = styled.td`
     padding: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
 `;
 
 export const CellLink = styled(Link)`

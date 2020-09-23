@@ -30,3 +30,8 @@ export type Object = {|
     +isFolder: string,
     +size: number,
 |};
+
+export type File = {|
+    +path: string,
+    +size: number,
+|};

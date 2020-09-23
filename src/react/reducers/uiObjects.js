@@ -12,6 +12,16 @@ export default function uiObjects(state = initialObjectUIState, action) {
             ...state,
             showFolderCreate: false,
         };
+    case 'OPEN_OBJECT_UPLOAD_MODAL':
+        return {
+            ...state,
+            showObjectUpload: true,
+        };
+    case 'CLOSE_OBJECT_UPLOAD_MODAL':
+        return {
+            ...state,
+            showObjectUpload: false,
+        };
     default:
         return state;
     }

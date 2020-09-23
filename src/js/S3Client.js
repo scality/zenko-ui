@@ -1,6 +1,11 @@
 import AWS from 'aws-sdk';
 const async = require('async');
 
+const MULTIPART_UPLOAD = {
+    partSize: 1024 * 1024 * 6,
+    queueSize: 1,
+};
+
 export default class S3Client {
     constructor(params) {
         this.client = new AWS.S3({
@@ -80,4 +85,18 @@ export default class S3Client {
         return this.client.putObject(params).promise();
     }
 
+    uploadObject(bucketName, prefixWithSlash, files) {
+        return Promise.all(files.map(file => {
+            const key = `${prefixWithSlash}${file.name}`;
+            const params = {
+                Bucket: bucketName,
+                Key: key,
+                Body: file,
+                ContentType: file.type,
+            };
+            const options = { partSize: MULTIPART_UPLOAD.partSize,
+                queueSize: MULTIPART_UPLOAD.queueSize };
+            return this.client.upload(params, options).promise();
+        }));
+    }
 }

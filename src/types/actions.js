@@ -127,6 +127,14 @@ export type CloseFolderCreateModalAction = {|
     +type: 'CLOSE_FOLDER_CREATE_MODAL',
 |};
 
+export type OpenObjectUploadModalAction = {|
+    +type: 'OPEN_OBJECT_UPLOAD_MODAL',
+|};
+
+export type CloseObjectUploadModalAction = {|
+    +type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+|};
+
 export type ListObjectsSuccessAction = {|
     +type: 'LIST_OBJECTS_SUCCESS',
     +contents: Array<S3Object>,
@@ -140,6 +148,8 @@ export type S3Action = SetS3ClientAction |
     OpenBucketDeleteDialogAction |
     OpenFolderCreateModalAction |
     CloseFolderCreateModalAction |
+    OpenObjectUploadModalAction |
+    CloseObjectUploadModalAction |
     ListObjectsSuccessAction;
 
 // networkActivity actions
