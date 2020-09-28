@@ -1,13 +1,9 @@
 // @noflow
+import type { AppState } from '../../types/state';
 import { Loader } from '@scality/core-ui';
 import React from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
-
-type Props = {
-    working: boolean,
-    message?: string,
-};
+import { useSelector } from 'react-redux';
 
 const ActivityContainer = styled.div`
     position: fixed;
@@ -15,8 +11,7 @@ const ActivityContainer = styled.div`
     right: 0px;
     padding: 1em;
     margin: 2em;
-    background-color: #6a7b92;
-    color: white;
+    background-color: ${props => props.theme.brand.backgroundBluer};
     border-radius: 6px;
     vertical-align: 50%;
     z-index: 1100;
@@ -25,9 +20,15 @@ const ActivityContainer = styled.div`
       margin-right: 1em;
       float: left;
     }
+    
+    svg{
+      fill: ${props => props.theme.brand.text};
+    }
 `;
 
-const Activity = ({ working, message }: Props) => {
+const Activity = () => {
+    const working = useSelector((state: AppState) => state.networkActivity.counter > 0);
+    const message = useSelector((state: AppState) => state.networkActivity.messages.first());
     if (!working) {
         return null;
     }
@@ -39,11 +40,4 @@ const Activity = ({ working, message }: Props) => {
     );
 };
 
-// function mapStateToProps(state: AppState) {
-//     return {
-//         // working: state.networkActivity.counter > 0,
-//         // message: state.networkActivity.messages.first(),
-//     };
-// }
-
-export default connect()(Activity);
+export default Activity;
