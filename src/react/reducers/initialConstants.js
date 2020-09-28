@@ -1,6 +1,6 @@
 // @noflow
 
-import type { AccountState, AccountsUIState, AuthState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, S3State, UIErrorState } from '../../types/state';
+import type { AccountState, AccountsUIState, AuthState, BucketsUIState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, ObjectsUIState, S3State, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockS3Client } from '../../js/mock/S3Client';
@@ -36,7 +36,7 @@ export const initialS3State: S3State = {
 };
 
 export const initialBucketState = { list: [] };
-export const initialBucketUIState = { showDelete: '' };
+export const initialBucketUIState: BucketsUIState = { showDelete: '' };
 
 export const initialConfiguration: ConfigurationState = {
     latest: {
@@ -138,9 +138,10 @@ export const initialOidc: OIDCState = {
     isLoadingUser: false,
 };
 
-export const initialObjectUIState = {
+export const initialObjectUIState: ObjectsUIState = {
     showFolderCreate: false,
     showObjectUpload: false,
+    showObjectDelete:  false,
 };
 
 export const initialSecretsState = Map();
@@ -169,6 +170,7 @@ export const initialFullState = {
     uiAccounts: initialAccountsUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
+    uiObjects: initialObjectUIState,
     uiErrors: initialErrorsUIState,
     uiBuckets: initialBucketUIState,
     user: initialUserState,

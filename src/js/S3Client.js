@@ -99,4 +99,14 @@ export default class S3Client {
             return this.client.upload(params, options).promise();
         }));
     }
+
+    deleteObjects(bucketName, objects) {
+        const params = {
+            Bucket: bucketName,
+            Delete: {
+                Objects: objects,
+            },
+        };
+        return this.client.deleteObjects(params).promise();
+    }
 }

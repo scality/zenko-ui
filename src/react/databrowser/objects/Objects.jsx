@@ -66,7 +66,7 @@ export default function Objects(){
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
-            <ObjectList objects={objects} bucketNameParam={bucketNameParam} prefixParam={prefixParam} />
+            <ObjectList objects={objects} bucketName={bucketNameParam} prefixParam={prefixParam} />
             <ObjectDetails />
         </L.Body>
 

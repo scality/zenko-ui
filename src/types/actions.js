@@ -98,7 +98,7 @@ export type SelectInstanceAction = {|
     +selectedId: InstanceId,
 |};
 
-// s3 account actions
+// s3 actions
 export type SetS3ClientAction = {|
     +type: 'SET_S3_CLIENT',
     +s3Client: S3Client,
@@ -110,6 +110,31 @@ export type ListBucketsSuccessAction = {|
     +ownerName: string,
 |};
 
+export type ToggleObjectAction = {|
+    +type: 'TOGGLE_OBJECT',
+    +objectName: string,
+|};
+
+export type ToggleAllObjectsAction = {|
+    +type: 'TOGGLE_ALL_OBJECTS',
+    +toggled: boolean,
+|};
+
+export type ListObjectsSuccessAction = {|
+    +type: 'LIST_OBJECTS_SUCCESS',
+    +contents: Array<S3Object>,
+    +commonPrefixes: Array<CommonPrefix>,
+    +prefix: string,
+|};
+
+export type S3Action =
+    SetS3ClientAction |
+    ListBucketsSuccessAction |
+    ListObjectsSuccessAction |
+    ToggleAllObjectsAction |
+    ToggleObjectAction;
+
+// ui buckets actions
 export type OpenBucketDeleteDialogAction = {|
     +type: 'OPEN_BUCKET_DELETE_DIALOG',
     +bucketName: string,
@@ -119,6 +144,11 @@ export type CloseBucketDeleteDialogAction = {|
     +type: 'CLOSE_BUCKET_DELETE_DIALOG',
 |};
 
+export type BucketsUIAction =
+    OpenBucketDeleteDialogAction |
+    CloseBucketDeleteDialogAction;
+
+// ui objects actions
 export type OpenFolderCreateModalAction = {|
     +type: 'OPEN_FOLDER_CREATE_MODAL',
 |};
@@ -135,22 +165,21 @@ export type CloseObjectUploadModalAction = {|
     +type: 'CLOSE_OBJECT_UPLOAD_MODAL',
 |};
 
-export type ListObjectsSuccessAction = {|
-    +type: 'LIST_OBJECTS_SUCCESS',
-    +contents: Array<S3Object>,
-    +commonPrefixes: Array<CommonPrefix>,
-    +prefix: string,
+export type OpenObjectDeleteModalAction = {|
+    +type: 'OPEN_OBJECT_DELETE_MODAL',
 |};
 
-export type S3Action = SetS3ClientAction |
-    ListBucketsSuccessAction |
-    CloseBucketDeleteDialogAction |
-    OpenBucketDeleteDialogAction |
+export type CloseObjectDeleteModalAction = {|
+    +type: 'CLOSE_OBJECT_DELETE_MODAL',
+|};
+
+export type ObjectsUIAction =
     OpenFolderCreateModalAction |
     CloseFolderCreateModalAction |
     OpenObjectUploadModalAction |
     CloseObjectUploadModalAction |
-    ListObjectsSuccessAction;
+    OpenObjectDeleteModalAction |
+    CloseObjectDeleteModalAction;
 
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
@@ -212,7 +241,9 @@ export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDel
 
 export type Action =
     AuthAction |
+    BucketsUIAction |
     LocationUIAction |
+    ObjectsUIAction |
     S3Action |
     ThunkStatePromisedAction |
     ThunkNonStateAction |

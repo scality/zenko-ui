@@ -29,6 +29,7 @@ export type Object = {|
     +lastModified?: string,
     +isFolder: string,
     +size: number,
+    +toggled: boolean,
 |};
 
 export type File = {|

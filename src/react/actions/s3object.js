@@ -1,11 +1,15 @@
 // @flow
 import type {
     CloseFolderCreateModalAction,
+    CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
     ListObjectsSuccessAction,
     OpenFolderCreateModalAction,
+    OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
     ThunkStatePromisedAction,
+    ToggleAllObjectsAction,
+    ToggleObjectAction,
 } from '../../types/actions';
 import type { CommonPrefix, File, S3Object } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
@@ -45,6 +49,32 @@ export function closeObjectUploadModal(): CloseObjectUploadModalAction {
     };
 }
 
+export function openObjectDeleteModal(): OpenObjectDeleteModalAction {
+    return {
+        type: 'OPEN_OBJECT_DELETE_MODAL',
+    };
+}
+
+export function closeObjectDeleteModal(): CloseObjectDeleteModalAction {
+    return {
+        type: 'CLOSE_OBJECT_DELETE_MODAL',
+    };
+}
+
+export function toggleObject(objectName: string): ToggleObjectAction {
+    return {
+        type: 'TOGGLE_OBJECT',
+        objectName,
+    };
+}
+
+export function toggleAllObjects(toggled: boolean): ToggleAllObjectsAction {
+    return {
+        type: 'TOGGLE_ALL_OBJECTS',
+        toggled,
+    };
+}
+
 export function createFolder(bucketName: string, prefixWithSlash: string, folderName: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
@@ -78,6 +108,19 @@ export function uploadFiles(bucketName: string, prefixWithSlash: string, files: 
         dispatch(closeObjectUploadModal());
         dispatch(networkStart('Uploading object(s)'));
         return s3Client.uploadObject(bucketName, prefixWithSlash, files)
+            .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function deleteFiles(bucketName: string, prefixWithSlash: string, objects: Array<any>): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3Client } = getClients(getState());
+        dispatch(closeObjectDeleteModal());
+        dispatch(networkStart('Deleting object(s)'));
+        return s3Client.deleteObjects(bucketName, objects)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))

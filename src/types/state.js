@@ -87,6 +87,7 @@ export type BucketsUIState = {|
 export type ObjectsUIState = {|
     +showFolderCreate: boolean,
     +showObjectUpload: boolean,
+    +showObjectDelete: boolean,
 |};
 
 export type LocationsUIState = {|

@@ -1,6 +1,11 @@
+// @flow
+
+import type { BucketsUIAction } from '../../types/actions';
+import type { BucketsUIState } from '../../types/state';
+
 import { initialBucketUIState } from './initialConstants';
 
-export default function uiBuckets(state = initialBucketUIState, action) {
+export default function uiBuckets(state: BucketsUIState = initialBucketUIState, action: BucketsUIAction) {
     switch (action.type) {
     case 'OPEN_BUCKET_DELETE_DIALOG':
         return {

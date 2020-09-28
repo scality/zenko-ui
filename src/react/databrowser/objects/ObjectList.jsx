@@ -1,14 +1,15 @@
 // @flow
 import * as L from '../../ui-elements/ListLayout2';
 import MemoRow, { createItemData } from './ObjectRow';
-import type { Object, S3Object } from '../../../types/s3';
 import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
-import { openFolderCreateModal, openObjectUploadModal } from '../../actions';
+import { formatBytes, stripTrailingSlash } from '../../utils';
+import { openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
-import { stripTrailingSlash } from '../../utils';
+import type { Object } from '../../../types/s3';
+import ObjectDelete from './ObjectDelete';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
@@ -28,18 +29,44 @@ type CellProps = {
 };
 
 type Props = {
-    objects: List<S3Object>,
-    bucketNameParam: string,
+    objects: List<Object>,
+    bucketName: string,
     prefixParam: ?string,
 };
-export default function ObjectList({ objects, bucketNameParam, prefixParam }: Props){
+export default function ObjectList({ objects, bucketName, prefixParam }: Props){
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
 
     const resizerRef = useRef<FixedSizeList<T> | null>(null);
     const height = useHeight(resizerRef);
 
+    const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
+    const isSelectedEmpty = toggled.size === 0;
+    const isSelectedFull = toggled.size > 0 && toggled.size === objects.size;
+
     const columns = useMemo(() => [
+        {
+            id: 'checkbox',
+            accessor: '',
+            Cell({ row: { original } }: CellProps) {
+                return (
+                    <input
+                        type="checkbox"
+                        className="checkbox"
+                        checked={original.toggled}
+                        onChange={() => dispatch(toggleObject(original.name))}
+                    />
+                );
+            },
+            Header: <input
+                type="checkbox"
+                className="checkbox"
+                checked={isSelectedFull}
+                onChange={() => dispatch(toggleAllObjects(!isSelectedFull))}
+            />,
+            disableSortBy: true,
+            width: 1,
+        },
         {
             Header: 'Name',
             accessor: 'name',
@@ -47,23 +74,24 @@ export default function ObjectList({ objects, bucketNameParam, prefixParam }: Pr
                 if (original.isFolder) {
                     const name = stripTrailingSlash(original.name);
                     const newPrefix = prefixParam ? `${stripTrailingSlash(prefixParam)}/${name}` : name;
-                    return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketNameParam}/objects/${newPrefix}` }}>{original.name}</T.CellLink></span>;
+                    return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${newPrefix}` }}>{original.name}</T.CellLink></span>;
                 }
                 return <span> <Icon className='far fa-file'></Icon> { original.name } </span>;
             },
-            width: 50,
+            width: 49,
         },
         {
             Header: 'Modified on',
             accessor: 'lastModified',
-            width: 40,
+            width: 35,
         },
         {
+            id: 'size',
             Header: 'Size',
-            accessor: 'size',
-            width: 10,
+            accessor: row => row.size ? formatBytes(row.size) : '',
+            width: 15,
         },
-    ], [bucketNameParam, prefixParam]);
+    ], [bucketName, prefixParam, dispatch, isSelectedFull]);
 
     const {
         getTableProps,
@@ -80,9 +108,11 @@ export default function ObjectList({ objects, bucketNameParam, prefixParam }: Pr
     }, useFilters, useSortBy, useFlexLayout);
 
     return <L.ListSection>
+        <ObjectDelete bucketName={bucketName} toggled={toggled} prefixParam={prefixParam}/>
         <T.ButtonContainer>
-            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" type="submit" />
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" />
+            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
+            <T.ExtraButton style={{ marginLeft: 'auto' }} icon={<i className="fas fa-trash" />} disabled={isSelectedEmpty} text="Delete" variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
         </T.ButtonContainer>
         <T.Container>
             <Table {...getTableProps()}>

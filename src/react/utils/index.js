@@ -40,3 +40,5 @@ export function formatBytes(bytes, decimals = 2) {
 
 export const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;
 export const addTrailingSlash = name => name ? name.slice(-1) !== '/' ? `${name}/`: name : '';
+
+export const maybePluralize = (count, noun, suffix = 's') => `${count} ${noun}${count > 1 ? suffix : ''}`;
