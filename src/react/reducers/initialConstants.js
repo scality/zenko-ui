@@ -33,6 +33,7 @@ export const initialS3State: S3State = {
     listObjectsResults: {
         list: List(),
     },
+    objectMetadata: null,
 };
 
 export const initialBucketState = { list: [] };

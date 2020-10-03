@@ -42,3 +42,10 @@ export const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0,
 export const addTrailingSlash = name => name ? name.slice(-1) !== '/' ? `${name}/`: name : '';
 
 export const maybePluralize = (count, noun, suffix = 's') => `${count} ${noun}${count > 1 ? suffix : ''}`;
+
+export function stripQuotes(s) {
+    if (s.startsWith('"') && s.endsWith('"')) {
+        return s.slice(1, -1);
+    }
+    return s;
+}

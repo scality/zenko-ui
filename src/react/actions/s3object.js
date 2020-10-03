@@ -3,15 +3,17 @@ import type {
     CloseFolderCreateModalAction,
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
+    GetObjectMetadataSuccessAction,
     ListObjectsSuccessAction,
     OpenFolderCreateModalAction,
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
+    ResetObjectMetadataAction,
     ThunkStatePromisedAction,
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../types/actions';
-import type { CommonPrefix, File, S3Object } from '../../types/s3';
+import type { CommonPrefix, File, HeadObjectResponse, S3Object } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -22,6 +24,16 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
         contents,
         commonPrefixes,
         prefix,
+    };
+}
+
+export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse): GetObjectMetadataSuccessAction {
+    return {
+        type: 'GET_OBJECT_METADATA_SUCCESS',
+        bucketName,
+        prefixWithSlash,
+        objectKey,
+        info,
     };
 }
 
@@ -72,6 +84,12 @@ export function toggleAllObjects(toggled: boolean): ToggleAllObjectsAction {
     return {
         type: 'TOGGLE_ALL_OBJECTS',
         toggled,
+    };
+}
+
+export function resetObjectMetadata(): ResetObjectMetadataAction {
+    return {
+        type: 'RESET_OBJECT_METADATA',
     };
 }
 
@@ -126,6 +144,18 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
         dispatch(networkStart('Deleting object(s)'));
         return s3Client.deleteObjects(bucketName, objects)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3Client } = getClients(getState());
+        dispatch(networkStart('Getting object metadata'));
+        return s3Client.headObject(bucketName, objectKey)
+            .then(res => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, res)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));

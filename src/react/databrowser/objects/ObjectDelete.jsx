@@ -1,8 +1,8 @@
 // @flow
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
-import { addTrailingSlash, formatBytes, maybePluralize } from '../../utils';
 import { closeObjectDeleteModal, deleteFiles, toggleAllObjects } from '../../actions';
+import { formatBytes, maybePluralize } from '../../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -36,11 +36,10 @@ const fileSizer = files => {
 
 type Props = {
     toggled: List<Object>,
-    prefixParam: ?string,
+    prefixWithSlash: string,
     bucketName: string,
 };
-const ObjectDelete = ({ bucketName, toggled, prefixParam }: Props) => {
-    const prefixWithSlash = addTrailingSlash(prefixParam);
+const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
     const show = useSelector((state: AppState) => state.uiObjects.showObjectDelete);
     const totalSize = useMemo(() => fileSizer(toggled), [toggled]);
     const dispatch: DispatchAPI<Action> = useDispatch();

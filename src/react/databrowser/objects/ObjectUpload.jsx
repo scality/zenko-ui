@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { closeObjectUploadModal, uploadFiles } from '../../actions';
+import { formatBytes, maybePluralize } from '../../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -9,7 +10,6 @@ import { Button } from '@scality/core-ui';
 import type { DispatchAPI } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { formatBytes } from '../../utils';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
 
@@ -45,7 +45,7 @@ const EmptyFile = styled.div`
     }
 `;
 
-const title = size => !size ? 'Upload' : `Upload ${size} file${size > 1 ? 's': ''}`;
+const title = size => !size ? 'Upload' : `Upload ${maybePluralize(size, 'file')}`;
 
 type FileListProps = {
     acceptedFiles: Array<File>,

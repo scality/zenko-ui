@@ -1,9 +1,9 @@
 // @flow
-import { List } from 'immutable';
+import { List, Map } from 'immutable';
+import { formatDate, stripQuotes } from '../utils';
 import type { Object } from '../../types/s3';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
-import { formatDate } from '../utils';
 import { initialS3State } from './initialConstants';
 
 const sortByDate = objs => objs.sort((a,b) => (new Date(b.CreationDate) - new Date(a.CreationDate)));
@@ -66,6 +66,27 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                     ({ ...o, toggled: action.toggled })
                 ),
             },
+        };
+    case 'GET_OBJECT_METADATA_SUCCESS':
+        return {
+            ...state,
+            objectMetadata: {
+                bucketName: action.bucketName,
+                prefixWithSlash: action.prefixWithSlash,
+                objectKey: action.objectKey,
+                objectName: action.objectKey.replace(action.prefixWithSlash, ''),
+                lastModified: action.info.LastModified,
+                contentLength: action.info.ContentLength,
+                contentType: action.info.ContentType,
+                eTag: stripQuotes(action.info.ETag),
+                versionId: action.info.VersionId,
+                metadata: (Map(action.info.Metadata): Map<string, string>),
+            },
+        };
+    case 'RESET_OBJECT_METADATA':
+        return {
+            ...state,
+            objectMetadata: null,
         };
     default:
         return state;

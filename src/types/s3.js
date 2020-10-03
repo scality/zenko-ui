@@ -1,4 +1,5 @@
 // @flow
+import { Map } from 'immutable';
 
 export interface S3Client {
 
@@ -7,6 +8,15 @@ export interface S3Client {
 export type CreateBucketRequest = {|
     +name: string,
     +locationContraint: string,
+|};
+
+export type HeadObjectResponse = {|
+    +LastModified: string,
+    +ContentLength: number,
+    +ContentType: string,
+    +ETag: string,
+    +VersionId: string,
+    +Metadata: { [string]: string },
 |};
 
 export type S3Bucket = {|
@@ -41,4 +51,17 @@ export type File = {|
 
 export type CreateBucketResponse = {|
     +Location: string,
+|};
+
+export type ObjectMetadata = {|
+    +bucketName: string,
+    +prefixWithSlash: string,
+    +objectKey: string,
+    +objectName: string,
+    +lastModified: string,
+    +contentLength: number,
+    +contentType: string,
+    +eTag: string,
+    +versionId: string,
+    +metadata: Map<string, string>,
 |};

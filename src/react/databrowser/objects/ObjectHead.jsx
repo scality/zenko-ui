@@ -5,7 +5,7 @@ import React from 'react';
 type Props = {
     bucketNameParam?: string,
 };
-export default function BucketHead({ bucketNameParam }: Props){
+export default function ObjectHead({ bucketNameParam }: Props){
     return <L.Head>
         <L.HeadSlice>
             {bucketNameParam}

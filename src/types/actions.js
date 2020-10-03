@@ -1,6 +1,6 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
-import type { CommonPrefix, S3Bucket, S3Client, S3Object } from './s3';
+import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Client, S3Object } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { AppState } from './state';
@@ -127,10 +127,24 @@ export type ListObjectsSuccessAction = {|
     +prefix: string,
 |};
 
+export type GetObjectMetadataSuccessAction = {|
+    +type: 'GET_OBJECT_METADATA_SUCCESS',
+    +bucketName: string,
+    +prefixWithSlash: string,
+    +objectKey: string,
+    +info: HeadObjectResponse,
+|};
+
+export type ResetObjectMetadataAction = {|
+    +type: 'RESET_OBJECT_METADATA',
+|};
+
 export type S3Action =
     SetS3ClientAction |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
+    GetObjectMetadataSuccessAction |
+    ResetObjectMetadataAction |
     ToggleAllObjectsAction |
     ToggleObjectAction;
 

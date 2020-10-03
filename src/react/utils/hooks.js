@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 export const useHeight = (myRef) => {
     const [height, setHeight] = useState(0);
@@ -36,4 +37,8 @@ export const useOutsideClick = (ref, actionFn) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [ref, actionFn]);
+};
+
+export const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
 };

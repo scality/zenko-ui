@@ -4,7 +4,6 @@ import { ErrorMockS3Client, ownerName } from '../../../../js/mock/S3Client';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
-import { List } from 'immutable';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -77,13 +76,7 @@ export function errorS3State(): AppState {
     return {
         ...initState,
         s3: {
-            listBucketsResults: {
-                list: List(),
-                ownerName: '',
-            },
-            listObjectsResults: {
-                list: List(),
-            },
+            ...initState.s3,
             s3Client: new ErrorMockS3Client(S3_CLIENT_ERROR),
         },
     };

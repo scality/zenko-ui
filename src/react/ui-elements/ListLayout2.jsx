@@ -52,8 +52,9 @@ export const Body = styled.div`
 `;
 
 export const ListSection = styled.div`
-    flex: 3 1 70%;
+    flex: 1 1 70%;
     flex-direction: column;
+    min-width: 410px;
 
     background-color: ${props => props.theme.brand.primary};
     margin-left: 10px;
@@ -65,8 +66,7 @@ export const ContentSection = styled.div`
     flex: 1 1 30%;
     flex-direction: column;
 
-    background-color: ${props => props.theme.brand.primary};
+    background-color: ${props => props.theme.brand.background};
     margin: 0px 10px;
-    padding: 10px;
     border-radius: 5px;
 `;

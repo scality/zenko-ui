@@ -2,7 +2,10 @@
 
 import * as T from '../../ui-elements/Table';
 import React, { memo } from 'react';
-import type { S3Bucket } from '../../../types/s3';
+import { toggleAllObjects, toggleObject } from '../../actions';
+import type { Action } from '../../../types/actions';
+import type { DispatchAPI } from 'redux';
+import type { Object } from '../../../types/s3';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
@@ -11,7 +14,7 @@ type PrepareRow = (RowType) => void;
 
 type RowType = {
     id: number,
-    original: S3Bucket,
+    original: Object,
     cells: any,
     getRowProps: (any) => void,
 };
@@ -21,6 +24,7 @@ type RowsType = Array<RowType>;
 type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
+    dispatch: DispatchAPI<Action>,
 };
 
 type RowProps = {
@@ -35,21 +39,29 @@ type RowProps = {
 export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
+    dispatch: DispatchAPI<Action>,
 ): Data => ({
     rows,
     prepareRow,
+    dispatch,
 }), isDeepEqual);
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-    data: { rows, prepareRow },
+    data: { rows, prepareRow, dispatch },
     index,
     style,
 }: RowProps) => {
     const row = rows[index];
     prepareRow(row);
+
+    const handleClick = () => {
+        dispatch(toggleAllObjects(false));
+        dispatch(toggleObject(row.original.name));
+    };
+
     return (
-        <T.Row isSelected={false} onClick={() => {}} {...row.getRowProps({ style })}>
+        <T.Row isSelected={row.original.toggled} onClick={handleClick} {...row.getRowProps({ style })}>
             {row.cells.map(cell => (
                 <T.Cell key={cell.id} {...cell.getCellProps()} >
                     {cell.render('Cell')}

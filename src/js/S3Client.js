@@ -118,4 +118,13 @@ export default class S3Client {
         };
         return this.client.getSignedUrl('getObject', params);
     }
+
+    // TODO: add VersionId
+    headObject(bucketName, objectName) {
+        const params = {
+            Bucket: bucketName,
+            Key: objectName,
+        };
+        return this.client.headObject(params).promise();
+    }
 }

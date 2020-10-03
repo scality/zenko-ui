@@ -1,6 +1,6 @@
 // @flow
 import * as L from '../../ui-elements/ListLayout2';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import { clearError, listObjects } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +23,9 @@ export default function Objects(){
     const objects = useSelector((state: AppState) => state.s3.listObjectsResults.list);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
+
+    const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
 
     const { bucketName: bucketNameParam, '0': prefixParam } = useParams();
     const prefixWithSlash = addTrailingSlash(prefixParam);
@@ -66,8 +69,8 @@ export default function Objects(){
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
-            <ObjectList objects={objects} bucketName={bucketNameParam} prefixParam={prefixParam} />
-            <ObjectDetails />
+            <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} />
+            <ObjectDetails toggled={toggled} objectMetadata={objectMetadata} />
         </L.Body>
 
     </div>;
