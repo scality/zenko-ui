@@ -3,7 +3,7 @@ import * as L from '../../ui-elements/ListLayout2';
 import MemoRow, { createItemData } from './ObjectRow';
 import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
-import { formatBytes, stripTrailingSlash } from '../../utils';
+import { addTrailingSlash, formatBytes, stripTrailingSlash } from '../../utils';
 import { openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
@@ -76,7 +76,8 @@ export default function ObjectList({ objects, bucketName, prefixParam }: Props){
                     const newPrefix = prefixParam ? `${stripTrailingSlash(prefixParam)}/${name}` : name;
                     return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${newPrefix}` }}>{original.name}</T.CellLink></span>;
                 }
-                return <span> <Icon className='far fa-file'></Icon> { original.name } </span>;
+                const prefixWithSlash = addTrailingSlash(prefixParam);
+                return <span> <Icon className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${prefixWithSlash}${original.name}`}> {original.name} </T.CellA> </span>;
             },
             width: 49,
         },

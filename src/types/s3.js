@@ -18,6 +18,7 @@ export type S3Object = {|
     +Key: string,
     +LastModified: string,
     +Size: number,
+    +SignedUrl?: string,
 |};
 
 export type CommonPrefix = {|
@@ -30,6 +31,7 @@ export type Object = {|
     +isFolder: string,
     +size: number,
     +toggled: boolean,
+    +signedUrl?: string,
 |};
 
 export type File = {|

@@ -95,7 +95,11 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
         const { s3Client } = getClients(getState());
         dispatch(networkStart('Listing objects'));
         return s3Client.listObjects(bucketName, prefixWithSlash)
-            .then(res => dispatch(listObjectsSuccess(res.Contents, res.CommonPrefixes, res.Prefix)))
+            .then(res => {
+                const list = res.Contents;
+                list.forEach(object => object.SignedUrl = s3Client.getObjectSignedUrl(bucketName, object.Key));
+                return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix));
+            })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));

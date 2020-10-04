@@ -15,6 +15,7 @@ export default class S3Client {
             sessionToken: params.sessionToken,
             region: 'us-east-1',
             s3ForcePathStyle: true,
+            signatureVersion: 'v4',
         });
     }
 
@@ -108,5 +109,13 @@ export default class S3Client {
             },
         };
         return this.client.deleteObjects(params).promise();
+    }
+
+    getObjectSignedUrl(bucketName, objectName){
+        const params = {
+            Bucket: bucketName,
+            Key: objectName,
+        };
+        return this.client.getSignedUrl('getObject', params);
     }
 }

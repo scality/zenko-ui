@@ -15,6 +15,7 @@ const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== pref
         size: o.Size,
         isFolder: false,
         toggled: false,
+        signedUrl: o.SignedUrl,
     };
 });
 

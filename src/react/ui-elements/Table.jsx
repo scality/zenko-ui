@@ -86,6 +86,14 @@ export const CellLink = styled(Link)`
     }
 `;
 
+export const CellA = styled.a`
+    color: ${props => props.theme.brand.text};
+    text-decoration: none;
+    &:hover{
+        text-decoration: underline;
+    }
+`;
+
 // * table search
 export const SearchContainer = styled.div`
     display: flex;
