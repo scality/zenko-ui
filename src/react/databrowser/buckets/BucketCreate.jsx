@@ -33,7 +33,7 @@ const SelectOption = styled.div`
 `;
 
 const schema = Joi.object({
-    name: Joi.string().label('Name').required().min(3).max(63).message('Invalid Name'),
+    name: Joi.string().label('Name').required().min(3).max(63),
     locationConstraint: Joi.object(),
 });
 

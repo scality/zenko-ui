@@ -43,7 +43,7 @@ describe('BucketCreate', () => {
         {
             description: 'should render an input form error when submitting with an empty name',
             testValue: '',
-            expectedEmptyNameError: 'Invalid Name',
+            expectedEmptyNameError: ' "Name" is not allowed to be empty ',
             expectedMinLengthNameError: null,
             expectedMaxLengthNameError: null,
         },
@@ -51,7 +51,7 @@ describe('BucketCreate', () => {
             description: 'should render an input form error when submitting with an name.length < 3',
             testValue: 'ab',
             expectedEmptyNameError: null,
-            expectedMinLengthNameError: 'Invalid Name',
+            expectedMinLengthNameError: ' "Name" length must be at least 3 characters long ',
             expectedMaxLengthNameError: null,
         },
         {
@@ -59,7 +59,7 @@ describe('BucketCreate', () => {
             testValue: 'Z4VbHlmEKC0a8n85FEneHN6EhBwFSkmSh4tGOKy53ktdmQlwq5xJVi7hm32jFuKB',
             expectedEmptyNameError: null,
             expectedMinLengthNameError: null,
-            expectedMaxLengthNameError: 'Invalid Name',
+            expectedMaxLengthNameError: ' "Name" length must be less than or equal to 63 characters long ',
         },
     ];
 
