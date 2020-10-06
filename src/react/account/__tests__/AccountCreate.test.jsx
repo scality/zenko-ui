@@ -1,18 +1,19 @@
 import AccountCreate from '../AccountCreate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { reduxMount } from '../../utils/test';
+import { reduxMountAct } from '../../utils/test';
 
 describe('AccountCreate', () => {
-    it('should render AccountCreate component with no error banner', () => {
-        const { component } = reduxMount(<AccountCreate/>);
+    it('should render AccountCreate component with no error banner', async () => {
+        const component = await reduxMountAct(<AccountCreate/>);
 
         expect(component.find('#zk-error-banner')).toHaveLength(0);
+        component.unmount();
     });
 
-    it('should render AccountCreate component with error banner', () => {
+    it('should render AccountCreate component with error banner', async () => {
         const errorMessage = 'error message test';
-        const { component } = reduxMount(<AccountCreate/>, {
+        const component = await reduxMountAct(<AccountCreate/>, {
             uiErrors: {
                 errorMsg: errorMessage,
                 errorType: 'byComponent',
@@ -21,6 +22,7 @@ describe('AccountCreate', () => {
 
         expect(component.find('#zk-error-banner')).toHaveLength(1);
         expect(component.find('#zk-error-banner').text()).toContain(errorMessage);
+        component.unmount();
     });
 
     // * error input
@@ -139,7 +141,7 @@ describe('AccountCreate', () => {
 
     tests.forEach(t => {
         it(`Simulate click: ${t.description}`, async () => {
-            const { component } = reduxMount(<AccountCreate/>);
+            const component = await reduxMountAct(<AccountCreate/>);
             // NOTE: All validation methods in React Hook Form are treated
             // as async functions, so it's important to wrap async around your act.
             await act(async () => {
@@ -155,7 +157,10 @@ describe('AccountCreate', () => {
                 elementQuota.getDOMNode().value = t.quota;
                 elementQuota.getDOMNode().dispatchEvent(new Event('input'));
 
-                component.find('Button#create-account-btn').simulate('click');
+                await act(async () => {
+                    component.find('Button#create-account-btn').simulate('click');
+                });
+
             });
 
             if (t.expectedNameError) {
@@ -173,6 +178,8 @@ describe('AccountCreate', () => {
             } else {
                 expect(component.find('ErrorInput#error-quota').text()).toBeFalsy();
             }
+
+            component.unmount();
         });
     });
 });

@@ -33,7 +33,7 @@ const SelectOption = styled.div`
 `;
 
 const schema = Joi.object({
-    name: Joi.string().label('Name').required().min(3).max(63).message('Invalid Name'),
+    name: Joi.string().label('Name').required().min(3).max(63),
     locationConstraint: Joi.object(),
 });
 
@@ -139,7 +139,7 @@ function BucketCreate() {
                 }
             </F.FooterError>
             <F.FooterButtons>
-                <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
+                <Button disabled={loading} id='cancel-btn' outlined onClick={handleCancel} text='Cancel'/>
                 <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>
