@@ -45,6 +45,24 @@ export const reduxMount = (component, testState) => {
     };
 };
 
+import { act } from 'react-dom/test-utils';
+export async function reduxMountAct(component, testState) {
+    const store = newTestStore(testState);
+    let wrapper = null;
+
+    await act(async () => {
+        wrapper = mount(
+            <ThemeProvider theme={theme}>
+                <Provider store={store}>
+                    {component}
+                </Provider>
+            </ThemeProvider>
+        );
+    });
+
+    return wrapper;
+}
+
 export const themeMount = component => {
     return mount(
         <ThemeProvider theme={theme}>
