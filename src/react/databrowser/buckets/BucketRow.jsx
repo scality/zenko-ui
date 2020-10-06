@@ -24,7 +24,7 @@ type RowsType = Array<RowType>;
 type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
-    bucketNameParam: ?string,
+    selectedBucketName: ?string,
     dispatch: DispatchAPI<Action>,
 };
 
@@ -40,25 +40,25 @@ type RowProps = {
 export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
-    bucketNameParam: ?string,
+    selectedBucketName: ?string,
     dispatch: DispatchAPI<Action>
 ): Data => ({
     rows,
     prepareRow,
-    bucketNameParam,
+    selectedBucketName,
     dispatch,
 }), isDeepEqual);
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-    data: { rows, prepareRow, bucketNameParam, dispatch },
+    data: { rows, prepareRow, selectedBucketName, dispatch },
     index,
     style,
 }: RowProps) => {
     const row = rows[index];
     prepareRow(row);
     const bucketName = row.original.Name;
-    const isSelected = bucketNameParam === bucketName;
+    const isSelected = selectedBucketName === bucketName;
     return (
         <T.Row isSelected={isSelected} onClick={() => {
             if (!isSelected) {

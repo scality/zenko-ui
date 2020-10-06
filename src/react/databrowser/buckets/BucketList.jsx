@@ -14,7 +14,6 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
-import { useParams } from 'react-router-dom';
 
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 350px);
@@ -23,15 +22,14 @@ export const CustomBody = styled(T.Body)`
 type Props = {
     locations: Locations,
     buckets: List<S3Bucket>,
+    selectedBucketName: ?string,
 };
-export default function BucketList({ buckets, locations }: Props){
+export default function BucketList({ selectedBucketName, buckets, locations }: Props){
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
 
     const resizerRef = useRef<FixedSizeList<T> | null>(null);
     const height = useHeight(resizerRef);
-
-    const { bucketName: bucketNameParam } = useParams();
 
     const columns = useMemo(() => [
         {
@@ -107,7 +105,7 @@ export default function BucketList({ buckets, locations }: Props){
                                 itemCount={rows.length}
                                 itemSize={45}
                                 width='100%'
-                                itemData={createItemData(rows, prepareRow, bucketNameParam, dispatch)}
+                                itemData={createItemData(rows, prepareRow, selectedBucketName, dispatch)}
                             >
                                 {MemoRow}
                             </FixedSizeList>

@@ -40,7 +40,7 @@ export default function Buckets(){
         <BucketHead buckets={buckets} />
 
         <L.Body>
-            <BucketList buckets={buckets} locations={locations} />
+            <BucketList selectedBucketName={bucketNameParam} buckets={buckets} locations={locations} />
             <BucketDetails bucket={bucket} />
         </L.Body>
 
