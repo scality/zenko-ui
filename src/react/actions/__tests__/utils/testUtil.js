@@ -1,11 +1,12 @@
 // @flow
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
+import { ErrorMockS3Client, ownerName } from '../../../../js/mock/S3Client';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
+import { List } from 'immutable';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
-import { ErrorMockS3Client, ownerName } from '../../../../js/mock/S3Client';
 import thunk from 'redux-thunk';
 
 
@@ -39,7 +40,7 @@ export const initState: AppState = initialFullState;
 
 export const USER_MANAGER_ERROR_MSG = 'User Manager Error Response';
 export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
-export const S3_CLIENT_ERROR_MSG = 'S3 Client Api Error Response'
+export const S3_CLIENT_ERROR_MSG = 'S3 Client Api Error Response';
 
 export const USER_MANAGER_ERROR = new ApiErrorObject(USER_MANAGER_ERROR_MSG, 500);
 export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
@@ -80,8 +81,15 @@ export function errorS3State(): AppState {
             ...state.auth,
         },
         s3: {
+            listBucketsResults: {
+                list: List(),
+                ownerName: '',
+            },
+            listObjectsResults: {
+                list: List(),
+            },
             s3Client: new ErrorMockS3Client(S3_CLIENT_ERROR),
-        }
+        },
     };
 }
 

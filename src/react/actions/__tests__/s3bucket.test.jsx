@@ -1,9 +1,9 @@
 import * as actions from '../s3bucket';
+import * as dispatchAction from './utils/dispatchActionsList';
 import {
-    authenticatedUserState, errorS3State,
-    mockStore, OWNER_NAME, testDispatchFunction,
-} from "./utils/testUtil";
-import * as dispatchAction from "./utils/dispatchActionsList";
+    OWNER_NAME, authenticatedUserState,
+    errorS3State, mockStore, testDispatchFunction,
+} from './utils/testUtil';
 
 const createBucketNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating bucket');
 const listBucketsNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing buckets');
@@ -12,7 +12,7 @@ describe('s3bucket actions', () => {
     it('createBucket: should return expected actions', () => {
         const store = mockStore()(authenticatedUserState());
 
-        return store.dispatch(actions.createBucket({name: 'azeaze', locationConstraint: { value: 'us-east-1' }}))
+        return store.dispatch(actions.createBucket({ name: 'azeaze', locationConstraint: { value: 'us-east-1' } }))
             .then(() => {
                 const actions = store.getActions();
                 expect(actions[0]).toEqual(createBucketNetworkAction);
@@ -33,8 +33,8 @@ describe('s3bucket actions', () => {
             fn: actions.createBucket({
                 name: 'azeaze',
                 locationConstraint: {
-                    value: 'us-east-1'
-                }
+                    value: 'us-east-1',
+                },
             }),
             storeState: errorS3State(),
             expectedActions: [

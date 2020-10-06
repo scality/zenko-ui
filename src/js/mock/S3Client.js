@@ -1,13 +1,16 @@
 // @flow
 
 import type {
-    CreateBucketRequest,
+    CreateBucketResponse,
     S3Client as S3ClientInterface,
 } from '../../types/s3';
-import { ApiErrorObject } from "./error";
-import type {ThunkStatePromisedAction} from "../../types/actions";
+import { ApiErrorObject } from './error';
 
 export const ownerName = 'bart';
+
+export const createBucketResponse: CreateBucketResponse = {
+    Location: '',
+};
 
 export class MockS3Client implements S3ClientInterface {
     listBucketsWithLocation() {
@@ -20,10 +23,8 @@ export class MockS3Client implements S3ClientInterface {
         });
     }
 
-    createBucket(_bucket: CreateBucketRequest): ThunkStatePromisedAction {
-        return Promise.resolve({
-            Location: ""
-        })
+    createBucket(): Promise<CreateBucketResponse> {
+        return Promise.resolve(createBucketResponse);
     }
 }
 
@@ -34,7 +35,7 @@ export class ErrorMockS3Client implements S3ClientInterface {
         this._error = error;
     }
 
-    createBucket(_bucket: CreateBucketRequest): ThunkStatePromisedAction {
+    createBucket(): Promise<void> {
         return Promise.reject(this._error);
     }
 }

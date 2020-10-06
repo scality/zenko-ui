@@ -1,28 +1,28 @@
+import * as actions from '../../../actions';
+import BucketCreate from '../BucketCreate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { reduxMount } from '../../../utils/test';
-import BucketCreate from '../BucketCreate';
-import * as actions from "../../../actions";
 
 // Jest requires a setter on the tested object but ES6 doesn't have
 // but jest.mock() allows you solving this by mocking your required module after the import.
 jest.mock('../../../actions', () => ({
     clearError: jest.fn(() => {
-        return {type: 'CLEAR_ERROR'};
-    })
+        return { type: 'CLEAR_ERROR' };
+    }),
 }));
 
 describe('BucketCreate', () => {
     const errorMessage = 'This is an error test message';
 
     it('should render BucketCreate component with no error banner', () => {
-        const {component} = reduxMount(<BucketCreate/>);
+        const { component } = reduxMount(<BucketCreate/>);
 
         expect(component.find('#zk-error-banner')).toHaveLength(0);
     });
 
     it('should render BucketCreate component with an error banner', () => {
-        const {component} = reduxMount(<BucketCreate/>, {
+        const { component } = reduxMount(<BucketCreate/>, {
             uiErrors: {
                 errorMsg: errorMessage,
                 errorType: 'byComponent',
@@ -45,7 +45,7 @@ describe('BucketCreate', () => {
             testValue: '',
             expectedEmptyNameError: 'Invalid Name',
             expectedMinLengthNameError: null,
-            expectedMaxLengthNameError: null
+            expectedMaxLengthNameError: null,
         },
         {
             description: 'should render an input form error when submitting with an name.length < 3',
@@ -59,13 +59,13 @@ describe('BucketCreate', () => {
             testValue: 'Z4VbHlmEKC0a8n85FEneHN6EhBwFSkmSh4tGOKy53ktdmQlwq5xJVi7hm32jFuKB',
             expectedEmptyNameError: null,
             expectedMinLengthNameError: null,
-            expectedMaxLengthNameError: 'Invalid Name'
-        }
+            expectedMaxLengthNameError: 'Invalid Name',
+        },
     ];
 
     tests.forEach(t => {
         it(t.description, async () => {
-            const {component} = reduxMount(<BucketCreate/>);
+            const { component } = reduxMount(<BucketCreate/>);
 
             await act(async () => {
                 const input = component.find('input#name');
@@ -75,11 +75,11 @@ describe('BucketCreate', () => {
                 component.find('Button#create-account-btn').simulate('click');
             });
 
-            if (t.expectedEmptyNameError != null) {
+            if (t.expectedEmptyNameError !== null) {
                 expect(component.find('ErrorInput#error-name').text()).toContain(t.expectedEmptyNameError);
-            } else if (t.expectedMinLengthNameError != null) {
+            } else if (t.expectedMinLengthNameError !== null) {
                 expect(component.find('ErrorInput#error-name').text()).toContain(t.expectedMinLengthNameError);
-            } else if (t.expectedMaxLengthNameError != null) {
+            } else if (t.expectedMaxLengthNameError !== null) {
                 expect(component.find('ErrorInput#error-name').text()).toContain(t.expectedMaxLengthNameError);
             }
 
@@ -87,12 +87,12 @@ describe('BucketCreate', () => {
     });
 
     it('Should not call clearServerError when clicking inside the component', () => {
-        const clearError = jest.spyOn(actions, "clearError");
+        const clearError = jest.spyOn(actions, 'clearError');
 
-        const {component} = reduxMount(
+        const { component } = reduxMount(
             <BucketCreate/>, {
                 uiErrors: {
-                    errorMsg: "error",
+                    errorMsg: 'error',
                     errorType: 'byComponent',
                 },
             }
@@ -102,6 +102,6 @@ describe('BucketCreate', () => {
         const cancelButton = component.findWhere(n => n.name() === 'Button' && n.prop('outlined') === true);
         cancelButton.simulate('click');
 
-        expect(clearError).toHaveBeenCalled()
+        expect(clearError).toHaveBeenCalled();
     });
 });
