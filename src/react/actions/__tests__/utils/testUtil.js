@@ -187,3 +187,18 @@ export const testDispatchFunction = (test: DispatchTestObject) => {
             });
     });
 };
+
+export const testDispatchErrorTestFn = (error: ApiErrorObject, test: DispatchTestObject) => {
+    (test.skip ? it.skip : it)(test.it, async () => {
+        const store = mockStore()(test.storeState);
+        let testError = null;
+        try {
+            await store.dispatch(test.fn);
+        } catch (e) {
+            const { message } = e;
+            testError = message;
+        }
+        expect(store.getActions()).toEqual(test.expectedActions);
+        expect(testError).toEqual(error.message);
+    });
+};

@@ -38,4 +38,8 @@ export class ErrorMockS3Client implements S3ClientInterface {
     createBucket(): Promise<void> {
         return Promise.reject(this._error);
     }
+
+    listBucketsWithLocation(): Promise<void> {
+        return Promise.reject(this._error);
+    }
 }
