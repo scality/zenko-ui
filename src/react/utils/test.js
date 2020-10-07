@@ -1,6 +1,7 @@
 import { Provider } from 'react-redux';
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
+import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount } from 'enzyme';
@@ -44,6 +45,23 @@ export const reduxMount = (component, testState) => {
         ),
     };
 };
+
+export async function reduxMountAct(component, testState) {
+    const store = newTestStore(testState);
+    let wrapper = null;
+
+    await act(async () => {
+        wrapper = mount(
+            <ThemeProvider theme={theme}>
+                <Provider store={store}>
+                    {component}
+                </Provider>
+            </ThemeProvider>,
+        );
+    });
+
+    return wrapper;
+}
 
 export const themeMount = component => {
     return mount(

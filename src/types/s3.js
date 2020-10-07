@@ -36,3 +36,7 @@ export type File = {|
     +path: string,
     +size: number,
 |};
+
+export type CreateBucketResponse = {|
+    +Location: string,
+|};
