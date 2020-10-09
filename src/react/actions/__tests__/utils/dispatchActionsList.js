@@ -8,6 +8,7 @@ import {
 
 import type {
     CloseAccountDeleteDialogAction,
+    CloseBucketDeleteDialogAction,
     CloseLocationDeleteDialogAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
@@ -18,6 +19,7 @@ import type {
     NetworkActivityEndAction,
     NetworkActivityStartAction,
     OpenAccountDeleteDialogAction,
+    OpenBucketDeleteDialogAction,
     OpenLocationDeleteDialogAction,
     SelectInstanceAction,
     SetAppConfigAction,
@@ -120,3 +122,9 @@ export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogActio
 // * buckets actions
 export const LIST_BUCKETS_SUCCESS_ACTION = (list: Array<S3Bucket>, ownerName: string): ListBucketsSuccessAction =>
     ({ type: 'LIST_BUCKETS_SUCCESS', list: [], ownerName });
+
+export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (bucketName: string): OpenBucketDeleteDialogAction =>
+    ({ type: 'OPEN_BUCKET_DELETE_DIALOG', bucketName });
+
+export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
+    { type: 'CLOSE_BUCKET_DELETE_DIALOG' };

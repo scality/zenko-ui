@@ -7,6 +7,7 @@ import type {
 import { ApiErrorObject } from './error';
 
 export const ownerName = 'bart';
+export const bucketName = 'test';
 
 export const createBucketResponse: CreateBucketResponse = {
     Location: '',
@@ -26,6 +27,10 @@ export class MockS3Client implements S3ClientInterface {
     createBucket(): Promise<CreateBucketResponse> {
         return Promise.resolve(createBucketResponse);
     }
+
+    deleteBucket(): Promise<void> {
+        return Promise.resolve();
+    }
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
@@ -40,6 +45,10 @@ export class ErrorMockS3Client implements S3ClientInterface {
     }
 
     listBucketsWithLocation(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteBucket(): Promise<void> {
         return Promise.reject(this._error);
     }
 }
