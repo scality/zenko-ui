@@ -49,3 +49,5 @@ export function stripQuotes(s) {
     }
     return s;
 }
+
+export const isEmptyItem = (item => item.key === '' && item.value === '');

@@ -2,6 +2,7 @@
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import { List } from 'immutable';
+import Metadata from './details/Metadata';
 import type { ObjectMetadata } from '../../../types/s3';
 import Properties from './details/Properties';
 import React from 'react';
@@ -35,6 +36,9 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
         if (!tabName) {
             return <Properties objectMetadata={objectMetadata}/>;
         }
+        if (tabName === 'metadata') {
+            return <Metadata objectMetadata={objectMetadata}/>;
+        }
         return null;
     };
 
@@ -48,15 +52,15 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
                         title: 'Summary',
                     },
                     {
-                        onClick: () => dispatch(push(`${pathname}?tab=tags`)),
-                        selected: tabName === 'tags',
-                        title: 'Tags',
-                    },
-                    {
                         onClick: () => dispatch(push(`${pathname}?tab=metadata`)),
                         selected: tabName === 'metadata',
                         title: 'Metadata',
                     },
+                    // {
+                    //     onClick: () => dispatch(push(`${pathname}?tab=tags`)),
+                    //     selected: tabName === 'tags',
+                    //     title: 'Tags',
+                    // },
                 ]}
             >
                 <div>

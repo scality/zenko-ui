@@ -52,7 +52,7 @@ export const Body = styled.div`
 `;
 
 export const ListSection = styled.div`
-    flex: 1 1 70%;
+    flex: 1 1 65%;
     flex-direction: column;
     min-width: 410px;
 
@@ -63,7 +63,8 @@ export const ListSection = styled.div`
 `;
 
 export const ContentSection = styled.div`
-    flex: 1 1 30%;
+    flex: 0 0 35%;
+    // min-width: 470px; We might want to add a width limitation. To be discussed.
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.background};

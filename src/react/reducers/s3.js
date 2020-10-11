@@ -1,7 +1,7 @@
 // @flow
-import { List, Map } from 'immutable';
+import type { MetadataItems, MetadataPairs, Object } from '../../types/s3';
 import { formatDate, stripQuotes } from '../utils';
-import type { Object } from '../../types/s3';
+import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
@@ -26,6 +26,25 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
         toggled: false,
     };
 });
+
+const convertToFormMetadata = (obj: MetadataPairs): MetadataItems => {
+    const pairs = [];
+    for (let key in obj) {
+        if (key.toLowerCase().startsWith('x-amz-meta')) {
+            pairs.push({
+                key: 'x-amz-meta',
+                metaKey: key.substring(11),
+                value: obj[key],
+            });
+        } else {
+            pairs.push({
+                key,
+                value: obj[key],
+            });
+        }
+    }
+    return pairs;
+};
 
 export default function s3(state: S3State = initialS3State, action: S3Action) {
     switch (action.type) {
@@ -75,7 +94,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                 contentType: action.info.ContentType,
                 eTag: stripQuotes(action.info.ETag),
                 versionId: action.info.VersionId,
-                metadata: (Map(action.info.Metadata): Map<string, string>),
+                metadata: convertToFormMetadata(action.info.Metadata),
             },
         };
     case 'RESET_OBJECT_METADATA':
