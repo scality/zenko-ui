@@ -127,4 +127,18 @@ export default class S3Client {
         };
         return this.client.headObject(params).promise();
     }
+
+    putObjectMetadata(bucketName, objectKey, metalist) {
+        const realSource = `/${bucketName}/${objectKey}`;
+        const params = {
+            Bucket: bucketName,
+            Key: objectKey,
+            CopySource: realSource,
+            // ACL: (objectInfo.isPublic) ? 'public-read' : 'authenticated-read',
+            // ContentType: objectInfo.contentType,
+            Metadata: metalist,
+            MetadataDirective: 'REPLACE',
+        };
+        return this.client.copyObject(params).promise();
+    }
 }
