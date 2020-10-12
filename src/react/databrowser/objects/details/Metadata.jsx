@@ -1,9 +1,8 @@
 // @flow
-import { AddButton, ExtraKey, Key, Pair, Pairs, SubButton, Value } from '../../../ui-elements/EditableKeyValue';
+import { AddButton, Buttons, Char, InputExtraKey, InputValue, Inputs, Pair, Pairs, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
 import type { MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useState } from 'react';
-import Input from '../../../ui-elements/Input';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -76,11 +75,11 @@ type Props = {
 function Properties({ objectMetadata }: Props) {
     const dispatch = useDispatch();
     const { bucketName, objectKey, metadata } = objectMetadata;
-    const [pairs, setPairs] = useState(metadata.length > 0 ? metadata: [{ key: '', value: '' }]);
+    const [pairs, setPairs] = useState(metadata.length > 0 ? metadata: [{ key: '', value: '', metaKey: '' }]);
 
     const handleKeyChange = index => (v) => {
         const temp = [...pairs];
-        temp[index] = { key: v.value, value: '' };
+        temp[index] = { key: v.value, value: '', metaKey: '' };
         setPairs(temp);
     };
 
@@ -101,7 +100,7 @@ function Properties({ objectMetadata }: Props) {
 
     const insertEntry = () => {
         const temp = [...pairs];
-        temp.push({ key: '', value: '' });
+        temp.push({ key: '', value: '', metaKey: '' });
         setPairs(temp);
     };
 
@@ -129,8 +128,8 @@ function Properties({ objectMetadata }: Props) {
                 {
                     pairs.map((p, i) => {
                         const isShrink = p.key === 'x-amz-meta';
-                        return <Pair key={i}>
-                            <Key isShrink={isShrink} >
+                        return <Pair isShrink={isShrink} key={i}>
+                            <Inputs>
                                 <Select
                                     id='mdKeyType'
                                     name='mdKeyType'
@@ -139,17 +138,19 @@ function Properties({ objectMetadata }: Props) {
                                     isDisabled={false}
                                     value={p.key ? selectOptions.find(l => l.value === p.key): ''}
                                 />
-                            </Key>
-                            {
-                                isShrink && <ExtraKey>
-                                    <Input value={p.metaKey || ''} onChange={handleMetaKeyChange(i)}/>
-                                </ExtraKey>
-                            }
-                            <Value isShrink={isShrink}>
-                                <Input value={p.value} onChange={handleValueChange(i)}/>
-                            </Value>
-                            <AddButton index={i} pairs={pairs} insertEntry={insertEntry}/>
-                            <SubButton index={i} pairs={pairs} deleteEntry={deleteEntry}/>
+                                {
+                                    isShrink && <Char>-</Char>
+                                }
+                                {
+                                    isShrink && <InputExtraKey value={p.metaKey || ''} onChange={handleMetaKeyChange(i)}/>
+                                }
+                                <Char>:</Char>
+                                <InputValue isShrink={isShrink} value={p.value} onChange={handleValueChange(i)}/>
+                            </Inputs>
+                            <Buttons>
+                                <AddButton index={i} pairs={pairs} insertEntry={insertEntry}/>
+                                <SubButton index={i} pairs={pairs} deleteEntry={deleteEntry}/>
+                            </Buttons>
                         </Pair>;
                     })
                 }

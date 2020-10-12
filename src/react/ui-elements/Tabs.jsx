@@ -7,7 +7,7 @@ export const CustomTabs = styled(Tabs)`
     margin: 0px;
     flex-direction: column;
     .sc-tabs-item{
-        min-width: 190px;
+        min-width: 100px;
     }
     .sc-tabs-item-title{
         border-radius: 5px 5px 0px 0px;

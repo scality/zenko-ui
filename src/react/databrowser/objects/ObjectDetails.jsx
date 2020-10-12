@@ -56,11 +56,11 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
                         selected: tabName === 'metadata',
                         title: 'Metadata',
                     },
-                    {
-                        onClick: () => dispatch(push(`${pathname}?tab=tags`)),
-                        selected: tabName === 'tags',
-                        title: 'Tags',
-                    },
+                    // {
+                    //     onClick: () => dispatch(push(`${pathname}?tab=tags`)),
+                    //     selected: tabName === 'tags',
+                    //     title: 'Tags',
+                    // },
                 ]}
             >
                 <div>
