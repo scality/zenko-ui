@@ -162,11 +162,12 @@ export function getObjectMetadata(bucketName: string, prefixWithSlash: string, o
     };
 }
 
-export function putObjectMetadata(bucketName: string, objectKey: string, metadata: { [string]: string }): ThunkStatePromisedAction{
+export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, metadata: { [string]: string }): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { s3Client } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
         return s3Client.putObjectMetadata(bucketName, objectKey, metadata)
+            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));

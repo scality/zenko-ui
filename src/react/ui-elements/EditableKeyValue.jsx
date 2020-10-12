@@ -4,12 +4,12 @@ import Input from './Input';
 import React from 'react';
 import styled from 'styled-components';
 
-export const Pairs = styled.div`
+export const Items = styled.div`
     display: flex;
     flex-direction: column;
 `;
 
-export const Pair = styled.div`
+export const Item = styled.div`
     display:flex;
     flex-direction:row;
     align-items: baseline;
@@ -66,18 +66,18 @@ export const Char = styled.div`
 
 type AddButtonProps = {
     index: number,
-    pairs: Array<any>,
+    items: Array<any>,
     insertEntry: () => void,
 };
-export const AddButton = ({ index, pairs, insertEntry }: AddButtonProps) => {
+export const AddButton = ({ index, items, insertEntry }: AddButtonProps) => {
     // let isVisible = 'invisible';
     let isDisabled = false;
     let onClickFn = () => {};
-    if (index === pairs.length - 1 || pairs.length === 0) {
+    if (index === items.length - 1 || items.length === 0) {
         // isVisible = 'visible';
         onClickFn = () => insertEntry();
     }
-    if (pairs[index] && (pairs[index].key === '' || pairs[index].value === '')) {
+    if (items[index] && (items[index].key === '' || items[index].value === '')) {
         isDisabled = true;
         onClickFn = () => {};
     }
@@ -97,13 +97,13 @@ export const AddButton = ({ index, pairs, insertEntry }: AddButtonProps) => {
 
 type SubButtonProps = {
     index: number,
-    pairs: Array<any>,
+    items: Array<any>,
     deleteEntry: (number) => void,
 };
-export const SubButton = ({ index, pairs, deleteEntry }: SubButtonProps) => {
+export const SubButton = ({ index, items, deleteEntry }: SubButtonProps) => {
     let isDisabled = true;
     let onClickFn = () => {};
-    if (pairs.length > 1) {
+    if (items.length > 1) {
         isDisabled = false;
         onClickFn = () => deleteEntry(index);
     }
