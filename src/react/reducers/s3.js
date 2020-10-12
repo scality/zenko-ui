@@ -36,11 +36,12 @@ const metadata = (obj: { [string]: string }): MetadataItems => {
                 metaKey: key.substring(11),
                 value: obj[key],
             });
+        } else {
+            pairs.push({
+                key,
+                value: obj[key],
+            });
         }
-        pairs.push({
-            key,
-            value: obj[key],
-        });
     }
     return pairs;
 };

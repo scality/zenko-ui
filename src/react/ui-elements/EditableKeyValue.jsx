@@ -64,26 +64,33 @@ export const Char = styled.div`
     text-align: center;
 `;
 
+const CustomButton = styled(Button)`
+    display: ${props => props.isVisible ? 'block' : 'none'};
+`;
+
 type AddButtonProps = {
     index: number,
     items: Array<any>,
     insertEntry: () => void,
 };
 export const AddButton = ({ index, items, insertEntry }: AddButtonProps) => {
-    // let isVisible = 'invisible';
+    let isVisible = true;
     let isDisabled = false;
-    let onClickFn = () => {};
-    if (index === items.length - 1 || items.length === 0) {
-        // isVisible = 'visible';
-        onClickFn = () => insertEntry();
+    let onClickFn = () => insertEntry();
+
+    if ((items.length > 0 && index !== items.length - 1)) {
+        isVisible = false;
+        onClickFn = () => {};
     }
+
     if (items[index] && (items[index].key === '' || items[index].value === '')) {
         isDisabled = true;
         onClickFn = () => {};
     }
 
     return (
-        <Button
+        <CustomButton
+            isVisible={isVisible}
             variant="info"
             title="Add"
             disabled={isDisabled}
