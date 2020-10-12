@@ -1,6 +1,6 @@
 // @flow
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
-import { ErrorMockS3Client, ownerName } from '../../../../js/mock/S3Client';
+import { ErrorMockS3Client, bucketName, ownerName } from '../../../../js/mock/S3Client';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
@@ -50,6 +50,7 @@ export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
 export const OWNER_NAME = ownerName;
+export const BUCKET_NAME = bucketName;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

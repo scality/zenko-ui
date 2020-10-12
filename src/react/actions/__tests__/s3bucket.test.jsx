@@ -1,12 +1,13 @@
 import * as actions from '../s3bucket';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
-    OWNER_NAME,
-    errorS3State, initState, testActionFunction, testDispatchErrorTestFn, testDispatchFunction,
+    BUCKET_NAME,
+    OWNER_NAME, errorS3State, initState, testActionFunction, testDispatchErrorTestFn, testDispatchFunction,
 } from './utils/testUtil';
 
 const createBucketNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating bucket');
 const listBucketsNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing buckets');
+const deleteBucketNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting bucket');
 
 describe('s3bucket actions', () => {
     const syncTests = [
@@ -14,6 +15,16 @@ describe('s3bucket actions', () => {
             it: 'should return LIST_BUCKETS_SUCCESS action',
             fn: actions.listBucketsSuccess([], OWNER_NAME),
             expectedActions: [dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME)],
+        },
+        {
+            it: 'should return OPEN_BUCKET_DELETE_DIALOG action and bucket name',
+            fn: actions.openBucketDeleteDialog(BUCKET_NAME),
+            expectedActions: [dispatchAction.OPEN_BUCKET_DELETE_DIALOG_ACTION(BUCKET_NAME)],
+        },
+        {
+            it: 'should return CLOSE_BUCKET_DELETE_DIALOG action',
+            fn: actions.closeBucketDeleteDialog(),
+            expectedActions: [dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION],
         },
     ];
 
@@ -23,7 +34,7 @@ describe('s3bucket actions', () => {
         {
             it: 'createBucket: should return expected actions',
             fn: actions.createBucket({
-                name: 'azeaze',
+                name: BUCKET_NAME,
                 locationConstraint: {
                     value: 'us-east-1',
                 },
@@ -41,7 +52,7 @@ describe('s3bucket actions', () => {
         {
             it: 'createBucket: should handle error',
             fn: actions.createBucket({
-                name: 'azeaze',
+                name: BUCKET_NAME,
                 locationConstraint: {
                     value: 'us-east-1',
                 },
@@ -63,6 +74,31 @@ describe('s3bucket actions', () => {
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
+        {
+            it: 'deleteBucket: should delete bucket',
+            fn: actions.deleteBucket(BUCKET_NAME),
+            storeState: initState,
+            expectedActions: [
+                deleteBucketNetworkAction,
+                listBucketsNetworkAction,
+                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,
+            ],
+        },
+        {
+            it: 'deleteBucket: should handle error',
+            fn: actions.deleteBucket(BUCKET_NAME),
+            storeState: errorS3State(),
+            expectedActions: [
+                deleteBucketNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,
+            ],
+        },
     ];
 
     asyncTests.forEach(testDispatchFunction);
@@ -81,5 +117,4 @@ describe('s3bucket actions', () => {
             dispatchAction.NETWORK_END_ACTION,
         ],
     });
-})
-;
+});
