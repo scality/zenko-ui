@@ -7,7 +7,7 @@
     "test": "jest",
     "test:lint": "eslint --ext js --ext jsx src",
     "start:dev": "webpack-dev-server --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "build": "webpack --progress --config webpack.prod.js",
     "cypress:run": "cypress run",
     "cypress:open": "cypress open"
   },

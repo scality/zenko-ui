@@ -1,24 +1,26 @@
 // @flow
 
 import { Link, Route, matchPath } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import AccountCreate from './account/AccountCreate';
-import Accounts from './account/Accounts';
+// import AccountCreate from './account/AccountCreate';
+// import Accounts from './account/Accounts';
 import type { Action } from '../types/actions';
 import type { AppState } from '../types/state';
-import DataBrowser from './databrowser/DataBrowser';
+// import DataBrowser from './databrowser/DataBrowser';
 import type { DispatchAPI } from 'redux';
-import Groups from './group/Groups';
-import LocationEditor from './backend/location/LocationEditor';
+// import LocationEditor from './backend/location/LocationEditor';
+import Loader from './ui-elements/Loader';
 import { Navbar } from '@scality/core-ui';
-import React from 'react';
-import ReplicationCreate from './workflow/replication/ReplicationCreate';
-import StorageMonitor from './backend/StorageMonitor';
-import UserCreate from './user/UserCreate';
-import Users from './user/Users';
-import Workflows from './workflow/Workflows';
+// import StorageMonitor from './backend/StorageMonitor';
 import { signout } from './actions';
 import styled from 'styled-components';
+
+const StorageMonitor = lazy(() => import('./backend/StorageMonitor'));
+const LocationEditor = lazy(() => import('./backend/location/LocationEditor'));
+const Accounts = lazy(() => import('./account/Accounts'));
+const AccountCreate = lazy(() => import('./account/AccountCreate'));
+const DataBrowser = lazy(() => import('./databrowser/DataBrowser'));
 
 const NavbarContainer = styled.div`
   display: flex;
@@ -34,7 +36,7 @@ function Routes() {
 
     const dispatch: DispatchAPI<Action> = useDispatch();
     return (
-        <div>
+        <Suspense fallback={<Loader> Loading </Loader>}>
             <NavbarContainer>
                 <Navbar
                     rightActions={[
@@ -82,16 +84,8 @@ function Routes() {
             <Route path='/accounts/:accountName?' component={Accounts} />
             <Route path="/create-account" component={AccountCreate} />
 
-            <Route exact path="/users" component={Users} />
-            <Route path="/users/create" component={UserCreate} />
-
-            <Route path="/groups" component={Groups} />
-
             <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
-
-            <Route exact path="/workflow" component={Workflows} />
-            <Route path="/workflow/replication/create" component={ReplicationCreate} />
-        </div>
+        </Suspense>
     );
 }
 
