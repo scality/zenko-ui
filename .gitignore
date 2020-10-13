@@ -1,6 +1,7 @@
 /public/assets/js
 /public/assets/fonts
 /public/assets/index.html
+/public/assets/index.html.gz
 
 yarn-error.log
 

@@ -1,8 +1,8 @@
-import AWS from 'aws-sdk';
+import STS from 'aws-sdk/clients/sts';
 
 export default class STSClient {
     constructor(conf) {
-        this.client = new AWS.STS({
+        this.client = new STS({
             endpoint: conf.endpoint,
             region: 'us-east-1',
         });

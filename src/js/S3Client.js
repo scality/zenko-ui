@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import S3 from 'aws-sdk/clients/s3';
 const async = require('async');
 
 const MULTIPART_UPLOAD = {
@@ -8,7 +8,7 @@ const MULTIPART_UPLOAD = {
 
 export default class S3Client {
     constructor(params) {
-        this.client = new AWS.S3({
+        this.client = new S3({
             endpoint: params.endpoint,
             accessKeyId: params.accessKey,
             secretAccessKey: params.secretKey,
