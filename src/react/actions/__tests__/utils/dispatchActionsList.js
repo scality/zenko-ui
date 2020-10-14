@@ -11,6 +11,7 @@ import type {
     CloseBucketDeleteDialogAction,
     CloseFolderCreateModalAction,
     CloseLocationDeleteDialogAction,
+    CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
@@ -25,6 +26,7 @@ import type {
     OpenBucketDeleteDialogAction,
     OpenFolderCreateModalAction,
     OpenLocationDeleteDialogAction,
+    OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
     SelectInstanceAction,
     SetAppConfigAction,
@@ -34,6 +36,8 @@ import type {
     SetZenkoClientAction,
     SignoutEndAction,
     SignoutStartAction,
+    ToggleAllObjectsAction,
+    ToggleObjectAction,
 } from '../../../../types/actions';
 import type { CommonPrefix, S3Bucket, S3Object } from '../../../../types/s3';
 
@@ -165,5 +169,31 @@ export const OPEN_OBJECT_UPLOAD_MODAL_ACTION = (): OpenObjectUploadModalAction =
 export const CLOSE_OBJECT_UPLOAD_MODAL_ACTION = (): CloseObjectUploadModalAction => {
     return {
         type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+    };
+};
+
+export const OPEN_OBJECT_DELETE_MODAL_ACTION = (): OpenObjectDeleteModalAction => {
+    return {
+        type: 'OPEN_OBJECT_DELETE_MODAL',
+    };
+};
+
+export const CLOSE_OBJECT_DELETE_MODAL_ACTION = (): CloseObjectDeleteModalAction => {
+    return {
+        type: 'CLOSE_OBJECT_DELETE_MODAL',
+    };
+};
+
+export const TOGGLE_OBJECT_ACTION = (objectName: string): ToggleObjectAction => {
+    return {
+        type: 'TOGGLE_OBJECT',
+        objectName,
+    };
+};
+
+export const TOGGLE_ALL_OBJECTS_ACTION = (toggled: boolean): ToggleAllObjectsAction => {
+    return {
+        type: 'TOGGLE_ALL_OBJECTS',
+        toggled,
     };
 };

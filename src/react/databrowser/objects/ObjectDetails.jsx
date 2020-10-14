@@ -13,12 +13,15 @@ import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../../utils/hooks';
 
+export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected.';
+export const SELECT_AN_OBJECT_MESSAGE = 'Select an object.';
+
 type Props = {
     objectMetadata: ?ObjectMetadata,
     toggled: List<Object>,
 };
 
-const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
+export const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
 
 function ObjectDetails({ objectMetadata, toggled }: Props) {
     const dispatch = useDispatch();
@@ -29,7 +32,7 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
 
     const details = () => {
         if (toggled.size > 1) {
-            return <InfoWarning title='Mutilple items selected.'/>;
+            return <InfoWarning title='Multiple items selected.'/>;
         }
         if (!objectMetadata) {
             return <InfoWarning title='Select an object.'/>;

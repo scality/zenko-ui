@@ -6,7 +6,11 @@ import {
     commonPrefix,
     file,
     fileName,
-    folderName, ownerName, prefix, s3Object,
+    folderName,
+    objectMetadata,
+    ownerName,
+    prefix,
+    s3Object,
 } from '../../../../js/mock/S3Client';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
@@ -63,6 +67,7 @@ export const COMMON_PREFIX = commonPrefix;
 export const S3_OBJECT = s3Object;
 export const FILE = file;
 export const PREFIX = prefix;
+export const OBJECT_METADATA = objectMetadata;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

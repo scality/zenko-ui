@@ -72,8 +72,8 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
             close={cancel}
             footer={
                 <div>
-                    <Button outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button disabled={toggled.size === 0} variant='danger' onClick={deleteSelectedFiles} size="small" text='Delete'/>
+                    <Button id='object-delete-cancel-button' outlined onClick={cancel} size='small' text='Cancel'/>
+                    <Button id='object-delete-delete-button' disabled={toggled.size === 0} variant='danger' onClick={deleteSelectedFiles} size="small" text='Delete'/>
                 </div>
             }
             isOpen={true}

@@ -124,9 +124,9 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     return <L.ListSection>
         <ObjectDelete bucketName={bucketName} toggled={toggled} prefixWithSlash={prefixWithSlash}/>
         <T.ButtonContainer>
-            <T.ExtraButton icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" />
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
-            <T.ExtraButton style={{ marginLeft: 'auto' }} icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} text="Delete" variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
+            <T.ExtraButton id='object-list-upload-button' icon={<i className="fas fa-upload" />} text="Upload" variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" />
+            <T.ExtraButton id='object-list-create-folder-button' icon={<i className="fas fa-plus" />} text="Create folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
+            <T.ExtraButton id='object-list-delete-button' style={{ marginLeft: 'auto' }} icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} text="Delete" variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
         </T.ButtonContainer>
         <T.Container>
             <Table {...getTableProps()}>
@@ -134,7 +134,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
                     {headerGroups.map(headerGroup => (
                         <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                             {headerGroup.headers.map(column => (
-                                <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
+                                <T.HeadCell id={`object-list-table-head-${column.id}`} key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
                                     {column.render('Header')}
                                     <T.Icon>
                                         {!column.disableSortBy && (column.isSorted

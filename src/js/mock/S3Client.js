@@ -22,6 +22,38 @@ export const s3Object = {
     SignedUrl: '',
 };
 
+export const firstFormattedObject = {
+    isFolder: false,
+    name: 'object1',
+    lastModified: 'Wed Oct 17 2020 10:35:57',
+    size: 213,
+    signedUrl: '',
+    toggled: false,
+};
+
+export const secondFormattedObject = {
+    isFolder: false,
+    name: 'object2',
+    lastModified: 'Wed Oct 17 2020 16:35:57',
+    size: 123213,
+    signedUrl: '',
+    toggled: true,
+};
+
+export const objectMetadata = {
+    bucketName: bucketName,
+    contentLength: 4529171,
+    contentType: 'image/jpeg',
+    eTag: 'af4a08eac69ced858c99caee22978773',
+    lastModified: 'Fri Oct 16 2020 10:06:54',
+    metadata: [],
+    objectKey: 'bg.jpg',
+    objectName: 'bg.jpg',
+    prefixWithSlash: '',
+    versionId: '',
+    tags: [],
+};
+
 export const createBucketResponse: CreateBucketResponse = {
     Location: '',
 };
@@ -81,6 +113,18 @@ export class MockS3Client implements S3ClientInterface {
     uploadObject(): Promise<void> {
         return Promise.resolve();
     }
+
+    deleteObjects(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    headObject(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    getObjectTagging(): Promise<void> {
+        return Promise.resolve();
+    }
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
@@ -115,6 +159,18 @@ export class ErrorMockS3Client implements S3ClientInterface {
     }
 
     uploadObject(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteObjects(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    headObject(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    getObjectTagging(): Promise<void> {
         return Promise.reject(this._error);
     }
 }
