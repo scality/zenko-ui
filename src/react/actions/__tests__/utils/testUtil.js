@@ -1,7 +1,13 @@
 // @flow
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
-import { bucketName, ownerName } from '../../../../js/mock/S3Client';
+import {
+    bucketName,
+    commonPrefix,
+    file,
+    fileName,
+    folderName, ownerName, prefix, s3Object,
+} from '../../../../js/mock/S3Client';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
@@ -51,6 +57,12 @@ export const ACCOUNT = account;
 export const LOCATION = location;
 export const OWNER_NAME = ownerName;
 export const BUCKET_NAME = bucketName;
+export const FILE_NAME = fileName;
+export const FOLDER_NAME = folderName;
+export const COMMON_PREFIX = commonPrefix;
+export const S3_OBJECT = s3Object;
+export const FILE = file;
+export const PREFIX = prefix;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

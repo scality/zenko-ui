@@ -55,7 +55,7 @@ type FileListProps = {
 };
 // NOTE: If accept, multiple, minSize or maxSize are added to useDropzone parameters,
 // files might be rejected (fileRejections) and we will have to show them in <FileList/>.
-const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
+export const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
     <div>
         <Button icon={<i className="fas fa-plus" />} size='small' text='Add more files' variant='info' onClick={open} />
         <Files>
@@ -77,7 +77,7 @@ const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
 type NoFileProps = {
     open: () => void,
 };
-const NoFile = ({ open }: NoFileProps) =>
+export const NoFile = ({ open }: NoFileProps) =>
     <EmptyFile>
         <i className="fas fa-3x fa-file-upload"></i>
         <div> Drag and drop files and folders here </div>
@@ -140,14 +140,14 @@ const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
             close={cancel}
             footer={
                 <div>
-                    <Button outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button disabled={acceptedFiles.length === 0} variant='info' onClick={upload} size="small" text='Uplaod'/>
+                    <Button id="object-upload-cancel-button" outlined onClick={cancel} size='small' text='Cancel'/>
+                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='info' onClick={upload} size="small" text='Upload'/>
                 </div>
             }
             isOpen={true}
             title={title(acceptedFiles.length)}>
             <DropZone {...getRootProps()}>
-                <input {...getInputProps()} />
+                <input id='object-upload-drop-zone-input' {...getInputProps()} />
                 { acceptedFiles.length > 0 || fileRejections.length > 0 ?
                     <FileList acceptedFiles={acceptedFiles} fileRejections={fileRejections} open={open} removeFile={removeFile}/> :
                     <NoFile open={open}/>

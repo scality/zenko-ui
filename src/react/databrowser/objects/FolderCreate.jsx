@@ -58,13 +58,13 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             close={cancel}
             footer={
                 <div>
-                    <Button outlined onClick={cancel} size="small" text='Cancel'/>
-                    <Button variant="info" onClick={save} size="small" text='Save'/>
+                    <Button id='folder-create-cancel-button' outlined onClick={cancel} size="small" text='Cancel'/>
+                    <Button id='folder-create-save-button' variant="info" onClick={save} size="small" text='Save'/>
                 </div>
             }
             isOpen={true}
             title='Create a folder'>
-            <Input value={folderName} placeholder='New folder' onChange={handleChange}/>
+            <Input id='folder-create-input' value={folderName} placeholder='New folder' onChange={handleChange}/>
             <Description> <Icon className="fas fa-info-circle"></Icon>
               When you create a folder, Data Browser creates an object with
               the above name appended by suffix &quot;/&quot; and that object is displayed

@@ -9,18 +9,23 @@ import {
 import type {
     CloseAccountDeleteDialogAction,
     CloseBucketDeleteDialogAction,
+    CloseFolderCreateModalAction,
     CloseLocationDeleteDialogAction,
+    CloseObjectUploadModalAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
     HandleErrorAction,
     ListBucketsSuccessAction,
+    ListObjectsSuccessAction,
     LoadUserSuccessAction,
     NetworkActivityAuthFailureAction,
     NetworkActivityEndAction,
     NetworkActivityStartAction,
     OpenAccountDeleteDialogAction,
     OpenBucketDeleteDialogAction,
+    OpenFolderCreateModalAction,
     OpenLocationDeleteDialogAction,
+    OpenObjectUploadModalAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetManagementClientAction,
@@ -30,14 +35,13 @@ import type {
     SignoutEndAction,
     SignoutStartAction,
 } from '../../../../types/actions';
+import type { CommonPrefix, S3Bucket, S3Object } from '../../../../types/s3';
 
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
-
 import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockUserManager } from '../../../../js/mock/userManager';
-import type { S3Bucket } from '../../../../types/s3';
 import type { ZenkoClient as ZenkoClientInterface } from '../../../../types/zenko';
 
 // auth actions
@@ -129,3 +133,37 @@ export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (bucketName: string): OpenBucket
 
 export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
     { type: 'CLOSE_BUCKET_DELETE_DIALOG' };
+
+// * objects actions
+export const LIST_OBJECTS_SUCCESS_ACTION = (contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction => {
+    return {
+        type: 'LIST_OBJECTS_SUCCESS',
+        contents,
+        commonPrefixes,
+        prefix,
+    };
+};
+
+export const OPEN_FOLDER_CREATE_MODAL_ACTION = (): OpenFolderCreateModalAction => {
+    return {
+        type: 'OPEN_FOLDER_CREATE_MODAL',
+    };
+};
+
+export const CLOSE_FOLDER_CREATE_MODAL_ACTION = (): CloseFolderCreateModalAction => {
+    return {
+        type: 'CLOSE_FOLDER_CREATE_MODAL',
+    };
+};
+
+export const OPEN_OBJECT_UPLOAD_MODAL_ACTION = (): OpenObjectUploadModalAction => {
+    return {
+        type: 'OPEN_OBJECT_UPLOAD_MODAL',
+    };
+};
+
+export const CLOSE_OBJECT_UPLOAD_MODAL_ACTION = (): CloseObjectUploadModalAction => {
+    return {
+        type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+    };
+};

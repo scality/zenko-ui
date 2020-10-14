@@ -62,6 +62,23 @@ export type MetadataItem = {
 
 export type MetadataItems = Array<MetadataItem>;
 
+export type ListObjectsResponse = {|
+    +CommonPrefixes: Array<CommonPrefix>,
+    +Contents: Array<S3Object>,
+    +ContinuationToken: string,
+    +Delimiter: string,
+    +EncodingType: string,
+    +IsTruncated: boolean,
+    +KeyCount: number,
+    +MaxKeys: number,
+    +Name: string,
+    +NextContinuationToken: string,
+    +Prefix: string,
+    +StartAfter: string,
+|};
+
+export type GetSignedUrlResponse = ?string;
+
 export type ObjectMetadata = {|
     +bucketName: string,
     +prefixWithSlash: string,
