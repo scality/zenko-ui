@@ -144,4 +144,23 @@ export default class S3Client {
         };
         return this.client.copyObject(params).promise();
     }
+
+    getObjectTagging(bucketName, objectKey) {
+        const params = {
+            Bucket: bucketName,
+            Key: objectKey,
+        };
+        return this.client.getObjectTagging(params).promise();
+    }
+
+    putObjectTagging(bucketName, objectKey, tags) {
+        const params = {
+            Bucket: bucketName,
+            Key: objectKey,
+            Tagging: {
+                TagSet: tags,
+            },
+        };
+        return this.client.putObjectTagging(params).promise();
+    }
 }

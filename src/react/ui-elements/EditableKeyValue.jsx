@@ -43,6 +43,16 @@ export const HeaderValue = styled.div`
     padding-left: 10px;
 `;
 
+export const HeaderKeyTag = styled.div`
+    flex: 0 50%;
+    padding-left: 10px;
+`;
+
+export const HeaderValueTag = styled.div`
+    flex: 0 50%;
+    padding-left: 10px;
+`;
+
 export const Footer = styled.div`
     display: flex;
     justify-content: flex-end;
@@ -78,6 +88,13 @@ export const InputValue = styled(Input)`
     flex: 0 ${props => props.isShrink ? '29%' : '39%'};
     width: ${props => props.isShrink ? '29%' : '39%'};
     min-width: ${props => props.isShrink ? '29%' : '39%'};
+`;
+
+export const InputTag = styled(Input)`
+    flex: 1 50%;
+    &:first-child {
+        margin-right: 5px;
+    }
 `;
 
 export const Char = styled.div`

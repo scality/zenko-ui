@@ -1,6 +1,6 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
-import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object } from './s3';
+import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { AppState } from './state';
@@ -12,7 +12,6 @@ import type { ZenkoClient } from './zenko';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
-
 
 export interface ApiError extends Error {
     status: 200 | 401 | 403 | 422 | 500 | 503;
@@ -127,6 +126,7 @@ export type GetObjectMetadataSuccessAction = {|
     +prefixWithSlash: string,
     +objectKey: string,
     +info: HeadObjectResponse,
+    +tags: TagSet,
 |};
 
 export type ResetObjectMetadataAction = {|

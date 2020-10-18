@@ -79,6 +79,11 @@ export type ListObjectsResponse = {|
 
 export type GetSignedUrlResponse = ?string;
 
+export type Tag = { key: string, value: string };
+export type Tags = Array<Tag>;
+export type TagSetItem = { Key: string, Value: string };
+export type TagSet = Array<TagSetItem>;
+
 export type ObjectMetadata = {|
     +bucketName: string,
     +prefixWithSlash: string,
@@ -90,4 +95,5 @@ export type ObjectMetadata = {|
     +eTag: string,
     +versionId: string,
     +metadata: MetadataItems,
+    +tags: Tags,
 |};

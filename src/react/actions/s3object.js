@@ -13,7 +13,7 @@ import type {
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../types/actions';
-import type { CommonPrefix, File, HeadObjectResponse, MetadataPairs, S3Object } from '../../types/s3';
+import type { CommonPrefix, File, HeadObjectResponse, MetadataPairs, S3Object, TagSet } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -27,13 +27,14 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
-export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse): GetObjectMetadataSuccessAction {
+export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
     return {
         type: 'GET_OBJECT_METADATA_SUCCESS',
         bucketName,
         prefixWithSlash,
         objectKey,
         info,
+        tags,
     };
 }
 
@@ -154,8 +155,11 @@ export function getObjectMetadata(bucketName: string, prefixWithSlash: string, o
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
-        return zenkoClient.headObject(bucketName, objectKey)
-            .then(res => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, res)))
+        return Promise.all([
+            zenkoClient.headObject(bucketName, objectKey),
+            zenkoClient.getObjectTagging(bucketName, objectKey),
+        ])
+            .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, info, tags.TagSet)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
@@ -164,9 +168,21 @@ export function getObjectMetadata(bucketName: string, prefixWithSlash: string, o
 
 export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, metadata: MetadataPairs): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
-        return s3Client.putObjectMetadata(bucketName, objectKey, metadata)
+        return zenkoClient.putObjectMetadata(bucketName, objectKey, metadata)
+            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function putObjectTagging(bucketName: string, prefixWithSlash: string, objectKey: string, tags: TagSet): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        dispatch(networkStart('Getting object tags'));
+        return zenkoClient.putObjectTagging(bucketName, objectKey, tags)
             .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))

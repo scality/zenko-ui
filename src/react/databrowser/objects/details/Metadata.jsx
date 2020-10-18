@@ -144,7 +144,7 @@ function Properties({ objectMetadata }: Props) {
                                         isShrink && <InputExtraKey value={p.metaKey || ''} onChange={handleMetaKeyChange(i)}/>
                                     }
                                     <Char>:</Char>
-                                    <InputValue isShrink={isShrink} value={p.value} onChange={handleValueChange(i)}/>
+                                    <InputValue isShrink={isShrink} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
                                 </Inputs>
                                 <Buttons>
                                     <SubButton index={i} items={items} deleteEntry={deleteEntry}/>

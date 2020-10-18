@@ -6,6 +6,7 @@ import Metadata from './details/Metadata';
 import type { ObjectMetadata } from '../../../types/s3';
 import Properties from './details/Properties';
 import React from 'react';
+import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
@@ -39,6 +40,9 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
         if (tabName === 'metadata') {
             return <Metadata objectMetadata={objectMetadata}/>;
         }
+        if (tabName === 'tags') {
+            return <Tags objectMetadata={objectMetadata}/>;
+        }
         return null;
     };
 
@@ -56,11 +60,11 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
                         selected: tabName === 'metadata',
                         title: 'Metadata',
                     },
-                    // {
-                    //     onClick: () => dispatch(push(`${pathname}?tab=tags`)),
-                    //     selected: tabName === 'tags',
-                    //     title: 'Tags',
-                    // },
+                    {
+                        onClick: () => dispatch(push(`${pathname}?tab=tags`)),
+                        selected: tabName === 'tags',
+                        title: 'Tags',
+                    },
                 ]}
             >
                 <div>

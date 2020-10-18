@@ -1,5 +1,5 @@
 // @flow
-import type { MetadataItems, MetadataPairs, Object } from '../../types/s3';
+import type { MetadataItems, MetadataPairs, Object, TagSet, Tags } from '../../types/s3';
 import { formatDate, stripQuotes } from '../utils';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
@@ -45,6 +45,8 @@ const convertToFormMetadata = (obj: MetadataPairs): MetadataItems => {
     }
     return pairs;
 };
+
+const convertToFormTags = ((tags: TagSet): Tags => tags.map(t => ({ key: t.Key, value: t.Value })));
 
 export default function s3(state: S3State = initialS3State, action: S3Action) {
     switch (action.type) {
@@ -95,6 +97,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                 eTag: stripQuotes(action.info.ETag),
                 versionId: action.info.VersionId,
                 metadata: convertToFormMetadata(action.info.Metadata),
+                tags: convertToFormTags(action.tags),
             },
         };
     case 'RESET_OBJECT_METADATA':
