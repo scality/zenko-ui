@@ -41,7 +41,6 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     const resizerRef = useRef<FixedSizeList<T> | null>(null);
     const height = useHeight(resizerRef);
 
-    const isOneToggled = toggled.size === 1;
     const isToggledEmpty = toggled.size === 0;
     const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
 
@@ -49,12 +48,12 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     //       Otherwise, we clear object metadata.
     useEffect(() => {
         const firstToggledItem = toggled.first();
-        if (isOneToggled && !firstToggledItem.isFolder) {
+        if (toggled.size === 1 && !firstToggledItem.isFolder) {
             dispatch(getObjectMetadata(bucketName, prefixWithSlash, `${prefixWithSlash}${firstToggledItem.name}`));
         } else {
             dispatch(resetObjectMetadata());
         }
-    }, [dispatch, isOneToggled, bucketName, toggled, prefixWithSlash]);
+    }, [dispatch, bucketName, toggled, prefixWithSlash]);
 
     const columns = useMemo(() => [
         {
