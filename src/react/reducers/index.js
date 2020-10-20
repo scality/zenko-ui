@@ -17,6 +17,7 @@ import uiLocations from './uiLocations';
 import uiObjects from './uiObjects';
 import uiUser from './uiUser';
 import user from './user';
+import zenko from './zenko';
 
 const zenkoUIReducer = history => combineReducers({
     auth,
@@ -37,6 +38,7 @@ const zenkoUIReducer = history => combineReducers({
     stats,
     oidc: oidcReducer,
     router: connectRouter(history),
+    zenko: zenko,
 });
 
 export default zenkoUIReducer;

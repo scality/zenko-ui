@@ -1,19 +1,19 @@
 // @flow
 
-import { handleErrorMessage, listBuckets, listBucketsSuccess, networkAuthFailure, setS3Client } from './index';
-import S3Client from '../../js/S3Client';
+import { handleErrorMessage, listBuckets, networkAuthFailure } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
+import { getClients } from '../utils/actions';
 
 
 export function assumeRoleWithWebIdentity(role?: string): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { oidc, auth: { config, stsClient }, configuration } = getState();
+        const { zenkoClient, stsClient } = getClients(getState());
+        const { oidc, configuration } = getState();
         let roleArn = role;
         if (!role) {
             if (configuration.latest.users.length === 0) {
                 // clean S3 client and buckets' list if no account.
-                dispatch(setS3Client(null));
-                dispatch(listBucketsSuccess([], ''));
+                zenkoClient.logout();
                 return Promise.resolve();
             }
             // TODO: which one should we pick?`
@@ -26,15 +26,13 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStatePromisedActi
         };
         return stsClient.assumeRoleWithWebIdentity(assumeRoleParams)
             .then(creds => {
-                const s3Params = {
-                    endpoint: config.s3Endpoint,
+                const params = {
                     accessKey: creds.Credentials.AccessKeyId,
                     secretKey: creds.Credentials.SecretAccessKey,
                     // TODO: to be uncommented once sessionToken is implemented in Vault STS.
                     // sessionToken: creds.Credentials.SessionToken,
                 };
-                const s3Client = new S3Client(s3Params);
-                dispatch(setS3Client(s3Client));
+                zenkoClient.login(params);
                 return dispatch(listBuckets());
             })
             .catch(error => {

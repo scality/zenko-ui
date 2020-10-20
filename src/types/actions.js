@@ -1,6 +1,6 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
-import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Client, S3Object } from './s3';
+import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { AppState } from './state';
@@ -8,6 +8,7 @@ import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
 import type { UserManager } from './auth';
+import type { ZenkoClient } from './zenko';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
@@ -44,7 +45,6 @@ export type ErrorsUIAction =
     NetworkActivityAuthResetAction;
 
 // auth actions
-
 export type SetSTSClientAction = {|
     +type: 'SET_STS_CLIENT',
     +stsClient: STSClient,
@@ -82,7 +82,6 @@ export type SignoutEndAction = {|
 |};
 
 export type AuthAction =
-  SetS3ClientAction |
   SetSTSClientAction |
   SetManagementClientAction |
   SetUserManagerAction |
@@ -99,11 +98,6 @@ export type SelectInstanceAction = {|
 |};
 
 // s3 actions
-export type SetS3ClientAction = {|
-    +type: 'SET_S3_CLIENT',
-    +s3Client: S3Client,
-|};
-
 export type ListBucketsSuccessAction = {|
     +type: 'LIST_BUCKETS_SUCCESS',
     +list: Array<S3Bucket>,
@@ -140,13 +134,20 @@ export type ResetObjectMetadataAction = {|
 |};
 
 export type S3Action =
-    SetS3ClientAction |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
     GetObjectMetadataSuccessAction |
     ResetObjectMetadataAction |
     ToggleAllObjectsAction |
     ToggleObjectAction;
+
+// zenko actions
+export type SetZenkoClientAction = {|
+    +type: 'SET_ZENKO_CLIENT',
+    +zenkoClient: ZenkoClient,
+|};
+
+export type ZenkoAction = SetZenkoClientAction;
 
 // ui buckets actions
 export type OpenBucketDeleteDialogAction = {|
@@ -266,4 +267,5 @@ export type Action =
     SelectInstanceAction |
     NetworkActivityAction |
     ConfigurationAction |
-    AccountUIAction;
+    AccountUIAction |
+    ZenkoAction;

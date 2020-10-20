@@ -13,7 +13,6 @@ import {
 } from './utils/testUtil';
 
 import { MockManagementClient } from '../../../js/mock/managementClient';
-import { MockS3Client } from '../../../js/mock/S3Client';
 import { MockSTSClient } from '../../../js/mock/STSClient';
 import { MockUserManager } from '../../../js/mock/userManager';
 
@@ -23,11 +22,6 @@ describe('auth actions', () => {
             it: 'should return SET_MANAGEMENT_CLIENT action',
             fn: actions.setManagementClient(new MockManagementClient),
             expectedActions: [dispatchAction.SET_MANAGEMENT_CLIENT_ACTION],
-        },
-        {
-            it: 'should return SET_S3_CLIENT action',
-            fn: actions.setS3Client(new MockS3Client),
-            expectedActions: [dispatchAction.SET_S3_CLIENT_ACTION(new MockS3Client)],
         },
         {
             it: 'should return SET_STS_CLIENT action',

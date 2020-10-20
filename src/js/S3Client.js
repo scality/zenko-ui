@@ -1,3 +1,5 @@
+// @noflow
+
 import S3 from 'aws-sdk/clients/s3';
 const async = require('async');
 
@@ -7,12 +9,18 @@ const MULTIPART_UPLOAD = {
 };
 
 export default class S3Client {
-    constructor(params) {
+    client: S3;
+
+    constructor(endpoint) {
+        this.auth(endpoint, {});
+    }
+
+    auth(endpoint, creds) {
         this.client = new S3({
-            endpoint: params.endpoint,
-            accessKeyId: params.accessKey,
-            secretAccessKey: params.secretKey,
-            sessionToken: params.sessionToken,
+            endpoint: endpoint,
+            accessKeyId: creds.accessKey,
+            secretAccessKey: creds.secretKey,
+            sessionToken: creds.sessionToken,
             region: 'us-east-1',
             s3ForcePathStyle: true,
             signatureVersion: 'v4',
@@ -21,12 +29,6 @@ export default class S3Client {
 
     listBuckets() {
         return this.client.listBuckets().promise();
-        // return new Promise(resolve => {
-        //     return resolve({Buckets: [
-        //         { Name: 'scalitybucketoregon'},
-        //         { Name: 'scalitybucketireland6'},
-        //     ]});
-        // });
     }
 
     listBucketsWithLocation() {

@@ -95,9 +95,9 @@ export function resetObjectMetadata(): ResetObjectMetadataAction {
 
 export function createFolder(bucketName: string, prefixWithSlash: string, folderName: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Creating folder'));
-        return s3Client.createFolder(bucketName, prefixWithSlash, folderName)
+        return zenkoClient.createFolder(bucketName, prefixWithSlash, folderName)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -110,12 +110,12 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
 
 export function listObjects(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Listing objects'));
-        return s3Client.listObjects(bucketName, prefixWithSlash)
+        return zenkoClient.listObjects(bucketName, prefixWithSlash)
             .then(res => {
                 const list = res.Contents;
-                list.forEach(object => object.SignedUrl = s3Client.getObjectSignedUrl(bucketName, object.Key));
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
                 return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix));
             })
             .catch(error => dispatch(handleS3Error(error)))
@@ -126,10 +126,10 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
 
 export function uploadFiles(bucketName: string, prefixWithSlash: string, files: Array<File>): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(closeObjectUploadModal());
         dispatch(networkStart('Uploading object(s)'));
-        return s3Client.uploadObject(bucketName, prefixWithSlash, files)
+        return zenkoClient.uploadObject(bucketName, prefixWithSlash, files)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -139,10 +139,10 @@ export function uploadFiles(bucketName: string, prefixWithSlash: string, files: 
 
 export function deleteFiles(bucketName: string, prefixWithSlash: string, objects: Array<any>): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(closeObjectDeleteModal());
         dispatch(networkStart('Deleting object(s)'));
-        return s3Client.deleteObjects(bucketName, objects)
+        return zenkoClient.deleteObjects(bucketName, objects)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -152,9 +152,9 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
 
 export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
-        return s3Client.headObject(bucketName, objectKey)
+        return zenkoClient.headObject(bucketName, objectKey)
             .then(res => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, res)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))

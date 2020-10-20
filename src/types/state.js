@@ -4,7 +4,7 @@ import type { AuthUser, UserManager as UserManagerInterface } from './auth';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
-import type { Object, ObjectMetadata, S3Bucket, S3Client as S3ClientInterface } from './s3';
+import type { Object, ObjectMetadata, S3Bucket } from './s3';
 import type { Account } from './account';
 import type { InstanceId } from './entities';
 import { List } from 'immutable';
@@ -12,6 +12,7 @@ import type { ManagementClient as ManagementClientInterface } from './management
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
 import type { User } from './user';
+import type { ZenkoClient as ZenkoClientInterface } from './zenko';
 
 export type IAMResp = {};
 
@@ -39,7 +40,7 @@ export type AuthState = {|
         +oidcAuthority: string,
         +oidcClientId: string,
         +stsEndpoint: string,
-        +s3Endpoint: string,
+        +zenkoEndpoint: string,
     |},
 |};
 
@@ -99,7 +100,6 @@ export type StatsState = {|
 |};
 
 export type S3State = {|
-    +s3Client: S3ClientInterface,
     +listBucketsResults: {|
         +list: List<S3Bucket>,
         +ownerName: string,
@@ -108,6 +108,10 @@ export type S3State = {|
         +list: List<Object>,
     |},
     +objectMetadata: ?ObjectMetadata,
+|};
+
+export type ZenkoState = {|
+    +zenkoClient: ZenkoClientInterface,
 |};
 
 export type AppState = {
@@ -127,4 +131,5 @@ export type AppState = {
     +uiObjects: ObjectsUIState,
     +stats: StatsState,
     +s3: S3State,
+    +zenko: ZenkoState,
 };

@@ -24,13 +24,12 @@ import type {
     SelectInstanceAction,
     SetAppConfigAction,
     SetManagementClientAction,
-    SetS3ClientAction,
     SetSTSClientAction,
     SetUserManagerAction,
+    SetZenkoClientAction,
     SignoutEndAction,
     SignoutStartAction,
 } from '../../../../types/actions';
-import type { S3Bucket, S3Client as S3ClientInterface } from '../../../../types/s3';
 
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
 
@@ -38,13 +37,15 @@ import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockUserManager } from '../../../../js/mock/userManager';
+import type { S3Bucket } from '../../../../types/s3';
+import type { ZenkoClient as ZenkoClientInterface } from '../../../../types/zenko';
 
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction =
     { type: 'SET_MANAGEMENT_CLIENT', managementClient: new MockManagementClient() };
 
-export function SET_S3_CLIENT_ACTION(s3Client: S3ClientInterface): SetS3ClientAction {
-    return { type: 'SET_S3_CLIENT', s3Client };
+export function SET_ZENKO_CLIENT_ACTION(zenkoClient: ZenkoClientInterface): SetZenkoClientAction {
+    return { type: 'SET_ZENKO_CLIENT', zenkoClient };
 }
 
 export const SET_STS_CLIENT_ACTION: SetSTSClientAction =

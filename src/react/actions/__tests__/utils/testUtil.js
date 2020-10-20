@@ -1,9 +1,10 @@
 // @flow
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
-import { ErrorMockS3Client, bucketName, ownerName } from '../../../../js/mock/S3Client';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
+import { bucketName, ownerName } from '../../../../js/mock/S3Client';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
+import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -73,12 +74,12 @@ export function errorManagementState(): AppState {
     };
 }
 
-export function errorS3State(): AppState {
+export function errorZenkoState(): AppState {
     return {
         ...initState,
-        s3: {
-            ...initState.s3,
-            s3Client: new ErrorMockS3Client(S3_CLIENT_ERROR),
+        zenko: {
+            ...initState.zenko,
+            zenkoClient: new ErrorMockZenkoClient(S3_CLIENT_ERROR),
         },
     };
 }

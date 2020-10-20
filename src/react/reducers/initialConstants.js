@@ -3,9 +3,9 @@
 import type { AccountState, AccountsUIState, AuthState, BucketsUIState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, ObjectsUIState, S3State, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
-import { MockS3Client } from '../../js/mock/S3Client';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockUserManager } from '../../js/mock/userManager';
+import { MockZenkoClient } from '../../js/mock/ZenkoClient';
 
 export const initialAccountState: AccountState = {
     display: {},
@@ -25,7 +25,6 @@ export const initialAuthState: AuthState = {
 };
 
 export const initialS3State: S3State = {
-    s3Client: new MockS3Client,
     listBucketsResults: {
         list: List(),
         ownerName: '',
@@ -158,6 +157,10 @@ export const initialUserState = {
     displayedUser: {},
 };
 
+export const initialZenkoState = {
+    zenkoClient: new MockZenkoClient,
+};
+
 export const initialFullState = {
     account: initialAccountState,
     auth: initialAuthState,
@@ -176,4 +179,5 @@ export const initialFullState = {
     uiBuckets: initialBucketUIState,
     user: initialUserState,
     oidc: initialOidc,
+    zenko: initialZenkoState,
 };

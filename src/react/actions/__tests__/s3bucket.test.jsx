@@ -2,7 +2,7 @@ import * as actions from '../s3bucket';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
     BUCKET_NAME,
-    OWNER_NAME, errorS3State, initState, testActionFunction, testDispatchErrorTestFn, testDispatchFunction,
+    OWNER_NAME, errorZenkoState, initState, testActionFunction, testDispatchErrorTestFn, testDispatchFunction,
 } from './utils/testUtil';
 
 const createBucketNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating bucket');
@@ -57,7 +57,7 @@ describe('s3bucket actions', () => {
                     value: 'us-east-1',
                 },
             }),
-            storeState: errorS3State(),
+            storeState: errorZenkoState(),
             expectedActions: [
                 createBucketNetworkAction,
                 dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
@@ -91,7 +91,7 @@ describe('s3bucket actions', () => {
         {
             it: 'deleteBucket: should handle error',
             fn: actions.deleteBucket(BUCKET_NAME),
-            storeState: errorS3State(),
+            storeState: errorZenkoState(),
             expectedActions: [
                 deleteBucketNetworkAction,
                 dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
@@ -111,7 +111,7 @@ describe('s3bucket actions', () => {
     {
         it: 'listBuckets: should handle error',
         fn: actions.listBuckets(),
-        storeState: errorS3State(),
+        storeState: errorZenkoState(),
         expectedActions: [
             listBucketsNetworkAction,
             dispatchAction.NETWORK_END_ACTION,

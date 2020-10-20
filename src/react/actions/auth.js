@@ -7,7 +7,6 @@ import type {
     LoadUserSuccessAction,
     SetAppConfigAction,
     SetManagementClientAction,
-    SetS3ClientAction,
     SetSTSClientAction,
     SetUserManagerAction,
     SignoutEndAction,
@@ -15,15 +14,14 @@ import type {
     ThunkNonStateAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, updateConfiguration } from './index';
+import { assumeRoleWithWebIdentity, handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, setZenkoClient, updateConfiguration } from './index';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
-
-import type { S3Client as S3ClientInterface } from '../../types/s3';
 
 import STSClient from '../../js/STSClient';
 import type { STSClient as STSClientInterface } from '../../types/sts';
 
 import type { UserManager as UserManagerInterface } from '../../types/auth';
+import ZenkoClient from '../../js/ZenkoClient';
 
 import { getAppConfig } from '../../js/config';
 import { loadUser } from 'redux-oidc';
@@ -36,13 +34,6 @@ export function setManagementClient(managementClient: ManagementClientInterface)
     return {
         type: 'SET_MANAGEMENT_CLIENT',
         managementClient,
-    };
-}
-
-export function setS3Client(s3Client: S3ClientInterface): SetS3ClientAction {
-    return {
-        type: 'SET_S3_CLIENT',
-        s3Client,
     };
 }
 
@@ -200,12 +191,12 @@ export function loadClients(): ThunkStatePromisedAction {
         dispatch(selectInstance(instanceIds[0]));
 
         dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
+        dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
 
         return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
             .then(managementClient => {
                 dispatch(setManagementClient(managementClient));
                 return Promise.all([
-                    // dispatch(listBuckets()),
                     dispatch(updateConfiguration()),
                     dispatch(loadInstanceLatestStatus()),
                     dispatch(loadInstanceStats()),

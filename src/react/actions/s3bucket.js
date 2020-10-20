@@ -34,9 +34,9 @@ export function closeBucketDeleteDialog(): CloseBucketDeleteDialogAction {
 
 export function listBuckets(): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Listing buckets'));
-        return s3Client.listBucketsWithLocation()
+        return zenkoClient.listBucketsWithLocation()
             .then(res => dispatch(listBucketsSuccess(res.Buckets, res.Owner.DisplayName)))
             //!\ errors will have to be handled by caller
             .catch(error => { throw error; })
@@ -46,10 +46,10 @@ export function listBuckets(): ThunkStatePromisedAction{
 
 export function createBucket(bucket: CreateBucketRequest): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        // TODO: credentials expired => s3Client out of date => s3Client.createBucket error.
-        const { s3Client } = getClients(getState());
+        // TODO: credentials expired => zenkoClient out of date => zenkoClient.createBucket error.
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Creating bucket'));
-        return s3Client.createBucket(bucket)
+        return zenkoClient.createBucket(bucket)
             .then(() => dispatch(listBuckets()))
             .then(() => dispatch(push('/buckets')))
             .catch(error => dispatch(handleS3Error(error)))
@@ -60,9 +60,9 @@ export function createBucket(bucket: CreateBucketRequest): ThunkStatePromisedAct
 
 export function deleteBucket(bucketName: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { s3Client } = getClients(getState());
+        const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Deleting bucket'));
-        return s3Client.deleteBucket(bucketName)
+        return zenkoClient.deleteBucket(bucketName)
             .then(() => dispatch(listBuckets()))
             .then(() => dispatch(push('/buckets')))
             .catch(error => dispatch(handleS3Error(error)))

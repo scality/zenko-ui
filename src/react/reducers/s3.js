@@ -29,11 +29,6 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
 
 export default function s3(state: S3State = initialS3State, action: S3Action) {
     switch (action.type) {
-    case 'SET_S3_CLIENT':
-        return {
-            ...state,
-            s3Client: action.s3Client,
-        };
     case 'LIST_BUCKETS_SUCCESS':
         return {
             ...state,

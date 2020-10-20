@@ -2234,6 +2234,21 @@ attr-accept@^2.0.0:
   resolved "https://registry.yarnpkg.com/attr-accept/-/attr-accept-2.2.2.tgz#646613809660110749e92f2c10833b70968d929b"
   integrity sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==
 
+aws-sdk@^2.333.0:
+  version "2.774.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.774.0.tgz#1d9512ae42f0cfb9b98d0d6e0d7df7634cf4e680"
+  integrity sha512-3a/fM1E3nCPwT4AVbysOWCMmsu/TOdJDD3urjywWE/qO1JShxRwLSdRLD1xRkacR9JcnydfkmdU0qk+VsM3nqg==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
 aws-sdk@^2.616.0:
   version "2.756.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.756.0.tgz#87ec4e2a03ed838de6d7b0ce6a62f276e318b4fc"
@@ -11425,3 +11440,9 @@ yauzl@^2.10.0:
   dependencies:
     buffer-crc32 "~0.2.3"
     fd-slicer "~1.1.0"
+
+"zenkoclient@github:scality/zenkoclient":
+  version "1.0.0"
+  resolved "https://codeload.github.com/scality/zenkoclient/tar.gz/1aae6566ccb2730e1005901293d235a0ba024e7a"
+  dependencies:
+    aws-sdk "^2.333.0"
