@@ -47,6 +47,7 @@ export const Body = styled.div`
     flex: 2;
     flex-direction: row;
     width: 100%;
+    height: calc(100vh - 228px);
 
     margin: 10px 0px;
 `;
@@ -54,7 +55,7 @@ export const Body = styled.div`
 export const ListSection = styled.div`
     flex: 1 1 65%;
     flex-direction: column;
-    min-width: 410px;
+    min-width: 650px;
 
     background-color: ${props => props.theme.brand.primary};
     margin-left: 10px;

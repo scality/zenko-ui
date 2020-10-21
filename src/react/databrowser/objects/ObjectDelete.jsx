@@ -59,7 +59,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
         }
         const objects = toggled.map(s => {
             return {
-                Key: `${prefixWithSlash}${s.name}`,
+                Key: s.key,
                 // TODO: add version when implemented.
             };
         }).toArray();
@@ -85,7 +85,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
                         {
                             toggled.map(s => (
                                 <T.Row key={s.name}>
-                                    <T.Cell> {prefixWithSlash}{s.name} <br/>
+                                    <T.Cell> {s.key} <br/>
                                         <small>{s.isFolder ?
                                             <span> <i className='fas fa-info-circle'></i> { INFO_DELETE_FOLDER } </span> :
                                             formatBytes(s.size)}</small>

@@ -1,14 +1,15 @@
 // @flow
+
 import type { AppConfig, InstanceId } from './entities';
 import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
-import type { ErrorViewType, FailureType } from './ui';
+import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
+import type { FailureType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
 import type { UserManager } from './auth';
-import type { ZenkoClient } from './zenko';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
@@ -35,7 +36,7 @@ export type ClearErrorAction = {|
 export type HandleErrorAction = {|
     +type: 'HANDLE_ERROR',
     +errorMsg: string | void,
-    +errorType: ErrorViewType,
+    +errorType: string | null,
 |};
 
 export type ErrorsUIAction =
@@ -133,13 +134,28 @@ export type ResetObjectMetadataAction = {|
     +type: 'RESET_OBJECT_METADATA',
 |};
 
+
+export type ZenkoWriteSearchListAction = {|
+    +type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST',
+    +nextMarker: Marker,
+    +list: SearchResultList,
+|};
+
+export type ZenkoAppendSearchListAction = {|
+    +type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
+    +nextMarker: Marker,
+    +list: SearchResultList,
+|};
+
 export type S3Action =
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
     GetObjectMetadataSuccessAction |
     ResetObjectMetadataAction |
     ToggleAllObjectsAction |
-    ToggleObjectAction;
+    ToggleObjectAction |
+    ZenkoWriteSearchListAction |
+    ZenkoAppendSearchListAction;
 
 // zenko actions
 export type SetZenkoClientAction = {|
@@ -147,7 +163,23 @@ export type SetZenkoClientAction = {|
     +zenkoClient: ZenkoClient,
 |};
 
-export type ZenkoAction = SetZenkoClientAction;
+export type ZenkoClearAction = {|
+    +type: 'ZENKO_CLEAR_ERROR',
+|};
+
+export type ZenkoErrorAction = {|
+    +type: 'ZENKO_HANDLE_ERROR',
+    +errorMsg: string | null,
+    +errorCode: string | number | null,
+    +errorType: string | null,
+    +errorTarget: string | null,
+|};
+
+export type ZenkoAction = SetZenkoClientAction |
+    ZenkoClearAction |
+    ZenkoErrorAction |
+    ZenkoWriteSearchListAction |
+    ListObjectsSuccessAction;
 
 // ui buckets actions
 export type OpenBucketDeleteDialogAction = {|

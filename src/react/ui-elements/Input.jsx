@@ -1,5 +1,28 @@
 import styled from 'styled-components';
 
+export const Hints = styled.div`
+  position: absolute;
+  z-index: 1;
+  background-color: ${props => props.theme.brand.background};
+  left: 20px;
+  margin-top: 40px;
+  padding: 10px;
+`;
+
+export const HintsTitle = styled.div`
+  font-style: italic;
+  padding: 2px 0px 5px 5px;
+  color: ${props => props.theme.brand.textSecondary};
+`;
+
+export const Hint = styled.div`
+  padding: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${props => props.theme.brand.secondaryDark1};
+  }
+`;
 
 // make my own import due to some imput event target undefined issue
 const Input = styled.input`

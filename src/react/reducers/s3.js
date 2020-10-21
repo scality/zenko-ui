@@ -1,6 +1,6 @@
 // @flow
-import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
-import type { Object, TagSet, Tags } from '../../types/s3';
+import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
+import type { MetadataPairs, Object, TagSet, Tags } from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
@@ -11,6 +11,7 @@ const sortByDate = objs => objs.sort((a,b) => (new Date(b.CreationDate) - new Da
 const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== prefix).map(o => {
     return {
         name: o.Key.replace(prefix, ''),
+        key: o.Key,
         lastModified: formatDate(new Date(o.LastModified)),
         size: o.Size,
         isFolder: false,
@@ -22,12 +23,24 @@ const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== pref
 const folder = (objs, prefix): Array<Object> => objs.map(o => {
     return {
         name: o.Prefix.replace(prefix, ''),
+        key: o.Prefix,
         isFolder: true,
         toggled: false,
     };
 });
 
-const convertToFormMetadata = (info) => {
+const search = (objs): Array<Object> => objs.map(o => {
+    return {
+        name: o.Key,
+        key: o.Key,
+        lastModified: formatDate(new Date(o.LastModified)),
+        size: o.Size,
+        isFolder: o.IsFolder,
+        signedUrl: o.SignedUrl,
+    };
+});
+
+const convertToFormMetadata = (info): MetadataPairs => {
     const pairs = systemMetadataKeys.filter(key => info[key]).map(key => {
         return {
             key: key,
@@ -60,8 +73,17 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
     case 'LIST_OBJECTS_SUCCESS':
         return {
             ...state,
+            listObjectsType: LIST_OBJECTS_S3_TYPE,
             listObjectsResults: {
                 list: List([...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)]),
+            },
+        };
+    case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':
+        return {
+            ...state,
+            listObjectsType: LIST_OBJECTS_METADATA_TYPE,
+            listObjectsResults: {
+                list: List(search(action.list)),
             },
         };
     case 'TOGGLE_OBJECT':

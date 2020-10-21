@@ -107,11 +107,18 @@ export type S3State = {|
     +listObjectsResults: {|
         +list: List<Object>,
     |},
+    +listObjectsType: 's3' | 'md' | 'version',
     +objectMetadata: ?ObjectMetadata,
 |};
 
 export type ZenkoState = {|
     +zenkoClient: ZenkoClientInterface,
+    +error: {|
+        +message: null | string,
+        +code: null | string | number,
+        +target: null | string,
+        +type: string | null,
+    |},
 |};
 
 export type AppState = {

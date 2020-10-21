@@ -30,6 +30,7 @@ export const s3Object = {
 };
 
 export const firstFormattedObject = {
+    key: 'toto/object1',
     isFolder: false,
     name: 'object1',
     lastModified: 'Wed Oct 17 2020 10:35:57',
@@ -39,6 +40,7 @@ export const firstFormattedObject = {
 };
 
 export const secondFormattedObject = {
+    key: 'toto/object2',
     isFolder: false,
     name: 'object2',
     lastModified: 'Wed Oct 17 2020 16:35:57',
