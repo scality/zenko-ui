@@ -1,3 +1,6 @@
+export const LIST_OBJECTS_S3_TYPE = 's3';
+export const LIST_OBJECTS_METADATA_TYPE = 'md';
+
 export function errorParser(error) {
     let message = '';
     //! $FlowFixMe

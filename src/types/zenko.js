@@ -13,8 +13,8 @@ export type SearchResult = {
     +LastModified: Date,
     +ETag: string,
     +Size: number,
-    +IsFolder: boolean,
-    +SignedUrl?: string,
+    IsFolder: boolean,
+    SignedUrl?: string,
 };
 
 export type SearchResultList = Array<SearchResult>;

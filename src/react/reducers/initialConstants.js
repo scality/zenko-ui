@@ -159,6 +159,12 @@ export const initialUserState = {
 
 export const initialZenkoState = {
     zenkoClient: new MockZenkoClient,
+    error: {
+        message: null,
+        code: null,
+        target: null,
+        type: null,
+    },
 };
 
 export const initialFullState = {

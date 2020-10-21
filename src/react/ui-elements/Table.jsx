@@ -1,8 +1,8 @@
 // @noflow
+import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 
 // TEMPLATE
 //
@@ -108,13 +108,21 @@ export const ButtonContainer = styled.div`
 `;
 
 export const Search = styled.div`
+    display: flex;
     flex: 0 0 220px;
 `;
 
 export const SearchInput = styled(Input)`
-    width: 100%;
-    border-color: ${props => props.theme.brand.borderLight};
     background-color: ${props => props.theme.brand.background};
+    ${props => {
+        return props.active
+            ? css`
+                border-color: ${props.theme.brand.healthyLight};
+              `
+            : css`
+                border-color: ${props.theme.brand.borderLight};
+            `;
+    }}
 
     // placeholder italics
     ::-webkit-input-placeholder {
@@ -129,6 +137,34 @@ export const SearchInput = styled(Input)`
     :-ms-input-placeholder {
        font-style: italic;
     }
+`;
+
+export const SearchMetadataContainer = styled.form`
+    display: flex;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 600px;
+`;
+
+export const SearchMetadataInputAndIcon = styled.div`
+    display:flex;
+    flex-direction:row;
+    flex: 1 0 auto;
+    margin-right: 10px;
+    align-items: center;
+`;
+
+export const SearchInputIcon = styled.i`
+    display: ${props => props.visibility? 'block': 'none'};
+    margin-left: -25px;
+    cursor: pointer;
+    &:hover {
+      color: ${props => props.theme.brand.base};
+    }
+`;
+
+export const SearchButton = styled(Button)`
+    flex: 0 0 auto;
 `;
 
 export const ExtraButton = styled(Button)`

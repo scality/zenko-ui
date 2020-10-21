@@ -47,6 +47,7 @@ export const Body = styled.div`
     flex: 2;
     flex-direction: row;
     width: 100%;
+    height: calc(100vh - 228px);
 
     margin: 10px 0px;
 `;
