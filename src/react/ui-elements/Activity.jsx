@@ -5,6 +5,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
+export const DEFAULT_MESSAGE = 'Working...';
+
 const ActivityContainer = styled.div`
     position: fixed;
     bottom: 0px;
@@ -35,7 +37,7 @@ const Activity = () => {
     return (
         <ActivityContainer id="activity-message">
             <Loader size="base"/>
-            { message || 'Working...'}
+            { message || DEFAULT_MESSAGE}
         </ActivityContainer>
     );
 };

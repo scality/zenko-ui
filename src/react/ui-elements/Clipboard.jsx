@@ -7,7 +7,7 @@ const Container = styled.div`
     cursor: pointer;
 `;
 
-const IconSuccess = styled.i`
+export const IconSuccess = styled.i`
     color: ${props => props.theme.brand.success};
 `;
 
@@ -32,7 +32,7 @@ export const Clipboard = ({ text }: { text: string }) => {
                 <Tooltip overlay= "Copied!" placement="right" >
                     <IconSuccess className='fas fa-check'></IconSuccess>
                 </Tooltip>:
-                <i className='far fa-clipboard' onClick={copyToClipboard}></i>
+                <i id='clipboard-icon-copy' className='far fa-clipboard' onClick={copyToClipboard}></i>
         }
     </Container>;
 };
