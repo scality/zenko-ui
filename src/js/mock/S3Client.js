@@ -1,7 +1,12 @@
 // @flow
 
 import type {
-    CreateBucketResponse, GetSignedUrlResponse, ListObjectsResponse,
+    CreateBucketResponse,
+    GetObjectTaggingResponse,
+    GetSignedUrlResponse,
+    HeadObjectResponse,
+    ListObjectsResponse,
+    PutObjectTaggingResponse,
     S3Client as S3ClientInterface,
 } from '../../types/s3';
 import { ApiErrorObject } from './error';
@@ -12,6 +17,8 @@ export const bucketName = 'bucket';
 export const fileName = 'file';
 export const folderName = 'folder';
 export const prefix = 'toto/';
+export const objectKey = 'toto/foo.jpg';
+export const objectKey2 = 'test/tags.jpg';
 export const commonPrefix = {
     Prefix: prefix,
 };
@@ -54,6 +61,10 @@ export const objectMetadata = {
     tags: [],
 };
 
+export const tags = [
+    { Key: 'key1', Value: 'value1' },
+];
+
 export const createBucketResponse: CreateBucketResponse = {
     Location: '',
 };
@@ -78,6 +89,27 @@ export const listBucketsResponse = (prefixWithSlash: string): ListObjectsRespons
     Prefix: prefixWithSlash,
     StartAfter: '',
 });
+
+export const userMetadata = {
+    'color': 'green',
+};
+
+export const systemMetadata = {
+    ContentType: 'application/octet-stream; charset=UTF-8',
+};
+
+export const info = {
+    LastModified: 'Wed Oct 14 2020 15:58:52',
+    ContentLength: 1400,
+    ContentType: 'image/jpeg',
+    ETag: '123456789',
+    VersionId: '1',
+    Metadata: userMetadata,
+};
+
+export const putObjectTaggingResponse: PutObjectTaggingResponse = {
+    VersionId: '1',
+};
 
 export class MockS3Client implements S3ClientInterface {
     listBucketsWithLocation() {
@@ -118,12 +150,20 @@ export class MockS3Client implements S3ClientInterface {
         return Promise.resolve();
     }
 
-    headObject(): Promise<void> {
+    headObject(): Promise<HeadObjectResponse> {
+        return Promise.resolve(info);
+    }
+
+    getObjectTagging(bucketName: string, objectKey: string): Promise<GetObjectTaggingResponse> {
+        return Promise.resolve({ TagSet: bucketName === 'bucket' && objectKey === objectKey2 ? tags : [] });
+    }
+
+    putObjectMetadata(): Promise<void> {
         return Promise.resolve();
     }
 
-    getObjectTagging(): Promise<void> {
-        return Promise.resolve();
+    putObjectTagging(): Promise<PutObjectTaggingResponse> {
+        return Promise.resolve(putObjectTaggingResponse);
     }
 }
 
@@ -171,6 +211,14 @@ export class ErrorMockS3Client implements S3ClientInterface {
     }
 
     getObjectTagging(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    putObjectMetadata(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    putObjectTagging(): Promise<void> {
         return Promise.reject(this._error);
     }
 }

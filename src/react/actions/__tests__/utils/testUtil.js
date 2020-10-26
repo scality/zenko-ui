@@ -7,10 +7,16 @@ import {
     file,
     fileName,
     folderName,
+    info,
+    objectKey,
+    objectKey2,
     objectMetadata,
     ownerName,
     prefix,
     s3Object,
+    systemMetadata,
+    tags,
+    userMetadata,
 } from '../../../../js/mock/S3Client';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
@@ -68,6 +74,12 @@ export const S3_OBJECT = s3Object;
 export const FILE = file;
 export const PREFIX = prefix;
 export const OBJECT_METADATA = objectMetadata;
+export const OBJECT_KEY = objectKey;
+export const OBJECT_KEY2 = objectKey2;
+export const INFO = info;
+export const USER_METADATA = userMetadata;
+export const SYSTEM_METADATA = systemMetadata;
+export const TAGS = tags;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

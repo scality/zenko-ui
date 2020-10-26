@@ -3,15 +3,26 @@ import * as dispatchAction from './utils/dispatchActionsList';
 import {
     BUCKET_NAME, COMMON_PREFIX,
     FILE, FOLDER_NAME,
-    PREFIX, S3_OBJECT,
+    INFO,
+    OBJECT_KEY,
+    OBJECT_KEY2,
+    PREFIX,
+    S3_OBJECT,
+    SYSTEM_METADATA,
+    TAGS,
+    USER_METADATA,
     errorZenkoState,
-    initState, testActionFunction, testDispatchFunction,
+    initState,
+    testActionFunction,
+    testDispatchFunction,
 } from './utils/testUtil';
 
 const createFolderNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating folder');
 const listObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing objects');
 const uploadObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION('Uploading object(s)');
 const deleteFilesNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting object(s)');
+const gettingObjectMetadataNetworkAction = dispatchAction.NETWORK_START_ACTION('Getting object metadata');
+const gettingObjectTagsNetworkAction = dispatchAction.NETWORK_START_ACTION('Getting object tags');
 
 describe('s3object actions', () => {
     const syncTests = [
@@ -74,6 +85,21 @@ describe('s3object actions', () => {
             it: 'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to true',
             fn: actions.toggleAllObjects(true),
             expectedActions: [dispatchAction.TOGGLE_ALL_OBJECTS_ACTION(true)],
+        },
+        {
+            it: 'should return RESET_OBJECT_METADATA action',
+            fn: actions.resetObjectMetadata(),
+            expectedActions: [dispatchAction.RESET_OBJECT_METADATA_ACTION()],
+        },
+        {
+            it: 'should return GET_OBJECT_METADATA_SUCCESS action -> test without prefix parameter',
+            fn: actions.getObjectMetadataSuccess(BUCKET_NAME, '', OBJECT_KEY, INFO, TAGS),
+            expectedActions: [dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, TAGS)],
+        },
+        {
+            it: 'should return GET_OBJECT_METADATA_SUCCESS action -> test with prefix parameter',
+            fn: actions.getObjectMetadataSuccess(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
+            expectedActions: [dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, [])],
         },
     ];
 
@@ -261,6 +287,134 @@ describe('s3object actions', () => {
                 dispatchAction.CLOSE_OBJECT_DELETE_MODAL_ACTION(),
                 deleteFilesNetworkAction,
                 dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'getObjectMetadata: should return expected actions -> test without prefix parameter',
+            fn: actions.getObjectMetadata(BUCKET_NAME, '', OBJECT_KEY2),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY2, INFO, TAGS),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'getObjectMetadata: should return expected actions -> test with prefix parameter',
+            fn: actions.getObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'getObjectMetadata: should handle error -> test without prefix parameter',
+            fn: actions.getObjectMetadata(BUCKET_NAME, '', OBJECT_KEY),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'getObjectMetadata: should handle error -> test with prefix parameter',
+            fn: actions.getObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectMetadata: should return expected actions -> test without prefix parameter',
+            fn: actions.putObjectMetadata(BUCKET_NAME, '', OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, []),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectMetadata: should return expected actions -> test with prefix parameter',
+            fn: actions.putObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectMetadata: should handle error -> test without prefix parameter',
+            fn: actions.putObjectMetadata(BUCKET_NAME, '', OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectMetadata: should handle error -> test with prefix parameter',
+            fn: actions.putObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectTagging: should return expected actions -> test without prefix parameter',
+            fn: actions.putObjectTagging(BUCKET_NAME, '', OBJECT_KEY, []),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectTagsNetworkAction,
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, []),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectTagging: should return expected actions -> test with prefix parameter',
+            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY2, TAGS),
+            storeState: initState,
+            expectedActions: [
+                gettingObjectTagsNetworkAction,
+                gettingObjectMetadataNetworkAction,
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY2, INFO, TAGS),
+                dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectTagging: should handle error -> test without prefix parameter',
+            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY, []),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectTagsNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'putObjectTagging: should handle error -> test with prefix parameter',
+            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY, TAGS),
+            storeState: errorZenkoState(),
+            expectedActions: [
+                gettingObjectTagsNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },

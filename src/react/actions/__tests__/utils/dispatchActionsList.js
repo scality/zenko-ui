@@ -15,6 +15,7 @@ import type {
     CloseObjectUploadModalAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
+    GetObjectMetadataSuccessAction,
     HandleErrorAction,
     ListBucketsSuccessAction,
     ListObjectsSuccessAction,
@@ -28,6 +29,7 @@ import type {
     OpenLocationDeleteDialogAction,
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
+    ResetObjectMetadataAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetManagementClientAction,
@@ -39,7 +41,7 @@ import type {
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../../../types/actions';
-import type { CommonPrefix, S3Bucket, S3Object } from '../../../../types/s3';
+import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from '../../../../types/s3';
 
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
 import type { LocationName } from '../../../../types/config';
@@ -195,5 +197,22 @@ export const TOGGLE_ALL_OBJECTS_ACTION = (toggled: boolean): ToggleAllObjectsAct
     return {
         type: 'TOGGLE_ALL_OBJECTS',
         toggled,
+    };
+};
+
+export const RESET_OBJECT_METADATA_ACTION = (): ResetObjectMetadataAction => {
+    return {
+        type: 'RESET_OBJECT_METADATA',
+    };
+};
+
+export const GET_OBJECT_METADATA_SUCCESS_ACTION = (bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction => {
+    return {
+        type: 'GET_OBJECT_METADATA_SUCCESS',
+        bucketName,
+        prefixWithSlash,
+        objectKey,
+        info,
+        tags,
     };
 };

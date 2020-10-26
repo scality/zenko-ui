@@ -80,6 +80,15 @@ export type ListObjectsResponse = {|
 
 export type GetSignedUrlResponse = ?string;
 
+export type GetObjectTaggingResponse = {|
+    +VersionId?: string;
+    +TagSet: TagSet;
+|};
+
+export type PutObjectTaggingResponse = {|
+    +VersionId?: string,
+|};
+
 export type Tag = { key: string, value: string };
 export type Tags = Array<Tag>;
 export type TagSetItem = { Key: string, Value: string };
