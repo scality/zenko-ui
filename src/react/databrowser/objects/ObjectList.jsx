@@ -19,7 +19,7 @@ type Props = {
     prefixWithSlash: string,
     toggled: List<Object>,
 };
-export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled }: Props){
+export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled, q }: Props){
     const errorZenkoMsg = useSelector((state: AppState) => state.zenko.error.message);
     const dispatch = useDispatch();
 
@@ -49,7 +49,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
             <T.ExtraButton id='object-list-create-folder-button' icon={<i className="fas fa-plus" />} text="Create folder" variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
             <T.ExtraButton id='object-list-delete-button' style={{ marginLeft: 'auto' }} icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} text="Delete" variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
         </T.ButtonContainer>
-        <MetadataSearch bucketName={bucketName} prefixWithSlash={prefixWithSlash} />
+        <MetadataSearch q={q} bucketName={bucketName} prefixWithSlash={prefixWithSlash} />
         { maybeListTable() }
     </L.ListSection>;
 }

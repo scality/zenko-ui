@@ -29,9 +29,9 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
     };
 });
 
-const search = (objs): Array<Object> => objs.map(o => {
+const search = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== prefix).map(o => {
     return {
-        name: o.Key,
+        name: o.Key.replace(prefix, ''),
         key: o.Key,
         lastModified: formatDate(new Date(o.LastModified)),
         size: o.Size,
@@ -84,7 +84,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             ...state,
             listObjectsType: LIST_OBJECTS_METADATA_TYPE,
             listObjectsResults: {
-                list: List(search(action.list)),
+                list: List(search(action.list, action.prefixWithSlash)),
             },
         };
     case 'TOGGLE_OBJECT':

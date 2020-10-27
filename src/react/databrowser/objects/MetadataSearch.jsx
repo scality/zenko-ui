@@ -1,5 +1,5 @@
 // @flow
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SearchButton, SearchInput, SearchInputIcon, SearchMetadataContainer, SearchMetadataInputAndIcon } from '../../ui-elements/Table';
 import { listObjects, newSearchListing } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +7,7 @@ import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
 import type { DispatchAPI } from 'redux';
 import { LIST_OBJECTS_METADATA_TYPE } from '../../utils';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useOutsideClick } from '../../utils/hooks';
 
@@ -45,12 +46,19 @@ const Hint = styled.div`
   }
 `;
 
+const _getSearchUrl = (bucketName: string, prefixWithSlash: string, q: string) => {
+    let qQuery = `/buckets/${bucketName}/objects/${prefixWithSlash}`
+    if (q) {
+        qQuery = `${qQuery}?q=${encodeURIComponent(q)}`
+    }
+    return qQuery;
+}
 
 type Props = {
     bucketName: string,
     prefixWithSlash: string,
 };
-const MetadataSearch = ({ bucketName, prefixWithSlash }: Props) => {
+const MetadataSearch = ({ bucketName, prefixWithSlash, q }: Props) => {
     const [inputText, setInputText] = useState('');
     const [hintsShown, setHintsShown] = useState(false);
     const dispatch: DispatchAPI<Action> = useDispatch();
@@ -61,29 +69,37 @@ const MetadataSearch = ({ bucketName, prefixWithSlash }: Props) => {
     // hide hints if clicked on outside of element.
     const suggestionsRef = useRef(null);
     useOutsideClick(suggestionsRef, () => setHintsShown(false));
+    useEffect(() => {
+        console.log('q!!!', q);
+        setInputText(q);
+    }, [q]);
 
     const handleChange = (e) => {
         setInputText(e.target.value);
     };
+
+    const navigateToSearch = (q: string) => {
+        dispatch(push(_getSearchUrl(bucketName, prefixWithSlash, q)));
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!inputText) {
             return;
         }
-        dispatch(newSearchListing(bucketName, inputText));
+        navigateToSearch(inputText);
     };
 
     const reset = (e) => {
         e.stopPropagation();
         setHintsShown(false);
         setInputText('');
-        dispatch(listObjects(bucketName, prefixWithSlash));
+        navigateToSearch();
     };
 
     const handleHintClicked = (q) => {
         setInputText(q);
-        dispatch(newSearchListing(bucketName, q));
+        navigateToSearch(q);
         setHintsShown(false);
     };
 

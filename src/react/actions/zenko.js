@@ -32,18 +32,20 @@ export function zenkoHandleError(error: ZenkoClientError, target: string | null,
     };
 }
 
-export function writeSearchListing(nextMarker: Marker, list: SearchResultList): ZenkoWriteSearchListAction {
+export function writeSearchListing(nextMarker: Marker, prefixWithSlash: string, list: SearchResultList): ZenkoWriteSearchListAction {
     return {
         type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST',
         nextMarker,
+        prefixWithSlash,
         list,
     };
 }
 
-export function appendSearchListing(nextMarker: Marker, list: SearchResultList): ZenkoAppendSearchListAction {
+export function appendSearchListing(nextMarker: Marker, prefixWithSlash: string, list: SearchResultList): ZenkoAppendSearchListAction {
     return {
         type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
         nextMarker,
+        prefixWithSlash,
         list,
     };
 }
@@ -55,11 +57,17 @@ export function setZenkoClient(zenkoClient: ZenkoClientInterface): SetZenkoClien
     };
 }
 
-function _isFolder(key: string): boolean {
-    return key.substr(key.length - 1) === '/';
+// function _isFolder(key: string): boolean {
+//     return key.substr(key.length - 1) === '/';
+// }
+
+function _getFolderName(key: string, prefix: string): ({ folderName: string, isFolder: boolean }) {
+    const splits = key.replace(prefix, '').split('/');
+    return { folderName: `${splits[0]}/`, isFolder: splits.length > 1 };
 }
 
-function _getSearchObjects(bucketName: string, query: string, marker?: Marker): ThunkStatePromisedAction {
+
+function _getSearchObjects(bucketName: string, prefixWithSlash: string, query: string, marker?: Marker): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { zenkoClient } = getClients(getState());
         const params = {
@@ -74,15 +82,18 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
                 const nextMarker = IsTruncated && NextMarker || null;
                 const list = Contents;
                 list.forEach(object => {
-                    object.IsFolder = _isFolder(object.Key);
+                    const { folderName, isFolder } = _getFolderName(object.Key, prefixWithSlash);
+                    object.IsFolder = isFolder;
                     if (!object.IsFolder) {
                         object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key);
+                    } else {
+                        object.Key = folderName;
                     }
                 });
                 if (marker) {
-                    dispatch(appendSearchListing(nextMarker, list));
+                    dispatch(appendSearchListing(nextMarker, prefixWithSlash, list));
                 } else {
-                    dispatch(writeSearchListing(nextMarker, list));
+                    dispatch(writeSearchListing(nextMarker, prefixWithSlash, list));
                 }
             })
             .catch(err => dispatch(zenkoHandleError(err, null, null)))
@@ -90,15 +101,19 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
     };
 }
 
-export function newSearchListing(bucketName: string, query: string): ThunkNonStatePromisedAction {
+export function newSearchListing(bucketName: string, prefixWithSlash: string, q: string): ThunkNonStatePromisedAction {
     return (dispatch: DispatchFunction) => {
         dispatch(networkStart('Starting search'));
-        return dispatch(_getSearchObjects(bucketName, query))
+        let query = q
+        if (prefixWithSlash) {
+            query = `key like ${prefixWithSlash} AND ${q}`;
+        }
+        return dispatch(_getSearchObjects(bucketName, prefixWithSlash, query))
             .then(() => dispatch(networkEnd()));
     };
 }
 
-export function continueSearchListing(bucketName: string, query: string): ThunkStatePromisedAction {
+export function continueSearchListing(bucketName: string, prefixWithSlash: string, query: string): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { zenkoClient } = getClients(getState());
         const marker = zenkoClient.searchResults.nextMarker;
@@ -108,7 +123,7 @@ export function continueSearchListing(bucketName: string, query: string): ThunkS
         }
 
         dispatch(networkStart('continue search'));
-        return dispatch(_getSearchObjects(bucketName, query, marker))
+        return dispatch(_getSearchObjects(bucketName, prefixWithSlash, query, marker))
             .then(() => dispatch(networkEnd()));
     };
 }

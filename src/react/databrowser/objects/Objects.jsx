@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
-import { clearError, listObjects } from '../../actions';
+import { clearError, listObjects, newSearchListing } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { EmptyStateContainer } from '../../ui-elements/Container';
@@ -13,7 +13,8 @@ import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { Warning } from '../../ui-elements/Warning';
 import { addTrailingSlash } from '../../utils';
-import { push } from 'connected-react-router';
+import { push } from 'connected-react-router'
+import { useQuery } from '../../utils/hooks';
 
 export default function Objects(){
     const dispatch = useDispatch();
@@ -28,11 +29,20 @@ export default function Objects(){
     const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
 
     const { bucketName: bucketNameParam, '0': prefixParam } = useParams();
+    const query = useQuery();
+
+    const q = query.get('q');
+
     const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
-    }, [bucketNameParam, prefixWithSlash, dispatch]);
+        console.log('q!!!', q);
+        if (q) {
+            dispatch(newSearchListing(bucketNameParam, prefixWithSlash, q)).then(() => setLoaded(true));
+        } else {
+            dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
+        }
+    }, [bucketNameParam, prefixWithSlash, dispatch, q]);
 
     if (!loaded) {
         return <ObjectHead/>;
@@ -69,7 +79,7 @@ export default function Objects(){
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
-            <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} />
+            <ObjectList q={q} toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} />
             <ObjectDetails toggled={toggled} objectMetadata={objectMetadata} />
         </L.Body>
 
