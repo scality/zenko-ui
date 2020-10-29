@@ -1,20 +1,16 @@
 // @flow
 import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
+import { META_WORD, defaultMetadataKeys, isEmptyItem } from '../../../utils';
 import type { MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEmptyItem } from '../../../utils';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
 const EMPTY_ITEM = { key: '', value: '' };
 
-const OPTIONS = ['cache-control', 'content-disposition', 'content-encoding',
-    'content-language', 'content-type', 'expires', 'website-redirect-location',
-    'x-amz-meta'];
-
-const META_WORD = 'x-amz-meta';
+const OPTIONS = defaultMetadataKeys.concat([META_WORD]);
 
 const TableContainer = styled.div`
     overflow-y: auto;
@@ -38,7 +34,7 @@ const convertToAWSMetadata = (items: MetadataItems) => {
         }
         if (isMetaWord(items[i].key)) {
             const metaKey = items[i].metaKey || '';
-            result[`${items[i].key}-${metaKey}`] = items[i].value;
+            result[metaKey] = items[i].value;
         } else {
             result[items[i].key] = items[i].value;
         }

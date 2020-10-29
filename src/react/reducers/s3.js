@@ -1,6 +1,6 @@
 // @flow
+import { META_WORD, defaultMetadataKeys, formatDate, stripQuotes } from '../utils';
 import type { MetadataItems, MetadataPairs, Object, TagSet, Tags } from '../../types/s3';
-import { formatDate, stripQuotes } from '../utils';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
@@ -30,10 +30,10 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
 const convertToFormMetadata = (obj: MetadataPairs): MetadataItems => {
     const pairs = [];
     for (let key in obj) {
-        if (key.toLowerCase().startsWith('x-amz-meta')) {
+        if (!defaultMetadataKeys.includes(key)) {
             pairs.push({
-                key: 'x-amz-meta',
-                metaKey: key.substring(11),
+                key: META_WORD,
+                metaKey: key,
                 value: obj[key],
             });
         } else {

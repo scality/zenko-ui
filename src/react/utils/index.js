@@ -1,3 +1,8 @@
+export const defaultMetadataKeys = ['cache-control', 'content-disposition', 'content-encoding',
+    'content-language', 'content-type', 'expires', 'website-redirect-location'];
+
+export const META_WORD = 'x-amz-meta';
+
 export function errorParser(error) {
     let message = '';
     //! $FlowFixMe
