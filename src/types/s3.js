@@ -1,4 +1,5 @@
 // @flow
+import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../react/utils';
 
 export interface S3Client {
 
@@ -57,7 +58,7 @@ export type MetadataPairs = { [string]: string };
 export type MetadataItem = {
     key: string,
     value: string,
-    metaKey?: string,
+    type: '' | METADATA_USER_TYPE | METADATA_SYSTEM_TYPE,
 };
 
 export type MetadataItems = Array<MetadataItem>;

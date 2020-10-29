@@ -166,14 +166,14 @@ export function getObjectMetadata(bucketName: string, prefixWithSlash: string, o
     };
 }
 
-export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, metadata: MetadataPairs): ThunkStatePromisedAction{
+export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, systemMetadata: MetadataPairs, userMetadata: MetadataPairs): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
-        return zenkoClient.putObjectMetadata(bucketName, objectKey, metadata)
+        return zenkoClient.putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata)
             .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -185,7 +185,7 @@ export function putObjectTagging(bucketName: string, prefixWithSlash: string, ob
         return zenkoClient.putObjectTagging(bucketName, objectKey, tags)
             .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }

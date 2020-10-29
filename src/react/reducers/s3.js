@@ -1,6 +1,6 @@
 // @flow
-import type { MetadataItems, MetadataPairs, Object, TagSet, Tags } from '../../types/s3';
-import { formatDate, stripQuotes } from '../utils';
+import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
+import type { Object, TagSet, Tags } from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
@@ -27,21 +27,20 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
     };
 });
 
-const convertToFormMetadata = (obj: MetadataPairs): MetadataItems => {
-    const pairs = [];
-    for (let key in obj) {
-        if (key.toLowerCase().startsWith('x-amz-meta')) {
-            pairs.push({
-                key: 'x-amz-meta',
-                metaKey: key.substring(11),
-                value: obj[key],
-            });
-        } else {
-            pairs.push({
-                key,
-                value: obj[key],
-            });
-        }
+const convertToFormMetadata = (info) => {
+    const pairs = systemMetadataKeys.filter(key => info[key]).map(key => {
+        return {
+            key: key,
+            value: info[key],
+            type: METADATA_SYSTEM_TYPE,
+        };
+    });
+    for (let key in info.Metadata) {
+        pairs.push({
+            key: key,
+            value: info.Metadata[key],
+            type: METADATA_USER_TYPE,
+        });
     }
     return pairs;
 };
@@ -93,10 +92,9 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                 objectName: action.objectKey.replace(action.prefixWithSlash, ''),
                 lastModified: action.info.LastModified,
                 contentLength: action.info.ContentLength,
-                contentType: action.info.ContentType,
                 eTag: stripQuotes(action.info.ETag),
                 versionId: action.info.VersionId,
-                metadata: convertToFormMetadata(action.info.Metadata),
+                metadata: convertToFormMetadata(action.info),
                 tags: convertToFormTags(action.tags),
             },
         };

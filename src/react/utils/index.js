@@ -1,3 +1,17 @@
+export const systemMetadata = [
+    { key: 'CacheControl', header: 'cache-control' },
+    { key: 'ContentDisposition', header: 'content-disposition' },
+    { key: 'ContentEncoding', header: 'content-encoding' },
+    { key: 'ContentType', header: 'content-type' },
+    { key: 'WebsiteRedirectLocation', header: 'website-redirect-location' },
+];
+
+export const systemMetadataKeys = systemMetadata.map(m => m.key);
+
+export const AMZ_META = 'x-amz-meta';
+export const METADATA_USER_TYPE = 'user';
+export const METADATA_SYSTEM_TYPE = 'system';
+
 export function errorParser(error) {
     let message = '';
     //! $FlowFixMe

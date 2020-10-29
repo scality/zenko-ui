@@ -1,20 +1,14 @@
 // @flow
+import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
 import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
-import type { MetadataItems, ObjectMetadata } from '../../../../types/s3';
+import type { MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
-import { isEmptyItem } from '../../../utils';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
-const EMPTY_ITEM = { key: '', value: '' };
-
-const OPTIONS = ['cache-control', 'content-disposition', 'content-encoding',
-    'content-language', 'content-type', 'expires', 'website-redirect-location',
-    'x-amz-meta'];
-
-const META_WORD = 'x-amz-meta';
+const EMPTY_ITEM = { key: '', value: '', type: '' };
 
 const TableContainer = styled.div`
     overflow-y: auto;
@@ -22,28 +16,34 @@ const TableContainer = styled.div`
     margin-bottom: 5px;
 `;
 
-const selectOptions = OPTIONS.map(o => ({
-    value: o,
-    label: o,
-    disabled: false,
-}));
+const userMetadataOption = {
+    value: AMZ_META,
+    label: AMZ_META,
+};
 
-const isMetaWord = word => word === META_WORD;
+const selectOptions = systemMetadata.map(o => ({
+    value: o.key,
+    label: o.header,
+})).concat([userMetadataOption]);
+
+const isUserType = type => type === METADATA_USER_TYPE;
+const isSystemType = type => type === METADATA_SYSTEM_TYPE;
 
 const convertToAWSMetadata = (items: MetadataItems) => {
-    const result = {};
-    for (let i = 0; i < items.length; i++) {
-        if (isEmptyItem(items[i])) {
+    const userMetadata = {};
+    const systemMetadata = {};
+    for (const item of items) {
+        const { type, key, value } = item;
+        if (isEmptyItem(item)) {
             continue;
         }
-        if (isMetaWord(items[i].key)) {
-            const metaKey = items[i].metaKey || '';
-            result[`${items[i].key}-${metaKey}`] = items[i].value;
-        } else {
-            result[items[i].key] = items[i].value;
+        if (isUserType(type)) {
+            userMetadata[key] = value;
+        } else if (isSystemType(type)) {
+            systemMetadata[key] = value;
         }
     }
-    return result;
+    return { systemMetadata, userMetadata };
 };
 
 type Props = {
@@ -63,8 +63,7 @@ function Properties({ objectMetadata }: Props) {
     }, [metadata]);
 
     const options = useMemo(() => selectOptions.filter(option =>
-        isMetaWord(option.value) ||
-        !items.find(item => item.key === option.value)
+        !items.find(item => item.key === option.value && isSystemType(item.type))
     ), [items]);
 
     // NOTE: invalid if at least one items is missing key or value but not both.
@@ -72,18 +71,22 @@ function Properties({ objectMetadata }: Props) {
         return !items.find(i => (i.key === '' && i.value !== '') || (i.value === '' && i.key !== ''));
     }, [items]);
 
-    const handleKeyChange = (index: number) => (v) => {
+    const handleSelectChange = (index: number) => (v) => {
         const temp = [...items];
-        temp[index] = { key: v.value, value: '' };
+        if (v.value === AMZ_META) {
+            temp[index] = { key: '', value: '', type: METADATA_USER_TYPE };
+        } else {
+            temp[index] = { key: v.value, value: '', type: METADATA_SYSTEM_TYPE };
+        }
         setItems(temp);
     };
 
-    const handleMetaKeyChange = (index: number) => (e: SyntheticInputEvent<HTMLInputElement>) => {
+    const handleKeyChange = (index: number) => (e: SyntheticInputEvent<HTMLInputElement>) => {
         const temp = [...items];
-        if (!isMetaWord(temp[index].key)) {
+        if (!isUserType(temp[index].type)) {
             return;
         }
-        temp[index] = { ...temp[index], metaKey: e.target.value };
+        temp[index] = { ...temp[index], key: e.target.value };
         setItems(temp);
     };
 
@@ -112,8 +115,19 @@ function Properties({ objectMetadata }: Props) {
         if (!isValidItems) {
             return;
         }
-        const metadata = convertToAWSMetadata(items);
-        dispatch(putObjectMetadata(bucketName, prefixWithSlash, objectKey, metadata));
+        const { systemMetadata, userMetadata } = convertToAWSMetadata(items);
+        dispatch(putObjectMetadata(bucketName, prefixWithSlash, objectKey, systemMetadata, userMetadata));
+    };
+
+    const selectValue = (metadata: MetadataItem) => {
+        const { key, type } = metadata;
+        if (isSystemType(type) && key) {
+            return selectOptions.find(l => l.value === key);
+        }
+        if (isUserType(type)) {
+            return userMetadataOption;
+        }
+        return '';
     };
 
     return (
@@ -126,25 +140,25 @@ function Properties({ objectMetadata }: Props) {
                 <Items>
                     {
                         items.map((p, i) => {
-                            const isShrink = isMetaWord(p.key);
-                            return <Item isShrink={isShrink} key={i}>
+                            const isUserMD = isUserType(p.type);
+                            return <Item isShrink={isUserMD} key={i}>
                                 <Inputs>
                                     <Select
                                         id='mdKeyType'
                                         name='mdKeyType'
                                         options={options}
-                                        onChange={handleKeyChange(i)}
+                                        onChange={handleSelectChange(i)}
                                         isDisabled={false}
-                                        value={p.key ? selectOptions.find(l => l.value === p.key): ''}
+                                        value={selectValue(p)}
                                     />
                                     {
-                                        isShrink && <Char>-</Char>
+                                        isUserMD && <Char>-</Char>
                                     }
                                     {
-                                        isShrink && <InputExtraKey value={p.metaKey || ''} onChange={handleMetaKeyChange(i)}/>
+                                        isUserMD && <InputExtraKey value={p.key} onChange={handleKeyChange(i)}/>
                                     }
                                     <Char>:</Char>
-                                    <InputValue isShrink={isShrink} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
+                                    <InputValue isShrink={isUserMD} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
                                 </Inputs>
                                 <Buttons>
                                     <SubButton index={i} items={items} deleteEntry={deleteEntry}/>
