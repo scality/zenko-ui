@@ -80,8 +80,8 @@ function Properties({ objectMetadata }: Props) {
                         items.map((p, i) => {
                             return <Item key={i}>
                                 <Inputs>
-                                    <InputTag value={p.key} name='key' onChange={handleChange(i)} autoComplete='off'/>
-                                    <InputTag value={p.value} name='value' onChange={handleChange(i)} autoComplete='off'/>
+                                    <InputTag id='tags-input-key' value={p.key} name='key' onChange={handleChange(i)} autoComplete='off'/>
+                                    <InputTag id='tags-input-value' value={p.value} name='value' onChange={handleChange(i)} autoComplete='off'/>
                                 </Inputs>
                                 <Buttons>
                                     <SubButton index={i} items={items} deleteEntry={deleteEntry}/>
@@ -94,6 +94,7 @@ function Properties({ objectMetadata }: Props) {
             </TableContainer>
             <Footer>
                 <Button
+                    id='tags-button-save'
                     variant='info'
                     text='Save'
                     disabled={!isValidItems}

@@ -155,10 +155,10 @@ function Properties({ objectMetadata }: Props) {
                                         isUserMD && <Char>-</Char>
                                     }
                                     {
-                                        isUserMD && <InputExtraKey value={p.key} onChange={handleKeyChange(i)}/>
+                                        isUserMD && <InputExtraKey id='metadata-input-extra-key' value={p.key} onChange={handleKeyChange(i)}/>
                                     }
                                     <Char>:</Char>
-                                    <InputValue isShrink={isUserMD} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
+                                    <InputValue id='metadata-input-value' isShrink={isUserMD} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
                                 </Inputs>
                                 <Buttons>
                                     <SubButton index={i} items={items} deleteEntry={deleteEntry}/>
@@ -171,6 +171,7 @@ function Properties({ objectMetadata }: Props) {
             </TableContainer>
             <Footer>
                 <Button
+                    id='metadata-button-save'
                     variant='info'
                     text='Save'
                     disabled={!isValidItems}
