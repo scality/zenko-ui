@@ -28,7 +28,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
 
-    const resizerRef = useRef<FixedSizeList<T> | null>(null);
+    const resizerRef = useRef<T.Resizer<T> | null>(null);
     const height = useHeight(resizerRef);
 
     const columns = useMemo(() => [

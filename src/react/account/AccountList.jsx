@@ -9,6 +9,7 @@ import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { useHeight } from '../utils/hooks';
 import { useParams } from 'react-router-dom';
 
 export const CustomBody = styled(T.Body)`
@@ -46,6 +47,8 @@ function AccountList({ accountList, accountIndex }: Props) {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
     const listRef = useRef<FixedSizeList<T> | null>(null);
+    const resizerRef = useRef<T.Resizer<T> | null>(null);
+    const height = useHeight(resizerRef);
 
     const {
         getTableProps,
@@ -97,20 +100,22 @@ function AccountList({ accountList, accountIndex }: Props) {
                         ))}
                     </T.Head>
                     <CustomBody {...getTableBodyProps()}>
-                        {
-                            // ISSUE: https://github.com/bvaughn/react-window/issues/504
-                            // eslint-disable-next-line flowtype-errors/show-errors
-                            <FixedSizeList
-                                ref={listRef}
-                                height={500}
-                                itemCount={rows.length}
-                                itemSize={45}
-                                width='100%'
-                                itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
-                            >
-                                {MemoRow}
-                            </FixedSizeList>
-                        }
+                        <T.Resizer ref={resizerRef}>
+                            {
+                                // ISSUE: https://github.com/bvaughn/react-window/issues/504
+                                // eslint-disable-next-line flowtype-errors/show-errors
+                                <FixedSizeList
+                                    ref={listRef}
+                                    height={height}
+                                    itemCount={rows.length}
+                                    itemSize={45}
+                                    width='100%'
+                                    itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
+                                >
+                                    {MemoRow}
+                                </FixedSizeList>
+                            }
+                        </T.Resizer>
                     </CustomBody>
                 </Table>
             </T.Container>
