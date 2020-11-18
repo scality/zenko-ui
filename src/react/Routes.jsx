@@ -42,11 +42,13 @@ function Routes() {
                     tabs={[
                         {
                             link: <Link to="/accounts">Accounts</Link>,
-                            selected: !!matchPath(pathname, { path: '/accounts/:accountName?' }),
+                            selected: !!matchPath(pathname, { path: '/accounts/:accountName?' }) ||
+                                      !!matchPath(pathname, { path: '/create-account' }),
                         },
                         {
                             link: <Link to="/buckets">Data Browser</Link>,
-                            selected: !!matchPath(pathname, { path: '/buckets' }),
+                            selected: !!matchPath(pathname, { path: '/buckets' }) ||
+                                      !!matchPath(pathname, { path: '/create-bucket' }),
                         },
                     ]}
                 />
