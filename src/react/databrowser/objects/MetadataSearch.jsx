@@ -8,7 +8,7 @@ import type { DispatchAPI } from 'redux';
 import { useDispatch } from 'react-redux';
 import { useOutsideClick } from '../../utils/hooks';
 
-const hints = [
+export const METADATA_SEARCH_HINT_ITEMS = [
     { descr: 'files with extension ".pdf"', q: 'key like /pdf$/' },
     { descr: 'files bigger than 1MB', q: 'content-length > 1000000' },
     { descr: 'file names that contain scality (case insensitive)', q: 'key like /scality/i' },
@@ -80,7 +80,7 @@ const MetadataSearch = ({ isMetadataType, bucketName, prefixWithSlash, errorZenk
                 hintsShown && !inputText && <Hints ref={suggestionsRef}>
                     <HintsTitle> Suggestions </HintsTitle>
                     {
-                        hints.map(h => {
+                        METADATA_SEARCH_HINT_ITEMS.map(h => {
                             return <Hint key={h.q} onClick={() => handleHintClicked(h.q)}> { h.descr } </Hint>;
                         })
                     }

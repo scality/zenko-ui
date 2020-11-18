@@ -24,6 +24,7 @@ import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
+import { zenkoError } from '../../../../js/ZenkoClient';
 
 
 type ActionTestObject = {|
@@ -80,6 +81,7 @@ export const INFO = info;
 export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
+export const ZENKO_ERROR = zenkoError;
 
 export function errorUserManagerState(): AppState {
     const state = initState;
@@ -109,6 +111,19 @@ export function errorZenkoState(): AppState {
         zenko: {
             ...initState.zenko,
             zenkoClient: new ErrorMockZenkoClient(S3_CLIENT_ERROR),
+        },
+    };
+}
+
+export function addNextMarkerToState(state: AppState): AppState {
+    return {
+        ...state,
+        s3: {
+            ...state.s3,
+            listObjectsResults: {
+                ...state.s3.listObjectsResults,
+                nextMarker: 'object1',
+            },
         },
     };
 }

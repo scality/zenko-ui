@@ -106,6 +106,7 @@ export type S3State = {|
     |},
     +listObjectsResults: {|
         +list: List<Object>,
+        +nextMarker: null | string,
     |},
     +listObjectsType: 's3' | 'md' | 'version',
     +objectMetadata: ?ObjectMetadata,

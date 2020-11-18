@@ -84,6 +84,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             listObjectsType: LIST_OBJECTS_METADATA_TYPE,
             listObjectsResults: {
                 list: List(search(action.list)),
+                nextMarker: action.nextMarker,
             },
         };
     case 'TOGGLE_OBJECT':

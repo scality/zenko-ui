@@ -40,15 +40,24 @@ import type {
     SignoutStartAction,
     ToggleAllObjectsAction,
     ToggleObjectAction,
+    ZenkoAppendSearchListAction,
+    ZenkoClearAction,
+    ZenkoErrorAction,
+    ZenkoWriteSearchListAction,
 } from '../../../../types/actions';
 import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from '../../../../types/s3';
 
+import type {
+    Marker,
+    SearchResultList,
+    ZenkoClientError,
+    ZenkoClient as ZenkoClientInterface,
+} from '../../../../types/zenko';
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
 import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockUserManager } from '../../../../js/mock/userManager';
-import type { ZenkoClient as ZenkoClientInterface } from '../../../../types/zenko';
 
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction =
@@ -93,6 +102,14 @@ export function HANDLE_ERROR_AUTH_ACTION(errorMsg: string): HandleErrorAction {
 export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
     return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byComponent' };
 }
+
+export const ZENKO_HANDLE_ERROR_ACTION = (error: ZenkoClientError, target: string | null, type: string | null): ZenkoErrorAction => ({
+    type: 'ZENKO_HANDLE_ERROR',
+    errorMsg: error.message || null,
+    errorCode: error.code || null,
+    errorType: type,
+    errorTarget: target,
+});
 
 export const LOCATION_PUSH_ACTION = (path: string) => ({
     type: CALL_HISTORY_METHOD, payload: { args: [path], method: 'push' },
@@ -214,5 +231,28 @@ export const GET_OBJECT_METADATA_SUCCESS_ACTION = (bucketName: string, prefixWit
         objectKey,
         info,
         tags,
+    };
+};
+
+// * zenko actions
+export const ZENKO_CLEAR_ERROR_ACTION = (): ZenkoClearAction => {
+    return {
+        type: 'ZENKO_CLEAR_ERROR',
+    };
+};
+
+export const ZENKO_CLIENT_WRITE_SEARCH_LIST_ACTION = (nextMarker: Marker, list: SearchResultList): ZenkoWriteSearchListAction => {
+    return {
+        type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST',
+        nextMarker,
+        list,
+    };
+};
+
+export const ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION = (nextMarker: Marker, list: SearchResultList): ZenkoAppendSearchListAction => {
+    return {
+        type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
+        nextMarker,
+        list,
     };
 };

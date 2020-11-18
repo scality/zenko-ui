@@ -18,6 +18,10 @@ import type { Marker,
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 
+export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
+export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
+export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
+
 export function zenkoClearError(): ZenkoClearAction {
     return {
         type: 'ZENKO_CLEAR_ERROR',
@@ -70,7 +74,7 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
             Marker: marker ? marker : (void 0),
         };
         dispatch(zenkoClearError());
-        dispatch(networkStart('Searching objects'));
+        dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
         return zenkoClient.searchBucket(params)
             .then(({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
                 const nextMarker = IsTruncated && NextMarker || null;
@@ -94,7 +98,7 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
 
 export function newSearchListing(bucketName: string, query: string): ThunkNonStatePromisedAction {
     return (dispatch: DispatchFunction) => {
-        dispatch(networkStart('Starting search'));
+        dispatch(networkStart(NETWORK_START_ACTION_STARTING_SEARCH));
         return dispatch(_getSearchObjects(bucketName, query))
             .then(() => dispatch(networkEnd()));
     };
@@ -102,14 +106,14 @@ export function newSearchListing(bucketName: string, query: string): ThunkNonSta
 
 export function continueSearchListing(bucketName: string, query: string): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-        const { zenkoClient } = getClients(getState());
-        const marker = zenkoClient.searchResults.nextMarker;
+        const { s3 } = getState();
+        const marker = s3.listObjectsResults.nextMarker;
 
         if (!marker) {
             return Promise.resolve();
         }
 
-        dispatch(networkStart('continue search'));
+        dispatch(networkStart(NETWORK_START_ACTION_CONTINUE_SEARCH));
         return dispatch(_getSearchObjects(bucketName, query, marker))
             .then(() => dispatch(networkEnd()));
     };

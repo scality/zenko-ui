@@ -31,6 +31,7 @@ export const initialS3State: S3State = {
     },
     listObjectsResults: {
         list: List(),
+        nextMarker: null,
     },
     objectMetadata: null,
 };
