@@ -95,6 +95,7 @@ export const InputTag = styled(Input)`
     &:first-child {
         margin-right: 5px;
     }
+    width: 50%;
 `;
 
 export const Char = styled.div`
