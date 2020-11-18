@@ -15,6 +15,11 @@ import type { Marker,
     SearchResultList,
     ZenkoClientError,
     ZenkoClient as ZenkoClientInterface } from '../../types/zenko';
+import {
+    NETWORK_START_ACTION_CONTINUE_SEARCH,
+    NETWORK_START_ACTION_SEARCHING_OBJECTS,
+    NETWORK_START_ACTION_STARTING_SEARCH,
+} from '../../consts';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 
@@ -70,7 +75,7 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
             Marker: marker ? marker : (void 0),
         };
         dispatch(zenkoClearError());
-        dispatch(networkStart('Searching objects'));
+        dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
         return zenkoClient.searchBucket(params)
             .then(({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
                 const nextMarker = IsTruncated && NextMarker || null;
@@ -94,7 +99,7 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
 
 export function newSearchListing(bucketName: string, query: string): ThunkNonStatePromisedAction {
     return (dispatch: DispatchFunction) => {
-        dispatch(networkStart('Starting search'));
+        dispatch(networkStart(NETWORK_START_ACTION_STARTING_SEARCH));
         return dispatch(_getSearchObjects(bucketName, query))
             .then(() => dispatch(networkEnd()));
     };
@@ -109,7 +114,7 @@ export function continueSearchListing(bucketName: string, query: string): ThunkS
             return Promise.resolve();
         }
 
-        dispatch(networkStart('continue search'));
+        dispatch(networkStart(NETWORK_START_ACTION_CONTINUE_SEARCH));
         return dispatch(_getSearchObjects(bucketName, query, marker))
             .then(() => dispatch(networkEnd()));
     };

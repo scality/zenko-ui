@@ -18,6 +18,7 @@ import {
     tags,
     userMetadata,
 } from '../../../../js/mock/S3Client';
+import { querystring, zenkoError } from '../../../../js/ZenkoClient';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
@@ -80,6 +81,8 @@ export const INFO = info;
 export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
+export const ZENKO_ERROR = zenkoError;
+export const QUERYSTRING = querystring;
 
 export function errorUserManagerState(): AppState {
     const state = initState;
