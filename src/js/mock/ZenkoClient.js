@@ -10,14 +10,6 @@ export class MockZenkoClient extends MockS3Client implements ZenkoClientInterfac
     _init(): void {}
     logout(): void {}
     login(): void {}
-    searchResults: {};
-
-    constructor() {
-        super();
-        this.searchResults = {
-            nextMarker: 'marker',
-        };
-    }
 
     searchBucket(): Promise<SearchBucketResp> {
         return Promise.resolve({ IsTruncated: false, Contents: [] });
@@ -26,14 +18,10 @@ export class MockZenkoClient extends MockS3Client implements ZenkoClientInterfac
 
 export class ErrorMockZenkoClient extends ErrorMockS3Client implements ZenkoClientInterface {
     _error: ApiErrorObject;
-    searchResults: {};
 
     constructor(error: ApiErrorObject) {
         super(error);
         this._error = error;
-        this.searchResults = {
-            nextMarker: 'marker',
-        };
     }
 
     searchBucket(): Promise<void> {

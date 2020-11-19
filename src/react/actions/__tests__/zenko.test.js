@@ -4,6 +4,7 @@ import {
     BUCKET_NAME,
     QUERYSTRING,
     ZENKO_ERROR,
+    addNextMarkerToState,
     errorZenkoState,
     initState,
     testActionFunction,
@@ -112,7 +113,7 @@ describe('zenko actions', () => {
         {
             it: 'continueSearchListing: should return expected actions',
             fn: actions.continueSearchListing(BUCKET_NAME, QUERYSTRING),
-            storeState: initState,
+            storeState: addNextMarkerToState(initState),
             expectedActions: [
                 continueSearchNetworkAction,
                 dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
@@ -125,7 +126,7 @@ describe('zenko actions', () => {
         {
             it: 'continueSearchListing: should return expected actions when an error occurs',
             fn: actions.continueSearchListing(BUCKET_NAME, QUERYSTRING),
-            storeState: errorZenkoState(),
+            storeState: addNextMarkerToState(errorZenkoState()),
             expectedActions: [
                 continueSearchNetworkAction,
                 dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),

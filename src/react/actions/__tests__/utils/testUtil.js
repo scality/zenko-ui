@@ -116,6 +116,19 @@ export function errorZenkoState(): AppState {
     };
 }
 
+export function addNextMarkerToState(state: AppState): AppState {
+    return {
+        ...state,
+        s3: {
+            ...state.s3,
+            listObjectsResults: {
+                ...state.s3.listObjectsResults,
+                nextMarker: 'object1',
+            },
+        },
+    };
+}
+
 export function signinRedirectCallbackState(path: string): AppState {
     const state = initState;
     const userManager = new MockUserManager();

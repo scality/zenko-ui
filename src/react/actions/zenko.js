@@ -107,8 +107,8 @@ export function newSearchListing(bucketName: string, query: string): ThunkNonSta
 
 export function continueSearchListing(bucketName: string, query: string): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-        const { zenkoClient } = getClients(getState());
-        const marker = zenkoClient.searchResults.nextMarker;
+        const { s3 } = getState();
+        const marker = s3.listObjectsResults.nextMarker;
 
         if (!marker) {
             return Promise.resolve();
