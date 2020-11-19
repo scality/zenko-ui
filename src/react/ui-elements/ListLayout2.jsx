@@ -50,6 +50,7 @@ export const Body = styled.div`
     height: calc(100vh - 228px);
 
     margin: 10px 0px;
+    overflow-y: scroll;
 `;
 
 export const ListSection = styled.div`
@@ -65,7 +66,7 @@ export const ListSection = styled.div`
 
 export const ContentSection = styled.div`
     flex: 0 0 35%;
-    // min-width: 470px; We might want to add a width limitation. To be discussed.
+    min-width: 400px;
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.background};
