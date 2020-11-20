@@ -1,6 +1,5 @@
 import {
     green,
-    white,
     yellowOrange,
 } from '@scality/core-ui/src/lib/style/theme';
 
@@ -12,7 +11,7 @@ export const theme = {
         primary: '#1D1D1D',
         secondary: '#055DFF',
         success: green,
-        info: '#007AFF',
+        info: '#434343',
         warning: yellowOrange,
         danger: '#AA1D05',
         healthy: '#30AC26',
@@ -26,7 +25,7 @@ export const theme = {
         text: '#ECECEC',
         textPrimary: '#FFFFFF',
         textSecondary: '#B5B5B5',
-        border: white,
+        border: '#313131',
         borderLight: '#A5A5A5',
     },
 };

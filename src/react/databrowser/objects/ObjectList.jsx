@@ -51,7 +51,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
             <MetadataSearch errorZenkoMsg={errorZenkoMsg} isMetadataType={isMetadataType} bucketName={bucketName} prefixWithSlash={prefixWithSlash} />
             <T.ButtonContainer>
                 <T.ExtraButton id='object-list-upload-button' text='Upload' icon={<i className="fas fa-upload" />} variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" />
-                <T.ExtraButton id='object-list-create-folder-button' text='Create Folder' icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
+                <T.ExtraButton id='object-list-create-folder-button' text='Folder' icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
                 <T.ExtraButton id='object-list-delete-button' text='Delete' icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
             </T.ButtonContainer>
         </T.HeaderContainer>

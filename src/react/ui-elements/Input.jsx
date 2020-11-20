@@ -28,11 +28,11 @@ export const Hint = styled.div`
 const Input = styled.input`
     display: flex;
 
-    background-color: transparent;
+    background-color: ${props => props.theme.brand.primaryDark2};
     color: ${props => props.theme.brand.textPrimary};
     border-width: 1px;
     border-style: solid;
-    border-color: ${props => props.hasError ? props.theme.brand.danger : '#ffffff'};
+    border-color: ${props => props.hasError ? props.theme.brand.danger : props.theme.brand.border};
     padding: 0px 10px;
     font-size: 14px;
     border-radius: 4px;
@@ -42,8 +42,13 @@ const Input = styled.input`
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;
 
+    :hover {
+        border: 1px solid ${props => props.theme.brand.borderLight};
+    }
+
     :focus {
         outline:none;
+        border: 1px solid ${props => props.theme.brand.secondary};
     }
 
     // Removing input background color for Chrome autocomplete
