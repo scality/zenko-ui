@@ -63,7 +63,7 @@ describe('FolderCreate', () => {
             },
         });
 
-        const elementInput = component.find('input#folder-create-input');
+        const elementInput = component.find('input.folder-create-input');
 
         expect(createFolderMock).toHaveBeenCalledTimes(0);
         elementInput.simulate('change', { target: { value: FILE_NAME } });

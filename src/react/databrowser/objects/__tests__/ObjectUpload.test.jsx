@@ -93,7 +93,7 @@ describe('ObjectUpload', () => {
             });
 
             const file = new File(['test'], 'test.txt', { type: 'text/plain' });
-            const dropZone = component.find('input#object-upload-drop-zone-input');
+            const dropZone = component.find('input.object-upload-drop-zone-input');
             expect(component.find(FileList)).toHaveLength(0);
 
             await act(async () => {

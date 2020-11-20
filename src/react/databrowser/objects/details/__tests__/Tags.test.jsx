@@ -27,8 +27,8 @@ describe('Tags', () => {
 
         // check if item row values are rendered
         const firstItem = items.first();
-        expect(firstItem.find('input#tags-input-key').prop('value')).toBe('');
-        expect(firstItem.find('input#tags-input-value').prop('value')).toBe('');
+        expect(firstItem.find('input.tags-input-key').prop('value')).toBe('');
+        expect(firstItem.find('input.tags-input-value').prop('value')).toBe('');
     });
 
     it('should add new key/value tag and should trigger function if save button is pressed', () => {
@@ -40,8 +40,8 @@ describe('Tags', () => {
 
         // fill input key and input value
         const firstItem = items.first();
-        firstItem.find('input#tags-input-key').simulate('change', { target: { name: 'key', value: 'key1' } });
-        firstItem.find('input#tags-input-value').simulate('change', {
+        firstItem.find('input.tags-input-key').simulate('change', { target: { name: 'key', value: 'key1' } });
+        firstItem.find('input.tags-input-value').simulate('change', {
             target: {
                 name: 'value',
                 value: 'value1',
@@ -84,8 +84,8 @@ describe('Tags', () => {
 
         // check if item row values are rendered
         const firstItem = items.first();
-        expect(firstItem.find('input#tags-input-key').prop('value')).toBe('key1');
-        expect(firstItem.find('input#tags-input-value').prop('value')).toBe('value1');
+        expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key1');
+        expect(firstItem.find('input.tags-input-value').prop('value')).toBe('value1');
     });
 
     it('should delete key/value if remove button is pressed', () => {
@@ -100,13 +100,13 @@ describe('Tags', () => {
 
         // check if first item row values are rendered
         let firstItem = items.first();
-        expect(firstItem.find('input#tags-input-key').prop('value')).toBe('key1');
-        expect(firstItem.find('input#tags-input-value').prop('value')).toBe('value1');
+        expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key1');
+        expect(firstItem.find('input.tags-input-value').prop('value')).toBe('value1');
 
         // check if second item row values are rendered
         let secondItem = items.at(1);
-        expect(secondItem.find('input#tags-input-key').prop('value')).toBe('key2');
-        expect(secondItem.find('input#tags-input-value').prop('value')).toBe('value2');
+        expect(secondItem.find('input.tags-input-key').prop('value')).toBe('key2');
+        expect(secondItem.find('input.tags-input-value').prop('value')).toBe('value2');
 
         // check if first AddButton is hidden and second one is visible
         expect(firstItem.find('Button#addbtn0').prop('isVisible')).toBe(false);
@@ -121,7 +121,7 @@ describe('Tags', () => {
 
         // check if item row values are rendered
         firstItem = items.first();
-        expect(firstItem.find('input#tags-input-key').prop('value')).toBe('key2');
-        expect(firstItem.find('input#tags-input-value').prop('value')).toBe('value2');
+        expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key2');
+        expect(firstItem.find('input.tags-input-value').prop('value')).toBe('value2');
     });
 });

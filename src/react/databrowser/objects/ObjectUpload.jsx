@@ -147,7 +147,7 @@ const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
             isOpen={true}
             title={title(acceptedFiles.length)}>
             <DropZone {...getRootProps()}>
-                <input id='object-upload-drop-zone-input' {...getInputProps()} />
+                <input className='object-upload-drop-zone-input' {...getInputProps()} />
                 { acceptedFiles.length > 0 || fileRejections.length > 0 ?
                     <FileList acceptedFiles={acceptedFiles} fileRejections={fileRejections} open={open} removeFile={removeFile}/> :
                     <NoFile open={open}/>
