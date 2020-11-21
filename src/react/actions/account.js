@@ -10,6 +10,7 @@ import type { CreateAccountRequest } from '../../types/account';
 import { assumeRoleWithWebIdentity } from './index';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
+import { removeRoleArnStored } from '../utils/localStorage';
 import { updateConfiguration } from './configuration';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
@@ -49,7 +50,10 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
             .then(() => dispatch(updateConfiguration()))
             .then(() => dispatch(push('/accounts')))
             .then(() => dispatch(closeAccountDeleteDialog()))
-            .then(() => dispatch(assumeRoleWithWebIdentity()))
+            .then(() => {
+                removeRoleArnStored();
+                dispatch(assumeRoleWithWebIdentity());
+            })
             .catch(error => {
                 // TODO: fix closeAccountDeleteDialog that might happen twice
                 // if assumeRoleWithWebIdentity() fails
