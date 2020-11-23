@@ -107,3 +107,17 @@ export type ObjectMetadata = {|
     +metadata: MetadataItems,
     +tags: Tags,
 |};
+
+export type Versioning = 'Disabled' | 'Enabled' | 'Suspended';
+
+export type BucketInfo = {|
+    +name: string,
+    +policy: boolean,
+    +owner: string,
+    +aclGrantees: number,
+    +cors: boolean,
+    +isVersioning: boolean,
+    +versioning: Versioning,
+    +public: boolean,
+    +locationConstraint: string,
+|};

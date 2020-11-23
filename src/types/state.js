@@ -1,10 +1,10 @@
 // @flow
 
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
+import type { BucketInfo, Object, ObjectMetadata, S3Bucket } from './s3';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
-import type { Object, ObjectMetadata, S3Bucket } from './s3';
 import type { Account } from './account';
 import type { InstanceId } from './entities';
 import { List } from 'immutable';
@@ -104,6 +104,7 @@ export type S3State = {|
         +list: List<S3Bucket>,
         +ownerName: string,
     |},
+    +bucketInfo: BucketInfo | null,
     +listObjectsResults: {|
         +list: List<Object>,
         +nextMarker: null | string,
