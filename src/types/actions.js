@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppConfig, InstanceId } from './entities';
-import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from './s3';
+import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
@@ -104,6 +104,11 @@ export type ListBucketsSuccessAction = {|
     +ownerName: string,
 |};
 
+export type GetBucketInfoSuccess = {|
+    +type: 'GET_BUCKET_INFO_SUCCESS',
+    +info: BucketInfo,
+|};
+
 export type ToggleObjectAction = {|
     +type: 'TOGGLE_OBJECT',
     +objectName: string,
@@ -148,6 +153,7 @@ export type ZenkoAppendSearchListAction = {|
 |};
 
 export type S3Action =
+    GetBucketInfoSuccess |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
     GetObjectMetadataSuccessAction |
