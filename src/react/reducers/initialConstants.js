@@ -29,6 +29,7 @@ export const initialS3State: S3State = {
         list: List(),
         ownerName: '',
     },
+    bucketInfo: null,
     listObjectsResults: {
         list: List(),
     },

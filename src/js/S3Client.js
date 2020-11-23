@@ -8,6 +8,8 @@ const MULTIPART_UPLOAD = {
     queueSize: 1,
 };
 
+const publicAclIndicator = 'http://acs.amazonaws.com/groups/global/AllUsers';
+
 export default class S3Client {
     client: S3;
 
@@ -166,5 +168,120 @@ export default class S3Client {
             },
         };
         return this.client.putObjectTagging(params).promise();
+    }
+
+    toggleVersioning(bucketName, isVersioning) {
+        const params = {
+            Bucket: bucketName,
+            VersioningConfiguration: {
+                Status: isVersioning ? 'Enabled' : 'Suspended',
+            },
+        };
+        console.log('params!!!', params);
+        return this.client.putBucketVersioning(params).promise();
+    }
+
+    getBucketCors(params) {
+        return new Promise((resolve, reject) => {
+            this.client.getBucketCors(params, error => {
+                if (error) {
+                    if (error.code === 'NoSuchCORSConfiguration') {
+                        return resolve(false);
+                    }
+                    return reject(error);
+                }
+                return resolve(true);
+            });
+        });
+    }
+
+    getBucketLocation(params) {
+        return new Promise((resolve, reject) => {
+            this.client.getBucketLocation(params, (error, data) => {
+                (error) ? reject(error) : resolve(data.LocationConstraint);
+            });
+        });
+    }
+
+    getBucketAcl(params) {
+        return new Promise((resolve, reject) => {
+            this.client.getBucketAcl(params, (error, data) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(data);
+            });
+        });
+    }
+
+    getBucketVersioning(params) {
+        return new Promise((resolve, reject) => {
+            this.client.getBucketVersioning(params, (error, data) => {
+                if (error) {
+                    return reject(error);
+                }
+                if (data.Status && data.Status === 'Enabled') {
+                    return resolve(true);
+                }
+                return resolve(false);
+            });
+        });
+    }
+
+    getBucketReplication(params) {
+        return new Promise((resolve, reject) => {
+            this.client.getBucketReplication(params, error => {
+                if (error) {
+                    if (error.code === 'ReplicationConfigurationNotFoundError') {
+                        return resolve(false);
+                    }
+                    return reject(error);
+                }
+                return resolve(true);
+            });
+        });
+    }
+
+    getBucketInfo(bucketName) {
+        const params = {
+            Bucket: bucketName,
+        };
+
+        const bucketInfo = {
+            name: bucketName,
+            policy: false,
+            owner: '',
+            aclGrantees: 0,
+            cors: false,
+            corsRules: [],
+            versioning: false,
+            crossRegionReplication: false,
+            public: false,
+            locationConstraint: '',
+        };
+
+        return new Promise((resolve, reject) => {
+            return Promise.all([this.getBucketCors(params), this.getBucketLocation(params),
+                this.getBucketAcl(params), this.getBucketVersioning(params),
+                this.getBucketReplication(params)])
+                .then((values) => {
+                    bucketInfo.cors = values[0];
+                    bucketInfo.locationConstraint = values[1];
+                    const dataACL = values[2];
+                    bucketInfo.owner = dataACL.Owner.DisplayName;
+                    bucketInfo.aclGrantees = dataACL.Grants.length;
+
+                    if (dataACL.Grants.length > 0) {
+                        bucketInfo.public = dataACL.Grants.find(grant => grant.Grantee.URI ===
+                            publicAclIndicator);
+                    }
+                    bucketInfo.versioning = values[3];
+                    bucketInfo.crossRegionReplication = values[4];
+                    return resolve(bucketInfo);
+                })
+                .catch(error => {
+                    return reject(error);
+                });
+        });
     }
 }

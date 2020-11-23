@@ -70,6 +70,11 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                 ownerName: action.ownerName,
             },
         };
+    case 'GET_BUCKET_INFO_SUCCESS':
+        return {
+            ...state,
+            bucketInfo: action.info,
+        };
     case 'LIST_OBJECTS_SUCCESS':
         return {
             ...state,

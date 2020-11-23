@@ -19,6 +19,13 @@ export function listBucketsSuccess(list: Array<S3Bucket> , ownerName: string): L
     };
 }
 
+export function getBucketInfoSuccess(info) {
+    return {
+        type: 'GET_BUCKET_INFO_SUCCESS',
+        info,
+    };
+}
+
 export function openBucketDeleteDialog(bucketName: string): OpenBucketDeleteDialogAction {
     return {
         type: 'OPEN_BUCKET_DELETE_DIALOG',
@@ -71,5 +78,29 @@ export function deleteBucket(bucketName: string): ThunkStatePromisedAction{
                 dispatch(networkEnd());
                 dispatch(closeBucketDeleteDialog());
             });
+    };
+}
+
+export function getBucketInfo(bucketName: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        dispatch(networkStart('getting bucket informations'));
+        return zenkoClient.getBucketInfo(bucketName)
+            .then(info => dispatch(getBucketInfoSuccess(info)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function toggleBucketVersioning(bucketName: string, isVersioning: boolean): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        dispatch(networkStart('Versioning bucket'));
+        return zenkoClient.toggleVersioning(bucketName, isVersioning)
+            .then(() => dispatch(getBucketInfo(bucketName)))
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
     };
 }
