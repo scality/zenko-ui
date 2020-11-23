@@ -1,11 +1,12 @@
 // @flow
+import type { BucketInfo, CreateBucketRequest, S3Bucket } from '../../types/s3';
 import type {
     CloseBucketDeleteDialogAction,
+    GetBucketInfoSuccess,
     ListBucketsSuccessAction,
     OpenBucketDeleteDialogAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-import type { CreateBucketRequest, S3Bucket } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
@@ -19,7 +20,7 @@ export function listBucketsSuccess(list: Array<S3Bucket> , ownerName: string): L
     };
 }
 
-export function getBucketInfoSuccess(info) {
+export function getBucketInfoSuccess(info: BucketInfo): GetBucketInfoSuccess {
     return {
         type: 'GET_BUCKET_INFO_SUCCESS',
         info,

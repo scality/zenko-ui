@@ -1,6 +1,7 @@
 // @flow
 
 import type {
+    BucketInfo,
     CreateBucketResponse,
     GetObjectTaggingResponse,
     GetSignedUrlResponse,
@@ -113,6 +114,18 @@ export const putObjectTaggingResponse: PutObjectTaggingResponse = {
     VersionId: '1',
 };
 
+const bucketInfoResponse: BucketInfo = {
+    name: bucketName,
+    policy: false,
+    owner: '',
+    aclGrantees: 0,
+    cors: false,
+    versioning: false,
+    crossRegionReplication: false,
+    public: false,
+    locationConstraint: '',
+};
+
 export class MockS3Client implements S3ClientInterface {
     listBucketsWithLocation() {
         return Promise.resolve({
@@ -166,6 +179,10 @@ export class MockS3Client implements S3ClientInterface {
 
     putObjectTagging(): Promise<PutObjectTaggingResponse> {
         return Promise.resolve(putObjectTaggingResponse);
+    }
+
+    getBucketInfo(): Promise<BucketInfo> {
+        return Promise.resolve(bucketInfoResponse);
     }
 }
 
@@ -221,6 +238,10 @@ export class ErrorMockS3Client implements S3ClientInterface {
     }
 
     putObjectTagging(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    bucketInfo(): Promise<void> {
         return Promise.reject(this._error);
     }
 }

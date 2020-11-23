@@ -107,3 +107,15 @@ export type ObjectMetadata = {|
     +metadata: MetadataItems,
     +tags: Tags,
 |};
+
+export type BucketInfo = {|
+    +name: string,
+    +policy: boolean,
+    +owner: string,
+    +aclGrantees: number,
+    +cors: boolean,
+    +versioning: boolean,
+    +crossRegionReplication: boolean,
+    +public: boolean,
+    +locationConstraint: string,
+|};

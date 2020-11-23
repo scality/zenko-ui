@@ -177,11 +177,10 @@ export default class S3Client {
                 Status: isVersioning ? 'Enabled' : 'Suspended',
             },
         };
-        console.log('params!!!', params);
         return this.client.putBucketVersioning(params).promise();
     }
 
-    getBucketCors(params) {
+    _getBucketCors(params) {
         return new Promise((resolve, reject) => {
             this.client.getBucketCors(params, error => {
                 if (error) {
@@ -195,7 +194,7 @@ export default class S3Client {
         });
     }
 
-    getBucketLocation(params) {
+    _getBucketLocation(params) {
         return new Promise((resolve, reject) => {
             this.client.getBucketLocation(params, (error, data) => {
                 (error) ? reject(error) : resolve(data.LocationConstraint);
@@ -203,7 +202,7 @@ export default class S3Client {
         });
     }
 
-    getBucketAcl(params) {
+    _getBucketAcl(params) {
         return new Promise((resolve, reject) => {
             this.client.getBucketAcl(params, (error, data) => {
                 if (error) {
@@ -214,7 +213,7 @@ export default class S3Client {
         });
     }
 
-    getBucketVersioning(params) {
+    _getBucketVersioning(params) {
         return new Promise((resolve, reject) => {
             this.client.getBucketVersioning(params, (error, data) => {
                 if (error) {
@@ -228,7 +227,7 @@ export default class S3Client {
         });
     }
 
-    getBucketReplication(params) {
+    _getBucketReplication(params) {
         return new Promise((resolve, reject) => {
             this.client.getBucketReplication(params, error => {
                 if (error) {
@@ -253,7 +252,6 @@ export default class S3Client {
             owner: '',
             aclGrantees: 0,
             cors: false,
-            corsRules: [],
             versioning: false,
             crossRegionReplication: false,
             public: false,
@@ -261,9 +259,9 @@ export default class S3Client {
         };
 
         return new Promise((resolve, reject) => {
-            return Promise.all([this.getBucketCors(params), this.getBucketLocation(params),
-                this.getBucketAcl(params), this.getBucketVersioning(params),
-                this.getBucketReplication(params)])
+            return Promise.all([this._getBucketCors(params), this._getBucketLocation(params),
+                this._getBucketAcl(params), this._getBucketVersioning(params),
+                this._getBucketReplication(params)])
                 .then((values) => {
                     bucketInfo.cors = values[0];
                     bucketInfo.locationConstraint = values[1];
