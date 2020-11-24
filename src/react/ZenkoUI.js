@@ -8,6 +8,7 @@ import type { AppState } from '../types/state';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import Routes from './Routes';
+import { ZenkoUIContainer } from './ui-elements/Container';
 
 function ZenkoUI() {
     const [ loaded, setLoaded ] = useState(false);
@@ -38,7 +39,7 @@ function ZenkoUI() {
     }, [dispatch]);
 
     return (
-        <div>
+        <ZenkoUIContainer>
             { loaded ? <Routes/> : <Loader> Loading </Loader> }
             <Activity/>
             <ErrorHandlerModal
@@ -46,7 +47,7 @@ function ZenkoUI() {
                 close={() => dispatch(clearError())} >
                 {errorMessage}
             </ErrorHandlerModal>
-        </div>
+        </ZenkoUIContainer>
     );
 }
 

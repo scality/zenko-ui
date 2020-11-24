@@ -99,6 +99,7 @@ export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
 export function HANDLE_ERROR_AUTH_ACTION(errorMsg: string): HandleErrorAction {
     return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byAuth' };
 }
+
 export function HANDLE_ERROR_SPEC_ACTION(errorMsg: string): HandleErrorAction {
     return { type: 'HANDLE_ERROR', errorMsg, errorType: 'byComponent' };
 }
@@ -203,10 +204,10 @@ export const CLOSE_OBJECT_DELETE_MODAL_ACTION = (): CloseObjectDeleteModalAction
     };
 };
 
-export const TOGGLE_OBJECT_ACTION = (objectName: string): ToggleObjectAction => {
+export const TOGGLE_OBJECT_ACTION = (objectKey: string): ToggleObjectAction => {
     return {
         type: 'TOGGLE_OBJECT',
-        objectName,
+        objectKey,
     };
 };
 
@@ -223,11 +224,10 @@ export const RESET_OBJECT_METADATA_ACTION = (): ResetObjectMetadataAction => {
     };
 };
 
-export const GET_OBJECT_METADATA_SUCCESS_ACTION = (bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction => {
+export const GET_OBJECT_METADATA_SUCCESS_ACTION = (bucketName: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction => {
     return {
         type: 'GET_OBJECT_METADATA_SUCCESS',
         bucketName,
-        prefixWithSlash,
         objectKey,
         info,
         tags,

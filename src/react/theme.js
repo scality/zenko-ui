@@ -9,7 +9,7 @@ export const theme = {
         base: '#7B7B7B',
         baseContrast1: '#26232A',
         primary: '#1D1D1D',
-        secondary: '#055DFF',
+        secondary: '#0F7FFF',
         success: green,
         info: '#434343',
         warning: yellowOrange,

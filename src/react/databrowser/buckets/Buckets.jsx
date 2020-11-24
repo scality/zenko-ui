@@ -36,7 +36,7 @@ export default function Buckets(){
         return <Redirect to={`/buckets/${buckets.first().Name}`}/>;
     }
 
-    return <div>
+    return <L.ContentContainer>
         <BucketHead buckets={buckets} />
 
         <L.Body>
@@ -44,5 +44,5 @@ export default function Buckets(){
             <BucketDetails bucket={bucket} />
         </L.Body>
 
-    </div>;
+    </L.ContentContainer>;
 }

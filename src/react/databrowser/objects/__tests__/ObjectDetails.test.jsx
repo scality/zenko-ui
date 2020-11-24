@@ -22,8 +22,11 @@ describe('ObjectDetails', () => {
     });
 
     it('should display "Summary" tab when there is one toggled object', async () => {
-        const { component } = reduxMount(<ObjectDetails objectMetadata={OBJECT_METADATA}
-            toggled={List([FIRST_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+            s3: {
+                objectMetadata: OBJECT_METADATA,
+            },
+        });
 
         expect(component.find(Properties)).toHaveLength(1);
     });
@@ -31,8 +34,11 @@ describe('ObjectDetails', () => {
     it('should display nothing in "Tags" tab when there is one toggled object', () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={OBJECT_METADATA}
-            toggled={List([FIRST_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+            s3: {
+                objectMetadata: OBJECT_METADATA,
+            },
+        });
 
         expect(component.find(Properties)).toHaveLength(0);
         expect(component.find(InfoWarning)).toHaveLength(0);
@@ -41,15 +47,18 @@ describe('ObjectDetails', () => {
     it('should display nothing in "Metadata" tab when there is one toggled object', () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={OBJECT_METADATA}
-            toggled={List([FIRST_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+            s3: {
+                objectMetadata: OBJECT_METADATA,
+            },
+        });
 
         expect(component.find(Properties)).toHaveLength(0);
         expect(component.find(InfoWarning)).toHaveLength(0);
     });
 
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Summary" tab when there are more than one toggled object`, async () => {
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null}
+        const { component } = reduxMount(<ObjectDetails
             toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
@@ -59,7 +68,7 @@ describe('ObjectDetails', () => {
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Tabs" tab when there are more than one toggled object`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null}
+        const { component } = reduxMount(<ObjectDetails
             toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
@@ -69,7 +78,7 @@ describe('ObjectDetails', () => {
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Metadata" tab when there are more than one toggled object`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null}
+        const { component } = reduxMount(<ObjectDetails
             toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
@@ -77,7 +86,7 @@ describe('ObjectDetails', () => {
     });
 
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Summary" tab if no object has been toggled`, async () => {
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null} toggled={List()}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);
@@ -86,7 +95,7 @@ describe('ObjectDetails', () => {
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Tabs" tab if no object has been toggled`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null} toggled={List()}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);
@@ -95,7 +104,7 @@ describe('ObjectDetails', () => {
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Metadata" tab if no object has been toggled`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails objectMetadata={null} toggled={List()}/>);
+        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);

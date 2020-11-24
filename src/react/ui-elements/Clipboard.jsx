@@ -11,6 +11,10 @@ export const IconSuccess = styled.i`
     color: ${props => props.theme.brand.success};
 `;
 
+export const IconCopy = styled.i`
+    display: ${props => props.hidden ? 'none': 'block'};
+`;
+
 export const Clipboard = ({ text }: { text: string }) => {
     const [copySuccess, setCopySuccess] = useState(false);
 
@@ -22,6 +26,9 @@ export const Clipboard = ({ text }: { text: string }) => {
     }, [copySuccess]);
 
     const copyToClipboard = () => {
+        if (!navigator || !navigator.clipboard) {
+            return;
+        }
         navigator.clipboard.writeText(text);
         setCopySuccess(true);
     };
@@ -32,7 +39,7 @@ export const Clipboard = ({ text }: { text: string }) => {
                 <Tooltip overlay= "Copied!" placement="right" >
                     <IconSuccess className='fas fa-check'></IconSuccess>
                 </Tooltip>:
-                <i className='far fa-clipboard clipboard-icon-copy' onClick={copyToClipboard}></i>
+                <IconCopy hidden={!navigator || !navigator.clipboard} className='far fa-clipboard clipboard-icon-copy' onClick={copyToClipboard}></IconCopy>
         }
     </Container>;
 };

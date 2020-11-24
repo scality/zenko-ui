@@ -1,6 +1,6 @@
 // @flow
-
 import { Link, Redirect, Route, matchPath } from 'react-router-dom';
+import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
@@ -12,15 +12,6 @@ import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from '@scality/core-ui';
 import React from 'react';
 import { signout } from './actions';
-import styled from 'styled-components';
-
-const NavbarContainer = styled.div`
-  display: flex;
-  width: 100%;
-  .sc-navbar{
-      width: 100%;
-  }
-`;
 
 function Routes() {
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
@@ -28,7 +19,7 @@ function Routes() {
 
     const dispatch: DispatchAPI<Action> = useDispatch();
     return (
-        <div>
+        <RouteContainer>
             <NavbarContainer>
                 <Navbar
                     rightActions={[
@@ -63,7 +54,7 @@ function Routes() {
             <Route path="/create-account" component={AccountCreate} />
 
             <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
-        </div>
+        </RouteContainer>
     );
 }
 

@@ -1,5 +1,6 @@
 import * as s3object from '../../../actions/s3object';
 import { BUCKET_NAME, S3_OBJECT } from '../../../actions/__tests__/utils/testUtil';
+import { BUCKET_INFO } from './utils/testUtil.js';
 import { List } from 'immutable';
 import ObjectDelete from '../ObjectDelete';
 import React from 'react';
@@ -12,7 +13,7 @@ describe('ObjectDelete', () => {
 
     it('should render ObjectDelete component', () => {
         const { component } = reduxMount(<ObjectDelete bucketName={BUCKET_NAME} toggled={[S3_OBJECT]}
-            prefixWithSlash=''/>, {
+            bucketInfo={BUCKET_INFO} prefixWithSlash=''/>, {
             uiObjects: {
                 showObjectDelete: true,
             },
@@ -23,7 +24,7 @@ describe('ObjectDelete', () => {
 
     it('should render an empty ObjectDelete component if showObjectDelete equals to false', () => {
         const { component } = reduxMount(<ObjectDelete bucketName={BUCKET_NAME} toggled={List([S3_OBJECT])}
-            prefixWithSlash=''/>, {
+            bucketInfo={BUCKET_INFO} prefixWithSlash=''/>, {
             uiObjects: {
                 showObjectDelete: false,
             },
@@ -37,7 +38,7 @@ describe('ObjectDelete', () => {
         const toggleAllObjectsSpy = jest.spyOn(s3object, 'toggleAllObjects');
 
         const { component } = reduxMount(<ObjectDelete bucketName={BUCKET_NAME} toggled={List([S3_OBJECT])}
-            prefixWithSlash=''/>, {
+            bucketInfo={BUCKET_INFO} prefixWithSlash=''/>, {
             uiObjects: {
                 showObjectDelete: true,
             },
@@ -54,7 +55,7 @@ describe('ObjectDelete', () => {
         const deleteFilesSpy = jest.spyOn(s3object, 'deleteFiles');
 
         const { component } = reduxMount(<ObjectDelete bucketName={BUCKET_NAME} toggled={List([S3_OBJECT])}
-            prefixWithSlash=''/>, {
+            bucketInfo={BUCKET_INFO} prefixWithSlash=''/>, {
             uiObjects: {
                 showObjectDelete: true,
             },

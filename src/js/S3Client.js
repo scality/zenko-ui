@@ -105,29 +105,87 @@ export default class S3Client {
         }));
     }
 
-    deleteObjects(bucketName, objects) {
+    _deleteFolders(bucketName, folders){
+        return new Promise((resolve, reject) => {
+            if (folders.length < 1) {
+                return resolve();
+            }
+            return Promise.all(folders.map(folder => {
+                return this.listObjectVersions(bucketName, folder.Key)
+                    .then((res) => {
+                        const { Versions, DeleteMarkers, CommonPrefixes } = res;
+                        const filteredVersions = Versions.filter(v => v.Key === folder.Key);
+                        const filteredDM = DeleteMarkers.filter(v => v.Key === folder.Key);
+                        // only delete "empty folders"
+                        if (CommonPrefixes.length > 0 || filteredVersions.length + filteredDM.length < Versions.length + DeleteMarkers.length) {
+                            return {
+                                Errors: [Error('Cannot delete folder: The folder is not empty')],
+                            };
+                        }
+                        const versions = filteredVersions.map(v => {
+                            return {
+                                Key: v.Key,
+                                VersionId: v.VersionId,
+                            };
+                        });
+                        const deleteMarkers = filteredDM.map(v => {
+                            return {
+                                Key: v.Key,
+                                VersionId: v.VersionId,
+                            };
+                        });
+                        const objects = versions.concat(deleteMarkers);
+                        return this.client.deleteObjects({
+                            Bucket: bucketName,
+                            Delete: {
+                                Objects: objects,
+                            },
+                        }).promise();
+                    });
+            }))
+                .then(results => {
+                    const error = results.find(result => result.Errors.length > 0);
+                    if (error) {
+                        return reject(error.Errors[0]);
+                    }
+                    return resolve();
+                })
+                .catch(error => reject(error));
+        });
+    }
+
+    deleteObjects(bucketName, objects, folders) {
         const params = {
             Bucket: bucketName,
             Delete: {
                 Objects: objects,
             },
         };
-        return this.client.deleteObjects(params).promise();
+        return new Promise((resolve, reject) => {
+            if (objects.length < 1) {
+                return resolve();
+            }
+            return this.client.deleteObjects(params, (error, data) => {
+                (error) ? reject(error) : resolve(data);
+            });
+        }).then(() => this._deleteFolders(bucketName, folders));
     }
 
-    getObjectSignedUrl(bucketName, objectName){
+    getObjectSignedUrl(bucketName, objectName, versionId){
         const params = {
             Bucket: bucketName,
             Key: objectName,
+            VersionId: versionId,
         };
         return this.client.getSignedUrl('getObject', params);
     }
 
     // TODO: add VersionId
-    headObject(bucketName, objectName) {
+    headObject(bucketName, objectName, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectName,
+            VersionId: versionId,
         };
         return this.client.headObject(params).promise();
     }
@@ -151,21 +209,23 @@ export default class S3Client {
         return this.client.copyObject(params).promise();
     }
 
-    getObjectTagging(bucketName, objectKey) {
+    getObjectTagging(bucketName, objectKey, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectKey,
+            VersionId: versionId,
         };
         return this.client.getObjectTagging(params).promise();
     }
 
-    putObjectTagging(bucketName, objectKey, tags) {
+    putObjectTagging(bucketName, objectKey, tags, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectKey,
             Tagging: {
                 TagSet: tags,
             },
+            VersionId: versionId,
         };
         return this.client.putObjectTagging(params).promise();
     }
@@ -277,5 +337,14 @@ export default class S3Client {
                     return reject(error);
                 });
         });
+    }
+
+    listObjectVersions(bucketName, prefix) {
+        const params = {
+            Bucket: bucketName,
+            Prefix: prefix,
+            Delimiter: '/',
+        };
+        return this.client.listObjectVersions(params).promise();
     }
 }

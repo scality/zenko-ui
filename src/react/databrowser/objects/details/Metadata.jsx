@@ -2,8 +2,9 @@
 import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
 import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
-import type { MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
+import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -12,7 +13,7 @@ const EMPTY_ITEM = { key: '', value: '', type: '' };
 
 const TableContainer = styled.div`
     overflow-y: auto;
-    height: calc(100vh - 395px);
+    height: calc(100vh - 410px);
     margin-bottom: 5px;
 `;
 
@@ -48,11 +49,13 @@ const convertToAWSMetadata = (items: MetadataItems) => {
 
 type Props = {
     objectMetadata: ObjectMetadata,
+    listType: ListObjectsType,
 };
-function Properties({ objectMetadata }: Props) {
+function Metadata({ objectMetadata, listType }: Props) {
     const dispatch = useDispatch();
-    const { bucketName, objectKey, metadata, prefixWithSlash } = objectMetadata;
+    const { bucketName, objectKey, metadata } = objectMetadata;
     const [items, setItems] = useState([EMPTY_ITEM]);
+    const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 
     useEffect(() => {
         if (metadata.length > 0) {
@@ -116,7 +119,7 @@ function Properties({ objectMetadata }: Props) {
             return;
         }
         const { systemMetadata, userMetadata } = convertToAWSMetadata(items);
-        dispatch(putObjectMetadata(bucketName, prefixWithSlash, objectKey, systemMetadata, userMetadata));
+        dispatch(putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata));
     };
 
     const selectValue = (metadata: MetadataItem) => {
@@ -144,25 +147,24 @@ function Properties({ objectMetadata }: Props) {
                             return <Item isShrink={isUserMD} key={i}>
                                 <Inputs>
                                     <Select
-                                        id='mdKeyType'
                                         name='mdKeyType'
                                         options={options}
                                         onChange={handleSelectChange(i)}
-                                        isDisabled={false}
+                                        isDisabled={isVersioningType}
                                         value={selectValue(p)}
                                     />
                                     {
                                         isUserMD && <Char>-</Char>
                                     }
                                     {
-                                        isUserMD && <InputExtraKey className='metadata-input-extra-key' value={p.key} onChange={handleKeyChange(i)}/>
+                                        isUserMD && <InputExtraKey className='metadata-input-extra-key' value={p.key} onChange={handleKeyChange(i)} disabled={isVersioningType}/>
                                     }
                                     <Char>:</Char>
-                                    <InputValue className='metadata-input-value' isShrink={isUserMD} value={p.value} onChange={handleValueChange(i)} autoComplete='off'/>
+                                    <InputValue className='metadata-input-value' isShrink={isUserMD} value={p.value} onChange={handleValueChange(i)} disabled={isVersioningType} autoComplete='off'/>
                                 </Inputs>
                                 <Buttons>
-                                    <SubButton index={i} items={items} deleteEntry={deleteEntry}/>
-                                    <AddButton index={i} items={items} insertEntry={insertEntry}/>
+                                    <SubButton disabled={isVersioningType} index={i} items={items} deleteEntry={deleteEntry}/>
+                                    <AddButton disabled={isVersioningType} index={i} items={items} insertEntry={insertEntry}/>
                                 </Buttons>
                             </Item>;
                         })
@@ -174,7 +176,7 @@ function Properties({ objectMetadata }: Props) {
                     id='metadata-button-save'
                     variant='info'
                     text='Save'
-                    disabled={!isValidItems}
+                    disabled={!isValidItems || isVersioningType}
                     onClick={save}
                     icon={<i className='fas fa-save' />}
                 />
@@ -183,4 +185,4 @@ function Properties({ objectMetadata }: Props) {
     );
 }
 
-export default Properties;
+export default Metadata;

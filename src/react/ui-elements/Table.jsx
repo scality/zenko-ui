@@ -29,6 +29,7 @@ import styled from 'styled-components';
 
 export const Container = styled.div`
     display: flex;
+    flex: 1;
     margin-top: 20px;
     width: 100%;
 `;
@@ -63,6 +64,10 @@ export const Body = styled.tbody`
     overflow: auto;
 `;
 
+export const BodyWindowing = styled.tbody`
+    flex: 1;
+`;
+
 export const Row = styled(HeadRow)`
     &:hover{
       background-color: ${props => props.theme.brand.backgroundBluer};
@@ -74,6 +79,7 @@ export const Row = styled(HeadRow)`
 `;
 
 export const Cell = styled.td`
+    color: ${props => props.shade ? props.theme.brand.base : props.theme.brand.text};
     padding: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -81,7 +87,15 @@ export const Cell = styled.td`
 `;
 
 export const CellLink = styled(Link)`
-    color: ${props => props.theme.brand.text};
+    color: ${props => props.theme.brand.secondary};
+    text-decoration: none;
+    &:hover{
+        text-decoration: underline;
+    }
+`;
+
+export const CellClick = styled.span`
+    color: ${props => props.theme.brand.secondary};
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -89,7 +103,7 @@ export const CellLink = styled(Link)`
 `;
 
 export const CellA = styled.a`
-    color: ${props => props.theme.brand.text};
+    color: ${props => props.theme.brand.secondary};
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -151,6 +165,8 @@ export const Resizer = styled.div`
 `;
 
 const Table = styled.table`
+    display: flex;
+    flex-direction: column;
     width: 100%;
     border-collapse: collapse;
     font-size: 15px;
@@ -213,7 +229,6 @@ export const ButtonContainer = styled.div`
 
 export const SubHeaderContainer = styled.div`
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
-    margin-top: 5px;
     margin-left: 5px;
 `;
 

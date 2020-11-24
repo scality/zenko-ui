@@ -5,17 +5,6 @@ import Overview from './details/Overview';
 import React from 'react';
 import type { S3Bucket } from '../../../types/s3';
 import { Warning } from '../../ui-elements/Warning';
-import styled from 'styled-components';
-
-export const ToBeReplacedByCustomTabs = styled.div`
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 249px);
-    margin: 0px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: ${props => props.theme.brand.primary};
-`;
 
 type Props = {
     bucket: ?S3Bucket,

@@ -89,7 +89,7 @@ export function getBucketInfo(bucketName: string): ThunkStatePromisedAction{
         return zenkoClient.getBucketInfo(bucketName)
             .then(info => dispatch(getBucketInfoSuccess(info)))
             .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }

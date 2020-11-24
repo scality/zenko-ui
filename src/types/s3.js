@@ -31,17 +31,55 @@ export type S3Object = {|
     +SignedUrl?: string,
 |};
 
+export type S3DeleteObject = {|
+    +Key: string,
+    +VersionId?: string,
+|};
+
+export type DeleteFolder = {|
+    +Key: string,
+|};
+
+type Owner = {|
+    +DisplayName: string,
+    +ID: string,
+|};
+
+export type S3Version = {|
+    +ETag: string,
+    +Size: number,
+    +StorageClass: string,
+    +Key: string,
+    +VersionId: string,
+    +IsLatest: boolean,
+    +LastModified: string,
+    +Owner: Owner,
+    +SignedUrl: string,
+|};
+
+export type S3DeleteMarker = {|
+    +Owner: Owner,
+    +Key: string,
+    +VersionId: string,
+    +IsLatest: boolean,
+    +LastModified: string,
+|};
+
 export type CommonPrefix = {|
     +Prefix: string,
 |};
 
 export type Object = {|
     +name: string,
+    +key: string,
     +lastModified?: string,
     +isFolder: string,
     +size: number,
     +toggled: boolean,
     +signedUrl?: string,
+    +isLatest: boolean,
+    +versionId: ?string,
+    +isDeleteMarker: ?boolean,
 |};
 
 export type File = {|
@@ -96,9 +134,7 @@ export type TagSet = Array<TagSetItem>;
 
 export type ObjectMetadata = {|
     +bucketName: string,
-    +prefixWithSlash: string,
     +objectKey: string,
-    +objectName: string,
     +lastModified: string,
     +contentLength: number,
     +contentType: string,
@@ -121,3 +157,5 @@ export type BucketInfo = {|
     +public: boolean,
     +locationConstraint: string,
 |};
+
+export type ListObjectsType = 's3' | 'md' | 'ver';

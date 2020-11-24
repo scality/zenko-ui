@@ -11,7 +11,7 @@ const EMPTY_ITEM = { key: '', value: '' };
 
 const TableContainer = styled.div`
     overflow-y: auto;
-    height: calc(100vh - 395px);
+    height: calc(100vh - 410px);
     margin-bottom: 5px;
 `;
 
@@ -23,7 +23,7 @@ type Props = {
 };
 function Properties({ objectMetadata }: Props) {
     const dispatch = useDispatch();
-    const { bucketName, objectKey, tags, prefixWithSlash } = objectMetadata;
+    const { bucketName, objectKey, tags, versionId } = objectMetadata;
     const [items, setItems] = useState([EMPTY_ITEM]);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ function Properties({ objectMetadata }: Props) {
             return;
         }
         const tags = convertToAWSTags(items);
-        dispatch(putObjectTagging(bucketName, prefixWithSlash, objectKey, tags));
+        dispatch(putObjectTagging(bucketName, objectKey, tags, versionId));
     };
 
     return (
