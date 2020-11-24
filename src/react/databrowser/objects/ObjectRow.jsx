@@ -57,13 +57,13 @@ const Row = ({
 
     const handleClick = () => {
         dispatch(toggleAllObjects(false));
-        dispatch(toggleObject(row.original.name));
+        dispatch(toggleObject(row.original.key, row.original.versionId));
     };
 
     return (
         <T.Row isSelected={row.original.toggled} onClick={handleClick} {...row.getRowProps({ style })}>
             {row.cells.map(cell => (
-                <T.Cell key={cell.id} {...cell.getCellProps()} >
+                <T.Cell shade={!row.original.isLatest} key={cell.id} {...cell.getCellProps()} >
                     {cell.render('Cell')}
                 </T.Cell>
             ))}

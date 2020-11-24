@@ -14,7 +14,7 @@ import styled from 'styled-components';
 const TableContainer = styled.div`
     display: block;
     overflow-y: auto;
-    height: calc(100vh - 340px);
+    height: calc(100vh - 362px);
     margin: 5px 15px;
 `;
 

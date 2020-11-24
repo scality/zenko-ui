@@ -10,13 +10,28 @@ import { EmptyStateContainer } from '../ui-elements/Container';
 import Objects from './objects/Objects';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
+import { clearError } from '../actions';
 import { push } from 'connected-react-router';
+
 
 export default function DataBrowser(){
     const dispatch = useDispatch();
     const accountName = useSelector((state: AppState) => state.s3.listBucketsResults.ownerName);
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
+    const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
+    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
     const { pathname } = useLocation();
+
+    // NOTE: create-bucket page has its own way to manage "byComponent" errors.
+    if (hasError && pathname !== '/create-bucket') {
+        return <EmptyStateContainer>
+            <Warning
+                iconClass="fas fa-5x fa-exclamation-triangle"
+                title={errorMessage || 'An unexpected error has occurred.'}
+                btnTitle='Display buckets'
+                btnAction={() => { dispatch(clearError()); dispatch(push('/buckets')); }} />
+        </EmptyStateContainer>;
+    }
 
     if (accounts.length === 0) {
         return <EmptyStateContainer>

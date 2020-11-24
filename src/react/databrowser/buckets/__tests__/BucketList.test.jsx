@@ -2,6 +2,7 @@ import BucketList from '../BucketList';
 import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
+import { Row } from '../../../ui-elements/Table';
 import { reduxMount } from '../../../utils/test';
 
 describe('BucketList', () => {
@@ -29,20 +30,20 @@ describe('BucketList', () => {
                 }} selectedBucketName=""/>
             </MemoryRouter>,
         );
-
-        const firstBucketCellLink = component.find('Cell').at(0).find('a');
-        const firstBucketCellLocation = component.find('Cell').at(1);
-        const firstBucketCellDate = component.find('Cell').at(2);
-        expect(firstBucketCellLink.text()).toBe('bucket1');
-        expect(firstBucketCellLink.prop('href')).toBe('/buckets/bucket1/objects');
+        const rows = component.find(Row);
+        const firstRow = rows.first();
+        const firstBucketCellLink = firstRow.find('Cell').at(0);
+        const firstBucketCellLocation = firstRow.find('Cell').at(1);
+        const firstBucketCellDate = firstRow.find('Cell').at(2);
+        expect(firstBucketCellLink.text()).toContain('bucket1');
         expect(firstBucketCellLocation.text()).toBe('us-east-1 / Zenko Local Filesystem');
         expect(firstBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
 
-        const secondBucketCellLink = component.find('Cell').at(3).find('a');
-        const secondBucketCellLocation = component.find('Cell').at(4);
-        const secondBucketCellDate = component.find('Cell').at(5);
-        expect(secondBucketCellLink.text()).toBe('bucket2');
-        expect(secondBucketCellLink.prop('href')).toBe('/buckets/bucket2/objects');
+        const secondRow = rows.at(1);
+        const secondBucketCellLink = secondRow.find('Cell').at(0);
+        const secondBucketCellLocation = component.find('Cell').at(1);
+        const secondBucketCellDate = component.find('Cell').at(2);
+        expect(secondBucketCellLink.text()).toContain('bucket2');
         expect(secondBucketCellLocation.text()).toBe('us-east-1 / Zenko Local Filesystem');
         expect(secondBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
     });
@@ -54,14 +55,12 @@ describe('BucketList', () => {
             </MemoryRouter>,
         );
 
-        const bucketRows = component.find('Row').children();
-        bucketRows.forEach(bucketRow => {
-            if (bucketRow.find('a').text() === selectedBucketName) {
-                expect(bucketRow.prop('isSelected')).toBe(true);
-            } else {
-                expect(bucketRow.prop('isSelected')).toBe(false);
-            }
-        });
+        const rows = component.find(Row);
+        const firstRow = rows.first();
+        expect(firstRow.prop('isSelected')).toBe(false);
+
+        const secondRow = rows.at(1);
+        expect(secondRow.prop('isSelected')).toBe(true);
     });
 
     it('should select no row if there is no bucket name specified in the parameter', () => {
@@ -71,9 +70,11 @@ describe('BucketList', () => {
             </MemoryRouter>,
         );
 
-        const bucketRows = component.find('Row').children();
-        bucketRows.forEach(bucketRow => {
-            expect(bucketRow.prop('isSelected')).toBe(false);
-        });
+        const rows = component.find(Row);
+        const firstRow = rows.first();
+        expect(firstRow.prop('isSelected')).toBe(false);
+
+        const secondRow = rows.at(1);
+        expect(secondRow.prop('isSelected')).toBe(false);
     });
 });

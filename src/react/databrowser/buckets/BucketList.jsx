@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import type { LocationName, Locations } from '../../../types/config';
 import MemoRow, { createItemData } from './BucketRow';
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import { FixedSizeList } from 'react-window';
@@ -11,13 +11,8 @@ import type { S3Bucket } from '../../../types/s3';
 import { formatDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
-
-export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 350px);
-`;
 
 type Props = {
     locations: Locations,
@@ -31,12 +26,17 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
     const resizerRef = useRef<T.Resizer<T> | null>(null);
     const height = useHeight(resizerRef);
 
+    const handleCellClicked = useCallback((name) => (e) => {
+        e.stopPropagation();
+        dispatch(push(`/buckets/${name}/objects`));
+    }, [dispatch]);
+
     const columns = useMemo(() => [
         {
             Header: 'Bucket Name',
             accessor: 'Name',
             Cell({ value: name }: { value: string }) {
-                return <T.CellLink to={{ pathname: `/buckets/${name}/objects` }}>{name}</T.CellLink>;
+                return <T.CellClick onClick={handleCellClicked(name)}>{name}</T.CellClick>;
             },
         },
         {
@@ -52,7 +52,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
             accessor: 'CreationDate',
             Cell: ({ value }) => { return formatDate(new Date(value));},
         },
-    ], [locations]);
+    ], [locations, handleCellClicked]);
 
     const {
         getTableProps,
@@ -94,7 +94,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
                         </T.HeadRow>
                     ))}
                 </T.Head>
-                <CustomBody {...getTableBodyProps()}>
+                <T.BodyWindowing {...getTableBodyProps()}>
                     <T.Resizer ref={resizerRef}>
                         {
                             // ISSUE: https://github.com/bvaughn/react-window/issues/504
@@ -111,7 +111,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
                             </FixedSizeList>
                         }
                     </T.Resizer>
-                </CustomBody>
+                </T.BodyWindowing>
             </Table>
         </T.Container>
     </L.ListSection>;

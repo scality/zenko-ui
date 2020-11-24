@@ -42,7 +42,7 @@ const Input = styled.input`
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;
 
-    :hover {
+    :hover:enabled {
         border: 1px solid ${props => props.theme.brand.borderLight};
     }
 

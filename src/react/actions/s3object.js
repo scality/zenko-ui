@@ -4,6 +4,7 @@ import type {
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
     GetObjectMetadataSuccessAction,
+    ListObjectVersionsSuccessAction,
     ListObjectsSuccessAction,
     OpenFolderCreateModalAction,
     OpenObjectDeleteModalAction,
@@ -13,9 +14,10 @@ import type {
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../types/actions';
-import type { CommonPrefix, File, HeadObjectResponse, MetadataPairs, S3Object, TagSet } from '../../types/s3';
+import type { CommonPrefix, DeleteFolder, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3DeleteMarker, S3DeleteObject, S3Object, S3Version, TagSet } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import { getClients } from '../utils/actions';
 
 export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction {
@@ -27,11 +29,20 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
-export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
+export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectVersionsSuccessAction {
+    return {
+        type: 'LIST_OBJECT_VERSIONS_SUCCESS',
+        versions,
+        deleteMarkers,
+        commonPrefixes,
+        prefix,
+    };
+}
+
+export function getObjectMetadataSuccess(bucketName: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
     return {
         type: 'GET_OBJECT_METADATA_SUCCESS',
         bucketName,
-        prefixWithSlash,
         objectKey,
         info,
         tags,
@@ -74,10 +85,11 @@ export function closeObjectDeleteModal(): CloseObjectDeleteModalAction {
     };
 }
 
-export function toggleObject(objectName: string): ToggleObjectAction {
+export function toggleObject(objectKey: string, versionId?: string): ToggleObjectAction {
     return {
         type: 'TOGGLE_OBJECT',
-        objectName,
+        objectKey,
+        versionId,
     };
 }
 
@@ -109,7 +121,7 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
     };
 }
 
-export function listObjects(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Listing objects'));
@@ -122,6 +134,33 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
+    };
+}
+
+function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        dispatch(networkStart('Listing object versions'));
+        return zenkoClient.listObjectVersions(bucketName, prefixWithSlash)
+            .then(res => {
+                const list = res.Versions;
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
+                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix));
+            })
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function listObjects(bucketName: string, prefixWithSlash: string, type?: ListObjectsType): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3 } = getState();
+        const listType = type || s3.listObjectsType;
+        if (listType === LIST_OBJECT_VERSIONS_S3_TYPE) {
+            return dispatch(_listObjectVersions(bucketName, prefixWithSlash));
+        }
+        return dispatch(_listObjectNoVersion(bucketName, prefixWithSlash));
     };
 }
 
@@ -138,52 +177,55 @@ export function uploadFiles(bucketName: string, prefixWithSlash: string, files: 
     };
 }
 
-export function deleteFiles(bucketName: string, prefixWithSlash: string, objects: Array<any>): ThunkStatePromisedAction{
+export function deleteFiles(bucketName: string, prefixWithSlash: string, objects: Array<S3DeleteObject>, folders: Array<DeleteFolder>): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(closeObjectDeleteModal());
         dispatch(networkStart('Deleting object(s)'));
-        return zenkoClient.deleteObjects(bucketName, objects)
-            .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
+        return zenkoClient.deleteObjects(bucketName, objects, folders)
             .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
-            .finally(() => dispatch(networkEnd()));
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => {
+                dispatch(networkEnd());
+                // make sure to list objects even if delete fails.
+                return dispatch(listObjects(bucketName, prefixWithSlash));
+            });
     };
 }
 
-export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string): ThunkStatePromisedAction{
+export function getObjectMetadata(bucketName: string, objectKey: string, versionId?: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
         return Promise.all([
-            zenkoClient.headObject(bucketName, objectKey),
-            zenkoClient.getObjectTagging(bucketName, objectKey),
+            zenkoClient.headObject(bucketName, objectKey, versionId),
+            zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
         ])
-            .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, info, tags.TagSet)))
+            .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, objectKey, info, tags.TagSet)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
 
-export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, systemMetadata: MetadataPairs, userMetadata: MetadataPairs): ThunkStatePromisedAction{
+export function putObjectMetadata(bucketName: string, objectKey: string, systemMetadata: MetadataPairs, userMetadata: MetadataPairs): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
         return zenkoClient.putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata)
-            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
+            .then(() => dispatch(getObjectMetadata(bucketName, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
 
-export function putObjectTagging(bucketName: string, prefixWithSlash: string, objectKey: string, tags: TagSet): ThunkStatePromisedAction{
+export function putObjectTagging(bucketName: string, objectKey: string, tags: TagSet, versionId: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object tags'));
-        return zenkoClient.putObjectTagging(bucketName, objectKey, tags)
-            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
+        return zenkoClient.putObjectTagging(bucketName, objectKey, tags, versionId)
+            .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

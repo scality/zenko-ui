@@ -163,6 +163,8 @@ export function loadAppConfig(): ThunkNonStateAction {
                 dispatch(setAppConfig(config));
                 const userManager = makeUserManager(config);
                 dispatch(setUserManager(userManager));
+                dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
+                dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
                 return loadUser(store, userManager);
             })
             .then(() => {
@@ -189,9 +191,6 @@ export function loadClients(): ThunkStatePromisedAction {
         }
         // TODO: Give the user the ability to select an instance.
         dispatch(selectInstance(instanceIds[0]));
-
-        dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
-        dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
 
         return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
             .then(managementClient => {

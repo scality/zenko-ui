@@ -1,5 +1,6 @@
 // @flow
 import { Button } from '@scality/core-ui';
+import type { Node } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -34,7 +35,7 @@ const ButtonSection = styled.div`
 
 type WarningProps = {
     iconClass?: string,
-    title: string,
+    title: Node,
     btnTitle?: string,
     btnAction?: () => void,
 };

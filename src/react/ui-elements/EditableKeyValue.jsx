@@ -96,6 +96,7 @@ export const InputTag = styled(Input)`
         margin-right: 5px;
     }
     width: 50%;
+    min-width: 45%;
 `;
 
 export const Char = styled.div`
@@ -113,10 +114,11 @@ type AddButtonProps = {
     index: number,
     items: Array<any>,
     insertEntry: () => void,
+    disabled?: boolean,
 };
-export const AddButton = ({ index, items, insertEntry }: AddButtonProps) => {
+export const AddButton = ({ index, items, insertEntry, disabled }: AddButtonProps) => {
     let isVisible = true;
-    let isDisabled = false;
+    let isDisabled = disabled || false;
     let onClickFn = () => insertEntry();
 
     if ((items.length > 0 && index !== items.length - 1)) {
@@ -147,9 +149,10 @@ type SubButtonProps = {
     index: number,
     items: Array<any>,
     deleteEntry: (number) => void,
+    disabled?: boolean,
 };
-export const SubButton = ({ index, items, deleteEntry }: SubButtonProps) => {
-    let isDisabled = false;
+export const SubButton = ({ index, items, deleteEntry, disabled }: SubButtonProps) => {
+    let isDisabled = disabled || false;
     if (items.length === 1 && isEmptyItem(items[0])) {
         isDisabled = true;
     }

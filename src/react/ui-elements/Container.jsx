@@ -9,6 +9,7 @@ const MainContainer = styled.div`
     color: ${props => props.theme.brand.text};
     background-color: ${props => props.theme.brand.background};
     flex-direction:column;
+    align-items: stretch;
 `;
 
 const Container = styled.div`
@@ -44,4 +45,34 @@ export const EmptyStateContainer = styled.div`
     height: calc(100vh - 48px);
 `;
 
-export { Container, LoaderContainer, MainContainer, ContainerFooter };
+const NavbarContainer = styled.div`
+  display: flex;
+  width: 100%;
+  .sc-navbar{
+      width: 100%;
+  }
+`;
+
+const RouteContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: stretch;
+`;
+
+const ZenkoUIContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    align-items: stretch;
+`;
+
+export {
+    Container,
+    LoaderContainer,
+    MainContainer,
+    ContainerFooter,
+    NavbarContainer,
+    RouteContainer,
+    ZenkoUIContainer,
+};

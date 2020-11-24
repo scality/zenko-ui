@@ -102,17 +102,17 @@ describe('functions utils', () => {
     });
 
     it('should return a string formatted which reflect the size', () => {
-        expect(formatBytes(0)).toBe('0 Bytes');
-        expect(formatBytes(1)).toBe('1 Bytes');
-        expect(formatBytes(1024)).toBe('1 KB');
-        expect(formatBytes(10240000)).toBe('9.77 MB');
-        expect(formatBytes(10240000000)).toBe('9.54 GB');
-        expect(formatBytes(10240000000000)).toBe('9.31 TB');
-        expect(formatBytes(10240000000000000)).toBe('9.09 PB');
-        expect(formatBytes(10240000000000000000)).toBe('8.88 EB');
-        expect(formatBytes(10240000000000000000000)).toBe('8.67 ZB');
-        expect(formatBytes(10240000000000000000000000)).toBe('8.47 YB');
-        expect(formatBytes(10240000000000000000000000, 1)).toBe('8.5 YB');
+        expect(formatBytes(0)).toBe('0 B');
+        expect(formatBytes(1)).toBe('1.0 B');
+        expect(formatBytes(1000)).toBe('1.0 KB');
+        expect(formatBytes(1000000)).toBe('1.0 MB');
+        expect(formatBytes(1000000000)).toBe('1.0 GB');
+        expect(formatBytes(1000000000000)).toBe('1.0 TB');
+        expect(formatBytes(1000000000000000)).toBe('1.0 PB');
+        expect(formatBytes(1000000000000000000)).toBe('1.0 EB');
+        expect(formatBytes(1000000000000000000000)).toBe('1.0 ZB');
+        expect(formatBytes(1000000000000000000000000)).toBe('1.0 YB');
+        expect(formatBytes(1000000000000000000000000, 2)).toBe('1.00 YB');
     });
 
     const urls = ['', '/buckets/', '/buckets', '/buckets/bucket1', '/buckets/bucket1/test/'];

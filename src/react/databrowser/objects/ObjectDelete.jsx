@@ -6,13 +6,12 @@ import { formatBytes, maybePluralize } from '../../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
+import type { BucketInfo } from '../../../types/s3';
 import { Button } from '@scality/core-ui';
 import type { DispatchAPI } from 'redux';
 import { List } from 'immutable';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import styled from 'styled-components';
-
-const INFO_DELETE_FOLDER = 'Non-empty folder won\'t be deleted.';
 
 const Files = styled.div`
     height: 250px;
@@ -22,11 +21,23 @@ const Files = styled.div`
     border: 1px solid ${props => props.theme.brand.borderLight};
 `;
 
-const title = files => {
+const Description = styled.div`
+    font-size: 14px;
+    margin-top: 2px;
+`;
+
+const VersionId = styled.div`
+    font-size: 11px;
+    margin-top: 2px;
+`;
+
+const title = (files, isVersioning) => {
     const foldersSize = files.filter(f => f.isFolder).size;
     const objectsSize = files.size - foldersSize;
-    return `Do you want to permanently delete the selected ${maybePluralize(objectsSize, 'object')} ` +
-    `and ${maybePluralize(foldersSize, 'folder')}?`;
+    const permanently = isVersioning ? files.some(f => !!f.versionId) ? 'permanently' : '' : 'permanently';
+    // return `Do you want to ${permanently} delete the selected ${maybePluralize(objectsSize, 'object')} ` +
+    // `and ${maybePluralize(foldersSize, 'folder')}?`;
+    return <span> Do you want to <strong> {permanently} </strong> delete the selected { maybePluralize(objectsSize, 'object') } and { maybePluralize(foldersSize, 'folder') }? </span>;
 };
 
 const fileSizer = files => {
@@ -38,8 +49,9 @@ type Props = {
     toggled: List<Object>,
     prefixWithSlash: string,
     bucketName: string,
+    bucketInfo: BucketInfo,
 };
-const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
+const ObjectDelete = ({ bucketName, toggled, prefixWithSlash, bucketInfo }: Props) => {
     const show = useSelector((state: AppState) => state.uiObjects.showObjectDelete);
     const totalSize = useMemo(() => fileSizer(toggled), [toggled]);
     const dispatch: DispatchAPI<Action> = useDispatch();
@@ -57,13 +69,18 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
         if (toggled.size === 0) {
             return;
         }
-        const objects = toggled.map(s => {
+        const objects = toggled.filter(s => !s.isFolder).map(s => {
             return {
                 Key: s.key,
-                // TODO: add version when implemented.
+                VersionId: s.versionId,
             };
         }).toArray();
-        dispatch(deleteFiles(bucketName, prefixWithSlash, objects));
+        const folders = toggled.filter(s => s.isFolder).map(s => {
+            return {
+                Key: s.key,
+            };
+        }).toArray();
+        dispatch(deleteFiles(bucketName, prefixWithSlash, objects, folders));
     };
 
     return (
@@ -78,17 +95,18 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
             }
             isOpen={true}
             title='Confirmation'>
-            <div> {title(toggled)} </div>
+            <div> {title(toggled, bucketInfo.isVersioning)} </div>
             <Files>
                 <Table>
                     <T.Body>
                         {
                             toggled.map(s => (
                                 <T.Row key={s.key}>
-                                    <T.Cell> {s.key} <br/>
-                                        <small>{s.isFolder ?
-                                            <span> <i className='fas fa-info-circle'></i> { INFO_DELETE_FOLDER } </span> :
-                                            formatBytes(s.size)}</small>
+                                    <T.Cell> {s.key}
+                                        <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
+                                        <Description>
+                                            {s.size && formatBytes(s.size)}
+                                        </Description>
                                     </T.Cell>
                                 </T.Row>
                             ))

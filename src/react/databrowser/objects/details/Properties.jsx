@@ -1,5 +1,4 @@
 // @noflow
-
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
@@ -10,7 +9,7 @@ import styled from 'styled-components';
 const TableContainer = styled.div`
     display: block;
     overflow-y: auto;
-    height: calc(100vh - 340px);
+    height: calc(100vh - 352px);
     width: fit-content;
     margin: 15px 0 0 30px;
 `;
@@ -27,6 +26,11 @@ function Properties({ objectMetadata }: Props) {
                     <T.Row>
                         <T.Key> Name </T.Key>
                         <T.Value> {objectMetadata.objectKey} </T.Value>
+                    </T.Row>
+                    <T.Row hidden={!objectMetadata.versionId}>
+                        <T.Key> Version ID </T.Key>
+                        <T.Value> {objectMetadata.versionId} </T.Value>
+                        <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>
                     <T.Row>
                         <T.Key> Size </T.Key>

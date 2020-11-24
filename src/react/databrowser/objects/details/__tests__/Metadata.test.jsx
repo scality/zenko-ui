@@ -1,6 +1,7 @@
 import * as s3objects from '../../../../actions/s3object';
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../../../../utils';
 import { Item } from '../../../../ui-elements/EditableKeyValue';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../../utils/s3';
 import Metadata from '../Metadata';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import React from 'react';
@@ -104,7 +105,41 @@ describe('Metadata', () => {
         // check if item row values are rendered
         const firstItem = items.first();
         expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('CacheControl');
+        expect(firstItem.find('Select[name="mdKeyType"]').prop('isDisabled')).toBe(false);
+
         expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
+        expect(firstItem.find('input.metadata-input-value').prop('disabled')).toBe(false);
+
+        expect(firstItem.find('Button#addbtn0').prop('disabled')).toBe(false);
+        expect(firstItem.find('Button#delbtn0').prop('disabled')).toBe(false);
+
+        expect(component.find('Button#metadata-button-save').prop('disabled')).toBe(false);
+    });
+
+    it('should disable inputs and buttons if versioning mode', () => {
+        const { component } = reduxMount(<Metadata
+            listType={LIST_OBJECT_VERSIONS_S3_TYPE}
+            objectMetadata={{
+                ...OBJECT_METADATA,
+                metadata: [{ key: 'CacheControl', value: 'no-cache', type: METADATA_SYSTEM_TYPE }],
+            }}/>);
+
+        // check if only one item row is rendered
+        const items = component.find(Item);
+        expect(items).toHaveLength(1);
+
+        // check if item row values are rendered
+        const firstItem = items.first();
+        expect(firstItem.find('Select[name="mdKeyType"]').text()).toBe('cache-control');
+        expect(firstItem.find('Select[name="mdKeyType"]').prop('isDisabled')).toBe(true);
+
+        expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
+        expect(firstItem.find('input.metadata-input-value').prop('disabled')).toBe(true);
+
+        expect(firstItem.find('Button#addbtn0').prop('disabled')).toBe(true);
+        expect(firstItem.find('Button#delbtn0').prop('disabled')).toBe(true);
+
+        expect(component.find('Button#metadata-button-save').prop('disabled')).toBe(true);
     });
 
     it('should delete key/value if remove button is pressed', () => {
