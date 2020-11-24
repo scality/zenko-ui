@@ -282,4 +282,12 @@ export default class S3Client {
                 });
         });
     }
+
+    listObjectVersions(bucketName, prefix) {
+        const params = {
+            Bucket: bucketName,
+            Prefix: prefix,
+        };
+        return this.client.listObjectVersions(params).promise();
+    }
 }

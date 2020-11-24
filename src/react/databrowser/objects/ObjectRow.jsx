@@ -25,6 +25,7 @@ type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
     dispatch: DispatchAPI<Action>,
+    isVersioningType: boolean,
 };
 
 type RowProps = {
@@ -40,15 +41,17 @@ export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
     dispatch: DispatchAPI<Action>,
+    isVersioningType: boolean,
 ): Data => ({
     rows,
     prepareRow,
     dispatch,
+    isVersioningType,
 }), isDeepEqual);
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-    data: { rows, prepareRow, dispatch },
+    data: { rows, prepareRow, dispatch, isVersioningType },
     index,
     style,
 }: RowProps) => {
@@ -57,13 +60,13 @@ const Row = ({
 
     const handleClick = () => {
         dispatch(toggleAllObjects(false));
-        dispatch(toggleObject(row.original.name));
+        dispatch(toggleObject(row.original.name, row.original.versionId));
     };
 
     return (
         <T.Row isSelected={row.original.toggled} onClick={handleClick} {...row.getRowProps({ style })}>
             {row.cells.map(cell => (
-                <T.Cell key={cell.id} {...cell.getCellProps()} >
+                <T.Cell shade={isVersioningType && !row.original.isLatest} key={cell.id} {...cell.getCellProps()} >
                     {cell.render('Cell')}
                 </T.Cell>
             ))}

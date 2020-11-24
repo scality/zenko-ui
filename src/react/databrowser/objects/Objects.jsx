@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
-import { clearError, listObjects } from '../../actions';
+import { clearError, listObjectVersions, listObjects } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { EmptyStateContainer } from '../../ui-elements/Container';
@@ -31,7 +31,9 @@ export default function Objects(){
     const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
+        dispatch(listObjects(bucketNameParam, prefixWithSlash))
+            // .then(() => dispatch(listObjectVersions(bucketNameParam, prefixWithSlash)))
+            .then(() => setLoaded(true));
     }, [bucketNameParam, prefixWithSlash, dispatch]);
 
     if (!loaded) {

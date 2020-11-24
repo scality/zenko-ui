@@ -18,6 +18,7 @@ export const CustomBody = styled(T.Body)`
 
 export const Icon = styled.i`
     margin-right: 5px;
+    margin-left: ${props => props.isMargin ? '10px' : '0px'};
 `;
 
 type CellProps = {
@@ -30,8 +31,9 @@ type Props = {
     objects: List<Object>,
     bucketName: string,
     toggled: List<Object>,
+    isVersioningType: boolean,
 };
-export default function ObjectListTable({ objects, bucketName, toggled }: Props){
+export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType }: Props){
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
 
@@ -73,9 +75,14 @@ export default function ObjectListTable({ objects, bucketName, toggled }: Props)
                 if (original.isFolder) {
                     return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${original.key}` }}>{original.name}</T.CellLink></span>;
                 }
-                return <span> <Icon className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}> {original.name} </T.CellA> </span>;
+                return <span> <Icon isMargin={isVersioningType && !original.isLatest} className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}> {original.name} </T.CellA> </span>;
             },
-            width: 49,
+            width: isVersioningType ? 34 : 49,
+        },
+        {
+            Header: 'Version ID',
+            accessor: 'versionId',
+            width: 15,
         },
         {
             Header: 'Modified on',
@@ -88,7 +95,9 @@ export default function ObjectListTable({ objects, bucketName, toggled }: Props)
             accessor: row => row.size ? formatBytes(row.size) : '',
             width: 15,
         },
-    ], [bucketName, dispatch, isToggledFull]);
+    ], [bucketName, dispatch, isToggledFull, isVersioningType]);
+
+    const hiddenColumns = isVersioningType ? [] : ['versionId'];
 
     const {
         getTableProps,
@@ -102,6 +111,7 @@ export default function ObjectListTable({ objects, bucketName, toggled }: Props)
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
+        initialState: { hiddenColumns },
     }, useFilters, useSortBy, useFlexLayout);
 
     return <T.ContainerWithSubHeader>
@@ -135,7 +145,7 @@ export default function ObjectListTable({ objects, bucketName, toggled }: Props)
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={createItemData(rows, prepareRow, dispatch)}
+                            itemData={createItemData(rows, prepareRow, dispatch, isVersioningType)}
                         >
                             {MemoRow}
                         </FixedSizeList>

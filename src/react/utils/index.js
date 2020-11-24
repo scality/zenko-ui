@@ -13,6 +13,7 @@ export const METADATA_USER_TYPE = 'user';
 export const METADATA_SYSTEM_TYPE = 'system';
 export const LIST_OBJECTS_S3_TYPE = 's3';
 export const LIST_OBJECTS_METADATA_TYPE = 'md';
+export const LIST_OBJECT_VERSIONS_S3_TYPE = 'ver';
 
 export function errorParser(error) {
     let message = '';

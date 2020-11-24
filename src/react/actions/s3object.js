@@ -27,6 +27,15 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
+export function listObjectVersionsSuccess(versions, deleteMarkers, prefix: string): ListObjectVersionsSuccessAction {
+    return {
+        type: 'LIST_OBJECT_VERSIONS_SUCCESS',
+        versions,
+        deleteMarkers,
+        prefix,
+    };
+}
+
 export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
     return {
         type: 'GET_OBJECT_METADATA_SUCCESS',
@@ -74,10 +83,11 @@ export function closeObjectDeleteModal(): CloseObjectDeleteModalAction {
     };
 }
 
-export function toggleObject(objectName: string): ToggleObjectAction {
+export function toggleObject(objectName: string, versionId: string): ToggleObjectAction {
     return {
         type: 'TOGGLE_OBJECT',
         objectName,
+        versionId,
     };
 }
 
@@ -118,6 +128,23 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
                 const list = res.Contents;
                 list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
                 return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix));
+            })
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        dispatch(networkStart('Listing object versions'));
+        return zenkoClient.listObjectVersions(bucketName, prefixWithSlash)
+            .then(res => {
+                console.log('listObjectVersions => res!!!', res);
+                // const list = res.Contents;
+                // list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
+                return dispatch(listObjectVersionsSuccess(res.Versions, res.DeleteMarkers, res.Prefix));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))

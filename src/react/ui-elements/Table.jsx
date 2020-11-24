@@ -74,6 +74,7 @@ export const Row = styled(HeadRow)`
 `;
 
 export const Cell = styled.td`
+    color: ${props => props.shade ? props.theme.brand.base : props.theme.brand.text};
     padding: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -81,7 +82,7 @@ export const Cell = styled.td`
 `;
 
 export const CellLink = styled(Link)`
-    color: ${props => props.theme.brand.text};
+    color: inherit;
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -89,7 +90,7 @@ export const CellLink = styled(Link)`
 `;
 
 export const CellA = styled.a`
-    color: ${props => props.theme.brand.text};
+    color: inherit;
     text-decoration: none;
     &:hover{
         text-decoration: underline;

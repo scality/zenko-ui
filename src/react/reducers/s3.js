@@ -1,10 +1,11 @@
 // @flow
-import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
+import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
 import type { MetadataPairs, Object, TagSet, Tags } from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
+import { mergeSortedVersionsAndDeleteMarkers } from '../utils/s3';
 
 const sortByDate = objs => objs.sort((a,b) => (new Date(b.CreationDate) - new Date(a.CreationDate)));
 
@@ -39,6 +40,25 @@ const search = (objs): Array<Object> => objs.map(o => {
         signedUrl: o.SignedUrl,
     };
 });
+
+const versioning = (versions, deleteMarkers, prefix) => {
+    console.log('versions!!!', versions);
+    console.log('deleteMarkers!!!', deleteMarkers);
+    const results = mergeSortedVersionsAndDeleteMarkers(versions, deleteMarkers);
+    const finalRes = results.map(o => {
+        return {
+            name: o.Key.replace(prefix, ''),
+            key: o.Key,
+            lastModified: formatDate(new Date(o.LastModified)),
+            size: o.Size,
+            isFolder: o.IsFolder,
+            isLatest: o.IsLatest,
+            versionId: o.VersionId,
+        };
+    });
+    console.log('finalRes!!!', finalRes);
+    return finalRes;
+};
 
 const convertToFormMetadata = (info): MetadataPairs => {
     const pairs = systemMetadataKeys.filter(key => info[key]).map(key => {
@@ -83,6 +103,16 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
                 list: List([...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)]),
             },
         };
+    case 'LIST_OBJECT_VERSIONS_SUCCESS':
+        return {
+            ...state,
+            listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
+            listObjectsResults: {
+                // TODO: change listou to list
+                // ...state.listObjectsResults,
+                list: List(versioning(action.versions, action.deleteMarkers, action.prefix)),
+            },
+        };
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':
         return {
             ...state,
@@ -97,7 +127,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             ...state,
             listObjectsResults: {
                 list: state.listObjectsResults.list.map(o =>
-                    (o.name === action.objectName) ? { ...o, toggled: !o.toggled } : o
+                    (o.name === action.objectName && o.versionId === action.versionId) ? { ...o, toggled: !o.toggled } : o
                 ),
             },
         };
