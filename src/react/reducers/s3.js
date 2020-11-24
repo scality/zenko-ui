@@ -17,6 +17,7 @@ const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== pref
         size: o.Size,
         isFolder: false,
         toggled: false,
+        isLatest: true,
         signedUrl: o.SignedUrl,
     };
 });
@@ -26,6 +27,7 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
         name: o.Prefix.replace(prefix, ''),
         key: o.Prefix,
         isFolder: true,
+        isLatest: true,
         toggled: false,
     };
 });
@@ -37,6 +39,7 @@ const search = (objs): Array<Object> => objs.map(o => {
         lastModified: formatDate(new Date(o.LastModified)),
         size: o.Size,
         isFolder: o.IsFolder,
+        isLatest: true,
         signedUrl: o.SignedUrl,
     };
 });

@@ -75,7 +75,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                 if (original.isFolder) {
                     return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${original.key}` }}>{original.name}</T.CellLink></span>;
                 }
-                return <span> <Icon isMargin={isVersioningType && !original.isLatest} className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}> {original.name} </T.CellA> </span>;
+                return <span> <Icon isMargin={!original.isLatest} className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}> {original.name} </T.CellA> </span>;
             },
             width: isVersioningType ? 34 : 49,
         },
@@ -145,7 +145,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                             itemCount={rows.length}
                             itemSize={45}
                             width='100%'
-                            itemData={createItemData(rows, prepareRow, dispatch, isVersioningType)}
+                            itemData={createItemData(rows, prepareRow, dispatch)}
                         >
                             {MemoRow}
                         </FixedSizeList>
