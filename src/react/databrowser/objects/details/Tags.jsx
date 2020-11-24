@@ -23,7 +23,7 @@ type Props = {
 };
 function Properties({ objectMetadata }: Props) {
     const dispatch = useDispatch();
-    const { bucketName, objectKey, tags, prefixWithSlash } = objectMetadata;
+    const { bucketName, objectKey, tags, prefixWithSlash, versionId } = objectMetadata;
     const [items, setItems] = useState([EMPTY_ITEM]);
 
     useEffect(() => {
@@ -65,7 +65,7 @@ function Properties({ objectMetadata }: Props) {
             return;
         }
         const tags = convertToAWSTags(items);
-        dispatch(putObjectTagging(bucketName, prefixWithSlash, objectKey, tags));
+        dispatch(putObjectTagging(bucketName, prefixWithSlash, objectKey, tags, versionId));
     };
 
     return (

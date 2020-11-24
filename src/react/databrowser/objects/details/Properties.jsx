@@ -28,6 +28,11 @@ function Properties({ objectMetadata }: Props) {
                         <T.Key> Name </T.Key>
                         <T.Value> {objectMetadata.objectKey} </T.Value>
                     </T.Row>
+                    <T.Row hidden={!objectMetadata.versionId}>
+                        <T.Key> Version Id </T.Key>
+                        <T.Value> {objectMetadata.versionId} </T.Value>
+                        <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
+                    </T.Row>
                     <T.Row>
                         <T.Key> Size </T.Key>
                         <T.Value> {formatBytes(objectMetadata.contentLength)} </T.Value>

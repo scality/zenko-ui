@@ -124,10 +124,11 @@ export default class S3Client {
     }
 
     // TODO: add VersionId
-    headObject(bucketName, objectName) {
+    headObject(bucketName, objectName, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectName,
+            VersionId: versionId,
         };
         return this.client.headObject(params).promise();
     }
@@ -151,21 +152,23 @@ export default class S3Client {
         return this.client.copyObject(params).promise();
     }
 
-    getObjectTagging(bucketName, objectKey) {
+    getObjectTagging(bucketName, objectKey, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectKey,
+            VersionId: versionId,
         };
         return this.client.getObjectTagging(params).promise();
     }
 
-    putObjectTagging(bucketName, objectKey, tags) {
+    putObjectTagging(bucketName, objectKey, tags, versionId) {
         const params = {
             Bucket: bucketName,
             Key: objectKey,
             Tagging: {
                 TagSet: tags,
             },
+            VersionId: versionId,
         };
         return this.client.putObjectTagging(params).promise();
     }

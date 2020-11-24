@@ -35,7 +35,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     useEffect(() => {
         const firstToggledItem = toggled.first();
         if (toggled.size === 1 && !firstToggledItem.isFolder) {
-            dispatch(getObjectMetadata(bucketName, prefixWithSlash, `${firstToggledItem.key}`));
+            dispatch(getObjectMetadata(bucketName, prefixWithSlash, firstToggledItem.key, firstToggledItem.versionId));
         } else {
             dispatch(resetObjectMetadata());
         }

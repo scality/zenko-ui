@@ -178,13 +178,13 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
     };
 }
 
-export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string): ThunkStatePromisedAction{
+export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, versionId: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
         return Promise.all([
-            zenkoClient.headObject(bucketName, objectKey),
-            zenkoClient.getObjectTagging(bucketName, objectKey),
+            zenkoClient.headObject(bucketName, objectKey, versionId),
+            zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
         ])
             .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, info, tags.TagSet)))
             .catch(error => dispatch(handleS3Error(error)))
@@ -205,12 +205,12 @@ export function putObjectMetadata(bucketName: string, prefixWithSlash: string, o
     };
 }
 
-export function putObjectTagging(bucketName: string, prefixWithSlash: string, objectKey: string, tags: TagSet): ThunkStatePromisedAction{
+export function putObjectTagging(bucketName: string, prefixWithSlash: string, objectKey: string, tags: TagSet, versionId: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object tags'));
-        return zenkoClient.putObjectTagging(bucketName, objectKey, tags)
-            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
+        return zenkoClient.putObjectTagging(bucketName, objectKey, tags, versionId)
+            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey, versionId)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
