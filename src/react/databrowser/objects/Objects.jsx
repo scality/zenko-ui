@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
-import { clearError, listObjectVersions, listObjects } from '../../actions';
+import { clearError, listObjects } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { EmptyStateContainer } from '../../ui-elements/Container';
@@ -24,6 +24,7 @@ export default function Objects(){
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
     const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
+    const listType = useSelector((state: AppState) => state.s3.listObjectsType);
 
     const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
 
@@ -69,8 +70,8 @@ export default function Objects(){
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
-            <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} />
-            <ObjectDetails toggled={toggled} objectMetadata={objectMetadata} />
+            <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} listType={listType} />
+            <ObjectDetails toggled={toggled} objectMetadata={objectMetadata} listType={listType} />
         </L.Body>
 
     </div>;

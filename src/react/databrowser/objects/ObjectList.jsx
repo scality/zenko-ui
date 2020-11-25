@@ -3,13 +3,13 @@
 import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, maybePluralize } from '../../utils';
+import type { ListObjectsType, Object } from '../../../types/s3';
 import React, { useEffect } from 'react';
 import { getObjectMetadata, listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, resetObjectMetadata } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
-import type { Object } from '../../../types/s3';
 import ObjectDelete from './ObjectDelete';
 import ObjectListTable from './ObjectListTable';
 import { Toggle } from '@scality/core-ui';
@@ -20,12 +20,12 @@ type Props = {
     bucketName: string,
     prefixWithSlash: string,
     toggled: List<Object>,
+    listType: ListObjectsType,
 };
 
-export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled }: Props){
+export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled, listType }: Props){
     const dispatch = useDispatch();
     const errorZenkoMsg = useSelector((state: AppState) => state.zenko.error.message);
-    const listType = useSelector((state: AppState) => state.s3.listObjectsType);
     const isMetadataType = listType === LIST_OBJECTS_METADATA_TYPE;
     const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 

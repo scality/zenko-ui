@@ -1,9 +1,9 @@
 // @flow
+import type { ListObjectsType, ObjectMetadata } from '../../../types/s3';
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import { List } from 'immutable';
 import Metadata from './details/Metadata';
-import type { ObjectMetadata } from '../../../types/s3';
 import Properties from './details/Properties';
 import React from 'react';
 import Tags from './details/Tags';
@@ -19,11 +19,12 @@ export const SELECT_AN_OBJECT_MESSAGE = 'Select an object.';
 type Props = {
     objectMetadata: ?ObjectMetadata,
     toggled: List<Object>,
+    listType: ListObjectsType,
 };
 
 export const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
 
-function ObjectDetails({ objectMetadata, toggled }: Props) {
+function ObjectDetails({ objectMetadata, toggled, listType }: Props) {
     const dispatch = useDispatch();
     const query = useQuery();
     const { pathname } = useLocation();
@@ -41,7 +42,7 @@ function ObjectDetails({ objectMetadata, toggled }: Props) {
             return <Properties objectMetadata={objectMetadata}/>;
         }
         if (tabName === 'metadata') {
-            return <Metadata objectMetadata={objectMetadata}/>;
+            return <Metadata objectMetadata={objectMetadata} listType={listType}/>;
         }
         if (tabName === 'tags') {
             return <Tags objectMetadata={objectMetadata}/>;

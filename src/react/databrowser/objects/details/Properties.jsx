@@ -1,5 +1,4 @@
 // @noflow
-
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
@@ -29,7 +28,7 @@ function Properties({ objectMetadata }: Props) {
                         <T.Value> {objectMetadata.objectKey} </T.Value>
                     </T.Row>
                     <T.Row hidden={!objectMetadata.versionId}>
-                        <T.Key> Version Id </T.Key>
+                        <T.Key> Version ID </T.Key>
                         <T.Value> {objectMetadata.versionId} </T.Value>
                         <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>

@@ -1,8 +1,8 @@
 // @flow
-import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
+import { AMZ_META, LIST_OBJECT_VERSIONS_S3_TYPE, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
 import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
-import type { MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
+import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
@@ -48,11 +48,13 @@ const convertToAWSMetadata = (items: MetadataItems) => {
 
 type Props = {
     objectMetadata: ObjectMetadata,
+    listType: ListObjectsType,
 };
-function Properties({ objectMetadata }: Props) {
+function Metadata({ objectMetadata, listType }: Props) {
     const dispatch = useDispatch();
     const { bucketName, objectKey, metadata, prefixWithSlash } = objectMetadata;
     const [items, setItems] = useState([EMPTY_ITEM]);
+    const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 
     useEffect(() => {
         if (metadata.length > 0) {
@@ -174,7 +176,7 @@ function Properties({ objectMetadata }: Props) {
                     id='metadata-button-save'
                     variant='info'
                     text='Save'
-                    disabled={!isValidItems}
+                    disabled={!isValidItems || isVersioningType}
                     onClick={save}
                     icon={<i className='fas fa-save' />}
                 />
@@ -183,4 +185,4 @@ function Properties({ objectMetadata }: Props) {
     );
 }
 
-export default Properties;
+export default Metadata;
