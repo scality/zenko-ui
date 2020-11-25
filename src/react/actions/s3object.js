@@ -13,9 +13,10 @@ import type {
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../types/actions';
-import type { CommonPrefix, File, HeadObjectResponse, MetadataPairs, S3Object, TagSet } from '../../types/s3';
+import type { CommonPrefix, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3Object, TagSet } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils';
 import { getClients } from '../utils/actions';
 
 export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction {
@@ -27,11 +28,12 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
-export function listObjectVersionsSuccess(versions, deleteMarkers, prefix: string): ListObjectVersionsSuccessAction {
+export function listObjectVersionsSuccess(versions, deleteMarkers, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectVersionsSuccessAction {
     return {
         type: 'LIST_OBJECT_VERSIONS_SUCCESS',
         versions,
         deleteMarkers,
+        commonPrefixes,
         prefix,
     };
 }
@@ -119,7 +121,7 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
     };
 }
 
-export function listObjects(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Listing objects'));
@@ -135,7 +137,7 @@ export function listObjects(bucketName: string, prefixWithSlash: string): ThunkS
     };
 }
 
-export function listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Listing object versions'));
@@ -144,11 +146,22 @@ export function listObjectVersions(bucketName: string, prefixWithSlash: string):
                 console.log('listObjectVersions => res!!!', res);
                 // const list = res.Contents;
                 // list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
-                return dispatch(listObjectVersionsSuccess(res.Versions, res.DeleteMarkers, res.Prefix));
+                return dispatch(listObjectVersionsSuccess(res.Versions, res.DeleteMarkers, res.CommonPrefixes, res.Prefix));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function listObjects(bucketName: string, prefixWithSlash: string, type?: ListObjectsType): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3 } = getState();
+        const listType = type || s3.listObjectsType;
+        if (listType === LIST_OBJECT_VERSIONS_S3_TYPE) {
+            return dispatch(_listObjectVersions(bucketName, prefixWithSlash));
+        }
+        return dispatch(_listObjectNoVersion(bucketName, prefixWithSlash));
     };
 }
 

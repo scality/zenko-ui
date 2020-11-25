@@ -290,6 +290,7 @@ export default class S3Client {
         const params = {
             Bucket: bucketName,
             Prefix: prefix,
+            Delimiter: '/',
         };
         return this.client.listObjectVersions(params).promise();
     }

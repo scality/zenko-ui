@@ -22,6 +22,16 @@ const Files = styled.div`
     border: 1px solid ${props => props.theme.brand.borderLight};
 `;
 
+const Description = styled.div`
+    font-size: 14px;
+    margin-top: 2px;
+`;
+
+const VersionId = styled.div`
+    font-size: 11px;
+    margin-top: 2px;
+`;
+
 const title = files => {
     const foldersSize = files.filter(f => f.isFolder).size;
     const objectsSize = files.size - foldersSize;
@@ -60,7 +70,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
         const objects = toggled.map(s => {
             return {
                 Key: s.key,
-                // TODO: add version when implemented.
+                VersionId: s.versionId,
             };
         }).toArray();
         dispatch(deleteFiles(bucketName, prefixWithSlash, objects));
@@ -85,10 +95,13 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
                         {
                             toggled.map(s => (
                                 <T.Row key={s.key}>
-                                    <T.Cell> {s.key} <br/>
-                                        <small>{s.isFolder ?
-                                            <span> <i className='fas fa-info-circle'></i> { INFO_DELETE_FOLDER } </span> :
-                                            formatBytes(s.size)}</small>
+                                    <T.Cell> {s.key}
+                                        <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
+                                        <Description>
+                                            {s.isFolder ?
+                                                <span> <i className='fas fa-info-circle'></i> { INFO_DELETE_FOLDER } </span> :
+                                                s.size && formatBytes(s.size)}
+                                        </Description>
                                     </T.Cell>
                                 </T.Row>
                             ))

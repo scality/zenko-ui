@@ -2,9 +2,9 @@
 
 import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
-import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, maybePluralize } from '../../utils';
+import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, maybePluralize } from '../../utils';
 import React, { useEffect } from 'react';
-import { getObjectMetadata, listObjectVersions, listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, resetObjectMetadata } from '../../actions';
+import { getObjectMetadata, listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, resetObjectMetadata } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { List } from 'immutable';
@@ -34,7 +34,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     //       Otherwise, we clear object metadata.
     useEffect(() => {
         const firstToggledItem = toggled.first();
-        if (toggled.size === 1 && !firstToggledItem.isFolder) {
+        if (toggled.size === 1 && !firstToggledItem.isFolder && !firstToggledItem.isDeleteMarker) {
             dispatch(getObjectMetadata(bucketName, prefixWithSlash, firstToggledItem.key, firstToggledItem.versionId));
         } else {
             dispatch(resetObjectMetadata());
@@ -60,11 +60,8 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
                     toggle={isVersioningType}
                     label='List Versions'
                     onChange={() => {
-                        if (isVersioningType) {
-                            dispatch(listObjects(bucketName, prefixWithSlash));
-                            return;
-                        }
-                        dispatch(listObjectVersions(bucketName, prefixWithSlash));
+                        const type = isVersioningType ? LIST_OBJECTS_S3_TYPE : LIST_OBJECT_VERSIONS_S3_TYPE;
+                        dispatch(listObjects(bucketName, prefixWithSlash, type));
                     }}
                 />
             </T.ButtonContainer>

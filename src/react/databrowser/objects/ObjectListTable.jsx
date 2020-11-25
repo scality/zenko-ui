@@ -4,6 +4,7 @@ import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
+import { Chips } from '@scality/core-ui';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
@@ -18,7 +19,7 @@ export const CustomBody = styled(T.Body)`
 
 export const Icon = styled.i`
     margin-right: 5px;
-    margin-left: ${props => props.isMargin ? '10px' : '0px'};
+    margin-left: ${props => props.isMargin ? '15px' : '0px'};
 `;
 
 type CellProps = {
@@ -54,7 +55,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                         checked={original.toggled}
                         onClick={(e) => {
                             e.stopPropagation(); // Prevent checkbox and clickable table row conflict.
-                            dispatch(toggleObject(original.name));
+                            dispatch(toggleObject(original.name, original.versionId));
                         }}
                     />
                 );
@@ -73,9 +74,17 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
             accessor: 'name',
             Cell({ row: { original } }: CellProps) {
                 if (original.isFolder) {
-                    return <span> <Icon className='far fa-folder'></Icon> <T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${original.key}` }}>{original.name}</T.CellLink></span>;
+                    return <span> <Icon className='far fa-folder'></Icon><T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${original.key}` }}>{original.name}</T.CellLink></span>;
                 }
-                return <span> <Icon isMargin={!original.isLatest} className='far fa-file'></Icon> <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}> {original.name} </T.CellA> </span>;
+                if (original.isDeleteMarker) {
+                    return <span> <Icon isMargin={!original.isLatest} className='fas fa-ban'></Icon>{original.name}</span>;
+                }
+                return <span>
+                    <Icon isMargin={!original.isLatest} className='far fa-file'></Icon>
+                    <T.CellA href={original.signedUrl} download={`${bucketName}-${original.key}`}>
+                        {original.name}
+                    </T.CellA>
+                </span>;
             },
             width: isVersioningType ? 34 : 49,
         },

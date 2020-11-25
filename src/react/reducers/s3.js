@@ -45,22 +45,19 @@ const search = (objs): Array<Object> => objs.map(o => {
 });
 
 const versioning = (versions, deleteMarkers, prefix) => {
-    console.log('versions!!!', versions);
-    console.log('deleteMarkers!!!', deleteMarkers);
     const results = mergeSortedVersionsAndDeleteMarkers(versions, deleteMarkers);
-    const finalRes = results.map(o => {
+    return results.filter(o => o.Key !== prefix).map(o => {
         return {
             name: o.Key.replace(prefix, ''),
             key: o.Key,
             lastModified: formatDate(new Date(o.LastModified)),
             size: o.Size,
-            isFolder: o.IsFolder,
+            isFolder: false,
             isLatest: o.IsLatest,
+            isDeleteMarker: !o.ETag,
             versionId: o.VersionId,
         };
     });
-    console.log('finalRes!!!', finalRes);
-    return finalRes;
 };
 
 const convertToFormMetadata = (info): MetadataPairs => {
@@ -113,7 +110,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             listObjectsResults: {
                 // TODO: change listou to list
                 // ...state.listObjectsResults,
-                list: List(versioning(action.versions, action.deleteMarkers, action.prefix)),
+                list: List([...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)]),
             },
         };
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':

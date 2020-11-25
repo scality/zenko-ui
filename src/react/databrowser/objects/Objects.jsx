@@ -31,9 +31,7 @@ export default function Objects(){
     const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        dispatch(listObjects(bucketNameParam, prefixWithSlash))
-            // .then(() => dispatch(listObjectVersions(bucketNameParam, prefixWithSlash)))
-            .then(() => setLoaded(true));
+        dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
     }, [bucketNameParam, prefixWithSlash, dispatch]);
 
     if (!loaded) {
