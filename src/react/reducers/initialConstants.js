@@ -2,11 +2,11 @@
 
 import type { AccountState, AccountsUIState, AuthState, BucketsUIState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, ObjectsUIState, S3State, UIErrorState } from '../../types/state';
 import { List, Map } from 'immutable';
+import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockUserManager } from '../../js/mock/userManager';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
-import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 
 export const initialAccountState: AccountState = {
     display: {},

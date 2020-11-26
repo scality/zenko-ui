@@ -23,7 +23,6 @@ export default function Objects(){
     const objects = useSelector((state: AppState) => state.s3.listObjectsResults.list);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
-    const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
     const listType = useSelector((state: AppState) => state.s3.listObjectsType);
 
     const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
@@ -71,7 +70,7 @@ export default function Objects(){
 
         <L.Body>
             <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} listType={listType} />
-            <ObjectDetails toggled={toggled} objectMetadata={objectMetadata} listType={listType} />
+            <ObjectDetails toggled={toggled} listType={listType} />
         </L.Body>
 
     </div>;

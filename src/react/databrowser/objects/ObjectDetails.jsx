@@ -1,15 +1,16 @@
 // @flow
-import type { ListObjectsType, ObjectMetadata } from '../../../types/s3';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../../../types/state';
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import { List } from 'immutable';
+import type { ListObjectsType } from '../../../types/s3';
 import Metadata from './details/Metadata';
 import Properties from './details/Properties';
 import React from 'react';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../../utils/hooks';
 
@@ -17,17 +18,17 @@ export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected.';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object.';
 
 type Props = {
-    objectMetadata: ?ObjectMetadata,
     toggled: List<Object>,
     listType: ListObjectsType,
 };
 
 export const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
 
-function ObjectDetails({ objectMetadata, toggled, listType }: Props) {
+function ObjectDetails({ toggled, listType }: Props) {
     const dispatch = useDispatch();
     const query = useQuery();
     const { pathname } = useLocation();
+    const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
 
     const tabName = query.get('tab');
 
