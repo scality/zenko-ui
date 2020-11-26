@@ -53,7 +53,7 @@ type Props = {
 };
 function Metadata({ objectMetadata, listType }: Props) {
     const dispatch = useDispatch();
-    const { bucketName, objectKey, metadata, prefixWithSlash } = objectMetadata;
+    const { bucketName, objectKey, metadata } = objectMetadata;
     const [items, setItems] = useState([EMPTY_ITEM]);
     const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 
@@ -119,7 +119,7 @@ function Metadata({ objectMetadata, listType }: Props) {
             return;
         }
         const { systemMetadata, userMetadata } = convertToAWSMetadata(items);
-        dispatch(putObjectMetadata(bucketName, prefixWithSlash, objectKey, systemMetadata, userMetadata));
+        dispatch(putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata));
     };
 
     const selectValue = (metadata: MetadataItem) => {

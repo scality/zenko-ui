@@ -25,6 +25,7 @@ type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
     dispatch: DispatchAPI<Action>,
+    prefixWithSlash: string,
 };
 
 type RowProps = {
@@ -40,15 +41,17 @@ export const createItemData = memoize((
     rows: RowsType,
     prepareRow: PrepareRow,
     dispatch: DispatchAPI<Action>,
+    prefixWithSlash: string,
 ): Data => ({
     rows,
     prepareRow,
     dispatch,
+    prefixWithSlash,
 }), isDeepEqual);
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-    data: { rows, prepareRow, dispatch },
+    data: { rows, prepareRow, dispatch, prefixWithSlash },
     index,
     style,
 }: RowProps) => {
@@ -57,7 +60,7 @@ const Row = ({
 
     const handleClick = () => {
         dispatch(toggleAllObjects(false));
-        dispatch(toggleObject(row.original.name, row.original.versionId));
+        dispatch(toggleObject(row.original.name, prefixWithSlash, row.original.versionId));
     };
 
     return (

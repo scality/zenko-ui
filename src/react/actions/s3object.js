@@ -39,11 +39,10 @@ export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMark
     };
 }
 
-export function getObjectMetadataSuccess(bucketName: string, prefixWithSlash: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
+export function getObjectMetadataSuccess(bucketName: string, objectKey: string, info: HeadObjectResponse, tags: TagSet): GetObjectMetadataSuccessAction {
     return {
         type: 'GET_OBJECT_METADATA_SUCCESS',
         bucketName,
-        prefixWithSlash,
         objectKey,
         info,
         tags,
@@ -86,10 +85,11 @@ export function closeObjectDeleteModal(): CloseObjectDeleteModalAction {
     };
 }
 
-export function toggleObject(objectName: string, versionId?: string): ToggleObjectAction {
+export function toggleObject(objectName: string, prefixWithSlash: string, versionId?: string): ToggleObjectAction {
     return {
         type: 'TOGGLE_OBJECT',
         objectName,
+        prefixWithSlash,
         versionId,
     };
 }
@@ -191,7 +191,7 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
     };
 }
 
-export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, versionId?: string): ThunkStatePromisedAction{
+export function getObjectMetadata(bucketName: string, objectKey: string, versionId?: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
@@ -199,31 +199,31 @@ export function getObjectMetadata(bucketName: string, prefixWithSlash: string, o
             zenkoClient.headObject(bucketName, objectKey, versionId),
             zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
         ])
-            .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, prefixWithSlash, objectKey, info, tags.TagSet)))
+            .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, objectKey, info, tags.TagSet)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
 
-export function putObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, systemMetadata: MetadataPairs, userMetadata: MetadataPairs): ThunkStatePromisedAction{
+export function putObjectMetadata(bucketName: string, objectKey: string, systemMetadata: MetadataPairs, userMetadata: MetadataPairs): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
         return zenkoClient.putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata)
-            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey)))
+            .then(() => dispatch(getObjectMetadata(bucketName, objectKey)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
 
-export function putObjectTagging(bucketName: string, prefixWithSlash: string, objectKey: string, tags: TagSet, versionId: string): ThunkStatePromisedAction{
+export function putObjectTagging(bucketName: string, objectKey: string, tags: TagSet, versionId: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object tags'));
         return zenkoClient.putObjectTagging(bucketName, objectKey, tags, versionId)
-            .then(() => dispatch(getObjectMetadata(bucketName, prefixWithSlash, objectKey, versionId)))
+            .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

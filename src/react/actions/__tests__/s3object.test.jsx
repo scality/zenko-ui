@@ -68,13 +68,13 @@ describe('s3object actions', () => {
         },
         {
             it: 'should return TOGGLE_OBJECT action -> test without objectName parameter',
-            fn: actions.toggleObject(''),
-            expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('')],
+            fn: actions.toggleObject('', PREFIX),
+            expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('', PREFIX)],
         },
         {
             it: 'should return TOGGLE_OBJECT action -> test with objectName parameter',
-            fn: actions.toggleObject('test'),
-            expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('test')],
+            fn: actions.toggleObject('test', PREFIX),
+            expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('test', PREFIX)],
         },
         {
             it: 'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to false',
@@ -92,14 +92,9 @@ describe('s3object actions', () => {
             expectedActions: [dispatchAction.RESET_OBJECT_METADATA_ACTION()],
         },
         {
-            it: 'should return GET_OBJECT_METADATA_SUCCESS action -> test without prefix parameter',
-            fn: actions.getObjectMetadataSuccess(BUCKET_NAME, '', OBJECT_KEY, INFO, TAGS),
-            expectedActions: [dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, TAGS)],
-        },
-        {
-            it: 'should return GET_OBJECT_METADATA_SUCCESS action -> test with prefix parameter',
-            fn: actions.getObjectMetadataSuccess(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
-            expectedActions: [dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, [])],
+            it: 'should return GET_OBJECT_METADATA_SUCCESS action',
+            fn: actions.getObjectMetadataSuccess(BUCKET_NAME, OBJECT_KEY, INFO, TAGS),
+            expectedActions: [dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, OBJECT_KEY, INFO, TAGS)],
         },
     ];
 
@@ -291,22 +286,12 @@ describe('s3object actions', () => {
             ],
         },
         {
-            it: 'getObjectMetadata: should return expected actions -> test without prefix parameter',
-            fn: actions.getObjectMetadata(BUCKET_NAME, '', OBJECT_KEY2),
+            it: 'getObjectMetadata: should return expected actions',
+            fn: actions.getObjectMetadata(BUCKET_NAME, OBJECT_KEY2),
             storeState: initState,
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY2, INFO, TAGS),
-                dispatchAction.NETWORK_END_ACTION,
-            ],
-        },
-        {
-            it: 'getObjectMetadata: should return expected actions -> test with prefix parameter',
-            fn: actions.getObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY),
-            storeState: initState,
-            expectedActions: [
-                gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, OBJECT_KEY2, INFO, TAGS),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -331,32 +316,20 @@ describe('s3object actions', () => {
             ],
         },
         {
-            it: 'putObjectMetadata: should return expected actions -> test without prefix parameter',
-            fn: actions.putObjectMetadata(BUCKET_NAME, '', OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            it: 'putObjectMetadata: should return expected actions ',
+            fn: actions.putObjectMetadata(BUCKET_NAME, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
             storeState: initState,
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, []),
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, OBJECT_KEY, INFO, []),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
         {
-            it: 'putObjectMetadata: should return expected actions -> test with prefix parameter',
-            fn: actions.putObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
-            storeState: initState,
-            expectedActions: [
-                gettingObjectMetadataNetworkAction,
-                gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY, INFO, []),
-                dispatchAction.NETWORK_END_ACTION,
-                dispatchAction.NETWORK_END_ACTION,
-            ],
-        },
-        {
-            it: 'putObjectMetadata: should handle error -> test without prefix parameter',
-            fn: actions.putObjectMetadata(BUCKET_NAME, '', OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
+            it: 'putObjectMetadata: should handle error',
+            fn: actions.putObjectMetadata(BUCKET_NAME, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
@@ -365,52 +338,32 @@ describe('s3object actions', () => {
             ],
         },
         {
-            it: 'putObjectMetadata: should handle error -> test with prefix parameter',
-            fn: actions.putObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY, SYSTEM_METADATA, USER_METADATA),
-            storeState: errorZenkoState(),
-            expectedActions: [
-                gettingObjectMetadataNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
-                dispatchAction.NETWORK_END_ACTION,
-            ],
-        },
-        {
-            it: 'putObjectTagging: should return expected actions -> test without prefix parameter',
-            fn: actions.putObjectTagging(BUCKET_NAME, '', OBJECT_KEY, []),
+            it: 'putObjectTagging: should return expected actions -> test with no tag',
+            fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY, []),
             storeState: initState,
             expectedActions: [
                 gettingObjectTagsNetworkAction,
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, '', OBJECT_KEY, INFO, []),
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, OBJECT_KEY, INFO, []),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
         {
-            it: 'putObjectTagging: should return expected actions -> test with prefix parameter',
-            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY2, TAGS),
+            it: 'putObjectTagging: should return expected actions -> test with tags',
+            fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY2, TAGS),
             storeState: initState,
             expectedActions: [
                 gettingObjectTagsNetworkAction,
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, PREFIX, OBJECT_KEY2, INFO, TAGS),
+                dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(BUCKET_NAME, OBJECT_KEY2, INFO, TAGS),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
         {
-            it: 'putObjectTagging: should handle error -> test without prefix parameter',
-            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY, []),
-            storeState: errorZenkoState(),
-            expectedActions: [
-                gettingObjectTagsNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
-                dispatchAction.NETWORK_END_ACTION,
-            ],
-        },
-        {
-            it: 'putObjectTagging: should handle error -> test with prefix parameter',
-            fn: actions.putObjectTagging(BUCKET_NAME, PREFIX, OBJECT_KEY, TAGS),
+            it: 'putObjectTagging: should handle error',
+            fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY, []),
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectTagsNetworkAction,

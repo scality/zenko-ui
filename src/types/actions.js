@@ -112,6 +112,7 @@ export type GetBucketInfoSuccess = {|
 export type ToggleObjectAction = {|
     +type: 'TOGGLE_OBJECT',
     +objectName: string,
+    +prefixWithSlash: string,
     +versionId?: string,
 |};
 
@@ -138,7 +139,6 @@ export type ListObjectVersionsSuccessAction = {|
 export type GetObjectMetadataSuccessAction = {|
     +type: 'GET_OBJECT_METADATA_SUCCESS',
     +bucketName: string,
-    +prefixWithSlash: string,
     +objectKey: string,
     +info: HeadObjectResponse,
     +tags: TagSet,

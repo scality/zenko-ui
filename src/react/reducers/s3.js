@@ -41,6 +41,7 @@ const search = (objs): Array<Object> => objs.map(o => {
         isFolder: o.IsFolder,
         isLatest: true,
         signedUrl: o.SignedUrl,
+        toggled: false,
     };
 });
 
@@ -57,6 +58,7 @@ const versioning = (versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMar
             isDeleteMarker: o.ETag ? false: true,
             versionId: o.VersionId,
             signedUrl: o.SignedUrl || null,
+            toggled: false,
         };
     });
 };
@@ -126,7 +128,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             ...state,
             listObjectsResults: {
                 list: state.listObjectsResults.list.map(o =>
-                    (o.name === action.objectName && o.versionId === action.versionId) ? { ...o, toggled: !o.toggled } : o
+                    (o.name === action.objectName.replace(action.prefixWithSlash, '') && o.versionId === action.versionId) ? { ...o, toggled: !o.toggled } : o
                 ),
             },
         };
@@ -144,9 +146,8 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             ...state,
             objectMetadata: {
                 bucketName: action.bucketName,
-                prefixWithSlash: action.prefixWithSlash,
                 objectKey: action.objectKey,
-                objectName: action.objectKey.replace(action.prefixWithSlash, ''),
+                // objectName: action.objectKey.replace(action.prefixWithSlash, ''),
                 lastModified: action.info.LastModified,
                 contentLength: action.info.ContentLength,
                 eTag: stripQuotes(action.info.ETag),

@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
-import { clearError, listObjects } from '../../actions';
+import { clearError, getObjectMetadata, listObjects, resetObjectMetadata } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { EmptyStateContainer } from '../../ui-elements/Container';
@@ -31,8 +31,19 @@ export default function Objects(){
     const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        dispatch(listObjects(bucketNameParam, prefixWithSlash)).then(() => setLoaded(true));
+        dispatch(listObjects(bucketNameParam, prefixWithSlash)).finally(() => setLoaded(true));
     }, [bucketNameParam, prefixWithSlash, dispatch]);
+
+    // NOTE: If only one unique object (not folder) is selected, we show its metadata.
+    //       Otherwise, we clear object metadata.
+    useEffect(() => {
+        const firstToggledItem = toggled.first();
+        if (toggled.size === 1 && !firstToggledItem.isFolder && !firstToggledItem.isDeleteMarker) {
+            dispatch(getObjectMetadata(bucketNameParam, firstToggledItem.key, firstToggledItem.versionId));
+        } else {
+            dispatch(resetObjectMetadata());
+        }
+    }, [dispatch, bucketNameParam, toggled]);
 
     if (!loaded) {
         return <ObjectHead/>;

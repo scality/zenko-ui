@@ -125,9 +125,7 @@ export type TagSet = Array<TagSetItem>;
 
 export type ObjectMetadata = {|
     +bucketName: string,
-    +prefixWithSlash: string,
     +objectKey: string,
-    +objectName: string,
     +lastModified: string,
     +contentLength: number,
     +contentType: string,

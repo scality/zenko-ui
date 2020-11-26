@@ -32,8 +32,9 @@ type Props = {
     bucketName: string,
     toggled: List<Object>,
     isVersioningType: boolean,
+    prefixWithSlash: string,
 };
-export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType }: Props){
+export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType, prefixWithSlash }: Props){
     const dispatch = useDispatch();
 
     const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
@@ -49,7 +50,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                         checked={original.toggled}
                         onClick={(e) => {
                             e.stopPropagation(); // Prevent checkbox and clickable table row conflict.
-                            dispatch(toggleObject(original.name, original.versionId));
+                            dispatch(toggleObject(original.name, prefixWithSlash, original.versionId));
                         }}
                     />
                 );
@@ -98,7 +99,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
             accessor: row => row.size ? formatBytes(row.size) : '',
             width: 15,
         },
-    ], [bucketName, dispatch, isToggledFull, isVersioningType]);
+    ], [bucketName, dispatch, isToggledFull, isVersioningType, prefixWithSlash]);
 
     const hiddenColumns = isVersioningType ? [] : ['versionId'];
 
@@ -147,7 +148,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                             itemCount={rows.length}
                             itemSize={45}
                             width={width || '100%'}
-                            itemData={createItemData(rows, prepareRow, dispatch)}
+                            itemData={createItemData(rows, prepareRow, dispatch, prefixWithSlash)}
                         >
                             {MemoRow}
                         </FixedSizeList>)

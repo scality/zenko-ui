@@ -4,14 +4,14 @@ import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import type { ListObjectsType, Object } from '../../../types/s3';
-import React, { useEffect } from 'react';
-import { getObjectMetadata, listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, resetObjectMetadata } from '../../actions';
+import { listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
 import ObjectDelete from './ObjectDelete';
 import ObjectListTable from './ObjectListTable';
+import React from 'react';
 import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
 import { maybePluralize } from '../../utils';
@@ -31,22 +31,12 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
     const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 
     const isToggledEmpty = toggled.size === 0;
-    // NOTE: If only one unique object (not folder) is selected, we show its metadata.
-    //       Otherwise, we clear object metadata.
-    useEffect(() => {
-        const firstToggledItem = toggled.first();
-        if (toggled.size === 1 && !firstToggledItem.isFolder && !firstToggledItem.isDeleteMarker) {
-            dispatch(getObjectMetadata(bucketName, prefixWithSlash, firstToggledItem.key, firstToggledItem.versionId));
-        } else {
-            dispatch(resetObjectMetadata());
-        }
-    }, [dispatch, bucketName, toggled, prefixWithSlash]);
 
     const maybeListTable = () => {
         if (errorZenkoMsg) {
             return <WarningMetadata iconClass='fas fa-2x fa-info-circle' description={errorZenkoMsg} />;
         }
-        return <ObjectListTable objects={objects} isVersioningType={isVersioningType} bucketName={bucketName} toggled={toggled} />;
+        return <ObjectListTable objects={objects} prefixWithSlash={prefixWithSlash} isVersioningType={isVersioningType} bucketName={bucketName} toggled={toggled} />;
     };
     return <L.ListSection>
         <ObjectDelete bucketName={bucketName} toggled={toggled} prefixWithSlash={prefixWithSlash}/>
