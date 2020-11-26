@@ -1,16 +1,16 @@
 // @flow
 import MemoRow, { createItemData } from './ObjectRow';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
 import { formatBytes } from '../../utils';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { useHeight } from '../../utils/hooks';
 
 export const CustomBody = styled(T.Body)`
     height: calc(100vh - 365px);
@@ -35,12 +35,10 @@ type Props = {
 };
 export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType }: Props){
     const dispatch = useDispatch();
-    const listRef = useRef<FixedSizeList<T> | null>(null);
-
-    const resizerRef = useRef<FixedSizeList<T> | null>(null);
-    const height = useHeight(resizerRef);
 
     const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
+
+    console.log('objects!!!', objects);
 
     const columns = useMemo(() => [
         {
@@ -143,22 +141,21 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                 ))}
             </T.Head>
             <CustomBody {...getTableBodyProps()}>
-                <T.Resizer ref={resizerRef}>
-                    {
+                <AutoSizer>
+                    {({ height, width }) => (
                         // ISSUE: https://github.com/bvaughn/react-window/issues/504
                         // eslint-disable-next-line flowtype-errors/show-errors
                         <FixedSizeList
-                            ref={listRef}
                             height={height}
                             itemCount={rows.length}
                             itemSize={45}
-                            width='100%'
+                            width={width}
                             itemData={createItemData(rows, prepareRow, dispatch)}
                         >
                             {MemoRow}
-                        </FixedSizeList>
+                        </FixedSizeList>)
                     }
-                </T.Resizer>
+                </AutoSizer>
             </CustomBody>
         </Table>
     </T.ContainerWithSubHeader>;
