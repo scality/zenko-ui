@@ -54,7 +54,7 @@ const versioning = (versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMar
             size: o.Size || null,
             isFolder: false,
             isLatest: o.IsLatest,
-            isDeleteMarker: o.ETag ? true: false,
+            isDeleteMarker: o.ETag ? false: true,
             versionId: o.VersionId,
             signedUrl: o.SignedUrl || null,
         };
