@@ -1,5 +1,4 @@
 // @flow
-import type { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../react/utils';
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../react/utils';
 
 export interface S3Client {
@@ -30,6 +29,31 @@ export type S3Object = {|
     +LastModified: string,
     +Size: number,
     +SignedUrl?: string,
+|};
+
+type Owner = {|
+    +DisplayName: string,
+    +ID: string,
+|};
+
+export type S3Version = {|
+    +ETag: string,
+    +Size: number,
+    +StorageClass: string,
+    +Key: string,
+    +VersionId: string,
+    +IsLatest: boolean,
+    +LastModified: string,
+    +Owner: Owner,
+    +SignedUrl: string,
+|};
+
+export type S3DeleteMarker = {|
+    +Owner: Owner,
+    +Key: string,
+    +VersionId: string,
+    +IsLatest: boolean,
+    +LastModified: string,
 |};
 
 export type CommonPrefix = {|
@@ -127,6 +151,5 @@ export type BucketInfo = {|
     +locationConstraint: string,
 |};
 
-export type ListObjectsType = LIST_OBJECT_VERSIONS_S3_TYPE |
-    LIST_OBJECTS_METADATA_TYPE |
-    LIST_OBJECTS_S3_TYPE;
+
+export type ListObjectsType = 's3' | 'md' | 'ver';

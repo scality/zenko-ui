@@ -1,7 +1,7 @@
 // @flow
 
 import type { AppConfig, InstanceId } from './entities';
-import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from './s3';
+import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
@@ -112,6 +112,7 @@ export type GetBucketInfoSuccess = {|
 export type ToggleObjectAction = {|
     +type: 'TOGGLE_OBJECT',
     +objectName: string,
+    +versionId?: string,
 |};
 
 export type ToggleAllObjectsAction = {|
@@ -122,6 +123,14 @@ export type ToggleAllObjectsAction = {|
 export type ListObjectsSuccessAction = {|
     +type: 'LIST_OBJECTS_SUCCESS',
     +contents: Array<S3Object>,
+    +commonPrefixes: Array<CommonPrefix>,
+    +prefix: string,
+|};
+
+export type ListObjectVersionsSuccessAction = {|
+    +type: 'LIST_OBJECT_VERSIONS_SUCCESS',
+    +versions: Array<S3Version>,
+    +deleteMarkers: Array<S3DeleteMarker>,
     +commonPrefixes: Array<CommonPrefix>,
     +prefix: string,
 |};
@@ -156,6 +165,7 @@ export type S3Action =
     GetBucketInfoSuccess |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
+    ListObjectVersionsSuccessAction |
     GetObjectMetadataSuccessAction |
     ResetObjectMetadataAction |
     ToggleAllObjectsAction |

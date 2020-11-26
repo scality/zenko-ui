@@ -25,7 +25,6 @@ type Data = {
     rows: RowsType,
     prepareRow: PrepareRow,
     dispatch: DispatchAPI<Action>,
-    isVersioningType: boolean,
 };
 
 type RowProps = {

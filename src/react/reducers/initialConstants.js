@@ -6,6 +6,7 @@ import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockUserManager } from '../../js/mock/userManager';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
+import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 
 export const initialAccountState: AccountState = {
     display: {},
@@ -29,6 +30,7 @@ export const initialS3State: S3State = {
         list: List(),
         ownerName: '',
     },
+    ListObjectsType: LIST_OBJECTS_S3_TYPE,
     bucketInfo: null,
     listObjectsResults: {
         list: List(),

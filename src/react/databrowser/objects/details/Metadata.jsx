@@ -1,9 +1,10 @@
 // @flow
-import { AMZ_META, LIST_OBJECT_VERSIONS_S3_TYPE, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
+import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
 import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
 import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';

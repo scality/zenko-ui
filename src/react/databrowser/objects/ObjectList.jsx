@@ -2,7 +2,7 @@
 
 import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
-import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, maybePluralize } from '../../utils';
+import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import type { ListObjectsType, Object } from '../../../types/s3';
 import React, { useEffect } from 'react';
 import { getObjectMetadata, listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal, resetObjectMetadata } from '../../actions';
@@ -14,6 +14,7 @@ import ObjectDelete from './ObjectDelete';
 import ObjectListTable from './ObjectListTable';
 import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
+import { maybePluralize } from '../../utils';
 
 type Props = {
     objects: List<Object>,

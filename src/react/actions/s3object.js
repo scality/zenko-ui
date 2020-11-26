@@ -4,6 +4,7 @@ import type {
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
     GetObjectMetadataSuccessAction,
+    ListObjectVersionsSuccessAction,
     ListObjectsSuccessAction,
     OpenFolderCreateModalAction,
     OpenObjectDeleteModalAction,
@@ -13,10 +14,10 @@ import type {
     ToggleAllObjectsAction,
     ToggleObjectAction,
 } from '../../types/actions';
-import type { CommonPrefix, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3Object, TagSet } from '../../types/s3';
+import type { CommonPrefix, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3DeleteMarker, S3Object, S3Version, TagSet } from '../../types/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
-import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import { getClients } from '../utils/actions';
 
 export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction {
@@ -28,7 +29,7 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
-export function listObjectVersionsSuccess(versions, deleteMarkers, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectVersionsSuccessAction {
+export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectVersionsSuccessAction {
     return {
         type: 'LIST_OBJECT_VERSIONS_SUCCESS',
         versions,
@@ -85,7 +86,7 @@ export function closeObjectDeleteModal(): CloseObjectDeleteModalAction {
     };
 }
 
-export function toggleObject(objectName: string, versionId: string): ToggleObjectAction {
+export function toggleObject(objectName: string, versionId?: string): ToggleObjectAction {
     return {
         type: 'TOGGLE_OBJECT',
         objectName,
@@ -190,7 +191,7 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
     };
 }
 
-export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, versionId: string): ThunkStatePromisedAction{
+export function getObjectMetadata(bucketName: string, prefixWithSlash: string, objectKey: string, versionId?: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Getting object metadata'));
