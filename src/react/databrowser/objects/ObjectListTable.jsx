@@ -4,7 +4,6 @@ import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import { Chips } from '@scality/core-ui';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
@@ -14,7 +13,7 @@ import { useDispatch } from 'react-redux';
 import { useHeight } from '../../utils/hooks';
 
 export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 400px);
+    height: calc(100vh - 365px);
 `;
 
 export const Icon = styled.i`

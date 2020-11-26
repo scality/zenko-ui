@@ -143,10 +143,9 @@ function _listObjectVersions(bucketName: string, prefixWithSlash: string): Thunk
         dispatch(networkStart('Listing object versions'));
         return zenkoClient.listObjectVersions(bucketName, prefixWithSlash)
             .then(res => {
-                console.log('listObjectVersions => res!!!', res);
-                // const list = res.Contents;
-                // list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
-                return dispatch(listObjectVersionsSuccess(res.Versions, res.DeleteMarkers, res.CommonPrefixes, res.Prefix));
+                const list = res.Versions;
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
+                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))

@@ -115,10 +115,11 @@ export default class S3Client {
         return this.client.deleteObjects(params).promise();
     }
 
-    getObjectSignedUrl(bucketName, objectName){
+    getObjectSignedUrl(bucketName, objectName, versionId){
         const params = {
             Bucket: bucketName,
             Key: objectName,
+            VersionId: versionId,
         };
         return this.client.getSignedUrl('getObject', params);
     }

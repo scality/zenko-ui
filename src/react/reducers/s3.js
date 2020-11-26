@@ -46,9 +46,9 @@ const search = (objs): Array<Object> => objs.map(o => {
 
 const versioning = (versions, deleteMarkers, prefix) => {
     const results = mergeSortedVersionsAndDeleteMarkers(versions, deleteMarkers);
-    return results.filter(o => o.Key !== prefix).map(o => {
+    return results.map(o => {
         return {
-            name: o.Key.replace(prefix, ''),
+            name: o.Key === prefix ? `EMPTY OBJECT (FOLDER) "${prefix}"` : o.Key.replace(prefix, ''),
             key: o.Key,
             lastModified: formatDate(new Date(o.LastModified)),
             size: o.Size,
@@ -56,6 +56,7 @@ const versioning = (versions, deleteMarkers, prefix) => {
             isLatest: o.IsLatest,
             isDeleteMarker: !o.ETag,
             versionId: o.VersionId,
+            signedUrl: o.SignedUrl,
         };
     });
 };
@@ -108,8 +109,6 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             ...state,
             listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
             listObjectsResults: {
-                // TODO: change listou to list
-                // ...state.listObjectsResults,
                 list: List([...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)]),
             },
         };
