@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { toggleAllObjects, toggleObject } from '../../actions';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
@@ -37,9 +37,6 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
     const dispatch = useDispatch();
 
     const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
-
-    console.log('objects!!!', objects);
-
     const columns = useMemo(() => [
         {
             id: 'checkbox',
@@ -146,10 +143,10 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                         // ISSUE: https://github.com/bvaughn/react-window/issues/504
                         // eslint-disable-next-line flowtype-errors/show-errors
                         <FixedSizeList
-                            height={height}
+                            height={height || 300}
                             itemCount={rows.length}
                             itemSize={45}
-                            width={width}
+                            width={width || '100%'}
                             itemData={createItemData(rows, prepareRow, dispatch)}
                         >
                             {MemoRow}
