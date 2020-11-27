@@ -1,6 +1,6 @@
 // @flow
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, mergeSortedVersionsAndDeleteMarkers } from '../utils/s3';
-import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatDate, stripQuotes, systemMetadataKeys } from '../utils';
+import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatShortDate, stripQuotes, systemMetadataKeys } from '../utils';
 import type { MetadataPairs, Object, S3DeleteMarker, S3Version, TagSet, Tags } from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
@@ -13,7 +13,7 @@ const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== pref
     return {
         name: o.Key.replace(prefix, ''),
         key: o.Key,
-        lastModified: formatDate(new Date(o.LastModified)),
+        lastModified: formatShortDate(new Date(o.LastModified)),
         size: o.Size,
         isFolder: false,
         toggled: false,
@@ -36,7 +36,7 @@ const search = (objs): Array<Object> => objs.map(o => {
     return {
         name: o.Key,
         key: o.Key,
-        lastModified: formatDate(new Date(o.LastModified)),
+        lastModified: formatShortDate(new Date(o.LastModified)),
         size: o.Size,
         isFolder: o.IsFolder,
         isLatest: true,
@@ -51,7 +51,7 @@ const versioning = (versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMar
         return {
             name: o.Key === prefix ? `EMPTY OBJECT (FOLDER) "${prefix}"` : o.Key.replace(prefix, ''),
             key: o.Key,
-            lastModified: formatDate(new Date(o.LastModified)),
+            lastModified: formatShortDate(new Date(o.LastModified)),
             size: o.Size || null,
             isFolder: false,
             isLatest: o.IsLatest,

@@ -40,16 +40,20 @@ export function formatDate(d) {
     return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
 
-export function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
+export function formatShortDate(d) {
+    return d.toISOString(). replace(/T/, ' ').replace(/\..+/, '');
+}
 
-    const k = 1024;
+export function formatBytes(bytes, decimals = 1) {
+    if (bytes === 0) return '0 B';
+
+    const k = 1000;
     const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    return (bytes / Math.pow(k, i)).toFixed(dm) + ' ' + sizes[i];
 }
 
 export const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;

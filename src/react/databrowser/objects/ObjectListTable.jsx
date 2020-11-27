@@ -81,7 +81,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                     </T.CellA>
                 </span>;
             },
-            width: isVersioningType ? 34 : 49,
+            width: isVersioningType ? 44 : 59,
         },
         {
             Header: 'Version ID',
@@ -91,7 +91,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             Header: 'Modified on',
             accessor: 'lastModified',
-            width: 35,
+            width: 25,
         },
         {
             id: 'size',
