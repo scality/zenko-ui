@@ -104,6 +104,16 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             listObjectsType: LIST_OBJECTS_S3_TYPE,
             listObjectsResults: {
                 list: List([...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)]),
+                nextMarker: action.nextMarker,
+            },
+        };
+    case 'CONTINUE_LIST_OBJECTS_SUCCESS':
+        return {
+            ...state,
+            listObjectsType: LIST_OBJECTS_S3_TYPE,
+            listObjectsResults: {
+                list: state.listObjectsResults.list.push(...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)),
+                nextMarker: action.nextMarker,
             },
         };
     case 'LIST_OBJECT_VERSIONS_SUCCESS':
@@ -112,6 +122,18 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
             listObjectsResults: {
                 list: List([...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)]),
+                nextMarker: action.nextMarker,
+                nextVersionIdMarker: action.nextVersionIdMarker,
+            },
+        };
+    case 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS':
+        return {
+            ...state,
+            listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
+            listObjectsResults: {
+                list: state.listObjectsResults.list.push(...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)),
+                nextMarker: action.nextMarker,
+                nextVersionIdMarker: action.nextVersionIdMarker,
             },
         };
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':

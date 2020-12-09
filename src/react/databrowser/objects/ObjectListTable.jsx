@@ -2,15 +2,17 @@
 import MemoRow, { createItemData } from './ObjectRow';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
-import { toggleAllObjects, toggleObject } from '../../actions';
+import { continueListObjects, toggleAllObjects, toggleObject } from '../../actions';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
+import type { AppState } from '../../../types/state';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
+import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
 import { formatBytes } from '../../utils';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
 
 export const Icon = styled.i`
     margin-right: 5px;
@@ -28,10 +30,16 @@ type Props = {
     bucketName: string,
     toggled: List<Object>,
     isVersioningType: boolean,
+    prefixWithSlash: string,
 };
-export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType }: Props){
+export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType, prefixWithSlash }: Props){
     const dispatch = useDispatch();
-
+    const nextMarker = useSelector((state: AppState) => state.s3.listObjectsResults.nextMarker);
+    const isItemLoaded = index => {
+        const shouldRefetch = nextMarker && index === objects.size - 1;
+        return !shouldRefetch;
+    };
+    // const itemCount = nextMarker ? objects.size + 1 : objects.size;
     const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
     const columns = useMemo(() => [
         {
@@ -138,16 +146,28 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                     {({ height, width }) => (
                         // ISSUE: https://github.com/bvaughn/react-window/issues/504
                         // eslint-disable-next-line flowtype-errors/show-errors
-                        <FixedSizeList
-                            height={height || 300}
+                        <InfiniteLoader
+                            isItemLoaded={isItemLoaded}
                             itemCount={rows.length}
-                            itemSize={45}
-                            width={width || '100%'}
-                            itemData={createItemData(rows, prepareRow, dispatch)}
+                            loadMoreItems={() =>
+                                dispatch(continueListObjects(bucketName, prefixWithSlash))
+                            }
                         >
-                            {MemoRow}
-                        </FixedSizeList>)
-                    }
+                            {({ onItemsRendered, ref }) => (
+                                <FixedSizeList
+                                    height={height || 300}
+                                    itemCount={rows.length}
+                                    itemSize={45}
+                                    width={width || '100%'}
+                                    itemData={createItemData(rows, prepareRow, dispatch)}
+                                    onItemsRendered={onItemsRendered}
+                                    ref={ref}
+                                >
+                                    {MemoRow}
+                                </FixedSizeList>
+                            )}
+                        </InfiniteLoader>
+                    )}
                 </AutoSizer>
             </T.BodyWindowing>
         </Table>

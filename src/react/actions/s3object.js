@@ -18,24 +18,49 @@ import type { CommonPrefix, DeleteFolder, File, HeadObjectResponse, ListObjectsT
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
+import type { Marker } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 
-export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction {
+export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction {
     return {
         type: 'LIST_OBJECTS_SUCCESS',
         contents,
         commonPrefixes,
         prefix,
+        nextMarker: nextContinuationToken,
     };
 }
 
-export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectVersionsSuccessAction {
+export function continueListObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction {
+    return {
+        type: 'CONTINUE_LIST_OBJECTS_SUCCESS',
+        contents,
+        commonPrefixes,
+        prefix,
+        nextMarker: nextContinuationToken,
+    };
+}
+
+export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextKeyMarker: Marker, nextVersionIdMarker: Marker): ListObjectVersionsSuccessAction {
     return {
         type: 'LIST_OBJECT_VERSIONS_SUCCESS',
         versions,
         deleteMarkers,
         commonPrefixes,
         prefix,
+        nextMarker: nextKeyMarker,
+        nextVersionIdMarker: nextVersionIdMarker,
+    };
+}
+
+export function continueListObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextKeyMarker: Marker, nextVersionIdMarker: Marker): ListObjectVersionsSuccessAction {
+    return {
+        type: 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS',
+        versions,
+        deleteMarkers,
+        commonPrefixes,
+        nextMarker: nextKeyMarker,
+        nextVersionIdMarker: nextVersionIdMarker,
     };
 }
 
@@ -129,7 +154,7 @@ function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): Thun
             .then(res => {
                 const list = res.Contents;
                 list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
-                return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix));
+                return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -145,7 +170,7 @@ function _listObjectVersions(bucketName: string, prefixWithSlash: string): Thunk
             .then(res => {
                 const list = res.Versions;
                 list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
-                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix));
+                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -161,6 +186,60 @@ export function listObjects(bucketName: string, prefixWithSlash: string, type?: 
             return dispatch(_listObjectVersions(bucketName, prefixWithSlash));
         }
         return dispatch(_listObjectNoVersion(bucketName, prefixWithSlash));
+    };
+}
+
+function _continueListObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        const { s3 } = getState();
+        const marker = s3.listObjectsResults.nextMarker;
+        if (!marker) {
+            return Promise.resolve();
+        }
+        dispatch(networkStart('Continue listing objects'));
+        return zenkoClient.listObjects(bucketName, prefixWithSlash, marker)
+            .then(res => {
+                const list = res.Contents;
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
+                return dispatch(continueListObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
+            })
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+function _continueListObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        const { s3 } = getState();
+        const marker = s3.listObjectsResults.nextMarker;
+        const versionIdMarker = s3.listObjectsResults.nextVersionIdMarker;
+        if (!marker || !versionIdMarker) {
+            return Promise.resolve();
+        }
+        dispatch(networkStart('Continue listing versioned objects'));
+        return zenkoClient.listObjectVersions(bucketName, prefixWithSlash, marker, versionIdMarker)
+            .then(res => {
+                const list = res.Versions;
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
+                return dispatch(continueListObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
+            })
+            .catch(error => dispatch(handleS3Error(error)))
+            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function continueListObjects(bucketName: string, prefixWithSlash: string, type?: ListObjectsType): ThunkStatePromisedAction{
+    return (dispatch, getState) => {
+        const { s3 } = getState();
+        const listType = type || s3.listObjectsType;
+        if (listType === LIST_OBJECT_VERSIONS_S3_TYPE) {
+            return dispatch(_continueListObjectVersions(bucketName, prefixWithSlash));
+        }
+        return dispatch(_continueListObjectNoVersion(bucketName, prefixWithSlash));
     };
 }
 
