@@ -104,7 +104,7 @@ export type ListBucketsSuccessAction = {|
     +ownerName: string,
 |};
 
-export type GetBucketInfoSuccess = {|
+export type GetBucketInfoSuccessAction = {|
     +type: 'GET_BUCKET_INFO_SUCCESS',
     +info: BucketInfo,
 |};
@@ -182,7 +182,7 @@ export type ZenkoAppendSearchListAction = {|
 |};
 
 export type S3Action =
-    GetBucketInfoSuccess |
+    GetBucketInfoSuccessAction |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
     ContinueListObjectsSuccessAction |

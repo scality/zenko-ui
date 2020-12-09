@@ -2,6 +2,7 @@
 
 import {
     APP_CONFIG,
+    BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
     LATEST_OVERLAY,
 } from './testUtil';
@@ -15,6 +16,7 @@ import type {
     CloseObjectUploadModalAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
+    GetBucketInfoSuccessAction,
     GetObjectMetadataSuccessAction,
     HandleErrorAction,
     ListBucketsSuccessAction,
@@ -157,6 +159,9 @@ export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (bucketName: string): OpenBucket
 
 export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
     { type: 'CLOSE_BUCKET_DELETE_DIALOG' };
+
+export const GET_BUCKET_INFO_SUCCESS_ACTION: GetBucketInfoSuccessAction =
+    { type: 'GET_BUCKET_INFO_SUCCESS', info: BUCKET_INFO_RESPONSE };
 
 // * objects actions
 export const LIST_OBJECTS_SUCCESS_ACTION = (contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction => {

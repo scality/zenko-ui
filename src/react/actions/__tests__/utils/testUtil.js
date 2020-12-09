@@ -2,6 +2,7 @@
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
 import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import {
+    bucketInfoResponse,
     bucketName,
     commonPrefix,
     file,
@@ -84,6 +85,7 @@ export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
 export const ZENKO_ERROR = zenkoError;
+export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 
 export function errorUserManagerState(): AppState {
     const state = initState;

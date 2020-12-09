@@ -2,7 +2,7 @@
 import type { BucketInfo, CreateBucketRequest, S3Bucket } from '../../types/s3';
 import type {
     CloseBucketDeleteDialogAction,
-    GetBucketInfoSuccess,
+    GetBucketInfoSuccessAction,
     ListBucketsSuccessAction,
     OpenBucketDeleteDialogAction,
     ThunkStatePromisedAction,
@@ -20,7 +20,7 @@ export function listBucketsSuccess(list: Array<S3Bucket> , ownerName: string): L
     };
 }
 
-export function getBucketInfoSuccess(info: BucketInfo): GetBucketInfoSuccess {
+export function getBucketInfoSuccess(info: BucketInfo): GetBucketInfoSuccessAction {
     return {
         type: 'GET_BUCKET_INFO_SUCCESS',
         info,

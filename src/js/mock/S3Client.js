@@ -95,10 +95,10 @@ export const putObjectTaggingResponse: PutObjectTaggingResponse = {
     VersionId: '1',
 };
 
-const bucketInfoResponse: BucketInfo = {
+export const bucketInfoResponse: BucketInfo = {
     name: bucketName,
     policy: false,
-    owner: '',
+    owner: ownerName,
     aclGrantees: 0,
     cors: false,
     versioning: 'Suspended',
@@ -165,6 +165,10 @@ export class MockS3Client implements S3ClientInterface {
     getBucketInfo(): Promise<BucketInfo> {
         return Promise.resolve(bucketInfoResponse);
     }
+
+    toggleVersioning(): Promise<void> {
+        return Promise.resolve();
+    }
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
@@ -223,6 +227,14 @@ export class ErrorMockS3Client implements S3ClientInterface {
     }
 
     bucketInfo(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    getBucketInfo(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    toggleVersioning(): Promise<void> {
         return Promise.reject(this._error);
     }
 }
