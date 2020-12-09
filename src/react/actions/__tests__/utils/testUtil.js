@@ -8,6 +8,7 @@ import {
     fileName,
     folderName,
     info,
+    nextContinuationToken,
     objectKey,
     objectKey2,
     objectMetadata,
@@ -74,6 +75,7 @@ export const COMMON_PREFIX = commonPrefix;
 export const S3_OBJECT = s3Object;
 export const FILE = file;
 export const PREFIX = prefix;
+export const NEXT_CONTINUATION_TOKEN = nextContinuationToken;
 export const OBJECT_METADATA = objectMetadata;
 export const OBJECT_KEY = objectKey;
 export const OBJECT_KEY2 = objectKey2;

@@ -125,6 +125,15 @@ export type ListObjectsSuccessAction = {|
     +contents: Array<S3Object>,
     +commonPrefixes: Array<CommonPrefix>,
     +prefix: string,
+    +nextMarker: Marker,
+|};
+
+export type ContinueListObjectsSuccessAction = {|
+    +type: 'CONTINUE_LIST_OBJECTS_SUCCESS',
+    +contents: Array<S3Object>,
+    +commonPrefixes: Array<CommonPrefix>,
+    +prefix: string,
+    +nextMarker: Marker,
 |};
 
 export type ListObjectVersionsSuccessAction = {|
@@ -133,6 +142,18 @@ export type ListObjectVersionsSuccessAction = {|
     +deleteMarkers: Array<S3DeleteMarker>,
     +commonPrefixes: Array<CommonPrefix>,
     +prefix: string,
+    +nextMarker: Marker,
+    +nextVersionIdMarker: Marker,
+|};
+
+export type ContinueListObjectVersionsSuccessAction = {|
+    +type: 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS',
+    +versions: Array<S3Version>,
+    +deleteMarkers: Array<S3DeleteMarker>,
+    +commonPrefixes: Array<CommonPrefix>,
+    +prefix: string,
+    +nextMarker: Marker,
+    +nextVersionIdMarker: Marker,
 |};
 
 export type GetObjectMetadataSuccessAction = {|
@@ -164,7 +185,9 @@ export type S3Action =
     GetBucketInfoSuccess |
     ListBucketsSuccessAction |
     ListObjectsSuccessAction |
+    ContinueListObjectsSuccessAction |
     ListObjectVersionsSuccessAction |
+    ContinueListObjectVersionsSuccessAction |
     GetObjectMetadataSuccessAction |
     ResetObjectMetadataAction |
     ToggleAllObjectsAction |
@@ -307,9 +330,9 @@ export type Action =
     LocationUIAction |
     ObjectsUIAction |
     S3Action |
-    ThunkStatePromisedAction |
     ThunkNonStateAction |
     ThunkStatePromisedAction |
+    ThunkNonStatePromisedAction |
     ErrorsUIAction |
     SelectInstanceAction |
     NetworkActivityAction |

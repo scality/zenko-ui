@@ -1,6 +1,7 @@
 // @noflow
 import S3 from 'aws-sdk/clients/s3';
 const async = require('async');
+import { chunkArray } from './utils';
 import { isVersioning } from '../react/utils';
 
 const MULTIPART_UPLOAD = {
@@ -72,13 +73,27 @@ export default class S3Client {
     }
 
     // objects
-    listObjects(bucketName, prefix) {
-        const params = {
-            Bucket: bucketName,
+    listObjects(params) {
+        const { Bucket, Prefix, ContinuationToken } = params;
+        return this.client.listObjectsV2({
+            Bucket,
             Delimiter: '/',
-            Prefix: prefix,
-        };
-        return this.client.listObjectsV2(params).promise();
+            Prefix,
+            MaxKeys: 1000,
+            ContinuationToken,
+        }).promise();
+    }
+
+    listObjectVersions(params) {
+        const { Bucket, Prefix, KeyMarker, VersionIdMarker } = params;
+        return this.client.listObjectVersions({
+            Bucket,
+            Prefix,
+            Delimiter: '/',
+            MaxKeys: 1000,
+            KeyMarker,
+            VersionIdMarker,
+        }).promise();
     }
 
     createFolder(bucketName, prefixWithSlash, folderName) {
@@ -111,7 +126,7 @@ export default class S3Client {
                 return resolve();
             }
             return Promise.all(folders.map(folder => {
-                return this.listObjectVersions(bucketName, folder.Key)
+                return this.listObjectVersions({ Bucket: bucketName, Prefix: folder.Key })
                     .then((res) => {
                         const { Versions, DeleteMarkers, CommonPrefixes } = res;
                         const filteredVersions = Versions.filter(v => v.Key === folder.Key);
@@ -155,16 +170,31 @@ export default class S3Client {
     }
 
     deleteObjects(bucketName, objects, folders) {
-        const params = {
-            Bucket: bucketName,
-            Delete: {
-                Objects: objects,
-            },
-        };
         return new Promise((resolve, reject) => {
             if (objects.length < 1) {
                 return resolve();
             }
+            // NOTE: AWS S3 deleteObjects can not delete more than 1000 objects.
+            if (objects.length > 1000) {
+                const chunks = chunkArray(objects, 1000);
+                return Promise.all(chunks.map(chunk => {
+                    const params = {
+                        Bucket: bucketName,
+                        Delete: {
+                            Objects: chunk,
+                        },
+                    };
+                    return this.client.deleteObjects(params).promise();
+                }))
+                    .then(() => resolve())
+                    .catch(error => reject(error));
+            }
+            const params = {
+                Bucket: bucketName,
+                Delete: {
+                    Objects: objects,
+                },
+            };
             return this.client.deleteObjects(params, (error, data) => {
                 (error) ? reject(error) : resolve(data);
             });
@@ -337,14 +367,5 @@ export default class S3Client {
                     return reject(error);
                 });
         });
-    }
-
-    listObjectVersions(bucketName, prefix) {
-        const params = {
-            Bucket: bucketName,
-            Prefix: prefix,
-            Delimiter: '/',
-        };
-        return this.client.listObjectVersions(params).promise();
     }
 }

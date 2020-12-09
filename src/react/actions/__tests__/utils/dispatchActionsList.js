@@ -159,12 +159,13 @@ export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
     { type: 'CLOSE_BUCKET_DELETE_DIALOG' };
 
 // * objects actions
-export const LIST_OBJECTS_SUCCESS_ACTION = (contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string): ListObjectsSuccessAction => {
+export const LIST_OBJECTS_SUCCESS_ACTION = (contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction => {
     return {
         type: 'LIST_OBJECTS_SUCCESS',
         contents,
         commonPrefixes,
         prefix,
+        nextMarker: nextContinuationToken,
     };
 };
 
