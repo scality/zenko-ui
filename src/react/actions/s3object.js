@@ -3,6 +3,8 @@ import type {
     CloseFolderCreateModalAction,
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
+    ContinueListObjectVersionsSuccessAction,
+    ContinueListObjectsSuccessAction,
     GetObjectMetadataSuccessAction,
     ListObjectVersionsSuccessAction,
     ListObjectsSuccessAction,
@@ -10,6 +12,7 @@ import type {
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
     ResetObjectMetadataAction,
+    ThunkNonStatePromisedAction,
     ThunkStatePromisedAction,
     ToggleAllObjectsAction,
     ToggleObjectAction,
@@ -31,7 +34,7 @@ export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Ar
     };
 }
 
-export function continueListObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction {
+export function continueListObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ContinueListObjectsSuccessAction {
     return {
         type: 'CONTINUE_LIST_OBJECTS_SUCCESS',
         contents,
@@ -53,12 +56,13 @@ export function listObjectVersionsSuccess(versions: Array<S3Version>, deleteMark
     };
 }
 
-export function continueListObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextKeyMarker: Marker, nextVersionIdMarker: Marker): ListObjectVersionsSuccessAction {
+export function continueListObjectVersionsSuccess(versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextKeyMarker: Marker, nextVersionIdMarker: Marker): ContinueListObjectVersionsSuccessAction {
     return {
         type: 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS',
         versions,
         deleteMarkers,
         commonPrefixes,
+        prefix,
         nextMarker: nextKeyMarker,
         nextVersionIdMarker: nextVersionIdMarker,
     };
@@ -146,15 +150,15 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
     };
 }
 
-function _getListObjectNoVersion(bucketName: string, prefixWithSlash: string, marker?: Marker) {
+function _getListObjectNoVersion(bucketName: string, prefixWithSlash: string, marker?: Marker): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Fetching objects'));
         const params = {
-           Bucket: bucketName,
-           Prefix: prefixWithSlash,
-           ContinuationToken: marker ? marker : (void 0),
-       };
+            Bucket: bucketName,
+            Prefix: prefixWithSlash,
+            ContinuationToken: marker ? marker : (void 0),
+        };
         return zenkoClient.listObjects(params)
             .then(res => {
                 const list = res.Contents;
@@ -170,7 +174,7 @@ function _getListObjectNoVersion(bucketName: string, prefixWithSlash: string, ma
     };
 }
 
-function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkNonStatePromisedAction{
     return (dispatch) => {
         return dispatch(_getListObjectNoVersion(bucketName, prefixWithSlash));
     };
@@ -178,7 +182,6 @@ function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): Thun
 
 function _continueListObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { zenkoClient } = getClients(getState());
         const { s3 } = getState();
         const marker = s3.listObjectsResults.nextMarker;
 
@@ -200,7 +203,7 @@ export function listObjects(bucketName: string, prefixWithSlash: string, type?: 
     };
 }
 
-function _getListObjectVersion(bucketName: string, prefixWithSlash: string, marker?: Marker, versionIdMarker?: Marker) {
+function _getListObjectVersion(bucketName: string, prefixWithSlash: string, marker?: Marker, versionIdMarker?: Marker): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Fetching object versions'));
@@ -222,10 +225,10 @@ function _getListObjectVersion(bucketName: string, prefixWithSlash: string, mark
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
-    }
+    };
 }
 
-function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkNonStatePromisedAction{
     return (dispatch) => {
         return dispatch(_getListObjectVersion(bucketName, prefixWithSlash));
     };
@@ -233,7 +236,6 @@ function _listObjectVersions(bucketName: string, prefixWithSlash: string): Thunk
 
 function _continueListObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
-        const { zenkoClient } = getClients(getState());
         const { s3 } = getState();
         const marker = s3.listObjectsResults.nextMarker;
         const versionIdMarker = s3.listObjectsResults.nextVersionIdMarker;

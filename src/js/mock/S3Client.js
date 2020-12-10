@@ -23,6 +23,7 @@ export const objectKey2 = 'test/tags.jpg';
 export const commonPrefix = {
     Prefix: prefix,
 };
+export const nextContinuationToken = 'next';
 export const s3Object = {
     Key: addTrailingSlash(folderName),
     LastModified: 'Wed Oct 07 2020 16:35:57',
@@ -58,7 +59,7 @@ export const file = {
 
 export const getSignedUrlResponse: GetSignedUrlResponse = '';
 
-export const listBucketsResponse = (prefixWithSlash: string): ListObjectsResponse => ({
+export const listObjectsResponse = (prefixWithSlash: string): ListObjectsResponse => ({
     CommonPrefixes: [commonPrefix],
     Contents: [s3Object],
     ContinuationToken: '',
@@ -68,7 +69,7 @@ export const listBucketsResponse = (prefixWithSlash: string): ListObjectsRespons
     KeyCount: 0,
     MaxKeys: 0,
     Name: '',
-    NextContinuationToken: '',
+    NextContinuationToken: nextContinuationToken,
     Prefix: prefixWithSlash,
     StartAfter: '',
 });
@@ -129,8 +130,8 @@ export class MockS3Client implements S3ClientInterface {
         return Promise.resolve();
     }
 
-    listObjects(bucketName: string, prefixWithSlash: string): Promise<ListObjectsResponse> {
-        return Promise.resolve(listBucketsResponse(prefixWithSlash));
+    listObjects({ Prefix }: { Prefix: string }): Promise<ListObjectsResponse> {
+        return Promise.resolve(listObjectsResponse(Prefix));
     }
 
     getObjectSignedUrl(): Promise<GetSignedUrlResponse> {

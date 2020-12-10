@@ -4,6 +4,7 @@ import {
     BUCKET_NAME, COMMON_PREFIX,
     FILE, FOLDER_NAME,
     INFO,
+    NEXT_CONTINUATION_TOKEN,
     OBJECT_KEY,
     OBJECT_KEY2,
     PREFIX,
@@ -18,7 +19,7 @@ import {
 } from './utils/testUtil';
 
 const createFolderNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating folder');
-const listObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing objects');
+const listObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION('Fetching objects');
 const uploadObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION('Uploading object(s)');
 const deleteFilesNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting object(s)');
 const gettingObjectMetadataNetworkAction = dispatchAction.NETWORK_START_ACTION('Getting object metadata');
@@ -28,13 +29,13 @@ describe('s3object actions', () => {
     const syncTests = [
         {
             it: 'should return LIST_OBJECTS_SUCCESS action -> test without prefix parameter',
-            fn: actions.listObjectsSuccess([S3_OBJECT], [COMMON_PREFIX], ''),
-            expectedActions: [dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '')],
+            fn: actions.listObjectsSuccess([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN),
+            expectedActions: [dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN)],
         },
         {
             it: 'should return LIST_OBJECTS_SUCCESS action -> test with prefix parameter',
-            fn: actions.listObjectsSuccess([S3_OBJECT], [COMMON_PREFIX], PREFIX),
-            expectedActions: [dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX)],
+            fn: actions.listObjectsSuccess([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN),
+            expectedActions: [dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN)],
         },
         {
             it: 'should return OPEN_FOLDER_CREATE_MODAL action',
@@ -108,7 +109,7 @@ describe('s3object actions', () => {
             expectedActions: [
                 createFolderNetworkAction,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], ''),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_FOLDER_CREATE_MODAL_ACTION(),
@@ -121,7 +122,7 @@ describe('s3object actions', () => {
             expectedActions: [
                 createFolderNetworkAction,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_FOLDER_CREATE_MODAL_ACTION(),
@@ -157,7 +158,7 @@ describe('s3object actions', () => {
                 dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
                 uploadObjectsNetworkAction,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], ''),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
@@ -170,7 +171,7 @@ describe('s3object actions', () => {
                 dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
                 uploadObjectsNetworkAction,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
@@ -203,7 +204,7 @@ describe('s3object actions', () => {
             storeState: initState,
             expectedActions: [
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], ''),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -213,7 +214,7 @@ describe('s3object actions', () => {
             storeState: initState,
             expectedActions: [
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -246,7 +247,7 @@ describe('s3object actions', () => {
                 deleteFilesNetworkAction,
                 dispatchAction.NETWORK_END_ACTION,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], ''),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], '', NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -259,7 +260,7 @@ describe('s3object actions', () => {
                 deleteFilesNetworkAction,
                 dispatchAction.NETWORK_END_ACTION,
                 listObjectsNetworkAction,
-                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX),
+                dispatchAction.LIST_OBJECTS_SUCCESS_ACTION([S3_OBJECT], [COMMON_PREFIX], PREFIX, NEXT_CONTINUATION_TOKEN),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
