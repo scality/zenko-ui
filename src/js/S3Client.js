@@ -72,15 +72,27 @@ export default class S3Client {
     }
 
     // objects
-    listObjects(bucketName, prefix, nextMarker) {
-        const params = {
-            Bucket: bucketName,
+    listObjects(params) {
+        const { Bucket, Prefix, ContinuationToken} = params;
+        return this.client.listObjectsV2({
+            Bucket,
             Delimiter: '/',
-            Prefix: prefix,
+            Prefix,
             MaxKeys: 50,
-            ContinuationToken: nextMarker,
-        };
-        return this.client.listObjectsV2(params).promise();
+            ContinuationToken,
+        }).promise();
+    }
+
+    listObjectVersions(params) {
+        const { Bucket, Prefix, KeyMarker, VersionIdMarker } = params;
+        return this.client.listObjectVersions({
+            Bucket,
+            Prefix,
+            Delimiter: '/',
+            MaxKeys: 50,
+            KeyMarker,
+            VersionIdMarker,
+        }).promise();
     }
 
     createFolder(bucketName, prefixWithSlash, folderName) {
@@ -339,17 +351,5 @@ export default class S3Client {
                     return reject(error);
                 });
         });
-    }
-
-    listObjectVersions(bucketName, prefix, nextMarker, nextVersionIdMarker) {
-        const params = {
-            Bucket: bucketName,
-            Prefix: prefix,
-            Delimiter: '/',
-            MaxKeys: 50,
-            KeyMarker: nextMarker,
-            VersionIdMarker: nextVersionIdMarker,
-        };
-        return this.client.listObjectVersions(params).promise();
     }
 }

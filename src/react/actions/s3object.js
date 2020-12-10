@@ -146,14 +146,22 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
     };
 }
 
-function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _getListObjectNoVersion(bucketName: string, prefixWithSlash: string, marker?: Marker) {
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
-        dispatch(networkStart('Listing objects'));
-        return zenkoClient.listObjects(bucketName, prefixWithSlash)
+        dispatch(networkStart('Fetching objects'));
+        const params = {
+           Bucket: bucketName,
+           Prefix: prefixWithSlash,
+           ContinuationToken: marker ? marker : (void 0),
+       };
+        return zenkoClient.listObjects(params)
             .then(res => {
                 const list = res.Contents;
                 list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
+                if (marker) {
+                    return dispatch(continueListObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
+                }
                 return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
             })
             .catch(error => dispatch(handleS3Error(error)))
@@ -162,19 +170,22 @@ function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): Thun
     };
 }
 
-function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _listObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch) => {
+        return dispatch(_getListObjectNoVersion(bucketName, prefixWithSlash));
+    };
+}
+
+function _continueListObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
-        dispatch(networkStart('Listing object versions'));
-        return zenkoClient.listObjectVersions(bucketName, prefixWithSlash)
-            .then(res => {
-                const list = res.Versions;
-                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
-                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
-            })
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
-            .finally(() => dispatch(networkEnd()));
+        const { s3 } = getState();
+        const marker = s3.listObjectsResults.nextMarker;
+
+        if (!marker) {
+            return Promise.resolve();
+        }
+        return dispatch(_getListObjectNoVersion(bucketName, prefixWithSlash, marker));
     };
 }
 
@@ -189,24 +200,34 @@ export function listObjects(bucketName: string, prefixWithSlash: string, type?: 
     };
 }
 
-function _continueListObjectNoVersion(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+function _getListObjectVersion(bucketName: string, prefixWithSlash: string, marker?: Marker, versionIdMarker?: Marker) {
     return (dispatch, getState) => {
         const { zenkoClient } = getClients(getState());
-        const { s3 } = getState();
-        const marker = s3.listObjectsResults.nextMarker;
-        if (!marker) {
-            return Promise.resolve();
-        }
-        dispatch(networkStart('Continue listing objects'));
-        return zenkoClient.listObjects(bucketName, prefixWithSlash, marker)
+        dispatch(networkStart('Fetching object versions'));
+        const params = {
+            Bucket: bucketName,
+            Prefix: prefixWithSlash,
+            KeyMarker: marker ? marker : (void 0),
+            VersionIdMarker: versionIdMarker ? versionIdMarker : (void 0),
+        };
+        return zenkoClient.listObjectVersions(params)
             .then(res => {
-                const list = res.Contents;
-                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key));
-                return dispatch(continueListObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
+                const list = res.Versions;
+                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
+                if (marker) {
+                    return dispatch(continueListObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
+                }
+                return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
             })
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
+    }
+}
+
+function _listObjectVersions(bucketName: string, prefixWithSlash: string): ThunkStatePromisedAction{
+    return (dispatch) => {
+        return dispatch(_getListObjectVersion(bucketName, prefixWithSlash));
     };
 }
 
@@ -216,19 +237,11 @@ function _continueListObjectVersions(bucketName: string, prefixWithSlash: string
         const { s3 } = getState();
         const marker = s3.listObjectsResults.nextMarker;
         const versionIdMarker = s3.listObjectsResults.nextVersionIdMarker;
+
         if (!marker || !versionIdMarker) {
             return Promise.resolve();
         }
-        dispatch(networkStart('Continue listing versioned objects'));
-        return zenkoClient.listObjectVersions(bucketName, prefixWithSlash, marker, versionIdMarker)
-            .then(res => {
-                const list = res.Versions;
-                list.forEach(object => object.SignedUrl = zenkoClient.getObjectSignedUrl(bucketName, object.Key, object.VersionId));
-                return dispatch(continueListObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
-            })
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
-            .finally(() => dispatch(networkEnd()));
+        return dispatch(_getListObjectVersion(bucketName, prefixWithSlash, marker, versionIdMarker));
     };
 }
 
