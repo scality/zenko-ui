@@ -38,19 +38,21 @@ export function zenkoHandleError(error: ZenkoClientError, target: string | null,
     };
 }
 
-export function writeSearchListing(nextMarker: Marker, list: SearchResultList): ZenkoWriteSearchListAction {
+export function writeSearchListing(nextMarker: Marker, list: SearchResultList, query: string): ZenkoWriteSearchListAction {
     return {
         type: 'ZENKO_CLIENT_WRITE_SEARCH_LIST',
         nextMarker,
         list,
+        query,
     };
 }
 
-export function appendSearchListing(nextMarker: Marker, list: SearchResultList): ZenkoAppendSearchListAction {
+export function appendSearchListing(nextMarker: Marker, list: SearchResultList, query: string): ZenkoAppendSearchListAction {
     return {
         type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
         nextMarker,
         list,
+        query,
     };
 }
 
@@ -76,7 +78,9 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
         dispatch(zenkoClearError());
         dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
         return zenkoClient.searchBucket(params)
-            .then(({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
+            .then((res: SearchBucketResp) => {
+                const { IsTruncated, NextMarker, Contents } = res;
+                console.log('res!!!', res);
                 const nextMarker = IsTruncated && NextMarker || null;
                 const list = Contents;
                 list.forEach(object => {
@@ -86,9 +90,9 @@ function _getSearchObjects(bucketName: string, query: string, marker?: Marker): 
                     }
                 });
                 if (marker) {
-                    dispatch(appendSearchListing(nextMarker, list));
+                    dispatch(appendSearchListing(nextMarker, list, query));
                 } else {
-                    dispatch(writeSearchListing(nextMarker, list));
+                    dispatch(writeSearchListing(nextMarker, list, query));
                 }
             })
             .catch(err => dispatch(zenkoHandleError(err, null, null)))

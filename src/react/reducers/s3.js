@@ -142,6 +142,16 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
             listObjectsType: LIST_OBJECTS_METADATA_TYPE,
             listObjectsResults: {
                 list: List(search(action.list)),
+                query: action.query,
+                nextMarker: action.nextMarker,
+            },
+        };
+    case 'ZENKO_CLIENT_APPEND_SEARCH_LIST':
+        return {
+            ...state,
+            listObjectsResults: {
+                list: state.listObjectsResults.list.push(...action.list),
+                query: action.query,
                 nextMarker: action.nextMarker,
             },
         };

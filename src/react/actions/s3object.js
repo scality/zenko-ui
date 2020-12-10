@@ -18,10 +18,11 @@ import type {
     ToggleObjectAction,
 } from '../../types/actions';
 import type { CommonPrefix, DeleteFolder, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3DeleteMarker, S3DeleteObject, S3Object, S3Version, TagSet } from '../../types/s3';
+import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import { handleApiError, handleS3Error } from './error';
 import { networkEnd, networkStart } from './network';
-import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker } from '../../types/zenko';
+import { continueSearchListing } from './zenko';
 import { getClients } from '../utils/actions';
 
 export function listObjectsSuccess(contents: Array<S3Object>, commonPrefixes: Array<CommonPrefix>, prefix: string, nextContinuationToken: Marker): ListObjectsSuccessAction {
@@ -253,6 +254,9 @@ export function continueListObjects(bucketName: string, prefixWithSlash: string,
         const listType = type || s3.listObjectsType;
         if (listType === LIST_OBJECT_VERSIONS_S3_TYPE) {
             return dispatch(_continueListObjectVersions(bucketName, prefixWithSlash));
+        }
+        if (listType === LIST_OBJECTS_METADATA_TYPE) {
+            return dispatch(continueSearchListing(bucketName, s3.listObjectsResults.query));
         }
         return dispatch(_continueListObjectNoVersion(bucketName, prefixWithSlash));
     };

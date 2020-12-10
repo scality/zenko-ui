@@ -68,6 +68,8 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
             Bucket,
             Query,
             Marker,
+            // Prefix: '/',
+            MaxKeys: 1000,
         }).promise();
     }
 }
