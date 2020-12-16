@@ -22,7 +22,6 @@ models:
   - Git: &clone
       name: fetch source
       repourl: '%(prop:git_reference)s'
-      shallow: true
       retryFetch: true
       haltOnFailure: true
   - ShellCommand: &yarn-install
