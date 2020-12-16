@@ -103,3 +103,21 @@ stages:
             docker push ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
           haltOnFailure: True
           env: *deploy-env
+
+  tag:
+  # Force this stage manually
+  # Add the property tag with the tag name as value
+    worker: *worker
+    steps:
+      - Git: *clone
+      - ShellCommand: *docker-login
+      - EvePropertyFromCommand:
+          name: get tag short revision
+          property: tag_revision
+          command: git rev-parse --short %(prop:tag)s
+      - ShellCommand:
+          name: publish docker image to Scality Production OCI registry
+          command: |
+            docker pull ${SCALITY_OCI_REPO_DEV}:%(prop:tag_revision)s
+            docker tag ${SCALITY_OCI_REPO_DEV}:%(prop:tag_revision)s ${SCALITY_OCI_REPO}:%(prop:tag)s
+            docker push ${SCALITY_OCI_REPO}:%(prop:tag)s
