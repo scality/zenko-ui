@@ -9,7 +9,8 @@ branches:
 
 models:
   - env: &deploy-env
-      SCALITY_OCI_REPO: registry.scality.com/scality/zenko-ui
+      SCALITY_OCI_REPO: registry.scality.com/zenko-ui/zenko-ui
+      SCALITY_OCI_REPO_DEV: registry.scality.com/zenko-ui-dev/zenko-ui
   - env: &keycloak-env
       KEYCLOAK_ROOT: "http://127.0.0.1:8080"
       KEYCLOAK_REALM: "myrealm"
@@ -36,7 +37,7 @@ models:
       name: build docker image
       command: >-
         set -exu;
-        docker build --pull -t ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s .;
+        docker build --pull -t ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s .;
       haltOnFailure: True
       env: *deploy-env
 
@@ -67,7 +68,7 @@ stages:
       - ShellCommand:
           name: run end-to-end tests
           command: >-
-            docker run -d -p 8383:8383 ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s;
+            docker run -d -p 8383:8383 ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
             set -exu;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;
@@ -92,7 +93,6 @@ stages:
           name: publish docker image to Scality OCI registry
           command: >-
             set -exu;
-            docker login --username "%(secret:harbor_login)s" --password "%(secret:harbor_password)s" ${SCALITY_OCI_REPO};
-            docker push ${SCALITY_OCI_REPO}:%(prop:commit_short_revision)s;
+            docker push ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
           haltOnFailure: True
           env: *deploy-env
