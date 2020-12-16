@@ -39,6 +39,13 @@ models:
         docker build --pull -t ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s .;
       haltOnFailure: True
       env: *deploy-env
+  - ShellCommand: &docker-login
+      name: login to docker registry
+      command: >-
+        docker login
+        --username "%(secret:harbor_login)s"
+        --password "%(secret:harbor_password)s"
+        registry.scality.com
 
 stages:
   pre-merge:
@@ -87,6 +94,7 @@ stages:
       - Git: *clone
       - ShellCommand: *yarn-install
       - ShellCommand: *yarn-build
+      - ShellCommand: *docker-login
       - ShellCommand: *docker-build
       - ShellCommand:
           name: publish docker image to Scality OCI registry
