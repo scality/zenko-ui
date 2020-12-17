@@ -35,7 +35,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
         if (errorZenkoMsg) {
             return <WarningMetadata iconClass='fas fa-2x fa-info-circle' description={errorZenkoMsg} />;
         }
-        return <ObjectListTable objects={objects} isVersioningType={isVersioningType} bucketName={bucketName} toggled={toggled} />;
+        return <ObjectListTable objects={objects} isVersioningType={isVersioningType} bucketName={bucketName} toggled={toggled} prefixWithSlash={prefixWithSlash} />;
     };
     return <L.ListSection>
         <T.HeaderContainer>

@@ -5,6 +5,7 @@ import type { BucketInfo, ListObjectsType, Object, ObjectMetadata, S3Bucket } fr
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
+import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
 import type { InstanceId } from './entities';
 import { List } from 'immutable';
@@ -12,7 +13,6 @@ import type { ManagementClient as ManagementClientInterface } from './management
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
 import type { User } from './user';
-import type { ZenkoClient as ZenkoClientInterface } from './zenko';
 
 export type IAMResp = {};
 
@@ -107,7 +107,8 @@ export type S3State = {|
     +bucketInfo: BucketInfo | null,
     +listObjectsResults: {|
         +list: List<Object>,
-        +nextMarker: null | string,
+        +nextMarker: Marker,
+        +nextVersionIdMarker: Marker,
     |},
     +listObjectsType: ListObjectsType,
     +objectMetadata: ?ObjectMetadata,
