@@ -79,7 +79,7 @@ export default class S3Client {
             Bucket,
             Delimiter: '/',
             Prefix,
-            MaxKeys: 1000,
+            MaxKeys: 100,
             ContinuationToken,
         }).promise();
     }
@@ -90,7 +90,7 @@ export default class S3Client {
             Bucket,
             Prefix,
             Delimiter: '/',
-            MaxKeys: 1000,
+            MaxKeys: 100,
             KeyMarker,
             VersionIdMarker,
         }).promise();

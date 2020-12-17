@@ -59,7 +59,7 @@ describe('location actions', () => {
             storeState: errorManagementState(),
             expectedActions: [
                 saveLocationNetworkStart,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('Management API Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -81,7 +81,7 @@ describe('location actions', () => {
             storeState: errorManagementState(),
             expectedActions: [
                 deleteLocationNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('Management API Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_LOCATION_DELETE_DIALOG_ACTION,
             ],

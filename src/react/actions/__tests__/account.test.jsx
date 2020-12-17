@@ -51,7 +51,7 @@ describe('account actions', () => {
             storeState: errorManagementState(),
             expectedActions: [
                 createAccountNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('Management API Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -74,7 +74,7 @@ describe('account actions', () => {
             expectedActions: [
                 deleteAccountNetworkAction,
                 dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('Management API Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },

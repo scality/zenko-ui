@@ -39,9 +39,23 @@ describe('functions utils', () => {
             expectedErrorMessage: errorMessages[1],
         },
         {
+            it: `should return the error message: "${errorMessages[1]}" if S3 api status code is 401`,
+            error: {
+                statusCode: 401,
+            },
+            expectedErrorMessage: errorMessages[1],
+        },
+        {
             it: `should return the error message: "${errorMessages[2]}" if status code is 403`,
             error: {
                 status: 403,
+            },
+            expectedErrorMessage: errorMessages[2],
+        },
+        {
+            it: `should return the error message: "${errorMessages[2]}" if S3 api status code is 403`,
+            error: {
+                statusCode: 403,
             },
             expectedErrorMessage: errorMessages[2],
         },
@@ -53,9 +67,23 @@ describe('functions utils', () => {
             expectedErrorMessage: errorMessages[3],
         },
         {
+            it: `should return the error message: "${errorMessages[3]}" if S3 api status code is 404`,
+            error: {
+                statusCode: 404,
+            },
+            expectedErrorMessage: errorMessages[3],
+        },
+        {
             it: `should return the error message: "${errorMessages[4]}" if status code is 409`,
             error: {
                 status: 409,
+            },
+            expectedErrorMessage: errorMessages[4],
+        },
+        {
+            it: `should return the error message: "${errorMessages[4]}" if S3 api status code is 409`,
+            error: {
+                statusCode: 409,
             },
             expectedErrorMessage: errorMessages[4],
         },
@@ -67,9 +95,23 @@ describe('functions utils', () => {
             expectedErrorMessage: errorMessages[5],
         },
         {
+            it: `should return the error message: "${errorMessages[5]}" if S3 api status code is 500`,
+            error: {
+                statusCode: 500,
+            },
+            expectedErrorMessage: errorMessages[5],
+        },
+        {
             it: `should return the error message: "${errorMessages[5]}" if status code is 503`,
             error: {
                 status: 503,
+            },
+            expectedErrorMessage: errorMessages[5],
+        },
+        {
+            it: `should return the error message: "${errorMessages[5]}" if S3 api status code is 503`,
+            error: {
+                statusCode: 503,
             },
             expectedErrorMessage: errorMessages[5],
         },

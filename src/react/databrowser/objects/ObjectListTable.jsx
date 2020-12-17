@@ -1,6 +1,6 @@
 // @flow
 import MemoRow, { createItemData } from './ObjectRow';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { continueListObjects, toggleAllObjects, toggleObject } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import type { Object } from '../../../types/s3';
 import { formatBytes } from '../../utils';
+import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 export const Icon = styled.i`
@@ -35,11 +36,20 @@ type Props = {
 export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType, prefixWithSlash }: Props){
     const dispatch = useDispatch();
     const nextMarker = useSelector((state: AppState) => state.s3.listObjectsResults.nextMarker);
-    const isItemLoaded = index => {
-        const shouldRefetch = nextMarker && index === objects.size - 1;
+    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
+    const objectsLength = objects.size;
+    const isToggledFull = toggled.size > 0 && toggled.size === objectsLength;
+
+    const isItemLoaded = useCallback(index => {
+        const shouldRefetch = !loading && nextMarker && index === objectsLength - 1;
         return !shouldRefetch;
-    };
-    const isToggledFull = toggled.size > 0 && toggled.size === objects.size;
+    }, [nextMarker, objectsLength, loading]);
+
+    const handleCellClicked = useCallback((bucketName, key) => (e) => {
+        e.stopPropagation();
+        dispatch(push(`/buckets/${bucketName}/objects/${key}`));
+    }, [dispatch]);
+
     const columns = useMemo(() => [
         {
             id: 'checkbox',
@@ -71,7 +81,10 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
             accessor: 'name',
             Cell({ row: { original } }: CellProps) {
                 if (original.isFolder) {
-                    return <span> <Icon className='far fa-folder'></Icon><T.CellLink to={{ pathname: `/buckets/${bucketName}/objects/${original.key}` }}>{original.name}</T.CellLink></span>;
+                    return <span>
+                        <Icon className='far fa-folder'></Icon>
+                        <T.CellClick onClick={handleCellClicked(bucketName, original.key)}>{original.name}</T.CellClick>
+                    </span>;
                 }
                 if (original.isDeleteMarker) {
                     return <span> <Icon isMargin={!original.isLatest} className='fas fa-ban'></Icon>{original.name}</span>;
@@ -101,7 +114,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
             accessor: row => row.size ? formatBytes(row.size) : '',
             width: 15,
         },
-    ], [bucketName, dispatch, isToggledFull, isVersioningType]);
+    ], [bucketName, dispatch, handleCellClicked, isToggledFull, isVersioningType]);
 
     const hiddenColumns = isVersioningType ? [] : ['versionId'];
 

@@ -18,20 +18,23 @@ export function errorParser(error) {
     if (error.response && error.response.body && error.response.body.message) {
         message = error.response.body.message;
     //! $FlowFixMe
-    } else if (error.status === 401) {
-        message = 'The request is missing valid authentication credentials.';
-    } else if (error.status === 403) {
-        message = 'Access to the requested item was denied.';
-    } else if (error.status === 404) {
-        message = 'The requested item does not exist.';
-    } else if (error.status === 409) {
-        message = 'An item with the same identifier already exists.';
-    } else if (error.status === 500 || error.status === 503) {
-        message = 'The server is temporarily unavailable.';
     } else if (error.message) {
         message = error.message;
+    } else if (error.status === 401 || error.statusCode === 401) {
+        message = 'The request is missing valid authentication credentials.';
+    } else if (error.status === 403 || error.statusCode === 403) {
+        message = 'Access to the requested item was denied.';
+    } else if (error.status === 404 || error.statusCode === 404) {
+        message = 'The requested item does not exist.';
+    } else if (error.status === 409 || error.statusCode === 409) {
+        message = 'An item with the same identifier already exists.';
+    } else if (error.status === 500 || error.status === 503
+        || error.statusCode === 500 || error.statusCode === 503) {
+        message = 'The server is temporarily unavailable.';
+    } else if (error.status || error.statusCode) {
+        message = `Failed with error status: ${String(error.status || error.statusCode)}`;
     } else {
-        message = `Failed with error status: ${String(error.status)}`;
+        message = 'Request failed';
     }
     return { message };
 }

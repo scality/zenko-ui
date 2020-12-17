@@ -38,13 +38,17 @@ export default function Objects(){
     // NOTE: If only one unique object (not folder) is selected, we show its metadata.
     //       Otherwise, we clear object metadata.
     useEffect(() => {
+        // wait for objects to be listed.
+        if (!loaded) {
+            return;
+        }
         const firstToggledItem = toggled.first();
         if (toggled.size === 1 && !firstToggledItem.isFolder && !firstToggledItem.isDeleteMarker) {
             dispatch(getObjectMetadata(bucketNameParam, firstToggledItem.key, firstToggledItem.versionId));
         } else {
             dispatch(resetObjectMetadata());
         }
-    }, [dispatch, bucketNameParam, toggled]);
+    }, [dispatch, bucketNameParam, toggled, loaded]);
 
     if (!loaded || !bucketInfo) {
         return <ObjectHead/>;

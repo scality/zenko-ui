@@ -60,7 +60,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 createBucketNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -94,7 +94,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 deleteBucketNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,
             ],

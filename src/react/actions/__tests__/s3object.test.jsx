@@ -134,7 +134,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 createFolderNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_FOLDER_CREATE_MODAL_ACTION(),
             ],
@@ -145,7 +145,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 createFolderNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_FOLDER_CREATE_MODAL_ACTION(),
             ],
@@ -183,7 +183,7 @@ describe('s3object actions', () => {
             expectedActions: [
                 dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
                 uploadObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -194,7 +194,7 @@ describe('s3object actions', () => {
             expectedActions: [
                 dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
                 uploadObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -224,7 +224,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 listObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -234,7 +234,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 listObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -271,10 +271,10 @@ describe('s3object actions', () => {
             expectedActions: [
                 dispatchAction.CLOSE_OBJECT_DELETE_MODAL_ACTION(),
                 deleteFilesNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 listObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -285,10 +285,10 @@ describe('s3object actions', () => {
             expectedActions: [
                 dispatchAction.CLOSE_OBJECT_DELETE_MODAL_ACTION(),
                 deleteFilesNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
                 listObjectsNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -308,7 +308,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -318,7 +318,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -340,7 +340,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectMetadataNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -374,7 +374,7 @@ describe('s3object actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 gettingObjectTagsNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('The server is temporarily unavailable.'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
