@@ -87,9 +87,7 @@ function ObjectDetails({ toggled, listType }: Props) {
                     },
                 ]}
             >
-                <div>
-                    { details() }
-                </div>
+                { details() }
             </CustomTabs>
         </ContentSection>
     );

@@ -26,6 +26,7 @@ export default function DataBrowser(){
     if (hasError && pathname !== '/create-bucket') {
         return <EmptyStateContainer>
             <Warning
+                centered={true}
                 iconClass="fas fa-5x fa-exclamation-triangle"
                 title={errorMessage || 'An unexpected error has occurred.'}
                 btnTitle='Display buckets'
@@ -36,6 +37,7 @@ export default function DataBrowser(){
     if (accounts.length === 0) {
         return <EmptyStateContainer>
             <Warning
+                centered={true}
                 iconClass="fas fa-5x fa-wallet"
                 title='Before browsing your data, create your first account.'
                 btnTitle='Create Account'

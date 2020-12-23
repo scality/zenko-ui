@@ -24,14 +24,15 @@ export const Container = styled.div`
     display: flex;
     width: 100%;
     background: ${props => props.theme.brand.background};
-    height: calc(100vh - 50px);
+    flex:1;
 `;
 
 export const ListSection = styled.div`
+    display: flex;
     flex: 0 0 450px;
+    min-width: 450px;
     flex-direction: column;
 
-    height: calc(100% - 40px);
     background-color: ${props => props.theme.brand.primary};
     margin: 10px 0px 10px 10px;
     padding: 10px;
@@ -90,8 +91,8 @@ export const IconCircle = styled.i`
 `;
 
 export const Details = styled.div`
-    min-height: calc(100% - 120px);
-    height: calc(100% - 120px);
+    display: flex;
+    flex: 1;
 
     margin-top: 10px;
 `;

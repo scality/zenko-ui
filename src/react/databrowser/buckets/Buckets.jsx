@@ -24,6 +24,7 @@ export default function Buckets(){
     if (buckets.size === 0) {
         return <EmptyStateContainer>
             <Warning
+                centered={true}
                 iconClass="fas fa-5x fa-wallet"
                 title='Create your first bucket.'
                 btnTitle='Create Bucket'
@@ -38,11 +39,9 @@ export default function Buckets(){
 
     return <L.ContentContainer>
         <BucketHead buckets={buckets} />
-
         <L.Body>
             <BucketList selectedBucketName={bucketNameParam} buckets={buckets} locations={locations} />
             <BucketDetails bucket={bucket} />
         </L.Body>
-
     </L.ContentContainer>;
 }

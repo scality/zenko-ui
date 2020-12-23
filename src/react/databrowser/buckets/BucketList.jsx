@@ -5,6 +5,7 @@ import MemoRow, { createItemData } from './BucketRow';
 import React, { useCallback, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
+import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { List } from 'immutable';
 import type { S3Bucket } from '../../../types/s3';
@@ -12,7 +13,6 @@ import { formatDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { useHeight } from '../../utils/hooks';
 
 type Props = {
     locations: Locations,
@@ -22,9 +22,6 @@ type Props = {
 export default function BucketList({ selectedBucketName, buckets, locations }: Props){
     const dispatch = useDispatch();
     const listRef = useRef<FixedSizeList<T> | null>(null);
-
-    const resizerRef = useRef<T.Resizer<T> | null>(null);
-    const height = useHeight(resizerRef);
 
     const handleCellClicked = useCallback((name) => (e) => {
         e.stopPropagation();
@@ -95,22 +92,22 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
                     ))}
                 </T.Head>
                 <T.BodyWindowing {...getTableBodyProps()}>
-                    <T.Resizer ref={resizerRef}>
-                        {
+                    <AutoSizer>
+                        {({ height, width }) => (
                             // ISSUE: https://github.com/bvaughn/react-window/issues/504
                             // eslint-disable-next-line flowtype-errors/show-errors
                             <FixedSizeList
                                 ref={listRef}
-                                height={height}
+                                height={height || 300}
                                 itemCount={rows.length}
                                 itemSize={45}
-                                width='100%'
+                                width={width || '100%'}
                                 itemData={createItemData(rows, prepareRow, selectedBucketName, dispatch)}
                             >
                                 {MemoRow}
                             </FixedSizeList>
-                        }
-                    </T.Resizer>
+                        )}
+                    </AutoSizer>
                 </T.BodyWindowing>
             </Table>
         </T.Container>

@@ -12,9 +12,7 @@ type Props = {
 function AccountContent({ account }: Props) {
     return (
         <L.ContentSection>
-            <L.Head>
-                <AccountHead account={account}/>
-            </L.Head>
+            <AccountHead account={account}/>
             <L.Details>
                 <AccountDetails account={account} />
             </L.Details>

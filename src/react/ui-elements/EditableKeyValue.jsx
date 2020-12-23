@@ -5,6 +5,10 @@ import React from 'react';
 import { isEmptyItem } from '../utils';
 import styled from 'styled-components';
 
+export const Container = styled.div`
+    flex: 1;
+`;
+
 export const Items = styled.div`
     display: flex;
     flex-direction: column;
