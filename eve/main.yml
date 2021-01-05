@@ -19,6 +19,11 @@ models:
       KEYCLOAK_PASSWORD: "123"
       KEYCLOAK_USER_FIRSTNAME: "Bart"
       KEYCLOAK_USER_LASTNAME: "Simpson"
+  - env: &coverage
+      CODECOV_TOKEN: '%(secret:codecov_token)s'
+      VCS_COMMIT_ID: '%(prop:revision)s'
+      VCS_BRANCH_NAME: '%(prop:branch)s'
+      CI_BUILD_ID: '%(prop:bootstrap)s'
   - Git: &clone
       name: fetch source
       repourl: '%(prop:git_reference)s'
@@ -67,7 +72,7 @@ stages:
           haltOnFailure: True
       - ShellCommand:
           name: run test suite
-          command: yarn test
+          command: yarn test:coverage
           haltOnFailure: True
       - ShellCommand: *yarn-build
       - ShellCommand: *docker-build
@@ -88,6 +93,12 @@ stages:
           env:
             <<: *deploy-env
             <<: *keycloak-env
+      - ShellCommand:
+          name: upload test coverage
+          haltOnFailure: False
+          command: "curl -s https://codecov.io/bash | bash"
+          env:
+            <<: *coverage
   post-merge:
     worker: *worker
     steps:
