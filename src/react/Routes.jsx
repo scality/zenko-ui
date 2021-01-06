@@ -1,5 +1,5 @@
 // @flow
-import { Link, Redirect, Route, matchPath } from 'react-router-dom';
+import { Link, Redirect, Route, Switch, matchPath } from 'react-router-dom';
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
@@ -10,6 +10,7 @@ import DataBrowser from './databrowser/DataBrowser';
 import type { DispatchAPI } from 'redux';
 import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from '@scality/core-ui';
+import NoMatch from './NoMatch';
 import React from 'react';
 import { signout } from './actions';
 
@@ -44,16 +45,18 @@ function Routes() {
                     ]}
                 />
             </NavbarContainer>
+            <Switch>
+                <Route exact path="/" render={() => <Redirect to="/accounts" />}/>
 
-            <Route exact path="/" render={() => <Redirect to="/accounts" />}/>
+                <Route exact path="/create-location" component={LocationEditor} />
+                <Route path="/locations/:locationName/edit" component={LocationEditor} />
 
-            <Route exact path="/create-location" component={LocationEditor} />
-            <Route path="/locations/:locationName/edit" component={LocationEditor} />
+                <Route path='/accounts/:accountName?' component={Accounts} />
+                <Route path="/create-account" component={AccountCreate} />
 
-            <Route path='/accounts/:accountName?' component={Accounts} />
-            <Route path="/create-account" component={AccountCreate} />
-
-            <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
+                <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
+                <Route path="*" component={NoMatch}/>
+            </Switch>
         </RouteContainer>
     );
 }

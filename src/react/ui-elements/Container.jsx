@@ -39,10 +39,10 @@ const LoaderContainer = styled.div`
 
 export const EmptyStateContainer = styled.div`
     display: flex;
+    flex: 1;
     flex-direction: column;
     width: 100%;
     background: ${props => props.theme.brand.background};
-    height: calc(100vh - 48px);
 `;
 
 const NavbarContainer = styled.div`
