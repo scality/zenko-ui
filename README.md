@@ -1,5 +1,7 @@
 # Zenko UI
 
+[![codecov](https://codecov.io/gh/scality/zenko-ui/branch/development/1.0/graph/badge.svg?token=BRX58ZF4VJ)](https://codecov.io/gh/scality/zenko-ui)
+
 Zenko UI is our portal to manage offline Zenko instances.
 
 It provides a User Interface to
