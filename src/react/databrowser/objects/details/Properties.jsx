@@ -12,7 +12,7 @@ const TableContainer = styled.div`
     overflow-x: hidden;
     height: calc(100vh - 352px);
     width: fit-content;
-    margin: 15px 0 0 30px;
+    margin: 10px 0 0 15px;
 `;
 
 type Props = {

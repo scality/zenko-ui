@@ -70,7 +70,7 @@ export const BodyWindowing = styled.tbody`
 
 export const Row = styled(HeadRow)`
     &:hover{
-      background-color: ${props => props.theme.brand.backgroundBluer};
+      background-color: ${props => props.theme.brand.secondaryDark1};
     }
 
     ${({ isSelected, theme }) => isSelected && `
@@ -169,7 +169,6 @@ const Table = styled.table`
     flex-direction: column;
     width: 100%;
     border-collapse: collapse;
-    font-size: 15px;
 `;
 
 // specific to listobject/md search

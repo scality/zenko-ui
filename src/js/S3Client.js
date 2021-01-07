@@ -216,6 +216,8 @@ export default class S3Client {
             Bucket: bucketName,
             Key: objectName,
             VersionId: versionId,
+            // To avoid cached/outdated metadata.
+            IfNoneMatch: '',
         };
         return this.client.headObject(params).promise();
     }

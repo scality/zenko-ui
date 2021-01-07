@@ -25,6 +25,7 @@ const Accounts = () => {
     if (accountList.length === 0) {
         return <EmptyStateContainer>
             <Warning
+                centered={true}
                 iconClass="fas fa-5x fa-wallet"
                 title='Create your first account.'
                 btnTitle='Create Account'
