@@ -39,9 +39,7 @@ const Accounts = () => {
 
     return (
         <L.Container>
-            <L.ListSection>
-                <AccountList accountList={accountList} accountIndex={accountIndex}/>
-            </L.ListSection>
+            <AccountList accountList={accountList} accountIndex={accountIndex}/>
             <AccountContent account={accountList[accountIndex]}/>
         </L.Container>
     );

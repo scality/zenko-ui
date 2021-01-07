@@ -31,9 +31,7 @@ function BucketDetails({ bucket }: Props) {
                     },
                 ]}
             >
-                <div>
-                    { details() }
-                </div>
+                { details() }
             </CustomTabs>
         </ContentSection>
     );

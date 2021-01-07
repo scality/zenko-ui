@@ -1,7 +1,7 @@
 // @flow
 import { Button, Tooltip } from '@scality/core-ui';
 import type { LocationName, LocationType } from '../../../types/config';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { canDeleteLocation, canEditLocation } from '../../backend/location/utils';
 import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog } from '../../actions';
@@ -13,6 +13,7 @@ import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails/storageOptions';
 import styled from 'styled-components';
+import { useHeight } from '../../utils/hooks';
 
 const initialSortBy = [
     {
@@ -21,8 +22,13 @@ const initialSortBy = [
     },
 ];
 
-export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 400px);
+const CustomBody = styled(T.Body)`
+    flex: 1;
+`;
+
+export const Sizer = styled.div`
+    height: ${props => props.height ? `${props.height}px` : '300px'};
+    width: 100%;
 `;
 
 export const Actions = styled.div`
@@ -34,6 +40,9 @@ export const ActionButton = styled(Button)`
 `;
 
 const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-width: 500px;
 `;
 
@@ -67,6 +76,9 @@ function Locations() {
 
     const handleDeleteClick = useCallback(locationName =>
         dispatch(openLocationDeleteDialog(locationName)), [dispatch]);
+
+    const resizerRef = useRef<T.Resizer<T> | null>(null);
+    const height = useHeight(resizerRef);
 
     const columns = useMemo(
         () => [
@@ -146,27 +158,29 @@ function Locations() {
                             </T.HeadRow>
                         ))}
                     </T.Head>
-                    <CustomBody {...getTableBodyProps()}>
-                        {rows.map(row => {
-                            prepareRow(row);
-                            const locationName = row.original.name;
-                            return (
-                                <T.Row isSelected={false} key={row.id} {...row.getRowProps()}>
-                                    <DeleteConfirmation
-                                        show={showDeleteLocationName && showDeleteLocationName === locationName}
-                                        cancel={() => dispatch(closeLocationDeleteDialog())}
-                                        approve={() => dispatch(deleteLocation(locationName))}
-                                        titleText={`Are you sure you want to delete location: ${locationName} ?`} />
-                                    {row.cells.map(cell => {
-                                        return (
-                                            <T.Cell key={cell.id} {...cell.getCellProps()} >
-                                                {cell.render('Cell')}
-                                            </T.Cell>
-                                        );
-                                    })}
-                                </T.Row>
-                            );
-                        })}
+                    <CustomBody {...getTableBodyProps()} ref={resizerRef}>
+                        <Sizer height={height}>
+                            {rows.map(row => {
+                                prepareRow(row);
+                                const locationName = row.original.name;
+                                return (
+                                    <T.Row isSelected={false} key={row.id} {...row.getRowProps()}>
+                                        <DeleteConfirmation
+                                            show={showDeleteLocationName && showDeleteLocationName === locationName}
+                                            cancel={() => dispatch(closeLocationDeleteDialog())}
+                                            approve={() => dispatch(deleteLocation(locationName))}
+                                            titleText={`Are you sure you want to delete location: ${locationName} ?`} />
+                                        {row.cells.map(cell => {
+                                            return (
+                                                <T.Cell key={cell.id} {...cell.getCellProps()} >
+                                                    {cell.render('Cell')}
+                                                </T.Cell>
+                                            );
+                                        })}
+                                    </T.Row>
+                                );
+                            })}
+                        </Sizer>
                     </CustomBody>
                 </Table>
             </T.Container>

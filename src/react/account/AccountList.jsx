@@ -4,21 +4,13 @@ import React, { useEffect, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../types/account';
+import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
+import { ListSection } from '../ui-elements/ListLayout';
 import { formatDate } from '../utils';
 import { push } from 'connected-react-router';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { useHeight } from '../utils/hooks';
 import { useParams } from 'react-router-dom';
-
-export const CustomBody = styled(T.Body)`
-    height: calc(100vh - 200px);
-`;
-
-const Container = styled.div`
-    min-width: 430px;
-`;
 
 const handleSortClick = (column, listRef) => {
     if (listRef && listRef.current) {
@@ -47,8 +39,6 @@ function AccountList({ accountList, accountIndex }: Props) {
     const dispatch = useDispatch();
     const { accountName: accountNameParam } = useParams();
     const listRef = useRef<FixedSizeList<T> | null>(null);
-    const resizerRef = useRef<T.Resizer<T> | null>(null);
-    const height = useHeight(resizerRef);
 
     const {
         getTableProps,
@@ -72,7 +62,7 @@ function AccountList({ accountList, accountIndex }: Props) {
     }, [listRef]);
 
     return (
-        <Container id='account-list'>
+        <ListSection id='account-list'>
             <T.SearchContainer>
                 <T.Search>
                     <T.SearchInput placeholder='Filter by Account Name' onChange={e => setFilter('userName', e.target.value)} />
@@ -99,27 +89,27 @@ function AccountList({ accountList, accountIndex }: Props) {
                             </T.HeadRow>
                         ))}
                     </T.Head>
-                    <CustomBody {...getTableBodyProps()}>
-                        <T.Resizer ref={resizerRef}>
-                            {
+                    <T.BodyWindowing {...getTableBodyProps()}>
+                        <AutoSizer>
+                            {({ height, width }) => (
                                 // ISSUE: https://github.com/bvaughn/react-window/issues/504
                                 // eslint-disable-next-line flowtype-errors/show-errors
                                 <FixedSizeList
                                     ref={listRef}
-                                    height={height}
+                                    height={height || 300}
                                     itemCount={rows.length}
                                     itemSize={45}
-                                    width='100%'
+                                    width={width || '100%'}
                                     itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
                                 >
                                     {MemoRow}
                                 </FixedSizeList>
-                            }
-                        </T.Resizer>
-                    </CustomBody>
+                            )}
+                        </AutoSizer>
+                    </T.BodyWindowing>
                 </Table>
             </T.Container>
-        </Container>
+        </ListSection>
     );
 }
 

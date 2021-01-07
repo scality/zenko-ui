@@ -1,6 +1,6 @@
 // @flow
 import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
-import { AddButton, Buttons, Char, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
+import { AddButton, Buttons, Char, Container, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui';
 import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -134,7 +134,7 @@ function Metadata({ objectMetadata, listType }: Props) {
     };
 
     return (
-        <div>
+        <Container>
             <Header>
                 <HeaderKey> Key </HeaderKey>
                 <HeaderValue> Value </HeaderValue>
@@ -181,7 +181,7 @@ function Metadata({ objectMetadata, listType }: Props) {
                     icon={<i className='fas fa-save' />}
                 />
             </Footer>
-        </div>
+        </Container>
     );
 }
 

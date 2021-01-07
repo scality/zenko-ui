@@ -1,16 +1,27 @@
 // @flow
+import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui';
 import type { Node } from 'react';
 import React from 'react';
-import styled from 'styled-components';
 
 const Container = styled.div`
     display: flex;
+    flex: 1;
     flex-direction: column;
     text-align: center;
-    justify-content: center;
+    margin-top: 20px;
     color: ${props => props.theme.brand.textPrimary};
     height: 100%;
+    ${(props) => {
+        if (props.centered) {
+            return css`
+               justify-content: center;
+            `;
+        }
+        return css`
+          margin-top: 20px;
+        `;
+    }}
 `;
 
 const Container2 = styled.div`
@@ -38,10 +49,11 @@ type WarningProps = {
     title: Node,
     btnTitle?: string,
     btnAction?: () => void,
+    centered?: boolean,
 };
 
-export const Warning = ({ iconClass, title, btnTitle, btnAction }: WarningProps) => (
-    <Container>
+export const Warning = ({ iconClass, title, btnTitle, btnAction, centered }: WarningProps) => (
+    <Container centered={centered}>
         { !!iconClass && <i className={iconClass}></i> }
         <Title> {title} </Title>
         { !!btnTitle && !!btnAction && <ButtonSection> <Button text={btnTitle} variant='info' onClick={btnAction} /> </ButtonSection> }

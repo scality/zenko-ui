@@ -1,5 +1,5 @@
 // @flow
-import { AddButton, Buttons, Footer, Header, HeaderKeyTag, HeaderValueTag, InputTag, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
+import { AddButton, Buttons, Container, Footer, Header, HeaderKeyTag, HeaderValueTag, InputTag, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@scality/core-ui';
 import type { ObjectMetadata } from '../../../../types/s3';
@@ -69,7 +69,7 @@ function Properties({ objectMetadata }: Props) {
     };
 
     return (
-        <div>
+        <Container>
             <Header>
                 <HeaderKeyTag> Key </HeaderKeyTag>
                 <HeaderValueTag> Value </HeaderValueTag>
@@ -102,7 +102,7 @@ function Properties({ objectMetadata }: Props) {
                     icon={<i className='fas fa-save' />}
                 />
             </Footer>
-        </div>
+        </Container>
     );
 }
 

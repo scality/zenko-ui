@@ -9,6 +9,7 @@ import styled from 'styled-components';
 const TableContainer = styled.div`
     display: block;
     overflow-y: auto;
+    overflow-x: hidden;
     height: calc(100vh - 352px);
     width: fit-content;
     margin: 15px 0 0 30px;

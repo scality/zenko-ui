@@ -12,7 +12,9 @@ import { maybePluralize } from '../../../utils';
 import styled from 'styled-components';
 
 const TableContainer = styled.div`
-    display: block;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     overflow-y: auto;
     height: calc(100vh - 362px);
     margin: 5px 15px;
