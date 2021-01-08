@@ -37,7 +37,7 @@ function LocationOptions(props: Props) {
                 checked={isSizeLimitChecked}
                 onChange={props.onChange}
             />
-            <span> Limit total size in this location to&nbsp; </span>
+            <span> Limit the total size of this location to&nbsp; </span>
             <Input
                 disabled={!isSizeLimitChecked}
                 placeholder="50"
