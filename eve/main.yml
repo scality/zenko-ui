@@ -125,7 +125,10 @@ stages:
       - EvePropertyFromCommand:
           name: get tag short revision
           property: tag_revision
-          command: git rev-parse --short %(prop:tag)s
+          command: |
+            git checkout refs/tags/%(prop:tag)s 2&> /dev/null
+            git rev-parse --short HEAD
+          haltOnFailure: true
       - ShellCommand:
           name: publish docker image to Scality Production OCI registry
           command: |
