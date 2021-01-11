@@ -115,7 +115,7 @@ stages:
           haltOnFailure: True
           env: *deploy-env
 
-  tag:
+  release:
   # Force this stage manually
   # Add the property tag with the tag name as value
     worker: *worker
