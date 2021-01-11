@@ -33,8 +33,7 @@ export function assumeRoleWithWebIdentity(role?: string): ThunkStatePromisedActi
                 const params = {
                     accessKey: creds.Credentials.AccessKeyId,
                     secretKey: creds.Credentials.SecretAccessKey,
-                    // TODO: to be uncommented once sessionToken is implemented in Vault STS.
-                    // sessionToken: creds.Credentials.SessionToken,
+                    sessionToken: creds.Credentials.SessionToken,
                 };
                 zenkoClient.login(params);
                 return dispatch(listBuckets());
