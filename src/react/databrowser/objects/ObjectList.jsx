@@ -2,8 +2,9 @@
 
 import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
+import type { BucketInfo, ListObjectsType, Object } from '../../../types/s3';
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
-import type { ListObjectsType, Object } from '../../../types/s3';
+import { isVersioningDisabled, maybePluralize } from '../../utils';
 import { listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
@@ -13,7 +14,6 @@ import ObjectListTable from './ObjectListTable';
 import React from 'react';
 import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
-import { maybePluralize } from '../../utils';
 
 type Props = {
     objects: List<Object>,
@@ -21,11 +21,13 @@ type Props = {
     prefixWithSlash: string,
     toggled: List<Object>,
     listType: ListObjectsType,
+    bucketInfo: BucketInfo,
 };
 
-export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled, listType }: Props){
+export default function ObjectList({ objects, bucketName, prefixWithSlash, toggled, listType, bucketInfo }: Props){
     const dispatch = useDispatch();
     const errorZenkoMsg = useSelector((state: AppState) => state.zenko.error.message);
+    const isBucketVersioningDisabled = isVersioningDisabled(bucketInfo.versioning);
     const isMetadataType = listType === LIST_OBJECTS_METADATA_TYPE;
     const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
 
@@ -45,7 +47,8 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
                 <T.ExtraButton id='object-list-create-folder-button' text='Folder' icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
                 <T.ExtraButton id='object-list-delete-button' text='Delete' icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
                 <Toggle
-                    disabled={isMetadataType}
+                    id='list-versions-toggle'
+                    disabled={isMetadataType || isBucketVersioningDisabled}
                     toggle={isVersioningType}
                     label='List Versions'
                     onChange={() => {

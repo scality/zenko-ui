@@ -6,6 +6,7 @@ import { getBucketInfo, getObjectMetadata, listObjects, resetObjectMetadata } fr
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
+import { LIST_OBJECTS_S3_TYPE } from '../../utils/s3';
 import ObjectDelete from './ObjectDelete';
 import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
@@ -28,7 +29,7 @@ export default function Objects(){
     const prefixWithSlash = addTrailingSlash(prefixParam);
 
     useEffect(() => {
-        dispatch(listObjects(bucketNameParam, prefixWithSlash)).finally(() => setLoaded(true));
+        dispatch(listObjects(bucketNameParam, prefixWithSlash, LIST_OBJECTS_S3_TYPE)).finally(() => setLoaded(true));
     }, [bucketNameParam, prefixWithSlash, dispatch]);
 
     useEffect(() => {
@@ -76,7 +77,7 @@ export default function Objects(){
         <ObjectHead bucketNameParam={bucketNameParam}/>
 
         <L.Body>
-            <ObjectList toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} listType={listType} />
+            <ObjectList bucketInfo={bucketInfo} toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} listType={listType} />
             <ObjectDetails toggled={toggled} listType={listType} />
         </L.Body>
     </L.ContentContainer>;

@@ -76,3 +76,4 @@ export function stripQuotes(s) {
 export const isEmptyItem = (item => item.key === '' && item.value === '');
 
 export const isVersioning = (type => type === 'Enabled');
+export const isVersioningDisabled = (type => type === 'Disabled');
