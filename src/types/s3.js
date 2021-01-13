@@ -69,17 +69,17 @@ export type CommonPrefix = {|
     +Prefix: string,
 |};
 
-export type Object = {|
+export type ObjectEntity = {|
     +name: string,
     +key: string,
     +lastModified?: string,
-    +isFolder: string,
-    +size: number,
+    +isFolder: boolean,
+    +size?: number,
     +toggled: boolean,
     +signedUrl?: string,
     +isLatest: boolean,
-    +versionId: ?string,
-    +isDeleteMarker: ?boolean,
+    +versionId?: string,
+    +isDeleteMarker?: boolean,
 |};
 
 export type File = {|

@@ -1,7 +1,7 @@
 // @flow
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, mergeSortedVersionsAndDeleteMarkers } from '../utils/s3';
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatShortDate, stripQuotes, systemMetadataKeys } from '../utils';
-import type { MetadataPairs, Object, S3DeleteMarker, S3Version, TagSet, Tags } from '../../types/s3';
+import type { MetadataPairs, ObjectEntity, S3DeleteMarker, S3Version, TagSet, Tags } from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
@@ -9,7 +9,7 @@ import { initialS3State } from './initialConstants';
 
 const sortByDate = objs => objs.sort((a,b) => (new Date(b.CreationDate) - new Date(a.CreationDate)));
 
-const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== prefix).map(o => {
+const objects = (objs, prefix): Array<ObjectEntity> => objs.filter(o => o.Key !== prefix).map(o => {
     return {
         name: o.Key.replace(prefix, ''),
         key: o.Key,
@@ -22,7 +22,7 @@ const objects = (objs, prefix): Array<Object> => objs.filter(o => o.Key !== pref
     };
 });
 
-const folder = (objs, prefix): Array<Object> => objs.map(o => {
+const folder = (objs, prefix): Array<ObjectEntity> => objs.map(o => {
     return {
         name: o.Prefix.replace(prefix, ''),
         key: o.Prefix,
@@ -32,7 +32,7 @@ const folder = (objs, prefix): Array<Object> => objs.map(o => {
     };
 });
 
-const search = (objs): Array<Object> => objs.map(o => {
+const search = (objs): Array<ObjectEntity> => objs.map(o => {
     return {
         name: o.Key,
         key: o.Key,

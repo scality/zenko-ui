@@ -2,7 +2,7 @@
 
 import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
-import type { BucketInfo, ListObjectsType, Object } from '../../../types/s3';
+import type { BucketInfo, ListObjectsType, ObjectEntity } from '../../../types/s3';
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
 import { listObjects, openFolderCreateModal, openObjectDeleteModal, openObjectUploadModal } from '../../actions';
@@ -16,10 +16,10 @@ import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
 
 type Props = {
-    objects: List<Object>,
+    objects: List<ObjectEntity>,
     bucketName: string,
     prefixWithSlash: string,
-    toggled: List<Object>,
+    toggled: List<ObjectEntity>,
     listType: ListObjectsType,
     bucketInfo: BucketInfo,
 };

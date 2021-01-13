@@ -10,7 +10,7 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
-import type { Object } from '../../../types/s3';
+import type { ObjectEntity } from '../../../types/s3';
 import { formatBytes } from '../../utils';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -22,14 +22,14 @@ export const Icon = styled.i`
 
 type CellProps = {
     row: {
-        original: Object,
+        original: ObjectEntity,
     },
 };
 
 type Props = {
-    objects: List<Object>,
+    objects: List<ObjectEntity>,
     bucketName: string,
-    toggled: List<Object>,
+    toggled: List<ObjectEntity>,
     isVersioningType: boolean,
     prefixWithSlash: string,
 };

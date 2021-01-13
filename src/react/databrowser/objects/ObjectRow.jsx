@@ -5,7 +5,7 @@ import React, { memo } from 'react';
 import { toggleAllObjects, toggleObject } from '../../actions';
 import type { Action } from '../../../types/actions';
 import type { DispatchAPI } from 'redux';
-import type { Object } from '../../../types/s3';
+import type { ObjectEntity } from '../../../types/s3';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
@@ -14,7 +14,7 @@ type PrepareRow = (RowType) => void;
 
 type RowType = {
     id: number,
-    original: Object,
+    original: ObjectEntity,
     cells: any,
     getRowProps: (any) => void,
 };

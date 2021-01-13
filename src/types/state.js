@@ -1,7 +1,7 @@
 // @flow
 
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
-import type { BucketInfo, ListObjectsType, Object, ObjectMetadata, S3Bucket } from './s3';
+import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3Bucket } from './s3';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { ErrorViewType, FailureType } from './ui';
@@ -106,7 +106,7 @@ export type S3State = {|
     |},
     +bucketInfo: BucketInfo | null,
     +listObjectsResults: {|
-        +list: List<Object>,
+        +list: List<ObjectEntity>,
         +nextMarker: Marker,
         +nextVersionIdMarker: Marker,
     |},
