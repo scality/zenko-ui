@@ -135,3 +135,4 @@ stages:
             docker pull ${SCALITY_OCI_REPO_DEV}:%(prop:tag_revision)s
             docker tag ${SCALITY_OCI_REPO_DEV}:%(prop:tag_revision)s ${SCALITY_OCI_REPO}:%(prop:tag)s
             docker push ${SCALITY_OCI_REPO}:%(prop:tag)s
+          env: *deploy-env
