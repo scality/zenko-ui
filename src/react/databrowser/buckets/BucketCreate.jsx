@@ -140,7 +140,7 @@ function BucketCreate() {
             </F.FooterError>
             <F.FooterButtons>
                 <Button disabled={loading} id='cancel-btn' outlined onClick={handleCancel} text='Cancel'/>
-                <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
+                <Button disabled={loading} id='create-bucket-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
             </F.FooterButtons>
         </F.Footer>
     </Form>;
