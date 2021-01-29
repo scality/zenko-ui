@@ -19,7 +19,7 @@ export function makeUserManager({ oidcAuthority: authority, oidcClientId: client
         post_logout_redirect_uri: `${currentEndpoint}/logout/callback`,
         response_type: 'code',
         scope: 'openid profile email roles',
-        automaticSilentRenew: true,
+        automaticSilentRenew: false,
     };
 
     return createUserManager(config);
