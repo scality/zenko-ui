@@ -148,6 +148,8 @@ export function signoutCallback(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const userManager = getState().auth.userManager;
         return userManager.signoutPopupCallback()
+            .then(() => userManager.removeUser())
+            .then(() => userManager.clearStaleState())
             .catch(error => {
                 const message = `An error occurred during the logout process: ${error.message || '(unknown reason)'}`;
                 dispatch(handleErrorMessage(message, 'byAuth'));
