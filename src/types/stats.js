@@ -1,6 +1,6 @@
 // @flow
-
 import type { ConfigurationOverlay, PerLocationMap } from './config';
+import { Seq } from 'immutable';
 
 export type CrrCounter = {|
     +count: number,
@@ -53,11 +53,11 @@ export type Bucket = {|
 export type BucketList = Array<Bucket>;
 
 export type ItemCountsUnit = {|
-    dataManaged: DataManagedUnit,
-    versions: number,
-    objects: number,
-    buckets: number,
-    bucketList: BucketList,
+    dataManaged?: DataManagedUnit,
+    versions?: number,
+    objects?: number,
+    buckets?: number,
+    bucketList?: BucketList,
 |};
 
 export type DiskUsageUnit = {|
@@ -79,19 +79,49 @@ export type CpuUnit = {|
 |};
 
 export type InstanceStatus = {|
-    +metrics: MetricsUnit,
+    +metrics?: MetricsUnit,
     +state: InstanceStateSnapshot,
 |};
 
 export type MetricsUnit = {|
-    'cpu': CpuUnit,
-    'crr-stats': CrrStatUnit,
-    'item-counts': ItemCountsUnit,
-    'data-disk-usage': DiskUsageUnit,
-    'memory': MemoryUnit,
-    'crr-schedule': CrrScheduleUnit,
-    'ingest-schedule': IngestScheduleUnit,
+    'cpu'?: CpuUnit,
+    'crr-stats'?: CrrStatUnit,
+    'item-counts'?: ItemCountsUnit,
+    'data-disk-usage'?: DiskUsageUnit,
+    'memory'?: MemoryUnit,
+    'crr-schedule'?: CrrScheduleUnit,
+    'ingest-schedule'?: IngestScheduleUnit,
 |};
+
+export type StatsSeries = {|
+    +timestamps: Seq.Indexed<string>,
+    +stats: {|
+        +'item-counts': {|
+           +bucketList: BucketList,
+           +buckets: Array<number>,
+           +versions: Array<number>,
+           +objects: Array<number>,
+           +dataManaged: Array<DataManagedUnit>,
+        |},
+        +cpu: Array<number>,
+        +memory: {|
+            +free: Array<number>,
+            +total: Array<number>,
+        |},
+        +'data-disk-usage': {|
+            +total: Array<number>,
+            +available: Array<number>,
+        |},
+        +'crr-stats': {|
+            +completions: Array<CrrCounter>,
+            +throughput: Array<CrrCounter>,
+            +backlog: Array<CrrCounter>,
+            +stalled: Array<CrrCounter>,
+            +pending: Array<CrrCounter>,
+        |},
+    |},
+|};
+
 
 
 export type InstanceStateSnapshot = {|

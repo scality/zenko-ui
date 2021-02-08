@@ -3,10 +3,10 @@
 import type { AppConfig, InstanceId } from './entities';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
+import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
 import type { FailureType } from './ui';
-import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
 import type { UserManager } from './auth';
@@ -293,7 +293,7 @@ export type NetworkActivityAction = NetworkActivityAuthFailureAction |
 // configuration actions
 export type InstanceStatusAction = {|
     +type: 'INSTANCE_STATUS',
-    +status: InstanceStatus,
+    +status?: InstanceStatus,
 |};
 
 export type ConfigurationVersionAction = {|
@@ -324,6 +324,24 @@ export type CloseLocationDeleteDialogAction = {|
 
 export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDeleteDialogAction;
 
+export type ReceiveInstanceStatsAction = {|
+    +type: 'RECEIVE_INSTANCE_STATS',
+    +stats: StatsSeries,
+|};
+
+export type StatsAction = InstanceStatusAction | ReceiveInstanceStatsAction;
+
+export type CloseWorkflowEditNotificationAction = {|
+    +type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+|};
+
+export type OpenWorkflowEditNotificationAction = {|
+    +type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
+|};
+
+export type WorkflowUIAction = CloseWorkflowEditNotificationAction |
+    OpenWorkflowEditNotificationAction;
+
 export type Action =
     AuthAction |
     BucketsUIAction |
@@ -338,4 +356,6 @@ export type Action =
     NetworkActivityAction |
     ConfigurationAction |
     AccountUIAction |
+    StatsAction |
+    WorkflowUIAction |
     ZenkoAction;

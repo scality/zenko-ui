@@ -1,65 +1,41 @@
-// @noflow;
-
-import { Button, Tabs } from '@scality/core-ui';
-import { Head, HeadLeft } from '../ui-elements/Head';
+// @flow
+import * as L from '../ui-elements/ListLayout3';
+import { Redirect, useLocation, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../../types/state';
+import { EmptyStateContainer } from '../ui-elements/Container';
 import React from 'react';
-import { connect } from 'react-redux';
+import { Warning } from '../ui-elements/Warning';
+import WorkflowContent from './WorkflowContent';
+import WorkflowList from './WorkflowList';
 import { push } from 'connected-react-router';
-// import styled from 'styled-components';
 
-class Workflows extends React.Component{
+export default function Workflows(){
+    const dispatch = useDispatch();
+    const { ruleId } = useParams();
+    const { pathname } = useLocation();
+    const rules = useSelector((state: AppState) => state.configuration.rules);
+    const createMode = pathname === '/create-workflow';
 
-    itemClicked(e) {
-        if (e) {
-            e.preventDefault();
-        }
-        console.log('CLICKEDDD!!!');
+    if (!createMode && rules.length === 0) {
+        return <EmptyStateContainer>
+            <Warning
+                iconClass="fas fa-5x fa-wallet"
+                title='Before browsing your rules, create your first rule.'
+                btnTitle='Create Rule'
+                btnAction={() => dispatch(push('/create-workflow'))} />
+        </EmptyStateContainer>;
     }
 
-    populateItems(){
-        const items = []
-        this.props.configuration.replicationStreams.forEach((i) => {
-            items.push({
-                // onClick: this.itemClicked,
-                // selected: true,
-                title: i.name,
-            });
-        });
-        return items;
+    // redirect to the first workflow.
+    if (!createMode && rules.length > 0 && !ruleId) {
+        return <Redirect to={`/workflows/${rules[0].id}`}/>;
     }
 
-    redirect = (e) => {
-        if (e) {
-            e.preventDefault();
-        }
-        return this.props.redirect('/workflow/replication/create');
-    }
-
-    render() {
-        console.log('this.props.configuration!!!', this.props.configuration);
-        const items = this.populateItems();
-        return <div>
-            <Head> <HeadLeft> hello </HeadLeft> coco2 </Head>
-            <Button outlined onClick={this.redirect} size="default" text="Add" type="submit" />
-            <Tabs
-                items={items}
-            >
-                <div> Content </div>
-            </Tabs>
-        </div>;
-    }
+    return <L.Container>
+        <L.Body>
+            <WorkflowList createMode={createMode} ruleId={ruleId} rules={rules}/>
+            <WorkflowContent createMode={createMode} ruleDetails={rules.find(r => r.id === ruleId)}/>
+        </L.Body>
+    </L.Container>;
 }
-
-function mapStateToProps(state) {
-    return {
-        configuration: state.configuration.latest,
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        redirect: path => dispatch(push(path)),
-    };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Workflows);

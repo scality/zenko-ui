@@ -5,15 +5,6 @@ import type { Account } from '../../../types/account';
 import { Clipboard } from '../../ui-elements/Clipboard';
 import React from 'react';
 import { formatDate } from '../../utils';
-import styled from 'styled-components';
-
-const TableContainer = styled.div`
-    display: block;
-    overflow-y: auto;
-    height: calc(100vh - 320px);
-    width: fit-content;
-    margin: 15px 0 0 30px;
-`;
 
 type Props = {
     account: Account,
@@ -21,7 +12,7 @@ type Props = {
 
 function Properties({ account }: Props) {
     return (
-        <TableContainer>
+        <div>
             <Table id='account-details-table'>
                 <T.Body>
                     <T.Row>
@@ -54,7 +45,7 @@ function Properties({ account }: Props) {
                     </T.Row>
                 </T.Body>
             </Table>
-        </TableContainer>
+        </div>
     );
 }
 

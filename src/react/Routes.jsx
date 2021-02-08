@@ -12,6 +12,7 @@ import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from '@scality/core-ui';
 import NoMatch from './NoMatch';
 import React from 'react';
+import Workflows from './workflow/Workflows';
 import { signout } from './actions';
 
 function Routes() {
@@ -42,6 +43,10 @@ function Routes() {
                             selected: !!matchPath(pathname, { path: '/buckets' }) ||
                                       !!matchPath(pathname, { path: '/create-bucket' }),
                         },
+                        {
+                            link: <Link to="/workflows">Workflow</Link>,
+                            selected: !!matchPath(pathname, { path: '/workflows' }),
+                        },
                     ]}
                 />
             </NavbarContainer>
@@ -55,6 +60,7 @@ function Routes() {
                 <Route path="/create-account" component={AccountCreate} />
 
                 <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
+                <Route path={['/create-workflow', '/workflows/:ruleId?']} component={Workflows} />
                 <Route path="*" component={NoMatch}/>
             </Switch>
         </RouteContainer>

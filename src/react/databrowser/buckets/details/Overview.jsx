@@ -6,6 +6,7 @@ import { closeBucketDeleteDialog, deleteBucket, getBucketInfo, openBucketDeleteD
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import type { Replication } from '../../../types/config';
 import type { S3Bucket } from '../../../types/s3';
 import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
@@ -15,15 +16,29 @@ const TableContainer = styled.div`
     display: flex;
     flex: 1;
     flex-direction: column;
-    overflow-y: auto;
-    height: calc(100vh - 362px);
-    margin: 5px 15px;
 `;
 
 const ButtonContainer = styled.div`
     display: flex;
     justify-content: flex-end;
 `;
+
+function canDeleteBucket(
+    bucketName: string,
+    loading: boolean,
+    replicationStreams: Array<Replication>,
+) {
+    if (loading) {
+        return false;
+    }
+    const checkBucketStream = replicationStreams.find(r => {
+        return r.source.bucketName === bucketName;
+    });
+    if (checkBucketStream) {
+        return false;
+    }
+    return true;
+}
 
 type Props = {
     bucket: S3Bucket,
@@ -35,6 +50,7 @@ function Overview({ bucket }: Props) {
     const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
     const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
+    const replicationStreams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
 
     useEffect(() => {
         dispatch(getBucketInfo(bucket.Name));
@@ -66,7 +82,7 @@ function Overview({ bucket }: Props) {
         <TableContainer>
             <DeleteConfirmation show={showDelete === bucket.Name} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete bucket: ${bucket.Name} ?`}/>
             <ButtonContainer>
-                <Button icon={<i className="fas fa-trash" />} size="default" disabled={loading} variant='danger' onClick={handleDeleteClick} text='Delete Bucket'/>
+                <Button icon={<i className="fas fa-trash" />} size="default" disabled={!canDeleteBucket(bucket.Name, loading, replicationStreams)} variant='danger' onClick={handleDeleteClick} text='Delete Bucket'/>
             </ButtonContainer>
             <Table>
                 <T.Body>
@@ -111,13 +127,13 @@ function Overview({ bucket }: Props) {
                                 <T.Value> { bucketInfo.owner } </T.Value>
                             </T.Row>
                             <T.Row>
-                                <T.Key> Access Control List </T.Key>
+                                <T.Key> ACL </T.Key>
                                 <T.Value>
                                     {maybePluralize(bucketInfo.aclGrantees, 'Grantee')}
                                 </T.Value>
                             </T.Row>
                             <T.Row>
-                                <T.Key> CORS Configuration </T.Key>
+                                <T.Key> CORS </T.Key>
                                 <T.Value>
                                     {bucketInfo.cors ? 'Yes' : 'No'}
                                 </T.Value>

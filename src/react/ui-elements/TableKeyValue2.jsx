@@ -40,9 +40,14 @@ export const Body = styled.form`
     flex-direction: column;
 `;
 
-export const Group = styled.div`
+export const Groups = styled.div`
     display: flex;
     flex-direction: column;
+
+    max-width: 450px;
+`;
+
+export const Group = styled.div`
     margin-bottom: 10px;
 `;
 
@@ -57,24 +62,52 @@ export const GroupContent = styled.div`
 `;
 
 export const Row = styled.div`
+    position: relative;
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: 5px;
     min-height: 25px;
 `;
 
+
 export const Key = styled.div`
-    flex: 1 1 40%;
-    color: ${props => props.theme.brand.textSecondary};
+    flex: 1 1 30%;
+    color: ${props => props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
+    font-weight: ${props => props.principal ? 'bold' : 'normal'};
 `;
 
 export const Value = styled.div`
-    flex: 1 1 60%;
+    flex: 1 1 70%;
+    flex-direction: column;
+`;
+
+export const ErrorContainer = styled.div`
+    position: absolute;
 `;
 
 const Table = styled.div`
     width: 100%;
+`;
+
+export const Header = styled.div`
+    display: ${props => props.isRemoved ? 'none' : 'flex'};
+    flex-direction: row;
+    justify-content: space-between;
+`;
+
+export const BannerContainer = styled.div`
+    flex: 1;
+    margin-right: 8px;
+    width: 200px;
+    visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
+`;
+
+export const Footer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+
+    margin: 10px 0px;
 `;
 
 export default Table;

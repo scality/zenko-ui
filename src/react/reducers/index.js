@@ -16,6 +16,7 @@ import uiErrors from './uiErrors';
 import uiLocations from './uiLocations';
 import uiObjects from './uiObjects';
 import uiUser from './uiUser';
+import uiWorkflows from './uiWorkflows';
 import user from './user';
 import zenko from './zenko';
 
@@ -33,6 +34,7 @@ const zenkoUIReducer = history => combineReducers({
     uiLocations,
     uiObjects,
     uiUser,
+    uiWorkflows,
     s3,
     secrets,
     stats,

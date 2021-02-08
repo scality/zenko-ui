@@ -70,3 +70,19 @@ export const WarningMetadata = ({ description }: WarningMetadataProps) => (
         <Description> {description} </Description>
     </Container2>
 );
+
+export const NoBucketWarning = () => (
+    <Container2>
+        <i className='fas fa-2x fa-exclamation-circle'></i>
+        <Title> No bucket </Title>
+        <Description> Data workflows and search work on Zenko buckets, but no bucket has been created yet. </Description>
+    </Container2>
+);
+
+export const NoLocationWarning = () => (
+    <Container2>
+        <i className='fas fa-2x fa-exclamation-circle'></i>
+        <Title> No location </Title>
+        <Description> To create a replication workflow, first create one or several cloud locations that will be used as replication targets. </Description>
+    </Container2>
+);

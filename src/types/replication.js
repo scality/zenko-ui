@@ -1,25 +1,33 @@
 // @flow
-
 export type TargetLocationObject = {|
     name: string,
     storageClass: string,
 |};
 
-export type ReplicationSource = {|
-    +prefix: string | null,
-    +bucketName: string,
-    +location?: string,
+export type ReplicationBucketOption = {|
+    +label: string,
+    +value: string,
+    +location: string,
+    +disabled: boolean,
 |};
 
-export type Replication = {|
+export type ReplicationForm = {|
+    +streamName: string,
+    +streamVersion: number,
     +streamId: string,
-    +name: string,
-    +version: number,
     +enabled: boolean,
-    +source: ReplicationSource,
-    +destination: {|
-        +bucketName?: string,
-        +locations: Array<TargetLocationObject>,
-        +preferredReadLocation?: string | null,
-    |},
+    +sourceBucket: {
+        label?: string,
+        value?: string,
+        // todo: to be removed?
+        location?: string,
+        disabled?: boolean,
+    },
+    +sourcePrefix: string,
+    // todo: allow multiple locations?
+    +destinationLocation: {
+        label?: string,
+        value?: string,
+    },
+    preferredReadLocation: string | null,
 |};

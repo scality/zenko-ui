@@ -1,6 +1,19 @@
 // @noflow
 
-import type { AccountState, AccountsUIState, AuthState, BucketsUIState, ConfigurationState, InstanceStatusState, NetworkActivityState, OIDCState, ObjectsUIState, S3State, UIErrorState } from '../../types/state';
+import type {
+    AccountState,
+    AccountsUIState,
+    AuthState,
+    BucketsUIState,
+    ConfigurationState,
+    ErrorsUIState,
+    InstanceStatusState,
+    NetworkActivityState,
+    OIDCState,
+    ObjectsUIState,
+    S3State,
+    WorkflowsUIState,
+} from '../../types/state';
 import { List, Map } from 'immutable';
 import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 import { MockManagementClient } from '../../js/mock/managementClient';
@@ -59,7 +72,7 @@ export const initialConfiguration: ConfigurationState = {
     },
 };
 
-export const initialErrorsUIState: UIErrorState = { errorMsg: null, errorType: null };
+export const initialErrorsUIState: ErrorsUIState = { errorMsg: null, errorType: null };
 export const initialInstancesState = {};
 export const initialInstanceStatus: InstanceStatusState = {
     latest: {
@@ -171,6 +184,10 @@ export const initialZenkoState = {
     },
 };
 
+export const initialWorkflowsUIState: WorkflowsUIState = {
+    showEditWorkflowNotification: false,
+};
+
 export const initialFullState = {
     account: initialAccountState,
     auth: initialAuthState,
@@ -187,6 +204,7 @@ export const initialFullState = {
     uiObjects: initialObjectUIState,
     uiErrors: initialErrorsUIState,
     uiBuckets: initialBucketUIState,
+    uiWorkflows: initialWorkflowsUIState,
     user: initialUserState,
     oidc: initialOidc,
     zenko: initialZenkoState,

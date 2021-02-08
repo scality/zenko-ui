@@ -1,10 +1,28 @@
 /* eslint-disable */
+import { defaultLocationType, storageOptions } from '../backend/location/LocationDetails';
+import type { Locations } from '../../../../types/config';
 
-import { storageOptions } from '../backend/location/LocationDetails';
 
-export function getLocationType(locationType) {
+export function checkSupportsReplicationTarget(locations: Locations): boolean {
+    return Object.keys(locations)
+        .some(l => storageOptions[locations[l].locationType]
+            .supportsReplicationTarget === true);
+}
+
+export function checkIfExternalLocation(locations: Locations): boolean {
+    return Object.keys(locations)
+        .some(l => locations[l].locationType !== defaultLocationType);
+}
+
+export function getLocationName(locationType) {
     const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
     return locationTypeName;
+}
+
+export function getLocationType(locationConstraint, locations) {
+  const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+  const locationType = locations && locations[constraint] ? locations[constraint].locationType : '';
+  return locationType;
 }
 
 export function getLocationTypeFromName(locationConstraint, locations) {
@@ -12,6 +30,19 @@ export function getLocationTypeFromName(locationConstraint, locations) {
     const locationType = locations && locations[constraint] ? locations[constraint].locationType : '';
     const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].name : '';
     return locationTypeName;
+}
+
+export function getLocationTypeShort(locationConstraint, locations) {
+    const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+    const locationType = locations && locations[constraint] ? locations[constraint].locationType : '';
+    const locationTypeName = storageOptions[locationType] ? storageOptions[locationType].short : '';
+    return locationTypeName;
+}
+
+export function getLocationBucketName(locationConstraint, locations) {
+    const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+    const bucketName = locations && locations[constraint] && locations[constraint].details ? locations[constraint].details.bucketName : '';
+    return bucketName;
 }
 
 export function selectStorageOptions(

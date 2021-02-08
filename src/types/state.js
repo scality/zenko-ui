@@ -2,8 +2,8 @@
 
 import type { AuthUser, UserManager as UserManagerInterface } from './auth';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3Bucket } from './s3';
-import type { BucketList, InstanceStatus } from './stats';
-import type { ConfigurationOverlay, LocationName } from './config';
+import type { BucketList, InstanceStatus, StatsSeries } from './stats';
+import type { ConfigurationOverlay, LocationName, Rules } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
@@ -56,6 +56,7 @@ export type ErrorsUIState = {|
 
 export type ConfigurationState = {|
     +latest: ConfigurationOverlay,
+    +rules: Rules,
 |};
 
 export type AccountState = {|
@@ -97,6 +98,7 @@ export type LocationsUIState = {|
 
 export type StatsState = {|
     +bucketList: BucketList,
+    +allStats: StatsSeries,
 |};
 
 export type S3State = {|
@@ -112,6 +114,10 @@ export type S3State = {|
     |},
     +listObjectsType: ListObjectsType,
     +objectMetadata: ?ObjectMetadata,
+|};
+
+export type WorkflowsUIState ={|
+    showEditWorkflowNotification: boolean,
 |};
 
 export type ZenkoState = {|
@@ -141,5 +147,6 @@ export type AppState = {
     +uiObjects: ObjectsUIState,
     +stats: StatsState,
     +s3: S3State,
+    +uiWorkflows: WorkflowsUIState,
     +zenko: ZenkoState,
 };

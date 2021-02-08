@@ -31,7 +31,7 @@ import styled from 'styled-components';
 export const Title = styled.div`
     display: flex;
 
-    text-transform: uppercase;
+    text-transform: capitalize;
     margin-bottom: 40px;
     font-size: 19px;
 `;

@@ -16,6 +16,9 @@ export type Location = {|
     +legacyAwsBehavior?: boolean,
 |};
 
+export type DestinationLocations = Array<TargetLocationObject>;
+
+
 export type Locations = $ReadOnly<PerLocationMap<Location>>;
 
 // replications
@@ -43,6 +46,17 @@ export type Replication = {|
     |},
 |};
 
+// rules (replication/expiration/transition rules)
+export type Rule = {|
+    +id: string,
+    +type: 'replication' | 'transition' | 'expiration',
+    +name: string,
+    +state: boolean,
+    +ruleId: string,
+|};
+
+export type Rules = Array<Rule>;
+
 // endpoints
 export type Hostname = string;
 
@@ -52,10 +66,12 @@ export type Endpoint = {|
     +isBuiltin: boolean,
 |};
 
+export type ReplicationStreams = Array<Replication>;
+
 export type ConfigurationOverlay = {|
     +users: Array<Account>,
     +locations: Locations,
-    +replicationStreams: Array<Replication>;
+    +replicationStreams: ReplicationStreams;
     +endpoints: Array<Endpoint>,
 |};
 

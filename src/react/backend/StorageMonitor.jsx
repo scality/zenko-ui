@@ -4,7 +4,7 @@ import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog, se
 import { Button } from '@scality/core-ui';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
-import { getLocationType } from '../utils/storageOptions';
+import { getLocationName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
@@ -174,7 +174,7 @@ function StorageMonitor(props) {
                             return (<LocationContainer key={l} clicked={l === props.selectedLocationName} onClick={() => props.selectLocation(l)}>
                                 <div className='title'>
                                     <div className='maintitle'> {l} </div>
-                                    <div className='subtitle'> {getLocationType(props.locations[l].locationType)} </div>
+                                    <div className='subtitle'> {getLocationName(props.locations[l].locationType)} </div>
                                 </div>
                             </LocationContainer>);
                         })

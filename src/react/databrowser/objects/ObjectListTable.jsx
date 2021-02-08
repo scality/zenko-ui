@@ -139,7 +139,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                 {headerGroups.map(headerGroup => (
                     <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                         {headerGroup.headers.map(column => (
-                            <T.HeadCell id={`object-list-table-head-${column.id}`} key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
+                            <T.HeadCell id={`object-list-table-head-${column.id}`} key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())} >
                                 {column.render('Header')}
                                 <T.Icon>
                                     {!column.disableSortBy && (column.isSorted

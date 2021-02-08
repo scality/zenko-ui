@@ -29,6 +29,7 @@ const TEST_STATE = {
                     objectId: '1060b13c-d805-11ea-a59c-a0999b105a5f',
                 },
             }],
+            replicationStreams: [],
         },
     },
     networkActivity: {
@@ -78,11 +79,11 @@ describe('Overview', () => {
         expect(firstItemSecondGroup.find(T.Value).text()).toContain('bart');
 
         const secondItemSecondGroup = secondGroupInfosContentItems.at(1);
-        expect(secondItemSecondGroup.find(T.Key).text()).toContain('Access Control List');
+        expect(secondItemSecondGroup.find(T.Key).text()).toContain('ACL');
         expect(secondItemSecondGroup.find(T.Value).text()).toContain('0 Grantee');
 
         const thirdItemSecondGroup = secondGroupInfosContentItems.at(2);
-        expect(thirdItemSecondGroup.find(T.Key).text()).toContain('CORS Configuration');
+        expect(thirdItemSecondGroup.find(T.Key).text()).toContain('CORS');
         expect(thirdItemSecondGroup.find(T.Value).text()).toContain('No');
 
         const fourthItemSecondGroup = secondGroupInfosContentItems.at(3);

@@ -4,16 +4,6 @@ import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import type { ObjectMetadata } from '../../../../types/s3';
 import React from 'react';
-import styled from 'styled-components';
-
-const TableContainer = styled.div`
-    display: block;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: calc(100vh - 352px);
-    width: fit-content;
-    margin: 10px 0 0 15px;
-`;
 
 type Props = {
     objectMetadata: ObjectMetadata,
@@ -21,7 +11,7 @@ type Props = {
 
 function Properties({ objectMetadata }: Props) {
     return (
-        <TableContainer>
+        <div>
             <Table id='object-details-table'>
                 <T.Body>
                     <T.Row>
@@ -48,7 +38,7 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                 </T.Body>
             </Table>
-        </TableContainer>
+        </div>
     );
 }
 

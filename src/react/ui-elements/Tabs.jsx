@@ -8,7 +8,7 @@ export const CustomTabs = styled(Tabs)`
     margin: 0px;
     flex-direction: column;
     .sc-tabs-item{
-        min-width: 100px;
+        min-width: 115px;
     }
     .sc-tabs-item-title{
         border-radius: 5px 5px 0px 0px;
@@ -17,6 +17,9 @@ export const CustomTabs = styled(Tabs)`
         display: flex;
         border-radius: 5px;
         flex: 1;
-        padding: 20px
+        padding: 24px 32px;
+        overflow-y: auto;
+        height: 0;
+        min-height: 0;
     }
 `;
