@@ -1,6 +1,6 @@
 // @noflow
 
-import { Button } from '@scality/core-ui';
+import { Button, SearchInput as SearchInputCore } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
@@ -121,22 +121,8 @@ export const Search = styled.div`
     flex: 0 0 220px;
 `;
 
-export const SearchInput = styled(Input)`
-    background-color: ${props => props.theme.brand.background};
-
-    // placeholder italics
-    ::-webkit-input-placeholder {
-       font-style: italic;
-    }
-    :-moz-placeholder {
-       font-style: italic;
-    }
-    ::-moz-placeholder {
-       font-style: italic;
-    }
-    :-ms-input-placeholder {
-       font-style: italic;
-    }
+export const SearchInput = styled(SearchInputCore)`
+    width: 100%;
 `;
 
 export const SearchMetadataContainer = styled.form`
@@ -173,7 +159,8 @@ const Table = styled.table`
 
 // specific to listobject/md search
 
-export const SearchMetadataInput = styled(SearchInput)`
+export const SearchMetadataInput = styled(Input)`
+    background-color: ${props => props.theme.brand.background};
     padding: 0px 30px;
 `;
 

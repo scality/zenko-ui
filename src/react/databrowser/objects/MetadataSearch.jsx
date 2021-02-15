@@ -73,7 +73,7 @@ const MetadataSearch = ({ isMetadataType, bucketName, prefixWithSlash, errorZenk
         <SearchMetadataContainer isHidden={prefixWithSlash ? 1 : 0} onSubmit={handleSubmit}>
             <SearchMetadataInputAndIcon>
                 <SearchValidationIcon isMetadataType={isMetadataType} isError={!!errorZenkoMsg} />
-                <SearchMetadataInput ref={inputRef} onChange={handleChange} placeholder='Metadata Search' value={inputText} onClick={handleInputClicked} />
+                <SearchMetadataInput disableToggle={true} ref={inputRef} onChange={handleChange} placeholder='Metadata Search' value={inputText} onClick={handleInputClicked} />
                 <SearchInputIcon className="fas fa-times-circle" onClick={reset} isHidden={!isMetadataType && !errorZenkoMsg ? 1 : 0}></SearchInputIcon>
             </SearchMetadataInputAndIcon>
             {
