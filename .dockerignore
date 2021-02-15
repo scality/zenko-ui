@@ -1,6 +1,1 @@
-# Ignore everything
-*
-
-# But not the conf and public directories
-!public
-!conf
+node_modules
