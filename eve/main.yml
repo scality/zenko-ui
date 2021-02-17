@@ -29,13 +29,14 @@ models:
       repourl: '%(prop:git_reference)s'
       retryFetch: true
       haltOnFailure: true
-  - ShellCommand: &yarn-install
+  - ShellCommand: &npm-install
       name: install dependencies
-      command: yarn install --frozen-lockfile
+      # set unsafe-perm to true to run core-ui "prepare" script
+      command: npm config set unsafe-perm true && npm ci
       haltOnFailure: true
-  - ShellCommand: &yarn-build
+  - ShellCommand: &npm-build
       name: build assets
-      command: yarn build
+      command: npm run build
       haltOnFailure: true
   - ShellCommand: &docker-build
       name: build docker image
@@ -65,16 +66,16 @@ stages:
           env: *keycloak-env
     steps:
       - Git: *clone
-      - ShellCommand: *yarn-install
+      - ShellCommand: *npm-install
       - ShellCommand:
           name: run eslint test
-          command: yarn test:lint
+          command: npm run test:lint
           haltOnFailure: True
       - ShellCommand:
           name: run test suite
-          command: yarn test:coverage
+          command: npm run test:coverage
           haltOnFailure: True
-      - ShellCommand: *yarn-build
+      - ShellCommand: *npm-build
       - ShellCommand: *docker-build
       - ShellCommand:
           name: run end-to-end tests
@@ -88,7 +89,7 @@ stages:
             CYPRESS_KEYCLOAK_PASSWORD=${KEYCLOAK_PASSWORD}
             CYPRESS_KEYCLOAK_ROOT=${KEYCLOAK_ROOT}
             CYPRESS_KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
-            CYPRESS_KEYCLOAK_REALM=${KEYCLOAK_REALM} yarn run cypress:run;
+            CYPRESS_KEYCLOAK_REALM=${KEYCLOAK_REALM} npm run cypress:run;
           haltOnFailure: True
           env:
             <<: *deploy-env
@@ -103,8 +104,8 @@ stages:
     worker: *worker
     steps:
       - Git: *clone
-      - ShellCommand: *yarn-install
-      - ShellCommand: *yarn-build
+      - ShellCommand: *npm-install
+      - ShellCommand: *npm-build
       - ShellCommand: *docker-login
       - ShellCommand: *docker-build
       - ShellCommand:

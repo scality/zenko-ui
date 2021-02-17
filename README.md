@@ -16,8 +16,8 @@ It provides a User Interface to
 ## How to start
 
 ```
-yarn install
-yarn start
+npm install
+npm run start:dev
 ```
 
 ## Authentication
