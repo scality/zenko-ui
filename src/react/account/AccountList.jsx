@@ -67,7 +67,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                 <T.Search>
                     <T.SearchInput disableToggle={true} placeholder='Search by Account Name' onChange={e => setFilter('userName', e.target.value)} />
                 </T.Search>
-                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='info' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
+                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='secondary' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>

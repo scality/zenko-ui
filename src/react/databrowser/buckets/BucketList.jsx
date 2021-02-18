@@ -69,7 +69,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
     return <L.ListSection>
         <T.SearchContainer>
             <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant='info' onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant='secondary' onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
         </T.SearchContainer>
         <T.Container>
             <Table {...getTableProps()}>

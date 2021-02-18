@@ -135,8 +135,8 @@ function Locations() {
     return (
         <Container id='location-list'>
             <T.SearchContainer>
-                <T.Search> <T.SearchInput disableToggle={true} placeholder='Filter by Location Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
-                <T.ExtraButton text="Create Location" icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(push('/create-location'))} size="default" type="submit" />
+                <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Location Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
+                <T.ExtraButton text="Create Location" icon={<i className="fas fa-plus" />} variant='secondary' onClick={() => dispatch(push('/create-location'))} size="default" type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
