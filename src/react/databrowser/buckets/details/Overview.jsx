@@ -66,7 +66,7 @@ function Overview({ bucket }: Props) {
         <TableContainer>
             <DeleteConfirmation show={showDelete === bucket.Name} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete bucket: ${bucket.Name} ?`}/>
             <ButtonContainer>
-                <Button icon={<i className="fas fa-trash" />} size="small" disabled={loading} variant='danger' onClick={handleDeleteClick} text='Delete Bucket'/>
+                <Button icon={<i className="fas fa-trash" />} size="default" disabled={loading} variant='danger' onClick={handleDeleteClick} text='Delete Bucket'/>
             </ButtonContainer>
             <Table>
                 <T.Body>
