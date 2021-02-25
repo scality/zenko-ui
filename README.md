@@ -20,5 +20,13 @@ npm install
 npm run start:dev
 ```
 
+## Test
+
+### Run cypress test
+
+```
+CYPRESS_KEYCLOAK_ROOT="http://127.0.0.1:8080" CYPRESS_KEYCLOAK_REALM="myrealm" CYPRESS_KEYCLOAK_CLIENT_ID="myclient" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FIRSTNAME="Bart" CYPRESS_KEYCLOAK_USER_LASTNAME="Simpson" CYPRESS_KEYCLOAK_USER_FULLNAME="Bart Simpson"  npm run cypress:run
+```
+
 ## Authentication
 [documentation](documentation/AUTHENTICATION.md)
