@@ -29,4 +29,6 @@ CYPRESS_KEYCLOAK_ROOT="http://127.0.0.1:8080" CYPRESS_KEYCLOAK_REALM="myrealm" C
 
 ## Authentication
 [documentation](documentation/AUTHENTICATION.md)
-[release](documentation/RELEASE.md)
+
+## Release
+[documentation](documentation/RELEASE.md)
