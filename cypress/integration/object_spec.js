@@ -2,7 +2,7 @@
 describe('Object', () => {
     describe('creation', () => {
         const accountName = 'account2';
-        const bucketName = 'mybucket3';
+        const bucketName = 'mybucket4';
         const fileName = 'fifteenmb';
         beforeEach(() => {
             cy.kcLogin();

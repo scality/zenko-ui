@@ -2,7 +2,7 @@
 describe('Bucket', () => {
     describe('creation', () => {
         const accountName = 'account1';
-        const bucketName = 'mybucket3';
+        const bucketName = 'mybucket4';
         beforeEach(() => {
             cy.kcLogin();
             cy.createAccount(accountName);

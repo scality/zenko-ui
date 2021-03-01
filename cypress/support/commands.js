@@ -104,15 +104,12 @@ Cypress.Commands.add('uploadObject', (bucketName, fileName) => {
     cy.get('button').contains('Upload').click();
     cy.get('input.object-upload-drop-zone-input')
         .attachFile(fileName);
-    cy.get('#object-upload-upload-button').click();
     cy.intercept({
-        method: 'POST',
-        url: `/s3/${bucketName}/${fileName}`,
-        query: {
-            uploadId: /.*/,
-        },
-    }).as('mpu');
-    cy.wait('@mpu');
+        method: 'GET',
+        url: `/s3/${bucketName}`,
+    }).as('get-after-upload');
+    cy.get('#object-upload-upload-button').click();
+    cy.wait('@get-after-upload');
 });
 
 Cypress.Commands.add('deleteObject', (bucketName, fileName) => {
