@@ -66,7 +66,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
         autoResetSortBy: false,
     }, useFilters, useSortBy);
 
-    return <L.ListSection>
+    return <L.ListSection id='bucket-list'>
         <T.SearchContainer>
             <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
             <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant='secondary' onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
