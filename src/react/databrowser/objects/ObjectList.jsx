@@ -39,7 +39,7 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
         }
         return <ObjectListTable objects={objects} isVersioningType={isVersioningType} bucketName={bucketName} toggled={toggled} prefixWithSlash={prefixWithSlash} />;
     };
-    return <L.ListSection>
+    return <L.ListSection id='object-list'>
         <T.HeaderContainer>
             <MetadataSearch errorZenkoMsg={errorZenkoMsg} isMetadataType={isMetadataType} bucketName={bucketName} prefixWithSlash={prefixWithSlash} />
             <T.ButtonContainer>
