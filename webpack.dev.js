@@ -18,19 +18,21 @@ module.exports = merge(common, {
         hot: true,
         proxy: {
             '/s3': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://s3.zenko.local',
                 pathRewrite: {'^/s3' : ''},
                 bypass: function(req) {
-                    req.headers.proxy_path = req.path;
+                    req.headers.proxypath = req.path;
+                    req.headers.host = 's3.zenko.local';
+                    req.headers.proxyhost = '127.0.0.1:8383';
                 },
             },
             '/iam': {
-                target: 'http://127.0.0.1:8600',
-                pathRewrite: {'^/iam' : ''},
+                target: 'http://ui.zenko.local',
+                changeOrigin: true,
             },
             '/sts': {
-                target: 'http://127.0.0.1:8800',
-                pathRewrite: { '^/sts' : '' },
+                target: 'http://ui.zenko.local',
+                changeOrigin: true,
             },
         },
     },

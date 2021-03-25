@@ -1,0 +1,7 @@
+{
+    "managementEndpoint": "http://127.0.0.1:5000",
+    "oidcAuthority": "http://127.0.0.1:8080/auth/realms/myrealm",
+    "oidcClientId": "myclient",
+    "stsEndpoint": "http://127.0.0.1:8383/sts",
+    "zenkoEndpoint": "http://127.0.0.1:8383/s3"
+}
