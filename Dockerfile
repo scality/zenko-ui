@@ -4,7 +4,7 @@ FROM nginx:${NGINX_IMAGE_VERSION}
 
 EXPOSE 8383
 
-COPY conf/zenko-ui-nginx.conf /etc/nginx/conf.d/default.conf
+COPY conf/scality-cloud-nginx.conf /etc/nginx/conf.d/default.conf
 
 RUN rm -rf /usr/share/nginx/html/*
 

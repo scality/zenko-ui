@@ -52,7 +52,7 @@ Password: 123
 ```
 npm run build
 docker build -t zui .
-docker run -d -p 8383:8383 -v $(pwd)/conf/scality-cloud-nginx.conf:/etc/nginx/conf.d/default.conf zui
+docker run -d -p 8383:8383 zui
 ```
 
 #### Run tests
