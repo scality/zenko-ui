@@ -80,7 +80,10 @@ stages:
       - ShellCommand:
           name: run end-to-end tests
           command: >-
-            docker run -d -p 8383:8383 ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
+            docker run -d -p 8383:8383
+            -v $(pwd)/eve/ui-test-config.json:/usr/share/nginx/html/config.json
+            -v $(pwd)/conf/zenko-ui-nginx.conf:/etc/nginx/conf.d/default.conf
+            ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
             set -exu;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;

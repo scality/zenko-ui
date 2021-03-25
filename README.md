@@ -15,16 +15,54 @@ It provides a User Interface to
 
 ## How to start
 
+### Connect to Scality VPN
+
+Zenko deployment runs on scality.cloud instance accessible through VPN.
+
+### Add entries to your local /etc/hosts file
+```
+NODE_IP="put-the-node-ip"
+
+echo "127.0.0.1 ui.zenko.local" >>/etc/hosts
+
+echo "$NODE_IP keycloak.zenko.local iam.zenko.local sts.zenko.local management.zenko.local s3.zenko.local" >>/etc/hosts
+```
+
+### Start Zenko UI locally
 ```
 npm install
 npm run start:dev
 ```
 
+### Access UI
+```
+http://ui.zenko.local:8383
+```
+Should be redirected to Keycloak login page:
+```
+Username or email: bartsimpson
+Password: 123
+```
+
+*Note*: Keycloak uses cookies to manage user session.
+SameSite cookie prevents the cookies from being sent in cross-site requests, to defend against CSRF attacks.
+So, to make our local UI work, we need to request it using a matched domain (ie *.zenko.local).
+
+
 ## Test
 
 ### Run Cypress tests
+
+#### Build and start UI
 ```
-CYPRESS_KEYCLOAK_ROOT="http://127.0.0.1:8080" CYPRESS_KEYCLOAK_REALM="myrealm" CYPRESS_KEYCLOAK_CLIENT_ID="myclient" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FIRSTNAME="Bart" CYPRESS_KEYCLOAK_USER_LASTNAME="Simpson" CYPRESS_KEYCLOAK_USER_FULLNAME="Bart Simpson"  npm run cypress:run
+npm run build
+docker build -t zui .
+docker run -d -p 8383:8383 zui
+```
+
+#### Run tests
+```
+CYPRESS_KEYCLOAK_ROOT="http://keycloak.zenko.local" CYPRESS_KEYCLOAK_REALM="zenko" CYPRESS_KEYCLOAK_CLIENT_ID="zenko-ui" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FULLNAME="Simpson"  npm run cypress:run
 ```
 
 ## Authentication

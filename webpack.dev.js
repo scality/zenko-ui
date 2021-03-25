@@ -11,26 +11,30 @@ module.exports = merge(common, {
     ],
     devServer: {
         contentBase: path.join(__dirname, 'public/assets'),
-        host: '127.0.0.1',
+        host: 'ui.zenko.local',
         port: 8383,
         open: true,
         historyApiFallback: true,
         hot: true,
         proxy: {
             '/s3': {
-                target: 'http://127.0.0.1:8000',
+                target: 'http://s3.zenko.local',
                 pathRewrite: {'^/s3' : ''},
                 bypass: function(req) {
-                    req.headers.proxy_path = req.path;
+                    req.headers.proxypath = req.path;
+                    req.headers.host = 's3.zenko.local';
+                    req.headers.proxyhost = '127.0.0.1:8383';
                 },
             },
             '/iam': {
-                target: 'http://127.0.0.1:8600',
+                target: 'http://iam.zenko.local',
                 pathRewrite: {'^/iam' : ''},
+                changeOrigin: true,
             },
             '/sts': {
-                target: 'http://127.0.0.1:8800',
-                pathRewrite: { '^/sts' : '' },
+                target: 'http://sts.zenko.local',
+                pathRewrite: {'^/sts' : ''},
+                changeOrigin: true,
             },
         },
     },
