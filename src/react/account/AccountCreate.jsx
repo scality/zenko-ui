@@ -1,6 +1,6 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
-import Form, * as F from '../ui-elements/FormLayout';
+import FormContainer, * as F from '../ui-elements/FormLayout';
 import React, { useRef } from 'react';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +17,6 @@ const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
     name: Joi.string().label('Name').required().min(2).max(64).regex(regexpName).message('Invalid Name'),
     email: Joi.string().label('Root Account Email').required().max(256).regex(regexpEmailAddress).message('Invalid Root Account Email'),
-    quota: Joi.number().label('Quota').allow('').optional().positive().integer(),
 });
 
 function AccountCreate() {
@@ -31,10 +30,9 @@ function AccountCreate() {
 
     const dispatch = useDispatch();
 
-    const onSubmit = ({ email, name, quota }) => {
+    const onSubmit = ({ email, name }) => {
         clearServerError();
-        const quotaMaxInt = quota || 0;
-        const payload = { userName: name, email, quotaMax: quotaMaxInt };
+        const payload = { userName: name, email };
         dispatch(createAccount(payload));
     };
 
@@ -53,66 +51,54 @@ function AccountCreate() {
     const formRef = useRef(null);
     useOutsideClick(formRef, clearServerError);
 
-    return <Form autoComplete='off' ref={formRef}>
-        <F.Title> create new account </F.Title>
-        <F.Fieldset>
-            <F.Label tooltipMessages={['Must be unique']}>
-                Name
-            </F.Label>
-            <F.Input
-                type='text'
-                id='name'
-                name='name'
-                ref={register}
-                onChange={clearServerError}
-                autoComplete='new-password' />
-            <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
-        </F.Fieldset>
-        <F.Fieldset>
-            <F.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
-                Root Account Email
-            </F.Label>
-            <F.Input
-                type='text'
-                id='email'
-                name='email'
-                ref={register}
-                onChange={clearServerError}
-                autoComplete='off' />
-            <F.ErrorInput id='error-email' hasError={errors.email}> {errors.email?.message} </F.ErrorInput>
-        </F.Fieldset>
-        <F.Fieldset>
-            <F.Label tooltipMessages={['Hard quota: the account cannot go over the limit', 'The limit can be changed after the creation', 'If the field is empty, there will be no limit']}>
-                Quota in GB (optional)
-            </F.Label>
-            <F.Input
-                type='number'
-                id='quota'
-                min="0"
-                name='quota'
-                ref={register}
-                onChange={clearServerError}
-                autoComplete='off' />
-            <F.ErrorInput id='error-quota' hasError={errors.quota}> {errors.quota?.message} </F.ErrorInput>
-        </F.Fieldset>
-        <F.Footer>
-            <F.FooterError>
-                {
-                    hasError && <Banner
-                        id="zk-error-banner"
-                        icon={<i className="fas fa-exclamation-triangle" />}
-                        title="Error"
-                        variant="danger">
-                        {errorMessage}
-                    </Banner>
-                }
-            </F.FooterError>
-            <F.FooterButtons>
-                <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
-                <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
-            </F.FooterButtons>
-        </F.Footer>
-    </Form>;
+    return <FormContainer>
+        <F.Form autoComplete='off' ref={formRef}>
+            <F.Title> Create New Account </F.Title>
+            <F.Fieldset>
+                <F.Label tooltipMessages={['Must be unique']}>
+                    Name
+                </F.Label>
+                <F.Input
+                    type='text'
+                    id='name'
+                    name='name'
+                    ref={register}
+                    onChange={clearServerError}
+                    autoComplete='new-password' />
+                <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
+            </F.Fieldset>
+            <F.Fieldset>
+                <F.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
+                    Root Account Email
+                </F.Label>
+                <F.Input
+                    type='text'
+                    id='email'
+                    name='email'
+                    ref={register}
+                    onChange={clearServerError}
+                    autoComplete='off' />
+                <F.ErrorInput id='error-email' hasError={errors.email}> {errors.email?.message} </F.ErrorInput>
+            </F.Fieldset>
+            <F.Footer>
+                <F.FooterError>
+                    {
+                        hasError && <Banner
+                            id="zk-error-banner"
+                            icon={<i className="fas fa-exclamation-triangle" />}
+                            title="Error"
+                            variant="danger">
+                            {errorMessage}
+                        </Banner>
+                    }
+                </F.FooterError>
+                <F.FooterButtons>
+                    <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
+                    <Button disabled={loading} id='create-account-btn' variant="secondary" onClick={handleSubmit(onSubmit)} text='Create'/>
+                </F.FooterButtons>
+            </F.Footer>
+        </F.Form>
+    </FormContainer>;
 }
 
 export default AccountCreate;

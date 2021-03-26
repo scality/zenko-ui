@@ -1,6 +1,6 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
-import Form, * as F from '../../ui-elements/FormLayout';
+import FormContainer, * as F from '../../ui-elements/FormLayout';
 import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
@@ -138,58 +138,60 @@ function LocationEditor() {
         displayErrorMessage = `Could not save: ${errorMessage}`;
     }
 
-    return <Form ref={formRef}>
-        <F.Title>
-            { `${locationEditing ? 'Edit' : 'Add new'} storage location` }
-        </F.Title>
-        <F.Fieldset>
-            <F.Label htmlFor="name"> Location Name </F.Label>
-            <F.Input
-                id='name'
-                type='text'
-                name='name'
-                debounceTimeout={0}
-                onChange={onChange}
-                value={location.name}
-                placeholder="zenko-us-west-2"
-                disabled={editingExisting}
-                autoComplete='off' />
-        </F.Fieldset>
-        <F.Fieldset>
-            <F.Label htmlFor="locationType"> Location Type </F.Label>
-            <F.Select
-                id='locationType'
-                name="locationType"
-                options={selectOptions}
-                isOptionDisabled={(option) => option.disabled === true }
-                onChange={onTypeChange}
-                isDisabled={editingExisting}
-                value={selectOptions.find(l => l.value === location.locationType)}
+    return <FormContainer>
+        <F.Form ref={formRef}>
+            <F.Title>
+                { `${locationEditing ? 'Edit' : 'Add New'} Storage Location` }
+            </F.Title>
+            <F.Fieldset>
+                <F.Label htmlFor="name"> Location Name </F.Label>
+                <F.Input
+                    id='name'
+                    type='text'
+                    name='name'
+                    debounceTimeout={0}
+                    onChange={onChange}
+                    value={location.name}
+                    placeholder="zenko-us-west-2"
+                    disabled={editingExisting}
+                    autoComplete='off' />
+            </F.Fieldset>
+            <F.Fieldset>
+                <F.Label htmlFor="locationType"> Location Type </F.Label>
+                <F.Select
+                    id='locationType'
+                    name="locationType"
+                    options={selectOptions}
+                    isOptionDisabled={(option) => option.disabled === true }
+                    onChange={onTypeChange}
+                    isDisabled={editingExisting}
+                    value={selectOptions.find(l => l.value === location.locationType)}
+                />
+            </F.Fieldset>
+            {maybeShowDetails()}
+            <LocationOptions
+                locationType={location.locationType}
+                locationOptions={location.options}
+                onChange={onOptionsChange}
             />
-        </F.Fieldset>
-        {maybeShowDetails()}
-        <LocationOptions
-            locationType={location.locationType}
-            locationOptions={location.options}
-            onChange={onOptionsChange}
-        />
-        <F.Footer>
-            <F.FooterError>
-                {
-                    displayErrorMessage && <Banner
-                        icon={<i className="fas fa-exclamation-triangle" />}
-                        title="Error"
-                        variant="danger">
-                        {displayErrorMessage}
-                    </Banner>
-                }
-            </F.FooterError>
-            <F.FooterButtons>
-                <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
-                <Button variant="info" disabled={disable || loading} onClick={save} text='Create'/>
-            </F.FooterButtons>
-        </F.Footer>
-    </Form>;
+            <F.Footer>
+                <F.FooterError>
+                    {
+                        displayErrorMessage && <Banner
+                            icon={<i className="fas fa-exclamation-triangle" />}
+                            title="Error"
+                            variant="danger">
+                            {displayErrorMessage}
+                        </Banner>
+                    }
+                </F.FooterError>
+                <F.FooterButtons>
+                    <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
+                    <Button variant="secondary" disabled={disable || loading} onClick={save} text='Create'/>
+                </F.FooterButtons>
+            </F.Footer>
+        </F.Form>
+    </FormContainer>;
 }
 
 export default LocationEditor;

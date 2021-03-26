@@ -1,7 +1,7 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
 import { Controller, useForm } from 'react-hook-form';
-import Form, * as F from '../../ui-elements/FormLayout';
+import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -91,59 +91,61 @@ function BucketCreate() {
         return locationWithIngestion(locations, capabilities);
     }, [locations, capabilities]);
 
-    return <Form ref={formRef}>
-        <F.Title> create a new bucket </F.Title>
-        <F.Fieldset>
-            <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']}>
-                Bucket Name
-            </F.Label>
-            <F.Input
-                type='text'
-                id='name'
-                name='name'
-                ref={register}
-                onChange={clearServerError}
-                autoComplete='off' />
-            <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
-        </F.Fieldset>
-        <F.Fieldset>
-            <F.Label tooltipMessages={['Cannot be modified after creation']}>
-                Select Storage Location
-            </F.Label>
-            <Controller
-                control={control}
-                id='locationConstraint'
-                name='locationConstraint'
-                defaultValue={{ value: 'us-east-1' }}
-                render={({ onChange, value: locationConstraintObj }) => {
-                    return <Select
-                        onChange={onChange}
-                        placeholder='Location Name'
-                        options={selectLocations}
-                        formatOptionLabel={renderLocation}
-                        value={selectLocations.find(l => l.value === locationConstraintObj.value)}
-                    />;
-                }}
-            />
-        </F.Fieldset>
-        <F.Footer>
-            <F.FooterError>
-                {
-                    hasError && <Banner
-                        id="zk-error-banner"
-                        icon={<i className="fas fa-exclamation-triangle" />}
-                        title="Error"
-                        variant="danger">
-                        {errorMessage}
-                    </Banner>
-                }
-            </F.FooterError>
-            <F.FooterButtons>
-                <Button disabled={loading} id='cancel-btn' outlined onClick={handleCancel} text='Cancel'/>
-                <Button disabled={loading} id='create-account-btn' variant="info" onClick={handleSubmit(onSubmit)} text='Create'/>
-            </F.FooterButtons>
-        </F.Footer>
-    </Form>;
+    return <FormContainer>
+        <F.Form ref={formRef}>
+            <F.Title> Create A New Bucket </F.Title>
+            <F.Fieldset>
+                <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']}>
+                    Bucket Name
+                </F.Label>
+                <F.Input
+                    type='text'
+                    id='name'
+                    name='name'
+                    ref={register}
+                    onChange={clearServerError}
+                    autoComplete='off' />
+                <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
+            </F.Fieldset>
+            <F.Fieldset>
+                <F.Label tooltipMessages={['Cannot be modified after creation']}>
+                    Select Storage Location
+                </F.Label>
+                <Controller
+                    control={control}
+                    id='locationConstraint'
+                    name='locationConstraint'
+                    defaultValue={{ value: 'us-east-1' }}
+                    render={({ onChange, value: locationConstraintObj }) => {
+                        return <Select
+                            onChange={onChange}
+                            placeholder='Location Name'
+                            options={selectLocations}
+                            formatOptionLabel={renderLocation}
+                            value={selectLocations.find(l => l.value === locationConstraintObj.value)}
+                        />;
+                    }}
+                />
+            </F.Fieldset>
+            <F.Footer>
+                <F.FooterError>
+                    {
+                        hasError && <Banner
+                            id="zk-error-banner"
+                            icon={<i className="fas fa-exclamation-triangle" />}
+                            title="Error"
+                            variant="danger">
+                            {errorMessage}
+                        </Banner>
+                    }
+                </F.FooterError>
+                <F.FooterButtons>
+                    <Button disabled={loading} id='cancel-btn' outlined onClick={handleCancel} text='Cancel'/>
+                    <Button disabled={loading} id='create-account-btn' variant="secondary" onClick={handleSubmit(onSubmit)} text='Create'/>
+                </F.FooterButtons>
+            </F.Footer>
+        </F.Form>
+    </FormContainer>;
 }
 
 export default BucketCreate;

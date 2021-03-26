@@ -59,7 +59,7 @@ const Overlay = styled.div`
 const CustomHeader = () => <span>
     Target Bucket
     <Tooltip overlay={<Overlay> Name of the bucket/container created in the specific location (e.g. RING, Azure, AWS S3, GCP...), and where the Zenko buckets attached to that location will store data. </Overlay>} placement="right">
-        <IconTooltip className='far fa-question-circle'></IconTooltip >
+        <IconTooltip className='far fa-question-circle'></IconTooltip>
     </Tooltip>
 </span>;
 

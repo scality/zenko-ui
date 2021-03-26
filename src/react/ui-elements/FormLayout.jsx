@@ -7,33 +7,38 @@ import type { Node } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 
-// TEMPLATE:
-//
-// <Form>
-//     <F.Title> global title </F.Title>
-//     <F.Fieldset>
-//         <F.Label tooltipMessages={['text1', 'text2']> label1 </F.Label>
-//         <F.Input/>
-//         <F.ErrorInput hasError={false}> error Name </F.ErrorInput>
-//     </F.Fieldset>
-//     <F.Fieldset>
-//         <F.Label tooltipMessages={['text1', 'text2']}> label2 </F.Label>
-//         <F.Input />
-//         <F.ErrorInput hasError={false}> error Email </F.ErrorInput>
-//     </F.Fieldset>
-//     <F.Footer>
-//         <F.FooterError> <Banner> Global error </Banner> </F.FooterError>
-//         <F.FooterButtons> <Button/> <Button/> </F.FooterButtons>
-//     </F.Footer>
-// </Form>
+/* TEMPLATE:
+<FormContainer>
+    <F.Form>
+        <F.Title> global title </F.Title>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['text1', 'text2']> label1 </F.Label>
+            <F.Input/>
+            <F.ErrorInput hasError={false}> error Name </F.ErrorInput>
+        </F.Fieldset>
+        <F.Fieldset>
+            <F.Label tooltipMessages={['text1', 'text2']}> label2 </F.Label>
+            <F.Input />
+            <F.ErrorInput hasError={false}> error Email </F.ErrorInput>
+        </F.Fieldset>
+        <F.Footer>
+            <F.FooterError> <Banner> Global error </Banner> </F.FooterError>
+            <F.FooterButtons> <Button/> <Button/> </F.FooterButtons>
+        </F.Footer>
+    </F.Form>
+    <F.Form>
+        // ...
+    </F.Form>
+</FormContainer>
+*/
 
 
 export const Title = styled.div`
     display: flex;
-
     text-transform: capitalize;
+    color: ${props => props.theme.brand.textPrimary};
     margin-bottom: 40px;
-    font-size: 19px;
+    font-size: 24px;
 `;
 
 export const Fieldset = styled.fieldset`
@@ -90,13 +95,17 @@ const LabelContainer = styled.label`
 `;
 
 const TooltipContainer = styled.div`
-    margin-left: 10px;
+    margin-left: 8px;
+`;
+
+const IconQuestionCircle = styled.i`
+    color: #434343;
 `;
 
 const UlOverlay = styled.ul`
-    width: 200px;
     text-align:left;
     padding: 0px 0px 0px 20px;
+    font-size: 14px;
 `;
 
 type LabelProps = {
@@ -115,7 +124,7 @@ export const Label = ({ children, tooltipMessages }: LabelProps) => (
                     </UlOverlay>}
                 placement="right"
             >
-                <i className='far fa-question-circle'></i>
+                <IconQuestionCircle className='fas fa-question-circle'></IconQuestionCircle>
             </Tooltip> </TooltipContainer>
         }
     </LabelContainer>
@@ -143,20 +152,25 @@ export const FooterButtons = styled.div`
     flex: 0 0 auto;
 
     button{
-        margin-right: 5px;
+        margin-left: 24px;
     }
 `;
 
-
-const Form = styled.form`
+export const Form = styled.form`
     display: flex;
     flex-direction: column;
-
-    max-width: 600px;
-    margin: 10px;
-    padding: 20px;
     background-color: ${props => props.theme.brand.primaryDark1};
+    padding-top: 5%;
+    padding-left: 30%;
+    padding-right: 30%;
+`;
+
+const FormContainer = styled.div`
+    height: auto;
+    background-color: ${props => props.theme.brand.primaryDark1};
+    min-height: 100%;
+    margin: 8px;
     border-radius: 5px;
 `;
 
-export default Form;
+export default FormContainer;
