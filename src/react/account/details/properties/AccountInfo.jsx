@@ -1,23 +1,23 @@
 // @noflow
 
-import Table, * as T from '../../ui-elements/TableKeyValue';
-import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from '../../actions';
+import Table, * as T from '../../../ui-elements/TableKeyValue';
+import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Account } from '../../../types/account';
-import type { AppState } from '../../../types/state';
+import type { Account } from '../../../../types/account';
+import type { AppState } from '../../../../types/state';
 import { Button } from '@scality/core-ui';
-import { ButtonContainer } from '../../ui-elements/Container';
-import { Clipboard } from '../../ui-elements/Clipboard';
-import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
+import { ButtonContainer } from '../../../ui-elements/Container';
+import { Clipboard } from '../../../ui-elements/Clipboard';
+import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import React from 'react';
-import { TableContainer } from '../../ui-elements/Table';
-import { formatDate } from '../../utils';
+import { TableContainer } from '../../../ui-elements/Table';
+import { formatDate } from '../../../utils';
 
 type Props = {
     account: Account,
 };
 
-function Properties({ account }: Props) {
+function AccountInfo({ account }: Props) {
     const dispatch = useDispatch();
     const showDelete = useSelector((state: AppState) => state.uiAccounts.showDelete);
 
@@ -76,4 +76,4 @@ function Properties({ account }: Props) {
     );
 }
 
-export default Properties;
+export default AccountInfo;

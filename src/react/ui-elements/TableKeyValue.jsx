@@ -1,4 +1,4 @@
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -41,9 +41,21 @@ export const Value = styled.td`
     ${props => props.copiable ? `color: ${props.theme.brand.textSecondary};` : ''}
 `;
 
+export const Title = styled.div`
+    font-size: ${fontSize.larger};
+    font-weight: bold;
+    margin: ${padding.large} 0 ${padding.large} 0;
+`;
+
 export const ExtraCell = styled.td`
     padding-left: ${padding.large};
     min-width: 40px;
+`;
+
+export const Container = styled.div`
+    display: block;
+    width: fit-content;
+    margin: ${padding.base} 0 0 30px;
 `;
 
 const Table = styled.table`

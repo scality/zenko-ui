@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppConfig, InstanceId, Theme } from '../../types/entities';
-
 import type {
     ConfigAuthFailureAction,
     LoadClientsSuccessAction,
@@ -14,12 +13,14 @@ import type {
     ThunkStatePromisedAction,
 } from '../../types/actions';
 import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, selectAccountID, setZenkoClient, updateConfiguration } from './index';
+import IAMClient from '../../js/IAMClient';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 import STSClient from '../../js/STSClient';
 import type { STSClient as STSClientInterface } from '../../types/sts';
 import ZenkoClient from '../../js/ZenkoClient';
 import { getAppConfig } from '../../js/config';
 import makeMgtClient from '../../js/managementClient';
+import { setIAMClient } from './iam';
 
 export function setManagementClient(managementClient: ManagementClientInterface): SetManagementClientAction {
     return {
@@ -81,6 +82,7 @@ export function loadAppConfig(): ThunkNonStateAction {
                 dispatch(setAppConfig(config));
                 dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
                 dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
+                dispatch(setIAMClient(new IAMClient()));
                 dispatch(loadConfigSuccess());
             })
             .catch(error => {
