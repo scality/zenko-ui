@@ -3,6 +3,7 @@ import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
     ACCOUNT,
+    ACCOUNT_ACCESS_KEYS,
     authenticatedUserState,
     errorManagementState,
     initState,
@@ -29,6 +30,11 @@ describe('account actions', () => {
             it: 'should return SELECT_ACCOUNT action',
             fn: actions.selectAccount(ACCOUNT),
             expectedActions: [dispatchAction.SELECT_ACCOUNT_ACTION],
+        },
+        {
+            it: 'should return LIST_ACCOUNT_ACCESS_KEY_SUCCESS action',
+            fn: actions.listAccountAccessKeySuccess(ACCOUNT_ACCESS_KEYS),
+            expectedActions: [dispatchAction.LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION],
         },
     ];
 

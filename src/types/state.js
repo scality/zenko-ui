@@ -1,4 +1,5 @@
 // @flow
+import type { AccessKey, User } from './user';
 import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
@@ -11,21 +12,11 @@ import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
-import type { User } from './user';
 import type { Workflows } from './workflow';
-
-export type IAMResp = {};
-
-export interface IAMClientType {
-    createUser(userName: string): Promise<IAMResp>;
-}
-
-export type IAMClientState = null | {|
-    +client: IAMClientType,
-|};
 
 export type UserState = {
     list: Array<User>,
+    accessKeyList: Array<AccessKey>,
 };
 
 export type AuthState = {|
@@ -53,6 +44,7 @@ export type ConfigurationState = {|
 
 export type AccountState = {|
     +display: Account,
+    +accessKeyList: Array<AccessKey>,
 |};
 
 export type InstancesState = {|

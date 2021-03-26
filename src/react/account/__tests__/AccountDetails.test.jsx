@@ -46,7 +46,7 @@ describe('AccountDetails', () => {
         });
 
         expect(component.find(CustomTabs)).toHaveLength(1);
-        expect(component.find(Warning)).toHaveLength(0);
+        // warning of account access key table
+        expect(component.find(Warning)).toHaveLength(1);
     });
-
 });

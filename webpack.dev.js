@@ -29,6 +29,10 @@ module.exports = merge(common, {
             '/iam': {
                 target: 'http://iam.zenko.local',
                 pathRewrite: {'^/iam' : ''},
+                bypass: function(req) {
+                    req.headers.proxypath = req.path;
+                    req.headers.proxyhost = '127.0.0.1:8383';
+                },
                 changeOrigin: true,
             },
             '/sts': {

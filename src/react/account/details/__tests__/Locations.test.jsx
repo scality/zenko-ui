@@ -1,5 +1,5 @@
 import * as T from '../../../ui-elements/Table';
-import Locations, { ActionButton } from '../Locations';
+import Locations from '../Locations';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
 
@@ -131,9 +131,9 @@ describe('Locations', () => {
         expect(firstRowColumns[1]).toEqual('Amazon S3');
         expect(firstRowColumns[2]).toEqual('bucketName1');
         // edit button
-        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const secondRow = rows.at(1);
         const secondRowColumns = secondRow.find(T.Cell).map(column => column.text());
@@ -142,9 +142,9 @@ describe('Locations', () => {
         expect(secondRowColumns[1]).toEqual('Ceph RADOS Gateway');
         expect(secondRowColumns[2]).toEqual('bucketName2');
         // edit button
-        expect(secondRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(secondRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(secondRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(secondRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const thirdRow = rows.at(2);
         const thirdRowColumns = thirdRow.find(T.Cell).map(column => column.text());
@@ -153,9 +153,9 @@ describe('Locations', () => {
         expect(thirdRowColumns[1]).toEqual('Local Filesystem');
         expect(thirdRowColumns[2]).toEqual('');
         // edit button
-        expect(thirdRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeTruthy();
+        expect(thirdRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeTruthy();
         // delete button
-        expect(thirdRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+        expect(thirdRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeTruthy();
 
         const fourthRow = rows.at(3);
         const fourthRowColumns = fourthRow.find(T.Cell).map(column => column.text());
@@ -164,9 +164,9 @@ describe('Locations', () => {
         expect(fourthRowColumns[1]).toEqual('Storage Service for Artesca');
         expect(fourthRowColumns[2]).toEqual('');
         // edit button
-        expect(fourthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(fourthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(fourthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(fourthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const fifthRow = rows.at(4);
         const fifthRowColumns = fifthRow.find(T.Cell).map(column => column.text());
@@ -175,9 +175,9 @@ describe('Locations', () => {
         expect(fifthRowColumns[1]).toEqual('NFS Mount');
         expect(fifthRowColumns[2]).toEqual('');
         // edit button
-        expect(fifthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(fifthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(fifthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(fifthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const sixthRow = rows.at(5);
         const sixthRowColumns = sixthRow.find(T.Cell).map(column => column.text());
@@ -186,9 +186,9 @@ describe('Locations', () => {
         expect(sixthRowColumns[1]).toEqual('Scality RING with S3 Connector');
         expect(sixthRowColumns[2]).toEqual('bucketName3');
         // edit button
-        expect(sixthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(sixthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(sixthRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(sixthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
 
         const seventhRow = rows.at(6);
         const seventhRowColumns = seventhRow.find(T.Cell).map(column => column.text());
@@ -197,9 +197,9 @@ describe('Locations', () => {
         expect(seventhRowColumns[1]).toEqual('Scality RING with Sproxyd Connector');
         expect(seventhRowColumns[2]).toEqual('');
         // edit button
-        expect(seventhRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(seventhRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(seventhRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeFalsy();
+        expect(seventhRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeFalsy();
     });
 
     it('should disable delete location button if location is being used for replication', () => {
@@ -232,9 +232,9 @@ describe('Locations', () => {
         expect(firstRowColumns[1]).toEqual('Amazon S3');
         expect(firstRowColumns[2]).toEqual('bucketName1');
         // edit button
-        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeTruthy();
     });
 
     it('should disable delete location button if location is attached to a bucket', () => {
@@ -267,9 +267,9 @@ describe('Locations', () => {
         expect(firstRowColumns[1]).toEqual('Amazon S3');
         expect(firstRowColumns[2]).toEqual('bucketName1');
         // edit button
-        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeTruthy();
     });
 
     it('should disable delete location button if location is being used for endpoint', () => {
@@ -299,9 +299,9 @@ describe('Locations', () => {
         expect(firstRowColumns[1]).toEqual('Amazon S3');
         expect(firstRowColumns[2]).toEqual('bucketName1');
         // edit button
-        expect(firstRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();
         // delete button
-        expect(firstRow.find(T.Cell).find(ActionButton).at(1).prop('disabled')).toBeTruthy();
+        expect(firstRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled')).toBeTruthy();
     });
 
 });

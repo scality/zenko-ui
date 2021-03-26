@@ -2,6 +2,7 @@
 
 import {
     ACCOUNT,
+    ACCOUNT_ACCESS_KEYS,
     APP_CONFIG,
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
@@ -23,6 +24,7 @@ import type {
     GetBucketInfoSuccessAction,
     GetObjectMetadataSuccessAction,
     HandleErrorAction,
+    ListAccountAccessKeySuccessAction,
     ListBucketsSuccessAction,
     ListObjectsSuccessAction,
     LoadClientsSuccessAction,
@@ -97,6 +99,11 @@ export const SELECT_ACCOUNT_ACTION: SelectAccountAction =
 
 export const SET_THEME_ACTION: SetThemeAction =
     { type: 'SET_THEME', theme: THEME };
+
+// * account action
+
+export const LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION: ListAccountAccessKeySuccessAction =
+    { type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS', accessKeys: ACCOUNT_ACCESS_KEYS };
 
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {

@@ -2,11 +2,10 @@
 import { Redirect, Route, Switch, matchPath, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Account } from '../../types/account';
+import AccountProperties from './details/properties/AccountProperties';
 import type { AppState } from '../../types/state';
 import { CustomTabs } from '../ui-elements/Tabs';
-import Keys from './details/Keys';
 import Locations from './details/Locations';
-import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
@@ -36,11 +35,6 @@ function AccountDetails({ account }: Props) {
                     selected: !!matchPath(pathname, { path: `${path}`, exact: true }),
                     title: 'Properties',
                 },
-                // {
-                //     onClick: () => dispatch(push(`${url}/keys`)),
-                //     selected: !!matchPath(pathname, { path: `${path}/keys` }),
-                //     title: 'Keys',
-                // },
                 {
                     onClick: () => dispatch(push(`${url}/locations`)),
                     selected: !!matchPath(pathname, { path: `${path}/locations` }),
@@ -50,10 +44,7 @@ function AccountDetails({ account }: Props) {
         >
             <Switch>
                 <Route exact path={path}>
-                    <Properties account={account}/>
-                </Route>
-                <Route path={`${path}/keys`}>
-                    <Keys/>
+                    <AccountProperties account={account}/>
                 </Route>
                 <Route path={`${path}/locations`}>
                     <Locations/>

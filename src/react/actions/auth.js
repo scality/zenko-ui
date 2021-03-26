@@ -1,7 +1,6 @@
 // @flow
 
 import type { AppConfig, InstanceId, Theme } from '../../types/entities';
-
 import type {
     ConfigAuthFailureAction,
     LoadClientsSuccessAction,

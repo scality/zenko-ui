@@ -16,7 +16,7 @@ import type {
     WorkflowsUIState,
 } from '../../types/state';
 import { List, Map } from 'immutable';
-import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
+import { LIST_OBJECTS_S3_TYPE } from '../utils/s3';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
@@ -24,6 +24,7 @@ import { defaultTheme } from '@scality/core-ui/dist/style/theme';
 
 export const initialAccountState: AccountState = {
     display: {},
+    accessKeyList: [],
 };
 
 export const initialAccountsUIState: AccountsUIState = { showDelete: false };

@@ -29,6 +29,7 @@ import {
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
+import { accountAccessKeys } from '../../../../js/mock/IAMClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
@@ -56,6 +57,7 @@ export const APP_CONFIG = {
     managementEndpoint: 'https://managementEndpoint',
     stsEndpoint: 'https://stsEndpoint',
     s3Endpoint: 'https://s3Endpoint',
+    iamEndpoint: 'https://iamEndpoint',
     navbarEndpoint: 'https://navbarEndpoint',
     navbarConfigUrl: 'https://navbarConfigUrl',
 };
@@ -94,6 +96,7 @@ export const ZENKO_ERROR = zenkoError;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
+export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 
 export const THEME = {
     brand: {

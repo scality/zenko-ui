@@ -1,10 +1,10 @@
-import * as T from '../../../ui-elements/TableKeyValue';
+import * as T from '../../../../ui-elements/TableKeyValue';
+import AccountInfo from '../AccountInfo';
 import { Button } from '@scality/core-ui';
-import Properties from '../Properties';
 import React from 'react';
-import Table from '../../../ui-elements/TableKeyValue';
-import { formatDate } from '../../../utils';
-import { reduxMount } from '../../../utils/test';
+import Table from '../../../../ui-elements/TableKeyValue';
+import { formatDate } from '../../../../utils';
+import { reduxMount } from '../../../../utils/test';
 
 
 const account1 = {
@@ -27,9 +27,9 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
     }
 }
 
-describe('Properties', () => {
-    it('should render Properties component', () => {
-        const { component } = reduxMount(<Properties account={account1} />);
+describe('AccountInfo', () => {
+    it('should render AccountInfo component', () => {
+        const { component } = reduxMount(<AccountInfo account={account1} />);
 
         const button = component.find(Button);
         expect(button).toHaveLength(1);

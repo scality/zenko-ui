@@ -4,9 +4,9 @@ export function getAppConfig() {
             return response.json();
         })
         .then(config => {
-            const { managementEndpoint, navbarConfigUrl, navbarEndpoint, stsEndpoint, zenkoEndpoint } = config;
-            if (!navbarEndpoint || !managementEndpoint || !stsEndpoint || !zenkoEndpoint) {
-                throw new Error('incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, navbarEndpoint, stsEndpoint and zenkoEndpoint)');
+            const { managementEndpoint, navbarConfigUrl, navbarEndpoint, stsEndpoint, zenkoEndpoint, iamEndpoint } = config;
+            if (!navbarEndpoint || !managementEndpoint || !stsEndpoint || !zenkoEndpoint || !iamEndpoint) {
+                throw new Error('incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, navbarEndpoint, stsEndpoint, iamEndpoint and zenkoEndpoint)');
             }
             return {
                 managementEndpoint,
@@ -14,6 +14,7 @@ export function getAppConfig() {
                 navbarEndpoint,
                 stsEndpoint,
                 zenkoEndpoint,
+                iamEndpoint,
             };
         });
 }

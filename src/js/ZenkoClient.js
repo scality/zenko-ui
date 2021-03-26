@@ -5,7 +5,7 @@ import type {
     SearchBucketResp,
     SearchParams,
     ZenkoClient as ZenkoClientInterface,
-} from '../types/zenkoClient';
+} from '../types/zenko';
 import S3Client from './S3Client';
 // TODO: prevent zenkoclient from including in the bundle the full AWS SDK.
 import ZenkoClientBase from 'zenkoclient';

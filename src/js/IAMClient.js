@@ -1,14 +1,56 @@
-import IAM from 'aws-sdk/clients/iam';
+// @noflow
 
-export default class IAMClient {
-    constructor(creds) {
+import type { AppState } from '../types/state';
+import type { Credentials } from '../types/zenko';
+import IAM from 'aws-sdk/clients/iam';
+import type { IAMClient as IAMClientInterface } from '../types/iam';
+import { getClients } from '../react/utils/actions';
+
+export function getAssumeRoleWithWebIdentityIAM(state: AppState, accountName: string): Promise<IAMClient> {
+    const { oidc, auth, configuration } = state;
+    const { stsClient } = getClients(state);
+    const accounts = configuration.latest.users;
+    const account = accounts.find(a => a.userName === accountName);
+
+    if (!account || !oidc || !oidc.user)
+        return Promise.reject();
+    const assumeRoleParams = {
+        idToken: oidc.user.id_token,
+        RoleSessionName:'app1',
+        roleArn: `arn:aws:iam::${account.id}:role/roleForB`,
+    };
+    return stsClient.assumeRoleWithWebIdentity(assumeRoleParams)
+        .then(creds => {
+            const params = {
+                accessKey: creds.Credentials.AccessKeyId,
+                secretKey: creds.Credentials.SecretAccessKey,
+                sessionToken: creds.Credentials.SessionToken,
+            };
+            const iamClient = new IAMClient(auth.config.iamEndpoint);
+            iamClient.login(params);
+            return Promise.resolve(iamClient);
+        });
+}
+
+export default class IAMClient implements IAMClientInterface {
+    constructor(endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    login(creds: Credentials) {
         this.client = new IAM({
             // endpoint: 'https://iam.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/iam',
+            endpoint: this.endpoint,
             accessKeyId: creds.accessKey,
             secretAccessKey: creds.secretKey,
+            sessionToken: creds.sessionToken,
             region: 'us-east-1',
         });
+    }
+
+    logout() {
+        if (this.client)
+            this.client.config.update({ accessKeyId: '', secretAccessKey: '', sessionToken: '' });
     }
 
     createAccessKey(userName) {
@@ -24,10 +66,11 @@ export default class IAMClient {
     }
 
     deleteAccessKey(accessKey, userName) {
-        return this.client.deleteAccessKey({
+        const params = {
             AccessKeyId: accessKey,
             UserName: userName,
-        }).promise();
+        };
+        return this.client.deleteAccessKey(params).promise();
     }
 
     deleteUser(userName) {
@@ -40,6 +83,10 @@ export default class IAMClient {
         return this.client.getUser({
             UserName: userName,
         }).promise();
+    }
+
+    listOwnAccessKeys() {
+        return this.client.listAccessKeys().promise();
     }
 
     listAccessKeys(userName) {

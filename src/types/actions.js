@@ -6,6 +6,7 @@ import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
+import type { AccessKey } from './user';
 import type { Account } from './account';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
@@ -92,6 +93,16 @@ export type AuthAction =
   LoadConfigSuccessAction |
   LoadClientsSuccessAction |
   SelectAccountAction;
+
+// account actions
+
+export type ListAccountAccessKeySuccessAction = {|
+    +type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
+    +accessKeys: Array<AccessKey>,
+|};
+
+export type AccountAction =
+    ListAccountAccessKeySuccessAction;
 
 // instances actions
 export type SelectInstanceAction = {|
@@ -361,6 +372,7 @@ export type SearchWorkflowsSuccessAction = {|
 export type WorkflowAction = SearchWorkflowsSuccessAction;
 
 export type Action =
+    AccountAction |
     AuthAction |
     BucketsUIAction |
     LocationUIAction |

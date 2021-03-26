@@ -2,6 +2,9 @@
 import type { Account, CreateAccountRequest } from '../../types/account';
 import type {
     CloseAccountDeleteDialogAction,
+    DispatchFunction,
+    GetStateFunction,
+    ListAccountAccessKeySuccessAction,
     OpenAccountDeleteDialogAction,
     SelectAccountAction,
     ThunkStatePromisedAction,
@@ -9,7 +12,9 @@ import type {
 import { getAccountIDStored, removeAccountIDStored, setAccountIDStored } from '../utils/localStorage';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import type { AccessKey } from '../../types/user';
 import { assumeRoleWithWebIdentity } from './sts';
+import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
@@ -33,8 +38,15 @@ export function selectAccount(account: Account): SelectAccountAction {
     };
 }
 
+export function listAccountAccessKeySuccess(accessKeys: Array<AccessKey>): ListAccountAccessKeySuccessAction {
+    return {
+        type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
+        accessKeys,
+    };
+}
+
 export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { zenkoClient } = getClients(getState());
         const { configuration } = getState();
         const accounts = configuration.latest.users;
@@ -63,7 +75,7 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
 }
 
 export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, user };
         dispatch(networkStart('Creating account'));
@@ -79,7 +91,7 @@ export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAct
 
 
 export function deleteAccount(accountName: string): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, accountName };
         dispatch(networkStart('Deleting account'));
@@ -101,5 +113,29 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
             .finally(() => {
                 dispatch(networkEnd());
             });
+    };
+}
+
+export function listAccountAccessKeys(accountName: string): ThunkStatePromisedAction {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+        dispatch(networkStart('Listing account access keys'));
+        return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+            .then(iamClient => iamClient.listOwnAccessKeys())
+            .then(resp => dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function deleteAccountAccessKey(accountName: string, accessKey: string): ThunkStatePromisedAction {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+        dispatch(networkStart('Deleting account access key'));
+        return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+            .then(iamClient => iamClient.deleteAccessKey(accessKey))
+            .then(() => dispatch(listAccountAccessKeys(accountName)))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
     };
 }

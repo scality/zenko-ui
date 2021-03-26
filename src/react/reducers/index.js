@@ -1,3 +1,4 @@
+import account from './account';
 import auth from './auth';
 import bucket from './bucket';
 import { combineReducers } from 'redux';
@@ -23,6 +24,7 @@ import workflow from './workflow';
 import zenko from './zenko';
 
 const zenkoUIReducer = history => combineReducers({
+    account,
     auth,
     bucket,
     configuration,
