@@ -3,6 +3,7 @@ import bucket from './bucket';
 import { combineReducers } from 'redux';
 import configuration from './configuration';
 import { connectRouter } from 'connected-react-router';
+import iam from './iam';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
@@ -45,6 +46,7 @@ const zenkoUIReducer = history => combineReducers({
     router: connectRouter(history),
     workflow,
     zenko: zenko,
+    iam,
 });
 
 export default zenkoUIReducer;

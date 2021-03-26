@@ -16,7 +16,8 @@ import type {
     WorkflowsUIState,
 } from '../../types/state';
 import { List, Map } from 'immutable';
-import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
+import { LIST_OBJECTS_S3_TYPE } from '../utils/s3';
+import { MockIAMClient } from '../../js/mock/IAMClient';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
@@ -188,6 +189,10 @@ export const initialZenkoState = {
     },
 };
 
+export const initialIAMState = {
+    iamClient: new MockIAMClient,
+};
+
 export const initialWorkflowsUIState: WorkflowsUIState = {
     showEditWorkflowNotification: false,
 };
@@ -219,4 +224,5 @@ export const initialFullState = {
     oidc: initialOidc,
     workflow: initialWorkflowState,
     zenko: initialZenkoState,
+    iam: initialIAMState,
 };

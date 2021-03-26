@@ -10,6 +10,7 @@ import type { Account } from './account';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
 import type { FailureType } from './ui';
+import type { IAMClient } from './iam';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
 
@@ -197,6 +198,15 @@ export type S3Action =
     ZenkoWriteSearchListAction |
     ZenkoAppendSearchListAction;
 
+// iam actions
+
+export type SetIAMClientAction = {|
+    +type: 'SET_IAM_CLIENT',
+    +iamClient: IAMClient,
+|};
+
+export type IAMAction = SetIAMClientAction;
+
 // zenko actions
 export type SetZenkoClientAction = {|
     +type: 'SET_ZENKO_CLIENT',
@@ -379,4 +389,5 @@ export type Action =
     StatsAction |
     WorkflowUIAction |
     WorkflowAction |
+    IAMAction |
     ZenkoAction;

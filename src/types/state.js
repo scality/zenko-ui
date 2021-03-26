@@ -1,4 +1,5 @@
 // @flow
+import type { AccessKey, User } from './user';
 import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
@@ -7,25 +8,16 @@ import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
 import type { AuthUser } from './auth';
+import type { IAMClient as IAMClientInterface } from './iam';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
-import type { User } from './user';
 import type { Workflows } from './workflow';
-
-export type IAMResp = {};
-
-export interface IAMClientType {
-    createUser(userName: string): Promise<IAMResp>;
-}
-
-export type IAMClientState = null | {|
-    +client: IAMClientType,
-|};
 
 export type UserState = {
     list: Array<User>,
+    accessKeyList: Array<AccessKey>,
 };
 
 export type AuthState = {|
@@ -131,6 +123,10 @@ export type ZenkoState = {|
     |},
 |};
 
+export type IAMState = {|
+    +iamClient: IAMClientInterface,
+|};
+
 export type AppState = {
     +account: AccountState,
     +auth: AuthState,
@@ -152,4 +148,5 @@ export type AppState = {
     +uiWorkflows: WorkflowsUIState,
     +workflow: WorkflowState,
     +zenko: ZenkoState,
+    +iam: IAMState,
 };

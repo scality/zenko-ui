@@ -1,12 +1,17 @@
-import IAM from 'aws-sdk/clients/iam';
+// @noflow
 
-export default class IAMClient {
-    constructor(creds) {
+import type { Credentials } from '../types/zenko';
+import IAM from 'aws-sdk/clients/iam';
+import type { IAMClient as IAMClientInterface } from '../types/iam';
+
+export default class IAMClient implements IAMClientInterface {
+    init(creds: Credentials) {
         this.client = new IAM({
             // endpoint: 'https://iam.amazonaws.com',
             endpoint: 'http://127.0.0.1:8383/iam',
             accessKeyId: creds.accessKey,
             secretAccessKey: creds.secretKey,
+            sessionToken: creds.sessionToken,
             region: 'us-east-1',
         });
     }

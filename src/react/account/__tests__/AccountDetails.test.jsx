@@ -3,6 +3,7 @@ import AccountDetails from '../AccountDetails';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import React from 'react';
 import { Warning } from '../../ui-elements/Warning';
+import { accessKeys } from '../../../js/mock/IAMClient';
 import { reduxMount } from '../../utils/test';
 
 
@@ -29,6 +30,9 @@ describe('AccountDetails', () => {
                     pathname: '/accounts/bart',
                 },
             },
+            user: {
+                accessKeyList: accessKeys,
+            },
         });
 
         expect(component.find(CustomTabs)).toHaveLength(0);
@@ -43,10 +47,12 @@ describe('AccountDetails', () => {
                     pathname: '/accounts/bart',
                 },
             },
+            user: {
+                accessKeyList: accessKeys,
+            },
         });
 
         expect(component.find(CustomTabs)).toHaveLength(1);
         expect(component.find(Warning)).toHaveLength(0);
     });
-
 });

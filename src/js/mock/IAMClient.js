@@ -1,0 +1,74 @@
+// @noflow
+import type { IAMClient as IAMClientInterface, IAMResp } from '../../types/iam';
+import type { AccessKey } from '../../types/user';
+import type { ApiAccountResponse } from '../../types/managementClient';
+import { ApiErrorObject } from './error';
+import type { Credentials } from '../../types/zenko';
+import IAM from 'aws-sdk/clients/iam';
+
+export const accessKeys: Array<AccessKey> = [
+    {
+        AccessKeyId: 'LEAST_RECENT_KEY_BBB',
+        Status: 'Active',
+        CreateDate: '2020-04-19T16:15:29+00:00',
+        LastUsed: '2020-03-19T11:13:29+00:00',
+    },
+    {
+        AccessKeyId: 'MOST_RECENT_KEY_AAAA',
+        Status: 'Active',
+        CreateDate: '2021-04-19T16:15:26+00:00',
+        LastUsed: '2020-03-12T11:13:29+00:00',
+    },
+];
+
+export class MockIAMClient implements IAMClientInterface {
+    init(creds: Credentials): void {
+        this.client = new IAM({
+            // endpoint: 'https://iam.amazonaws.com',
+            endpoint: 'http://127.0.0.1:8383/iam',
+            accessKeyId: creds.accessKey,
+            secretAccessKey: creds.secretKey,
+            sessionToken: creds.sessionToken,
+            region: 'us-east-1',
+        });
+    }
+
+    createAccessKey(): Promise<IAMResp> { return Promise.resolve(); }
+    createUser(): Promise<IAMResp> { return Promise.resolve(); }
+    deleteAccessKey(): Promise<IAMResp> { return Promise.resolve(); }
+    deleteUser(): Promise<IAMResp> { return Promise.resolve(); }
+    getUser(): Promise<IAMResp> { return Promise.resolve(); }
+    listAccessKeys(): Promise<Array<AccessKey>> { return Promise.resolve(accessKeys); }
+    listAttachedUserPolicies(): Promise<IAMResp> { return Promise.resolve(); }
+    listGroupsForUser(): Promise<IAMResp> { return Promise.resolve(); }
+    listUsers(): Promise<IAMResp> { return Promise.resolve(); }
+}
+
+export class ErrorMockIAMClient implements IAMClientInterface {
+    _error: ApiErrorObject;
+
+    constructor(error: ApiErrorObject) {
+        this._error = error;
+    }
+
+    init(creds: Credentials): void {
+        this.client = new IAM({
+            // endpoint: 'https://iam.amazonaws.com',
+            endpoint: 'http://127.0.0.1:8383/iam',
+            accessKeyId: creds.accessKey,
+            secretAccessKey: creds.secretKey,
+            sessionToken: creds.sessionToken,
+            region: 'us-east-1',
+        });
+    }
+
+    createAccessKey(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    createUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    deleteAccessKey(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    deleteUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    getUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    listAccessKeys(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    listAttachedUserPolicies(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    listGroupsForUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    listUsers(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+}

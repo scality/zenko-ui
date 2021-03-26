@@ -6,7 +6,7 @@ import { getClients } from '../utils/actions';
 
 export function assumeRoleWithWebIdentity(roleArn: string): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { zenkoClient, stsClient } = getClients(getState());
+        const { zenkoClient, stsClient, iamClient } = getClients(getState());
         const { oidc } = getState();
         const assumeRoleParams = {
             idToken: oidc.user.id_token,
@@ -21,6 +21,7 @@ export function assumeRoleWithWebIdentity(roleArn: string): ThunkStatePromisedAc
                     sessionToken: creds.Credentials.SessionToken,
                 };
                 zenkoClient.login(params);
+                iamClient.init(params);
                 return Promise.all([
                     dispatch(searchWorkflows()),
                     dispatch(listBuckets()),

@@ -1,10 +1,10 @@
 // @noflow
 
 import { Button, SearchInput as SearchInputCore } from '@scality/core-ui';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -120,6 +120,10 @@ export const SearchContainer = styled.div`
     justify-content: space-between;
     padding-right: ${padding.base};
     padding-left: ${padding.base};
+
+    button {
+        margin-left: auto;
+    }
 `;
 
 export const Search = styled.div`
@@ -154,6 +158,20 @@ export const ExtraButton = styled(Button)`
 
 export const Resizer = styled.div`
     height: 100%;
+`;
+
+export const Actions = styled.div`
+    text-align: right;
+`;
+
+export const ActionButton = styled(Button)`
+    margin-left: ${padding.smaller};
+`;
+
+export const Title = styled.div`
+    font-size: ${fontSize.larger};
+    font-weight: bold;
+    margin: ${padding.large} 0 ${padding.large} 0;
 `;
 
 const Table = styled.table`
@@ -228,7 +246,6 @@ export const SubHeaderContainer = styled.div`
 
 export const TableContainer = styled.div`
     display: flex;
-    flex: 1;
     flex-direction: column;
 `;
 

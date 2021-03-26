@@ -12,7 +12,6 @@ const Container = styled.div`
     text-align: center;
     margin-top: ${padding.large};
     color: ${props => props.theme.brand.textPrimary};
-    height: 100%;
     ${(props) => {
         if (props.centered) {
             return css`

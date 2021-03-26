@@ -3,7 +3,7 @@ import { ErrorMockS3Client, MockS3Client } from './S3Client';
 import type {
     SearchBucketResp,
     ZenkoClient as ZenkoClientInterface,
-} from '../types/zenkoClient';
+} from '../../types/zenko';
 import { ApiErrorObject } from './error';
 
 export class MockZenkoClient extends MockS3Client implements ZenkoClientInterface {

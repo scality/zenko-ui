@@ -6,6 +6,7 @@ export function getClients(state) {
         managementClient: state.auth.managementClient,
         zenkoClient: state.zenko.zenkoClient,
         stsClient: state.auth.stsClient,
+        iamClient: state.iam.iamClient,
     };
 }
 

@@ -1,5 +1,4 @@
 // @flow
-import { Button, Tooltip } from '@scality/core-ui';
 import type { LocationName, LocationType } from '../../../types/config';
 import React, { useCallback, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
@@ -9,10 +8,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
+import { Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../../backend/location/LocationDetails/storageOptions';
+import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 import { useHeight } from '../../utils/hooks';
 
@@ -30,14 +30,6 @@ const CustomBody = styled(T.Body)`
 export const Sizer = styled.div`
     height: ${props => props.height ? `${props.height}px` : '300px'};
     width: 100%;
-`;
-
-export const Actions = styled.div`
-    text-align: right;
-`;
-
-export const ActionButton = styled(Button)`
-    margin-left: ${padding.smaller};
 `;
 
 const Container = styled.div`
@@ -105,10 +97,10 @@ function Locations() {
                 accessor: 'name',
                 disableSortBy: true,
                 Cell({ value: locationName }: { value: LocationName}){
-                    return <Actions>
-                        <ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="buttonSecondary" text='' />
-                        <ActionButton disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints )} icon={<i className="fas fa-trash" />} onClick={() => handleDeleteClick(locationName)} size="smaller" variant="buttonDelete" text='' />
-                    </Actions>;
+                    return <T.Actions>
+                        <T.ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="buttonSecondary" text='' />
+                        <T.ActionButton disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints )} icon={<i className="fas fa-trash" />} onClick={() => handleDeleteClick(locationName)} size="smaller" variant="buttonDelete" text='' />
+                    </T.Actions>;
                 },
             },
         ], [dispatch, locations, buckets, endpoints, replicationStreams, handleDeleteClick]);
