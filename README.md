@@ -23,7 +23,7 @@ Zenko deployment runs on scality.cloud instance accessible through VPN.
 ```
 NODE_IP="put-the-node-ip"
 
-echo "127.0.0.1 ui.zenko.local" >>/etc/hosts
+echo "127.0.0.1 localui.zenko.local" >>/etc/hosts
 
 echo "$NODE_IP keycloak.zenko.local iam.zenko.local sts.zenko.local management.zenko.local s3.zenko.local" >>/etc/hosts
 ```
@@ -36,7 +36,7 @@ npm run start:dev
 
 ### Access UI
 ```
-http://ui.zenko.local:8383
+http://localui.zenko.local:8383
 ```
 Should be redirected to Keycloak login page:
 ```
