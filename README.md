@@ -23,8 +23,6 @@ Zenko deployment runs on scality.cloud instance accessible through VPN.
 ```
 NODE_IP="put-the-node-ip"
 
-echo "127.0.0.1 localui.zenko.local" >>/etc/hosts
-
 echo "$NODE_IP keycloak.zenko.local iam.zenko.local sts.zenko.local management.zenko.local s3.zenko.local" >>/etc/hosts
 ```
 
@@ -36,7 +34,7 @@ npm run start:dev
 
 ### Access UI
 ```
-http://localui.zenko.local:8383
+http://127.0.0.1:8383
 ```
 Should be redirected to Keycloak login page:
 ```
@@ -47,6 +45,8 @@ Password: 123
 *Note*: Keycloak uses cookies to manage user session.
 SameSite cookie prevents the cookies from being sent in cross-site requests, to defend against CSRF attacks.
 So, to make our local UI work, we need to request it using a matched domain (ie *.zenko.local).
+Since UI and keycloak's domains do not match:
+For Chrome browser, disable `SameSite by default cookies` here: chrome://flags/#same-site-by-default-cookies
 
 
 ## Test

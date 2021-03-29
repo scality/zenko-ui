@@ -11,7 +11,7 @@ module.exports = merge(common, {
     ],
     devServer: {
         contentBase: path.join(__dirname, 'public/assets'),
-        host: 'localui.zenko.local',
+        host: '127.0.0.1',
         port: 8383,
         open: true,
         historyApiFallback: true,
