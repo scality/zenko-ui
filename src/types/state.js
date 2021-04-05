@@ -29,7 +29,7 @@ export type UserState = {
 };
 
 export type AuthState = {|
-    +isUserLoaded: string,
+    +isConfigLoaded: string,
     +configFailure: boolean,
     +isSigningOut: boolean,
     +managementClient: ManagementClientInterface,
@@ -46,7 +46,6 @@ export type AuthState = {|
 
 export type OIDCState = {|
     +user: AuthUser,
-    +isLoadingUser: boolean,
 |};
 
 export type ErrorsUIState = {|

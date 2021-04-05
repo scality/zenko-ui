@@ -15,7 +15,8 @@ export const initialAccountState: AccountState = {
 export const initialAccountsUIState: AccountsUIState = { showDelete: false };
 
 export const initialAuthState: AuthState = {
-    isUserLoaded: false,
+    isConfigLoaded: false,
+    isClientsLoaded: false,
     configFailure: false,
     isSigningOut: false,
     stsClient: new MockSTSClient(),

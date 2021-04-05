@@ -44,9 +44,9 @@ describe('auth actions', () => {
             expectedActions: [dispatchAction.SELECT_INSTANCE_ACTION],
         },
         {
-            it: 'should return LOAD_USER_SUCCESS action',
-            fn: actions.loadUserSuccess(),
-            expectedActions: [dispatchAction.LOAD_USER_SUCCESS_ACTION],
+            it: 'should return LOAD_CONFIG_SUCCESS action',
+            fn: actions.loadConfigSuccess(),
+            expectedActions: [dispatchAction.LOAD_CONFIG_SUCCESS_ACTION],
         },
         {
             it: 'should return CONFIG_AUTH_FAILURE action',

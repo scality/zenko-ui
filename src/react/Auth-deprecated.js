@@ -21,8 +21,8 @@ import { store } from './store';
 
 
 function Auth() {
-    const isUserLoaded = useSelector((state: AppState) => state.auth.isUserLoaded);
-    const userManager = useSelector((state: AppState) => state.auth.userManager);
+    const isUserLoaded = useSelector((state: AppState) => state.auth.isConfigLoaded);
+    // const userManager = useSelector((state: AppState) => state.auth.userManager);
     const configFailure = useSelector((state: AppState) => state.auth.configFailure);
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byComponent' ?
         state.uiErrors.errorMsg : '');
@@ -45,15 +45,24 @@ function Auth() {
             </Container> ;
         }
 
+        // if (isUserLoaded) {
+        //     return <OidcProvider store={store} userManager={userManager}>
+        //         <Switch>
+        //             <Route exact path="/login" component={Login}/>
+        //             <Route exact path="/login/callback" component={LoginCallback}/>
+        //             <Route exact path="/logout/callback" component={LogoutCallback}/>
+        //             <Route component={ZenkoUI} />
+        //         </Switch>
+        //     </OidcProvider>;
+        // }
+
         if (isUserLoaded) {
-            return <OidcProvider store={store} userManager={userManager}>
-                <Switch>
-                    <Route exact path="/login" component={Login}/>
-                    <Route exact path="/login/callback" component={LoginCallback}/>
-                    <Route exact path="/logout/callback" component={LogoutCallback}/>
-                    <PrivateRoute component={ZenkoUI} />
-                </Switch>
-            </OidcProvider>;
+            return <Switch>
+                <Route exact path="/login" component={Login}/>
+                <Route exact path="/login/callback" component={LoginCallback}/>
+                <Route exact path="/logout/callback" component={LogoutCallback}/>
+                <Route component={ZenkoUI} />
+            </Switch>;
         }
 
         return <Loader> Login in </Loader>;

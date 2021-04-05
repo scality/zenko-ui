@@ -1,0 +1,19 @@
+{
+  "docUrl": "/docs",
+  "oidc": {
+    "providerUrl": "http://keycloak.zenko.local/auth/realms/zenko",
+    "redirectUrl": "http://ui.zenko.local/login/callback",
+    "clientId": "zenko-ui",
+    "responseType": "code",
+    "scopes": "openid profile email roles"
+  },
+  "options": {
+    "main": {
+        "http://ui.zenko.local/accounts":{ "en": "Accounts" },
+        "http://ui.zenko.local/buckets":{ "en": "Data Browser" }
+    },
+    "subLogin": {}
+  },
+  "logo" : {},
+  "favicon": ""
+}

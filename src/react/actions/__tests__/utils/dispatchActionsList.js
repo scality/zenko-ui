@@ -81,8 +81,8 @@ export const SET_APP_CONFIG_ACTION: SetAppConfigAction =
 export const SELECT_INSTANCE_ACTION: SelectInstanceAction =
     { type: 'SELECT_INSTANCE', selectedId: INSTANCE_ID };
 
-export const LOAD_USER_SUCCESS_ACTION: LoadUserSuccessAction =
-    { type: 'LOAD_USER_SUCCESS' };
+export const LOAD_CONFIG_SUCCESS_ACTION: LoadConfigSuccessAction =
+    { type: 'LOAD_CONFIG_SUCCESS' };
 
 export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction =
     { type: 'CONFIG_AUTH_FAILURE' };

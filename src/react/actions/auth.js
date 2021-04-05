@@ -4,7 +4,8 @@ import type { AppConfig, InstanceId } from '../../types/entities';
 
 import type {
     ConfigAuthFailureAction,
-    LoadUserSuccessAction,
+    LoadClientsSuccessAction,
+    LoadConfigSuccessAction,
     SetAppConfigAction,
     SetManagementClientAction,
     SetSTSClientAction,
@@ -65,9 +66,15 @@ export function selectInstance(selectedId: InstanceId) {
     };
 }
 
-export function loadUserSuccess(): LoadUserSuccessAction {
+export function loadConfigSuccess(): LoadConfigSuccessAction {
     return {
-        type: 'LOAD_USER_SUCCESS',
+        type: 'LOAD_CONFIG_SUCCESS',
+    };
+}
+
+export function loadClientsSuccess(): LoadClientsSuccessAction {
+    return {
+        type: 'LOAD_CLIENTS_SUCCESS',
     };
 }
 
@@ -106,10 +113,12 @@ export function signinCallback(): ThunkStatePromisedAction {
         const userManager = getState().auth.userManager;
         return userManager.signinRedirectCallback()
             .then(user => {
+                console.log('signinRedirectCallback: user!!!', user);
                 const path = user.state &&
                 user.state.path &&
                 user.state.path !== '/login' &&
                 user.state.path !== '/login/callback' ? user.state.path : '/';
+                console.log('signinRedirectCallback: path!!!', path);
                 dispatch(push(path));
             })
             .catch(error => {
@@ -161,14 +170,9 @@ export function loadAppConfig(): ThunkNonStateAction {
         return getAppConfig()
             .then(config => {
                 dispatch(setAppConfig(config));
-                const userManager = makeUserManager(config);
-                dispatch(setUserManager(userManager));
                 dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
                 dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
-                return loadUser(store, userManager);
-            })
-            .then(() => {
-                dispatch(loadUserSuccess());
+                dispatch(loadConfigSuccess());
             })
             .catch(error => {
                 const message = `Invalid application configuration: ${error.message || '(unknown reason)'}`;
@@ -202,6 +206,7 @@ export function loadClients(): ThunkStatePromisedAction {
                 ]);
             })
             .then(() => dispatch(assumeRoleWithWebIdentity()))
+            .then(() => dispatch(loadClientsSuccess()))
             .catch(error => {
                 if (error.message) {
                     dispatch(handleErrorMessage(error.message, 'byAuth'));

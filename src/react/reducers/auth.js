@@ -30,10 +30,15 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             configFailure: true,
         };
-    case 'LOAD_USER_SUCCESS':
+    case 'LOAD_CONFIG_SUCCESS':
         return {
             ...state,
-            isUserLoaded: true,
+            isConfigLoaded: true,
+        };
+    case 'LOAD_CLIENTS_SUCCESS':
+        return {
+            ...state,
+            isClientsLoaded: true,
         };
     case 'SIGNOUT_START':
         return {

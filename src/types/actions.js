@@ -1,6 +1,7 @@
 // @flow
 
 import type { AppConfig, InstanceId } from './entities';
+import type { AuthUser, UserManager } from './auth';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
@@ -9,7 +10,6 @@ import type { FailureType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
-import type { UserManager } from './auth';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
@@ -69,8 +69,12 @@ export type ConfigAuthFailureAction = {|
     +type: 'CONFIG_AUTH_FAILURE',
 |};
 
-export type LoadUserSuccessAction = {|
-    +type: 'LOAD_USER_SUCCESS',
+export type LoadConfigSuccessAction = {|
+    +type: 'LOAD_CONFIG_SUCCESS',
+|};
+
+export type LoadClientsSuccessAction = {|
+    +type: 'LOAD_CLIENTS_SUCCESS',
 |};
 
 export type SignoutStartAction = {|
@@ -87,7 +91,8 @@ export type AuthAction =
   SetUserManagerAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
-  LoadUserSuccessAction |
+  LoadConfigSuccessAction |
+  LoadClientsSuccessAction |
   SignoutStartAction |
   SignoutEndAction;
 
@@ -324,11 +329,21 @@ export type CloseLocationDeleteDialogAction = {|
 
 export type LocationUIAction = OpenLocationDeleteDialogAction | CloseLocationDeleteDialogAction;
 
+// OIDC
+export type AddOIDCUserAction = {|
+    +type: 'ADD_OIDC_USER',
+    +user: AuthUser,
+|};
+
+export type OIDCAction = AddOIDCUserAction;
+
+
 export type Action =
     AuthAction |
     BucketsUIAction |
     LocationUIAction |
     ObjectsUIAction |
+    OIDCAction |
     S3Action |
     ThunkNonStateAction |
     ThunkStatePromisedAction |

@@ -1,27 +1,28 @@
 // @noflow
-
+import { useDispatch, useSelector } from 'react-redux';
+import type { Action } from '../../types/actions';
+import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
+import type { DispatchAPI } from 'redux';
 import { CustomModal as Modal } from './Modal';
-import type { Node } from 'react';
 import React from 'react';
+import { clearError } from '../actions';
 
-type Props = {
-    children: Node,
-    close: () => void,
-    show: boolean,
-};
+const ErrorHandlerModal = () => {
+    const showError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal');
+    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
+    const dispatch: DispatchAPI<Action> = useDispatch();
 
-const ErrorHandlerModal = ({ children, close, show }: Props) => {
-    if (!children) {
+    if (!errorMessage) {
         return null;
     }
     return (
         <Modal
-            close={close}
+            close={() => dispatch(clearError())}
             footer={<Button variant="secondary" onClick={close} size="small" text="Close"/>}
-            isOpen={show}
+            isOpen={showError}
             title="Error">
-            {children}
+            {errorMessage}
         </Modal>
     );
 };
