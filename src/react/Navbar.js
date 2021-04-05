@@ -9,20 +9,19 @@ function useWebComponent(src?: string, customElementName: string) {
     const [hasFailed, setHasFailed] = useState(false);
     useLayoutEffect(() => {
         const body = document.body;
-        // $flow-disable-line
         const element = [...(body?.querySelectorAll('script') || [])].find(
-            // $flow-disable-line
+            // eslint-disable-next-line flowtype-errors/show-errors
             (scriptElement) => scriptElement.attributes.src?.value === src,
         );
         if (!element && body && src) {
             const scriptElement = document.createElement('script');
             scriptElement.src = src;
             scriptElement.onload = () => {
-                customElements.whenDefined(customElementName).catch((e) => {
+                customElements.whenDefined(customElementName).catch(() => {
                     setHasFailed(true);
                 });
             };
-            scriptElement.onerror = (e) => {
+            scriptElement.onerror = () => {
                 setHasFailed(true);
             };
             body.appendChild(scriptElement);
@@ -34,7 +33,7 @@ function useWebComponent(src?: string, customElementName: string) {
     }
 }
 
-type NavbarWebComponent = HTMLElement & { logOut: () => void };
+type NavbarWebComponent = HTMLElement;
 
 function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,7 +47,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
         const navbarElement = navbarRef.current;
 
         const onAuthenticated = (evt: Event) => {
-            // $flow-disable-line
+            // eslint-disable-next-line flowtype-errors/show-errors
             if (evt.detail && evt.detail.profile) {
                 dispatch(addOIDCUser(evt.detail));
             } else {
@@ -74,25 +73,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
     return { isAuthenticated };
 }
 
-// function useLogoutEffect(
-//     navbarRef: { current: NavbarWebComponent | null },
-//     isAuthenticated: boolean,
-// ) {
-//     const user = useSelector((state: AppState) => state.oidc?.user);
-//     // TODO: use useEffect
-//     useLayoutEffect(() => {
-//         if (!navbarRef.current) {
-//             return;
-//         }
-//
-//         if (isAuthenticated && !user) {
-//             navbarRef.current.logOut();
-//         }
-//     }, [navbarRef, user, isAuthenticated]);
-// }
-
-function ErrorFallback({ error, resetErrorBoundary }) {
-    //Todo redirect to a beautiful error page
+function ErrorFallback({ error }: { error: Error }) {
     return (
         <div role="alert">
             <p>Something went wrong:</p>
@@ -112,23 +93,17 @@ export function Navbar() {
 function InternalNavbar() {
     const navbarEndpoint = useSelector((state: AppState) => state.auth.config.navbarEndpoint);
     const navbarConfigUrl = useSelector((state: AppState) => state.auth.config.navbarConfigUrl);
-    console.log('navbarEndpoint!!!', navbarEndpoint);
-    // const navbarConfigUrl = useTypedSelector(
-    //     (state) => state.config.api?.url_navbar_config,
-    // );
     useWebComponent(navbarEndpoint, 'solutions-navbar');
 
     const navbarRef = useRef<NavbarWebComponent | null>(null);
 
     useLoginEffect(navbarRef);
-    // useLogoutEffect(navbarRef, isAuthenticated);
 
     return (
         <solutions-navbar
             config-url={navbarConfigUrl}
             style={{ width: '100%' }}
             ref={
-                // $flow-disable-line -- flow considers solutions-navbar as a row HTMLElement, TODO find if it is possible to extends JSX flow native definitions with custom element types
                 navbarRef
             }
         />

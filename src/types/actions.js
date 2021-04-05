@@ -1,11 +1,11 @@
 // @flow
 
 import type { AppConfig, InstanceId } from './entities';
-import type { AuthUser, UserManager } from './auth';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
+import type { AuthUser } from './auth';
 import type { FailureType } from './ui';
 import type { InstanceStatus } from './stats';
 import type { ManagementClient } from './managementClient';
@@ -55,11 +55,6 @@ export type SetManagementClientAction = {|
     +managementClient: ManagementClient,
 |};
 
-export type SetUserManagerAction = {|
-    +type: 'SET_USER_MANAGER',
-    +userManager: UserManager,
-|};
-
 export type SetAppConfigAction = {|
     +type: 'SET_APP_CONFIG',
     +config: AppConfig,
@@ -77,24 +72,13 @@ export type LoadClientsSuccessAction = {|
     +type: 'LOAD_CLIENTS_SUCCESS',
 |};
 
-export type SignoutStartAction = {|
-    +type: 'SIGNOUT_START',
-|};
-
-export type SignoutEndAction = {|
-    +type: 'SIGNOUT_END',
-|};
-
 export type AuthAction =
   SetSTSClientAction |
   SetManagementClientAction |
-  SetUserManagerAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
   LoadConfigSuccessAction |
-  LoadClientsSuccessAction |
-  SignoutStartAction |
-  SignoutEndAction;
+  LoadClientsSuccessAction;
 
 // instances actions
 export type SelectInstanceAction = {|

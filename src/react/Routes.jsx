@@ -1,21 +1,18 @@
 // @flow
-import React, { useEffect, useState } from 'react';
-import { Link, Redirect, Route, Switch, matchPath } from 'react-router-dom';
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
+import React, { useEffect } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
-import type { Action } from '../types/actions';
 import type { AppState } from '../types/state';
 import DataBrowser from './databrowser/DataBrowser';
-import type { DispatchAPI } from 'redux';
 import Loader from './ui-elements/Loader';
 import LocationEditor from './backend/location/LocationEditor';
 import LoginCallback from './auth/LoginCallback';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
-import PrivateRoute from './ui-elements/PrivateRoute';
-import { signout, loadClients } from './actions';
+import { loadClients } from './actions';
 
 function PrivateRoutes() {
     const dispatch = useDispatch();
@@ -29,7 +26,6 @@ function PrivateRoutes() {
         }
     },[dispatch, authenticated]);
 
-    console.log('isClientsLoaded!!!', isClientsLoaded);
     if (!isClientsLoaded) {
         return <Loader> Login clients </Loader>;
     }
@@ -50,10 +46,6 @@ function PrivateRoutes() {
 }
 
 function Routes() {
-    // const pathname = useSelector((state: AppState) => state.router.location.pathname);
-    // const userName = useSelector((state: AppState) => state.oidc.user.profile.name || '');
-
-    const dispatch: DispatchAPI<Action> = useDispatch();
     return (
         <RouteContainer>
             <NavbarContainer>

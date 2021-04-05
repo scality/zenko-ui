@@ -5,7 +5,6 @@ import { List, Map } from 'immutable';
 import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
-import { MockUserManager } from '../../js/mock/userManager';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
 
 export const initialAccountState: AccountState = {
@@ -18,10 +17,8 @@ export const initialAuthState: AuthState = {
     isConfigLoaded: false,
     isClientsLoaded: false,
     configFailure: false,
-    isSigningOut: false,
     stsClient: new MockSTSClient(),
     managementClient: new MockManagementClient(),
-    userManager: new MockUserManager(),
     config: {
     },
 };
@@ -140,7 +137,6 @@ export const initialLocationsUIState = { showDeleteLocation: '' };
 export const initialNetworkActivityState: NetworkActivityState = { counter: 0, messages: List() };
 export const initialOidc: OIDCState = {
     user: null,
-    isLoadingUser: false,
 };
 
 export const initialObjectUIState: ObjectsUIState = {

@@ -84,15 +84,3 @@ export type ProfileStandardClaims = {
   /** Time the End-User's information was last updated. */
   updated_at?: number,
 };
-
-export interface UserManager {
-  signinRedirect(args?: any): Promise<void>,
-
-  signinRedirectCallback(url?: string): Promise<AuthUser>,
-
-  removeUser(): Promise<void>;
-
-  signoutPopup(args?: any): Promise<void>;
-
-  signoutPopupCallback(url?: string, keepOpen?: boolean): Promise<void>;
-}

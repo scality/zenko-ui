@@ -21,7 +21,8 @@ import type {
     HandleErrorAction,
     ListBucketsSuccessAction,
     ListObjectsSuccessAction,
-    LoadUserSuccessAction,
+    LoadClientsSuccessAction,
+    LoadConfigSuccessAction,
     NetworkActivityAuthFailureAction,
     NetworkActivityEndAction,
     NetworkActivityStartAction,
@@ -36,10 +37,7 @@ import type {
     SetAppConfigAction,
     SetManagementClientAction,
     SetSTSClientAction,
-    SetUserManagerAction,
     SetZenkoClientAction,
-    SignoutEndAction,
-    SignoutStartAction,
     ToggleAllObjectsAction,
     ToggleObjectAction,
     ZenkoAppendSearchListAction,
@@ -59,7 +57,6 @@ import { CALL_HISTORY_METHOD } from 'connected-react-router';
 import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
-import { MockUserManager } from '../../../../js/mock/userManager';
 
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction =
@@ -72,9 +69,6 @@ export function SET_ZENKO_CLIENT_ACTION(zenkoClient: ZenkoClientInterface): SetZ
 export const SET_STS_CLIENT_ACTION: SetSTSClientAction =
         { type: 'SET_STS_CLIENT', stsClient: new MockSTSClient() };
 
-export const SET_USER_MANAGER_ACTION: SetUserManagerAction =
-    { type: 'SET_USER_MANAGER', userManager: new MockUserManager() };
-
 export const SET_APP_CONFIG_ACTION: SetAppConfigAction =
     { type: 'SET_APP_CONFIG', config: APP_CONFIG };
 
@@ -84,14 +78,11 @@ export const SELECT_INSTANCE_ACTION: SelectInstanceAction =
 export const LOAD_CONFIG_SUCCESS_ACTION: LoadConfigSuccessAction =
     { type: 'LOAD_CONFIG_SUCCESS' };
 
+export const LOAD_CLIENTS_SUCCESS_ACTION: LoadClientsSuccessAction =
+    { type: 'LOAD_CLIENTS_SUCCESS' };
+
 export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction =
     { type: 'CONFIG_AUTH_FAILURE' };
-
-export const SIGNOUT_START_ACTION: SignoutStartAction =
-    { type: 'SIGNOUT_START' };
-
-export const SIGNOUT_END_ACTION: SignoutEndAction =
-    { type: 'SIGNOUT_END' };
 
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {

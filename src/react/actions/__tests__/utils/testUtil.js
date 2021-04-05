@@ -1,6 +1,5 @@
 // @flow
 import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
-import { ErrorUserManager, MockUserManager } from '../../../../js/mock/userManager';
 import {
     bucketInfoResponse,
     bucketName,
@@ -87,17 +86,6 @@ export const TAGS = tags;
 export const ZENKO_ERROR = zenkoError;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 
-export function errorUserManagerState(): AppState {
-    const state = initState;
-    return {
-        ...state,
-        auth: {
-            ...state.auth,
-            userManager: new ErrorUserManager(USER_MANAGER_ERROR),
-        },
-    };
-}
-
 export function errorManagementState(): AppState {
     const state = initState;
     return {
@@ -128,27 +116,6 @@ export function addNextMarkerToState(state: AppState): AppState {
                 ...state.s3.listObjectsResults,
                 nextMarker: 'object1',
             },
-        },
-    };
-}
-
-export function signinRedirectCallbackState(path: string): AppState {
-    const state = initState;
-    const userManager = new MockUserManager();
-    /*eslint-disable flowtype-errors/show-errors*/
-    userManager.signinRedirectCallback = () => {
-        return Promise.resolve({
-            state: {
-                path,
-            },
-        });
-    };
-    /*eslint-enable */
-    return {
-        ...state,
-        auth: {
-            ...state.auth,
-            userManager,
         },
     };
 }
@@ -190,7 +157,6 @@ export function authenticatedUserState(): AppState {
                     path: '/',
                 },
             },
-            isLoadingUser: false,
         },
     };
 }

@@ -15,11 +15,6 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             managementClient: action.managementClient,
         };
-    case 'SET_USER_MANAGER':
-        return {
-            ...state,
-            userManager: action.userManager,
-        };
     case 'SET_APP_CONFIG':
         return {
             ...state,
@@ -39,16 +34,6 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
         return {
             ...state,
             isClientsLoaded: true,
-        };
-    case 'SIGNOUT_START':
-        return {
-            ...state,
-            isSigningOut: true,
-        };
-    case 'SIGNOUT_END':
-        return {
-            ...state,
-            isSigningOut: false,
         };
     default:
         return state;
