@@ -6,7 +6,8 @@ import { connectRouter } from 'connected-react-router';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
-import { reducer as oidcReducer } from 'redux-oidc';
+import oidc from './oidc';
+// import { reducer as oidcReducer } from 'redux-oidc';
 import s3 from './s3';
 import secrets from './secrets';
 import stats from './stats';
@@ -38,7 +39,8 @@ const zenkoUIReducer = history => combineReducers({
     s3,
     secrets,
     stats,
-    oidc: oidcReducer,
+    oidc,
+    // oidc: oidcReducer,
     router: connectRouter(history),
     zenko: zenko,
 });

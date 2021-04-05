@@ -1,5 +1,11 @@
 /* eslint jest/expect-expect: 0 */
 
+Cypress.on('uncaught:exception', (err, runnable) => {
+    if (err.message.includes('cross origin script') || err.message.includes('Cannot set property \'0\' of undefined')) {
+        return false
+    }
+})
+
 describe('Authentication with keycloak', () => {
     describe('User authenticated', () => {
         beforeEach(cy.kcLogin);

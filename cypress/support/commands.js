@@ -38,7 +38,8 @@ Cypress.Commands.add('kcLogin', (username, password) => {
                 password: kcPassword,
             },
         };
-        return cy.request(postLoginBody);
+        cy.request(postLoginBody);
+        return cy.visit('/');
     });
 });
 

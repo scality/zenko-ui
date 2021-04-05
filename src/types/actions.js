@@ -6,10 +6,10 @@ import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
+import type { AuthUser } from './auth';
 import type { FailureType } from './ui';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
-import type { UserManager } from './auth';
 
 export type DispatchFunction = (Action) => any;
 export type GetStateFunction = () => AppState;
@@ -55,11 +55,6 @@ export type SetManagementClientAction = {|
     +managementClient: ManagementClient,
 |};
 
-export type SetUserManagerAction = {|
-    +type: 'SET_USER_MANAGER',
-    +userManager: UserManager,
-|};
-
 export type SetAppConfigAction = {|
     +type: 'SET_APP_CONFIG',
     +config: AppConfig,
@@ -69,27 +64,21 @@ export type ConfigAuthFailureAction = {|
     +type: 'CONFIG_AUTH_FAILURE',
 |};
 
-export type LoadUserSuccessAction = {|
-    +type: 'LOAD_USER_SUCCESS',
+export type LoadConfigSuccessAction = {|
+    +type: 'LOAD_CONFIG_SUCCESS',
 |};
 
-export type SignoutStartAction = {|
-    +type: 'SIGNOUT_START',
-|};
-
-export type SignoutEndAction = {|
-    +type: 'SIGNOUT_END',
+export type LoadClientsSuccessAction = {|
+    +type: 'LOAD_CLIENTS_SUCCESS',
 |};
 
 export type AuthAction =
   SetSTSClientAction |
   SetManagementClientAction |
-  SetUserManagerAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
-  LoadUserSuccessAction |
-  SignoutStartAction |
-  SignoutEndAction;
+  LoadConfigSuccessAction |
+  LoadClientsSuccessAction;
 
 // instances actions
 export type SelectInstanceAction = {|
@@ -342,11 +331,20 @@ export type OpenWorkflowEditNotificationAction = {|
 export type WorkflowUIAction = CloseWorkflowEditNotificationAction |
     OpenWorkflowEditNotificationAction;
 
+// OIDC
+export type AddOIDCUserAction = {|
+    +type: 'ADD_OIDC_USER',
+    +user: AuthUser,
+|};
+
+export type OIDCAction = AddOIDCUserAction;
+
 export type Action =
     AuthAction |
     BucketsUIAction |
     LocationUIAction |
     ObjectsUIAction |
+    OIDCAction |
     S3Action |
     ThunkNonStateAction |
     ThunkStatePromisedAction |

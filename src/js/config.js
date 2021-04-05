@@ -4,14 +4,14 @@ export function getAppConfig() {
             return response.json();
         })
         .then(config => {
-            const { managementEndpoint, oidcAuthority, oidcClientId, stsEndpoint, zenkoEndpoint } = config;
-            if (!managementEndpoint || !oidcAuthority || !oidcClientId || !stsEndpoint || !zenkoEndpoint) {
-                throw new Error('incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, oidcAuthority, oidcClientId, stsEndpoint and zenkoEndpoint)');
+            const { managementEndpoint, navbarConfigUrl, navbarEndpoint, stsEndpoint, zenkoEndpoint } = config;
+            if (!navbarEndpoint || !managementEndpoint || !stsEndpoint || !zenkoEndpoint) {
+                throw new Error('incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, navbarEndpoint, stsEndpoint and zenkoEndpoint)');
             }
             return {
                 managementEndpoint,
-                oidcAuthority,
-                oidcClientId,
+                navbarConfigUrl,
+                navbarEndpoint,
                 stsEndpoint,
                 zenkoEndpoint,
             };

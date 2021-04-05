@@ -1,10 +1,8 @@
 // @flow
-import { S3_FAILURE_TYPE, networkAuthReset, signin, signout } from '../actions';
+import { S3_FAILURE_TYPE, loadClients, networkAuthReset } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui';
-import type { DispatchAPI } from 'redux';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
 import { push } from 'connected-react-router';
@@ -18,15 +16,11 @@ const ReauthDialog = () => {
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null);
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
 
-    const dispatch: DispatchAPI<Action> = useDispatch();
+    const dispatch = useDispatch();
 
-    const reauth = pathname => {
+    const reauth = pathName => {
         dispatch(networkAuthReset());
-        dispatch(signin(pathname));
-    };
-
-    const logout = () => {
-        dispatch(signout());
+        dispatch(loadClients()).then(() => dispatch(push(pathName)));
     };
 
     const s3Close = () => {
@@ -62,7 +56,6 @@ const ReauthDialog = () => {
             close={() => reauth(pathname)}
             footer={
                 <div>
-                    <Button variant="danger" onClick={() => logout()} size="small" text="Log out"/>
                     <Button variant="secondary" onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/>
                 </div>
             }

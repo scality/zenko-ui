@@ -15,11 +15,6 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             managementClient: action.managementClient,
         };
-    case 'SET_USER_MANAGER':
-        return {
-            ...state,
-            userManager: action.userManager,
-        };
     case 'SET_APP_CONFIG':
         return {
             ...state,
@@ -30,20 +25,15 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             configFailure: true,
         };
-    case 'LOAD_USER_SUCCESS':
+    case 'LOAD_CONFIG_SUCCESS':
         return {
             ...state,
-            isUserLoaded: true,
+            isConfigLoaded: true,
         };
-    case 'SIGNOUT_START':
+    case 'LOAD_CLIENTS_SUCCESS':
         return {
             ...state,
-            isSigningOut: true,
-        };
-    case 'SIGNOUT_END':
-        return {
-            ...state,
-            isSigningOut: false,
+            isClientsLoaded: true,
         };
     default:
         return state;
