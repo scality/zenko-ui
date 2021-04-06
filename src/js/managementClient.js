@@ -1,8 +1,6 @@
 import Swagger from 'swagger-client';
 
 function makeMgtClient(endpoint, token){
-    console.log('endpoint!!!', endpoint);
-    console.log('token!!!', token);
     return Swagger(endpoint + '/swagger.json',
         { authorizations: { 'public-api': token } }
     )

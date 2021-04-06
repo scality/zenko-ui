@@ -1,5 +1,5 @@
 // @flow
-
+import type { AppConfig, InstanceId } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3Bucket } from './s3';
 import type { BucketList, InstanceStatus } from './stats';
 import type { ConfigurationOverlay, LocationName } from './config';
@@ -7,7 +7,6 @@ import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
 import type { AuthUser } from './auth';
-import type { InstanceId } from './entities';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
@@ -34,15 +33,7 @@ export type AuthState = {|
     +configFailure: boolean,
     +managementClient: ManagementClientInterface,
     +stsClient: STSClient,
-    +config: {|
-        +managementEndpoint: string,
-        +oidcAuthority: string,
-        +oidcClientId: string,
-        +stsEndpoint: string,
-        +zenkoEndpoint: string,
-        +navbarEndpoint: string,
-        +navbarConfigUrl: string,
-    |},
+    +config: AppConfig,
 |};
 
 export type OIDCState = {|

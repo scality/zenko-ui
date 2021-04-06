@@ -47,10 +47,10 @@ export const mockStore = () => configureStore([thunk]);
 
 export const APP_CONFIG = {
     managementEndpoint: 'https://managementEndpoint',
-    oidcAuthority: 'oidcAuthority',
-    oidcClientId: 'oidcClientId',
     stsEndpoint: 'https://stsEndpoint',
     s3Endpoint: 'https://s3Endpoint',
+    navbarEndpoint: 'https://navbarEndpoint',
+    navbarConfigUrl: 'https://navbarConfigUrl',
 };
 export const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
 

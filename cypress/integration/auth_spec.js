@@ -15,6 +15,7 @@ describe('Authentication with keycloak', () => {
             if (!kcUserFullname) {
                 throw new Error('missing CYPRESS_KEYCLOAK_USER_FULLNAME environment variable');
             }
+
             cy.visit('/');
             cy.get('.sc-navbar').should('exist');
             // NOTE: this value is based on "eve/workers/keycloakconfig/keycloak-realm.json"

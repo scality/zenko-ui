@@ -1,7 +1,6 @@
 import '../css/index.css';
 
 import { history, store } from './store';
-// import Auth from './Auth';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import React from 'react';
