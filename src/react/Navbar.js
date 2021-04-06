@@ -36,7 +36,6 @@ function useWebComponent(src?: string, customElementName: string) {
 type NavbarWebComponent = HTMLElement;
 
 function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -50,9 +49,6 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
             // eslint-disable-next-line flowtype-errors/show-errors
             if (evt.detail && evt.detail.profile) {
                 dispatch(addOIDCUser(evt.detail));
-            } else {
-                setIsAuthenticated(false);
-                // dispatch(addUser(null));
             }
         };
 
@@ -69,8 +65,6 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
 
         };
     }, [navbarRef, dispatch]);
-
-    return { isAuthenticated };
 }
 
 function ErrorFallback({ error }: { error: Error }) {

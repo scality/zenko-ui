@@ -1,5 +1,5 @@
 {
-    "navbarEndpoint": "http://localhost:8082/main.js",
+    "navbarEndpoint": "http://127.0.0.1:8082/main.js",
     "navbarConfigUrl": "/config-shell.json",
     "managementEndpoint": "http://management.zenko.local",
     "oidcAuthority": "http://keycloak.zenko.local/auth/realms/zenko",
