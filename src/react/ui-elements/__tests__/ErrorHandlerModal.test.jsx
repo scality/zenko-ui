@@ -3,38 +3,39 @@ import React from 'react';
 import { reduxMount } from '../../utils/test';
 
 describe('ErrorHandlerModal', () => {
-    const closeFn = jest.fn();
+    const errorMessage = 'test error message';
 
     it('ErrorHandlerModal should render', () => {
-        const { component } = reduxMount(<ErrorHandlerModal show={true} close={closeFn}>
-            <div id='child'>Message</div>
-        </ErrorHandlerModal>);
+        const { component } = reduxMount(<ErrorHandlerModal/>, {
+            uiErrors: {
+                errorMsg: errorMessage,
+                errorType: 'byModal',
+            },
+        });
 
         expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(false);
-        expect(component.find('div#child').text()).toBe('Message');
+        expect(component.find('div.sc-modal-body').text()).toBe(errorMessage);
     });
 
-    it('ErrorHandlerModal should not render if show is false', () => {
-        const { component } = reduxMount(<ErrorHandlerModal show={false} close={closeFn}>
-            <div id='child'>Message</div>
-        </ErrorHandlerModal>);
+    it('ErrorHandlerModal should not render if errorType is set to "byAuth"', () => {
+        const { component } = reduxMount(<ErrorHandlerModal/>, {
+            uiErrors: {
+                errorMsg: errorMessage,
+                errorType: 'byAuth',
+            },
+        });
 
         expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(true);
     });
 
-    it('ErrorHandlerModal should not render if children is null', () => {
-        const { component } = reduxMount(<ErrorHandlerModal show={true} close={closeFn}/>);
+    it('ErrorHandlerModal should not render if children errorType and errorMessage are set to null', () => {
+        const { component } = reduxMount(<ErrorHandlerModal/>, {
+            uiErrors: {
+                errorMsg: null,
+                errorType: null,
+            },
+        });
 
         expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(true);
-    });
-
-    it('should call close function after clicking on close button', () => {
-        const { component } = reduxMount(<ErrorHandlerModal show={true} close={closeFn}>
-            <div id='child'>Message</div>
-        </ErrorHandlerModal>);
-
-        expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(false);
-        component.find('Button[text="Close"]').simulate('click');
-        expect(closeFn).toHaveBeenCalledTimes(1);
     });
 });

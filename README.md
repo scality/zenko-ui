@@ -36,6 +36,14 @@ sudo npm run start:dev
 *Note*: Regular users are not allowed to bind to port 80, ports below 1024 require root/adminstrator rights.
 You will need to either run as root using sudo, or setup a proxy that redirects requests on port 80 to a port over 1024.
 
+Zenko UI now uses the metalk8s common navbar:  
+```
+git clone https://github.com/scality/metalk8s
+cd metalk8s/shell-ui
+docker build -t shell-ui .
+docker run -d -p 8082:80 shell-ui
+```
+
 ### Access UI
 ```
 http://ui.zenko.local

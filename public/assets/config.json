@@ -1,7 +1,7 @@
 {
+    "navbarEndpoint": "http://127.0.0.1:8082/shell/solution-ui-navbar.1.0.0.js",
+    "navbarConfigUrl": "/config-shell.json",
     "managementEndpoint": "http://management.zenko.local",
-    "oidcAuthority": "http://keycloak.zenko.local/auth/realms/zenko",
-    "oidcClientId": "zenko-ui",
     "stsEndpoint": "http://ui.zenko.local/sts",
     "zenkoEndpoint": "http://ui.zenko.local/s3"
 }

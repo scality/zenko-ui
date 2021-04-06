@@ -1,13 +1,12 @@
 // @flow
-
-import type { AuthUser, UserManager as UserManagerInterface } from './auth';
+import type { AppConfig, InstanceId } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3Bucket } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
 import type { ConfigurationOverlay, LocationName, Rules } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
-import type { InstanceId } from './entities';
+import type { AuthUser } from './auth';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
@@ -29,24 +28,16 @@ export type UserState = {
 };
 
 export type AuthState = {|
-    +isUserLoaded: string,
+    +isConfigLoaded: string,
+    +isClientsLoaded: boolean,
     +configFailure: boolean,
-    +isSigningOut: boolean,
     +managementClient: ManagementClientInterface,
     +stsClient: STSClient,
-    +userManager: UserManagerInterface,
-    +config: {|
-        +managementEndpoint: string,
-        +oidcAuthority: string,
-        +oidcClientId: string,
-        +stsEndpoint: string,
-        +zenkoEndpoint: string,
-    |},
+    +config: AppConfig,
 |};
 
 export type OIDCState = {|
     +user: AuthUser,
-    +isLoadingUser: boolean,
 |};
 
 export type ErrorsUIState = {|

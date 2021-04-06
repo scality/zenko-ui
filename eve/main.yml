@@ -8,6 +8,9 @@ branches:
     stage: post-merge
 
 models:
+  - env: &shell-ui-env
+      # TODO: update SHELL_UI_IMAGE to a more "official" image.
+      SHELL_UI_IMAGE: 'registry.scality.com/playground/jbwatenberg/shell-ui:2.9-dev'
   - env: &deploy-env
       SCALITY_OCI_REPO: registry.scality.com/zenko-ui/zenko-ui
       SCALITY_OCI_REPO_DEV: registry.scality.com/zenko-ui-dev/zenko-ui
@@ -76,15 +79,21 @@ stages:
           command: npm run test:coverage
           haltOnFailure: True
       - ShellCommand: *npm-build
+      - ShellCommand: *docker-login
       - ShellCommand: *docker-build
       - ShellCommand:
           name: run end-to-end tests
           command: >-
+            docker pull ${SHELL_UI_IMAGE};
+            docker run -d -p 8082:80 ${SHELL_UI_IMAGE};
+  
             docker run -d -p 8383:8383
+            -v $(pwd)/eve/ui-test-config-shell.json:/usr/share/nginx/html/config-shell.json
             -v $(pwd)/eve/ui-test-config.json:/usr/share/nginx/html/config.json
             -v $(pwd)/conf/zenko-ui-nginx.conf:/etc/nginx/conf.d/default.conf
             ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
             set -exu;
+            bash wait_for_local_port.bash 8082 40;
             bash wait_for_local_port.bash 8080 40;
             bash wait_for_local_port.bash 8383 40;
             CYPRESS_KEYCLOAK_USER_FULLNAME="${KEYCLOAK_USER_FIRSTNAME} ${KEYCLOAK_USER_LASTNAME}"
@@ -97,6 +106,7 @@ stages:
           env:
             <<: *deploy-env
             <<: *keycloak-env
+            <<: *shell-ui-env
       - ShellCommand:
           name: upload test coverage
           haltOnFailure: False
