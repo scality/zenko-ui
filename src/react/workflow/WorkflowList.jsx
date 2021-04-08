@@ -7,6 +7,7 @@ import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout3';
 import React from 'react';
 import type { Workflows } from '../../types/workflow';
+import { TextTransformer } from '../ui-elements/Utility';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 
@@ -19,12 +20,13 @@ const columns = [
     {
         Header: 'Workflow Type',
         accessor: 'type',
+        Cell({ value: type }: { value: string }) { return <TextTransformer transform='capitalize'>{type}</TextTransformer>; },
         width: 25,
     },
     {
         Header: 'State',
         accessor: 'state',
-        Cell: ({ value }) => { return value ? 'active' : 'inactive'; },
+        Cell: ({ value }) => { return value ? 'Active' : 'Inactive'; },
         width: 15,
     },
 ];

@@ -113,6 +113,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                         <T.Row>
                             <T.Key principal={true}> Rule Type </T.Key>
                             <T.Value>
+                                <i className="fas fa-coins" />
                                 Replication
                             </T.Value>
                         </T.Row>
@@ -124,7 +125,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                     </T.GroupName>
                     <T.GroupContent>
                         {/* <T.Row>
-                            <T.Key> Name </T.Key>
+                            <T.Key> Rule Name </T.Key>
                             <T.Value>
                                 <Controller
                                     control={control}
@@ -153,7 +154,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                                     render={({ onChange, value: enabled }) => {
                                         return <Toggle
                                             toggle={enabled}
-                                            label={enabled ? 'active' : 'inactive'}
+                                            label={enabled ? 'Active' : 'Inactive'}
                                             onChange={() => handleChange(onChange)(!enabled)}
                                         />;
                                     }}
@@ -169,9 +170,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                     </T.GroupName>
                     <T.GroupContent>
                         <T.Row>
-                            <T.Key>
-                                Bucket Name
-                            </T.Key>
+                            <T.Key required={createMode}> Bucket Name </T.Key>
                             <T.Value>
                                 <Controller
                                     control={control}
@@ -235,7 +234,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                     </T.GroupName>
                     <T.GroupContent>
                         <T.Row>
-                            <T.Key> Location Name </T.Key>
+                            <T.Key required={createMode}> Location Name </T.Key>
                             <T.Value>
                                 <Controller
                                     control={control}
@@ -260,7 +259,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                 </T.Group>
             </T.Groups>
             <T.Footer>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: '8px' }} outlined onClick={handleCancel} text='Cancel'/>
+                <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: '24px' }} outlined onClick={handleCancel} text='Cancel'/>
                 <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="buttonPrimary" onClick={handleSubmit(onSubmit)} text={createMode ? 'Create' : 'Save Changes'}/>
             </T.Footer>
         </ReplicationContainer>
