@@ -18,15 +18,16 @@ function PrivateRoutes() {
     const dispatch = useDispatch();
 
     const isClientsLoaded = useSelector((state: AppState) => state.auth.isClientsLoaded);
-    const authenticated = useSelector((state: AppState) => !!state.oidc.user && !state.oidc.user.expired);
+    const user = useSelector((state: AppState) => state.oidc.user);
 
     useEffect(() => {
-        if (authenticated) {
+        const isAuthenticated = !!user && !user.expired;
+        if (isAuthenticated) {
             // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
             // That will fix management API request being canceled during autentication.
             dispatch(loadClients());
         }
-    },[dispatch, authenticated]);
+    },[dispatch, user]);
 
     if (!isClientsLoaded) {
         return <Loader> Loading clients </Loader>;
