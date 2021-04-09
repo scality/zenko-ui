@@ -9,9 +9,9 @@
   },
   "options": {
     "main": {
-        "http://ui.zenko.local/accounts":{ "en": "Accounts" },
-        "http://ui.zenko.local/buckets":{ "en": "Data Browser" },
-        "http://ui.zenko.local/workflows":{ "en": "Workflows" }
+        "http://ui.zenko.local/accounts":{ "en": "Accounts", "fr": "Accounts" },
+        "http://ui.zenko.local/buckets":{ "en": "Data Browser", "fr": "Data Browser" },
+        "http://ui.zenko.local/workflows":{ "en": "Workflows", "fr": "Workflows" }
     },
     "subLogin": {}
   },
