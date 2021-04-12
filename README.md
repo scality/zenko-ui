@@ -23,18 +23,14 @@ Zenko deployment runs on scality.cloud instance accessible through VPN.
 ```
 NODE_IP="put-the-node-ip"
 
-echo "127.0.0.1 ui.zenko.local" >>/etc/hosts
-
 echo "$NODE_IP keycloak.zenko.local iam.zenko.local sts.zenko.local management.zenko.local s3.zenko.local" >>/etc/hosts
 ```
 
 ### Start Zenko UI locally
 ```
 npm install
-sudo npm run start:dev
+npm run start:dev
 ```
-*Note*: Regular users are not allowed to bind to port 80, ports below 1024 require root/adminstrator rights.
-You will need to either run as root using sudo, or setup a proxy that redirects requests on port 80 to a port over 1024.
 
 Zenko UI now uses the metalk8s common navbar:  
 ```
@@ -46,7 +42,7 @@ docker run -d -p 8082:80 shell-ui
 
 ### Access UI
 ```
-http://ui.zenko.local
+http://127.0.0.1:8383
 ```
 Should be redirected to Keycloak login page:
 ```
@@ -72,7 +68,7 @@ docker run -d -p 80:8383 zui
 
 #### Run tests
 ```
-CYPRESS_KEYCLOAK_ROOT="http://keycloak.zenko.local" CYPRESS_KEYCLOAK_REALM="zenko" CYPRESS_KEYCLOAK_CLIENT_ID="zenko-ui" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FULLNAME="Simpson" CYPRESS_BASE_URL="http://ui.zenko.local" npm run cypress:run
+CYPRESS_KEYCLOAK_ROOT="http://keycloak.zenko.local" CYPRESS_KEYCLOAK_REALM="zenko" CYPRESS_KEYCLOAK_CLIENT_ID="zenko-ui" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FULLNAME="Simpson" CYPRESS_BASE_URL="http://127.0.0.1:8383" npm run cypress:run
 ```
 
 ## Authentication
