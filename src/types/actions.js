@@ -5,6 +5,7 @@ import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMa
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
+import type { Account } from './account';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
 import type { FailureType } from './ui';
@@ -72,13 +73,19 @@ export type LoadClientsSuccessAction = {|
     +type: 'LOAD_CLIENTS_SUCCESS',
 |};
 
+export type SelectAccountAction = {|
+    +type: 'SELECT_ACCOUNT',
+    +account: Account,
+|};
+
 export type AuthAction =
   SetSTSClientAction |
   SetManagementClientAction |
   SetAppConfigAction |
   ConfigAuthFailureAction |
   LoadConfigSuccessAction |
-  LoadClientsSuccessAction;
+  LoadClientsSuccessAction |
+  SelectAccountAction;
 
 // instances actions
 export type SelectInstanceAction = {|

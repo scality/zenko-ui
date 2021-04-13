@@ -16,7 +16,7 @@ import { push } from 'connected-react-router';
 
 export default function DataBrowser(){
     const dispatch = useDispatch();
-    const accountName = useSelector((state: AppState) => state.s3.listBucketsResults.ownerName);
+    const accountName = useSelector((state: AppState) => state.auth.selectedAccount && state.auth.selectedAccount.userName);
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
     const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);

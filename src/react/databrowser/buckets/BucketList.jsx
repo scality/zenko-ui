@@ -7,8 +7,7 @@ import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
-import { List } from 'immutable';
-import type { S3Bucket } from '../../../types/s3';
+import type { S3BucketList } from '../../../types/s3';
 import { formatDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
@@ -16,7 +15,7 @@ import { useDispatch } from 'react-redux';
 
 type Props = {
     locations: Locations,
-    buckets: List<S3Bucket>,
+    buckets: S3BucketList,
     selectedBucketName: ?string,
 };
 export default function BucketList({ selectedBucketName, buckets, locations }: Props){

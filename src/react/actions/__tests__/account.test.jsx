@@ -2,7 +2,7 @@ import * as actions from '../account';
 import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
-    OWNER_NAME,
+    ACCOUNT,
     authenticatedUserState,
     errorManagementState,
     initState,
@@ -12,7 +12,6 @@ import {
 
 const createAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating account');
 const deleteAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting account');
-const listBucketsNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing buckets');
 
 describe('account actions', () => {
     const syncTests = [
@@ -26,6 +25,11 @@ describe('account actions', () => {
             fn: actions.closeAccountDeleteDialog(),
             expectedActions: [dispatchAction.CLOSE_ACCOUNT_DELETE_DIALOG_ACTION],
         },
+        {
+            it: 'should return SELECT_ACCOUNT action',
+            fn: actions.selectAccount(ACCOUNT),
+            expectedActions: [dispatchAction.SELECT_ACCOUNT_ACTION],
+        },
     ];
 
     syncTests.forEach(testActionFunction);
@@ -37,9 +41,6 @@ describe('account actions', () => {
             storeState: authenticatedUserState(),
             expectedActions: [
                 createAccountNetworkAction,
-                listBucketsNetworkAction,
-                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
-                dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CONFIGURATION_VERSION_ACTION,
                 dispatchAction.LOCATION_PUSH_ACTION('/accounts/bart'),
                 dispatchAction.NETWORK_END_ACTION,

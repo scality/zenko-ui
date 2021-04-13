@@ -1,16 +1,17 @@
 // @flow
+import type { Account, CreateAccountRequest } from '../../types/account';
 import type {
     CloseAccountDeleteDialogAction,
     OpenAccountDeleteDialogAction,
+    SelectAccountAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
+import { getAccountIDStored, removeAccountIDStored, setAccountIDStored } from '../utils/localStorage';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import type { CreateAccountRequest } from '../../types/account';
-import { assumeRoleWithWebIdentity } from './index';
+import { assumeRoleWithWebIdentity } from './sts';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
-import { removeRoleArnStored } from '../utils/localStorage';
 import { updateConfiguration } from './configuration';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
@@ -25,14 +26,50 @@ export function closeAccountDeleteDialog(): CloseAccountDeleteDialogAction {
     };
 }
 
+export function selectAccount(account: Account): SelectAccountAction {
+    return {
+        type: 'SELECT_ACCOUNT',
+        account,
+    };
+}
+
+export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
+    return (dispatch, getState) => {
+        const { zenkoClient } = getClients(getState());
+        const { configuration } = getState();
+        const accounts = configuration.latest.users;
+        let account = accounts.find(a => a.id === accountID);
+        if (!accountID || !account) {
+            if (accounts.length === 0) {
+                // clean S3 client and buckets' list if no account.
+                zenkoClient.logout();
+                removeAccountIDStored();
+                return Promise.resolve();
+            }
+            account = accounts[0];
+            const accountIDStored = getAccountIDStored();
+            if (accountIDStored) {
+                const accountStored = accounts.find(a => a.id === accountIDStored);
+                if (accountStored) {
+                    account = accountStored;
+                }
+            }
+        }
+        setAccountIDStored(account.id);
+        dispatch(selectAccount(account));
+        const roleArn = `arn:aws:iam::${account.id}:role/roleForB`;
+        return dispatch(assumeRoleWithWebIdentity(roleArn));
+    };
+}
+
 export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, user };
         dispatch(networkStart('Creating account'));
         return managementClient.createConfigurationOverlayUser(params)
-            .then(resp => dispatch(assumeRoleWithWebIdentity(`arn:aws:iam::${resp.body.id}:role/roleForB`)))
-            .then(() => dispatch(updateConfiguration()))
+            .then(resp => Promise.all([resp.body.id, dispatch(updateConfiguration())]))
+            .then(([id]) => dispatch(selectAccountID(id)))
             .then(() => dispatch(push(`/accounts/${user.userName}`)))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -51,12 +88,12 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
             .then(() => dispatch(push('/accounts')))
             .then(() => dispatch(closeAccountDeleteDialog()))
             .then(() => {
-                removeRoleArnStored();
-                return dispatch(assumeRoleWithWebIdentity());
+                removeAccountIDStored();
+                return dispatch(selectAccountID());
             })
             .catch(error => {
                 // TODO: fix closeAccountDeleteDialog that might happen twice
-                // if assumeRoleWithWebIdentity() fails
+                // if selectAccountID() fails
                 dispatch(closeAccountDeleteDialog());
                 return dispatch(handleClientError(error));
             })

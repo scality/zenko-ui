@@ -1,6 +1,6 @@
 // @flow
 import type { AppConfig, InstanceId } from './entities';
-import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3Bucket } from './s3';
+import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
 import type { ConfigurationOverlay, LocationName, Rules } from './config';
 import type { ErrorViewType, FailureType } from './ui';
@@ -34,6 +34,7 @@ export type AuthState = {|
     +managementClient: ManagementClientInterface,
     +stsClient: STSClient,
     +config: AppConfig,
+    +selectedAccount: Account | null,
 |};
 
 export type OIDCState = {|
@@ -94,7 +95,7 @@ export type StatsState = {|
 
 export type S3State = {|
     +listBucketsResults: {|
-        +list: List<S3Bucket>,
+        +list: S3BucketList,
         +ownerName: string,
     |},
     +bucketInfo: BucketInfo | null,
