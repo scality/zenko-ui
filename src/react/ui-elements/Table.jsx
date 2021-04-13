@@ -224,4 +224,10 @@ export const SubHeaderContainer = styled.div`
     margin-left: 5px;
 `;
 
+export const TableContainer = styled.div`
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+`;
+
 export default Table;

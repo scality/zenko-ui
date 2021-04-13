@@ -67,6 +67,11 @@ const ZenkoUIContainer = styled.div`
     align-items: stretch;
 `;
 
+const ButtonContainer = styled.div`
+    display: flex;
+    justify-content: flex-end;
+`;
+
 export {
     Container,
     LoaderContainer,
@@ -75,4 +80,5 @@ export {
     NavbarContainer,
     RouteContainer,
     ZenkoUIContainer,
+    ButtonContainer,
 };
