@@ -4,10 +4,16 @@ import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import type { ObjectMetadata } from '../../../../types/s3';
 import React from 'react';
+import TruncatedText from '../../../ui-elements/TruncatedText';
+import styled from 'styled-components';
 
 type Props = {
     objectMetadata: ObjectMetadata,
 };
+
+const TruncatedValue = styled(T.Value)`
+    max-width: 300px;
+`;
 
 function Properties({ objectMetadata }: Props) {
     return (
@@ -20,7 +26,7 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                     <T.Row hidden={!objectMetadata.versionId}>
                         <T.Key> Version ID </T.Key>
-                        <T.Value> {objectMetadata.versionId} </T.Value>
+                        <TruncatedValue copiable> <TruncatedText text={objectMetadata.versionId} trailingCharCount={7} /> </TruncatedValue>
                         <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>
                     <T.Row>
@@ -33,7 +39,7 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                     <T.Row>
                         <T.Key> ETag </T.Key>
-                        <T.Value> {objectMetadata.eTag} </T.Value>
+                        <T.Value copiable>{objectMetadata.eTag}</T.Value>
                         <T.ExtraCell> <Clipboard text={objectMetadata.eTag}/> </T.ExtraCell>
                     </T.Row>
                 </T.Body>

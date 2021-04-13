@@ -36,7 +36,7 @@ const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
             return <label key={s}><Link to={{ pathname: `/buckets/${bucketName}/objects/${prefix}` }}> {s} </Link></label>;
         });
         return [
-            <label key='buckets'> <Link to={{ pathname: '/buckets' }}> buckets </Link> </label>,
+            <label key='buckets'> <Link to={{ pathname: '/buckets' }}> All Buckets </Link> </label>,
             <label key='objects'> <Link to={{ pathname: `/buckets/${bucketName}/objects` }}> {bucketName} </Link></label>,
             ...splitLabels,
         ];
@@ -44,14 +44,14 @@ const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
     match = matchPath(pathname, { path: '/buckets/:bucketName/objects' });
     if (match) {
         return [
-            <label key='buckets'><Link to={{ pathname: '/buckets' }}> buckets </Link></label>,
+            <label key='buckets'><Link to={{ pathname: '/buckets' }}> All Buckets </Link></label>,
             <label key='bucket-name'>{match.params.bucketName}</label>,
         ];
     }
     match = matchPath(pathname, { path: '/buckets/:bucketName' });
     if (match) {
         return [
-            <label key='buckets'>buckets</label>,
+            <label key='buckets'>All Buckets</label>,
         ];
     }
     return [];

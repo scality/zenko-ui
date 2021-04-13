@@ -26,15 +26,19 @@ export const Row = styled.tr`
 `;
 
 export const Key = styled.td`
+    white-space: nowrap;
     padding: ${padding.small} 0px;
     color: ${props => props.theme.brand.textSecondary};
 `;
 
 export const Value = styled.td`
     padding-left: 40px;
+    max-width: 400px;
     width: 400px;
     min-width: 220px;
     word-break: break-word;
+    
+    ${props => props.copiable ? `color: ${props.theme.brand.textSecondary};` : ''}
 `;
 
 export const ExtraCell = styled.td`

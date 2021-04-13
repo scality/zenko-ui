@@ -9,6 +9,7 @@ import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import Routes from './Routes';
+import ScrollbarWrapper from './ui-elements/ScrollbarWrapper';
 import { ThemeProvider } from 'styled-components';
 import { loadAppConfig } from './actions';
 
@@ -52,10 +53,12 @@ function ZenkoUI() {
     }
 
     return <ThemeProvider theme={theme}>
-        <MainContainer>
-            <ReauthDialog/>
-            {content()}
-        </MainContainer>
+        <ScrollbarWrapper> { /* TODO: replace with core-ui scrollbar when colors are set correctly */ }
+            <MainContainer>
+                <ReauthDialog/>
+                {content()}
+            </MainContainer>
+        </ScrollbarWrapper>
     </ThemeProvider>;
 }
 

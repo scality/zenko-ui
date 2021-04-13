@@ -74,7 +74,7 @@ export default function Objects(){
         <ObjectDelete bucketInfo={bucketInfo} bucketName={bucketNameParam} toggled={toggled} prefixWithSlash={prefixWithSlash}/>
         <ObjectUpload bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash}/>
         <FolderCreate bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash}/>
-        <ObjectHead bucketNameParam={bucketNameParam}/>
+        <ObjectHead bucketName={bucketNameParam}/>
 
         <L.Body>
             <ObjectList bucketInfo={bucketInfo} toggled={toggled} objects={objects} bucketName={bucketNameParam} prefixWithSlash={prefixWithSlash} listType={listType} />

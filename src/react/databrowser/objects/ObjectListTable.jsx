@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import { AutoSizer } from 'react-virtualized';
+import { Checkbox } from '../../ui-elements/FormLayout';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
@@ -57,23 +58,22 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
             accessor: '',
             Cell({ row: { original } }: CellProps) {
                 return (
-                    <input
-                        type="checkbox"
-                        className="checkbox"
-                        checked={original.toggled}
-                        onClick={(e) => {
-                            e.stopPropagation(); // Prevent checkbox and clickable table row conflict.
-                            dispatch(toggleObject(original.key, original.versionId));
-                        }}
-                    />
+                    <div style={{ textOverflow: 'clip' }}>
+                        <Checkbox
+                            name="objectCheckbox"
+                            checked={original.toggled}
+                            onClick={(e) => e.stopPropagation() } // Prevent checkbox and clickable table row conflict.
+                            onChange={() => dispatch(toggleObject(original.key, original.versionId)) }
+                        />
+                    </div>
                 );
             },
-            Header: <input
-                type="checkbox"
-                className="checkbox"
-                checked={isToggledFull}
-                onChange={() => dispatch(toggleAllObjects(!isToggledFull))}
-            />,
+            Header:
+                <Checkbox
+                    name="objectsHeaderCheckbox"
+                    checked={isToggledFull}
+                    onChange={() => dispatch(toggleAllObjects(!isToggledFull))}
+                />,
             disableSortBy: true,
             width: 1,
         },

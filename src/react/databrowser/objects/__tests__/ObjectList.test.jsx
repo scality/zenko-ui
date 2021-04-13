@@ -1,11 +1,11 @@
 import * as s3object from '../../../actions/s3object';
 import { BUCKET_INFO, FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT } from './utils/testUtil';
 import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
+import { checkBox, reduxMount } from '../../../utils/test';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import { List } from 'immutable';
 import ObjectList from '../ObjectList';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
 
 describe('ObjectList', () => {
     afterEach(() => {
@@ -84,8 +84,7 @@ describe('ObjectList', () => {
             bucketName={BUCKET_NAME} prefixWithSlash='' toggled={List()} bucketInfo={BUCKET_INFO}/>,
         );
 
-        const toggleAllObjectsButton = component.find('th#object-list-table-head-checkbox > input');
-        toggleAllObjectsButton.simulate('change');
+        checkBox(component, 'objectsHeaderCheckbox', true);
         expect(toggleAllObjectsSpy).toHaveBeenCalledTimes(1);
     });
 
