@@ -1,5 +1,6 @@
 // @flow
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../react/utils';
+import { List } from 'immutable';
 
 export interface S3Client {
 
@@ -18,6 +19,8 @@ export type HeadObjectResponse = {|
     +VersionId: string,
     +Metadata: { [string]: string },
 |};
+
+export type S3BucketList = List<S3Bucket>;
 
 export type S3Bucket = {|
     +CreationDate: string,

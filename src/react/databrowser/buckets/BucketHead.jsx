@@ -1,9 +1,8 @@
 // @flow
 import * as L from '../../ui-elements/ListLayout2';
 
-import { List } from 'immutable';
 import React from 'react';
-import type { S3Bucket } from '../../../types/s3';
+import type { S3BucketList } from '../../../types/s3';
 import styled from 'styled-components';
 
 const Number = styled.div`
@@ -15,7 +14,7 @@ const Unit = styled.div`
 
 
 type Props = {
-    buckets: List<S3Bucket>,
+    buckets: S3BucketList,
 };
 export default function BucketHead({ buckets }: Props){
     return <L.Head>
