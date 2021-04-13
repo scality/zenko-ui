@@ -90,6 +90,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     };
 
     // TODO: make sure we do not delete bucket or location if replication created.
+
     if (bucketList.length === 0) {
         return <NoBucketWarning/>;
     }

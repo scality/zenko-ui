@@ -35,6 +35,11 @@ export default function auth(state: AuthState = initialAuthState, action: AuthAc
             ...state,
             isClientsLoaded: true,
         };
+    case 'SELECT_ACCOUNT':
+        return {
+            ...state,
+            selectedAccount: action.account,
+        };
     default:
         return state;
     }

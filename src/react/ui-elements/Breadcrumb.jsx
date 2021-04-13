@@ -4,8 +4,8 @@ import type { Account } from '../../types/account';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
 import type { Element } from 'react';
 import React from 'react';
-import { assumeRoleWithWebIdentity } from '../actions';
 import { push } from 'connected-react-router';
+import { selectAccountID } from '../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
@@ -73,7 +73,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props){
         if (!account) {
             return;
         }
-        dispatch(assumeRoleWithWebIdentity(`arn:aws:iam::${account.id}:role/roleForB`))
+        dispatch(selectAccountID(account.id))
             .then(() => dispatch(push('/buckets')));
     };
 
@@ -83,6 +83,33 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props){
                 { accounts.map(account => <option key={account.userName} value={account.userName}>{account.userName}</option>)}
             </Select>,
             ...breadcrumbPaths(pathname),
+        ]}
+    />;
+}
+
+type BreadcrumbWorkflowProps = {
+    accounts: Array<Account>,
+    accountName: string,
+};
+export function BreadcrumbWorkflow({ accounts, accountName }: BreadcrumbWorkflowProps){
+    const dispatch = useDispatch();
+
+    const switchAccount = (selectedName) => {
+        const account = selectedName &&
+            selectedName !== accountName &&
+            accounts.find(a => a.userName === selectedName);
+        if (!account) {
+            return;
+        }
+        dispatch(selectAccountID(account.id))
+            .then(() => dispatch(push('/workflows')));
+    };
+
+    return <CoreUIBreadcrumb
+        paths={[
+            <Select key={0} onChange={e => switchAccount(e.target.value)} value={accountName}>
+                { accounts.map(account => <option key={account.userName} value={account.userName}>{account.userName}</option>)}
+            </Select>,
         ]}
     />;
 }

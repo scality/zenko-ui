@@ -1,6 +1,7 @@
 // @flow
 
 import {
+    ACCOUNT,
     APP_CONFIG,
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
@@ -33,6 +34,7 @@ import type {
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
     ResetObjectMetadataAction,
+    SelectAccountAction,
     SelectInstanceAction,
     SetAppConfigAction,
     SetManagementClientAction,
@@ -83,6 +85,9 @@ export const LOAD_CLIENTS_SUCCESS_ACTION: LoadClientsSuccessAction =
 
 export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction =
     { type: 'CONFIG_AUTH_FAILURE' };
+
+export const SELECT_ACCOUNT_ACTION: SelectAccountAction =
+    { type: 'SELECT_ACCOUNT', account: ACCOUNT };
 
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
