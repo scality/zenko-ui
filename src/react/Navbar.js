@@ -3,7 +3,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../types/state';
 import { ErrorBoundary } from 'react-error-boundary';
-import { addOIDCUser } from './actions';
+import { addOIDCUser, setTheme } from './actions';
 
 function useWebComponent(src?: string, customElementName: string) {
     const [hasFailed, setHasFailed] = useState(false);
@@ -67,6 +67,38 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
     }, [navbarRef, dispatch]);
 }
 
+function useThemeEffect(navbarRef: { current: NavbarWebComponent | null }) {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!navbarRef.current) {
+            return;
+        }
+
+        const navbarElement = navbarRef.current;
+
+        const onThemeChanged = (evt: Event) => {
+        // flow is not accepting CustomEvent type for listener arguments of {add,remove}EventListener https://github.com/facebook/flow/issues/7179
+        // eslint-disable-next-line flowtype-errors/show-errors
+            if (evt.detail) {
+                dispatch(setTheme(evt.detail));
+            }
+        };
+
+        navbarElement.addEventListener(
+            'solutions-navbar--theme-changed',
+            onThemeChanged,
+        );
+
+        return () => {
+            navbarElement.removeEventListener(
+                'solutions-navbar--theme-changed',
+                onThemeChanged,
+            );
+        };
+    }, [navbarRef, dispatch]);
+}
+
 function ErrorFallback({ error }: { error: Error }) {
     return (
         <div role="alert">
@@ -92,6 +124,7 @@ function InternalNavbar() {
     const navbarRef = useRef<NavbarWebComponent | null>(null);
 
     useLoginEffect(navbarRef);
+    useThemeEffect(navbarRef);
 
     return (
         <solutions-navbar

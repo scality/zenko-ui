@@ -9,6 +9,7 @@ import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import Routes from './Routes';
+import { ThemeProvider } from 'styled-components';
 import { loadAppConfig } from './actions';
 
 
@@ -17,6 +18,7 @@ function ZenkoUI() {
     const configFailure = useSelector((state: AppState) => state.auth.configFailure);
     const configFailureErrorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byComponent' ?
         state.uiErrors.errorMsg : '');
+    const theme = useSelector((state: AppState) => state.uiConfig.theme);
 
     const dispatch = useDispatch();
 
@@ -49,10 +51,12 @@ function ZenkoUI() {
         return <Loader> Login in </Loader>;
     }
 
-    return <MainContainer>
-        <ReauthDialog/>
-        {content()}
-    </MainContainer>;
+    return <ThemeProvider theme={theme}>
+        <MainContainer>
+            <ReauthDialog/>
+            {content()}
+        </MainContainer>
+    </ThemeProvider>;
 }
 
 export default ZenkoUI;

@@ -17,5 +17,6 @@
   },
   "logo" : { "dark": "/logo-dark.svg" },
   "favicon": "",
-  "providerLogout": true
+  "providerLogout": true,
+  "canChangeTheme": true
 }

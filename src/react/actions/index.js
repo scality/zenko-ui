@@ -11,6 +11,7 @@ export * from './s3bucket';
 export * from './s3object';
 export * from './stats';
 export * from './sts';
+export * from './theme';
 export * from './user';
 export * from './workflow';
 export * from './zenko';
