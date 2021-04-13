@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppConfig, InstanceId } from '../../types/entities';
+import type { AppConfig, InstanceId, Theme } from '../../types/entities';
 
 import type {
     ConfigAuthFailureAction,
@@ -9,6 +9,7 @@ import type {
     SetAppConfigAction,
     SetManagementClientAction,
     SetSTSClientAction,
+    SetThemeAction,
     ThunkNonStateAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
@@ -63,6 +64,13 @@ export function loadClientsSuccess(): LoadClientsSuccessAction {
 export function configAuthFailure(): ConfigAuthFailureAction {
     return {
         type: 'CONFIG_AUTH_FAILURE',
+    };
+}
+
+export function setTheme(theme: Theme): SetThemeAction {
+    return {
+        type: 'SET_THEME',
+        theme,
     };
 }
 

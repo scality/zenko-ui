@@ -1,5 +1,5 @@
 // @flow
-import type { AppConfig, InstanceId } from './entities';
+import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
 import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
@@ -93,6 +93,10 @@ export type StatsState = {|
     +allStats: StatsSeries,
 |};
 
+export type ConfigUIState = {|
+    +theme: Theme,
+|};
+
 export type S3State = {|
     +listBucketsResults: {|
         +list: S3BucketList,
@@ -141,6 +145,7 @@ export type AppState = {
     +uiLocations: LocationsUIState,
     +uiAccounts: AccountsUIState,
     +uiBuckets: BucketsUIState,
+    +uiConfig: ConfigUIState,
     +uiObjects: ObjectsUIState,
     +stats: StatsState,
     +s3: S3State,

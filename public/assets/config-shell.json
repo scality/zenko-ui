@@ -15,7 +15,8 @@
     },
     "subLogin": {}
   },
-  "logo" : { "dark": "/logo-dark.svg" },
+  "logo" : { "dark": "/logos/logo-dark.svg", "darkRebrand": "/logos/logo-darkRebrand.svg" },
   "favicon": "",
-  "providerLogout": true
+  "providerLogout": true,
+  "canChangeTheme": true
 }

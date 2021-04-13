@@ -6,6 +6,7 @@ import {
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
     LATEST_OVERLAY,
+    THEME,
     WORKFLOWS,
 } from './testUtil';
 
@@ -43,6 +44,7 @@ import type {
     SetAppConfigAction,
     SetManagementClientAction,
     SetSTSClientAction,
+    SetThemeAction,
     SetZenkoClientAction,
     ToggleAllObjectsAction,
     ToggleObjectAction,
@@ -92,6 +94,9 @@ export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction =
 
 export const SELECT_ACCOUNT_ACTION: SelectAccountAction =
     { type: 'SELECT_ACCOUNT', account: ACCOUNT };
+
+export const SET_THEME_ACTION: SetThemeAction =
+    { type: 'SET_THEME', theme: THEME };
 
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {

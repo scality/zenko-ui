@@ -4,6 +4,7 @@ import * as dispatchAction from './utils/dispatchActionsList';
 import {
     APP_CONFIG,
     INSTANCE_ID,
+    THEME,
     initState,
     testActionFunction,
     testDispatchFunction,
@@ -48,6 +49,11 @@ describe('auth actions', () => {
             it: 'should return CONFIG_AUTH_FAILURE action',
             fn: actions.configAuthFailure(),
             expectedActions: [dispatchAction.CONFIG_AUTH_FAILURE_ACTION],
+        },
+        {
+            it: 'should return SET_THEME action',
+            fn: actions.setTheme(THEME),
+            expectedActions: [dispatchAction.SET_THEME_ACTION],
         },
     ];
 

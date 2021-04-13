@@ -10,7 +10,6 @@ import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { theme } from '../theme';
 
 type Props = {
     account: ?Account,
@@ -20,6 +19,7 @@ const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' ti
 
 function AccountDetails({ account }: Props) {
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
+    const theme = useSelector((state: AppState) => state.uiConfig.theme);
     const dispatch = useDispatch();
     const { path, url } = useRouteMatch();
 

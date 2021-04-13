@@ -1,6 +1,6 @@
 // @flow
 
-import type { AppConfig, InstanceId } from './entities';
+import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
@@ -77,6 +77,11 @@ export type LoadClientsSuccessAction = {|
 export type SelectAccountAction = {|
     +type: 'SELECT_ACCOUNT',
     +account: Account,
+|};
+
+export type SetThemeAction = {|
+    +type: 'SET_THEME',
+    +theme: Theme,
 |};
 
 export type AuthAction =
@@ -370,6 +375,7 @@ export type Action =
     NetworkActivityAction |
     ConfigurationAction |
     AccountUIAction |
+    SetThemeAction |
     StatsAction |
     WorkflowUIAction |
     WorkflowAction |

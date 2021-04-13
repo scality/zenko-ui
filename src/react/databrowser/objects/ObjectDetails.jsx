@@ -12,7 +12,6 @@ import React from 'react';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { theme } from '../../theme';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../../utils/hooks';
 
@@ -45,6 +44,7 @@ function ObjectDetails({ toggled, listType }: Props) {
     const query = useQuery();
     const { pathname } = useLocation();
     const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
+    const theme = useSelector((state: AppState) => state.uiConfig.theme);
 
     const tabName = query.get('tab');
 

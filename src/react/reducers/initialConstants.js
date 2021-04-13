@@ -20,6 +20,7 @@ import { LIST_OBJECTS_S3_TYPE } from '../../react/utils/s3';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
+import { defaultTheme } from '@scality/core-ui/dist/style/theme';
 
 export const initialAccountState: AccountState = {
     display: {},
@@ -34,6 +35,12 @@ export const initialAuthState: AuthState = {
     stsClient: new MockSTSClient(),
     managementClient: new MockManagementClient(),
     config: {
+    },
+};
+
+export const initialConfigUIState = {
+    theme: {
+        brand: defaultTheme.darkRebrand,
     },
 };
 
@@ -201,6 +208,7 @@ export const initialFullState = {
     secrets: initialSecretsState,
     stats: initialStatsState,
     uiAccounts: initialAccountsUIState,
+    uiConfig: initialConfigUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
     uiObjects: initialObjectUIState,

@@ -5,9 +5,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ThemeProvider } from 'styled-components';
 import ZenkoUI from './ZenkoUI';
-import { theme } from './theme';
 
 // const whyDidYouRender = require('@welldone-software/why-did-you-render');
 // whyDidYouRender(React, {
@@ -20,9 +18,7 @@ import { theme } from './theme';
 ReactDOM.render(
     <Provider store={store}>
         <ConnectedRouter history={history}>
-            <ThemeProvider theme={theme}>
-                <ZenkoUI/>
-            </ThemeProvider>
+            <ZenkoUI/>
         </ConnectedRouter>
     </Provider>,
     document.getElementById('app'));
