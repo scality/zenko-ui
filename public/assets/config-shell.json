@@ -1,9 +1,9 @@
 {
   "docUrl": "/docs",
   "oidc": {
-    "providerUrl": "http://keycloak.zenko.local/auth/realms/zenko",
+    "providerUrl": "http://127.0.0.1:8080/auth/realms/myrealm",
     "redirectUrl": "http://127.0.0.1:8383",
-    "clientId": "zenko-ui",
+    "clientId": "myclient",
     "responseType": "code",
     "scopes": "openid profile email roles"
   },
