@@ -13,6 +13,7 @@ type Props = {
 function Properties({ account }: Props) {
     return (
         <div>
+            <h3>Account details</h3>
             <Table id='account-details-table'>
                 <T.Body>
                     <T.Row>
