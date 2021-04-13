@@ -1,17 +1,17 @@
 {
   "docUrl": "/docs",
   "oidc": {
-    "providerUrl": "http://keycloak.zenko.local/auth/realms/zenko",
-    "redirectUrl": "http://ui.zenko.local",
-    "clientId": "zenko-ui",
+    "providerUrl": "http://127.0.0.1:8080/auth/realms/myrealm",
+    "redirectUrl": "http://127.0.0.1:8383",
+    "clientId": "myclient",
     "responseType": "code",
     "scopes": "openid profile email roles"
   },
   "options": {
     "main": {
-        "http://ui.zenko.local/accounts":{ "en": "Accounts", "fr": "Accounts" },
-        "http://ui.zenko.local/buckets":{ "en": "Data Browser", "fr": "Data Browser" },
-        "http://ui.zenko.local/workflows":{ "en": "Workflows", "fr": "Workflows" }
+        "http://127.0.0.1:8383/accounts":{ "en": "Accounts", "fr": "Accounts" },
+        "http://127.0.0.1:8383/buckets":{ "en": "Data Browser", "fr": "Data Browser" },
+        "http://127.0.0.1:8383/workflows":{ "en": "Workflows", "fr": "Workflows" }
     },
     "subLogin": {}
   },
