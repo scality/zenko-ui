@@ -1,29 +1,30 @@
 // @flow
 import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
 import type { ReplicationBucketOption, ReplicationForm } from '../../../types/replication';
-import type { BucketList } from '../../../types/stats';
 import React from 'react';
+import type { S3BucketList } from '../../../types/s3';
 import type { SelectOption } from '../../../types/ui';
 import { getLocationTypeShort } from '../../utils/storageOptions';
 import { storageOptions } from '../../backend/location/LocationDetails';
 
-export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: BucketList, locations: Locations): Array<ReplicationBucketOption> => {
+export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3BucketList, locations: Locations): Array<ReplicationBucketOption> => {
     const bucketsUsedForReplication = streams.map(
         stream => stream.source.bucketName);
     const buckets = bucketList.map(b => {
-        const locationType = locations[b.location]
+        const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
+        const locationType = locations[constraint]
             .locationType;
         const { supportsReplicationSource } =
             storageOptions[locationType];
         return {
-            label: b.name,
-            value: b.name,
-            location: b.location,
-            disabled: bucketsUsedForReplication.indexOf(b.name) > -1 ||
+            label: b.Name,
+            value: b.Name,
+            location: constraint,
+            disabled: bucketsUsedForReplication.indexOf(b.Name) > -1 ||
                 !supportsReplicationSource,
         };
     });
-    return buckets;
+    return buckets.toArray();
 };
 
 export const destinationOptions = (locations: Locations): Array<SelectOption> => {
@@ -88,7 +89,7 @@ export function newReplicationStream(): ReplicationStream {
     };
 }
 
-export function convertToReplicationForm(r: ReplicationStream): ReplicationForm {
+export function convertToReplicationForm(r: ?ReplicationStream): ReplicationForm {
     if (!r) {
         return newReplicationForm();
     }

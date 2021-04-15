@@ -1,18 +1,17 @@
-// @noflow
+// @flow
 import * as T from '../../ui-elements/TableKeyValue2';
 import { Button, Select, Toggle } from '@scality/core-ui';
 import { Controller, useForm } from 'react-hook-form';
-import type { Locations, Replication as ReplicationStream } from '../../../config';
-import { NoBucketWarning, NoLocationWarning } from '../../ui-elements/Warning';
+import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
 import React, { useEffect } from 'react';
 import { checkIfExternalLocation, checkSupportsReplicationTarget } from '../../utils/storageOptions';
 import { convertToReplicationForm, convertToReplicationStream, destinationOptions, generateStreamName, newReplicationForm, renderDestination, renderSource, sourceBucketOptions } from './utils';
 import { openWorkflowEditNotification, saveReplication } from '../../actions';
-import type { BucketList } from '../../../stats';
 import { ErrorInput } from '../../ui-elements/FormLayout';
 import Input from '../../ui-elements/Input';
 import Joi from '@hapi/joi';
-import type { ReplicationStreams } from '../../../types/replication';
+import { NoLocationWarning } from '../../ui-elements/Warning';
+import type { S3BucketList } from '../../../types/s3';
 import { joiResolver } from '@hookform/resolvers';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -50,7 +49,7 @@ const schema = Joi.object({
 
 type Props = {
     streams: ReplicationStreams,
-    bucketList: BucketList,
+    bucketList: S3BucketList,
     locations: Locations,
     workflowDetails: ?ReplicationStream,
     showEditWorkflowNotification: boolean,
@@ -90,12 +89,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     };
 
     // TODO: make sure we do not delete bucket or location if replication created.
-    if (bucketList.length === 0) {
-        return <NoBucketWarning/>;
-    }
-
-    if (bucketList.length > 0 && (!checkIfExternalLocation(locations) ||
-        !checkSupportsReplicationTarget(locations))) {
+    if (!checkIfExternalLocation(locations) || !checkSupportsReplicationTarget(locations)) {
         return <NoLocationWarning/>;
     }
 
@@ -188,6 +182,10 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                                         const isEditing = !!getValues('streamId');
                                         const result = options.find(l => l.value === sourceBucket.value);
                                         if (isEditing) {
+                                            // TODO: To be removed once retrieving workflows per account:
+                                            if (!result) {
+                                                return <span> {sourceBucket.value} <small>(depreciated because entity does not exist) </small> </span>;
+                                            }
                                             return renderSource(locations)(result);
                                         }
                                         return <Select

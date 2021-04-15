@@ -2,11 +2,11 @@
 import { Banner, Button } from '@scality/core-ui';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/TableKeyValue2';
-import type { BucketList } from '../../../stats';
 import type { Locations } from '../../../config';
 import Replication from '../replication/Replication';
 import type { ReplicationStreams } from '../../../types/replication';
 import type { Rule } from '../../../types/config';
+import type { S3BucketList } from '../../../s3';
 import { deleteReplication } from '../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -19,7 +19,7 @@ const TableContainer = styled.div`
 type Props = {
     ruleDetails: Rule,
     streams: ReplicationStreams,
-    bucketList: BucketList,
+    bucketList: S3BucketList,
     locations: Locations,
     showEditWorkflowNotification: boolean,
     loading: boolean,
