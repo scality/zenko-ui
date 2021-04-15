@@ -13,12 +13,14 @@ const ErrorHandlerModal = () => {
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
     const dispatch: DispatchAPI<Action> = useDispatch();
 
+    const close = () => dispatch(clearError());
+
     if (!showError) {
         return null;
     }
     return (
         <Modal
-            close={() => dispatch(clearError())}
+            close={close}
             footer={<Button variant="secondary" onClick={close} size="small" text="Close"/>}
             isOpen={true}
             title="Error">
