@@ -1,7 +1,7 @@
 import * as T from '../../ui-elements/Table';
 import AccountList from '../AccountList';
 import React from 'react';
-import { formatDate } from '../../utils';
+import { formatSimpleDate } from '../../utils';
 import { reduxMount } from '../../utils/test';
 import router from 'react-router';
 
@@ -50,21 +50,21 @@ describe('AccountList', () => {
         const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
         expect(firstRowColumns.length).toEqual(2);
         expect(firstRowColumns[0]).toEqual(account1.userName);
-        expect(firstRowColumns[1]).toEqual(formatDate(new Date(account1.createDate)));
+        expect(firstRowColumns[1]).toEqual(formatSimpleDate(new Date(account1.createDate)));
 
         const secondRow = rows.at(1);
         expect(secondRow.prop('isSelected')).toEqual(false);
         const secondRowColumns = secondRow.find(T.Cell).map(column => column.text());
         expect(secondRowColumns.length).toEqual(2);
         expect(secondRowColumns[0]).toEqual(account2.userName);
-        expect(secondRowColumns[1]).toEqual(formatDate(new Date(account2.createDate)));
+        expect(secondRowColumns[1]).toEqual(formatSimpleDate(new Date(account2.createDate)));
 
         const thirdRow = rows.last();
         expect(thirdRow.prop('isSelected')).toEqual(true);
         const thirdRowColumns = rows.last().find(T.Cell).map(column => column.text());
         expect(thirdRowColumns.length).toEqual(2);
         expect(thirdRowColumns[0]).toEqual(account3.userName);
-        expect(thirdRowColumns[1]).toEqual(formatDate(new Date(account3.createDate)));
+        expect(thirdRowColumns[1]).toEqual(formatSimpleDate(new Date(account3.createDate)));
     });
 
 });
