@@ -25,6 +25,7 @@ export type S3BucketList = List<S3Bucket>;
 export type S3Bucket = {|
     +CreationDate: string,
     +Name: string,
+    +LocationConstraint: string,
 |};
 
 export type S3Object = {|
