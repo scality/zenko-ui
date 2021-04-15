@@ -28,7 +28,11 @@ const columns = [
         Header: 'Created on',
         accessor: 'createDate',
         headerStyle: { textAlign: 'right' },
-        Cell: ({ value }) => <div style={{ textAlign: 'right' }}>{formatSimpleDate(new Date(value))}</div>,
+        Cell({ value: date }: { value: number }) {
+            return <div style={{ textAlign: 'right' }}>
+                {formatSimpleDate(new Date(date))}
+            </div>;
+        },
     },
 ];
 
