@@ -28,7 +28,7 @@ function WorkflowContent({ createMode, ruleDetails }: Props) {
     const query = useQuery();
     const { pathname } = useLocation();
     const streams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
-    const bucketList = useSelector((state: AppState) => state.stats.bucketList);
+    const bucketList = useSelector((state: AppState) => state.s3.listBucketsResults.list);
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
     const showEditWorkflowNotification = useSelector((state: AppState) => state.uiWorkflows.showEditWorkflowNotification);
     const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
