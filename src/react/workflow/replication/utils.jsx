@@ -89,7 +89,7 @@ export function newReplicationStream(): ReplicationStream {
     };
 }
 
-export function convertToReplicationForm(r: ReplicationStream): ReplicationForm {
+export function convertToReplicationForm(r: ?ReplicationStream): ReplicationForm {
     if (!r) {
         return newReplicationForm();
     }

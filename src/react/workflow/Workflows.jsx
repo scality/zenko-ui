@@ -19,24 +19,36 @@ export default function Workflows(){
     const createMode = pathname === '/create-workflow';
     const accountName = useSelector((state: AppState) => state.auth.selectedAccount && state.auth.selectedAccount.userName);
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
+    const bucketList = useSelector((state: AppState) => state.s3.listBucketsResults.list);
 
     if (accounts.length === 0) {
         return <EmptyStateContainer>
             <Warning
                 centered={true}
                 iconClass="fas fa-5x fa-wallet"
-                title='Before browsing your workflows, create your first account.'
+                title='Before browsing your workflow rules, create your first account.'
                 btnTitle='Create Account'
                 btnAction={() => dispatch(push('/create-account'))} />
         </EmptyStateContainer>;
     }
 
     const content = () => {
+        if (bucketList.size === 0) {
+            return <EmptyStateContainer>
+                <Warning
+                    centered={true}
+                    iconClass="fas fa-5x fa-wallet"
+                    title='Before browsing your workflow rules, create your first bucket.'
+                    btnTitle='Create Bucket'
+                    btnAction={() => dispatch(push('/create-bucket'))} />
+            </EmptyStateContainer>;
+        }
         if (!createMode && rules.length === 0) {
             return <EmptyStateContainer>
                 <Warning
+                    centered={true}
                     iconClass="fas fa-5x fa-wallet"
-                    title='Before browsing your rules, create your first rule.'
+                    title='Before browsing your workflow rules, create your first rule.'
                     btnTitle='Create Rule'
                     btnAction={() => dispatch(push('/create-workflow'))} />
             </EmptyStateContainer>;
@@ -48,7 +60,7 @@ export default function Workflows(){
         }
         return <L.Body>
             <WorkflowList createMode={createMode} ruleId={ruleId} rules={rules}/>
-            <WorkflowContent createMode={createMode} ruleDetails={rules.find(r => r.id === ruleId)}/>
+            <WorkflowContent bucketList={bucketList} createMode={createMode} ruleDetails={rules.find(r => r.id === ruleId)}/>
         </L.Body>;
     };
 
