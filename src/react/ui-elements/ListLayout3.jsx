@@ -25,8 +25,6 @@ export const Body = styled.div`
     flex: 1;
     flex-direction: row;
     width: 100%;
-
-    margin: 10px 0px;
 `;
 
 export const ListSection = styled.div`

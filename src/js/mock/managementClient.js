@@ -34,7 +34,6 @@ export const latestOverlay: ConfigurationOverlay = {
     users: [ account ],
     locations: { 'location1': location },
     endpoints: [],
-    replicationStreams: [],
 };
 
 export class MockManagementClient implements ManagementClientInterface {

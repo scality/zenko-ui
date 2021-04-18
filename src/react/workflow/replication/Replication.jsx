@@ -48,15 +48,15 @@ const schema = Joi.object({
 });
 
 type Props = {
-    streams: ReplicationStreams,
+    replications: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
-    workflowDetails: ?ReplicationStream,
+    workflow: ?ReplicationStream,
     showEditWorkflowNotification: boolean,
     createMode: boolean,
     loading: boolean,
 };
-function Replication({ streams, bucketList, locations, workflowDetails, showEditWorkflowNotification, createMode, loading }: Props) {
+function Replication({ replications, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
     const dispatch = useDispatch();
 
     const { register, handleSubmit, errors, control, reset, getValues } = useForm({
@@ -65,8 +65,8 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     });
 
     useEffect(() => {
-        reset(convertToReplicationForm(workflowDetails)); // asynchronously reset form values
-    }, [reset, workflowDetails]);
+        reset(convertToReplicationForm(workflow)); // asynchronously reset form values
+    }, [reset, workflow]);
 
     const onSubmit = (values) => {
         let stream = values;
@@ -96,16 +96,6 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     return (
         <ReplicationContainer>
             <T.Groups>
-                <T.Group>
-                    <T.GroupContent>
-                        <T.Row>
-                            <T.Key principal={true}> Rule Type </T.Key>
-                            <T.Value>
-                                Replication
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
                 <T.Group>
                     <T.GroupName>
                         General
@@ -178,7 +168,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                                     id='sourceBucket'
                                     name='sourceBucket'
                                     render={({ onChange, value: sourceBucket }) => {
-                                        const options = sourceBucketOptions(streams, bucketList, locations);
+                                        const options = sourceBucketOptions(replications, bucketList, locations);
                                         const isEditing = !!getValues('streamId');
                                         const result = options.find(l => l.value === sourceBucket.value);
                                         if (isEditing) {

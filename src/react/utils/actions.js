@@ -8,3 +8,7 @@ export function getClients(state) {
         stsClient: state.auth.stsClient,
     };
 }
+
+export function getAccountId(state): ?string {
+    return state.auth.selectedAccount?.id;
+}

@@ -18,6 +18,7 @@ import uiObjects from './uiObjects';
 import uiUser from './uiUser';
 import uiWorkflows from './uiWorkflows';
 import user from './user';
+import workflow from './workflow';
 import zenko from './zenko';
 
 const zenkoUIReducer = history => combineReducers({
@@ -40,6 +41,7 @@ const zenkoUIReducer = history => combineReducers({
     stats,
     oidc,
     router: connectRouter(history),
+    workflow,
     zenko: zenko,
 });
 

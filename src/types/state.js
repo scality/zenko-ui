@@ -2,7 +2,7 @@
 import type { AppConfig, InstanceId } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
-import type { ConfigurationOverlay, LocationName, Rules } from './config';
+import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
@@ -12,6 +12,7 @@ import type { ManagementClient as ManagementClientInterface } from './management
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
 import type { User } from './user';
+import type { Workflows } from './workflow';
 
 export type IAMResp = {};
 
@@ -48,7 +49,6 @@ export type ErrorsUIState = {|
 
 export type ConfigurationState = {|
     +latest: ConfigurationOverlay,
-    +rules: Rules,
 |};
 
 export type AccountState = {|
@@ -108,6 +108,11 @@ export type S3State = {|
     +objectMetadata: ?ObjectMetadata,
 |};
 
+export type WorkflowState = {|
+    list: Workflows,
+    replications: ReplicationStreams,
+|};
+
 export type WorkflowsUIState ={|
     showEditWorkflowNotification: boolean,
 |};
@@ -140,5 +145,6 @@ export type AppState = {
     +stats: StatsState,
     +s3: S3State,
     +uiWorkflows: WorkflowsUIState,
+    +workflow: WorkflowState,
     +zenko: ZenkoState,
 };

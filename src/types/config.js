@@ -18,13 +18,11 @@ export type Location = {|
 
 export type DestinationLocations = Array<TargetLocationObject>;
 
-
 export type Locations = $ReadOnly<PerLocationMap<Location>>;
 
 // replications
 export type TargetLocationObject = {|
     name: string,
-    storageClass: string,
 |};
 
 export type ReplicationSource = {|
@@ -40,22 +38,10 @@ export type Replication = {|
     +enabled: boolean,
     +source: ReplicationSource,
     +destination: {|
-        +bucketName?: string,
         +locations: Array<TargetLocationObject>,
         +preferredReadLocation?: string | null,
     |},
 |};
-
-// rules (replication/expiration/transition rules)
-export type Rule = {|
-    +id: string,
-    +type: 'replication' | 'transition' | 'expiration',
-    +name: string,
-    +state: boolean,
-    +ruleId: string,
-|};
-
-export type Rules = Array<Rule>;
 
 // endpoints
 export type Hostname = string;
@@ -71,7 +57,6 @@ export type ReplicationStreams = Array<Replication>;
 export type ConfigurationOverlay = {|
     +users: Array<Account>,
     +locations: Locations,
-    +replicationStreams: ReplicationStreams;
     +endpoints: Array<Endpoint>,
 |};
 
