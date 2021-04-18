@@ -125,7 +125,7 @@ export function convertToReplicationStream(r: ReplicationForm): ReplicationStrea
             bucketName: r.sourceBucket.value || '',
         },
         destination: {
-            locations: [{ name: r.destinationLocation.value || '', storageClass: 'standard' }] || [],
+            locations: [{ name: r.destinationLocation.value || '' }] || [],
             preferredReadLocation: r.preferredReadLocation,
         },
     };

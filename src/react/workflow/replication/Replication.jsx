@@ -99,7 +99,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                 <T.Group>
                     <T.GroupContent>
                         <T.Row>
-                            <T.Key principal={true}> Rule Type </T.Key>
+                            <T.Key principal={true}> Workflow Type </T.Key>
                             <T.Value>
                                 Replication
                             </T.Value>

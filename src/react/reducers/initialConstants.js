@@ -12,6 +12,7 @@ import type {
     OIDCState,
     ObjectsUIState,
     S3State,
+    WorkflowState,
     WorkflowsUIState,
 } from '../../types/state';
 import { List, Map } from 'immutable';
@@ -185,6 +186,10 @@ export const initialWorkflowsUIState: WorkflowsUIState = {
     showEditWorkflowNotification: false,
 };
 
+export const initialWorkflowState: WorkflowState = {
+    list: [],
+};
+
 export const initialFullState = {
     account: initialAccountState,
     auth: initialAuthState,
@@ -204,5 +209,6 @@ export const initialFullState = {
     uiWorkflows: initialWorkflowsUIState,
     user: initialUserState,
     oidc: initialOidc,
+    workflow: initialWorkflowState,
     zenko: initialZenkoState,
 };

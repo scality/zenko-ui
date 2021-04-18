@@ -1,28 +1,31 @@
 // @noflow
-import type { Replication, Rule } from '../../types/config';
+import { closeWorkflowEditNotification, searchWorkflows } from './workflow';
+import { getAccountId, getClients } from '../utils/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import type { Replication } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
-import { closeWorkflowEditNotification } from './workflow';
-import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
-import { updateConfiguration } from './configuration';
 
 // TODO: Add delete approval process
-export function deleteReplication(rule: Rule): ThunkStatePromisedAction {
+export function deleteReplication(replication: Replication): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { managementClient, instanceId } = getClients(getState());
+        const state = getState();
+        const { managementClient, instanceId } = getClients(state);
+        const accountId = getAccountId(state);
         dispatch(networkStart('Deleting replication'));
         const params = {
-            uuid: instanceId,
-            streamId: rule.ruleId,
+            bucketName: replication.source.bucketName,
+            instanceId,
+            accountId,
+            workflowId: replication.streamId,
         };
-        return managementClient.deleteConfigurationOverlayReplicationStream(params)
-            .then(() => dispatch(updateConfiguration()))
+        return managementClient.deleteBucketWorkflowReplication(params)
             .then(() => {
-                dispatch(push('/workflows'));
                 dispatch(closeWorkflowEditNotification());
+                return dispatch(searchWorkflows());
             })
+            .then(() => dispatch(push('/workflows')))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
@@ -31,21 +34,27 @@ export function deleteReplication(rule: Rule): ThunkStatePromisedAction {
 
 export function saveReplication(replication: Replication): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { managementClient, instanceId } = getClients(getState());
+        const state = getState();
+        const { managementClient, instanceId } = getClients(state);
+        const accountId = getAccountId(state);
         dispatch(networkStart('Creating replication'));
         const params = {
-            uuid: instanceId,
-            replicationStream: replication,
+            instanceId,
+            workflow: replication,
+            bucketName: replication.source.bucketName,
+            accountId,
         };
         const op = replication.streamId ?
-            managementClient.updateConfigurationOverlayReplicationStream({ ...params, streamId: replication.streamId }) :
-            managementClient.createConfigurationOverlayReplicationStream(params);
-        return op.then(rep => {
-            return Promise.all([rep, dispatch(updateConfiguration())]);
-        }).then(([rep]) => {
-            dispatch(closeWorkflowEditNotification());
-            dispatch(push(`/workflows/replication-${rep.body.streamId}`));
+            managementClient.updateBucketWorkflowReplication({ ...params, workflowId: replication.streamId }) :
+            managementClient.createBucketWorkflowReplication(params);
+        return op.then(resp => {
+            return Promise.all([
+                resp,
+                dispatch(closeWorkflowEditNotification()),
+                dispatch(searchWorkflows()),
+            ]);
         })
+            .then(([resp]) => dispatch(push(`/workflows/replication-${resp.body.streamId}`)))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

@@ -53,7 +53,7 @@ function PrivateRoutes() {
 
             <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
 
-            <Route path={['/create-workflow', '/workflows/:ruleId?']} component={Workflows} />
+            <Route path={['/create-workflow', '/workflows/:workflowId?']} component={Workflows} />
 
             <Route path="*" component={NoMatch}/>
         </Switch>

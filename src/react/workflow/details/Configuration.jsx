@@ -1,12 +1,12 @@
 // @noflow
 import { Banner, Button } from '@scality/core-ui';
-import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/TableKeyValue2';
 import type { Locations } from '../../../config';
+import React from 'react';
 import Replication from '../replication/Replication';
 import type { ReplicationStreams } from '../../../types/replication';
-import type { Rule } from '../../../types/config';
 import type { S3BucketList } from '../../../s3';
+import type { Workflow } from '../../types/workflow';
 import { deleteReplication } from '../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -17,23 +17,23 @@ const TableContainer = styled.div`
 `;
 
 type Props = {
-    ruleDetails: Rule,
+    wfDetails: Workflow,
     streams: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
     showEditWorkflowNotification: boolean,
     loading: boolean,
 };
-function Configuration({ ruleDetails, streams, bucketList, locations, showEditWorkflowNotification }: Props) {
+function Configuration({ wfDetails, streams, bucketList, locations, showEditWorkflowNotification }: Props) {
     const dispatch = useDispatch();
 
-    const deleteWorkflow = (ruleDetails) => {
-        dispatch(deleteReplication(ruleDetails));
-    };
-    const workflowDetails = useMemo(() => {
-        return streams.find(s => s.streamId === ruleDetails.ruleId);
-    }, [streams, ruleDetails]);
+    const { item } = wfDetails;
 
+    const deleteWorkflow = (item) => {
+        dispatch(deleteReplication(item));
+    };
+
+    // TODO: Adapt it to handle the other workflow types; For now only replication workflow is supported.
     return (
         <TableContainer>
             <Table id=''>
@@ -47,9 +47,9 @@ function Configuration({ ruleDetails, streams, bucketList, locations, showEditWo
                                 If you leave this screen without saving, your changes will be lost.
                             </Banner>
                         </T.BannerContainer>
-                        <Button icon={<i className="fas fa-trash" />} text="Delete Rule" variant='danger' onClick={() => deleteWorkflow(ruleDetails)} />
+                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(item)} />
                     </T.Header>
-                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflowDetails={workflowDetails} streams={streams} bucketList={bucketList} locations={locations} createMode={false} />
+                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflowDetails={item} streams={streams} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>
             </Table>
         </TableContainer>

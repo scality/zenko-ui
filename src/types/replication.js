@@ -1,8 +1,4 @@
 // @flow
-export type TargetLocationObject = {|
-    name: string,
-    storageClass: string,
-|};
 
 export type ReplicationBucketOption = {|
     +label: string,
