@@ -51,12 +51,12 @@ type Props = {
     streams: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
-    workflowDetails: ?ReplicationStream,
+    workflow: ?ReplicationStream,
     showEditWorkflowNotification: boolean,
     createMode: boolean,
     loading: boolean,
 };
-function Replication({ streams, bucketList, locations, workflowDetails, showEditWorkflowNotification, createMode, loading }: Props) {
+function Replication({ streams, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
     const dispatch = useDispatch();
 
     const { register, handleSubmit, errors, control, reset, getValues } = useForm({
@@ -65,8 +65,8 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     });
 
     useEffect(() => {
-        reset(convertToReplicationForm(workflowDetails)); // asynchronously reset form values
-    }, [reset, workflowDetails]);
+        reset(convertToReplicationForm(workflow)); // asynchronously reset form values
+    }, [reset, workflow]);
 
     const onSubmit = (values) => {
         let stream = values;

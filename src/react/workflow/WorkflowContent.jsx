@@ -18,14 +18,14 @@ import { useQuery } from '../utils/hooks';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 
 type Props = {
-    wfDetails: ?Workflow,
+    wfSelected: ?Workflow,
     createMode: boolean,
     bucketList: S3BucketList,
 };
 
 export const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
 
-function WorkflowContent({ createMode, wfDetails, bucketList }: Props) {
+function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
     const dispatch = useDispatch();
     const query = useQuery();
     const { pathname } = useLocation();
@@ -36,8 +36,23 @@ function WorkflowContent({ createMode, wfDetails, bucketList }: Props) {
 
     const tabName = query.get('tab');
 
+    if (createMode) {
+        return (
+            <ContentSection>
+                <CreationSection>
+                    <Table id=''>
+                        <T.Body autoComplete='off'>
+                            <Title> create new Workflow </Title>
+                            <Replication loading={loading} showEditWorkflowNotification={false} workflow={null} streams={streams} bucketList={bucketList} locations={locations} createMode={true} />
+                        </T.Body>
+                    </Table>
+                </CreationSection>
+            </ContentSection>
+        );
+    }
+
     const details = () => {
-        if (!wfDetails) {
+        if (!wfSelected) {
             return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE}/>;
         }
         if (!tabName) {
@@ -46,26 +61,11 @@ function WorkflowContent({ createMode, wfDetails, bucketList }: Props) {
                 streams={streams}
                 bucketList={bucketList}
                 locations={locations}
-                wfDetails={wfDetails}
+                wfSelected={wfSelected}
                 loading={loading} />;
         }
         return null;
     };
-
-    if (createMode) {
-        return (
-            <ContentSection>
-                <CreationSection>
-                    <Table id=''>
-                        <T.Body autoComplete='off'>
-                            <Title> create new Workflow </Title>
-                            <Replication loading={loading} showEditWorkflowNotification={false} workflowDetails={null} streams={streams} bucketList={bucketList} locations={locations} createMode={true} />
-                        </T.Body>
-                    </Table>
-                </CreationSection>
-            </ContentSection>
-        );
-    }
 
     return (
         <ContentSection>

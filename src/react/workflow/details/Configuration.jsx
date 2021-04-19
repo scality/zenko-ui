@@ -17,17 +17,17 @@ const TableContainer = styled.div`
 `;
 
 type Props = {
-    wfDetails: Workflow,
+    wfSelected: Workflow,
     streams: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
     showEditWorkflowNotification: boolean,
     loading: boolean,
 };
-function Configuration({ wfDetails, streams, bucketList, locations, showEditWorkflowNotification }: Props) {
+function Configuration({ wfSelected, streams, bucketList, locations, showEditWorkflowNotification }: Props) {
     const dispatch = useDispatch();
 
-    const { item } = wfDetails;
+    const { item } = wfSelected;
 
     const deleteWorkflow = (item) => {
         dispatch(deleteReplication(item));
@@ -49,7 +49,7 @@ function Configuration({ wfDetails, streams, bucketList, locations, showEditWork
                         </T.BannerContainer>
                         <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(item)} />
                     </T.Header>
-                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflowDetails={item} streams={streams} bucketList={bucketList} locations={locations} createMode={false} />
+                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflow={item} streams={streams} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>
             </Table>
         </TableContainer>

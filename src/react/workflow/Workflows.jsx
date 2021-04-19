@@ -59,7 +59,7 @@ export default function Workflows(){
         }
         return <L.Body>
             <WorkflowList createMode={createMode} workflowId={workflowId} workflows={workflows}/>
-            <WorkflowContent bucketList={bucketList} createMode={createMode} wfDetails={workflows.find(w => w.id === workflowId)}/>
+            <WorkflowContent bucketList={bucketList} createMode={createMode} wfSelected={workflows.find(w => w.id === workflowId)}/>
         </L.Body>;
     };
 
