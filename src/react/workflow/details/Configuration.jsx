@@ -1,12 +1,11 @@
-// @noflow
+// @flow
 import { Banner, Button } from '@scality/core-ui';
+import type { Locations, ReplicationStreams } from '../../../types/config';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/TableKeyValue2';
-import type { Locations } from '../../../config';
 import Replication from '../replication/Replication';
-import type { ReplicationStreams } from '../../../types/replication';
-import type { S3BucketList } from '../../../s3';
-import type { Workflow } from '../../types/workflow';
+import type { S3BucketList } from '../../../types/s3';
+import type { Workflow } from '../../../types/workflow';
 import { deleteReplication } from '../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -24,11 +23,12 @@ type Props = {
     showEditWorkflowNotification: boolean,
     loading: boolean,
 };
-function Configuration({ wfSelected, replications, bucketList, locations, showEditWorkflowNotification }: Props) {
+function Configuration({ wfSelected, replications, bucketList, locations, showEditWorkflowNotification, loading }: Props) {
     const dispatch = useDispatch();
+    const { workflowId } = wfSelected;
     const replication = useMemo(() => {
-        return replications.map(r => r.id === wfSelected.streamId);
-    }, [replications, wfSelected]);
+        return replications.find(r => r.streamId === workflowId);
+    }, [replications, workflowId]);
 
     const deleteWorkflow = (item) => {
         dispatch(deleteReplication(item));
@@ -50,7 +50,7 @@ function Configuration({ wfSelected, replications, bucketList, locations, showEd
                         </T.BannerContainer>
                         <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(replication)} />
                     </T.Header>
-                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
+                    <Replication loading={loading} replications={replications} showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>
             </Table>
         </TableContainer>

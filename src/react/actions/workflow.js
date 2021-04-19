@@ -40,11 +40,11 @@ export function searchWorkflowsSuccess(workflows: APIWorkflows): SearchWorkflows
 //                     enabled: true,
 //                     source: {
 //                         prefix: 'myprefix',
-//                         bucketName: 'mybucket',
+//                         bucketName: 'bucket0',
 //                     },
 //                     destination: {
-//                         locations: [{ name: 'location-name' }],
-//                         preferredReadLocation: 'location-name',
+//                         locations: [{ name: 's3-loc' }],
+//                         preferredReadLocation: 's3-loc',
 //                     },
 //                 },
 //             },
@@ -56,7 +56,7 @@ export function searchWorkflowsSuccess(workflows: APIWorkflows): SearchWorkflows
 //                     enabled: false,
 //                     source: {
 //                         prefix: 'myprefix2',
-//                         bucketName: 'mybucket2',
+//                         bucketName: 'bucket2',
 //                     },
 //                     destination: {
 //                         locations: [{ name: 'location-name2' }],
