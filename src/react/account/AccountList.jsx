@@ -7,6 +7,7 @@ import type { Account } from '../../types/account';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout';
+import { TextAligner } from '../ui-elements/Utility';
 import { formatSimpleDate } from '../utils';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
@@ -29,9 +30,9 @@ const columns = [
         accessor: 'createDate',
         headerStyle: { textAlign: 'right' },
         Cell({ value: date }: { value: number }) {
-            return <div style={{ textAlign: 'right' }}>
-                {formatSimpleDate(new Date(date))}
-            </div>;
+            return <TextAligner alignment='right'>
+                { formatSimpleDate(new Date(date)) }
+            </TextAligner>;
         },
     },
 ];

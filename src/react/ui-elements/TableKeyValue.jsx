@@ -42,7 +42,7 @@ export const ExtraCell = styled.td`
 `;
 
 const Table = styled.table`
-    border-spacing: 0;
+    border-spacing: 0px;
     width: 100%;
 `;
 
