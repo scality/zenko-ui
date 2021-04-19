@@ -5,7 +5,8 @@ import type {
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import type { ConfigurationOverlay, Location } from '../../types/config';
+import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
+import type { APIWorkflows } from '../../types/workflow';
 import type { Account } from '../../types/account';
 import { ApiErrorObject } from './error';
 import { toLocationType } from '../../types/config';
@@ -37,6 +38,27 @@ export const latestOverlay: ConfigurationOverlay = {
     replicationStreams: [],
 };
 
+export const replicationWorkflow: Replication = {
+    streamId: '123e4567-e89b-12d3-a456-426614174001',
+    name: 'replication',
+    version: 1,
+    enabled: true,
+    source: {
+        prefix: 'myprefix',
+        bucketName: 'mybucket',
+    },
+    destination: {
+        locations: [{ name: 'location-name' }],
+        preferredReadLocation: 'location-name',
+    },
+};
+
+export const workflows: APIWorkflows = [
+    {
+        'replication': replicationWorkflow,
+    },
+];
+
 export class MockManagementClient implements ManagementClientInterface {
     createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
         return Promise.resolve({
@@ -63,6 +85,28 @@ export class MockManagementClient implements ManagementClientInterface {
     getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
         return Promise.resolve({
             body: latestOverlay,
+        });
+    }
+
+    searchWorkflows(): Promise<{ body: APIWorkflows }> {
+        return Promise.resolve({
+            body: workflows,
+        });
+    }
+
+    deleteBucketWorkflowReplication(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    updateBucketWorkflowReplication(): Promise<{ body: Replication }> {
+        return Promise.resolve({
+            body: replicationWorkflow,
+        });
+    }
+
+    saveBucketWorkflowReplication(): Promise<{ body: Replication }> {
+        return Promise.resolve({
+            body: replicationWorkflow,
         });
     }
 }
@@ -95,6 +139,22 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
+        return Promise.reject(this._error);
+    }
+
+    searchWorkflows(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteBucketWorkflowReplication(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    updateBucketWorkflowReplication(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    saveBucketWorkflowReplication(): Promise<void> {
         return Promise.reject(this._error);
     }
 }
