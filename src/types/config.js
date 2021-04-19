@@ -57,7 +57,6 @@ export type ReplicationStreams = Array<Replication>;
 export type ConfigurationOverlay = {|
     +users: Array<Account>,
     +locations: Locations,
-    +replicationStreams: ReplicationStreams;
     +endpoints: Array<Endpoint>,
 |};
 

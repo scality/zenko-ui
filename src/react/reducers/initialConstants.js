@@ -61,7 +61,6 @@ export const initialConfiguration: ConfigurationState = {
         creator: 'initial',
         instanceId: 'demo-instance',
         locations: {},
-        replicationStreams: [],
         users: [],
         endpoints: [],
         workflows: {
@@ -188,6 +187,7 @@ export const initialWorkflowsUIState: WorkflowsUIState = {
 
 export const initialWorkflowState: WorkflowState = {
     list: [],
+    replications: [],
 };
 
 export const initialFullState = {

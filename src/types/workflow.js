@@ -13,7 +13,6 @@ export type Workflow = {|
     +name: string,
     +state: boolean,
     +workflowId: string,
-    +item: Replication,
 |};
 
 export type Workflows = Array<Workflow>;

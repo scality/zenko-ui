@@ -35,7 +35,6 @@ export const latestOverlay: ConfigurationOverlay = {
     users: [ account ],
     locations: { 'location1': location },
     endpoints: [],
-    replicationStreams: [],
 };
 
 export const replicationWorkflow: Replication = {

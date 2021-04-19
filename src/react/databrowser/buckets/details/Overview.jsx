@@ -50,7 +50,7 @@ function Overview({ bucket }: Props) {
     const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
     const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
-    const replicationStreams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
+    const replicationStreams = useSelector((state: AppState) => state.workflow.replications);
 
     useEffect(() => {
         dispatch(getBucketInfo(bucket.Name));

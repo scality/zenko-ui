@@ -1,8 +1,8 @@
 // @noflow
 import { Banner, Button } from '@scality/core-ui';
+import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/TableKeyValue2';
 import type { Locations } from '../../../config';
-import React from 'react';
 import Replication from '../replication/Replication';
 import type { ReplicationStreams } from '../../../types/replication';
 import type { S3BucketList } from '../../../s3';
@@ -18,16 +18,17 @@ const TableContainer = styled.div`
 
 type Props = {
     wfSelected: Workflow,
-    streams: ReplicationStreams,
+    replications: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
     showEditWorkflowNotification: boolean,
     loading: boolean,
 };
-function Configuration({ wfSelected, streams, bucketList, locations, showEditWorkflowNotification }: Props) {
+function Configuration({ wfSelected, replications, bucketList, locations, showEditWorkflowNotification }: Props) {
     const dispatch = useDispatch();
-
-    const { item } = wfSelected;
+    const replication = useMemo(() => {
+        return replications.map(r => r.id === wfSelected.streamId);
+    }, [replications, wfSelected]);
 
     const deleteWorkflow = (item) => {
         dispatch(deleteReplication(item));
@@ -47,9 +48,9 @@ function Configuration({ wfSelected, streams, bucketList, locations, showEditWor
                                 If you leave this screen without saving, your changes will be lost.
                             </Banner>
                         </T.BannerContainer>
-                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(item)} />
+                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(replication)} />
                     </T.Header>
-                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflow={item} streams={streams} bucketList={bucketList} locations={locations} createMode={false} />
+                    <Replication showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>
             </Table>
         </TableContainer>

@@ -29,7 +29,7 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
     const dispatch = useDispatch();
     const query = useQuery();
     const { pathname } = useLocation();
-    const streams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
+    const replications = useSelector((state: AppState) => state.workflow.replications);
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
     const showEditWorkflowNotification = useSelector((state: AppState) => state.uiWorkflows.showEditWorkflowNotification);
     const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
@@ -43,7 +43,7 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
                     <Table id=''>
                         <T.Body autoComplete='off'>
                             <Title> create new Workflow </Title>
-                            <Replication loading={loading} showEditWorkflowNotification={false} workflow={null} streams={streams} bucketList={bucketList} locations={locations} createMode={true} />
+                            <Replication loading={loading} showEditWorkflowNotification={false} workflow={null} replications={replications} bucketList={bucketList} locations={locations} createMode={true} />
                         </T.Body>
                     </Table>
                 </CreationSection>
@@ -58,7 +58,7 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
         if (!tabName) {
             return <Configuration
                 showEditWorkflowNotification={showEditWorkflowNotification}
-                streams={streams}
+                replications={replications}
                 bucketList={bucketList}
                 locations={locations}
                 wfSelected={wfSelected}

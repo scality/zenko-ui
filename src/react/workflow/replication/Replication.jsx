@@ -48,7 +48,7 @@ const schema = Joi.object({
 });
 
 type Props = {
-    streams: ReplicationStreams,
+    replications: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
     workflow: ?ReplicationStream,
@@ -56,7 +56,7 @@ type Props = {
     createMode: boolean,
     loading: boolean,
 };
-function Replication({ streams, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
+function Replication({ replications, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
     const dispatch = useDispatch();
 
     const { register, handleSubmit, errors, control, reset, getValues } = useForm({
@@ -178,7 +178,7 @@ function Replication({ streams, bucketList, locations, workflow, showEditWorkflo
                                     id='sourceBucket'
                                     name='sourceBucket'
                                     render={({ onChange, value: sourceBucket }) => {
-                                        const options = sourceBucketOptions(streams, bucketList, locations);
+                                        const options = sourceBucketOptions(replications, bucketList, locations);
                                         const isEditing = !!getValues('streamId');
                                         const result = options.find(l => l.value === sourceBucket.value);
                                         if (isEditing) {

@@ -29,8 +29,10 @@ const TEST_STATE = {
                     objectId: '1060b13c-d805-11ea-a59c-a0999b105a5f',
                 },
             }],
-            replicationStreams: [],
         },
+    },
+    workflow: {
+        replications: [],
     },
     networkActivity: {
         counter: 0,

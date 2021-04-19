@@ -67,7 +67,7 @@ function Locations() {
     const dispatch = useDispatch();
 
     const locations = useSelector((state: AppState) => state.configuration.latest.locations);
-    const replicationStreams = useSelector((state: AppState) => state.configuration.latest.replicationStreams);
+    const replicationStreams = useSelector((state: AppState) => state.workflow.replications);
     const buckets = useSelector((state: AppState) => state.stats.bucketList);
     const endpoints = useSelector((state: AppState) => state.configuration.latest.endpoints);
     const data = useMemo(() => Object.values(locations), [locations]);

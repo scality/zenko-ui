@@ -2,7 +2,7 @@
 import type { AppConfig, InstanceId } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
-import type { ConfigurationOverlay, LocationName } from './config';
+import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { Account } from './account';
@@ -110,6 +110,7 @@ export type S3State = {|
 
 export type WorkflowState = {|
     list: Workflows,
+    replications: ReplicationStreams,
 |};
 
 export type WorkflowsUIState ={|
