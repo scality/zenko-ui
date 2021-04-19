@@ -1,5 +1,5 @@
 // @flow
-import { 
+import {
     ErrorMockManagementClient,
     account,
     latestOverlay,
@@ -169,7 +169,6 @@ export function authenticatedUserState(): AppState {
         },
     };
 }
-
 
 /**
  * Test function for redux action creators

@@ -274,11 +274,11 @@ export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): CloseWorkflowEditNoti
     return {
         type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
     };
-}
+};
 
 export const SEARCH_WORKFLOWS_SUCCESS_ACTION = (): SearchWorkflowsSuccessAction => {
     return {
         type: 'SEARCH_WORKFLOWS_SUCCESS',
         workflows: WORKFLOWS,
     };
-}
+};
