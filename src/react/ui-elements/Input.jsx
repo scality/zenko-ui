@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const Hints = styled.div`
   position: absolute;
   z-index: 1;
-  background-color: ${props => props.theme.brand.background};
+  background-color: ${props => props.theme.brand.backgroundLevel1};
   left: 20px;
   margin-top: 40px;
   padding: 10px;
@@ -28,7 +28,7 @@ export const Hint = styled.div`
 const Input = styled.input`
     display: flex;
 
-    background-color: ${props => props.theme.brand.primaryDark2};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
     color: ${props => props.theme.brand.textPrimary};
     border-width: 1px;
     border-style: solid;
@@ -43,7 +43,7 @@ const Input = styled.input`
     width: fill-available;
 
     :hover:enabled {
-        border: 1px solid ${props => props.theme.brand.borderLight};
+        border: 1px solid ${props => props.theme.brand.border};
     }
 
     :focus {

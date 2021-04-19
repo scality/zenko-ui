@@ -59,7 +59,7 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             footer={
                 <div>
                     <Button id='folder-create-cancel-button' outlined onClick={cancel} size="small" text='Cancel'/>
-                    <Button id='folder-create-save-button' variant="info" onClick={save} size="small" text='Save'/>
+                    <Button id='folder-create-save-button' variant="buttonSecondary" onClick={save} size="small" text='Save'/>
                 </div>
             }
             isOpen={true}

@@ -23,7 +23,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
     display: flex;
     width: 100%;
-    background: ${props => props.theme.brand.background};
+    background: ${props => props.theme.brand.backgroundLevel1};
     flex:1;
 `;
 
@@ -33,9 +33,10 @@ export const ListSection = styled.div`
     min-width: 450px;
     flex-direction: column;
 
-    background-color: ${props => props.theme.brand.primary};
+    background-color: ${props => props.theme.brand.backgroundLevel2};
     margin: 10px 0px 10px 10px;
-    padding: 10px;
+    padding-bottom: 10px;
+    padding-top: 10px;
     border-radius: 5px;
 `;
 
@@ -54,7 +55,7 @@ export const Head = styled.div`
     min-height: 80px;
     border-radius: 5px;
     padding: 15px;
-    background-color: ${props => props.theme.brand.primary};
+    background-color: ${props => props.theme.brand.backgroundLevel3};
 `;
 
 export const HeadLeft = styled.div`
@@ -80,14 +81,17 @@ export const HeadRight = styled.div`
 `;
 
 export const IconCircle = styled.i`
-    display: inline-block;
-    border-radius: 40px;
-    height: 40px;
-    width: 40px;
-    font-size: 40px;
-    padding: 20px;
-    color: ${props => props.theme.brand.textPrimary};
-    background-color: ${props => props.theme.brand.primaryDark1};
+    color: ${props => props.theme.brand.statusHealthy};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
+    border-radius: 100%;
+    border: 1px solid ${props => props.theme.brand.infoPrimary};
+    width: 80px;
+    height: 80px;
+    text-align: center;
+    line-height: 80px;
+    vertical-align: middle;
+    margin-right: 16px;
+    font-size: 32px;
 `;
 
 export const Details = styled.div`

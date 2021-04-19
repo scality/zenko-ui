@@ -48,7 +48,7 @@ function Configuration({ wfSelected, replications, bucketList, locations, showEd
                                 If you leave this screen without saving, your changes will be lost.
                             </Banner>
                         </T.BannerContainer>
-                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(replication)} />
+                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='buttonDelete' onClick={() => deleteWorkflow(replication)} />
                     </T.Header>
                     <Replication loading={loading} replications={replications} showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>

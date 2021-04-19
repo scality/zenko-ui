@@ -12,6 +12,7 @@ import { Title } from '../ui-elements/FormLayout';
 import { Warning } from '../ui-elements/Warning';
 import type { Workflow } from '../../types/workflow';
 import { push } from 'connected-react-router';
+import { theme } from '../theme';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../utils/hooks';
 
@@ -70,6 +71,7 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
     return (
         <ContentSection>
             <CustomTabs
+                activeTabColor={ theme.brand.backgroundLevel4 }
                 items={[
                     {
                         onClick: () => dispatch(push(pathname)),

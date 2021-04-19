@@ -4,7 +4,7 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    background: ${props => props.theme.brand.background};
+    background: ${props => props.theme.brand.backgroundLevel1};
     flex: 1;
 `;
 
@@ -36,7 +36,7 @@ export const Head = styled.div`
 
     border-radius: 5px;
     padding: 15px;
-    background-color: ${props => props.theme.brand.primary};
+    background-color: ${props => props.theme.brand.backgroundLevel3};
 `;
 
 export const HeadSlice = styled.div`
@@ -44,8 +44,6 @@ export const HeadSlice = styled.div`
     flex: 0 1 100px;
     flex-direction: column;
     justify-content: center;
-
-    background-clor: red;
     text-align: center;
 `;
 
@@ -65,8 +63,9 @@ export const ListSection = styled.div`
     flex-direction: column;
     min-width: 650px;
 
-    background-color: ${props => props.theme.brand.primary};
-    padding: 10px;
+    background-color: ${props => props.theme.brand.backgroundLevel2};
+    padding-top: 10px;
+    padding-bottom: 10px;
     border-radius: 5px;
 `;
 
@@ -75,7 +74,7 @@ export const ContentSection = styled.div`
     min-width: 400px;
     flex-direction: column;
 
-    background-color: ${props => props.theme.brand.background};
+    background-color: ${props => props.theme.brand.backgroundLevel3};
     margin-left: 10px;
     border-radius: 5px;
 `;

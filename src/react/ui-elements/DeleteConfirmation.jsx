@@ -19,7 +19,7 @@ const DeleteConfirmation = ({ approve, cancel, show, titleText }: Props) => {
         <Modal
             close={cancel}
             isOpen={true}
-            footer={<div><Button outlined onClick={cancel} size="small" text="Cancel"/><Button className="delete-confirmation-delete-button" variant="danger" onClick={() => approve()} size="small" text="Delete"/></div>}
+            footer={<div><Button outlined onClick={cancel} size="small" text="Cancel"/><Button className="delete-confirmation-delete-button" variant="buttonDelete" onClick={() => approve()} size="small" text="Delete"/></div>}
             title='Confirmation'>
             {titleText}
         </Modal>

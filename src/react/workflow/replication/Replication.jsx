@@ -261,7 +261,7 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
             </T.Groups>
             <T.Footer>
                 <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: '8px' }} outlined onClick={handleCancel} text='Cancel'/>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="secondary" onClick={handleSubmit(onSubmit)} text={createMode ? 'Create' : 'Save Changes'}/>
+                <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="buttonPrimary" onClick={handleSubmit(onSubmit)} text={createMode ? 'Create' : 'Save Changes'}/>
             </T.Footer>
         </ReplicationContainer>
     );

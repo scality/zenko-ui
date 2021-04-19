@@ -43,7 +43,7 @@ function AccountHead({ account }: Props) {
                 <HeadTitle> {accountNameParam} </HeadTitle>
             </HeadCenter>
             <HeadRight>
-                { !!account && <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="default" variant="danger" text='Delete Account' /> }
+                { !!account && <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="default" variant="buttonDelete" text='Delete Account' /> }
             </HeadRight>
         </Head>
     );

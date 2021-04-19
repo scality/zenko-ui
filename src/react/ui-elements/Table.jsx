@@ -75,6 +75,8 @@ export const Row = styled(HeadRow)`
 
     ${({ isSelected, theme }) => isSelected && `
         background-color: ${theme.brand.backgroundBluer};
+        border-right: 4px solid ${theme.brand.selectedActive};
+        box-sizing: border-box;
     `}
 `;
 
@@ -87,7 +89,7 @@ export const Cell = styled.td`
 `;
 
 export const CellLink = styled(Link)`
-    color: ${props => props.theme.brand.secondary};
+    color: ${props => props.theme.brand.textLink};
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -95,7 +97,7 @@ export const CellLink = styled(Link)`
 `;
 
 export const CellClick = styled.span`
-    color: ${props => props.theme.brand.secondary};
+    color: ${props => props.theme.brand.textLink};
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -103,7 +105,7 @@ export const CellClick = styled.span`
 `;
 
 export const CellA = styled.a`
-    color: ${props => props.theme.brand.secondary};
+    color: ${props => props.theme.brand.textLink};
     text-decoration: none;
     &:hover{
         text-decoration: underline;
@@ -114,6 +116,8 @@ export const CellA = styled.a`
 export const SearchContainer = styled.div`
     display: flex;
     justify-content: space-between;
+    padding-right: 10px;
+    padding-left: 10px;
 `;
 
 export const Search = styled.div`
@@ -202,6 +206,8 @@ export const SearchButton = styled(Button)`
 export const HeaderContainer = styled.div`
     display: flex;
     justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
 `;
 
 export const ButtonContainer = styled.div`

@@ -39,8 +39,8 @@ const ReauthDialog = () => {
                 close={() => s3Close()}
                 footer={
                     <div>
-                        <Button variant="danger" onClick={() => reauth(pathname)} size="small" text='Retry'/>
-                        <Button variant="secondary" onClick={() => s3Close()} size="small" text='Back to my buckets' />
+                        <Button variant="buttonDelete" onClick={() => reauth(pathname)} size="small" text='Retry'/>
+                        <Button variant="buttonPrimary" onClick={() => s3Close()} size="small" text='Back to my buckets' />
                     </div>
                 }
                 isOpen={true}
@@ -56,7 +56,7 @@ const ReauthDialog = () => {
             close={() => reauth(pathname)}
             footer={
                 <div>
-                    <Button variant="secondary" onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/>
+                    <Button variant="buttonPrimary" onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/>
                 </div>
             }
             isOpen={true}

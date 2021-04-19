@@ -5,6 +5,7 @@ import Overview from './details/Overview';
 import React from 'react';
 import type { S3Bucket } from '../../../types/s3';
 import { Warning } from '../../ui-elements/Warning';
+import { theme } from '../../theme';
 
 type Props = {
     bucket: ?S3Bucket,
@@ -23,6 +24,7 @@ function BucketDetails({ bucket }: Props) {
     return (
         <ContentSection>
             <CustomTabs
+                activeTabColor={ theme.brand.backgroundLevel4 }
                 items={[
                     {
                         onClick: () => {},

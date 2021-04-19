@@ -10,6 +10,7 @@ import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
+import { theme } from '../theme';
 
 type Props = {
     account: ?Account,
@@ -28,6 +29,7 @@ function AccountDetails({ account }: Props) {
 
     return (
         <CustomTabs
+            activeTabColor={ theme.brand.backgroundLevel4 }
             items={[
                 {
                     onClick: () => dispatch(push(url)),

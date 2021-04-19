@@ -6,8 +6,8 @@ const MainContainer = styled.div`
     height: 100vh;
     overflow: scroll;
 
-    color: ${props => props.theme.brand.text};
-    background-color: ${props => props.theme.brand.background};
+    color: ${props => props.theme.brand.textPrimary};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
     flex-direction:column;
     align-items: stretch;
 `;
@@ -19,7 +19,7 @@ const Container = styled.div`
     max-width: 600px;
     margin: 10px;
     padding: 20px;
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
     border-radius: 5px;
 `;
 
@@ -42,13 +42,13 @@ export const EmptyStateContainer = styled.div`
     flex: 1;
     flex-direction: column;
     width: 100%;
-    background: ${props => props.theme.brand.background};
+    background: ${props => props.theme.brand.backgroundLevel1};
 `;
 
 const NavbarContainer = styled.div`
   display: flex;
   width: 100%;
-  .sc-navbar{
+  .sc-navbar {
       width: 100%;
   }
 `;

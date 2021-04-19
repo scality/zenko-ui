@@ -18,7 +18,7 @@ const Files = styled.div`
     width: 500px;
     overflow-y: scroll;
     margin: 10px 0px;
-    border: 1px solid ${props => props.theme.brand.borderLight};
+    border: 1px solid ${props => props.theme.brand.border};
 `;
 
 const Description = styled.div`
@@ -90,7 +90,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash, bucketInfo }: Prop
             footer={
                 <div>
                     <Button id='object-delete-cancel-button' outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button id='object-delete-delete-button' disabled={toggled.size === 0} variant='danger' onClick={deleteSelectedFiles} size="small" text='Delete'/>
+                    <Button id='object-delete-delete-button' disabled={toggled.size === 0} variant='buttonDelete' onClick={deleteSelectedFiles} size="small" text='Delete'/>
                 </div>
             }
             isOpen={true}

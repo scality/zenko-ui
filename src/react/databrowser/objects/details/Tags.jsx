@@ -95,7 +95,7 @@ function Properties({ objectMetadata }: Props) {
             <Footer>
                 <Button
                     id='tags-button-save'
-                    variant='info'
+                    variant='buttonSecondary'
                     text='Save'
                     disabled={!isValidItems}
                     onClick={save}

@@ -43,9 +43,9 @@ export default function ObjectList({ objects, bucketName, prefixWithSlash, toggl
         <T.HeaderContainer>
             <MetadataSearch errorZenkoMsg={errorZenkoMsg} isMetadataType={isMetadataType} bucketName={bucketName} prefixWithSlash={prefixWithSlash} />
             <T.ButtonContainer>
-                <T.ExtraButton id='object-list-upload-button' text='Upload' icon={<i className="fas fa-upload" />} variant='info' onClick={() => dispatch(openObjectUploadModal())} size="default" />
-                <T.ExtraButton id='object-list-create-folder-button' text='Folder' icon={<i className="fas fa-plus" />} variant='info' onClick={() => dispatch(openFolderCreateModal())} size="default" />
-                <T.ExtraButton id='object-list-delete-button' text='Delete' icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} variant='danger' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
+                <T.ExtraButton id='object-list-upload-button' text='Upload' icon={<i className="fas fa-upload" />} variant='buttonSecondary' onClick={() => dispatch(openObjectUploadModal())} size="default" />
+                <T.ExtraButton id='object-list-create-folder-button' text='Folder' icon={<i className="fas fa-plus" />} variant='buttonSecondary' onClick={() => dispatch(openFolderCreateModal())} size="default" />
+                <T.ExtraButton id='object-list-delete-button' text='Delete' icon={<i className="fas fa-trash" />} disabled={isToggledEmpty} variant='buttonDelete' onClick={() => dispatch(openObjectDeleteModal())} size="default" />
                 <Toggle
                     id='list-versions-toggle'
                     disabled={isMetadataType || isBucketVersioningDisabled}

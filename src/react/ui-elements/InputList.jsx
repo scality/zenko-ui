@@ -88,7 +88,7 @@ export default class InputList extends React.Component<Props, State> {
 
         return (
             <Button
-                variant="info"
+                variant="buttonSecondary"
                 className={isVisible}
                 title="Add"
                 disabled={isDisabled}
@@ -109,7 +109,7 @@ export default class InputList extends React.Component<Props, State> {
         }
         return (
             <Button
-                variant="danger"
+                variant="buttonDelete"
                 title="Remove"
                 disabled={isDisabled}
                 name={`delbtn${index}`}

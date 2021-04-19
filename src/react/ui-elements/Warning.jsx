@@ -56,7 +56,7 @@ export const Warning = ({ iconClass, title, btnTitle, btnAction, centered }: War
     <Container centered={centered}>
         { !!iconClass && <i className={iconClass}></i> }
         <Title> {title} </Title>
-        { !!btnTitle && !!btnAction && <ButtonSection> <Button text={btnTitle} variant='info' onClick={btnAction} /> </ButtonSection> }
+        { !!btnTitle && !!btnAction && <ButtonSection> <Button text={btnTitle} variant='buttonSecondary' onClick={btnAction} /> </ButtonSection> }
     </Container>
 );
 

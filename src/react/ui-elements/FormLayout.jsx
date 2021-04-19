@@ -159,7 +159,7 @@ export const FooterButtons = styled.div`
 export const Form = styled.form`
     display: flex;
     flex-direction: column;
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
     padding-top: 5%;
     padding-left: 30%;
     padding-right: 30%;
@@ -167,7 +167,7 @@ export const Form = styled.form`
 
 const FormContainer = styled.div`
     height: auto;
-    background-color: ${props => props.theme.brand.primaryDark1};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
     min-height: 100%;
     margin: 8px;
     border-radius: 5px;

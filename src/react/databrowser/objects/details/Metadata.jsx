@@ -174,7 +174,7 @@ function Metadata({ objectMetadata, listType }: Props) {
             <Footer>
                 <Button
                     id='metadata-button-save'
-                    variant='info'
+                    variant='buttonSecondary'
                     text='Save'
                     disabled={!isValidItems || isVersioningType}
                     onClick={save}

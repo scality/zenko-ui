@@ -94,7 +94,7 @@ function AccountCreate() {
                 </F.FooterError>
                 <F.FooterButtons>
                     <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
-                    <Button disabled={loading} id='create-account-btn' variant="secondary" onClick={handleSubmit(onSubmit)} text='Create'/>
+                    <Button disabled={loading} id='create-account-btn' variant='buttonPrimary' onClick={handleSubmit(onSubmit)} text='Create'/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>

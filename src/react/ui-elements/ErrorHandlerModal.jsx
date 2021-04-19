@@ -21,7 +21,7 @@ const ErrorHandlerModal = () => {
     return (
         <Modal
             close={close}
-            footer={<Button variant="secondary" onClick={close} size="small" text="Close"/>}
+            footer={<Button variant="buttonPrimary" onClick={close} size="small" text="Close"/>}
             isOpen={true}
             title="Error">
             {errorMessage}

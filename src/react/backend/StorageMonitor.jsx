@@ -164,8 +164,8 @@ function StorageMonitor(props) {
                     </div>
                     <div className='bottom'>
                         <Button outlined text="ADD" size="small" onClick={() => props.redirect('/monitor/location/editor')}/>
-                        <Button outlined variant="secondary" text='EDIT' size='small' onClick={editLocation} disabled={!canEditLocation(props.selectedLocationName)}/>
-                        <Button outlined variant="danger" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
+                        <Button outlined variant="buttonPrimary" text='EDIT' size='small' onClick={editLocation} disabled={!canEditLocation(props.selectedLocationName)}/>
+                        <Button outlined variant="buttonDelete" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
                     </div>
                 </SectionLeft>
                 <SectionRight>

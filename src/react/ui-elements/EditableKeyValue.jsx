@@ -92,6 +92,7 @@ export const InputValue = styled(Input)`
     flex: 0 ${props => props.isShrink ? '29%' : '39%'};
     width: ${props => props.isShrink ? '29%' : '39%'};
     min-width: ${props => props.isShrink ? '29%' : '39%'};
+    background-color: ${props => props.theme.brand.backgroundLevel1};
 `;
 
 export const InputTag = styled(Input)`
@@ -138,7 +139,7 @@ export const AddButton = ({ index, items, insertEntry, disabled }: AddButtonProp
     return (
         <CustomButton
             isVisible={isVisible}
-            variant="info"
+            variant="buttonSecondary"
             title="Add"
             disabled={isDisabled}
             name={`addbtn${index}`}
@@ -162,7 +163,7 @@ export const SubButton = ({ index, items, deleteEntry, disabled }: SubButtonProp
     }
     return (
         <Button
-            variant="danger"
+            variant="buttonDelete"
             title="Remove"
             disabled={isDisabled}
             name={`delbtn${index}`}

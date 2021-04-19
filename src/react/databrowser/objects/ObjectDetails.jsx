@@ -12,6 +12,7 @@ import React from 'react';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
+import { theme } from '../../theme';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../../utils/hooks';
 
@@ -69,6 +70,7 @@ function ObjectDetails({ toggled, listType }: Props) {
     return (
         <ContentSection>
             <CustomTabs
+                activeTabColor={ theme.brand.backgroundLevel4 }
                 items={[
                     {
                         onClick: () => dispatch(push(pathname)),

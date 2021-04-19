@@ -23,7 +23,7 @@ const DropZone = styled.div`
     padding: 20px;
     border-width: 2px;
     border-radius: 2px;
-    border-color: ${props => props.theme.brand.borderLight};
+    border-color: ${props => props.theme.brand.border};
     border-style: dashed;
 `;
 
@@ -57,7 +57,7 @@ type FileListProps = {
 // files might be rejected (fileRejections) and we will have to show them in <FileList/>.
 export const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
     <div>
-        <Button icon={<i className="fas fa-plus" />} size='small' text='Add more files' variant='info' onClick={open} />
+        <Button icon={<i className="fas fa-plus" />} size='small' text='Add more files' variant='buttonSecondary' onClick={open} />
         <Files>
             <Table>
                 <T.Body>
@@ -82,7 +82,7 @@ export const NoFile = ({ open }: NoFileProps) =>
         <i className="fas fa-3x fa-file-upload"></i>
         <div> Drag and drop files and folders here </div>
         <div> OR </div>
-        <Button icon={<i className="fas fa-plus" />} text='Add files' variant='info' onClick={open} />
+        <Button icon={<i className="fas fa-plus" />} text='Add files' variant='buttonSecondary' onClick={open} />
     </EmptyFile>;
 
 type Props = {
@@ -141,7 +141,7 @@ const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
             footer={
                 <div>
                     <Button id="object-upload-cancel-button" outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='info' onClick={upload} size="small" text='Upload'/>
+                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='buttonSecondary' onClick={upload} size="small" text='Upload'/>
                 </div>
             }
             isOpen={true}
