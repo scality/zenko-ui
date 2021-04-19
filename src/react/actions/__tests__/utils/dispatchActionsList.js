@@ -6,6 +6,7 @@ import {
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
     LATEST_OVERLAY,
+    WORKFLOWS,
 } from './testUtil';
 
 import type {
@@ -15,6 +16,7 @@ import type {
     CloseLocationDeleteDialogAction,
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
+    CloseWorkflowEditNotificationAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
     GetBucketInfoSuccessAction,
@@ -33,7 +35,9 @@ import type {
     OpenLocationDeleteDialogAction,
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
+    OpenWorkflowEditNotificationAction,
     ResetObjectMetadataAction,
+    SearchWorkflowsSuccessAction,
     SelectAccountAction,
     SelectInstanceAction,
     SetAppConfigAction,
@@ -256,5 +260,25 @@ export const ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION = (nextMarker: Marker, list:
         type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
         nextMarker,
         list,
+    };
+};
+
+// workflow actions
+export const OPEN_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): OpenWorkflowEditNotificationAction => {
+    return {
+        type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
+    };
+};
+
+export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): CloseWorkflowEditNotificationAction => {
+    return {
+        type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+    };
+};
+
+export const SEARCH_WORKFLOWS_SUCCESS_ACTION = (): SearchWorkflowsSuccessAction => {
+    return {
+        type: 'SEARCH_WORKFLOWS_SUCCESS',
+        workflows: WORKFLOWS,
     };
 };

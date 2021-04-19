@@ -1,5 +1,12 @@
 // @flow
-import { ErrorMockManagementClient, account, latestOverlay, location } from '../../../../js/mock/managementClient';
+import {
+    ErrorMockManagementClient,
+    account,
+    latestOverlay,
+    location,
+    replicationWorkflow,
+    workflows,
+} from '../../../../js/mock/managementClient';
 import {
     bucketInfoResponse,
     bucketName,
@@ -85,6 +92,8 @@ export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
 export const ZENKO_ERROR = zenkoError;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
+export const WORKFLOWS = workflows;
+export const REPLICATION_WORKFLOW = replicationWorkflow;
 
 export function errorManagementState(): AppState {
     const state = initState;
@@ -160,7 +169,6 @@ export function authenticatedUserState(): AppState {
         },
     };
 }
-
 
 /**
  * Test function for redux action creators
