@@ -1,10 +1,11 @@
 // @flow
-import type { Locations, Replication as ReplicationStream, ReplicationStreams, TargetLocationObject } from '../../../types/config';
+import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
 import type { ReplicationBucketOption, ReplicationForm } from '../../../types/replication';
 import React from 'react';
 import type { S3BucketList } from '../../../types/s3';
 import type { SelectOption } from '../../../types/ui';
 import { getLocationTypeShort } from '../../utils/storageOptions';
+import { isVersioning } from '../../utils';
 import { storageOptions } from '../../backend/location/LocationDetails';
 
 export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3BucketList, locations: Locations): Array<ReplicationBucketOption> => {
@@ -20,7 +21,7 @@ export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3B
             label: b.Name,
             value: b.Name,
             location: constraint,
-            disabled: bucketsUsedForReplication.indexOf(b.Name) > -1 ||
+            disabled: !isVersioning(b.VersionStatus) || bucketsUsedForReplication.indexOf(b.Name) > -1 ||
                 !supportsReplicationSource,
         };
     });

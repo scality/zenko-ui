@@ -28,46 +28,6 @@ export function searchWorkflowsSuccess(workflows: APIWorkflows): SearchWorkflows
     };
 }
 
-// TO BE REMOVED BEFORE MERGE:
-// function MOCK_SEARCH_WORKFLOWS() {
-//     return Promise.resolve({
-//         body: [
-//             {
-//                 'replication': {
-//                     streamId: '123e4567-e89b-12d3-a456-426614174001',
-//                     name: 'replication1',
-//                     version: 1,
-//                     enabled: true,
-//                     source: {
-//                         prefix: 'myprefix',
-//                         bucketName: 'bucket0',
-//                     },
-//                     destination: {
-//                         locations: [{ name: 's3-loc' }],
-//                         preferredReadLocation: 's3-loc',
-//                     },
-//                 },
-//             },
-//             {
-//                 'replication': {
-//                     streamId: '123e4567-e89b-12d3-a456-426614174002',
-//                     name: 'replication2',
-//                     version: 1,
-//                     enabled: false,
-//                     source: {
-//                         prefix: 'myprefix2',
-//                         bucketName: 'bucket2',
-//                     },
-//                     destination: {
-//                         locations: [{ name: 's3-loc' }],
-//                         preferredReadLocation: 's3-loc',
-//                     },
-//                 },
-//             },
-//         ],
-//     });
-// }
-
 export function searchWorkflows(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const state = getState();

@@ -26,6 +26,7 @@ export type S3Bucket = {|
     +CreationDate: string,
     +Name: string,
     +LocationConstraint: string,
+    +VersionStatus: Versioning,
 |};
 
 export type S3Object = {|

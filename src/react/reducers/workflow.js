@@ -14,7 +14,7 @@ const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
             return {
                 id: `replication-${r.streamId}`,
                 type: 'replication',
-                name: generateStreamName(r), // Until name get saved on the backend side. 
+                name: generateStreamName(r), // Until name get saved on the backend side.
                 state: r.enabled,
                 workflowId: r.streamId,
             };
