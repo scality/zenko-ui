@@ -152,7 +152,7 @@ function LocationEditor() {
                     debounceTimeout={0}
                     onChange={onChange}
                     value={location.name}
-                    placeholder="zenko-us-west-2"
+                    placeholder="us-west-2"
                     disabled={editingExisting}
                     autoComplete='off' />
             </F.Fieldset>

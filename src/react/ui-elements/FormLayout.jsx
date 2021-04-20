@@ -54,13 +54,16 @@ export const Select = styled(BasicSelect)`
 `;
 
 export const CheckboxContainer = styled.div`
-    display: flex;
+    display: block;
     margin: ${padding.small} 0px ${padding.smaller} 0px;
     align-items: baseline;
+    
+    .sc-checkbox {
+        margin-right: 8px;
+    }
 `;
 
 export const Checkbox = styled(BasicCheckbox)`
-    margin-left: ${padding.base};
 `;
 
 export const Input = styled(BasicInput)`

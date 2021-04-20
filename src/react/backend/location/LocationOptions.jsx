@@ -24,30 +24,11 @@ type Props = {
     onChange: (e: SyntheticInputEvent<HTMLInputElement>) => void,
 };
 function LocationOptions(props: Props) {
-    const { isTransient, isSizeLimitChecked, sizeLimitGB } = props.locationOptions;
+    const { isTransient } = props.locationOptions;
     const showTransientOption = isTransientEnabled(props.locationType);
 
     return <Fieldset>
         <Label htmlFor="locationType"> Advanced Options </Label>
-        <CheckboxContainer>
-            <Checkbox
-                type="checkbox"
-                name="isSizeLimitChecked"
-                id="isSizeLimitedCheckbox"
-                checked={isSizeLimitChecked}
-                onChange={props.onChange}
-            />
-            <span> Limit the total size of this location to&nbsp; </span>
-            <Input
-                disabled={!isSizeLimitChecked}
-                placeholder="50"
-                name="sizeLimitGB"
-                id="sizeLimitValueInput"
-                value={isSizeLimitChecked ? sizeLimitGB : ''}
-                onChange={props.onChange}
-            />
-            <span> GB </span>
-        </CheckboxContainer>
         <CheckboxContainer style={{ display: showTransientOption ? 'block' : 'none' }}>
             <Checkbox
                 type="checkbox"

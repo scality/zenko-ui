@@ -36,7 +36,7 @@ describe('BucketList', () => {
         const firstBucketCellLocation = firstRow.find('Cell').at(1);
         const firstBucketCellDate = firstRow.find('Cell').at(2);
         expect(firstBucketCellLink.text()).toContain('bucket1');
-        expect(firstBucketCellLocation.text()).toBe('us-east-1 / Zenko Local Filesystem');
+        expect(firstBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
         expect(firstBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
 
         const secondRow = rows.at(1);
@@ -44,7 +44,7 @@ describe('BucketList', () => {
         const secondBucketCellLocation = component.find('Cell').at(1);
         const secondBucketCellDate = component.find('Cell').at(2);
         expect(secondBucketCellLink.text()).toContain('bucket2');
-        expect(secondBucketCellLocation.text()).toBe('us-east-1 / Zenko Local Filesystem');
+        expect(secondBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
         expect(secondBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
     });
 

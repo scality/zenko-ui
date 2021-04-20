@@ -84,7 +84,7 @@ export default class LocationDetailsDOSpaces extends React.Component<Props, Stat
                     />
                     <small>
                         Your credentials are encrypted in transit, then at rest using your
-                        Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
+                        instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
                 </Fieldset>
                 <Fieldset>
@@ -93,7 +93,7 @@ export default class LocationDetailsDOSpaces extends React.Component<Props, Stat
                         name="bucketName"
                         id="bucketName"
                         type="text"
-                        placeholder="zenko-space-target"
+                        placeholder="space-target"
                         value={this.state.bucketName}
                         onChange={this.onChange}
                         autoComplete="off"

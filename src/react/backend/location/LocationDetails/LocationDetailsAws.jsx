@@ -85,7 +85,7 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
                     />
                     <small>
                         Your credentials are encrypted in transit, then at rest using your
-                        Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
+                        instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
                 </Fieldset>
                 <Fieldset>

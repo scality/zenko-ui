@@ -62,7 +62,7 @@ export default class LocationDetails extends React.Component<Props> {
                     <div>
                         <span className="mr-2 fa fa-exclamation-circle" />
                         <span>
-                            Your Zenko instance failed to automatically resume this location. Please resume manually.
+                            Your instance failed to automatically resume this location. Please resume manually.
                         </span>
                     </div>
                 );
