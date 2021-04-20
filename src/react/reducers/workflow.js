@@ -3,6 +3,7 @@ import type { APIWorkflows, Workflows } from '../../types/workflow';
 import type { ReplicationStreams } from '../../types/config';
 import type { WorkflowAction } from '../../types/actions';
 import type { WorkflowState } from '../../types/state';
+import { generateStreamName } from '../workflow/replication/utils';
 import { initialWorkflowState } from './initialConstants';
 
 const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -13,7 +14,7 @@ const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
             return {
                 id: `replication-${r.streamId}`,
                 type: 'replication',
-                name: r.name,
+                name: generateStreamName(r), // Until name get saved on the backend side. 
                 state: r.enabled,
                 workflowId: r.streamId,
             };

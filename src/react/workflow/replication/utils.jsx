@@ -1,5 +1,5 @@
 // @flow
-import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
+import type { Locations, Replication as ReplicationStream, ReplicationStreams, TargetLocationObject } from '../../../types/config';
 import type { ReplicationBucketOption, ReplicationForm } from '../../../types/replication';
 import React from 'react';
 import type { S3BucketList } from '../../../types/s3';
@@ -131,6 +131,10 @@ export function convertToReplicationStream(r: ReplicationForm): ReplicationStrea
     };
 }
 
-export function generateStreamName(bucketName: string, destinationName: string): string {
-    return `${bucketName} ➜ ${destinationName}`;
+export function generateStreamName(r: ReplicationStream): string {
+    const { bucketName, prefix } = r.source;
+    const locations = r.destination.locations;
+    const addedPrefix = prefix ? `/${prefix}` : '';
+    const locationNames = locations.map(l => l.name);
+    return `${bucketName}${addedPrefix} ➜ ${locationNames.toString()}`;
 }

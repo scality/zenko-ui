@@ -15,15 +15,6 @@ const TableContainer = styled.div`
     width: 100%;
 `;
 
-const Type = styled.div`
-    margin-bottom: 10px;
-    max-width: 450px;
-    ${T.Row} {
-      height: 42px;
-      min-height: 42px;
-    }
-`;
-
 type Props = {
     wfSelected: Workflow,
     replications: ReplicationStreams,
@@ -59,14 +50,6 @@ function Configuration({ wfSelected, replications, bucketList, locations, showEd
                         </T.BannerContainer>
                         <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='danger' onClick={() => deleteWorkflow(replication)} />
                     </T.Header>
-                    <Type>
-                        <T.Row>
-                            <T.Key principal={true}> Workflow Type </T.Key>
-                            <T.Value>
-                                Replication
-                            </T.Value>
-                        </T.Row>
-                    </Type>
                     <Replication loading={loading} replications={replications} showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>
             </Table>

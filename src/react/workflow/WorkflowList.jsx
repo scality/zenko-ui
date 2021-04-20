@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 
 const columns = [
     {
-        Header: 'Workflow Name',
+        Header: 'Workflow Description',
         accessor: 'name',
         width: 60,
     },
