@@ -4,20 +4,20 @@
 
 Zenko UI is our portal to manage offline Zenko instances.
 
-It provides a User Interface to
-- Monitor the health of the processes
-- Manage storage accounts and users
-- Browse into buckets
-- Manage workflows (replication, transition, expiration)
-- Add a data access
-- Add a storage location
-- Have informations about S3 data access
+It provides a user interface for:
+- Monitoring the health of the processes
+- Managing storage accounts and users
+- Browsing in buckets
+- Managing workflows (replication, transition, expiration)
+- Adding data access
+- Adding storage locations
+- Monitoring S3 data accesses
 
 ## How to start
 
 ### Connect to Scality VPN
 
-Zenko deployment runs on scality.cloud instance accessible through VPN.
+The Zenko deployment runs on a VPN-accessible scality.cloud instance.
 
 ### Add entries to your local /etc/hosts file
 ```
@@ -44,15 +44,16 @@ docker run -d -p 8082:80 shell-ui
 ```
 http://127.0.0.1:8383
 ```
-Should be redirected to Keycloak login page:
+must be redirected to the Keycloak login page:
 ```
 Username or email: bartsimpson
 Password: 123
 ```
 
-*Note*: Keycloak uses cookies to manage user session.
-SameSite cookie prevents the cookies from being sent in cross-site requests, to defend against CSRF attacks.
-So, to make our local UI work, we need to request it using a matched domain (ie *.zenko.local).
+*Note*: Keycloak uses cookies to manage user sessions. A SameSite cookie 
+prevents cookies from being sent in cross-site requests, to defend against
+CSRF attacks. To make the local UI work, request it using a matched domain 
+(e.g., *.zenko.local).
 
 
 ## Test
