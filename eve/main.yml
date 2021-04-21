@@ -55,6 +55,14 @@ models:
         --username "%(secret:harbor_login)s"
         --password "%(secret:harbor_password)s"
         registry.scality.com
+  - ShellCommand: &docker-push
+      name: publish docker image to Scality OCI registry
+      command: >-
+        set -exu;
+        docker push ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
+      haltOnFailure: True
+      env: *deploy-env
+
 
 stages:
   pre-merge:
@@ -81,6 +89,7 @@ stages:
       - ShellCommand: *npm-build
       - ShellCommand: *docker-login
       - ShellCommand: *docker-build
+      - ShellCommand: *docker-push
       - ShellCommand:
           name: run end-to-end tests
           command: >-
@@ -121,13 +130,7 @@ stages:
       - ShellCommand: *npm-build
       - ShellCommand: *docker-login
       - ShellCommand: *docker-build
-      - ShellCommand:
-          name: publish docker image to Scality OCI registry
-          command: >-
-            set -exu;
-            docker push ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
-          haltOnFailure: True
-          env: *deploy-env
+      - ShellCommand: *docker-push
 
   release:
   # Force this stage manually
