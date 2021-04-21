@@ -4,20 +4,20 @@
 
 Zenko UI is our portal to manage offline Zenko instances.
 
-It provides a User Interface to
-- Monitor the health of the processes
-- Manage storage accounts and users
-- Browse into buckets
-- Manage workflows (replication, transition, expiration)
-- Add a data access
-- Add a storage location
-- Have informations about S3 data access
+It provides a user interface for:
+- Monitoring the health of the processes
+- Managing storage accounts and users
+- Browsing in buckets
+- Managing workflows (replication, transition, expiration)
+- Adding data access
+- Adding storage locations
+- Monitoring S3 data accesses
 
 ## How to start
 
 ### Connect to Scality VPN
 
-Zenko deployment runs on scality.cloud instance accessible through VPN.
+The Zenko deployment runs on a VPN-accessible scality.cloud instance.
 
 ### Add entries to your local /etc/hosts file
 ```
@@ -33,8 +33,9 @@ echo "$NODE_IP keycloak.zenko.local iam.zenko.local sts.zenko.local management.z
 npm install
 sudo npm run start:dev
 ```
-*Note*: Regular users are not allowed to bind to port 80, ports below 1024 require root/adminstrator rights.
-You will need to either run as root using sudo, or setup a proxy that redirects requests on port 80 to a port over 1024.
+*Note*: Regular users are not allowed to bind to port 80: ports below 1024 
+require root/adminstrator rights. You must either run as root using sudo or set
+up a proxy to redirect requests on port 80 to a port numbered higher than 1024.
 
 Zenko UI now uses the metalk8s common navbar:  
 ```
@@ -48,15 +49,16 @@ docker run -d -p 8082:80 shell-ui
 ```
 http://ui.zenko.local
 ```
-Should be redirected to Keycloak login page:
+must be redirected to the Keycloak login page:
 ```
 Username or email: bartsimpson
 Password: 123
 ```
 
-*Note*: Keycloak uses cookies to manage user session.
-SameSite cookie prevents the cookies from being sent in cross-site requests, to defend against CSRF attacks.
-So, to make our local UI work, we need to request it using a matched domain (ie *.zenko.local).
+*Note*: Keycloak uses cookies to manage user sessions. A SameSite cookie 
+prevents cookies from being sent in cross-site requests, to defend against
+CSRF attacks. To make the local UI work, request it using a matched domain 
+(e.g., *.zenko.local).
 
 
 ## Test
