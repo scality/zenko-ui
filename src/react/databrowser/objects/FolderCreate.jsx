@@ -1,6 +1,7 @@
 // @flow
 import React, { useState } from 'react';
 import { closeFolderCreateModal, createFolder } from '../../actions';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -12,12 +13,12 @@ import { addTrailingSlash } from '../../utils';
 import styled from 'styled-components';
 
 export const Description = styled.div`
-    margin-top: 14px;
+    margin-top: ${padding.base};
     width: 400px;
-    font-size: 14px;
+    font-size: ${fontSize.base};
 `;
 export const Icon = styled.i`
-    margin-right: 5px;
+    margin-right: ${padding.smaller};
 `;
 
 type Props = {

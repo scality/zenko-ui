@@ -12,12 +12,13 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import type { ObjectEntity } from '../../../types/s3';
 import { formatBytes } from '../../utils';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 
 export const Icon = styled.i`
-    margin-right: 5px;
-    margin-left: ${props => props.isMargin ? '15px' : '0px'};
+    margin-right: ${padding.smaller};
+    margin-left: ${props => props.isMargin ? padding.base : '0px'};
 `;
 
 type CellProps = {

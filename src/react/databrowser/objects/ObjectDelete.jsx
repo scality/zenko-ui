@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { closeObjectDeleteModal, deleteFiles, toggleAllObjects } from '../../actions';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { formatBytes, maybePluralize } from '../../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
@@ -17,18 +18,18 @@ const Files = styled.div`
     height: 250px;
     width: 500px;
     overflow-y: scroll;
-    margin: 10px 0px;
+    margin: ${padding.small} 0px;
     border: 1px solid ${props => props.theme.brand.border};
 `;
 
 const Description = styled.div`
-    font-size: 14px;
-    margin-top: 2px;
+    font-size: ${fontSize.base};
+    margin-top: ${padding.smaller};
 `;
 
 const VersionId = styled.div`
-    font-size: 11px;
-    margin-top: 2px;
+    font-size: ${fontSize.small};
+    margin-top: ${padding.smaller};
 `;
 
 const title = (files, isVersioning) => {

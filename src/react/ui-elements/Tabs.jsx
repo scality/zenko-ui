@@ -18,7 +18,6 @@ export const CustomTabs = styled(Tabs)`
     .sc-tabs-item-content{
         background-color: ${props => props.theme.brand.backgroundLevel4};
         display: flex;
-        border-radius: 5px;
         flex: 1;
         padding: 24px 32px;
         overflow-y: auto;

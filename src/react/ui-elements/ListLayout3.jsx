@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components';
+import { padding } from '@scality/core-ui/dist/style/theme';
 
 export const Container = styled.div`
     display: flex;
@@ -13,11 +14,11 @@ export const BreadcrumbContainer = styled.div`
     height: 22px;
     display: flex;
     min-height: 22px;
-    padding: 4px 0px;
+    padding: ${padding.smaller} 0px;
     background-color: ${props => props.theme.brand.backgroundLevel1};
 
     .sc-breadcrumb_item {
-        font-size: 15px;
+        font-size: ${padding.base};
     }
 `;
 
@@ -43,10 +44,9 @@ export const ListSection = styled.div`
     }}
     background-color: ${props => props.theme.brand.backgroundLevel2};
     min-width: 500px;
-    margin-left: 10px;
-    padding-bottom: 10px;
-    padding-top: 10px;
-    border-radius: 5px;
+    margin-left: 1px;
+    padding-bottom: ${padding.small};
+    padding-top: ${padding.small};
 `;
 
 export const ContentSection = styled.div`
@@ -55,13 +55,11 @@ export const ContentSection = styled.div`
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.backgroundLevel4};
-    margin: 0px 10px;
-    border-radius: 5px;
+    margin: 0px 1px;
 `;
 
 export const CreationSection = styled.div`
     flex: 1;
     padding: 24px 40px;
-    border-radius: 5px;
     background-color: ${props => props.theme.brand.backgroundLevel4};
 `;

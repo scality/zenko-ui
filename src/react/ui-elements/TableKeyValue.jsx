@@ -1,3 +1,4 @@
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -25,7 +26,7 @@ export const Row = styled.tr`
 `;
 
 export const Key = styled.td`
-    padding: 10px 0px;
+    padding: ${padding.small} 0px;
     color: ${props => props.theme.brand.textSecondary};
 `;
 
@@ -37,7 +38,7 @@ export const Value = styled.td`
 `;
 
 export const ExtraCell = styled.td`
-    padding-left: 20px;
+    padding-left: ${padding.large};
     min-width: 40px;
 `;
 

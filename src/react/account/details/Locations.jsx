@@ -10,6 +10,7 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails/storageOptions';
 import styled from 'styled-components';
@@ -36,7 +37,7 @@ export const Actions = styled.div`
 `;
 
 export const ActionButton = styled(Button)`
-    margin-left: 5px;
+    margin-left: ${padding.smaller};
 `;
 
 const Container = styled.div`
@@ -47,12 +48,12 @@ const Container = styled.div`
 `;
 
 const IconTooltip = styled.i`
-    margin-left: 5px;
+    margin-left: ${padding.smaller};
 `;
 
 const Overlay = styled.div`
     width: 220px;
-    padding: 10px;
+    padding: ${padding.small};
     text-align: left;
 `;
 
