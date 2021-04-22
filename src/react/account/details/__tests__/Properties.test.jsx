@@ -38,7 +38,7 @@ describe('Properties', () => {
         expect(component.find(Table)).toHaveLength(1);
 
         const rows = component.find(T.Row);
-        expect(rows).toHaveLength(6);
+        expect(rows).toHaveLength(5);
 
         const firstRow = rows.first();
         testRow(firstRow, { key: 'Account ID', value: account1.id, extraCellComponent: 'Clipboard' });
@@ -49,13 +49,10 @@ describe('Properties', () => {
         const thirdRow = rows.at(2);
         testRow(thirdRow, { key: 'Creation Date', value: formatDate(new Date(account1.createDate)) });
 
-        const fourthRow = rows.at(3);
-        testRow(fourthRow, { key: 'Quota', value: account1.quotaMax });
-
-        const fifthRow = rows.at(4);
+        const fifthRow = rows.at(3);
         testRow(fifthRow, { key: 'Root User Email', value: account1.email, extraCellComponent: 'Clipboard' });
 
-        const sixthRow = rows.at(5);
+        const sixthRow = rows.at(4);
         testRow(sixthRow, { key: 'Root User ARN', value: account1.arn, extraCellComponent: 'Clipboard' });
     });
 
