@@ -1,9 +1,9 @@
 // @flow
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui';
 import type { Node } from 'react';
 import React from 'react';
+import { padding } from '@scality/core-ui/dist/style/theme';
 
 const Container = styled.div`
     display: flex;

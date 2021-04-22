@@ -2,6 +2,7 @@
 import { Button as BasicButton } from '@scality/core-ui';
 import { default as BasicInput } from './Input';
 import React from 'react';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 type Props = {
@@ -25,11 +26,11 @@ const InputGroup = styled.div`
 `;
 
 const Input = styled(BasicInput)`
-    margin-bottom: 5px;
+    margin-bottom: ${padding.small};
 `;
 
 const Button = styled(BasicButton)`
-    margin-left: 5px;
+    margin-left: ${padding.small};
     &.invisible {
         visibility:hidden;
     }

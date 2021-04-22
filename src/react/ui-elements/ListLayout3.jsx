@@ -1,5 +1,5 @@
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled, { css } from 'styled-components';
-import { padding } from '@scality/core-ui/dist/style/theme';
 
 export const Container = styled.div`
     display: flex;
@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 export const BreadcrumbContainer = styled.div`
-    margin: 0px 10px;
+    margin: 0px ${padding.small};
     height: 22px;
     display: flex;
     min-height: 22px;
@@ -45,8 +45,8 @@ export const ListSection = styled.div`
     background-color: ${props => props.theme.brand.backgroundLevel2};
     min-width: 500px;
     margin-left: 1px;
-    padding-bottom: ${padding.small};
-    padding-top: ${padding.small};
+    padding-bottom: ${padding.base};
+    padding-top: ${padding.base};
 `;
 
 export const ContentSection = styled.div`
@@ -60,6 +60,6 @@ export const ContentSection = styled.div`
 
 export const CreationSection = styled.div`
     flex: 1;
-    padding: 24px 40px;
+    padding: ${padding.larger} 40px;
     background-color: ${props => props.theme.brand.backgroundLevel4};
 `;

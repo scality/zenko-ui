@@ -1,7 +1,6 @@
 // @flow
 import React, { useState } from 'react';
 import { closeFolderCreateModal, createFolder } from '../../actions';
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -10,6 +9,7 @@ import type { DispatchAPI } from 'redux';
 import Input from '../../ui-elements/Input';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Description = styled.div`

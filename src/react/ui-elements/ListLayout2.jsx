@@ -64,8 +64,8 @@ export const ListSection = styled.div`
     min-width: 650px;
 
     background-color: ${props => props.theme.brand.backgroundLevel2};
-    padding-top: ${padding.small};
-    padding-bottom: ${padding.small};
+    padding-top: ${padding.base};
+    padding-bottom: ${padding.base};
 `;
 
 export const ContentSection = styled.div`

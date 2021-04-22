@@ -36,8 +36,7 @@ export const ListSection = styled.div`
 
     background-color: ${props => props.theme.brand.backgroundLevel2};
     margin: ${padding.small} 0px ${padding.small} ${padding.small};
-    padding: ${padding.small};
-    border-radius: 5px;
+    padding: ${padding.base};
 `;
 
 export const ContentSection = styled.div`

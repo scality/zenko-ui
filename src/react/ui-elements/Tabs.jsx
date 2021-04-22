@@ -1,4 +1,5 @@
 import { Tabs } from '@scality/core-ui';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const CustomTabs = styled(Tabs)`
@@ -13,13 +14,13 @@ export const CustomTabs = styled(Tabs)`
         min-width: 115px;
     }
     .sc-tabs-item-title{
-        border-radius: 5px 5px 0px 0px;
+        border-radius: ${padding.small} ${padding.small} 0px 0px;
     }
     .sc-tabs-item-content{
         background-color: ${props => props.theme.brand.backgroundLevel4};
         display: flex;
         flex: 1;
-        padding: 24px 32px;
+        padding: ${padding.larger} 32px;
         overflow-y: auto;
         height: 0;
         min-height: 0;
