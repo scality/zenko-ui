@@ -12,6 +12,7 @@ export const IconSuccess = styled.i`
 `;
 
 export const IconCopy = styled.i`
+    color: ${props => props.theme.brand.textSecondary};
     display: ${props => props.hidden ? 'none': 'block'};
 `;
 
@@ -39,7 +40,7 @@ export const Clipboard = ({ text }: { text: string }) => {
                 <Tooltip overlay= "Copied!" placement="right" >
                     <IconSuccess className='fas fa-check'></IconSuccess>
                 </Tooltip>:
-                <IconCopy hidden={!navigator || !navigator.clipboard} className='far fa-clipboard clipboard-icon-copy' onClick={copyToClipboard}></IconCopy>
+                <IconCopy hidden={!navigator || !navigator.clipboard} className='far fa-clone' onClick={copyToClipboard}></IconCopy>
         }
     </Container>;
 };
