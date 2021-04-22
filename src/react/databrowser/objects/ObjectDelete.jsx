@@ -23,7 +23,6 @@ const Files = styled.div`
 `;
 
 const Description = styled.div`
-    font-size: ${fontSize.base};
     margin-top: ${padding.smaller};
 `;
 

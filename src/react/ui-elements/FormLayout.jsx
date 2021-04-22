@@ -73,7 +73,6 @@ export const InputList = styled(BasicInputList)`
 
 // * ErrorInput
 const ErrorInputContainer = styled.div`
-    font-size: ${fontSize.base};
     height: ${padding.base};
     color: ${props => props.theme.brand.danger};
 `;
@@ -105,7 +104,6 @@ const IconQuestionCircle = styled.i`
 const UlOverlay = styled.ul`
     text-align:left;
     padding: 0px 0px 0px ${padding.large};
-    font-size: ${fontSize.base};
 `;
 
 type LabelProps = {

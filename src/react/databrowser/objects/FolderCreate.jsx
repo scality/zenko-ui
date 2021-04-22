@@ -15,8 +15,8 @@ import styled from 'styled-components';
 export const Description = styled.div`
     margin-top: ${padding.base};
     width: 400px;
-    font-size: ${fontSize.base};
 `;
+
 export const Icon = styled.i`
     margin-right: ${padding.smaller};
 `;

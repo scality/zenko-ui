@@ -1,4 +1,4 @@
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 const MainContainer = styled.div`
@@ -8,6 +8,7 @@ const MainContainer = styled.div`
     overflow: scroll;
 
     color: ${props => props.theme.brand.textPrimary};
+    font-size: ${fontSize.base};
     background-color: ${props => props.theme.brand.backgroundLevel1};
     flex-direction:column;
     align-items: stretch;

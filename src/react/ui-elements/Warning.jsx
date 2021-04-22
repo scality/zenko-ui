@@ -32,13 +32,11 @@ const Container2 = styled.div`
 `;
 
 const Title = styled.div`
-    font-size: ${fontSize.base};
     margin-top: ${padding.small};
 `;
 
 const Description = styled.div`
     margin-top: ${padding.small};
-    font-size: ${fontSize.base};
 `;
 
 const ButtonSection = styled.div`
