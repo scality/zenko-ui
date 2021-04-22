@@ -99,6 +99,7 @@ export function toggleBucketVersioning(bucketName: string, isVersioning: boolean
         const { zenkoClient } = getClients(getState());
         dispatch(networkStart('Versioning bucket'));
         return zenkoClient.toggleVersioning(bucketName, isVersioning)
+            .then(() => dispatch(listBuckets()))
             .then(() => dispatch(getBucketInfo(bucketName)))
             .catch(error => dispatch(handleS3Error(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))

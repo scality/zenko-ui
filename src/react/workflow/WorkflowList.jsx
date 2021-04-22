@@ -6,18 +6,18 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout3';
 import React from 'react';
-import type { Rules } from '../../types/config';
+import type { Workflows } from '../../types/workflow';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 
 const columns = [
     {
-        Header: 'Rule Name',
+        Header: 'Workflow Description',
         accessor: 'name',
         width: 60,
     },
     {
-        Header: 'Workflow',
+        Header: 'Workflow Type',
         accessor: 'type',
         width: 25,
     },
@@ -30,11 +30,11 @@ const columns = [
 ];
 
 type Props = {
-    rules: Rules,
-    ruleId: ?string,
+    workflows: Workflows,
+    workflowId: ?string,
     createMode: boolean,
 };
-function WorkflowList({ createMode, rules, ruleId }: Props) {
+function WorkflowList({ createMode, workflows, workflowId }: Props) {
     const dispatch = useDispatch();
 
     const {
@@ -46,7 +46,7 @@ function WorkflowList({ createMode, rules, ruleId }: Props) {
         prepareRow,
     } = useTable({
         columns,
-        data: rules,
+        data: workflows,
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
@@ -56,9 +56,9 @@ function WorkflowList({ createMode, rules, ruleId }: Props) {
         <ListSection disabled={createMode} id='account-list'>
             <T.SearchContainer>
                 <T.Search>
-                    <T.SearchInput disableToggle={true} placeholder='Search by Rule Name' onChange={e => setFilter('name', e.target.value)} />
+                    <T.SearchInput disableToggle={true} placeholder='Search by Workflow Name' onChange={e => setFilter('name', e.target.value)} />
                 </T.Search>
-                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Rule" variant='secondary' onClick={() => dispatch(push('/create-workflow'))} size="default" type="submit" />
+                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Workflow" variant='secondary' onClick={() => dispatch(push('/create-workflow'))} size="default" type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
@@ -90,7 +90,7 @@ function WorkflowList({ createMode, rules, ruleId }: Props) {
                                     itemCount={rows.length}
                                     itemSize={45}
                                     width={width || '100%'}
-                                    itemData={createItemData(rows, prepareRow, ruleId, dispatch)}
+                                    itemData={createItemData(rows, prepareRow, workflowId, dispatch)}
                                 >
                                     {MemoRow}
                                 </FixedSizeList>

@@ -112,9 +112,11 @@ describe('Locations', () => {
             configuration: {
                 latest: {
                     locations,
-                    replicationStreams: [],
                     endpoints: [],
                 },
+            },
+            workflow: {
+                replications: [],
             },
         });
 
@@ -205,15 +207,17 @@ describe('Locations', () => {
             configuration: {
                 latest: {
                     locations: { 'location-aws-s3': locationAwsS3 },
-                    replicationStreams: [{
-                        destination: {
-                            locations: [{
-                                name: 'location-aws-s3',
-                            }],
-                        },
-                    }],
                     endpoints: [],
                 },
+            },
+            workflow: {
+                replications: [{
+                    destination: {
+                        locations: [{
+                            name: 'location-aws-s3',
+                        }],
+                    },
+                }],
             },
         });
 
@@ -238,7 +242,6 @@ describe('Locations', () => {
             configuration: {
                 latest: {
                     locations: { 'location-aws-s3': locationAwsS3 },
-                    replicationStreams: [],
                     endpoints: [],
                 },
             },
@@ -247,6 +250,9 @@ describe('Locations', () => {
                     name: 'bucket1',
                     location: 'location-aws-s3',
                 }],
+            },
+            workflow: {
+                replications: [],
             },
         });
 
@@ -271,12 +277,14 @@ describe('Locations', () => {
             configuration: {
                 latest: {
                     locations: { 'location-aws-s3': locationAwsS3 },
-                    replicationStreams: [],
                     endpoints: [{
                         hostname: 'host1',
                         locationName: 'location-aws-s3',
                     }],
                 },
+            },
+            workflow: {
+                replications: [],
             },
         });
 

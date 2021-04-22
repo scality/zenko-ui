@@ -5,6 +5,7 @@ import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMa
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
+import type { APIWorkflows } from './workflow';
 import type { Account } from './account';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
@@ -346,6 +347,14 @@ export type AddOIDCUserAction = {|
 
 export type OIDCAction = AddOIDCUserAction;
 
+// WORKFLOW
+export type SearchWorkflowsSuccessAction = {|
+    +type: 'SEARCH_WORKFLOWS_SUCCESS',
+    +workflows: APIWorkflows,
+|};
+
+export type WorkflowAction = SearchWorkflowsSuccessAction;
+
 export type Action =
     AuthAction |
     BucketsUIAction |
@@ -363,4 +372,5 @@ export type Action =
     AccountUIAction |
     StatsAction |
     WorkflowUIAction |
+    WorkflowAction |
     ZenkoAction;

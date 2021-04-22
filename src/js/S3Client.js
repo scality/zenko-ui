@@ -1,6 +1,5 @@
 // @noflow
 import S3 from 'aws-sdk/clients/s3';
-const async = require('async');
 import { chunkArray } from './utils';
 import { isVersioning } from '../react/utils';
 
@@ -35,24 +34,21 @@ export default class S3Client {
     }
 
     listBucketsWithLocation() {
-        return new Promise((resolve, reject) => {
-            this.client.listBuckets((error, list) => {
-                if (error) {
-                    return reject(error);
-                }
-                return async.eachOf(list.Buckets, (bucket, key, cb) => {
-                    return this.client.getBucketLocation({ Bucket: bucket.Name },
-                        (error, data) => {
-                            if (error) {
-                                return cb(error);
-                            }
-                            list.Buckets[key].LocationConstraint =
-                            data.LocationConstraint;
-                            return cb(null);
+        return this.client.listBuckets().promise()
+            .then(list => {
+                return Promise.all(list.Buckets.map((bucket, key) => {
+                    return Promise.all([
+                        this.client.getBucketLocation({ Bucket: bucket.Name }).promise(),
+                        this.client.getBucketVersioning({ Bucket: bucket.Name }).promise(),
+                    ])
+                        .then(([loc, ver]) => {
+                            list.Buckets[key].LocationConstraint = loc.LocationConstraint;
+                            list.Buckets[key].VersionStatus = ver.Status;
                         });
-                }, err => err ? reject(error) : resolve(list));
+                })).then(() => {
+                    return list;
+                });
             });
-        });
     }
 
     createBucket(bucket) {

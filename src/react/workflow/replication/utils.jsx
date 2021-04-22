@@ -5,6 +5,7 @@ import React from 'react';
 import type { S3BucketList } from '../../../types/s3';
 import type { SelectOption } from '../../../types/ui';
 import { getLocationTypeShort } from '../../utils/storageOptions';
+import { isVersioning } from '../../utils';
 import { storageOptions } from '../../backend/location/LocationDetails';
 
 export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3BucketList, locations: Locations): Array<ReplicationBucketOption> => {
@@ -20,7 +21,7 @@ export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3B
             label: b.Name,
             value: b.Name,
             location: constraint,
-            disabled: bucketsUsedForReplication.indexOf(b.Name) > -1 ||
+            disabled: !isVersioning(b.VersionStatus) || bucketsUsedForReplication.indexOf(b.Name) > -1 ||
                 !supportsReplicationSource,
         };
     });
@@ -125,12 +126,16 @@ export function convertToReplicationStream(r: ReplicationForm): ReplicationStrea
             bucketName: r.sourceBucket.value || '',
         },
         destination: {
-            locations: [{ name: r.destinationLocation.value || '', storageClass: 'standard' }] || [],
+            locations: [{ name: r.destinationLocation.value || '' }] || [],
             preferredReadLocation: r.preferredReadLocation,
         },
     };
 }
 
-export function generateStreamName(bucketName: string, destinationName: string): string {
-    return `${bucketName} ➜ ${destinationName}`;
+export function generateStreamName(r: ReplicationStream): string {
+    const { bucketName, prefix } = r.source;
+    const locations = r.destination.locations;
+    const addedPrefix = prefix ? `/${prefix}` : '';
+    const locationNames = locations.map(l => l.name);
+    return `${bucketName}${addedPrefix} ➜ ${locationNames.toString()}`;
 }

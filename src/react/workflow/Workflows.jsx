@@ -13,9 +13,9 @@ import { push } from 'connected-react-router';
 
 export default function Workflows(){
     const dispatch = useDispatch();
-    const { ruleId } = useParams();
+    const { workflowId } = useParams();
     const { pathname } = useLocation();
-    const rules = useSelector((state: AppState) => state.configuration.rules);
+    const workflows = useSelector((state: AppState) => state.workflow.list);
     const createMode = pathname === '/create-workflow';
     const accountName = useSelector((state: AppState) => state.auth.selectedAccount && state.auth.selectedAccount.userName);
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
@@ -43,7 +43,7 @@ export default function Workflows(){
                     btnAction={() => dispatch(push('/create-bucket'))} />
             </EmptyStateContainer>;
         }
-        if (!createMode && rules.length === 0) {
+        if (!createMode && workflows.length === 0) {
             return <EmptyStateContainer>
                 <Warning
                     centered={true}
@@ -53,14 +53,13 @@ export default function Workflows(){
                     btnAction={() => dispatch(push('/create-workflow'))} />
             </EmptyStateContainer>;
         }
-
         // redirect to the first workflow.
-        if (!createMode && rules.length > 0 && !ruleId) {
-            return <Redirect to={`/workflows/${rules[0].id}`}/>;
+        if (!createMode && workflows.length > 0 && !workflowId) {
+            return <Redirect to={`/workflows/${workflows[0].id}`}/>;
         }
         return <L.Body>
-            <WorkflowList createMode={createMode} ruleId={ruleId} rules={rules}/>
-            <WorkflowContent bucketList={bucketList} createMode={createMode} ruleDetails={rules.find(r => r.id === ruleId)}/>
+            <WorkflowList createMode={createMode} workflowId={workflowId} workflows={workflows}/>
+            <WorkflowContent bucketList={bucketList} createMode={createMode} wfSelected={workflows.find(w => w.id === workflowId)}/>
         </L.Body>;
     };
 

@@ -17,6 +17,12 @@ const deleteBucketNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting 
 const getBucketInfoNetworkAction = dispatchAction.NETWORK_START_ACTION('Getting bucket information');
 const toggleBucketVersioningNetworkAction = dispatchAction.NETWORK_START_ACTION('Versioning bucket');
 
+const listBucketsActions = [
+    listBucketsNetworkAction,
+    dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
+    dispatchAction.NETWORK_END_ACTION,
+];
+
 describe('s3bucket actions', () => {
     const syncTests = [
         {
@@ -55,9 +61,7 @@ describe('s3bucket actions', () => {
             storeState: initState,
             expectedActions: [
                 createBucketNetworkAction,
-                listBucketsNetworkAction,
-                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
-                dispatchAction.NETWORK_END_ACTION,
+                ...listBucketsActions,
                 dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
                 dispatchAction.NETWORK_END_ACTION,
             ],
@@ -81,11 +85,7 @@ describe('s3bucket actions', () => {
             it: 'listBuckets: should return list of buckets',
             fn: actions.listBuckets(),
             storeState: initState,
-            expectedActions: [
-                listBucketsNetworkAction,
-                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
-                dispatchAction.NETWORK_END_ACTION,
-            ],
+            expectedActions: listBucketsActions,
         },
         {
             it: 'deleteBucket: should delete bucket',
@@ -93,9 +93,7 @@ describe('s3bucket actions', () => {
             storeState: initState,
             expectedActions: [
                 deleteBucketNetworkAction,
-                listBucketsNetworkAction,
-                dispatchAction.LIST_BUCKETS_SUCCESS_ACTION([], OWNER_NAME),
-                dispatchAction.NETWORK_END_ACTION,
+                ...listBucketsActions,
                 dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,
@@ -138,6 +136,7 @@ describe('s3bucket actions', () => {
             storeState: initState,
             expectedActions: [
                 toggleBucketVersioningNetworkAction,
+                ...listBucketsActions,
                 getBucketInfoNetworkAction,
                 dispatchAction.GET_BUCKET_INFO_SUCCESS_ACTION,
                 dispatchAction.NETWORK_END_ACTION,

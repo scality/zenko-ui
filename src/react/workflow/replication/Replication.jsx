@@ -30,9 +30,9 @@ const ReplicationContainer = styled.div`
 const schema = Joi.object({
     streamId: Joi.string().label('Id').allow(''),
     streamVersion: Joi.number().label('Version').optional(),
-    streamName: Joi.string().label('Name').min(4).allow('').messages({
-        'string.min': '"Name" should have a minimum length of {#limit}',
-    }),
+    // streamName: Joi.string().label('Name').min(4).allow('').messages({
+    //     'string.min': '"Name" should have a minimum length of {#limit}',
+    // }),
     enabled: Joi.boolean().label('State').required(),
     sourceBucket: Joi.object({
         value: Joi.string().label('Bucket Name').required(),
@@ -48,15 +48,15 @@ const schema = Joi.object({
 });
 
 type Props = {
-    streams: ReplicationStreams,
+    replications: ReplicationStreams,
     bucketList: S3BucketList,
     locations: Locations,
-    workflowDetails: ?ReplicationStream,
+    workflow: ?ReplicationStream,
     showEditWorkflowNotification: boolean,
     createMode: boolean,
     loading: boolean,
 };
-function Replication({ streams, bucketList, locations, workflowDetails, showEditWorkflowNotification, createMode, loading }: Props) {
+function Replication({ replications, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
     const dispatch = useDispatch();
 
     const { register, handleSubmit, errors, control, reset, getValues } = useForm({
@@ -65,15 +65,15 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
     });
 
     useEffect(() => {
-        reset(convertToReplicationForm(workflowDetails)); // asynchronously reset form values
-    }, [reset, workflowDetails]);
+        reset(convertToReplicationForm(workflow)); // asynchronously reset form values
+    }, [reset, workflow]);
 
     const onSubmit = (values) => {
         let stream = values;
-        if (!stream.streamName) {
-            stream = { ...values, streamName: generateStreamName(stream.sourceBucket.value, stream.destinationLocation.value) };
+        let s = convertToReplicationStream(stream);
+        if (!s.name) {
+            s = { ...s, name: generateStreamName(s) };
         }
-        const s = convertToReplicationStream(stream);
         dispatch(saveReplication(s));
     };
 
@@ -95,6 +95,18 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
 
     return (
         <ReplicationContainer>
+            <input type='hidden'
+                id='streamId'
+                name='streamId'
+                ref={register}
+                autoComplete='off'
+            />
+            <input type='hidden'
+                id='streamVersion'
+                name='streamVersion'
+                ref={register}
+                autoComplete='off'
+            />
             <T.Groups>
                 <T.Group>
                     <T.GroupContent>
@@ -111,21 +123,9 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                         General
                     </T.GroupName>
                     <T.GroupContent>
-                        <T.Row>
+                        {/* <T.Row>
                             <T.Key> Name </T.Key>
                             <T.Value>
-                                <input type='hidden'
-                                    id='streamId'
-                                    name='streamId'
-                                    ref={register}
-                                    autoComplete='off'
-                                />
-                                <input type='hidden'
-                                    id='streamVersion'
-                                    name='streamVersion'
-                                    ref={register}
-                                    autoComplete='off'
-                                />
                                 <Controller
                                     control={control}
                                     id='streamName'
@@ -142,7 +142,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                                     <ErrorInput hasError={errors.streamName}> {errors.streamName?.message} </ErrorInput>
                                 </T.ErrorContainer>
                             </T.Value>
-                        </T.Row>
+                        </T.Row> */}
                         <T.Row>
                             <T.Key> State </T.Key>
                             <T.Value>
@@ -178,7 +178,7 @@ function Replication({ streams, bucketList, locations, workflowDetails, showEdit
                                     id='sourceBucket'
                                     name='sourceBucket'
                                     render={({ onChange, value: sourceBucket }) => {
-                                        const options = sourceBucketOptions(streams, bucketList, locations);
+                                        const options = sourceBucketOptions(replications, bucketList, locations);
                                         const isEditing = !!getValues('streamId');
                                         const result = options.find(l => l.value === sourceBucket.value);
                                         if (isEditing) {
