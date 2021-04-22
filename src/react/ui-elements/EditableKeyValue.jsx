@@ -3,6 +3,7 @@ import { Button } from '@scality/core-ui';
 import Input from './Input';
 import React from 'react';
 import { isEmptyItem } from '../utils';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Container = styled.div`
@@ -19,7 +20,7 @@ export const Item = styled.div`
     flex-direction:row;
     align-items: center;
 
-    margin-bottom: 5px;
+    margin-bottom: ${padding.smaller};
 
     // For Select we ajust width here becase in CoreUI.Select
     // props are not applied to the first parent element.
@@ -34,34 +35,34 @@ export const Header = styled.div`
     display:flex;
     flex-direction:row;
     width: calc(100% - 100px);
-    margin-bottom: 7px;
+    margin-bottom: ${padding.small};
 `;
 
 export const HeaderKey = styled.div`
     flex: 0 60%;
-    padding-left: 10px;
+    padding-left: ${padding.small};
 `;
 
 export const HeaderValue = styled.div`
     flex: 0 40%;
-    padding-left: 10px;
+    padding-left: ${padding.small};
 `;
 
 export const HeaderKeyTag = styled.div`
     flex: 0 50%;
-    padding-left: 10px;
+    padding-left: ${padding.small};
 `;
 
 export const HeaderValueTag = styled.div`
     flex: 0 50%;
-    padding-left: 10px;
+    padding-left: ${padding.small};
 `;
 
 export const Footer = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin-bottom: 5px;
+    margin-bottom: ${padding.smaller};
 `;
 
 export const Buttons = styled.div`
@@ -78,7 +79,7 @@ export const Inputs = styled.div`
     align-items: center;
     justify-content: space-between;
 
-    margin-right: 5px;
+    margin-right: ${padding.smaller};
 `;
 
 // NOTE: use for x-amz-meta extra key value
@@ -98,7 +99,7 @@ export const InputValue = styled(Input)`
 export const InputTag = styled(Input)`
     flex: 1 50%;
     &:first-child {
-        margin-right: 5px;
+        margin-right: ${padding.smaller};
     }
     width: 50%;
     min-width: 45%;

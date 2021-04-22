@@ -1,5 +1,5 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled, { css } from 'styled-components';
+import { padding } from '@scality/core-ui/dist/style/theme';
 
 export const Container = styled.div`
     display: flex;

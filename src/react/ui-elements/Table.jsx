@@ -75,7 +75,7 @@ export const Row = styled(HeadRow)`
     }
 
     ${({ isSelected, theme }) => isSelected && `
-        background-color: ${theme.brand.backgroundBluer};
+        background-color: ${theme.brand.highlight};
         border-right: 4px solid ${theme.brand.selectedActive};
         box-sizing: border-box;
     `}
@@ -117,8 +117,8 @@ export const CellA = styled.a`
 export const SearchContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-right: ${padding.base};
+    padding-left: ${padding.base};
 `;
 
 export const Search = styled.div`
@@ -207,8 +207,8 @@ export const SearchButton = styled(Button)`
 export const HeaderContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: ${padding.base};
+    padding-right: ${padding.base};
 `;
 
 export const ButtonContainer = styled.div`

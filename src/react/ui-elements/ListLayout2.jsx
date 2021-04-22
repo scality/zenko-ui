@@ -53,7 +53,7 @@ export const Body = styled.div`
     flex-direction: row;
     width: 100%;
 
-    margin-top: ${padding.smaller};
+    margin-top: 2px;
     overflow-y: auto;
 `;
 
