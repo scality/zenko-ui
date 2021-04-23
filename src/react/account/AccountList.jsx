@@ -67,6 +67,9 @@ function AccountList({ accountList, accountIndex }: Props) {
         if (listRef && listRef.current && accountIndex > -1) {
             listRef.current.scrollToItem(accountIndex, 'smart');
         }
+        // Omitting accountIndex on purpose in dependencies
+        // We want to scroll to the selected item only once on mount.
+        // eslint-disable-next-line
     }, [listRef]);
 
     return (
