@@ -65,7 +65,7 @@ function AccountList({ accountList, accountIndex }: Props) {
         if (listRef && listRef.current && accountIndex > -1) {
             listRef.current.scrollToItem(accountIndex, 'smart');
         }
-    }, [listRef]);
+    }, [listRef, accountIndex]);
 
     return (
         <ListSection id='account-list'>
