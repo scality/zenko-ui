@@ -37,7 +37,7 @@ export const Container = styled.div`
 
 // * table head
 export const Head = styled.thead`
-    border-bottom: 1px solid #424242;
+    border-bottom: 1px solid ${props => props.theme.brand.backgroundLevel1};
 `;
 
 export const HeadRow = styled.tr`
@@ -70,6 +70,7 @@ export const BodyWindowing = styled.tbody`
 `;
 
 export const Row = styled(HeadRow)`
+    border-bottom: 1px solid ${props => props.theme.brand.backgroundLevel1};
     &:hover{
       background-color: ${props => props.theme.brand.secondaryDark1};
     }
