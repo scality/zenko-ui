@@ -26,7 +26,7 @@ function useWebComponent(src?: string, customElementName: string) {
             };
             body.appendChild(scriptElement);
         }
-    }, [src]);
+    }, [src, customElementName]);
 
     if (hasFailed) {
         throw new Error(`Failed to load component ${customElementName}`);
