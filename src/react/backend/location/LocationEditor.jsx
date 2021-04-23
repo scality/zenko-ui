@@ -187,7 +187,7 @@ function LocationEditor() {
                 </F.FooterError>
                 <F.FooterButtons>
                     <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
-                    <Button variant="buttonPrimary" disabled={disable || loading} onClick={save} text='Create'/>
+                    <Button variant="buttonPrimary" disabled={disable || loading} onClick={save} text={ locationEditing ? 'Save Changes' : 'Create' }/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>
