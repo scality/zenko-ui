@@ -94,7 +94,7 @@ function BucketCreate() {
 
     return <FormContainer>
         <F.Form ref={formRef}>
-            <F.Title> Create A New Bucket </F.Title>
+            <F.Title> Create a New Bucket </F.Title>
             <F.Fieldset>
                 <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']}>
                     Bucket Name
