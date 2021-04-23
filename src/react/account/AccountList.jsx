@@ -7,7 +7,8 @@ import type { Account } from '../../types/account';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout';
-import { formatDate } from '../utils';
+import { TextAligner } from '../ui-elements/Utility';
+import { formatSimpleDate } from '../utils';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -27,7 +28,12 @@ const columns = [
     {
         Header: 'Created on',
         accessor: 'createDate',
-        Cell: ({ value }) => { return formatDate(new Date(value));},
+        headerStyle: { textAlign: 'right' },
+        Cell({ value: date }: { value: number }) {
+            return <TextAligner alignment='right'>
+                { formatSimpleDate(new Date(date)) }
+            </TextAligner>;
+        },
     },
 ];
 
@@ -75,7 +81,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                         {headerGroups.map(headerGroup => (
                             <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
                                 {headerGroup.headers.map(column => (
-                                    <T.HeadCell onClick={() => handleSortClick(column, listRef)} key={column.id} {...column.getHeaderProps()} >
+                                    <T.HeadCell onClick={() => handleSortClick(column, listRef)} key={column.id} {...column.getHeaderProps()} style={{ ...column.headerStyle }}>
                                         {column.render('Header')}
                                         <T.Icon>
                                             {column.isSorted

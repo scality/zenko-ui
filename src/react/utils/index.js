@@ -49,6 +49,10 @@ export function formatShortDate(d) {
     return `${date} ${time}`;
 }
 
+export function formatSimpleDate(d) {
+    return d.toISOString().split('T')[0];
+}
+
 export function formatBytes(bytes, decimals = 1) {
     if (bytes === 0) return '0 B';
 
