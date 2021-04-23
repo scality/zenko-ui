@@ -1,3 +1,4 @@
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -34,17 +35,17 @@ export const ListSection = styled.div`
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.backgroundLevel2};
-    margin: 10px 0px 10px 10px;
-    padding-bottom: 10px;
-    padding-top: 10px;
-    border-radius: 5px;
+    margin: ${padding.small} 0px ${padding.small} ${padding.small};
+    padding-bottom: ${padding.base};
+    padding-top: ${padding.base};
 `;
 
 export const ContentSection = styled.div`
     display: flex;
     flex: 0 1 calc(100vw - 450px);
     flex-direction: column;
-    margin: 10px;
+    margin: ${padding.small};
+    margin-left: 1px;
 `;
 
 export const Head = styled.div`
@@ -53,8 +54,7 @@ export const Head = styled.div`
     justify-content: space-between;
 
     min-height: 80px;
-    border-radius: 5px;
-    padding: 15px;
+    padding: ${padding.base};
     background-color: ${props => props.theme.brand.backgroundLevel3};
 `;
 
@@ -69,8 +69,8 @@ export const HeadCenter = styled.div`
 `;
 
 export const HeadTitle = styled.div`
-  font-size: 19px;
-  margin-left: 10px;
+  font-size: ${fontSize.larger};
+  margin-left: ${padding.small};
 `;
 
 export const HeadRight = styled.div`
@@ -90,7 +90,7 @@ export const IconCircle = styled.i`
     text-align: center;
     line-height: 80px;
     vertical-align: middle;
-    margin-right: 16px;
+    margin-right: ${padding.base};
     font-size: 32px;
 `;
 
@@ -98,5 +98,5 @@ export const Details = styled.div`
     display: flex;
     flex: 1;
 
-    margin-top: 10px;
+    margin-top: 2px;
 `;

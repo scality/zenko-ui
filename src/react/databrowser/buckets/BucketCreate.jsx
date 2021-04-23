@@ -4,6 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import Joi from '@hapi/joi';
@@ -27,8 +28,8 @@ const SelectOption = styled.div`
     justify-content: space-between;
     align-items: baseline;
     .float-right{
-        font-size: 11px;
-        margin-right: 10px;
+        font-size: ${fontSize.small};
+        margin-right: ${padding.small};
     }
 `;
 

@@ -3,6 +3,7 @@ import { AddButton, Buttons, Container, Footer, Header, HeaderKeyTag, HeaderValu
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button } from '@scality/core-ui';
 import type { ObjectMetadata } from '../../../../types/s3';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import { putObjectTagging } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -12,7 +13,7 @@ const EMPTY_ITEM = { key: '', value: '' };
 const TableContainer = styled.div`
     overflow-y: auto;
     height: calc(100vh - 410px);
-    margin-bottom: 5px;
+    margin-bottom: ${padding.smaller};
 `;
 
 const convertToAWSTags = tags => tags.filter(tag => tag.key !== '' && tag.value !== '')

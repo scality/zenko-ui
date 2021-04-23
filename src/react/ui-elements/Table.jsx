@@ -4,6 +4,7 @@ import { Button, SearchInput as SearchInputCore } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -30,7 +31,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
     display: flex;
     flex: 1;
-    margin-top: 20px;
+    margin-top: ${padding.large};
     width: 100%;
 `;
 
@@ -50,11 +51,11 @@ export const HeadRow = styled.tr`
 
 export const HeadCell = styled.th`
     text-align:left;
-    padding: 0.75rem;
+    padding: ${padding.base};
 `;
 
 export const Icon = styled.i`
-  margin-left: 5px;
+  margin-left: ${padding.smaller};
 `;
 
 // * table body
@@ -74,7 +75,7 @@ export const Row = styled(HeadRow)`
     }
 
     ${({ isSelected, theme }) => isSelected && `
-        background-color: ${theme.brand.backgroundBluer};
+        background-color: ${theme.brand.highlight};
         border-right: 4px solid ${theme.brand.selectedActive};
         box-sizing: border-box;
     `}
@@ -82,7 +83,7 @@ export const Row = styled(HeadRow)`
 
 export const Cell = styled.td`
     color: ${props => props.shade ? props.theme.brand.base : props.theme.brand.text};
-    padding: 0.75rem;
+    padding: ${padding.base};
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -116,8 +117,8 @@ export const CellA = styled.a`
 export const SearchContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-right: 10px;
-    padding-left: 10px;
+    padding-right: ${padding.base};
+    padding-left: ${padding.base};
 `;
 
 export const Search = styled.div`
@@ -133,7 +134,7 @@ export const SearchMetadataContainer = styled.form`
     flex: 1 0 auto;
     display: flex;
     max-width: 600px;
-    margin-right: 20px;
+    margin-right: ${padding.large};
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
 `;
 
@@ -142,7 +143,7 @@ export const SearchMetadataInputAndIcon = styled.div`
     display:flex;
     flex-direction:row;
     flex: 1 0 auto;
-    margin-right: 5px;
+    margin-right: ${padding.smaller};
     align-items: center;
 `;
 
@@ -206,8 +207,8 @@ export const SearchButton = styled(Button)`
 export const HeaderContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: ${padding.base};
+    padding-right: ${padding.base};
 `;
 
 export const ButtonContainer = styled.div`
@@ -215,13 +216,13 @@ export const ButtonContainer = styled.div`
     flex: 0 0 auto;
 
     & > * {
-        margin-left: 5px;
+        margin-left: ${padding.smaller};
     }
 `;
 
 export const SubHeaderContainer = styled.div`
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
-    margin-left: 5px;
+    margin-left: ${padding.smaller};
 `;
 
 export default Table;

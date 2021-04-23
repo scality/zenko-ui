@@ -9,15 +9,16 @@ import type { DispatchAPI } from 'redux';
 import Input from '../../ui-elements/Input';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Description = styled.div`
-    margin-top: 14px;
+    margin-top: ${padding.base};
     width: 400px;
-    font-size: 14px;
 `;
+
 export const Icon = styled.i`
-    margin-right: 5px;
+    margin-right: ${padding.smaller};
 `;
 
 type Props = {

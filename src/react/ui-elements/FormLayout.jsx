@@ -1,9 +1,9 @@
-// @flow
+// @noflow
 import { Checkbox as BasicCheckbox, Select as BasicSelect, Tooltip } from '@scality/core-ui';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import type { Node } from 'react';
-
 import React from 'react';
 import styled from 'styled-components';
 
@@ -38,7 +38,7 @@ export const Title = styled.div`
     text-transform: capitalize;
     color: ${props => props.theme.brand.textPrimary};
     margin-bottom: 40px;
-    font-size: 24px;
+    font-size: ${fontSize.massive};
 `;
 
 export const Fieldset = styled.fieldset`
@@ -46,35 +46,34 @@ export const Fieldset = styled.fieldset`
     flex-direction: column;
     border: 0;
     padding: 0;
-    margin-top: 15px;
+    margin-top: ${padding.base};
 `;
 
 export const Select = styled(BasicSelect)`
-    margin: 10px 0px 5px 0px;
+    margin: ${padding.small} 0px ${padding.smaller} 0px;
 `;
 
 export const CheckboxContainer = styled.div`
     display: flex;
-    margin: 10px 0px 5px 0px;
+    margin: ${padding.small} 0px ${padding.smaller} 0px;
     align-items: baseline;
 `;
 
 export const Checkbox = styled(BasicCheckbox)`
-    margin-left: 15px;
+    margin-left: ${padding.base};
 `;
 
 export const Input = styled(BasicInput)`
-    margin: 10px 0px 5px 0px;
+    margin: ${padding.small} 0px ${padding.smaller} 0px;
 `;
 
 export const InputList = styled(BasicInputList)`
-    margin: 10px 0px 5px 0px;
+    margin: ${padding.small} 0px ${padding.smaller} 0px;
 `;
 
 // * ErrorInput
 const ErrorInputContainer = styled.div`
-    font-size: 14px;
-    height: 15px;
+    height: ${padding.base};
     color: ${props => props.theme.brand.danger};
 `;
 
@@ -95,7 +94,7 @@ const LabelContainer = styled.label`
 `;
 
 const TooltipContainer = styled.div`
-    margin-left: 8px;
+    margin-left: ${padding.small};
 `;
 
 const IconQuestionCircle = styled.i`
@@ -104,8 +103,7 @@ const IconQuestionCircle = styled.i`
 
 const UlOverlay = styled.ul`
     text-align:left;
-    padding: 0px 0px 0px 20px;
-    font-size: 14px;
+    padding: 0px 0px 0px ${padding.large};
 `;
 
 type LabelProps = {
@@ -144,7 +142,7 @@ export const Footer = styled.div`
 export const FooterError = styled.div`
     flex: 1 1 auto;
 
-    margin-right: 5px;
+    margin-right: ${padding.smaller};
     word-break: break-all;
 `;
 
@@ -152,7 +150,7 @@ export const FooterButtons = styled.div`
     flex: 0 0 auto;
 
     button{
-        margin-left: 24px;
+        margin-left: ${padding.larger};
     }
 `;
 
@@ -169,8 +167,7 @@ const FormContainer = styled.div`
     height: auto;
     background-color: ${props => props.theme.brand.backgroundLevel1};
     min-height: 100%;
-    margin: 8px;
-    border-radius: 5px;
+    margin: ${padding.small};
 `;
 
 export default FormContainer;

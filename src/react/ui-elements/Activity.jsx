@@ -13,7 +13,7 @@ const ActivityContainer = styled.div`
     right: 0px;
     padding: 1em;
     margin: 2em;
-    background-color: ${props => props.theme.brand.backgroundBluer};
+    background-color: ${props => props.theme.brand.highlight};
     border-radius: 6px;
     vertical-align: 50%;
     z-index: 1100;

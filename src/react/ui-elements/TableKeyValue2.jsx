@@ -1,3 +1,4 @@
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -48,12 +49,12 @@ export const Groups = styled.div`
 `;
 
 export const Group = styled.div`
-    margin-bottom: 10px;
+    margin-bottom: ${padding.small};
 `;
 
 export const GroupName = styled.div`
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: ${padding.small};
 `;
 
 export const GroupContent = styled.div`
@@ -66,7 +67,7 @@ export const Row = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: ${padding.smaller};
     min-height: 25px;
 `;
 
@@ -98,7 +99,7 @@ export const Header = styled.div`
 
 export const BannerContainer = styled.div`
     flex: 1;
-    margin-right: 8px;
+    margin-right: ${padding.small};
     width: 200px;
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
 `;
@@ -107,7 +108,7 @@ export const Footer = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin: 10px 0px;
+    margin: ${padding.small}; 0px;
 `;
 
 export default Table;

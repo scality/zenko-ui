@@ -5,6 +5,7 @@ import { Button, Select } from '@scality/core-ui';
 import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import { putObjectMetadata } from '../../../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
@@ -14,7 +15,7 @@ const EMPTY_ITEM = { key: '', value: '', type: '' };
 const TableContainer = styled.div`
     overflow-y: auto;
     height: calc(100vh - 410px);
-    margin-bottom: 5px;
+    margin-bottom: ${padding.smaller};
 `;
 
 const userMetadataOption = {

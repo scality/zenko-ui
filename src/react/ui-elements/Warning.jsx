@@ -3,13 +3,14 @@ import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui';
 import type { Node } from 'react';
 import React from 'react';
+import { padding } from '@scality/core-ui/dist/style/theme';
 
 const Container = styled.div`
     display: flex;
     flex: 1;
     flex-direction: column;
     text-align: center;
-    margin-top: 20px;
+    margin-top: ${padding.large};
     color: ${props => props.theme.brand.textPrimary};
     height: 100%;
     ${(props) => {
@@ -19,7 +20,7 @@ const Container = styled.div`
             `;
         }
         return css`
-          margin-top: 20px;
+          margin-top: ${padding.large};
         `;
     }}
 `;
@@ -31,17 +32,15 @@ const Container2 = styled.div`
 `;
 
 const Title = styled.div`
-    font-size: 15px;
-    margin-top: 10px;
+    margin-top: ${padding.small};
 `;
 
 const Description = styled.div`
-    margin-top: 10px;
-    font-size: 13px;
+    margin-top: ${padding.small};
 `;
 
 const ButtonSection = styled.div`
-    margin-top: 15px;
+    margin-top: ${padding.base};
 `;
 
 type WarningProps = {

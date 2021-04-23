@@ -1,3 +1,4 @@
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Hints = styled.div`
@@ -6,17 +7,17 @@ export const Hints = styled.div`
   background-color: ${props => props.theme.brand.backgroundLevel1};
   left: 20px;
   margin-top: 40px;
-  padding: 10px;
+  padding: ${padding.small};
 `;
 
 export const HintsTitle = styled.div`
   font-style: italic;
-  padding: 2px 0px 5px 5px;
+  padding: 2px 0px ${padding.smaller} ${padding.smaller};
   color: ${props => props.theme.brand.textSecondary};
 `;
 
 export const Hint = styled.div`
-  padding: 5px;
+  padding: ${padding.smaller};
   cursor: pointer;
 
   &:hover {
@@ -33,8 +34,8 @@ const Input = styled.input`
     border-width: 1px;
     border-style: solid;
     border-color: ${props => props.hasError ? props.theme.brand.danger : props.theme.brand.border};
-    padding: 0px 10px;
-    font-size: 14px;
+    padding: 0px ${padding.small};
+    font-size: ${fontSize.base};
     border-radius: 4px;
     line-height: 36px;
 

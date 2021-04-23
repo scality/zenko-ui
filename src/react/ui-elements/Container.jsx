@@ -1,3 +1,4 @@
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 const MainContainer = styled.div`
@@ -7,6 +8,7 @@ const MainContainer = styled.div`
     overflow: scroll;
 
     color: ${props => props.theme.brand.textPrimary};
+    font-size: ${fontSize.base};
     background-color: ${props => props.theme.brand.backgroundLevel1};
     flex-direction:column;
     align-items: stretch;
@@ -17,17 +19,16 @@ const Container = styled.div`
     flex-direction: column;
 
     max-width: 600px;
-    margin: 10px;
-    padding: 20px;
+    margin: ${padding.small};
+    padding: ${padding.large};
     background-color: ${props => props.theme.brand.backgroundLevel1};
-    border-radius: 5px;
 `;
 
 const ContainerFooter = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin-top: 10px;
+    margin-top: ${padding.small};
 `;
 
 const LoaderContainer = styled.div`

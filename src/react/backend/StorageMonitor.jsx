@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { getLocationName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 
 const Sections = styled.div`
   display: flex;
@@ -18,8 +19,7 @@ const Section = styled.div`
   display: flex;
   height: 100%;
 
-  margin: 10px;
-  border-radius: 5px;
+  margin: ${padding.small};
   background-color: ${props => props.theme.brand.primary};
   /* background-color: blue; */
 `;
@@ -37,18 +37,18 @@ const SectionLeft = styled.div`
   .title {
       display: flex;
       flex-direction: column;
-      padding: 15px;
+      padding: ${padding.base};
       .subtitle{
-          margin-top: 5px;
-          font-size: 12px;
+          margin-top: ${padding.smaller};
+          font-size: ${padding.base};
       }
   }
 
   .bottom {
-      padding: 0px 15px;
+      padding: 0px ${padding.base};
       button{
           width: 80px;
-          margin-bottom: 5px;
+          margin-bottom: ${padding.smaller};
       }
   }
 `;
@@ -66,9 +66,8 @@ const LocationContainer = styled.div`
 
     cursor: pointer;
     min-width: 130px;
-    margin: 10px 5px;
-    padding: 10px;
-    border-radius: 5px;
+    margin: ${padding.small} ${padding.smaller};
+    padding: ${padding.small};
     border: ${props => props.clicked ? '1px solid #32a1ce;' : '1px solid transparent;'};
 
     &:hover{
@@ -89,9 +88,9 @@ const LocationContainer = styled.div`
         .maintitle{
         }
         .subtitle {
-            margin-top: 5px;
+            margin-top: ${padding.small};
             word-break: break-word;
-            font-size: 12px;
+            font-size: ${fontSize.small};
         }
     };
 `;

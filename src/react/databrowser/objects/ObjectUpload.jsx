@@ -10,6 +10,7 @@ import { Button } from '@scality/core-ui';
 import type { DispatchAPI } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
+import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
 
@@ -20,7 +21,7 @@ const DropZone = styled.div`
 
     height: 300px;
     width: 500px;
-    padding: 20px;
+    padding: ${padding.large};
     border-width: 2px;
     border-radius: 2px;
     border-color: ${props => props.theme.brand.border};
@@ -34,14 +35,14 @@ const RemoveCell = styled(T.Cell)`
 const Files = styled.div`
     height: 250px;
     overflow-y: scroll;
-    margin: 10px 0px;
+    margin: ${padding.small} 0px;
 `;
 
 const EmptyFile = styled.div`
     text-align: center;
     margin-top: 60px;
     & > * {
-        margin-bottom: 15px;
+        margin-bottom: ${padding.base};
     }
 `;
 
