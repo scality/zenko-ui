@@ -6,8 +6,8 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout3';
 import React from 'react';
-import type { Workflows } from '../../types/workflow';
 import { TextTransformer } from '../ui-elements/Utility';
+import type { Workflows } from '../../types/workflow';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 
