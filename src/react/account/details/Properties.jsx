@@ -61,10 +61,6 @@ function Properties({ account }: Props) {
                         <T.Value> {formatDate(new Date(account.createDate))} </T.Value>
                     </T.Row>
                     <T.Row>
-                        <T.Key> Quota (GB) </T.Key>
-                        <T.Value> {account.quotaMax || 'N/A'} </T.Value>
-                    </T.Row>
-                    <T.Row>
                         <T.Key> Root User Email </T.Key>
                         <T.Value> {account.email} </T.Value>
                         <T.ExtraCell> <Clipboard text={account.email}/> </T.ExtraCell>

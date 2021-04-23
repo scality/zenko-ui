@@ -113,7 +113,9 @@ export const Char = styled.div`
 `;
 
 const CustomButton = styled(Button)`
-    display: ${props => props.isVisible ? 'block' : 'none'};
+    ${props => !props.isVisible ? `
+        display: none;
+    ` : '' }
 `;
 
 type AddButtonProps = {
