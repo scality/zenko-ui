@@ -1,9 +1,10 @@
 import * as T from '../../../ui-elements/TableKeyValue';
+import { Button } from '@scality/core-ui';
 import Properties from '../Properties';
 import React from 'react';
 import Table from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
-import { themeMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/test';
 
 
 const account1 = {
@@ -28,7 +29,11 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 
 describe('Properties', () => {
     it('should render Properties component', () => {
-        const component = themeMount(<Properties account={account1} />);
+        const { component } = reduxMount(<Properties account={account1} />);
+
+        const button = component.find(Button);
+        expect(button).toHaveLength(1);
+        expect(button.text()).toContain('Delete Account');
 
         expect(component.find(Table)).toHaveLength(1);
 

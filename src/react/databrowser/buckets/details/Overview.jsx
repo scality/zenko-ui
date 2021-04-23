@@ -2,26 +2,22 @@
 import { Button, Toggle } from '@scality/core-ui';
 import React, { useEffect } from 'react';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
-import { closeBucketDeleteDialog, deleteBucket, getBucketInfo, openBucketDeleteDialog, toggleBucketVersioning } from '../../../actions';
+import {
+    closeBucketDeleteDialog,
+    deleteBucket,
+    getBucketInfo,
+    openBucketDeleteDialog,
+    toggleBucketVersioning,
+} from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
+import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import type { Replication } from '../../../types/config';
 import type { S3Bucket } from '../../../types/s3';
+import { TableContainer } from '../../../ui-elements/Table';
 import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
-import styled from 'styled-components';
-
-const TableContainer = styled.div`
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-`;
-
-const ButtonContainer = styled.div`
-    display: flex;
-    justify-content: flex-end;
-`;
 
 function canDeleteBucket(
     bucketName: string,
