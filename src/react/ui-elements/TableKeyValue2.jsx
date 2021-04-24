@@ -35,6 +35,17 @@ import styled from 'styled-components';
 //     </T.Body>
 // </Table>
 
+export const Title = styled.div`
+    display: flex;
+
+    text-transform: capitalize;
+    margin-bottom: 24px;
+    font-size: 19px;
+`;
+
+export const Subtitle = styled(Title)`
+    font-size: 15px;
+`;
 
 export const Body = styled.form`
     display: flex;
@@ -76,11 +87,19 @@ export const Key = styled.div`
     flex: 1 1 30%;
     color: ${props => props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
     font-weight: ${props => props.principal ? 'bold' : 'normal'};
+    ${props => props.required ? `
+        &:after {
+            content: '*';
+        }
+    ` : ''}
 `;
 
 export const Value = styled.div`
     flex: 1 1 70%;
     flex-direction: column;
+    i {
+        margin-right: 8px;
+    }
 `;
 
 export const ErrorContainer = styled.div`

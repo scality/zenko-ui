@@ -8,7 +8,6 @@ import { CustomTabs } from '../ui-elements/Tabs';
 import React from 'react';
 import Replication from './replication/Replication';
 import type { S3BucketList } from '../../types/s3';
-import { Title } from '../ui-elements/FormLayout';
 import { Warning } from '../ui-elements/Warning';
 import type { Workflow } from '../../types/workflow';
 import { push } from 'connected-react-router';
@@ -43,7 +42,8 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
                 <CreationSection>
                     <Table id=''>
                         <T.Body autoComplete='off'>
-                            <Title> create new Workflow </Title>
+                            <T.Title> Create New Workflow </T.Title>
+                            <T.Subtitle> All * are mandatory fields </T.Subtitle>
                             <Replication loading={loading} showEditWorkflowNotification={false} workflow={null} replications={replications} bucketList={bucketList} locations={locations} createMode={true} />
                         </T.Body>
                     </Table>
