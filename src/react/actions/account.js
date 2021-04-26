@@ -10,7 +10,7 @@ import { getAccountIDStored, removeAccountIDStored, setAccountIDStored } from '.
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { assumeRoleWithWebIdentity } from './sts';
-import { getClients } from '../utils/actions';
+import { getClients, getAccountId } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 
@@ -101,5 +101,43 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
             .finally(() => {
                 dispatch(networkEnd());
             });
+    };
+}
+
+export function listAccountAccessKeys() {
+    return (dispatch, getState) => {
+        const state = getState();
+        const { iamClient, instanceId, managementClient } = getClients(state);
+        const accountID = getAccountId(state);
+        const { configuration } = state;
+        const accounts = configuration.latest.users;
+        const account = accounts.find(a => a.id === accountID);
+
+        dispatch(networkStart('Listing account access keys'));
+        return iamClient.listOwnAccessKeys()
+            .then(resp => {
+                console.log('listOwnAccessKeys1: resp!!!', resp);
+                // to test IAM client/server
+                return iamClient.listUsers();
+            })
+            .then(resp => {
+                console.log('listUsers: resp!!!', resp);
+                const params = { uuid: instanceId, accountName: account.userName };
+                return managementClient.generateKeyConfigurationOverlayUser(params);
+            })
+            .then(resp => {
+                console.log('generateKeyConfigurationOverlayUser: resp!!!', resp);
+                return iamClient.deleteAccessKey(resp.body.accessKey);
+            })
+            .then(() => {
+                return iamClient.listOwnAccessKeys();
+            })
+            .then(resp => {
+                console.log('listOwnAccessKeys2: resp!!!', resp);
+                return iamClient.deleteAccessKeys();
+            })
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
     };
 }

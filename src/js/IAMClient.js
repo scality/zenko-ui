@@ -29,10 +29,25 @@ export default class IAMClient implements IAMClientInterface {
     }
 
     deleteAccessKey(accessKey, userName) {
-        return this.client.deleteAccessKey({
+        const params = {
             AccessKeyId: accessKey,
             UserName: userName,
-        }).promise();
+        };
+        console.log('deleteAccessKey params!!!', params);
+        return this.client.deleteAccessKey(params).promise();
+    }
+
+    deleteAccessKeys() {
+        this.client.listAccessKeys().promise()
+            .then(resp => {
+                console.log('resp123!!!', resp);
+                return Promise.all(resp.AccessKeyMetadata.map(ak => {
+                    const params = {
+                        AccessKeyId: ak.AccessKeyId,
+                    };
+                    return this.client.deleteAccessKey(params).promise();
+                }));
+            });
     }
 
     deleteUser(userName) {
@@ -47,10 +62,14 @@ export default class IAMClient implements IAMClientInterface {
         }).promise();
     }
 
+    listOwnAccessKeys() {
+        console.log('listOwnAccessKeys!!!');
+        return this.client.listAccessKeys().promise();
+    }
+
     listAccessKeys(userName) {
-        return this.client.listAccessKeys({
-            UserName: userName,
-        }).promise();
+        console.log('listAccessKeys!!!');
+        return this.client.listAccessKeys().promise();
     }
 
     listAttachedUserPolicies(userName) {

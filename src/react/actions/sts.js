@@ -1,5 +1,5 @@
 // @flow
-import { handleErrorMessage, listBuckets, networkAuthFailure, searchWorkflows } from './index';
+import { handleErrorMessage, listAccountAccessKeys, listBuckets, networkAuthFailure, searchWorkflows } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 
@@ -25,6 +25,7 @@ export function assumeRoleWithWebIdentity(roleArn: string): ThunkStatePromisedAc
                 return Promise.all([
                     dispatch(searchWorkflows()),
                     dispatch(listBuckets()),
+                    dispatch(listAccountAccessKeys()),
                 ]);
             })
             .catch(error => {

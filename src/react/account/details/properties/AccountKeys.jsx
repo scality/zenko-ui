@@ -43,7 +43,7 @@ function AccountKeys({ account }: Props) {
     const accessKeysInfo = useSelector((state: AppState) => state.user.accessKeyList);
 
     useEffect(() => {
-        dispatch(listAccessKeys(account.userName));
+        // dispatch(listAccessKeys(account.userName));
     }, [account.userName, dispatch]);
 
     const columns = useMemo(() => [
