@@ -37,7 +37,7 @@ export default function Workflows(){
             return <EmptyStateContainer>
                 <Warning
                     centered={true}
-                    iconClass="fas fa-5x fa-wallet"
+                    iconClass="fas fa-5x fa-glass-whiskey"
                     title='Before browsing your workflow rules, create your first bucket.'
                     btnTitle='Create Bucket'
                     btnAction={() => dispatch(push('/create-bucket'))} />
@@ -47,7 +47,7 @@ export default function Workflows(){
             return <EmptyStateContainer>
                 <Warning
                     centered={true}
-                    iconClass="fas fa-5x fa-wallet"
+                    iconClass="fas fa-5x fa-coins"
                     title='Before browsing your workflow rules, create your first rule.'
                     btnTitle='Create Rule'
                     btnAction={() => dispatch(push('/create-workflow'))} />
