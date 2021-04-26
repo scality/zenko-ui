@@ -93,7 +93,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                     />
                     <small>
                         Your credentials are encrypted in transit, then at rest using your
-                        Zenko instance&apos;s RSA key pair so that we&apos;re unable to see them.
+                        instance&apos;s RSA key pair so that we&apos;re unable to see them.
                     </small>
                 </Fieldset>
                 <Fieldset>
@@ -120,7 +120,7 @@ export default class LocationDetailsAwsCustom extends React.Component<Props, Sta
                         placeholder="https://hosted-s3-server.internal.example.com:4443"
                     />
                     <small>Endpoint to reach the S3 server, including scheme and port.
-                        Zenko will use path-style access to buckets.
+                        The buckets will have a path-style access.
                     </small>
                 </Fieldset>
                 <Fieldset>

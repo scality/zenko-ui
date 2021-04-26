@@ -74,8 +74,8 @@ export const storageOptions: ({ [name: string]: any }) = {
         ingestCapability: 'nfsIngestLocation',
     },
     'location-scality-hdclient-v2': {
-        name: 'Scality Hyperdrive',
-        short: 'Hyperdrive',
+        name: 'Storage Service for Artesca',
+        short: 'Storage Service',
         formDetails: LocationDetailsHyperdriveV2,
         supportsVersioning: true,
         supportsReplicationTarget: false,
@@ -118,8 +118,8 @@ export const storageOptions: ({ [name: string]: any }) = {
         hasIcon: false,
     },
     'location-file-v1': {
-        name: 'Zenko Local Filesystem',
-        short: 'Zenko',
+        name: 'Local Filesystem',
+        short: 'Local Filesystem',
         supportsVersioning: true,
         supportsReplicationTarget: false,
         supportsReplicationSource: true,

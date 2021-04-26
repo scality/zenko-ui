@@ -150,7 +150,7 @@ describe('Locations', () => {
         const thirdRowColumns = thirdRow.find(T.Cell).map(column => column.text());
         expect(thirdRowColumns.length).toEqual(nbrOfColumnsExpected);
         expect(thirdRowColumns[0]).toEqual('location-file');
-        expect(thirdRowColumns[1]).toEqual('Zenko Local Filesystem');
+        expect(thirdRowColumns[1]).toEqual('Local Filesystem');
         expect(thirdRowColumns[2]).toEqual('');
         // edit button
         expect(thirdRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeTruthy();
@@ -161,7 +161,7 @@ describe('Locations', () => {
         const fourthRowColumns = fourthRow.find(T.Cell).map(column => column.text());
         expect(fourthRowColumns.length).toEqual(nbrOfColumnsExpected);
         expect(fourthRowColumns[0]).toEqual('location-hd');
-        expect(fourthRowColumns[1]).toEqual('Scality Hyperdrive');
+        expect(fourthRowColumns[1]).toEqual('Storage Service for Artesca');
         expect(fourthRowColumns[2]).toEqual('');
         // edit button
         expect(fourthRow.find(T.Cell).find(ActionButton).first().prop('disabled')).toBeFalsy();

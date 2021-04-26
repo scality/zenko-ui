@@ -74,7 +74,7 @@ export const NoBucketWarning = () => (
     <Container2>
         <i className='fas fa-2x fa-exclamation-circle'></i>
         <Title> No bucket </Title>
-        <Description> Data workflows and search work on Zenko buckets, but no bucket has been created yet. </Description>
+        <Description> Data workflows and search work on buckets, but no bucket has been created yet. </Description>
     </Container2>
 );
 
