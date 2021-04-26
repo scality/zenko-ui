@@ -28,7 +28,7 @@ To release a production image:
 
 * Name the tag for the repository and Docker image.
 
-* Use the `yarn version` command with the same tag to update `package.json`.
+* Use the `npm version` command with the same tag to update `package.json`.
 
 * Create a PR and merge the `package.json` change.
 
