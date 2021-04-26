@@ -62,6 +62,18 @@ models:
         docker push ${SCALITY_OCI_REPO_DEV}:%(prop:commit_short_revision)s;
       haltOnFailure: True
       env: *deploy-env
+  - ShellCommand: &wait-docker-daemon
+      name: Wait for Docker daemon to be ready
+      command: |
+        bash -c '
+        for i in {1..150}
+        do
+          docker info &> /dev/null && exit
+          sleep 2
+        done
+        echo "Could not reach Docker daemon from buildbot worker" >&2
+        exit 1'
+      haltOnFailure: true
 
 
 stages:
@@ -138,6 +150,7 @@ stages:
     worker: *worker
     steps:
       - Git: *clone
+      - ShellCommand: *wait-docker-daemon
       - ShellCommand: *docker-login
       - EvePropertyFromCommand:
           name: get tag short revision
