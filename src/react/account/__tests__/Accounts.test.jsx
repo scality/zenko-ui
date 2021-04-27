@@ -9,6 +9,7 @@ import AccountList from '../AccountList';
 import Accounts from '../Accounts';
 import { EmptyStateContainer } from '../../ui-elements/Container';
 import React from 'react';
+import { authenticatedUserState } from '../../actions/__tests__/utils/testUtil';
 import { reduxMount } from '../../utils/test';
 
 const account1 = {
@@ -65,6 +66,7 @@ describe('Accounts', () => {
         jest.spyOn(router, 'useParams').mockReturnValue({ accountName: 'bart' });
 
         const { component } = reduxMount(<MemoryRouter><Accounts/></MemoryRouter>, {
+            ...authenticatedUserState(),
             configuration: {
                 latest: {
                     users: [ account1, account2 ],

@@ -28,6 +28,7 @@ import {
 } from '../../../../js/mock/S3Client';
 import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
+import { ErrorMockIAMClient } from '../../../../js/mock/IAMClient';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
@@ -66,10 +67,12 @@ export const initState: AppState = initialFullState;
 export const USER_MANAGER_ERROR_MSG = 'User Manager Error Response';
 export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
 export const S3_CLIENT_ERROR_MSG = 'S3 Client Api Error Response';
+export const IAM_CLIENT_ERROR_MSG = 'S3 Client Api Error Response';
 
 export const USER_MANAGER_ERROR = new ApiErrorObject(USER_MANAGER_ERROR_MSG, 500);
 export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
 export const S3_CLIENT_ERROR = new ApiErrorObject(S3_CLIENT_ERROR_MSG, 500);
+export const IAM_CLIENT_ERROR = new ApiErrorObject(IAM_CLIENT_ERROR_MSG, 500);
 
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
@@ -146,6 +149,15 @@ export function errorManagementState(): AppState {
         auth: {
             ...state.auth,
             managementClient: new ErrorMockManagementClient(MANAGEMENT_ERROR),
+        },
+    };
+}
+
+export function errorIAMState(): AppState {
+    return {
+        ...initState,
+        iam: {
+            iamClient: new ErrorMockIAMClient(IAM_CLIENT_ERROR),
         },
     };
 }

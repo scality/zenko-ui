@@ -5,15 +5,24 @@ import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface } from '../types/iam';
 
 export default class IAMClient implements IAMClientInterface {
-    init(creds: Credentials) {
+    constructor(endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    login(creds: Credentials) {
         this.client = new IAM({
             // endpoint: 'https://iam.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/iam',
+            endpoint: this.endpoint,
             accessKeyId: creds.accessKey,
             secretAccessKey: creds.secretKey,
             sessionToken: creds.sessionToken,
             region: 'us-east-1',
         });
+    }
+
+    logout() {
+        if (this.client)
+            this.client.config.update({ accessKeyId: '', secretAccessKey: '', sessionToken: '' });
     }
 
     createAccessKey(userName) {
@@ -29,10 +38,23 @@ export default class IAMClient implements IAMClientInterface {
     }
 
     deleteAccessKey(accessKey, userName) {
-        return this.client.deleteAccessKey({
+        const params = {
             AccessKeyId: accessKey,
             UserName: userName,
-        }).promise();
+        };
+        return this.client.deleteAccessKey(params).promise();
+    }
+
+    deleteAccessKeys() {
+        this.client.listAccessKeys().promise()
+            .then(resp => {
+                return Promise.all(resp.AccessKeyMetadata.map(ak => {
+                    const params = {
+                        AccessKeyId: ak.AccessKeyId,
+                    };
+                    return this.client.deleteAccessKey(params).promise();
+                }));
+            });
     }
 
     deleteUser(userName) {
@@ -45,6 +67,10 @@ export default class IAMClient implements IAMClientInterface {
         return this.client.getUser({
             UserName: userName,
         }).promise();
+    }
+
+    listOwnAccessKeys() {
+        return this.client.listAccessKeys().promise();
     }
 
     listAccessKeys(userName) {

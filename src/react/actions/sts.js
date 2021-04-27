@@ -1,5 +1,5 @@
 // @flow
-import { handleErrorMessage, listBuckets, networkAuthFailure, searchWorkflows } from './index';
+import { handleErrorMessage, listAccessKeys, listBuckets, networkAuthFailure, searchWorkflows } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 
@@ -21,10 +21,11 @@ export function assumeRoleWithWebIdentity(roleArn: string): ThunkStatePromisedAc
                     sessionToken: creds.Credentials.SessionToken,
                 };
                 zenkoClient.login(params);
-                iamClient.init(params);
+                iamClient.login(params);
                 return Promise.all([
                     dispatch(searchWorkflows()),
                     dispatch(listBuckets()),
+                    dispatch(listAccessKeys()),
                 ]);
             })
             .catch(error => {

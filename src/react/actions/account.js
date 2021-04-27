@@ -35,7 +35,7 @@ export function selectAccount(account: Account): SelectAccountAction {
 
 export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
     return (dispatch, getState) => {
-        const { zenkoClient } = getClients(getState());
+        const { zenkoClient, iamClient } = getClients(getState());
         const { configuration } = getState();
         const accounts = configuration.latest.users;
         let account = accounts.find(a => a.id === accountID);
@@ -43,6 +43,7 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
             if (accounts.length === 0) {
                 // clean S3 client and buckets' list if no account.
                 zenkoClient.logout();
+                iamClient.logout();
                 removeAccountIDStored();
                 return Promise.resolve();
             }

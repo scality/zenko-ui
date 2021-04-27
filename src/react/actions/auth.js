@@ -82,7 +82,7 @@ export function loadAppConfig(): ThunkNonStateAction {
                 dispatch(setAppConfig(config));
                 dispatch(setSTSClient(new STSClient({ endpoint: config.stsEndpoint })));
                 dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
-                dispatch(setIAMClient(new IAMClient()));
+                dispatch(setIAMClient(new IAMClient(config.iamEndpoint)));
                 dispatch(loadConfigSuccess());
             })
             .catch(error => {

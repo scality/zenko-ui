@@ -3,8 +3,6 @@ import type { IAMClient as IAMClientInterface, IAMResp } from '../../types/iam';
 import type { AccessKey } from '../../types/user';
 import type { ApiAccountResponse } from '../../types/managementClient';
 import { ApiErrorObject } from './error';
-import type { Credentials } from '../../types/zenko';
-import IAM from 'aws-sdk/clients/iam';
 
 export const accessKeys: Array<AccessKey> = [
     {
@@ -22,23 +20,16 @@ export const accessKeys: Array<AccessKey> = [
 ];
 
 export class MockIAMClient implements IAMClientInterface {
-    init(creds: Credentials): void {
-        this.client = new IAM({
-            // endpoint: 'https://iam.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/iam',
-            accessKeyId: creds.accessKey,
-            secretAccessKey: creds.secretKey,
-            sessionToken: creds.sessionToken,
-            region: 'us-east-1',
-        });
-    }
-
+    logout(): void {}
+    login(): void {}
     createAccessKey(): Promise<IAMResp> { return Promise.resolve(); }
     createUser(): Promise<IAMResp> { return Promise.resolve(); }
     deleteAccessKey(): Promise<IAMResp> { return Promise.resolve(); }
+    deleteAccessKeys(): Promise<IAMResp> { return Promise.resolve(); }
     deleteUser(): Promise<IAMResp> { return Promise.resolve(); }
     getUser(): Promise<IAMResp> { return Promise.resolve(); }
     listAccessKeys(): Promise<Array<AccessKey>> { return Promise.resolve(accessKeys); }
+    listOwnAccessKeys(): Promise<IAMResp> { return Promise.resolve(accessKeys); }
     listAttachedUserPolicies(): Promise<IAMResp> { return Promise.resolve(); }
     listGroupsForUser(): Promise<IAMResp> { return Promise.resolve(); }
     listUsers(): Promise<IAMResp> { return Promise.resolve(); }
@@ -51,23 +42,16 @@ export class ErrorMockIAMClient implements IAMClientInterface {
         this._error = error;
     }
 
-    init(creds: Credentials): void {
-        this.client = new IAM({
-            // endpoint: 'https://iam.amazonaws.com',
-            endpoint: 'http://127.0.0.1:8383/iam',
-            accessKeyId: creds.accessKey,
-            secretAccessKey: creds.secretKey,
-            sessionToken: creds.sessionToken,
-            region: 'us-east-1',
-        });
-    }
-
+    logout(): void {}
+    login(): void {}
     createAccessKey(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     createUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     deleteAccessKey(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    deleteAccessKeys(): Promise<IAMResp> { return Promise.reject(this._error); }
     deleteUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     getUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     listAccessKeys(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
+    listOwnAccessKeys(): Promise<IAMResp> { return Promise.reject(this._error); }
     listAttachedUserPolicies(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     listGroupsForUser(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }
     listUsers(): Promise<ApiAccountResponse> { return Promise.reject(this._error); }

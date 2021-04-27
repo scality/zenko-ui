@@ -131,7 +131,7 @@ export function deleteAccessKey(accessKey, userName) {
         dispatch(networkStart('Deleting access key'));
         iamClient.deleteAccessKey(accessKey, userName)
             .then(() => {
-                dispatch(listAccessKeys(userName));
+                dispatch(listAccessKeys());
             })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
@@ -170,14 +170,14 @@ export function listUsers() {
     };
 }
 
-export function listAccessKeys(userName) {
+export function listAccessKeys() {
     return (dispatch, getState) => {
-        const { iamClient } = getClients(getState());
-        dispatch(networkStart('Listing access keys'));
-        iamClient.listAccessKeys(userName)
-            .then(resp => {
-                dispatch(updateAccessKeysList(resp.AccessKeyMetadata));
-            })
+        const state = getState();
+        const { iamClient } = getClients(state);
+
+        dispatch(networkStart('Listing account access keys'));
+        return iamClient.listOwnAccessKeys()
+            .then(resp => dispatch(updateAccessKeysList(resp.AccessKeyMetadata)))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

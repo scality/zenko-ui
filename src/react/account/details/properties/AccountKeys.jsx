@@ -1,21 +1,16 @@
 // @flow
-import { Banner, Button, Tooltip } from '@scality/core-ui';
-import React, { useEffect, useMemo } from 'react';
+import { Banner, Tooltip } from '@scality/core-ui';
+import React, { useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
-import { deleteAccessKey, listAccessKeys } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
-import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
+import { deleteAccessKey } from '../../../actions';
 import { formatDate } from '../../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-
-type Props = {
-    account: Account,
-};
 
 const TableContainer = styled.div`
     display: block;
@@ -38,13 +33,9 @@ const initialSortBy = [
     },
 ];
 
-function AccountKeys({ account }: Props) {
+function AccountKeys() {
     const dispatch = useDispatch();
     const accessKeysInfo = useSelector((state: AppState) => state.user.accessKeyList);
-
-    useEffect(() => {
-        dispatch(listAccessKeys(account.userName));
-    }, [account.userName, dispatch]);
 
     const columns = useMemo(() => [
         {
@@ -75,14 +66,14 @@ function AccountKeys({ account }: Props) {
             Cell({ value: access_key }: { value: string }){
                 return (
                     <T.Actions>
-                        <Tooltip overlay="Remove Key" placement="left">
+                        <Tooltip overlay='Remove Key' placement='left'>
                             <T.ActionButton
-                                title="Remove Key"
+                                title='Remove Key'
                                 disabled={false}
-                                icon={<i className="fas fa-trash" />}
-                                onClick={() => dispatch(deleteAccessKey(access_key, account.userName))}
-                                size="smaller"
-                                variant="danger"
+                                icon={<i className='fas fa-trash' />}
+                                onClick={() => dispatch(deleteAccessKey(access_key))}
+                                size='smaller'
+                                variant='danger'
                                 text=''
                             />
                         </Tooltip>
@@ -90,7 +81,7 @@ function AccountKeys({ account }: Props) {
                 );
             },
         },
-    ], [account.userName, dispatch]);
+    ], [dispatch]);
 
     const accessKeys = useMemo(() => accessKeysInfo.map(accessKeyInfo => {
         return {
@@ -115,27 +106,18 @@ function AccountKeys({ account }: Props) {
         autoResetSortBy: false,
     }, useFilters, useSortBy);
 
-    const displaySecurityStatus = accessKeys && accessKeys.length >= 1;
-
     return (
         <TableContainer>
             <h3>Root user Access Key & Secret Keys details</h3>
-            <div style={{ display: 'flex', justifyContent: displaySecurityStatus ? 'space-between' : 'flex-end' }}>
-                { displaySecurityStatus &&
+            <div style={{ display: 'flex' }}>
+                { accessKeys && accessKeys.length >= 1 &&
                     <Banner
-                        variant="danger"
-                        icon={<i className="fas fa-exclamation-triangle" />}
+                        variant='danger'
+                        icon={<i className='fas fa-exclamation-triangle' />}
                     >
                         Security Status: delete your Access keys (as a best practice, create an IAM user with access keys).
                     </Banner>
                 }
-                <Button
-                    icon={<i className="fas fa-plus" />}
-                    text="Create Access Key"
-                    variant='secondary'
-                    size="default"
-                    type="button"
-                />
             </div>
             <T.Container>
                 <Table { ...getTableProps() }>
@@ -175,7 +157,7 @@ function AccountKeys({ account }: Props) {
                             }) :
                             <Warning
                                 centered={true}
-                                iconClass="fas fa-exclamation-triangle"
+                                iconClass='fas fa-exclamation-triangle'
                                 title='No key created'
                             />
                         }
