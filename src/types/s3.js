@@ -13,10 +13,11 @@ export type CreateBucketRequest = {|
 
 export type HeadObjectResponse = {|
     +LastModified: string,
-    +ContentLength: number,
+    // .svg objects seem to be missing the "ContentLength" property (undefined)
+    +ContentLength: ?number,
     +ContentType: string,
     +ETag: string,
-    +VersionId: string,
+    +VersionId: ?string,
     +Metadata: { [string]: string },
 |};
 
@@ -141,10 +142,10 @@ export type ObjectMetadata = {|
     +bucketName: string,
     +objectKey: string,
     +lastModified: string,
-    +contentLength: number,
+    +contentLength: ?number,
     +contentType: string,
     +eTag: string,
-    +versionId: string,
+    +versionId: ?string,
     +metadata: MetadataItems,
     +tags: Tags,
 |};

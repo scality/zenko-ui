@@ -1,4 +1,5 @@
-// @noflow
+/* eslint "flowtype-errors/enforce-min-coverage": "off" */
+// @flow
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
@@ -29,7 +30,7 @@ function Properties({ objectMetadata }: Props) {
                         <TruncatedValue copiable> <TruncatedText text={objectMetadata.versionId} trailingCharCount={7} /> </TruncatedValue>
                         <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>
-                    <T.Row>
+                    <T.Row hidden={objectMetadata.contentLength === undefined}>
                         <T.Key> Size </T.Key>
                         <T.Value> {formatBytes(objectMetadata.contentLength)} </T.Value>
                     </T.Row>

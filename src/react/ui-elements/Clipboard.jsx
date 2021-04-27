@@ -16,7 +16,7 @@ export const IconCopy = styled.i`
     display: ${props => props.hidden ? 'none': 'block'};
 `;
 
-export const Clipboard = ({ text }: { text: string }) => {
+export const Clipboard = ({ text }: { text: ?string }) => {
     const [copySuccess, setCopySuccess] = useState(false);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ export const Clipboard = ({ text }: { text: string }) => {
         if (!navigator || !navigator.clipboard) {
             return;
         }
-        navigator.clipboard.writeText(text);
+        navigator.clipboard.writeText(text || '');
         setCopySuccess(true);
     };
 

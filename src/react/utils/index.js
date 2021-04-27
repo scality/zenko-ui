@@ -54,6 +54,7 @@ export function formatSimpleDate(d) {
 }
 
 export function formatBytes(bytes, decimals = 1) {
+    if (bytes === undefined) return 'unspecified';
     if (bytes === 0) return '0 B';
 
     const k = 1000;

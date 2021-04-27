@@ -5,7 +5,7 @@ import { Tooltip } from '@scality/core-ui';
 import styled from 'styled-components';
 
 type Props = {
-    text: string,
+    text: ?string,
     trailingCharCount?: number,
 };
 

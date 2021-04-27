@@ -144,6 +144,7 @@ describe('functions utils', () => {
     });
 
     it('should return a string formatted which reflect the size', () => {
+        expect(formatBytes(undefined)).toBe('unspecified');
         expect(formatBytes(0)).toBe('0 B');
         expect(formatBytes(1)).toBe('1.0 B');
         expect(formatBytes(1000)).toBe('1.0 KB');
