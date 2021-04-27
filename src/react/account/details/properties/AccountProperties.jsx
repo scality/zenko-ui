@@ -13,7 +13,6 @@ type Props = {
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    overflow: auto;
     height: ${props => props.height}px;
     width: ${props => props.width}px;
 `;
