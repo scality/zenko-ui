@@ -1,4 +1,5 @@
-// @noflow
+/* eslint "flowtype-errors/enforce-min-coverage": "off" */
+// @flow
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
