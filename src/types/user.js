@@ -7,6 +7,5 @@ export type User = {|
 export type AccessKey = {|
     +AccessKeyId: string,
     +Status: string,
-    +LastUsed: string,
     +CreateDate: string,
 |};

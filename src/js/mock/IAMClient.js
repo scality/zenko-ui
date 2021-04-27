@@ -9,13 +9,11 @@ export const accessKeys: Array<AccessKey> = [
         AccessKeyId: 'LEAST_RECENT_KEY_BBB',
         Status: 'Active',
         CreateDate: '2020-04-19T16:15:29+00:00',
-        LastUsed: '2020-03-19T11:13:29+00:00',
     },
     {
         AccessKeyId: 'MOST_RECENT_KEY_AAAA',
         Status: 'Active',
         CreateDate: '2021-04-19T16:15:26+00:00',
-        LastUsed: '2020-03-12T11:13:29+00:00',
     },
 ];
 

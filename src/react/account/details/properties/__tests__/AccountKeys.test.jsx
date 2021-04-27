@@ -31,17 +31,15 @@ describe('AccountKeys', () => {
         // Check if accessKeys are sorted by creation date (most recent being on the top)
         const firstRow = rows.first();
         const firstColumns = firstRow.find(T.Cell).map(column => column.text());
-        expect(firstColumns.length).toEqual(4);
+        expect(firstColumns.length).toEqual(3);
         expect(firstColumns[0]).toEqual(accessKeys[1].AccessKeyId);
         expect(firstColumns[1]).toEqual(formatDate(new Date(accessKeys[1].CreateDate)));
-        expect(firstColumns[2]).toEqual(formatDate(new Date(accessKeys[1].LastUsed)));
 
         const secondRow = rows.at(1);
         const secondColumns = secondRow.find(T.Cell).map(column => column.text());
-        expect(secondColumns.length).toEqual(4);
+        expect(secondColumns.length).toEqual(3);
         expect(secondColumns[0]).toEqual(accessKeys[0].AccessKeyId);
         expect(secondColumns[1]).toEqual(formatDate(new Date(accessKeys[0].CreateDate)));
-        expect(secondColumns[2]).toEqual(formatDate(new Date(accessKeys[0].LastUsed)));
     });
 
     it('should render notification whenever there is at least 1 Root Access Key', () => {
@@ -57,10 +55,9 @@ describe('AccountKeys', () => {
 
         const row = rows.first();
         const columns = row.find(T.Cell).map(column => column.text());
-        expect(columns.length).toEqual(4);
+        expect(columns.length).toEqual(3);
         expect(columns[0]).toEqual(accessKey.AccessKeyId);
         expect(columns[1]).toEqual(formatDate(new Date(accessKey.CreateDate)));
-        expect(columns[2]).toEqual(formatDate(new Date(accessKey.LastUsed)));
 
         // Check if there is the notification
         expect(component.find(Banner)).toHaveLength(1);

@@ -54,11 +54,6 @@ function AccountKeys() {
             Cell({ value: created_at }: { value: Date }) { return formatDate(new Date(created_at)); },
         },
         {
-            Header: 'Last Used',
-            accessor: 'last_used',
-            Cell({ value: last_used }: { value: Date }) { return formatDate(new Date(last_used)); },
-        },
-        {
             id: 'actions',
             Header: '',
             accessor: 'access_key',
@@ -87,7 +82,6 @@ function AccountKeys() {
         return {
             access_key: accessKeyInfo.AccessKeyId,
             created_at: accessKeyInfo.CreateDate,
-            last_used: accessKeyInfo.LastUsed,
         };
     }), [accessKeysInfo]);
 
