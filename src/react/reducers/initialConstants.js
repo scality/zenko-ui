@@ -15,8 +15,8 @@ import type {
     WorkflowState,
     WorkflowsUIState,
 } from '../../types/state';
-import { List, Map } from 'immutable';
 import { LIST_OBJECTS_S3_TYPE } from '../utils/s3';
+import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
@@ -27,7 +27,10 @@ export const initialAccountState: AccountState = {
     accessKeyList: [],
 };
 
-export const initialAccountsUIState: AccountsUIState = { showDelete: false };
+export const initialAccountsUIState: AccountsUIState = {
+    showDelete: false,
+    showKeyCreate: false,
+};
 
 export const initialAuthState: AuthState = {
     isConfigLoaded: false,
@@ -166,7 +169,9 @@ export const initialObjectUIState: ObjectsUIState = {
     showObjectDelete:  false,
 };
 
-export const initialSecretsState = Map();
+export const initialSecretsState = {
+    accountKey: null,
+};
 export const initialStatsState = {
     bucketList: [],
 };

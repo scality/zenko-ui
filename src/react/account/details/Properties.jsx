@@ -1,7 +1,7 @@
 // @flow
-import type { Account } from '../../../../types/account';
-import AccountInfo from './AccountInfo';
-import AccountKeys from './AccountKeys';
+import type { Account } from '../../../types/account';
+import AccountInfo from './properties/AccountInfo';
+import AccountKeys from './properties//AccountKeys';
 import { AutoSizer } from 'react-virtualized';
 import React from 'react';
 import styled from 'styled-components';
@@ -17,7 +17,7 @@ const Container = styled.div`
     width: ${props => props.width}px;
 `;
 
-function AccountProperties({ account }: Props) {
+function Properties({ account }: Props) {
     return (
         <AutoSizer>
             {({ height, width }) => (
@@ -30,4 +30,4 @@ function AccountProperties({ account }: Props) {
     );
 }
 
-export default AccountProperties;
+export default Properties;

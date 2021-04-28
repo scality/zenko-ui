@@ -1,16 +1,15 @@
 // @flow
-
+import type { AccessKey, Account, SecretKey } from './account';
 import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
-import type { AccessKey } from './user';
-import type { Account } from './account';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
 import type { FailureType } from './ui';
+import type { IamAccessKey } from './user';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
 
@@ -98,7 +97,7 @@ export type AuthAction =
 
 export type ListAccountAccessKeySuccessAction = {|
     +type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
-    +accessKeys: Array<AccessKey>,
+    +accessKeys: Array<IamAccessKey>,
 |};
 
 export type AccountAction =
@@ -316,6 +315,7 @@ export type ConfigurationVersionAction = {|
 
 export type ConfigurationAction = InstanceStatusAction | ConfigurationVersionAction;
 
+// account UI actions
 export type OpenAccountDeleteDialogAction = {|
     +type: 'OPEN_ACCOUNT_DELETE_DIALOG',
 |};
@@ -324,7 +324,15 @@ export type CloseAccountDeleteDialogAction = {|
     +type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
 |};
 
-export type AccountUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction;
+export type OpenAccountKeyCreateModalAction = {|
+    +type: 'OPEN_ACCOUNT_KEY_CREATE_MODAL',
+|};
+
+export type CloseAccountKeyCreateModalAction = {|
+    +type: 'CLOSE_ACCOUNT_KEY_CREATE_MODAL',
+|};
+
+export type AccountUIAction = OpenAccountDeleteDialogAction | CloseAccountDeleteDialogAction | OpenAccountKeyCreateModalAction | CloseAccountKeyCreateModalAction;
 
 export type OpenLocationDeleteDialogAction = {|
     +type: 'OPEN_LOCATION_DELETE_DIALOG',
@@ -371,6 +379,23 @@ export type SearchWorkflowsSuccessAction = {|
 
 export type WorkflowAction = SearchWorkflowsSuccessAction;
 
+// SECRETS
+
+export type AddAccountSecretAction = {|
+    +type: 'ADD_ACCOUNT_SECRET',
+    +accountName: string,
+    +accessKey: AccessKey,
+    +secretKey: SecretKey,
+|};
+
+export type DeleteAccountSecretAction = {|
+    +type: 'DELETE_ACCOUNT_SECRET',
+|};
+
+export type SecretsAction =
+    AddAccountSecretAction |
+    DeleteAccountSecretAction;
+
 export type Action =
     AccountAction |
     AuthAction |
@@ -384,6 +409,7 @@ export type Action =
     ThunkNonStatePromisedAction |
     ErrorsUIAction |
     SelectInstanceAction |
+    SecretsAction |
     NetworkActivityAction |
     ConfigurationAction |
     AccountUIAction |

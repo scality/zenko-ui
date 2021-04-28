@@ -1,18 +1,22 @@
 // @flow
-import type { Account, CreateAccountRequest } from '../../types/account';
+import type { AccessKey, Account, CreateAccountRequest, SecretKey } from '../../types/account';
 import type {
+    AddAccountSecretAction,
     CloseAccountDeleteDialogAction,
+    CloseAccountKeyCreateModalAction,
+    DeleteAccountSecretAction,
     DispatchFunction,
     GetStateFunction,
     ListAccountAccessKeySuccessAction,
     OpenAccountDeleteDialogAction,
+    OpenAccountKeyCreateModalAction,
     SelectAccountAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
 import { getAccountIDStored, removeAccountIDStored, setAccountIDStored } from '../utils/localStorage';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import type { AccessKey } from '../../types/user';
+import type { IamAccessKey } from '../../types/user';
 import { assumeRoleWithWebIdentity } from './sts';
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
@@ -31,6 +35,18 @@ export function closeAccountDeleteDialog(): CloseAccountDeleteDialogAction {
     };
 }
 
+export function openAccountKeyCreateModal(): OpenAccountKeyCreateModalAction {
+    return {
+        type: 'OPEN_ACCOUNT_KEY_CREATE_MODAL',
+    };
+}
+
+export function closeAccountKeyCreateModal(): CloseAccountKeyCreateModalAction {
+    return {
+        type: 'CLOSE_ACCOUNT_KEY_CREATE_MODAL',
+    };
+}
+
 export function selectAccount(account: Account): SelectAccountAction {
     return {
         type: 'SELECT_ACCOUNT',
@@ -38,10 +54,25 @@ export function selectAccount(account: Account): SelectAccountAction {
     };
 }
 
-export function listAccountAccessKeySuccess(accessKeys: Array<AccessKey>): ListAccountAccessKeySuccessAction {
+export function listAccountAccessKeySuccess(accessKeys: Array<IamAccessKey>): ListAccountAccessKeySuccessAction {
     return {
         type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
         accessKeys,
+    };
+}
+
+export function addAccountSecret(accountName: string, accessKey: AccessKey, secretKey: SecretKey): AddAccountSecretAction {
+    return {
+        type: 'ADD_ACCOUNT_SECRET',
+        accountName,
+        accessKey,
+        secretKey,
+    };
+}
+
+export function deleteAccountSecret(): DeleteAccountSecretAction {
+    return {
+        type: 'DELETE_ACCOUNT_SECRET',
     };
 }
 
@@ -134,6 +165,22 @@ export function deleteAccountAccessKey(accountName: string, accessKey: string): 
         return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
             .then(iamClient => iamClient.deleteAccessKey(accessKey))
             .then(() => dispatch(listAccountAccessKeys(accountName)))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function createAccountAccessKey(accountName: string): ThunkStatePromisedAction {
+    return (dispatch, getState) => {
+        const { managementClient, instanceId } = getClients(getState());
+        const params = { uuid: instanceId, accountName };
+        dispatch(networkStart('Creating account access key'));
+        return managementClient.generateKeyConfigurationOverlayUser(params)
+            .then(resp => {
+                dispatch(addAccountSecret(resp.body.userName, resp.body.accessKey, resp.body.secretKey));
+                return dispatch(listAccountAccessKeys(accountName));
+            })
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

@@ -3,7 +3,10 @@ import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
     ACCOUNT,
+    ACCOUNT_ACCESS_KEY,
     ACCOUNT_ACCESS_KEYS,
+    ACCOUNT_NAME,
+    ACCOUNT_SECRET_KEY,
     authenticatedUserState,
     errorManagementState,
     initState,
@@ -13,6 +16,7 @@ import {
 
 const createAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating account');
 const deleteAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting account');
+// const createAccountAccessKeyAction = dispatchAction.NETWORK_START_ACTION('Creating account access key');
 
 describe('account actions', () => {
     const syncTests = [
@@ -35,6 +39,16 @@ describe('account actions', () => {
             it: 'should return LIST_ACCOUNT_ACCESS_KEY_SUCCESS action',
             fn: actions.listAccountAccessKeySuccess(ACCOUNT_ACCESS_KEYS),
             expectedActions: [dispatchAction.LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION],
+        },
+        {
+            it: 'should return ADD_ACCOUNT_SECRET action',
+            fn: actions.addAccountSecret(ACCOUNT_NAME, ACCOUNT_ACCESS_KEY, ACCOUNT_SECRET_KEY),
+            expectedActions: [dispatchAction.ADD_ACCOUNT_SECRET_ACTION],
+        },
+        {
+            it: 'should return DELETE_ACCOUNT_SECRET action',
+            fn: actions.deleteAccountSecret(),
+            expectedActions: [dispatchAction.DELETE_ACCOUNT_SECRET_ACTION],
         },
     ];
 
@@ -85,6 +99,18 @@ describe('account actions', () => {
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
+        // TODO: Test needed for createAccountAccessKey, deleteAccountAccessKey and deleteAccountAccessKey
+        // with a mock IAM client
+        // {
+        //     it: 'createAccountAccessKey: should return expected actions',
+        //     fn: actions.createAccountAccessKey(ACCOUNT_NAME),
+        //     storeState: initState,
+        //     expectedActions: [
+        //         createAccountAccessKeyAction,
+        //         dispatchAction.ADD_ACCOUNT_SECRET_ACTION,
+        //         dispatchAction.NETWORK_END_ACTION,
+        //     ],
+        // },
     ];
 
     asyncTests.forEach(testDispatchFunction);

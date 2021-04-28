@@ -1,13 +1,14 @@
 // @flow
-import { Banner, Tooltip } from '@scality/core-ui';
+import { Banner, Button, Tooltip } from '@scality/core-ui';
 import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
-import { deleteAccountAccessKey, listAccountAccessKeys } from '../../../actions';
+import { deleteAccountAccessKey, listAccountAccessKeys, openAccountKeyCreateModal } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
 import { Clipboard } from '../../../ui-elements/Clipboard';
+import { HideMe } from '../../../ui-elements/Utility';
 import { Warning } from '../../../ui-elements/Warning';
 import { formatDate } from '../../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
@@ -46,16 +47,22 @@ function AccountKeys({ account }: Props) {
         dispatch(listAccountAccessKeys(account.userName));
     }, [dispatch, account.userName]);
 
+    const handleOpenKeyModal = () => {
+        dispatch(openAccountKeyCreateModal());
+    };
+
     const columns = useMemo(() => [
         {
-            Header: 'Access Key ID',
+            Header: 'Access key ID',
             accessor: 'access_key',
             Cell({ value: access_key }: { value: string }) {
-                return <span style={{ display: 'flex', justifyContent: 'space-between' }}>
+                return <span style={{ display: 'flex', justifyContent: 'flex-start' }}>
                     <Tooltip overlay={ access_key } placement='right'>
                         <EllipsisCell>{ access_key }</EllipsisCell>
                     </Tooltip>
-                    <Clipboard text={ access_key }/>
+                    <div style={{ marginLeft: '16px' }}>
+                        <Clipboard text={ access_key }/>
+                    </div>
                 </span>;
             },
         },
@@ -78,8 +85,8 @@ function AccountKeys({ account }: Props) {
                                 disabled={false}
                                 icon={<i className='fas fa-trash' />}
                                 onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}
-                                size='smaller'
-                                variant='danger'
+                                size='small'
+                                variant="buttonDelete"
                                 text=''
                             />
                         </Tooltip>
@@ -113,18 +120,20 @@ function AccountKeys({ account }: Props) {
 
     return (
         <TableContainer>
-            <h3>Root user access keys details</h3>
-            <div style={{ display: 'flex' }}>
-                { accessKeys && accessKeys.length >= 1 &&
+            <h3>Root user Access keys details</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <HideMe isHidden={!accessKeys || accessKeys.length === 0}>
                     <Banner
                         variant='danger'
                         icon={<i className='fas fa-exclamation-triangle' />}
                     >
-                        Security Status: Root user access keys give unrestricted
+                        Security Status: Root user Access keys give unrestricted
                         access to account resources. It is a best practice to delete
-                        root access keys and use IAM user access keys instead.
+                        root Access keys and use IAM user access keys instead.
                     </Banner>
-                }
+                </HideMe>
+                {/* TODO: use a styled component */}
+                <Button style={{ marginLeft: '16px', minWidth: '170px' }} icon={<i className="fas fa-plus" />} size="default" onClick={handleOpenKeyModal} text='Create Access key'/>
             </div>
             <T.Container>
                 <Table { ...getTableProps() }>

@@ -1,10 +1,9 @@
 import * as T from '../../../../ui-elements/TableKeyValue';
+import { reduxMount, testTableRow } from '../../../../utils/test';
 import AccountInfo from '../AccountInfo';
-import { Button } from '@scality/core-ui';
 import React from 'react';
 import Table from '../../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../../utils';
-import { reduxMount } from '../../../../utils/test';
 
 
 const account1 = {
@@ -18,20 +17,14 @@ const account1 = {
 };
 
 function testRow(rowWrapper, { key, value, extraCellComponent }) {
-    expect(rowWrapper.find(T.Key).text()).toContain(key);
-    expect(rowWrapper.find(T.Value).text()).toContain(value);
-    if (extraCellComponent) {
-        expect(rowWrapper.find(T.ExtraCell).find(extraCellComponent)).toHaveLength(1);
-    } else {
-        expect(rowWrapper.find(T.ExtraCell)).toHaveLength(0);
-    }
+    testTableRow(T, rowWrapper, { key, value, extraCellComponent });
 }
 
 describe('AccountInfo', () => {
     it('should render AccountInfo component', () => {
         const { component } = reduxMount(<AccountInfo account={account1} />);
 
-        const button = component.find(Button);
+        const button = component.find('button#delete-account-btn');
         expect(button).toHaveLength(1);
         expect(button.text()).toContain('Delete Account');
 

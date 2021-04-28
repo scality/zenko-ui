@@ -1,4 +1,5 @@
 // @flow
+import type { AccessKey, SecretKey } from './account';
 import type { ConfigurationOverlay } from './config';
 
 export type ApiAccountResponse = {
@@ -20,3 +21,13 @@ export type ApiConfigurationResponse = {
 export interface ManagementClient {
 
 }
+
+export type ApiAccountKeyResponse = {
+    body: {
+      +accessKey: AccessKey,
+      +createDate: string,
+      +id: string,
+      +secretKey: SecretKey,
+      +userName: string,
+    },
+};

@@ -1,6 +1,6 @@
 import Table, * as T from '../../../../ui-elements/Table';
 import AccountKeys from '../AccountKeys';
-import { Banner } from '@scality/core-ui';
+import { HideMe } from '../../../../ui-elements/Utility';
 import React from 'react';
 import { Warning } from '../../../../ui-elements/Warning';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
@@ -70,7 +70,7 @@ describe('AccountKeys', () => {
         expect(columns[1]).toEqual(formatDate(new Date(accessKey.CreateDate)));
 
         // Check if there is the notification
-        expect(component.find(Banner)).toHaveLength(1);
+        expect(component.find(HideMe).prop('isHidden')).toBeFalsy();
     });
 
     it('should render Warning/Banner accordingly to number of Access Key', () => {
@@ -89,7 +89,7 @@ describe('AccountKeys', () => {
         expect(rows).toHaveLength(0);
 
         // Check if there is the notification
-        expect(component.find(Banner)).toHaveLength(0);
+        expect(component.find(HideMe).prop('isHidden')).toBeTruthy();
         // Check if there is the Warning in the table
         expect(component.find(Warning)).toHaveLength(1);
     });

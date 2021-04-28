@@ -1,5 +1,8 @@
 // @flow
 
+export type AccessKey = string;
+export type SecretKey = string;
+
 export type CreateAccountRequest = {|
     +userName: string,
     +email: string,
@@ -15,3 +18,10 @@ export type Account = {|
     +createDate: number,
     +id: string,
 |};
+
+export type AccountKey = {|
+    +accountName: string,
+    +accessKey: AccessKey,
+    +secretKey: SecretKey,
+|};
+

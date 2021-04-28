@@ -2,7 +2,10 @@
 
 import {
     ACCOUNT,
+    ACCOUNT_ACCESS_KEY,
     ACCOUNT_ACCESS_KEYS,
+    ACCOUNT_NAME,
+    ACCOUNT_SECRET_KEY,
     APP_CONFIG,
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
@@ -12,6 +15,7 @@ import {
 } from './testUtil';
 
 import type {
+    AddAccountSecretAction,
     CloseAccountDeleteDialogAction,
     CloseBucketDeleteDialogAction,
     CloseFolderCreateModalAction,
@@ -21,6 +25,7 @@ import type {
     CloseWorkflowEditNotificationAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
+    DeleteAccountSecretAction,
     GetBucketInfoSuccessAction,
     GetObjectMetadataSuccessAction,
     HandleErrorAction,
@@ -154,6 +159,12 @@ export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
 
 export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction =
     { type: 'CLOSE_ACCOUNT_DELETE_DIALOG' };
+
+export const ADD_ACCOUNT_SECRET_ACTION: AddAccountSecretAction =
+    { type: 'ADD_ACCOUNT_SECRET', accountName: ACCOUNT_NAME, accessKey: ACCOUNT_ACCESS_KEY, secretKey: ACCOUNT_SECRET_KEY };
+
+export const DELETE_ACCOUNT_SECRET_ACTION: DeleteAccountSecretAction =
+    { type: 'DELETE_ACCOUNT_SECRET' };
 
 // * location actions
 export const OPEN_LOCATION_DELETE_DIALOG_ACTION =

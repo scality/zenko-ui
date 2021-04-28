@@ -16,6 +16,16 @@ export default function uiAccounts(state: AccountsUIState = initialAccountsUISta
             ...state,
             showDelete: false,
         };
+    case 'OPEN_ACCOUNT_KEY_CREATE_MODAL':
+        return {
+            ...state,
+            showKeyCreate: true,
+        };
+    case 'CLOSE_ACCOUNT_KEY_CREATE_MODAL':
+        return {
+            ...state,
+            showKeyCreate: false,
+        };
     default:
         return state;
     }

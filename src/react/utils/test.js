@@ -129,3 +129,13 @@ export function delListEntry(component, index) {
     const btnWrapper = component.find('InputList').find(`button#delbtn${index}`);
     btnWrapper.simulate('click');
 }
+
+export function testTableRow(T, rowWrapper, { key, value, extraCellComponent }) {
+    expect(rowWrapper.find(T.Key).text()).toContain(key);
+    expect(rowWrapper.find(T.Value).text()).toContain(value);
+    if (extraCellComponent) {
+        expect(rowWrapper.find(T.ExtraCell).find(extraCellComponent)).toHaveLength(1);
+    } else {
+        expect(rowWrapper.find(T.ExtraCell)).toHaveLength(0);
+    }
+}

@@ -2,6 +2,9 @@
 import {
     ErrorMockManagementClient,
     account,
+    accountAccessKey,
+    accountName,
+    accountSecretKey,
     latestOverlay,
     location,
     replicationWorkflow,
@@ -97,6 +100,9 @@ export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
+export const ACCOUNT_NAME = accountName;
+export const ACCOUNT_ACCESS_KEY = accountAccessKey;
+export const ACCOUNT_SECRET_KEY = accountSecretKey;
 
 export const THEME = {
     brand: {

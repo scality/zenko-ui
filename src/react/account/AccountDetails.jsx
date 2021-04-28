@@ -2,10 +2,10 @@
 import { Redirect, Route, Switch, matchPath, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Account } from '../../types/account';
-import AccountProperties from './details/properties/AccountProperties';
 import type { AppState } from '../../types/state';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Locations from './details/Locations';
+import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
@@ -44,7 +44,7 @@ function AccountDetails({ account }: Props) {
         >
             <Switch>
                 <Route exact path={path}>
-                    <AccountProperties account={account}/>
+                    <Properties account={account}/>
                 </Route>
                 <Route path={`${path}/locations`}>
                     <Locations/>

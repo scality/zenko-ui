@@ -1,13 +1,14 @@
 // @flow
 
+import type { AccessKey, Account, SecretKey } from '../../types/account';
 import type {
+    ApiAccountKeyResponse,
     ApiAccountResponse,
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
 import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
 import type { APIWorkflows } from '../../types/workflow';
-import type { Account } from '../../types/account';
 import { ApiErrorObject } from './error';
 import { toLocationType } from '../../types/config';
 
@@ -57,6 +58,17 @@ export const workflows: APIWorkflows = [
         'replication': replicationWorkflow,
     },
 ];
+
+export const accountAccessKey: AccessKey = 'ak1';
+export const accountSecretKey: SecretKey = 'sk1';
+export const accountName = 'bart';
+export const key = {
+    accessKey: accountAccessKey,
+    createDate: '2021-04-28T11:19:34.000Z',
+    id: '538641674554',
+    secretKey: accountSecretKey,
+    userName: accountName,
+};
 
 export class MockManagementClient implements ManagementClientInterface {
     createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
@@ -108,6 +120,12 @@ export class MockManagementClient implements ManagementClientInterface {
             body: replicationWorkflow,
         });
     }
+
+    generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
+        return Promise.resolve({
+            body: key,
+        });
+    }
 }
 
 export class ErrorMockManagementClient implements ManagementClientInterface {
@@ -154,6 +172,10 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     saveBucketWorkflowReplication(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    generateKeyConfigurationOverlayUser(): Promise<void> {
         return Promise.reject(this._error);
     }
 }

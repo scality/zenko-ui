@@ -33,8 +33,8 @@ export const Key = styled.td`
 
 export const Value = styled.td`
     padding-left: 40px;
-    max-width: 400px;
-    width: 400px;
+    max-width: 420px;
+    width: 420px;
     min-width: 220px;
     word-break: break-word;
     

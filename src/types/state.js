@@ -1,23 +1,18 @@
 // @flow
-import type { AccessKey, User } from './user';
+import type { Account, AccountKey } from './account';
 import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
 import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
 import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
-import type { Account } from './account';
 import type { AuthUser } from './auth';
+import type { IamAccessKey } from './user';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
 import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
 import type { Workflows } from './workflow';
-
-export type UserState = {
-    list: Array<User>,
-    accessKeyList: Array<AccessKey>,
-};
 
 export type AuthState = {|
     +isConfigLoaded: string,
@@ -44,7 +39,7 @@ export type ConfigurationState = {|
 
 export type AccountState = {|
     +display: Account,
-    +accessKeyList: Array<AccessKey>,
+    +accessKeyList: Array<IamAccessKey>,
 |};
 
 export type InstancesState = {|
@@ -64,6 +59,7 @@ export type NetworkActivityState = {|
 
 export type AccountsUIState = {|
     +showDelete: boolean,
+    +showKeyCreate: boolean,
 |};
 
 export type BucketsUIState = {|
@@ -104,6 +100,10 @@ export type S3State = {|
     +objectMetadata: ?ObjectMetadata,
 |};
 
+export type SecretsState = {|
+    accountKey: AccountKey | null,
+|};
+
 export type WorkflowState = {|
     list: Workflows,
     replications: ReplicationStreams,
@@ -131,8 +131,8 @@ export type AppState = {
     +instanceStatus: InstanceStatusState,
     +networkActivity: NetworkActivityState,
     +oidc: OIDCState,
-    +user: UserState,
     +router: RouterState,
+    +secrets: SecretsState,
     +uiErrors: ErrorsUIState,
     +uiLocations: LocationsUIState,
     +uiAccounts: AccountsUIState,

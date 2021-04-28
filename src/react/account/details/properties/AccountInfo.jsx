@@ -10,6 +10,7 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import React from 'react';
+import SecretKeyModal from './SecretKeyModal';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 
@@ -45,8 +46,9 @@ function AccountInfo({ account }: Props) {
     return (
         <TableContainer>
             <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/>
+            <SecretKeyModal account={account} />
             <ButtonContainer>
-                <Button icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="default" variant="danger" text='Delete Account' />
+                <Button id='delete-account-btn' icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="default" variant="buttonDelete" text='Delete Account' />
             </ButtonContainer>
             <h3>Account details</h3>
             <Table id='account-details-table'>

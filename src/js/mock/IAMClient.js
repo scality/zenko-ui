@@ -1,7 +1,7 @@
 // @noflow
-import type { AccessKey } from '../../types/user';
+import type { IamAccessKey } from '../../types/user';
 
-export const accountAccessKeys: Array<AccessKey> = [
+export const accountAccessKeys: Array<IamAccessKey> = [
     {
         AccessKeyId: 'LEAST_RECENT_KEY_BBB',
         Status: 'Active',
