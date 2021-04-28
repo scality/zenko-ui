@@ -4,6 +4,7 @@ import { Banner } from '@scality/core-ui';
 import React from 'react';
 import { Warning } from '../../../../ui-elements/Warning';
 import { accessKeys } from '../../../../../js/mock/IAMClient';
+import { authenticatedUserState } from '../../../../actions/__tests__/utils/testUtil';
 import { formatDate } from '../../../../utils';
 import { reduxMount } from '../../../../utils/test';
 
@@ -20,6 +21,7 @@ const account1 = {
 describe('AccountKeys', () => {
     it('should render AccountKeys component', () => {
         const { component } = reduxMount(<AccountKeys account={account1} />, {
+            ...authenticatedUserState(),
             user: {
                 accessKeyList: accessKeys,
             },
@@ -45,6 +47,7 @@ describe('AccountKeys', () => {
     it('should render notification whenever there is at least 1 Root Access Key', () => {
         const accessKey = accessKeys[0];
         const { component } = reduxMount(<AccountKeys account={account1} />, {
+            ...authenticatedUserState(),
             user: {
                 accessKeyList: [accessKey], // only one key
             },
@@ -65,6 +68,7 @@ describe('AccountKeys', () => {
 
     it('should not render notification if there is no Root Access Key', () => {
         const { component } = reduxMount(<AccountKeys account={account1} />, {
+            ...authenticatedUserState(),
             user: {
                 accessKeyList: [],
             },
@@ -79,6 +83,7 @@ describe('AccountKeys', () => {
 
     it('should render Warning in table if there is no Root Access Key', () => {
         const { component } = reduxMount(<AccountKeys account={account1} />, {
+            ...authenticatedUserState(),
             user: {
                 accessKeyList: [],
             },

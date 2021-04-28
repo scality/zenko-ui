@@ -57,6 +57,7 @@ export const APP_CONFIG = {
     managementEndpoint: 'https://managementEndpoint',
     stsEndpoint: 'https://stsEndpoint',
     s3Endpoint: 'https://s3Endpoint',
+    iamEndpoint: 'https://iamEndpoint',
     navbarEndpoint: 'https://navbarEndpoint',
     navbarConfigUrl: 'https://navbarConfigUrl',
 };

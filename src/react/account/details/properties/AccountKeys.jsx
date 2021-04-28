@@ -1,13 +1,14 @@
 // @flow
 import { Banner, Tooltip } from '@scality/core-ui';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
+import { deleteAccountAccessKey, listAccountAccessKeys } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
+import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
-import { deleteAccessKey } from '../../../actions';
 import { formatDate } from '../../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -33,9 +34,17 @@ const initialSortBy = [
     },
 ];
 
-function AccountKeys() {
+type Props = {
+    account: Account,
+};
+
+function AccountKeys({ account }: Props) {
     const dispatch = useDispatch();
     const accessKeysInfo = useSelector((state: AppState) => state.user.accessKeyList);
+
+    useEffect(() => {
+        dispatch(listAccountAccessKeys(account.id));
+    }, [dispatch, account.id]);
 
     const columns = useMemo(() => [
         {
@@ -66,7 +75,7 @@ function AccountKeys() {
                                 title='Remove Key'
                                 disabled={false}
                                 icon={<i className='fas fa-trash' />}
-                                onClick={() => dispatch(deleteAccessKey(access_key))}
+                                onClick={() => dispatch(deleteAccountAccessKey(access_key, account.id))}
                                 size='smaller'
                                 variant='danger'
                                 text=''
@@ -76,7 +85,7 @@ function AccountKeys() {
                 );
             },
         },
-    ], [dispatch]);
+    ], [account.id, dispatch]);
 
     const accessKeys = useMemo(() => accessKeysInfo.map(accessKeyInfo => {
         return {

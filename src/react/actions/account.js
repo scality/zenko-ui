@@ -2,6 +2,8 @@
 import type { Account, CreateAccountRequest } from '../../types/account';
 import type {
     CloseAccountDeleteDialogAction,
+    DispatchFunction,
+    GetStateFunction,
     OpenAccountDeleteDialogAction,
     SelectAccountAction,
     ThunkStatePromisedAction,
@@ -12,6 +14,7 @@ import { networkEnd, networkStart } from './network';
 import { assumeRoleWithWebIdentity } from './sts';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
+import { updateAccessKeysList } from './user';
 import { updateConfiguration } from './configuration';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
@@ -34,7 +37,7 @@ export function selectAccount(account: Account): SelectAccountAction {
 }
 
 export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { zenkoClient, iamClient } = getClients(getState());
         const { configuration } = getState();
         const accounts = configuration.latest.users;
@@ -64,7 +67,7 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
 }
 
 export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, user };
         dispatch(networkStart('Creating account'));
@@ -80,7 +83,7 @@ export function createAccount(user: CreateAccountRequest): ThunkStatePromisedAct
 
 
 export function deleteAccount(accountName: string): ThunkStatePromisedAction {
-    return (dispatch, getState) => {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, accountName };
         dispatch(networkStart('Deleting account'));
@@ -102,5 +105,63 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
             .finally(() => {
                 dispatch(networkEnd());
             });
+    };
+}
+
+export function listAccountAccessKeys(accountID: string): ThunkStatePromisedAction {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+        const state = getState();
+        const { oidc } = state;
+        const { stsClient, iamClient } = getClients(state);
+
+        const assumeRoleParams = {
+            idToken: oidc.user.id_token,
+            RoleSessionName:'app1',
+            roleArn: `arn:aws:iam::${accountID}:role/roleForB`,
+        };
+        dispatch(networkStart('Listing account access keys'));
+        return stsClient.assumeRoleWithWebIdentity(assumeRoleParams)
+            .then(creds => {
+                const params = {
+                    accessKey: creds.Credentials.AccessKeyId,
+                    secretKey: creds.Credentials.SecretAccessKey,
+                    sessionToken: creds.Credentials.SessionToken,
+                };
+                iamClient.login(params);
+                return iamClient.listOwnAccessKeys();
+            })
+            .then(resp => dispatch(updateAccessKeysList(resp.AccessKeyMetadata)))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
+    };
+}
+
+export function deleteAccountAccessKey(accessKey: string, accountID: string): ThunkStatePromisedAction {
+    return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+        const state = getState();
+        const { oidc } = state;
+        const { stsClient, iamClient } = getClients(state);
+
+        const assumeRoleParams = {
+            idToken: oidc.user.id_token,
+            RoleSessionName:'app1',
+            roleArn: `arn:aws:iam::${accountID}:role/roleForB`,
+        };
+        dispatch(networkStart('Deleting account access key'));
+        return stsClient.assumeRoleWithWebIdentity(assumeRoleParams)
+            .then(creds => {
+                const params = {
+                    accessKey: creds.Credentials.AccessKeyId,
+                    secretKey: creds.Credentials.SecretAccessKey,
+                    sessionToken: creds.Credentials.SessionToken,
+                };
+                iamClient.login(params);
+                return iamClient.deleteAccessKey(accessKey);
+            })
+            .then(() => dispatch(listAccountAccessKeys(accountID)))
+            .catch(error => dispatch(handleClientError(error)))
+            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .finally(() => dispatch(networkEnd()));
     };
 }

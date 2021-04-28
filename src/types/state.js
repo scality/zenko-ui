@@ -131,6 +131,7 @@ export type AppState = {
     +account: AccountState,
     +auth: AuthState,
     +configuration: ConfigurationState,
+    +iam: IAMState,
     +instances: InstancesState,
     +instanceStatus: InstanceStatusState,
     +networkActivity: NetworkActivityState,
@@ -148,5 +149,4 @@ export type AppState = {
     +uiWorkflows: WorkflowsUIState,
     +workflow: WorkflowState,
     +zenko: ZenkoState,
-    +iam: IAMState,
 };

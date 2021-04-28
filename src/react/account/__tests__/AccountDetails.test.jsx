@@ -4,6 +4,7 @@ import { CustomTabs } from '../../ui-elements/Tabs';
 import React from 'react';
 import { Warning } from '../../ui-elements/Warning';
 import { accessKeys } from '../../../js/mock/IAMClient';
+import { authenticatedUserState } from '../../actions/__tests__/utils/testUtil';
 import { reduxMount } from '../../utils/test';
 
 
@@ -42,6 +43,7 @@ describe('AccountDetails', () => {
 
     it('should render AccountDetails component', () => {
         const { component } = reduxMount(<MemoryRouter><AccountDetails account={account1}/></MemoryRouter>, {
+            ...authenticatedUserState(),
             router: {
                 location: {
                     pathname: '/accounts/bart',

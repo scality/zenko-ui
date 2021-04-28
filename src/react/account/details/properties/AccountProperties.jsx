@@ -23,7 +23,7 @@ function AccountProperties({ account }: Props) {
             {({ height, width }) => (
                 <Container height={height} width={width}>
                     <AccountInfo account={ account }/>
-                    <AccountKeys/>
+                    <AccountKeys account={ account }/>
                 </Container>
             )}
         </AutoSizer>

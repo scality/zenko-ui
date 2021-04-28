@@ -9,7 +9,6 @@ import type { AppState } from '../../types/state';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { selectAccountID } from '../actions';
 
 const sortByDate = (objs, desc) => objs.sort((a,b) => (a.createDate > b.createDate) ? (desc ? 1 : -1) : ((b.createDate > a.createDate) ? (desc ? -1 : 1) : 0));
 
@@ -21,11 +20,6 @@ const Accounts = () => {
     const accounts = useSelector((state: AppState) => state.configuration.latest.users);
     const accountList = useMemo(() => sortByDate(accounts, false), [accounts]);
     const accountIndex = useMemo(() => accountList.findIndex(a => a.userName === accountNameParam), [accountList, accountNameParam]);
-    const account = accountList[accountIndex];
-
-    if (account) {
-        dispatch(selectAccountID(account.id));
-    }
 
     // empty state.
     if (accountList.length === 0) {
