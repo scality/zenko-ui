@@ -127,13 +127,14 @@ function InternalNavbar() {
     useThemeEffect(navbarRef);
 
     return (
-        <solutions-navbar
-            config-url={navbarConfigUrl}
-            // Set font-size to be consitent with other UIs.
-            style={{ width: '100%', fontSize: 'max(14px,calc(.2em + .8vw))' }}
-            ref={
-                navbarRef
-            }
-        />
+        // Set font-size to be consitent with other UIs.
+        <div style={{ width: '100%', fontSize: 'max(14px,calc(.2em + .8vw))' }}>
+            <solutions-navbar
+                config-url={navbarConfigUrl}
+                ref={
+                    navbarRef
+                }
+            />
+        </div>
     );
 }
