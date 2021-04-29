@@ -128,9 +128,10 @@ function InternalNavbar() {
 
     return (
         // Set font-size to be consitent with other UIs.
-        <div style={{ width: '100%', fontSize: 'max(14px,calc(.2em + .8vw))' }}>
+        <div style={{ fontSize: 'max(14px,calc(.2em + .8vw))' }}>
             <solutions-navbar
                 config-url={navbarConfigUrl}
+                style={{ width: '100%' }}
                 ref={
                     navbarRef
                 }
