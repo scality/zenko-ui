@@ -64,7 +64,7 @@ CSRF attacks. To make the local UI work, request it using a matched domain
 ```
 npm run build
 docker build -t zui .
-docker run -d -p 80:8383 zui
+docker run -d -p 8383:8383 zui
 ```
 
 #### Run tests
