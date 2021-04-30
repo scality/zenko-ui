@@ -6,11 +6,17 @@ import {
     accountAccessKey,
     accountName,
     accountSecretKey,
+    instanceStatus,
     latestOverlay,
     location,
     replicationWorkflow,
     workflows,
 } from '../../../../js/mock/managementClient';
+import {
+    applyMiddleware,
+    compose,
+    createStore,
+} from 'redux';
 import {
     bucketInfoResponse,
     bucketName,
@@ -32,10 +38,13 @@ import {
 } from '../../../../js/mock/S3Client';
 import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
+import type { ManagementClient } from '../../../../types/managementClient';
 import { accountAccessKeys } from '../../../../js/mock/IAMClient';
 import configureStore from 'redux-mock-store';
+import { createBrowserHistory as createHistory } from 'history';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
+import zenkoUIReducer from '../../../reducers';
 
 type ActionTestObject = {|
     skip?: boolean,
@@ -101,6 +110,21 @@ export const ACCOUNT_NAME = accountName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
 export const ACCOUNT_SECRET_KEY = accountSecretKey;
 export const LOGOUT_MOCK = () => {};
+export const INSTANCE_STATUS_RUNNINGv1 = {
+    ...instanceStatus,
+    state: {
+        ...instanceStatus.state,
+        runningConfigurationVersion: 1,
+    },
+};
+export const INSTANCE_STATUS_RUNNINGv2 = {
+    ...instanceStatus,
+    state: {
+        ...instanceStatus.state,
+        runningConfigurationVersion: 2,
+    },
+};
+
 
 export const THEME = {
     brand: {
@@ -221,6 +245,32 @@ export function authenticatedUserState(): AppState {
     };
 }
 
+export function storeStateWithRunningConfigurationVersion2(): AppState {
+    return {
+        ...initState,
+        instanceStatus: {
+            ...initState.instanceStatus,
+            latest: {
+                ...initState.instanceStatus.latest,
+                state: {
+                    ...initState.instanceStatus.latest.state,
+                    runningConfigurationVersion: 2,
+                },
+            },
+        },
+    };
+}
+
+export function storeStateWithManagementClient(state: AppState, client: ManagementClient): AppState {
+    return {
+        ...state,
+        auth: {
+            ...state.auth,
+            managementClient: client,
+        },
+    };
+}
+
 /**
  * Test function for redux action creators
  * @param (object) test - test object
@@ -253,6 +303,28 @@ export const testDispatchFunction = (test: DispatchTestObject) => {
             .catch(error => {
                 throw new Error(`Expected success, but got error ${error.message}`);
             });
+    });
+};
+
+export const testDispatchFunctionWithFullStore = (test: DispatchTestObject) => {
+    (test.skip ? it.skip : it)(test.it, done => {
+        const actions = [];
+
+        const captureActionsMiddleware = () => next => action => {
+            actions.push(action);
+            return next(action);
+        };
+
+        const store = createStore(
+            zenkoUIReducer(createHistory()),
+            test.storeState,
+            compose(applyMiddleware(thunk, captureActionsMiddleware)),
+        );
+
+        return store.dispatch(test.fn)
+            .then(() => expect(actions).toEqual(test.expectedActions))
+            .then(done)
+            .catch(error => done(new Error(`Expected success, but got error ${error.message}`)));
     });
 };
 
