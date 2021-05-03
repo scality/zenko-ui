@@ -14,7 +14,7 @@ import type {
     ThunkStatePromisedAction,
 } from '../../types/actions';
 import { getAccountIDStored, removeAccountIDStored, setAccountIDStored } from '../utils/localStorage';
-import { handleApiError, handleClientError } from './error';
+import { handleAWSClientError, handleAWSError, handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
 import { assumeRoleWithWebIdentity } from './sts';
@@ -153,8 +153,8 @@ export function listAccountAccessKeys(accountName: string): ThunkStatePromisedAc
         return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
             .then(iamClient => iamClient.listOwnAccessKeys())
             .then(resp => dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)))
-            .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -165,8 +165,8 @@ export function deleteAccountAccessKey(accountName: string, accessKey: string): 
         return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
             .then(iamClient => iamClient.deleteAccessKey(accessKey))
             .then(() => dispatch(listAccountAccessKeys(accountName)))
-            .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }

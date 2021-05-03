@@ -56,8 +56,6 @@ describe('workflow actions', () => {
 
     testDispatchErrorTestFn({
         message: 'Management API Error Response',
-        code: 500,
-        status: 500,
     },
     {
         it: 'searchWorkflows: should handle error',

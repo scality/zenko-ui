@@ -10,7 +10,7 @@ import type {
     PutObjectTaggingResponse,
     S3Client as S3ClientInterface,
 } from '../../types/s3';
-import { ApiErrorObject } from './error';
+import type { AWSError } from '../../types/aws';
 import { addTrailingSlash } from '../../react/utils';
 
 export const ownerName = 'bart';
@@ -172,9 +172,9 @@ export class MockS3Client implements S3ClientInterface {
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
-    _error: ApiErrorObject;
+    _error: AWSError;
 
-    constructor(error: ApiErrorObject) {
+    constructor(error: AWSError) {
         this._error = error;
     }
 

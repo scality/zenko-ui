@@ -144,9 +144,8 @@ export const Footer = styled.div`
 
 export const FooterError = styled.div`
     flex: 1 1 auto;
-
+    height: inherit;
     margin-right: ${padding.smaller};
-    word-break: break-all;
 `;
 
 export const FooterButtons = styled.div`

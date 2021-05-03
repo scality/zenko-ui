@@ -4,9 +4,9 @@ import type { AppConfig, InstanceId, Theme } from './entities';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
 import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
-import type { ErrorViewType, FailureType } from './ui';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { AuthUser } from './auth';
+import type { ErrorViewType } from './ui';
 import type { IamAccessKey } from './user';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
@@ -53,7 +53,6 @@ export type InstanceStatusState = {|
 export type NetworkActivityState = {|
     +counter: number,
     +authFailure: boolean,
-    +failureType?: FailureType,
     +messages: List<string>,
 |};
 

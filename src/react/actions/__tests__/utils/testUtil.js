@@ -1,4 +1,5 @@
 // @flow
+import { ApiErrorObject, awsErrorObject } from '../../../../js/mock/error';
 import {
     ErrorMockManagementClient,
     account,
@@ -29,15 +30,12 @@ import {
     tags,
     userMetadata,
 } from '../../../../js/mock/S3Client';
-import { ApiErrorObject } from '../../../../js/mock/error';
 import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
 import { accountAccessKeys } from '../../../../js/mock/IAMClient';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
-import { zenkoError } from '../../../../js/ZenkoClient';
-
 
 type ActionTestObject = {|
     skip?: boolean,
@@ -70,11 +68,11 @@ export const initState: AppState = initialFullState;
 
 export const USER_MANAGER_ERROR_MSG = 'User Manager Error Response';
 export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
-export const S3_CLIENT_ERROR_MSG = 'S3 Client Api Error Response';
+export const AWS_CLIENT_ERROR_MSG = 'AWS Client Api Error Response';
 
 export const USER_MANAGER_ERROR = new ApiErrorObject(USER_MANAGER_ERROR_MSG, 500);
 export const MANAGEMENT_ERROR = new ApiErrorObject(MANAGEMENT_ERROR_MSG, 500);
-export const S3_CLIENT_ERROR = new ApiErrorObject(S3_CLIENT_ERROR_MSG, 500);
+export const AWS_CLIENT_ERROR = awsErrorObject(AWS_CLIENT_ERROR_MSG, 'InternalError');
 
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
@@ -95,7 +93,6 @@ export const INFO = info;
 export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
-export const ZENKO_ERROR = zenkoError;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
@@ -164,7 +161,7 @@ export function errorZenkoState(): AppState {
         ...initState,
         zenko: {
             ...initState.zenko,
-            zenkoClient: new ErrorMockZenkoClient(S3_CLIENT_ERROR),
+            zenkoClient: new ErrorMockZenkoClient(AWS_CLIENT_ERROR),
         },
     };
 }
@@ -258,7 +255,7 @@ export const testDispatchFunction = (test: DispatchTestObject) => {
     });
 };
 
-export const testDispatchErrorTestFn = (error: ApiErrorObject, test: DispatchTestObject) => {
+export const testDispatchAWSErrorTestFn = (error: ApiErrorObject, test: DispatchTestObject) => {
     (test.skip ? it.skip : it)(test.it, async () => {
         const store = mockStore()(test.storeState);
         let testError = null;
@@ -266,6 +263,21 @@ export const testDispatchErrorTestFn = (error: ApiErrorObject, test: DispatchTes
             await store.dispatch(test.fn);
         } catch (e) {
             const { message } = e;
+            testError = message;
+        }
+        expect(store.getActions()).toEqual(test.expectedActions);
+        expect(testError).toEqual(error.message);
+    });
+};
+
+export const testDispatchErrorTestFn = (error: ApiErrorObject, test: DispatchTestObject) => {
+    (test.skip ? it.skip : it)(test.it, async () => {
+        const store = mockStore()(test.storeState);
+        let testError = null;
+        try {
+            await store.dispatch(test.fn);
+        } catch (e) {
+            const { message } = e.response.body;
             testError = message;
         }
         expect(store.getActions()).toEqual(test.expectedActions);

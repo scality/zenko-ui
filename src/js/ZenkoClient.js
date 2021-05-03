@@ -10,11 +10,6 @@ import S3Client from './S3Client';
 // TODO: prevent zenkoclient from including in the bundle the full AWS SDK.
 import ZenkoClientBase from 'zenkoclient';
 
-export const zenkoError = {
-    message: 'S3 Client Api Error Response',
-    code: 500,
-};
-
 
 class ZenkoClient extends S3Client implements ZenkoClientInterface {
     endpoint: string;
