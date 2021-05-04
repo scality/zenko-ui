@@ -28,7 +28,7 @@ export function getAssumeRoleWithWebIdentityIAM(state: AppState, accountName: st
             };
             const iamClient = new IAMClient(auth.config.iamEndpoint);
             iamClient.login(params);
-            return Promise.resolve(iamClient);
+            return iamClient;
         });
 }
 
@@ -118,7 +118,6 @@ export default class IAMClient implements IAMClientInterface {
 // OFFLILE
 // export default class IAMClient {
 //     constructor() {
-//         console.log('CALL constructor!!!');
 //         this.users = [{
 //             UserName: 'Alice',
 //             Arn: 'arn:alice:bucket1:write:read:exec',

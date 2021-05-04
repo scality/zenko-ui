@@ -1,13 +1,14 @@
 import * as actions from '../s3bucket';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
+    AWS_CLIENT_ERROR_MSG,
     BUCKET_INFO_RESPONSE,
     BUCKET_NAME,
     OWNER_NAME,
     errorZenkoState,
     initState,
     testActionFunction,
-    testDispatchErrorTestFn,
+    testDispatchAWSErrorTestFn,
     testDispatchFunction,
 } from './utils/testUtil';
 
@@ -77,7 +78,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 createBucketNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION(AWS_CLIENT_ERROR_MSG),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -105,7 +106,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 deleteBucketNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,
             ],
@@ -126,7 +127,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 getBucketInfoNetworkAction,
-                dispatchAction.HANDLE_ERROR_SPEC_ACTION('S3 Client Api Error Response'),
+                dispatchAction.HANDLE_ERROR_SPEC_ACTION(AWS_CLIENT_ERROR_MSG),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -149,7 +150,7 @@ describe('s3bucket actions', () => {
             storeState: errorZenkoState(),
             expectedActions: [
                 toggleBucketVersioningNetworkAction,
-                dispatchAction.HANDLE_ERROR_MODAL_ACTION('S3 Client Api Error Response'),
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
@@ -157,10 +158,8 @@ describe('s3bucket actions', () => {
 
     asyncTests.forEach(testDispatchFunction);
 
-    testDispatchErrorTestFn({
-        message: 'S3 Client Api Error Response',
-        code: 500,
-        status: 500,
+    testDispatchAWSErrorTestFn({
+        message: AWS_CLIENT_ERROR_MSG,
     },
     {
         it: 'listBuckets: should handle error',

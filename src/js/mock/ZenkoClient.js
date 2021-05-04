@@ -4,7 +4,7 @@ import type {
     SearchBucketResp,
     ZenkoClient as ZenkoClientInterface,
 } from '../../types/zenko';
-import { ApiErrorObject } from './error';
+import { AWSError } from '../../types/aws';
 
 export class MockZenkoClient extends MockS3Client implements ZenkoClientInterface {
     _init(): void {}
@@ -17,9 +17,9 @@ export class MockZenkoClient extends MockS3Client implements ZenkoClientInterfac
 }
 
 export class ErrorMockZenkoClient extends ErrorMockS3Client implements ZenkoClientInterface {
-    _error: ApiErrorObject;
+    _error: AWSError;
 
-    constructor(error: ApiErrorObject) {
+    constructor(error: AWSError) {
         super(error);
         this._error = error;
     }

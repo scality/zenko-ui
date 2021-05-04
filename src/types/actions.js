@@ -8,7 +8,6 @@ import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
 import type { AppState } from './state';
 import type { AuthUser } from './auth';
-import type { FailureType } from './ui';
 import type { IamAccessKey } from './user';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
@@ -18,10 +17,6 @@ export type GetStateFunction = () => AppState;
 
 export interface ApiError extends Error {
     status: 200 | 401 | 403 | 422 | 500 | 503;
-}
-
-export interface S3Error extends Error {
-    statusCode: 200 | 401 | 403 | 422 | 500 | 503;
 }
 
 export type PromiseAction = Promise<Action>;
@@ -281,7 +276,6 @@ export type ObjectsUIAction =
 // networkActivity actions
 export type NetworkActivityAuthFailureAction = {|
     +type: 'NETWORK_AUTH_FAILURE',
-    +failureType?: FailureType,
 |};
 
 export type NetworkActivityStartAction = {|

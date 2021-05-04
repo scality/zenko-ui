@@ -1,5 +1,9 @@
 // @flow
 
+export type ErrorMsg = {
+    +message: string,
+};
+
 export type InstanceId = string;
 
 export type AppConfig = {

@@ -18,7 +18,7 @@ import type {
     ToggleObjectAction,
 } from '../../types/actions';
 import type { CommonPrefix, DeleteFolder, File, HeadObjectResponse, ListObjectsType, MetadataPairs, S3DeleteMarker, S3DeleteObject, S3Object, S3Version, TagSet } from '../../types/s3';
-import { handleApiError, handleS3Error } from './error';
+import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker } from '../../types/zenko';
@@ -141,8 +141,8 @@ export function createFolder(bucketName: string, prefixWithSlash: string, folder
         dispatch(networkStart('Creating folder'));
         return zenkoClient.createFolder(bucketName, prefixWithSlash, folderName)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => {
                 dispatch(networkEnd());
                 dispatch(closeFolderCreateModal());
@@ -168,8 +168,8 @@ function _getListObjectNoVersion(bucketName: string, prefixWithSlash: string, ma
                 }
                 return dispatch(listObjectsSuccess(list, res.CommonPrefixes, res.Prefix, res.NextContinuationToken));
             })
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -222,8 +222,8 @@ function _getListObjectVersion(bucketName: string, prefixWithSlash: string, mark
                 }
                 return dispatch(listObjectVersionsSuccess(list, res.DeleteMarkers, res.CommonPrefixes, res.Prefix, res.NextKeyMarker, res.NextVersionIdMarker));
             })
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -265,8 +265,8 @@ export function uploadFiles(bucketName: string, prefixWithSlash: string, files: 
         dispatch(networkStart('Uploading object(s)'));
         return zenkoClient.uploadObject(bucketName, prefixWithSlash, files)
             .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -277,8 +277,8 @@ export function deleteFiles(bucketName: string, prefixWithSlash: string, objects
         dispatch(closeObjectDeleteModal());
         dispatch(networkStart('Deleting object(s)'));
         return zenkoClient.deleteObjects(bucketName, objects, folders)
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => {
                 dispatch(networkEnd());
                 // make sure to list objects even if delete fails.
@@ -296,8 +296,8 @@ export function getObjectMetadata(bucketName: string, objectKey: string, version
             zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
         ])
             .then(([info, tags]) => dispatch(getObjectMetadataSuccess(bucketName, objectKey, info, tags.TagSet)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -308,8 +308,8 @@ export function putObjectMetadata(bucketName: string, objectKey: string, systemM
         dispatch(networkStart('Getting object metadata'));
         return zenkoClient.putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata)
             .then(() => dispatch(getObjectMetadata(bucketName, objectKey)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -320,8 +320,8 @@ export function putObjectTagging(bucketName: string, objectKey: string, tags: Ta
         dispatch(networkStart('Getting object tags'));
         return zenkoClient.putObjectTagging(bucketName, objectKey, tags, versionId)
             .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }

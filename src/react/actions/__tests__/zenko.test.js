@@ -1,8 +1,8 @@
 import * as actions from '../zenko';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
+    AWS_CLIENT_ERROR,
     BUCKET_NAME,
-    ZENKO_ERROR,
     addNextMarkerToState,
     errorZenkoState,
     initState,
@@ -45,18 +45,18 @@ describe('zenko actions', () => {
         },
         {
             it: 'should return ZENKO_HANDLE_ERROR action',
-            fn: actions.zenkoHandleError(ZENKO_ERROR, null, null),
-            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(ZENKO_ERROR, null, null)],
+            fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, null, null),
+            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null)],
         },
         {
             it: 'should return ZENKO_HANDLE_ERROR action with right target',
-            fn: actions.zenkoHandleError(ZENKO_ERROR, 'target', null),
-            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(ZENKO_ERROR, 'target', null)],
+            fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, 'target', null),
+            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, 'target', null)],
         },
         {
             it: 'should return ZENKO_HANDLE_ERROR action with right type',
-            fn: actions.zenkoHandleError(ZENKO_ERROR, null, 'type'),
-            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(ZENKO_ERROR, null, 'type')],
+            fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, null, 'type'),
+            expectedActions: [dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, 'type')],
         },
         {
             it: 'should return ZENKO_CLIENT_WRITE_SEARCHLIST action',
@@ -114,7 +114,7 @@ describe('zenko actions', () => {
                 startingSearchNetworkAction,
                 dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
                 searchingObjectsNetworkAction,
-                dispatchAction.ZENKO_HANDLE_ERROR_ACTION(ZENKO_ERROR, null, null),
+                dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],
@@ -140,7 +140,7 @@ describe('zenko actions', () => {
                 continueSearchNetworkAction,
                 dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
                 searchingObjectsNetworkAction,
-                dispatchAction.ZENKO_HANDLE_ERROR_ACTION(ZENKO_ERROR, null, null),
+                dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
                 dispatchAction.NETWORK_END_ACTION,
                 dispatchAction.NETWORK_END_ACTION,
             ],

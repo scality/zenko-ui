@@ -21,7 +21,6 @@ export default function networkActivity(state: NetworkActivityState=initialNetwo
         return {
             ...state,
             authFailure: true,
-            failureType: action.failureType,
         };
     case 'NETWORK_AUTH_RESET':
         return {

@@ -5,19 +5,25 @@ import type {
     ClearErrorAction,
     DispatchFunction,
     HandleErrorAction,
-    S3Error,
     ThunkNonStateAction,
 } from '../../types/actions';
-import type { ErrorViewType, FailureType } from '../../types/ui';
+import type { AWSError } from '../../types/aws';
+import type { ErrorViewType } from '../../types/ui';
 import { errorParser } from '../utils';
 import { networkAuthFailure } from './network';
-
-export const S3_FAILURE_TYPE: FailureType = 's3';
 
 export function handleApiError(error: ApiError, errorType: ErrorViewType): HandleErrorAction {
     return {
         type: 'HANDLE_ERROR',
         errorMsg: errorParser(error).message,
+        errorType,
+    };
+}
+
+export function handleAWSError(error: AWSError, errorType: ErrorViewType): HandleErrorAction {
+    return {
+        type: 'HANDLE_ERROR',
+        errorMsg: error.message,
         errorType,
     };
 }
@@ -47,12 +53,13 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
     };
 }
 
-export function handleS3Error(error: S3Error): ThunkNonStateAction {
+export function handleAWSClientError(error: AWSError): ThunkNonStateAction {
     return (dispatch: DispatchFunction) => {
         switch (error.statusCode) {
         case 401:
         case 403:
-            dispatch(networkAuthFailure(S3_FAILURE_TYPE));
+            dispatch(handleErrorMessage(error.message, 'byAuth'));
+            dispatch(networkAuthFailure());
             break;
         default:
             throw error;

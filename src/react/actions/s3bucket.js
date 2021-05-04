@@ -7,7 +7,7 @@ import type {
     OpenBucketDeleteDialogAction,
     ThunkStatePromisedAction,
 } from '../../types/actions';
-import { handleApiError, handleS3Error } from './error';
+import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
@@ -60,8 +60,8 @@ export function createBucket(bucket: CreateBucketRequest): ThunkStatePromisedAct
         return zenkoClient.createBucket(bucket)
             .then(() => dispatch(listBuckets()))
             .then(() => dispatch(push('/buckets')))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -73,8 +73,8 @@ export function deleteBucket(bucketName: string): ThunkStatePromisedAction{
         return zenkoClient.deleteBucket(bucketName)
             .then(() => dispatch(listBuckets()))
             .then(() => dispatch(push('/buckets')))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => {
                 dispatch(networkEnd());
                 dispatch(closeBucketDeleteDialog());
@@ -88,8 +88,8 @@ export function getBucketInfo(bucketName: string): ThunkStatePromisedAction{
         dispatch(networkStart('Getting bucket information'));
         return zenkoClient.getBucketInfo(bucketName)
             .then(info => dispatch(getBucketInfoSuccess(info)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byComponent')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byComponent')))
             .finally(() => dispatch(networkEnd()));
     };
 }
@@ -101,8 +101,8 @@ export function toggleBucketVersioning(bucketName: string, isVersioning: boolean
         return zenkoClient.toggleVersioning(bucketName, isVersioning)
             .then(() => dispatch(listBuckets()))
             .then(() => dispatch(getBucketInfo(bucketName)))
-            .catch(error => dispatch(handleS3Error(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')))
+            .catch(error => dispatch(handleAWSClientError(error)))
+            .catch(error => dispatch(handleAWSError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));
     };
 }
