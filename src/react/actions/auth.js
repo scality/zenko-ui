@@ -7,6 +7,7 @@ import type {
     LoadConfigSuccessAction,
     SetAppConfigAction,
     SetManagementClientAction,
+    SetOIDCLogoutAction,
     SetSTSClientAction,
     SetThemeAction,
     ThunkNonStateAction,
@@ -14,11 +15,19 @@ import type {
 } from '../../types/actions';
 import { handleErrorMessage, loadInstanceLatestStatus, loadInstanceStats, networkAuthFailure, selectAccountID, setZenkoClient, updateConfiguration } from './index';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
+import type { OidcLogoutFunction } from '../../types/auth';
 import STSClient from '../../js/STSClient';
 import type { STSClient as STSClientInterface } from '../../types/sts';
 import ZenkoClient from '../../js/ZenkoClient';
 import { getAppConfig } from '../../js/config';
 import makeMgtClient from '../../js/managementClient';
+
+export function setOIDCLogout(logout: OidcLogoutFunction): SetOIDCLogoutAction {
+    return {
+        type: 'SET_OIDC_LOGOUT',
+        logout,
+    };
+}
 
 export function setManagementClient(managementClient: ManagementClientInterface): SetManagementClientAction {
     return {

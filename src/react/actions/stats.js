@@ -1,7 +1,7 @@
 // @noflow
 import type { InstanceStatus, InstanceStatusAction } from '../../types/stats';
-import { handleApiError, handleClientError } from './error';
 import { getClients } from '../utils/actions';
+import { handleClientError } from './error';
 
 export function instanceStatus(status: InstanceStatus): InstanceStatusAction {
     return {
@@ -25,7 +25,7 @@ export function loadInstanceStats(){
                 dispatch(receiveInstanceStats(res.body));
             })
             .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')));
+            .catch(() => {}); //? silence handleClientError if not an auth error
     };
 }
 
@@ -37,6 +37,6 @@ export function loadInstanceLatestStatus(){
                 dispatch(instanceStatus(res.body));
             })
             .catch(error => dispatch(handleClientError(error)))
-            .catch(error => dispatch(handleApiError(error, 'byModal')));
+            .catch(() => {}); //? silence handleClientError if not an auth error
     };
 }

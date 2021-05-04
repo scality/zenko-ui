@@ -84,3 +84,5 @@ export type ProfileStandardClaims = {
   /** Time the End-User's information was last updated. */
   updated_at?: number,
 };
+
+export type OidcLogoutFunction = (boolean) => void;

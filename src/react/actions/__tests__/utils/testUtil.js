@@ -100,6 +100,7 @@ export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = accountName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
 export const ACCOUNT_SECRET_KEY = accountSecretKey;
+export const LOGOUT_MOCK = () => {};
 
 export const THEME = {
     brand: {

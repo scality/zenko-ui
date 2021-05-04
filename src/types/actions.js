@@ -1,13 +1,13 @@
 // @flow
 import type { AccessKey, Account, SecretKey } from './account';
 import type { AppConfig, InstanceId, Theme } from './entities';
+import type { AuthUser, OidcLogoutFunction } from './auth';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
 import type { ConfigurationOverlay, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
 import type { AppState } from './state';
-import type { AuthUser } from './auth';
 import type { IamAccessKey } from './user';
 import type { ManagementClient } from './managementClient';
 import type { STSClient } from './sts';
@@ -79,6 +79,11 @@ export type SetThemeAction = {|
     +theme: Theme,
 |};
 
+export type SetOIDCLogoutAction = {|
+    +type: 'SET_OIDC_LOGOUT',
+    +logout: OidcLogoutFunction | null,
+|};
+
 export type AuthAction =
   SetSTSClientAction |
   SetManagementClientAction |
@@ -86,7 +91,8 @@ export type AuthAction =
   ConfigAuthFailureAction |
   LoadConfigSuccessAction |
   LoadClientsSuccessAction |
-  SelectAccountAction;
+  SelectAccountAction |
+  SetOIDCLogoutAction;
 
 // account actions
 

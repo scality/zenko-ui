@@ -4,6 +4,7 @@ import * as dispatchAction from './utils/dispatchActionsList';
 import {
     APP_CONFIG,
     INSTANCE_ID,
+    LOGOUT_MOCK,
     THEME,
     initState,
     testActionFunction,
@@ -54,6 +55,11 @@ describe('auth actions', () => {
             it: 'should return SET_THEME action',
             fn: actions.setTheme(THEME),
             expectedActions: [dispatchAction.SET_THEME_ACTION],
+        },
+        {
+            it: 'should return SET_OIDC_LOGOUT action',
+            fn: actions.setOIDCLogout(LOGOUT_MOCK),
+            expectedActions: [dispatchAction.SET_OIDC_LOGOUT_ACTION],
         },
     ];
 

@@ -1,9 +1,10 @@
 //@flow
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { addOIDCUser, setTheme } from './actions';
+import { addOIDCUser, setOIDCLogout, setTheme } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../types/state';
 import { ErrorBoundary } from 'react-error-boundary';
+import type { OidcLogoutFunction } from '../types/auth';
 
 function useWebComponent(src?: string, customElementName: string) {
     const [hasFailed, setHasFailed] = useState(false);
@@ -33,7 +34,7 @@ function useWebComponent(src?: string, customElementName: string) {
     }
 }
 
-type NavbarWebComponent = HTMLElement;
+type NavbarWebComponent = HTMLElement & { logOut: OidcLogoutFunction };
 
 function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
     const dispatch = useDispatch();
@@ -49,6 +50,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
             // eslint-disable-next-line flowtype-errors/show-errors
             if (evt.detail && evt.detail.profile) {
                 dispatch(addOIDCUser(evt.detail));
+                dispatch(setOIDCLogout(navbarElement.logOut || null));
             }
         };
 
@@ -132,6 +134,7 @@ function InternalNavbar() {
             // Set font-size to be consitent with other UIs.
             style={{ width: '100%', fontSize: 'max(14px,calc(.2em + .8vw))' }}
             ref={
+                // eslint-disable-next-line flowtype-errors/show-errors
                 navbarRef
             }
         />

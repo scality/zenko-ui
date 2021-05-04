@@ -10,6 +10,7 @@ import {
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
     LATEST_OVERLAY,
+    LOGOUT_MOCK,
     THEME,
     WORKFLOWS,
 } from './testUtil';
@@ -50,6 +51,7 @@ import type {
     SelectInstanceAction,
     SetAppConfigAction,
     SetManagementClientAction,
+    SetOIDCLogoutAction,
     SetSTSClientAction,
     SetThemeAction,
     SetZenkoClientAction,
@@ -105,6 +107,8 @@ export const SELECT_ACCOUNT_ACTION: SelectAccountAction =
 export const SET_THEME_ACTION: SetThemeAction =
     { type: 'SET_THEME', theme: THEME };
 
+export const SET_OIDC_LOGOUT_ACTION: SetOIDCLogoutAction =
+    { type: 'SET_OIDC_LOGOUT', logout: LOGOUT_MOCK };
 // * account action
 
 export const LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION: ListAccountAccessKeySuccessAction =

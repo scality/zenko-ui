@@ -13,6 +13,7 @@ const ReauthDialog = () => {
     const needReauth = useSelector((state: AppState) => state.networkActivity.authFailure);
     const errorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null);
     const pathname = useSelector((state: AppState) => state.router.location.pathname);
+    const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
 
     const dispatch = useDispatch();
 
@@ -31,7 +32,8 @@ const ReauthDialog = () => {
             close={() => reauth(pathname)}
             footer={
                 <div>
-                    <Button variant="buttonPrimary" onClick={() => reauth(pathname)} size="small" text={ errorMessage ? 'Retry' : 'Reload' }/>
+                    { oidcLogout && <Button style={{ marginRight: '24px' }} icon={<i className="fas fa-sign-out-alt" />} variant="buttonSecondary" onClick={() => oidcLogout(true)} text='Log Out'/> }
+                    <Button variant="buttonPrimary" onClick={() => reauth(pathname)} text='Reload'/>
                 </div>
             }
             isOpen={true}

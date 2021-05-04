@@ -40,6 +40,7 @@ export const initialAuthState: AuthState = {
     managementClient: new MockManagementClient(),
     config: {
     },
+    oidcLogout: null,
 };
 
 export const initialConfigUIState = {
