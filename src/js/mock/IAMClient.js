@@ -1,5 +1,6 @@
-// @noflow
-import type { IamAccessKey } from '../../types/user';
+// @flow
+import type { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
+import type { AWSError } from '../../types/aws';
 
 export const accountAccessKeys: Array<IamAccessKey> = [
     {
@@ -13,3 +14,29 @@ export const accountAccessKeys: Array<IamAccessKey> = [
         CreateDate: '2021-04-19T16:15:26+00:00',
     },
 ];
+
+export class MockIAMClient {
+    listOwnAccessKeys(): Promise<ListAccessKeysResponse> {
+        return Promise.resolve({
+            AccessKeyMetadata: accountAccessKeys,
+        });
+    }
+    deleteAccessKey(): Promise<void> {
+        return Promise.resolve();
+    }
+}
+
+export class ErrorMockIAMClient {
+    _error: AWSError;
+
+    constructor(error: AWSError) {
+        this._error = error;
+    }
+
+    listOwnAccessKeys(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+    deleteAccessKey(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+}

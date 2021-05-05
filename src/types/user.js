@@ -9,3 +9,7 @@ export type IamAccessKey = {|
     +Status: string,
     +CreateDate: string,
 |};
+
+export type ListAccessKeysResponse = {|
+    +AccessKeyMetadata: Array<IamAccessKey>,
+|};

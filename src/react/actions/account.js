@@ -149,7 +149,7 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
 
 export function listAccountAccessKeys(accountName: string): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-        dispatch(networkStart('Listing account access keys'));
+        dispatch(networkStart('Listing Root user Access keys'));
         return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
             .then(iamClient => iamClient.listOwnAccessKeys())
             .then(resp => dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)))
@@ -161,7 +161,7 @@ export function listAccountAccessKeys(accountName: string): ThunkStatePromisedAc
 
 export function deleteAccountAccessKey(accountName: string, accessKey: string): ThunkStatePromisedAction {
     return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-        dispatch(networkStart('Deleting account access key'));
+        dispatch(networkStart('Deleting Root user Access keys'));
         return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
             .then(iamClient => iamClient.deleteAccessKey(accessKey))
             .then(() => dispatch(listAccountAccessKeys(accountName)))
@@ -175,7 +175,7 @@ export function createAccountAccessKey(accountName: string): ThunkStatePromisedA
     return (dispatch, getState) => {
         const { managementClient, instanceId } = getClients(getState());
         const params = { uuid: instanceId, accountName };
-        dispatch(networkStart('Creating account access key'));
+        dispatch(networkStart('Creating Root user Access keys'));
         return managementClient.generateKeyConfigurationOverlayUser(params)
             .then(resp => {
                 dispatch(addAccountSecret(resp.body.userName, resp.body.accessKey, resp.body.secretKey));

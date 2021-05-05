@@ -1,22 +1,38 @@
 import * as actions from '../account';
 import * as dispatchAction from './utils/dispatchActionsList';
-
 import {
     ACCOUNT,
     ACCOUNT_ACCESS_KEY,
     ACCOUNT_ACCESS_KEYS,
     ACCOUNT_NAME,
     ACCOUNT_SECRET_KEY,
+    AWS_CLIENT_ERROR,
+    AWS_CLIENT_ERROR_MSG,
     authenticatedUserState,
     errorManagementState,
     initState,
     testActionFunction,
     testDispatchFunction,
 } from './utils/testUtil';
+import { ErrorMockIAMClient, MockIAMClient } from '../../../js/mock/IAMClient';
+import { getAssumeRoleWithWebIdentityIAM } from '../../../js/IAMClient';
 
 const createAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating account');
 const deleteAccountNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting account');
-// const createAccountAccessKeyAction = dispatchAction.NETWORK_START_ACTION('Creating account access key');
+const createAccountAccessKeyNetworkAction = dispatchAction.NETWORK_START_ACTION('Creating Root user Access keys');
+const listAccountAccessKeysNetworkAction = dispatchAction.NETWORK_START_ACTION('Listing Root user Access keys');
+const deleteAccountAccessKeyNetworkAction = dispatchAction.NETWORK_START_ACTION('Deleting Root user Access keys');
+const listAccountAccessKeysActions = [
+    listAccountAccessKeysNetworkAction,
+    dispatchAction.LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION,
+    dispatchAction.NETWORK_END_ACTION,
+];
+
+jest.mock('../../../js/IAMClient', () => {
+    return {
+        getAssumeRoleWithWebIdentityIAM: jest.fn(),
+    };
+});
 
 describe('account actions', () => {
     const syncTests = [
@@ -99,19 +115,90 @@ describe('account actions', () => {
                 dispatchAction.NETWORK_END_ACTION,
             ],
         },
-        // TODO: Test needed for createAccountAccessKey, deleteAccountAccessKey and deleteAccountAccessKey
-        // with a mock IAM client
-        // {
-        //     it: 'createAccountAccessKey: should return expected actions',
-        //     fn: actions.createAccountAccessKey(ACCOUNT_NAME),
-        //     storeState: initState,
-        //     expectedActions: [
-        //         createAccountAccessKeyAction,
-        //         dispatchAction.ADD_ACCOUNT_SECRET_ACTION,
-        //         dispatchAction.NETWORK_END_ACTION,
-        //     ],
-        // },
+        {
+            it: 'createAccountAccessKey: should handle error',
+            fn: actions.createAccountAccessKey(ACCOUNT_NAME),
+            storeState: errorManagementState(),
+            expectedActions: [
+                createAccountAccessKeyNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION('Management API Error Response'),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
     ];
 
+    asyncTests.forEach(testDispatchFunction);
+});
+
+describe('account actions with mocked IAM client', () => {
+    beforeEach(() => {
+        getAssumeRoleWithWebIdentityIAM.mockImplementation(() => Promise.resolve(new MockIAMClient()));
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    const asyncTests = [
+        {
+            it: 'listAccountAccessKeys: should return expected actions',
+            fn: actions.listAccountAccessKeys('bart'),
+            storeState: initState,
+            expectedActions: listAccountAccessKeysActions,
+        },
+        {
+            it: 'createAccountAccessKey: should return expected actions',
+            fn: actions.createAccountAccessKey(ACCOUNT_NAME),
+            storeState: initState,
+            expectedActions: [
+                createAccountAccessKeyNetworkAction,
+                dispatchAction.ADD_ACCOUNT_SECRET_ACTION,
+                ...listAccountAccessKeysActions,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'deleteAccountAccessKey: should return expected actions',
+            fn: actions.deleteAccountAccessKey(ACCOUNT_NAME, ACCOUNT_ACCESS_KEY),
+            storeState: initState,
+            expectedActions: [
+                deleteAccountAccessKeyNetworkAction,
+                ...listAccountAccessKeysActions,
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+    ];
+    asyncTests.forEach(testDispatchFunction);
+});
+
+describe('account actions with mocked failing IAM client', () => {
+    beforeEach(() => {
+        getAssumeRoleWithWebIdentityIAM.mockImplementation(() => Promise.resolve(new ErrorMockIAMClient(AWS_CLIENT_ERROR)));
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    const asyncTests = [
+        {
+            it: 'listAccountAccessKeys: should handle error',
+            fn: actions.listAccountAccessKeys('bart'),
+            storeState: initState,
+            expectedActions: [
+                listAccountAccessKeysNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+        {
+            it: 'deleteAccountAccessKey: should handle error',
+            fn: actions.deleteAccountAccessKey(ACCOUNT_NAME, ACCOUNT_ACCESS_KEY),
+            storeState: initState,
+            expectedActions: [
+                deleteAccountAccessKeyNetworkAction,
+                dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
+                dispatchAction.NETWORK_END_ACTION,
+            ],
+        },
+    ];
     asyncTests.forEach(testDispatchFunction);
 });
