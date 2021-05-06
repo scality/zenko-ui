@@ -10,7 +10,7 @@ import type { AppState } from '../../../../types/state';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideMe } from '../../../ui-elements/Utility';
 import { Warning } from '../../../ui-elements/Warning';
-import { formatDate } from '../../../utils';
+import { formatShortDate } from '../../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
@@ -69,7 +69,7 @@ function AccountKeys({ account }: Props) {
         {
             Header: 'Created On',
             accessor: 'created_at',
-            Cell({ value: created_at }: { value: Date }) { return formatDate(new Date(created_at)); },
+            Cell({ value: created_at }: { value: Date }) { return formatShortDate(new Date(created_at)); },
         },
         {
             id: 'actions',

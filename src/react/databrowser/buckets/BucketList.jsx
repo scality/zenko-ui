@@ -8,7 +8,7 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import type { S3BucketList } from '../../../types/s3';
-import { formatDate } from '../../utils';
+import { formatShortDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
@@ -46,7 +46,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
         {
             Header: 'Created on',
             accessor: 'CreationDate',
-            Cell: ({ value }) => { return formatDate(new Date(value));},
+            Cell: ({ value }) => { return formatShortDate(new Date(value));},
         },
     ], [locations, handleCellClicked]);
 
