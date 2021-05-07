@@ -10,6 +10,7 @@ import type {
 import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
 import type { APIWorkflows } from '../../types/workflow';
 import { ApiErrorObject } from './error';
+import type { InstanceStatus } from '../../types/stats';
 import { toLocationType } from '../../types/config';
 
 export const location: Location = {
@@ -33,6 +34,7 @@ export const account: Account = {
 };
 
 export const latestOverlay: ConfigurationOverlay = {
+    version: 2,
     users: [ account ],
     locations: { 'location1': location },
     endpoints: [],
@@ -68,6 +70,19 @@ export const key = {
     id: '538641674554',
     secretKey: accountSecretKey,
     userName: accountName,
+};
+
+export const instanceStatus: InstanceStatus = {
+    metrics: {},
+    state: {
+        runningConfigurationVersion: 0,
+        capabilities: {
+            secureChannel: true,
+        },
+        latestConfigurationOverlay: latestOverlay,
+        lastSeen: new Date().toString(),
+        serverVersion: 'version',
+    },
 };
 
 export class MockManagementClient implements ManagementClientInterface {
@@ -126,6 +141,12 @@ export class MockManagementClient implements ManagementClientInterface {
             body: key,
         });
     }
+
+    getLatestInstanceStatus(): Promise<{ body: InstanceStatus }> {
+        return Promise.resolve({
+            body: instanceStatus,
+        });
+    }
 }
 
 export class ErrorMockManagementClient implements ManagementClientInterface {
@@ -177,5 +198,45 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
 
     generateKeyConfigurationOverlayUser(): Promise<void> {
         return Promise.reject(this._error);
+    }
+}
+
+export class MockManagementClientWithConfigurationVersions extends MockManagementClient {
+    getStatusCallCounter: number
+    runningVersions: Array<number>
+    getOverlayCounter: number
+    overlayVersions: Array<number>
+
+    constructor(runningVersions: Array<number>, overlayVersions: Array<number>) {
+        super();
+
+        this.getStatusCallCounter = 0;
+        this.runningVersions = runningVersions;
+
+        this.getOverlayCounter = 0;
+        this.overlayVersions = overlayVersions;
+    }
+
+    getLatestInstanceStatus(): Promise<any> {
+        return super.getLatestInstanceStatus()
+            .then(({ body }) => ({
+                body: {
+                    ...body,
+                    state: {
+                        ...body.state,
+                        runningConfigurationVersion: this.runningVersions[this.getStatusCallCounter++],
+                    },
+                },
+            }));
+    }
+
+    getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
+        return super.getConfigurationOverlayView()
+            .then(({ body }) => ({
+                body: {
+                    ...body,
+                    version: this.overlayVersions[this.getOverlayCounter++],
+                },
+            }));
     }
 }

@@ -55,6 +55,7 @@ export type Endpoint = {|
 export type ReplicationStreams = Array<Replication>;
 
 export type ConfigurationOverlay = {|
+    +version: number,
     +users: Array<Account>,
     +locations: Locations,
     +endpoints: Array<Endpoint>,

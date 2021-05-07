@@ -9,6 +9,8 @@ import {
     APP_CONFIG,
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
+    INSTANCE_STATUS_RUNNINGv1,
+    INSTANCE_STATUS_RUNNINGv2,
     LATEST_OVERLAY,
     LOGOUT_MOCK,
     THEME,
@@ -30,6 +32,7 @@ import type {
     GetBucketInfoSuccessAction,
     GetObjectMetadataSuccessAction,
     HandleErrorAction,
+    InstanceStatusAction,
     ListAccountAccessKeySuccessAction,
     ListBucketsSuccessAction,
     ListObjectsSuccessAction,
@@ -309,3 +312,10 @@ export const SEARCH_WORKFLOWS_SUCCESS_ACTION = (): SearchWorkflowsSuccessAction 
         workflows: WORKFLOWS,
     };
 };
+
+// instance status actions
+export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction =
+    { type: 'INSTANCE_STATUS', status: INSTANCE_STATUS_RUNNINGv1 };
+
+export const INSTANCE_STATUS_ACTION_RUNNINGv2: InstanceStatusAction =
+    { type: 'INSTANCE_STATUS', status: INSTANCE_STATUS_RUNNINGv2 };

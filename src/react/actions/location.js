@@ -3,9 +3,9 @@ import type { CloseLocationDeleteDialogAction, OpenLocationDeleteDialogAction, T
 import type { Location, LocationName } from '../../types/config';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
+import { updateConfiguration, waitForRunningConfigurationVersionUpdate } from './configuration';
 import { getClients } from '../utils/actions';
 import { goBack } from 'connected-react-router';
-import { updateConfiguration } from './configuration';
 
 export function openLocationDeleteDialog(locationName: LocationName): OpenLocationDeleteDialogAction {
     return {
@@ -29,13 +29,14 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
             locationName: location.name,
         };
 
-        dispatch(networkStart('Saving location'));
+        dispatch(networkStart('Deploying location'));
         const op = location.objectId ?
             managementClient.updateConfigurationOverlayLocation(params)
             :
             managementClient.createConfigurationOverlayLocation(params);
         return op
             .then(() => dispatch(updateConfiguration()))
+            .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
             .then(() => dispatch(goBack()))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byComponent')))
@@ -52,9 +53,8 @@ export function deleteLocation(locationName: LocationName): ThunkStatePromisedAc
         };
         dispatch(networkStart('Deleting location'));
         return managementClient.deleteConfigurationOverlayLocation(params)
-            .then(() => {
-                dispatch(updateConfiguration());
-            })
+            .then(() => dispatch(updateConfiguration()))
+            .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => {

@@ -129,6 +129,7 @@ export type InstanceStateSnapshot = {|
         +secureChannel: boolean,
     },
     +latestConfigurationOverlay: ConfigurationOverlay,
+    +runningConfigurationVersion: number,
     +lastSeen: string,
     +serverVersion: string,
 |};
