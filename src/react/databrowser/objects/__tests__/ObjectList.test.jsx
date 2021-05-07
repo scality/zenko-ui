@@ -100,7 +100,7 @@ describe('ObjectList', () => {
             expect(cells.at(0).find('input').prop('checked')).toBe(index !== 0);
             expect(cells.at(1).prop('value')).toBe(index === 0 ? 'object1': 'object2');
             expect(cells.at(2).prop('value')).toBe(index === 0 ? 'Wed Oct 17 2020 10:35:57': 'Wed Oct 17 2020 16:35:57');
-            expect(cells.at(3).prop('value')).toBe(index === 0 ? '213.0 B' : '123.2 KB');
+            expect(cells.at(3).prop('value')).toBe(index === 0 ? '213.0 B' : '120.3 KiB');
         });
     });
 
