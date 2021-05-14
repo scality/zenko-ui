@@ -8,6 +8,7 @@ import { useFilters, useSortBy, useTable } from 'react-table';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import type { S3BucketList } from '../../../types/s3';
+import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
@@ -46,7 +47,12 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
         {
             Header: 'Created on',
             accessor: 'CreationDate',
-            Cell: ({ value }) => { return formatShortDate(new Date(value));},
+            headerStyle: { textAlign: 'right', paddingRight: '32px' },
+            Cell({ value }: { value: string }) { return (
+                <TextAligner alignment='right' style={{ paddingRight: '16px' }}>
+                    {formatShortDate(new Date(value))}
+                </TextAligner>
+            );},
         },
     ], [locations, handleCellClicked]);
 
@@ -75,18 +81,21 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
                 <T.Head>
                     {headerGroups.map(headerGroup => (
                         <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map(column => (
-                                <T.HeadCell key={column.id} {...column.getHeaderProps(column.getSortByToggleProps({ title: '' }))} >
-                                    {column.render('Header')}
-                                    <T.Icon>
-                                        {!column.disableSortBy && (column.isSorted
-                                            ? column.isSortedDesc
-                                                ? <i className='fas fa-sort-down' />
-                                                : <i className='fas fa-sort-up' />
-                                            : <i className='fas fa-sort' />)}
-                                    </T.Icon>
-                                </T.HeadCell>
-                            ))}
+                            {headerGroup.headers.map(column => {
+                                const headerProps = column.getHeaderProps(column.getSortByToggleProps({ title: '' }));
+                                return (
+                                    <T.HeadCell key={column.id} {...headerProps} style={{ ...column.headerStyle, ...headerProps.style }}>
+                                        {column.render('Header')}
+                                        <T.Icon>
+                                            {!column.disableSortBy && (column.isSorted
+                                                ? column.isSortedDesc
+                                                    ? <i className='fas fa-sort-down' />
+                                                    : <i className='fas fa-sort-up' />
+                                                : <i className='fas fa-sort' />)}
+                                        </T.Icon>
+                                    </T.HeadCell>
+                                );
+                            })}
                         </T.HeadRow>
                     ))}
                 </T.Head>

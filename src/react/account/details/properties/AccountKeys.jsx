@@ -1,14 +1,14 @@
 // @flow
 import { Banner, Button, Tooltip } from '@scality/core-ui';
+import { HideMe, TextAligner } from '../../../ui-elements/Utility';
 import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
 import { deleteAccountAccessKey, listAccountAccessKeys, openAccountKeyCreateModal } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFilters, useSortBy, useTable } from 'react-table';
+import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
 import { Clipboard } from '../../../ui-elements/Clipboard';
-import { HideMe } from '../../../ui-elements/Utility';
 import { Warning } from '../../../ui-elements/Warning';
 import { formatShortDate } from '../../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
@@ -69,7 +69,13 @@ function AccountKeys({ account }: Props) {
         {
             Header: 'Created On',
             accessor: 'created_at',
-            Cell({ value: created_at }: { value: Date }) { return formatShortDate(new Date(created_at)); },
+            headerStyle: { textAlign: 'right' },
+            Cell({ value: created_at }: { value: Date }) {
+                return <TextAligner alignment='right'>
+                    {formatShortDate(new Date(created_at))}
+                </TextAligner>;
+            },
+            width: 80,
         },
         {
             id: 'actions',
@@ -78,19 +84,17 @@ function AccountKeys({ account }: Props) {
             disableSortBy: true,
             Cell({ value: access_key }: { value: string }){
                 return (
-                    <T.Actions>
-                        <Tooltip overlay='Remove Key' placement='left'>
-                            <T.ActionButton
-                                title='Remove Key'
-                                disabled={false}
-                                icon={<i className='fas fa-trash' />}
-                                onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}
-                                size='small'
-                                variant="buttonDelete"
-                                text=''
-                            />
-                        </Tooltip>
-                    </T.Actions>
+                    <Tooltip overlay='Remove Key' placement='right'>
+                        <Button
+                            title='Remove Key'
+                            disabled={false}
+                            icon={<i className='fas fa-trash' />}
+                            onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}
+                            size='small'
+                            variant='buttonDelete'
+                            text=''
+                        />
+                    </Tooltip>
                 );
             },
         },
@@ -116,7 +120,7 @@ function AccountKeys({ account }: Props) {
         disableSortRemove: true,
         autoResetFilters: false,
         autoResetSortBy: false,
-    }, useFilters, useSortBy);
+    }, useFilters, useSortBy, useFlexLayout);
 
     return (
         <TableContainer>
@@ -140,18 +144,21 @@ function AccountKeys({ account }: Props) {
                     <T.Head>
                         { headerGroups.map((headerGroup, index) => (
                             <T.HeadRow key={ index } { ...headerGroup.getHeaderGroupProps() }>
-                                { headerGroup.headers.map(column => (
-                                    <T.HeadCell key={ column.id } { ...column.getHeaderProps(column.getSortByToggleProps({ title: '' })) }>
-                                        { column.render('Header') }
-                                        <T.Icon>
-                                            { !column.disableSortBy && (column.isSorted
-                                                ? column.isSortedDesc
-                                                    ? <i className='fas fa-sort-down'/>
-                                                    : <i className='fas fa-sort-up'/>
-                                                : <i className='fas fa-sort'/>) }
-                                        </T.Icon>
-                                    </T.HeadCell>
-                                )) }
+                                { headerGroup.headers.map(column => {
+                                    const headerProps = column.getHeaderProps(column.getSortByToggleProps({ title: '' }));
+                                    return (
+                                        <T.HeadCell key={ column.id } { ...headerProps } style={{ ...column.headerStyle, ...headerProps.style }}>
+                                            { column.render('Header') }
+                                            <T.Icon>
+                                                { !column.disableSortBy && (column.isSorted
+                                                    ? column.isSortedDesc
+                                                        ? <i className='fas fa-sort-down'/>
+                                                        : <i className='fas fa-sort-up'/>
+                                                    : <i className='fas fa-sort'/>) }
+                                            </T.Icon>
+                                        </T.HeadCell>
+                                    );
+                                }) }
                             </T.HeadRow>
                         )) }
                     </T.Head>
