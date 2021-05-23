@@ -17,6 +17,9 @@ module.exports = merge(common, {
         historyApiFallback: true,
         hot: true,
         proxy: {
+            '/solution-ui-navbar.1.0.0.js': {
+                target: 'http://127.0.0.1:8082/shell',
+            },
             '/s3': {
                 target: 'http://s3.zenko.local',
                 pathRewrite: {'^/s3' : ''},
