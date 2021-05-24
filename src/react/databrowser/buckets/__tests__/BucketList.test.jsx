@@ -3,15 +3,16 @@ import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 import { Row } from '../../../ui-elements/Table';
+import { formatShortDate } from '../../../utils';
 import { reduxMount } from '../../../utils/test';
 
 describe('BucketList', () => {
     const buckets = List([{
-        CreationDate: 'Wed Oct 07 2020 16:35:57',
+        CreationDate: '2020-04-19T16:15:29+00:00',
         LocationConstraint: 'us-east-1',
         Name: 'bucket1',
     }, {
-        CreationDate: 'Wed Oct 07 2020 16:35:57',
+        CreationDate: '2020-04-19T16:15:29+00:00',
         LocationConstraint: 'us-east-1',
         Name: 'bucket2',
     }]);
@@ -37,7 +38,7 @@ describe('BucketList', () => {
         const firstBucketCellDate = firstRow.find('Cell').at(2);
         expect(firstBucketCellLink.text()).toContain('bucket1');
         expect(firstBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
-        expect(firstBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
+        expect(firstBucketCellDate.text()).toBe(formatShortDate(new Date(buckets.get(0).CreationDate)));
 
         const secondRow = rows.at(1);
         const secondBucketCellLink = secondRow.find('Cell').at(0);
@@ -45,7 +46,7 @@ describe('BucketList', () => {
         const secondBucketCellDate = component.find('Cell').at(2);
         expect(secondBucketCellLink.text()).toContain('bucket2');
         expect(secondBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
-        expect(secondBucketCellDate.text()).toBe('Wed Oct 07 2020 16:35:57');
+        expect(secondBucketCellDate.text()).toBe(formatShortDate(new Date(buckets.get(1).CreationDate)));
     });
 
     it('should select row if the bucket name specified in the parameter matches one of the bucket names listed', () => {

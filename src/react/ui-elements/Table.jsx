@@ -41,6 +41,7 @@ export const Head = styled.thead`
 `;
 
 export const HeadRow = styled.tr`
+    align-items: center;
     width:100%;
     cursor: pointer;
 

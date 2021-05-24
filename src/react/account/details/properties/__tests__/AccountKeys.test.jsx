@@ -4,7 +4,7 @@ import { HideMe } from '../../../../ui-elements/Utility';
 import React from 'react';
 import { Warning } from '../../../../ui-elements/Warning';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
-import { formatDate } from '../../../../utils';
+import { formatShortDate } from '../../../../utils';
 import { reduxMount } from '../../../../utils/test';
 
 const account1 = {
@@ -38,13 +38,13 @@ describe('AccountKeys', () => {
         const firstColumns = firstRow.find(T.Cell).map(column => column.text());
         expect(firstColumns.length).toEqual(3);
         expect(firstColumns[0]).toEqual(accountAccessKeys[1].AccessKeyId);
-        expect(firstColumns[1]).toEqual(formatDate(new Date(accountAccessKeys[1].CreateDate)));
+        expect(firstColumns[1]).toEqual(formatShortDate(new Date(accountAccessKeys[1].CreateDate)));
 
         const secondRow = rows.at(1);
         const secondColumns = secondRow.find(T.Cell).map(column => column.text());
         expect(secondColumns.length).toEqual(3);
         expect(secondColumns[0]).toEqual(accountAccessKeys[0].AccessKeyId);
-        expect(secondColumns[1]).toEqual(formatDate(new Date(accountAccessKeys[0].CreateDate)));
+        expect(secondColumns[1]).toEqual(formatShortDate(new Date(accountAccessKeys[0].CreateDate)));
     });
 
     it('should render notification whenever there is at least 1 Root Access Key', () => {
@@ -67,7 +67,7 @@ describe('AccountKeys', () => {
         const columns = row.find(T.Cell).map(column => column.text());
         expect(columns.length).toEqual(3);
         expect(columns[0]).toEqual(accessKey.AccessKeyId);
-        expect(columns[1]).toEqual(formatDate(new Date(accessKey.CreateDate)));
+        expect(columns[1]).toEqual(formatShortDate(new Date(accessKey.CreateDate)));
 
         // Check if there is the notification
         expect(component.find(HideMe).prop('isHidden')).toBeFalsy();
