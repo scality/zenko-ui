@@ -197,6 +197,7 @@ export const initialZenkoState = {
 
 export const initialWorkflowsUIState: WorkflowsUIState = {
     showEditWorkflowNotification: false,
+    showWorkflowDeleteModal: false,
 };
 
 export const initialWorkflowState: WorkflowState = {

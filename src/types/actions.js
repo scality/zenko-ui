@@ -360,8 +360,18 @@ export type OpenWorkflowEditNotificationAction = {|
     +type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
 |};
 
+export type OpenWorkflowDeleteModalAction = {|
+    +type: 'OPEN_WORKFLOW_DELETE_MODAL',
+|};
+
+export type CloseWorkflowDeleteModalAction = {|
+    +type: 'CLOSE_WORKFLOW_DELETE_MODAL',
+|};
+
 export type WorkflowUIAction = CloseWorkflowEditNotificationAction |
-    OpenWorkflowEditNotificationAction;
+    OpenWorkflowEditNotificationAction |
+    OpenWorkflowDeleteModalAction |
+    CloseWorkflowDeleteModalAction;
 
 // OIDC
 export type AddOIDCUserAction = {|

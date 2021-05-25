@@ -31,6 +31,16 @@ describe('workflow actions', () => {
             expectedActions: [dispatchAction.CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION()],
         },
         {
+            it: 'should return OPEN_WORKFLOW_DELETE_MODAL action',
+            fn: actions.openWorkflowDeleteModal(),
+            expectedActions: [dispatchAction.OPEN_WORKFLOW_DELETE_MODAL_ACTION()],
+        },
+        {
+            it: 'should return CLOSE_WORKFLOW_DELETE_MODAL action',
+            fn: actions.closeWorkflowDeleteModal(),
+            expectedActions: [dispatchAction.CLOSE_WORKFLOW_DELETE_MODAL_ACTION()],
+        },
+        {
             it: 'should return SEARCH_WORKFLOWS_SUCCESS action',
             fn: actions.searchWorkflowsSuccess(WORKFLOWS),
             expectedActions: [dispatchAction.SEARCH_WORKFLOWS_SUCCESS_ACTION()],

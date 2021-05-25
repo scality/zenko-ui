@@ -1,6 +1,8 @@
 // @flow
 import type {
+    CloseWorkflowDeleteModalAction,
     CloseWorkflowEditNotificationAction,
+    OpenWorkflowDeleteModalAction,
     OpenWorkflowEditNotificationAction,
     SearchWorkflowsSuccessAction,
     ThunkStatePromisedAction,
@@ -18,6 +20,18 @@ export function openWorkflowEditNotification(): OpenWorkflowEditNotificationActi
 export function closeWorkflowEditNotification(): CloseWorkflowEditNotificationAction {
     return {
         type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+    };
+}
+
+export function openWorkflowDeleteModal(): OpenWorkflowDeleteModalAction {
+    return {
+        type: 'OPEN_WORKFLOW_DELETE_MODAL',
+    };
+}
+
+export function closeWorkflowDeleteModal(): CloseWorkflowDeleteModalAction {
+    return {
+        type: 'CLOSE_WORKFLOW_DELETE_MODAL',
     };
 }
 

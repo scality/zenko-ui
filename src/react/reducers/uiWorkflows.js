@@ -18,6 +18,16 @@ export default function uiWorkflows(state: WorkflowsUIState = initialWorkflowsUI
             ...state,
             showEditWorkflowNotification: false,
         };
+    case 'OPEN_WORKFLOW_DELETE_MODAL':
+        return {
+            ...state,
+            showWorkflowDeleteModal: true,
+        };
+    case 'CLOSE_WORKFLOW_DELETE_MODAL':
+        return {
+            ...state,
+            showWorkflowDeleteModal: false,
+        };
     default:
         return state;
     }

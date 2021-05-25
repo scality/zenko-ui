@@ -25,6 +25,7 @@ import type {
     CloseLocationDeleteDialogAction,
     CloseObjectDeleteModalAction,
     CloseObjectUploadModalAction,
+    CloseWorkflowDeleteModalAction,
     CloseWorkflowEditNotificationAction,
     ConfigAuthFailureAction,
     ConfigurationVersionAction,
@@ -47,6 +48,7 @@ import type {
     OpenLocationDeleteDialogAction,
     OpenObjectDeleteModalAction,
     OpenObjectUploadModalAction,
+    OpenWorkflowDeleteModalAction,
     OpenWorkflowEditNotificationAction,
     ResetObjectMetadataAction,
     SearchWorkflowsSuccessAction,
@@ -303,6 +305,18 @@ export const OPEN_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): OpenWorkflowEditNotifi
 export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): CloseWorkflowEditNotificationAction => {
     return {
         type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+    };
+};
+
+export const OPEN_WORKFLOW_DELETE_MODAL_ACTION = (): OpenWorkflowDeleteModalAction => {
+    return {
+        type: 'OPEN_WORKFLOW_DELETE_MODAL',
+    };
+};
+
+export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION = (): CloseWorkflowDeleteModalAction => {
+    return {
+        type: 'CLOSE_WORKFLOW_DELETE_MODAL',
     };
 };
 

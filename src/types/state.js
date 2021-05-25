@@ -111,6 +111,7 @@ export type WorkflowState = {|
 
 export type WorkflowsUIState ={|
     showEditWorkflowNotification: boolean,
+    showWorkflowDeleteModal: boolean,
 |};
 
 export type ZenkoState = {|
