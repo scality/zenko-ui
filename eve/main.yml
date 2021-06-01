@@ -108,7 +108,7 @@ stages:
             docker pull ${SHELL_UI_IMAGE};
             docker run -d -p 8082:80 ${SHELL_UI_IMAGE};
   
-            docker run -d -p 8383:8383
+            docker run -d
             -v $(pwd)/eve/ci-test-config-shell.json:/usr/share/nginx/html/config-shell.json
             -v $(pwd)/eve/ci-test-config.json:/usr/share/nginx/html/config.json
             -v $(pwd)/conf/ci-test-nginx.conf:/etc/nginx/conf.d/default.conf
