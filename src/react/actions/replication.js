@@ -1,5 +1,5 @@
 // @noflow
-import { closeWorkflowEditNotification, searchWorkflows } from './workflow';
+import { closeWorkflowDeleteModal, closeWorkflowEditNotification, searchWorkflows } from './workflow';
 import { getAccountId, getClients } from '../utils/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
@@ -28,7 +28,10 @@ export function deleteReplication(replication: Replication): ThunkStatePromisedA
             .then(() => dispatch(push('/workflows')))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
-            .finally(() => dispatch(networkEnd()));
+            .finally(() => {
+                dispatch(networkEnd());
+                dispatch(closeWorkflowDeleteModal());
+            });
     };
 }
 

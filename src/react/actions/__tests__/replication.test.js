@@ -23,6 +23,7 @@ describe('replication actions', () => {
                 ...searchWorkflowsActions,
                 dispatchAction.LOCATION_PUSH_ACTION('/workflows'),
                 dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_WORKFLOW_DELETE_MODAL_ACTION(),
             ],
         },
         {
@@ -33,6 +34,7 @@ describe('replication actions', () => {
                 deleteReplicationNetworkAction,
                 dispatchAction.HANDLE_ERROR_MODAL_ACTION('Management API Error Response'),
                 dispatchAction.NETWORK_END_ACTION,
+                dispatchAction.CLOSE_WORKFLOW_DELETE_MODAL_ACTION(),
             ],
         },
         {

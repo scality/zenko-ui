@@ -43,7 +43,6 @@ function Configuration({ wfSelected, replications, bucketList, locations, showEd
 
     const handleDeleteWorkflow = () => {
         dispatch(deleteReplication(replication));
-        handleCloseDeleteModal();
     };
 
     // TODO: Adapt it to handle the other workflow types; For now only replication workflow is supported.
