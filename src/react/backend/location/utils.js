@@ -2,13 +2,12 @@
 import type { Endpoint, Location, LocationName, Locations as LocationsType, Replication } from '../../../types/config';
 import type { BucketList } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
-
-import { defaultLocationType } from './LocationDetails';
+import { storageOptions } from './LocationDetails';
 
 function newLocationDetails(): Location {
     return {
         name: '',
-        locationType: defaultLocationType,
+        locationType: '',
         details: {},
         objectId: '',
         isTransient: false,
@@ -20,7 +19,7 @@ function newLocationDetails(): Location {
 function newLocationForm(): LocationForm {
     return {
         name: '',
-        locationType: defaultLocationType,
+        locationType: '',
         details: {},
         objectId: '',
         options: {
@@ -109,6 +108,10 @@ function canDeleteLocation(
     return true;
 }
 
+function isLocationExists(location: string): boolean {
+    return Object.keys(storageOptions).some(opt => opt === location);
+}
+
 export {
     newLocationForm,
     convertToLocation,
@@ -116,4 +119,5 @@ export {
     newLocationDetails,
     canEditLocation,
     canDeleteLocation,
+    isLocationExists,
 };

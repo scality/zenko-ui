@@ -1,11 +1,11 @@
 // @flow
 import { Banner, Button } from '@scality/core-ui';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
-import { LocationDetails, defaultLocationType, storageOptions } from './LocationDetails';
+import { LocationDetails, storageOptions } from './LocationDetails';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
-import { convertToForm, convertToLocation, newLocationDetails, newLocationForm } from './utils';
+import { convertToForm, convertToLocation, isLocationExists, newLocationDetails, newLocationForm } from './utils';
 import type { AppState } from '../../../types/state';
 import LocationOptions from './LocationOptions';
 import type { LocationSelectOption } from '../../../types/location';
@@ -39,8 +39,8 @@ function LocationEditor() {
     const [location, setLocation] = useState(convertToForm({ ...newLocationDetails(), ...locationEditing }));
 
     const selectOptions = useMemo(() => {
-        return selectStorageOptions(capabilities, makeLabel);
-    }, [capabilities]);
+        return selectStorageOptions(capabilities, makeLabel, !editingExisting);
+    }, [capabilities, editingExisting]);
 
     const clearServerError = () => {
         if (hasError) {
@@ -113,7 +113,7 @@ function LocationEditor() {
     };
 
     const maybeShowDetails = () => {
-        if (location.locationType === defaultLocationType) {
+        if (location.locationType === 'location-file-v1') {
             return null;
         }
         return (
@@ -161,6 +161,7 @@ function LocationEditor() {
                 <F.Select
                     id='locationType'
                     name="locationType"
+                    placeholder='Select an option...'
                     options={selectOptions}
                     isOptionDisabled={(option) => option.disabled === true }
                     onChange={onTypeChange}
@@ -187,7 +188,7 @@ function LocationEditor() {
                 </F.FooterError>
                 <F.FooterButtons>
                     <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
-                    <Button variant="buttonPrimary" icon={ locationEditing && <i className="fas fa-save" />} disabled={disable || loading} onClick={save} text={ locationEditing ? 'Save Changes' : 'Create' }/>
+                    <Button variant="buttonPrimary" icon={ locationEditing && <i className="fas fa-save" />} disabled={disable || loading || !isLocationExists(location.locationType)} onClick={save} text={ locationEditing ? 'Save Changes' : 'Create' }/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>
