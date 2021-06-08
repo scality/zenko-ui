@@ -1,3 +1,4 @@
+const { ModuleFederationPlugin } = require('webpack').container;
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
@@ -51,6 +52,19 @@ module.exports = {
         new HtmlWebPackPlugin({
             template: './src/index-template.html',
             filename: './index.html',
+        }),
+        new ModuleFederationPlugin({
+            name: 'component_app',
+            filename: 'remoteEntry.js',
+            exposes: {
+                './Button': './src/Button.jsx',
+                './Dialog': './src/Dialog.jsx',
+                './Logo': './src/Logo.jsx',
+                './ToolTip': './src/ToolTip.jsx',
+            },
+            // remotes: {
+            //     'lib-app': 'lib_app@http://localhost:3000/remoteEntry.js',
+            // },
         }),
     ],
 };
