@@ -6,9 +6,9 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 module.exports = merge(common, {
     mode: 'development',
     devtool: 'inline-source-map',
-    plugins: [
-        new BundleAnalyzerPlugin(),
-    ],
+    // plugins: [
+    //     new BundleAnalyzerPlugin(),
+    // ],
     devServer: {
         contentBase: path.join(__dirname, 'public/assets'),
         host: '127.0.0.1',
@@ -16,6 +16,9 @@ module.exports = merge(common, {
         open: true,
         historyApiFallback: true,
         hot: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+        },
         proxy: {
             '/s3': {
                 target: 'http://s3.zenko.local',
