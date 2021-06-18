@@ -5,7 +5,6 @@ import React from 'react';
 import Table from '../../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../../utils';
 
-
 const account1 = {
     arn: 'arn1',
     canonicalId: 'canonicalId1',

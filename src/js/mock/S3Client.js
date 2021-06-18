@@ -41,7 +41,7 @@ export const objectMetadata = {
     objectKey: 'bg.jpg',
     objectName: 'bg.jpg',
     prefixWithSlash: '',
-    versionId: '',
+    versionId: '39383338303437363733333939303939393939395247303030303131382e36',
     tags: [],
 };
 

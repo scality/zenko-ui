@@ -16,7 +16,7 @@ export type HeadObjectResponse = {|
     +ContentLength: number,
     +ContentType: string,
     +ETag: string,
-    +VersionId: string,
+    +VersionId: ?string,
     +Metadata: { [string]: string },
 |};
 
@@ -144,7 +144,7 @@ export type ObjectMetadata = {|
     +contentLength: number,
     +contentType: string,
     +eTag: string,
-    +versionId: string,
+    +versionId: ?string,
     +metadata: MetadataItems,
     +tags: Tags,
 |};
