@@ -1,7 +1,7 @@
 {
     "navbarEndpoint": "http://127.0.0.1:8383/solution-ui-navbar.js",
     "navbarConfigUrl": "/config-shell.json",
-    "managementEndpoint": "http://127.0.0.1:5000",
+    "managementEndpoint": "http://127.0.0.1:8383",
     "stsEndpoint": "http://127.0.0.1:8383/sts",
     "zenkoEndpoint": "http://127.0.0.1:8383/s3",
     "iamEndpoint": "http://127.0.0.1:8383/iam"
