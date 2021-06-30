@@ -5,7 +5,7 @@ FROM ubuntu:18.04
 #
 ENV LANG C.UTF-8
 RUN apt update && apt install -y curl apt-transport-https gnupg
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 
 COPY ./zenko_packages.list ./buildbot_worker_packages.list ./cypress_packages.list /tmp/
 RUN apt-get update \
