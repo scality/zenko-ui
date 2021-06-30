@@ -161,7 +161,7 @@ describe('Locations', () => {
         const fourthRowColumns = fourthRow.find(T.Cell).map(column => column.text());
         expect(fourthRowColumns.length).toEqual(nbrOfColumnsExpected);
         expect(fourthRowColumns[0]).toEqual('location-hd');
-        expect(fourthRowColumns[1]).toEqual('Storage Service for Artesca');
+        expect(fourthRowColumns[1]).toEqual('Storage Service for ARTESCA');
         expect(fourthRowColumns[2]).toEqual('');
         // edit button
         expect(fourthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled')).toBeFalsy();

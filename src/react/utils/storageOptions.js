@@ -1,7 +1,8 @@
 /* eslint-disable */
-import { defaultLocationType, storageOptions } from '../backend/location/LocationDetails';
-import type { Locations } from '../../../../types/config';
-
+import type { InstanceStateSnapshot } from '../../types/stats';
+import type { LabelFunction, StorageOptionSelect } from '../../types/storageOptionsHelper';
+import { storageOptions } from '../backend/location/LocationDetails';
+import type { Locations } from '../../types/config';
 
 export function checkSupportsReplicationTarget(locations: Locations): boolean {
     return Object.keys(locations)
@@ -11,7 +12,7 @@ export function checkSupportsReplicationTarget(locations: Locations): boolean {
 
 export function checkIfExternalLocation(locations: Locations): boolean {
     return Object.keys(locations)
-        .some(l => locations[l].locationType !== defaultLocationType);
+        .some(l => locations[l].locationType !== 'location-file-v1');
 }
 
 export function getLocationName(locationType) {
@@ -48,13 +49,16 @@ export function getLocationBucketName(locationConstraint, locations) {
 export function selectStorageOptions(
     capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
     labelFn?: LabelFunction,
+    exceptHidden: boolean = true,
 ): Array<StorageOptionSelect> {
     return Object.keys(storageOptions).filter(o => {
-        const isOldVersion = !!storageOptions[o].isOldVersion;
-        if (isOldVersion) {
-            return;
+        if (exceptHidden) {
+            const hidden = !!storageOptions[o].hidden;
+            if (hidden) {
+                return false;
+            }
         }
-        return o;
+        return true;
     }).map(o => {
         const check = storageOptions[o].checkCapability;
         return {

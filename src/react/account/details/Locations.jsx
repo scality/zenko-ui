@@ -122,7 +122,7 @@ function Locations() {
     }, useFilters, useSortBy);
 
     // NOTE: empty state component
-    if (locations.length === 0) {
+    if (Object.keys(locations).length === 0) {
         return <Warning iconClass="fas fa-5x fa-map-marker-alt" title='Create your first storage location.' btnTitle='Create Location' btnAction={() => dispatch(push('/create-location'))} />;
     }
 
