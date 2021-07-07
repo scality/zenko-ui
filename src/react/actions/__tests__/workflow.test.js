@@ -2,7 +2,7 @@ import * as actions from '../workflow';
 import * as dispatchAction from './utils/dispatchActionsList';
 
 import {
-    WORKFLOWS,
+    API_WORKFLOWS,
     authenticatedUserState,
     errorManagementState,
     testActionFunction,
@@ -10,7 +10,7 @@ import {
     testDispatchFunction,
 } from './utils/testUtil';
 
-const searchWorkflowsNetworkAction = dispatchAction.NETWORK_START_ACTION('Searching for worflows');
+const searchWorkflowsNetworkAction = dispatchAction.NETWORK_START_ACTION('Searching for workflows');
 
 export const searchWorkflowsActions = [
     searchWorkflowsNetworkAction,
@@ -42,7 +42,7 @@ describe('workflow actions', () => {
         },
         {
             it: 'should return SEARCH_WORKFLOWS_SUCCESS action',
-            fn: actions.searchWorkflowsSuccess(WORKFLOWS),
+            fn: actions.searchWorkflowsSuccess(API_WORKFLOWS),
             expectedActions: [dispatchAction.SEARCH_WORKFLOWS_SUCCESS_ACTION()],
         },
     ];

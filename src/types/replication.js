@@ -8,9 +8,9 @@ export type ReplicationBucketOption = {|
 |};
 
 export type ReplicationForm = {|
-    +streamName: string,
-    +streamVersion: number,
-    +streamId: string,
+    +workflowName: string,
+    +workflowVersion: number,
+    +workflowId: string,
     +enabled: boolean,
     +sourceBucket: {
         label?: string,

@@ -6,6 +6,7 @@ import {
     ACCOUNT_ACCESS_KEYS,
     ACCOUNT_NAME,
     ACCOUNT_SECRET_KEY,
+    API_WORKFLOWS,
     APP_CONFIG,
     BUCKET_INFO_RESPONSE,
     INSTANCE_ID,
@@ -14,7 +15,6 @@ import {
     LATEST_OVERLAY,
     LOGOUT_MOCK,
     THEME,
-    WORKFLOWS,
 } from './testUtil';
 
 import type {
@@ -323,7 +323,7 @@ export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION = (): CloseWorkflowDeleteModalAc
 export const SEARCH_WORKFLOWS_SUCCESS_ACTION = (): SearchWorkflowsSuccessAction => {
     return {
         type: 'SEARCH_WORKFLOWS_SUCCESS',
-        workflows: WORKFLOWS,
+        workflows: API_WORKFLOWS,
     };
 };
 

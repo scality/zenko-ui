@@ -1,87 +1,53 @@
 // @flow
 import * as T from '../../ui-elements/TableKeyValue2';
-import { Controller, useForm } from 'react-hook-form';
-import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Select, Toggle } from '@scality/core-ui';
-import { checkIfExternalLocation, checkSupportsReplicationTarget } from '../../utils/storageOptions';
-import { convertToReplicationForm, convertToReplicationStream, destinationOptions, generateStreamName, newReplicationForm, renderDestination, renderSource, sourceBucketOptions } from './utils';
-import { openWorkflowEditNotification, saveReplication } from '../../actions';
-import { Button } from '@scality/core-ui/dist/next';
+import {
+    convertToReplicationForm,
+    destinationOptions,
+    renderDestination,
+    renderSource,
+    sourceBucketOptions,
+} from './utils';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppState } from '../../../types/state';
+import { Controller } from 'react-hook-form';
 import { ErrorInput } from '../../ui-elements/FormLayout';
 import Input from '../../ui-elements/Input';
-import Joi from '@hapi/joi';
+import type { Locations } from '../../../types/config';
 import { NoLocationWarning } from '../../ui-elements/Warning';
-import type { S3BucketList } from '../../../types/s3';
-import { joiResolver } from '@hookform/resolvers';
-import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-
-const ReplicationContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    ${T.Row} {
-      height: 42px;
-      min-height: 42px;
-    }
-`;
-
-const schema = Joi.object({
-    streamId: Joi.string().label('Id').allow(''),
-    streamVersion: Joi.number().label('Version').optional(),
-    // streamName: Joi.string().label('Name').min(4).allow('').messages({
-    //     'string.min': '"Name" should have a minimum length of {#limit}',
-    // }),
-    enabled: Joi.boolean().label('State').required(),
-    sourceBucket: Joi.object({
-        value: Joi.string().label('Bucket Name').required(),
-        label: Joi.string(),
-        disabled: Joi.boolean(),
-        location: Joi.string(),
-    }),
-    sourcePrefix: Joi.string().label('Prefix').allow(''),
-    destinationLocation: Joi.object({
-        value: Joi.string().label('Destination Location Name').required(),
-        label: Joi.string(),
-    }),
-});
+import type { Workflow } from '../../../types/workflow';
+import { checkSupportsReplicationTarget } from '../../utils/storageOptions';
+import { openWorkflowEditNotification } from '../../actions';
 
 type Props = {
-    replications: ReplicationStreams,
-    bucketList: S3BucketList,
     locations: Locations,
-    workflow: ?ReplicationStream,
-    showEditWorkflowNotification: boolean,
+    wfSelected: ?Workflow,
     createMode: boolean,
     loading: boolean,
+    formProps: any,
 };
-function Replication({ replications, bucketList, locations, workflow, showEditWorkflowNotification, createMode, loading }: Props) {
-    const dispatch = useDispatch();
 
-    const { register, handleSubmit, errors, control, reset, getValues } = useForm({
-        resolver: joiResolver(schema),
-        defaultValues: newReplicationForm(),
-    });
+function Replication({
+    locations,
+    wfSelected,
+    createMode,
+    formProps,
+}: Props) {
+    const dispatch = useDispatch();
+    const workflowId = wfSelected ? wfSelected.workflowId : null;
+    const replications = useSelector((state: AppState) => state.workflow.replications);
+    const showEditWorkflowNotification = useSelector((state: AppState) => state.uiWorkflows.showEditWorkflowNotification);
+    const bucketList = useSelector((state: AppState) => state.s3.listBucketsResults.list);
+    const replication = useMemo(() => {
+        return replications.find(r => r.streamId === workflowId);
+    }, [replications, workflowId]);
+
+    const { reset, control, errors, getValues, register } = formProps;
 
     useEffect(() => {
-        reset(convertToReplicationForm(workflow)); // asynchronously reset form values
-    }, [reset, workflow]);
-
-    const onSubmit = (values) => {
-        let stream = values;
-        let s = convertToReplicationStream(stream);
-        if (!s.name) {
-            s = { ...s, name: generateStreamName(s) };
-        }
-        dispatch(saveReplication(s));
-    };
-
-    const handleCancel = () => {
-        dispatch(push('/workflows'));
-    };
+        reset(convertToReplicationForm(replication)); // asynchronously reset form values
+    }, [reset, replication]);
 
     const handleChange = (onChange) => (e) => {
         if (!showEditWorkflowNotification) {
@@ -91,180 +57,167 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
     };
 
     // TODO: make sure we do not delete bucket or location if replication created.
-    if (!checkIfExternalLocation(locations) || !checkSupportsReplicationTarget(locations)) {
+    if (!checkSupportsReplicationTarget(locations)) {
         return <NoLocationWarning/>;
     }
 
     return (
-        <ReplicationContainer>
-            <input type='hidden'
-                id='streamId'
-                name='streamId'
-                ref={register}
-                autoComplete='off'
+        <>
+            <input
+                type="hidden"
+                id="workflowId"
+                name="workflowId"
+                ref={ register }
+                autoComplete="off"
             />
-            <input type='hidden'
-                id='streamVersion'
-                name='streamVersion'
-                ref={register}
-                autoComplete='off'
+            <input
+                type="hidden"
+                id="workflowVersion"
+                name="workflowVersion"
+                ref={ register }
+                autoComplete="off"
             />
-            <T.Groups>
-                <T.Group>
-                    <T.GroupContent>
-                        <T.Row>
-                            <T.Key principal={true}> Rule Type </T.Key>
-                            <T.Value>
-                                <i className="fas fa-coins" />
-                                Replication
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
-                <T.Group>
-                    <T.GroupName>
-                        General
-                    </T.GroupName>
-                    <T.GroupContent>
-                        {/* <T.Row>
+            <T.Group>
+                <T.GroupName>
+                    General
+                </T.GroupName>
+                <T.GroupContent>
+                    {/* <T.Row>
                             <T.Key> Rule Name </T.Key>
                             <T.Value>
                                 <Controller
                                     control={control}
-                                    id='streamName'
-                                    name='streamName'
-                                    render={({ onChange, value: streamName }) => {
+                                    id='workflowName'
+                                    name='workflowName'
+                                    render={({ onChange, value: workflowName }) => {
                                         return <Input
                                             onChange={handleChange(onChange)}
-                                            value={streamName}
+                                            value={workflowName}
                                             autoComplete='off'
                                         />;
                                     }}
                                 />
                                 <T.ErrorContainer>
-                                    <ErrorInput hasError={errors.streamName}> {errors.streamName?.message} </ErrorInput>
+                                    <ErrorInput hasError={errors.workflowName}> {errors.workflowName?.message} </ErrorInput>
                                 </T.ErrorContainer>
                             </T.Value>
-                        </T.Row> */}
-                        <T.Row>
-                            <T.Key> State </T.Key>
-                            <T.Value>
-                                <Controller
-                                    control={control}
-                                    id='enabled'
-                                    name='enabled'
-                                    render={({ onChange, value: enabled }) => {
-                                        return <Toggle
-                                            toggle={enabled}
-                                            label={enabled ? 'Active' : 'Inactive'}
-                                            onChange={() => handleChange(onChange)(!enabled)}
-                                        />;
-                                    }}
-                                />
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
+                        </T.Row> */ }
+                    <T.Row>
+                        <T.Key> State </T.Key>
+                        <T.Value>
+                            <Controller
+                                control={ control }
+                                id="enabled"
+                                name="enabled"
+                                render={ ({ onChange, value: enabled }) => {
+                                    return <Toggle
+                                        toggle={ enabled }
+                                        label={ enabled ? 'Active' : 'Inactive' }
+                                        onChange={ () => handleChange(onChange)(!enabled) }
+                                    />;
+                                } }
+                            />
+                        </T.Value>
+                    </T.Row>
+                </T.GroupContent>
+            </T.Group>
 
-                <T.Group>
-                    <T.GroupName>
-                        Source
-                    </T.GroupName>
-                    <T.GroupContent>
-                        <T.Row>
-                            <T.Key required={createMode}> Bucket Name </T.Key>
-                            <T.Value>
-                                <Controller
-                                    control={control}
-                                    id='sourceBucket'
-                                    name='sourceBucket'
-                                    render={({ onChange, value: sourceBucket }) => {
-                                        const options = sourceBucketOptions(replications, bucketList, locations);
-                                        const isEditing = !!getValues('streamId');
-                                        const result = options.find(l => l.value === sourceBucket.value);
-                                        if (isEditing) {
-                                            // TODO: To be removed once retrieving workflows per account:
-                                            if (!result) {
-                                                return <span> {sourceBucket.value} <small>(depreciated because entity does not exist) </small> </span>;
-                                            }
-                                            return renderSource(locations)(result);
+            <T.Group>
+                <T.GroupName>
+                    Source
+                </T.GroupName>
+                <T.GroupContent>
+                    <T.Row>
+                        <T.Key required={ createMode }> Bucket Name </T.Key>
+                        <T.Value>
+                            <Controller
+                                control={ control }
+                                id="sourceBucket"
+                                name="sourceBucket"
+                                render={ ({ onChange, value: sourceBucket }) => {
+                                    const options = sourceBucketOptions(replications, bucketList, locations);
+                                    const isEditing = !!getValues('workflowId');
+                                    const result = options.find(l => l.value === sourceBucket.value);
+                                    if (isEditing) {
+                                        // TODO: To be removed once retrieving workflows per account:
+                                        if (!result) {
+                                            return <span> { sourceBucket.value } <small>(depreciated because entity does not exist) </small> </span>;
                                         }
-                                        return <Select
-                                            onChange={handleChange(onChange)}
-                                            options={options}
-                                            formatOptionLabel={renderSource(locations)}
-                                            isDisabled={isEditing}
-                                            isOptionDisabled={(option) => option.disabled === true }
-                                            value={result}
-                                        />;
-                                    }}
-                                />
-                                <T.ErrorContainer>
-                                    <ErrorInput hasError={errors.sourceBucket?.value}> {errors.sourceBucket?.value?.message} </ErrorInput>
-                                </T.ErrorContainer>
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
-                <T.Group>
-                    <T.GroupName>
-                        Filter (optional)
-                    </T.GroupName>
-                    <T.GroupContent>
-                        <T.Row>
-                            <T.Key> Prefix </T.Key>
-                            <T.Value>
-                                <Controller
-                                    control={control}
-                                    id='sourcePrefix'
-                                    name='sourcePrefix'
-                                    render={({ onChange, value: sourcePrefix }) => {
-                                        return <Input
-                                            onChange={handleChange(onChange)}
-                                            value={sourcePrefix}
-                                            autoComplete='off'
-                                        />;
-                                    }}
-                                />
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
-                <T.Group>
-                    <T.GroupName>
-                        Destination
-                    </T.GroupName>
-                    <T.GroupContent>
-                        <T.Row>
-                            <T.Key required={createMode}> Location Name </T.Key>
-                            <T.Value>
-                                <Controller
-                                    control={control}
-                                    id='destinationLocation'
-                                    name='destinationLocation'
-                                    render={({ onChange, value: destinationLocation }) => {
-                                        const options = destinationOptions(locations);
-                                        return <Select
-                                            onChange={handleChange(onChange)}
-                                            options={options}
-                                            formatOptionLabel={renderDestination(locations)}
-                                            value={options.find(l => l.value === destinationLocation.value)}
-                                        />;
-                                    }}
-                                />
-                                <T.ErrorContainer>
-                                    <ErrorInput hasError={errors.destinationLocation?.value}> {errors.destinationLocation?.value?.message} </ErrorInput>
-                                </T.ErrorContainer>
-                            </T.Value>
-                        </T.Row>
-                    </T.GroupContent>
-                </T.Group>
-            </T.Groups>
-            <T.Footer>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: spacing.sp24 }} variant="outline" onClick={handleCancel} label='Cancel'/>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="primary" onClick={handleSubmit(onSubmit)} label={createMode ? 'Create' : 'Save Changes'}/>
-            </T.Footer>
-        </ReplicationContainer>
+                                        return renderSource(locations)(result);
+                                    }
+                                    return <Select
+                                        onChange={ handleChange(onChange) }
+                                        options={ options }
+                                        formatOptionLabel={ renderSource(locations) }
+                                        isDisabled={ isEditing }
+                                        isOptionDisabled={ (option) => option.disabled === true }
+                                        value={ result }
+                                    />;
+                                } }
+                            />
+                            <T.ErrorContainer>
+                                <ErrorInput
+                                    hasError={ errors.sourceBucket?.value }> { errors.sourceBucket?.value?.message } </ErrorInput>
+                            </T.ErrorContainer>
+                        </T.Value>
+                    </T.Row>
+                </T.GroupContent>
+            </T.Group>
+            <T.Group>
+                <T.GroupName>
+                    Filter (optional)
+                </T.GroupName>
+                <T.GroupContent>
+                    <T.Row>
+                        <T.Key> Prefix </T.Key>
+                        <T.Value>
+                            <Controller
+                                control={ control }
+                                id="sourcePrefix"
+                                name="sourcePrefix"
+                                render={ ({ onChange, value: sourcePrefix }) => {
+                                    return <Input
+                                        onChange={ handleChange(onChange) }
+                                        value={ sourcePrefix }
+                                        autoComplete="off"
+                                    />;
+                                } }
+                            />
+                        </T.Value>
+                    </T.Row>
+                </T.GroupContent>
+            </T.Group>
+            <T.Group>
+                <T.GroupName>
+                    Destination
+                </T.GroupName>
+                <T.GroupContent>
+                    <T.Row>
+                        <T.Key required={ createMode }> Location Name </T.Key>
+                        <T.Value>
+                            <Controller
+                                control={ control }
+                                id="destinationLocation"
+                                name="destinationLocation"
+                                render={ ({ onChange, value: destinationLocation }) => {
+                                    const options = destinationOptions(locations);
+                                    return <Select
+                                        onChange={ handleChange(onChange) }
+                                        options={ options }
+                                        formatOptionLabel={ renderDestination(locations) }
+                                        value={ options.find(l => l.value === destinationLocation.value) }
+                                    />;
+                                } }
+                            />
+                            <T.ErrorContainer>
+                                <ErrorInput
+                                    hasError={ errors.destinationLocation?.value }> { errors.destinationLocation?.value?.message } </ErrorInput>
+                            </T.ErrorContainer>
+                        </T.Value>
+                    </T.Row>
+                </T.GroupContent>
+            </T.Group>
+        </>
     );
 }
 
