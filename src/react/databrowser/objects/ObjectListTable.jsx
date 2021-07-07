@@ -13,6 +13,7 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
 import type { ObjectEntity } from '../../../types/s3';
+import { TextAligner } from '../../ui-elements/Utility';
 import { formatBytes } from '../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
@@ -37,6 +38,7 @@ type Props = {
     prefixWithSlash: string,
 };
 export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType, prefixWithSlash }: Props){
+    const [isTableScrollbarVisible, setIsTableScrollbarVisible] = useState(false);
     const [tableWidth, setTableWidth] = useState(0);
     const dispatch = useDispatch();
     const nextMarker = useSelector((state: AppState) => state.s3.listObjectsResults.nextMarker);
@@ -114,15 +116,24 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             Header: 'Modified on',
             accessor: 'lastModified',
+            headerStyle: { textAlign: 'right' },
+            cellStyle: { textAlign: 'right' },
             width: 25,
         },
         {
             id: 'size',
             Header: 'Size',
+            headerStyle: { textAlign: 'right', marginRight: '16px' },
+            cellStyle: { marginRight: isTableScrollbarVisible ? '8px' : '16px' },
             accessor: row => row.size ? formatBytes(row.size) : '',
-            width: 15,
+            Cell({ value: size }: { value: string }) {
+                return <TextAligner alignment={'right'}>
+                    {size}
+                </TextAligner>;
+            },
+            width: 10,
         },
-    ], [bucketName, dispatch, handleCellClicked, isToggledFull, isVersioningType]);
+    ], [bucketName, dispatch, handleCellClicked, isTableScrollbarVisible, isToggledFull, isVersioningType, tableWidth]);
 
     const hiddenColumns = isVersioningType ? [] : ['versionId'];
 
@@ -146,6 +157,10 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
     const refList = useCallback((ref) => {
         if (ref) {
             setTableWidth(parseInt(ref.props.width));
+            if (ref._outerRef) {
+                const { scrollHeight, clientHeight } = ref._outerRef;
+                setIsTableScrollbarVisible(scrollHeight > clientHeight);
+            }
         }
     }, []);
 
