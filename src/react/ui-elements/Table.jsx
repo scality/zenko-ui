@@ -187,6 +187,7 @@ const Table = styled.table`
 export const SearchMetadataInput = styled(Input)`
     background-color: ${props => props.theme.brand.background};
     padding: 0px 30px;
+    max-height: 1.875rem;
 `;
 
 export const ContainerWithSubHeader = styled(Container)`
