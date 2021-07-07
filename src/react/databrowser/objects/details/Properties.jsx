@@ -2,9 +2,9 @@
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
+import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import React from 'react';
-import TruncatedText from '../../../ui-elements/TruncatedText';
 import styled from 'styled-components';
 
 type Props = {
@@ -26,7 +26,7 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                     <T.Row hidden={!objectMetadata.versionId}>
                         <T.Key> Version ID </T.Key>
-                        <TruncatedValue copiable> <TruncatedText text={objectMetadata.versionId} trailingCharCount={7} /> </TruncatedValue>
+                        <TruncatedValue copiable> <MiddleEllipsis text={objectMetadata.versionId} trailingCharCount={7} /> </TruncatedValue>
                         <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>
                     <T.Row>
