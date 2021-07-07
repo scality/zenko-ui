@@ -6,9 +6,11 @@ import {
     accountAccessKey,
     accountName,
     accountSecretKey,
+    apiWorkflows,
     instanceStatus,
     latestOverlay,
     location,
+    location2,
     replicationWorkflow,
     workflows,
 } from '../../../../js/mock/managementClient';
@@ -86,6 +88,7 @@ export const AWS_CLIENT_ERROR = awsErrorObject(AWS_CLIENT_ERROR_MSG, 'InternalEr
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
+export const LOCATION2 = location2;
 export const OWNER_NAME = ownerName;
 export const BUCKET_NAME = bucketName;
 export const FILE_NAME = fileName;
@@ -103,6 +106,7 @@ export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
+export const API_WORKFLOWS = apiWorkflows;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;

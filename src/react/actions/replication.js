@@ -5,20 +5,21 @@ import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import type { Replication } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
+import type { Workflow } from '../../types/workflow';
 import { push } from 'connected-react-router';
 
 // TODO: Add delete approval process
-export function deleteReplication(replication: Replication): ThunkStatePromisedAction {
+export function deleteReplication(replication: Workflow): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const state = getState();
         const { managementClient, instanceId } = getClients(state);
         const accountId = getAccountId(state);
         dispatch(networkStart('Deleting replication'));
         const params = {
-            bucketName: replication.source.bucketName,
+            bucketName: replication.bucketName,
             instanceId,
             accountId,
-            workflowId: replication.streamId,
+            workflowId: replication.workflowId,
         };
         return managementClient.deleteBucketWorkflowReplication(params)
             .then(() => {

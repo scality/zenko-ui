@@ -10,11 +10,11 @@ import {
     toggleBucketVersioning,
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import type { AppState } from '../../../../types/state';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import type { Replication } from '../../../types/config';
-import type { S3Bucket } from '../../../types/s3';
+import type { Replication } from '../../../../types/config';
+import type { S3Bucket } from '../../../../types/s3';
 import { TableContainer } from '../../../ui-elements/Table';
 import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
