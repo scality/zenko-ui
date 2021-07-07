@@ -62,11 +62,14 @@ const Row = ({
 
     return (
         <T.Row isSelected={row.original.toggled} onClick={handleClick} {...row.getRowProps({ style })}>
-            {row.cells.map(cell => (
-                <T.Cell shade={!row.original.isLatest} key={cell.id} {...cell.getCellProps()} >
-                    {cell.render('Cell')}
-                </T.Cell>
-            ))}
+            {row.cells.map(cell => {
+                const cellProps = cell.getCellProps();
+                return (
+                    <T.Cell shade={!row.original.isLatest} key={cell.id} {...cellProps} style={{ ...cell.column.cellStyle, ...cellProps.style }}>
+                        { cell.render('Cell') }
+                    </T.Cell>
+                );
+            })}
         </T.Row>
     );
 };

@@ -1,6 +1,6 @@
 // @flow
 import MemoRow, { createItemData } from './ObjectRow';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { continueListObjects, toggleAllObjects, toggleObject } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +11,9 @@ import { Checkbox } from '../../ui-elements/FormLayout';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
+import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
 import type { ObjectEntity } from '../../../types/s3';
+import { TextAligner } from '../../ui-elements/Utility';
 import { formatBytes } from '../../utils';
 import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
@@ -36,6 +38,8 @@ type Props = {
     prefixWithSlash: string,
 };
 export default function ObjectListTable({ objects, bucketName, toggled, isVersioningType, prefixWithSlash }: Props){
+    const [isTableScrollbarVisible, setIsTableScrollbarVisible] = useState(false);
+    const [tableWidth, setTableWidth] = useState(0);
     const dispatch = useDispatch();
     const nextMarker = useSelector((state: AppState) => state.s3.listObjectsResults.nextMarker);
     const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
@@ -56,6 +60,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             id: 'checkbox',
             accessor: '',
+            headerStyle: { display: 'flex' },
             Cell({ row: { original } }: CellProps) {
                 return (
                     <div style={{ textOverflow: 'clip' }}>
@@ -102,20 +107,33 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             Header: 'Version ID',
             accessor: 'versionId',
-            width: 15,
+            cellStyle: { overflow: 'visible' },
+            Cell({ value: versionId }: { value: string }) {
+                return <MiddleEllipsis width={tableWidth} text={versionId}/>;
+            },
+            width: 20,
         },
         {
             Header: 'Modified on',
             accessor: 'lastModified',
+            headerStyle: { textAlign: 'right' },
+            cellStyle: { textAlign: 'right' },
             width: 25,
         },
         {
             id: 'size',
             Header: 'Size',
+            headerStyle: { textAlign: 'right', marginRight: '16px' },
+            cellStyle: { marginRight: isTableScrollbarVisible ? '8px' : '16px' },
             accessor: row => row.size ? formatBytes(row.size) : '',
-            width: 15,
+            Cell({ value: size }: { value: string }) {
+                return <TextAligner alignment={'right'}>
+                    {size}
+                </TextAligner>;
+            },
+            width: 10,
         },
-    ], [bucketName, dispatch, handleCellClicked, isToggledFull, isVersioningType]);
+    ], [bucketName, dispatch, handleCellClicked, isTableScrollbarVisible, isToggledFull, isVersioningType, tableWidth]);
 
     const hiddenColumns = isVersioningType ? [] : ['versionId'];
 
@@ -134,23 +152,38 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         initialState: { hiddenColumns },
     }, useFilters, useSortBy, useFlexLayout);
 
+    // NOTE: Calculates the size of the scrollbar to apply margin
+    // on the "Size" column so that it can be aligned to the right even if the scrollbar is displayed
+    const refList = useCallback((ref) => {
+        if (ref) {
+            setTableWidth(parseInt(ref.props.width));
+            if (ref._outerRef) {
+                const { scrollHeight, clientHeight } = ref._outerRef;
+                setIsTableScrollbarVisible(scrollHeight > clientHeight);
+            }
+        }
+    }, []);
+
     return <T.ContainerWithSubHeader>
         <Table {...getTableProps()}>
             <T.Head>
                 {headerGroups.map(headerGroup => (
                     <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                        {headerGroup.headers.map(column => (
-                            <T.HeadCell id={`object-list-table-head-${column.id}`} key={column.id} {...column.getHeaderProps(column.getSortByToggleProps())} >
-                                {column.render('Header')}
-                                <T.Icon>
-                                    {!column.disableSortBy && (column.isSorted
-                                        ? column.isSortedDesc
-                                            ? <i className='fas fa-sort-down' />
-                                            : <i className='fas fa-sort-up' />
-                                        : <i className='fas fa-sort' />)}
-                                </T.Icon>
-                            </T.HeadCell>
-                        ))}
+                        {headerGroup.headers.map(column => {
+                            const headerProps = column.getHeaderProps(column.getSortByToggleProps());
+                            return (
+                                <T.HeadCell id={`object-list-table-head-${column.id}`} key={column.id} {...headerProps} style={{ ...column.headerStyle, ...headerProps.style }}>
+                                    {column.render('Header')}
+                                    <T.Icon>
+                                        {!column.disableSortBy && (column.isSorted
+                                            ? column.isSortedDesc
+                                                ? <i className='fas fa-sort-down' />
+                                                : <i className='fas fa-sort-up' />
+                                            : <i className='fas fa-sort' />)}
+                                    </T.Icon>
+                                </T.HeadCell>
+                            );
+                        })}
                     </T.HeadRow>
                 ))}
             </T.Head>
@@ -160,23 +193,24 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                         // ISSUE: https://github.com/bvaughn/react-window/issues/504
                         // eslint-disable-next-line flowtype-errors/show-errors
                         <InfiniteLoader
-                            isItemLoaded={isItemLoaded}
-                            itemCount={rows.length}
-                            loadMoreItems={() =>
+                            isItemLoaded={ isItemLoaded }
+                            itemCount={ rows.length }
+                            loadMoreItems={ () =>
                                 dispatch(continueListObjects(bucketName, prefixWithSlash))
                             }
                         >
-                            {({ onItemsRendered, ref }) => (
+                            { ({ onItemsRendered, ref }) => (
+                                // eslint-disable-next-line flowtype-errors/show-errors
                                 <FixedSizeList
-                                    height={height || 300}
-                                    itemCount={rows.length}
-                                    itemSize={45}
-                                    width={width || '100%'}
-                                    itemData={createItemData(rows, prepareRow, dispatch)}
-                                    onItemsRendered={onItemsRendered}
-                                    ref={ref}
+                                    height={ height || 300 }
+                                    itemCount={ rows.length }
+                                    itemSize={ 45 }
+                                    width={ width || '100%' }
+                                    itemData={ createItemData(rows, prepareRow, dispatch) }
+                                    onItemsRendered={ onItemsRendered }
+                                    ref={ list => { refList(list); ref(list); } }
                                 >
-                                    {MemoRow}
+                                    { MemoRow }
                                 </FixedSizeList>
                             )}
                         </InfiniteLoader>
