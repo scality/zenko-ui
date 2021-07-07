@@ -58,6 +58,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             id: 'checkbox',
             accessor: '',
+            headerStyle: { display: 'flex' },
             Cell({ row: { original } }: CellProps) {
                 return (
                     <div style={{ textOverflow: 'clip' }}>
