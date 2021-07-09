@@ -1,8 +1,9 @@
 // @flow
-import type { Replication } from './config';
+import type { Expiration, Replication } from './config';
 
 export type APIReplicationWorkflow = {
     replication: Replication,
+    expiration: Expiration,
 };
 
 export type APIWorkflows = Array<APIReplicationWorkflow>;

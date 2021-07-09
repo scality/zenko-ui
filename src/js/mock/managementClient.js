@@ -8,7 +8,7 @@ import type {
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
+import type { ConfigurationOverlay, Expiration, Location, Replication } from '../../types/config';
 import { ApiErrorObject } from './error';
 import type { InstanceStatus } from '../../types/stats';
 import { toLocationType } from '../../types/config';
@@ -65,9 +65,24 @@ export const replicationWorkflow: Replication = {
     },
 };
 
+export const expirationWorkflow: Expiration = {
+    workflowId: '321e4567-e89b-12d3-a456-426614174001',
+    name: 'expiration',
+    enabled: true,
+    bucketName: 'mybucket',
+    type: 'bucket-workflow-expiration-v1',
+    filter: {
+        objectKeyPrefix: 'myprefix',
+    },
+    currentVersionTriggerDelayDays: 1,
+    currentVersionTriggerDelayDate: '',
+    previousVersionTriggerDelayDays: 3,
+};
+
 export const apiWorkflows: APIWorkflows = [
     {
         'replication': replicationWorkflow,
+        'expiration': expirationWorkflow,
     },
 ];
 
@@ -155,6 +170,22 @@ export class MockManagementClient implements ManagementClientInterface {
         });
     }
 
+    deleteBucketWorkflowExpiration(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    updateBucketWorkflowExpiration(): Promise<{ body: Expiration }> {
+        return Promise.resolve({
+            body: expirationWorkflow,
+        });
+    }
+
+    createBucketWorkflowExpiration(): Promise<{ body: Expiration }> {
+        return Promise.resolve({
+            body: expirationWorkflow,
+        });
+    }
+
     generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
         return Promise.resolve({
             body: key,
@@ -212,6 +243,18 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     createBucketWorkflowReplication(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteBucketWorkflowExpiration(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    updateBucketWorkflowExpiration(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    createBucketWorkflowExpiration(): Promise<void> {
         return Promise.reject(this._error);
     }
 
