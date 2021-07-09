@@ -1,27 +1,25 @@
-// @noflow
+// @flow
 import { closeWorkflowDeleteModal, closeWorkflowEditNotification, searchWorkflows } from './workflow';
 import { getAccountId, getClients } from '../utils/actions';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import type { Replication } from '../../types/config';
+import type { Expiration } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
-import type { Workflow } from '../../types/workflow';
 import { push } from 'connected-react-router';
 
-// TODO: Add delete approval process
-export function deleteReplication(replication: Workflow): ThunkStatePromisedAction {
+export function deleteExpiration(expiration: Expiration): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const state = getState();
         const { managementClient, instanceId } = getClients(state);
         const accountId = getAccountId(state);
-        dispatch(networkStart('Deleting replication'));
+        dispatch(networkStart('Deleting expiration'));
         const params = {
-            bucketName: replication.bucketName,
+            bucketName: expiration.bucketName,
             instanceId,
             accountId,
-            workflowId: replication.workflowId,
+            workflowId: expiration.workflowId,
         };
-        return managementClient.deleteBucketWorkflowReplication(params)
+        return managementClient.deleteBucketWorkflowExpiration(params)
             .then(() => {
                 dispatch(closeWorkflowEditNotification());
                 return dispatch(searchWorkflows());
@@ -36,21 +34,21 @@ export function deleteReplication(replication: Workflow): ThunkStatePromisedActi
     };
 }
 
-export function saveReplication(replication: Replication): ThunkStatePromisedAction {
+export function saveExpiration(expiration: Expiration): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const state = getState();
         const { managementClient, instanceId } = getClients(state);
         const accountId = getAccountId(state);
-        dispatch(networkStart('Creating replication'));
+        dispatch(networkStart('Creating expiration'));
         const params = {
             instanceId,
-            workflow: replication,
-            bucketName: replication.source.bucketName,
+            workflow: expiration,
+            bucketName: expiration.bucketName,
             accountId,
         };
-        const op = replication.streamId ?
-            managementClient.updateBucketWorkflowReplication({ ...params, workflowId: replication.streamId }) :
-            managementClient.createBucketWorkflowReplication(params);
+        const op = expiration.workflowId ?
+            managementClient.updateBucketWorkflowExpiration({ ...params, workflowId: expiration.workflowId }) :
+            managementClient.createBucketWorkflowExpiration(params);
         return op.then(resp => {
             return Promise.all([
                 resp,
@@ -58,7 +56,7 @@ export function saveReplication(replication: Replication): ThunkStatePromisedAct
                 dispatch(searchWorkflows()),
             ]);
         })
-            .then(([resp]) => dispatch(push(`/workflows/replication-${resp.body.streamId}`)))
+            .then(([resp]) => dispatch(push(`/workflows/expiration-${resp.body.workflowId}`)))
             .catch(error => dispatch(handleClientError(error)))
             .catch(error => dispatch(handleApiError(error, 'byModal')))
             .finally(() => dispatch(networkEnd()));

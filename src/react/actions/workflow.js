@@ -1,4 +1,5 @@
 // @flow
+import type { APIWorkflows, Workflow } from '../../types/workflow';
 import type {
     CloseWorkflowDeleteModalAction,
     CloseWorkflowEditNotificationAction,
@@ -9,7 +10,7 @@ import type {
 } from '../../types/actions';
 import { getAccountId, getClients } from '../utils/actions';
 import { networkEnd, networkStart } from './network';
-import type { APIWorkflows } from '../../types/workflow';
+import { deleteReplication } from './replication';
 
 export function openWorkflowEditNotification(): OpenWorkflowEditNotificationAction {
     return {
@@ -42,12 +43,17 @@ export function searchWorkflowsSuccess(workflows: APIWorkflows): SearchWorkflows
     };
 }
 
+export function deleteWorkflow(workflow: Workflow): ?ThunkStatePromisedAction {
+    if (workflow.type === 'replication')
+        return deleteReplication(workflow);
+}
+
 export function searchWorkflows(): ThunkStatePromisedAction {
     return (dispatch, getState) => {
         const state = getState();
         const { managementClient, instanceId } = getClients(state);
         const accountId = getAccountId(state);
-        dispatch(networkStart('Searching for worflows'));
+        dispatch(networkStart('Searching for workflows'));
         const params = {
             instanceId,
             accountId,

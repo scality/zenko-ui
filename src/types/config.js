@@ -43,6 +43,25 @@ export type Replication = {|
     |},
 |};
 
+export type ReplicationStreams = Array<Replication>;
+
+// expirations
+export type Expiration = {|
+    +workflowId: string;
+    +name: string;
+    +enabled: boolean;
+    +bucketName: string;
+    +type: 'bucket-workflow-expiration-v1',
+    +filter: {|
+        +objectKeyPrefix: string;
+    |},
+    +currentVersionTriggerDelayDays: number;
+    +currentVersionTriggerDelayDate: string;
+    +previousVersionTriggerDelayDays: number;
+|};
+
+export type Expirations = Array<Expiration>;
+
 // endpoints
 export type Hostname = string;
 
@@ -51,8 +70,6 @@ export type Endpoint = {|
     +locationName: LocationName,
     +isBuiltin: boolean,
 |};
-
-export type ReplicationStreams = Array<Replication>;
 
 export type ConfigurationOverlay = {|
     +version: number,

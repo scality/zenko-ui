@@ -1,5 +1,6 @@
 // @flow
 
+import type { APIWorkflows, Workflows } from '../../types/workflow';
 import type { AccessKey, Account, SecretKey } from '../../types/account';
 import type {
     ApiAccountKeyResponse,
@@ -7,8 +8,7 @@ import type {
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
-import type { APIWorkflows } from '../../types/workflow';
+import type { ConfigurationOverlay, Expiration, Location, Replication } from '../../types/config';
 import { ApiErrorObject } from './error';
 import type { InstanceStatus } from '../../types/stats';
 import { toLocationType } from '../../types/config';
@@ -16,6 +16,16 @@ import { toLocationType } from '../../types/config';
 export const location: Location = {
     name: 'location1',
     locationType: toLocationType('location-file-v1'),
+    details: {},
+    objectId: 'object-id',
+    isBuiltin: false,
+    isTransient: false,
+    sizeLimitGB: 10,
+};
+
+export const location2: Location = {
+    name: 'location2',
+    locationType: toLocationType('location-scality-hdclient-v2'),
     details: {},
     objectId: 'object-id',
     isBuiltin: false,
@@ -35,7 +45,7 @@ export const account: Account = {
 
 export const latestOverlay: ConfigurationOverlay = {
     version: 2,
-    users: [ account ],
+    users: [account],
     locations: { 'location1': location },
     endpoints: [],
 };
@@ -55,11 +65,35 @@ export const replicationWorkflow: Replication = {
     },
 };
 
-export const workflows: APIWorkflows = [
+export const expirationWorkflow: Expiration = {
+    workflowId: '321e4567-e89b-12d3-a456-426614174001',
+    name: 'expiration',
+    enabled: true,
+    bucketName: 'mybucket',
+    type: 'bucket-workflow-expiration-v1',
+    filter: {
+        objectKeyPrefix: 'myprefix',
+    },
+    currentVersionTriggerDelayDays: 1,
+    currentVersionTriggerDelayDate: '',
+    previousVersionTriggerDelayDays: 3,
+};
+
+export const apiWorkflows: APIWorkflows = [
     {
         'replication': replicationWorkflow,
+        'expiration': expirationWorkflow,
     },
 ];
+
+export const workflows: Workflows = [{
+    id: 'replication-id',
+    bucketName: 'mybucket',
+    type: 'replication',
+    name: 'replicationName',
+    state: true,
+    workflowId: 'replication-workflow-id',
+}];
 
 export const accountAccessKey: AccessKey = 'ak1';
 export const accountSecretKey: SecretKey = 'sk1';
@@ -116,7 +150,7 @@ export class MockManagementClient implements ManagementClientInterface {
 
     searchWorkflows(): Promise<{ body: APIWorkflows }> {
         return Promise.resolve({
-            body: workflows,
+            body: apiWorkflows,
         });
     }
 
@@ -130,9 +164,25 @@ export class MockManagementClient implements ManagementClientInterface {
         });
     }
 
-    saveBucketWorkflowReplication(): Promise<{ body: Replication }> {
+    createBucketWorkflowReplication(): Promise<{ body: Replication }> {
         return Promise.resolve({
             body: replicationWorkflow,
+        });
+    }
+
+    deleteBucketWorkflowExpiration(): Promise<void> {
+        return Promise.resolve();
+    }
+
+    updateBucketWorkflowExpiration(): Promise<{ body: Expiration }> {
+        return Promise.resolve({
+            body: expirationWorkflow,
+        });
+    }
+
+    createBucketWorkflowExpiration(): Promise<{ body: Expiration }> {
+        return Promise.resolve({
+            body: expirationWorkflow,
         });
     }
 
@@ -192,7 +242,19 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
         return Promise.reject(this._error);
     }
 
-    saveBucketWorkflowReplication(): Promise<void> {
+    createBucketWorkflowReplication(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteBucketWorkflowExpiration(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    updateBucketWorkflowExpiration(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    createBucketWorkflowExpiration(): Promise<void> {
         return Promise.reject(this._error);
     }
 
@@ -202,10 +264,10 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
 }
 
 export class MockManagementClientWithConfigurationVersions extends MockManagementClient {
-    getStatusCallCounter: number
-    runningVersions: Array<number>
-    getOverlayCounter: number
-    overlayVersions: Array<number>
+    getStatusCallCounter: number;
+    runningVersions: Array<number>;
+    getOverlayCounter: number;
+    overlayVersions: Array<number>;
 
     constructor(runningVersions: Array<number>, overlayVersions: Array<number>) {
         super();
