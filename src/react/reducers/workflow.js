@@ -1,34 +1,53 @@
 // @flow
 import type { APIWorkflows, Workflows } from '../../types/workflow';
-import type { ReplicationStreams } from '../../types/config';
+import type { Expirations, ReplicationStreams } from '../../types/config';
 import type { WorkflowAction } from '../../types/actions';
 import type { WorkflowState } from '../../types/state';
 import { generateStreamName } from '../workflow/replication/utils';
 import { initialWorkflowState } from './initialConstants';
 
 const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
-    const workflows = apiWorkflows
-        .filter(w => !!w.replication)
-        .map(w => {
+    const workflows = apiWorkflows.reduce((workflows, w) => {
+        if (w.replication) {
             const r = w.replication;
-            return {
-                id: `replication-${r.streamId}`,
+            workflows.push({
+                id: `replication-${ r.streamId }`,
                 bucketName: r.source.bucketName,
                 type: 'replication',
                 name: generateStreamName(r), // Until name get saved on the backend side.
                 state: r.enabled,
                 workflowId: r.streamId,
-            };
-        });
-    // TODO: add expiration and transition rules.
+            });
+        }
+        if (w.expiration) {
+            const e = w.expiration;
+            workflows.push({
+                id: `expiration-${ e.workflowId }`,
+                bucketName: e.bucketName,
+                type: 'expiration',
+                name: e.name,
+                state: e.enabled,
+                workflowId: e.workflowId,
+            });
+        }
+        // TODO: add transition rules.
+        return workflows;
+    }, []);
     return workflows;
 };
 
 const makeReplication = (apiWorkflows: APIWorkflows): ReplicationStreams => {
-    const workflows = apiWorkflows
+    const replications = apiWorkflows
         .filter(w => !!w.replication)
         .map(w => w.replication);
-    return workflows;
+    return replications;
+};
+
+const makeExpirations = (apiWorkflows: APIWorkflows): Expirations => {
+    const expirations = apiWorkflows
+        .filter(w => !!w.expiration)
+        .map(w => w.expiration);
+    return expirations;
 };
 
 export default function workflow(state: WorkflowState = initialWorkflowState, action: WorkflowAction): WorkflowState {
@@ -38,6 +57,7 @@ export default function workflow(state: WorkflowState = initialWorkflowState, ac
             ...state,
             list: makeWorkflows(action.workflows),
             replications: makeReplication(action.workflows),
+            expirations: makeExpirations(action.workflows),
         };
     default:
         return state;

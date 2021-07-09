@@ -7,6 +7,7 @@ import {
     accountName,
     accountSecretKey,
     apiWorkflows,
+    expirationWorkflow,
     instanceStatus,
     latestOverlay,
     location,
@@ -108,6 +109,7 @@ export const TAGS = tags;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
 export const API_WORKFLOWS = apiWorkflows;
 export const WORKFLOWS = workflows;
+export const EXPIRATION_WORKFLOW = expirationWorkflow;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
 export const ACCOUNT_NAME = accountName;

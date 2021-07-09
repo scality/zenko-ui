@@ -4,7 +4,7 @@ import type { AppConfig, InstanceId, Theme } from './entities';
 import type { AuthUser, OidcLogoutFunction } from './auth';
 import type { BucketInfo, ListObjectsType, ObjectEntity, ObjectMetadata, S3BucketList } from './s3';
 import type { BucketList, InstanceStatus, StatsSeries } from './stats';
-import type { ConfigurationOverlay, LocationName, ReplicationStreams } from './config';
+import type { ConfigurationOverlay, Expirations, LocationName, ReplicationStreams } from './config';
 import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
 import type { ErrorViewType } from './ui';
 import type { IamAccessKey } from './user';
@@ -107,6 +107,7 @@ export type SecretsState = {|
 export type WorkflowState = {|
     list: Workflows,
     replications: ReplicationStreams,
+    expirations: Expirations,
 |};
 
 export type WorkflowsUIState ={|
