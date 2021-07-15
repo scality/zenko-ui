@@ -4,6 +4,7 @@ import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
+import { IconTooltip } from './Icons';
 import type { Node } from 'react';
 import React from 'react';
 import styled from 'styled-components';
@@ -101,10 +102,6 @@ const TooltipContainer = styled.div`
     margin-left: ${spacing.sp8};
 `;
 
-const IconQuestionCircle = styled.i`
-    color: #434343;
-`;
-
 const UlOverlay = styled.ul`
     text-align:left;
     padding: 0px 0px 0px ${spacing.sp20};
@@ -126,7 +123,7 @@ export const Label = ({ children, tooltipMessages }: LabelProps) => (
                     </UlOverlay>}
                 placement="right"
             >
-                <IconQuestionCircle className='fas fa-question-circle'></IconQuestionCircle>
+                <IconTooltip/>
             </Tooltip> </TooltipContainer>
         }
     </LabelContainer>

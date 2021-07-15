@@ -23,6 +23,7 @@ import {
 import {
     bucketInfoResponse,
     bucketName,
+    buckets,
     commonPrefix,
     file,
     fileName,
@@ -91,6 +92,7 @@ export const ACCOUNT = account;
 export const LOCATION = location;
 export const LOCATION2 = location2;
 export const OWNER_NAME = ownerName;
+export const BUCKETS = buckets;
 export const BUCKET_NAME = bucketName;
 export const FILE_NAME = fileName;
 export const FOLDER_NAME = folderName;

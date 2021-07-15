@@ -1,30 +1,29 @@
 // @flow
-import * as T from '../../ui-elements/TableKeyValue2';
+import * as T from '../../../ui-elements/TableKeyValue2';
 import React, { useEffect, useMemo } from 'react';
-import { Select, Toggle } from '@scality/core-ui';
+import { checkSupportsReplicationTarget, getLocationTypeShort } from '../../../utils/storageOptions';
 import {
     convertToReplicationForm,
     destinationOptions,
-    renderDestination,
     renderSource,
     sourceBucketOptions,
 } from './utils';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import type { AppState } from '../../../../types/state';
 import { Controller } from 'react-hook-form';
-import { ErrorInput } from '../../ui-elements/FormLayout';
-import Input from '../../ui-elements/Input';
-import type { Locations } from '../../../types/config';
-import { NoLocationWarning } from '../../ui-elements/Warning';
-import type { Workflow } from '../../../types/workflow';
-import { checkSupportsReplicationTarget } from '../../utils/storageOptions';
-import { openWorkflowEditNotification } from '../../actions';
+import { ErrorInput } from '../../../ui-elements/FormLayout';
+import Input from '../../../ui-elements/Input';
+import type { Locations } from '../../../../types/config';
+import { NoLocationWarning } from '../../../ui-elements/Warning';
+import { Select } from '@scality/core-ui/dist/next';
+import { Toggle } from '@scality/core-ui';
+import type { Workflow } from '../../../../types/workflow';
+import { useSelector } from 'react-redux';
 
 type Props = {
     locations: Locations,
     wfSelected: ?Workflow,
     createMode: boolean,
-    loading: boolean,
+    handleChange: ((...event: any[]) => void) => (e: any) => void,
     formProps: any,
 };
 
@@ -32,12 +31,11 @@ function Replication({
     locations,
     wfSelected,
     createMode,
+    handleChange,
     formProps,
 }: Props) {
-    const dispatch = useDispatch();
     const workflowId = wfSelected ? wfSelected.workflowId : null;
     const replications = useSelector((state: AppState) => state.workflow.replications);
-    const showEditWorkflowNotification = useSelector((state: AppState) => state.uiWorkflows.showEditWorkflowNotification);
     const bucketList = useSelector((state: AppState) => state.s3.listBucketsResults.list);
     const replication = useMemo(() => {
         return replications.find(r => r.streamId === workflowId);
@@ -48,13 +46,6 @@ function Replication({
     useEffect(() => {
         reset(convertToReplicationForm(replication)); // asynchronously reset form values
     }, [reset, replication]);
-
-    const handleChange = (onChange) => (e) => {
-        if (!showEditWorkflowNotification) {
-            dispatch(openWorkflowEditNotification());
-        }
-        onChange(e);
-    };
 
     // TODO: make sure we do not delete bucket or location if replication created.
     if (!checkSupportsReplicationTarget(locations)) {
@@ -78,9 +69,6 @@ function Replication({
                 autoComplete="off"
             />
             <T.Group>
-                <T.GroupName>
-                    General
-                </T.GroupName>
                 <T.GroupContent>
                     {/* <T.Row>
                             <T.Key> Rule Name </T.Key>
@@ -135,24 +123,26 @@ function Replication({
                                 id="sourceBucket"
                                 name="sourceBucket"
                                 render={ ({ onChange, value: sourceBucket }) => {
-                                    const options = sourceBucketOptions(replications, bucketList, locations);
-                                    const isEditing = !!getValues('workflowId');
-                                    const result = options.find(l => l.value === sourceBucket.value);
-                                    if (isEditing) {
-                                        // TODO: To be removed once retrieving workflows per account:
-                                        if (!result) {
-                                            return <span> { sourceBucket.value } <small>(depreciated because entity does not exist) </small> </span>;
+                                    if (sourceBucket) {
+                                        const options = sourceBucketOptions(replications, bucketList, locations);
+                                        const isEditing = !!getValues('workflowId');
+                                        const result = options.find(l => l.value === sourceBucket.value);
+                                        if (isEditing) {
+                                            // TODO: To be removed once retrieving workflows per account:
+                                            if (!result) {
+                                                return <span> { sourceBucket.value } <small>(depreciated because entity does not exist) </small> </span>;
+                                            }
+                                            return renderSource(locations)(result);
                                         }
-                                        return renderSource(locations)(result);
+                                        return <Select
+                                            onChange={ handleChange(onChange) }
+                                            isDisabled={ isEditing }
+                                            value={ sourceBucket.value }
+                                        >
+                                            {options.map((opt, i) => <Select.Option key={i} disabled={opt.disabled} value={opt.value}>{renderSource(locations)}</Select.Option>)}
+                                        </Select>;
                                     }
-                                    return <Select
-                                        onChange={ handleChange(onChange) }
-                                        options={ options }
-                                        formatOptionLabel={ renderSource(locations) }
-                                        isDisabled={ isEditing }
-                                        isOptionDisabled={ (option) => option.disabled === true }
-                                        value={ result }
-                                    />;
+                                    return null;
                                 } }
                             />
                             <T.ErrorContainer>
@@ -200,18 +190,24 @@ function Replication({
                                 id="destinationLocation"
                                 name="destinationLocation"
                                 render={ ({ onChange, value: destinationLocation }) => {
-                                    const options = destinationOptions(locations);
-                                    return <Select
-                                        onChange={ handleChange(onChange) }
-                                        options={ options }
-                                        formatOptionLabel={ renderDestination(locations) }
-                                        value={ options.find(l => l.value === destinationLocation.value) }
-                                    />;
+                                    if (destinationLocation) {
+                                        const options = destinationOptions(locations);
+                                        return <Select
+                                            onChange={ handleChange(onChange) }
+                                            value={ destinationLocation.value }
+                                        >
+                                            {options.map((opt, i) => (
+                                                <Select.Option key={i} value={opt.value}>
+                                                    {`${opt.label} (${opt.value} / ${getLocationTypeShort(opt.value, locations)})`}
+                                                </Select.Option>
+                                            ))}
+                                        </Select>;
+                                    }
+                                    return null;
                                 } }
                             />
                             <T.ErrorContainer>
-                                <ErrorInput
-                                    hasError={ errors.destinationLocation?.value }> { errors.destinationLocation?.value?.message } </ErrorInput>
+                                <ErrorInput hasError={ errors.destinationLocation?.value }> { errors.destinationLocation?.value?.message } </ErrorInput>
                             </T.ErrorContainer>
                         </T.Value>
                     </T.Row>

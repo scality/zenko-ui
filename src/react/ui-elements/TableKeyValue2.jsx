@@ -59,6 +59,18 @@ export const Groups = styled.div`
     max-width: 450px;
 `;
 
+export const PrimaryGroupContainer = styled.div`
+    background-color: ${props => props.theme.brand.backgroundLevel3};
+    padding: ${spacing.sp16};
+    margin-bottom: ${spacing.sp16};
+`;
+
+export const SecondaryGroupContainer = styled.div`
+    background-color: ${props => props.theme.brand.backgroundLevel4};
+    padding: ${spacing.sp16};
+    margin-bottom: ${spacing.sp16};
+`;
+
 export const Group = styled.div`
     margin-bottom: ${spacing.sp8};
 `;
@@ -66,6 +78,9 @@ export const Group = styled.div`
 export const GroupName = styled.div`
     font-weight: bold;
     margin-bottom: ${spacing.sp8};
+    i {
+        margin-right: ${spacing.sp8};
+    }
 `;
 
 export const GroupContent = styled.div`
@@ -82,20 +97,41 @@ export const Row = styled.div`
     min-height: ${spacing.sp24};
 `;
 
+export const Separator = styled.div`
+    position: relative;
+    left: -${spacing.sp8};
+    margin-top: ${spacing.sp24};
+    margin-bottom: ${spacing.sp24};
+    width: ${spacing.sp24};
+    height: ${spacing.sp1};
+    background-color: ${props => props.theme.brand.buttonSecondary};
+`;
 
 export const Key = styled.div`
-    flex: 1 1 30%;
-    color: ${props => props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
+    display: flex;
+    align-items: center;
+    flex: 1 1 40%;
+    color: ${props => props.principal ? props.theme.brand.textPrimary: props.theme.brand.textSecondary};
     font-weight: ${props => props.principal ? 'bold' : 'normal'};
     ${props => props.required ? `
         &:after {
             content: '*';
         }
     ` : ''}
+    & > * {
+        margin-right: ${spacing.sp8};
+    }
+`;
+
+export const SubKey = styled(Key)`
+    & > :first-child {
+        margin-left: ${spacing.sp40};
+    }
 `;
 
 export const Value = styled.div`
-    flex: 1 1 70%;
+    color: ${props => props.principal ? props.theme.brand.textPrimary : props.theme.brand.textSecondary};
+    flex: 1 1 60%;
     flex-direction: column;
     i {
         margin-right: ${spacing.sp8};

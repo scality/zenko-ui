@@ -51,13 +51,14 @@ export type Expiration = {|
     +name: string;
     +enabled: boolean;
     +bucketName: string;
-    +type: 'bucket-workflow-expiration-v1',
     +filter: {|
         +objectKeyPrefix: string;
+        +objectKeyTag: string;
     |},
-    +currentVersionTriggerDelayDays: number;
-    +currentVersionTriggerDelayDate: string;
-    +previousVersionTriggerDelayDays: number;
+    +currentVersionTriggerDelayDays?: number;
+    +previousVersionTriggerDelayDays?: number;
+    +expireMPU: boolean;
+    +expireOrphans: boolean;
 |};
 
 export type Expirations = Array<Expiration>;

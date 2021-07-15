@@ -1,12 +1,10 @@
 // @flow
 import { ContentSection, CreationSection } from '../ui-elements/ListLayout3';
-import Table, * as T from '../ui-elements/TableKeyValue2';
 import type { AppState } from '../../types/state';
-import Configuration from './details/Configuration';
 import { CustomTabs } from '../ui-elements/Tabs';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
-import Workflow from './workflow/Workflow';
+import WorkflowEditor from './WorkflowEditor';
 import type { Workflow as WorkflowRule } from '../../types/workflow';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../utils/hooks';
@@ -33,13 +31,7 @@ function WorkflowContent({ createMode, wfSelected }: Props) {
         return (
             <ContentSection>
                 <CreationSection>
-                    <Table id=''>
-                        <T.Body autoComplete='off'>
-                            <T.Title> Create New Workflow </T.Title>
-                            <T.Subtitle> All * are mandatory fields </T.Subtitle>
-                            <Workflow loading={loading} workflow={null} locations={locations} createMode={true}/>
-                        </T.Body>
-                    </Table>
+                    <WorkflowEditor loading={loading} wfSelected={null} locations={locations} createMode={true}/>
                 </CreationSection>
             </ContentSection>
         );
@@ -50,10 +42,7 @@ function WorkflowContent({ createMode, wfSelected }: Props) {
             return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE}/>;
         }
         if (!tabName) {
-            return <Configuration
-                locations={locations}
-                wfSelected={wfSelected}
-                loading={loading} />;
+            return <WorkflowEditor locations={locations} wfSelected={wfSelected} createMode={false} loading={loading}/>;
         }
         return null;
     };

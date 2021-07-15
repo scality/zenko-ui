@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
+import { IconTooltip } from '../../ui-elements/Icons';
 import { Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
@@ -40,11 +41,6 @@ const Container = styled.div`
     min-width: 500px;
 `;
 
-const IconTooltip = styled.i`
-    color: ${props => props.theme.brand.buttonSecondary};
-    margin-left: ${spacing.sp4};
-`;
-
 const Overlay = styled.div`
     width: 220px;
     padding: ${spacing.sp8};
@@ -54,7 +50,7 @@ const Overlay = styled.div`
 const CustomHeader = () => <span>
     Target Bucket
     <Tooltip overlay={<Overlay> Name of the bucket/container created in the specific location (e.g. RING, Azure, AWS S3, GCP...), and where buckets attached to that location will store data. </Overlay>} placement="right">
-        <IconTooltip className='fas fa-question-circle'/>
+        <IconTooltip/>
     </Tooltip>
 </span>;
 

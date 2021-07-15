@@ -6,6 +6,7 @@ export * from './location';
 export * from './network';
 export * from './oidc';
 export * from './replication';
+export * from './expiration';
 export * from './secrets';
 export * from './s3bucket';
 export * from './s3object';

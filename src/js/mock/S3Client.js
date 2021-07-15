@@ -8,9 +8,11 @@ import type {
     HeadObjectResponse,
     ListObjectsResponse,
     PutObjectTaggingResponse,
+    S3Bucket,
     S3Client as S3ClientInterface,
 } from '../../types/s3';
 import type { AWSError } from '../../types/aws';
+import { List } from 'immutable';
 import { addTrailingSlash } from '../../react/utils';
 
 export const ownerName = 'bart';
@@ -106,6 +108,18 @@ export const bucketInfoResponse: BucketInfo = {
     public: false,
     locationConstraint: '',
 };
+
+export const buckets = List<S3Bucket>([{
+    CreationDate: 'Wed Oct 07 2020 16:35:57',
+    LocationConstraint: 'us-east-1',
+    Name: 'bucket1',
+    VersionStatus: 'Enabled',
+}, {
+    CreationDate: 'Wed Oct 07 2020 16:35:57',
+    LocationConstraint: 'us-east-1',
+    Name: 'bucket2',
+    VersionStatus: 'Enabled',
+}]);
 
 export class MockS3Client implements S3ClientInterface {
     listBucketsWithLocation() {

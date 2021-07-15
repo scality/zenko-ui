@@ -202,6 +202,7 @@ export const initialWorkflowsUIState: WorkflowsUIState = {
 
 export const initialWorkflowState: WorkflowState = {
     list: [],
+    expirations: [],
     replications: [],
 };
 

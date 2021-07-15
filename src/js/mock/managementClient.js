@@ -70,13 +70,14 @@ export const expirationWorkflow: Expiration = {
     name: 'expiration',
     enabled: true,
     bucketName: 'mybucket',
-    type: 'bucket-workflow-expiration-v1',
     filter: {
+        objectKeyTag: 'mytag',
         objectKeyPrefix: 'myprefix',
     },
     currentVersionTriggerDelayDays: 1,
-    currentVersionTriggerDelayDate: '',
     previousVersionTriggerDelayDays: 3,
+    expireOrphans: false,
+    expireMPU: true,
 };
 
 export const apiWorkflows: APIWorkflows = [
@@ -93,6 +94,13 @@ export const workflows: Workflows = [{
     name: 'replicationName',
     state: true,
     workflowId: 'replication-workflow-id',
+}, {
+    id: 'expiration-id',
+    bucketName: expirationWorkflow.bucketName,
+    type: 'expiration',
+    name: expirationWorkflow.name,
+    state: expirationWorkflow.enabled,
+    workflowId: expirationWorkflow.workflowId,
 }];
 
 export const accountAccessKey: AccessKey = 'ak1';

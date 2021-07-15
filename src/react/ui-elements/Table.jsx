@@ -259,4 +259,25 @@ export const TableContainer = styled.div`
     flex-direction: column;
 `;
 
+// specific to workflow header
+
+export const WorkflowHeader = styled.div`
+    display: flex;
+    align-items: center;
+    & > * {
+        margin-right: ${spacing.sp8};
+    }
+    .sc-select {
+        width: 150px;
+    }
+    padding-left: ${spacing.sp16};
+    padding-right: ${spacing.sp16};
+`;
+
+export const WorkflowHeaderEnd = styled.div`
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+`;
+
 export default Table;
