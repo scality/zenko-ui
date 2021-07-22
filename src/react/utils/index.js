@@ -74,6 +74,12 @@ export function stripQuotes(s) {
     return s;
 }
 
+export const compareObjectKeys = (a, b) => {
+    const aKeys = Object.keys(a).sort();
+    const bKeys = Object.keys(b).sort();
+    return JSON.stringify(aKeys) === JSON.stringify(bKeys);
+};
+
 export const isEmptyItem = (item => item.key === '' && item.value === '');
 
 export const isVersioning = (type => type === 'Enabled');

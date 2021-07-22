@@ -43,6 +43,8 @@ export type Replication = {|
     |},
 |};
 
+export type ReplicationStreams = Array<Replication>;
+
 // endpoints
 export type Hostname = string;
 
@@ -51,8 +53,6 @@ export type Endpoint = {|
     +locationName: LocationName,
     +isBuiltin: boolean,
 |};
-
-export type ReplicationStreams = Array<Replication>;
 
 export type ConfigurationOverlay = {|
     +version: number,

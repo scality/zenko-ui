@@ -7,9 +7,12 @@ export type APIReplicationWorkflow = {
 
 export type APIWorkflows = Array<APIReplicationWorkflow>;
 
+export type WorkflowType = 'replication' | 'transition' | 'expiration';
+
 export type Workflow = {|
     +id: string,
-    +type: 'replication' | 'transition' | 'expiration',
+    +bucketName: string,
+    +type: WorkflowType,
     +name: string,
     +state: boolean,
     +workflowId: string,

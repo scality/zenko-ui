@@ -1,12 +1,12 @@
 // @flow
-import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
-import type { ReplicationBucketOption, ReplicationForm } from '../../../types/replication';
+import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../../types/config';
+import type { ReplicationBucketOption, ReplicationForm } from '../../../../types/replication';
 import React from 'react';
-import type { S3BucketList } from '../../../types/s3';
-import type { SelectOption } from '../../../types/ui';
-import { getLocationTypeShort } from '../../utils/storageOptions';
-import { isVersioning } from '../../utils';
-import { storageOptions } from '../../backend/location/LocationDetails';
+import type { S3BucketList } from '../../../../types/s3';
+import type { SelectOption } from '../../../../types/ui';
+import { getLocationTypeShort } from '../../../utils/storageOptions';
+import { isVersioning } from '../../../utils';
+import { storageOptions } from '../../../backend/location/LocationDetails';
 
 export const sourceBucketOptions = (streams: ReplicationStreams, bucketList: S3BucketList, locations: Locations): Array<ReplicationBucketOption> => {
     const bucketsUsedForReplication = streams.map(
@@ -62,9 +62,9 @@ export const renderDestination = (locations: Locations) => {
 
 export function newReplicationForm(): ReplicationForm {
     return {
-        streamName: '',
-        streamVersion: 1,
-        streamId: '',
+        workflowName: '',
+        workflowVersion: 1,
+        workflowId: '',
         enabled: true,
         sourceBucket: {},
         sourcePrefix: '',
@@ -95,9 +95,9 @@ export function convertToReplicationForm(r: ?ReplicationStream): ReplicationForm
         return newReplicationForm();
     }
     return {
-        streamName: r.name || '',
-        streamVersion: r.version || 1,
-        streamId: r.streamId || '',
+        workflowName: r.name || '',
+        workflowVersion: r.version || 1,
+        workflowId: r.streamId || '',
         enabled: r.enabled,
         sourceBucket: {
             value: r.source.bucketName,
@@ -117,9 +117,9 @@ export function convertToReplicationStream(r: ReplicationForm): ReplicationStrea
         return newReplicationStream();
     }
     return {
-        streamId: r.streamId || '',
-        name: r.streamName || '',
-        version: r.streamVersion || 1,
+        streamId: r.workflowId || '',
+        name: r.workflowName || '',
+        version: r.workflowVersion || 1,
         enabled: !!r.enabled,
         source: {
             prefix: r.sourcePrefix || '',
