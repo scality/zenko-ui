@@ -1,10 +1,10 @@
 // @flow
 import { AddButton, Buttons, Container, Footer, Header, HeaderKeyTag, HeaderValueTag, InputTag, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { ObjectMetadata } from '../../../../types/s3';
-import { padding } from '@scality/core-ui/dist/style/theme';
 import { putObjectTagging } from '../../../actions';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
@@ -13,7 +13,7 @@ const EMPTY_ITEM = { key: '', value: '' };
 const TableContainer = styled.div`
     overflow-y: auto;
     height: calc(100vh - 410px);
-    margin-bottom: ${padding.smaller};
+    margin-bottom: ${spacing.sp4};
 `;
 
 const convertToAWSTags = tags => tags.filter(tag => tag.key !== '' && tag.value !== '')
@@ -96,8 +96,8 @@ function Properties({ objectMetadata }: Props) {
             <Footer>
                 <Button
                     id='tags-button-save'
-                    variant='buttonSecondary'
-                    text='Save'
+                    variant='secondary'
+                    label='Save'
                     disabled={!isValidItems}
                     onClick={save}
                     icon={<i className='fas fa-save' />}

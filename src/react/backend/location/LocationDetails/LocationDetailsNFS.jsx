@@ -1,7 +1,6 @@
 // @flow
 import { Fieldset, Input, Label, Select } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
-import type { Node } from 'react';
 import React from 'react';
 import urlParse from 'url-parse';
 
@@ -36,7 +35,7 @@ function _convertToState(details: LocationDetails): State {
         options: '',
     };
 
-    // todo: add strictuer details ($FlowFixMe)
+    // todo: add stricter details ($FlowFixMe)
     if (!details.endpoint) {
         return retState;
     }
@@ -70,19 +69,19 @@ function _convertToDetails({ protocol, version, server, path, options }: State):
 
 type Options = {
     value: string,
-    label: Node,
+    label: string,
 };
 
 const NFS_PROTOCOLS: Array<Options> = ['udp', 'tcp'].map(p => {
     return {
         value: p,
-        label: <option key={p} value={p}>{p.toUpperCase()}</option>,
+        label: p.toUpperCase(),
     };
 });
 const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map(ver => {
     return {
         value: ver,
-        label: <option key={ver} value={ver}>{ver.toUpperCase()}</option>,
+        label: ver.toUpperCase(),
     };
 });
 
@@ -116,13 +115,13 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
 
     onProtocolChange = (p: any) => {
         this.setState({
-            protocol: p.value,
+            protocol: p,
         });
     };
 
     onVersionChange = (v: any) => {
         this.setState({
-            version: v.value,
+            version: v,
         });
     }
 
@@ -153,18 +152,20 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
                     <Select type="select" name="protocol" id="nfs-protocol"
                         isDisabled={editingExisting}
                         onChange={this.onProtocolChange}
-                        options={NFS_PROTOCOLS}
-                        value = {NFS_PROTOCOLS.find(v => v.value === this.state.protocol)}
-                    />
+                        value={this.state.protocol}
+                    >
+                        {NFS_PROTOCOLS.map((opt, i) => <Select.Option key={i} value={opt.value}>{opt.label}</Select.Option>)}
+                    </Select>
                 </Fieldset>
                 <Fieldset>
                     <Label htmlFor="nfs-version">NFS Version</Label>
                     <Select type="select" name="version" id="nfs-version"
                         isDisabled={editingExisting}
                         onChange={this.onVersionChange}
-                        options={NFS_VERSIONS}
-                        value = {NFS_VERSIONS.find(v => v.value === this.state.version)}
-                    />
+                        value={this.state.version}
+                    >
+                        {NFS_VERSIONS.map((opt, i) => <Select.Option key={i} value={opt.value}>{opt.label}</Select.Option>)}
+                    </Select>
                 </Fieldset>
                 <Fieldset>
                     <Label htmlFor="nfs-server">Server</Label>

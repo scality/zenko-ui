@@ -1,5 +1,4 @@
 // @noflow
-import { Button, Toggle } from '@scality/core-ui';
 import React, { useEffect } from 'react';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import {
@@ -11,11 +10,13 @@ import {
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
+import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import type { Replication } from '../../../types/config';
 import type { S3Bucket } from '../../../types/s3';
 import { TableContainer } from '../../../ui-elements/Table';
+import { Toggle } from '@scality/core-ui';
 import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
 
@@ -78,7 +79,7 @@ function Overview({ bucket }: Props) {
         <TableContainer>
             <DeleteConfirmation show={showDelete === bucket.Name} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete bucket: ${bucket.Name} ?`}/>
             <ButtonContainer>
-                <Button icon={<i className="fas fa-trash" />} size="default" disabled={!canDeleteBucket(bucket.Name, loading, replicationStreams)} variant='buttonDelete' onClick={handleDeleteClick} text='Delete Bucket'/>
+                <Button icon={<i className="fas fa-trash" />} disabled={!canDeleteBucket(bucket.Name, loading, replicationStreams)} variant='danger' onClick={handleDeleteClick} label='Delete Bucket'/>
             </ButtonContainer>
             <Table>
                 <T.Body>

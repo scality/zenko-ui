@@ -10,7 +10,6 @@ describe('LocationEditor', () => {
         const selectInput = component.find('input[name="locationType"]');
         // open select
         selectInput.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
-        selectInput.simulate('keyDown', { key: 'Enter', keyCode: 13 });
 
         const options = component.find('div.sc-select__option');
         expect(options.length).toBe(6);

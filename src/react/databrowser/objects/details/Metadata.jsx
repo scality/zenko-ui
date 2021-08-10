@@ -1,12 +1,12 @@
 // @flow
 import { AMZ_META, METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, isEmptyItem, systemMetadata } from '../../../utils';
 import { AddButton, Buttons, Char, Container, Footer, Header, HeaderKey, HeaderValue, InputExtraKey, InputValue, Inputs, Item, Items, SubButton } from '../../../ui-elements/EditableKeyValue';
-import { Button, Select } from '@scality/core-ui';
+import { Button, Select } from '@scality/core-ui/dist/next';
 import type { ListObjectsType, MetadataItem, MetadataItems, ObjectMetadata } from '../../../../types/s3';
 import React, { useEffect, useMemo, useState } from 'react';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
-import { padding } from '@scality/core-ui/dist/style/theme';
 import { putObjectMetadata } from '../../../actions';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
@@ -14,8 +14,9 @@ const EMPTY_ITEM = { key: '', value: '', type: '' };
 
 const TableContainer = styled.div`
     overflow-y: auto;
+    overflow: visible;
     height: calc(100vh - 410px);
-    margin-bottom: ${padding.smaller};
+    margin-bottom: ${spacing.sp4};
 `;
 
 const userMetadataOption = {
@@ -66,7 +67,7 @@ function Metadata({ objectMetadata, listType }: Props) {
         }
     }, [metadata]);
 
-    const options = useMemo(() => selectOptions.filter(option =>
+    const remainingOptions = useMemo(() => selectOptions.filter(option =>
         !items.find(item => item.key === option.value && isSystemType(item.type))
     ), [items]);
 
@@ -77,10 +78,10 @@ function Metadata({ objectMetadata, listType }: Props) {
 
     const handleSelectChange = (index: number) => (v) => {
         const temp = [...items];
-        if (v.value === AMZ_META) {
+        if (v === AMZ_META) {
             temp[index] = { key: '', value: '', type: METADATA_USER_TYPE };
         } else {
-            temp[index] = { key: v.value, value: '', type: METADATA_SYSTEM_TYPE };
+            temp[index] = { key: v, value: '', type: METADATA_SYSTEM_TYPE };
         }
         setItems(temp);
     };
@@ -145,15 +146,20 @@ function Metadata({ objectMetadata, listType }: Props) {
                     {
                         items.map((p, i) => {
                             const isUserMD = isUserType(p.type);
+                            const options = [...remainingOptions];
+                            const selectedOption = selectValue(p);
+                            if (selectedOption)
+                                options.unshift(selectedOption);
                             return <Item isShrink={isUserMD} key={i}>
                                 <Inputs>
                                     <Select
                                         name='mdKeyType'
-                                        options={options}
                                         onChange={handleSelectChange(i)}
                                         isDisabled={isVersioningType}
-                                        value={selectValue(p)}
-                                    />
+                                        value={selectedOption ? selectedOption.value : null}
+                                    >
+                                        {options.map((opt, i) => <Select.Option key={i} value={opt.value}>{opt.label}</Select.Option>)}
+                                    </Select>
                                     {
                                         isUserMD && <Char>-</Char>
                                     }
@@ -175,8 +181,8 @@ function Metadata({ objectMetadata, listType }: Props) {
             <Footer>
                 <Button
                     id='metadata-button-save'
-                    variant='buttonSecondary'
-                    text='Save'
+                    variant='secondary'
+                    label='Save'
                     disabled={!isValidItems || isVersioningType}
                     onClick={save}
                     icon={<i className='fas fa-save' />}

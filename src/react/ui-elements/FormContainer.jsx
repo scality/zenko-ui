@@ -1,4 +1,4 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // WARNING: FormContainer is depreciated, use FormLayout components instead.
@@ -8,8 +8,8 @@ const FormContainer = styled.form`
     flex-direction: column;
 
     max-width: 600px;
-    margin: ${padding.small};
-    padding: ${padding.large};
+    margin: ${spacing.sp8};
+    padding: ${spacing.sp20};
     background-color: ${props => props.theme.brand.primaryDark1};
 
     // TODO: fix inside core-ui
@@ -29,19 +29,19 @@ const FormContainer = styled.form`
         flex-direction: column;
         border: 0;
         padding: 0;
-        margin-top: ${padding.base};
+        margin-top: ${spacing.sp16};
         .sc-input-wrapper{
             width:100%;
         }
         label {
-            margin-bottom: ${padding.small};
+            margin-bottom: ${spacing.sp8};
         }
         small {
-            margin-bottom: ${padding.small};
+            margin-bottom: ${spacing.sp8};
         }
 
         input{
-            margin-bottom: ${padding.smaller};
+            margin-bottom: ${spacing.sp4};
             // width:90%;
         }
         input.form-check-input{
@@ -63,12 +63,12 @@ const FormContainer = styled.form`
       }
 
       button{
-          margin-left: ${padding.smaller};
+          margin-left: ${spacing.sp4};
       }
     }
 
     .form-group{
-        margin-top: ${padding.small};
+        margin-top: ${spacing.sp8};
     }
 `;
 

@@ -1,4 +1,4 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Hints = styled.div`
@@ -6,18 +6,18 @@ export const Hints = styled.div`
   z-index: 1;
   background-color: ${props => props.theme.brand.backgroundLevel1};
   left: 20px;
-  margin-top: 40px;
-  padding: ${padding.small};
+  margin-top: ${spacing.sp40};
+  padding: ${spacing.sp8};
 `;
 
 export const HintsTitle = styled.div`
   font-style: italic;
-  padding: 2px 0px ${padding.smaller} ${padding.smaller};
+  padding: ${spacing.sp2} 0px ${spacing.sp4} ${spacing.sp4};
   color: ${props => props.theme.brand.textSecondary};
 `;
 
 export const Hint = styled.div`
-  padding: ${padding.smaller};
+  padding: ${spacing.sp4};
   cursor: pointer;
 
   &:hover {
@@ -31,25 +31,25 @@ const Input = styled.input`
 
     background-color: ${props => props.theme.brand.backgroundLevel1};
     color: ${props => props.theme.brand.textPrimary};
-    border-width: 1px;
+    border-width: ${spacing.sp1};
     border-style: solid;
     border-color: ${props => props.hasError ? props.theme.brand.danger : props.theme.brand.border};
-    padding: 0px ${padding.small};
+    padding: 0px ${spacing.sp8};
     font-size: ${fontSize.base};
-    border-radius: 4px;
-    line-height: 36px;
+    border-radius: ${spacing.sp4};
+    line-height: ${spacing.sp32};
 
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
     width: fill-available;
 
     :hover:enabled {
-        border: 1px solid ${props => props.theme.brand.border};
+        border: ${spacing.sp1} solid ${props => props.theme.brand.border};
     }
 
     :focus {
         outline:none;
-        border: 1px solid ${props => props.theme.brand.secondary};
+        border: ${spacing.sp1} solid ${props => props.theme.brand.secondary};
     }
 
     // Removing input background color for Chrome autocomplete

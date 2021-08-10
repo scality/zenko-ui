@@ -1,10 +1,11 @@
 // @noflow
 
-import { Button, SearchInput as SearchInputCore } from '@scality/core-ui';
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import { SearchInput as SearchInputCore } from '@scality/core-ui';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -31,13 +32,13 @@ import styled from 'styled-components';
 export const Container = styled.div`
     display: flex;
     flex: 1;
-    margin-top: ${padding.large};
+    margin-top: ${spacing.sp20};
     width: 100%;
 `;
 
 // * table head
 export const Head = styled.thead`
-    border-bottom: 1px solid ${props => props.theme.brand.backgroundLevel1};
+    border-bottom: ${spacing.sp1} solid ${props => props.theme.brand.backgroundLevel1};
 `;
 
 export const HeadRow = styled.tr`
@@ -52,11 +53,11 @@ export const HeadRow = styled.tr`
 
 export const HeadCell = styled.th`
     text-align:left;
-    padding: ${padding.base};
+    padding: ${spacing.sp16};
 `;
 
 export const Icon = styled.i`
-  margin-left: ${padding.smaller};
+  margin-left: ${spacing.sp4};
 `;
 
 // * table body
@@ -71,21 +72,26 @@ export const BodyWindowing = styled.tbody`
 `;
 
 export const Row = styled(HeadRow)`
+    // it's better to use 1px instead of spacing.sp1, otherwise the border of some rows
+    // can look different cause of subpixel positioning
     border-bottom: 1px solid ${props => props.theme.brand.backgroundLevel1};
     &:hover{
       background-color: ${props => props.theme.brand.secondaryDark1};
     }
+    cursor: ${props => props.onClick ? 'pointer' : 'default'};
+    box-sizing: border-box;
+    border-right: ${spacing.sp4} solid transparent;
 
     ${({ isSelected, theme }) => isSelected && `
         background-color: ${theme.brand.highlight};
-        border-right: 4px solid ${theme.brand.selectedActive};
-        box-sizing: border-box;
+        border-right: ${spacing.sp4} solid ${theme.brand.selectedActive};
     `}
 `;
 
 export const Cell = styled.td`
+    vertical-align: middle;
     color: ${props => props.shade ? props.theme.brand.base : props.theme.brand.text};
-    padding: ${padding.base};
+    padding: ${spacing.sp4} ${spacing.sp16} ${spacing.sp4} ${spacing.sp16};
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -119,8 +125,8 @@ export const CellA = styled.a`
 export const SearchContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-right: ${padding.base};
-    padding-left: ${padding.base};
+    padding-right: ${spacing.sp16};
+    padding-left: ${spacing.sp16};
 
     button {
         margin-left: auto;
@@ -140,7 +146,7 @@ export const SearchMetadataContainer = styled.form`
     flex: 1 0 auto;
     display: flex;
     max-width: 600px;
-    margin-right: ${padding.large};
+    margin-right: ${spacing.sp20};
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
 `;
 
@@ -149,7 +155,7 @@ export const SearchMetadataInputAndIcon = styled.div`
     display:flex;
     flex-direction:row;
     flex: 1 0 auto;
-    margin-right: ${padding.smaller};
+    margin-right: ${spacing.sp4};
     align-items: center;
 `;
 
@@ -166,13 +172,13 @@ export const Actions = styled.div`
 `;
 
 export const ActionButton = styled(Button)`
-    margin-left: ${padding.smaller};
+    margin-left: ${spacing.sp4};
 `;
 
 export const Title = styled.div`
     font-size: ${fontSize.larger};
     font-weight: bold;
-    margin: ${padding.large} 0 ${padding.large} 0;
+    margin: ${spacing.sp20} 0 ${spacing.sp20} 0;
 `;
 
 const Table = styled.table`
@@ -186,8 +192,9 @@ const Table = styled.table`
 
 export const SearchMetadataInput = styled(Input)`
     background-color: ${props => props.theme.brand.background};
-    padding: 0px 30px;
-    max-height: 1.875rem;
+    padding: 0px ${spacing.sp32};
+    max-height: ${spacing.sp32};
+    box-sizing: border-box;
 `;
 
 export const ContainerWithSubHeader = styled(Container)`
@@ -228,8 +235,8 @@ export const SearchButton = styled(Button)`
 export const HeaderContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    padding-left: ${padding.base};
-    padding-right: ${padding.base};
+    padding-left: ${spacing.sp16};
+    padding-right: ${spacing.sp16};
 `;
 
 export const ButtonContainer = styled.div`
@@ -237,13 +244,13 @@ export const ButtonContainer = styled.div`
     flex: 0 0 auto;
 
     & > * {
-        margin-left: ${padding.smaller};
+        margin-left: ${spacing.sp4};
     }
 `;
 
 export const SubHeaderContainer = styled.div`
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
-    margin-left: ${padding.smaller};
+    margin-left: ${spacing.sp4};
 `;
 
 export const TableContainer = styled.div`

@@ -2,7 +2,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../types/actions';
 import type { AppState } from '../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
@@ -21,7 +21,7 @@ const ErrorHandlerModal = () => {
     return (
         <Modal
             close={close}
-            footer={<Button variant="buttonPrimary" onClick={close} text="Close"/>}
+            footer={<Button variant="primary" onClick={close} label="Close"/>}
             isOpen={true}
             title="Error">
             {errorMessage}

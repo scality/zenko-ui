@@ -4,21 +4,21 @@ import { closeFolderCreateModal, createFolder } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import Input from '../../ui-elements/Input';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Description = styled.div`
-    margin-top: ${padding.base};
+    margin-top: ${spacing.sp16};
     width: 400px;
 `;
 
 export const Icon = styled.i`
-    margin-right: ${padding.smaller};
+    margin-right: ${spacing.sp4};
 `;
 
 type Props = {
@@ -59,8 +59,8 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             close={cancel}
             footer={
                 <div>
-                    <Button id='folder-create-cancel-button' outlined onClick={cancel} size="small" text='Cancel'/>
-                    <Button id='folder-create-save-button' variant="buttonSecondary" onClick={save} size="small" text='Save'/>
+                    <Button id='folder-create-cancel-button' variant="outline" onClick={cancel} label='Cancel'/>
+                    <Button id='folder-create-save-button' variant="secondary" onClick={save} label='Save'/>
                 </div>
             }
             isOpen={true}

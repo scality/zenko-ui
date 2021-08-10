@@ -27,7 +27,7 @@ describe('DeleteConfirmation', () => {
             titleText={TITLE_TEXT}/>);
 
         expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(false);
-        component.find('Button[text="Delete"]').simulate('click');
+        component.find('button[label="Delete"]').simulate('click');
         expect(approveFn).toHaveBeenCalledTimes(1);
     });
 
@@ -36,7 +36,7 @@ describe('DeleteConfirmation', () => {
             titleText={TITLE_TEXT}/>);
 
         expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(false);
-        component.find('Button[text="Cancel"]').simulate('click');
+        component.find('button[label="Cancel"]').simulate('click');
         expect(cancelFn).toHaveBeenCalledTimes(1);
     });
 });

@@ -60,7 +60,7 @@ function WorkflowList({ createMode, workflows, workflowId }: Props) {
                 <T.Search>
                     <T.SearchInput disableToggle={true} placeholder='Search by Workflow Name' onChange={e => setFilter('name', e.target.value)} />
                 </T.Search>
-                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Workflow" variant='buttonPrimary' onClick={() => dispatch(push('/create-workflow'))} size="default" type="submit" />
+                <T.ExtraButton icon={<i className="fas fa-plus" />} label="Create Workflow" variant='primary' onClick={() => dispatch(push('/create-workflow'))} type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>

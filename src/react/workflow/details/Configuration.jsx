@@ -1,11 +1,12 @@
 // @flow
-import { Banner, Button } from '@scality/core-ui';
 import type { Locations, ReplicationStreams } from '../../../types/config';
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/TableKeyValue2';
 import { closeWorkflowDeleteModal, deleteReplication, openWorkflowDeleteModal } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
+import { Banner } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import Replication from '../replication/Replication';
 import type { S3BucketList } from '../../../types/s3';
@@ -60,7 +61,7 @@ function Configuration({ wfSelected, replications, bucketList, locations, showEd
                                 If you leave this screen without saving, your changes will be lost.
                             </Banner>
                         </T.BannerContainer>
-                        <Button icon={<i className="fas fa-trash" />} text="Delete Workflow" variant='buttonDelete' onClick={handleOpenDeleteModal} />
+                        <Button icon={<i className="fas fa-trash" />} label="Delete Workflow" variant='danger' onClick={handleOpenDeleteModal} />
                     </T.Header>
                     <Replication loading={loading} replications={replications} showEditWorkflowNotification={showEditWorkflowNotification} workflow={replication} bucketList={bucketList} locations={locations} createMode={false} />
                 </T.Body>

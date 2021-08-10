@@ -116,8 +116,8 @@ describe('ObjectUpload', () => {
                 break;
             case 2:
                 expect(component.find(FileList)).toHaveLength(1);
-                expect(component.find('td').at(0).childAt(1).text()).toBe('test.txt');
-                expect(component.find('td').at(0).find('small').text()).toBe('4.0 B');
+                expect(component.find('td').at(0).find('div').childAt(0).text()).toBe('test.txt');
+                expect(component.find('td').at(0).find('small').text()).toBe('4 B');
                 expect(component.find('div.sc-modal-header').find('span').text()).toBe('Upload 1 file');
                 expect(uploadFilesMock).toHaveBeenCalledTimes(0);
                 component.find('button#object-upload-upload-button').simulate('click');

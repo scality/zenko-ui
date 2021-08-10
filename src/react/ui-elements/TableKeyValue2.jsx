@@ -1,4 +1,4 @@
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -39,12 +39,12 @@ export const Title = styled.div`
     display: flex;
 
     text-transform: capitalize;
-    margin-bottom: 24px;
-    font-size: 19px;
+    margin-bottom: ${spacing.sp24};
+    font-size: ${fontSize.larger};
 `;
 
 export const Subtitle = styled(Title)`
-    font-size: 15px;
+    font-size: ${fontSize.large};
 `;
 
 export const Body = styled.form`
@@ -60,12 +60,12 @@ export const Groups = styled.div`
 `;
 
 export const Group = styled.div`
-    margin-bottom: ${padding.small};
+    margin-bottom: ${spacing.sp8};
 `;
 
 export const GroupName = styled.div`
     font-weight: bold;
-    margin-bottom: ${padding.small};
+    margin-bottom: ${spacing.sp8};
 `;
 
 export const GroupContent = styled.div`
@@ -78,8 +78,8 @@ export const Row = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: ${padding.smaller};
-    min-height: 25px;
+    margin-bottom: ${spacing.sp4};
+    min-height: ${spacing.sp24};
 `;
 
 
@@ -98,7 +98,7 @@ export const Value = styled.div`
     flex: 1 1 70%;
     flex-direction: column;
     i {
-        margin-right: 8px;
+        margin-right: ${spacing.sp8};
     }
 `;
 
@@ -118,7 +118,7 @@ export const Header = styled.div`
 
 export const BannerContainer = styled.div`
     flex: 1;
-    margin-right: ${padding.small};
+    margin-right: ${spacing.sp8};
     width: 200px;
     visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
 `;
@@ -127,7 +127,7 @@ export const Footer = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin: ${padding.small}; 0px;
+    margin: ${spacing.sp8};
 `;
 
 export default Table;

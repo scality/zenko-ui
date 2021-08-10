@@ -125,7 +125,7 @@ describe('Overview', () => {
             },
         });
 
-        const deleteButton = component.find('Button.delete-confirmation-delete-button');
+        const deleteButton = component.find('button.delete-confirmation-delete-button');
 
         deleteButton.simulate('click');
         expect(deleteBucketMock).toHaveBeenCalledTimes(1);

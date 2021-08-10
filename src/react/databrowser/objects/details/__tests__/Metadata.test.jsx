@@ -44,14 +44,14 @@ describe('Metadata', () => {
         // open dropdown menu
         let firstItem = items.first();
         const inputComponent = firstItem.find('input').first();
-        inputComponent.simulate('change');
+        inputComponent.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
 
         // check all options are present
         items = component.find(Item);
         firstItem = items.first();
         const optionsComponents = firstItem.find('Option');
         optionsComponents.forEach((optionComponent, index) => {
-            expect(optionComponent.find('div.sc-select-option-label').text()).toBe(optionLabels[index]);
+            expect(optionComponent.find('.sc-select__option').first().text()).toBe(optionLabels[index]);
         });
 
         // select a key
@@ -67,14 +67,14 @@ describe('Metadata', () => {
         firstItem.find('input.metadata-input-value').simulate('change', { target: { value: 'value1' } });
 
         // click on add button
-        firstItem.find('Button#addbtn0').simulate('click');
+        firstItem.find('button#addbtn0').simulate('click');
 
         // check if new item row added
         expect(component.find(Item)).toHaveLength(2);
 
         // check if function when pressing save button is triggered
         expect(putObjectMetadataMock).toHaveBeenCalledTimes(0);
-        component.find('Button#metadata-button-save').simulate('click');
+        component.find('button#metadata-button-save').simulate('click');
         expect(putObjectMetadataMock).toHaveBeenCalledTimes(1);
     });
 
@@ -104,8 +104,8 @@ describe('Metadata', () => {
 
         // check if item row values are rendered
         const firstItem = items.first();
-        expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('CacheControl');
-        expect(firstItem.find('Select[name="mdKeyType"]').prop('isDisabled')).toBe(false);
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('value')).toBe('CacheControl');
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('isDisabled')).toBe(false);
 
         expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
         expect(firstItem.find('input.metadata-input-value').prop('disabled')).toBe(false);
@@ -130,8 +130,8 @@ describe('Metadata', () => {
 
         // check if item row values are rendered
         const firstItem = items.first();
-        expect(firstItem.find('Select[name="mdKeyType"]').text()).toBe('cache-control');
-        expect(firstItem.find('Select[name="mdKeyType"]').prop('isDisabled')).toBe(true);
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('value')).toBe('CacheControl');
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('isDisabled')).toBe(true);
 
         expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
         expect(firstItem.find('input.metadata-input-value').prop('disabled')).toBe(true);
@@ -158,12 +158,12 @@ describe('Metadata', () => {
 
         // check if first item row values are rendered
         let firstItem = items.first();
-        expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('CacheControl');
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('value')).toBe('CacheControl');
         expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('no-cache');
 
         // check if second item row values are rendered
         let secondItem = items.at(1);
-        expect(secondItem.find('input[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
+        expect(secondItem.find('SelectBox[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
         expect(secondItem.find('input.metadata-input-extra-key').prop('value')).toBe('cache-type');
         expect(secondItem.find('input.metadata-input-value').prop('value')).toBe('1');
 
@@ -172,7 +172,7 @@ describe('Metadata', () => {
         expect(secondItem.find('Button#addbtn1').prop('isVisible')).toBe(true);
 
         // check if there is only one key/value left after triggered remove button
-        firstItem.find('Button#delbtn0').simulate('click');
+        firstItem.find('button#delbtn0').simulate('click');
 
         // check if only one item row is rendered
         items = component.find(Item);
@@ -180,7 +180,7 @@ describe('Metadata', () => {
 
         // check if item row values are rendered
         firstItem = items.first();
-        expect(firstItem.find('input[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
+        expect(firstItem.find('SelectBox[name="mdKeyType"]').prop('value')).toBe('x-amz-meta');
         expect(firstItem.find('input.metadata-input-extra-key').prop('value')).toBe('cache-type');
         expect(firstItem.find('input.metadata-input-value').prop('value')).toBe('1');
     });

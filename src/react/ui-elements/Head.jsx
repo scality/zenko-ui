@@ -1,4 +1,4 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // WARNING: Head and HeadLeft are depreciated, use ListLayout.Head components instead.
@@ -6,7 +6,7 @@ const Head = styled.div`
   display: flex;
 
   color: #fff;
-  margin: ${padding.small};
+  margin: ${spacing.sp8};
   height: 130px;
   background: repeating-radial-gradient(
     circle at 5% 5%,
@@ -27,12 +27,12 @@ const HeadLeft = styled.div`
   background-color: #00000069;
 
   .title {
-      margin-top: ${padding.small};
+      margin-top: ${spacing.sp8};
       font-size: ${fontSize.large};
   }
   .number{
       font-size: 4em;
-      margin-top: ${padding.small};
+      margin-top: ${spacing.sp8};
   }
 `;
 

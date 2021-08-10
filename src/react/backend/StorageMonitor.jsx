@@ -1,13 +1,13 @@
 import { Head, HeadLeft } from '../ui-elements/Head';
 import React, { useMemo } from 'react';
 import { closeLocationDeleteDialog, deleteLocation, openLocationDeleteDialog, selectLocation } from '../actions';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { connect } from 'react-redux';
 import { getLocationName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 
 const Sections = styled.div`
   display: flex;
@@ -19,7 +19,7 @@ const Section = styled.div`
   display: flex;
   height: 100%;
 
-  margin: ${padding.small};
+  margin: ${spacing.sp8};
   background-color: ${props => props.theme.brand.primary};
   /* background-color: blue; */
 `;
@@ -37,18 +37,18 @@ const SectionLeft = styled.div`
   .title {
       display: flex;
       flex-direction: column;
-      padding: ${padding.base};
+      padding: ${spacing.sp16};
       .subtitle{
-          margin-top: ${padding.smaller};
-          font-size: ${padding.base};
+          margin-top: ${spacing.sp4};
+          font-size: ${spacing.sp16};
       }
   }
 
   .bottom {
-      padding: 0px ${padding.base};
+      padding: 0px ${spacing.sp16};
       button{
           width: 80px;
-          margin-bottom: ${padding.smaller};
+          margin-bottom: ${spacing.sp4};
       }
   }
 `;
@@ -66,16 +66,16 @@ const LocationContainer = styled.div`
 
     cursor: pointer;
     min-width: 130px;
-    margin: ${padding.small} ${padding.smaller};
-    padding: ${padding.small};
-    border: ${props => props.clicked ? '1px solid #32a1ce;' : '1px solid transparent;'};
+    margin: ${spacing.sp8} ${spacing.sp4};
+    padding: ${spacing.sp8};
+    border: ${props => props.clicked ? `${spacing.sp1} solid #32a1ce;` : `${spacing.sp1} solid transparent;`};
 
     &:hover{
-        border: 1px solid #32a1ce;
+        border: ${spacing.sp1} solid #32a1ce;
     };
 
     &:hover {
-      border: 1px solid #32a1ce;
+      border: ${spacing.sp1} solid #32a1ce;
     }
 
     background-color: ${props => props.theme.brand.background};
@@ -88,7 +88,7 @@ const LocationContainer = styled.div`
         .maintitle{
         }
         .subtitle {
-            margin-top: ${padding.small};
+            margin-top: ${spacing.sp8};
             word-break: break-word;
             font-size: ${fontSize.small};
         }
@@ -162,9 +162,9 @@ function StorageMonitor(props) {
                         <div className='subtitle'> {locations.length} Location{locations.length > 1 && 's'} </div>
                     </div>
                     <div className='bottom'>
-                        <Button outlined text="ADD" size="small" onClick={() => props.redirect('/monitor/location/editor')}/>
-                        <Button outlined variant="buttonPrimary" text='EDIT' size='small' onClick={editLocation} disabled={!canEditLocation(props.selectedLocationName)}/>
-                        <Button outlined variant="buttonDelete" disabled={!canDeleteLocation(props.selectedLocationName)} text="DELETE" size="small" onClick={props.openLocationDeleteDialog} />
+                        <Button variant="outline" label="ADD" onClick={() => props.redirect('/monitor/location/editor')}/>
+                        <Button variant="primary" label="EDIT" onClick={editLocation} disabled={!canEditLocation(props.selectedLocationName)}/>
+                        <Button variant="danger" label="DELETE" onClick={props.openLocationDeleteDialog} disabled={!canDeleteLocation(props.selectedLocationName)} />
                     </div>
                 </SectionLeft>
                 <SectionRight>

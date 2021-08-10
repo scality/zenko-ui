@@ -1,5 +1,5 @@
 // @flow
-import { Banner, Button, Tooltip } from '@scality/core-ui';
+import { Banner, Tooltip } from '@scality/core-ui';
 import { HideMe, TextAligner } from '../../../ui-elements/Utility';
 import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
@@ -8,16 +8,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
+import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
 import { formatShortDate } from '../../../utils';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 const TableContainer = styled.div`
     display: block;
     width: fit-content;
-    margin-top: ${padding.large};
+    margin-top: ${spacing.sp20};
 `;
 
 const EllipsisCell = styled.div`
@@ -60,7 +61,7 @@ function AccountKeys({ account }: Props) {
                     <Tooltip overlay={ access_key } placement='right'>
                         <EllipsisCell>{ access_key }</EllipsisCell>
                     </Tooltip>
-                    <div style={{ marginLeft: '16px' }}>
+                    <div style={{ marginLeft: spacing.sp16 }}>
                         <Clipboard text={ access_key }/>
                     </div>
                 </span>;
@@ -82,19 +83,16 @@ function AccountKeys({ account }: Props) {
             Header: '',
             accessor: 'access_key',
             disableSortBy: true,
-            Cell({ value: access_key }: { value: string }){
+            Cell({ value: access_key }: { value: string }) {
                 return (
-                    <Tooltip overlay='Remove Key' placement='right'>
-                        <Button
-                            title='Remove Key'
-                            disabled={false}
-                            icon={<i className='fas fa-trash' />}
-                            onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}
-                            size='small'
-                            variant='buttonDelete'
-                            text=''
-                        />
-                    </Tooltip>
+                    <Button
+                        label='Remove Key'
+                        disabled={false}
+                        icon={<i className='fas fa-trash' />}
+                        onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}
+                        variant='danger'
+                        tooltip={{ overlay: 'Remove Key', placement: 'right' }}
+                    />
                 );
             },
         },
@@ -125,7 +123,7 @@ function AccountKeys({ account }: Props) {
     return (
         <TableContainer>
             <h3>Root user Access keys details</h3>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <HideMe isHidden={!accessKeys || accessKeys.length === 0}>
                     <Banner
                         variant='danger'
@@ -137,7 +135,7 @@ function AccountKeys({ account }: Props) {
                     </Banner>
                 </HideMe>
                 {/* TODO: use a styled component */}
-                <Button style={{ marginLeft: '16px', minWidth: '170px' }} icon={<i className="fas fa-plus" />} size="default" onClick={handleOpenKeyModal} text='Create Access key'/>
+                <Button variant="primary" style={{ marginLeft: spacing.sp16, whiteSpace: 'nowrap' }} icon={<i className="fas fa-plus" />} onClick={handleOpenKeyModal} label='Create Access key'/>
             </div>
             <T.Container>
                 <Table { ...getTableProps() }>
@@ -169,11 +167,10 @@ function AccountKeys({ account }: Props) {
                                 return (
                                     <T.Row isSelected={ false } key={ row.id } { ...row.getRowProps() }>
                                         { row.cells.map(cell => {
-                                            return (
-                                                <T.Cell key={ cell.id } { ...cell.getCellProps() } >
-                                                    { cell.render('Cell') }
-                                                </T.Cell>
-                                            );
+                                            const cellProps = cell.getCellProps();
+                                            return <T.Cell key={cell.id} {...cellProps} style={{ ...cell.column.cellStyle, ...cellProps.style }}>
+                                                { cell.render('Cell') }
+                                            </T.Cell>;
                                         }) }
                                     </T.Row>
                                 );

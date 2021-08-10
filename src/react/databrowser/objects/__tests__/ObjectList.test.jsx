@@ -31,7 +31,7 @@ describe('ObjectList', () => {
         expect(cells.at(0).find('input').prop('checked')).toBe(false);
         expect(cells.at(1).prop('value')).toBe('object1');
         expect(cells.at(2).prop('value')).toBe('Wed Oct 17 2020 10:35:57');
-        expect(cells.at(3).prop('value')).toBe('213.0 B');
+        expect(cells.at(3).find('PrettyBytes').text()).toBe('213 B');
     });
 
     it('should call openObjectUploadModal by clicking on upload button', () => {
@@ -41,7 +41,7 @@ describe('ObjectList', () => {
             prefixWithSlash='' toggled={List()} bucketInfo={BUCKET_INFO}/>,
         );
 
-        component.find('Button#object-list-upload-button').simulate('click');
+        component.find('button#object-list-upload-button').simulate('click');
         expect(openObjectUploadModalSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -52,7 +52,7 @@ describe('ObjectList', () => {
             prefixWithSlash='' toggled={List()} bucketInfo={BUCKET_INFO}/>,
         );
 
-        component.find('Button#object-list-create-folder-button').simulate('click');
+        component.find('button#object-list-create-folder-button').simulate('click');
         expect(openFolderCreateModalSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -61,7 +61,7 @@ describe('ObjectList', () => {
             prefixWithSlash='' toggled={List()} bucketInfo={BUCKET_INFO}/>,
         );
 
-        expect(component.find('Button#object-list-delete-button').prop('disabled')).toBe(true);
+        expect(component.find('button#object-list-delete-button').prop('disabled')).toBe(true);
     });
 
     it('Delete button should be enable and should call openObjectDeleteModal when is pressed', () => {
@@ -71,7 +71,7 @@ describe('ObjectList', () => {
             prefixWithSlash='' toggled={List([FIRST_FORMATTED_OBJECT])} bucketInfo={BUCKET_INFO}/>,
         );
 
-        const deleteButton = component.find('Button#object-list-delete-button');
+        const deleteButton = component.find('button#object-list-delete-button');
         expect(deleteButton.prop('disabled')).toBe(false);
         deleteButton.simulate('click');
         expect(openObjectDeleteModalSpy).toHaveBeenCalledTimes(1);
@@ -100,7 +100,7 @@ describe('ObjectList', () => {
             expect(cells.at(0).find('input').prop('checked')).toBe(index !== 0);
             expect(cells.at(1).prop('value')).toBe(index === 0 ? 'object1': 'object2');
             expect(cells.at(2).prop('value')).toBe(index === 0 ? 'Wed Oct 17 2020 10:35:57': 'Wed Oct 17 2020 16:35:57');
-            expect(cells.at(3).prop('value')).toBe(index === 0 ? '213.0 B' : '120.3 KiB');
+            expect(cells.at(3).find('PrettyBytes').text()).toBe(index === 0 ? '213 B' : '120 KiB');
         });
     });
 

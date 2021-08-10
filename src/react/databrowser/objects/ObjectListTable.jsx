@@ -13,15 +13,16 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
 import type { ObjectEntity } from '../../../types/s3';
+import { PrettyBytes } from '@scality/core-ui';
 import { TextAligner } from '../../ui-elements/Utility';
-import { formatBytes } from '../../utils';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Icon = styled.i`
-    margin-right: ${padding.smaller};
-    margin-left: ${props => props.isMargin ? padding.base : '0px'};
+    margin-right: ${spacing.sp4};
+    margin-left: ${props => props.isMargin ? spacing.sp16 : '0px'};
 `;
 
 type CellProps = {
@@ -123,12 +124,12 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
         {
             id: 'size',
             Header: 'Size',
-            headerStyle: { textAlign: 'right', marginRight: '16px' },
-            cellStyle: { marginRight: isTableScrollbarVisible ? '8px' : '16px' },
-            accessor: row => row.size ? formatBytes(row.size) : '',
+            headerStyle: { textAlign: 'right', marginRight: spacing.sp16 },
+            cellStyle: { marginRight: isTableScrollbarVisible ? spacing.sp8 : spacing.sp16 },
+            accessor: row => row.size ? row.size : '',
             Cell({ value: size }: { value: string }) {
                 return <TextAligner alignment={'right'}>
-                    {size}
+                    <PrettyBytes bytes={size}/>
                 </TextAligner>;
             },
             width: 10,
@@ -204,7 +205,7 @@ export default function ObjectListTable({ objects, bucketName, toggled, isVersio
                                 <FixedSizeList
                                     height={ height || 300 }
                                     itemCount={ rows.length }
-                                    itemSize={ 45 }
+                                    itemSize={ convertRemToPixels(parseFloat(spacing.sp40)) || 45 }
                                     width={ width || '100%' }
                                     itemData={ createItemData(rows, prepareRow, dispatch) }
                                     onItemsRendered={ onItemsRendered }

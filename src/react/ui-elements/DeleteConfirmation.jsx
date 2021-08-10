@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
 
@@ -19,7 +19,10 @@ const DeleteConfirmation = ({ approve, cancel, show, titleText }: Props) => {
         <Modal
             close={cancel}
             isOpen={true}
-            footer={<div><Button outlined onClick={cancel} size="small" text="Cancel"/><Button className="delete-confirmation-delete-button" variant="buttonDelete" onClick={() => approve()} size="small" text="Delete"/></div>}
+            footer={<div>
+                <Button variant="outline" onClick={cancel} label="Cancel"/>
+                <Button className="delete-confirmation-delete-button" variant="danger" onClick={() => approve()} label="Delete"/>
+            </div>}
             title='Confirmation'>
             {titleText}
         </Modal>

@@ -1,5 +1,4 @@
 // @flow
-import { Banner, Button } from '@scality/core-ui';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import React, { useMemo, useRef, useState } from 'react';
@@ -7,8 +6,10 @@ import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
 import { convertToForm, convertToLocation, isLocationExists, newLocationDetails, newLocationForm } from './utils';
 import type { AppState } from '../../../types/state';
+import { Banner } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
+import type { LocationName } from '../../../types/config';
 import LocationOptions from './LocationOptions';
-import type { LocationSelectOption } from '../../../types/location';
 import { goBack } from 'connected-react-router';
 import locationFormCheck from './locationFormCheck';
 import { selectStorageOptions } from '../../utils/storageOptions';
@@ -17,12 +18,7 @@ import { useParams } from 'react-router-dom';
 
 const makeLabel = (locationType) => {
     const details = storageOptions[locationType];
-    return (
-        <div>
-            &nbsp;
-            <span>{details.name}</span>
-        </div>
-    );
+    return details.name;
 };
 
 function LocationEditor() {
@@ -70,20 +66,24 @@ function LocationEditor() {
         dispatch(saveLocation(convertToLocation(location)));
     };
 
-    const cancel = () => {
+    const cancel = (e) => {
+        if (e) {
+            e.preventDefault();
+        }
+
         batch(() => {
             clearServerError();
             dispatch(goBack());
         });
     };
 
-    const onTypeChange = (v: LocationSelectOption) => {
+    const onTypeChange = (v: LocationName) => {
         clearServerError();
-        if (location.locationType !== v.value) {
+        if (location.locationType !== v) {
             const l = {
                 ...newLocationForm(),
                 name: location.name || '',
-                locationType: v.value,
+                locationType: v,
                 details: {},
             };
             setLocation(l);
@@ -162,12 +162,12 @@ function LocationEditor() {
                     id='locationType'
                     name="locationType"
                     placeholder='Select an option...'
-                    options={selectOptions}
-                    isOptionDisabled={(option) => option.disabled === true }
                     onChange={onTypeChange}
                     isDisabled={editingExisting}
-                    value={selectOptions.find(l => l.value === location.locationType)}
-                />
+                    value={location.locationType}
+                >
+                    {selectOptions.map((opt, i) => <F.Select.Option key={i} value={opt.value}>{opt.label}</F.Select.Option>)}
+                </F.Select>
             </F.Fieldset>
             {maybeShowDetails()}
             <LocationOptions
@@ -187,8 +187,8 @@ function LocationEditor() {
                     }
                 </F.FooterError>
                 <F.FooterButtons>
-                    <Button disabled={loading} outlined onClick={cancel} text='Cancel'/>
-                    <Button variant="buttonPrimary" icon={ locationEditing && <i className="fas fa-save" />} disabled={disable || loading || !isLocationExists(location.locationType)} onClick={save} text={ locationEditing ? 'Save Changes' : 'Create' }/>
+                    <Button variant="outline" disabled={loading} onClick={cancel} label='Cancel'/>
+                    <Button variant="primary" icon={ locationEditing && <i className="fas fa-save" />} disabled={disable || loading || !isLocationExists(location.locationType)} onClick={save} label={ locationEditing ? 'Save Changes' : 'Create' }/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>

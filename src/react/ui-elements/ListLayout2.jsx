@@ -1,4 +1,4 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Container = styled.div`
@@ -7,14 +7,16 @@ export const Container = styled.div`
     width: 100%;
     background: ${props => props.theme.brand.backgroundLevel1};
     flex: 1;
+    height: 100%;
+    overflow: auto;
 `;
 
 export const BreadcrumbContainer = styled.div`
-    margin: 0px ${padding.small};
-    height: ${padding.larger};
+    margin: 0px ${spacing.sp8};
+    height: ${spacing.sp24};
     display: flex;
-    min-height: ${padding.larger};
-    padding: ${padding.smaller} 0px;
+    min-height: ${spacing.sp24};
+    padding: ${spacing.sp4} 0px;
 
     .sc-breadcrumb_item {
         font-size: ${fontSize.large};
@@ -26,15 +28,15 @@ export const ContentContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    margin: 0px ${padding.small} ${padding.small} ${padding.small};
+    margin: 0px ${spacing.sp8} ${spacing.sp8} ${spacing.sp8};
 `;
 
 export const Head = styled.div`
     display: flex;
     min-height: 80px;
 
-    padding: ${padding.base};
-    padding-left: 32px;
+    padding: ${spacing.sp16};
+    padding-left: ${spacing.sp32};
     background-color: ${props => props.theme.brand.backgroundLevel3};
 `;
 
@@ -45,14 +47,14 @@ export const HeadContainer = styled.div`
 
 export const HeadTitleContainer = styled.div`
     display: flex;
-    margin-top: ${padding.base};
+    margin-top: ${spacing.sp16};
 `;
 
 export const HeadTitle = styled.div`
     display: flex;
     color: ${props => props.theme.brand.textSecondary};
     font-size: ${fontSize.large};
-    margin-right: ${padding.small};
+    margin-right: ${spacing.sp8};
     align-items: center;
 `;
 
@@ -62,7 +64,7 @@ export const HeadSlice = styled.div`
     align-self: center;
 
     text-align: center;
-    margin-right: ${padding.large};
+    margin-right: ${spacing.sp20};
 `;
 
 export const HeadBody = styled.div`
@@ -73,13 +75,13 @@ export const HeadIcon = styled.i`
     color: ${props => props.theme.brand.statusHealthy};
     background-color: ${props => props.theme.brand.backgroundLevel1};
     border-radius: 100%;
-    border: 1px solid ${props => props.theme.brand.infoPrimary};
+    border: ${spacing.sp1} solid ${props => props.theme.brand.infoPrimary};
     width: 80px;
     height: 80px;
     text-align: center;
     line-height: 80px;
     vertical-align: middle;
-    margin-right: ${padding.base};
+    margin-right: ${spacing.sp16};
     font-size: 32px;
     align-items: center;
     justify-content: center;
@@ -91,7 +93,7 @@ export const Body = styled.div`
     flex-direction: row;
     width: 100%;
 
-    margin-top: 2px;
+    margin-top: ${spacing.sp2};
     overflow-y: auto;
 `;
 
@@ -102,8 +104,8 @@ export const ListSection = styled.div`
     min-width: 650px;
 
     background-color: ${props => props.theme.brand.backgroundLevel2};
-    padding-top: ${padding.base};
-    padding-bottom: ${padding.base};
+    padding-top: ${spacing.sp16};
+    padding-bottom: ${spacing.sp16};
 `;
 
 export const ContentSection = styled.div`
@@ -112,5 +114,6 @@ export const ContentSection = styled.div`
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.backgroundLevel3};
-    margin-left: 1px;
+    margin-left: ${spacing.sp1};
+    overflow: hidden;
 `;

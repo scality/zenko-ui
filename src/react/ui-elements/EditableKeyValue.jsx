@@ -1,9 +1,9 @@
 // @flow
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
 import React from 'react';
 import { isEmptyItem } from '../utils';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Container = styled.div`
@@ -20,14 +20,13 @@ export const Item = styled.div`
     flex-direction:row;
     align-items: center;
 
-    margin-bottom: ${padding.smaller};
-
-    // For Select we ajust width here becase in CoreUI.Select
-    // props are not applied to the first parent element.
-    .sc-select-container{
-        flex: 0 ${props => props.isShrink ? '39%' : '59%'};
-        width: ${props => props.isShrink ? '39%' : '59%'};
-        min-width: ${props => props.isShrink ? '39%' : '59%'};
+    margin-bottom: ${spacing.sp4};
+    // For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
+    // the first parent is .sc-scrollbar
+    .sc-scrollbar {
+        flex: 0 ${props => props.isShrink ? '36%' : '53%'};
+        width: ${props => props.isShrink ? '36%' : '53%'};
+        min-width: ${props => props.isShrink ? '36%' : '53%'};
     }
 `;
 
@@ -35,41 +34,41 @@ export const Header = styled.div`
     display:flex;
     flex-direction:row;
     width: calc(100% - 100px);
-    margin-bottom: ${padding.small};
+    margin-bottom: ${spacing.sp8};
 `;
 
 export const HeaderKey = styled.div`
     flex: 0 60%;
-    padding-left: ${padding.small};
+    padding-left: ${spacing.sp8};
 `;
 
 export const HeaderValue = styled.div`
     flex: 0 40%;
-    padding-left: ${padding.small};
+    padding-left: ${spacing.sp8};
 `;
 
 export const HeaderKeyTag = styled.div`
     flex: 0 50%;
-    padding-left: ${padding.small};
+    padding-left: ${spacing.sp8};
 `;
 
 export const HeaderValueTag = styled.div`
     flex: 0 50%;
-    padding-left: ${padding.small};
+    padding-left: ${spacing.sp8};
 `;
 
 export const Footer = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin-bottom: ${padding.smaller};
+    margin-bottom: ${spacing.sp4};
 `;
 
 export const Buttons = styled.div`
     display: flex;
     flex: 0 0 100px;
     & > * {
-        margin-right: 2px;
+        margin-right: ${spacing.sp2};
     }
 `;
 
@@ -79,7 +78,7 @@ export const Inputs = styled.div`
     align-items: center;
     justify-content: space-between;
 
-    margin-right: ${padding.smaller};
+    margin-right: ${spacing.sp4};
 `;
 
 // NOTE: use for x-amz-meta extra key value
@@ -90,19 +89,19 @@ export const InputExtraKey = styled(Input)`
 `;
 
 export const InputValue = styled(Input)`
-    flex: 0 ${props => props.isShrink ? '29%' : '39%'};
-    width: ${props => props.isShrink ? '29%' : '39%'};
-    min-width: ${props => props.isShrink ? '29%' : '39%'};
+    flex: 0 ${props => props.isShrink ? '22%' : '39%'};
+    width: ${props => props.isShrink ? '22%' : '39%'};
+    min-width: ${props => props.isShrink ? '22%' : '39%'};
     background-color: ${props => props.theme.brand.backgroundLevel1};
 `;
 
 export const InputTag = styled(Input)`
-    flex: 1 50%;
+    flex: 1 40%;
     &:first-child {
-        margin-right: ${padding.smaller};
+        margin-right: ${spacing.sp4};
     }
-    width: 50%;
-    min-width: 45%;
+    width: 40%;
+    min-width: 40%;
 `;
 
 export const Char = styled.div`
@@ -142,12 +141,12 @@ export const AddButton = ({ index, items, insertEntry, disabled }: AddButtonProp
     return (
         <CustomButton
             isVisible={isVisible}
-            variant="buttonSecondary"
-            title="Add"
+            variant="secondary"
             disabled={isDisabled}
             name={`addbtn${index}`}
             id={`addbtn${index}`}
             onClick={onClickFn}
+            tooltip={{ overlay: 'Add', placement: 'top' }}
             icon={<i className="fa fa-plus-square" />}
         />
     );
@@ -166,12 +165,12 @@ export const SubButton = ({ index, items, deleteEntry, disabled }: SubButtonProp
     }
     return (
         <Button
-            variant="buttonDelete"
-            title="Remove"
+            variant="danger"
             disabled={isDisabled}
             name={`delbtn${index}`}
             id={`delbtn${index}`}
             onClick={() => deleteEntry(index)}
+            tooltip={{ overlay: 'Remove', placement: 'top' }}
             icon={<i className="fa fa-minus-square" />}
         />
     );

@@ -5,7 +5,7 @@ import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from
 import { useDispatch, useSelector } from 'react-redux';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
@@ -48,7 +48,7 @@ function AccountInfo({ account }: Props) {
             <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/>
             <SecretKeyModal account={account} />
             <ButtonContainer>
-                <Button id='delete-account-btn' icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} size="default" variant="buttonDelete" text='Delete Account' />
+                <Button id='delete-account-btn' icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} variant="danger" label='Delete Account' />
             </ButtonContainer>
             <h3>Account details</h3>
             <Table id='account-details-table'>

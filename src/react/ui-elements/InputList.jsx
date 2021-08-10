@@ -1,8 +1,8 @@
 // @flow
-import { Button as BasicButton } from '@scality/core-ui';
+import { Button as BasicButton } from '@scality/core-ui/dist/next';
 import { default as BasicInput } from './Input';
 import React from 'react';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 type Props = {
@@ -26,11 +26,11 @@ const InputGroup = styled.div`
 `;
 
 const Input = styled(BasicInput)`
-    margin-bottom: ${padding.small};
+    margin-bottom: ${spacing.sp8};
 `;
 
 const Button = styled(BasicButton)`
-    margin-left: ${padding.small};
+    margin-left: ${spacing.sp8};
     &.invisible {
         visibility:hidden;
     }
@@ -89,9 +89,9 @@ export default class InputList extends React.Component<Props, State> {
 
         return (
             <Button
-                variant="buttonSecondary"
+                variant="secondary"
                 className={isVisible}
-                title="Add"
+                label="Add"
                 disabled={isDisabled}
                 name="addbtn"
                 id="addbtn"
@@ -110,8 +110,8 @@ export default class InputList extends React.Component<Props, State> {
         }
         return (
             <Button
-                variant="buttonDelete"
-                title="Remove"
+                variant="danger"
+                label="Remove"
                 disabled={isDisabled}
                 name={`delbtn${index}`}
                 id={`delbtn${index}`}

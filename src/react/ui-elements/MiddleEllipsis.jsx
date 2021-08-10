@@ -28,16 +28,16 @@ export const ellipseNode = (
     if (parentNode && childNode) {
         const childWidth = childNode.offsetWidth;
         const containerWidth = parentNode.offsetWidth;
-        const txtWidth = childNode.offsetWidth;
-        const targetWidth = childWidth > txtWidth ? childWidth : txtWidth;
 
-        if (targetWidth > containerWidth) {
-            const txtContent = childNode.textContent;
-            const avgLetterSize = txtWidth / txtContent.length;
+        if (childWidth > containerWidth) {
+            const txtContent = originalText;
+            const avgLetterSize = childWidth / txtContent.length;
             const txtWidthEllipsisInPX = ellipsisText.length * avgLetterSize;
             const trailingCharsInPX = trailingCharCount * avgLetterSize;
             const leftWidthInPX = containerWidth - (txtWidthEllipsisInPX + trailingCharsInPX);
-            const leftWidthInCh = leftWidthInPX / avgLetterSize;
+            // As we do not know the value of "avgLetterSize" (because the letters are not all the same size)
+            // then we remove 2 letters so that we can't have an overflow.
+            const leftWidthInCh = leftWidthInPX / avgLetterSize - 2;
 
             const endLeft = Math.floor(ellipsisText.length + leftWidthInCh);
             const startRight = Math.ceil(-trailingCharCount);

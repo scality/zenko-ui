@@ -2,33 +2,34 @@
 import React, { useMemo } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { closeObjectDeleteModal, deleteFiles, toggleAllObjects } from '../../actions';
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
-import { formatBytes, maybePluralize } from '../../utils';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
 import type { BucketInfo } from '../../../types/s3';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import { List } from 'immutable';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
+import { PrettyBytes } from '@scality/core-ui';
+import { maybePluralize } from '../../utils';
 import styled from 'styled-components';
 
 const Files = styled.div`
     height: 250px;
     width: 500px;
     overflow-y: scroll;
-    margin: ${padding.small} 0px;
-    border: 1px solid ${props => props.theme.brand.border};
+    margin: ${spacing.sp8} 0px;
+    border: ${spacing.sp1} solid ${props => props.theme.brand.border};
 `;
 
 const Description = styled.div`
-    margin-top: ${padding.smaller};
+    margin-top: ${spacing.sp4};
 `;
 
 const VersionId = styled.div`
     font-size: ${fontSize.small};
-    margin-top: ${padding.smaller};
+    margin-top: ${spacing.sp4};
 `;
 
 const title = (files, isVersioning) => {
@@ -42,7 +43,7 @@ const title = (files, isVersioning) => {
 
 const fileSizer = files => {
     const total = files.reduce((accumulator, file) => file.size ? accumulator + file.size : accumulator, 0);
-    return formatBytes(total);
+    return total;
 };
 
 type Props = {
@@ -89,8 +90,8 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash, bucketInfo }: Prop
             close={cancel}
             footer={
                 <div>
-                    <Button id='object-delete-cancel-button' outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button id='object-delete-delete-button' disabled={toggled.size === 0} variant='buttonDelete' onClick={deleteSelectedFiles} size="small" text='Delete'/>
+                    <Button id='object-delete-cancel-button' variant="outline" onClick={cancel} label='Cancel'/>
+                    <Button id='object-delete-delete-button' disabled={toggled.size === 0} variant='danger' onClick={deleteSelectedFiles} label='Delete'/>
                 </div>
             }
             isOpen={true}
@@ -105,7 +106,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash, bucketInfo }: Prop
                                     <T.Cell> {s.key}
                                         <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
                                         <Description>
-                                            {s.size && formatBytes(s.size)}
+                                            {s.size && <PrettyBytes bytes={s.size}/>}
                                         </Description>
                                     </T.Cell>
                                 </T.Row>
@@ -114,7 +115,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash, bucketInfo }: Prop
                     </T.Body>
                 </Table>
             </Files>
-            <div> Total: {totalSize} </div>
+            <div> Total: <PrettyBytes bytes={totalSize}/> </div>
         </Modal>
     );
 };

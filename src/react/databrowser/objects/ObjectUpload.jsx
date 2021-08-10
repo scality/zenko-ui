@@ -2,15 +2,16 @@
 import React, { useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { closeObjectUploadModal, uploadFiles } from '../../actions';
-import { formatBytes, maybePluralize } from '../../utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { PrettyBytes } from '@scality/core-ui';
+import { maybePluralize } from '../../utils';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
 
@@ -21,9 +22,9 @@ const DropZone = styled.div`
 
     height: 300px;
     width: 500px;
-    padding: ${padding.large};
-    border-width: 2px;
-    border-radius: 2px;
+    padding: ${spacing.sp20};
+    border-width: ${spacing.sp2};
+    border-radius: ${spacing.sp2};
     border-color: ${props => props.theme.brand.border};
     border-style: dashed;
 `;
@@ -35,14 +36,14 @@ const RemoveCell = styled(T.Cell)`
 const Files = styled.div`
     height: 250px;
     overflow-y: scroll;
-    margin: ${padding.small} 0px;
+    margin: ${spacing.sp8} 0px;
 `;
 
 const EmptyFile = styled.div`
     text-align: center;
     margin-top: 60px;
     & > * {
-        margin-bottom: ${padding.base};
+        margin-bottom: ${spacing.sp16};
     }
 `;
 
@@ -58,14 +59,14 @@ type FileListProps = {
 // files might be rejected (fileRejections) and we will have to show them in <FileList/>.
 export const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
     <div>
-        <Button icon={<i className="fas fa-plus" />} size='small' text='Add more files' variant='buttonSecondary' onClick={open} />
+        <Button icon={<i className="fas fa-plus" />} label='Add more files' variant='secondary' onClick={open} />
         <Files>
             <Table>
                 <T.Body>
                     {
                         acceptedFiles.map(file => (
                             <T.Row key={file.path}>
-                                <T.Cell> {file.path} <br/> <small>{formatBytes(file.size)}</small> </T.Cell>
+                                <T.Cell> <div>{file.path} <br/> <small><PrettyBytes bytes={file.size}/></small></div> </T.Cell>
                                 <RemoveCell> <div onClick={() => removeFile(file.path)}> <i className='fas fa-times'></i> </div> </RemoveCell>
                             </T.Row>
                         ))
@@ -83,7 +84,7 @@ export const NoFile = ({ open }: NoFileProps) =>
         <i className="fas fa-3x fa-file-upload"></i>
         <div> Drag and drop files and folders here </div>
         <div> OR </div>
-        <Button icon={<i className="fas fa-plus" />} text='Add files' variant='buttonSecondary' onClick={open} />
+        <Button icon={<i className="fas fa-plus" />} label='Add files' variant='secondary' onClick={open} />
     </EmptyFile>;
 
 type Props = {
@@ -141,8 +142,8 @@ const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
             close={cancel}
             footer={
                 <div>
-                    <Button id="object-upload-cancel-button" outlined onClick={cancel} size='small' text='Cancel'/>
-                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='buttonSecondary' onClick={upload} size="small" text='Upload'/>
+                    <Button id="object-upload-cancel-button" variant="outline" onClick={cancel} label='Cancel'/>
+                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='secondary' onClick={upload} label='Upload'/>
                 </div>
             }
             isOpen={true}

@@ -1,37 +1,18 @@
 // @flow
-import { Banner, Button } from '@scality/core-ui';
 import { Controller, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
+import { Banner } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers';
 import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
-import styled from 'styled-components';
 import { useOutsideClick } from '../../utils/hooks';
-
-const Select = styled(F.Select)`
-    // to separate location name and location type.
-    .sc-select__single-value{
-        width: 100%;
-    }
-`;
-
-const SelectOption = styled.div`
-    // to separate location name and location type.
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    .float-right{
-        font-size: ${fontSize.small};
-        margin-right: ${padding.small};
-    }
-`;
 
 const schema = Joi.object({
     name: Joi.string().label('Name').required().min(3).max(63),
@@ -76,16 +57,9 @@ function BucketCreate() {
         const locationType = option.locationType;
         const mirrorMode = option.mirrorMode;
         const locationTypeName = storageOptions[locationType].name;
-        return (
-            <SelectOption>
-                {
-                    mirrorMode ?
-                        <span>{option.value.split(':ingest')[0]} <small>(Mirror mode)</small></span> :
-                        <span>{option.value}</span>
-                }
-                <span className="float-right">{locationTypeName}</span>
-            </SelectOption>
-        );
+        return mirrorMode ?
+            `${option.value.split(':ingest')[0]} (Mirror mode) (${locationTypeName})` :
+            `${option.value} (${locationTypeName})`;
     };
 
     const selectLocations = useMemo(() => {
@@ -118,13 +92,13 @@ function BucketCreate() {
                     name='locationConstraint'
                     defaultValue={{ value: 'us-east-1' }}
                     render={({ onChange, value: locationConstraintObj }) => {
-                        return <Select
+                        return <F.Select
                             onChange={onChange}
                             placeholder='Location Name'
-                            options={selectLocations}
-                            formatOptionLabel={renderLocation}
-                            value={selectLocations.find(l => l.value === locationConstraintObj.value)}
-                        />;
+                            value={locationConstraintObj.value}
+                        >
+                            {selectLocations.map((opt, i) => <F.Select.Option key={i} value={opt.value}>{renderLocation(opt)}</F.Select.Option>)}
+                        </F.Select>;
                     }}
                 />
             </F.Fieldset>
@@ -141,8 +115,8 @@ function BucketCreate() {
                     }
                 </F.FooterError>
                 <F.FooterButtons>
-                    <Button disabled={loading} id='cancel-btn' outlined onClick={handleCancel} text='Cancel'/>
-                    <Button disabled={loading} id='create-account-btn' variant="buttonPrimary" onClick={handleSubmit(onSubmit)} text='Create'/>
+                    <Button disabled={loading} id='cancel-btn' variant="outline" onClick={handleCancel} label='Cancel'/>
+                    <Button disabled={loading} id='create-account-btn' variant="primary" onClick={handleSubmit(onSubmit)} label='Create'/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>

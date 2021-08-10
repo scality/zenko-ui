@@ -8,8 +8,10 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout';
 import { TextAligner } from '../ui-elements/Utility';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { formatSimpleDate } from '../utils';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
@@ -73,7 +75,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                 <T.Search>
                     <T.SearchInput disableToggle={true} placeholder='Search by Account Name' onChange={e => setFilter('userName', e.target.value)} />
                 </T.Search>
-                <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Account" variant='buttonPrimary' onClick={() => dispatch(push('/create-account'))} size="default" type="submit" />
+                <T.ExtraButton icon={<i className="fas fa-plus" />} label="Create Account" variant='primary' onClick={() => dispatch(push('/create-account'))} type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
@@ -104,7 +106,7 @@ function AccountList({ accountList, accountIndex }: Props) {
                                     ref={listRef}
                                     height={height || 300}
                                     itemCount={rows.length}
-                                    itemSize={45}
+                                    itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
                                     width={width || '100%'}
                                     itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
                                 >

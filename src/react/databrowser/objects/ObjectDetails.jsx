@@ -1,5 +1,4 @@
 // @flow
-import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
@@ -11,9 +10,9 @@ import Properties from './details/Properties';
 import React from 'react';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
-import { push } from 'connected-react-router';
 import { useLocation } from 'react-router-dom';
 import { useQuery } from '../../utils/hooks';
+import { useSelector } from 'react-redux';
 
 export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object';
@@ -40,11 +39,9 @@ const warningTitle = (toggled: List<Object>): Node => {
 };
 
 function ObjectDetails({ toggled, listType }: Props) {
-    const dispatch = useDispatch();
     const query = useQuery();
     const { pathname } = useLocation();
     const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
-    const theme = useSelector((state: AppState) => state.uiConfig.theme);
 
     const tabName = query.get('tab');
 
@@ -69,27 +66,16 @@ function ObjectDetails({ toggled, listType }: Props) {
 
     return (
         <ContentSection>
-            <CustomTabs
-                activeTabColor={ theme.brand.backgroundLevel4 }
-                items={[
-                    {
-                        onClick: () => dispatch(push(pathname)),
-                        selected: !tabName,
-                        title: 'Summary',
-                    },
-                    {
-                        onClick: () => dispatch(push(`${pathname}?tab=metadata`)),
-                        selected: tabName === 'metadata',
-                        title: 'Metadata',
-                    },
-                    {
-                        onClick: () => dispatch(push(`${pathname}?tab=tags`)),
-                        selected: tabName === 'tags',
-                        title: 'Tags',
-                    },
-                ]}
-            >
-                { details() }
+            <CustomTabs>
+                <CustomTabs.Tab label="Summary" path={pathname}>
+                    { details() }
+                </CustomTabs.Tab>
+                <CustomTabs.Tab label="Metadata" path={pathname} query={{ 'tab': 'metadata' }}>
+                    { details() }
+                </CustomTabs.Tab>
+                <CustomTabs.Tab label="Tags" path={pathname} query={{ 'tab': 'tags' }}>
+                    { details() }
+                </CustomTabs.Tab>
             </CustomTabs>
         </ContentSection>
     );

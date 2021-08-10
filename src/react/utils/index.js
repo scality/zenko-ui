@@ -50,18 +50,6 @@ export function formatSimpleDate(d) {
     return d.toISOString().split('T')[0];
 }
 
-export function formatBytes(bytes, decimals = 1) {
-    if (bytes === 0) return '0 B';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return (bytes / Math.pow(k, i)).toFixed(dm) + ' ' + sizes[i];
-}
-
 export const stripTrailingSlash = name => name.slice(-1) === '/' ? name.slice(0, -1): name;
 export const addTrailingSlash = name => name ? name.slice(-1) !== '/' ? `${name}/`: name : '';
 

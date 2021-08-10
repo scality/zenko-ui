@@ -23,7 +23,7 @@ describe('MiddleEllipsis', () => {
         txtNode.textContent = sentence;
         const isEllipsized = ellipseNode(container, txtNode, sentence);
         expect(isEllipsized).toBeTruthy();
-        expect(txtNode.textContent).toBe('My long ...entence');
+        expect(txtNode.textContent).toBe('My lon...entence');
     });
 
     it('ellipseNode with ellipsisText should display correctly', () => {

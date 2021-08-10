@@ -1,10 +1,11 @@
 // @flow
-import { Banner, Button } from '@scality/core-ui';
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import React, { useRef } from 'react';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
+import { Banner } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers';
@@ -36,7 +37,11 @@ function AccountCreate() {
         dispatch(createAccount(payload));
     };
 
-    const handleCancel = () => {
+    const handleCancel = (e) => {
+        if (e) {
+            e.preventDefault();
+        }
+
         clearServerError();
         dispatch(goBack());
     };
@@ -93,8 +98,8 @@ function AccountCreate() {
                     }
                 </F.FooterError>
                 <F.FooterButtons>
-                    <Button disabled={loading} outlined onClick={handleCancel} text='Cancel'/>
-                    <Button disabled={loading} id='create-account-btn' variant='buttonPrimary' onClick={handleSubmit(onSubmit)} text='Create'/>
+                    <Button disabled={loading} variant='outline' onClick={handleCancel} label='Cancel'/>
+                    <Button disabled={loading} id='create-account-btn' variant='primary' onClick={handleSubmit(onSubmit)} label='Create'/>
                 </F.FooterButtons>
             </F.Footer>
         </F.Form>

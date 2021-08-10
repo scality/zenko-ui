@@ -85,12 +85,12 @@ describe('class <LocationDetailsNFS />', () => {
         );
         expect(component.find('SelectBox#nfs-protocol')).toHaveLength(1);
         expect(component.find('SelectBox#nfs-protocol').text()).toEqual('TCP');
-        expect(component.find('SelectBox#nfs-protocol').props().value.value).toEqual('tcp');
+        expect(component.find('SelectBox#nfs-protocol').props().value).toEqual('tcp');
         expect(component.find('SelectBox#nfs-protocol').props().disabled).toBeFalsy();
 
         expect(component.find('SelectBox#nfs-version')).toHaveLength(1);
         expect(component.find('SelectBox#nfs-version').text()).toEqual('V3');
-        expect(component.find('SelectBox#nfs-version').props().value.value).toEqual('v3');
+        expect(component.find('SelectBox#nfs-version').props().value).toEqual('v3');
         expect(component.find('SelectBox#nfs-version').props().disabled).toBeFalsy();
 
         expect(component.find('input[name="server"]')).toHaveLength(1);
@@ -116,12 +116,12 @@ describe('class <LocationDetailsNFS />', () => {
         );
         expect(component.find('SelectBox#nfs-protocol')).toHaveLength(1);
         expect(component.find('SelectBox#nfs-protocol').text()).toEqual('TCP');
-        expect(component.find('SelectBox#nfs-protocol').props().value.value).toEqual('tcp');
+        expect(component.find('SelectBox#nfs-protocol').props().value).toEqual('tcp');
         expect(component.find('SelectBox#nfs-protocol').props().disabled).toBeFalsy();
 
         expect(component.find('SelectBox#nfs-version')).toHaveLength(1);
         expect(component.find('SelectBox#nfs-version').text()).toEqual('V3');
-        expect(component.find('SelectBox#nfs-version').props().value.value).toEqual('v3');
+        expect(component.find('SelectBox#nfs-version').props().value).toEqual('v3');
         expect(component.find('SelectBox#nfs-version').props().disabled).toBeFalsy();
 
         expect(component.find('input[name="server"]')).toHaveLength(1);

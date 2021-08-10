@@ -1,16 +1,16 @@
 // @flow
 import styled, { css } from 'styled-components';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import type { Node } from 'react';
 import React from 'react';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 
 const Container = styled.div`
     display: flex;
     flex: 1;
     flex-direction: column;
     text-align: center;
-    margin-top: ${padding.large};
+    margin-top: ${spacing.sp20};
     color: ${props => props.theme.brand.textPrimary};
     ${(props) => {
         if (props.centered) {
@@ -19,27 +19,27 @@ const Container = styled.div`
             `;
         }
         return css`
-          margin-top: ${padding.large};
+          margin-top: ${spacing.sp20};
         `;
     }}
 `;
 
 const Container2 = styled.div`
     text-align: center;
-    margin: 30px 0px;
+    margin: ${spacing.sp32} 0px;
     color: ${props => props.theme.brand.textPrimary};
 `;
 
 const Title = styled.div`
-    margin-top: ${padding.small};
+    margin-top: ${spacing.sp8};
 `;
 
 const Description = styled.div`
-    margin-top: ${padding.small};
+    margin-top: ${spacing.sp8};
 `;
 
 const ButtonSection = styled.div`
-    margin-top: ${padding.base};
+    margin-top: ${spacing.sp16};
 `;
 
 type WarningProps = {
@@ -54,7 +54,7 @@ export const Warning = ({ iconClass, title, btnTitle, btnAction, centered }: War
     <Container centered={centered}>
         { !!iconClass && <i className={iconClass}></i> }
         <Title> {title} </Title>
-        { !!btnTitle && !!btnAction && <ButtonSection> <Button text={btnTitle} variant='buttonSecondary' onClick={btnAction} /> </ButtonSection> }
+        { !!btnTitle && !!btnAction && <ButtonSection> <Button label={btnTitle} variant='secondary' onClick={btnAction} /> </ButtonSection> }
     </Container>
 );
 

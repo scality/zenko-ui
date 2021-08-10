@@ -1,4 +1,4 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 // TEMPLATE
@@ -27,7 +27,7 @@ export const Row = styled.tr`
 
 export const Key = styled.td`
     white-space: nowrap;
-    padding: ${padding.small} 0px;
+    padding: ${spacing.sp8} 0px;
     color: ${props => props.theme.brand.textSecondary};
 `;
 
@@ -44,18 +44,18 @@ export const Value = styled.td`
 export const Title = styled.div`
     font-size: ${fontSize.larger};
     font-weight: bold;
-    margin: ${padding.large} 0 ${padding.large} 0;
+    margin: ${spacing.sp20} 0 ${spacing.sp20} 0;
 `;
 
 export const ExtraCell = styled.td`
-    padding-left: ${padding.large};
+    padding-left: ${spacing.sp20};
     min-width: 40px;
 `;
 
 export const Container = styled.div`
     display: block;
     width: fit-content;
-    margin: ${padding.base} 0 0 30px;
+    margin: ${spacing.sp16} 0 0 30px;
 `;
 
 const Table = styled.table`

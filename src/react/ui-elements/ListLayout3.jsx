@@ -1,5 +1,5 @@
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled, { css } from 'styled-components';
-import { padding } from '@scality/core-ui/dist/style/theme';
 
 export const Container = styled.div`
     display: flex;
@@ -10,15 +10,15 @@ export const Container = styled.div`
 `;
 
 export const BreadcrumbContainer = styled.div`
-    margin: 0px ${padding.small};
-    height: 22px;
+    margin: 0px ${spacing.sp8};
+    height: ${spacing.sp24};
     display: flex;
-    min-height: 22px;
-    padding: ${padding.smaller} 0px;
+    min-height: ${spacing.sp24};
+    padding: ${spacing.sp4} 0px;
     background-color: ${props => props.theme.brand.backgroundLevel1};
 
     .sc-breadcrumb_item {
-        font-size: ${padding.base};
+        font-size: ${fontSize.large};
     }
 `;
 
@@ -44,9 +44,9 @@ export const ListSection = styled.div`
     }}
     background-color: ${props => props.theme.brand.backgroundLevel2};
     min-width: 500px;
-    margin-left: 1px;
-    padding-bottom: ${padding.base};
-    padding-top: ${padding.base};
+    margin-left: ${spacing.sp1};
+    padding-bottom: ${spacing.sp16};
+    padding-top: ${spacing.sp16};
 `;
 
 export const ContentSection = styled.div`
@@ -55,11 +55,11 @@ export const ContentSection = styled.div`
     flex-direction: column;
 
     background-color: ${props => props.theme.brand.backgroundLevel4};
-    margin: 0px 1px;
+    margin: 0px ${spacing.sp1};
 `;
 
 export const CreationSection = styled.div`
     flex: 1;
-    padding: ${padding.larger} 40px;
+    padding: ${spacing.sp24} ${spacing.sp40};
     background-color: ${props => props.theme.brand.backgroundLevel4};
 `;

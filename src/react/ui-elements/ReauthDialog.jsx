@@ -2,10 +2,11 @@
 import { loadClients, networkAuthReset } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Button } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
@@ -32,8 +33,8 @@ const ReauthDialog = () => {
             close={() => reauth(pathname)}
             footer={
                 <div>
-                    { oidcLogout && <Button style={{ marginRight: '24px' }} icon={<i className="fas fa-sign-out-alt" />} variant="buttonSecondary" onClick={() => oidcLogout(true)} text='Log Out'/> }
-                    <Button variant="buttonPrimary" onClick={() => reauth(pathname)} text='Reload'/>
+                    { oidcLogout && <Button style={{ marginRight: spacing.sp24 }} icon={<i className="fas fa-sign-out-alt" />} variant="secondary" onClick={() => oidcLogout(true)} label='Log Out'/> }
+                    <Button variant="primary" onClick={() => reauth(pathname)} label='Reload'/>
                 </div>
             }
             isOpen={true}

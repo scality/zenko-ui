@@ -1,12 +1,13 @@
 // @flow
 import * as T from '../../ui-elements/TableKeyValue2';
-import { Button, Select, Toggle } from '@scality/core-ui';
 import { Controller, useForm } from 'react-hook-form';
 import type { Locations, Replication as ReplicationStream, ReplicationStreams } from '../../../types/config';
 import React, { useEffect } from 'react';
+import { Select, Toggle } from '@scality/core-ui';
 import { checkIfExternalLocation, checkSupportsReplicationTarget } from '../../utils/storageOptions';
 import { convertToReplicationForm, convertToReplicationStream, destinationOptions, generateStreamName, newReplicationForm, renderDestination, renderSource, sourceBucketOptions } from './utils';
 import { openWorkflowEditNotification, saveReplication } from '../../actions';
+import { Button } from '@scality/core-ui/dist/next';
 import { ErrorInput } from '../../ui-elements/FormLayout';
 import Input from '../../ui-elements/Input';
 import Joi from '@hapi/joi';
@@ -14,6 +15,7 @@ import { NoLocationWarning } from '../../ui-elements/Warning';
 import type { S3BucketList } from '../../../types/s3';
 import { joiResolver } from '@hookform/resolvers';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
@@ -259,8 +261,8 @@ function Replication({ replications, bucketList, locations, workflow, showEditWo
                 </T.Group>
             </T.Groups>
             <T.Footer>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: '24px' }} outlined onClick={handleCancel} text='Cancel'/>
-                <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="buttonPrimary" onClick={handleSubmit(onSubmit)} text={createMode ? 'Create' : 'Save Changes'}/>
+                <Button disabled={loading || !createMode && !showEditWorkflowNotification} id='cancel-workflow-btn' style={{ marginRight: spacing.sp24 }} variant="outline" onClick={handleCancel} label='Cancel'/>
+                <Button disabled={loading || !createMode && !showEditWorkflowNotification} icon={<i className="fas fa-save" />} id='create-workflow-btn' variant="primary" onClick={handleSubmit(onSubmit)} label={createMode ? 'Create' : 'Save Changes'}/>
             </T.Footer>
         </ReplicationContainer>
     );

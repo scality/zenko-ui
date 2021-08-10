@@ -1,10 +1,11 @@
 // @noflow
 import Table, * as T from '../../../ui-elements/TableKeyValue';
-import { formatBytes, formatDate } from '../../../utils';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
+import { PrettyBytes } from '@scality/core-ui';
 import React from 'react';
+import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 
 type Props = {
@@ -31,7 +32,7 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                     <T.Row>
                         <T.Key> Size </T.Key>
-                        <T.Value> {formatBytes(objectMetadata.contentLength)} </T.Value>
+                        <T.Value> <PrettyBytes bytes={objectMetadata.contentLength}/> </T.Value>
                     </T.Row>
                     <T.Row>
                         <T.Key> Modified On </T.Key>

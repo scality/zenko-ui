@@ -49,7 +49,7 @@ describe('Tags', () => {
         });
 
         // click on add button
-        firstItem.find('Button#addbtn0').simulate('click');
+        firstItem.find('button#addbtn0').simulate('click');
 
         // check if new item row added
         items = component.find(Item);
@@ -57,7 +57,7 @@ describe('Tags', () => {
 
         // check if function when pressing save button is triggered
         expect(putObjectTaggingMock).toHaveBeenCalledTimes(0);
-        component.find('Button#tags-button-save').simulate('click');
+        component.find('button#tags-button-save').simulate('click');
         expect(putObjectTaggingMock).toHaveBeenCalledTimes(1);
     });
 
@@ -70,8 +70,8 @@ describe('Tags', () => {
 
         // check if item row values are rendered
         const firstItem = items.first();
-        expect(firstItem.find('Button#addbtn0').prop('disabled')).toBe(true);
-        expect(firstItem.find('Button#delbtn0').prop('disabled')).toBe(true);
+        expect(firstItem.find('button#addbtn0').prop('disabled')).toBe(true);
+        expect(firstItem.find('button#delbtn0').prop('disabled')).toBe(true);
     });
 
     it('should render an Item with key/value pass in props', () => {
@@ -113,7 +113,7 @@ describe('Tags', () => {
         expect(secondItem.find('Button#addbtn1').prop('isVisible')).toBe(true);
 
         // check if there is only one key/value left after triggered remove button
-        firstItem.find('Button#delbtn0').simulate('click');
+        firstItem.find('button#delbtn0').simulate('click');
 
         // check if only one item row is rendered
         items = component.find(Item);

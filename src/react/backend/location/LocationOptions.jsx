@@ -5,7 +5,7 @@ import { default as BasicInput } from '../../ui-elements/Input';
 import type { LocationFormOptions } from '../../../types/location';
 import type { LocationName } from '../../../types/config';
 import React from 'react';
-import { padding } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 const isTransientEnabled = (locationType: LocationName) => {
@@ -15,7 +15,7 @@ const isTransientEnabled = (locationType: LocationName) => {
 
 export const Input = styled(BasicInput)`
     width: 50px;
-    margin: 0px ${padding.smaller};
+    margin: 0px ${spacing.sp4};
 `;
 
 type Props = {

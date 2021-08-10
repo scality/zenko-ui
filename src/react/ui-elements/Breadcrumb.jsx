@@ -4,14 +4,28 @@ import type { Account } from '../../types/account';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
 import type { Element } from 'react';
 import React from 'react';
+import { Select } from '@scality/core-ui/dist/next';
 import { push } from 'connected-react-router';
 import { selectAccountID } from '../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
-const Select = styled.select`
-    outline: 0px;
-    font-size: inherit;
+const CustomBreadCrumb = styled(CoreUIBreadcrumb)` 
+    .sc-breadcrumb_item {
+        display: flex;
+        align-items: center;
+
+        &:first-of-type {
+            display: block;
+            width: 150px;
+            text-decoration: none;
+            overflow: visible;
+            * {
+                color: ${props => props.theme.brand.textPrimary} !important;
+            }
+            border-bottom: 0 !important;
+        }
+    }
 `;
 
 const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
@@ -77,10 +91,10 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props){
             .then(() => dispatch(push('/buckets')));
     };
 
-    return <CoreUIBreadcrumb
+    return <CustomBreadCrumb
         paths={[
-            <Select key={0} onChange={e => switchAccount(e.target.value)} value={accountName}>
-                { accounts.map(account => <option key={account.userName} value={account.userName}>{account.userName}</option>)}
+            <Select key={0} onChange={switchAccount} value={accountName} variant="rounded">
+                { accounts.map(account => <Select.Option key={account.userName} value={account.userName}>{account.userName}</Select.Option>)}
             </Select>,
             ...breadcrumbPaths(pathname),
         ]}
@@ -105,10 +119,10 @@ export function BreadcrumbWorkflow({ accounts, accountName }: BreadcrumbWorkflow
             .then(() => dispatch(push('/workflows')));
     };
 
-    return <CoreUIBreadcrumb
+    return <CustomBreadCrumb
         paths={[
-            <Select key={0} onChange={e => switchAccount(e.target.value)} value={accountName}>
-                { accounts.map(account => <option key={account.userName} value={account.userName}>{account.userName}</option>)}
+            <Select key={0} onChange={switchAccount} value={accountName} variant="rounded">
+                { accounts.map(account => <Select.Option key={account.userName} value={account.userName}>{account.userName}</Select.Option>)}
             </Select>,
         ]}
     />;

@@ -10,8 +10,8 @@ import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
-import { padding } from '@scality/core-ui/dist/style/theme';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 import { useHeight } from '../../utils/hooks';
@@ -25,6 +25,7 @@ const initialSortBy = [
 
 const CustomBody = styled(T.Body)`
     flex: 1;
+    overflow: visible;
 `;
 
 export const Sizer = styled.div`
@@ -41,12 +42,12 @@ const Container = styled.div`
 
 const IconTooltip = styled.i`
     color: ${props => props.theme.brand.buttonSecondary};
-    margin-left: ${padding.smaller};
+    margin-left: ${spacing.sp4};
 `;
 
 const Overlay = styled.div`
     width: 220px;
-    padding: ${padding.small};
+    padding: ${spacing.sp8};
     text-align: left;
 `;
 
@@ -95,11 +96,12 @@ function Locations() {
                 id: 'actions',
                 Header: '',
                 accessor: 'name',
+                cellStyle: { overflow: 'visible' },
                 disableSortBy: true,
                 Cell({ value: locationName }: { value: LocationName}){
                     return <T.Actions>
-                        <T.ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} size="smaller" variant="buttonSecondary" text='' />
-                        <T.ActionButton disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints )} icon={<i className="fas fa-trash" />} onClick={() => handleDeleteClick(locationName)} size="smaller" variant="buttonDelete" text='' />
+                        <T.ActionButton disabled={!canEditLocation(locationName, locations)} icon={<i className="far fa-edit" />} tooltip={{ overlay: 'Edit Location', placement: 'top' }} onClick={() => dispatch(push(`/locations/${locationName}/edit`))} variant="secondary" />
+                        <T.ActionButton disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints )} icon={<i className="fas fa-trash" />} tooltip={{ overlay: 'Delete Location', placement: 'top' }} onClick={() => handleDeleteClick(locationName)} variant="danger" />
                     </T.Actions>;
                 },
             },
@@ -130,7 +132,7 @@ function Locations() {
         <Container id='location-list'>
             <T.SearchContainer>
                 <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Location Name' onChange={e => setFilter('name', e.target.value)}/> </T.Search>
-                <T.ExtraButton text="Create Location" icon={<i className="fas fa-plus" />} variant='buttonPrimary' onClick={() => dispatch(push('/create-location'))} size="default" type="submit" />
+                <T.ExtraButton label="Create Location" icon={<i className="fas fa-plus" />} variant='primary' onClick={() => dispatch(push('/create-location'))} type="submit" />
             </T.SearchContainer>
             <T.Container>
                 <Table {...getTableProps()}>
@@ -165,8 +167,9 @@ function Locations() {
                                             approve={() => dispatch(deleteLocation(locationName))}
                                             titleText={`Are you sure you want to delete location: ${locationName} ?`} />
                                         {row.cells.map(cell => {
+                                            const cellProps = cell.getCellProps();
                                             return (
-                                                <T.Cell key={cell.id} {...cell.getCellProps()} >
+                                                <T.Cell key={cell.id} {...cellProps} style={{ ...cell.column.cellStyle, ...cellProps.style }}>
                                                     {cell.render('Cell')}
                                                 </T.Cell>
                                             );

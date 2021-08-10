@@ -71,7 +71,7 @@ describe('BucketCreate', () => {
                 input.getDOMNode().value = t.testValue;
                 input.getDOMNode().dispatchEvent(new Event('input'));
 
-                component.find('Button#create-account-btn').simulate('click');
+                component.find('button#create-account-btn').simulate('click');
             });
 
             if (t.expectedEmptyNameError !== null) {

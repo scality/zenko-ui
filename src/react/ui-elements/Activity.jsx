@@ -2,6 +2,7 @@
 import type { AppState } from '../../types/state';
 import { Loader } from '@scality/core-ui';
 import React from 'react';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
@@ -14,7 +15,7 @@ const ActivityContainer = styled.div`
     padding: 1em;
     margin: 2em;
     background-color: ${props => props.theme.brand.highlight};
-    border-radius: 6px;
+    border-radius: ${spacing.sp8};
     vertical-align: 50%;
     z-index: 1100;
 

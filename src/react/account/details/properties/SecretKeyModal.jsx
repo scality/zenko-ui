@@ -1,14 +1,16 @@
 // @flow
 import type { Account, AccountKey } from '../../../../types/account';
-import { Banner, Button } from '@scality/core-ui';
 import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
-import { closeAccountKeyCreateModal, createAccountAccessKey, deleteAccountSecret } from '../../../actions/account';
+import { closeAccountKeyCreateModal, createAccountAccessKey, deleteAccountSecret } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
+import { Banner } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideCredential } from '../../../ui-elements/Hide';
 import React from 'react';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 
 type Props = {
     account: Account,
@@ -36,16 +38,16 @@ function SecretKeyModal({ account }: Props) {
         const isFirstModal = key === null;
         if (isFirstModal) {
             return <div>
-                <Button outlined onClick={handleClose} text='Cancel' />
+                <Button variant="outline" onClick={handleClose} label="Cancel" />
                 <Button
                     icon={<i className="fas fa-arrow-right" />}
-                    variant="buttonPrimary"
-                    size="default"
+                    variant="primary"
                     onClick={handleAccessKeyCreate}
-                    text='Continue'/>
+                    label="Continue"
+                />
             </div>;
         }
-        return <Button onClick={handleClose} variant="buttonPrimary" text='Close' />;
+        return <Button onClick={handleClose} variant="primary" label="Close" />;
     };
 
     return (
@@ -77,7 +79,7 @@ const modalBody = (key: AccountKey | null) => {
             The Secret Access key cannot be retrieved afterwards, so make sure to keep and secure it now. <br/>
             You will be able to create new Access keys at any time.
         </Banner>
-        <Table style={{ marginTop: '16px' }}>
+        <Table style={{ marginTop: spacing.sp16 }}>
             <T.Body>
                 <T.Row>
                     <T.Key> Account name </T.Key>
@@ -90,7 +92,7 @@ const modalBody = (key: AccountKey | null) => {
                 </T.Row>
                 <T.Row>
                     <T.Key> Secret Access key </T.Key>
-                    <T.Value> <HideCredential>  { key.secretKey } </HideCredential> </T.Value>
+                    <T.Value> <HideCredential credentials={key.secretKey}/> </T.Value>
                     <T.ExtraCell> <Clipboard text={ key.secretKey }/> </T.ExtraCell>
                 </T.Row>
             </T.Body>

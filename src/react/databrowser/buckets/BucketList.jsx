@@ -9,9 +9,11 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import type { S3BucketList } from '../../../types/s3';
 import { TextAligner } from '../../ui-elements/Utility';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { formatShortDate } from '../../utils';
 import { getLocationTypeFromName } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 
 type Props = {
@@ -47,12 +49,14 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
         {
             Header: 'Created on',
             accessor: 'CreationDate',
-            headerStyle: { textAlign: 'right', paddingRight: '32px' },
-            Cell({ value }: { value: string }) { return (
-                <TextAligner alignment='right' style={{ paddingRight: '16px' }}>
-                    {formatShortDate(new Date(value))}
-                </TextAligner>
-            );},
+            headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
+            Cell({ value }: { value: string }) {
+                return (
+                    <TextAligner alignment='right' style={{ paddingRight: spacing.sp16 }}>
+                        {formatShortDate(new Date(value))}
+                    </TextAligner>
+                );
+            },
         },
     ], [locations, handleCellClicked]);
 
@@ -74,7 +78,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
     return <L.ListSection id='bucket-list'>
         <T.SearchContainer>
             <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
-            <T.ExtraButton icon={<i className="fas fa-plus" />} text="Create Bucket" variant="buttonPrimary" onClick={() => dispatch(push('/create-bucket'))} size="default" type="submit" />
+            <T.ExtraButton icon={<i className="fas fa-plus" />} label="Create Bucket" variant="primary" onClick={() => dispatch(push('/create-bucket'))} type="submit" />
         </T.SearchContainer>
         <T.Container>
             <Table {...getTableProps()}>
@@ -108,7 +112,7 @@ export default function BucketList({ selectedBucketName, buckets, locations }: P
                                 ref={listRef}
                                 height={height || 300}
                                 itemCount={rows.length}
-                                itemSize={45}
+                                itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
                                 width={width || '100%'}
                                 itemData={createItemData(rows, prepareRow, selectedBucketName, dispatch)}
                             >

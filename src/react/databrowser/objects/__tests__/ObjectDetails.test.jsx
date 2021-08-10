@@ -6,6 +6,7 @@ import ObjectDetails, {
     SELECT_AN_OBJECT_MESSAGE,
 } from '../ObjectDetails';
 import { List } from 'immutable';
+import { MemoryRouter } from 'react-router-dom';
 import { OBJECT_METADATA } from '../../../actions/__tests__/utils/testUtil';
 import Properties from '../details/Properties';
 import React from 'react';
@@ -22,7 +23,9 @@ describe('ObjectDetails', () => {
     });
 
     it('should display "Summary" tab when there is one toggled object', async () => {
-        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>
+        </MemoryRouter>, {
             s3: {
                 objectMetadata: OBJECT_METADATA,
             },
@@ -34,7 +37,9 @@ describe('ObjectDetails', () => {
     it('should display nothing in "Tags" tab when there is one toggled object', () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>
+        </MemoryRouter>, {
             s3: {
                 objectMetadata: OBJECT_METADATA,
             },
@@ -47,7 +52,9 @@ describe('ObjectDetails', () => {
     it('should display nothing in "Metadata" tab when there is one toggled object', () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>, {
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])}/>
+        </MemoryRouter>, {
             s3: {
                 objectMetadata: OBJECT_METADATA,
             },
@@ -58,8 +65,9 @@ describe('ObjectDetails', () => {
     });
 
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Summary" tab when there are more than one toggled object`, async () => {
-        const { component } = reduxMount(<ObjectDetails
-            toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(MULTIPLE_ITEMS_SELECTED_MESSAGE);
@@ -68,8 +76,9 @@ describe('ObjectDetails', () => {
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Tabs" tab when there are more than one toggled object`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails
-            toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(MULTIPLE_ITEMS_SELECTED_MESSAGE);
@@ -78,15 +87,18 @@ describe('ObjectDetails', () => {
     it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Metadata" tab when there are more than one toggled object`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails
-            toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(MULTIPLE_ITEMS_SELECTED_MESSAGE);
     });
 
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Summary" tab if no object has been toggled`, async () => {
-        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List()}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);
@@ -95,7 +107,9 @@ describe('ObjectDetails', () => {
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Tabs" tab if no object has been toggled`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=tags'));
 
-        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List()}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);
@@ -104,7 +118,9 @@ describe('ObjectDetails', () => {
     it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Metadata" tab if no object has been toggled`, () => {
         jest.spyOn(hooks, 'useQuery').mockReturnValue(new URLSearchParams('?tab=metadata'));
 
-        const { component } = reduxMount(<ObjectDetails toggled={List()}/>);
+        const { component } = reduxMount(<MemoryRouter initialEntries={['/buckets/test/objects']}>
+            <ObjectDetails toggled={List()}/>
+        </MemoryRouter>);
 
         expect(component.find(InfoWarning)).toHaveLength(1);
         expect(component.find(InfoWarning).prop('title')).toBe(SELECT_AN_OBJECT_MESSAGE);

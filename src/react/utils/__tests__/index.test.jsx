@@ -1,7 +1,6 @@
 import {
     addTrailingSlash,
     errorParser,
-    formatBytes,
     formatDate,
     maybePluralize,
     stripQuotes,
@@ -99,20 +98,6 @@ describe('functions utils', () => {
         const date = 'Mon Oct 12 2020 17:28:03';
 
         expect(formatDate(new Date(date))).toBe(date);
-    });
-
-    it('should return a string formatted which reflect the size', () => {
-        expect(formatBytes(0)).toBe('0 B');
-        expect(formatBytes(1)).toBe('1.0 B');
-        expect(formatBytes(Math.pow(1024, 1))).toBe('1.0 KiB');
-        expect(formatBytes(Math.pow(1024, 2))).toBe('1.0 MiB');
-        expect(formatBytes(Math.pow(1024, 3))).toBe('1.0 GiB');
-        expect(formatBytes(Math.pow(1024, 4))).toBe('1.0 TiB');
-        expect(formatBytes(Math.pow(1024, 5))).toBe('1.0 PiB');
-        expect(formatBytes(Math.pow(1024, 6))).toBe('1.0 EiB');
-        expect(formatBytes(Math.pow(1024, 7))).toBe('1.0 ZiB');
-        expect(formatBytes(Math.pow(1024, 8))).toBe('1.0 YiB');
-        expect(formatBytes(Math.pow(1024, 8), 2)).toBe('1.00 YiB');
     });
 
     const urls = ['', '/buckets/', '/buckets', '/buckets/bucket1', '/buckets/bucket1/test/'];

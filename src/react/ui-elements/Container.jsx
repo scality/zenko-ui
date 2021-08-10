@@ -1,11 +1,11 @@
-import { fontSize, padding } from '@scality/core-ui/dist/style/theme';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 const MainContainer = styled.div`
     display: flex;
     width: 100%;
     height: 100vh;
-    overflow: auto;
+    overflow: hidden;
 
     color: ${props => props.theme.brand.textPrimary};
     font-size: ${fontSize.base};
@@ -19,8 +19,8 @@ const Container = styled.div`
     flex-direction: column;
 
     max-width: 600px;
-    margin: ${padding.small};
-    padding: ${padding.large};
+    margin: ${spacing.sp8};
+    padding: ${spacing.sp20};
     background-color: ${props => props.theme.brand.backgroundLevel1};
 `;
 
@@ -28,7 +28,7 @@ const ContainerFooter = styled.div`
     display: flex;
     justify-content: flex-end;
 
-    margin-top: ${padding.small};
+    margin-top: ${spacing.sp8};
 `;
 
 const LoaderContainer = styled.div`
