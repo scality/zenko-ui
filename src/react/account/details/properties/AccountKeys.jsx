@@ -58,9 +58,7 @@ function AccountKeys({ account }: Props) {
             accessor: 'access_key',
             Cell({ value: access_key }: { value: string }) {
                 return <span style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <Tooltip overlay={ access_key } placement='right'>
-                        <EllipsisCell>{ access_key }</EllipsisCell>
-                    </Tooltip>
+                    <EllipsisCell>{ access_key }</EllipsisCell>
                     <div style={{ marginLeft: spacing.sp16 }}>
                         <Clipboard text={ access_key }/>
                     </div>
@@ -86,7 +84,6 @@ function AccountKeys({ account }: Props) {
             Cell({ value: access_key }: { value: string }) {
                 return (
                     <Button
-                        label='Remove Key'
                         disabled={false}
                         icon={<i className='fas fa-trash' />}
                         onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}

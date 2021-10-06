@@ -28,7 +28,7 @@ export function HideCredential({ credentials }: { credentials: string }) {
     const [shown, setShown] = useState(false);
     return <HideContainer>
         <HideValue shown={shown}>
-            { shown ? <MiddleEllipsis text={credentials} tooltipPlacement="top"/> : '*********' }
+            { shown ? <MiddleEllipsis text={credentials} tooltipPlacement="top" tooltipWidth="21rem"/> : '*********' }
         </HideValue>
         <HideAction onClick={() => setShown(!shown)}>
             { shown ? 'Hide' : 'Show' }

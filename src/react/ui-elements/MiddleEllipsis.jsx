@@ -56,6 +56,7 @@ type Props = {
     ellipsisText?: string;
     tooltipPlacement?: string;
     width?: number;
+    tooltipWidth?: string;
 };
 
 const MiddleEllipsis = ({
@@ -64,6 +65,7 @@ const MiddleEllipsis = ({
     ellipsisText = '...',
     tooltipPlacement = 'bottom',
     width,
+    tooltipWidth,
 }: Props) => {
     const [node, setNode] = useState(null);
     const [isEllipsized, setIsEllipsized] = useState(true);
@@ -108,7 +110,7 @@ const MiddleEllipsis = ({
     }, []);
 
     const content = () => (
-        <Tooltip overlay={ text } placement={ tooltipPlacement }>
+        <Tooltip overlay={ text } placement={ tooltipPlacement } overlayStyle={{ width: tooltipWidth }}>
             <StyledMiddleEllipsis ref={ ref }>
                 <MiddleEllipsisText
                     calculationDone={calculationDone}

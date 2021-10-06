@@ -60,7 +60,7 @@ function AccountCreate() {
         <F.Form autoComplete='off' ref={formRef}>
             <F.Title> Create New Account </F.Title>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Must be unique']}>
+                <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
                     Name
                 </F.Label>
                 <F.Input
@@ -73,7 +73,10 @@ function AccountCreate() {
                 <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
             </F.Fieldset>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}>
+                <F.Label
+                    tooltipMessages={['Must be unique', 'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose']}
+                    tooltipWidth="20rem"
+                >
                     Root Account Email
                 </F.Label>
                 <F.Input
