@@ -8,6 +8,8 @@ import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
 import type { AppState } from '../types/state';
 import DataBrowser from './databrowser/DataBrowser';
+import EndpointCreate from './endpoint/EndpointCreate';
+import Endpoints from './endpoint/Endpoints';
 import Loader from './ui-elements/Loader';
 import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from './Navbar';
@@ -54,6 +56,9 @@ function PrivateRoutes() {
             <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
 
             <Route path={['/create-workflow', '/workflows/:workflowId?']} component={Workflows} />
+
+            <Route exact path="/create-dataservice" component={EndpointCreate} />
+            <Route exact path="/dataservices" component={Endpoints} />
 
             <Route path="*" component={NoMatch}/>
         </Switch>

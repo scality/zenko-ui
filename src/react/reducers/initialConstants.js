@@ -159,6 +159,7 @@ export const initialInstanceStatus: InstanceStatusState = {
     },
 };
 export const initialLocationsUIState = { showDeleteLocation: '' };
+export const initialEndpointsUIState = { showDelete: '' };
 export const initialNetworkActivityState: NetworkActivityState = { counter: 0, messages: List() };
 export const initialOidc: OIDCState = {
     user: null,
@@ -219,6 +220,7 @@ export const initialFullState = {
     uiConfig: initialConfigUIState,
     uiUser: initialUserUIState,
     uiLocations: initialLocationsUIState,
+    uiEndpoints: initialEndpointsUIState,
     uiObjects: initialObjectUIState,
     uiErrors: initialErrorsUIState,
     uiBuckets: initialBucketUIState,

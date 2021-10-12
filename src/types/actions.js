@@ -3,7 +3,7 @@ import type { AccessKey, Account, SecretKey } from './account';
 import type { AppConfig, InstanceId, Theme } from './entities';
 import type { AuthUser, OidcLogoutFunction } from './auth';
 import type { BucketInfo, CommonPrefix, HeadObjectResponse, S3Bucket, S3DeleteMarker, S3Object, S3Version, TagSet } from './s3';
-import type { ConfigurationOverlay, LocationName } from './config';
+import type { ConfigurationOverlay, Hostname, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
@@ -406,6 +406,19 @@ export type SecretsAction =
     AddAccountSecretAction |
     DeleteAccountSecretAction;
 
+export type OpenEndpointDeleteDialogAction = {|
+    +type: 'OPEN_ENDPOINT_DELETE_DIALOG',
+    +hostname: Hostname,
+|};
+
+export type CloseEndpointDeleteDialogAction = {|
+    +type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
+|};
+
+export type EndpointsUIAction =
+    OpenEndpointDeleteDialogAction |
+    CloseEndpointDeleteDialogAction;
+
 export type Action =
     AccountAction |
     AuthAction |
@@ -417,6 +430,7 @@ export type Action =
     ThunkNonStateAction |
     ThunkStatePromisedAction |
     ThunkNonStatePromisedAction |
+    EndpointsUIAction |
     ErrorsUIAction |
     SelectInstanceAction |
     SecretsAction |

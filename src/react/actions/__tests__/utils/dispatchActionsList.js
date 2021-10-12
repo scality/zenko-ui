@@ -21,6 +21,7 @@ import type {
     AddAccountSecretAction,
     CloseAccountDeleteDialogAction,
     CloseBucketDeleteDialogAction,
+    CloseEndpointDeleteDialogAction,
     CloseFolderCreateModalAction,
     CloseLocationDeleteDialogAction,
     CloseObjectDeleteModalAction,
@@ -44,6 +45,7 @@ import type {
     NetworkActivityStartAction,
     OpenAccountDeleteDialogAction,
     OpenBucketDeleteDialogAction,
+    OpenEndpointDeleteDialogAction,
     OpenFolderCreateModalAction,
     OpenLocationDeleteDialogAction,
     OpenObjectDeleteModalAction,
@@ -68,7 +70,7 @@ import type {
     ZenkoWriteSearchListAction,
 } from '../../../../types/actions';
 import type { CommonPrefix, HeadObjectResponse, S3Bucket, S3Object, TagSet } from '../../../../types/s3';
-
+import type { Hostname, LocationName } from '../../../../types/config';
 import type {
     Marker,
     SearchResultList,
@@ -76,7 +78,6 @@ import type {
     ZenkoClient as ZenkoClientInterface,
 } from '../../../../types/zenko';
 import { CALL_HISTORY_METHOD } from 'connected-react-router';
-import type { LocationName } from '../../../../types/config';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 
@@ -181,6 +182,13 @@ export const OPEN_LOCATION_DELETE_DIALOG_ACTION =
 
 export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction =
     { type: 'CLOSE_LOCATION_DELETE_DIALOG' };
+
+// * endpoint actions
+export const OPEN_ENDPOINT_DELETE_DIALOG_ACTION =
+    (hostname: Hostname): OpenEndpointDeleteDialogAction => ({ type: 'OPEN_ENDPOINT_DELETE_DIALOG', hostname });
+
+export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogAction =
+    { type: 'CLOSE_ENDPOINT_DELETE_DIALOG' };
 
 // * buckets actions
 export const LIST_BUCKETS_SUCCESS_ACTION = (list: Array<S3Bucket>, ownerName: string): ListBucketsSuccessAction =>

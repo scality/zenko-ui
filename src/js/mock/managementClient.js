@@ -7,7 +7,7 @@ import type {
     ApiConfigurationResponse,
     ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import type { ConfigurationOverlay, Location, Replication } from '../../types/config';
+import type { ConfigurationOverlay, Endpoint, Location, Replication } from '../../types/config';
 import type { APIWorkflows } from '../../types/workflow';
 import { ApiErrorObject } from './error';
 import type { InstanceStatus } from '../../types/stats';
@@ -85,6 +85,12 @@ export const instanceStatus: InstanceStatus = {
     },
 };
 
+export const endpoint: Endpoint = {
+    hostname: 's3.example.com',
+    locationName: 'us-east-1',
+    isBuiltin: false,
+};
+
 export class MockManagementClient implements ManagementClientInterface {
     createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
         return Promise.resolve({
@@ -147,6 +153,16 @@ export class MockManagementClient implements ManagementClientInterface {
             body: instanceStatus,
         });
     }
+
+    createConfigurationOverlayEndpoint(): Promise<{ body: Endpoint }> {
+        return Promise.resolve({
+            body: endpoint,
+        });
+    }
+
+    deleteConfigurationOverlayEndpoint(): Promise<void> {
+        return Promise.resolve();
+    }
 }
 
 export class ErrorMockManagementClient implements ManagementClientInterface {
@@ -197,6 +213,14 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     }
 
     generateKeyConfigurationOverlayUser(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    createConfigurationOverlayEndpoint(): Promise<void> {
+        return Promise.reject(this._error);
+    }
+
+    deleteConfigurationOverlayEndpoint(): Promise<void> {
         return Promise.reject(this._error);
     }
 }

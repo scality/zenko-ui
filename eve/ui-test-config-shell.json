@@ -9,6 +9,7 @@
     },
     "options": {
       "main": {
+          "http://127.0.0.1:8383/dataservices":{ "en": "Data Services" },
           "http://127.0.0.1:8383/accounts":{ "en": "Accounts" },
           "http://127.0.0.1:8383/buckets":{ "en": "Data Browser" },
           "http://127.0.0.1:8383/workflows":{ "en": "Workflows" }
