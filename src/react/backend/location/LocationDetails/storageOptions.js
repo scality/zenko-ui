@@ -21,6 +21,16 @@ export const storageOptions: ({ [name: string]: any }) = {
         hasIcon: false,
         checkCapability: 'locationTypeHyperdriveV2',
     },
+    'location-scality-artesca-s3-v1': {
+        name: 'Scality Artesca S3',
+        short: 'ARTESCA',
+        formDetails: LocationDetailsAwsCustom,
+        supportsVersioning: true,
+        supportsReplicationTarget: true,
+        supportsReplicationSource: true,
+        hasIcon: false,
+        checkCapability: 'locationTypeS3Custom',
+    },
     'location-scality-ring-s3-v1': {
         name: 'Scality RING with S3 Connector',
         short: 'RING',
