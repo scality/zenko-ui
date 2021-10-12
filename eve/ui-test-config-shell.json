@@ -11,7 +11,8 @@
       "main": {
           "http://127.0.0.1:8383/accounts":{ "en": "Accounts" },
           "http://127.0.0.1:8383/buckets":{ "en": "Data Browser" },
-          "http://127.0.0.1:8383/workflows":{ "en": "Workflows" }
+          "http://127.0.0.1:8383/workflows":{ "en": "Workflows" },
+          "http://127.0.0.1:8383/dataservice":{ "en": "Data Service" }
       },
       "subLogin": {}
     },

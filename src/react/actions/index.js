@@ -1,6 +1,7 @@
 export * from './account';
 export * from './auth';
 export * from './configuration';
+export * from './endpoint';
 export * from './error';
 export * from './location';
 export * from './network';
