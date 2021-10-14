@@ -1,30 +1,24 @@
 // @noflow
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
-import { Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from '../../../actions';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
+import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import React from 'react';
 import SecretKeyModal from './SecretKeyModal';
+import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
+import styled from 'styled-components';
+
+
 
 const TableContainer = styled.div`
     display: flex;
     flex-direction: column;
-`;
-
-const TitleRow = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: ${spacing.sp16};
 `;
 
 type Props = {
