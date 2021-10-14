@@ -1,5 +1,4 @@
 // @noflow
-
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { closeAccountDeleteDialog, deleteAccount, openAccountDeleteDialog } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,8 +10,11 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import React from 'react';
 import SecretKeyModal from './SecretKeyModal';
+import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
+
+
 
 const TableContainer = styled.div`
     display: flex;
@@ -47,10 +49,12 @@ function AccountInfo({ account }: Props) {
         <TableContainer>
             <DeleteConfirmation show={showDelete} cancel={handleDeleteCancel} approve={handleDeleteApprove} titleText={`Are you sure you want to delete account: ${account.userName} ?`}/>
             <SecretKeyModal account={account} />
-            <ButtonContainer>
-                <Button id='delete-account-btn' icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} variant="danger" label='Delete Account' />
-            </ButtonContainer>
-            <h3>Account details</h3>
+            <TitleRow>
+                <h3>Account details</h3>
+                <ButtonContainer>
+                    <Button id='delete-account-btn' icon={<i className="fas fa-trash" />} onClick={handleDeleteClick} variant="danger" label='Delete Account' />
+                </ButtonContainer>
+            </TitleRow>
             <Table id='account-details-table'>
                 <T.Body>
                     <T.Row>

@@ -64,4 +64,11 @@ const Table = styled.table`
     width: 100%;
 `;
 
+export const TitleRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: ${spacing.sp16};
+`;
+
 export default Table;
