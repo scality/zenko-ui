@@ -1,0 +1,41 @@
+---
+name: pre-merge
+
+on:
+  push:
+    branches:
+      - 'user/**'
+      - 'feature/**'
+      - 'improvement/**'
+      - 'bugfix/**'
+      - 'w/**'
+      - 'q/**'
+
+
+jobs:
+  pre-merge:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: install dependencies
+        run: npm config set unsafe-perm true && npm ci
+      - name: run eslint test
+        run: npm run test:lint
+      - name: run test suite
+        run: npm run test:coverage
+      - name:  build assets
+        run: npm run build
+      - name: login to docker registry
+        run: >-
+          docker login
+          --username '${{ secrets.REGISTRY_LOGIN }}'
+          --password '${{ secrets.REGISTRY_PASSWORD }}'
+          registry.scality.com
+      - name: build docker image
+        run: >-
+          set -exu;
+          docker build --pull -t registry.scality.com/zenko-ui-dev/zenko-ui:$(echo "${{ github.sha }}" | head -c10 ) .;
+      - name: publish docker image to Scality OCI registry
+        run: >-
+          set -exu;
+          docker push registry.scality.com/zenko-ui-dev/zenko-ui:$(echo "${{ github.sha }}" | head -c10 );
