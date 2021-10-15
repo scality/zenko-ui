@@ -1,5 +1,4 @@
 // @flow
-import { Banner, Tooltip } from '@scality/core-ui';
 import { HideMe, TextAligner } from '../../../ui-elements/Utility';
 import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
@@ -8,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
+import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
