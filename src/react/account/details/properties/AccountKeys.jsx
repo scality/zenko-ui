@@ -1,5 +1,4 @@
 // @flow
-import { Banner, Tooltip } from '@scality/core-ui';
 import { HideMe, TextAligner } from '../../../ui-elements/Utility';
 import React, { useEffect, useMemo } from 'react';
 import Table, * as T from '../../../ui-elements/Table';
@@ -8,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
+import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
@@ -57,9 +57,7 @@ function AccountKeys({ account }: Props) {
             accessor: 'access_key',
             Cell({ value: access_key }: { value: string }) {
                 return <span style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                    <Tooltip overlay={ access_key } placement='right'>
-                        <EllipsisCell>{ access_key }</EllipsisCell>
-                    </Tooltip>
+                    <EllipsisCell>{ access_key }</EllipsisCell>
                     <div style={{ marginLeft: spacing.sp16 }}>
                         <Clipboard text={ access_key }/>
                     </div>
@@ -85,7 +83,6 @@ function AccountKeys({ account }: Props) {
             Cell({ value: access_key }: { value: string }) {
                 return (
                     <Button
-                        label='Remove Key'
                         disabled={false}
                         icon={<i className='fas fa-trash' />}
                         onClick={() => dispatch(deleteAccountAccessKey(account.userName, access_key))}

@@ -27,7 +27,9 @@ function Properties({ objectMetadata }: Props) {
                     </T.Row>
                     <T.Row hidden={!objectMetadata.versionId}>
                         <T.Key> Version ID </T.Key>
-                        <TruncatedValue copiable> <MiddleEllipsis text={objectMetadata.versionId} trailingCharCount={7} /> </TruncatedValue>
+                        <TruncatedValue copiable>
+                            <MiddleEllipsis text={objectMetadata.versionId} trailingCharCount={7} tooltipWidth="16rem"/>
+                        </TruncatedValue>
                         <T.ExtraCell> <Clipboard text={objectMetadata.versionId}/> </T.ExtraCell>
                     </T.Row>
                     <T.Row>

@@ -70,7 +70,7 @@ function BucketCreate() {
         <F.Form ref={formRef}>
             <F.Title> Create a New Bucket </F.Title>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']}>
+                <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']} tooltipWidth="15rem">
                     Bucket Name
                 </F.Label>
                 <F.Input
@@ -83,7 +83,7 @@ function BucketCreate() {
                 <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
             </F.Fieldset>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Cannot be modified after creation']}>
+                <F.Label tooltipMessages={['Cannot be modified after creation']} tooltipWidth="13rem">
                     Select Storage Location
                 </F.Label>
                 <Controller

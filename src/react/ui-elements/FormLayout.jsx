@@ -113,21 +113,30 @@ const UlOverlay = styled.ul`
 type LabelProps = {
     children: Node,
     tooltipMessages?: Array<string>,
+    tooltipWidth?: string,
 };
 
-export const Label = ({ children, tooltipMessages }: LabelProps) => (
+export const Label = ({ children, tooltipMessages, tooltipWidth }: LabelProps) => (
     <LabelContainer>
         { children }
         {
-            tooltipMessages && tooltipMessages.length > 0 && <TooltipContainer> <Tooltip
-                overlay= {
-                    <UlOverlay>
-                        { tooltipMessages.map((message, i) => <li key={i}> {message} </li>) }
-                    </UlOverlay>}
-                placement="right"
-            >
-                <IconQuestionCircle className='fas fa-question-circle'></IconQuestionCircle>
-            </Tooltip> </TooltipContainer>
+            tooltipMessages && tooltipMessages.length > 0 && (
+                <TooltipContainer>
+                    <Tooltip
+                        overlay= {
+                            tooltipMessages.length > 1 ? (
+                                <UlOverlay>
+                                    { tooltipMessages.map((message, i) => <li key={i}> {message} </li>) }
+                                </UlOverlay>
+                            ) : tooltipMessages[0]
+                        }
+                        placement="right"
+                        overlayStyle={{ width: tooltipWidth }}
+                    >
+                        <IconQuestionCircle className='fas fa-question-circle'></IconQuestionCircle>
+                    </Tooltip>
+                </TooltipContainer>
+            )
         }
     </LabelContainer>
 );
