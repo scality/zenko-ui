@@ -150,6 +150,8 @@ stages:
     worker: *worker
     steps:
       - Git: *clone
+      - ShellCommand: *npm-install
+      - ShellCommand: *npm-build
       - ShellCommand:
           name: Checkout tag
           command: git checkout refs/tags/%(prop:tag)s
