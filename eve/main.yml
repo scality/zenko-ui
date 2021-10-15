@@ -151,17 +151,17 @@ stages:
     steps:
       - Git: *clone
       - ShellCommand:
-        name: Checkout tag
-        command: git checkout refs/tags/%(prop:tag)s
+          name: Checkout tag
+          command: git checkout refs/tags/%(prop:tag)s
       - ShellCommand: *wait-docker-daemon
       - ShellCommand: *docker-login
       - ShellCommand:
-        name: docker build
-        command: >-
-          docker build .
-          --tag=${SCALITY_OCI_REPO}:%(prop:tag)s
-        env: *deploy-env
+          name: docker build
+          command: >-
+            docker build .
+            --tag=${SCALITY_OCI_REPO}:%(prop:tag)s
+          env: *deploy-env
       - ShellCommand:
-        name: publish docker image to Scality Production OCI registry
-        command: docker push ${SCALITY_OCI_REPO}:%(prop:tag)s
-        env: *deploy-env
+          name: publish docker image to Scality Production OCI registry
+          command: docker push ${SCALITY_OCI_REPO}:%(prop:tag)s
+          env: *deploy-env
