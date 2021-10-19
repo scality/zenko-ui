@@ -7,6 +7,7 @@ import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import BucketCreate from './buckets/BucketCreate';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';
+import ListLayoutButtons from '../ui-elements/ListLayoutButtons';
 import Objects from './objects/Objects';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
@@ -47,6 +48,7 @@ export default function DataBrowser(){
     return <L.Container>
         <L.BreadcrumbContainer>
             <Breadcrumb accounts={accounts} accountName={accountName} pathname={pathname} />
+            <ListLayoutButtons />
         </L.BreadcrumbContainer>
         <Switch>
             <Route exact strict path='/buckets/:bucketName/objects' component={Objects} />

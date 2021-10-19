@@ -17,6 +17,7 @@ export const BreadcrumbContainer = styled.div`
     display: flex;
     min-height: ${spacing.sp24};
     padding: ${spacing.sp4} 0px;
+    justify-content: space-between;
 
     .sc-breadcrumb_item {
         font-size: ${fontSize.large};
