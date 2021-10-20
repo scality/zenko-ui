@@ -1,9 +1,5 @@
 // @flow
-import {
-  isVersioning,
-  METADATA_SYSTEM_TYPE,
-  METADATA_USER_TYPE,
-} from '../react/utils';
+import { METADATA_USER_TYPE, METADATA_SYSTEM_TYPE } from '../react/utils';
 import { List } from 'immutable';
 
 export interface S3Client {}

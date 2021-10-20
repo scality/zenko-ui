@@ -1,11 +1,11 @@
 // @flow
+import { Banner, Toggle } from '@scality/core-ui';
 import { Controller, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
-import { Banner, Toggle } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers';
