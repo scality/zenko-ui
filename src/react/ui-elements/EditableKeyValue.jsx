@@ -7,171 +7,184 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Container = styled.div`
-    flex: 1;
+  flex: 1;
 `;
 
 export const Items = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Item = styled.div`
-    display:flex;
-    flex-direction:row;
-    align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-    margin-bottom: ${spacing.sp4};
-    // For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
-    // the first parent is .sc-scrollbar
-    .sc-scrollbar {
-        flex: 0 ${props => props.isShrink ? '36%' : '53%'};
-        width: ${props => props.isShrink ? '36%' : '53%'};
-        min-width: ${props => props.isShrink ? '36%' : '53%'};
-    }
+  margin-bottom: ${spacing.sp4};
+  // For Select we adjust width of the sc-scrollbar div because in CoreUI.SelectV2
+  // the first parent is .sc-scrollbar
+  .sc-scrollbar {
+    flex: 0 ${props => (props.isShrink ? '36%' : '53%')};
+    width: ${props => (props.isShrink ? '36%' : '53%')};
+    min-width: ${props => (props.isShrink ? '36%' : '53%')};
+  }
 `;
 
 export const Header = styled.div`
-    display:flex;
-    flex-direction:row;
-    width: calc(100% - 100px);
-    margin-bottom: ${spacing.sp8};
+  display: flex;
+  flex-direction: row;
+  width: calc(100% - 100px);
+  margin-bottom: ${spacing.sp8};
 `;
 
 export const HeaderKey = styled.div`
-    flex: 0 60%;
-    padding-left: ${spacing.sp8};
+  flex: 0 60%;
+  padding-left: ${spacing.sp8};
 `;
 
 export const HeaderValue = styled.div`
-    flex: 0 40%;
-    padding-left: ${spacing.sp8};
+  flex: 0 40%;
+  padding-left: ${spacing.sp8};
 `;
 
 export const HeaderKeyTag = styled.div`
-    flex: 0 50%;
-    padding-left: ${spacing.sp8};
+  flex: 0 50%;
+  padding-left: ${spacing.sp8};
 `;
 
 export const HeaderValueTag = styled.div`
-    flex: 0 50%;
-    padding-left: ${spacing.sp8};
+  flex: 0 50%;
+  padding-left: ${spacing.sp8};
 `;
 
 export const Footer = styled.div`
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
 
-    margin-bottom: ${spacing.sp4};
+  margin-bottom: ${spacing.sp4};
 `;
 
 export const Buttons = styled.div`
-    display: flex;
-    flex: 0 0 100px;
-    & > * {
-        margin-right: ${spacing.sp2};
-    }
+  display: flex;
+  flex: 0 0 100px;
+  & > * {
+    margin-right: ${spacing.sp2};
+  }
 `;
 
 export const Inputs = styled.div`
-    display: flex;
-    flex: 1 1 auto;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: space-between;
 
-    margin-right: ${spacing.sp4};
+  margin-right: ${spacing.sp4};
 `;
 
 // NOTE: use for x-amz-meta extra key value
 export const InputExtraKey = styled(Input)`
-    flex: 0 28%;
-    width: 28%;
-    min-width: 28%;
+  flex: 0 28%;
+  width: 28%;
+  min-width: 28%;
 `;
 
 export const InputValue = styled(Input)`
-    flex: 0 ${props => props.isShrink ? '22%' : '39%'};
-    width: ${props => props.isShrink ? '22%' : '39%'};
-    min-width: ${props => props.isShrink ? '22%' : '39%'};
-    background-color: ${props => props.theme.brand.backgroundLevel1};
+  flex: 0 ${props => (props.isShrink ? '22%' : '39%')};
+  width: ${props => (props.isShrink ? '22%' : '39%')};
+  min-width: ${props => (props.isShrink ? '22%' : '39%')};
+  background-color: ${props => props.theme.brand.backgroundLevel1};
 `;
 
 export const InputTag = styled(Input)`
-    flex: 1 40%;
-    &:first-child {
-        margin-right: ${spacing.sp4};
-    }
-    width: 40%;
-    min-width: 40%;
+  flex: 1 40%;
+  &:first-child {
+    margin-right: ${spacing.sp4};
+  }
+  width: 40%;
+  min-width: 40%;
 `;
 
 export const Char = styled.div`
-    flex: 0 2%;
-    width: 2%;
-    min-width: 2%;
-    text-align: center;
+  flex: 0 2%;
+  width: 2%;
+  min-width: 2%;
+  text-align: center;
 `;
 
 const CustomButton = styled(Button)`
-    ${props => !props.isVisible ? `
+  ${props =>
+    !props.isVisible
+      ? `
         display: none;
-    ` : '' }
+    `
+      : ''}
 `;
 
 type AddButtonProps = {
-    index: number,
-    items: Array<any>,
-    insertEntry: () => void,
-    disabled?: boolean,
+  index: number,
+  items: Array<any>,
+  insertEntry: () => void,
+  disabled?: boolean,
 };
-export const AddButton = ({ index, items, insertEntry, disabled }: AddButtonProps) => {
-    let isVisible = true;
-    let isDisabled = disabled || false;
-    let onClickFn = () => insertEntry();
+export const AddButton = ({
+  index,
+  items,
+  insertEntry,
+  disabled,
+}: AddButtonProps) => {
+  let isVisible = true;
+  let isDisabled = disabled || false;
+  let onClickFn = () => insertEntry();
 
-    if ((items.length > 0 && index !== items.length - 1)) {
-        isVisible = false;
-        onClickFn = () => {};
-    }
+  if (items.length > 0 && index !== items.length - 1) {
+    isVisible = false;
+    onClickFn = () => {};
+  }
 
-    if (items[index] && (items[index].key === '' || items[index].value === '')) {
-        isDisabled = true;
-        onClickFn = () => {};
-    }
+  if (items[index] && (items[index].key === '' || items[index].value === '')) {
+    isDisabled = true;
+    onClickFn = () => {};
+  }
 
-    return (
-        <CustomButton
-            isVisible={isVisible}
-            variant="secondary"
-            disabled={isDisabled}
-            name={`addbtn${index}`}
-            id={`addbtn${index}`}
-            onClick={onClickFn}
-            tooltip={{ overlay: 'Add', placement: 'top' }}
-            icon={<i className="fa fa-plus-square" />}
-        />
-    );
+  return (
+    <CustomButton
+      isVisible={isVisible}
+      variant="secondary"
+      disabled={isDisabled}
+      name={`addbtn${index}`}
+      id={`addbtn${index}`}
+      onClick={onClickFn}
+      tooltip={{ overlay: 'Add', placement: 'top' }}
+      icon={<i className="fa fa-plus-square" />}
+    />
+  );
 };
 
 type SubButtonProps = {
-    index: number,
-    items: Array<any>,
-    deleteEntry: (number) => void,
-    disabled?: boolean,
+  index: number,
+  items: Array<any>,
+  deleteEntry: number => void,
+  disabled?: boolean,
 };
-export const SubButton = ({ index, items, deleteEntry, disabled }: SubButtonProps) => {
-    let isDisabled = disabled || false;
-    if (items.length === 1 && isEmptyItem(items[0])) {
-        isDisabled = true;
-    }
-    return (
-        <Button
-            variant="danger"
-            disabled={isDisabled}
-            name={`delbtn${index}`}
-            id={`delbtn${index}`}
-            onClick={() => deleteEntry(index)}
-            tooltip={{ overlay: 'Remove', placement: 'top' }}
-            icon={<i className="fa fa-minus-square" />}
-        />
-    );
+export const SubButton = ({
+  index,
+  items,
+  deleteEntry,
+  disabled,
+}: SubButtonProps) => {
+  let isDisabled = disabled || false;
+  if (items.length === 1 && isEmptyItem(items[0])) {
+    isDisabled = true;
+  }
+  return (
+    <Button
+      variant="danger"
+      disabled={isDisabled}
+      name={`delbtn${index}`}
+      id={`delbtn${index}`}
+      onClick={() => deleteEntry(index)}
+      tooltip={{ overlay: 'Remove', placement: 'top' }}
+      icon={<i className="fa fa-minus-square" />}
+    />
+  );
 };

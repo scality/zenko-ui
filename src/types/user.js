@@ -1,15 +1,15 @@
 // @flow
 
 export type User = {|
-    +userName: string,
+  +userName: string,
 |};
 
 export type IamAccessKey = {|
-    +AccessKeyId: string,
-    +Status: string,
-    +CreateDate: string,
+  +AccessKeyId: string,
+  +Status: string,
+  +CreateDate: string,
 |};
 
 export type ListAccessKeysResponse = {|
-    +AccessKeyMetadata: Array<IamAccessKey>,
+  +AccessKeyMetadata: Array<IamAccessKey>,
 |};

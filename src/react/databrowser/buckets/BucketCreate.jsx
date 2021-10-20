@@ -5,7 +5,7 @@ import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Toggle } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers';
@@ -15,112 +15,188 @@ import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
 
 const schema = Joi.object({
-    name: Joi.string().label('Name').required().min(3).max(63),
-    locationConstraint: Joi.object(),
+  name: Joi.string()
+    .label('Name')
+    .required()
+    .min(3)
+    .max(63),
+  locationConstraint: Joi.object(),
+  isVersioning: Joi.boolean(),
 });
 
 function BucketCreate() {
-    // TODO: redirect to list buckets if no account
-    const { register, handleSubmit, errors, control } = useForm({
-        resolver: joiResolver(schema),
-    });
+  // TODO: redirect to list buckets if no account
+  const { register, handleSubmit, errors, control } = useForm({
+    resolver: joiResolver(schema),
+  });
 
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const hasError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent');
-    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
-    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
+  const hasError = useSelector(
+    (state: AppState) =>
+      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
+  );
+  const errorMessage = useSelector(
+    (state: AppState) => state.uiErrors.errorMsg,
+  );
+  const loading = useSelector(
+    (state: AppState) => state.networkActivity.counter > 0,
+  );
 
-    const locations = useSelector((state: AppState) => state.configuration.latest.locations);
-    const capabilities = useSelector((state: AppState) => state.instanceStatus.latest.state.capabilities);
+  const locations = useSelector(
+    (state: AppState) => state.configuration.latest.locations,
+  );
+  const capabilities = useSelector(
+    (state: AppState) => state.instanceStatus.latest.state.capabilities,
+  );
 
-    const clearServerError = () => {
-        if (hasError) {
-            dispatch(clearError());
-        }
-    };
-    // clear server errors if clicked on outside of element.
-    const formRef = useRef(null);
-    useOutsideClick(formRef, clearServerError);
+  const clearServerError = () => {
+    if (hasError) {
+      dispatch(clearError());
+    }
+  };
+  // clear server errors if clicked on outside of element.
+  const formRef = useRef(null);
+  useOutsideClick(formRef, clearServerError);
 
-    const onSubmit = ({ name, locationConstraint }) => {
-        clearServerError();
-        dispatch(createBucket({ name, locationConstraint: locationConstraint?.value }));
-    };
+  const onSubmit = ({ name, locationConstraint, isVersioning }) => {
+    clearServerError();
+    dispatch(
+      createBucket(
+        { name, locationConstraint: locationConstraint?.value },
+        { isVersioning },
+      ),
+    );
+  };
 
-    const handleCancel = () => {
-        clearServerError();
-        dispatch(push('/buckets'));
-    };
+  const handleCancel = () => {
+    clearServerError();
+    dispatch(push('/buckets'));
+  };
 
-    const renderLocation = (option) => {
-        const locationType = option.locationType;
-        const mirrorMode = option.mirrorMode;
-        const locationTypeName = storageOptions[locationType].name;
-        return mirrorMode ?
-            `${option.value.split(':ingest')[0]} (Mirror mode) (${locationTypeName})` :
-            `${option.value} (${locationTypeName})`;
-    };
+  const renderLocation = option => {
+    const locationType = option.locationType;
+    const mirrorMode = option.mirrorMode;
+    const locationTypeName = storageOptions[locationType].name;
+    return mirrorMode
+      ? `${
+          option.value.split(':ingest')[0]
+        } (Mirror mode) (${locationTypeName})`
+      : `${option.value} (${locationTypeName})`;
+  };
 
-    const selectLocations = useMemo(() => {
-        return locationWithIngestion(locations, capabilities);
-    }, [locations, capabilities]);
+  const selectLocations = useMemo(() => {
+    return locationWithIngestion(locations, capabilities);
+  }, [locations, capabilities]);
 
-    return <FormContainer>
-        <F.Form ref={formRef}>
-            <F.Title> Create a New Bucket </F.Title>
-            <F.Fieldset>
-                <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']} tooltipWidth="15rem">
-                    Bucket Name
-                </F.Label>
-                <F.Input
-                    type='text'
-                    id='name'
-                    name='name'
-                    ref={register}
-                    onChange={clearServerError}
-                    autoComplete='off' />
-                <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
-            </F.Fieldset>
-            <F.Fieldset>
-                <F.Label tooltipMessages={['Cannot be modified after creation']} tooltipWidth="13rem">
-                    Select Storage Location
-                </F.Label>
-                <Controller
-                    control={control}
-                    id='locationConstraint'
-                    name='locationConstraint'
-                    defaultValue={{ value: 'us-east-1' }}
-                    render={({ onChange, value: locationConstraintObj }) => {
-                        return <F.Select
-                            onChange={onChange}
-                            placeholder='Location Name'
-                            value={locationConstraintObj.value}
-                        >
-                            {selectLocations.map((opt, i) => <F.Select.Option key={i} value={opt.value}>{renderLocation(opt)}</F.Select.Option>)}
-                        </F.Select>;
-                    }}
+  return (
+    <FormContainer>
+      <F.Form ref={formRef}>
+        <F.Title> Create a New Bucket </F.Title>
+        <F.Fieldset>
+          <F.Label
+            tooltipMessages={[
+              'Must be unique',
+              'Cannot be modified after creation',
+            ]}
+            tooltipWidth="15rem"
+          >
+            Bucket Name
+          </F.Label>
+          <F.Input
+            type="text"
+            id="name"
+            name="name"
+            ref={register}
+            onChange={clearServerError}
+            autoComplete="off"
+          />
+          <F.ErrorInput id="error-name" hasError={errors.name}>
+            {' '}
+            {errors.name?.message}{' '}
+          </F.ErrorInput>
+        </F.Fieldset>
+        <F.Fieldset>
+          <F.Label
+            tooltipMessages={['Cannot be modified after creation']}
+            tooltipWidth="13rem"
+          >
+            Select Storage Location
+          </F.Label>
+          <Controller
+            control={control}
+            id="locationConstraint"
+            name="locationConstraint"
+            defaultValue={{ value: 'us-east-1' }}
+            render={({ onChange, value: locationConstraintObj }) => {
+              return (
+                <F.Select
+                  onChange={onChange}
+                  placeholder="Location Name"
+                  value={locationConstraintObj.value}
+                >
+                  {selectLocations.map((opt, i) => (
+                    <F.Select.Option key={i} value={opt.value}>
+                      {renderLocation(opt)}
+                    </F.Select.Option>
+                  ))}
+                </F.Select>
+              );
+            }}
+          />
+        </F.Fieldset>
+        <F.Fieldset direction={'row'}>
+          <F.Label>Versioning</F.Label>
+          <Controller
+            control={control}
+            id="isVersioning"
+            name="isVersioning"
+            defaultValue={false}
+            render={({ onChange, value: isVersioning }) => {
+              return (
+                <Toggle
+                  onChange={e => onChange(e.target.checked)}
+                  placeholder="Versioning"
+                  label={isVersioning.value ? 'Active' : 'Inactive'}
+                  toggle={isVersioning.value}
                 />
-            </F.Fieldset>
-            <F.Footer>
-                <F.FooterError>
-                    {
-                        hasError && <Banner
-                            id="zk-error-banner"
-                            icon={<i className="fas fa-exclamation-triangle" />}
-                            title="Error"
-                            variant="danger">
-                            {errorMessage}
-                        </Banner>
-                    }
-                </F.FooterError>
-                <F.FooterButtons>
-                    <Button disabled={loading} id='cancel-btn' variant="outline" onClick={handleCancel} label='Cancel'/>
-                    <Button disabled={loading} id='create-account-btn' variant="primary" onClick={handleSubmit(onSubmit)} label='Create'/>
-                </F.FooterButtons>
-            </F.Footer>
-        </F.Form>
-    </FormContainer>;
+              );
+            }}
+          />
+        </F.Fieldset>
+        <F.Footer>
+          <F.FooterError>
+            {hasError && (
+              <Banner
+                id="zk-error-banner"
+                icon={<i className="fas fa-exclamation-triangle" />}
+                title="Error"
+                variant="danger"
+              >
+                {errorMessage}
+              </Banner>
+            )}
+          </F.FooterError>
+          <F.FooterButtons>
+            <Button
+              disabled={loading}
+              id="cancel-btn"
+              variant="outline"
+              onClick={handleCancel}
+              label="Cancel"
+            />
+            <Button
+              disabled={loading}
+              id="create-account-btn"
+              variant="primary"
+              onClick={handleSubmit(onSubmit)}
+              label="Create"
+            />
+          </F.FooterButtons>
+        </F.Footer>
+      </F.Form>
+    </FormContainer>
+  );
 }
 
 export default BucketCreate;

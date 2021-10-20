@@ -16,64 +16,85 @@ import { useSelector } from 'react-redux';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 
 type Props = {
-    wfSelected: ?Workflow,
-    createMode: boolean,
-    bucketList: S3BucketList,
+  wfSelected: ?Workflow,
+  createMode: boolean,
+  bucketList: S3BucketList,
 };
 
-export const InfoWarning = ({ title }: { title: string}) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
+export const InfoWarning = ({ title }: { title: string }) => (
+  <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
+);
 
 function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
-    const query = useQuery();
-    const { pathname } = useLocation();
-    const replications = useSelector((state: AppState) => state.workflow.replications);
-    const locations = useSelector((state: AppState) => state.configuration.latest.locations);
-    const showEditWorkflowNotification = useSelector((state: AppState) => state.uiWorkflows.showEditWorkflowNotification);
-    const loading = useSelector((state: AppState) => state.networkActivity.counter > 0);
+  const query = useQuery();
+  const { pathname } = useLocation();
+  const replications = useSelector(
+    (state: AppState) => state.workflow.replications,
+  );
+  const locations = useSelector(
+    (state: AppState) => state.configuration.latest.locations,
+  );
+  const showEditWorkflowNotification = useSelector(
+    (state: AppState) => state.uiWorkflows.showEditWorkflowNotification,
+  );
+  const loading = useSelector(
+    (state: AppState) => state.networkActivity.counter > 0,
+  );
 
-    const tabName = query.get('tab');
+  const tabName = query.get('tab');
 
-    if (createMode) {
-        return (
-            <ContentSection>
-                <CreationSection>
-                    <Table id=''>
-                        <T.Body autoComplete='off'>
-                            <T.Title> Create New Workflow </T.Title>
-                            <T.Subtitle> All * are mandatory fields </T.Subtitle>
-                            <Replication loading={loading} showEditWorkflowNotification={false} workflow={null} replications={replications} bucketList={bucketList} locations={locations} createMode={true} />
-                        </T.Body>
-                    </Table>
-                </CreationSection>
-            </ContentSection>
-        );
-    }
-
-    const details = () => {
-        if (!wfSelected) {
-            return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE}/>;
-        }
-        if (!tabName) {
-            return <Configuration
-                showEditWorkflowNotification={showEditWorkflowNotification}
+  if (createMode) {
+    return (
+      <ContentSection>
+        <CreationSection>
+          <Table id="">
+            <T.Body autoComplete="off">
+              <T.Title> Create New Workflow </T.Title>
+              <T.Subtitle> All * are mandatory fields </T.Subtitle>
+              <Replication
+                loading={loading}
+                showEditWorkflowNotification={false}
+                workflow={null}
                 replications={replications}
                 bucketList={bucketList}
                 locations={locations}
-                wfSelected={wfSelected}
-                loading={loading} />;
-        }
-        return null;
-    };
-
-    return (
-        <ContentSection>
-            <CustomTabs>
-                <CustomTabs.Tab label="Configuration" path={pathname}>
-                    { details() }
-                </CustomTabs.Tab>
-            </CustomTabs>
-        </ContentSection>
+                createMode={true}
+              />
+            </T.Body>
+          </Table>
+        </CreationSection>
+      </ContentSection>
     );
+  }
+
+  const details = () => {
+    if (!wfSelected) {
+      return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE} />;
+    }
+    if (!tabName) {
+      return (
+        <Configuration
+          showEditWorkflowNotification={showEditWorkflowNotification}
+          replications={replications}
+          bucketList={bucketList}
+          locations={locations}
+          wfSelected={wfSelected}
+          loading={loading}
+        />
+      );
+    }
+    return null;
+  };
+
+  return (
+    <ContentSection>
+      <CustomTabs>
+        <CustomTabs.Tab label="Configuration" path={pathname}>
+          {details()}
+        </CustomTabs.Tab>
+      </CustomTabs>
+    </ContentSection>
+  );
 }
 
 export default WorkflowContent;

@@ -10,6 +10,6 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 export const history = createHistory();
 
 export const store = createStore(
-    zenkoUIReducer(history),
-    composeEnhancers(applyMiddleware(thunk, routerMiddleware(history), logger)),
+  zenkoUIReducer(history),
+  composeEnhancers(applyMiddleware(thunk, routerMiddleware(history), logger)),
 );

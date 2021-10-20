@@ -9,24 +9,30 @@ import React from 'react';
 import { clearError } from '../actions';
 
 const ErrorHandlerModal = () => {
-    const showError = useSelector((state: AppState) => !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal');
-    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorMsg);
-    const dispatch: DispatchAPI<Action> = useDispatch();
+  const showError = useSelector(
+    (state: AppState) =>
+      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byModal',
+  );
+  const errorMessage = useSelector(
+    (state: AppState) => state.uiErrors.errorMsg,
+  );
+  const dispatch: DispatchAPI<Action> = useDispatch();
 
-    const close = () => dispatch(clearError());
+  const close = () => dispatch(clearError());
 
-    if (!showError) {
-        return null;
-    }
-    return (
-        <Modal
-            close={close}
-            footer={<Button variant="primary" onClick={close} label="Close"/>}
-            isOpen={true}
-            title="Error">
-            {errorMessage}
-        </Modal>
-    );
+  if (!showError) {
+    return null;
+  }
+  return (
+    <Modal
+      close={close}
+      footer={<Button variant="primary" onClick={close} label="Close" />}
+      isOpen={true}
+      title="Error"
+    >
+      {errorMessage}
+    </Modal>
+  );
 };
 
 export default ErrorHandlerModal;

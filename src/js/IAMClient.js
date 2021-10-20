@@ -6,114 +6,134 @@ import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface } from '../types/iam';
 import { getClients } from '../react/utils/actions';
 
-export function getAssumeRoleWithWebIdentityIAM(state: AppState, accountName: string): Promise<IAMClient> {
-    const { oidc, auth, configuration } = state;
-    const { stsClient } = getClients(state);
-    const accounts = configuration.latest.users;
-    const account = accounts.find(a => a.userName === accountName);
+export function getAssumeRoleWithWebIdentityIAM(
+  state: AppState,
+  accountName: string,
+): Promise<IAMClient> {
+  const { oidc, auth, configuration } = state;
+  const { stsClient } = getClients(state);
+  const accounts = configuration.latest.users;
+  const account = accounts.find(a => a.userName === accountName);
 
-    if (!account || !oidc || !oidc.user)
-        return Promise.reject();
-    const assumeRoleParams = {
-        idToken: oidc.user.id_token,
-        RoleSessionName:'app1',
-        roleArn: `arn:aws:iam::${account.id}:role/roleForB`,
+  if (!account || !oidc || !oidc.user) return Promise.reject();
+  const assumeRoleParams = {
+    idToken: oidc.user.id_token,
+    RoleSessionName: 'app1',
+    roleArn: `arn:aws:iam::${account.id}:role/roleForB`,
+  };
+  return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then(creds => {
+    const params = {
+      accessKey: creds.Credentials.AccessKeyId,
+      secretKey: creds.Credentials.SecretAccessKey,
+      sessionToken: creds.Credentials.SessionToken,
     };
-    return stsClient.assumeRoleWithWebIdentity(assumeRoleParams)
-        .then(creds => {
-            const params = {
-                accessKey: creds.Credentials.AccessKeyId,
-                secretKey: creds.Credentials.SecretAccessKey,
-                sessionToken: creds.Credentials.SessionToken,
-            };
-            const iamClient = new IAMClient(auth.config.iamEndpoint);
-            iamClient.login(params);
-            return iamClient;
-        });
+    const iamClient = new IAMClient(auth.config.iamEndpoint);
+    iamClient.login(params);
+    return iamClient;
+  });
 }
 
 export default class IAMClient implements IAMClientInterface {
-    constructor(endpoint) {
-        this.endpoint = endpoint;
-    }
+  constructor(endpoint) {
+    this.endpoint = endpoint;
+  }
 
-    login(creds: Credentials) {
-        this.client = new IAM({
-            // endpoint: 'https://iam.amazonaws.com',
-            endpoint: this.endpoint,
-            accessKeyId: creds.accessKey,
-            secretAccessKey: creds.secretKey,
-            sessionToken: creds.sessionToken,
-            region: 'us-east-1',
-        });
-    }
+  login(creds: Credentials) {
+    this.client = new IAM({
+      // endpoint: 'https://iam.amazonaws.com',
+      endpoint: this.endpoint,
+      accessKeyId: creds.accessKey,
+      secretAccessKey: creds.secretKey,
+      sessionToken: creds.sessionToken,
+      region: 'us-east-1',
+    });
+  }
 
-    logout() {
-        if (this.client)
-            this.client.config.update({ accessKeyId: '', secretAccessKey: '', sessionToken: '' });
-    }
+  logout() {
+    if (this.client)
+      this.client.config.update({
+        accessKeyId: '',
+        secretAccessKey: '',
+        sessionToken: '',
+      });
+  }
 
-    createAccessKey(userName) {
-        return this.client.createAccessKey({
-            UserName: userName,
-        }).promise();
-    }
+  createAccessKey(userName) {
+    return this.client
+      .createAccessKey({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    createUser(userName) {
-        return this.client.createUser({
-            UserName: userName,
-        }).promise();
-    }
+  createUser(userName) {
+    return this.client
+      .createUser({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    deleteAccessKey(accessKey, userName) {
-        const params = {
-            AccessKeyId: accessKey,
-            UserName: userName,
-        };
-        return this.client.deleteAccessKey(params).promise();
-    }
+  deleteAccessKey(accessKey, userName) {
+    const params = {
+      AccessKeyId: accessKey,
+      UserName: userName,
+    };
+    return this.client.deleteAccessKey(params).promise();
+  }
 
-    deleteUser(userName) {
-        return this.client.deleteUser({
-            UserName: userName,
-        }).promise();
-    }
+  deleteUser(userName) {
+    return this.client
+      .deleteUser({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    getUser(userName) {
-        return this.client.getUser({
-            UserName: userName,
-        }).promise();
-    }
+  getUser(userName) {
+    return this.client
+      .getUser({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    listOwnAccessKeys() {
-        return this.client.listAccessKeys().promise();
-    }
+  listOwnAccessKeys() {
+    return this.client.listAccessKeys().promise();
+  }
 
-    listAccessKeys(userName) {
-        return this.client.listAccessKeys({
-            UserName: userName,
-        }).promise();
-    }
+  listAccessKeys(userName) {
+    return this.client
+      .listAccessKeys({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    listAttachedUserPolicies(userName) {
-        return this.client.listAttachedUserPolicies({
-            UserName: userName,
-        }).promise();
-    }
+  listAttachedUserPolicies(userName) {
+    return this.client
+      .listAttachedUserPolicies({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    listGroupsForUser(userName) {
-        return this.client.listGroupsForUser({
-            UserName: userName,
-        }).promise();
-    }
+  listGroupsForUser(userName) {
+    return this.client
+      .listGroupsForUser({
+        UserName: userName,
+      })
+      .promise();
+  }
 
-    listUsers() {
-        return this.client.listUsers({
-            MaxItems: 20,
-        }).promise();
-    }
+  listUsers() {
+    return this.client
+      .listUsers({
+        MaxItems: 20,
+      })
+      .promise();
+  }
 }
-
 
 // OFFLILE
 // export default class IAMClient {
