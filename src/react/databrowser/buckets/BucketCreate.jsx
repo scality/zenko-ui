@@ -1,5 +1,7 @@
 // @flow
-import { Banner, Toggle } from '@scality/core-ui';
+import { Banner, Input, Toggle } from '@scality/core-ui';
+import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
@@ -13,6 +15,7 @@ import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 
 const schema = Joi.object({
   name: Joi.string()
@@ -22,13 +25,35 @@ const schema = Joi.object({
     .max(63),
   locationConstraint: Joi.object(),
   isVersioning: Joi.boolean(),
+  isObjectLockEnabled: Joi.boolean(),
+  isDefaultRetentionEnabled: Joi.boolean(),
+  retentionMode: Joi.string().required(),
+  retentionPeriod: Joi.number().required(),
+  retentionPeriodFrequencyChoice: Joi.string().required(),
 });
 
 function BucketCreate() {
   // TODO: redirect to list buckets if no account
-  const { register, handleSubmit, errors, control } = useForm({
+  const {
+    register,
+    handleSubmit,
+    errors,
+    control,
+    watch,
+    setValue,
+    formState,
+  } = useForm({
     resolver: joiResolver(schema),
+    defaultValues: {
+      retentionMode: 'GOVERNANCE',
+      retentionPeriod: 1,
+    },
   });
+
+  const { dirtyFields } = formState;
+
+  const isObjectLockEnabled = watch('isObjectLockEnabled');
+  const isDefaultRetentionEnabled = watch('isDefaultRetentionEnabled');
 
   const dispatch = useDispatch();
 
@@ -59,12 +84,34 @@ function BucketCreate() {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
 
-  const onSubmit = ({ name, locationConstraint, isVersioning }) => {
+  const onSubmit = ({
+    name,
+    locationConstraint,
+    isVersioning,
+    isObjectLockEnabled,
+    isDefaultRetentionEnabled,
+    retentionMode,
+    retentionPeriod,
+    retentionPeriodFrequencyChoice,
+  }) => {
     clearServerError();
+    const retentionPeriodToSubmit =
+      retentionPeriodFrequencyChoice === 'YEARS'
+        ? { years: retentionPeriod }
+        : { days: retentionPeriod };
     dispatch(
       createBucket(
-        { name, locationConstraint: locationConstraint?.value },
+        {
+          name,
+          locationConstraint: locationConstraint?.value,
+          isObjectLockEnabled,
+        },
         { isVersioning },
+        {
+          isDefaultRetentionEnabled,
+          retentionMode,
+          retentionPeriod: retentionPeriodToSubmit,
+        },
       ),
     );
   };
@@ -80,8 +127,8 @@ function BucketCreate() {
     const locationTypeName = storageOptions[locationType].name;
     return mirrorMode
       ? `${
-        option.value.split(':ingest')[0]
-      } (Mirror mode) (${locationTypeName})`
+          option.value.split(':ingest')[0]
+        } (Mirror mode) (${locationTypeName})`
       : `${option.value} (${locationTypeName})`;
   };
 
@@ -147,7 +194,7 @@ function BucketCreate() {
           />
         </F.Fieldset>
         <F.Fieldset direction={'row'}>
-          <F.Label>Versioning</F.Label>
+          <F.Label style={{ width: '25%' }}>Versioning</F.Label>
           <Controller
             control={control}
             id="isVersioning"
@@ -156,15 +203,215 @@ function BucketCreate() {
             render={({ onChange, value: isVersioning }) => {
               return (
                 <Toggle
+                  disabled={isObjectLockEnabled}
                   onChange={e => onChange(e.target.checked)}
                   placeholder="Versioning"
-                  label={isVersioning.value ? 'Active' : 'Inactive'}
-                  toggle={isVersioning.value}
+                  label={isVersioning ? 'Active' : 'Inactive'}
+                  toggle={isVersioning}
+                />
+              );
+            }}
+          />
+          {isObjectLockEnabled && (
+            <SpacedBox ml={16}>
+              Automatically activated when Object-lock is Active
+            </SpacedBox>
+          )}
+        </F.Fieldset>
+        <F.SessionSeperation />
+        <F.SubTitle>Object-lock option</F.SubTitle>
+        <F.Fieldset direction={'row'}>
+          <F.Label style={{ width: '25%' }}>Object-lock</F.Label>
+          <Controller
+            control={control}
+            id="isObjectLockEnabled"
+            name="isObjectLockEnabled"
+            defaultValue={false}
+            render={({ onChange, value: isObjectLockEnabled }) => {
+              return (
+                <Toggle
+                  onChange={e => {
+                    onChange(e.target.checked);
+                    if (e.target.checked) {
+                      setValue('isVersioning', true, { shouldDirty: false });
+                    } else if (
+                      !Object.keys(dirtyFields).includes('isVersioning') &&
+                      !e.target.checked
+                    ) {
+                      setValue('isVersioning', false, { shouldDirty: false });
+                    }
+                  }}
+                  placeholder="isObjectLockEnabled"
+                  label={isObjectLockEnabled ? 'Active' : 'Inactive'}
+                  toggle={isObjectLockEnabled}
                 />
               );
             }}
           />
         </F.Fieldset>
+        <SpacedBox md={2}>
+          <SmallerText>
+            Permanently allows objects in this bucket to be locked.
+            <br />
+            Object-lock option cannot be removed after bucket creation, but
+            you'll be able to disable the retention itself on edition.
+            <br />
+            Once the bucket is created, you might be blocked from deleting the
+            objects and the bucket.
+            <br />
+            Enabling Object-lock automatically activates Versioning for the
+            bucket, and you won’t be able to suspend Versioning.
+          </SmallerText>
+        </SpacedBox>
+        {isObjectLockEnabled ? (
+          <>
+            <F.Fieldset direction={'row'}>
+              <F.Label style={{ width: '25%' }}>Default Retention</F.Label>
+              <Controller
+                control={control}
+                id="isDefaultRetentionEnabled"
+                name="isDefaultRetentionEnabled"
+                defaultValue={false}
+                render={({ onChange, value: isDefaultRetentionEnabled }) => {
+                  return (
+                    <Toggle
+                      onChange={e => onChange(e.target.checked)}
+                      placeholder="isDefaultRetentionEnabled"
+                      label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
+                      toggle={isDefaultRetentionEnabled}
+                    />
+                  );
+                }}
+              />
+            </F.Fieldset>
+            <SpacedBox md={2}>
+              <SmallerText>
+                Automatically protect objects put into this bucket from being
+                deleted or overwritten.
+                <br />
+                These settings apply only to new objects placed into the bucket
+                without any specific specific object-lock parameters.
+                <br />
+                You can activate this option after the bucket creation.
+              </SmallerText>
+            </SpacedBox>
+            <SpacedBox mt={2}>
+              <Banner
+                variant="infoPrimary"
+                icon={<i className="fas fa-exclamation-circle" />}
+              >
+                {
+                  'If objects are uploaded into the bucket with their own Retention settings, these will override the Default Retention setting placed on the bucket'
+                }
+              </Banner>
+            </SpacedBox>
+            {isObjectLockEnabled ? (
+              <>
+                <F.Fieldset>
+                  <F.Label>Retention mode</F.Label>
+                  <F.Fieldset direction="row">
+                    <F.Label for="GOVERNANCE">
+                      <F.Input
+                        type="radio"
+                        id="GOVERNANCE"
+                        value="GOVERNANCE"
+                        name="retentionMode"
+                        ref={register}
+                        disabled={!isDefaultRetentionEnabled}
+                      />
+                      <SpacedBox ml={8}>Governance</SpacedBox>
+                    </F.Label>
+                  </F.Fieldset>
+                  <SmallerText>
+                    An user with a specific IAM permissions can overwrite/delete
+                    protected object versions during the retention period.
+                  </SmallerText>
+                  <F.Fieldset direction="row" alignItems={'center'}>
+                    <F.Label for="COMPLIANCE">
+                      <F.Input
+                        type="radio"
+                        id="COMPLIANCE"
+                        value="COMPLIANCE"
+                        name="retentionMode"
+                        ref={register}
+                        disabled={!isDefaultRetentionEnabled}
+                      />
+                      <SpacedBox ml={8}>Compliance</SpacedBox>
+                    </F.Label>
+                  </F.Fieldset>
+                  <SmallerText>
+                    No one can overwrite protected object versions during the
+                    retention period.
+                  </SmallerText>
+                </F.Fieldset>
+                <F.Fieldset direction="row" alignItems="baseline">
+                  <F.Label style={{ width: '25%' }}>Retention period</F.Label>
+
+                  <div>
+                    <Controller
+                      control={control}
+                      id="retentionPeriod"
+                      name="retentionPeriod"
+                      render={({ onChange, value: retentionPeriod }) => {
+                        return (
+                          <Input
+                            name="retentionPeriod"
+                            value={retentionPeriod}
+                            onChange={e => onChange(e.target.value)}
+                            type="number"
+                            style={{ width: spacing.sp40 }}
+                            min={1}
+                            disabled={!isDefaultRetentionEnabled}
+                          />
+                        );
+                      }}
+                    />
+                  </div>
+
+                  <SpacedBox style={{ width: '25%' }} ml={8}>
+                    <Controller
+                      control={control}
+                      id="retentionPeriodFrequencyChoice"
+                      name="retentionPeriodFrequencyChoice"
+                      defaultValue={'YEARS'}
+                      render={({
+                        onChange,
+                        value: retentionPeriodFrequencyChoice,
+                      }) => {
+                        return (
+                          <>
+                            <F.Select
+                              onChange={onChange}
+                              placeholder="retentionPeriodFrequencyChoice"
+                              value={retentionPeriodFrequencyChoice}
+                              disabled={!isDefaultRetentionEnabled}
+                            >
+                              <F.Select.Option value={'YEARS'}>
+                                Years
+                              </F.Select.Option>
+                              <F.Select.Option value={'DAYS'}>
+                                Days
+                              </F.Select.Option>
+                            </F.Select>
+                          </>
+                        );
+                      }}
+                    />
+                  </SpacedBox>
+
+                  <F.ErrorInput
+                    id="error-retentionPeriod"
+                    hasError={errors.retentionPeriod}
+                  >
+                    {' '}
+                    {errors.retentionPeriod?.message}{' '}
+                  </F.ErrorInput>
+                </F.Fieldset>
+              </>
+            ) : null}
+          </>
+        ) : null}
+
         <F.Footer>
           <F.FooterError>
             {hasError && (

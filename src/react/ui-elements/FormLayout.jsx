@@ -41,10 +41,16 @@ export const Title = styled.div`
   font-size: ${fontSize.massive};
 `;
 
+export const SubTitle = styled.div`
+  display: flex;
+  color: ${props => props.theme.brand.textPrimary};
+  font-weight: bold;
+`;
+
 export const Fieldset = styled.fieldset`
   display: flex;
   flex-direction: ${props => props.direction || 'column'};
-  justify-content: space-between;
+  ${props => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
   border: 0;
   padding: 0;
   margin-top: ${spacing.sp16};
@@ -74,6 +80,13 @@ export const InputList = styled(BasicInputList)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
 
+export const SessionSeperation = styled.div`
+  width: 23px;
+  height: 1px;
+  margin: ${spacing.sp16} 0px ${spacing.sp16} 0px;
+  background-color: ${props => props.theme.brand.buttonSecondary};
+`;
+
 // * ErrorInput
 const ErrorInputContainer = styled.div`
   height: ${spacing.sp16};
@@ -92,6 +105,7 @@ export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
 // * Label
 const LabelContainer = styled.label`
   display: flex;
+  align-items: center;
 `;
 
 const TooltipContainer = styled.div`
@@ -111,14 +125,16 @@ type LabelProps = {
   children: Node,
   tooltipMessages?: Array<string>,
   tooltipWidth?: string,
+  style?: CSSStyleSheet,
 };
 
 export const Label = ({
   children,
   tooltipMessages,
   tooltipWidth,
+  style,
 }: LabelProps) => (
-  <LabelContainer>
+  <LabelContainer style={style}>
     {children}
     {tooltipMessages && tooltipMessages.length > 0 && (
       <TooltipContainer>

@@ -39,12 +39,14 @@ const Input = styled.input`
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};
   line-height: ${spacing.sp32};
-
-  width: -moz-available; /* WebKit-based browsers will ignore this. */
-  width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
-  width: fill-available;
-
-  :hover:enabled {
+  ${props =>
+      props.type !== 'radio' &&
+      `
+    width: -moz-available; /* WebKit-based browsers will ignore this. */
+    width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
+    width: fill-available;  
+  `}
+    :hover:enabled {
     border: ${spacing.sp1} solid ${props => props.theme.brand.border};
   }
 

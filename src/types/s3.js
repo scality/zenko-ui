@@ -7,10 +7,18 @@ export interface S3Client {}
 export type CreateBucketRequest = {|
   +name: string,
   +locationContraint: string,
+  +isObjectLockEnabled: boolean,
 |};
 
 export type BucketVersioning = {|
   +isVersioning: boolean,
+|};
+
+export type RetentionMode = 'COMPLIANCE' | 'GOVERNANCE';
+export type ObjectLockRetentionSettings = {|
+  +isDefaultRetentionEnabled: boolean,
+  +retentionMode?: RetentionMode,
+  +retentionPeriod?: { days?: number, years?: number },
 |};
 
 export type HeadObjectResponse = {|

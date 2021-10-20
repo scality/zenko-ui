@@ -62,8 +62,26 @@ export default class S3Client {
       CreateBucketConfiguration: {
         LocationConstraint: bucket.locationConstraint,
       },
+      ObjectLockEnabledForBucket: bucket.isObjectLockEnabled,
     };
     return this.client.createBucket(params).promise();
+  }
+
+  putObjectLockConfiguration(objectLockConfiguration) {
+    const params: S3.PutObjectLockConfigurationRequest = {
+      Bucket: objectLockConfiguration.bucketName,
+      ObjectLockConfiguration: {
+        ObjectLockEnabled: 'Enabled',
+        Rule: {
+          DefaultRetention: {
+            Mode: objectLockConfiguration?.retentionMode,
+            Days: objectLockConfiguration?.retentionPeriod?.days,
+            Years: objectLockConfiguration?.retentionPeriod?.years,
+          },
+        },
+      },
+    };
+    return this.client.putObjectLockConfiguration(params).promise();
   }
 
   deleteBucket(bucketName) {
