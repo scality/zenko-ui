@@ -80,8 +80,8 @@ function BucketCreate() {
     const locationTypeName = storageOptions[locationType].name;
     return mirrorMode
       ? `${
-          option.value.split(':ingest')[0]
-        } (Mirror mode) (${locationTypeName})`
+        option.value.split(':ingest')[0]
+      } (Mirror mode) (${locationTypeName})`
       : `${option.value} (${locationTypeName})`;
   };
 
@@ -91,7 +91,7 @@ function BucketCreate() {
 
   return (
     <FormContainer>
-      <F.Form ref={formRef}>
+      <F.Form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <F.Title> Create a New Bucket </F.Title>
         <F.Fieldset>
           <F.Label
@@ -108,6 +108,7 @@ function BucketCreate() {
             id="name"
             name="name"
             ref={register}
+            autoFocus={true}
             onChange={clearServerError}
             autoComplete="off"
           />
@@ -183,13 +184,14 @@ function BucketCreate() {
               id="cancel-btn"
               variant="outline"
               onClick={handleCancel}
+              type="button"
               label="Cancel"
             />
             <Button
               disabled={loading}
               id="create-account-btn"
+              type="submit"
               variant="primary"
-              onClick={handleSubmit(onSubmit)}
               label="Create"
             />
           </F.FooterButtons>
