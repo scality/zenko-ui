@@ -2,7 +2,11 @@
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import React, { useEffect } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { loadClients, loadInstanceLatestStatus, loadInstanceStats } from './actions';
+import {
+  loadClients,
+  loadInstanceLatestStatus,
+  loadInstanceStats,
+} from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
@@ -17,63 +21,79 @@ import NoMatch from './NoMatch';
 import Workflows from './workflow/Workflows';
 
 function PrivateRoutes() {
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const isClientsLoaded = useSelector((state: AppState) => state.auth.isClientsLoaded);
-    const user = useSelector((state: AppState) => state.oidc.user);
+  const isClientsLoaded = useSelector(
+    (state: AppState) => state.auth.isClientsLoaded,
+  );
+  const user = useSelector((state: AppState) => state.oidc.user);
 
-    useEffect(() => {
-        const isAuthenticated = !!user && !user.expired;
-        if (isAuthenticated) {
-            // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
-            // That will fix management API request being canceled during autentication.
-            dispatch(loadClients());
+  useEffect(() => {
+    const isAuthenticated = !!user && !user.expired;
+    if (isAuthenticated) {
+      // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
+      // That will fix management API request being canceled during autentication.
+      dispatch(loadClients());
 
-            const refreshIntervalStatsUnit = setInterval(
-                () => dispatch(loadInstanceLatestStatus()), 10000);
-            const refreshIntervalStatsSeries = setInterval(
-                () => dispatch(loadInstanceStats()), 10000);
-            return () => {
-                clearInterval(refreshIntervalStatsUnit);
-                clearInterval(refreshIntervalStatsSeries);
-            };
-        }
-    },[dispatch, user]);
-
-    if (!isClientsLoaded) {
-        return <Loader> Loading clients </Loader>;
+      const refreshIntervalStatsUnit = setInterval(
+        () => dispatch(loadInstanceLatestStatus()),
+        10000,
+      );
+      const refreshIntervalStatsSeries = setInterval(
+        () => dispatch(loadInstanceStats()),
+        10000,
+      );
+      return () => {
+        clearInterval(refreshIntervalStatsUnit);
+        clearInterval(refreshIntervalStatsSeries);
+      };
     }
-    return (
-        <Switch>
-            <Route exact path="/" render={() => <Redirect to="/accounts" />}/>
+  }, [dispatch, user]);
 
-            <Route exact path="/create-location" component={LocationEditor} />
-            <Route path="/locations/:locationName/edit" component={LocationEditor} />
+  if (!isClientsLoaded) {
+    return <Loader> Loading clients </Loader>;
+  }
+  return (
+    <Switch>
+      <Route exact path="/" render={() => <Redirect to="/accounts" />} />
 
-            <Route path='/accounts/:accountName?' component={Accounts} />
-            <Route path="/create-account" component={AccountCreate} />
+      <Route exact path="/create-location" component={LocationEditor} />
+      <Route path="/locations/:locationName/edit" component={LocationEditor} />
 
-            <Route path={['/buckets/:bucketName?', '/buckets/:bucketName/objects', '/create-bucket']} component={DataBrowser} />
+      <Route path="/accounts/:accountName?" component={Accounts} />
+      <Route path="/create-account" component={AccountCreate} />
 
-            <Route path={['/create-workflow', '/workflows/:workflowId?']} component={Workflows} />
+      <Route
+        path={[
+          '/buckets/:bucketName?',
+          '/buckets/:bucketName/objects',
+          '/create-bucket',
+        ]}
+        component={DataBrowser}
+      />
 
-            <Route exact path="/create-dataservice" component={EndpointCreate} />
-            <Route exact path="/dataservices" component={Endpoints} />
+      <Route
+        path={['/create-workflow', '/workflows/:workflowId?']}
+        component={Workflows}
+      />
 
-            <Route path="*" component={NoMatch}/>
-        </Switch>
-    );
+      <Route exact path="/create-dataservice" component={EndpointCreate} />
+      <Route exact path="/dataservices" component={Endpoints} />
+
+      <Route path="*" component={NoMatch} />
+    </Switch>
+  );
 }
 
 function Routes() {
-    return (
-        <RouteContainer>
-            <NavbarContainer>
-                <Navbar/>
-            </NavbarContainer>
-            <PrivateRoutes/>
-        </RouteContainer>
-    );
+  return (
+    <RouteContainer>
+      <NavbarContainer>
+        <Navbar />
+      </NavbarContainer>
+      <PrivateRoutes />
+    </RouteContainer>
+  );
 }
 
 export default Routes;

@@ -6,185 +6,188 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 type Props = {
-    className: string,
-    entries: Array<string>,
-    listLimit: number,
-    onUpdate: (entries: Array<string>) => void,
+  className: string,
+  entries: Array<string>,
+  listLimit: number,
+  onUpdate: (entries: Array<string>) => void,
 };
 
 type State = {
-    entries: Array<string>,
+  entries: Array<string>,
 };
 
 const InputGroups = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 const InputGroup = styled.div`
-    display: flex;
+  display: flex;
 `;
 
 const Input = styled(BasicInput)`
-    margin-bottom: ${spacing.sp8};
+  margin-bottom: ${spacing.sp8};
 `;
 
 const Button = styled(BasicButton)`
-    margin-left: ${spacing.sp8};
-    &.invisible {
-        visibility:hidden;
-    }
+  margin-left: ${spacing.sp8};
+  &.invisible {
+    visibility: hidden;
+  }
 `;
 
 export default class InputList extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            entries: [
-                ...this.props.entries,
-            ],
-        };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      entries: [...this.props.entries],
+    };
+  }
+
+  insertEntry = () => {
+    const updatedList = [...this.state.entries];
+    updatedList.push('');
+    this.setState({ entries: updatedList });
+  };
+
+  deleteEntry = (index: number) => {
+    const updatedList = [...this.state.entries];
+    updatedList.splice(index, 1);
+    this.setState({ entries: updatedList });
+  };
+
+  updateEntry = (index: number) => (
+    e: SyntheticInputEvent<HTMLInputElement>,
+  ) => {
+    const updatedList = [...this.state.entries];
+    updatedList[index] = e.target.value;
+    this.setState({ entries: updatedList });
+  };
+
+  updateList = () => {
+    if (this.props.onUpdate) {
+      this.props.onUpdate(this.state.entries);
+    }
+  };
+
+  maybeAddButton = (index: number) => {
+    let isVisible = 'invisible';
+    let isDisabled = false;
+    let onClickFn = () => {};
+    if (
+      index === this.state.entries.length - 1 ||
+      this.state.entries.length <= 0
+    ) {
+      isVisible = 'visible';
+      onClickFn = () => this.insertEntry();
+    }
+    if (
+      (this.props.listLimit > 0 &&
+        this.state.entries.length >= this.props.listLimit) ||
+      this.state.entries[index] === ''
+    ) {
+      isDisabled = true;
+      onClickFn = () => {};
     }
 
-    insertEntry = () => {
-        const updatedList = [...this.state.entries];
-        updatedList.push('');
-        this.setState({ entries: updatedList });
+    return (
+      <Button
+        variant="secondary"
+        className={isVisible}
+        label="Add"
+        disabled={isDisabled}
+        name="addbtn"
+        id="addbtn"
+        onClick={onClickFn}
+        icon={<i className="fa fa-plus-square" />}
+      />
+    );
+  };
+
+  maybeSubButton = (index: number) => {
+    let isDisabled = true;
+    let onClickFn = () => {};
+    if (this.state.entries.length > 1) {
+      isDisabled = false;
+      onClickFn = () => this.deleteEntry(index);
     }
+    return (
+      <Button
+        variant="danger"
+        label="Remove"
+        disabled={isDisabled}
+        name={`delbtn${index}`}
+        id={`delbtn${index}`}
+        onClick={onClickFn}
+        icon={<i className="fa fa-minus-square" />}
+      />
+    );
+  };
 
-    deleteEntry = (index: number) => {
-        const updatedList = [...this.state.entries];
-        updatedList.splice(index, 1);
-        this.setState({ entries: updatedList });
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    return this.state !== nextState;
+  }
+
+  componentDidUpdate() {
+    this.updateList();
+  }
+
+  componentDidMount() {
+    if (this.state.entries.length <= 0) {
+      this.insertEntry();
     }
+  }
 
-    updateEntry = (index: number) =>
-        (e: SyntheticInputEvent<HTMLInputElement>) => {
-            const updatedList = [...this.state.entries];
-            updatedList[index] = e.target.value;
-            this.setState({ entries: updatedList });
-        }
-
-    updateList = () => {
-        if (this.props.onUpdate) {
-            this.props.onUpdate(this.state.entries);
-        }
+  handleKeyEvent = (e: SyntheticKeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && this.state.entries.length < this.props.listLimit) {
+      this.insertEntry();
     }
+  };
 
-    maybeAddButton = (index: number) => {
-        let isVisible = 'invisible';
-        let isDisabled = false;
-        let onClickFn = () => {};
-        if (index === this.state.entries.length - 1 ||
-            this.state.entries.length <= 0) {
-            isVisible = 'visible';
-            onClickFn = () => this.insertEntry();
-        }
-        if (this.props.listLimit > 0 &&
-            this.state.entries.length >= this.props.listLimit ||
-            this.state.entries[index] === '') {
-            isDisabled = true;
-            onClickFn = () => {};
-        }
+  genEntry = (value: string, index: number) => {
+    return (
+      <InputGroup
+        key={`input-entry-${index}`}
+        className="my-2"
+        name="listEntries"
+      >
+        <Input
+          type="text"
+          name={`entry${index}`}
+          id={`entry${index}`}
+          onChange={this.updateEntry(index)}
+          placeholder="localhost:8181"
+          value={value}
+          autoComplete="off"
+        />
+        {this.maybeSubButton(index)}
+        {this.maybeAddButton(index)}
+      </InputGroup>
+    );
+  };
 
-        return (
-            <Button
-                variant="secondary"
-                className={isVisible}
-                label="Add"
-                disabled={isDisabled}
-                name="addbtn"
-                id="addbtn"
-                onClick={onClickFn}
-                icon={<i className="fa fa-plus-square" />}
-            />
-        );
-    }
-
-    maybeSubButton = (index: number) => {
-        let isDisabled = true;
-        let onClickFn = () => {};
-        if (this.state.entries.length > 1) {
-            isDisabled = false;
-            onClickFn = () => this.deleteEntry(index);
-        }
-        return (
-            <Button
-                variant="danger"
-                label="Remove"
-                disabled={isDisabled}
-                name={`delbtn${index}`}
-                id={`delbtn${index}`}
-                onClick={onClickFn}
-                icon={<i className="fa fa-minus-square" />}
-            />
-        );
-    }
-
-    shouldComponentUpdate(nextProps: Props, nextState: State) {
-        return this.state !== nextState;
-    }
-
-    componentDidUpdate() {
-        this.updateList();
-    }
-
-    componentDidMount() {
-        if (this.state.entries.length <= 0) {
-            this.insertEntry();
-        }
-    }
-
-    handleKeyEvent = (e: SyntheticKeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' &&
-            this.state.entries.length < this.props.listLimit) {
-            this.insertEntry();
-        }
-    }
-
-    genEntry = (value: string, index: number) => {
-        return (
-            <InputGroup key={`input-entry-${index}`}
-                className="my-2"
-                name="listEntries"
-            >
-                <Input
-                    type="text"
-                    name={`entry${index}`}
-                    id={`entry${index}`}
-                    onChange={this.updateEntry(index)}
-                    placeholder="localhost:8181"
-                    value={value}
-                    autoComplete="off"
-                />
-                {this.maybeSubButton(index)}
-                {this.maybeAddButton(index)}
-            </InputGroup>
-        );
-    }
-
-    render() {
-        const { entries } = this.state;
-        const lastEntry = entries.length - 1;
-        return (
-            <InputGroups className={this.props.className}>
-                {entries.slice(0, -1).map(this.genEntry)}
-                <InputGroup>
-                    <Input
-                        className="form-control"
-                        type="text"
-                        name={`entry${lastEntry}`}
-                        id={`entry${lastEntry}`}
-                        onChange={this.updateEntry(lastEntry)}
-                        placeholder="localhost:8181"
-                        value={entries[lastEntry]}
-                        autoComplete="off"
-                        onKeyPress={this.handleKeyEvent}
-                    />
-                    {this.maybeSubButton(lastEntry)}
-                    {this.maybeAddButton(lastEntry)}
-                </InputGroup>
-            </InputGroups>
-        );
-    }
+  render() {
+    const { entries } = this.state;
+    const lastEntry = entries.length - 1;
+    return (
+      <InputGroups className={this.props.className}>
+        {entries.slice(0, -1).map(this.genEntry)}
+        <InputGroup>
+          <Input
+            className="form-control"
+            type="text"
+            name={`entry${lastEntry}`}
+            id={`entry${lastEntry}`}
+            onChange={this.updateEntry(lastEntry)}
+            placeholder="localhost:8181"
+            value={entries[lastEntry]}
+            autoComplete="off"
+            onKeyPress={this.handleKeyEvent}
+          />
+          {this.maybeSubButton(lastEntry)}
+          {this.maybeAddButton(lastEntry)}
+        </InputGroup>
+      </InputGroups>
+    );
+  }
 }

@@ -85,4 +85,4 @@ export type ProfileStandardClaims = {
   updated_at?: number,
 };
 
-export type OidcLogoutFunction = (boolean) => void;
+export type OidcLogoutFunction = boolean => void;

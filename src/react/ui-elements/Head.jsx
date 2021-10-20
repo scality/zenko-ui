@@ -22,17 +22,16 @@ const HeadLeft = styled.div`
   flex-direction: column;
   text-align: center;
 
-
   width: 130px;
   background-color: #00000069;
 
   .title {
-      margin-top: ${spacing.sp8};
-      font-size: ${fontSize.large};
+    margin-top: ${spacing.sp8};
+    font-size: ${fontSize.large};
   }
-  .number{
-      font-size: 4em;
-      margin-top: ${spacing.sp8};
+  .number {
+    font-size: 4em;
+    margin-top: ${spacing.sp8};
   }
 `;
 

@@ -36,98 +36,101 @@ import styled from 'styled-components';
 // </Table>
 
 export const Title = styled.div`
-    display: flex;
+  display: flex;
 
-    text-transform: capitalize;
-    margin-bottom: ${spacing.sp24};
-    font-size: ${fontSize.larger};
+  text-transform: capitalize;
+  margin-bottom: ${spacing.sp24};
+  font-size: ${fontSize.larger};
 `;
 
 export const Subtitle = styled(Title)`
-    font-size: ${fontSize.large};
+  font-size: ${fontSize.large};
 `;
 
 export const Body = styled.form`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Groups = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-    max-width: 450px;
+  max-width: 450px;
 `;
 
 export const Group = styled.div`
-    margin-bottom: ${spacing.sp8};
+  margin-bottom: ${spacing.sp8};
 `;
 
 export const GroupName = styled.div`
-    font-weight: bold;
-    margin-bottom: ${spacing.sp8};
+  font-weight: bold;
+  margin-bottom: ${spacing.sp8};
 `;
 
 export const GroupContent = styled.div`
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Row = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: ${spacing.sp4};
-    min-height: ${spacing.sp24};
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: ${spacing.sp4};
+  min-height: ${spacing.sp24};
 `;
 
-
 export const Key = styled.div`
-    flex: 1 1 30%;
-    color: ${props => props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
-    font-weight: ${props => props.principal ? 'bold' : 'normal'};
-    ${props => props.required ? `
+  flex: 1 1 30%;
+  color: ${props =>
+    props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
+  font-weight: ${props => (props.principal ? 'bold' : 'normal')};
+  ${props =>
+    props.required
+      ? `
         &:after {
             content: '*';
         }
-    ` : ''}
+    `
+      : ''}
 `;
 
 export const Value = styled.div`
-    flex: 1 1 70%;
-    flex-direction: column;
-    i {
-        margin-right: ${spacing.sp8};
-    }
+  flex: 1 1 70%;
+  flex-direction: column;
+  i {
+    margin-right: ${spacing.sp8};
+  }
 `;
 
 export const ErrorContainer = styled.div`
-    position: absolute;
+  position: absolute;
 `;
 
 const Table = styled.div`
-    width: 100%;
+  width: 100%;
 `;
 
 export const Header = styled.div`
-    display: ${props => props.isRemoved ? 'none' : 'flex'};
-    flex-direction: row;
-    justify-content: space-between;
+  display: ${props => (props.isRemoved ? 'none' : 'flex')};
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 export const BannerContainer = styled.div`
-    flex: 1;
-    margin-right: ${spacing.sp8};
-    width: 200px;
-    visibility: ${props => props.isHidden ? 'hidden' : 'visible'};
+  flex: 1;
+  margin-right: ${spacing.sp8};
+  width: 200px;
+  visibility: ${props => (props.isHidden ? 'hidden' : 'visible')};
 `;
 
 export const Footer = styled.div`
-    display: flex;
-    justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
 
-    margin: ${spacing.sp8};
+  margin: ${spacing.sp8};
 `;
 
 export default Table;

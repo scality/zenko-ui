@@ -18,67 +18,75 @@ export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object';
 
 type Props = {
-    toggled: List<Object>,
-    listType: ListObjectsType,
+  toggled: List<Object>,
+  listType: ListObjectsType,
 };
 
-export const InfoWarning = ({ title }: { title: Node }) => <Warning iconClass='fas fa-2x fa-info-circle' title={title} />;
+export const InfoWarning = ({ title }: { title: Node }) => (
+  <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
+);
 
 const warningTitle = (toggled: List<Object>): Node => {
-    if (toggled.size === 1) {
-        const firstObject = toggled.first();
-        const { isDeleteMarker, isFolder } = firstObject;
-        if (isDeleteMarker) {
-            return 'A "Delete Marker" is selected';
-        }
-        if (isFolder) {
-            return 'A "Folder" is selected';
-        }
+  if (toggled.size === 1) {
+    const firstObject = toggled.first();
+    const { isDeleteMarker, isFolder } = firstObject;
+    if (isDeleteMarker) {
+      return 'A "Delete Marker" is selected';
     }
-    return SELECT_AN_OBJECT_MESSAGE;
+    if (isFolder) {
+      return 'A "Folder" is selected';
+    }
+  }
+  return SELECT_AN_OBJECT_MESSAGE;
 };
 
 function ObjectDetails({ toggled, listType }: Props) {
-    const query = useQuery();
-    const { pathname } = useLocation();
-    const objectMetadata = useSelector((state: AppState) => state.s3.objectMetadata);
+  const query = useQuery();
+  const { pathname } = useLocation();
+  const objectMetadata = useSelector(
+    (state: AppState) => state.s3.objectMetadata,
+  );
 
-    const tabName = query.get('tab');
+  const tabName = query.get('tab');
 
-    const details = () => {
-        if (toggled.size > 1) {
-            return <InfoWarning title={MULTIPLE_ITEMS_SELECTED_MESSAGE}/>;
-        }
-        if (!objectMetadata) {
-            return <InfoWarning title={warningTitle(toggled)}/>;
-        }
-        if (!tabName) {
-            return <Properties objectMetadata={objectMetadata}/>;
-        }
-        if (tabName === 'metadata') {
-            return <Metadata objectMetadata={objectMetadata} listType={listType}/>;
-        }
-        if (tabName === 'tags') {
-            return <Tags objectMetadata={objectMetadata}/>;
-        }
-        return null;
-    };
+  const details = () => {
+    if (toggled.size > 1) {
+      return <InfoWarning title={MULTIPLE_ITEMS_SELECTED_MESSAGE} />;
+    }
+    if (!objectMetadata) {
+      return <InfoWarning title={warningTitle(toggled)} />;
+    }
+    if (!tabName) {
+      return <Properties objectMetadata={objectMetadata} />;
+    }
+    if (tabName === 'metadata') {
+      return <Metadata objectMetadata={objectMetadata} listType={listType} />;
+    }
+    if (tabName === 'tags') {
+      return <Tags objectMetadata={objectMetadata} />;
+    }
+    return null;
+  };
 
-    return (
-        <ContentSection>
-            <CustomTabs>
-                <CustomTabs.Tab label="Summary" path={pathname}>
-                    { details() }
-                </CustomTabs.Tab>
-                <CustomTabs.Tab label="Metadata" path={pathname} query={{ 'tab': 'metadata' }}>
-                    { details() }
-                </CustomTabs.Tab>
-                <CustomTabs.Tab label="Tags" path={pathname} query={{ 'tab': 'tags' }}>
-                    { details() }
-                </CustomTabs.Tab>
-            </CustomTabs>
-        </ContentSection>
-    );
+  return (
+    <ContentSection>
+      <CustomTabs>
+        <CustomTabs.Tab label="Summary" path={pathname}>
+          {details()}
+        </CustomTabs.Tab>
+        <CustomTabs.Tab
+          label="Metadata"
+          path={pathname}
+          query={{ tab: 'metadata' }}
+        >
+          {details()}
+        </CustomTabs.Tab>
+        <CustomTabs.Tab label="Tags" path={pathname} query={{ tab: 'tags' }}>
+          {details()}
+        </CustomTabs.Tab>
+      </CustomTabs>
+    </ContentSection>
+  );
 }
 
 export default ObjectDetails;

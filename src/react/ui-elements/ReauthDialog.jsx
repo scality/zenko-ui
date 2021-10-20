@@ -11,37 +11,56 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
-    const needReauth = useSelector((state: AppState) => state.networkActivity.authFailure);
-    const errorMessage = useSelector((state: AppState) => state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null);
-    const pathname = useSelector((state: AppState) => state.router.location.pathname);
-    const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
+  const needReauth = useSelector(
+    (state: AppState) => state.networkActivity.authFailure,
+  );
+  const errorMessage = useSelector((state: AppState) =>
+    state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null,
+  );
+  const pathname = useSelector(
+    (state: AppState) => state.router.location.pathname,
+  );
+  const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
 
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-    const reauth = pathName => {
-        dispatch(networkAuthReset());
-        dispatch(loadClients()).then(() => dispatch(push(pathName)));
-    };
+  const reauth = pathName => {
+    dispatch(networkAuthReset());
+    dispatch(loadClients()).then(() => dispatch(push(pathName)));
+  };
 
-    if (!needReauth) {
-        return null;
-    }
+  if (!needReauth) {
+    return null;
+  }
 
-    return (
-        <Modal
-            id="reauth-dialog-modal"
-            close={() => reauth(pathname)}
-            footer={
-                <div>
-                    { oidcLogout && <Button style={{ marginRight: spacing.sp24 }} icon={<i className="fas fa-sign-out-alt" />} variant="secondary" onClick={() => oidcLogout(true)} label='Log Out'/> }
-                    <Button variant="primary" onClick={() => reauth(pathname)} label='Reload'/>
-                </div>
-            }
-            isOpen={true}
-            title='Authentication Error'>
-            { errorMessage || DEFAULT_MESSAGE }
-        </Modal>
-    );
+  return (
+    <Modal
+      id="reauth-dialog-modal"
+      close={() => reauth(pathname)}
+      footer={
+        <div>
+          {oidcLogout && (
+            <Button
+              style={{ marginRight: spacing.sp24 }}
+              icon={<i className="fas fa-sign-out-alt" />}
+              variant="secondary"
+              onClick={() => oidcLogout(true)}
+              label="Log Out"
+            />
+          )}
+          <Button
+            variant="primary"
+            onClick={() => reauth(pathname)}
+            label="Reload"
+          />
+        </div>
+      }
+      isOpen={true}
+      title="Authentication Error"
+    >
+      {errorMessage || DEFAULT_MESSAGE}
+    </Modal>
+  );
 };
 
 export default ReauthDialog;

@@ -16,112 +16,145 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 const handleSortClick = (column, listRef) => {
-    if (listRef && listRef.current) {
-        listRef.current.scrollToItem(0);
-    }
-    column.toggleSortBy();
+  if (listRef && listRef.current) {
+    listRef.current.scrollToItem(0);
+  }
+  column.toggleSortBy();
 };
 
 const columns = [
-    {
-        Header: 'Account Name',
-        accessor: 'userName',
+  {
+    Header: 'Account Name',
+    accessor: 'userName',
+  },
+  {
+    Header: 'Created on',
+    accessor: 'createDate',
+    headerStyle: { textAlign: 'right' },
+    Cell({ value: date }: { value: number }) {
+      return (
+        <TextAligner alignment="right">
+          {formatSimpleDate(new Date(date))}
+        </TextAligner>
+      );
     },
-    {
-        Header: 'Created on',
-        accessor: 'createDate',
-        headerStyle: { textAlign: 'right' },
-        Cell({ value: date }: { value: number }) {
-            return <TextAligner alignment='right'>
-                { formatSimpleDate(new Date(date)) }
-            </TextAligner>;
-        },
-    },
+  },
 ];
 
 type Props = {
-    accountList: Array<Account>,
-    accountIndex: number,
+  accountList: Array<Account>,
+  accountIndex: number,
 };
 function AccountList({ accountList, accountIndex }: Props) {
-    const dispatch = useDispatch();
-    const { accountName: accountNameParam } = useParams();
-    const listRef = useRef<FixedSizeList<T> | null>(null);
+  const dispatch = useDispatch();
+  const { accountName: accountNameParam } = useParams();
+  const listRef = useRef<FixedSizeList<T> | null>(null);
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        setFilter,
-        prepareRow,
-    } = useTable({
-        columns,
-        data: accountList,
-        disableSortRemove: true,
-        autoResetFilters: false,
-        autoResetSortBy: false,
-    }, useFilters, useSortBy);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    setFilter,
+    prepareRow,
+  } = useTable(
+    {
+      columns,
+      data: accountList,
+      disableSortRemove: true,
+      autoResetFilters: false,
+      autoResetSortBy: false,
+    },
+    useFilters,
+    useSortBy,
+  );
 
-    useEffect(() => {
-        if (listRef && listRef.current && accountIndex > -1) {
-            listRef.current.scrollToItem(accountIndex, 'smart');
-        }
-        // Omitting accountIndex on purpose in dependencies
-        // We want to scroll to the selected item only once on mount.
-        // eslint-disable-next-line
-    }, [listRef]);
+  useEffect(() => {
+    if (listRef && listRef.current && accountIndex > -1) {
+      listRef.current.scrollToItem(accountIndex, 'smart');
+    }
+    // Omitting accountIndex on purpose in dependencies
+    // We want to scroll to the selected item only once on mount.
+    // eslint-disable-next-line
+  }, [listRef]);
 
-    return (
-        <ListSection id='account-list'>
-            <T.SearchContainer>
-                <T.Search>
-                    <T.SearchInput disableToggle={true} placeholder='Search by Account Name' onChange={e => setFilter('userName', e.target.value)} />
-                </T.Search>
-                <T.ExtraButton icon={<i className="fas fa-plus" />} label="Create Account" variant='primary' onClick={() => dispatch(push('/create-account'))} type="submit" />
-            </T.SearchContainer>
-            <T.Container>
-                <Table {...getTableProps()}>
-                    <T.Head>
-                        {headerGroups.map(headerGroup => (
-                            <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                                {headerGroup.headers.map(column => (
-                                    <T.HeadCell onClick={() => handleSortClick(column, listRef)} key={column.id} {...column.getHeaderProps()} style={{ ...column.headerStyle }}>
-                                        {column.render('Header')}
-                                        <T.Icon>
-                                            {column.isSorted
-                                                ? column.isSortedDesc
-                                                    ? <i className='fas fa-sort-down' />
-                                                    : <i className='fas fa-sort-up' />
-                                                : <i className='fas fa-sort' />}
-                                        </T.Icon>
-                                    </T.HeadCell>
-                                ))}
-                            </T.HeadRow>
-                        ))}
-                    </T.Head>
-                    <T.BodyWindowing {...getTableBodyProps()}>
-                        <AutoSizer>
-                            {({ height, width }) => (
-                                // ISSUE: https://github.com/bvaughn/react-window/issues/504
-                                // eslint-disable-next-line flowtype-errors/show-errors
-                                <FixedSizeList
-                                    ref={listRef}
-                                    height={height || 300}
-                                    itemCount={rows.length}
-                                    itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
-                                    width={width || '100%'}
-                                    itemData={createItemData(rows, prepareRow, accountNameParam, dispatch)}
-                                >
-                                    {MemoRow}
-                                </FixedSizeList>
-                            )}
-                        </AutoSizer>
-                    </T.BodyWindowing>
-                </Table>
-            </T.Container>
-        </ListSection>
-    );
+  return (
+    <ListSection id="account-list">
+      <T.SearchContainer>
+        <T.Search>
+          <T.SearchInput
+            disableToggle={true}
+            placeholder="Search by Account Name"
+            onChange={e => setFilter('userName', e.target.value)}
+          />
+        </T.Search>
+        <T.ExtraButton
+          icon={<i className="fas fa-plus" />}
+          label="Create Account"
+          variant="primary"
+          onClick={() => dispatch(push('/create-account'))}
+          type="submit"
+        />
+      </T.SearchContainer>
+      <T.Container>
+        <Table {...getTableProps()}>
+          <T.Head>
+            {headerGroups.map(headerGroup => (
+              <T.HeadRow
+                key={headerGroup.id}
+                {...headerGroup.getHeaderGroupProps()}
+              >
+                {headerGroup.headers.map(column => (
+                  <T.HeadCell
+                    onClick={() => handleSortClick(column, listRef)}
+                    key={column.id}
+                    {...column.getHeaderProps()}
+                    style={{ ...column.headerStyle }}
+                  >
+                    {column.render('Header')}
+                    <T.Icon>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <i className="fas fa-sort-down" />
+                        ) : (
+                          <i className="fas fa-sort-up" />
+                        )
+                      ) : (
+                        <i className="fas fa-sort" />
+                      )}
+                    </T.Icon>
+                  </T.HeadCell>
+                ))}
+              </T.HeadRow>
+            ))}
+          </T.Head>
+          <T.BodyWindowing {...getTableBodyProps()}>
+            <AutoSizer>
+              {({ height, width }) => (
+                // ISSUE: https://github.com/bvaughn/react-window/issues/504
+                // eslint-disable-next-line flowtype-errors/show-errors
+                <FixedSizeList
+                  ref={listRef}
+                  height={height || 300}
+                  itemCount={rows.length}
+                  itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
+                  width={width || '100%'}
+                  itemData={createItemData(
+                    rows,
+                    prepareRow,
+                    accountNameParam,
+                    dispatch,
+                  )}
+                >
+                  {MemoRow}
+                </FixedSizeList>
+              )}
+            </AutoSizer>
+          </T.BodyWindowing>
+        </Table>
+      </T.Container>
+    </ListSection>
+  );
 }
 
 export default AccountList;

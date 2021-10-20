@@ -17,111 +17,164 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 
 type Props = {
-    locations: Locations,
-    buckets: S3BucketList,
-    selectedBucketName: ?string,
+  locations: Locations,
+  buckets: S3BucketList,
+  selectedBucketName: ?string,
 };
-export default function BucketList({ selectedBucketName, buckets, locations }: Props){
-    const dispatch = useDispatch();
-    const listRef = useRef<FixedSizeList<T> | null>(null);
+export default function BucketList({
+  selectedBucketName,
+  buckets,
+  locations,
+}: Props) {
+  const dispatch = useDispatch();
+  const listRef = useRef<FixedSizeList<T> | null>(null);
 
-    const handleCellClicked = useCallback((name) => (e) => {
-        e.stopPropagation();
-        dispatch(push(`/buckets/${name}/objects`));
-    }, [dispatch]);
+  const handleCellClicked = useCallback(
+    name => e => {
+      e.stopPropagation();
+      dispatch(push(`/buckets/${name}/objects`));
+    },
+    [dispatch],
+  );
 
-    const columns = useMemo(() => [
-        {
-            Header: 'Bucket Name',
-            accessor: 'Name',
-            Cell({ value: name }: { value: string }) {
-                return <T.CellClick onClick={handleCellClicked(name)}>{name}</T.CellClick>;
-            },
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Bucket Name',
+        accessor: 'Name',
+        Cell({ value: name }: { value: string }) {
+          return (
+            <T.CellClick onClick={handleCellClicked(name)}>{name}</T.CellClick>
+          );
         },
-        {
-            Header: 'Storage Location',
-            accessor: 'LocationConstraint',
-            Cell({ value: locationName }: { value: LocationName }) {
-                const locationType = getLocationTypeFromName(locationName, locations);
-                return `${locationName || 'us-east-1'} / ${locationType}`;
-            },
+      },
+      {
+        Header: 'Storage Location',
+        accessor: 'LocationConstraint',
+        Cell({ value: locationName }: { value: LocationName }) {
+          const locationType = getLocationTypeFromName(locationName, locations);
+          return `${locationName || 'us-east-1'} / ${locationType}`;
         },
-        {
-            Header: 'Created on',
-            accessor: 'CreationDate',
-            headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
-            Cell({ value }: { value: string }) {
-                return (
-                    <TextAligner alignment='right' style={{ paddingRight: spacing.sp16 }}>
-                        {formatShortDate(new Date(value))}
-                    </TextAligner>
-                );
-            },
+      },
+      {
+        Header: 'Created on',
+        accessor: 'CreationDate',
+        headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
+        Cell({ value }: { value: string }) {
+          return (
+            <TextAligner
+              alignment="right"
+              style={{ paddingRight: spacing.sp16 }}
+            >
+              {formatShortDate(new Date(value))}
+            </TextAligner>
+          );
         },
-    ], [locations, handleCellClicked]);
+      },
+    ],
+    [locations, handleCellClicked],
+  );
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        setFilter,
-        prepareRow,
-    } = useTable({
-        columns,
-        data: buckets,
-        disableSortRemove: true,
-        autoResetFilters: false,
-        autoResetSortBy: false,
-    }, useFilters, useSortBy);
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    setFilter,
+    prepareRow,
+  } = useTable(
+    {
+      columns,
+      data: buckets,
+      disableSortRemove: true,
+      autoResetFilters: false,
+      autoResetSortBy: false,
+    },
+    useFilters,
+    useSortBy,
+  );
 
-    return <L.ListSection id='bucket-list'>
-        <T.SearchContainer>
-            <T.Search> <T.SearchInput disableToggle={true} placeholder='Search by Bucket Name' onChange={e => setFilter('Name', e.target.value)}/> </T.Search>
-            <T.ExtraButton icon={<i className="fas fa-plus" />} label="Create Bucket" variant="primary" onClick={() => dispatch(push('/create-bucket'))} type="submit" />
-        </T.SearchContainer>
-        <T.Container>
-            <Table {...getTableProps()}>
-                <T.Head>
-                    {headerGroups.map(headerGroup => (
-                        <T.HeadRow key={headerGroup.id} {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map(column => {
-                                const headerProps = column.getHeaderProps(column.getSortByToggleProps({ title: '' }));
-                                return (
-                                    <T.HeadCell key={column.id} {...headerProps} style={{ ...column.headerStyle, ...headerProps.style }}>
-                                        {column.render('Header')}
-                                        <T.Icon>
-                                            {!column.disableSortBy && (column.isSorted
-                                                ? column.isSortedDesc
-                                                    ? <i className='fas fa-sort-down' />
-                                                    : <i className='fas fa-sort-up' />
-                                                : <i className='fas fa-sort' />)}
-                                        </T.Icon>
-                                    </T.HeadCell>
-                                );
-                            })}
-                        </T.HeadRow>
-                    ))}
-                </T.Head>
-                <T.BodyWindowing {...getTableBodyProps()}>
-                    <AutoSizer>
-                        {({ height, width }) => (
-                            // ISSUE: https://github.com/bvaughn/react-window/issues/504
-                            // eslint-disable-next-line flowtype-errors/show-errors
-                            <FixedSizeList
-                                ref={listRef}
-                                height={height || 300}
-                                itemCount={rows.length}
-                                itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
-                                width={width || '100%'}
-                                itemData={createItemData(rows, prepareRow, selectedBucketName, dispatch)}
-                            >
-                                {MemoRow}
-                            </FixedSizeList>
-                        )}
-                    </AutoSizer>
-                </T.BodyWindowing>
-            </Table>
-        </T.Container>
-    </L.ListSection>;
+  return (
+    <L.ListSection id="bucket-list">
+      <T.SearchContainer>
+        <T.Search>
+          {' '}
+          <T.SearchInput
+            disableToggle={true}
+            placeholder="Search by Bucket Name"
+            onChange={e => setFilter('Name', e.target.value)}
+          />{' '}
+        </T.Search>
+        <T.ExtraButton
+          icon={<i className="fas fa-plus" />}
+          label="Create Bucket"
+          variant="primary"
+          onClick={() => dispatch(push('/create-bucket'))}
+          type="submit"
+        />
+      </T.SearchContainer>
+      <T.Container>
+        <Table {...getTableProps()}>
+          <T.Head>
+            {headerGroups.map(headerGroup => (
+              <T.HeadRow
+                key={headerGroup.id}
+                {...headerGroup.getHeaderGroupProps()}
+              >
+                {headerGroup.headers.map(column => {
+                  const headerProps = column.getHeaderProps(
+                    column.getSortByToggleProps({ title: '' }),
+                  );
+                  return (
+                    <T.HeadCell
+                      key={column.id}
+                      {...headerProps}
+                      style={{ ...column.headerStyle, ...headerProps.style }}
+                    >
+                      {column.render('Header')}
+                      <T.Icon>
+                        {!column.disableSortBy &&
+                          (column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <i className="fas fa-sort-down" />
+                            ) : (
+                              <i className="fas fa-sort-up" />
+                            )
+                          ) : (
+                            <i className="fas fa-sort" />
+                          ))}
+                      </T.Icon>
+                    </T.HeadCell>
+                  );
+                })}
+              </T.HeadRow>
+            ))}
+          </T.Head>
+          <T.BodyWindowing {...getTableBodyProps()}>
+            <AutoSizer>
+              {({ height, width }) => (
+                // ISSUE: https://github.com/bvaughn/react-window/issues/504
+                // eslint-disable-next-line flowtype-errors/show-errors
+                <FixedSizeList
+                  ref={listRef}
+                  height={height || 300}
+                  itemCount={rows.length}
+                  itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
+                  width={width || '100%'}
+                  itemData={createItemData(
+                    rows,
+                    prepareRow,
+                    selectedBucketName,
+                    dispatch,
+                  )}
+                >
+                  {MemoRow}
+                </FixedSizeList>
+              )}
+            </AutoSizer>
+          </T.BodyWindowing>
+        </Table>
+      </T.Container>
+    </L.ListSection>
+  );
 }

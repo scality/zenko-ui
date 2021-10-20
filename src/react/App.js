@@ -16,9 +16,10 @@ import ZenkoUI from './ZenkoUI';
 // });
 
 ReactDOM.render(
-    <Provider store={store}>
-        <ConnectedRouter history={history}>
-            <ZenkoUI/>
-        </ConnectedRouter>
-    </Provider>,
-    document.getElementById('app'));
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+      <ZenkoUI />
+    </ConnectedRouter>
+  </Provider>,
+  document.getElementById('app'),
+);
