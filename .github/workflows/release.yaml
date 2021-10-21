@@ -46,7 +46,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Create Release
-        uses: softprops/action-gh-release@v0.1.13
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
