@@ -1,5 +1,7 @@
 FROM jboss/keycloak:10.0.2
 
+EXPOSE 8080
+
 USER root
 
 # install jq

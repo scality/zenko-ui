@@ -1,0 +1,163 @@
+---
+name: tests
+
+on:
+  push:
+    branches-ignore:
+      - 'development/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2.3.4
+
+    - uses: actions/setup-node@v2.4.1
+      with:
+        node-version: '10'
+        cache: 'npm'
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1.6.0
+
+    - name: Login to GitHub Registry
+      uses: docker/login-action@v1.10.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Login to Scality Registry
+      uses: docker/login-action@v1.10.0
+      with:
+        registry: registry.scality.com
+        username: ${{ secrets.REGISTRY_LOGIN }}
+        password: ${{ secrets.REGISTRY_PASSWORD}}
+
+    - name: install dependencies
+      run: npm config set unsafe-perm true && npm ci
+
+    - name: build assets
+      run: npm run build
+
+    - name: Build and push zenko ui
+      uses: docker/build-push-action@v2.7.0
+      with:
+        push: true
+        context: .
+        tags: |
+          ghcr.io/${{ github.repository }}/zenko-ui:${{ github.sha }}
+          registry.scality.com/zenko-ui-dev/zenko-ui:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build and push keycloak
+      uses: docker/build-push-action@v2.7.0
+      with:
+        push: true
+        context: .github/docker/keycloakconfig
+        tags: ghcr.io/${{ github.repository }}/ci-keycloak:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  tests:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2.4.1
+      with:
+        node-version: '10'
+        cache: 'npm'
+    - name: install dependencies
+      run: npm config set unsafe-perm true && npm ci
+    - name: run eslint test
+      run: npm run test:lint
+    - name: run test suite
+      run: npm run test:coverage
+    - name: code coverage
+      uses: codecov/codecov-action@v2.1.0
+
+  end2end:
+    needs: [build]
+    runs-on: ubuntu-20.04
+    env:
+      KEYCLOAK_ROOT: "http://127.0.0.1:8080"
+      KEYCLOAK_REALM: "myrealm"
+      KEYCLOAK_CLIENT_ID: "myclient"
+      KEYCLOAK_USERNAME: "bartsimpson"
+      KEYCLOAK_PASSWORD: "123"
+      KEYCLOAK_USER_FIRSTNAME: "Bart"
+      KEYCLOAK_USER_LASTNAME: "Simpson"
+    services:
+      keycloak:
+        image: ghcr.io/${{ github.repository }}/ci-keycloak:${{ github.sha }}
+        credentials:
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        ports:
+        - 8080:8080
+        env:
+          # Couldn't find a way to not duplicate those variables
+          KEYCLOAK_ROOT: "http://127.0.0.1:8080"
+          KEYCLOAK_REALM: "myrealm"
+          KEYCLOAK_CLIENT_ID: "myclient"
+          KEYCLOAK_USERNAME: "bartsimpson"
+          KEYCLOAK_PASSWORD: "123"
+          KEYCLOAK_USER_FIRSTNAME: "Bart"
+          KEYCLOAK_USER_LASTNAME: "Simpson"
+      shell-ui:
+        image: registry.scality.com/metalk8s/shell-ui:v2.10.3
+        ports:
+        - 8082:80
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v2.4.1
+      with:
+        node-version: '10'
+        cache: 'npm'
+    - name: install dependencies
+      run: npm config set unsafe-perm true && npm ci
+
+    - name: Login to GitHub Registry
+      uses: docker/login-action@v1.10.0
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    # Can't run Zenko UI as service as we're unable to attach
+    # volumes that are located inside the repository
+    - name: Run Zenko UI
+      run: >
+        docker run -d -p 8383:8383
+        -v $(pwd)/.github/configs/ui-test-config-shell.json:/usr/share/nginx/html/config-shell.json
+        -v $(pwd)/.github/configs/ui-test-config.json:/usr/share/nginx/html/config.json
+        -v $(pwd)/conf/zenko-ui-nginx.conf:/etc/nginx/conf.d/default.conf
+        ghcr.io/${{ github.repository }}/zenko-ui:${{ github.sha }}
+
+    - name: Wait for all services to start
+      run: |
+        bash wait_for_local_port.bash 8082 40
+        bash wait_for_local_port.bash 8080 40
+        bash wait_for_local_port.bash 8383 40
+
+    - name: Run end-to-end tests
+      run: npm run cypress:run
+      env:
+        CYPRESS_KEYCLOAK_USER_FULLNAME: "${{ env.KEYCLOAK_USER_FIRSTNAME }} ${{ env.KEYCLOAK_USER_LASTNAME }}"
+        CYPRESS_KEYCLOAK_USERNAME: "${{ env.KEYCLOAK_USERNAME }}"
+        CYPRESS_KEYCLOAK_PASSWORD: "${{ env.KEYCLOAK_PASSWORD }}"
+        CYPRESS_KEYCLOAK_ROOT: "${{ env.KEYCLOAK_ROOT }}"
+        CYPRESS_KEYCLOAK_CLIENT_ID: "${{ env.KEYCLOAK_CLIENT_ID }}"
+        CYPRESS_KEYCLOAK_REALM: "${{ env.KEYCLOAK_REALM }}"
+
+    - name: code coverage
+      uses: codecov/codecov-action@v2.1.0
+
+    - name: Dump container logs
+      run: |
+        docker logs ${{ job.services.keycloak.id }}
+        docker logs ${{ job.services.shell-ui.id }}
+      if: always()
