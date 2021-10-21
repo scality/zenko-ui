@@ -254,7 +254,7 @@ function BucketCreate() {
             Permanently allows objects in this bucket to be locked.
             <br />
             Object-lock option cannot be removed after bucket creation, but
-            you'll be able to disable the retention itself on edition.
+            you&apos;ll be able to disable the retention itself on edition.
             <br />
             Once the bucket is created, you might be blocked from deleting the
             objects and the bucket.
