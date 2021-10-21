@@ -18,11 +18,11 @@ export function RefreshButton() {
     const dispatch = useDispatch();
     const isBrowsingObjects = !!matchPath(pathname, '/buckets/:bucketName/objects');
     const prefixWithSlash = useMemo(() => {
-        const splitedPath = pathname.split('objects/');
-        if (splitedPath.length < 2 || splitedPath[1].length === 0) {
+        const splittedPath = pathname.split('objects/');
+        if (splittedPath.length < 2 || splittedPath[1].length === 0) {
             return '';
         } else {
-            const prefix = splitedPath[1].slice(-1) === '/' ? splitedPath[1] : `${splitedPath[1]}/`;
+            const prefix = splittedPath[1].slice(-1) === '/' ? splittedPath[1] : `${splittedPath[1]}/`;
             return prefix;
         }
     }, [ pathname ]);
