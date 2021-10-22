@@ -159,7 +159,8 @@ export type ObjectMetadata = {|
   +tags: Tags,
 |};
 
-export type Versioning = 'Disabled' | 'Enabled' | 'Suspended';
+type EnabledOrDisabled = 'Disabled' | 'Enabled';
+export type Versioning = EnabledOrDisabled | 'Suspended';
 
 export type BucketInfo = {|
   +name: string,
@@ -171,6 +172,16 @@ export type BucketInfo = {|
   +versioning: Versioning,
   +public: boolean,
   +locationConstraint: string,
+  +objectLockConfiguration: {|
+    +ObjectLockEnabled: EnabledOrDisabled,
+    +Rule?: {|
+      +DefaultRetention?: {|
+        +Days?: number,
+        +Years?: number,
+        +Mode: RetentionMode,
+      |},
+    |},
+  |},
 |};
 
 export type ListObjectsType = 's3' | 'md' | 'ver';
