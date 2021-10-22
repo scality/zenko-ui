@@ -379,6 +379,23 @@ export default class S3Client {
     });
   }
 
+  _getBucketObjectLockConfiguration(params) {
+    return new Promise((resolve, reject) => {
+      this.client.getObjectLockConfiguration(params, (error, data) => {
+        if (error) {
+          if (error.code === 'ObjectLockConfigurationNotFoundError') {
+            return resolve({ ObjectLockEnabled: 'Disabled' });
+          }
+          return reject(error);
+        }
+        if (data) {
+          return resolve(data);
+        }
+        return resolve({ ObjectLockEnabled: 'Disabled' });
+      });
+    });
+  }
+
   getBucketInfo(bucketName) {
     const params = {
       Bucket: bucketName,
@@ -402,9 +419,16 @@ export default class S3Client {
         this._getBucketLocation(params),
         this._getBucketAcl(params),
         this._getBucketVersioning(params),
+        this._getBucketObjectLockConfiguration(params),
       ])
         .then(values => {
-          const [cors, location, acl, versioning] = values;
+          const [
+            cors,
+            location,
+            acl,
+            versioning,
+            objectLockConfiguration,
+          ] = values;
           bucketInfo.cors = cors;
           bucketInfo.locationConstraint = location;
           bucketInfo.owner = acl.Owner.DisplayName;
@@ -414,6 +438,7 @@ export default class S3Client {
           );
           bucketInfo.versioning = versioning;
           bucketInfo.isVersioning = isVersioning(versioning);
+          bucketInfo.objectLockConfiguration = objectLockConfiguration;
           return resolve(bucketInfo);
         })
         .catch(error => {

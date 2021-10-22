@@ -1,4 +1,4 @@
-// @noflow
+// @flow
 import React, { useEffect } from 'react';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import {
@@ -9,16 +9,18 @@ import {
   toggleBucketVersioning,
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import type { AppState } from '../../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import type { Replication } from '../../../types/config';
-import type { S3Bucket } from '../../../types/s3';
+import type { Replication } from '../../../../types/config';
+import type { S3Bucket } from '../../../../types/s3';
 import { TableContainer } from '../../../ui-elements/Table';
 import { Toggle } from '@scality/core-ui';
 import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
+import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
+import { useTheme } from 'styled-components';
 
 function canDeleteBucket(
   bucketName: string,
@@ -42,6 +44,7 @@ type Props = {
 };
 
 function Overview({ bucket }: Props) {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const showDelete = useSelector(
     (state: AppState) => state.uiBuckets.showDelete,
@@ -112,21 +115,61 @@ function Overview({ bucket }: Props) {
               <T.Row>
                 <T.Key> Versioning </T.Key>
                 <T.Value>
-                  <Toggle
-                    disabled={loading}
-                    toggle={bucketInfo.isVersioning}
-                    label={bucketInfo.versioning}
-                    onChange={() =>
-                      dispatch(
-                        toggleBucketVersioning(
-                          bucket.Name,
-                          !bucketInfo.isVersioning,
-                        ),
-                      )
-                    }
-                  />
+                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
+                    'Disabled' && (
+                    <Toggle
+                      disabled={loading}
+                      toggle={bucketInfo.isVersioning}
+                      label={bucketInfo.versioning}
+                      onChange={() =>
+                        dispatch(
+                          toggleBucketVersioning(
+                            bucket.Name,
+                            !bucketInfo.isVersioning,
+                          ),
+                        )
+                      }
+                    />
+                  )}
+                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
+                    'Enabled' && (
+                    <>
+                      Active
+                      <br />
+                      <SmallerText style={{ color: theme.brand.textSecondary }}>
+                        Versioning cannot be suspended because Object-lock is
+                        enabled for this bucket.
+                      </SmallerText>
+                    </>
+                  )}
                 </T.Value>
               </T.Row>
+              {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
+                'Enabled' && (
+                <T.Row>
+                  <T.Key> Default Object-lock Retention </T.Key>
+                  <T.Value>
+                    {bucketInfo.objectLockConfiguration.Rule &&
+                      bucketInfo.objectLockConfiguration.Rule
+                        .DefaultRetention &&
+                      `Active - ${
+                        bucketInfo.objectLockConfiguration.Rule.DefaultRetention
+                          .Days
+                          ? bucketInfo.objectLockConfiguration.Rule
+                              .DefaultRetention.Days + ' days'
+                          : bucketInfo.objectLockConfiguration.Rule
+                              .DefaultRetention.Years
+                          ? bucketInfo.objectLockConfiguration.Rule
+                              .DefaultRetention.Years + ' years'
+                          : ''
+                      }`}
+                    {(!bucketInfo.objectLockConfiguration.Rule ||
+                      !bucketInfo.objectLockConfiguration.Rule
+                        .DefaultRetention) &&
+                      'Inactive'}
+                  </T.Value>
+                </T.Row>
+              )}
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
