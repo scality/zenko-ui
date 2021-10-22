@@ -16,7 +16,7 @@ describe('LocationEditor', () => {
     selectInput.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
 
     const options = component.find('div.sc-select__option');
-    expect(options.length).toBe(7);
+    expect(options.length).toBe(6);
     expect(
       options
         .first()
@@ -53,11 +53,5 @@ describe('LocationEditor', () => {
         .find('span')
         .text(),
     ).toBe('Microsoft Azure Blob Storage');
-    expect(
-      options
-        .at(6)
-        .find('span')
-        .text(),
-    ).toBe('Local Filesystem');
   });
 });
