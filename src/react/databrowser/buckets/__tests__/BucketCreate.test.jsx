@@ -77,7 +77,7 @@ describe('BucketCreate', () => {
         input.getDOMNode().value = t.testValue;
         input.getDOMNode().dispatchEvent(new Event('input'));
 
-        component.find('button#create-account-btn').simulate('click');
+        component.find('form').simulate('submit');
       });
 
       if (t.expectedEmptyNameError !== null) {
@@ -95,5 +95,30 @@ describe('BucketCreate', () => {
       }
       component.unmount();
     });
+  });
+
+  it('should toggle versioning and disable it when enabling object lock', async () => {
+    const component = await reduxMountAct(<BucketCreate />);
+
+    await act(async () => {
+      const input = component.find('input#name');
+      input.getDOMNode().value = 'test';
+      input.getDOMNode().dispatchEvent(new Event('input'));
+
+      const objectLockEnabled = component.find(
+        'input[placeholder="isObjectLockEnabled"]',
+      );
+
+      objectLockEnabled.simulate('change', { target: { checked: true } });
+    });
+
+    expect(
+      component.find('input[placeholder="Versioning"]').getDOMNode().checked,
+    ).toBe(true);
+    expect(
+      component.find('input[placeholder="Versioning"]').getDOMNode().disabled,
+    ).toBe(true);
+
+    component.unmount();
   });
 });

@@ -67,12 +67,16 @@ describe('s3bucket actions', () => {
   const asyncTests = [
     {
       it: 'createBucket: should return expected actions',
-      fn: actions.createBucket({
-        name: BUCKET_NAME,
-        locationConstraint: {
-          value: 'us-east-1',
+      fn: actions.createBucket(
+        {
+          name: BUCKET_NAME,
+          locationConstraint: {
+            value: 'us-east-1',
+          },
+          isObjectLockEnabled: false,
         },
-      }),
+        { isVersioning: false },
+      ),
       storeState: initState,
       expectedActions: [
         createBucketNetworkAction,
@@ -83,12 +87,16 @@ describe('s3bucket actions', () => {
     },
     {
       it: 'createBucket: should handle error',
-      fn: actions.createBucket({
-        name: BUCKET_NAME,
-        locationConstraint: {
-          value: 'us-east-1',
+      fn: actions.createBucket(
+        {
+          name: BUCKET_NAME,
+          locationConstraint: {
+            value: 'us-east-1',
+          },
+          isObjectLockEnabled: false,
         },
-      }),
+        { isVersioning: false },
+      ),
       storeState: errorZenkoState(),
       expectedActions: [
         createBucketNetworkAction,

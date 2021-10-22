@@ -126,10 +126,10 @@ export function createBucket(
       }
     }
 
-    dispatch(listBuckets());
-    dispatch(push('/buckets'));
+    await dispatch(listBuckets());
+    await dispatch(push('/buckets'));
 
-    dispatch(networkEnd());
+    await dispatch(networkEnd());
   };
 }
 
