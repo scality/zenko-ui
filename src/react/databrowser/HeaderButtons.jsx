@@ -1,16 +1,10 @@
 import React, { useMemo } from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@scality/core-ui/dist/next';
+import { ButtonsContainer } from '../ui-elements/Container';
 import { listBuckets } from '../actions/s3bucket';
 import { listObjects } from '../actions/s3object';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-
-export const ButtonsContainer = styled.div`
-    height: 100%;
-    display: flex;
-    align-items: center;
-`;
 
 export function RefreshButton() {
     const { bucketName } = useParams();

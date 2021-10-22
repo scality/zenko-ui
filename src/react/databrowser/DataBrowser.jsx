@@ -7,7 +7,7 @@ import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import BucketCreate from './buckets/BucketCreate';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';
-import ListLayoutButtons from '../ui-elements/ListLayoutButtons';
+import ListLayoutButtons from './HeaderButtons';
 import Objects from './objects/Objects';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';

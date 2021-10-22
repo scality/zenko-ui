@@ -73,6 +73,12 @@ const ButtonContainer = styled.div`
     justify-content: flex-end;
 `;
 
+const ButtonsContainer = styled.div`
+    height: 100%;
+    display: flex;
+    align-items: center;
+`;
+
 export {
     Container,
     LoaderContainer,
@@ -82,4 +88,5 @@ export {
     RouteContainer,
     ZenkoUIContainer,
     ButtonContainer,
+    ButtonsContainer,
 };
