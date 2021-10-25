@@ -16,7 +16,7 @@ export const METADATA_SEARCH_HINT_ITEMS = [
     { descr: 'files tagged with color blue', q: 'tags.color=blue' },
     { descr: 'PDF files (from content-type)', q: 'content-type=application/pdf' },
     { descr: 'file names that contain the word Report (case sensitive)', q: 'key like Report' },
-    { descr: 'files waiting to be replicated', q: 'x-amz-meta-replication-status="PENDING"' },
+    { descr: 'files waiting to be replicated', q: 'replication-status="PENDING"' },
 ];
 
 type Props = {
