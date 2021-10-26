@@ -1,5 +1,7 @@
 // @flow
 
+import S3Client from '../js/S3Client';
+
 export type Marker = null | string;
 
 export type SearchParams = {|
@@ -40,7 +42,7 @@ export type ConnectionResp = void | ZenkoClientError;
 export type ZenkoMapResp = {};
 
 export type ZenkoErrorType = 'ingestion' | 'replication' | 'failed' | null;
-export interface ZenkoClient {
+export interface ZenkoClient extends S3Client {
   _init(): void;
   logout(): void;
   login(params: Credentials): void;

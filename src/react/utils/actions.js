@@ -1,6 +1,7 @@
-// @noflow
+// @flow
+import type { AppState } from '../../types/state';
 
-export function getClients(state) {
+export function getClients(state: AppState) {
   return {
     instanceId: state.instances.selectedId,
     managementClient: state.auth.managementClient,
@@ -9,6 +10,6 @@ export function getClients(state) {
   };
 }
 
-export function getAccountId(state): ?string {
+export function getAccountId(state: AppState): ?string {
   return state.auth.selectedAccount?.id;
 }

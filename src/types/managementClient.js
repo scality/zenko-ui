@@ -18,7 +18,7 @@ export type ApiConfigurationResponse = {
   body: ConfigurationOverlay,
 };
 
-export interface ManagementClient {}
+export type ManagementClient = any;
 
 export type ApiAccountKeyResponse = {
   body: {
