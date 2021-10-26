@@ -1,12 +1,16 @@
 // @noflow
 import { Checkbox as BasicCheckbox, Tooltip } from '@scality/core-ui';
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
 import type { Node } from 'react';
 import React from 'react';
 import styled from 'styled-components';
+import {
+  SmallerText,
+  LargerText,
+} from '@scality/core-ui/dist/components/text/Text.component';
 
 /* TEMPLATE:
 <FormContainer>
@@ -33,18 +37,22 @@ import styled from 'styled-components';
 </FormContainer>
 */
 
-export const Title = styled.div`
+export const Title = styled(LargerText)`
   display: flex;
   text-transform: capitalize;
+  margin-bottom: ${spacing.sp16};
+`;
+
+export const SubTitle = styled.div`
+  display: flex;
   color: ${props => props.theme.brand.textPrimary};
-  margin-bottom: ${spacing.sp40};
-  font-size: ${fontSize.massive};
+  font-weight: bold;
 `;
 
 export const Fieldset = styled.fieldset`
   display: flex;
   flex-direction: ${props => props.direction || 'column'};
-  justify-content: space-between;
+  ${props => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
   border: 0;
   padding: 0;
   margin-top: ${spacing.sp16};
@@ -74,6 +82,17 @@ export const InputList = styled(BasicInputList)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
 
+export const SessionSeperation = styled.div`
+  width: 23px;
+  height: 1px;
+  margin: ${spacing.sp16} 0px ${spacing.sp16} 0px;
+  background-color: ${props => props.theme.brand.buttonSecondary};
+`;
+
+export const LabelSecondary = styled(SmallerText)`
+  color: ${props => props.theme.brand.textSecondary};
+`;
+
 // * ErrorInput
 const ErrorInputContainer = styled.div`
   height: ${spacing.sp16};
@@ -92,6 +111,8 @@ export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
 // * Label
 const LabelContainer = styled.label`
   display: flex;
+  align-items: center;
+  width: 35%;
 `;
 
 const TooltipContainer = styled.div`
@@ -111,6 +132,7 @@ type LabelProps = {
   children: Node,
   tooltipMessages?: Array<string>,
   tooltipWidth?: string,
+  style?: CSSStyleSheet,
 };
 
 export const Label = ({
@@ -149,10 +171,7 @@ export const Footer = styled.div`
   width: 100%;
   justify-content: flex-end;
   align-items: flex-end;
-
-  height: 50px;
   text-transform: lowercase;
-  margin-top: ${spacing.sp40};
 `;
 
 export const FooterError = styled.div`
@@ -173,7 +192,7 @@ export const Form = styled.form`
   display: flex;
   flex-direction: column;
   background-color: ${props => props.theme.brand.backgroundLevel1};
-  padding-top: 5%;
+  padding-top: 1%;
   padding-left: 30%;
   padding-right: 30%;
 `;
@@ -183,7 +202,13 @@ const FormContainer = styled.div`
   background-color: ${props => props.theme.brand.backgroundLevel1};
   margin: ${spacing.sp8};
   margin-bottom: ${spacing.sp24};
-  overflow: auto;
+  overflow: hidden;
 `;
 
+export const FormScrollArea = styled.div`
+  overflow: auto;
+  max-height: calc(100vh - 19rem);
+  margin-right: ${spacing.sp12};
+  padding-bottom: ${spacing.sp40};
+`;
 export default FormContainer;

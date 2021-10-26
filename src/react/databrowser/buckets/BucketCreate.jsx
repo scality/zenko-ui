@@ -1,11 +1,13 @@
 // @flow
-import { Controller, useForm } from 'react-hook-form';
+import { Banner, Toggle } from '@scality/core-ui';
+import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
-import { Banner, Toggle } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers';
@@ -13,17 +15,62 @@ import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
+import ObjectLockRetentionSettings from './ObjectLockRetentionSettings';
 
 const schema = Joi.object({
-    name: Joi.string().label('Name').required().min(3).max(63),
-    locationName: Joi.string().required(),
+  name: Joi.string()
+    .label('Name')
+    .required()
+    .min(3)
+    .max(63),
+  locationName: Joi.string().required(),
+  isVersioning: Joi.boolean(),
+  isObjectLockEnabled: Joi.boolean(),
+  isDefaultRetentionEnabled: Joi.boolean(),
+  retentionMode: Joi.string().when('isDefaultRetentionEnabled', {
+    is: Joi.exist(),
+    then: Joi.string().required(),
+    otherwise: Joi.string(),
+  }),
+  retentionPeriod: Joi.number().when('isDefaultRetentionEnabled', {
+    is: Joi.exist(),
+    then: Joi.number().required(),
+    otherwise: Joi.number(),
+  }),
+  retentionPeriodFrequencyChoice: Joi.string().when(
+    'isDefaultRetentionEnabled',
+    {
+      is: Joi.exist(),
+      then: Joi.string().required(),
+      otherwise: Joi.string(),
+    },
+  ),
 });
 
 function BucketCreate() {
   // TODO: redirect to list buckets if no account
-  const { register, handleSubmit, errors, control } = useForm({
+  const useFormMethods = useForm({
+    mode: 'all',
     resolver: joiResolver(schema),
+    defaultValues: {
+      retentionMode: 'GOVERNANCE',
+      retentionPeriod: 1,
+      retentionPeriodFrequencyChoice: 'DAYS',
+    },
   });
+
+  const {
+    register,
+    handleSubmit,
+    errors,
+    control,
+    watch,
+    setValue,
+    formState,
+  } = useFormMethods;
+  const { dirtyFields, isValid } = formState;
+
+  const isObjectLockEnabled = watch('isObjectLockEnabled');
 
   const dispatch = useDispatch();
 
@@ -54,10 +101,37 @@ function BucketCreate() {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
 
-    const onSubmit = ({ name, locationName }) => {
-        clearServerError();
-        dispatch(createBucket({ name, locationConstraint: locationName }));
-    };
+  const onSubmit = ({
+    name,
+    locationName,
+    isVersioning,
+    isObjectLockEnabled,
+    isDefaultRetentionEnabled,
+    retentionMode,
+    retentionPeriod,
+    retentionPeriodFrequencyChoice,
+  }) => {
+    clearServerError();
+    const retentionPeriodToSubmit =
+      retentionPeriodFrequencyChoice === 'DAYS'
+        ? { days: retentionPeriod }
+        : { years: retentionPeriod };
+    dispatch(
+      createBucket(
+        {
+          name,
+          locationConstraint: locationName,
+          isObjectLockEnabled,
+        },
+        { isVersioning },
+        {
+          isDefaultRetentionEnabled,
+          retentionMode,
+          retentionPeriod: retentionPeriodToSubmit,
+        },
+      ),
+    );
+  };
 
   const handleCancel = () => {
     clearServerError();
@@ -79,77 +153,182 @@ function BucketCreate() {
     return locationWithIngestion(locations, capabilities);
   }, [locations, capabilities]);
 
-    return <FormContainer>
-        <F.Form ref={formRef}>
-            <F.Title> Create a New Bucket </F.Title>
+  return (
+    <FormProvider {...useFormMethods}>
+      <FormContainer>
+        <F.Form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
+          <F.Title> Create a New Bucket </F.Title>
+          <F.SubTitle>All * Are Mandatory Fields</F.SubTitle>
+          <F.FormScrollArea>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Must be unique', 'Cannot be modified after creation']} tooltipWidth="15rem">
-                    Bucket Name
-                </F.Label>
-                <F.Input
-                    type='text'
-                    id='name'
-                    name='name'
-                    ref={register}
-                    onChange={clearServerError}
-                    autoComplete='off' />
-                <F.ErrorInput id='error-name' hasError={errors.name}> {errors.name?.message} </F.ErrorInput>
+              <F.Label
+                tooltipMessages={[
+                  'Must be unique',
+                  'Cannot be modified after creation',
+                ]}
+                tooltipWidth="15rem"
+              >
+                Bucket Name*
+              </F.Label>
+              <F.Input
+                type="text"
+                id="name"
+                name="name"
+                ref={register}
+                autoFocus={true}
+                onChange={clearServerError}
+                autoComplete="off"
+              />
+              <F.ErrorInput id="error-name" hasError={errors.name}>
+                {' '}
+                {errors.name?.message}{' '}
+              </F.ErrorInput>
             </F.Fieldset>
             <F.Fieldset>
-                <F.Label tooltipMessages={['Cannot be modified after creation']} tooltipWidth="13rem">
-                    Select Storage Location
-                </F.Label>
-                <Controller
-                    control={control}
-                    id='locationName'
-                    name='locationName'
-                    defaultValue='us-east-1'
-                    render={({ onChange, value: locationName }) => {
-                        return <F.Select
-                            onChange={onChange}
-                            placeholder='Location Name'
-                            value={locationName}
-                        >
-                            {selectLocations.map((opt, i) => <F.Select.Option key={i} value={opt.value}>{renderLocation(opt)}</F.Select.Option>)}
-                        </F.Select>;
-                    }}
-                />
-              );
-            }}
-          />
-        </F.Fieldset>
-        <F.Footer>
-          <F.FooterError>
-            {hasError && (
-              <Banner
-                id="zk-error-banner"
-                icon={<i className="fas fa-exclamation-triangle" />}
-                title="Error"
-                variant="danger"
+              <F.Label
+                tooltipMessages={['Cannot be modified after creation']}
+                tooltipWidth="13rem"
               >
-                {errorMessage}
-              </Banner>
+                Select Storage Location*
+              </F.Label>
+              <Controller
+                control={control}
+                id="locationName"
+                name="locationName"
+                defaultValue="us-east-1"
+                render={({ onChange, value: locationName }) => {
+                  return (
+                    <F.Select
+                      onChange={onChange}
+                      placeholder="Location Name"
+                      value={locationName}
+                    >
+                      {selectLocations.map((opt, i) => (
+                        <F.Select.Option key={i} value={opt.value}>
+                          {renderLocation(opt)}
+                        </F.Select.Option>
+                      ))}
+                    </F.Select>
+                  );
+                }}
+              />
+            </F.Fieldset>
+            <F.Fieldset direction={'row'}>
+              <F.Label>Versioning</F.Label>
+              <Controller
+                control={control}
+                id="isVersioning"
+                name="isVersioning"
+                defaultValue={false}
+                render={({ onChange, value: isVersioning }) => {
+                  return (
+                    <Toggle
+                      disabled={isObjectLockEnabled}
+                      onChange={e => onChange(e.target.checked)}
+                      placeholder="Versioning"
+                      label={isVersioning ? 'Active' : 'Inactive'}
+                      toggle={isVersioning}
+                    />
+                  );
+                }}
+              />
+              {isObjectLockEnabled && (
+                <SpacedBox ml={16}>
+                  <SmallerText>
+                    Automatically activated when Object-lock is Active
+                  </SmallerText>
+                </SpacedBox>
+              )}
+            </F.Fieldset>
+            <F.SessionSeperation />
+            <F.SubTitle>Object-lock option</F.SubTitle>
+            <F.Fieldset direction={'row'}>
+              <F.Label
+                tooltipMessages={[
+                  'Object-lock option cannot be removed after bucket creation, but you will be able to disable the retention itself on edition.',
+                  'Once the bucket is created, you might be blocked from deleting the objects and the bucket.',
+                  'Enabling Object-lock automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
+                ]}
+                tooltipWidth="28rem"
+              >
+                Object-lock
+              </F.Label>
+              <Controller
+                control={control}
+                id="isObjectLockEnabled"
+                name="isObjectLockEnabled"
+                defaultValue={false}
+                render={({ onChange, value: isObjectLockEnabled }) => {
+                  return (
+                    <Toggle
+                      onChange={e => {
+                        onChange(e.target.checked);
+                        if (e.target.checked) {
+                          setValue('isVersioning', true, {
+                            shouldDirty: false,
+                          });
+                        } else if (
+                          !Object.keys(dirtyFields).includes('isVersioning') &&
+                          !e.target.checked
+                        ) {
+                          setValue('isVersioning', false, {
+                            shouldDirty: false,
+                          });
+                        }
+                      }}
+                      placeholder="isObjectLockEnabled"
+                      label={isObjectLockEnabled ? 'Active' : 'Inactive'}
+                      toggle={isObjectLockEnabled}
+                    />
+                  );
+                }}
+              />
+            </F.Fieldset>
+            <SpacedBox md={2}>
+              <F.LabelSecondary>
+                Permanently allows objects in this bucket to be locked.
+              </F.LabelSecondary>
+            </SpacedBox>
+            {isObjectLockEnabled && (
+              <ObjectLockRetentionSettings
+                isObjectLockEnabled={isObjectLockEnabled}
+              />
             )}
-          </F.FooterError>
-          <F.FooterButtons>
-            <Button
-              disabled={loading}
-              id="cancel-btn"
-              variant="outline"
-              onClick={handleCancel}
-              label="Cancel"
-            />
-            <Button
-              disabled={loading}
-              id="create-account-btn"
-              variant="primary"
-              onClick={handleSubmit(onSubmit)}
-              label="Create"
-            />
-          </F.FooterButtons>
-        </F.Footer>
-      </F.Form>
-    </FormContainer>
+          </F.FormScrollArea>
+          <F.Footer>
+            <F.FooterError>
+              {hasError && (
+                <Banner
+                  id="zk-error-banner"
+                  icon={<i className="fas fa-exclamation-triangle" />}
+                  title="Error"
+                  variant="danger"
+                >
+                  {errorMessage}
+                </Banner>
+              )}
+            </F.FooterError>
+            <F.FooterButtons>
+              <Button
+                disabled={loading}
+                id="cancel-btn"
+                variant="outline"
+                onClick={handleCancel}
+                type="button"
+                label="Cancel"
+              />
+              <Button
+                disabled={loading || !isValid}
+                id="create-account-btn"
+                type="submit"
+                variant="primary"
+                label="Create"
+              />
+            </F.FooterButtons>
+          </F.Footer>
+        </F.Form>
+      </FormContainer>
+    </FormProvider>
   );
 }
 
