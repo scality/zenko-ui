@@ -14,7 +14,7 @@ import {
 } from '../../../../js/mock/managementClient';
 import { applyMiddleware, compose, createStore } from 'redux';
 import {
-  bucketInfoResponse,
+  bucketInfoResponseNoVersioning,
   bucketName,
   commonPrefix,
   file,
@@ -104,7 +104,7 @@ export const INFO = info;
 export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
-export const BUCKET_INFO_RESPONSE = bucketInfoResponse;
+export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;

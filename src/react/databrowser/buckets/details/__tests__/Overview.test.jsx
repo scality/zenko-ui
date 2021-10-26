@@ -1,8 +1,11 @@
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import * as actions from '../../../../actions/s3bucket';
 import {
-  bucketInfoResponse,
+  bucketInfoResponseNoVersioning,
+  bucketInfoResponseVersioning,
+  bucketInfoResponseObjectLockNoDefaultRetention,
   bucketName,
+  bucketInfoResponseObjectLockDefaultRetention,
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
 import React from 'react';
@@ -18,9 +21,6 @@ const BUCKET = {
 const TEST_STATE = {
   uiBuckets: {
     showDelete: '',
-  },
-  s3: {
-    bucketInfo: bucketInfoResponse,
   },
   configuration: {
     latest: {
@@ -44,15 +44,26 @@ const TEST_STATE = {
   },
 };
 
+//TODO: Those tests are testing implementation details based on child component names. We should refactor them.
 describe('Overview', () => {
   it('should render Overview component', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, TEST_STATE);
+    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      s3: {
+        bucketInfo: bucketInfoResponseNoVersioning,
+      },
+    });
 
     expect(component.find(Overview).isEmptyRender()).toBe(false);
   });
 
   it('should render Overview component with given infos', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, TEST_STATE);
+    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      s3: {
+        bucketInfo: bucketInfoResponseNoVersioning,
+      },
+    });
 
     const groupInfos = component.find(T.Group);
     expect(groupInfos).toHaveLength(2);
@@ -105,16 +116,8 @@ describe('Overview', () => {
   it('should render toggle versioning in Enable mode', () => {
     const { component } = reduxMount(<Overview bucket={BUCKET} />, {
       ...TEST_STATE,
-      ...{
-        s3: {
-          bucketInfo: {
-            ...bucketInfoResponse,
-            ...{
-              versioning: 'Enable',
-              isVersioning: true,
-            },
-          },
-        },
+      s3: {
+        bucketInfo: bucketInfoResponseVersioning,
       },
     });
 
@@ -125,6 +128,55 @@ describe('Overview', () => {
     expect(versioningToggleItem.text()).toContain('Enable');
   });
 
+  it('should render object lock information in Enabled mode without default retention', () => {
+    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      s3: {
+        bucketInfo: bucketInfoResponseObjectLockNoDefaultRetention,
+      },
+    });
+
+    const groupInfos = component.find(T.Group);
+    const firstGroupInfos = groupInfos.first();
+
+    const firstGroupInfosContentItems = firstGroupInfos
+      .find(T.GroupContent)
+      .find(T.Row);
+
+    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
+    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Versioning');
+    expect(secondItemFirstGroup.find(T.Value).text()).toContain('Active');
+
+    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
+    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Default Object-lock Retention');
+    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('Inactive');
+  });
+
+
+  it('should render object lock information in Enabled mode with default retention', () => {
+    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      s3: {
+        bucketInfo: bucketInfoResponseObjectLockDefaultRetention,
+      },
+    });
+
+    const groupInfos = component.find(T.Group);
+    const firstGroupInfos = groupInfos.first();
+
+    const firstGroupInfosContentItems = firstGroupInfos
+      .find(T.GroupContent)
+      .find(T.Row);
+
+    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
+    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Versioning');
+    expect(secondItemFirstGroup.find(T.Value).text()).toContain('Active');
+
+    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
+    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Default Object-lock Retention');
+    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('Active - 5 days');
+  });
+
   it('should trigger deleteBucket function when approving clicking on delete button when modal popup', () => {
     const deleteBucketMock = jest.spyOn(actions, 'deleteBucket');
 
@@ -133,6 +185,9 @@ describe('Overview', () => {
       ...{
         uiBuckets: {
           showDelete: bucketName,
+        },
+        s3: {
+          bucketInfo: bucketInfoResponseVersioning,
         },
       },
     });

@@ -95,7 +95,7 @@ export const putObjectTaggingResponse: PutObjectTaggingResponse = {
   VersionId: '1',
 };
 
-export const bucketInfoResponse: BucketInfo = {
+export const bucketInfoResponseNoVersioning: BucketInfo = {
   name: bucketName,
   policy: false,
   owner: ownerName,
@@ -105,6 +105,60 @@ export const bucketInfoResponse: BucketInfo = {
   isVersioning: false,
   public: false,
   locationConstraint: '',
+  objectLockConfiguration: {
+    ObjectLockEnabled: 'Disabled',
+  },
+};
+
+export const bucketInfoResponseVersioning: BucketInfo = {
+  name: bucketName,
+  policy: false,
+  owner: ownerName,
+  aclGrantees: 0,
+  cors: false,
+  versioning: 'Enabled',
+  isVersioning: true,
+  public: false,
+  locationConstraint: '',
+  objectLockConfiguration: {
+    ObjectLockEnabled: 'Disabled',
+  },
+};
+
+export const bucketInfoResponseObjectLockNoDefaultRetention: BucketInfo = {
+  name: bucketName,
+  policy: false,
+  owner: ownerName,
+  aclGrantees: 0,
+  cors: false,
+  versioning: 'Suspended',
+  isVersioning: false,
+  public: false,
+  locationConstraint: '',
+  objectLockConfiguration: {
+    ObjectLockEnabled: 'Enabled',
+  },
+};
+
+export const bucketInfoResponseObjectLockDefaultRetention: BucketInfo = {
+  name: bucketName,
+  policy: false,
+  owner: ownerName,
+  aclGrantees: 0,
+  cors: false,
+  versioning: 'Suspended',
+  isVersioning: false,
+  public: false,
+  locationConstraint: '',
+  objectLockConfiguration: {
+    ObjectLockEnabled: 'Enabled',
+    Rule: {
+      DefaultRetention: {
+        Mode: 'GOVERNANCE',
+        Days: 5,
+      },
+    },
+  },
 };
 
 export class MockS3Client implements S3ClientInterface {
@@ -168,7 +222,7 @@ export class MockS3Client implements S3ClientInterface {
   }
 
   getBucketInfo(): Promise<BucketInfo> {
-    return Promise.resolve(bucketInfoResponse);
+    return Promise.resolve(bucketInfoResponseNoVersioning);
   }
 
   toggleVersioning(): Promise<void> {
