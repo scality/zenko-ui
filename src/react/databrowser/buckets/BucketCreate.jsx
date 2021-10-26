@@ -16,7 +16,7 @@ import { useOutsideClick } from '../../utils/hooks';
 
 const schema = Joi.object({
     name: Joi.string().label('Name').required().min(3).max(63),
-    locationConstraint: Joi.object(),
+    locationName: Joi.string().required(),
 });
 
 function BucketCreate() {
@@ -43,9 +43,9 @@ function BucketCreate() {
     const formRef = useRef(null);
     useOutsideClick(formRef, clearServerError);
 
-    const onSubmit = ({ name, locationConstraint }) => {
+    const onSubmit = ({ name, locationName }) => {
         clearServerError();
-        dispatch(createBucket({ name, locationConstraint: locationConstraint?.value }));
+        dispatch(createBucket({ name, locationConstraint: locationName }));
     };
 
     const handleCancel = () => {
@@ -88,14 +88,14 @@ function BucketCreate() {
                 </F.Label>
                 <Controller
                     control={control}
-                    id='locationConstraint'
-                    name='locationConstraint'
-                    defaultValue={{ value: 'us-east-1' }}
-                    render={({ onChange, value: locationConstraintObj }) => {
+                    id='locationName'
+                    name='locationName'
+                    defaultValue='us-east-1'
+                    render={({ onChange, value: locationName }) => {
                         return <F.Select
                             onChange={onChange}
                             placeholder='Location Name'
-                            value={locationConstraintObj.value}
+                            value={locationName}
                         >
                             {selectLocations.map((opt, i) => <F.Select.Option key={i} value={opt.value}>{renderLocation(opt)}</F.Select.Option>)}
                         </F.Select>;
