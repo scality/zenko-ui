@@ -3,6 +3,7 @@ import type {
   BucketInfo,
   BucketVersioning,
   CreateBucketRequest,
+  ObjectLockRetentionSettings,
   S3Bucket,
 } from '../../types/s3';
 import type {
@@ -74,6 +75,7 @@ export function listBuckets(): ThunkStatePromisedAction {
 export function createBucket(
   bucket: CreateBucketRequest,
   versioning: BucketVersioning,
+  objectLockRetentionSettings: ObjectLockRetentionSettings,
 ): ThunkStatePromisedAction {
   return async (dispatch, getState) => {
     // TODO: credentials expired => zenkoClient out of date => zenkoClient.createBucket error.
@@ -91,12 +93,30 @@ export function createBucket(
       return;
     }
 
-    if (versioning.isVersioning) {
+    if (versioning.isVersioning && !bucket.isObjectLockEnabled) {
       try {
         await zenkoClient.toggleVersioning(
           bucket.name,
           versioning.isVersioning,
         );
+      } catch (maybeAuthError) {
+        try {
+          dispatch(handleAWSClientError(maybeAuthError));
+        } catch (originalError) {
+          dispatch(handleAWSError(originalError, 'byModal'));
+        }
+      }
+    }
+
+    if (
+      bucket.isObjectLockEnabled &&
+      objectLockRetentionSettings.isDefaultRetentionEnabled
+    ) {
+      try {
+        await zenkoClient.putObjectLockConfiguration({
+          ...objectLockRetentionSettings,
+          bucketName: bucket.name,
+        });
       } catch (maybeAuthError) {
         try {
           dispatch(handleAWSClientError(maybeAuthError));
