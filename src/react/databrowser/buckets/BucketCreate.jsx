@@ -235,7 +235,7 @@ function BucketCreate() {
               {isObjectLockEnabled && (
                 <SpacedBox ml={16}>
                   <SmallerText>
-                    Automatically activated when Object-lock is Active
+                    Automatically activated when Object-lock is Enabled
                   </SmallerText>
                 </SpacedBox>
               )}
@@ -277,7 +277,7 @@ function BucketCreate() {
                         }
                       }}
                       placeholder="isObjectLockEnabled"
-                      label={isObjectLockEnabled ? 'Active' : 'Inactive'}
+                      label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
                       toggle={isObjectLockEnabled}
                     />
                   );
