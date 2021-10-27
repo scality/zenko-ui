@@ -1,5 +1,9 @@
+// @noflow
+
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+import React from 'react';
+import { Tooltip } from '@scality/core-ui';
 
 // TEMPLATE
 //
@@ -82,8 +86,7 @@ export const Row = styled.div`
   min-height: ${spacing.sp24};
 `;
 
-export const Key = styled.div`
-  flex: 1 1 30%;
+const RawKey = styled.div`
   color: ${props =>
     props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
   font-weight: ${props => (props.principal ? 'bold' : 'normal')};
@@ -97,8 +100,51 @@ export const Key = styled.div`
       : ''}
 `;
 
+export const Key = styled(RawKey)`
+  && {
+    flex: 1 1 35%;
+  }
+`;
+
+const KeyContainer = styled.div`
+  display: flex;
+  flex: 1 1 35%;
+  i {
+    margin-left: ${spacing.sp8};
+    color: #434343;
+  }
+`;
+
+type KeyTooltipProps = {
+  children: Node,
+  tooltipMessage: string,
+  tooltipWidth: string,
+  required?: boolean,
+  principal?: boolean,
+};
+
+export const KeyTooltip = ({
+  children,
+  tooltipMessage,
+  tooltipWidth,
+  ...props
+}: KeyTooltipProps) => (
+  <KeyContainer>
+    <RawKey {...props}> {children} </RawKey>
+    {tooltipMessage && (
+      <Tooltip
+        overlay={tooltipMessage}
+        placement="right"
+        overlayStyle={{ width: tooltipWidth }}
+      >
+        <i className="fas fa-question-circle"></i>
+      </Tooltip>
+    )}
+  </KeyContainer>
+);
+
 export const Value = styled.div`
-  flex: 1 1 70%;
+  flex: 1 1 65%;
   flex-direction: column;
   i {
     margin-right: ${spacing.sp8};

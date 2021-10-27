@@ -1,6 +1,7 @@
 // @flow
 import * as T from '../../ui-elements/TableKeyValue2';
 import { Controller, useForm } from 'react-hook-form';
+import { ErrorInput } from '../../ui-elements/FormLayout';
 import type {
   Locations,
   Replication as ReplicationStream,
@@ -24,7 +25,6 @@ import {
 } from './utils';
 import { openWorkflowEditNotification, saveReplication } from '../../actions';
 import { Button } from '@scality/core-ui/dist/next';
-import { ErrorInput } from '../../ui-elements/FormLayout';
 import Input from '../../ui-elements/Input';
 import Joi from '@hapi/joi';
 import { NoLocationWarning } from '../../ui-elements/Warning';
@@ -213,7 +213,15 @@ function Replication({
           <T.GroupName>Source</T.GroupName>
           <T.GroupContent>
             <T.Row>
-              <T.Key required={createMode}> Bucket Name </T.Key>
+              <T.KeyTooltip
+                required={createMode}
+                tooltipMessage={
+                  createMode && 'Source bucket has to be versioning enabled'
+                }
+                tooltipWidth="13rem"
+              >
+                Bucket Name
+              </T.KeyTooltip>
               <T.Value>
                 <Controller
                   control={control}
