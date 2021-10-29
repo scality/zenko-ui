@@ -132,7 +132,7 @@ describe('AccountCreate', () => {
         elementEmail.getDOMNode().dispatchEvent(new Event('input'));
 
         await act(async () => {
-          component.find('button#create-account-btn').simulate('click');
+          component.find('form').simulate('submit');
         });
       });
 
