@@ -13,65 +13,88 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 
 export const Description = styled.div`
-    margin-top: ${spacing.sp16};
-    width: 400px;
+  margin-top: ${spacing.sp16};
+  width: 400px;
 `;
 
 export const Icon = styled.i`
-    margin-right: ${spacing.sp4};
+  margin-right: ${spacing.sp4};
 `;
 
 type Props = {
-    bucketName: string,
-    prefixWithSlash: string,
+  bucketName: string,
+  prefixWithSlash: string,
 };
 const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
-    const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState('');
 
-    const show = useSelector((state: AppState) => state.uiObjects.showFolderCreate);
+  const show = useSelector(
+    (state: AppState) => state.uiObjects.showFolderCreate,
+  );
 
-    const dispatch: DispatchAPI<Action> = useDispatch();
+  const dispatch: DispatchAPI<Action> = useDispatch();
 
-    if (!show) {
-        return null;
+  if (!show) {
+    return null;
+  }
+
+  const cancel = () => {
+    setFolderName('');
+    dispatch(closeFolderCreateModal());
+  };
+
+  const save = () => {
+    if (!folderName) {
+      return;
     }
-
-    const cancel = () => {
-        setFolderName('');
-        dispatch(closeFolderCreateModal());
-    };
-
-    const save = () => {
-        if (!folderName) {
-            return;
-        }
-        setFolderName('');
-        dispatch(createFolder(bucketName, prefixWithSlash, addTrailingSlash(folderName)));
-    };
-
-    const handleChange = (e) => {
-        setFolderName(e.target.value);
-    };
-
-    return (
-        <Modal
-            id="folder-create"
-            close={cancel}
-            footer={
-                <div>
-                    <Button id='folder-create-cancel-button' variant="outline" onClick={cancel} label='Cancel'/>
-                    <Button id='folder-create-save-button' variant="secondary" onClick={save} label='Save'/>
-                </div>
-            }
-            isOpen={true}
-            title='Create a folder'>
-            <Input className='folder-create-input' value={folderName} placeholder='New folder' onChange={handleChange}/>
-            <Description> <Icon className="fas fa-info-circle"></Icon>
-              When you create a folder, Data Browser creates an object with
-              the above name appended by suffix &quot;/&quot; and that object is displayed
-              as a folder in the Data Browser. </Description>
-        </Modal>
+    setFolderName('');
+    dispatch(
+      createFolder(bucketName, prefixWithSlash, addTrailingSlash(folderName)),
     );
+  };
+
+  const handleChange = e => {
+    setFolderName(e.target.value);
+  };
+
+  return (
+    <Modal
+      id="folder-create"
+      close={cancel}
+      footer={
+        <div>
+          <Button
+            id="folder-create-cancel-button"
+            variant="outline"
+            onClick={cancel}
+            label="Cancel"
+          />
+          <Button
+            id="folder-create-save-button"
+            variant="secondary"
+            onClick={save}
+            label="Save"
+          />
+        </div>
+      }
+      isOpen={true}
+      title="Create a folder"
+    >
+      <Input
+        className="folder-create-input"
+        value={folderName}
+        placeholder="New folder"
+        onChange={handleChange}
+      />
+      <Description>
+        {' '}
+        <Icon className="fas fa-info-circle"></Icon>
+        When you create a folder, Data Browser creates an object with the above
+        name appended by suffix &quot;/&quot; and that object is displayed as a
+        folder in the Data Browser.{' '}
+      </Description>
+    </Modal>
+  );
 };
 
 export default FolderCreate;

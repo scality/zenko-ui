@@ -16,147 +16,199 @@ import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
 
 const DropZone = styled.div`
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 
-    height: 300px;
-    width: 500px;
-    padding: ${spacing.sp20};
-    border-width: ${spacing.sp2};
-    border-radius: ${spacing.sp2};
-    border-color: ${props => props.theme.brand.border};
-    border-style: dashed;
+  height: 300px;
+  width: 500px;
+  padding: ${spacing.sp20};
+  border-width: ${spacing.sp2};
+  border-radius: ${spacing.sp2};
+  border-color: ${props => props.theme.brand.border};
+  border-style: dashed;
 `;
 
 const RemoveCell = styled(T.Cell)`
-    width: 10px;
+  width: 10px;
 `;
 
 const Files = styled.div`
-    height: 250px;
-    overflow-y: scroll;
-    margin: ${spacing.sp8} 0px;
+  height: 250px;
+  overflow-y: scroll;
+  margin: ${spacing.sp8} 0px;
 `;
 
 const EmptyFile = styled.div`
-    text-align: center;
-    margin-top: 60px;
-    & > * {
-        margin-bottom: ${spacing.sp16};
-    }
+  text-align: center;
+  margin-top: 60px;
+  & > * {
+    margin-bottom: ${spacing.sp16};
+  }
 `;
 
-const title = size => !size ? 'Upload' : `Upload ${maybePluralize(size, 'file')}`;
+const title = size =>
+  !size ? 'Upload' : `Upload ${maybePluralize(size, 'file')}`;
 
 type FileListProps = {
-    acceptedFiles: Array<File>,
-    fileRejections: Array<File>,
-    open: () => void,
-    removeFile: (string) => void,
+  acceptedFiles: Array<File>,
+  fileRejections: Array<File>,
+  open: () => void,
+  removeFile: string => void,
 };
 // NOTE: If accept, multiple, minSize or maxSize are added to useDropzone parameters,
 // files might be rejected (fileRejections) and we will have to show them in <FileList/>.
-export const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) =>
-    <div>
-        <Button icon={<i className="fas fa-plus" />} label='Add more files' variant='secondary' onClick={open} />
-        <Files>
-            <Table>
-                <T.Body>
-                    {
-                        acceptedFiles.map(file => (
-                            <T.Row key={file.path}>
-                                <T.Cell> <div>{file.path} <br/> <small><PrettyBytes bytes={file.size}/></small></div> </T.Cell>
-                                <RemoveCell> <div onClick={() => removeFile(file.path)}> <i className='fas fa-times'></i> </div> </RemoveCell>
-                            </T.Row>
-                        ))
-                    }
-                </T.Body>
-            </Table>
-        </Files>
-    </div>;
+export const FileList = ({
+  acceptedFiles,
+  open,
+  removeFile,
+}: FileListProps) => (
+  <div>
+    <Button
+      icon={<i className="fas fa-plus" />}
+      label="Add more files"
+      variant="secondary"
+      onClick={open}
+    />
+    <Files>
+      <Table>
+        <T.Body>
+          {acceptedFiles.map(file => (
+            <T.Row key={file.path}>
+              <T.Cell>
+                {' '}
+                <div>
+                  {file.path} <br />{' '}
+                  <small>
+                    <PrettyBytes bytes={file.size} />
+                  </small>
+                </div>{' '}
+              </T.Cell>
+              <RemoveCell>
+                {' '}
+                <div onClick={() => removeFile(file.path)}>
+                  {' '}
+                  <i className="fas fa-times"></i>{' '}
+                </div>{' '}
+              </RemoveCell>
+            </T.Row>
+          ))}
+        </T.Body>
+      </Table>
+    </Files>
+  </div>
+);
 
 type NoFileProps = {
-    open: () => void,
+  open: () => void,
 };
-export const NoFile = ({ open }: NoFileProps) =>
-    <EmptyFile>
-        <i className="fas fa-3x fa-file-upload"></i>
-        <div> Drag and drop files and folders here </div>
-        <div> OR </div>
-        <Button icon={<i className="fas fa-plus" />} label='Add files' variant='secondary' onClick={open} />
-    </EmptyFile>;
+export const NoFile = ({ open }: NoFileProps) => (
+  <EmptyFile>
+    <i className="fas fa-3x fa-file-upload"></i>
+    <div> Drag and drop files and folders here </div>
+    <div> OR </div>
+    <Button
+      icon={<i className="fas fa-plus" />}
+      label="Add files"
+      variant="secondary"
+      onClick={open}
+    />
+  </EmptyFile>
+);
 
 type Props = {
-    bucketName: string,
-    prefixWithSlash: string,
+  bucketName: string,
+  prefixWithSlash: string,
 };
 const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
-    const [acceptedFiles, setAcceptedFiles] = useState([]);
-    const [fileRejections, setFileRejections] = useState([]);
-    const show = useSelector((state: AppState) => state.uiObjects.showObjectUpload);
-    const dispatch: DispatchAPI<Action> = useDispatch();
+  const [acceptedFiles, setAcceptedFiles] = useState([]);
+  const [fileRejections, setFileRejections] = useState([]);
+  const show = useSelector(
+    (state: AppState) => state.uiObjects.showObjectUpload,
+  );
+  const dispatch: DispatchAPI<Action> = useDispatch();
 
-    const onDrop = (accepted, rejections) => {
-        if (accepted.length > 0) {
-            const filtered = accepted.filter(a => !acceptedFiles.find(f => f.path === a.path));
-            if (filtered.length > 0) {
-                setAcceptedFiles([...acceptedFiles, ...filtered]);
-            }
-        }
-        if (rejections.length > 0) {
-            setFileRejections([...fileRejections, ...rejections]);
-        }
-    };
-
-    const { getRootProps, getInputProps, open } = useDropzone({
-        noClick: true,
-        noKeyboard: true,
-        onDrop,
-    });
-
-    const cleanFiles = () => {
-        setAcceptedFiles([]);
-        setFileRejections([]);
-    };
-
-    const cancel = () => {
-        cleanFiles();
-        dispatch(closeObjectUploadModal());
-    };
-
-    const removeFile = filePath => setAcceptedFiles(acceptedFiles.filter(f => f.path !== filePath));
-
-    const upload = () => {
-        cleanFiles();
-        dispatch(uploadFiles(bucketName, prefixWithSlash, acceptedFiles));
-    };
-
-    if (!show) {
-        return null;
+  const onDrop = (accepted, rejections) => {
+    if (accepted.length > 0) {
+      const filtered = accepted.filter(
+        a => !acceptedFiles.find(f => f.path === a.path),
+      );
+      if (filtered.length > 0) {
+        setAcceptedFiles([...acceptedFiles, ...filtered]);
+      }
     }
+    if (rejections.length > 0) {
+      setFileRejections([...fileRejections, ...rejections]);
+    }
+  };
 
-    return (
-        <Modal
-            id="object-upload"
-            close={cancel}
-            footer={
-                <div>
-                    <Button id="object-upload-cancel-button" variant="outline" onClick={cancel} label='Cancel'/>
-                    <Button id="object-upload-upload-button" disabled={acceptedFiles.length === 0} variant='secondary' onClick={upload} label='Upload'/>
-                </div>
-            }
-            isOpen={true}
-            title={title(acceptedFiles.length)}>
-            <DropZone {...getRootProps()}>
-                <input className='object-upload-drop-zone-input' {...getInputProps()} />
-                { acceptedFiles.length > 0 || fileRejections.length > 0 ?
-                    <FileList acceptedFiles={acceptedFiles} fileRejections={fileRejections} open={open} removeFile={removeFile}/> :
-                    <NoFile open={open}/>
-                }
-            </DropZone>
-        </Modal>
-    );
+  const { getRootProps, getInputProps, open } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
+    onDrop,
+  });
+
+  const cleanFiles = () => {
+    setAcceptedFiles([]);
+    setFileRejections([]);
+  };
+
+  const cancel = () => {
+    cleanFiles();
+    dispatch(closeObjectUploadModal());
+  };
+
+  const removeFile = filePath =>
+    setAcceptedFiles(acceptedFiles.filter(f => f.path !== filePath));
+
+  const upload = () => {
+    cleanFiles();
+    dispatch(uploadFiles(bucketName, prefixWithSlash, acceptedFiles));
+  };
+
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <Modal
+      id="object-upload"
+      close={cancel}
+      footer={
+        <div>
+          <Button
+            id="object-upload-cancel-button"
+            variant="outline"
+            onClick={cancel}
+            label="Cancel"
+          />
+          <Button
+            id="object-upload-upload-button"
+            disabled={acceptedFiles.length === 0}
+            variant="secondary"
+            onClick={upload}
+            label="Upload"
+          />
+        </div>
+      }
+      isOpen={true}
+      title={title(acceptedFiles.length)}
+    >
+      <DropZone {...getRootProps()}>
+        <input className="object-upload-drop-zone-input" {...getInputProps()} />
+        {acceptedFiles.length > 0 || fileRejections.length > 0 ? (
+          <FileList
+            acceptedFiles={acceptedFiles}
+            fileRejections={fileRejections}
+            open={open}
+            removeFile={removeFile}
+          />
+        ) : (
+          <NoFile open={open} />
+        )}
+      </DropZone>
+    </Modal>
+  );
 };
 
 export default ObjectUpload;

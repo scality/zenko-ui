@@ -1,12 +1,16 @@
 // @noflow
 import { Checkbox as BasicCheckbox, Tooltip } from '@scality/core-ui';
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
 import type { Node } from 'react';
 import React from 'react';
 import styled from 'styled-components';
+import {
+  SmallerText,
+  LargerText,
+} from '@scality/core-ui/dist/components/text/Text.component';
 
 /* TEMPLATE:
 <FormContainer>
@@ -33,154 +37,178 @@ import styled from 'styled-components';
 </FormContainer>
 */
 
+export const Title = styled(LargerText)`
+  display: flex;
+  text-transform: capitalize;
+  margin-bottom: ${spacing.sp16};
+`;
 
-export const Title = styled.div`
-    display: flex;
-    text-transform: capitalize;
-    color: ${props => props.theme.brand.textPrimary};
-    margin-bottom: ${spacing.sp40};
-    font-size: ${fontSize.massive};
+export const SubTitle = styled.div`
+  display: flex;
+  color: ${props => props.theme.brand.textPrimary};
+  font-weight: bold;
 `;
 
 export const Fieldset = styled.fieldset`
-    display: flex;
-    flex-direction: column;
-    border: 0;
-    padding: 0;
-    margin-top: ${spacing.sp16};
+  display: flex;
+  flex-direction: ${props => props.direction || 'column'};
+  ${props => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
+  border: 0;
+  padding: 0;
+  margin-top: ${spacing.sp16};
 `;
 
 export const Select = styled(BasicSelect)`
-    margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
+  margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
 
 export const CheckboxContainer = styled.div`
-    display: block;
-    margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
-    align-items: baseline;
-    
-    .sc-checkbox {
-        margin-right: ${spacing.sp8};
-    }
+  display: block;
+  margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
+  align-items: baseline;
+
+  .sc-checkbox {
+    margin-right: ${spacing.sp8};
+  }
 `;
 
-export const Checkbox = styled(BasicCheckbox)`
-`;
+export const Checkbox = styled(BasicCheckbox)``;
 
 export const Input = styled(BasicInput)`
-    margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
+  margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
 
 export const InputList = styled(BasicInputList)`
-    margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
+  margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
+`;
+
+export const SessionSeperation = styled.div`
+  width: 23px;
+  height: 1px;
+  margin: ${spacing.sp16} 0px ${spacing.sp16} 0px;
+  background-color: ${props => props.theme.brand.buttonSecondary};
+`;
+
+export const LabelSecondary = styled(SmallerText)`
+  color: ${props => props.theme.brand.textSecondary};
 `;
 
 // * ErrorInput
 const ErrorInputContainer = styled.div`
-    height: ${spacing.sp16};
-    color: ${props => props.theme.brand.danger};
+  height: ${spacing.sp16};
+  color: ${props => props.theme.brand.danger};
 `;
 
 type ErrorInputProps = {
-    children: Node,
-    hasError: boolean,
+  children: Node,
+  hasError: boolean,
 };
 
 export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
-    <ErrorInputContainer>
-        { hasError && children }
-    </ErrorInputContainer>
+  <ErrorInputContainer>{hasError && children}</ErrorInputContainer>
 );
 
 // * Label
 const LabelContainer = styled.label`
-    display: flex;
+  display: flex;
+  align-items: center;
+  width: 35%;
 `;
 
 const TooltipContainer = styled.div`
-    margin-left: ${spacing.sp8};
+  margin-left: ${spacing.sp8};
 `;
 
 const IconQuestionCircle = styled.i`
-    color: #434343;
+  color: #434343;
 `;
 
 const UlOverlay = styled.ul`
-    text-align:left;
-    padding: 0px 0px 0px ${spacing.sp20};
+  text-align: left;
+  padding: 0px 0px 0px ${spacing.sp20};
 `;
 
 type LabelProps = {
-    children: Node,
-    tooltipMessages?: Array<string>,
-    tooltipWidth?: string,
+  children: Node,
+  tooltipMessages?: Array<string>,
+  tooltipWidth?: string,
+  style?: CSSStyleSheet,
 };
 
-export const Label = ({ children, tooltipMessages, tooltipWidth }: LabelProps) => (
-    <LabelContainer>
-        { children }
-        {
-            tooltipMessages && tooltipMessages.length > 0 && (
-                <TooltipContainer>
-                    <Tooltip
-                        overlay= {
-                            tooltipMessages.length > 1 ? (
-                                <UlOverlay>
-                                    { tooltipMessages.map((message, i) => <li key={i}> {message} </li>) }
-                                </UlOverlay>
-                            ) : tooltipMessages[0]
-                        }
-                        placement="right"
-                        overlayStyle={{ width: tooltipWidth }}
-                    >
-                        <IconQuestionCircle className='fas fa-question-circle'></IconQuestionCircle>
-                    </Tooltip>
-                </TooltipContainer>
+export const Label = ({
+  children,
+  tooltipMessages,
+  tooltipWidth,
+}: LabelProps) => (
+  <LabelContainer>
+    {children}
+    {tooltipMessages && tooltipMessages.length > 0 && (
+      <TooltipContainer>
+        <Tooltip
+          overlay={
+            tooltipMessages.length > 1 ? (
+              <UlOverlay>
+                {tooltipMessages.map((message, i) => (
+                  <li key={i}> {message} </li>
+                ))}
+              </UlOverlay>
+            ) : (
+              tooltipMessages[0]
             )
-        }
-    </LabelContainer>
+          }
+          placement="right"
+          overlayStyle={{ width: tooltipWidth }}
+        >
+          <IconQuestionCircle className="fas fa-question-circle"></IconQuestionCircle>
+        </Tooltip>
+      </TooltipContainer>
+    )}
+  </LabelContainer>
 );
 
 export const Footer = styled.div`
-    display: flex;
-    width: 100%;
-    justify-content: flex-end;
-    align-items: flex-end;
-
-    height: 50px;
-    text-transform: lowercase;
-    margin-top: ${spacing.sp40};
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: flex-end;
+  text-transform: lowercase;
 `;
 
 export const FooterError = styled.div`
-    flex: 1 1 auto;
-    height: inherit;
-    margin-right: ${spacing.sp4};
+  flex: 1 1 auto;
+  height: inherit;
+  margin-right: ${spacing.sp4};
 `;
 
 export const FooterButtons = styled.div`
-    flex: 0 0 auto;
+  flex: 0 0 auto;
 
-    button{
-        margin-left: ${spacing.sp24};
-    }
+  button {
+    margin-left: ${spacing.sp24};
+  }
 `;
 
 export const Form = styled.form`
-    display: flex;
-    flex-direction: column;
-    background-color: ${props => props.theme.brand.backgroundLevel1};
-    padding-top: 5%;
-    padding-left: 30%;
-    padding-right: 30%;
+  display: flex;
+  flex-direction: column;
+  background-color: ${props => props.theme.brand.backgroundLevel1};
+  padding-top: 1%;
+  padding-left: 30%;
+  padding-right: 30%;
 `;
 
 const FormContainer = styled.div`
-    height: 100%;
-    background-color: ${props => props.theme.brand.backgroundLevel1};
-    margin: ${spacing.sp8};
-    margin-bottom: ${spacing.sp24};
-    overflow: auto;
+  height: 100%;
+  background-color: ${props => props.theme.brand.backgroundLevel1};
+  margin: ${spacing.sp8};
+  margin-bottom: ${spacing.sp24};
+  overflow: hidden;
 `;
 
+export const FormScrollArea = styled.div`
+  overflow: auto;
+  max-height: calc(100vh - 19rem);
+  margin-right: ${spacing.sp12};
+  padding-bottom: ${spacing.sp40};
+`;
 export default FormContainer;

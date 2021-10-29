@@ -1,16 +1,38 @@
 // @flow
-import { LIST_OBJECTS_METADATA_TYPE, LIST_OBJECTS_S3_TYPE, LIST_OBJECT_VERSIONS_S3_TYPE, mergeSortedVersionsAndDeleteMarkers } from '../utils/s3';
-import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE, formatShortDate, stripQuotes, systemMetadataKeys } from '../utils';
-import type { MetadataPairs, ObjectEntity, S3DeleteMarker, S3Version, TagSet, Tags } from '../../types/s3';
+import {
+  LIST_OBJECTS_METADATA_TYPE,
+  LIST_OBJECTS_S3_TYPE,
+  LIST_OBJECT_VERSIONS_S3_TYPE,
+  mergeSortedVersionsAndDeleteMarkers,
+} from '../utils/s3';
+import {
+  METADATA_SYSTEM_TYPE,
+  METADATA_USER_TYPE,
+  formatShortDate,
+  stripQuotes,
+  systemMetadataKeys,
+} from '../utils';
+import type {
+  MetadataPairs,
+  ObjectEntity,
+  S3DeleteMarker,
+  S3Version,
+  TagSet,
+  Tags,
+} from '../../types/s3';
 import { List } from 'immutable';
 import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
 
-const sortByDate = objs => objs.sort((a,b) => (new Date(b.CreationDate) - new Date(a.CreationDate)));
+const sortByDate = objs =>
+  objs.sort((a, b) => new Date(b.CreationDate) - new Date(a.CreationDate));
 
-const objects = (objs, prefix): Array<ObjectEntity> => objs.filter(o => o.Key !== prefix).map(o => {
-    return {
+const objects = (objs, prefix): Array<ObjectEntity> =>
+  objs
+    .filter(o => o.Key !== prefix)
+    .map(o => {
+      return {
         name: o.Key.replace(prefix, ''),
         key: o.Key,
         lastModified: formatShortDate(new Date(o.LastModified)),
@@ -19,170 +41,196 @@ const objects = (objs, prefix): Array<ObjectEntity> => objs.filter(o => o.Key !=
         toggled: false,
         isLatest: true,
         signedUrl: o.SignedUrl,
-    };
-});
+      };
+    });
 
-const folder = (objs, prefix): Array<ObjectEntity> => objs.map(o => {
+const folder = (objs, prefix): Array<ObjectEntity> =>
+  objs.map(o => {
     return {
-        name: o.Prefix.replace(prefix, ''),
-        key: o.Prefix,
-        isFolder: true,
-        isLatest: true,
-        toggled: false,
+      name: o.Prefix.replace(prefix, ''),
+      key: o.Prefix,
+      isFolder: true,
+      isLatest: true,
+      toggled: false,
     };
-});
+  });
 
-const search = (objs): Array<ObjectEntity> => objs.map(o => {
+const search = (objs): Array<ObjectEntity> =>
+  objs.map(o => {
     return {
-        name: o.Key,
+      name: o.Key,
+      key: o.Key,
+      lastModified: formatShortDate(new Date(o.LastModified)),
+      size: o.Size,
+      isFolder: o.IsFolder,
+      isLatest: true,
+      signedUrl: o.SignedUrl,
+      toggled: false,
+    };
+  });
+
+const versioning = (
+  versions: Array<S3Version>,
+  deleteMarkers: Array<S3DeleteMarker>,
+  prefix,
+) => {
+  const results = mergeSortedVersionsAndDeleteMarkers(versions, deleteMarkers);
+  return results
+    .filter(o => o.Key !== prefix)
+    .map(o => {
+      return {
+        name: o.Key.replace(prefix, ''),
         key: o.Key,
         lastModified: formatShortDate(new Date(o.LastModified)),
-        size: o.Size,
-        isFolder: o.IsFolder,
-        isLatest: true,
-        signedUrl: o.SignedUrl,
+        size: o.Size || null,
+        isFolder: false,
+        isLatest: o.IsLatest,
+        isDeleteMarker: o.ETag ? false : true,
+        versionId: o.VersionId,
+        signedUrl: o.SignedUrl || null,
         toggled: false,
-    };
-});
-
-const versioning = (versions: Array<S3Version>, deleteMarkers: Array<S3DeleteMarker>, prefix) => {
-    const results = mergeSortedVersionsAndDeleteMarkers(versions, deleteMarkers);
-    return results.filter(o => o.Key !== prefix).map(o => {
-        return {
-            name: o.Key.replace(prefix, ''),
-            key: o.Key,
-            lastModified: formatShortDate(new Date(o.LastModified)),
-            size: o.Size || null,
-            isFolder: false,
-            isLatest: o.IsLatest,
-            isDeleteMarker: o.ETag ? false: true,
-            versionId: o.VersionId,
-            signedUrl: o.SignedUrl || null,
-            toggled: false,
-        };
+      };
     });
 };
 
 const convertToFormMetadata = (info): MetadataPairs => {
-    const pairs = systemMetadataKeys.filter(key => info[key]).map(key => {
-        return {
-            key: key,
-            value: info[key],
-            type: METADATA_SYSTEM_TYPE,
-        };
+  const pairs = systemMetadataKeys
+    .filter(key => info[key])
+    .map(key => {
+      return {
+        key: key,
+        value: info[key],
+        type: METADATA_SYSTEM_TYPE,
+      };
     });
-    for (let key in info.Metadata) {
-        pairs.push({
-            key: key,
-            value: info.Metadata[key],
-            type: METADATA_USER_TYPE,
-        });
-    }
-    return pairs;
+  for (let key in info.Metadata) {
+    pairs.push({
+      key: key,
+      value: info.Metadata[key],
+      type: METADATA_USER_TYPE,
+    });
+  }
+  return pairs;
 };
 
-const convertToFormTags = ((tags: TagSet): Tags => tags.map(t => ({ key: t.Key, value: t.Value })));
+const convertToFormTags = (tags: TagSet): Tags =>
+  tags.map(t => ({ key: t.Key, value: t.Value }));
 
 export default function s3(state: S3State = initialS3State, action: S3Action) {
-    switch (action.type) {
+  switch (action.type) {
     case 'LIST_BUCKETS_SUCCESS':
-        return {
-            ...state,
-            listBucketsResults: {
-                list: List(sortByDate(action.list)),
-                ownerName: action.ownerName,
-            },
-        };
+      return {
+        ...state,
+        listBucketsResults: {
+          list: List(sortByDate(action.list)),
+          ownerName: action.ownerName,
+        },
+      };
     case 'GET_BUCKET_INFO_SUCCESS':
-        return {
-            ...state,
-            bucketInfo: action.info,
-        };
+      return {
+        ...state,
+        bucketInfo: action.info,
+      };
     case 'LIST_OBJECTS_SUCCESS':
-        return {
-            ...state,
-            listObjectsType: LIST_OBJECTS_S3_TYPE,
-            listObjectsResults: {
-                list: List([...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)]),
-                nextMarker: action.nextMarker,
-            },
-        };
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECTS_S3_TYPE,
+        listObjectsResults: {
+          list: List([
+            ...folder(action.commonPrefixes, action.prefix),
+            ...objects(action.contents, action.prefix),
+          ]),
+          nextMarker: action.nextMarker,
+        },
+      };
     case 'CONTINUE_LIST_OBJECTS_SUCCESS':
-        return {
-            ...state,
-            listObjectsType: LIST_OBJECTS_S3_TYPE,
-            listObjectsResults: {
-                list: state.listObjectsResults.list.push(...folder(action.commonPrefixes, action.prefix), ...objects(action.contents, action.prefix)),
-                nextMarker: action.nextMarker,
-            },
-        };
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECTS_S3_TYPE,
+        listObjectsResults: {
+          list: state.listObjectsResults.list.push(
+            ...folder(action.commonPrefixes, action.prefix),
+            ...objects(action.contents, action.prefix),
+          ),
+          nextMarker: action.nextMarker,
+        },
+      };
     case 'LIST_OBJECT_VERSIONS_SUCCESS':
-        return {
-            ...state,
-            listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
-            listObjectsResults: {
-                list: List([...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)]),
-                nextMarker: action.nextMarker,
-                nextVersionIdMarker: action.nextVersionIdMarker,
-            },
-        };
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
+        listObjectsResults: {
+          list: List([
+            ...folder(action.commonPrefixes, action.prefix),
+            ...versioning(action.versions, action.deleteMarkers, action.prefix),
+          ]),
+          nextMarker: action.nextMarker,
+          nextVersionIdMarker: action.nextVersionIdMarker,
+        },
+      };
     case 'CONTINUE_LIST_OBJECT_VERSIONS_SUCCESS':
-        return {
-            ...state,
-            listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
-            listObjectsResults: {
-                list: state.listObjectsResults.list.push(...folder(action.commonPrefixes, action.prefix), ...versioning(action.versions, action.deleteMarkers, action.prefix)),
-                nextMarker: action.nextMarker,
-                nextVersionIdMarker: action.nextVersionIdMarker,
-            },
-        };
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECT_VERSIONS_S3_TYPE,
+        listObjectsResults: {
+          list: state.listObjectsResults.list.push(
+            ...folder(action.commonPrefixes, action.prefix),
+            ...versioning(action.versions, action.deleteMarkers, action.prefix),
+          ),
+          nextMarker: action.nextMarker,
+          nextVersionIdMarker: action.nextVersionIdMarker,
+        },
+      };
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':
-        return {
-            ...state,
-            listObjectsType: LIST_OBJECTS_METADATA_TYPE,
-            listObjectsResults: {
-                list: List(search(action.list)),
-                nextMarker: action.nextMarker,
-            },
-        };
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECTS_METADATA_TYPE,
+        listObjectsResults: {
+          list: List(search(action.list)),
+          nextMarker: action.nextMarker,
+        },
+      };
     case 'TOGGLE_OBJECT':
-        return {
-            ...state,
-            listObjectsResults: {
-                list: state.listObjectsResults.list.map(o =>
-                    (o.key === action.objectKey && o.versionId === action.versionId) ? { ...o, toggled: !o.toggled } : o
-                ),
-            },
-        };
+      return {
+        ...state,
+        listObjectsResults: {
+          list: state.listObjectsResults.list.map(o =>
+            o.key === action.objectKey && o.versionId === action.versionId
+              ? { ...o, toggled: !o.toggled }
+              : o,
+          ),
+        },
+      };
     case 'TOGGLE_ALL_OBJECTS':
-        return {
-            ...state,
-            listObjectsResults: {
-                list: state.listObjectsResults.list.map(o =>
-                    ({ ...o, toggled: action.toggled })
-                ),
-            },
-        };
+      return {
+        ...state,
+        listObjectsResults: {
+          list: state.listObjectsResults.list.map(o => ({
+            ...o,
+            toggled: action.toggled,
+          })),
+        },
+      };
     case 'GET_OBJECT_METADATA_SUCCESS':
-        return {
-            ...state,
-            objectMetadata: {
-                bucketName: action.bucketName,
-                objectKey: action.objectKey,
-                lastModified: action.info.LastModified,
-                contentLength: action.info.ContentLength,
-                eTag: stripQuotes(action.info.ETag),
-                versionId: action.info.VersionId,
-                metadata: convertToFormMetadata(action.info),
-                tags: convertToFormTags(action.tags),
-            },
-        };
+      return {
+        ...state,
+        objectMetadata: {
+          bucketName: action.bucketName,
+          objectKey: action.objectKey,
+          lastModified: action.info.LastModified,
+          contentLength: action.info.ContentLength,
+          eTag: stripQuotes(action.info.ETag),
+          versionId: action.info.VersionId,
+          metadata: convertToFormMetadata(action.info),
+          tags: convertToFormTags(action.tags),
+        },
+      };
     case 'RESET_OBJECT_METADATA':
-        return {
-            ...state,
-            objectMetadata: null,
-        };
+      return {
+        ...state,
+        objectMetadata: null,
+      };
     default:
-        return state;
-    }
+      return state;
+  }
 }

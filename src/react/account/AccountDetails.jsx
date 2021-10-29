@@ -8,28 +8,33 @@ import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch } from 'react-router-dom';
 
 type Props = {
-    account: ?Account,
+  account: ?Account,
 };
 
-const NotFound = () => <Warning iconClass='fas fa-3x fa-exclamation-triangle' title='Account not found.' />;
+const NotFound = () => (
+  <Warning
+    iconClass="fas fa-3x fa-exclamation-triangle"
+    title="Account not found."
+  />
+);
 
 function AccountDetails({ account }: Props) {
-    const { url } = useRouteMatch();
+  const { url } = useRouteMatch();
 
-    if (!account) {
-        return <NotFound/>;
-    }
+  if (!account) {
+    return <NotFound />;
+  }
 
-    return (
-        <CustomTabs>
-            <CustomTabs.Tab exact label="Properties" path={url}>
-                <Properties account={account}/>
-            </CustomTabs.Tab>
-            <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
-                <Locations/>
-            </CustomTabs.Tab>
-        </CustomTabs>
-    );
+  return (
+    <CustomTabs>
+      <CustomTabs.Tab exact label="Properties" path={url}>
+        <Properties account={account} />
+      </CustomTabs.Tab>
+      <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
+        <Locations />
+      </CustomTabs.Tab>
+    </CustomTabs>
+  );
 }
 
 export default AccountDetails;

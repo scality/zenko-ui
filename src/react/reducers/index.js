@@ -24,7 +24,8 @@ import user from './user';
 import workflow from './workflow';
 import zenko from './zenko';
 
-const zenkoUIReducer = history => combineReducers({
+const zenkoUIReducer = history =>
+  combineReducers({
     account,
     auth,
     bucket,
@@ -49,6 +50,6 @@ const zenkoUIReducer = history => combineReducers({
     router: connectRouter(history),
     workflow,
     zenko: zenko,
-});
+  });
 
 export default zenkoUIReducer;

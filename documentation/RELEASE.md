@@ -32,12 +32,8 @@ To release a production image:
 
 * Create a PR and merge the `package.json` change.
 
-* Tag the repository using the same tag.
+* Trigger the [Release Workflow] via the workflow dispatch function.
+  Fill the form information, select the desired branch and run it.
 
-* [Force a build] using:
-  * A given branch that ideally matches the tag.
-  * The `release` stage.
-  * An extra property with the name `tag` and its value being the actual tag.
-
-[Force a build]:
-https://eve.devsca.com/github/scality/zenko-ui/#/builders/bootstrap/force/force
+[Release Workflow]:
+https://github.com/scality/zenko-ui/actions/workflows/release.yaml

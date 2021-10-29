@@ -1,18 +1,18 @@
 // @flow
 
 export type ErrorMsg = {
-    +message: string,
+  +message: string,
 };
 
 export type InstanceId = string;
 
 export type AppConfig = {
-    +managementEndpoint: string,
-    +stsEndpoint: string,
-    +s3Endpoint: string,
-    +iamEndpoint: string,
-    +navbarEndpoint: string,
-    +navbarConfigUrl: string,
+  +managementEndpoint: string,
+  +stsEndpoint: string,
+  +s3Endpoint: string,
+  +iamEndpoint: string,
+  +navbarEndpoint: string,
+  +navbarConfigUrl: string,
 };
 
 export type Brand = {
