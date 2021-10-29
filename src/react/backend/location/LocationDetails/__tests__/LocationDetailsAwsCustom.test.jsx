@@ -11,6 +11,7 @@ const props = {
   onChange: () => {},
   locationType: 'location-scality-ring-s3-v1',
   capabilities: {
+    locationTypeLocal: true,
     locationTypeCephRadosGW: true,
     locationTypeDigitalOcean: true,
     locationTypeS3Custom: true,

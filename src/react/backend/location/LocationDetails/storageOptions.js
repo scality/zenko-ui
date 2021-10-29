@@ -70,6 +70,7 @@ export const storageOptions: { [name: string]: any } = {
     supportsReplicationSource: false,
     hasIcon: false,
   },
+
   'location-file-v1': {
     name: 'Local Filesystem',
     short: 'Local Filesystem',
@@ -77,8 +78,9 @@ export const storageOptions: { [name: string]: any } = {
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
     hasIcon: false,
+    checkCapability: 'locationTypeLocal',
+    hidden: true,
   },
-
   'location-ceph-radosgw-s3-v1': {
     name: 'Ceph RADOS Gateway',
     short: 'CEPH',
