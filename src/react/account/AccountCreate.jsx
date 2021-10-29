@@ -76,7 +76,7 @@ function AccountCreate() {
 
   return (
     <FormContainer>
-      <F.Form autoComplete="off" ref={formRef}>
+      <F.Form autoComplete="off" ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <F.Title> Create New Account </F.Title>
         <F.Fieldset>
           <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
@@ -134,15 +134,16 @@ function AccountCreate() {
           <F.FooterButtons>
             <Button
               disabled={loading}
+              type="button"
               variant="outline"
               onClick={handleCancel}
               label="Cancel"
             />
             <Button
               disabled={loading}
+              type="submit"
               id="create-account-btn"
               variant="primary"
-              onClick={handleSubmit(onSubmit)}
               label="Create"
             />
           </F.FooterButtons>
