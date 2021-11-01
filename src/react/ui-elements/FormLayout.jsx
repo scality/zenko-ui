@@ -202,7 +202,7 @@ const FormContainer = styled.div`
   background-color: ${props => props.theme.brand.backgroundLevel1};
   margin: ${spacing.sp8};
   margin-bottom: ${spacing.sp24};
-  overflow: hidden;
+  overflow: auto;
 `;
 
 export const FormScrollArea = styled.div`
