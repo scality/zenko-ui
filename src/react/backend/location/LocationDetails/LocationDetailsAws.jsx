@@ -120,7 +120,7 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
           </CheckboxContainer>
           <small>
             {' '}
-            Use this option for mirroring. <br />{' '}
+            Use this option for Async Notification. <br />{' '}
           </small>
           <small>
             Store objects in the target bucket without a source-bucket prefix.

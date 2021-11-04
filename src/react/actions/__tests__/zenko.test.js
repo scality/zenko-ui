@@ -1,11 +1,14 @@
 import * as actions from '../zenko';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
+  SITE,
   AWS_CLIENT_ERROR,
+  AWS_CLIENT_ERROR_MSG,
   BUCKET_NAME,
   addNextMarkerToState,
   errorZenkoState,
   initState,
+  storeStateWithIngestion,
   testActionFunction,
   testDispatchFunction,
 } from './utils/testUtil';
@@ -24,6 +27,9 @@ const searchingObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
 );
 const continueSearchNetworkAction = dispatchAction.NETWORK_START_ACTION(
   NETWORK_START_ACTION_CONTINUE_SEARCH,
+);
+const pauseIngestionSiteNetworkAction = dispatchAction.NETWORK_START_ACTION(
+  'Pausing ingestion',
 );
 
 describe('zenko actions', () => {
@@ -181,6 +187,26 @@ describe('zenko actions', () => {
         searchingObjectsNetworkAction,
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
         dispatchAction.NETWORK_END_ACTION,
+        dispatchAction.NETWORK_END_ACTION,
+      ],
+    },
+    {
+      it: 'pauseIngestionSite: should return expected actions',
+      fn: actions.pauseIngestionSite(SITE),
+      storeState: storeStateWithIngestion('disabled'),
+      expectedActions: [
+        pauseIngestionSiteNetworkAction,
+        dispatchAction.NETWORK_END_ACTION,
+      ],
+    },
+    {
+      it:
+        'pauseIngestionSite: should return expected actions when an error occurs',
+      fn: actions.pauseIngestionSite(SITE),
+      storeState: errorZenkoState(),
+      expectedActions: [
+        pauseIngestionSiteNetworkAction,
+        dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
         dispatchAction.NETWORK_END_ACTION,
       ],
     },

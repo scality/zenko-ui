@@ -6,9 +6,11 @@ import React from 'react';
 import type { S3Bucket } from '../../../types/s3';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
+import type { WorkflowScheduleUnitState } from '../../../types/stats';
 
 type Props = {
   bucket: ?S3Bucket,
+  ingestionStates: ?WorkflowScheduleUnitState,
 };
 
 const NotFound = () => (
@@ -18,14 +20,14 @@ const NotFound = () => (
   />
 );
 
-function BucketDetails({ bucket }: Props) {
+function BucketDetails({ bucket, ingestionStates }: Props) {
   const { pathname } = useLocation();
 
   const details = () => {
     if (!bucket) {
       return <NotFound />;
     }
-    return <Overview bucket={bucket} />;
+    return <Overview bucket={bucket} ingestionStates={ingestionStates} />;
   };
 
   return (

@@ -152,7 +152,7 @@ export default class LocationDetailsAwsCustom extends React.Component<
           {isIngest && (
             <small>
               {' '}
-              Use this option for mirroring. <br />{' '}
+              Use this option for Async Notification. <br />{' '}
             </small>
           )}
           <small>

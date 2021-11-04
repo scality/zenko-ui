@@ -99,17 +99,26 @@ export function locationWithIngestion(locations, capabilities) {
   return Object.keys(locations).reduce((r, key) => {
     const locationType = locations[key].locationType;
     r.push({ value: key, locationType, mirrorMode: false });
-    const ingestCapability = storageOptions[locationType].ingestCapability;
-    if (!!ingestCapability && !!capabilities[ingestCapability]) {
-      if (
-        locationType === 'location-nfs-mount-v1' ||
-        (locations[key].details && locations[key].details.bucketMatch)
-      ) {
-        r.push({ value: `${key}:ingest`, locationType, mirrorMode: true });
-      }
+    const isIngest = isIngestLocation(locations[key], capabilities);
+    if (isIngest) {
+      r.push({ value: `${key}:ingest`, locationType, mirrorMode: true });
     }
     return r;
   }, []);
+}
+
+export function isIngestLocation(location, capabilities) {
+  const locationType = location.locationType;
+  const ingestCapability = storageOptions[locationType].ingestCapability;
+  if (!!ingestCapability && !!capabilities[ingestCapability]) {
+    if (
+      locationType === 'location-nfs-mount-v1' ||
+      (location.details && location.details.bucketMatch)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function isIngestSource(
@@ -121,4 +130,16 @@ export function isIngestSource(
     !!storageOptions[locationType].ingestCapability &&
     !!capabilities[storageOptions[locationType].ingestCapability]
   );
+}
+
+export function getLocationIngestionState(ingestionStates, locationName) {
+  if (ingestionStates) {
+    if (ingestionStates?.[locationName] === 'enabled') {
+      return { value: 'active', isIngestion: true };
+    }
+    if (ingestionStates?.[locationName] === 'disabled') {
+      return { value: 'paused', isIngestion: true };
+    }
+  }
+  return { value: '-', isIngestion: false };
 }

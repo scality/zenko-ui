@@ -17,10 +17,15 @@ import type { Replication } from '../../../../types/config';
 import type { BucketInfo, S3Bucket } from '../../../../types/s3';
 import { TableContainer } from '../../../ui-elements/Table';
 import { Toggle } from '@scality/core-ui';
-import { getLocationTypeFromName } from '../../../utils/storageOptions';
+import {
+  getLocationTypeFromName,
+  getLocationIngestionState,
+} from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useTheme } from 'styled-components';
+import type { WorkflowScheduleUnitState } from '../../../../types/stats';
+import { HelpIngestion } from '../../../ui-elements/Help';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, c => {
@@ -33,18 +38,16 @@ function getDefaultBucketRetention(bucketInfo: BucketInfo): string {
     bucketInfo.objectLockConfiguration.Rule &&
     bucketInfo.objectLockConfiguration.Rule.DefaultRetention
   ) {
-    const retentionPeriod = bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days
-    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days +
-      ' days'
-    : bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years
-    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years +
-      ' years'
-    : '';
+    const retentionPeriod = bucketInfo.objectLockConfiguration.Rule
+      .DefaultRetention.Days
+      ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days + ' days'
+      : bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years
+      ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years +
+        ' years'
+      : '';
     return `${capitalize(
       bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Mode,
-    )} - ${
-      retentionPeriod
-    }`;
+    )} - ${retentionPeriod}`;
   }
   return 'Inactive';
 }
@@ -68,9 +71,10 @@ function canDeleteBucket(
 
 type Props = {
   bucket: S3Bucket,
+  ingestionStates: ?WorkflowScheduleUnitState,
 };
 
-function Overview({ bucket }: Props) {
+function Overview({ bucket, ingestionStates }: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const showDelete = useSelector(
@@ -112,6 +116,11 @@ function Overview({ bucket }: Props) {
   if (!bucketInfo) {
     return null;
   }
+
+  const { value: ingestionValue, isIngestion } = getLocationIngestionState(
+    ingestionStates,
+    bucketInfo.locationConstraint || 'us-east-1',
+  );
 
   return (
     <TableContainer>
@@ -181,9 +190,7 @@ function Overview({ bucket }: Props) {
                 'Enabled' && (
                 <T.Row>
                   <T.Key> Default Object-lock Retention </T.Key>
-                  <T.Value>
-                    {getDefaultBucketRetention(bucketInfo)}
-                  </T.Value>
+                  <T.Value>{getDefaultBucketRetention(bucketInfo)}</T.Value>
                 </T.Row>
               )}
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
@@ -204,6 +211,13 @@ function Overview({ bucket }: Props) {
                       locations,
                     )}{' '}
                   </small>
+                </T.Value>
+              </T.Row>
+              <T.Row>
+                <T.Key> Async Notification </T.Key>
+                <T.Value>
+                  {ingestionValue}
+                  {isIngestion && <HelpIngestion />}
                 </T.Value>
               </T.Row>
             </T.GroupContent>

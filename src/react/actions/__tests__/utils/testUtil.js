@@ -41,6 +41,7 @@ import { createBrowserHistory as createHistory } from 'history';
 import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
 import zenkoUIReducer from '../../../reducers';
+import type { EnabledState } from '../../../../types/stats';
 
 type ActionTestObject = {|
   skip?: boolean,
@@ -85,6 +86,7 @@ export const AWS_CLIENT_ERROR = awsErrorObject(
   'InternalError',
 );
 
+export const SITE = 'ring-s3-loc';
 export const LATEST_OVERLAY = latestOverlay;
 export const ACCOUNT = account;
 export const LOCATION = location;
@@ -269,6 +271,27 @@ export function storeStateWithManagementClient(
     auth: {
       ...state.auth,
       managementClient: client,
+    },
+  };
+}
+
+export function storeStateWithIngestion(state: EnabledState): AppState {
+  return {
+    ...initState,
+    instanceStatus: {
+      ...initState.instanceStatus,
+      latest: {
+        ...initState.instanceStatus.latest,
+        metrics: {
+          ...initState.instanceStatus.latest.metrics,
+          'ingest-schedule': {
+            schedules: {},
+            states: {
+              [SITE]: state,
+            },
+          },
+        },
+      },
     },
   };
 }

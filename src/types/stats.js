@@ -28,8 +28,10 @@ export type CrrStatUnit = {|
 
 export type EnabledState = 'enabled' | 'disabled';
 
+export type WorkflowScheduleUnitState = $ReadOnly<PerLocationMap<EnabledState>>;
+
 export type WorkflowScheduleUnit = {|
-  +states: $ReadOnly<PerLocationMap<EnabledState>>,
+  +states: WorkflowScheduleUnitState,
   +schedules: $ReadOnly<PerLocationMap<string>>,
 |};
 

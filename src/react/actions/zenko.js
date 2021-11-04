@@ -15,11 +15,15 @@ import type {
   Marker,
   SearchBucketResp,
   SearchResultList,
+  Site,
   ZenkoClientError,
   ZenkoClient as ZenkoClientInterface,
 } from '../../types/zenko';
+import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
+import { until } from 'async';
+import { loadInstanceLatestStatus } from './stats';
 
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
@@ -147,5 +151,51 @@ export function continueSearchListing(
     return dispatch(_getSearchObjects(bucketName, query, marker)).then(() =>
       dispatch(networkEnd()),
     );
+  };
+}
+
+export function waitForIngestionUpdate(
+  locationName: string,
+  expectedState: string,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) =>
+    until(
+      cb => {
+        const { instanceStatus } = getState();
+        const actualState =
+          instanceStatus.latest.metrics?.['ingest-schedule']?.states[
+            locationName
+          ];
+        setTimeout(cb, 500, null, actualState === expectedState);
+      },
+      next => dispatch(loadInstanceLatestStatus()).then(next),
+    );
+}
+
+export function pauseIngestionSite(site: Site): ThunkStatePromisedAction {
+  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+    const { zenkoClient } = getClients(getState());
+
+    dispatch(networkStart('Pausing ingestion'));
+    return zenkoClient
+      .pauseIngestionSite(site)
+      .then(() => dispatch(waitForIngestionUpdate(site, 'disabled')))
+      .catch(error => dispatch(handleAWSClientError(error)))
+      .catch(error => dispatch(handleAWSError(error, 'byModal')))
+      .finally(() => dispatch(networkEnd()));
+  };
+}
+
+export function resumeIngestionSite(site: Site): ThunkStatePromisedAction {
+  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+    const { zenkoClient } = getClients(getState());
+
+    dispatch(networkStart('Resuming ingestion'));
+    return zenkoClient
+      .resumeIngestionSite(site)
+      .then(() => dispatch(waitForIngestionUpdate(site, 'enabled')))
+      .catch(error => dispatch(handleAWSClientError(error)))
+      .catch(error => dispatch(handleAWSError(error, 'byModal')))
+      .finally(() => dispatch(networkEnd()));
   };
 }

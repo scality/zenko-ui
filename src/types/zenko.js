@@ -2,6 +2,7 @@
 
 import S3Client from '../js/S3Client';
 
+export type Site = string;
 export type Marker = null | string;
 
 export type SearchParams = {|

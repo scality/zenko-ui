@@ -4,6 +4,10 @@ import { SmallerText } from '@scality/core-ui/dist/components/text/Text.componen
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
+import {
+  HelpBucketCreationAsyncNotif,
+  HelpNonAsyncLocation,
+} from '../../ui-elements/Help';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,11 +15,12 @@ import type { AppState } from '../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers';
-import { locationWithIngestion } from '../../utils/storageOptions';
+import { isIngestLocation } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
 import ObjectLockRetentionSettings from './ObjectLockRetentionSettings';
+import type { Location } from '../../../types/config';
 
 const schema = Joi.object({
   name: Joi.string()
@@ -26,6 +31,7 @@ const schema = Joi.object({
   locationName: Joi.string().required(),
   isVersioning: Joi.boolean(),
   isObjectLockEnabled: Joi.boolean(),
+  isAsyncNotification: Joi.boolean(),
   isDefaultRetentionEnabled: Joi.boolean(),
   retentionMode: Joi.string().when('isDefaultRetentionEnabled', {
     is: Joi.exist(),
@@ -71,6 +77,7 @@ function BucketCreate() {
   const { dirtyFields, isValid } = formState;
 
   const isObjectLockEnabled = watch('isObjectLockEnabled');
+  const watchLocationName = watch('locationName');
 
   const dispatch = useDispatch();
 
@@ -92,6 +99,15 @@ function BucketCreate() {
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
 
+  const isAsyncNotificationEnabled = useMemo(
+    () =>
+      !!watchLocationName &&
+      !!locations &&
+      !!locations[watchLocationName] &&
+      isIngestLocation(locations[watchLocationName], capabilities),
+    [watchLocationName, locations, capabilities],
+  );
+
   const clearServerError = () => {
     if (hasError) {
       dispatch(clearError());
@@ -110,17 +126,26 @@ function BucketCreate() {
     retentionMode,
     retentionPeriod,
     retentionPeriodFrequencyChoice,
+    isAsyncNotification,
   }) => {
     clearServerError();
     const retentionPeriodToSubmit =
       retentionPeriodFrequencyChoice === 'DAYS'
         ? { days: retentionPeriod }
         : { years: retentionPeriod };
+
+    let lName = locationName;
+    if (
+      isAsyncNotification &&
+      isIngestLocation(locations[locationName], capabilities)
+    ) {
+      lName = `${locationName}:ingest`;
+    }
     dispatch(
       createBucket(
         {
           name,
-          locationConstraint: locationName,
+          locationConstraint: lName,
           isObjectLockEnabled,
         },
         { isVersioning },
@@ -138,20 +163,11 @@ function BucketCreate() {
     dispatch(push('/buckets'));
   };
 
-  const renderLocation = option => {
+  const renderLocation = (option: Location) => {
     const locationType = option.locationType;
-    const mirrorMode = option.mirrorMode;
     const locationTypeName = storageOptions[locationType].name;
-    return mirrorMode
-      ? `${
-          option.value.split(':ingest')[0]
-        } (Mirror mode) (${locationTypeName})`
-      : `${option.value} (${locationTypeName})`;
+    return `${option.name} (${locationTypeName})`;
   };
-
-  const selectLocations = useMemo(() => {
-    return locationWithIngestion(locations, capabilities);
-  }, [locations, capabilities]);
 
   return (
     <FormProvider {...useFormMethods}>
@@ -203,9 +219,9 @@ function BucketCreate() {
                       placeholder="Location Name"
                       value={locationName}
                     >
-                      {selectLocations.map((opt, i) => (
-                        <F.Select.Option key={i} value={opt.value}>
-                          {renderLocation(opt)}
+                      {Object.values(locations).map((location: any, i) => (
+                        <F.Select.Option key={i} value={location.name}>
+                          {renderLocation(location)}
                         </F.Select.Option>
                       ))}
                     </F.Select>
@@ -213,6 +229,34 @@ function BucketCreate() {
                 }}
               />
             </F.Fieldset>
+            <F.Fieldset direction={'row'}>
+              <F.Label>Async Notification</F.Label>
+              <Controller
+                control={control}
+                id="isAsyncNotification"
+                name="isAsyncNotification"
+                defaultValue={false}
+                render={({ onChange, value: isAsyncNotification }) => {
+                  return (
+                    <>
+                      <Toggle
+                        disabled={!isAsyncNotificationEnabled}
+                        onChange={e => onChange(e.target.checked)}
+                        label={isAsyncNotification ? 'Enabled' : 'Disabled'}
+                        toggle={isAsyncNotification}
+                      />
+                      {watchLocationName &&
+                        isAsyncNotificationEnabled &&
+                        isAsyncNotification && <HelpBucketCreationAsyncNotif />}
+                    </>
+                  );
+                }}
+              />
+              {watchLocationName && !isAsyncNotificationEnabled && (
+                <HelpNonAsyncLocation />
+              )}
+            </F.Fieldset>
+            <F.SessionSeperation />
             <F.Fieldset direction={'row'}>
               <F.Label>Versioning</F.Label>
               <Controller

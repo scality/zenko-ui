@@ -11,20 +11,26 @@ import type { S3BucketList } from '../../../types/s3';
 import { TextAligner } from '../../ui-elements/Utility';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { formatShortDate } from '../../utils';
-import { getLocationTypeFromName } from '../../utils/storageOptions';
+import {
+  getLocationTypeFromName,
+  getLocationIngestionState,
+} from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
+import type { WorkflowScheduleUnitState } from '../../../types/stats';
 
 type Props = {
   locations: Locations,
   buckets: S3BucketList,
   selectedBucketName: ?string,
+  ingestionStates: ?WorkflowScheduleUnitState,
 };
 export default function BucketList({
   selectedBucketName,
   buckets,
   locations,
+  ingestionStates,
 }: Props) {
   const dispatch = useDispatch();
   const listRef = useRef<FixedSizeList<T> | null>(null);
@@ -57,6 +63,15 @@ export default function BucketList({
         },
       },
       {
+        Header: 'Async Notification',
+        accessor: 'LocationConstraint',
+        id: 'ingestion',
+        disableSortBy: true,
+        Cell({ value: locationName }: { value: LocationName }) {
+          return getLocationIngestionState(ingestionStates, locationName).value;
+        },
+      },
+      {
         Header: 'Created on',
         accessor: 'CreationDate',
         headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
@@ -72,7 +87,7 @@ export default function BucketList({
         },
       },
     ],
-    [locations, handleCellClicked],
+    [locations, handleCellClicked, ingestionStates],
   );
 
   const {

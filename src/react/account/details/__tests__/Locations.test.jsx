@@ -98,7 +98,7 @@ const locations = {
   'location-sproxyd': locationSproxyd,
 };
 
-const nbrOfColumnsExpected = 4;
+const nbrOfColumnsExpected = 5;
 
 describe('Locations', () => {
   it('should render Locations component alphabetically sorted', () => {

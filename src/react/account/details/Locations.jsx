@@ -10,18 +10,23 @@ import {
   closeLocationDeleteDialog,
   deleteLocation,
   openLocationDeleteDialog,
+  pauseIngestionSite,
+  resumeIngestionSite,
 } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
-import { Tooltip } from '@scality/core-ui';
 import { Warning } from '../../ui-elements/Warning';
+import {
+  HelpAsyncNotifPending,
+  HelpLocationTargetBucket,
+} from '../../ui-elements/Help';
 import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 import { useHeight } from '../../utils/hooks';
+import { isIngestLocation } from '../../utils/storageOptions';
 
 const initialSortBy = [
   {
@@ -47,35 +52,60 @@ const Container = styled.div`
   min-width: 500px;
 `;
 
-const IconTooltip = styled.i`
-  color: ${props => props.theme.brand.buttonSecondary};
-  margin-left: ${spacing.sp4};
-`;
-
-const Overlay = styled.div`
-  width: 220px;
-  padding: ${spacing.sp8};
-  text-align: left;
-`;
-
-const CustomHeader = () => (
-  <span>
-    Target Bucket
-    <Tooltip
-      overlay={
-        <Overlay>
-          {' '}
-          Name of the bucket/container created in the specific location (e.g.
-          RING, Azure, AWS S3, GCP...), and where buckets attached to that
-          location will store data.{' '}
-        </Overlay>
+const IngestionCell = (ingestionStates, capabilities, loading, dispatch) => ({
+  value: locationName,
+  row: { original },
+}) => {
+  const ingestion =
+    ingestionStates &&
+    ingestionStates[locationName] &&
+    ingestionStates[locationName];
+  const isIngestionPending = isIngestLocation(original, capabilities);
+  if (isIngestionPending) {
+    if (ingestion) {
+      if (ingestion === 'enabled') {
+        return (
+          <>
+            Active
+            <T.ActionButton
+              disabled={loading}
+              icon={<i className="far fa-pause-circle" />}
+              tooltip={{
+                overlay: 'Async Notification is active, pause it.',
+                placement: 'top',
+              }}
+              onClick={() => dispatch(pauseIngestionSite(locationName))}
+              variant="secondary"
+            />
+          </>
+        );
       }
-      placement="right"
-    >
-      <IconTooltip className="fas fa-question-circle" />
-    </Tooltip>
-  </span>
-);
+      if (ingestion === 'disabled') {
+        return (
+          <>
+            Paused
+            <T.ActionButton
+              disabled={loading}
+              icon={<i className="far fa-play-circle" />}
+              tooltip={{
+                overlay: 'Async Notification is paused, resume it.',
+                placement: 'top',
+              }}
+              onClick={() => dispatch(resumeIngestionSite(locationName))}
+              variant="secondary"
+            />
+          </>
+        );
+      }
+    }
+    return (
+      <>
+        Pending <HelpAsyncNotifPending />
+      </>
+    );
+  }
+  return '-';
+};
 
 function Locations() {
   const dispatch = useDispatch();
@@ -94,6 +124,16 @@ function Locations() {
 
   const showDeleteLocationName = useSelector(
     (state: AppState) => state.uiLocations.showDeleteLocation,
+  );
+  const loading = useSelector(
+    (state: AppState) => state.networkActivity.counter > 0,
+  );
+  const ingestionStates = useSelector(
+    (state: AppState) =>
+      state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
+  );
+  const capabilities = useSelector(
+    (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
 
   const handleDeleteClick = useCallback(
@@ -118,8 +158,21 @@ function Locations() {
         },
       },
       {
-        Header: CustomHeader,
+        Header: (
+          <>
+            Target Bucket
+            <HelpLocationTargetBucket />
+          </>
+        ),
         accessor: 'details.bucketName',
+      },
+      {
+        id: 'ingestion',
+        Header: 'Async Notification',
+        accessor: 'name',
+        disableSortBy: true,
+        cellStyle: { overflow: 'visible' },
+        Cell: IngestionCell(ingestionStates, capabilities, loading, dispatch),
       },
       {
         id: 'actions',
@@ -166,6 +219,9 @@ function Locations() {
       endpoints,
       replicationStreams,
       handleDeleteClick,
+      ingestionStates,
+      loading,
+      capabilities,
     ],
   );
 

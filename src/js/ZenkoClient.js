@@ -4,7 +4,9 @@ import type {
   Credentials,
   SearchBucketResp,
   SearchParams,
+  Site,
   ZenkoClient as ZenkoClientInterface,
+  ZenkoMapResp,
 } from '../types/zenko';
 import S3Client from './S3Client';
 // TODO: prevent zenkoclient from including in the bundle the full AWS SDK.
@@ -35,6 +37,17 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       signatureVersion: 'v4',
       maxRetries: 0,
     });
+
+    this._jsonClient = new ZenkoClientBase({
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        sessionToken,
+        apiVersion: '2018-07-08-json',
+        endpoint: this.endpoint,
+        s3ForcePathStyle: true,
+        signatureVersion: 'v4',
+        maxRetries: 0,
+    });
   }
 
   logout() {
@@ -48,11 +61,22 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       secretAccessKey: '',
       sessionToken: '',
     });
+    this._jsonClient.config.update({
+      accessKeyId: '',
+      secretAccessKey: '',
+      sessionToken: '',
+    });
   }
 
   login(params: Credentials): void {
     const { accessKey, secretKey, sessionToken } = params;
     this._xmlClient.config.update({
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey,
+      sessionToken,
+    });
+
+    this._jsonClient.config.update({
       accessKeyId: accessKey,
       secretAccessKey: secretKey,
       sessionToken,
@@ -76,6 +100,16 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Marker,
       })
       .promise();
+  }
+
+  pauseIngestionSite(site: Site): Promise<ZenkoMapResp> {
+      const params = { Site: site };
+      return this._jsonClient.pauseIngestionSite(params).promise();
+  }
+
+  resumeIngestionSite(site: Site): Promise<ZenkoMapResp> {
+      const params = { Site: site };
+      return this._jsonClient.resumeIngestionSite(params).promise();
   }
 }
 

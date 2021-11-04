@@ -20,6 +20,9 @@ export default function Buckets() {
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
+  const ingestionStates = useSelector(
+    (state: AppState) => state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
+  );
   const { bucketName: bucketNameParam } = useParams();
   const bucketIndex = useMemo(
     () => buckets.findIndex(b => b.Name === bucketNameParam),
@@ -55,8 +58,9 @@ export default function Buckets() {
           selectedBucketName={bucketNameParam}
           buckets={buckets}
           locations={locations}
+          ingestionStates={ingestionStates}
         />
-        <BucketDetails bucket={bucket} />
+        <BucketDetails bucket={bucket} ingestionStates={ingestionStates} />
       </L.Body>
     </L.ContentContainer>
   );
