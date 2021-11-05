@@ -1,6 +1,7 @@
 // @flow
 
 import S3Client from '../js/S3Client';
+import type { RetentionMode } from './s3';
 
 export type Marker = null | string;
 
@@ -17,6 +18,10 @@ export type SearchResult = {
   +Size: number,
   IsFolder: boolean,
   SignedUrl?: string,
+  ObjectRetention?: {|
+    Mode: RetentionMode,
+    RetainUntilDate: Date,
+  |},
 };
 
 export type SearchResultList = Array<SearchResult>;

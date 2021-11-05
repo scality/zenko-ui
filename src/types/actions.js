@@ -11,6 +11,7 @@ import type {
   S3Object,
   S3Version,
   TagSet,
+  RetentionMode,
 } from './s3';
 import type { ConfigurationOverlay, Hostname, LocationName } from './config';
 import type { InstanceStatus, StatsSeries } from './stats';
@@ -186,6 +187,10 @@ export type GetObjectMetadataSuccessAction = {|
   +objectKey: string,
   +info: HeadObjectResponse,
   +tags: TagSet,
+  +ObjectRetention: {|
+    Mode: RetentionMode,
+    RetainUntilDate: Date,
+  |},
 |};
 
 export type ResetObjectMetadataAction = {|

@@ -16,12 +16,14 @@ import type {
   MetadataPairs,
   ObjectEntity,
   S3DeleteMarker,
+  S3Object,
   S3Version,
   TagSet,
   Tags,
 } from '../../types/s3';
+import type { GetObjectMetadataSuccessAction, S3Action } from '../../types/actions';
+import type { SearchResult } from '../../types/zenko';
 import { List } from 'immutable';
-import type { S3Action } from '../../types/actions';
 import type { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
 
@@ -41,6 +43,7 @@ const objects = (objs, prefix): Array<ObjectEntity> =>
         toggled: false,
         isLatest: true,
         signedUrl: o.SignedUrl,
+        ..._getObjectLockInformation(o),
       };
     });
 
@@ -52,11 +55,39 @@ const folder = (objs, prefix): Array<ObjectEntity> =>
       isFolder: true,
       isLatest: true,
       toggled: false,
+      lockStatus: 'NONE',
     };
   });
 
-const search = (objs): Array<ObjectEntity> =>
-  objs.map(o => {
+const _getObjectLockInformation = (
+  o: S3Object
+    | S3Version
+    | SearchResult
+    | S3DeleteMarker
+    | GetObjectMetadataSuccessAction,
+) => {
+  return {
+    lockStatus:
+      o.ObjectRetention &&
+      new Date(o.ObjectRetention.RetainUntilDate) >= new Date()
+        ? 'LOCKED'
+        : o.ObjectRetention &&
+          new Date(o.ObjectRetention.RetainUntilDate) < new Date()
+        ? 'RELEASED'
+        : 'NONE',
+    objectRetention: o.ObjectRetention
+      ? {
+          mode: o.ObjectRetention.Mode,
+          retainUntilDate: formatShortDate(
+            new Date(o.ObjectRetention.RetainUntilDate),
+          ),
+        }
+      : undefined,
+  };
+};
+
+const search = (objs): Array<ObjectEntity> => {
+  return objs.map(o => {
     return {
       name: o.Key,
       key: o.Key,
@@ -65,9 +96,11 @@ const search = (objs): Array<ObjectEntity> =>
       isFolder: o.IsFolder,
       isLatest: true,
       signedUrl: o.SignedUrl,
+      ..._getObjectLockInformation(o),
       toggled: false,
     };
   });
+};
 
 const versioning = (
   versions: Array<S3Version>,
@@ -88,6 +121,7 @@ const versioning = (
         isDeleteMarker: o.ETag ? false : true,
         versionId: o.VersionId,
         signedUrl: o.SignedUrl || null,
+        ..._getObjectLockInformation(o),
         toggled: false,
       };
     });
@@ -223,6 +257,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           versionId: action.info.VersionId,
           metadata: convertToFormMetadata(action.info),
           tags: convertToFormTags(action.tags),
+          ..._getObjectLockInformation(action),
         },
       };
     case 'RESET_OBJECT_METADATA':
