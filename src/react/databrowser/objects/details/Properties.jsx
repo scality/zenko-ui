@@ -5,7 +5,7 @@ import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import { PrettyBytes } from '@scality/core-ui';
 import React from 'react';
-import { formatDate } from '../../../utils';
+import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 
 type Props = {
@@ -50,7 +50,7 @@ function Properties({ objectMetadata }: Props) {
             <T.Key> Modified On </T.Key>
             <T.Value>
               {' '}
-              {formatDate(new Date(objectMetadata.lastModified))}{' '}
+              {formatShortDate(new Date(objectMetadata.lastModified))}{' '}
             </T.Value>
           </T.Row>
           <T.Row>
@@ -60,6 +60,14 @@ function Properties({ objectMetadata }: Props) {
               {' '}
               <Clipboard text={objectMetadata.eTag} />{' '}
             </T.ExtraCell>
+          </T.Row>
+          <T.Row>
+            <T.Key> Lock </T.Key>
+            <T.Value>
+              {objectMetadata.lockStatus === 'LOCKED' && <>Locked ({objectMetadata.objectRetention.mode.toLowerCase()})<br />until {objectMetadata.objectRetention.retainUntilDate}</>}
+              {objectMetadata.lockStatus === 'RELEASED' && `Released - since ${objectMetadata.objectRetention.retainUntilDate}`}
+              {objectMetadata.lockStatus === 'NONE' && 'No retention'}
+            </T.Value>
           </T.Row>
         </T.Body>
       </Table>
