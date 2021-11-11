@@ -2,31 +2,26 @@
 import type { LocationName, LocationType } from '../../../types/config';
 import React, { useCallback, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
+import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
   canDeleteLocation,
   canEditLocation,
+  IngestionCell,
 } from '../../backend/location/utils';
 import {
   closeLocationDeleteDialog,
   deleteLocation,
   openLocationDeleteDialog,
-  pauseIngestionSite,
-  resumeIngestionSite,
 } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
-import {
-  HelpAsyncNotifPending,
-  HelpLocationTargetBucket,
-} from '../../ui-elements/Help';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 import { useHeight } from '../../utils/hooks';
-import { isIngestLocation } from '../../utils/storageOptions';
 
 const initialSortBy = [
   {
@@ -51,61 +46,6 @@ const Container = styled.div`
   flex: 1;
   min-width: 500px;
 `;
-
-const IngestionCell = (ingestionStates, capabilities, loading, dispatch) => ({
-  value: locationName,
-  row: { original },
-}) => {
-  const ingestion =
-    ingestionStates &&
-    ingestionStates[locationName] &&
-    ingestionStates[locationName];
-  const isIngestionPending = isIngestLocation(original, capabilities);
-  if (isIngestionPending) {
-    if (ingestion) {
-      if (ingestion === 'enabled') {
-        return (
-          <>
-            Active
-            <T.ActionButton
-              disabled={loading}
-              icon={<i className="far fa-pause-circle" />}
-              tooltip={{
-                overlay: 'Async Notification is active, pause it.',
-                placement: 'top',
-              }}
-              onClick={() => dispatch(pauseIngestionSite(locationName))}
-              variant="secondary"
-            />
-          </>
-        );
-      }
-      if (ingestion === 'disabled') {
-        return (
-          <>
-            Paused
-            <T.ActionButton
-              disabled={loading}
-              icon={<i className="far fa-play-circle" />}
-              tooltip={{
-                overlay: 'Async Notification is paused, resume it.',
-                placement: 'top',
-              }}
-              onClick={() => dispatch(resumeIngestionSite(locationName))}
-              variant="secondary"
-            />
-          </>
-        );
-      }
-    }
-    return (
-      <>
-        Pending <HelpAsyncNotifPending />
-      </>
-    );
-  }
-  return '-';
-};
 
 function Locations() {
   const dispatch = useDispatch();

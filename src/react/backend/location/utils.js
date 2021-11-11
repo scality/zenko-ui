@@ -1,4 +1,7 @@
 // @flow
+
+import React from 'react';
+import { HelpAsyncNotifPending } from '../../ui-elements/Help';
 import type {
   Endpoint,
   Location,
@@ -6,9 +9,20 @@ import type {
   Locations as LocationsType,
   Replication,
 } from '../../../types/config';
-import type { BucketList } from '../../../types/stats';
+import type {
+  BucketList,
+  WorkflowScheduleUnitState,
+  InstanceStateSnapshot,
+} from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
+import { isIngestLocation } from '../../utils/storageOptions';
+import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
+import { ActionButton } from '../../ui-elements/Table';
+
+type RowProps = {
+  original: Location,
+};
 
 function newLocationDetails(): Location {
   return {
@@ -130,6 +144,69 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some(opt => opt === location);
 }
 
+const IngestionCell = (
+  ingestionStates: ?WorkflowScheduleUnitState,
+  capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
+  loading: boolean,
+  dispatch: function,
+) => ({
+  value: locationName,
+  row: { original },
+}: {
+  value: LocationName,
+  row: RowProps,
+}) => {
+  const ingestion =
+    ingestionStates &&
+    ingestionStates[locationName] &&
+    ingestionStates[locationName];
+  const isIngestionPending = isIngestLocation(original, capabilities);
+  if (isIngestionPending) {
+    if (ingestion) {
+      if (ingestion === 'enabled') {
+        return (
+          <>
+            Active
+            <ActionButton
+              disabled={loading}
+              icon={<i className="far fa-pause-circle" />}
+              tooltip={{
+                overlay: 'Async Notification is active, pause it.',
+                placement: 'top',
+              }}
+              onClick={() => dispatch(pauseIngestionSite(locationName))}
+              variant="secondary"
+            />
+          </>
+        );
+      }
+      if (ingestion === 'disabled') {
+        return (
+          <>
+            Paused
+            <ActionButton
+              disabled={loading}
+              icon={<i className="far fa-play-circle" />}
+              tooltip={{
+                overlay: 'Async Notification is paused, resume it.',
+                placement: 'top',
+              }}
+              onClick={() => dispatch(resumeIngestionSite(locationName))}
+              variant="secondary"
+            />
+          </>
+        );
+      }
+    }
+    return (
+      <>
+        Pending <HelpAsyncNotifPending />
+      </>
+    );
+  }
+  return '-';
+};
+
 export {
   newLocationForm,
   convertToLocation,
@@ -138,4 +215,5 @@ export {
   canEditLocation,
   canDeleteLocation,
   isLocationExists,
+  IngestionCell,
 };

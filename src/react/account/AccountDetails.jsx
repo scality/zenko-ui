@@ -1,7 +1,7 @@
 // @flow
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
-import Locations from './details/Locations';
+import Locations from '../backend/location/Locations';
 import Properties from './details/Properties';
 import React from 'react';
 import { Warning } from '../ui-elements/Warning';
