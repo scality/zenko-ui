@@ -152,10 +152,13 @@ describe('Overview', () => {
     expect(secondItemFirstGroup.find(T.Value).text()).toContain('Enabled');
 
     const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Default Object-lock Retention');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('Inactive');
+    expect(thirdItemFirstGroup.find(T.Key).text()).toContain(
+      'Default Object-lock Retention',
+    );
+    expect(thirdItemFirstGroup.find(T.GroupValues).text()).toContain(
+      'Inactive',
+    );
   });
-
 
   it('should render object lock information in Enabled mode with default retention', () => {
     const { component } = reduxMount(<Overview bucket={BUCKET} />, {
@@ -177,8 +180,12 @@ describe('Overview', () => {
     expect(secondItemFirstGroup.find(T.Value).text()).toContain('Enabled');
 
     const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Default Object-lock Retention');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('Governance - 5 days');
+    expect(thirdItemFirstGroup.find(T.Key).text()).toContain(
+      'Default Object-lock Retention',
+    );
+    expect(thirdItemFirstGroup.find(T.GroupValues).text()).toContain(
+      'Governance - 5 days',
+    );
   });
 
   it('should trigger deleteBucket function when approving clicking on delete button when modal popup', () => {
