@@ -21,6 +21,7 @@ import { getLocationTypeFromName } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useTheme } from 'styled-components';
+import { push } from 'connected-react-router';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, c => {
@@ -33,18 +34,16 @@ function getDefaultBucketRetention(bucketInfo: BucketInfo): string {
     bucketInfo.objectLockConfiguration.Rule &&
     bucketInfo.objectLockConfiguration.Rule.DefaultRetention
   ) {
-    const retentionPeriod = bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days
-    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days +
-      ' days'
-    : bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years
-    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years +
-      ' years'
-    : '';
+    const retentionPeriod = bucketInfo.objectLockConfiguration.Rule
+      .DefaultRetention.Days
+      ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days + ' days'
+      : bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years
+      ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Years +
+        ' years'
+      : '';
     return `${capitalize(
       bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Mode,
-    )} - ${
-      retentionPeriod
-    }`;
+    )} - ${retentionPeriod}`;
   }
   return 'Inactive';
 }
@@ -181,9 +180,20 @@ function Overview({ bucket }: Props) {
                 'Enabled' && (
                 <T.Row>
                   <T.Key> Default Object-lock Retention </T.Key>
-                  <T.Value>
-                    {getDefaultBucketRetention(bucketInfo)}
-                  </T.Value>
+                  <T.GroupValues>
+                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
+                    <Button
+                      id="edit-retention-btn"
+                      variant="outline"
+                      label="Edit"
+                      icon={<i className="fas fa-pencil-alt"></i>}
+                      onClick={() =>
+                        dispatch(
+                          push(`/buckets/${bucket.Name}/retention-setting`),
+                        )
+                      }
+                    />
+                  </T.GroupValues>
                 </T.Row>
               )}
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===

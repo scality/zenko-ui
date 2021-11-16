@@ -15,7 +15,9 @@ import { locationWithIngestion } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
-import ObjectLockRetentionSettings from './ObjectLockRetentionSettings';
+import ObjectLockRetentionSettings, {
+  objectLockRetentionSettingsValidationRules,
+} from './ObjectLockRetentionSettings';
 
 const schema = Joi.object({
   name: Joi.string()
@@ -26,25 +28,7 @@ const schema = Joi.object({
   locationName: Joi.string().required(),
   isVersioning: Joi.boolean(),
   isObjectLockEnabled: Joi.boolean(),
-  isDefaultRetentionEnabled: Joi.boolean(),
-  retentionMode: Joi.string().when('isDefaultRetentionEnabled', {
-    is: Joi.exist(),
-    then: Joi.string().required(),
-    otherwise: Joi.string(),
-  }),
-  retentionPeriod: Joi.number().when('isDefaultRetentionEnabled', {
-    is: Joi.exist(),
-    then: Joi.number().required(),
-    otherwise: Joi.number(),
-  }),
-  retentionPeriodFrequencyChoice: Joi.string().when(
-    'isDefaultRetentionEnabled',
-    {
-      is: Joi.exist(),
-      then: Joi.string().required(),
-      otherwise: Joi.string(),
-    },
-  ),
+  ...objectLockRetentionSettingsValidationRules,
 });
 
 function BucketCreate() {
@@ -289,11 +273,7 @@ function BucketCreate() {
                 Permanently allows objects in this bucket to be locked.
               </F.LabelSecondary>
             </SpacedBox>
-            {isObjectLockEnabled && (
-              <ObjectLockRetentionSettings
-                isObjectLockEnabled={isObjectLockEnabled}
-              />
-            )}
+            {isObjectLockEnabled && <ObjectLockRetentionSettings />}
           </F.FormScrollArea>
           <F.Footer>
             <F.FooterError>

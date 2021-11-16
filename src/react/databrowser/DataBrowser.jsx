@@ -13,6 +13,7 @@ import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { clearError } from '../actions';
 import { push } from 'connected-react-router';
+import ObjectLockSetting from './buckets/ObjectLockSetting';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -81,6 +82,11 @@ export default function DataBrowser() {
           component={Objects}
         />
         <Route path="/buckets/:bucketName/objects/*" component={Objects} />
+        <Route
+          exact
+          path="/buckets/:bucketName/retention-setting"
+          component={ObjectLockSetting}
+        />
         <Route path="/buckets/:bucketName?" component={Buckets} />
         <Route path="/create-bucket" component={BucketCreate} />
       </Switch>

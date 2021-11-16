@@ -151,6 +151,13 @@ export const Value = styled.div`
   }
 `;
 
+export const GroupValues = styled.div`
+  display: flex;
+  flex: 1 1 65%;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
 export const ErrorContainer = styled.div`
   position: absolute;
 `;

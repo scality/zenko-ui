@@ -6,6 +6,26 @@ import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import * as F from '../../ui-elements/FormLayout';
 import React from 'react';
+import Joi from '@hapi/joi';
+
+export const objectLockRetentionSettingsValidationRules = {
+  isDefaultRetentionEnabled: Joi.boolean().default(false),
+  retentionMode: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.string().required(),
+    otherwise: Joi.valid(),
+  }),
+  retentionPeriod: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.number().required(),
+    otherwise: Joi.valid(),
+  }),
+  retentionPeriodFrequencyChoice: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.string().required(),
+    otherwise: Joi.valid(),
+  }),
+};
 
 export default function ObjectLockRetentionSettings() {
   const { control, register, watch, errors } = useFormContext();
