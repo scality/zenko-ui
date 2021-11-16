@@ -126,7 +126,17 @@ export function createBucket(
       }
     }
 
-    await dispatch(listBuckets());
+    try {
+      await dispatch(listBuckets());
+    } catch (maybeAuthError) {
+      try {
+        dispatch(handleAWSClientError(maybeAuthError));
+      } catch (originalError) {
+        dispatch(handleAWSError(originalError, 'byComponent'));
+      }
+      dispatch(networkEnd());
+      return;
+    }
     await dispatch(push('/buckets'));
 
     await dispatch(networkEnd());
@@ -177,5 +187,45 @@ export function toggleBucketVersioning(
       .catch(error => dispatch(handleAWSClientError(error)))
       .catch(error => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));
+  };
+}
+
+export function editDefaultRetention(
+  bucketName: string,
+  objectLockRetentionSettings: ObjectLockRetentionSettings,
+): ThunkStatePromisedAction {
+  return async (dispatch, getState) => {
+    // TODO: credentials expired => zenkoClient out of date => zenkoClient.createBucket error.
+    const { zenkoClient } = getClients(getState());
+    dispatch(networkStart('Editing bucket default retention'));
+    try {
+      await zenkoClient.putObjectLockConfiguration({
+        ...objectLockRetentionSettings,
+        bucketName,
+      });
+    } catch (maybeAuthError) {
+      try {
+        dispatch(handleAWSClientError(maybeAuthError));
+      } catch (originalError) {
+        dispatch(handleAWSError(originalError, 'byComponent'));
+      }
+      dispatch(networkEnd());
+      return;
+    }
+
+    try {
+      await dispatch(listBuckets());
+    } catch (maybeAuthError) {
+      try {
+        dispatch(handleAWSClientError(maybeAuthError));
+      } catch (originalError) {
+        dispatch(handleAWSError(originalError, 'byComponent'));
+      }
+      dispatch(networkEnd());
+      return;
+    }
+    await dispatch(push('/buckets'));
+
+    await dispatch(networkEnd());
   };
 }

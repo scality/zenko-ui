@@ -27,6 +27,9 @@ const getBucketInfoNetworkAction = dispatchAction.NETWORK_START_ACTION(
 const toggleBucketVersioningNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Versioning bucket',
 );
+const editDefaultRetentionNetworkAction = dispatchAction.NETWORK_START_ACTION(
+  'Editing bucket default retention',
+);
 
 const listBucketsActions = [
   listBucketsNetworkAction,
@@ -173,6 +176,31 @@ describe('s3bucket actions', () => {
       expectedActions: [
         toggleBucketVersioningNetworkAction,
         dispatchAction.HANDLE_ERROR_MODAL_ACTION(AWS_CLIENT_ERROR_MSG),
+        dispatchAction.NETWORK_END_ACTION,
+      ],
+    },
+    {
+      it: 'editDefaultRetention: should edit the default retention',
+      fn: actions.editDefaultRetention(BUCKET_NAME, {
+        isDefaultRetentionEnabled: false,
+      }),
+      storeState: initState,
+      expectedActions: [
+        editDefaultRetentionNetworkAction,
+        ...listBucketsActions,
+        dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
+        dispatchAction.NETWORK_END_ACTION,
+      ],
+    },
+    {
+      it: 'editDefaultRetention: should handle error',
+      fn: actions.editDefaultRetention(BUCKET_NAME, {
+        isDefaultRetentionEnabled: false,
+      }),
+      storeState: errorZenkoState(),
+      expectedActions: [
+        editDefaultRetentionNetworkAction,
+        dispatchAction.HANDLE_ERROR_SPEC_ACTION(AWS_CLIENT_ERROR_MSG),
         dispatchAction.NETWORK_END_ACTION,
       ],
     },
