@@ -9,6 +9,7 @@ import type {
 import type { BucketList } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
+import type { BucketInfo } from '../../../types/s3';
 
 function newLocationDetails(): Location {
   return {
@@ -130,6 +131,35 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some(opt => opt === location);
 }
 
+function convertToBucketInfo(bucketInfo: BucketInfo | null) {
+  const objectLockEnabled =
+    bucketInfo?.objectLockConfiguration.ObjectLockEnabled;
+
+  const isDefaultRetentionEnabled = bucketInfo?.objectLockConfiguration.Rule
+    ?.DefaultRetention
+    ? true
+    : false;
+  const retentionMode =
+    bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Mode ||
+    'GOVERNANCE';
+  const retentionPeriod = bucketInfo?.objectLockConfiguration.Rule
+    ?.DefaultRetention?.Days
+    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days
+    : bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Years || 1;
+  const retentionPeriodFrequencyChoice = bucketInfo?.objectLockConfiguration
+    .Rule?.DefaultRetention?.Years
+    ? 'YEARS'
+    : 'DAYS';
+
+  return {
+    objectLockEnabled,
+    isDefaultRetentionEnabled,
+    retentionMode,
+    retentionPeriod,
+    retentionPeriodFrequencyChoice,
+  };
+}
+
 export {
   newLocationForm,
   convertToLocation,
@@ -138,4 +168,5 @@ export {
   canEditLocation,
   canDeleteLocation,
   isLocationExists,
+  convertToBucketInfo,
 };
