@@ -105,8 +105,6 @@ export default function ObjectLockSetting() {
             <F.Label
               tooltipMessages={[
                 'Object-lock option cannot be removed after bucket creation, but you will be able to disable the retention itself on edition.',
-                'Once the bucket is created, you might be blocked from deleting the objects and the bucket.',
-                'Enabling Object-lock automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
               ]}
               tooltipWidth="28rem"
             >
@@ -117,7 +115,9 @@ export default function ObjectLockSetting() {
             </F.Label>
           </F.Fieldset>
           {isObjectLockEnabled && (
-            <ObjectLockRetentionSettings></ObjectLockRetentionSettings>
+            <ObjectLockRetentionSettings
+              isEditRetentionSetting={true}
+            ></ObjectLockRetentionSettings>
           )}
           <F.Footer>
             <F.FooterError>

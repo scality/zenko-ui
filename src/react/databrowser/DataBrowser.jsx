@@ -72,9 +72,17 @@ export default function DataBrowser() {
           accountName={accountName}
           pathname={pathname}
         />
-        <ListLayoutButtons />
+        <Switch>
+          <Route exact path="/buckets/:bucketName/retention-setting" />
+          <Route path="/buckets/:bucketName" component={ListLayoutButtons} />
+        </Switch>
       </L.BreadcrumbContainer>
       <Switch>
+        <Route
+          exact
+          path="/buckets/:bucketName/retention-setting"
+          component={ObjectLockSetting}
+        />
         <Route
           exact
           strict
@@ -82,11 +90,6 @@ export default function DataBrowser() {
           component={Objects}
         />
         <Route path="/buckets/:bucketName/objects/*" component={Objects} />
-        <Route
-          exact
-          path="/buckets/:bucketName/retention-setting"
-          component={ObjectLockSetting}
-        />
         <Route path="/buckets/:bucketName?" component={Buckets} />
         <Route path="/create-bucket" component={BucketCreate} />
       </Switch>
