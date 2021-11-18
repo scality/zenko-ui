@@ -29,7 +29,7 @@ const continueSearchNetworkAction = dispatchAction.NETWORK_START_ACTION(
   NETWORK_START_ACTION_CONTINUE_SEARCH,
 );
 const pauseIngestionSiteNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Pausing ingestion',
+  'Pausing Async Notification',
 );
 
 describe('zenko actions', () => {

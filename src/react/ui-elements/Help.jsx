@@ -32,11 +32,11 @@ export const IconHelp = ({
   </Tooltip>
 );
 
-export const HelpIngestion = () => (
+export const HelpAsyncNotification = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="To pause/resume Async Notification, go to Accounts > Locations."
+    tooltipMessage="Pause/resume Async Notification is handled at the location level."
   />
 );
 
@@ -44,16 +44,7 @@ export const HelpNonAsyncLocation = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="Selected Storage Location does not support Async Notification or its 'Write objects without prefix' option is disabled."
-  />
-);
-
-export const HelpBucketCreationAsyncNotif = () => (
-  <IconHelp
-    placement="top"
-    tooltipWidth="16rem"
-    iconClass="fas fa-exclamation-triangle"
-    tooltipMessage="Go to Accounts > Locations to pause/resume Async Notification from this bucket."
+    tooltipMessage="Selected Storage Location does not support Async Notification."
   />
 );
 
@@ -66,6 +57,20 @@ export const HelpAsyncNotifPending = () => (
         Enable Async Notifications for this location <br/>
         by choosing Enable Async Notification while <br/>
         creating an Artesca bucket for this location.
+      </>
+    }
+  />
+);
+
+export const HelpLocationCreationAsyncNotification = () => (
+  <IconHelp
+    placement="top"
+    tooltipWidth="24rem"
+    tooltipMessage={
+      <>
+        ARTESCA is informed of updates and changes to the external Backend (public cloud, RING or other) through an async notifier mechanism. <br/>
+        ARTESCA will be able to view and manage all data on this backend without being on the data path. <br/>
+        This maintains standard access from applications to the external Backend. <br/>
       </>
     }
   />

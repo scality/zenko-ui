@@ -5,7 +5,7 @@ import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import {
-  HelpBucketCreationAsyncNotif,
+  HelpAsyncNotification,
   HelpNonAsyncLocation,
 } from '../../ui-elements/Help';
 import React, { useMemo, useRef } from 'react';
@@ -231,7 +231,7 @@ function BucketCreate() {
                       />
                       {watchLocationName &&
                         isAsyncNotificationEnabled &&
-                        isAsyncNotification && <HelpBucketCreationAsyncNotif />}
+                        isAsyncNotification && <HelpAsyncNotification />}
                     </>
                   );
                 }}

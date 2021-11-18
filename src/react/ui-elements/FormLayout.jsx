@@ -99,6 +99,11 @@ const ErrorInputContainer = styled.div`
   color: ${props => props.theme.brand.danger};
 `;
 
+const WarningInputContainer = styled.div`
+  height: ${spacing.sp16};
+  color: ${props => props.theme.brand.warning};
+`;
+
 type ErrorInputProps = {
   children: Node,
   hasError: boolean,
@@ -106,6 +111,10 @@ type ErrorInputProps = {
 
 export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
   <ErrorInputContainer>{hasError && children}</ErrorInputContainer>
+);
+
+export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
+  <WarningInputContainer>{hasError && children}</WarningInputContainer>
 );
 
 // * Label
@@ -120,7 +129,7 @@ const TooltipContainer = styled.div`
 `;
 
 const IconQuestionCircle = styled.i`
-  color: #434343;
+  color: ${props => props.theme.brand.buttonSecondary};
 `;
 
 const UlOverlay = styled.ul`

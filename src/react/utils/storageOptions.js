@@ -135,10 +135,10 @@ export function isIngestSource(
 export function getLocationIngestionState(ingestionStates, locationName) {
   if (ingestionStates) {
     if (ingestionStates?.[locationName] === 'enabled') {
-      return { value: 'active', isIngestion: true };
+      return { value: 'Active', isIngestion: true };
     }
     if (ingestionStates?.[locationName] === 'disabled') {
-      return { value: 'paused', isIngestion: true };
+      return { value: 'Paused', isIngestion: true };
     }
   }
   return { value: '-', isIngestion: false };

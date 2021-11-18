@@ -2,7 +2,7 @@
 import {
   Checkbox,
   CheckboxContainer,
-  ErrorInput,
+  WarningInput,
   Fieldset,
   Input,
   Label,
@@ -119,17 +119,14 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
             <span> Write objects without prefix </span>
           </CheckboxContainer>
           <small>
-            {' '}
-            Use this option for Async Notification. <br />{' '}
-          </small>
-          <small>
             Store objects in the target bucket without a source-bucket prefix.
           </small>
-          <ErrorInput hasError={!!this.state.bucketMatch}>
-            {' '}
-            Storing multiple buckets in a location with this option enabled can
-            lead to data loss.{' '}
-          </ErrorInput>
+          <WarningInput hasError={!!this.state.bucketMatch}>
+            <small>
+              Storing multiple buckets in a location with this option enabled
+              can lead to data loss.
+            </small>
+          </WarningInput>
         </Fieldset>
         <Fieldset style={{ marginTop: '0px' }}>
           <CheckboxContainer>

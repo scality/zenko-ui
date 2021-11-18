@@ -2,11 +2,12 @@
 import {
   Checkbox,
   CheckboxContainer,
-  ErrorInput,
+  WarningInput,
   Fieldset,
   Input,
   Label,
 } from '../../../ui-elements/FormLayout';
+import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
@@ -147,22 +148,21 @@ export default class LocationDetailsAwsCustom extends React.Component<
               checked={this.state.bucketMatch}
               onChange={this.onChange}
             />
-            <span> Write objects without prefix </span>
+            <span>
+              {isIngest
+                ? <> Async Notification Ready <HelpLocationCreationAsyncNotification/> </>
+                : 'Write objects without prefix'}
+            </span>
           </CheckboxContainer>
-          {isIngest && (
-            <small>
-              {' '}
-              Use this option for Async Notification. <br />{' '}
-            </small>
-          )}
           <small>
-            Store objects in the target bucket without a source-bucket prefix.
+              Your objects will be stored in the target bucket without a source-bucket prefix.
           </small>
-          <ErrorInput hasError={!!this.state.bucketMatch}>
-            {' '}
-            Storing multiple buckets in a location with this option enabled can
-            lead to data loss.{' '}
-          </ErrorInput>
+          <WarningInput hasError={!!this.state.bucketMatch}>
+            <small>
+              Storing multiple buckets in a location with this option enabled can
+              lead to data loss.
+             </small>
+          </WarningInput>
         </Fieldset>
       </div>
     );

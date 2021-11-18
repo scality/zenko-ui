@@ -71,7 +71,7 @@ describe('BucketList', () => {
     expect(secondBucketCellLocation.text()).toBe(
       's3c-ring / Scality RING with S3 Connector',
     );
-    expect(secondBucketCellAsyncNotification.text()).toBe('active');
+    expect(secondBucketCellAsyncNotification.text()).toBe('Active');
     expect(secondBucketCellDate.text()).toBe(
       formatShortDate(new Date(buckets.get(1).CreationDate)),
     );

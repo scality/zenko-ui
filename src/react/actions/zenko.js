@@ -180,7 +180,7 @@ export function pauseIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());
 
-    dispatch(networkStart('Pausing ingestion'));
+    dispatch(networkStart('Pausing Async Notification'));
     return zenkoClient
       .pauseIngestionSite(site)
       .then(() => dispatch(waitForIngestionUpdate(site, 'disabled')))
@@ -194,7 +194,7 @@ export function resumeIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());
 
-    dispatch(networkStart('Resuming ingestion'));
+    dispatch(networkStart('Resuming Async Notification'));
     return zenkoClient
       .resumeIngestionSite(site)
       .then(() => dispatch(waitForIngestionUpdate(site, 'enabled')))

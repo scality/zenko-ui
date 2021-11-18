@@ -2,7 +2,7 @@
 import {
   Checkbox,
   CheckboxContainer,
-  ErrorInput,
+  WarningInput,
   Fieldset,
   Input,
   Label,
@@ -141,11 +141,12 @@ export default class LocationDetailsWasabi extends React.Component<
           <small>
             Store objects in the target bucket without a source-bucket prefix.
           </small>
-          <ErrorInput hasError={!!this.state.bucketMatch}>
-            {' '}
-            Storing multiple buckets in a location with this option enabled can
-            lead to data loss.{' '}
-          </ErrorInput>
+          <WarningInput hasError={!!this.state.bucketMatch}>
+            <small>
+              Storing multiple buckets in a location with this option enabled
+              can lead to data loss.
+            </small>
+          </WarningInput>
         </Fieldset>
       </div>
     );

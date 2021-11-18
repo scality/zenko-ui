@@ -25,7 +25,7 @@ import { maybePluralize } from '../../../utils';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useTheme } from 'styled-components';
 import type { WorkflowScheduleUnitState } from '../../../../types/stats';
-import { HelpIngestion } from '../../../ui-elements/Help';
+import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { push } from 'connected-react-router';
 
 function capitalize(string) {
@@ -231,7 +231,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Key> Async Notification </T.Key>
                 <T.Value>
                   {ingestionValue}
-                  {isIngestion && <HelpIngestion />}
+                  {isIngestion && <HelpAsyncNotification />}
                 </T.Value>
               </T.Row>
             </T.GroupContent>
