@@ -228,6 +228,10 @@ export class MockS3Client implements S3ClientInterface {
   toggleVersioning(): Promise<void> {
     return Promise.resolve();
   }
+
+  putObjectLockConfiguration(): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
@@ -294,6 +298,10 @@ export class ErrorMockS3Client implements S3ClientInterface {
   }
 
   toggleVersioning(): Promise<void> {
+    return Promise.reject(this._error);
+  }
+
+  putObjectLockConfiguration(): Promise<void> {
     return Promise.reject(this._error);
   }
 }

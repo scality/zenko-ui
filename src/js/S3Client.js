@@ -72,13 +72,15 @@ export default class S3Client {
       Bucket: objectLockConfiguration.bucketName,
       ObjectLockConfiguration: {
         ObjectLockEnabled: 'Enabled',
-        Rule: {
-          DefaultRetention: {
-            Mode: objectLockConfiguration?.retentionMode,
-            Days: objectLockConfiguration?.retentionPeriod?.days,
-            Years: objectLockConfiguration?.retentionPeriod?.years,
-          },
-        },
+        Rule: objectLockConfiguration.isDefaultRetentionEnabled
+          ? {
+              DefaultRetention: {
+                Mode: objectLockConfiguration?.retentionMode,
+                Days: objectLockConfiguration?.retentionPeriod?.days,
+                Years: objectLockConfiguration?.retentionPeriod?.years,
+              },
+            }
+          : undefined,
       },
     };
     return this.client.putObjectLockConfiguration(params).promise();

@@ -26,6 +26,7 @@ import { SmallerText } from '@scality/core-ui/dist/components/text/Text.componen
 import { useTheme } from 'styled-components';
 import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { HelpIngestion } from '../../../ui-elements/Help';
+import { push } from 'connected-react-router';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, c => {
@@ -190,7 +191,20 @@ function Overview({ bucket, ingestionStates }: Props) {
                 'Enabled' && (
                 <T.Row>
                   <T.Key> Default Object-lock Retention </T.Key>
-                  <T.Value>{getDefaultBucketRetention(bucketInfo)}</T.Value>
+                  <T.GroupValues>
+                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
+                    <Button
+                      id="edit-retention-btn"
+                      variant="outline"
+                      label="Edit"
+                      icon={<i className="fas fa-pencil-alt"></i>}
+                      onClick={() =>
+                        dispatch(
+                          push(`/buckets/${bucket.Name}/retention-setting`),
+                        )
+                      }
+                    />
+                  </T.GroupValues>
                 </T.Row>
               )}
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===

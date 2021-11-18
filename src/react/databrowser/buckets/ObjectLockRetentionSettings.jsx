@@ -6,8 +6,31 @@ import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import * as F from '../../ui-elements/FormLayout';
 import React from 'react';
+import Joi from '@hapi/joi';
 
-export default function ObjectLockRetentionSettings() {
+export const objectLockRetentionSettingsValidationRules = {
+  isDefaultRetentionEnabled: Joi.boolean().default(false),
+  retentionMode: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.string().required(),
+    otherwise: Joi.valid(),
+  }),
+  retentionPeriod: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.number().required(),
+    otherwise: Joi.valid(),
+  }),
+  retentionPeriodFrequencyChoice: Joi.when('isDefaultRetentionEnabled', {
+    is: Joi.equal(true),
+    then: Joi.string().required(),
+    otherwise: Joi.valid(),
+  }),
+};
+
+export default function ObjectLockRetentionSettings(props: {
+  isEditRetentionSetting?: boolean,
+}) {
+  const { isEditRetentionSetting } = props;
   const { control, register, watch, errors } = useFormContext();
 
   const isDefaultRetentionEnabled = watch('isDefaultRetentionEnabled');
@@ -16,10 +39,16 @@ export default function ObjectLockRetentionSettings() {
     <>
       <F.Fieldset direction={'row'}>
         <F.Label
-          tooltipMessages={[
-            'These settings apply only to new objects placed into the bucket without any specific specific object-lock parameters.',
-            'You can activate this option after the bucket creation.',
-          ]}
+          tooltipMessages={
+            isEditRetentionSetting
+              ? [
+                  'These settings apply only to new objects placed into the bucket without any specific specific object-lock parameters.',
+                ]
+              : [
+                  'These settings apply only to new objects placed into the bucket without any specific specific object-lock parameters.',
+                  'You can activate this option after the bucket creation.',
+                ]
+          }
           tooltipWidth="28rem"
         >
           Default Retention

@@ -21,7 +21,7 @@ const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
       text-decoration: none;
       overflow: visible;
       * {
-        color: ${props => props.theme.brand.textPrimary} !important;
+        color: ${props => props.theme.brand.textPrimary};
       }
       border-bottom: 0 !important;
     }
@@ -80,6 +80,17 @@ const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
         <Link to={{ pathname: '/buckets' }}> All Buckets </Link>
       </label>,
       <label key="bucket-name">{match.params.bucketName}</label>,
+    ];
+  }
+  match = matchPath(pathname, {
+    path: '/buckets/:bucketName/retention-setting',
+  });
+  if (match) {
+    return [
+      <label key="buckets">
+        <Link to={{ pathname: '/buckets' }}>{match.params.bucketName}</Link>
+      </label>,
+      <label key="bucket-name">Object-lock settings</label>,
     ];
   }
   match = matchPath(pathname, { path: '/buckets/:bucketName' });

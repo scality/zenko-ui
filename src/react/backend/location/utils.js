@@ -19,7 +19,7 @@ import { storageOptions } from './LocationDetails';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
 import { ActionButton } from '../../ui-elements/Table';
-
+import type { BucketInfo } from '../../../types/s3';
 type RowProps = {
   original: Location,
 };
@@ -207,6 +207,35 @@ const IngestionCell = (
   return '-';
 };
 
+function convertToBucketInfo(bucketInfo: BucketInfo | null) {
+  const objectLockEnabled =
+    bucketInfo?.objectLockConfiguration.ObjectLockEnabled;
+
+  const isDefaultRetentionEnabled = bucketInfo?.objectLockConfiguration.Rule
+    ?.DefaultRetention
+    ? true
+    : false;
+  const retentionMode =
+    bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Mode ||
+    'GOVERNANCE';
+  const retentionPeriod = bucketInfo?.objectLockConfiguration.Rule
+    ?.DefaultRetention?.Days
+    ? bucketInfo.objectLockConfiguration.Rule.DefaultRetention.Days
+    : bucketInfo?.objectLockConfiguration.Rule?.DefaultRetention?.Years || 1;
+  const retentionPeriodFrequencyChoice = bucketInfo?.objectLockConfiguration
+    .Rule?.DefaultRetention?.Years
+    ? 'YEARS'
+    : 'DAYS';
+
+  return {
+    objectLockEnabled,
+    isDefaultRetentionEnabled,
+    retentionMode,
+    retentionPeriod,
+    retentionPeriodFrequencyChoice,
+  };
+}
+
 export {
   newLocationForm,
   convertToLocation,
@@ -216,4 +245,5 @@ export {
   canDeleteLocation,
   isLocationExists,
   IngestionCell,
+  convertToBucketInfo,
 };

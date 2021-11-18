@@ -13,6 +13,7 @@ import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { clearError } from '../actions';
 import { push } from 'connected-react-router';
+import ObjectLockSetting from './buckets/ObjectLockSetting';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -71,9 +72,17 @@ export default function DataBrowser() {
           accountName={accountName}
           pathname={pathname}
         />
-        <ListLayoutButtons />
+        <Switch>
+          <Route exact path="/buckets/:bucketName/retention-setting" />
+          <Route path="/buckets/:bucketName" component={ListLayoutButtons} />
+        </Switch>
       </L.BreadcrumbContainer>
       <Switch>
+        <Route
+          exact
+          path="/buckets/:bucketName/retention-setting"
+          component={ObjectLockSetting}
+        />
         <Route
           exact
           strict
