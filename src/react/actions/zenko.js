@@ -96,18 +96,22 @@ function _getSearchObjects(
     dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
     return zenkoClient
       .searchBucket(params)
-      .then(({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
+      .then(async ({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
         const nextMarker = (IsTruncated && NextMarker) || null;
-        const list = Contents;
-        list.forEach(object => {
+        const list = await Promise.all(Contents.map(async object => {
           object.IsFolder = _isFolder(object.Key);
           if (!object.IsFolder) {
             object.SignedUrl = zenkoClient.getObjectSignedUrl(
               bucketName,
               object.Key,
             );
+            object.ObjectRetention = await zenkoClient.getObjectRetention(
+              bucketName,
+              object.Key,
+            );
           }
-        });
+          return object;
+        }));
         if (marker) {
           dispatch(appendSearchListing(nextMarker, list));
         } else {

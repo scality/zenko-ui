@@ -253,6 +253,29 @@ export default class S3Client {
     return this.client.getSignedUrl('getObject', params);
   }
 
+  getObjectRetention(bucketName, objectName, versionId) {
+    const params = {
+      Bucket: bucketName,
+      Key: objectName,
+      VersionId: versionId,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.client.getObjectRetention(params, (error, data) => {
+        if (error) {
+          if (
+            error.code === 'NoSuchObjectLockConfiguration' ||
+            error.code === 'InvalidRequest'
+          ) {
+            return resolve(undefined);
+          }
+          return reject(error);
+        }
+        return resolve(data);
+      });
+    });
+  }
+
   // TODO: add VersionId
   headObject(bucketName, objectName, versionId) {
     const params = {

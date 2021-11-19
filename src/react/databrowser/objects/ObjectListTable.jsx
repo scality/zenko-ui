@@ -142,6 +142,12 @@ export default function ObjectListTable({
                 isMargin={!original.isLatest}
                 className="far fa-file"
               ></Icon>
+              {original.lockStatus === 'LOCKED' && (<Icon
+                className="fa fa-lock"
+              ></Icon>)}
+              {original.lockStatus === 'RELEASED' && (<Icon
+                className="fa fa-lock-open"
+              ></Icon>)}
               <T.CellA
                 href={original.signedUrl}
                 download={`${bucketName}-${original.key}`}

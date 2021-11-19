@@ -44,6 +44,10 @@ export type S3Object = {|
   +LastModified: string,
   +Size: number,
   +SignedUrl?: string,
+  +ObjectRetention?: {|
+    +Mode: RetentionMode,
+    +RetainUntilDate: string,
+  |},
 |};
 
 export type S3DeleteObject = {|
@@ -70,6 +74,10 @@ export type S3Version = {|
   +LastModified: string,
   +Owner: Owner,
   +SignedUrl: string,
+  +ObjectRetention?: {|
+    +Mode: RetentionMode,
+    +RetainUntilDate: string,
+  |},
 |};
 
 export type S3DeleteMarker = {|
@@ -92,6 +100,11 @@ export type ObjectEntity = {|
   +size?: number,
   +toggled: boolean,
   +signedUrl?: string,
+  +lockStatus: 'LOCKED' | 'RELEASED' | 'NONE',
+  +objectRetention?: {|
+    +mode: RetentionMode,
+    +retainUntilDate: string,
+  |},
   +isLatest: boolean,
   +versionId?: string,
   +isDeleteMarker?: boolean,
@@ -159,7 +172,7 @@ export type ObjectMetadata = {|
   +tags: Tags,
 |};
 
-type EnabledOrDisabled = 'Disabled' | 'Enabled';
+export type EnabledOrDisabled = 'Disabled' | 'Enabled';
 export type Versioning = EnabledOrDisabled | 'Suspended';
 
 export type BucketInfo = {|
