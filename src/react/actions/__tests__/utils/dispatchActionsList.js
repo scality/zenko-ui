@@ -75,6 +75,7 @@ import type {
   S3Bucket,
   S3Object,
   TagSet,
+  RetentionMode,
 } from '../../../../types/s3';
 import type { Hostname, LocationName } from '../../../../types/config';
 import type {
@@ -350,6 +351,10 @@ export const GET_OBJECT_METADATA_SUCCESS_ACTION = (
   objectKey: string,
   info: HeadObjectResponse,
   tags: TagSet,
+  ObjectRetention: {|
+    Mode: RetentionMode,
+    RetainUntilDate: Date,
+  |},
 ): GetObjectMetadataSuccessAction => {
   return {
     type: 'GET_OBJECT_METADATA_SUCCESS',
@@ -357,6 +362,7 @@ export const GET_OBJECT_METADATA_SUCCESS_ACTION = (
     objectKey,
     info,
     tags,
+    ObjectRetention,
   };
 };
 

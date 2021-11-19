@@ -30,6 +30,7 @@ import {
   s3Object,
   systemMetadata,
   tags,
+  objectRetention,
   userMetadata,
 } from '../../../../js/mock/S3Client';
 import type { AppState } from '../../../../types/state';
@@ -106,6 +107,7 @@ export const INFO = info;
 export const USER_METADATA = userMetadata;
 export const SYSTEM_METADATA = systemMetadata;
 export const TAGS = tags;
+export const OBJECT_RETENTION = objectRetention;
 export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;

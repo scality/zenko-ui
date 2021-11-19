@@ -24,11 +24,17 @@ export const commonPrefix = {
   Prefix: prefix,
 };
 export const nextContinuationToken = 'next';
+export const objectRetention = {
+  Mode: 'GOVERNANCE',
+  RetainUntilDate: '',
+};
+
 export const s3Object = {
   Key: addTrailingSlash(folderName),
   LastModified: 'Wed Oct 07 2020 16:35:57',
   Size: 0,
   SignedUrl: '',
+  ObjectRetention: objectRetention,
 };
 
 export const objectMetadata = {
@@ -43,6 +49,7 @@ export const objectMetadata = {
   prefixWithSlash: '',
   versionId: '',
   tags: [],
+  lockStatus: 'NONE',
 };
 
 export const tags = [{ Key: 'key1', Value: 'value1' }];
@@ -192,6 +199,13 @@ export class MockS3Client implements S3ClientInterface {
     return Promise.resolve(getSignedUrlResponse);
   }
 
+  getObjectRetention() {
+    return Promise.resolve({
+      Mode: 'GOVERNANCE',
+      RetainUntilDate: '',
+    });
+  }
+
   uploadObject(): Promise<void> {
     return Promise.resolve();
   }
@@ -262,6 +276,10 @@ export class ErrorMockS3Client implements S3ClientInterface {
   }
 
   getObjectSignedUrl(): Promise<void> {
+    return Promise.reject(this._error);
+  }
+
+  getObjectRetention(): Promise<void> {
     return Promise.reject(this._error);
   }
 

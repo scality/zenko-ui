@@ -24,6 +24,7 @@ import type {
   HeadObjectResponse,
   ListObjectsType,
   MetadataPairs,
+  RetentionMode,
   S3DeleteMarker,
   S3DeleteObject,
   S3Object,
@@ -33,7 +34,7 @@ import type {
 import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
-import type { Marker } from '../../types/zenko';
+import type { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 
 export function listObjectsSuccess(
@@ -109,6 +110,10 @@ export function getObjectMetadataSuccess(
   objectKey: string,
   info: HeadObjectResponse,
   tags: TagSet,
+  ObjectRetention: {|
+    Mode: RetentionMode,
+    RetainUntilDate: Date,
+  |},
 ): GetObjectMetadataSuccessAction {
   return {
     type: 'GET_OBJECT_METADATA_SUCCESS',
@@ -116,6 +121,7 @@ export function getObjectMetadataSuccess(
     objectKey,
     info,
     tags,
+    ObjectRetention,
   };
 }
 
@@ -199,6 +205,41 @@ export function createFolder(
   };
 }
 
+function _getObjectListWithSignedUrlAndLockStatus<
+  T: {| +Key: string, +VersionId?: string |},
+>(
+  zenkoClient: ZenkoClient,
+  bucketName: string,
+  list: T[],
+): Promise<
+  (T & {|
+    +SignedUrl: string,
+    +ObjectRetention?: {|
+      +Mode: RetentionMode,
+      +RetainUntilDate: string,
+    |},
+  |})[],
+> {
+  // $FlowFixMe - flow is not able to understand this type
+  return Promise.all(
+    list.map(async object => {
+      return {
+        ...object,
+        SignedUrl: await zenkoClient.getObjectSignedUrl(
+          bucketName,
+          object.Key,
+          object.VersionId,
+        ),
+        ObjectRetention: await zenkoClient.getObjectRetention(
+          bucketName,
+          object.Key,
+          object.VersionId,
+        ),
+      };
+    }),
+  );
+}
+
 function _getListObjectNoVersion(
   bucketName: string,
   prefixWithSlash: string,
@@ -214,14 +255,12 @@ function _getListObjectNoVersion(
     };
     return zenkoClient
       .listObjects(params)
-      .then(res => {
-        const list = res.Contents;
-        list.forEach(
-          object =>
-            (object.SignedUrl = zenkoClient.getObjectSignedUrl(
-              bucketName,
-              object.Key,
-            )),
+      .then(async res => {
+        // $FlowFixMe - flow is not able to understand await resulting type
+        const list: S3Object[] = await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
+          zenkoClient,
+          bucketName,
+          res.Contents,
         );
         if (marker) {
           return dispatch(
@@ -306,15 +345,12 @@ function _getListObjectVersion(
     };
     return zenkoClient
       .listObjectVersions(params)
-      .then(res => {
-        const list = res.Versions;
-        list.forEach(
-          object =>
-            (object.SignedUrl = zenkoClient.getObjectSignedUrl(
-              bucketName,
-              object.Key,
-              object.VersionId,
-            )),
+      .then(async res => {
+        // $FlowFixMe - flow is not able to understand await resulting type
+        const list = await _getObjectListWithSignedUrlAndLockStatus<S3Version>(
+          zenkoClient,
+          bucketName,
+          res.Versions,
         );
         if (marker) {
           return dispatch(
@@ -443,10 +479,17 @@ export function getObjectMetadata(
     return Promise.all([
       zenkoClient.headObject(bucketName, objectKey, versionId),
       zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
+      zenkoClient.getObjectRetention(bucketName, objectKey, versionId),
     ])
-      .then(([info, tags]) =>
+      .then(([info, tags, objectRetention]) =>
         dispatch(
-          getObjectMetadataSuccess(bucketName, objectKey, info, tags.TagSet),
+          getObjectMetadataSuccess(
+            bucketName,
+            objectKey,
+            info,
+            tags.TagSet,
+            objectRetention,
+          ),
         ),
       )
       .catch(error => dispatch(handleAWSClientError(error)))
