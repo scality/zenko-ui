@@ -10,6 +10,7 @@ import type {
 import { getAccountId, getClients } from '../utils/actions';
 import { networkEnd, networkStart } from './network';
 import type { APIWorkflows } from '../../types/workflow';
+import { roleName } from '../../js/IAMClient';
 
 export function openWorkflowEditNotification(): OpenWorkflowEditNotificationAction {
   return {
@@ -53,6 +54,7 @@ export function searchWorkflows(): ThunkStatePromisedAction {
     const params = {
       instanceId,
       accountId,
+      roleName,
     };
     return (
       managementClient

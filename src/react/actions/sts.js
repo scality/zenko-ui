@@ -6,6 +6,7 @@ import {
   searchWorkflows,
 } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
+import { formatRoleSessionName } from '../utils';
 import { getClients } from '../utils/actions';
 
 export function assumeRoleWithWebIdentity(
@@ -16,8 +17,8 @@ export function assumeRoleWithWebIdentity(
     const { oidc } = getState();
     const assumeRoleParams = {
       idToken: oidc.user.id_token,
-      RoleSessionName: 'app1',
       roleArn,
+      RoleSessionName: formatRoleSessionName(oidc),
     };
     return stsClient
       .assumeRoleWithWebIdentity(assumeRoleParams)

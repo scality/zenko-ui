@@ -9,11 +9,11 @@ export default class STSClient {
   }
 
   assumeRoleWithWebIdentity(params) {
-    const { idToken, roleArn } = params;
+    const { idToken, roleArn, RoleSessionName } = params;
     const p = {
       DurationSeconds: 900, // 15 minutes
       RoleArn: roleArn,
-      RoleSessionName: 'zenko-ui',
+      RoleSessionName,
       WebIdentityToken: idToken,
     };
     return this.client.assumeRoleWithWebIdentity(p).promise();

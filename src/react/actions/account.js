@@ -32,7 +32,7 @@ import {
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
 import { assumeRoleWithWebIdentity } from './sts';
-import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
+import { getAssumeRoleWithWebIdentityIAM, roleName } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
@@ -120,7 +120,7 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
     }
     setAccountIDStored(account.id);
     dispatch(selectAccount(account));
-    const roleArn = `arn:aws:iam::${account.id}:role/roleForB`;
+    const roleArn = `arn:aws:iam::${account.id}:role/${roleName}`;
     return dispatch(assumeRoleWithWebIdentity(roleArn));
   };
 }

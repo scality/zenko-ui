@@ -10,6 +10,7 @@ import { networkEnd, networkStart } from './network';
 import type { Replication } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { push } from 'connected-react-router';
+import { roleName } from '../../js/IAMClient';
 
 // TODO: Add delete approval process
 export function deleteReplication(
@@ -25,6 +26,7 @@ export function deleteReplication(
       instanceId,
       accountId,
       workflowId: replication.streamId,
+      roleName,
     };
     return managementClient
       .deleteBucketWorkflowReplication(params)
@@ -55,6 +57,7 @@ export function saveReplication(
       workflow: replication,
       bucketName: replication.source.bucketName,
       accountId,
+      roleName,
     };
     const op = replication.streamId
       ? managementClient.updateBucketWorkflowReplication({

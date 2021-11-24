@@ -3,16 +3,14 @@
 export type AssumeRoleWithWebIdentityReq = {|
   +idToken: string,
   +RoleSessionName: string,
-  +roleArn?: string,
+  +roleArn: string,
 |};
 
 export type AssumeRoleWithWebIdentityResp = {|
   +Credentials: {|
     +AccessKeyId: string,
     +SecretAccessKey: string,
-    // TODO after Vault.assumeRoleWithWebIdentity changes:
-    // SessionToken should not be “optional” value.
-    +SessionToken?: string,
+    +SessionToken: string,
   |},
 |};
 
