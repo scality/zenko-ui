@@ -5,7 +5,6 @@ import type { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface } from '../types/iam';
 import { getClients } from '../react/utils/actions';
-import { formatRoleSessionName } from '../react/utils';
 
 export const roleName = 'scality-internal/storage-manager-role';
 
@@ -22,7 +21,7 @@ export function getAssumeRoleWithWebIdentityIAM(
   const assumeRoleParams = {
     idToken: oidc.user.id_token,
     roleArn: `arn:aws:iam::${account.id}:role/${roleName}`,
-    RoleSessionName: formatRoleSessionName(oidc),
+    RoleSessionName: oidc.user.profile.sub,
   };
   return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then(creds => {
     const params = {

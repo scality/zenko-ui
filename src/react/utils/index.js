@@ -40,9 +40,6 @@ export function formatDate(d) {
   return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
 
-export function formatRoleSessionName(oidc) {
-  return `${oidc.user?.profile.email || 'zenko-ui'}`;
-}
 
 export function formatShortDate(d) {
   const date = d.toISOString().split('T')[0];
