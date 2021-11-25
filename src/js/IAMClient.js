@@ -7,7 +7,7 @@ import type { IAMClient as IAMClientInterface } from '../types/iam';
 import { getClients } from '../react/utils/actions';
 import { formatRoleSessionName } from '../react/utils';
 
-export const roleName = 'scality-internal/storage-account-owner-role';
+export const roleName = 'scality-internal/storage-manager-role';
 
 export function getAssumeRoleWithWebIdentityIAM(
   state: AppState,
