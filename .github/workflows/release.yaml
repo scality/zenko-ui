@@ -25,7 +25,7 @@ jobs:
           username: ${{ secrets.REGISTRY_LOGIN }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - uses: actions/setup-node@v2.4.1
+      - uses: actions/setup-node@v2.5.0
         with:
           node-version: '10'
           cache: 'npm'
