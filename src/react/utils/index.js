@@ -40,6 +40,7 @@ export function formatDate(d) {
   return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
 
+
 export function formatShortDate(d) {
   const date = d.toISOString().split('T')[0];
   const time = d.toTimeString().split(' ')[0];

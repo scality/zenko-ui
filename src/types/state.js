@@ -40,6 +40,12 @@ export type OIDCState = {|
   +user: AuthUser,
 |};
 
+export type AssumeRoleParams = {|
+  +idToken: string,
+  +roleArn: string,
+  +RoleSessionName: string,
+|};
+
 export type ErrorsUIState = {|
   +errorMsg: string | null,
   +errorType: ErrorViewType | null,

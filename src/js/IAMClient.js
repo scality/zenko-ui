@@ -1,10 +1,23 @@
 // @noflow
 
-import type { AppState } from '../types/state';
+import type { AppState, AssumeRoleParams, OIDCState } from '../types/state';
 import type { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface } from '../types/iam';
 import { getClients } from '../react/utils/actions';
+
+export const rolePathName = 'scality-internal/storage-manager-role';
+
+export function getAssumeRoleWithWebIdentityParams(
+  oidc: OIDCState,
+  accountID: string,
+): AssumeRoleParams {
+  return {
+    idToken: oidc.user.id_token,
+    roleArn: `arn:aws:iam::${accountID}:role/${rolePathName}`,
+    RoleSessionName: oidc.user.profile.sub,
+  };
+}
 
 export function getAssumeRoleWithWebIdentityIAM(
   state: AppState,
@@ -16,11 +29,7 @@ export function getAssumeRoleWithWebIdentityIAM(
   const account = accounts.find(a => a.userName === accountName);
 
   if (!account || !oidc || !oidc.user) return Promise.reject();
-  const assumeRoleParams = {
-    idToken: oidc.user.id_token,
-    RoleSessionName: 'app1',
-    roleArn: `arn:aws:iam::${account.id}:role/roleForB`,
-  };
+  const assumeRoleParams = getAssumeRoleWithWebIdentityParams(oidc, account.id);
   return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then(creds => {
     const params = {
       accessKey: creds.Credentials.AccessKeyId,

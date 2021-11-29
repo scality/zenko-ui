@@ -7,18 +7,15 @@ import {
 } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
+import { getAssumeRoleWithWebIdentityParams } from '../../js/IAMClient';
 
 export function assumeRoleWithWebIdentity(
-  roleArn: string,
+  accountID: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient, stsClient } = getClients(getState());
     const { oidc } = getState();
-    const assumeRoleParams = {
-      idToken: oidc.user.id_token,
-      RoleSessionName: 'app1',
-      roleArn,
-    };
+    const assumeRoleParams = getAssumeRoleWithWebIdentityParams(oidc, accountID);
     return stsClient
       .assumeRoleWithWebIdentity(assumeRoleParams)
       .then(creds => {

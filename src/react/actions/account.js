@@ -120,8 +120,7 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
     }
     setAccountIDStored(account.id);
     dispatch(selectAccount(account));
-    const roleArn = `arn:aws:iam::${account.id}:role/roleForB`;
-    return dispatch(assumeRoleWithWebIdentity(roleArn));
+    return dispatch(assumeRoleWithWebIdentity(account.id));
   };
 }
 
