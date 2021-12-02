@@ -2,7 +2,7 @@
 import * as L from '../../ui-elements/ListLayout2';
 import type { LocationName, Locations } from '../../../types/config';
 import MemoRow, { createItemData } from './BucketRow';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { useFilters, useSortBy, useTable } from 'react-table';
 import { AutoSizer } from 'react-virtualized';
@@ -19,6 +19,7 @@ import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
+import { listBuckets } from '../../actions';
 
 type Props = {
   locations: Locations,
@@ -34,6 +35,10 @@ export default function BucketList({
 }: Props) {
   const dispatch = useDispatch();
   const listRef = useRef<FixedSizeList<T> | null>(null);
+
+  useEffect(() => {
+    dispatch(listBuckets());
+  }, []);
 
   const handleCellClicked = useCallback(
     name => e => {
