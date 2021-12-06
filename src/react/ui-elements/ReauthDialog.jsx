@@ -1,5 +1,5 @@
 // @flow
-import { loadClients, networkAuthReset } from '../actions';
+import { addOIDCUser, loadClients, networkAuthReset } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
@@ -27,6 +27,17 @@ const ReauthDialog = () => {
   const reauth = pathName => {
     dispatch(networkAuthReset());
     dispatch(loadClients()).then(() => dispatch(push(pathName)));
+    // ADD_OIDC_USER
+
+    const user = window.userManager.signinSilent();
+    console.log('user', user);
+    if (user) {
+      dispatch(addOIDCUser(user));
+      dispatch(networkAuthReset());
+      dispatch(loadClients()).then(() => dispatch(push(pathName)));
+    } else {
+      // Sign out
+    }
   };
 
   if (!needReauth) {

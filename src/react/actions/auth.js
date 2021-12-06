@@ -121,6 +121,8 @@ export function loadClients(): ThunkStatePromisedAction {
 
     const instanceIds =
       oidc.user && oidc.user.profile && oidc.user.profile.instanceIds;
+    console.log('config', config);
+    console.log('oidc.user', oidc.user);
     if (!instanceIds || instanceIds.length === 0) {
       dispatch(
         handleErrorMessage(
@@ -136,6 +138,7 @@ export function loadClients(): ThunkStatePromisedAction {
 
     return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
       .then(managementClient => {
+        console.log('managementClient', managementClient);
         dispatch(setManagementClient(managementClient));
         return Promise.all([
           dispatch(updateConfiguration()),

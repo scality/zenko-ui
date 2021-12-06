@@ -127,6 +127,17 @@ export default function BucketList({
         </T.Search>
         <T.ExtraButton
           icon={<i className="fas fa-plus" />}
+          label="Test"
+          variant="primary"
+          onClick={async () => {
+            console.log('clicked');
+            let res = await window.userManager.signinSilent();
+            console.log('res', res);
+          }}
+          type="button"
+        />
+        <T.ExtraButton
+          icon={<i className="fas fa-plus" />}
           label="Create Bucket"
           variant="primary"
           onClick={() => dispatch(push('/create-bucket'))}

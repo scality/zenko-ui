@@ -26,6 +26,7 @@ export default function networkActivity(
         authFailure: true,
       };
     case 'NETWORK_AUTH_RESET':
+    case 'ADD_OIDC_USER':
       return {
         ...state,
         authFailure: false,

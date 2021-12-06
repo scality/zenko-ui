@@ -4,7 +4,7 @@ import {
   MainContainer,
   ZenkoUIContainer,
 } from './ui-elements/Container';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';
 import type { AppState } from '../types/state';
@@ -21,6 +21,8 @@ function ZenkoUI() {
   const isConfigLoaded = useSelector(
     (state: AppState) => state.auth.isConfigLoaded,
   );
+
+  console.log('==== isConfigLoaded', isConfigLoaded);
   const configFailure = useSelector(
     (state: AppState) => state.auth.configFailure,
   );
@@ -28,12 +30,22 @@ function ZenkoUI() {
     state.uiErrors.errorType === 'byComponent' ? state.uiErrors.errorMsg : '',
   );
   const theme = useSelector((state: AppState) => state.uiConfig.theme);
+  const [configLoaded, setConfigLoaded] = useState(isConfigLoaded);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(loadAppConfig());
-  }, [dispatch]);
+    return () => {
+      console.log('=== ZenkoUI unmount');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isConfigLoaded) {
+      setConfigLoaded(isConfigLoaded);
+    }
+  }, [isConfigLoaded]);
 
   function content() {
     if (configFailure) {
@@ -50,7 +62,7 @@ function ZenkoUI() {
       );
     }
 
-    if (isConfigLoaded) {
+    if (configLoaded) {
       return (
         <ZenkoUIContainer>
           <Routes />
