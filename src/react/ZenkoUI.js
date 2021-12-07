@@ -21,6 +21,7 @@ function ZenkoUI() {
   const isConfigLoaded = useSelector(
     (state: AppState) => state.auth.isConfigLoaded,
   );
+
   const configFailure = useSelector(
     (state: AppState) => state.auth.configFailure,
   );

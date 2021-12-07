@@ -1,11 +1,9 @@
 // @flow
-import { loadClients, networkAuthReset } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
-import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 
 const DEFAULT_MESSAGE = 'We need to log you in.';
@@ -17,17 +15,7 @@ const ReauthDialog = () => {
   const errorMessage = useSelector((state: AppState) =>
     state.uiErrors.errorType === 'byAuth' ? state.uiErrors.errorMsg : null,
   );
-  const pathname = useSelector(
-    (state: AppState) => state.router.location.pathname,
-  );
   const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
-
-  const dispatch = useDispatch();
-
-  const reauth = pathName => {
-    dispatch(networkAuthReset());
-    dispatch(loadClients()).then(() => dispatch(push(pathName)));
-  };
 
   if (!needReauth) {
     return null;
@@ -36,7 +24,7 @@ const ReauthDialog = () => {
   return (
     <Modal
       id="reauth-dialog-modal"
-      close={() => reauth(pathname)}
+      close={() => window.location.reload()}
       footer={
         <div>
           {oidcLogout && (
@@ -50,7 +38,7 @@ const ReauthDialog = () => {
           )}
           <Button
             variant="primary"
-            onClick={() => reauth(pathname)}
+            onClick={() => window.location.reload()}
             label="Reload"
           />
         </div>

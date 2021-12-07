@@ -317,7 +317,9 @@ export type NetworkActivityAction =
   | NetworkActivityAuthFailureAction
   | NetworkActivityStartAction
   | NetworkActivityEndAction
-  | NetworkActivityAuthResetAction;
+  | NetworkActivityAuthResetAction
+  | AddOIDCUserAction
+  | LoadClientsSuccessAction;
 
 // configuration actions
 export type InstanceStatusAction = {|

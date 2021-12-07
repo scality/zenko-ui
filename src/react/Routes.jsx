@@ -35,14 +35,18 @@ function PrivateRoutes() {
       // That will fix management API request being canceled during autentication.
       dispatch(loadClients());
 
-      const refreshIntervalStatsUnit = setInterval(
-        () => dispatch(loadInstanceLatestStatus()),
-        10000,
-      );
-      const refreshIntervalStatsSeries = setInterval(
-        () => dispatch(loadInstanceStats()),
-        10000,
-      );
+      const refreshIntervalStatsUnit = setInterval(() => {
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (user.expires_at >= currentTime) {
+          dispatch(loadInstanceLatestStatus());
+        }
+      }, 10000);
+      const refreshIntervalStatsSeries = setInterval(() => {
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (user.expires_at >= currentTime) {
+          dispatch(loadInstanceStats());
+        }
+      }, 10000);
       return () => {
         clearInterval(refreshIntervalStatsUnit);
         clearInterval(refreshIntervalStatsSeries);
