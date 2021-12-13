@@ -4,6 +4,7 @@ import {
   CheckboxContainer,
   Fieldset,
   Input,
+  Select,
   Label,
 } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
@@ -20,6 +21,7 @@ type State = {
   secretKey: string,
   bucketName: string,
   endpoint: string,
+  accessTier: string,
 };
 
 const INIT_STATE: State = {
@@ -28,7 +30,10 @@ const INIT_STATE: State = {
   secretKey: '',
   bucketName: '',
   endpoint: '',
+  accessTier: '',
 };
+
+const ACCESS_TIERS: Array<string> = ['Cool', 'Hot'];
 
 export default class LocationDetailsAzure extends React.Component<
   Props,
@@ -44,6 +49,12 @@ export default class LocationDetailsAzure extends React.Component<
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     this.setState({ [target.name]: value });
+  };
+
+  onAccessTierChange = (v: string) => {
+    this.setState({
+      accessTier: v,
+    });
   };
 
   updateForm = () => {
@@ -118,6 +129,22 @@ export default class LocationDetailsAzure extends React.Component<
             autoComplete="off"
             onChange={this.onChange}
           />
+        </Fieldset>
+        <Fieldset>
+          <Label htmlFor="accessTier">Target Azure Access Tier</Label>
+          <Select
+            type="select"
+            name="accessTier"
+            id="accessTier"
+            onChange={this.onAccessTierChange}
+            value={this.state.accessTier}
+          >
+            {ACCESS_TIERS.map((v, i) => (
+              <Select.Option key={i} value={v}>
+                {v}
+              </Select.Option>
+            ))}
+          </Select>
         </Fieldset>
         <Fieldset style={{ display: 'none' }}>
           <CheckboxContainer>
