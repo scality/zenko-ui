@@ -21,6 +21,7 @@ describe('class <LocationDetailsAzure />', () => {
       secretKey: '',
       bucketName: '',
       endpoint: '',
+      accessTier: '',
     });
   });
 
@@ -31,6 +32,7 @@ describe('class <LocationDetailsAzure />', () => {
       secretKey: 'sk',
       bucketName: 'bn',
       endpoint: 'https://ep',
+      accessTier: '',
     };
     const onChangeFn = jest.fn();
     const component = mount(
@@ -70,6 +72,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketName: 'bn',
       bucketMatch: true,
       endpoint: 'https://ep',
+      accessTier: '',
     };
     const component = mount(
       <LocationDetailsAzure {...props} details={locationDetails} />,
@@ -106,6 +109,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketName: 'bn',
       bucketMatch: true,
       endpoint: 'https://ep',
+      accessTier: '',
     };
     let location = {};
     const component = mount(
