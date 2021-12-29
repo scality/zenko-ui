@@ -17,7 +17,7 @@ import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
-import { addTrailingSlash } from '../../utils';
+import { usePrefixWithSlash } from '../../utils/hooks';
 
 export default function Objects() {
   const dispatch = useDispatch();
@@ -31,10 +31,8 @@ export default function Objects() {
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
 
   const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
-
-  const { bucketName: bucketNameParam, '0': prefixParam } = useParams();
-  const prefixWithSlash = addTrailingSlash(prefixParam);
-
+  const { bucketName: bucketNameParam } = useParams();
+  const prefixWithSlash = usePrefixWithSlash();
   useEffect(() => {
     dispatch(
       listObjects(bucketNameParam, prefixWithSlash, LIST_OBJECTS_S3_TYPE),

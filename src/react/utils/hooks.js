@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router';
+import { addTrailingSlash } from '.';
 
 export const useHeight = myRef => {
   const [height, setHeight] = useState(0);
@@ -41,4 +43,9 @@ export const useOutsideClick = (ref, actionFn) => {
 
 export const useQuery = () => {
   return new URLSearchParams(useLocation().search);
+};
+
+export const usePrefixWithSlash = () => {
+  const { '0': prefixParam } = useParams();
+  return addTrailingSlash(prefixParam);
 };
