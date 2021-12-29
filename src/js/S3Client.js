@@ -276,6 +276,32 @@ export default class S3Client {
     });
   }
 
+  getObjectLegalHold(bucketName, objectKey, versionId) {
+    const params = {
+      Bucket: bucketName,
+      Key: objectKey,
+      VersionId: versionId,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.client.getObjectLegalHold(params, (error, data) => {
+        if (error) {
+          if (
+            error.code === 'NoSuchObjectLockConfiguration' ||
+            error.code === 'InvalidRequest'
+          ) {
+            return resolve(false);
+          }
+          return reject(error);
+        }
+        if (data.Status) {
+          return resolve(data.Status === 'ON');
+        }
+        return resolve(false);
+      });
+    });
+  }
+
   // TODO: add VersionId
   headObject(bucketName, objectName, versionId) {
     const params = {
@@ -470,5 +496,15 @@ export default class S3Client {
           return reject(error);
         });
     });
+  }
+
+  putObjectLegalHold(bucketName, objectKey, versionId, isLegalHold) {
+    const params = {
+      Bucket: bucketName,
+      Key: objectKey,
+      VersionId: versionId,
+      LegalHold: { Status: isLegalHold ? 'ON' : 'OFF' },
+    };
+    return this.client.putObjectLegalHold(params).promise();
   }
 }

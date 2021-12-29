@@ -246,6 +246,10 @@ export class MockS3Client implements S3ClientInterface {
   putObjectLockConfiguration(): Promise<void> {
     return Promise.resolve();
   }
+
+  getObjectLegalHold(): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 export class ErrorMockS3Client implements S3ClientInterface {
@@ -320,6 +324,10 @@ export class ErrorMockS3Client implements S3ClientInterface {
   }
 
   putObjectLockConfiguration(): Promise<void> {
+    return Promise.reject(this._error);
+  }
+
+  getObjectLegalHold(): Promise<void> {
     return Promise.reject(this._error);
   }
 }
