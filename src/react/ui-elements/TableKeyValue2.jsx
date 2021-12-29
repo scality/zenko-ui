@@ -186,4 +186,8 @@ export const Footer = styled.div`
   margin: ${spacing.sp8};
 `;
 
+export const ExtraCell = styled.div`
+  margin-left: ${spacing.sp20};
+`;
+
 export default Table;
