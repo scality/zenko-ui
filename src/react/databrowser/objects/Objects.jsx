@@ -11,13 +11,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
-import { LIST_OBJECTS_S3_TYPE } from '../../utils/s3';
+import {
+  LIST_OBJECTS_S3_TYPE,
+  LIST_OBJECT_VERSIONS_S3_TYPE,
+} from '../../utils/s3';
 import ObjectDelete from './ObjectDelete';
 import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { addTrailingSlash } from '../../utils';
+import { useQuery } from '../../utils/hooks';
 
 export default function Objects() {
   const dispatch = useDispatch();
@@ -35,11 +39,19 @@ export default function Objects() {
   const { bucketName: bucketNameParam, '0': prefixParam } = useParams();
   const prefixWithSlash = addTrailingSlash(prefixParam);
 
+  const query = useQuery();
+  const isShowVersions =
+    query.get('showversions') === LIST_OBJECT_VERSIONS_S3_TYPE;
+
   useEffect(() => {
     dispatch(
-      listObjects(bucketNameParam, prefixWithSlash, LIST_OBJECTS_S3_TYPE),
+      listObjects(
+        bucketNameParam,
+        prefixWithSlash,
+        isShowVersions ? LIST_OBJECT_VERSIONS_S3_TYPE : LIST_OBJECTS_S3_TYPE,
+      ),
     ).finally(() => setLoaded(true));
-  }, [bucketNameParam, prefixWithSlash, dispatch]);
+  }, [bucketNameParam, prefixWithSlash, dispatch, isShowVersions]);
 
   useEffect(() => {
     dispatch(getBucketInfo(bucketNameParam));

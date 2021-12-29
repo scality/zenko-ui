@@ -27,6 +27,7 @@ import ObjectListTable from './ObjectListTable';
 import React from 'react';
 import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
+import { push } from 'connected-react-router';
 
 type Props = {
   objects: List<ObjectEntity>,
@@ -114,6 +115,9 @@ export default function ObjectList({
             toggle={isVersioningType}
             label="List Versions"
             onChange={() => {
+              dispatch(
+                push(`?showversions=${!isVersioningType ? 'true' : 'false'}`),
+              );
               const type = isVersioningType
                 ? LIST_OBJECTS_S3_TYPE
                 : LIST_OBJECT_VERSIONS_S3_TYPE;
