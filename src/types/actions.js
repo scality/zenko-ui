@@ -191,6 +191,7 @@ export type GetObjectMetadataSuccessAction = {|
     Mode: RetentionMode,
     RetainUntilDate: Date,
   |},
+  +isLegalHoldEnabled?: boolean,
 |};
 
 export type ResetObjectMetadataAction = {|

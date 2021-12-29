@@ -114,6 +114,7 @@ export function getObjectMetadataSuccess(
     Mode: RetentionMode,
     RetainUntilDate: Date,
   |},
+  isLegalHoldEnabled: boolean,
 ): GetObjectMetadataSuccessAction {
   return {
     type: 'GET_OBJECT_METADATA_SUCCESS',
@@ -122,6 +123,7 @@ export function getObjectMetadataSuccess(
     info,
     tags,
     ObjectRetention,
+    isLegalHoldEnabled,
   };
 }
 
@@ -231,6 +233,11 @@ function _getObjectListWithSignedUrlAndLockStatus<
           object.VersionId,
         ),
         ObjectRetention: await zenkoClient.getObjectRetention(
+          bucketName,
+          object.Key,
+          object.VersionId,
+        ),
+        IsLegalHoldEnabled: await zenkoClient.getObjectLegalHold(
           bucketName,
           object.Key,
           object.VersionId,
@@ -480,8 +487,9 @@ export function getObjectMetadata(
       zenkoClient.headObject(bucketName, objectKey, versionId),
       zenkoClient.getObjectTagging(bucketName, objectKey, versionId),
       zenkoClient.getObjectRetention(bucketName, objectKey, versionId),
+      zenkoClient.getObjectLegalHold(bucketName, objectKey, versionId),
     ])
-      .then(([info, tags, objectRetention]) =>
+      .then(([info, tags, objectRetention, isLegalHoldEnabled]) =>
         dispatch(
           getObjectMetadataSuccess(
             bucketName,
@@ -489,6 +497,7 @@ export function getObjectMetadata(
             info,
             tags.TagSet,
             objectRetention,
+            isLegalHoldEnabled,
           ),
         ),
       )
@@ -527,6 +536,26 @@ export function putObjectTagging(
     dispatch(networkStart('Getting object tags'));
     return zenkoClient
       .putObjectTagging(bucketName, objectKey, tags, versionId)
+      .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
+      .catch(error => dispatch(handleAWSClientError(error)))
+      .catch(error => dispatch(handleAWSError(error, 'byModal')))
+      .finally(() => dispatch(networkEnd()));
+  };
+}
+
+export function putObjectLegalHold(
+  bucketName: string,
+  objectKey: string,
+  versionId: string,
+  isLegalHold: boolean,
+  prefixWithSlash: string,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) => {
+    const { zenkoClient } = getClients(getState());
+    dispatch(networkStart('Getting object legal hold'));
+    return zenkoClient
+      .putObjectLegalHold(bucketName, objectKey, versionId, isLegalHold)
+      .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
       .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
       .catch(error => dispatch(handleAWSClientError(error)))
       .catch(error => dispatch(handleAWSError(error, 'byModal')))

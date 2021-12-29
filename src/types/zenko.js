@@ -23,6 +23,7 @@ export type SearchResult = {
     Mode: RetentionMode,
     RetainUntilDate: Date,
   |},
+  IsLegalHoldEnabled?: boolean,
 };
 
 export type SearchResultList = Array<SearchResult>;

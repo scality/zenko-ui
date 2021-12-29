@@ -355,6 +355,7 @@ export const GET_OBJECT_METADATA_SUCCESS_ACTION = (
     Mode: RetentionMode,
     RetainUntilDate: Date,
   |},
+  isLegalHoldEnabled: boolean,
 ): GetObjectMetadataSuccessAction => {
   return {
     type: 'GET_OBJECT_METADATA_SUCCESS',
@@ -363,6 +364,7 @@ export const GET_OBJECT_METADATA_SUCCESS_ACTION = (
     info,
     tags,
     ObjectRetention,
+    isLegalHoldEnabled,
   };
 };
 

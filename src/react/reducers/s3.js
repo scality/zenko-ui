@@ -21,7 +21,10 @@ import type {
   TagSet,
   Tags,
 } from '../../types/s3';
-import type { GetObjectMetadataSuccessAction, S3Action } from '../../types/actions';
+import type {
+  GetObjectMetadataSuccessAction,
+  S3Action,
+} from '../../types/actions';
 import type { SearchResult } from '../../types/zenko';
 import { List } from 'immutable';
 import type { S3State } from '../../types/state';
@@ -44,6 +47,7 @@ const objects = (objs, prefix): Array<ObjectEntity> =>
         isLatest: true,
         signedUrl: o.SignedUrl,
         ..._getObjectLockInformation(o),
+        isLegalHoldEnabled: o.IsLegalHoldEnabled,
       };
     });
 
@@ -60,7 +64,7 @@ const folder = (objs, prefix): Array<ObjectEntity> =>
   });
 
 const _getObjectLockInformation = (
-  o: S3Object
+  o: | S3Object
     | S3Version
     | SearchResult
     | S3DeleteMarker
@@ -98,6 +102,7 @@ const search = (objs): Array<ObjectEntity> => {
       signedUrl: o.SignedUrl,
       ..._getObjectLockInformation(o),
       toggled: false,
+      isLegalHoldEnabled: o.IsLegalHoldEnabled,
     };
   });
 };
@@ -123,6 +128,7 @@ const versioning = (
         signedUrl: o.SignedUrl || null,
         ..._getObjectLockInformation(o),
         toggled: false,
+        isLegalHoldEnabled: o.IsLegalHoldEnabled || false,
       };
     });
 };
@@ -258,6 +264,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           metadata: convertToFormMetadata(action.info),
           tags: convertToFormTags(action.tags),
           ..._getObjectLockInformation(action),
+          isLegalHoldEnabled: action.isLegalHoldEnabled,
         },
       };
     case 'RESET_OBJECT_METADATA':

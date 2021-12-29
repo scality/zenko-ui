@@ -48,6 +48,7 @@ export type S3Object = {|
     +Mode: RetentionMode,
     +RetainUntilDate: string,
   |},
+  +IsLegalHoldEnabled?: boolean,
 |};
 
 export type S3DeleteObject = {|
@@ -78,6 +79,7 @@ export type S3Version = {|
     +Mode: RetentionMode,
     +RetainUntilDate: string,
   |},
+  +IsLegalHoldEnabled?: boolean,
 |};
 
 export type S3DeleteMarker = {|
@@ -108,6 +110,7 @@ export type ObjectEntity = {|
   +isLatest: boolean,
   +versionId?: string,
   +isDeleteMarker?: boolean,
+  +isLegalHoldEnabled?: boolean,
 |};
 
 export type File = {|
@@ -168,13 +171,13 @@ export type ObjectMetadata = {|
   +contentType: string,
   +eTag: string,
   +versionId: string,
+  +isLegalHoldEnabled?: boolean,
   +metadata: MetadataItems,
   +tags: Tags,
 |};
 
 export type EnabledOrDisabled = 'Disabled' | 'Enabled';
 export type Versioning = EnabledOrDisabled | 'Suspended';
-
 export type BucketInfo = {|
   +name: string,
   +policy: boolean,
