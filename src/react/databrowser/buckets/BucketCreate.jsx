@@ -1,12 +1,12 @@
 // @flow
 import { Banner, Toggle } from '@scality/core-ui';
-import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import {
   HelpAsyncNotification,
   HelpNonAsyncLocation,
+  HelpBucketCreateVersioning,
 } from '../../ui-elements/Help';
 import React, { useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
@@ -58,9 +58,10 @@ function BucketCreate() {
     setValue,
     formState,
   } = useFormMethods;
-  const { dirtyFields, isValid } = formState;
+  const { isValid } = formState;
 
   const isObjectLockEnabled = watch('isObjectLockEnabled');
+  const isAsyncNotification = watch('isAsyncNotification');
   const watchLocationName = watch('locationName');
 
   const dispatch = useDispatch();
@@ -83,7 +84,7 @@ function BucketCreate() {
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
 
-  const isAsyncNotificationEnabled = useMemo(
+  const isAsyncNotificationReady = useMemo(
     () =>
       !!watchLocationName &&
       !!locations &&
@@ -153,6 +154,12 @@ function BucketCreate() {
     return `${option.name} (${locationTypeName})`;
   };
 
+  const matchVersioning = (checked: boolean) => {
+    if (checked) {
+      setValue('isVersioning', true);
+    }
+  };
+
   return (
     <FormProvider {...useFormMethods}>
       <FormContainer>
@@ -199,7 +206,12 @@ function BucketCreate() {
                 render={({ onChange, value: locationName }) => {
                   return (
                     <F.Select
-                      onChange={onChange}
+                      onChange={value => {
+                        onChange(value);
+                        // Note: when changing location we make sure
+                        // to reset isAsyncNotification toggle to false.
+                        setValue('isAsyncNotification', false);
+                      }}
                       placeholder="Location Name"
                       value={locationName}
                     >
@@ -214,7 +226,14 @@ function BucketCreate() {
               />
             </F.Fieldset>
             <F.Fieldset direction={'row'}>
-              <F.Label>Async Notification</F.Label>
+              <F.Label
+                tooltipMessages={[
+                  'Enabling Async Notification automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
+                ]}
+                tooltipWidth="28rem"
+              >
+                Async Notification
+              </F.Label>
               <Controller
                 control={control}
                 id="isAsyncNotification"
@@ -224,19 +243,23 @@ function BucketCreate() {
                   return (
                     <>
                       <Toggle
-                        disabled={!isAsyncNotificationEnabled}
-                        onChange={e => onChange(e.target.checked)}
+                        disabled={!isAsyncNotificationReady}
+                        onChange={e => {
+                          onChange(e.target.checked);
+                          matchVersioning(e.target.checked);
+                        }}
                         label={isAsyncNotification ? 'Enabled' : 'Disabled'}
                         toggle={isAsyncNotification}
+                        placeholder="isAsyncNotification"
                       />
                       {watchLocationName &&
-                        isAsyncNotificationEnabled &&
+                        isAsyncNotificationReady &&
                         isAsyncNotification && <HelpAsyncNotification />}
                     </>
                   );
                 }}
               />
-              {watchLocationName && !isAsyncNotificationEnabled && (
+              {watchLocationName && !isAsyncNotificationReady && (
                 <HelpNonAsyncLocation />
               )}
             </F.Fieldset>
@@ -251,7 +274,7 @@ function BucketCreate() {
                 render={({ onChange, value: isVersioning }) => {
                   return (
                     <Toggle
-                      disabled={isObjectLockEnabled}
+                      disabled={isObjectLockEnabled || isAsyncNotification}
                       onChange={e => onChange(e.target.checked)}
                       placeholder="Versioning"
                       label={isVersioning ? 'Active' : 'Inactive'}
@@ -260,12 +283,11 @@ function BucketCreate() {
                   );
                 }}
               />
-              {isObjectLockEnabled && (
-                <SpacedBox ml={16}>
-                  <SmallerText>
-                    Automatically activated when Object-lock is Enabled
-                  </SmallerText>
-                </SpacedBox>
+              {(isObjectLockEnabled || isAsyncNotification) && (
+                <HelpBucketCreateVersioning
+                  isObjectLockEnabled={isObjectLockEnabled}
+                  isAsyncNotification={isAsyncNotification}
+                />
               )}
             </F.Fieldset>
             <F.SessionSeperation />
@@ -291,18 +313,7 @@ function BucketCreate() {
                     <Toggle
                       onChange={e => {
                         onChange(e.target.checked);
-                        if (e.target.checked) {
-                          setValue('isVersioning', true, {
-                            shouldDirty: false,
-                          });
-                        } else if (
-                          !Object.keys(dirtyFields).includes('isVersioning') &&
-                          !e.target.checked
-                        ) {
-                          setValue('isVersioning', false, {
-                            shouldDirty: false,
-                          });
-                        }
+                        matchVersioning(e.target.checked);
                       }}
                       placeholder="isObjectLockEnabled"
                       label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}

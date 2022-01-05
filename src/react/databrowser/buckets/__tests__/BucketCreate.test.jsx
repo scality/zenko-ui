@@ -121,4 +121,29 @@ describe('BucketCreate', () => {
 
     component.unmount();
   });
+
+  it('should toggle versioning and disable it when enabling Async Notification', async () => {
+    const component = await reduxMountAct(<BucketCreate />);
+
+    await act(async () => {
+      const input = component.find('input#name');
+      input.getDOMNode().value = 'test';
+      input.getDOMNode().dispatchEvent(new Event('input'));
+
+      const isAsyncNotification = component.find(
+        'input[placeholder="isAsyncNotification"]',
+      );
+
+      isAsyncNotification.simulate('change', { target: { checked: true } });
+    });
+
+    expect(
+      component.find('input[placeholder="Versioning"]').getDOMNode().checked,
+    ).toBe(true);
+    expect(
+      component.find('input[placeholder="Versioning"]').getDOMNode().disabled,
+    ).toBe(true);
+
+    component.unmount();
+  });
 });

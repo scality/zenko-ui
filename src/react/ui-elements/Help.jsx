@@ -54,8 +54,8 @@ export const HelpAsyncNotifPending = () => (
     tooltipWidth="16rem"
     tooltipMessage={
       <>
-        Enable Async Notifications for this location <br/>
-        by choosing Enable Async Notification while <br/>
+        Enable Async Notifications for this location <br />
+        by choosing Enable Async Notification while <br />
         creating an Artesca bucket for this location.
       </>
     }
@@ -68,9 +68,13 @@ export const HelpLocationCreationAsyncNotification = () => (
     tooltipWidth="24rem"
     tooltipMessage={
       <>
-        ARTESCA is informed of updates and changes to the external Backend (public cloud, RING or other) through an async notifier mechanism. <br/>
-        ARTESCA will be able to view and manage all data on this backend without being on the data path. <br/>
-        This maintains standard access from applications to the external Backend. <br/>
+        ARTESCA is informed of updates and changes to the external Backend
+        (public cloud, RING or other) through an async notifier mechanism.
+        <br />
+        ARTESCA will be able to view and manage all data on this backend without
+        being on the data path. <br />
+        This maintains standard access from applications to the external
+        Backend. <br />
       </>
     }
   />
@@ -83,5 +87,23 @@ export const HelpLocationTargetBucket = () => (
     tooltipMessage="Name of the bucket/container created in the specific location (e.g.
           RING, Azure, AWS S3, GCP...), and where buckets attached to that
           location will store data."
+  />
+);
+
+export const HelpBucketCreateVersioning = ({
+  isObjectLockEnabled,
+  isAsyncNotification,
+}: {
+  isObjectLockEnabled: boolean,
+  isAsyncNotification: boolean,
+}) => (
+  <IconHelp
+    placement="top"
+    tooltipWidth="24rem"
+    tooltipMessage={`Automatically activated when 
+    ${isObjectLockEnabled ? 'Object-lock' : ''} 
+    ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''} 
+    ${isAsyncNotification ? 'Async Notification' : ''} 
+    is Enabled`}
   />
 );
