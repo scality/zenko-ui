@@ -11,14 +11,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
-import { LIST_OBJECTS_S3_TYPE } from '../../utils/s3';
+import {
+  LIST_OBJECTS_S3_TYPE,
+  LIST_OBJECT_VERSIONS_S3_TYPE,
+} from '../../utils/s3';
 import ObjectDelete from './ObjectDelete';
 import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
-import { usePrefixWithSlash } from '../../utils/hooks';
-
+import { usePrefixWithSlash, useQuery } from '../../utils/hooks';
+import { newSearchListing } from '../../actions';
 export default function Objects() {
   const dispatch = useDispatch();
 
@@ -33,11 +36,26 @@ export default function Objects() {
   const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
   const { bucketName: bucketNameParam } = useParams();
   const prefixWithSlash = usePrefixWithSlash();
+
+  const query = useQuery();
+  const isShowVersions = query.get('showversions') === 'true';
+  const searchInput = query.get('metadatasearch');
+
   useEffect(() => {
-    dispatch(
-      listObjects(bucketNameParam, prefixWithSlash, LIST_OBJECTS_S3_TYPE),
-    ).finally(() => setLoaded(true));
-  }, [bucketNameParam, prefixWithSlash, dispatch]);
+    if (searchInput) {
+      dispatch(newSearchListing(bucketNameParam, searchInput)).finally(() =>
+        setLoaded(true),
+      );
+    } else {
+      dispatch(
+        listObjects(
+          bucketNameParam,
+          prefixWithSlash,
+          isShowVersions ? LIST_OBJECT_VERSIONS_S3_TYPE : LIST_OBJECTS_S3_TYPE,
+        ),
+      ).finally(() => setLoaded(true));
+    }
+  }, [bucketNameParam, prefixWithSlash, dispatch, isShowVersions, searchInput]);
 
   useEffect(() => {
     dispatch(getBucketInfo(bucketNameParam));
@@ -95,10 +113,7 @@ export default function Objects() {
         toggled={toggled}
         prefixWithSlash={prefixWithSlash}
       />
-      <ObjectUpload
-        bucketName={bucketNameParam}
-        prefixWithSlash={prefixWithSlash}
-      />
+      <ObjectUpload bucketName={bucketNameParam} />
       <FolderCreate
         bucketName={bucketNameParam}
         prefixWithSlash={prefixWithSlash}
