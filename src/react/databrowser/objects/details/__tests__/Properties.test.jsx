@@ -7,8 +7,15 @@ import Properties from '../Properties';
 import router from 'react-router';
 
 describe('Properties', () => {
+  beforeAll(() => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
+    });
+  });
+
   it('Properties should render', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({ '0': undefined });
+
     const { component } = reduxMount(
       <Properties objectMetadata={OBJECT_METADATA} />,
     );
