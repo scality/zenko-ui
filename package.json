@@ -21,6 +21,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-flow": "^7.8.3",
     "@babel/preset-react": "^7.8.3",
+    "@testing-library/react-hooks": "^7.0.2",
     "@welldone-software/why-did-you-render": "^4.0.5",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
