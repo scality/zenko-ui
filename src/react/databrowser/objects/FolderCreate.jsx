@@ -28,6 +28,10 @@ type Props = {
 const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
   const [folderName, setFolderName] = useState('');
 
+  const loading = useSelector(
+    (state: AppState) => state.networkActivity.counter > 0,
+  );
+
   const show = useSelector(
     (state: AppState) => state.uiObjects.showFolderCreate,
   );
@@ -66,11 +70,13 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
           <Button
             id="folder-create-cancel-button"
             variant="outline"
+            disabled={loading}
             onClick={cancel}
             label="Cancel"
           />
           <Button
             id="folder-create-save-button"
+            disabled={loading}
             variant="secondary"
             onClick={save}
             label="Save"
