@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useParams } from 'react-router';
 import { addTrailingSlash } from '.';
 
 export const useHeight = myRef => {
@@ -46,6 +45,21 @@ export const useQuery = () => {
 };
 
 export const usePrefixWithSlash = () => {
-  const { '0': prefixParam } = useParams();
-  return addTrailingSlash(prefixParam);
+  const query = useQuery();
+  const prefix = query.get('prefix');
+
+  if (!prefix) {
+    return '';
+  }
+  // If the prefix includes both folder and object, we have to remove the last part of the path which is the object key
+  if (prefix && prefix.slice(-1) !== '/') {
+    const prefixArr = prefix.split('/');
+    prefixArr.pop();
+    if (!prefixArr.length) {
+      return '';
+    }
+    return addTrailingSlash(prefixArr.join('/'));
+  } else {
+    return prefix;
+  }
 };
