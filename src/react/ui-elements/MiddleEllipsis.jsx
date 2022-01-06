@@ -25,7 +25,7 @@ export const ellipseNode = (
   ellipsisText: string = '...',
   trailingCharCount: number = 7,
 ): boolean => {
-  if (parentNode && childNode) {
+  if (parentNode && childNode && originalText) {
     const childWidth = childNode.offsetWidth;
     const containerWidth = parentNode.offsetWidth;
 

@@ -65,4 +65,18 @@ describe('MiddleEllipsis', () => {
   it('should return false if passing null node', () => {
     expect(ellipseNode(null, null, null)).toBeFalsy();
   });
+
+  it('ellipseNode should return false if text is empty', () => {
+    const sentence = '';
+    txtNode.textContent = sentence;
+    const isEllipsized = ellipseNode(container, txtNode, sentence);
+    expect(isEllipsized).toBe(false);
+  });
+
+  it('ellipseNode should return false if text is undefined', () => {
+    const sentence = undefined;
+    txtNode.textContent = sentence;
+    const isEllipsized = ellipseNode(container, txtNode, sentence);
+    expect(isEllipsized).toBe(false);
+  });
 });
