@@ -1,26 +1,29 @@
-import * as zenkoActions from '../../../actions/zenko';
 import { Hint, Hints, HintsTitle } from '../../../ui-elements/Input';
 import MetadataSearch, { METADATA_SEARCH_HINT_ITEMS } from '../MetadataSearch';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
 import { SearchButton } from '../../../ui-elements/Table';
 import { reduxMount } from '../../../utils/test';
+import router from 'react-router';
+import * as redux from 'react-redux';
 
 describe('Metadata Search', () => {
-  const newSearchListingMock = jest.spyOn(zenkoActions, 'newSearchListing');
+  const useDispatchSpy = jest.spyOn(redux, 'useDispatch');
+  const mockDispatchFn = jest.fn();
+  useDispatchSpy.mockReturnValue(mockDispatchFn);
 
+  beforeAll(() => {
+    jest
+      .spyOn(router, 'useLocation')
+      .mockReturnValue({ pathname: `/buckets/${BUCKET_NAME}/objects` });
+  });
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should render MetadataSearch component', () => {
     const { component } = reduxMount(
-      <MetadataSearch
-        isMetadataType={false}
-        bucketName={BUCKET_NAME}
-        prefixWithSlash=""
-        errorZenkoMsg={null}
-      />,
+      <MetadataSearch isMetadataType={false} errorZenkoMsg={null} />,
     );
 
     expect(component.find(MetadataSearch).isEmptyRender()).toBe(false);
@@ -28,12 +31,7 @@ describe('Metadata Search', () => {
 
   it('should render search button disabled by default', () => {
     const { component } = reduxMount(
-      <MetadataSearch
-        isMetadataType={false}
-        bucketName={BUCKET_NAME}
-        prefixWithSlash=""
-        errorZenkoMsg={null}
-      />,
+      <MetadataSearch isMetadataType={false} errorZenkoMsg={null} />,
     );
 
     const button = component.find(SearchButton);
@@ -43,12 +41,7 @@ describe('Metadata Search', () => {
 
   it('should render dropdown menu correctly', () => {
     const { component } = reduxMount(
-      <MetadataSearch
-        isMetadataType={false}
-        bucketName={BUCKET_NAME}
-        prefixWithSlash=""
-        errorZenkoMsg={null}
-      />,
+      <MetadataSearch isMetadataType={false} errorZenkoMsg={null} />,
     );
 
     const input = component.find('input');
@@ -75,12 +68,7 @@ describe('Metadata Search', () => {
 
   it('should render the right item and the right text in the input bar; button should also be clickable and call newSearchListing function', () => {
     const { component } = reduxMount(
-      <MetadataSearch
-        isMetadataType={false}
-        bucketName={BUCKET_NAME}
-        prefixWithSlash=""
-        errorZenkoMsg={null}
-      />,
+      <MetadataSearch isMetadataType={false} errorZenkoMsg={null} />,
     );
 
     // open dropdown menu
@@ -106,9 +94,17 @@ describe('Metadata Search', () => {
     expect(button).toHaveLength(1);
     expect(button.prop('disabled')).toBe(false);
 
-    // check if newSearchListingMock is called when submitting form
-    expect(newSearchListingMock).toHaveBeenCalledTimes(0);
+    // check the dispatch action is with the correct URL
     button.simulate('submit');
-    expect(newSearchListingMock).toHaveBeenCalledTimes(1);
+    const expectedAction = {
+      payload: {
+        args: [
+          `/buckets/${BUCKET_NAME}/objects?metadatasearch=key+like+%2Fpdf%24%2F`,
+        ],
+        method: 'push',
+      },
+      type: '@@router/CALL_HISTORY_METHOD',
+    };
+    expect(mockDispatchFn).toHaveBeenCalledWith(expectedAction);
   });
 });
