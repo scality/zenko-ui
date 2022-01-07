@@ -1,13 +1,13 @@
 // @flow
+import React from 'react';
+import type { Node } from 'react';
 import type { AppState } from '../../../types/state';
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import { List } from 'immutable';
 import type { ListObjectsType } from '../../../types/s3';
 import Metadata from './details/Metadata';
-import type { Node } from 'react';
 import Properties from './details/Properties';
-import React from 'react';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
@@ -46,8 +46,8 @@ function ObjectDetails({ toggled, listType }: Props) {
   const objectMetadata = useSelector(
     (state: AppState) => state.s3.objectMetadata,
   );
-
   const tabName = query.get('tab');
+  const queryObject = Object.fromEntries(query.entries());
 
   const details = () => {
     if (toggled.size > 1) {
@@ -71,17 +71,25 @@ function ObjectDetails({ toggled, listType }: Props) {
   return (
     <ContentSection>
       <CustomTabs>
-        <CustomTabs.Tab label="Summary" path={pathname}>
+        <CustomTabs.Tab
+          label="Summary"
+          path={pathname}
+          query={{ ...queryObject, ...{ tab: null } }}
+        >
           {details()}
         </CustomTabs.Tab>
         <CustomTabs.Tab
           label="Metadata"
           path={pathname}
-          query={{ tab: 'metadata' }}
+          query={{ ...queryObject, ...{ tab: 'metadata' } }}
         >
           {details()}
         </CustomTabs.Tab>
-        <CustomTabs.Tab label="Tags" path={pathname} query={{ tab: 'tags' }}>
+        <CustomTabs.Tab
+          label="Tags"
+          path={pathname}
+          query={{ ...queryObject, ...{ tab: 'tags' } }}
+        >
           {details()}
         </CustomTabs.Tab>
       </CustomTabs>
