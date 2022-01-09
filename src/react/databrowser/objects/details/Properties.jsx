@@ -39,8 +39,10 @@ function Properties({ objectMetadata }: Props) {
 
   // In order to keep object selection between toggling show versions, add `versionId` in the query params
   useEffect(() => {
-    query.set('versionId', objectMetadata.versionId);
-    dispatch(push(`${pathname}?${query.toString()}`));
+    if (objectMetadata.versionId && objectMetadata.versionId !== 'null') {
+      query.set('versionId', objectMetadata.versionId);
+      dispatch(push(`${pathname}?${query.toString()}`));
+    }
   }, [objectMetadata.versionId]);
 
   return (
