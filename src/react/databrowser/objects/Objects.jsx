@@ -33,13 +33,24 @@ export default function Objects() {
   const listType = useSelector((state: AppState) => state.s3.listObjectsType);
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
 
-  const toggled = useMemo(() => objects.filter(o => o.toggled), [objects]);
-  const { bucketName: bucketNameParam } = useParams();
-  const prefixWithSlash = usePrefixWithSlash();
-
   const query = useQuery();
   const isShowVersions = query.get('showversions') === 'true';
   const searchInput = query.get('metadatasearch');
+  const objectKey = query.get('prefix');
+  const versionId = query.get('versionId');
+
+  const toggled = useMemo(
+    () =>
+      objects.filter(
+        o =>
+          o.toggled ||
+          (!isShowVersions && o.key === objectKey) ||
+          (isShowVersions && o.key === objectKey && o.versionId === versionId),
+      ),
+    [objects, isShowVersions, objectKey, versionId],
+  );
+  const { bucketName: bucketNameParam } = useParams();
+  const prefixWithSlash = usePrefixWithSlash();
 
   useEffect(() => {
     if (searchInput) {
