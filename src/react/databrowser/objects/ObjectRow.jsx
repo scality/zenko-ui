@@ -64,6 +64,9 @@ const Row = ({
 
   const { pathname } = useLocation();
   const query = useQuery();
+  const versionId = query.get('versionId');
+  const objectKey = query.get('prefix');
+  const isListVersions = query.get('showversions') === 'true';
 
   const handleClick = () => {
     dispatch(toggleAllObjects(false));
@@ -80,10 +83,12 @@ const Row = ({
     }
     dispatch(push(`${pathname}?${query.toString()}`));
   };
-
+  const isRowSelected = isListVersions
+    ? row.original.versionId === versionId && objectKey === row.original.key
+    : objectKey === row.original.key;
   return (
     <T.Row
-      isSelected={row.original.toggled}
+      isSelected={row.original.toggled || isRowSelected}
       onClick={handleClick}
       {...row.getRowProps({ style })}
     >
