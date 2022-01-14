@@ -10,7 +10,7 @@ import {
 import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
-import React from 'react';
+import React, { useState } from 'react';
 import { isIngestSource } from '../../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
 
@@ -38,133 +38,125 @@ const INIT_STATE: State = {
   endpoint: '',
 };
 
-export default class LocationDetailsAwsCustom extends React.Component<
-  Props,
-  State,
-> {
-  constructor(props: Props) {
-    super(props);
-    this.state = Object.assign({}, INIT_STATE, this.props.details);
-    // XXX disable changing it if not provided
-    this.state.secretKey = '';
-  }
+export default function LocationDetailsAwsCustom({
+  capabilities,
+  details,
+  editingExisting,
+  locationType,
+  onChange,
+}: Props) {
+  const [formState, setFormState] = useState<State>(() => ({
+    ...Object.assign({}, INIT_STATE, details),
+    secretKey: '',
+  }));
 
-  onChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
+  const onFormItemChange = (e: SyntheticInputEvent<HTMLInputElement>) => {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
-    this.setState({
+    setFormState({
+      ...formState,
       [target.name]: value,
     });
-  };
-
-  updateForm = () => {
-    if (this.props.onChange) {
-      this.props.onChange(this.state);
+    if (onChange) {
+      onChange({
+        ...formState,
+        [target.name]: value,
+      });
     }
   };
 
-  componentDidMount() {
-    this.updateForm();
-  }
+  const isIngest = isIngestSource(storageOptions, locationType, capabilities);
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    return this.state !== nextState;
-  }
-
-  componentDidUpdate() {
-    this.updateForm();
-  }
-
-  render() {
-    const isIngest = isIngestSource(
-      storageOptions,
-      this.props.locationType,
-      this.props.capabilities,
-    );
-    return (
-      <div>
-        <Fieldset>
-          <Label htmlFor="accessKey">Access Key</Label>
-          <Input
-            name="accessKey"
-            id="accessKey"
-            type="text"
-            placeholder="AKI5HMPCLRB86WCKTN2C"
-            value={this.state.accessKey}
-            onChange={this.onChange}
-            autoComplete="off"
+  return (
+    <div>
+      <Fieldset>
+        <Label htmlFor="accessKey">Access Key</Label>
+        <Input
+          name="accessKey"
+          id="accessKey"
+          type="text"
+          placeholder="AKI5HMPCLRB86WCKTN2C"
+          value={formState.accessKey}
+          onChange={onFormItemChange}
+          autoComplete="off"
+        />
+      </Fieldset>
+      <Fieldset>
+        <Label htmlFor="secretKey">Secret Key</Label>
+        <Input
+          name="secretKey"
+          id="secretKey"
+          type="password"
+          placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+          value={formState.secretKey}
+          onChange={onFormItemChange}
+          autoComplete="new-password"
+        />
+        <small>
+          Your credentials are encrypted in transit, then at rest using your
+          instance&apos;s RSA key pair so that we&apos;re unable to see them.
+        </small>
+      </Fieldset>
+      <Fieldset>
+        <Label htmlFor="bucketName">Target Bucket Name</Label>
+        <Input
+          name="bucketName"
+          id="bucketName"
+          type="text"
+          placeholder="Target Bucket Name"
+          value={formState.bucketName}
+          onChange={onFormItemChange}
+          autoComplete="off"
+          disabled={editingExisting}
+        />
+      </Fieldset>
+      <Fieldset>
+        <Label htmlFor="endpoint">Endpoint</Label>
+        <Input
+          name="endpoint"
+          type="text"
+          value={formState.endpoint}
+          onChange={onFormItemChange}
+          autoComplete="off"
+          placeholder="https://hosted-s3-server.internal.example.com:4443"
+        />
+        <small>
+          Endpoint to reach the S3 server, including scheme and port. The
+          buckets will have a path-style access.
+        </small>
+      </Fieldset>
+      <Fieldset>
+        <CheckboxContainer>
+          <Checkbox
+            name="bucketMatch"
+            disabled={editingExisting}
+            value={formState.bucketMatch}
+            checked={formState.bucketMatch}
+            onChange={onFormItemChange}
           />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="secretKey">Secret Key</Label>
-          <Input
-            name="secretKey"
-            id="secretKey"
-            type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
-            value={this.state.secretKey}
-            onChange={this.onChange}
-            autoComplete="new-password"
-          />
+          <span>
+            {isIngest ? (
+              <>
+                {' '}
+                Async Notification Ready{' '}
+                <HelpLocationCreationAsyncNotification />{' '}
+              </>
+            ) : (
+              'Write objects without prefix'
+            )}
+          </span>
+        </CheckboxContainer>
+        <small>
+          Your objects will be stored in the target bucket without a
+          source-bucket prefix.
+        </small>
+        <WarningInput hasError={!!formState.bucketMatch}>
           <small>
-            Your credentials are encrypted in transit, then at rest using your
-            instance&apos;s RSA key pair so that we&apos;re unable to see them.
+            Storing multiple buckets in a location with this option enabled can
+            lead to data loss.
           </small>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="bucketName">Target Bucket Name</Label>
-          <Input
-            name="bucketName"
-            id="bucketName"
-            type="text"
-            placeholder="Target Bucket Name"
-            value={this.state.bucketName}
-            onChange={this.onChange}
-            autoComplete="off"
-            disabled={this.props.editingExisting}
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="endpoint">Endpoint</Label>
-          <Input
-            name="endpoint"
-            type="text"
-            value={this.state.endpoint}
-            onChange={this.onChange}
-            autoComplete="off"
-            placeholder="https://hosted-s3-server.internal.example.com:4443"
-          />
-          <small>
-            Endpoint to reach the S3 server, including scheme and port. The
-            buckets will have a path-style access.
-          </small>
-        </Fieldset>
-        <Fieldset>
-          <CheckboxContainer>
-            <Checkbox
-              name="bucketMatch"
-              disabled={this.props.editingExisting}
-              value={this.state.bucketMatch}
-              checked={this.state.bucketMatch}
-              onChange={this.onChange}
-            />
-            <span>
-              {isIngest
-                ? <> Async Notification Ready <HelpLocationCreationAsyncNotification/> </>
-                : 'Write objects without prefix'}
-            </span>
-          </CheckboxContainer>
-          <small>
-              Your objects will be stored in the target bucket without a source-bucket prefix.
-          </small>
-          <WarningInput hasError={!!this.state.bucketMatch}>
-            <small>
-              Storing multiple buckets in a location with this option enabled can
-              lead to data loss.
-             </small>
-          </WarningInput>
-        </Fieldset>
-      </div>
-    );
-  }
+        </WarningInput>
+      </Fieldset>
+    </div>
+  );
 }
