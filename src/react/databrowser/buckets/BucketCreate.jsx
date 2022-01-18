@@ -23,6 +23,7 @@ import type { Location } from '../../../types/config';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';
+import { XDM_FEATURE } from '../../../js/config';
 
 const schema = Joi.object({
   name: Joi.string()
@@ -83,6 +84,7 @@ function BucketCreate() {
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
+  const features = useSelector((state: AppState) => state.auth.config.features);
 
   const isAsyncNotificationReady = useMemo(
     () =>
@@ -225,7 +227,7 @@ function BucketCreate() {
                 }}
               />
             </F.Fieldset>
-            <F.Fieldset direction={'row'}>
+            {features.includes(XDM_FEATURE) && <F.Fieldset direction={'row'}>
               <F.Label
                 tooltipMessages={[
                   'Enabling Async Notification automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
@@ -262,7 +264,7 @@ function BucketCreate() {
               {watchLocationName && !isAsyncNotificationReady && (
                 <HelpNonAsyncLocation />
               )}
-            </F.Fieldset>
+            </F.Fieldset>}
             <F.SessionSeperation />
             <F.Fieldset direction={'row'}>
               <F.Label>Versioning</F.Label>

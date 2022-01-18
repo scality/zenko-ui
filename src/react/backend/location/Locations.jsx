@@ -22,6 +22,7 @@ import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
 import styled from 'styled-components';
 import { useHeight } from '../../utils/hooks';
+import { XDM_FEATURE } from '../../../js/config';
 
 const initialSortBy = [
   {
@@ -81,11 +82,13 @@ function Locations() {
     [dispatch],
   );
 
+  const features = useSelector((state: AppState) => state.auth.config.features);
+
   const resizerRef = useRef<T.Resizer<T> | null>(null);
   const height = useHeight(resizerRef);
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const columns = [
       {
         Header: 'Location Name',
         accessor: 'name',
@@ -106,64 +109,67 @@ function Locations() {
         ),
         accessor: 'details.bucketName',
       },
-      {
+    ];
+
+    if (features.includes(XDM_FEATURE)) {
+      columns.push({
         id: 'ingestion',
         Header: 'Async Notification',
         accessor: 'name',
         disableSortBy: true,
         cellStyle: { overflow: 'visible' },
         Cell: IngestionCell(ingestionStates, capabilities, loading, dispatch),
+      });
+    }
+
+    columns.push({
+      id: 'actions',
+      Header: '',
+      accessor: 'name',
+      cellStyle: { overflow: 'visible' },
+      disableSortBy: true,
+      Cell({ value: locationName }: { value: LocationName }) {
+        return (
+          <T.Actions>
+            <T.ActionButton
+              disabled={!canEditLocation(locationName, locations)}
+              icon={<i className="far fa-edit" />}
+              tooltip={{ overlay: 'Edit Location', placement: 'top' }}
+              onClick={() => dispatch(push(`/locations/${locationName}/edit`))}
+              variant="secondary"
+            />
+            <T.ActionButton
+              disabled={
+                !canDeleteLocation(
+                  locationName,
+                  locations,
+                  replicationStreams,
+                  buckets,
+                  endpoints,
+                )
+              }
+              icon={<i className="fas fa-trash" />}
+              tooltip={{ overlay: 'Delete Location', placement: 'top' }}
+              onClick={() => handleDeleteClick(locationName)}
+              variant="danger"
+            />
+          </T.Actions>
+        );
       },
-      {
-        id: 'actions',
-        Header: '',
-        accessor: 'name',
-        cellStyle: { overflow: 'visible' },
-        disableSortBy: true,
-        Cell({ value: locationName }: { value: LocationName }) {
-          return (
-            <T.Actions>
-              <T.ActionButton
-                disabled={!canEditLocation(locationName, locations)}
-                icon={<i className="far fa-edit" />}
-                tooltip={{ overlay: 'Edit Location', placement: 'top' }}
-                onClick={() =>
-                  dispatch(push(`/locations/${locationName}/edit`))
-                }
-                variant="secondary"
-              />
-              <T.ActionButton
-                disabled={
-                  !canDeleteLocation(
-                    locationName,
-                    locations,
-                    replicationStreams,
-                    buckets,
-                    endpoints,
-                  )
-                }
-                icon={<i className="fas fa-trash" />}
-                tooltip={{ overlay: 'Delete Location', placement: 'top' }}
-                onClick={() => handleDeleteClick(locationName)}
-                variant="danger"
-              />
-            </T.Actions>
-          );
-        },
-      },
-    ],
-    [
-      dispatch,
-      locations,
-      buckets,
-      endpoints,
-      replicationStreams,
-      handleDeleteClick,
-      ingestionStates,
-      loading,
-      capabilities,
-    ],
-  );
+    });
+    return columns;
+  }, [
+    dispatch,
+    locations,
+    buckets,
+    endpoints,
+    replicationStreams,
+    handleDeleteClick,
+    ingestionStates,
+    loading,
+    capabilities,
+    features,
+  ]);
 
   const {
     getTableProps,

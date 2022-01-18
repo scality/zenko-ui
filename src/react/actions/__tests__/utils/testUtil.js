@@ -43,6 +43,7 @@ import { initialFullState } from '../../../reducers/initialConstants';
 import thunk from 'redux-thunk';
 import zenkoUIReducer from '../../../reducers';
 import type { EnabledState } from '../../../../types/stats';
+import { XDM_FEATURE } from '../../../../js/config';
 
 type ActionTestObject = {|
   skip?: boolean,
@@ -68,6 +69,7 @@ export const APP_CONFIG = {
   iamEndpoint: 'https://iamEndpoint',
   navbarEndpoint: 'https://navbarEndpoint',
   navbarConfigUrl: 'https://navbarConfigUrl',
+  features: [XDM_FEATURE],
 };
 export const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
 

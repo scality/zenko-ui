@@ -27,6 +27,7 @@ import { useTheme } from 'styled-components';
 import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { push } from 'connected-react-router';
+import { XDM_FEATURE } from '../../../../js/config';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, c => {
@@ -91,6 +92,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const replicationStreams = useSelector(
     (state: AppState) => state.workflow.replications,
   );
+  const features = useSelector((state: AppState) => state.auth.config.features);
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.Name));
@@ -227,13 +229,13 @@ function Overview({ bucket, ingestionStates }: Props) {
                   </small>
                 </T.Value>
               </T.Row>
-              <T.Row>
+              {features.includes(XDM_FEATURE) && <T.Row>
                 <T.Key> Async Notification </T.Key>
                 <T.Value>
                   {ingestionValue}
                   {isIngestion && <HelpAsyncNotification />}
                 </T.Value>
-              </T.Row>
+              </T.Row>}
             </T.GroupContent>
           </T.Group>
           <T.Group>

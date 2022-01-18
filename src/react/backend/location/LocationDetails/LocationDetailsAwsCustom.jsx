@@ -10,9 +10,13 @@ import {
 import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
 import type { InstanceStateSnapshot } from '../../../../types/stats';
 import type { LocationDetails } from '../../../../types/config';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { isIngestSource } from '../../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
+import { useSelector } from 'react-redux';
+import type { AppState } from '../../../../types/state';
+import { XDM_FEATURE } from '../../../../js/config';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 
 type Props = {
   editingExisting: boolean,
@@ -65,7 +69,13 @@ export default function LocationDetailsAwsCustom({
     }
   };
 
+  //TODO check why the tests expect onChange to be called on mount
+  useEffect(() => {
+    onChange(formState);
+  }, []);
+
   const isIngest = isIngestSource(storageOptions, locationType, capabilities);
+  const features = useSelector((state: AppState) => state.auth.config.features);
 
   return (
     <div>
@@ -125,7 +135,7 @@ export default function LocationDetailsAwsCustom({
           buckets will have a path-style access.
         </small>
       </Fieldset>
-      <Fieldset>
+      {((isIngest && features.includes(XDM_FEATURE)) || !isIngest) ? <Fieldset>
         <CheckboxContainer>
           <Checkbox
             name="bucketMatch"
@@ -156,7 +166,7 @@ export default function LocationDetailsAwsCustom({
             lead to data loss.
           </small>
         </WarningInput>
-      </Fieldset>
+      </Fieldset> : <SpacedBox mb={8} />}
     </div>
   );
 }

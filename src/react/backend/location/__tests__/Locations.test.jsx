@@ -2,6 +2,7 @@ import * as T from '../../../ui-elements/Table';
 import Locations from '../Locations';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
+import { XDM_FEATURE } from '../../../../js/config';
 
 const locationFile = {
   details: {
@@ -99,6 +100,7 @@ const locations = {
 };
 
 const nbrOfColumnsExpected = 5;
+const nbrOfColumnsExpectedWithoutXDM = 4;
 
 describe('Locations', () => {
   it('should render Locations component alphabetically sorted', () => {
@@ -120,7 +122,7 @@ describe('Locations', () => {
 
     const firstRow = rows.first();
     const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
-    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(firstRowColumns[0]).toEqual('location-aws-s3');
     expect(firstRowColumns[1]).toEqual('Amazon S3');
     expect(firstRowColumns[2]).toEqual('bucketName1');
@@ -145,7 +147,7 @@ describe('Locations', () => {
     const secondRowColumns = secondRow
       .find(T.Cell)
       .map(column => column.text());
-    expect(secondRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(secondRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(secondRowColumns[0]).toEqual('location-ceph');
     expect(secondRowColumns[1]).toEqual('Ceph RADOS Gateway');
     expect(secondRowColumns[2]).toEqual('bucketName2');
@@ -168,7 +170,7 @@ describe('Locations', () => {
 
     const thirdRow = rows.at(2);
     const thirdRowColumns = thirdRow.find(T.Cell).map(column => column.text());
-    expect(thirdRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(thirdRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(thirdRowColumns[0]).toEqual('location-file');
     expect(thirdRowColumns[1]).toEqual('Local Filesystem');
     expect(thirdRowColumns[2]).toEqual('');
@@ -193,7 +195,7 @@ describe('Locations', () => {
     const fourthRowColumns = fourthRow
       .find(T.Cell)
       .map(column => column.text());
-    expect(fourthRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(fourthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(fourthRowColumns[0]).toEqual('location-hd');
     expect(fourthRowColumns[1]).toEqual('Storage Service for ARTESCA');
     expect(fourthRowColumns[2]).toEqual('');
@@ -216,7 +218,7 @@ describe('Locations', () => {
 
     const fifthRow = rows.at(4);
     const fifthRowColumns = fifthRow.find(T.Cell).map(column => column.text());
-    expect(fifthRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(fifthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(fifthRowColumns[0]).toEqual('location-nfs');
     expect(fifthRowColumns[1]).toEqual('NFS Mount');
     expect(fifthRowColumns[2]).toEqual('');
@@ -239,7 +241,7 @@ describe('Locations', () => {
 
     const sixthRow = rows.at(5);
     const sixthRowColumns = sixthRow.find(T.Cell).map(column => column.text());
-    expect(sixthRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(sixthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(sixthRowColumns[0]).toEqual('location-ring');
     expect(sixthRowColumns[1]).toEqual('Scality RING with S3 Connector');
     expect(sixthRowColumns[2]).toEqual('bucketName3');
@@ -264,7 +266,7 @@ describe('Locations', () => {
     const seventhRowColumns = seventhRow
       .find(T.Cell)
       .map(column => column.text());
-    expect(seventhRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(seventhRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(seventhRowColumns[0]).toEqual('location-sproxyd');
     expect(seventhRowColumns[1]).toEqual('Scality RING with Sproxyd Connector');
     expect(seventhRowColumns[2]).toEqual('');
@@ -286,8 +288,64 @@ describe('Locations', () => {
     ).toBeFalsy();
   });
 
-  it('should disable delete location button if location is being used for replication', () => {
+  it('should disable delete location button if location is being used for replication when XDM feature is disabled', () => {
     const { component } = reduxMount(<Locations />, {
+      configuration: {
+        latest: {
+          locations: { 'location-aws-s3': locationAwsS3 },
+          endpoints: [],
+        },
+      },
+      workflow: {
+        replications: [
+          {
+            destination: {
+              locations: [
+                {
+                  name: 'location-aws-s3',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    });
+
+    expect(component.find('div#location-list')).toHaveLength(1);
+    const rows = component.find(T.Row);
+    expect(rows).toHaveLength(1);
+
+    const firstRow = rows.first();
+    const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
+    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    expect(firstRowColumns[0]).toEqual('location-aws-s3');
+    expect(firstRowColumns[1]).toEqual('Amazon S3');
+    expect(firstRowColumns[2]).toEqual('bucketName1');
+    // edit button
+    expect(
+      firstRow
+        .find(T.Cell)
+        .find(T.ActionButton)
+        .first()
+        .prop('disabled'),
+    ).toBeFalsy();
+    // delete button
+    expect(
+      firstRow
+        .find(T.Cell)
+        .find(T.ActionButton)
+        .at(1)
+        .prop('disabled'),
+    ).toBeTruthy();
+  });
+
+  it('should disable delete location button if location is being used for replication when XDM feature is enabled', () => {
+    const { component } = reduxMount(<Locations />, {
+      auth: {
+        config: {
+          features: [XDM_FEATURE],
+        },
+      },
       configuration: {
         latest: {
           locations: { 'location-aws-s3': locationAwsS3 },
@@ -364,7 +422,7 @@ describe('Locations', () => {
 
     const firstRow = rows.first();
     const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
-    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(firstRowColumns[0]).toEqual('location-aws-s3');
     expect(firstRowColumns[1]).toEqual('Amazon S3');
     expect(firstRowColumns[2]).toEqual('bucketName1');
@@ -410,7 +468,7 @@ describe('Locations', () => {
 
     const firstRow = rows.first();
     const firstRowColumns = firstRow.find(T.Cell).map(column => column.text());
-    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpected);
+    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
     expect(firstRowColumns[0]).toEqual('location-aws-s3');
     expect(firstRowColumns[1]).toEqual('Amazon S3');
     expect(firstRowColumns[2]).toEqual('bucketName1');

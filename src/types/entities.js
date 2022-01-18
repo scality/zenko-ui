@@ -13,6 +13,7 @@ export type AppConfig = {
   +iamEndpoint: string,
   +navbarEndpoint: string,
   +navbarConfigUrl: string,
+  +features: string[],
 };
 
 export type Brand = {
