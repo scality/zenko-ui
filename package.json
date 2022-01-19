@@ -61,7 +61,7 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@hapi/joi": "^17.1.1",
     "@hookform/resolvers": "^0.1.0",
-    "@scality/core-ui": "github:scality/core-ui.git#v0.21.8",
+    "@scality/core-ui": "github:scality/core-ui.git#v0.28.0",
     "async": "^3.2.0",
     "aws-sdk": "^2.616.0",
     "connected-react-router": "^6.7.0",
