@@ -48,8 +48,8 @@ type Props = {
   errorZenkoMsg: ?string,
 };
 const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
-  const [inputText, setInputText] = useState('');
   const [hintsShown, setHintsShown] = useState(false);
+
   const dispatch: DispatchAPI<Action> = useDispatch();
   const query = useQuery();
   const { pathname } = useLocation();
@@ -58,6 +58,8 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
   const suggestionsRef = useRef(null);
   const inputRef = useRef<SearchMetadataInput<> | null>(null);
   useOutsideClick(suggestionsRef, () => setHintsShown(false));
+  const searchInput = query.get('metadatasearch');
+  const [inputText, setInputText] = useState(searchInput || '');
 
   const handleChange = e => {
     setInputText(e.target.value);
@@ -99,7 +101,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
 
   return (
     <SearchMetadataContainer
-      isHidden={prefixWithSlash ? 1 : 0}
+      isHidden={prefixWithSlash && !searchInput ? 1 : 0}
       onSubmit={handleSubmit}
     >
       <SearchMetadataInputAndIcon>

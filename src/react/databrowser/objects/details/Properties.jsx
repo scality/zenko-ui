@@ -36,7 +36,7 @@ function Properties({ objectMetadata }: Props) {
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   const query = useQuery();
-
+  const metadataSearch = query.get('metadatasearch');
   // In order to keep object selection between toggling show versions, add `versionId` in the query params
   useEffect(() => {
     if (objectMetadata.versionId && objectMetadata.versionId !== 'null') {
@@ -136,6 +136,7 @@ function Properties({ objectMetadata }: Props) {
                               objectMetadata.versionId,
                               !isLegalHoldEnabled,
                               prefixWithSlash,
+                              metadataSearch,
                             ),
                           )
                         }

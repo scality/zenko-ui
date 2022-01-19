@@ -36,6 +36,7 @@ import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
+import { newSearchListing } from '.';
 
 export function listObjectsSuccess(
   contents: Array<S3Object>,
@@ -549,13 +550,20 @@ export function putObjectLegalHold(
   versionId: string,
   isLegalHold: boolean,
   prefixWithSlash: string,
+  metadataSearch?: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Getting object legal hold'));
     return zenkoClient
       .putObjectLegalHold(bucketName, objectKey, versionId, isLegalHold)
-      .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
+      .then(() => {
+        if (!metadataSearch) {
+          dispatch(listObjects(bucketName, prefixWithSlash));
+        } else {
+          dispatch(newSearchListing(bucketName, metadataSearch));
+        }
+      })
       .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
       .catch(error => dispatch(handleAWSClientError(error)))
       .catch(error => dispatch(handleAWSError(error, 'byModal')))
