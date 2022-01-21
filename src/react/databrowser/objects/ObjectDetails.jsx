@@ -74,21 +74,21 @@ function ObjectDetails({ toggled, listType }: Props) {
         <CustomTabs.Tab
           label="Summary"
           path={pathname}
-          query={{ ...queryObject, ...{ tab: null } }}
+          query={{ ...queryObject, tab: null }}
         >
           {details()}
         </CustomTabs.Tab>
         <CustomTabs.Tab
           label="Metadata"
           path={pathname}
-          query={{ ...queryObject, ...{ tab: 'metadata' } }}
+          query={{ ...queryObject, tab: 'metadata' }}
         >
           {details()}
         </CustomTabs.Tab>
         <CustomTabs.Tab
           label="Tags"
           path={pathname}
-          query={{ ...queryObject, ...{ tab: 'tags' } }}
+          query={{ ...queryObject, tab: 'tags' }}
         >
           {details()}
         </CustomTabs.Tab>
