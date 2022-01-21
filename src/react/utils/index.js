@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export const systemMetadata = [
   { key: 'CacheControl', header: 'cache-control' },
   { key: 'ContentDisposition', header: 'content-disposition' },
@@ -40,10 +42,9 @@ export function formatDate(d) {
   return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
 
-
 export function formatShortDate(d) {
-  const date = d.toISOString().split('T')[0];
-  const time = d.toTimeString().split(' ')[0];
+  const date = DateTime.fromISO(d.toISOString()).toISODate();
+  const time = DateTime.fromISO(d.toISOString()).toFormat('TT');
   return `${date} ${time}`;
 }
 
