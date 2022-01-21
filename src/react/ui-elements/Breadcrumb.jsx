@@ -10,6 +10,7 @@ import { selectAccountID } from '../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '../utils/hooks';
+import { ellipsis } from 'polished';
 
 const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   .sc-breadcrumb_item {
@@ -26,6 +27,7 @@ const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
       }
       border-bottom: 0 !important;
     }
+    ${ellipsis('16rem')}
   }
 `;
 
@@ -52,7 +54,13 @@ const breadcrumbPaths = (
     // When browsing inside a folder, display the folder name as the last breadcrumb path
     const isInFolder = prefixPath && prefixPath.slice(-1) === '/';
     let splits = [];
-    if (prefixPath && isInFolder) {
+    if (
+      matchPath(pathname, {
+        path: '/buckets/:bucketName/objects/retention-setting',
+      })
+    ) {
+      splits = prefixPath ? prefixPath.split('/') : [];
+    } else if (prefixPath && isInFolder) {
       splits = prefixPath.split('/');
     } else if (prefixPath && !isInFolder) {
       splits = prefixPath.split('/').slice(0, -1);
