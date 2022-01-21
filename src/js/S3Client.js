@@ -302,6 +302,24 @@ export default class S3Client {
     });
   }
 
+  putObjectRetention(
+    bucketName,
+    objectName,
+    versionId,
+    retentionMode,
+    retentionUntilDate,
+  ) {
+    const params = {
+      Bucket: bucketName,
+      Key: objectName,
+      Retention: { Mode: retentionMode, RetainUntilDate: retentionUntilDate },
+      VersionId: versionId,
+      // TODO: Once DATA CONSUMER ROLE is implemented, checking `s3:BypassGovernanceRetention` permission will be needed
+      BypassGovernanceRetention: true,
+    };
+    return this.client.putObjectRetention(params).promise();
+  }
+
   // TODO: add VersionId
   headObject(bucketName, objectName, versionId) {
     const params = {

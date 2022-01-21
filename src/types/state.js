@@ -114,7 +114,7 @@ export type S3State = {|
     +nextVersionIdMarker: Marker,
   |},
   +listObjectsType: ListObjectsType,
-  +objectMetadata: ?ObjectMetadata,
+  +objectMetadata: ObjectMetadata | null,
 |};
 
 export type SecretsState = {|

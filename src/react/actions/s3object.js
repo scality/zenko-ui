@@ -37,6 +37,7 @@ import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
+import { push } from 'connected-react-router';
 
 export function listObjectsSuccess(
   contents: Array<S3Object>,
@@ -565,6 +566,33 @@ export function putObjectLegalHold(
         }
       })
       .then(() => dispatch(getObjectMetadata(bucketName, objectKey, versionId)))
+      .catch(error => dispatch(handleAWSClientError(error)))
+      .catch(error => dispatch(handleAWSError(error, 'byModal')))
+      .finally(() => dispatch(networkEnd()));
+  };
+}
+
+export function putObjectRetention(
+  bucketName: string,
+  objectName: string,
+  versionId: string,
+  retentionMode: RetentionMode,
+  retentionUntilDate: Date,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) => {
+    const { zenkoClient } = getClients(getState());
+    dispatch(networkStart('Editing object retention'));
+    return zenkoClient
+      .putObjectRetention(
+        bucketName,
+        objectName,
+        versionId,
+        retentionMode,
+        retentionUntilDate,
+      )
+      .then(() =>
+        dispatch(push(`/buckets/${bucketName}/objects?prefix=${objectName}`)),
+      )
       .catch(error => dispatch(handleAWSClientError(error)))
       .catch(error => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));
