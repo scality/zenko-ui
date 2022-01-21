@@ -17,9 +17,11 @@ import {
 } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
+import type { AppState } from '../../../types/state';
 import { listBuckets } from '../../actions';
+import { XDM_FEATURE } from '../../../js/config';
 
 type Props = {
   locations: Locations,
@@ -48,8 +50,10 @@ export default function BucketList({
     [dispatch],
   );
 
-  const columns = useMemo(
-    () => [
+  const features = useSelector((state: AppState) => state.auth.config.features);
+
+  const columns = useMemo(() => {
+    const columns = [
       {
         Header: 'Bucket Name',
         accessor: 'Name',
@@ -67,7 +71,10 @@ export default function BucketList({
           return `${locationName || 'us-east-1'} / ${locationType}`;
         },
       },
-      {
+    ];
+
+    if (features.includes(XDM_FEATURE)) {
+      columns.push({
         Header: 'Async Notification',
         accessor: 'LocationConstraint',
         id: 'ingestion',
@@ -75,25 +82,24 @@ export default function BucketList({
         Cell({ value: locationName }: { value: LocationName }) {
           return getLocationIngestionState(ingestionStates, locationName).value;
         },
+      });
+    }
+
+    columns.push({
+      Header: 'Created on',
+      accessor: 'CreationDate',
+      headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
+      Cell({ value }: { value: string }) {
+        return (
+          <TextAligner alignment="right" style={{ paddingRight: spacing.sp16 }}>
+            {formatShortDate(new Date(value))}
+          </TextAligner>
+        );
       },
-      {
-        Header: 'Created on',
-        accessor: 'CreationDate',
-        headerStyle: { textAlign: 'right', paddingRight: spacing.sp32 },
-        Cell({ value }: { value: string }) {
-          return (
-            <TextAligner
-              alignment="right"
-              style={{ paddingRight: spacing.sp16 }}
-            >
-              {formatShortDate(new Date(value))}
-            </TextAligner>
-          );
-        },
-      },
-    ],
-    [locations, handleCellClicked, ingestionStates],
-  );
+    });
+
+    return columns;
+  }, [locations, handleCellClicked, ingestionStates, features]);
 
   const {
     getTableProps,

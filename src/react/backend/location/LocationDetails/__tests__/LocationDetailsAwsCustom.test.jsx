@@ -1,6 +1,6 @@
 import {
   checkBox,
-  themeMount as mount,
+  reduxMountAct,
   updateInputText,
 } from '../../../../utils/test';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
@@ -22,9 +22,9 @@ const props = {
 };
 
 describe('class <LocationDetailsAwsCustom />', () => {
-  it('should call onChange on mount', () => {
+  it('should call onChange on mount', async () => {
     const onChangeFn = jest.fn();
-    mount(<LocationDetailsAwsCustom {...props} onChange={onChangeFn} />);
+    await reduxMountAct(<LocationDetailsAwsCustom {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
       accessKey: '',
@@ -34,27 +34,8 @@ describe('class <LocationDetailsAwsCustom />', () => {
     });
   });
 
-  it('should call onChange on state update', () => {
-    const refLocation = {
-      endpoint: 'https://ep',
-      secretKey: 'sk',
-      accessKey: 'ak',
-      bucketName: 'bn',
-      bucketMatch: true,
-    };
-    const onChangeFn = jest.fn();
-    const component = mount(
-      <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />,
-    );
-    component
-      .find(LocationDetailsAwsCustom)
-      .setState({ ...refLocation }, () => {
-        expect(onChangeFn).toHaveBeenCalledWith(refLocation);
-      });
-  });
-
-  it('should show custom details for empty details', () => {
-    const component = mount(<LocationDetailsAwsCustom {...props} />);
+  it('should show custom details for empty details', async () => {
+    const component = await reduxMountAct(<LocationDetailsAwsCustom {...props} />);
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
     expect(component.find('input[name="accessKey"]').props().value).toEqual('');
 
@@ -75,7 +56,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     );
   });
 
-  it('should show custom details when editing an existing location', () => {
+  it('should show custom details when editing an existing location', async () => {
     const locationDetails = {
       endpoint: 'https://ep',
       secretKey: 'sk',
@@ -83,7 +64,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketName: 'bn',
       bucketMatch: true,
     };
-    const component = mount(
+    const component = await reduxMountAct(
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -111,7 +92,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
     );
   });
 
-  it('should call onChange on location details updates', () => {
+  it('should call onChange on location details updates', async () => {
     const refLocation = {
       endpoint: 'https://ep',
       secretKey: 'sk',
@@ -120,7 +101,7 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketMatch: true,
     };
     let location = {};
-    const component = mount(
+    const component = await reduxMountAct(
       <LocationDetailsAwsCustom {...props} onChange={l => (location = l)} />,
     );
     checkBox(component, 'bucketMatch', true);

@@ -38,7 +38,9 @@ export const initialAuthState: AuthState = {
   configFailure: false,
   stsClient: new MockSTSClient(),
   managementClient: new MockManagementClient(),
-  config: {},
+  config: {
+    features: [],
+  },
   oidcLogout: null,
 };
 

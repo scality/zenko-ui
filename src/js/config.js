@@ -1,3 +1,5 @@
+export const XDM_FEATURE = 'XDM';
+
 export function getAppConfig() {
   return fetch('/config.json', { credentials: 'same-origin' })
     .then(response => {
@@ -30,6 +32,7 @@ export function getAppConfig() {
         stsEndpoint,
         zenkoEndpoint,
         iamEndpoint,
+        features: config.features || [],
       };
     });
 }

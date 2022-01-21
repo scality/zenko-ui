@@ -2,6 +2,7 @@ import BucketCreate from '../BucketCreate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { reduxMountAct } from '../../../utils/test';
+import { XDM_FEATURE } from '../../../../js/config';
 
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
@@ -123,7 +124,7 @@ describe('BucketCreate', () => {
   });
 
   it('should toggle versioning and disable it when enabling Async Notification', async () => {
-    const component = await reduxMountAct(<BucketCreate />);
+    const component = await reduxMountAct(<BucketCreate />, { auth: { config: { features: [XDM_FEATURE] } } });
 
     await act(async () => {
       const input = component.find('input#name');
