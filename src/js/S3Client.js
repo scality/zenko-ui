@@ -237,9 +237,18 @@ export default class S3Client {
         Delete: {
           Objects: objects,
         },
+        BypassGovernanceRetention: true,
       };
       return this.client.deleteObjects(params, (error, data) => {
-        error ? reject(error) : resolve(data);
+        const hasAccessDeniedError =
+          data &&
+          data.Errors &&
+          data.Errors.some(error => error.Code === 'AccessDenied');
+        if (error || hasAccessDeniedError) {
+          reject(error || data);
+        }
+
+        resolve(data);
       });
     }).then(() => this._deleteFolders(bucketName, folders));
   }

@@ -31,7 +31,11 @@ import type {
   S3Version,
   TagSet,
 } from '../../types/s3';
-import { handleAWSClientError, handleAWSError } from './error';
+import {
+  handleAWSClientError,
+  handleAWSError,
+  handleErrorMessage,
+} from './error';
 import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker, ZenkoClient } from '../../types/zenko';
@@ -467,7 +471,19 @@ export function deleteFiles(
     dispatch(networkStart('Deleting object(s)'));
     return zenkoClient
       .deleteObjects(bucketName, objects, folders)
-      .catch(error => dispatch(handleAWSClientError(error)))
+      .catch(error => {
+        // S3 API return 200 response code with Access Denied Error
+        if (
+          error &&
+          error.Errors &&
+          error.Errors.some(error => error.Code === 'AccessDenied')
+        ) {
+          const str = 'You do not have the permission to perform this action.';
+          dispatch(handleErrorMessage(str, 'byModal'));
+        } else {
+          dispatch(handleAWSClientError(error));
+        }
+      })
       .catch(error => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => {
         dispatch(networkEnd());
