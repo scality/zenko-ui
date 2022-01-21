@@ -80,14 +80,28 @@ describe('Properties', () => {
           },
         }}
       />,
+      {
+        s3: {
+          bucketInfo: {
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+          },
+        },
+      },
     );
 
     const tableItems = component.find(T.Row);
 
     const sixth = tableItems.at(5);
     expect(sixth.find(T.Key).text()).toContain('Lock');
-    expect(sixth.find(T.Value).text()).toContain('Locked (governance)');
-    expect(sixth.find(T.Value).text()).toContain('until 2020-10-17 10:06:54');
+    expect(sixth.find(T.GroupValues).text()).toContain('Locked (governance)');
+    expect(sixth.find(T.GroupValues).text()).toContain(
+      'until 2020-10-17 10:06:54',
+    );
+    expect(
+      sixth.find('button#edit-object-retention-setting-btn').prop('label'),
+    ).toBe('Edit');
   });
 
   it('Properties should render expected values when lock is released', () => {
@@ -102,15 +116,28 @@ describe('Properties', () => {
           },
         }}
       />,
+      {
+        s3: {
+          bucketInfo: {
+            name: 'test-bucket',
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+          },
+        },
+      },
     );
 
     const tableItems = component.find(T.Row);
 
     const sixth = tableItems.at(5);
     expect(sixth.find(T.Key).text()).toContain('Lock');
-    expect(sixth.find(T.Value).text()).toContain(
+    expect(sixth.find(T.GroupValues).text()).toContain(
       'Released since 2020-10-17 10:06:54',
     );
+    expect(
+      sixth.find('button#edit-object-retention-setting-btn').prop('label'),
+    ).toBe('Edit');
   });
 
   it('Properties should render expected legal hold value when the object lock is set', () => {
