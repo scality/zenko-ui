@@ -9,11 +9,16 @@ import {
   SearchMetadataInputAndIcon,
   SearchValidationIcon,
 } from '../../ui-elements/Table';
-import { listObjects, newSearchListing } from '../../actions';
 import type { Action } from '../../../types/actions';
 import type { DispatchAPI } from 'redux';
 import { useDispatch } from 'react-redux';
-import { useOutsideClick } from '../../utils/hooks';
+import {
+  useOutsideClick,
+  useQuery,
+  usePrefixWithSlash,
+} from '../../utils/hooks';
+import { useLocation } from 'react-router';
+import { push } from 'connected-react-router';
 
 export const METADATA_SEARCH_HINT_ITEMS = [
   { descr: 'files with extension ".pdf"', q: 'key like /pdf$/' },
@@ -39,25 +44,22 @@ export const METADATA_SEARCH_HINT_ITEMS = [
 ];
 
 type Props = {
-  bucketName: string,
-  prefixWithSlash: string,
   isMetadataType: boolean,
   errorZenkoMsg: ?string,
 };
-const MetadataSearch = ({
-  isMetadataType,
-  bucketName,
-  prefixWithSlash,
-  errorZenkoMsg,
-}: Props) => {
-  const [inputText, setInputText] = useState('');
+const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
   const [hintsShown, setHintsShown] = useState(false);
-  const dispatch: DispatchAPI<Action> = useDispatch();
 
+  const dispatch: DispatchAPI<Action> = useDispatch();
+  const query = useQuery();
+  const { pathname } = useLocation();
+  const prefixWithSlash = usePrefixWithSlash();
   // hide hints if clicked on outside of element.
   const suggestionsRef = useRef(null);
   const inputRef = useRef<SearchMetadataInput<> | null>(null);
   useOutsideClick(suggestionsRef, () => setHintsShown(false));
+  const searchInput = query.get('metadatasearch');
+  const [inputText, setInputText] = useState(searchInput || '');
 
   const handleChange = e => {
     setInputText(e.target.value);
@@ -68,14 +70,18 @@ const MetadataSearch = ({
     if (!inputText || prefixWithSlash) {
       return;
     }
-    dispatch(newSearchListing(bucketName, inputText));
+    // Add metadatasearch in the query params
+    query.set('metadatasearch', inputText);
+    dispatch(push(`${pathname}?${query.toString()}`));
   };
 
   const reset = e => {
     e.stopPropagation();
     setHintsShown(false);
     setInputText('');
-    dispatch(listObjects(bucketName, prefixWithSlash));
+    // Remove the medatasearch from the query params
+    query.delete('metadatasearch');
+    dispatch(push(`${pathname}?${query.toString()}`));
   };
 
   const handleHintClicked = q => {
@@ -95,7 +101,7 @@ const MetadataSearch = ({
 
   return (
     <SearchMetadataContainer
-      isHidden={prefixWithSlash ? 1 : 0}
+      isHidden={prefixWithSlash && !searchInput ? 1 : 0}
       onSubmit={handleSubmit}
     >
       <SearchMetadataInputAndIcon>

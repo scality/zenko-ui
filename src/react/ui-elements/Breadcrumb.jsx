@@ -9,6 +9,7 @@ import { push } from 'connected-react-router';
 import { selectAccountID } from '../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { useQuery } from '../utils/hooks';
 
 const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   .sc-breadcrumb_item {
@@ -28,18 +29,35 @@ const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   }
 `;
 
-const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
-  let match = matchPath(pathname, { path: '/create-bucket' });
-  if (match) {
+const breadcrumbPaths = (
+  pathname: string,
+  prefixPath: string,
+): Array<Element<'label'>> => {
+  const matchCreateBucketRoute = matchPath(pathname, {
+    path: '/create-bucket',
+  });
+  if (matchCreateBucketRoute) {
     return [<label key="buckets">create bucket</label>];
   }
-  match = matchPath(pathname, { path: '/buckets/:bucketName/objects/*' });
-  if (match) {
-    const bucketName = match.params.bucketName;
+
+  const matchObjectRoutes = matchPath(pathname, {
+    path: '/buckets/:bucketName/objects*',
+  });
+  if (matchObjectRoutes) {
+    const bucketName = matchObjectRoutes.params.bucketName;
     if (!bucketName) {
       return [];
     }
-    const splits = match.params['0'] ? match.params['0'].split('/') : [];
+
+    // When browsing inside a folder, display the folder name as the last breadcrumb path
+    const isInFolder = prefixPath && prefixPath.slice(-1) === '/';
+    let splits = [];
+    if (prefixPath && isInFolder) {
+      splits = prefixPath.split('/');
+    } else if (prefixPath && !isInFolder) {
+      splits = prefixPath.split('/').slice(0, -1);
+    }
+
     let prefix = '';
     const splitLabels = splits
       .filter(s => !!s)
@@ -51,7 +69,12 @@ const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
         prefix = prefix ? `${prefix}/${s}` : s;
         return (
           <label key={s}>
-            <Link to={{ pathname: `/buckets/${bucketName}/objects/${prefix}` }}>
+            <Link
+              to={{
+                pathname: `/buckets/${bucketName}/objects`,
+                search: `?prefix=${prefix}/`,
+              }}
+            >
               {' '}
               {s}{' '}
             </Link>
@@ -73,28 +96,37 @@ const breadcrumbPaths = (pathname: string): Array<Element<'label'>> => {
       ...splitLabels,
     ];
   }
-  match = matchPath(pathname, { path: '/buckets/:bucketName/objects' });
-  if (match) {
+
+  const matchObjectsRoute = matchPath(pathname, {
+    path: '/buckets/:bucketName/objects',
+  });
+  if (matchObjectsRoute) {
     return [
       <label key="buckets">
         <Link to={{ pathname: '/buckets' }}> All Buckets </Link>
       </label>,
-      <label key="bucket-name">{match.params.bucketName}</label>,
+      <label key="bucket-name">{matchObjectsRoute.params.bucketName}</label>,
     ];
   }
-  match = matchPath(pathname, {
+
+  const matchBucketRetensionSettingRoute = matchPath(pathname, {
     path: '/buckets/:bucketName/retention-setting',
   });
-  if (match) {
+  if (matchBucketRetensionSettingRoute) {
     return [
       <label key="buckets">
-        <Link to={{ pathname: '/buckets' }}>{match.params.bucketName}</Link>
+        <Link to={{ pathname: '/buckets' }}>
+          {matchBucketRetensionSettingRoute.params.bucketName}
+        </Link>
       </label>,
       <label key="bucket-name">Object-lock settings</label>,
     ];
   }
-  match = matchPath(pathname, { path: '/buckets/:bucketName' });
-  if (match) {
+
+  const matchBucketsRoute = matchPath(pathname, {
+    path: '/buckets/:bucketName',
+  });
+  if (matchBucketsRoute) {
     return [<label key="buckets">All Buckets</label>];
   }
   return [];
@@ -108,7 +140,8 @@ type Props = {
 
 export function Breadcrumb({ accounts, accountName, pathname }: Props) {
   const dispatch = useDispatch();
-
+  const query = useQuery();
+  const prefixPath = query.get('prefix');
   const switchAccount = selectedName => {
     const account =
       selectedName &&
@@ -137,7 +170,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
             </Select.Option>
           ))}
         </Select>,
-        ...breadcrumbPaths(pathname),
+        ...breadcrumbPaths(pathname, prefixPath),
       ]}
     />
   );

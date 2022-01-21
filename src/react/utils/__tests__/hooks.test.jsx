@@ -1,8 +1,10 @@
 import * as hooks from '../hooks';
 import React, { useRef } from 'react';
-import { useHeight, useOutsideClick } from '../hooks';
+import { useHeight, useOutsideClick, usePrefixWithSlash } from '../hooks';
 import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
+import router from 'react-router';
+import { renderHook } from '@testing-library/react-hooks';
 
 const originalOffsetHeight = Object.getOwnPropertyDescriptor(
   HTMLElement.prototype,
@@ -94,5 +96,46 @@ describe('hooks', () => {
     component.find('button').simulate('click');
 
     expect(useOutsideClickMock).toHaveBeenCalled();
+  });
+});
+
+describe('usePrefixWithSlash', () => {
+  test('should return empty string in root path of the bucket', () => {
+    jest
+      .spyOn(router, 'useLocation')
+      .mockReturnValue({ pathname: '/buckets/test/objects' });
+
+    const { result } = renderHook(() => usePrefixWithSlash());
+    expect(result.current).toBe('');
+  });
+
+  test('should return empty string when an object is select in the root of bucket', () => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: '/buckets/test/objects',
+      search: 'prefix=object1',
+    });
+
+    const { result } = renderHook(() => usePrefixWithSlash());
+    expect(result.current).toBe('');
+  });
+
+  test('should return foldername with trailing slash when inside a folder', () => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: '/buckets/test/objects',
+      search: 'prefix=folder/',
+    });
+
+    const { result } = renderHook(() => usePrefixWithSlash());
+    expect(result.current).toBe('folder/');
+  });
+
+  test('should return foldername with trailing slash when inside a folder and select an object', () => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: '/buckets/test/objects',
+      search: 'prefix=folder/object',
+    });
+
+    const { result } = renderHook(() => usePrefixWithSlash());
+    expect(result.current).toBe('folder/');
   });
 });

@@ -12,3 +12,11 @@ export function chunkArray(
 
   return tempArray;
 }
+
+export function removeTrailingSlash(prefix: string): string {
+  if (prefix.slice(-1) === '/') {
+    return prefix.slice(0, -1);
+  } else {
+    return prefix;
+  }
+}

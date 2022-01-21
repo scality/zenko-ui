@@ -2,13 +2,17 @@
 
 import * as T from '../../ui-elements/Table';
 import React, { memo } from 'react';
-import { toggleAllObjects, toggleObject } from '../../actions';
+import { toggleAllObjects } from '../../actions';
 import type { Action } from '../../../types/actions';
 import type { DispatchAPI } from 'redux';
 import type { ObjectEntity } from '../../../types/s3';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
+import { useLocation } from 'react-router';
+import { useQuery } from '../../utils/hooks';
+import { push } from 'connected-react-router';
+import { removeTrailingSlash } from '../../../js/utils';
 
 type PrepareRow = RowType => void;
 
@@ -58,14 +62,33 @@ const Row = ({
   const row = rows[index];
   prepareRow(row);
 
+  const { pathname } = useLocation();
+  const query = useQuery();
+  const versionId = query.get('versionId');
+  const objectKey = query.get('prefix');
+  const isListVersions = query.get('showversions') === 'true';
+
   const handleClick = () => {
     dispatch(toggleAllObjects(false));
-    dispatch(toggleObject(row.original.key, row.original.versionId));
+    query.set('prefix', removeTrailingSlash(row.original.key));
+    if (row.original.key.slice(-1) === '/') {
+      query.set('isFolder', true);
+    } else {
+      query.delete('isFolder');
+    }
+    if (row.original.versionId) {
+      query.set('versionId', row.original.versionId);
+    } else {
+      query.delete('versionId');
+    }
+    dispatch(push(`${pathname}?${query.toString()}`));
   };
-
+  const isRowSelected = isListVersions
+    ? row.original.versionId === versionId && objectKey === row.original.key
+    : objectKey === row.original.key;
   return (
     <T.Row
-      isSelected={row.original.toggled}
+      isSelected={row.original.toggled || isRowSelected}
       onClick={handleClick}
       {...row.getRowProps({ style })}
     >

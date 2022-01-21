@@ -13,8 +13,15 @@ import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import { List } from 'immutable';
 import ObjectList from '../ObjectList';
 import React from 'react';
+import router from 'react-router';
 
 describe('ObjectList', () => {
+  beforeAll(() => {
+    jest
+      .spyOn(router, 'useLocation')
+      .mockReturnValue({ pathname: '/buckets/test/objects' });
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });

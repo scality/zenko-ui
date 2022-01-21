@@ -9,12 +9,10 @@ import type {
 } from '../../../types/s3';
 import {
   LIST_OBJECTS_METADATA_TYPE,
-  LIST_OBJECTS_S3_TYPE,
   LIST_OBJECT_VERSIONS_S3_TYPE,
 } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
 import {
-  listObjects,
   openFolderCreateModal,
   openObjectDeleteModal,
   openObjectUploadModal,
@@ -27,6 +25,9 @@ import ObjectListTable from './ObjectListTable';
 import React from 'react';
 import { Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
+import { push } from 'connected-react-router';
+import { useQuery } from '../../utils/hooks';
+import { useLocation } from 'react-router';
 
 type Props = {
   objects: List<ObjectEntity>,
@@ -46,6 +47,9 @@ export default function ObjectList({
   bucketInfo,
 }: Props) {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const query = useQuery();
+
   const errorZenkoMsg = useSelector(
     (state: AppState) => state.zenko.error.message,
   );
@@ -82,8 +86,6 @@ export default function ObjectList({
         <MetadataSearch
           errorZenkoMsg={errorZenkoMsg}
           isMetadataType={isMetadataType}
-          bucketName={bucketName}
-          prefixWithSlash={prefixWithSlash}
         />
         <T.ButtonContainer>
           <T.ExtraButton
@@ -114,10 +116,11 @@ export default function ObjectList({
             toggle={isVersioningType}
             label="List Versions"
             onChange={() => {
-              const type = isVersioningType
-                ? LIST_OBJECTS_S3_TYPE
-                : LIST_OBJECT_VERSIONS_S3_TYPE;
-              dispatch(listObjects(bucketName, prefixWithSlash, type));
+              query.set('showversions', !isVersioningType ? 'true' : 'false');
+              if (isVersioningType) {
+                query.delete('versionId');
+              }
+              dispatch(push(`${pathname}?${query.toString()}`));
             }}
           />
         </T.ButtonContainer>

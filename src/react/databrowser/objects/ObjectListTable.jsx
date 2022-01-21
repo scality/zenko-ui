@@ -1,6 +1,6 @@
 // @flow
 import MemoRow, { createItemData } from './ObjectRow';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import {
   continueListObjects,
@@ -23,6 +23,7 @@ import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+import { useQuery } from '../../utils/hooks';
 
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
@@ -73,11 +74,42 @@ export default function ObjectListTable({
   const handleCellClicked = useCallback(
     (bucketName, key) => e => {
       e.stopPropagation();
-      dispatch(push(`/buckets/${bucketName}/objects/${key}`));
+      query.set('prefix', key);
+      dispatch(push(`/buckets/${bucketName}/objects?${query.toString()}`));
     },
     [dispatch],
   );
 
+  const query = useQuery();
+  const objectKey = query.get('prefix');
+  const versionId = query.get('versionId');
+  const isListVersion = query.get('showversions') === 'true';
+  const isFolder = query.get('isFolder') === 'true';
+
+  const versionIdOrUndefined =
+    isListVersion && versionId ? versionId : undefined;
+  useEffect(() => {
+    if (objectsLength > 0) {
+      dispatch(
+        toggleObject(
+          isFolder ? `${objectKey}/` : objectKey,
+          versionIdOrUndefined,
+        ),
+      );
+    }
+  }, [
+    dispatch,
+    isListVersion,
+    objectsLength,
+    objectKey,
+    isFolder,
+    versionIdOrUndefined,
+  ]);
+
+  // TODO:
+  //      Current row selection should be seperated from multiple selections.
+  //      The issue we have right now is once we trigger the listObject action, we lose the current selection. Because we use `toggled` flag to store the selection.
+  //      It should be solved by updating with the new table component.
   const columns = useMemo(
     () => [
       {

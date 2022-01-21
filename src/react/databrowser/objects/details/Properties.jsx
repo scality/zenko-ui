@@ -4,14 +4,16 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import { PrettyBytes, Toggle } from '@scality/core-ui';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
-import { usePrefixWithSlash } from '../../../utils/hooks';
+import { usePrefixWithSlash, useQuery } from '../../../utils/hooks';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../../../types/state';
+import { push } from 'connected-react-router';
+import { useLocation } from 'react-router';
 type Props = {
   objectMetadata: ObjectMetadata,
 };
@@ -26,11 +28,22 @@ const Icon = styled.i`
 
 function Properties({ objectMetadata }: Props) {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
+  const query = useQuery();
+  const metadataSearch = query.get('metadatasearch');
+  // In order to keep object selection between toggling show versions, add `versionId` in the query params
+  useEffect(() => {
+    if (objectMetadata.versionId && objectMetadata.versionId !== 'null') {
+      query.set('versionId', objectMetadata.versionId);
+      dispatch(push(`${pathname}?${query.toString()}`));
+    }
+  }, [objectMetadata.versionId]);
 
   return (
     <div>
@@ -123,6 +136,7 @@ function Properties({ objectMetadata }: Props) {
                               objectMetadata.versionId,
                               !isLegalHoldEnabled,
                               prefixWithSlash,
+                              metadataSearch,
                             ),
                           )
                         }

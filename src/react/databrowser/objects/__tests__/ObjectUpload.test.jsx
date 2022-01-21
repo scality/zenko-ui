@@ -4,8 +4,14 @@ import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { reduxMount } from '../../../utils/test';
+import router from 'react-router';
 
 describe('ObjectUpload', () => {
+  beforeAll(() => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: '/buckets/test/objects',
+    });
+  });
   const closeObjectUploadModalMock = jest.spyOn(
     s3object,
     'closeObjectUploadModal',
@@ -18,7 +24,7 @@ describe('ObjectUpload', () => {
 
   it('should render ObjectUpload component', () => {
     const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      <ObjectUpload bucketName={BUCKET_NAME} />,
       {
         uiObjects: {
           showObjectUpload: true,
@@ -31,7 +37,7 @@ describe('ObjectUpload', () => {
 
   it('should render an empty ObjectUpload component if showFolderCreate equals to false', () => {
     const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      <ObjectUpload bucketName={BUCKET_NAME} />,
       {
         uiObjects: {
           showObjectUpload: false,
@@ -49,7 +55,7 @@ describe('ObjectUpload', () => {
     );
 
     const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      <ObjectUpload bucketName={BUCKET_NAME} />,
       {
         uiObjects: {
           showObjectUpload: true,
@@ -69,7 +75,7 @@ describe('ObjectUpload', () => {
     const uploadFilesMock = jest.spyOn(s3object, 'uploadFiles');
 
     const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      <ObjectUpload bucketName={BUCKET_NAME} />,
       {
         uiObjects: {
           showObjectUpload: true,
@@ -86,7 +92,7 @@ describe('ObjectUpload', () => {
 
   it('should render NoFile component', () => {
     const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      <ObjectUpload bucketName={BUCKET_NAME} />,
       {
         uiObjects: {
           showObjectUpload: true,
@@ -108,7 +114,7 @@ describe('ObjectUpload', () => {
   tests.forEach((t, index) => {
     it(t, async () => {
       const { component } = reduxMount(
-        <ObjectUpload bucketName={BUCKET_NAME} prefixWithSlash="" />,
+        <ObjectUpload bucketName={BUCKET_NAME} />,
         {
           uiObjects: {
             showObjectUpload: true,

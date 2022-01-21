@@ -14,6 +14,7 @@ import { maybePluralize } from '../../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
+import { usePrefixWithSlash } from '../../utils/hooks';
 
 const DropZone = styled.div`
   flex: 1;
@@ -118,9 +119,8 @@ export const NoFile = ({ open }: NoFileProps) => (
 
 type Props = {
   bucketName: string,
-  prefixWithSlash: string,
 };
-const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
+const ObjectUpload = ({ bucketName }: Props) => {
   const [acceptedFiles, setAcceptedFiles] = useState([]);
   const [fileRejections, setFileRejections] = useState([]);
   const show = useSelector(
@@ -128,6 +128,7 @@ const ObjectUpload = ({ bucketName, prefixWithSlash }: Props) => {
   );
   const dispatch: DispatchAPI<Action> = useDispatch();
 
+  const prefixWithSlash = usePrefixWithSlash();
   const onDrop = (accepted, rejections) => {
     if (accepted.length > 0) {
       const filtered = accepted.filter(

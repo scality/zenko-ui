@@ -29,7 +29,7 @@ export const ellipseNode = (
     const childWidth = childNode.offsetWidth;
     const containerWidth = parentNode.offsetWidth;
 
-    if (childWidth > containerWidth) {
+    if (childWidth > containerWidth && originalText) {
       const txtContent = originalText;
       const avgLetterSize = childWidth / txtContent.length;
       const txtWidthEllipsisInPX = ellipsisText.length * avgLetterSize;
