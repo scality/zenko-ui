@@ -14,6 +14,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../../../types/state';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
+import { Button } from '@scality/core-ui/dist/next';
 type Props = {
   objectMetadata: ObjectMetadata,
 };
@@ -33,6 +34,7 @@ function Properties({ objectMetadata }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
+  const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   const query = useQuery();
@@ -99,24 +101,42 @@ function Properties({ objectMetadata }: Props) {
             <T.GroupContent>
               <T.Row>
                 <T.Key> Lock </T.Key>
-                <T.Value>
-                  {objectMetadata.lockStatus === 'LOCKED' && (
-                    <>
-                      Locked <i className="fa fa-lock"></i>(
-                      {objectMetadata.objectRetention.mode.toLowerCase()})
-                      <br />
-                      until {objectMetadata.objectRetention.retainUntilDate}
-                    </>
+                <T.GroupValues>
+                  <div>
+                    {objectMetadata.lockStatus === 'LOCKED' && (
+                      <>
+                        Locked <i className="fa fa-lock"></i>(
+                        {objectMetadata.objectRetention.mode.toLowerCase()})
+                        <br />
+                        until {objectMetadata.objectRetention.retainUntilDate}
+                      </>
+                    )}
+                    {objectMetadata.lockStatus === 'RELEASED' && (
+                      <>
+                        Released <i className="fa fa-lock-open"></i>
+                        <br />
+                        since {objectMetadata.objectRetention.retainUntilDate}
+                      </>
+                    )}
+                    {objectMetadata.lockStatus === 'NONE' && 'No retention'}
+                  </div>
+                  {bucketInfo?.objectLockConfiguration.ObjectLockEnabled ===
+                    'Enabled' && (
+                    <Button
+                      id="edit-object-retention-setting-btn"
+                      variant="outline"
+                      label="Edit"
+                      icon={<i className="fas fa-pencil-alt"></i>}
+                      onClick={() =>
+                        dispatch(
+                          push(
+                            `${pathname}/retention-setting?${query.toString()}`,
+                          ),
+                        )
+                      }
+                    />
                   )}
-                  {objectMetadata.lockStatus === 'RELEASED' && (
-                    <>
-                      Released <i className="fa fa-lock-open"></i>
-                      <br />
-                      since {objectMetadata.objectRetention.retainUntilDate}
-                    </>
-                  )}
-                  {objectMetadata.lockStatus === 'NONE' && 'No retention'}
-                </T.Value>
+                </T.GroupValues>
               </T.Row>
               {/* Display the legal hold when the object lock is enabled at bucket level */}
               {objectMetadata.lockStatus !== 'NONE' && (

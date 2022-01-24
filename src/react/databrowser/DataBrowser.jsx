@@ -14,6 +14,7 @@ import { Warning } from '../ui-elements/Warning';
 import { clearError } from '../actions';
 import { push } from 'connected-react-router';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
+import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -82,6 +83,11 @@ export default function DataBrowser() {
           exact
           path="/buckets/:bucketName/retention-setting"
           component={ObjectLockSetting}
+        />
+        <Route
+          exact
+          path="/buckets/:bucketName/objects/retention-setting"
+          component={ObjectLockSettingOnObject}
         />
         <Route
           exact

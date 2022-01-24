@@ -155,7 +155,7 @@ export const GroupValues = styled.div`
   display: flex;
   flex: 1 1 65%;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 `;
 
 export const ErrorContainer = styled.div`

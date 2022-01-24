@@ -172,6 +172,10 @@ export type ObjectMetadata = {|
   +eTag: string,
   +versionId: string,
   +isLegalHoldEnabled?: boolean,
+  +objectRetention?: {|
+    mode: RetentionMode,
+    retainUntilDate: string,
+  |},
   +metadata: MetadataItems,
   +tags: Tags,
 |};
