@@ -32,6 +32,17 @@ export default function Objects() {
   );
   const listType = useSelector((state: AppState) => state.s3.listObjectsType);
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
+  const isUploading = useSelector((state: AppState) => state.networkActivity.messages.includes('Uploading object(s)'));
+
+  /* this depends on onbeforeunload https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#browser_compatibility
+   it can't run custom modal or alert, and will display a generic message in all major up to date browser, that can't be customize
+   the string is mandatory to display the popup but will likely not be displayed */
+  window.onbeforeunload = function() {
+    if (isUploading) {
+      return 'If you quit the Data Browser, the current upload process will abort';
+    }
+   return;
+};
 
   const query = useQuery();
   const isShowVersions = query.get('showversions') === 'true';
