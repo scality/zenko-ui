@@ -54,9 +54,9 @@ export const HelpAsyncNotifPending = () => (
     tooltipWidth="16rem"
     tooltipMessage={
       <>
-        Enable Async Metadata updatess for this location <br />
+        Enable Async Metadata updates for this location <br />
         by choosing Enable Async Metadata updates while <br />
-        creating an Artesca bucket for this location.
+        creating a bucket for this location.
       </>
     }
   />
@@ -68,10 +68,10 @@ export const HelpLocationCreationAsyncNotification = () => (
     tooltipWidth="24rem"
     tooltipMessage={
       <>
-        ARTESCA is informed of updates and changes to the external Backend
-        (public cloud, RING or other) through an async notifier mechanism.
+        Your storage account is informed of updates and changes to the external Backend
+        (public cloud, RING or other) through an async metadata updater mechanism.
         <br />
-        ARTESCA will be able to view and manage all data on this backend without
+        It will be able to view and manage all data on this backend without
         being on the data path. <br />
         This maintains standard access from applications to the external
         Backend. <br />
