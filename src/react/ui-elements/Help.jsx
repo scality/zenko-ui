@@ -36,7 +36,7 @@ export const HelpAsyncNotification = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="Pause/resume Async Notification is handled at the location level."
+    tooltipMessage="Pause/resume Async Metadata updates is handled at the location level."
   />
 );
 
@@ -44,7 +44,7 @@ export const HelpNonAsyncLocation = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="Selected Storage Location does not support Async Notification."
+    tooltipMessage="Selected Storage Location does not support Async Metadata updates."
   />
 );
 
@@ -54,9 +54,9 @@ export const HelpAsyncNotifPending = () => (
     tooltipWidth="16rem"
     tooltipMessage={
       <>
-        Enable Async Notifications for this location <br />
-        by choosing Enable Async Notification while <br />
-        creating an Artesca bucket for this location.
+        Enable Async Metadata updates for this location <br />
+        by choosing Enable Async Metadata updates while <br />
+        creating a bucket for this location.
       </>
     }
   />
@@ -68,10 +68,10 @@ export const HelpLocationCreationAsyncNotification = () => (
     tooltipWidth="24rem"
     tooltipMessage={
       <>
-        ARTESCA is informed of updates and changes to the external Backend
-        (public cloud, RING or other) through an async notifier mechanism.
+        Your storage account is informed of updates and changes to the external Backend
+        (public cloud, RING or other) through an async metadata updater mechanism.
         <br />
-        ARTESCA will be able to view and manage all data on this backend without
+        It will be able to view and manage all data on this backend without
         being on the data path. <br />
         This maintains standard access from applications to the external
         Backend. <br />
@@ -103,7 +103,7 @@ export const HelpBucketCreateVersioning = ({
     tooltipMessage={`Automatically activated when 
     ${isObjectLockEnabled ? 'Object-lock' : ''} 
     ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''} 
-    ${isAsyncNotification ? 'Async Notification' : ''} 
+    ${isAsyncNotification ? 'Async Metadata updates' : ''} 
     is Enabled`}
   />
 );

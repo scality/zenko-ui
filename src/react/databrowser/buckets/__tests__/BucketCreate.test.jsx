@@ -123,7 +123,7 @@ describe('BucketCreate', () => {
     component.unmount();
   });
 
-  it('should toggle versioning and disable it when enabling Async Notification', async () => {
+  it('should toggle versioning and disable it when enabling Async Metadata updates', async () => {
     const component = await reduxMountAct(<BucketCreate />, { auth: { config: { features: [XDM_FEATURE] } } });
 
     await act(async () => {

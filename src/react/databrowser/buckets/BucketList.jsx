@@ -75,7 +75,7 @@ export default function BucketList({
 
     if (features.includes(XDM_FEATURE)) {
       columns.push({
-        Header: 'Async Notification',
+        Header: 'Async Metadata updates',
         accessor: 'LocationConstraint',
         id: 'ingestion',
         disableSortBy: true,

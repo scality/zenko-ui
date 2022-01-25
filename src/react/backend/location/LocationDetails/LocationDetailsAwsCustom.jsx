@@ -148,7 +148,7 @@ export default function LocationDetailsAwsCustom({
             {isIngest ? (
               <>
                 {' '}
-                Async Notification Ready{' '}
+                Async Metadata updates Ready{' '}
                 <HelpLocationCreationAsyncNotification />{' '}
               </>
             ) : (
