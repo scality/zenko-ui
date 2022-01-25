@@ -171,7 +171,7 @@ const IngestionCell = (
               disabled={loading}
               icon={<i className="far fa-pause-circle" />}
               tooltip={{
-                overlay: 'Async Notification is active, pause it.',
+                overlay: 'Async Metadata updates is active, pause it.',
                 placement: 'top',
               }}
               onClick={() => dispatch(pauseIngestionSite(locationName))}
@@ -188,7 +188,7 @@ const IngestionCell = (
               disabled={loading}
               icon={<i className="far fa-play-circle" />}
               tooltip={{
-                overlay: 'Async Notification is paused, resume it.',
+                overlay: 'Async Metadata updates is paused, resume it.',
                 placement: 'top',
               }}
               onClick={() => dispatch(resumeIngestionSite(locationName))}

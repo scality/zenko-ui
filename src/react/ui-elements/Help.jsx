@@ -36,7 +36,7 @@ export const HelpAsyncNotification = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="Pause/resume Async Notification is handled at the location level."
+    tooltipMessage="Pause/resume Async Metadata updates is handled at the location level."
   />
 );
 
@@ -44,7 +44,7 @@ export const HelpNonAsyncLocation = () => (
   <IconHelp
     placement="top"
     tooltipWidth="16rem"
-    tooltipMessage="Selected Storage Location does not support Async Notification."
+    tooltipMessage="Selected Storage Location does not support Async Metadata updates."
   />
 );
 
@@ -54,8 +54,8 @@ export const HelpAsyncNotifPending = () => (
     tooltipWidth="16rem"
     tooltipMessage={
       <>
-        Enable Async Notifications for this location <br />
-        by choosing Enable Async Notification while <br />
+        Enable Async Metadata updatess for this location <br />
+        by choosing Enable Async Metadata updates while <br />
         creating an Artesca bucket for this location.
       </>
     }
@@ -103,7 +103,7 @@ export const HelpBucketCreateVersioning = ({
     tooltipMessage={`Automatically activated when 
     ${isObjectLockEnabled ? 'Object-lock' : ''} 
     ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''} 
-    ${isAsyncNotification ? 'Async Notification' : ''} 
+    ${isAsyncNotification ? 'Async Metadata updates' : ''} 
     is Enabled`}
   />
 );

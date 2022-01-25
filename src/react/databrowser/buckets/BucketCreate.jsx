@@ -230,11 +230,11 @@ function BucketCreate() {
             {features.includes(XDM_FEATURE) && <F.Fieldset direction={'row'}>
               <F.Label
                 tooltipMessages={[
-                  'Enabling Async Notification automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
+                  'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
                 ]}
                 tooltipWidth="28rem"
               >
-                Async Notification
+                Async Metadata updates
               </F.Label>
               <Controller
                 control={control}

@@ -230,7 +230,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                 </T.Value>
               </T.Row>
               {features.includes(XDM_FEATURE) && <T.Row>
-                <T.Key> Async Notification </T.Key>
+                <T.Key> Async Metadata updates </T.Key>
                 <T.Value>
                   {ingestionValue}
                   {isIngestion && <HelpAsyncNotification />}

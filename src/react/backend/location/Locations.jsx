@@ -114,7 +114,7 @@ function Locations() {
     if (features.includes(XDM_FEATURE)) {
       columns.push({
         id: 'ingestion',
-        Header: 'Async Notification',
+        Header: 'Async Metadata updates',
         accessor: 'name',
         disableSortBy: true,
         cellStyle: { overflow: 'visible' },
