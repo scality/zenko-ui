@@ -7,7 +7,9 @@ import {
   getObjectMetadata,
   listObjects,
   resetObjectMetadata,
+  newSearchListing,
 } from '../../actions';
+import { UPLOADING_OBJECT } from '../../actions/s3object';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
@@ -21,7 +23,6 @@ import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { usePrefixWithSlash, useQuery } from '../../utils/hooks';
-import { newSearchListing } from '../../actions';
 export default function Objects() {
   const dispatch = useDispatch();
 
@@ -32,7 +33,9 @@ export default function Objects() {
   );
   const listType = useSelector((state: AppState) => state.s3.listObjectsType);
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
-  const isUploading = useSelector((state: AppState) => state.networkActivity.messages.includes('Uploading object(s)'));
+  const isUploading = useSelector((state: AppState) =>
+    state.networkActivity.messages.includes(UPLOADING_OBJECT),
+  );
 
   /* this depends on onbeforeunload https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload#browser_compatibility
    it can't run custom modal or alert, and will display a generic message in all major up to date browser, that can't be customize
@@ -41,8 +44,8 @@ export default function Objects() {
     if (isUploading) {
       return 'If you quit the Data Browser, the current upload process will abort';
     }
-   return;
-};
+    return;
+  };
 
   const query = useQuery();
   const isShowVersions = query.get('showversions') === 'true';
