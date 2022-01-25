@@ -37,7 +37,6 @@ const objectLockRetentionSettingsValidationRules = {
   }),
   retentionUntilDate: Joi.date()
     .format('YYYY-MM-DD')
-    .min('now')
     .raw(),
 };
 
@@ -74,6 +73,7 @@ export default function ObjectLockSetting() {
   }, [dispatch, bucketNameParam, objectKey, versionId]);
   const minRetainUtilDate = getDefaultMinRetainUntilDate(
     defaultRetentionUntilDate,
+    defaultRetentionMode,
   );
   const useFormMethods = useForm({
     mode: 'all',

@@ -18,7 +18,7 @@ function getDefaultRetention(objectMetadata: ObjectMetadata | null) {
 
 // input date format yyyy-mm-dd hh:mm:ss "2017-05-15 09:24:15"
 // get the min value for calendar picker in object retention setting, with yyyy-mm-dd as format
-function getDefaultMinRetainUntilDate(d: string): string {
+function getDefaultMinRetainUntilDate(d: string, mode: string): string {
   const futureDate = DateTime.now()
     .plus(Duration.fromObject({ days: 1 }))
     .toISODate();
@@ -27,11 +27,15 @@ function getDefaultMinRetainUntilDate(d: string): string {
     return futureDate;
   }
 
-  const previousRetainUntilNextDate = DateTime.fromSQL(d)
-    .plus(Duration.fromObject({ days: 1 }))
-    .toISODate();
-  return previousRetainUntilNextDate.valueOf() > futureDate.valueOf()
-    ? previousRetainUntilNextDate
+  // when we switch mode from "GOVERNANCE" to "COMPLIANCE", we should be able to keep the same previous retain date
+  const previousRetainUntilDate =
+    mode === 'GOVERNANCE'
+      ? DateTime.fromSQL(d).toISODate()
+      : DateTime.fromSQL(d)
+          .plus(Duration.fromObject({ days: 1 }))
+          .toISODate();
+  return previousRetainUntilDate.valueOf() > futureDate.valueOf()
+    ? previousRetainUntilDate
     : futureDate;
 }
 
