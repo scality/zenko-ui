@@ -85,6 +85,7 @@ function Configuration({
               label="Delete Workflow"
               variant="danger"
               onClick={handleOpenDeleteModal}
+              type="button"
             />
           </T.Header>
           <Replication
