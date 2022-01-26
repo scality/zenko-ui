@@ -1,4 +1,5 @@
 import * as actions from '../s3object';
+import { UPLOADING_OBJECT } from '../s3object';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
   AWS_CLIENT_ERROR_MSG,
@@ -29,7 +30,7 @@ const listObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Fetching objects',
 );
 const uploadObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Uploading object(s)',
+  UPLOADING_OBJECT,
 );
 const deleteFilesNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Deleting object(s)',

@@ -43,6 +43,8 @@ import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
 import { push } from 'connected-react-router';
 
+export const UPLOADING_OBJECT = 'Uploading object(s)';
+
 export function listObjectsSuccess(
   contents: Array<S3Object>,
   commonPrefixes: Array<CommonPrefix>,
@@ -449,7 +451,7 @@ export function uploadFiles(
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
     dispatch(closeObjectUploadModal());
-    dispatch(networkStart('Uploading object(s)'));
+    dispatch(networkStart(UPLOADING_OBJECT));
     return zenkoClient
       .uploadObject(bucketName, prefixWithSlash, files)
       .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
