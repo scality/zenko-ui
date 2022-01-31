@@ -1,4 +1,4 @@
-import BucketCreate from '../BucketCreate';
+import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { reduxMountAct } from '../../../utils/test';
@@ -47,25 +47,46 @@ describe('BucketCreate', () => {
       expectedEmptyNameError: ' "Name" is not allowed to be empty ',
       expectedMinLengthNameError: null,
       expectedMaxLengthNameError: null,
+      expectedPAtternNameError: null,
     },
     {
       description:
-        'should render an input form error when submitting with an name.length < 3',
+        'should render an input form error when submitting with a name.length < 3',
       testValue: 'ab',
       expectedEmptyNameError: null,
       expectedMinLengthNameError:
         ' "Name" length must be at least 3 characters long ',
       expectedMaxLengthNameError: null,
+      expectedPAtternNameError: null,
     },
     {
       description:
-        'should render an input form error when submitting with an name.length > 63',
+        'should render an input form error when submitting with a name.length > 63',
       testValue:
-        'Z4VbHlmEKC0a8n85FEneHN6EhBwFSkmSh4tGOKy53ktdmQlwq5xJVi7hm32jFuKB',
+        'z4vbhlmekc0a8n85fenehn6ehbwfskmsh4tgoky53ktdmqlwq5xjvi7hm32jfukb',
       expectedEmptyNameError: null,
       expectedMinLengthNameError: null,
+      expectedPAtternNameError: null,
       expectedMaxLengthNameError:
         ' "Name" length must be less than or equal to 63 characters long ',
+    },
+    {
+      description:
+        'should render an input form error when submitting with a name with uppercase letters',
+      testValue: 'dozA',
+      expectedEmptyNameError: null,
+      expectedMinLengthNameError: null,
+      expectedPAtternNameError: bucketErrorMessage,
+      expectedMaxLengthNameError: null,
+    },
+    {
+      description:
+        'should render an input form error when submitting with a name with special characters',
+      testValue: 'doz_',
+      expectedEmptyNameError: null,
+      expectedMinLengthNameError: null,
+      expectedPAtternNameError: bucketErrorMessage,
+      expectedMaxLengthNameError: null,
     },
   ];
 
@@ -92,6 +113,10 @@ describe('BucketCreate', () => {
       } else if (t.expectedMaxLengthNameError !== null) {
         expect(component.find('ErrorInput#error-name').text()).toContain(
           t.expectedMaxLengthNameError,
+        );
+      } else if (t.expectedPAtternNameError !== null) {
+        expect(component.find('ErrorInput#error-name').text()).toContain(
+          t.expectedPAtternNameError,
         );
       }
       component.unmount();
@@ -124,7 +149,9 @@ describe('BucketCreate', () => {
   });
 
   it('should toggle versioning and disable it when enabling Async Metadata updates', async () => {
-    const component = await reduxMountAct(<BucketCreate />, { auth: { config: { features: [XDM_FEATURE] } } });
+    const component = await reduxMountAct(<BucketCreate />, {
+      auth: { config: { features: [XDM_FEATURE] } },
+    });
 
     await act(async () => {
       const input = component.find('input#name');

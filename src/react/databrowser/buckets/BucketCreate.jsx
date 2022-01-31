@@ -25,11 +25,15 @@ import ObjectLockRetentionSettings, {
 } from './ObjectLockRetentionSettings';
 import { XDM_FEATURE } from '../../../js/config';
 
+export const bucketErrorMessage =
+  'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
+
 const schema = Joi.object({
   name: Joi.string()
     .label('Name')
     .required()
     .min(3)
+    .pattern(/^[a-z0-9.-]+$/)
     .max(63),
   locationName: Joi.string().required(),
   isVersioning: Joi.boolean(),
@@ -174,8 +178,9 @@ function BucketCreate() {
                 tooltipMessages={[
                   'Must be unique',
                   'Cannot be modified after creation',
+                  bucketErrorMessage,
                 ]}
-                tooltipWidth="15rem"
+                tooltipWidth="20rem"
               >
                 Bucket Name*
               </F.Label>
@@ -190,7 +195,9 @@ function BucketCreate() {
               />
               <F.ErrorInput id="error-name" hasError={errors.name}>
                 {' '}
-                {errors.name?.message}{' '}
+                {errors.name?.type === 'string.pattern.base'
+                  ? bucketErrorMessage
+                  : errors.name?.message}{' '}
               </F.ErrorInput>
             </F.Fieldset>
             <F.Fieldset>
@@ -227,44 +234,46 @@ function BucketCreate() {
                 }}
               />
             </F.Fieldset>
-            {features.includes(XDM_FEATURE) && <F.Fieldset direction={'row'}>
-              <F.Label
-                tooltipMessages={[
-                  'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
-                ]}
-                tooltipWidth="28rem"
-              >
-                Async Metadata updates
-              </F.Label>
-              <Controller
-                control={control}
-                id="isAsyncNotification"
-                name="isAsyncNotification"
-                defaultValue={false}
-                render={({ onChange, value: isAsyncNotification }) => {
-                  return (
-                    <>
-                      <Toggle
-                        disabled={!isAsyncNotificationReady}
-                        onChange={e => {
-                          onChange(e.target.checked);
-                          matchVersioning(e.target.checked);
-                        }}
-                        label={isAsyncNotification ? 'Enabled' : 'Disabled'}
-                        toggle={isAsyncNotification}
-                        placeholder="isAsyncNotification"
-                      />
-                      {watchLocationName &&
-                        isAsyncNotificationReady &&
-                        isAsyncNotification && <HelpAsyncNotification />}
-                    </>
-                  );
-                }}
-              />
-              {watchLocationName && !isAsyncNotificationReady && (
-                <HelpNonAsyncLocation />
-              )}
-            </F.Fieldset>}
+            {features.includes(XDM_FEATURE) && (
+              <F.Fieldset direction={'row'}>
+                <F.Label
+                  tooltipMessages={[
+                    'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
+                  ]}
+                  tooltipWidth="28rem"
+                >
+                  Async Metadata updates
+                </F.Label>
+                <Controller
+                  control={control}
+                  id="isAsyncNotification"
+                  name="isAsyncNotification"
+                  defaultValue={false}
+                  render={({ onChange, value: isAsyncNotification }) => {
+                    return (
+                      <>
+                        <Toggle
+                          disabled={!isAsyncNotificationReady}
+                          onChange={e => {
+                            onChange(e.target.checked);
+                            matchVersioning(e.target.checked);
+                          }}
+                          label={isAsyncNotification ? 'Enabled' : 'Disabled'}
+                          toggle={isAsyncNotification}
+                          placeholder="isAsyncNotification"
+                        />
+                        {watchLocationName &&
+                          isAsyncNotificationReady &&
+                          isAsyncNotification && <HelpAsyncNotification />}
+                      </>
+                    );
+                  }}
+                />
+                {watchLocationName && !isAsyncNotificationReady && (
+                  <HelpNonAsyncLocation />
+                )}
+              </F.Fieldset>
+            )}
             <F.SessionSeperation />
             <F.Fieldset direction={'row'}>
               <F.Label>Versioning</F.Label>
