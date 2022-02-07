@@ -10,6 +10,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
+import AccountContent from './account/AccountContent';
 import type { AppState } from '../types/state';
 import DataBrowser from './databrowser/DataBrowser';
 import EndpointCreate from './endpoint/EndpointCreate';
@@ -64,7 +65,8 @@ function PrivateRoutes() {
       <Route exact path="/create-location" component={LocationEditor} />
       <Route path="/locations/:locationName/edit" component={LocationEditor} />
 
-      <Route path="/accounts/:accountName?" component={Accounts} />
+      <Route path="/accounts" exact component={Accounts} />
+      <Route path="/accounts/:accountName?" component={AccountContent} />
       <Route path="/create-account" component={AccountCreate} />
 
       <Route
