@@ -1,4 +1,5 @@
 // @flow
+import { useTheme } from 'styled-components';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Locations from '../backend/location/Locations';
@@ -20,13 +21,22 @@ const NotFound = () => (
 
 function AccountDetails({ account }: Props) {
   const { url } = useRouteMatch();
+  const theme = useTheme();
 
   if (!account) {
     return <NotFound />;
   }
+  const customTabStyle = {
+    inactiveTabColor: theme.brand.backgroundLevel2,
+    activeTabColor: theme.brand.backgroundLevel3,
+    tabContentColor: theme.brand.backgroundLevel3,
+  };
 
   return (
-    <CustomTabs>
+    <CustomTabs
+      {...customTabStyle}
+      style={{ backgroundColor: theme.brand.backgroundLevel2 }}
+    >
       <CustomTabs.Tab exact label="Properties" path={url}>
         <Properties account={account} />
       </CustomTabs.Tab>
