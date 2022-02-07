@@ -5,11 +5,12 @@ import { Redirect, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import BucketDetails from './BucketDetails';
-import BucketHead from './BucketHead';
 import BucketList from './BucketList';
 import { EmptyStateContainer } from '../../ui-elements/Container';
+import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
+import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
 
 export default function Buckets() {
   const dispatch = useDispatch();
@@ -21,7 +22,8 @@ export default function Buckets() {
     (state: AppState) => state.configuration.latest.locations,
   );
   const ingestionStates = useSelector(
-    (state: AppState) => state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
+    (state: AppState) =>
+      state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
   const { bucketName: bucketNameParam } = useParams();
   const bucketIndex = useMemo(
@@ -52,7 +54,11 @@ export default function Buckets() {
 
   return (
     <L.ContentContainer>
-      <BucketHead buckets={buckets} />
+      <Header
+        icon={<img src={MultiBucketsLogo} alt="Multi Buckets Logo" />}
+        headTitle={'All Buckets'}
+        numInstance={buckets ? buckets.size : 0}
+      />
       <L.Body>
         <BucketList
           selectedBucketName={bucketNameParam}
