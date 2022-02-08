@@ -1,159 +1,92 @@
 // @flow
-import MemoRow, { createItemData } from './AccountRow';
-import React, { useEffect, useRef } from 'react';
-import Table, * as T from '../ui-elements/Table';
-import { useFilters, useSortBy, useTable } from 'react-table';
-import type { Account } from '../../types/account';
-import { AutoSizer } from 'react-virtualized';
-import { FixedSizeList } from 'react-window';
-import { ListSection } from '../ui-elements/ListLayout';
-import { TextAligner } from '../ui-elements/Utility';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { formatSimpleDate } from '../utils';
-import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
+import styled from 'styled-components';
+import { padding, spacing } from '@scality/core-ui/dist/style/theme';
+import { Button } from '@scality/core-ui/dist/next';
+import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import type { Account } from '../../types/account';
+import { formatSimpleDate } from '../utils';
 
-const handleSortClick = (column, listRef) => {
-  if (listRef && listRef.current) {
-    listRef.current.scrollToItem(0);
+const NameLinkContaner = styled.div`
+  text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
   }
-  column.toggleSortBy();
-};
+  padding-right: ${padding.small};
+  color: ${props => props.theme.brand.selectedActive};
+`;
 
-const columns = [
-  {
-    Header: 'Account Name',
-    accessor: 'userName',
-  },
-  {
-    Header: 'Created on',
-    accessor: 'createDate',
-    headerStyle: { textAlign: 'right' },
-    Cell({ value: date }: { value: number }) {
-      return (
-        <TextAligner alignment="right">
-          {formatSimpleDate(new Date(date))}
-        </TextAligner>
-      );
-    },
-  },
-];
+const TableAction = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: ${spacing.sp16};
+`;
 
 type Props = {
-  accountList: Array<Account>,
-  accountIndex: number,
+  accounts: Array<Account>,
 };
-function AccountList({ accountList, accountIndex }: Props) {
+function AccountList({ accounts }: Props) {
   const dispatch = useDispatch();
-  const { accountName: accountNameParam } = useParams();
-  const listRef = useRef<FixedSizeList<T> | null>(null);
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    setFilter,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data: accountList,
-      disableSortRemove: true,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-    },
-    useFilters,
-    useSortBy,
-  );
+  const nameCell = ({ value }) => {
+    return (
+      <NameLinkContaner onClick={() => dispatch(push(`/accounts/${value}`))}>
+        {value}
+      </NameLinkContaner>
+    );
+  };
 
-  useEffect(() => {
-    if (listRef && listRef.current && accountIndex > -1) {
-      listRef.current.scrollToItem(accountIndex, 'smart');
-    }
-    // Omitting accountIndex on purpose in dependencies
-    // We want to scroll to the selected item only once on mount.
-    // eslint-disable-next-line
-  }, [listRef]);
+  const createDateCell = ({ value }) => {
+    return <div>{formatSimpleDate(new Date(value))}</div>;
+  };
+
+  const columns = React.useMemo(() => {
+    return [
+      {
+        Header: 'Account Name',
+        accessor: 'userName',
+        cellStyle: {
+          minWidth: '20rem',
+        },
+        Cell: value => nameCell(value),
+      },
+      {
+        Header: 'Created on',
+        accessor: 'createDate',
+        cellStyle: {
+          textAlign: 'right',
+          minWidth: '7rem',
+        },
+        Cell: value => createDateCell(value),
+      },
+    ];
+  }, [nameCell]);
 
   return (
-    <ListSection id="account-list">
-      <T.SearchContainer>
-        <T.Search>
-          <T.SearchInput
-            disableToggle={true}
-            placeholder="Search by Account Name"
-            onChange={e => setFilter('userName', e.target.value)}
+    <div style={{ padding: `${spacing.sp16}`, height: '100%' }}>
+      <Table columns={columns} data={accounts} defaultSortingKey={'createDate'}>
+        <TableAction>
+          <Table.SearchWithQueryParams
+            displayedName={{ singular: 'account', plural: 'accounts' }}
           />
-        </T.Search>
-        <T.ExtraButton
-          icon={<i className="fas fa-plus" />}
-          label="Create Account"
-          variant="primary"
-          onClick={() => dispatch(push('/create-account'))}
-          type="submit"
+          <Button
+            icon={<i className="fas fa-plus" />}
+            label="Create Account"
+            variant="primary"
+            onClick={() => dispatch(push('/create-account'))}
+            type="submit"
+          ></Button>
+        </TableAction>
+        <Table.SingleSelectableContent
+          rowHeight="h40"
+          separationLineVariant="backgroundLevel1"
+          backgroundVariant="backgroundLevel3"
         />
-      </T.SearchContainer>
-      <T.Container>
-        <Table {...getTableProps()}>
-          <T.Head>
-            {headerGroups.map(headerGroup => (
-              <T.HeadRow
-                key={headerGroup.id}
-                {...headerGroup.getHeaderGroupProps()}
-              >
-                {headerGroup.headers.map(column => (
-                  <T.HeadCell
-                    onClick={() => handleSortClick(column, listRef)}
-                    key={column.id}
-                    {...column.getHeaderProps()}
-                    style={{ ...column.headerStyle }}
-                  >
-                    {column.render('Header')}
-                    <T.Icon>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <i className="fas fa-sort-down" />
-                        ) : (
-                          <i className="fas fa-sort-up" />
-                        )
-                      ) : (
-                        <i className="fas fa-sort" />
-                      )}
-                    </T.Icon>
-                  </T.HeadCell>
-                ))}
-              </T.HeadRow>
-            ))}
-          </T.Head>
-          <T.BodyWindowing {...getTableBodyProps()}>
-            <AutoSizer>
-              {({ height, width }) => (
-                // ISSUE: https://github.com/bvaughn/react-window/issues/504
-                // eslint-disable-next-line flowtype-errors/show-errors
-                <FixedSizeList
-                  ref={listRef}
-                  height={height || 300}
-                  itemCount={rows.length}
-                  itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
-                  width={width || '100%'}
-                  itemData={createItemData(
-                    rows,
-                    prepareRow,
-                    accountNameParam,
-                    dispatch,
-                  )}
-                >
-                  {MemoRow}
-                </FixedSizeList>
-              )}
-            </AutoSizer>
-          </T.BodyWindowing>
-        </Table>
-      </T.Container>
-    </ListSection>
+      </Table>
+    </div>
   );
 }
 

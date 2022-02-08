@@ -1,6 +1,6 @@
 import router, { Redirect } from 'react-router';
 import BucketDetails from '../BucketDetails';
-import BucketHead from '../BucketHead';
+import Header from '../../../ui-elements/EntityHeader';
 import BucketList from '../BucketList';
 import Buckets from '../Buckets';
 import { List } from 'immutable';
@@ -66,7 +66,7 @@ describe('Buckets', () => {
       },
     );
 
-    expect(component.find(BucketHead)).toHaveLength(1);
+    expect(component.find(Header)).toHaveLength(1);
     expect(component.find(BucketList)).toHaveLength(1);
     expect(component.find(BucketDetails)).toHaveLength(1);
   });

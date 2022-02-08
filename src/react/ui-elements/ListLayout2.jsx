@@ -35,10 +35,9 @@ export const ContentContainer = styled.div`
 export const Head = styled.div`
   display: flex;
   min-height: 80px;
-
   padding: ${spacing.sp16};
   padding-left: ${spacing.sp32};
-  background-color: ${props => props.theme.brand.backgroundLevel3};
+  background-color: ${props => props.theme.brand.backgroundLevel2};
 `;
 
 export const HeadContainer = styled.div`

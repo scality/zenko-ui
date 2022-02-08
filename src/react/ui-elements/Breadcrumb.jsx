@@ -31,6 +31,14 @@ const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   }
 `;
 
+const BaseBreadCrumb = styled(CoreUIBreadcrumb)`
+  .sc-breadcrumb_item {
+    display: flex;
+    align-items: center;
+    ${ellipsis('16rem')}
+  }
+`;
+
 const breadcrumbPaths = (
   pathname: string,
   prefixPath: string,
@@ -225,4 +233,36 @@ export function BreadcrumbWorkflow({
       ]}
     />
   );
+}
+
+export function BreadcrumbAccount({ pathname }: { pathname: string }) {
+  const matchAccountRoute = matchPath(pathname, {
+    path: '/accounts/:accountName',
+  });
+  if (matchAccountRoute) {
+    return (
+      <BaseBreadCrumb
+        paths={[
+          <label key="accounts">
+            <Link to={{ pathname: '/accounts' }}> All Accounts </Link>
+          </label>,
+          <label key="account-name">
+            {matchAccountRoute.params.accountName}
+          </label>,
+        ]}
+      ></BaseBreadCrumb>
+    );
+  }
+
+  const matchAllAccountsRoute = matchPath(pathname, {
+    path: '/accounts/',
+  });
+  if (matchAllAccountsRoute) {
+    return (
+      <BaseBreadCrumb
+        paths={[<label key="accounts">All Accounts</label>]}
+      ></BaseBreadCrumb>
+    );
+  }
+  return [];
 }

@@ -55,7 +55,7 @@ export const Head = styled.div`
 
   min-height: 80px;
   padding: ${spacing.sp16};
-  background-color: ${props => props.theme.brand.backgroundLevel3};
+  background-color: ${props => props.theme.brand.backgroundLevel2};
 `;
 
 export const HeadLeft = styled.div`
@@ -81,7 +81,7 @@ export const HeadRight = styled.div`
 `;
 
 export const IconCircle = styled.i`
-  color: ${props => props.theme.brand.statusHealthy};
+  color: ${props => props.theme.brand.infoPrimary};
   background-color: ${props => props.theme.brand.backgroundLevel1};
   border-radius: 100%;
   border: ${spacing.sp1} solid ${props => props.theme.brand.infoPrimary};
