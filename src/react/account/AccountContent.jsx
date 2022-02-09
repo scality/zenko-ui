@@ -1,15 +1,24 @@
 // @flow
 import React, { useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import {
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import * as L from '../ui-elements/ListLayout5';
 import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
 import type { AppState } from '../../types/state';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
+import AccountCreateUser from './AccountCreateUser';
+import AccountUserAccessKeys from './AccountUserAccessKeys';
 
 function AccountContent() {
   const { accountName: accountNameParam } = useParams();
+  const { url } = useRouteMatch();
   const { pathname } = useLocation();
   const accounts = useSelector(
     (state: AppState) => state.configuration.latest.users,
@@ -22,13 +31,23 @@ function AccountContent() {
 
   return (
     <L.Container>
-      <L.BreadcrumbContainer>
-        <BreadcrumbAccount pathname={pathname} />
-      </L.BreadcrumbContainer>
-      <AccountHead />
-      <L.Content>
-        <AccountDetails account={account} />
-      </L.Content>
+      <Switch>
+        <Route path={`${url}/create-user`}>
+          <AccountCreateUser />
+        </Route>
+        <Route path={`${url}/users/:IAMUserName/access-keys`}>
+          <AccountUserAccessKeys />
+        </Route>
+        <Route>
+          <L.BreadcrumbContainer>
+            <BreadcrumbAccount pathname={pathname} />
+          </L.BreadcrumbContainer>
+          <AccountHead />
+          <L.Content>
+            <AccountDetails account={account} />
+          </L.Content>
+        </Route>
+      </Switch>
     </L.Container>
   );
 }

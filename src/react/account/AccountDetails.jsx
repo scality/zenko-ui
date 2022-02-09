@@ -1,12 +1,14 @@
 // @flow
 import { useTheme } from 'styled-components';
+import React from 'react';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Locations from '../backend/location/Locations';
 import Properties from './details/Properties';
-import React from 'react';
+
 import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch } from 'react-router-dom';
+import AccountUserList from './AccountUserList';
 
 type Props = {
   account: ?Account,
@@ -20,8 +22,9 @@ const NotFound = () => (
 );
 
 function AccountDetails({ account }: Props) {
-  const { url } = useRouteMatch();
   const theme = useTheme();
+  const routeMatch = useRouteMatch();
+  const url = routeMatch.url.replace(/\/$/, '');
 
   if (!account) {
     return <NotFound />;
@@ -42,6 +45,9 @@ function AccountDetails({ account }: Props) {
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
         <Locations />
+      </CustomTabs.Tab>
+      <CustomTabs.Tab label="Users" path={`${url}/users`}>
+        <AccountUserList />
       </CustomTabs.Tab>
     </CustomTabs>
   );
