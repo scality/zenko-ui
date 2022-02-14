@@ -14,7 +14,7 @@ import type {
   RetentionMode,
 } from './s3';
 import type { ConfigurationOverlay, Hostname, LocationName } from './config';
-import type { InstanceStatus, StatsSeries } from './stats';
+import type { InstanceStatus } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { APIWorkflows } from './workflow';
 import type { AppState } from './state';

@@ -16,7 +16,6 @@ import type {
 import {
   handleErrorMessage,
   loadInstanceLatestStatus,
-  loadInstanceStats,
   networkAuthFailure,
   selectAccountID,
   setZenkoClient,

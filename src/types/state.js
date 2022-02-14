@@ -9,7 +9,7 @@ import type {
   ObjectMetadata,
   S3BucketList,
 } from './s3';
-import type { BucketList, InstanceStatus, StatsSeries } from './stats';
+import type { BucketList, InstanceStatus } from './stats';
 import type {
   ConfigurationOverlay,
   Hostname,
@@ -95,7 +95,6 @@ export type LocationsUIState = {|
 
 export type StatsState = {|
   +bucketList: BucketList,
-  +allStats: StatsSeries,
 |};
 
 export type ConfigUIState = {|

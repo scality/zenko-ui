@@ -1,6 +1,5 @@
 // @flow
 import type { ConfigurationOverlay, PerLocationMap } from './config';
-import { Seq } from 'immutable';
 
 export type CrrCounter = {|
   +count: number,
@@ -92,35 +91,6 @@ export type MetricsUnit = {|
   memory?: MemoryUnit,
   'crr-schedule'?: CrrScheduleUnit,
   'ingest-schedule'?: IngestScheduleUnit,
-|};
-
-export type StatsSeries = {|
-  +timestamps: Seq.Indexed<string>,
-  +stats: {|
-    +'item-counts': {|
-      +bucketList: BucketList,
-      +buckets: Array<number>,
-      +versions: Array<number>,
-      +objects: Array<number>,
-      +dataManaged: Array<DataManagedUnit>,
-    |},
-    +cpu: Array<number>,
-    +memory: {|
-      +free: Array<number>,
-      +total: Array<number>,
-    |},
-    +'data-disk-usage': {|
-      +total: Array<number>,
-      +available: Array<number>,
-    |},
-    +'crr-stats': {|
-      +completions: Array<CrrCounter>,
-      +throughput: Array<CrrCounter>,
-      +backlog: Array<CrrCounter>,
-      +stalled: Array<CrrCounter>,
-      +pending: Array<CrrCounter>,
-    |},
-  |},
 |};
 
 export type InstanceStateSnapshot = {|
