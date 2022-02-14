@@ -27,9 +27,11 @@ export function handleAWSError(
   error: AWSError,
   errorType: ErrorViewType,
 ): HandleErrorAction {
+  const errorMsg = `${error.message} Prefixes, objects or orphan delete markers are still present.`;
+
   return {
     type: 'HANDLE_ERROR',
-    errorMsg: error.message,
+    errorMsg: error.code === 'BucketNotEmpty' ? errorMsg : error.message,
     errorType,
   };
 }
