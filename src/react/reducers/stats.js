@@ -17,14 +17,6 @@ export default function stats(
         bucketList,
       };
     }
-    case 'RECEIVE_INSTANCE_STATS':
-      if (!action.stats) {
-        return state;
-      }
-      return {
-        ...state,
-        allStats: action.stats,
-      };
     default:
       return state;
   }

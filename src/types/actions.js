@@ -373,12 +373,7 @@ export type LocationUIAction =
   | OpenLocationDeleteDialogAction
   | CloseLocationDeleteDialogAction;
 
-export type ReceiveInstanceStatsAction = {|
-  +type: 'RECEIVE_INSTANCE_STATS',
-  +stats: StatsSeries,
-|};
-
-export type StatsAction = InstanceStatusAction | ReceiveInstanceStatsAction;
+export type StatsAction = InstanceStatusAction;
 
 export type CloseWorkflowEditNotificationAction = {|
   +type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',

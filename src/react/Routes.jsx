@@ -2,11 +2,7 @@
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import React, { useEffect } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import {
-  loadClients,
-  loadInstanceLatestStatus,
-  loadInstanceStats,
-} from './actions';
+import { loadClients, loadInstanceLatestStatus } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
@@ -42,15 +38,8 @@ function PrivateRoutes() {
           dispatch(loadInstanceLatestStatus());
         }
       }, 10000);
-      const refreshIntervalStatsSeries = setInterval(() => {
-        const currentTime = Math.floor(Date.now() / 1000);
-        if (user.expires_at >= currentTime) {
-          dispatch(loadInstanceStats());
-        }
-      }, 10000);
       return () => {
         clearInterval(refreshIntervalStatsUnit);
-        clearInterval(refreshIntervalStatsSeries);
       };
     }
   }, [dispatch, user]);

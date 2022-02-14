@@ -140,7 +140,6 @@ export function loadClients(): ThunkStatePromisedAction {
         return Promise.all([
           dispatch(updateConfiguration()),
           dispatch(loadInstanceLatestStatus()),
-          dispatch(loadInstanceStats()),
         ]);
       })
       .then(() => dispatch(selectAccountID()))

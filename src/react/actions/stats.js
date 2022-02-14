@@ -10,26 +10,6 @@ export function instanceStatus(status: InstanceStatus): InstanceStatusAction {
   };
 }
 
-export function receiveInstanceStats(stats) {
-  return {
-    type: 'RECEIVE_INSTANCE_STATS',
-    stats,
-  };
-}
-
-export function loadInstanceStats() {
-  return (dispatch, getState) => {
-    const { managementClient, instanceId } = getClients(getState());
-    return managementClient
-      .getInstanceStats({ uuid: instanceId })
-      .then(res => {
-        dispatch(receiveInstanceStats(res.body));
-      })
-      .catch(error => dispatch(handleClientError(error)))
-      .catch(() => {}); //? silence handleClientError if not an auth error
-  };
-}
-
 export function loadInstanceLatestStatus() {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
