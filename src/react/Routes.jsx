@@ -37,7 +37,7 @@ function PrivateRoutes() {
         if (user.expires_at >= currentTime) {
           dispatch(loadInstanceLatestStatus());
         }
-      }, 10000);
+      }, 30000);
       return () => {
         clearInterval(refreshIntervalStatsUnit);
       };
