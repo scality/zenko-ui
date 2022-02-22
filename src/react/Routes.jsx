@@ -18,6 +18,7 @@ import NoMatch from './NoMatch';
 import Workflows from './workflow/Workflows';
 import IAMProvider from './IAMProvider';
 
+// $FlowFixMe
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
 

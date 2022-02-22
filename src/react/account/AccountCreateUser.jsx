@@ -1,7 +1,12 @@
 // @flow
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import React, { useRef } from 'react';
-import { clearError, networkEnd, networkStart } from '../actions';
+import {
+  clearError,
+  handleErrorMessage,
+  networkEnd,
+  networkStart,
+} from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Banner } from '@scality/core-ui';
@@ -15,7 +20,7 @@ import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
 import { queryClient } from '../App';
 import { useMutation } from 'react-query';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 
@@ -36,14 +41,16 @@ const AccountCreateUser = () => {
   const { register, handleSubmit, errors } = useForm({
     resolver: joiResolver(schema),
   });
-
+  const { accountName } = useParams();
   const createAccessKeyMutation = useMutation(userName => {
     dispatch(networkStart('Creating User'));
     return IAMClient.createUser(userName)
       .then(() => {
-        queryClient.invalidateQueries('listIAMClient');
-        // invalidate stuff
-        // handle error ?
+        queryClient.invalidateQueries(['listIAMUsers', accountName]);
+      })
+      .catch(() => {
+        const str = 'An error occurred during the user creation.';
+        dispatch(handleErrorMessage(str, 'byModal'));
       })
       .finally(() => {
         dispatch(networkEnd());

@@ -6,9 +6,9 @@ import {
   useParams,
   useRouteMatch,
 } from 'react-router-dom';
-import styled from 'styled-components';
 import { Table, Button } from '@scality/core-ui/dist/next';
-
+import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import * as L from '../ui-elements/ListLayout5';
 import {
@@ -19,15 +19,29 @@ import {
   IconCircle,
 } from '../ui-elements/ListLayout';
 import { useIAMClient } from '../IAMProvider';
-import { useQuery } from 'react-query';
 import { formatSimpleDate } from '../utils';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
+import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
+import {
+  useAwsPaginatedEntities,
+  useAccessKeyOutdatedStatus,
+} from '../utils/IAMhooks';
+import { Tooltip } from '@scality/core-ui';
+import { useTheme } from 'styled-components';
 
-const TableHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+const CreatedOnCell = rowValue => {
+  const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
+  return (
+    <div>
+      {outdatedAlert ? (
+        <Tooltip overlay={outdatedAlert} overlayStyle={{ width: '20rem' }}>
+          <Icon name={'Exclamation-circle'} color={'statusWarning'} />
+        </Tooltip>
+      ) : null}
+      {rowValue.createdOn}
+    </div>
+  );
+};
 
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
@@ -35,51 +49,66 @@ const AccountUserAccessKeys = () => {
   const history = useHistory();
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
+  const theme = useTheme();
 
-  // IAMClient.listAccessKeys(user.UserName)
-  const accessKeysQuery = useQuery({
-    queryKey: ['listIAMClientUserAccessKeys', IAMUserName],
-    queryFn: () => {
-      return IAMClient.listAccessKeys(IAMUserName);
+  const {
+    data: accessKeysResult,
+    status: accessKeysStatus,
+  } = useAwsPaginatedEntities(
+    {
+      queryKey: ['listIAMUserAccessKey', IAMUserName],
+      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(IAMUserName, marker),
+      enabled: IAMClient !== null,
     },
-    enabled: IAMClient !== null,
-  });
-
-  const columns = useMemo(() => {
-    return [
-      {
-        Header: 'Access Keys',
-        accessor: 'accessKey',
-        cellStyle: {
-          minWidth: '20rem',
-        },
-      },
-      {
-        Header: 'Created On',
-        accessor: 'createdOn',
-      },
-      {
-        Header: 'Status',
-        accessor: 'status',
-      },
-    ];
-  }, []);
+    data => data.AccessKeyMetadata,
+  );
 
   const data = useMemo(() => {
-    return (
-      accessKeysQuery.data?.AccessKeyMetadata?.map(accesskey => {
-        const createdOn = formatSimpleDate(accesskey.CreateDate);
+    if (accessKeysStatus === 'success') {
+      return accessKeysResult.map(accesskey => {
         return {
           accessKey: accesskey.AccessKeyId,
-          createdOn: createdOn,
+          createdOn: formatSimpleDate(accesskey.CreateDate),
           status: accesskey.Status,
         };
-      }) ?? []
-    );
-  }, [accessKeysQuery.data]);
+      });
+    } else {
+      return [];
+    }
+  }, [accessKeysStatus, accessKeysResult]);
+
+  const columns = [
+    {
+      Header: 'Access Keys',
+      accessor: 'accessKey',
+      cellStyle: {
+        minWidth: '20rem',
+      },
+    },
+    {
+      Header: 'Created On',
+      accessor: 'createdOn',
+      Cell: value => CreatedOnCell(value.row.original),
+      cellStyle: {
+        minWidth: '10rem',
+        textAlign: 'right',
+        paddingRight: spacing.sp32,
+      },
+    },
+    {
+      Header: 'Status',
+      accessor: 'status',
+    },
+  ];
 
   return (
-    <div style={{ height: '100%' }}>
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <L.BreadcrumbContainer>
         <BreadcrumbAccount pathname={pathname} />
       </L.BreadcrumbContainer>
@@ -93,15 +122,15 @@ const AccountUserAccessKeys = () => {
         </HeadCenter>
       </Head>
 
-      <div style={{ height: '100%' }}>
+      <div style={{ flex: 1, backgroundColor: theme.brand.backgroundLevel3 }}>
         <Table columns={columns} data={data} defaultSortingKey={'health'}>
-          <TableHeader>
-            <Table.SearchWithQueryParams
-              displayedName={{
-                singular: 'person',
-                plural: 'persons',
-              }}
-            />
+          <TableHeader
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              paddingTop: spacing.sp16,
+            }}
+          >
             <Button
               icon={<i className="fas fa-plus" />}
               label="Create Access Keys"
@@ -112,8 +141,8 @@ const AccountUserAccessKeys = () => {
           </TableHeader>
           <Table.SingleSelectableContent
             rowHeight="h40"
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            separationLineVariant="backgroundLevel1"
+            backgroundVariant="backgroundLevel3"
           />
         </Table>
       </div>

@@ -1,10 +1,12 @@
-import React, { createContext, useContext, useState } from 'react';
+//@flow
+import React, { createContext, useContext } from 'react';
+import type { Node } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
+import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
 
-const IAMContext = createContext(null);
+const IAMContext = createContext<null | IAMClient>(null);
 
 export const useIAMClient = () => {
   const IAMCtxt = useContext(IAMContext);
@@ -18,25 +20,18 @@ export const useIAMClient = () => {
   return IAMCtxt.iamClient;
 };
 
-const IAMProvider = ({ children }) => {
+const IAMProvider = ({ children }: { children: Node }) => {
   const { accountName } = useParams();
-  const [IAMClient, setIAMClient] = useState(null);
   const state = useSelector(state => state);
 
-  useQuery({
-    queryKey: ['updateIAMClient', accountName],
-    queryFn: () => {
-      return getAssumeRoleWithWebIdentityIAM(state, accountName).then(
-        iamClient => {
-          setIAMClient(iamClient);
-        },
-      );
-    },
+  const { data: IAMClientResult } = useQuery({
+    queryKey: ['IAMClient', accountName],
+    queryFn: () => getAssumeRoleWithWebIdentityIAM(state, accountName),
     enabled: accountName && accountName !== '',
   });
 
   return (
-    <IAMContext.Provider value={{ iamClient: IAMClient }}>
+    <IAMContext.Provider value={{ iamClient: IAMClientResult || null }}>
       {children}
     </IAMContext.Provider>
   );

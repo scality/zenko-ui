@@ -1,14 +1,7 @@
 // @flow
-import type { Account, AccountKey } from '../../types/account';
+import type { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
-import {
-  closeAccountKeyCreateModal,
-  createAccountAccessKey,
-  deleteAccountSecret,
-} from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
@@ -29,23 +22,25 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   const IAMClient = useIAMClient();
   const [newKey, setNewKey] = useState(null);
 
-  const createAccessKeyMutation = useMutation(userName => {
-    return IAMClient.createAccessKey(userName).then(res => {
-      const newKey = {
-        accountName: res.AccessKey.UserName,
-        accessKey: res.AccessKey.AccessKeyId,
-        secretKey: res.AccessKey.SecretAccessKey,
-      };
-      setNewKey(newKey);
-      queryClient.invalidateQueries('listIAMClientUserAccessKeys');
-      // invalidate stuff
-    });
-  });
+  const createAccessKeyMutation = useMutation(
+    userName => {
+      return IAMClient.createAccessKey(userName).then(res => {
+        const newKey = {
+          accountName: res.AccessKey.UserName,
+          accessKey: res.AccessKey.AccessKeyId,
+          secretKey: res.AccessKey.SecretAccessKey,
+        };
+        setNewKey(newKey);
+      });
+    },
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+    },
+  );
 
   const handleClose = () => {
     history.push('.');
-    // dispatch(deleteAccountSecret());
-    // dispatch(closeAccountKeyCreateModal());
   };
 
   const handleAccessKeyCreate = () => {
