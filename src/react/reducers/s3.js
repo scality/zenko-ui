@@ -234,6 +234,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
       return {
         ...state,
         listObjectsResults: {
+          ...state.listObjectsResults,
           list: state.listObjectsResults.list.map(o =>
             o.key === action.objectKey && o.versionId === action.versionId
               ? { ...o, toggled: !o.toggled }
@@ -245,6 +246,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
       return {
         ...state,
         listObjectsResults: {
+          ...state.listObjectsResults,
           list: state.listObjectsResults.list.map(o => ({
             ...o,
             toggled: action.toggled,
