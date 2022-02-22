@@ -1,7 +1,12 @@
 // @flow
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import React, { useRef } from 'react';
-import { clearError, createAccount } from '../actions';
+import {
+  clearError,
+  handleErrorMessage,
+  networkEnd,
+  networkStart,
+} from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Banner } from '@scality/core-ui';
@@ -12,7 +17,11 @@ import { joiResolver } from '@hookform/resolvers';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 
-const regexpEmailAddress = /^\S+@\S+.\S+$/;
+import { useIAMClient } from '../IAMProvider';
+import { queryClient } from '../App';
+import { useMutation } from 'react-query';
+import { useHistory, useParams } from 'react-router-dom';
+
 const regexpName = /^[\w+=,.@ -]+$/;
 
 const schema = Joi.object({
@@ -23,19 +32,35 @@ const schema = Joi.object({
     .max(64)
     .regex(regexpName)
     .message('Invalid Name'),
-  email: Joi.string()
-    .label('Root Account Email')
-    .required()
-    .max(256)
-    .regex(regexpEmailAddress)
-    .message('Invalid Root Account Email'),
 });
 
-function AccountCreate() {
+const AccountCreateUser = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const IAMClient = useIAMClient();
   const { register, handleSubmit, errors } = useForm({
     resolver: joiResolver(schema),
   });
+  const { accountName } = useParams();
+  const createAccessKeyMutation = useMutation(userName => {
+    dispatch(networkStart('Creating User'));
+    return IAMClient.createUser(userName)
+      .then(() => {
+        queryClient.invalidateQueries(['listIAMUsers', accountName]);
+      })
+      .catch(() => {
+        const str = 'An error occurred during the user creation.';
+        dispatch(handleErrorMessage(str, 'byModal'));
+      })
+      .finally(() => {
+        dispatch(networkEnd());
+        history.push('./users');
+      });
+  });
 
+  /**
+   * This part has to be handle
+   */
   const hasError = useSelector(
     (state: AppState) =>
       !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
@@ -47,12 +72,9 @@ function AccountCreate() {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const dispatch = useDispatch();
-
-  const onSubmit = ({ email, name }) => {
+  const onSubmit = ({ name }) => {
     clearServerError();
-    const payload = { userName: name, email };
-    dispatch(createAccount(payload));
+    createAccessKeyMutation.mutate(name);
   };
 
   const handleCancel = e => {
@@ -81,7 +103,7 @@ function AccountCreate() {
         ref={formRef}
         onSubmit={handleSubmit(onSubmit)}
       >
-        <F.Title> Create New Account </F.Title>
+        <F.Title> Create New User </F.Title>
         <F.Fieldset>
           <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
             Name
@@ -97,29 +119,6 @@ function AccountCreate() {
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
-          </F.ErrorInput>
-        </F.Fieldset>
-        <F.Fieldset>
-          <F.Label
-            tooltipMessages={[
-              'Must be unique',
-              'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose',
-            ]}
-            tooltipWidth="20rem"
-          >
-            Root Account Email
-          </F.Label>
-          <F.Input
-            type="text"
-            id="email"
-            name="email"
-            ref={register}
-            onChange={clearServerError}
-            autoComplete="off"
-          />
-          <F.ErrorInput id="error-email" hasError={errors.email}>
-            {' '}
-            {errors.email?.message}{' '}
           </F.ErrorInput>
         </F.Fieldset>
         <F.Footer>
@@ -155,6 +154,6 @@ function AccountCreate() {
       </F.Form>
     </FormContainer>
   );
-}
+};
 
-export default AccountCreate;
+export default AccountCreateUser;

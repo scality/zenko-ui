@@ -1,7 +1,7 @@
 // @flow
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import React, { useEffect } from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import { loadClients, loadInstanceLatestStatus } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
@@ -16,6 +16,25 @@ import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import Workflows from './workflow/Workflows';
+import IAMProvider from './IAMProvider';
+
+// $FlowFixMe
+export const RemoveTrailingSlash = ({ ...rest }) => {
+  const location = useLocation();
+
+  // If the last character of the url is '/'
+  if (location.pathname.match('/.*/$')) {
+    return (
+      <Redirect
+        {...rest}
+        to={{
+          pathname: location.pathname.replace(/\/+$/, ''),
+          search: location.search,
+        }}
+      />
+    );
+  } else return null;
+};
 
 function PrivateRoutes() {
   const dispatch = useDispatch();
@@ -55,7 +74,12 @@ function PrivateRoutes() {
       <Route path="/locations/:locationName/edit" component={LocationEditor} />
 
       <Route path="/accounts" exact component={Accounts} />
-      <Route path="/accounts/:accountName?" component={AccountContent} />
+      <Route path="/accounts/:accountName?">
+        <IAMProvider>
+          <AccountContent />
+        </IAMProvider>
+      </Route>
+
       <Route path="/create-account" component={AccountCreate} />
 
       <Route
@@ -86,6 +110,7 @@ function Routes() {
       <NavbarContainer>
         <Navbar />
       </NavbarContainer>
+      <RemoveTrailingSlash />
       <PrivateRoutes />
     </RouteContainer>
   );

@@ -236,6 +236,30 @@ export function BreadcrumbWorkflow({
 }
 
 export function BreadcrumbAccount({ pathname }: { pathname: string }) {
+  const matchAccountUserAccessKey = matchPath(pathname, {
+    path: '/accounts/:accountName/users/:userName/access-keys',
+  });
+
+  if (matchAccountUserAccessKey) {
+    const accountName = matchAccountUserAccessKey.params.accountName || '';
+    const userName = matchAccountUserAccessKey.params.userName;
+    return (
+      <BaseBreadCrumb
+        paths={[
+          <label key="accounts">
+            <Link to={{ pathname: '/accounts' }}> All Accounts </Link>
+          </label>,
+          <label key="account-name">
+            <Link to={{ pathname: `/accounts/${accountName}/users` }}>
+              {accountName}
+            </Link>
+          </label>,
+          <label key="user-name">keys for {userName}</label>,
+        ]}
+      ></BaseBreadCrumb>
+    );
+  }
+
   const matchAccountRoute = matchPath(pathname, {
     path: '/accounts/:accountName',
   });
@@ -264,5 +288,6 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
       ></BaseBreadCrumb>
     );
   }
+
   return [];
 }

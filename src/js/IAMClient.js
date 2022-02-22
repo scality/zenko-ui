@@ -111,12 +111,13 @@ export default class IAMClient implements IAMClientInterface {
     return this.client.listAccessKeys().promise();
   }
 
-  listAccessKeys(userName) {
-    return this.client
-      .listAccessKeys({
-        UserName: userName,
-      })
-      .promise();
+  listAccessKeys(userName, marker) {
+    const req = this.client.listAccessKeys({
+      UserName: userName,
+      Marker: marker,
+    });
+
+    return req.promise();
   }
 
   listAttachedUserPolicies(userName) {
@@ -135,10 +136,11 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
-  listUsers() {
+  listUsers(maxItems, marker) {
     return this.client
       .listUsers({
-        MaxItems: 20,
+        MaxItems: maxItems,
+        Marker: marker,
       })
       .promise();
   }

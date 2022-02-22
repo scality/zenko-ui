@@ -5,6 +5,7 @@ import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import ZenkoUI from './ZenkoUI';
 
 // const whyDidYouRender = require('@welldone-software/why-did-you-render');
@@ -15,10 +16,14 @@ import ZenkoUI from './ZenkoUI';
 //     ],
 // });
 
+export const queryClient = new QueryClient();
+
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
-      <ZenkoUI />
+      <QueryClientProvider client={queryClient}>
+        <ZenkoUI />
+      </QueryClientProvider>
     </ConnectedRouter>
   </Provider>,
   document.getElementById('app'),
