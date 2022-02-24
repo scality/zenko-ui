@@ -144,6 +144,22 @@ export function deleteAccessKey(accessKey, userName) {
   };
 }
 
+export function updateAccessKey(accessKey, status, userName) {
+  return (dispatch, getState) => {
+    const { iamClient } = getClients(getState());
+    dispatch(closeKeyDeleteDialog());
+    dispatch(networkStart('Updating access key'));
+    iamClient
+        .updateAccessKey(accessKey, status, userName)
+        .then(() => {
+          dispatch(listAccessKeys(userName));
+        })
+        .catch(error => dispatch(handleClientError(error)))
+        .catch(error => dispatch(handleApiError(error, 'byModal')))
+        .finally(() => dispatch(networkEnd()));
+  };
+}
+
 export function deleteUser(userName) {
   return (dispatch, getState) => {
     const { iamClient } = getClients(getState());

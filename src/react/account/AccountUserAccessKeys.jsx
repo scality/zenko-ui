@@ -28,6 +28,9 @@ import {
 } from '../utils/IAMhooks';
 import { Tooltip } from '@scality/core-ui';
 import { useTheme } from 'styled-components';
+import { Toggle } from '@scality/core-ui';
+import TextBadge from "@scality/core-ui/dist/components/textbadge/TextBadge.component";
+import { useQuery } from "react-query";
 
 const CreatedOnCell = rowValue => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -42,6 +45,42 @@ const CreatedOnCell = rowValue => {
     </div>
   );
 };
+
+
+
+
+const ToggleAccessKeyStatus = rowValue => {
+  const IAMClient = useIAMClient();
+
+  const emulateFetch = (_) => {
+    console.log("Fetching data...");
+
+    IAMClient.updateAccessKey(rowValue.accessKey, rowValue.status ===  'Active' ? 'Inactive' : 'Active', rowValue.userName)
+    console.log("... done");
+  };
+
+  const { isLoading, data, refetch } = useQuery(["updateAccessKey", rowValue.accessKey], emulateFetch, {
+    refetchOnWindowFocus: false,
+    enabled: false // handle refetchs manually
+  });
+
+  const handleClick = (rowValue) => {
+    refetch(rowValue).then(r => console.log('reftch call'));
+  };
+
+  return <div>
+    <Toggle
+        toggle={rowValue.status}
+        label={rowValue.status ? 'Active' : 'Inactive'}
+        onChange={() => {
+          console.log(!rowValue.status)
+          return handleClick(!rowValue.status);
+        }}
+    />
+  </div>
+
+};
+
 
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
@@ -63,6 +102,12 @@ const AccountUserAccessKeys = () => {
     data => data.AccessKeyMetadata,
   );
 
+
+
+
+
+
+
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
       return accessKeysResult.map(accesskey => {
@@ -76,6 +121,8 @@ const AccountUserAccessKeys = () => {
       return [];
     }
   }, [accessKeysStatus, accessKeysResult]);
+
+
 
   const columns = [
     {
@@ -98,6 +145,10 @@ const AccountUserAccessKeys = () => {
     {
       Header: 'Status',
       accessor: 'status',
+      cellStyle: {
+        textAlign: 'right',
+      },
+      Cell: value => ToggleAccessKeyStatus(value.row.original),
     },
   ];
 
