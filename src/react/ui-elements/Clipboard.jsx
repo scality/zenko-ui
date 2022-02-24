@@ -1,7 +1,7 @@
 // @flow
-import React, { useEffect, useState } from 'react';
-import { Tooltip } from '@scality/core-ui';
+import React from 'react';
 import styled from 'styled-components';
+import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
 
 const Container = styled.div`
   cursor: pointer;
@@ -17,34 +17,17 @@ export const IconCopy = styled.i`
 `;
 
 export const Clipboard = ({ text }: { text: string }) => {
-  const [copySuccess, setCopySuccess] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setCopySuccess(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, [copySuccess]);
-
-  const copyToClipboard = () => {
-    if (!navigator || !navigator.clipboard) {
-      return;
-    }
-    navigator.clipboard.writeText(text);
-    setCopySuccess(true);
-  };
+  const { copy, copyStatus } = useClipboard();
 
   return (
     <Container>
-      {copySuccess ? (
-        <Tooltip overlay="Copied!" placement="right">
-          <IconSuccess className="fas fa-check"></IconSuccess>
-        </Tooltip>
+      {copyStatus === COPY_STATE_SUCCESS ? (
+        <IconSuccess className="fas fa-check"></IconSuccess>
       ) : (
         <IconCopy
           hidden={!navigator || !navigator.clipboard}
           className="far fa-clone"
-          onClick={copyToClipboard}
+          onClick={() => copy(text)}
         ></IconCopy>
       )}
     </Container>

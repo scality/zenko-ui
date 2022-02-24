@@ -1,13 +1,21 @@
 //@flow
 import React, { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
 import { useInfiniteQuery } from 'react-query';
 import { useAwsPaginatedEntities } from '../utils/IAMhooks';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
+import CopyARNButton from '../ui-elements/CopyARNButton';
+
+const InlineButton = styled(Button)`
+  height: ${spacing.sp24};
+  margin-left: ${spacing.sp16};
+`;
 
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
@@ -43,9 +51,9 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           accessKeys
         )
       ) : null}
-      <Button
+      <InlineButton
         icon={<i className="fas fa-eye" />}
-        variant="primary"
+        variant="secondary"
         onClick={() => history.push(`users/${userName}/access-keys`)}
         type="button"
         tooltip={{
@@ -61,6 +69,12 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
 const renderAccessKeyComponent = ({ row }) => (
   <AsyncRenderAccessKey userName={row.original.userName} />
 );
+
+const renderActionButtons = rowValues => {
+  const { arn } = rowValues;
+
+  return <CopyARNButton text={arn} />;
+};
 
 const AccountUserList = () => {
   const { accountName } = useParams();
@@ -92,6 +106,7 @@ const AccountUserList = () => {
             createdOn: formatSimpleDate(user.CreateDate),
             accessKeys: null,
             arn: user.Arn,
+            actions: null,
           };
         });
     }
@@ -121,6 +136,17 @@ const AccountUserList = () => {
         textAlign: 'right',
         minWidth: '7rem',
       },
+    },
+    // Table cell for all the actions (Copy ARN, Edit and Delete)
+    {
+      Header: '',
+      accessor: 'actions',
+      cellStyle: {
+        textAlign: 'right',
+        minWidth: '25rem',
+      },
+      disableSortBy: true,
+      Cell: value => renderActionButtons(value.row.original),
     },
   ];
 
