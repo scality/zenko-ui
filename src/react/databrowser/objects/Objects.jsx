@@ -22,7 +22,7 @@ import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
-import { usePrefixWithSlash, useQuery } from '../../utils/hooks';
+import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
 export default function Objects() {
   const dispatch = useDispatch();
 
@@ -47,7 +47,7 @@ export default function Objects() {
     return;
   };
 
-  const query = useQuery();
+  const query = useQueryParams();
   const isShowVersions = query.get('showversions') === 'true';
   const searchInput = query.get('metadatasearch');
   const objectKey = query.get('prefix');

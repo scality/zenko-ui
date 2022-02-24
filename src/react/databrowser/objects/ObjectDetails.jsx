@@ -11,7 +11,7 @@ import Properties from './details/Properties';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '../../utils/hooks';
+import { useQueryParams } from '../../utils/hooks';
 import { useSelector } from 'react-redux';
 
 export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
@@ -41,7 +41,7 @@ const warningTitle = (toggled: List<Object>): Node => {
 };
 
 function ObjectDetails({ toggled, listType }: Props) {
-  const query = useQuery();
+  const query = useQueryParams();
   const { pathname } = useLocation();
   const objectMetadata = useSelector(
     (state: AppState) => state.s3.objectMetadata,

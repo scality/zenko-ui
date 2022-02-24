@@ -10,7 +10,7 @@ import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { useLocation } from 'react-router';
-import { useQuery } from '../../utils/hooks';
+import { useQueryParams } from '../../utils/hooks';
 import { push } from 'connected-react-router';
 import { removeTrailingSlash } from '../../../js/utils';
 
@@ -63,7 +63,7 @@ const Row = ({
   prepareRow(row);
 
   const { pathname } = useLocation();
-  const query = useQuery();
+  const query = useQueryParams();
   const versionId = query.get('versionId');
   const objectKey = query.get('prefix');
   const isListVersions = query.get('showversions') === 'true';

@@ -44,7 +44,7 @@ describe('ObjectDetails', () => {
 
   it('should display nothing in "Tags" tab when there is one toggled object', () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=tags'));
 
     const { component } = reduxMount(
@@ -64,7 +64,7 @@ describe('ObjectDetails', () => {
 
   it('should display nothing in "Metadata" tab when there is one toggled object', () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=metadata'));
 
     const { component } = reduxMount(
@@ -99,7 +99,7 @@ describe('ObjectDetails', () => {
 
   it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Tabs" tab when there are more than one toggled object`, () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=tags'));
 
     const { component } = reduxMount(
@@ -118,7 +118,7 @@ describe('ObjectDetails', () => {
 
   it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Metadata" tab when there are more than one toggled object`, () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=metadata'));
 
     const { component } = reduxMount(
@@ -150,7 +150,7 @@ describe('ObjectDetails', () => {
 
   it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Tabs" tab if no object has been toggled`, () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=tags'));
 
     const { component } = reduxMount(
@@ -167,7 +167,7 @@ describe('ObjectDetails', () => {
 
   it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Metadata" tab if no object has been toggled`, () => {
     jest
-      .spyOn(hooks, 'useQuery')
+      .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(new URLSearchParams('?tab=metadata'));
 
     const { component } = reduxMount(

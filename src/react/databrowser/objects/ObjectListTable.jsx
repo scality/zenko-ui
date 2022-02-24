@@ -23,7 +23,7 @@ import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import { useQuery } from '../../utils/hooks';
+import { useQueryParams } from '../../utils/hooks';
 
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
@@ -80,7 +80,7 @@ export default function ObjectListTable({
     [dispatch],
   );
 
-  const query = useQuery();
+  const query = useQueryParams();
   const objectKey = query.get('prefix');
   const versionId = query.get('versionId');
   const isListVersion = query.get('showversions') === 'true';

@@ -40,12 +40,12 @@ export const useOutsideClick = (ref, actionFn) => {
   }, [ref, actionFn]);
 };
 
-export const useQuery = () => {
+export const useQueryParams = () => {
   return new URLSearchParams(useLocation().search);
 };
 
 export const usePrefixWithSlash = () => {
-  const query = useQuery();
+  const query = useQueryParams();
   const prefix = query.get('prefix');
 
   if (!prefix) {

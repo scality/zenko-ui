@@ -14,7 +14,7 @@ import type { DispatchAPI } from 'redux';
 import { useDispatch } from 'react-redux';
 import {
   useOutsideClick,
-  useQuery,
+  useQueryParams,
   usePrefixWithSlash,
 } from '../../utils/hooks';
 import { useLocation } from 'react-router';
@@ -51,7 +51,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
   const [hintsShown, setHintsShown] = useState(false);
 
   const dispatch: DispatchAPI<Action> = useDispatch();
-  const query = useQuery();
+  const query = useQueryParams();
   const { pathname } = useLocation();
   const prefixWithSlash = usePrefixWithSlash();
   // hide hints if clicked on outside of element.

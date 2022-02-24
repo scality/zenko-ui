@@ -9,7 +9,7 @@ import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
-import { usePrefixWithSlash, useQuery } from '../../../utils/hooks';
+import { usePrefixWithSlash, useQueryParams } from '../../../utils/hooks';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../../../types/state';
 import { push } from 'connected-react-router';
@@ -37,7 +37,7 @@ function Properties({ objectMetadata }: Props) {
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
-  const query = useQuery();
+  const query = useQueryParams();
   const metadataSearch = query.get('metadatasearch');
   // In order to keep object selection between toggling show versions, add `versionId` in the query params
   useEffect(() => {

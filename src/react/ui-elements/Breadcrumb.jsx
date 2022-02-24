@@ -9,7 +9,7 @@ import { push } from 'connected-react-router';
 import { selectAccountID } from '../actions';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { useQuery } from '../utils/hooks';
+import { useQueryParams } from '../utils/hooks';
 import { ellipsis } from 'polished';
 
 const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
@@ -156,7 +156,7 @@ type Props = {
 
 export function Breadcrumb({ accounts, accountName, pathname }: Props) {
   const dispatch = useDispatch();
-  const query = useQuery();
+  const query = useQueryParams();
   const prefixPath = query.get('prefix');
   const switchAccount = selectedName => {
     const account =

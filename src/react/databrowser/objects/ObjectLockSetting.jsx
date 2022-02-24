@@ -18,7 +18,7 @@ import {
   getObjectMetadata,
   putObjectRetention,
 } from '../../actions';
-import { useQuery } from '../../utils/hooks';
+import { useQueryParams } from '../../utils/hooks';
 import {
   getDefaultMinRetainUntilDate,
   getDefaultRetention,
@@ -48,7 +48,7 @@ const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 // 2. The default retention mode is COMPLIANCE, it's not allowed to switch to the GOVERNANCE mode.
 export default function ObjectLockSetting() {
   const dispatch = useDispatch();
-  const query = useQuery();
+  const query = useQueryParams();
   const hasError = useSelector(
     (state: AppState) =>
       !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',

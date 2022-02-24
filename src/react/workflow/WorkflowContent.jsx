@@ -10,7 +10,7 @@ import type { S3BucketList } from '../../types/s3';
 import { Warning } from '../ui-elements/Warning';
 import type { Workflow } from '../../types/workflow';
 import { useLocation } from 'react-router-dom';
-import { useQuery } from '../utils/hooks';
+import { useQueryParams } from '../utils/hooks';
 import { useSelector } from 'react-redux';
 
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
@@ -26,7 +26,7 @@ export const InfoWarning = ({ title }: { title: string }) => (
 );
 
 function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
-  const query = useQuery();
+  const query = useQueryParams();
   const { pathname } = useLocation();
   const replications = useSelector(
     (state: AppState) => state.workflow.replications,
