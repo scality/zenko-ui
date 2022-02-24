@@ -1,3 +1,4 @@
+// @flow
 import React, { useMemo } from 'react';
 import {
   Route,
@@ -26,8 +27,10 @@ import {
   useAwsPaginatedEntities,
   useAccessKeyOutdatedStatus,
 } from '../utils/IAMhooks';
-import { Tooltip } from '@scality/core-ui';
+import { Tooltip, Toggle } from '@scality/core-ui';
 import { useTheme } from 'styled-components';
+import { queryClient } from '../App';
+import { useMutation } from 'react-query';
 
 const CreatedOnCell = rowValue => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -39,6 +42,39 @@ const CreatedOnCell = rowValue => {
         </Tooltip>
       ) : null}
       {rowValue.createdOn}
+    </div>
+  );
+};
+
+const ToggleAccessKeyStatus = rowValue => {
+  const { accessKey, status: accessKeyStatus } = rowValue;
+  const IAMClient = useIAMClient();
+  const { IAMUserName } = useParams();
+
+  const updateAccessKeyMutation = useMutation(
+    accessKey => {
+      return IAMClient.updateAccessKey(
+        accessKey,
+        accessKeyStatus === 'Active' ? 'Inactive' : 'Active',
+        IAMUserName,
+      );
+    },
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+    },
+  );
+
+  return (
+    <div>
+      <Toggle
+        disabled={IAMClient === null}
+        toggle={accessKeyStatus === 'Active'}
+        label={accessKeyStatus}
+        onChange={() => {
+          updateAccessKeyMutation.mutate(accessKey);
+        }}
+      />
     </div>
   );
 };
@@ -98,6 +134,11 @@ const AccountUserAccessKeys = () => {
     {
       Header: 'Status',
       accessor: 'status',
+      cellStyle: {
+        textAlign: 'left',
+        marginRight: spacing.sp32,
+      },
+      Cell: value => ToggleAccessKeyStatus(value.row.original),
     },
   ];
 
@@ -147,6 +188,7 @@ const AccountUserAccessKeys = () => {
         </Table>
       </div>
       <Route path={`${url}/create`}>
+        {/* eslint-disable-next-line flowtype-errors/show-errors */}
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />
       </Route>
     </div>
