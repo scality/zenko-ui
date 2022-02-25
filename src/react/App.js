@@ -6,6 +6,7 @@ import { Provider } from 'react-redux';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 import ZenkoUI from './ZenkoUI';
 
 // const whyDidYouRender = require('@welldone-software/why-did-you-render');
@@ -23,6 +24,7 @@ ReactDOM.render(
     <ConnectedRouter history={history}>
       <QueryClientProvider client={queryClient}>
         <ZenkoUI />
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ConnectedRouter>
   </Provider>,
