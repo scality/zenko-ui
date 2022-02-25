@@ -46,6 +46,7 @@ export const useAwsPaginatedEntities = <
     }
     if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
       setStatus('success');
+      setFirstPageStatus('success');//ensure firstPageStatus is success when loading data from the cache
     } else {
       fetchNextPage();
     }

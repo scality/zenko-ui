@@ -125,6 +125,7 @@ const AccountUserList = () => {
         }
         return IAMClient.listUsers(1000, marker);
       },
+      staleTime: Infinity,
       enabled: IAMClient !== null,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
