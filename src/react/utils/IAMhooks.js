@@ -16,14 +16,16 @@ export const useAwsPaginatedEntities = <
     ) => Promise<API_RESPONSE>,
   },
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
-): { data: ENTITY[], status: 'idle' | 'loading' | 'error' | 'success' } => {
+): { data: ENTITY[], status: 'idle' | 'loading' | 'error' | 'success', firstPageStatus: 'idle' | 'loading' | 'error' | 'success' } => {
   const [status, setStatus] = useState('idle');
+  const [firstPageStatus, setFirstPageStatus] = useState('idle');
 
   const {
     data,
     status: internalStatus,
     hasNextPage,
     fetchNextPage,
+    isFetchingNextPage,
   } = useInfiniteQuery({
     ...reactQueryOptions,
     queryKey: [...reactQueryOptions.queryKey],
@@ -31,17 +33,23 @@ export const useAwsPaginatedEntities = <
     getNextPageParam: lastPage => lastPage.Marker,
   });
 
+  const pageIndex = data?.pageParams?.length || 0;
+  useMemo(() => {
+    if (pageIndex === 0 || (pageIndex === 1 && internalStatus === 'success')) {
+      setFirstPageStatus(internalStatus);
+    }
+  }, [internalStatus, pageIndex]);
+
   useMemo(() => {
     if (internalStatus === 'loading' || internalStatus === 'error') {
       setStatus(internalStatus);
     }
-    if (internalStatus === 'success' && !hasNextPage) {
+    if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
       setStatus('success');
     } else {
       fetchNextPage();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [internalStatus, hasNextPage]);
+  }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   return {
     data:
@@ -49,6 +57,7 @@ export const useAwsPaginatedEntities = <
       data.pages &&
       data.pages.flatMap(page => getEntitiesFromResult(page)),
     status,
+    firstPageStatus,
   };
 };
 

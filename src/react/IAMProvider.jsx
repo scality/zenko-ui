@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
 
-const IAMContext = createContext<null | IAMClient>(null);
+const IAMContext = createContext<null | {iamClient: IAMClient}>(null);
 
 export const useIAMClient = () => {
   const IAMCtxt = useContext(IAMContext);

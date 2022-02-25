@@ -1,16 +1,20 @@
 //@flow
+import type { Node } from 'react';
 import React, { useMemo } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
-import { useInfiniteQuery } from 'react-query';
 import { useAwsPaginatedEntities } from '../utils/IAMhooks';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import CopyARNButton from '../ui-elements/CopyARNButton';
+import { useQueryParams } from '../utils/hooks';
+import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
+import { Tooltip } from '@scality/core-ui';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
@@ -75,43 +79,80 @@ const renderActionButtons = rowValues => {
 
   return <CopyARNButton text={arn} />;
 };
+const WithTooltipWhileLoading = ({
+  children,
+  isLoading,
+  tooltipOverlay,
+}: {
+  tooltipOverlay: string,
+  isLoading?: boolean,
+  children: Node,
+}) => (
+  <>
+    {isLoading ? (
+      <Tooltip overlay={tooltipOverlay}>{children}</Tooltip>
+    ) : (
+      children
+    )}
+  </>
+);
+
+const SEARCH_QUERY_PARAM = 'search';
 
 const AccountUserList = () => {
   const { accountName } = useParams();
   const history = useHistory();
   const IAMClient = useIAMClient();
+  const queryParams = useQueryParams();
+  const match = useRouteMatch();
+  const search = queryParams.get(SEARCH_QUERY_PARAM);
+
+  const setSearch = newSearch => {
+    queryParams.set(SEARCH_QUERY_PARAM, newSearch);
+    history.replace(`${match.url}?${queryParams.toString()}`);
+  };
 
   const {
     data: listUsersResult,
     status: listUsersStatus,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['listIAMUsers', accountName],
-    queryFn: ({ pageParam }) => {
-      return IAMClient.listUsers(100, pageParam);
+    firstPageStatus: listUsersFirstPageStatus,
+  } = useAwsPaginatedEntities(
+    {
+      queryKey: ['listIAMUsers', accountName],
+      queryFn: (_ctx, marker) => {
+        if (!IAMClient) {
+          return Promise.reject('IAMClient is not defined');
+        }
+        return IAMClient.listUsers(1000, marker);
+      },
+      enabled: IAMClient !== null,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
     },
-    getNextPageParam: lastPage => lastPage.Marker,
-    enabled: IAMClient !== null,
-  });
+    page => page.Users,
+  );
 
   const iamUsers = useMemo(() => {
-    if (listUsersStatus === 'success') {
-      return listUsersResult.pages
-        .flatMap(page => page.Users)
-        .map(user => {
-          return {
-            userName: user.UserName,
-            createdOn: formatSimpleDate(user.CreateDate),
-            accessKeys: null,
-            arn: user.Arn,
-            actions: null,
-          };
-        });
+    if (listUsersFirstPageStatus === 'success') {
+      const iamUsers = listUsersResult.map(user => {
+        return {
+          userName: user.UserName,
+          createdOn: formatSimpleDate(user.CreateDate),
+          accessKeys: null,
+          arn: user.Arn,
+          actions: null,
+        };
+      });
+
+      if (search) {
+        return iamUsers.filter(user =>
+          user.userName.toLowerCase().startsWith(search.toLowerCase()),
+        );
+      }
+      return iamUsers;
     }
     return [];
-  }, [listUsersStatus, listUsersResult]);
+  }, [listUsersFirstPageStatus, listUsersResult, search]);
 
   const columns = [
     {
@@ -152,23 +193,32 @@ const AccountUserList = () => {
 
   return (
     <div style={{ height: '100%' }}>
-      <Table
-        columns={columns}
-        data={iamUsers}
-        defaultSortingKey={'userName'}
-        onBottom={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            return fetchNextPage();
-          }
-        }}
-      >
+      <Table columns={columns} data={iamUsers} defaultSortingKey={'userName'}>
         <TableHeader>
-          <Table.SearchWithQueryParams
-            displayedName={{
-              singular: 'user',
-              plural: 'users',
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {listUsersFirstPageStatus !== 'loading' &&
+            listUsersFirstPageStatus !== 'error' ? (
+              <SpacedBox mr={12}>Total {iamUsers.length}</SpacedBox>
+            ) : (
+              ''
+            )}
+            <WithTooltipWhileLoading
+              isLoading={listUsersStatus === 'loading'}
+              tooltipOverlay="Search is disabled while loading users"
+            >
+              <SearchInputComponent
+                disabled={listUsersStatus !== 'success'}
+                value={search}
+                placeholder={'Search'}
+                disableToggle
+                onChange={evt => {
+                  setSearch(evt.target.value);
+                }}
+              />
+            </WithTooltipWhileLoading>
+            {listUsersStatus === 'loading' ? <SpacedBox ml={12}>Loading users...</SpacedBox> : ''}
+            {listUsersStatus === 'error' ? <SpacedBox ml={12}>An error occured, users listing may be incomplete. Please retry and if the error persist contact your support.</SpacedBox> : ''}
+          </div>
           <Button
             icon={<i className="fas fa-plus" />}
             label="Create User"
@@ -184,7 +234,13 @@ const AccountUserList = () => {
           customItemKey={(index, iamUsers) => {
             return iamUsers[index].Arn;
           }}
-        />
+        >
+          {(Rows) => <>
+            {listUsersFirstPageStatus === 'loading' || listUsersFirstPageStatus === 'idle' ? 'Loading users...' : ''}
+            {listUsersFirstPageStatus === 'error' ? 'We failed to retrieve users, please retry later and if the error persist contact your support.' : ''}
+            {listUsersFirstPageStatus === 'success' ? <Rows/> : ''}
+          </>}
+        </Table.SingleSelectableContent>
       </Table>
     </div>
   );
