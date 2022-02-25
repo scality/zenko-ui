@@ -31,6 +31,7 @@ import { Tooltip, Toggle } from '@scality/core-ui';
 import { useTheme } from 'styled-components';
 import { queryClient } from '../App';
 import { useMutation } from 'react-query';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 
 const CreatedOnCell = rowValue => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -163,7 +164,7 @@ const AccountUserAccessKeys = () => {
         </HeadCenter>
       </Head>
 
-      <div style={{ flex: 1, backgroundColor: theme.brand.backgroundLevel3 }}>
+      <SpacedBox pl={24} pr={24} style={{ flex: 1, backgroundColor: theme.brand.backgroundLevel3 }}>
         <Table columns={columns} data={data} defaultSortingKey={'health'}>
           <TableHeader
             style={{
@@ -186,7 +187,7 @@ const AccountUserAccessKeys = () => {
             backgroundVariant="backgroundLevel3"
           />
         </Table>
-      </div>
+      </SpacedBox>
       <Route path={`${url}/create`}>
         {/* eslint-disable-next-line flowtype-errors/show-errors */}
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />

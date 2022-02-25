@@ -46,14 +46,16 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
 
   // display a hyphen if there is an error occurs
   return userAccessKeyStatus === 'error' ? null : (
-    <div>
-      {userAccessKeyStatus === 'loading' && 'loading...'}
+    <div style={{ display: 'flex', alignItems: 'center' }}>
+      {userAccessKeyStatus === 'loading' && <SpacedBox mr={12} style={{ marginLeft: 'auto' }}>loading...</SpacedBox>}
       {userAccessKeyStatus === 'success' ? (
-        accessKeys > 2 ? (
-          <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge>
-        ) : (
-          accessKeys
-        )
+        <SpacedBox mr={12} style={{ marginLeft: 'auto' }}>
+          {accessKeys > 2 ? (
+            <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge>
+          ) : (
+            accessKeys
+          )}
+        </SpacedBox>
       ) : null}
       <InlineButton
         icon={<i className="fas fa-eye" />}
@@ -168,6 +170,7 @@ const AccountUserList = () => {
       accessor: 'accessKeys',
       cellStyle: {
         textAlign: 'right',
+        minWidth: '10rem',
       },
       Cell: renderAccessKeyComponent,
     },
@@ -217,8 +220,19 @@ const AccountUserList = () => {
                 }}
               />
             </WithTooltipWhileLoading>
-            {listUsersStatus === 'loading' ? <SpacedBox ml={12}>Loading users...</SpacedBox> : ''}
-            {listUsersStatus === 'error' ? <SpacedBox ml={12}>An error occured, users listing may be incomplete. Please retry and if the error persist contact your support.</SpacedBox> : ''}
+            {listUsersStatus === 'loading' ? (
+              <SpacedBox ml={12}>Loading users...</SpacedBox>
+            ) : (
+              ''
+            )}
+            {listUsersStatus === 'error' ? (
+              <SpacedBox ml={12}>
+                An error occured, users listing may be incomplete. Please retry
+                and if the error persist contact your support.
+              </SpacedBox>
+            ) : (
+              ''
+            )}
           </div>
           <Button
             icon={<i className="fas fa-plus" />}
@@ -236,11 +250,18 @@ const AccountUserList = () => {
             return iamUsers[index].Arn;
           }}
         >
-          {(Rows) => <>
-            {listUsersFirstPageStatus === 'loading' || listUsersFirstPageStatus === 'idle' ? 'Loading users...' : ''}
-            {listUsersFirstPageStatus === 'error' ? 'We failed to retrieve users, please retry later and if the error persist contact your support.' : ''}
-            {listUsersFirstPageStatus === 'success' ? <Rows/> : ''}
-          </>}
+          {Rows => (
+            <>
+              {listUsersFirstPageStatus === 'loading' ||
+              listUsersFirstPageStatus === 'idle'
+                ? 'Loading users...'
+                : ''}
+              {listUsersFirstPageStatus === 'error'
+                ? 'We failed to retrieve users, please retry later and if the error persist contact your support.'
+                : ''}
+              {listUsersFirstPageStatus === 'success' ? <Rows /> : ''}
+            </>
+          )}
         </Table.SingleSelectableContent>
       </Table>
     </div>
