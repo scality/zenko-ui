@@ -18,7 +18,7 @@ import AccountUserAccessKeys from './AccountUserAccessKeys';
 
 function AccountContent() {
   const { accountName: accountNameParam } = useParams();
-  const { url } = useRouteMatch();
+  const { path } = useRouteMatch();
   const { pathname } = useLocation();
   const accounts = useSelector(
     (state: AppState) => state.configuration.latest.users,
@@ -32,10 +32,10 @@ function AccountContent() {
   return (
     <L.Container>
       <Switch>
-        <Route path={`${url}/create-user`}>
+        <Route path={`${path}/create-user`}>
           <AccountCreateUser />
         </Route>
-        <Route path={`${url}/users/:IAMUserName/access-keys`}>
+        <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />
         </Route>
         <Route>

@@ -47,7 +47,11 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   // display a hyphen if there is an error occurs
   return userAccessKeyStatus === 'error' ? null : (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      {userAccessKeyStatus === 'loading' && <SpacedBox mr={12} style={{ marginLeft: 'auto' }}>loading...</SpacedBox>}
+      {userAccessKeyStatus === 'loading' && (
+        <SpacedBox mr={12} style={{ marginLeft: 'auto' }}>
+          loading...
+        </SpacedBox>
+      )}
       {userAccessKeyStatus === 'success' ? (
         <SpacedBox mr={12} style={{ marginLeft: 'auto' }}>
           {accessKeys > 2 ? (
@@ -101,8 +105,7 @@ const WithTooltipWhileLoading = ({
 
 const SEARCH_QUERY_PARAM = 'search';
 
-const AccountUserList = () => {
-  const { accountName } = useParams();
+const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const history = useHistory();
   const IAMClient = useIAMClient();
   const queryParams = useQueryParams();
@@ -202,7 +205,9 @@ const AccountUserList = () => {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {listUsersFirstPageStatus !== 'loading' &&
             listUsersFirstPageStatus !== 'error' ? (
-              <SpacedBox mr={12}>Total {iamUsers.length}</SpacedBox>
+              <SpacedBox mr={12}>
+                Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
+              </SpacedBox>
             ) : (
               ''
             )}
@@ -257,7 +262,7 @@ const AccountUserList = () => {
                 ? 'Loading users...'
                 : ''}
               {listUsersFirstPageStatus === 'error'
-                ? 'We failed to retrieve users, please retry later and if the error persist contact your support.'
+                ? 'We failed to retrieve users, please retry later. If the error persists, please contact your support.'
                 : ''}
               {listUsersFirstPageStatus === 'success' ? <Rows /> : ''}
             </>

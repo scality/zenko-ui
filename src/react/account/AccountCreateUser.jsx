@@ -42,21 +42,39 @@ const AccountCreateUser = () => {
     resolver: joiResolver(schema),
   });
   const { accountName } = useParams();
-  const createAccessKeyMutation = useMutation(userName => {
-    dispatch(networkStart('Creating User'));
-    return IAMClient.createUser(userName)
-      .then(() => {
-        queryClient.invalidateQueries(['listIAMUsers', accountName]);
-      })
-      .catch(() => {
+  const createAccessKeyMutation = useMutation(
+    userName => {
+      dispatch(networkStart('Creating User'));
+      return IAMClient.createUser(userName)
+        .then(newUser => {
+          queryClient.setQueryData(['listIAMUsers', accountName], old => {
+            if (old) {
+              const pages = old.pages;
+              pages[pages.length - 1].Users.push({
+                ...newUser.User,
+                CreateDate: new Date(),
+              });
+              return {
+                ...old,
+                pages,
+              };
+            }
+          });
+        })
+        .finally(() => {
+          dispatch(networkEnd());
+        });
+    },
+    {
+      onSuccess: () => {
+        history.push('./users');
+      },
+      onError: () => {
         const str = 'An error occurred during the user creation.';
         dispatch(handleErrorMessage(str, 'byModal'));
-      })
-      .finally(() => {
-        dispatch(networkEnd());
-        history.push('./users');
-      });
-  });
+      },
+    },
+  );
 
   /**
    * This part has to be handle

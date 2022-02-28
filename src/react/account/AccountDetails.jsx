@@ -7,7 +7,7 @@ import Locations from '../backend/location/Locations';
 import Properties from './details/Properties';
 
 import { Warning } from '../ui-elements/Warning';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 
 type Props = {
@@ -23,8 +23,9 @@ const NotFound = () => (
 
 function AccountDetails({ account }: Props) {
   const theme = useTheme();
-  const routeMatch = useRouteMatch();
-  const url = routeMatch.url.replace(/\/$/, '');
+  // $FlowFixMe - useParams is typed using typescript, hence we can't pass it accountName typing
+  const { accountName }: { accountName?: string } = useParams();
+  const { url } = useRouteMatch();
 
   if (!account) {
     return <NotFound />;
@@ -47,7 +48,7 @@ function AccountDetails({ account }: Props) {
         <Locations />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Users" path={`${url}/users`}>
-        <AccountUserList />
+        <AccountUserList accountName={accountName} />
       </CustomTabs.Tab>
     </CustomTabs>
   );
