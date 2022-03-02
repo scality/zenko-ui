@@ -84,7 +84,19 @@ const renderAccessKeyComponent = ({ row }) => (
 const renderActionButtons = rowValues => {
   const { arn } = rowValues;
 
-  return <CopyARNButton text={arn} />;
+  return (
+    <div style={{ display: 'flex' }}>
+      <CopyARNButton text={arn} />
+      <SpacedBox ml={12}>
+        <Button
+          style={{ height: spacing.sp24 }}
+          variant="secondary"
+          label="Edit"
+          icon={<i className="fa fa-pen"></i>}
+        />
+      </SpacedBox>
+    </div>
+  );
 };
 const WithTooltipWhileLoading = ({
   children,
@@ -193,6 +205,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
+        marginLeft: 'auto',
         minWidth: '25rem',
       },
       disableSortBy: true,
