@@ -178,7 +178,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
 
   const iamUsers = useMemo(() => {
     if (listUsersFirstPageStatus === 'success') {
-      const iamUsers = listUsersResult.map(user => {
+      const iamUsers = listUsersResult && listUsersResult.map(user => {
         return {
           userName: user.UserName,
           createdOn: formatSimpleDate(user.CreateDate),
@@ -190,7 +190,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       });
 
       if (search) {
-        return iamUsers.filter(user =>
+        return iamUsers && iamUsers.filter(user =>
           user.userName.toLowerCase().startsWith(search.toLowerCase()),
         );
       }
@@ -254,7 +254,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {listUsersFirstPageStatus !== 'loading' &&
             listUsersFirstPageStatus !== 'error' ? (
-              <SpacedBox mr={12}>
+              iamUsers && <SpacedBox mr={12}>
                 Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
               </SpacedBox>
             ) : (
