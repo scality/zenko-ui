@@ -75,5 +75,6 @@ CYPRESS_KEYCLOAK_ROOT="http://keycloak.zenko.local" CYPRESS_KEYCLOAK_REALM="zenk
 ## Authentication
 [documentation](documentation/AUTHENTICATION.md)
 
+
 ## Release
 [documentation](documentation/RELEASE.md)
