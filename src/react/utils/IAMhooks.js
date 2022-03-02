@@ -16,7 +16,17 @@ export const useAwsPaginatedEntities = <
     ) => Promise<API_RESPONSE>,
   },
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
-): { data: ENTITY[], status: 'idle' | 'loading' | 'error' | 'success', firstPageStatus: 'idle' | 'loading' | 'error' | 'success' } => {
+):
+  | {
+      data: null,
+      status: 'idle' | 'loading' | 'error',
+      firstPageStatus: 'idle' | 'loading' | 'error',
+    }
+  | {
+      data: ENTITY[],
+      status: 'loading' | 'error' | 'success',
+      firstPageStatus: 'success',
+    } => {
   const [status, setStatus] = useState('idle');
   const [firstPageStatus, setFirstPageStatus] = useState('idle');
 
@@ -46,12 +56,13 @@ export const useAwsPaginatedEntities = <
     }
     if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
       setStatus('success');
-      setFirstPageStatus('success');//ensure firstPageStatus is success when loading data from the cache
+      setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
     } else {
       fetchNextPage();
     }
   }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
+  //$FlowFixMe
   return {
     data:
       data &&

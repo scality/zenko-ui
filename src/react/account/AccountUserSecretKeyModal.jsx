@@ -70,7 +70,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
       close={handleClose}
       footer={modalFooter(newKey)}
       isOpen={true}
-      title="Create Root user Access keys"
+      title="Create Access keys"
     >
       {modalBody(newKey)}
     </Modal>
@@ -81,7 +81,7 @@ const modalBody = (key: AccountKey | null) => {
   if (key === null) {
     return (
       <ModalBody>
-        A Access key ID and its Secret Access key will be created. <br />
+        An Access key ID and its Secret Access key will be created. <br />
         The Secret Access key will be visible only at this step.
       </ModalBody>
     );
@@ -92,7 +92,7 @@ const modalBody = (key: AccountKey | null) => {
         icon={<i className="fas fa-exclamation-triangle" />}
         variant="warning"
       >
-        A Access key ID and its Secret Access key have been created. <br />
+        An Access key ID and its Secret Access key have been created. <br />
         The Secret Access key cannot be retrieved afterwards, so make sure to
         keep and secure it now. <br />
         You can create new Access keys at any times.
@@ -100,7 +100,7 @@ const modalBody = (key: AccountKey | null) => {
       <Table style={{ marginTop: spacing.sp16 }}>
         <T.Body>
           <T.Row>
-            <T.Key> Account name </T.Key>
+            <T.Key> User </T.Key>
             <T.Value> {key.accountName} </T.Value>
           </T.Row>
           <T.Row>

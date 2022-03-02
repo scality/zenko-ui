@@ -1,5 +1,6 @@
 // @flow
 import React, { useMemo } from 'react';
+import styled, { useTheme } from 'styled-components';
 import {
   Route,
   useHistory,
@@ -7,18 +8,17 @@ import {
   useParams,
   useRouteMatch,
 } from 'react-router-dom';
+import { Tooltip, Toggle, Banner } from '@scality/core-ui';
+import { useMutation } from 'react-query';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
+import { Clipboard } from '../ui-elements/Clipboard';
 import * as L from '../ui-elements/ListLayout5';
-import {
-  Head,
-  HeadCenter,
-  HeadLeft,
-  HeadTitle,
-  IconCircle,
-} from '../ui-elements/ListLayout';
+import { Head, HeadTitle } from '../ui-elements/ListLayout';
 import { useIAMClient } from '../IAMProvider';
 import { formatSimpleDate } from '../utils';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
@@ -27,11 +27,26 @@ import {
   useAwsPaginatedEntities,
   useAccessKeyOutdatedStatus,
 } from '../utils/IAMhooks';
-import { Tooltip, Toggle } from '@scality/core-ui';
-import { useTheme } from 'styled-components';
 import { queryClient } from '../App';
-import { useMutation } from 'react-query';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+
+const CustomIcon = styled.i`
+  color: ${props => props.color ?? props.theme.brand.infoPrimary};
+  font-size: 32px;
+`;
+
+const HeadSection = styled.div`
+  display: flex;
+  align-items: center;
+  padding: ${spacing.sp16};
+  font-size: ${fontSize.large};
+`;
+
+const HeadSectionSeparator = styled.div`
+  border-right: 2px solid black;
+  height: 70%;
+  align-self: center;
+  margin: 0 ${spacing.sp8};
+`;
 
 const CreatedOnCell = rowValue => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -80,9 +95,19 @@ const ToggleAccessKeyStatus = rowValue => {
   );
 };
 
+const AccessKeysCell = rowValue => {
+  const { accessKey } = rowValue;
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+      {accessKey} <Clipboard text={accessKey} />
+    </div>
+  );
+};
+
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
-  const { IAMUserName } = useParams();
+  // $FlowFixMe
+  const { IAMUserName }: { IAMUserName: string } = useParams();
   const history = useHistory();
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
@@ -102,6 +127,7 @@ const AccountUserAccessKeys = () => {
 
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
+      // $FlowFixMe
       return accessKeysResult.map(accesskey => {
         return {
           accessKey: accesskey.AccessKeyId,
@@ -121,6 +147,7 @@ const AccountUserAccessKeys = () => {
       cellStyle: {
         minWidth: '20rem',
       },
+      Cell: value => AccessKeysCell(value.row.original),
     },
     {
       Header: 'Created On',
@@ -143,6 +170,48 @@ const AccountUserAccessKeys = () => {
     },
   ];
 
+  const accessKeysResultLength = accessKeysResult?.length ?? 0;
+  const accessKeysCountComponent = useMemo(() => {
+    if (accessKeysStatus === 'loading' || accessKeysStatus === 'idle') {
+      return 'Loading access keys...';
+    } else if (accessKeysResultLength > 2) {
+      return (
+        <>
+          Access Keys
+          <TextBadge
+            variant={'statusWarning'}
+            text={accessKeysResultLength}
+            style={{ margin: `0 ${spacing.sp24} 0 ${spacing.sp12}` }}
+          />
+          <Banner
+            icon={
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginLeft: spacing.sp8,
+                }}
+              >
+                <Icon
+                  name={'Exclamation-circle'}
+                  size={'lg'}
+                  color={'statusWarning'}
+                />
+              </div>
+            }
+            variant="statusWarning"
+            title="Warning"
+          >
+            Security Status: as a best practice, an user should not have more
+            than 2 Access keys
+          </Banner>
+        </>
+      );
+    } else {
+      return `Access Keys ${accessKeysResultLength}`;
+    }
+  }, [accessKeysStatus, accessKeysResultLength]);
+
   return (
     <div
       style={{
@@ -154,17 +223,32 @@ const AccountUserAccessKeys = () => {
       <L.BreadcrumbContainer>
         <BreadcrumbAccount pathname={pathname} />
       </L.BreadcrumbContainer>
-      <Head>
-        <HeadLeft>
-          {' '}
-          <IconCircle className="fas fa-key"></IconCircle>{' '}
-        </HeadLeft>
-        <HeadCenter>
-          <HeadTitle> {IAMUserName} </HeadTitle>
-        </HeadCenter>
+      <Head style={{ justifyContent: 'flex-start' }}>
+        <HeadSection>
+          <CustomIcon
+            color="white"
+            className="fas fa-arrow-left"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              history.push('../');
+            }}
+          />
+        </HeadSection>
+        <HeadSection>
+          <CustomIcon className="fas fa-key" />
+        </HeadSection>
+        <HeadSection>
+          <HeadTitle>{`Access Keys for: ${IAMUserName}`}</HeadTitle>
+        </HeadSection>
+        <HeadSectionSeparator />
+        <HeadSection>{accessKeysCountComponent}</HeadSection>
       </Head>
 
-      <SpacedBox pl={24} pr={24} style={{ flex: 1, backgroundColor: theme.brand.backgroundLevel3 }}>
+      <SpacedBox
+        pl={16}
+        pr={16}
+        style={{ flex: 1, backgroundColor: theme.brand.backgroundLevel3 }}
+      >
         <Table columns={columns} data={data} defaultSortingKey={'health'}>
           <TableHeader
             style={{
@@ -185,7 +269,19 @@ const AccountUserAccessKeys = () => {
             rowHeight="h40"
             separationLineVariant="backgroundLevel1"
             backgroundVariant="backgroundLevel3"
-          />
+          >
+            {Rows => (
+              <>
+                {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
+                  ? 'Loading access keys...'
+                  : ''}
+                {accessKeysStatus === 'error'
+                  ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
+                  : ''}
+                {accessKeysStatus === 'success' ? <Rows /> : ''}
+              </>
+            )}
+          </Table.SingleSelectableContent>
         </Table>
       </SpacedBox>
       <Route path={`${url}/create`}>
