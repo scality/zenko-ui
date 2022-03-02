@@ -1,5 +1,5 @@
 // @flow
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Route,
   useHistory,
@@ -32,6 +32,7 @@ import { useTheme } from 'styled-components';
 import { queryClient } from '../App';
 import { useMutation } from 'react-query';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 
 const CreatedOnCell = rowValue => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -80,6 +81,46 @@ const ToggleAccessKeyStatus = rowValue => {
   );
 };
 
+const DeleteAccessKeyAction = rowValue => {
+  const { accessKey, status: accessKeyStatus } = rowValue;
+  const IAMClient = useIAMClient();
+  const { IAMUserName } = useParams();
+  const [showModal, setShowModal] = useState(false);
+
+  const deleteAccessKeyMutation = useMutation(
+    accessKey => IAMClient.deleteAccessKey(accessKey, IAMUserName),
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+    },
+  );
+
+  return (
+    <>
+      <DeleteConfirmation
+        show={showModal}
+        cancel={() => setShowModal(false)}
+        approve={() => {
+          deleteAccessKeyMutation.mutate(accessKey);
+        }}
+        titleText={`Delete User Key? \n
+                    Permanently remove the following Key ${accessKey} ?`}
+      />
+      <Button
+        id='delete-accessKey-btn'
+        disabled={accessKeyStatus === 'Active'}
+        icon={<i className='fas fa-trash' />}
+        label='Delete'
+        onClick={() => {
+          setShowModal(true);
+        }}
+        variant='danger'
+        tooltip={{ overlay: accessKeyStatus === 'Active' ? 'A key cannot be deleted while active.' : 'Remove accessKey', placement: 'right' }}
+      />
+    </>
+  );
+};
+
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
   const { IAMUserName } = useParams();
@@ -107,6 +148,7 @@ const AccountUserAccessKeys = () => {
           accessKey: accesskey.AccessKeyId,
           createdOn: formatSimpleDate(accesskey.CreateDate),
           status: accesskey.Status,
+          actions: accesskey,
         };
       });
     } else {
@@ -140,6 +182,15 @@ const AccountUserAccessKeys = () => {
         marginRight: spacing.sp32,
       },
       Cell: value => ToggleAccessKeyStatus(value.row.original),
+    },
+    {
+      Header: '',
+      accessor: 'actions',
+      cellStyle: {
+        textAlign: 'right',
+        marginLeft: 'auto',
+      },
+      Cell: value => DeleteAccessKeyAction(value.row.original),
     },
   ];
 
