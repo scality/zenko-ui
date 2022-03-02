@@ -12,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { useIAMClient } from '../IAMProvider';
 import { useMutation } from 'react-query';
 import { queryClient } from '../App';
+import { getUserAccessKeysQuery } from '../Queries';
 
 type Props = {
   IAMUserName: string,
@@ -35,7 +36,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
 
@@ -52,17 +53,17 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     if (isFirstModal) {
       return (
         <div>
-          <Button variant="outline" onClick={handleClose} label="Cancel" />
+          <Button variant='outline' onClick={handleClose} label='Cancel' />
           <Button
-            icon={<i className="fas fa-arrow-right" />}
-            variant="primary"
+            icon={<i className='fas fa-arrow-right' />}
+            variant='primary'
             onClick={handleAccessKeyCreate}
-            label="Continue"
+            label='Continue'
           />
         </div>
       );
     }
-    return <Button onClick={handleClose} variant="primary" label="Close" />;
+    return <Button onClick={handleClose} variant='primary' label='Close' />;
   };
 
   return (
@@ -70,7 +71,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
       close={handleClose}
       footer={modalFooter(newKey)}
       isOpen={true}
-      title="Create Access keys"
+      title='Create Access keys'
     >
       {modalBody(newKey)}
     </Modal>
@@ -89,8 +90,8 @@ const modalBody = (key: AccountKey | null) => {
   return (
     <ModalBody>
       <Banner
-        icon={<i className="fas fa-exclamation-triangle" />}
-        variant="warning"
+        icon={<i className='fas fa-exclamation-triangle' />}
+        variant='warning'
       >
         An Access key ID and its Secret Access key have been created. <br />
         The Secret Access key cannot be retrieved afterwards, so make sure to

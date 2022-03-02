@@ -23,12 +23,10 @@ import { useIAMClient } from '../IAMProvider';
 import { formatSimpleDate } from '../utils';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
-import {
-  useAwsPaginatedEntities,
-  useAccessKeyOutdatedStatus,
-} from '../utils/IAMhooks';
+import { useAccessKeyOutdatedStatus } from '../utils/IAMhooks';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { getUserAccessKeysQuery, useUserAccessKeysQuery } from '../Queries';
 
 const CustomIcon = styled.i`
   color: ${props => props.color ?? props.theme.brand.infoPrimary};
@@ -78,7 +76,7 @@ const ToggleAccessKeyStatus = rowValue => {
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
 
@@ -115,7 +113,7 @@ const DeleteAccessKeyAction = rowValue => {
     accessKey => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
 
@@ -131,14 +129,14 @@ const DeleteAccessKeyAction = rowValue => {
                     Permanently remove the following Key ${accessKey} ?`}
       />
       <Button
-        id="delete-accessKey-btn"
+        id='delete-accessKey-btn'
         disabled={accessKeyStatus === 'Active'}
-        icon={<i className="fas fa-trash" />}
-        label="Delete"
+        icon={<i className='fas fa-trash' />}
+        label='Delete'
         onClick={() => {
           setShowModal(true);
         }}
-        variant="danger"
+        variant='danger'
         tooltip={{
           overlay:
             accessKeyStatus === 'Active'
@@ -160,17 +158,7 @@ const AccountUserAccessKeys = () => {
   const { url } = useRouteMatch();
   const theme = useTheme();
 
-  const {
-    data: accessKeysResult,
-    status: accessKeysStatus,
-  } = useAwsPaginatedEntities(
-    {
-      queryKey: ['listIAMUserAccessKey', IAMUserName],
-      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(IAMUserName, marker),
-      enabled: IAMClient !== null,
-    },
-    data => data.AccessKeyMetadata,
-  );
+  const { accessKeysResult, userAccessKeyStatus: accessKeysStatus } = useUserAccessKeysQuery(IAMUserName, IAMClient);
 
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
@@ -256,8 +244,8 @@ const AccountUserAccessKeys = () => {
                 />
               </div>
             }
-            variant="statusWarning"
-            title="Warning"
+            variant='statusWarning'
+            title='Warning'
           >
             Security Status: as a best practice, an user should not have more
             than 2 Access keys
@@ -283,8 +271,8 @@ const AccountUserAccessKeys = () => {
       <Head style={{ justifyContent: 'flex-start' }}>
         <HeadSection>
           <CustomIcon
-            color="white"
-            className="fas fa-arrow-left"
+            color='white'
+            className='fas fa-arrow-left'
             style={{ cursor: 'pointer' }}
             onClick={() => {
               history.push('../');
@@ -292,7 +280,7 @@ const AccountUserAccessKeys = () => {
           />
         </HeadSection>
         <HeadSection>
-          <CustomIcon className="fas fa-key" />
+          <CustomIcon className='fas fa-key' />
         </HeadSection>
         <HeadSection>
           <HeadTitle>{`Access Keys for: ${IAMUserName}`}</HeadTitle>
@@ -315,17 +303,17 @@ const AccountUserAccessKeys = () => {
             }}
           >
             <Button
-              icon={<i className="fas fa-plus" />}
-              label="Create Access Keys"
-              variant="primary"
+              icon={<i className='fas fa-plus' />}
+              label='Create Access Keys'
+              variant='primary'
               onClick={() => history.push('access-keys/create')}
-              type="submit"
+              type='submit'
             />
           </TableHeader>
           <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel3"
+            rowHeight='h40'
+            separationLineVariant='backgroundLevel1'
+            backgroundVariant='backgroundLevel3'
           >
             {Rows => (
               <>

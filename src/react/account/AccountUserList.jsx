@@ -1,6 +1,6 @@
 //@flow
 import type { Node } from 'react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
@@ -15,6 +15,11 @@ import { useQueryParams } from '../utils/hooks';
 import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { useMutation } from 'react-query';
+import { queryClient } from '../App';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { useUserAccessKeysQuery } from '../Queries';
+
 
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
@@ -24,22 +29,10 @@ const InlineButton = styled(Button)`
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-
-  const {
-    data: accessKeysResult,
-    status: userAccessKeyStatus,
-  } = useAwsPaginatedEntities(
-    {
-      queryKey: ['listIAMUserAccessKey', userName],
-      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(userName, marker),
-      enabled: IAMClient !== null,
-    },
-    data => data.AccessKeyMetadata,
-  );
+  const { accessKeysResult, userAccessKeyStatus } = useUserAccessKeysQuery(userName, IAMClient);
 
   const accessKeys = useMemo(() => {
     if (userAccessKeyStatus === 'success') {
-      // $FlowFixMe
       return accessKeysResult.length;
     }
     return 0;
@@ -63,10 +56,10 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
         </SpacedBox>
       ) : null}
       <InlineButton
-        icon={<i className="fas fa-eye" />}
-        variant="secondary"
+        icon={<i className='fas fa-eye' />}
+        variant='secondary'
         onClick={() => history.push(`users/${userName}/access-keys`)}
-        type="button"
+        type='button'
         tooltip={{
           overlayStyle: { width: '14rem' },
           overlay: 'Checking or creating access keys',
@@ -87,10 +80,10 @@ const renderActionButtons = rowValues => {
   return <CopyARNButton text={arn} />;
 };
 const WithTooltipWhileLoading = ({
-  children,
-  isLoading,
-  tooltipOverlay,
-}: {
+                                   children,
+                                   isLoading,
+                                   tooltipOverlay,
+                                 }: {
   tooltipOverlay: string,
   isLoading?: boolean,
   children: Node,
@@ -105,6 +98,50 @@ const WithTooltipWhileLoading = ({
 );
 
 const SEARCH_QUERY_PARAM = 'search';
+
+const DeleteUserAction = (rowValue, accountName) => {
+  const { userName } = rowValue;
+  const IAMClient = useIAMClient();
+  const [showModal, setShowModal] = useState(false);
+  const { accessKeysResult } = useUserAccessKeysQuery(userName, IAMClient);
+  //const { listGroupsResult } = useUserListGroupsQuery(userName, IAMClient);
+
+  const deleteUserMutation = useMutation(
+    userName => {
+      return IAMClient.deleteUser(userName);
+    },
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['listIAMUsers', accountName]),
+    },
+  );
+
+  return (
+    <>
+      <DeleteConfirmation
+        show={showModal}
+        cancel={() => setShowModal(false)}
+        approve={() => {
+          deleteUserMutation.mutate(userName);
+        }}
+        titleText={`Delete User Key? \n Permanently remove the following user ${userName} ?`}
+      />
+
+      <Button
+        id='delete-accessKey-btn'
+        disabled={accessKeysResult && accessKeysResult.length >= 1}
+        icon={<i className='fas fa-trash' />}
+        label='Delete'
+        onClick={() => {
+          setShowModal(true);
+        }}
+        variant='danger'
+        tooltip={{ overlay: 'Remove accessKey', placement: 'right' }}
+      />
+    </>
+  );
+};
+
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const history = useHistory();
@@ -141,7 +178,6 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
 
   const iamUsers = useMemo(() => {
     if (listUsersFirstPageStatus === 'success') {
-      // $FlowFixMe
       const iamUsers = listUsersResult.map(user => {
         return {
           userName: user.UserName,
@@ -149,6 +185,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           accessKeys: null,
           arn: user.Arn,
           actions: null,
+          deleteAction: null,
         };
       });
 
@@ -198,6 +235,16 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       disableSortBy: true,
       Cell: value => renderActionButtons(value.row.original),
     },
+    {
+      Header: '',
+      accessor: 'deleteAction',
+      cellStyle: {
+        textAlign: 'right',
+        minWidth: '5rem',
+      },
+      disableSortBy: true,
+      Cell: value => DeleteUserAction(value.row.original, accountName),
+    },
   ];
 
   return (
@@ -215,7 +262,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
             )}
             <WithTooltipWhileLoading
               isLoading={listUsersStatus === 'loading'}
-              tooltipOverlay="Search is disabled while loading users"
+              tooltipOverlay='Search is disabled while loading users'
             >
               <SearchInputComponent
                 disabled={listUsersStatus !== 'success'}
@@ -242,17 +289,17 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
             )}
           </div>
           <Button
-            icon={<i className="fas fa-plus" />}
-            label="Create User"
-            variant="primary"
+            icon={<i className='fas fa-plus' />}
+            label='Create User'
+            variant='primary'
             onClick={() => history.push('create-user')}
-            type="submit"
+            type='submit'
           />
         </TableHeader>
         <Table.SingleSelectableContent
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
+          rowHeight='h40'
+          separationLineVariant='backgroundLevel1'
+          backgroundVariant='backgroundLevel3'
           customItemKey={(index, iamUsers) => {
             return iamUsers[index].Arn;
           }}
