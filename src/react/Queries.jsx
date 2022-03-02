@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { useAwsPaginatedEntities } from './utils/IAMhooks';
-import { useIAMClient } from './IAMProvider';
 
 export const getUserAccessKeysQuery = (userName, IAMClient) => ({
   queryKey: ['listIAMUserAccessKey', userName],
