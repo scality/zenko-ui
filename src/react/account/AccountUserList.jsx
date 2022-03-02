@@ -39,6 +39,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
 
   const accessKeys = useMemo(() => {
     if (userAccessKeyStatus === 'success') {
+      // $FlowFixMe
       return accessKeysResult.length;
     }
     return 0;
@@ -140,6 +141,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
 
   const iamUsers = useMemo(() => {
     if (listUsersFirstPageStatus === 'success') {
+      // $FlowFixMe
       const iamUsers = listUsersResult.map(user => {
         return {
           userName: user.UserName,
