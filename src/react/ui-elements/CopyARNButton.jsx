@@ -8,8 +8,7 @@ import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
-  // To prevent the change of the width when the label change
-  width: 110px;
+  width: 7.5rem;
 `;
 const IconSuccess = styled.i`
   color: ${props => props.theme.brand.statusHealthy};
