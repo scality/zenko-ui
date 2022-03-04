@@ -1,33 +1,49 @@
 import { useState, useMemo } from 'react';
 import { useInfiniteQuery } from 'react-query';
-import type { QueryOptions, QueryFunctionContext } from 'react-query';
+import type {
+  QueryObserverOptions,
+  QueryFunctionContext,
+  QueryObserverIdleResult,
+  QueryObserverLoadingErrorResult,
+  QueryObserverLoadingResult,
+  QueryObserverRefetchErrorResult,
+  QueryObserverSuccessResult,
+} from 'react-query';
 import { DateTime } from 'luxon';
+
+type AWS_PAGINATED_ENTITIES<ENTITY> =
+  | (QueryObserverIdleResult<ENTITY[]> & { firstPageStatus: 'idle' }) //idle
+  | (QueryObserverLoadingErrorResult<ENTITY[]> & {
+      firstPageStatus: 'success' | 'error';
+    }) // error
+  | (QueryObserverLoadingResult<ENTITY[]> & { firstPageStatus: 'loading' }) //loading
+  | (Omit<QueryObserverLoadingResult<ENTITY[]>, 'data'> & {
+      data: ENTITY[];
+      firstPageStatus: 'success';
+    }) //loading, data
+  | (QueryObserverSuccessResult<ENTITY[]> & { firstPageStatus: 'success' }); // success, data
 export const useAwsPaginatedEntities = <
   API_RESPONSE extends {
     Marker?: string;
   },
-  ENTITY
+  ENTITY,
 >(
-  reactQueryOptions: QueryOptions<API_RESPONSE> & {
-    queryFn: (
-      context: QueryFunctionContext,
-      marker?: string,
-    ) => Promise<API_RESPONSE>;
-  },
+  reactQueryOptions:
+    | {
+        queryFn: (
+          context: QueryFunctionContext,
+          marker?: string,
+        ) => Promise<API_RESPONSE>;
+      }
+    | Omit<QueryObserverOptions<API_RESPONSE>, 'queryFn'>,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
-):
-  | {
-      data: null;
-      status: 'idle' | 'loading' | 'error';
-      firstPageStatus: 'idle' | 'loading' | 'error';
-    }
-  | {
-      data: ENTITY[];
-      status: 'loading' | 'error' | 'success';
-      firstPageStatus: 'success';
-    } => {
-  const [status, setStatus] = useState('idle');
-  const [firstPageStatus, setFirstPageStatus] = useState('idle');
+): AWS_PAGINATED_ENTITIES<ENTITY> => {
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
+  const [firstPageStatus, setFirstPageStatus] = useState<
+    'idle' | 'loading' | 'success' | 'error'
+  >('idle');
   const {
     data,
     status: internalStatus,
@@ -58,6 +74,7 @@ export const useAwsPaginatedEntities = <
       fetchNextPage();
     }
   }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);
+
   return {
     data:
       data &&
@@ -65,7 +82,7 @@ export const useAwsPaginatedEntities = <
       data.pages.flatMap((page) => getEntitiesFromResult(page)),
     status,
     firstPageStatus,
-  };
+  } as AWS_PAGINATED_ENTITIES<ENTITY>;
 };
 type AccessKeyObject = {
   accessKey: string;

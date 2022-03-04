@@ -3,6 +3,7 @@ import type { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface } from '../types/iam';
 import { getClients } from '../react/utils/actions';
+import { notFalsyTypeGuard } from '../types/typeGuards';
 export const rolePathName = 'scality-internal/storage-manager-role';
 export function getAssumeRoleWithWebIdentityParams(
   oidc: OIDCState,
@@ -36,7 +37,10 @@ export function getAssumeRoleWithWebIdentityIAM(
   });
 }
 export default class IAMClient implements IAMClientInterface {
-  constructor(endpoint) {
+  client?: IAM;
+  endpoint: string;
+
+  constructor(endpoint: string) {
     this.endpoint = endpoint;
   }
 
@@ -60,49 +64,49 @@ export default class IAMClient implements IAMClientInterface {
       });
   }
 
-  createAccessKey(userName) {
-    return this.client
+  createAccessKey(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .createAccessKey({
         UserName: userName,
       })
       .promise();
   }
 
-  createUser(userName) {
-    return this.client
+  createUser(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .createUser({
         UserName: userName,
       })
       .promise();
   }
 
-  deleteAccessKey(accessKey, userName) {
+  deleteAccessKey(accessKey: string, userName: string) {
     const params = {
       AccessKeyId: accessKey,
       UserName: userName,
     };
-    return this.client.deleteAccessKey(params).promise();
+    return notFalsyTypeGuard(this.client).deleteAccessKey(params).promise();
   }
 
-  updateAccessKey(accessKey, status, userName) {
+  updateAccessKey(accessKey: string, status: string, userName: string) {
     const params = {
       AccessKeyId: accessKey,
       Status: status,
       UserName: userName,
     };
-    return this.client.updateAccessKey(params).promise();
+    return notFalsyTypeGuard(this.client).updateAccessKey(params).promise();
   }
 
-  deleteUser(userName) {
-    return this.client
+  deleteUser(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .deleteUser({
         UserName: userName,
       })
       .promise();
   }
 
-  getUser(userName) {
-    return this.client
+  getUser(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .getUser({
         UserName: userName,
       })
@@ -110,42 +114,42 @@ export default class IAMClient implements IAMClientInterface {
   }
 
   listOwnAccessKeys() {
-    return this.client.listAccessKeys().promise();
+    return notFalsyTypeGuard(this.client).listAccessKeys().promise();
   }
 
-  listAccessKeys(userName, marker) {
-    const req = this.client.listAccessKeys({
+  listAccessKeys(userName: string, marker?: string) {
+    const req = notFalsyTypeGuard(this.client).listAccessKeys({
       UserName: userName,
       Marker: marker,
     });
     return req.promise();
   }
 
-  listAttachedUserPolicies(userName) {
-    return this.client
+  listAttachedUserPolicies(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .listAttachedUserPolicies({
         UserName: userName,
       })
       .promise();
   }
 
-  listGroupsForUser(userName) {
-    return this.client
+  listGroupsForUser(userName: string) {
+    return notFalsyTypeGuard(this.client)
       .listGroupsForUser({
         UserName: userName,
       })
       .promise();
   }
 
-  listUsers(maxItems, marker) {
-    return this.client
+  listUsers(maxItems?: number, marker?: string) {
+    return notFalsyTypeGuard(this.client)
       .listUsers({
         MaxItems: maxItems,
         Marker: marker,
       })
       .promise();
   }
-} // OFFLILE
+} // OFFLINE
 // export default class IAMClient {
 //     constructor() {
 //         this.users = [{

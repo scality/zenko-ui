@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { ChangeEvent, useMemo } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
@@ -13,6 +13,7 @@ import { useQueryParams } from '../utils/hooks';
 import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
@@ -21,33 +22,30 @@ const InlineButton = styled(Button)`
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const {
-    data: accessKeysResult,
-    status: userAccessKeyStatus,
-  } = useAwsPaginatedEntities(
+  const accessKeysQuery = useAwsPaginatedEntities(
     {
       queryKey: ['listIAMUserAccessKey', userName],
-      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(userName, marker),
+      queryFn: (_ctx, marker) => notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
       enabled: IAMClient !== null,
     },
     (data) => data.AccessKeyMetadata,
   );
   const accessKeys = useMemo(() => {
-    if (userAccessKeyStatus === 'success') {
-      return accessKeysResult.length;
+    if (accessKeysQuery.status === 'success') {
+      return accessKeysQuery.data.length;
     }
 
     return 0;
-  }, [userAccessKeyStatus]);
+  }, [accessKeysQuery.status]);
   // display a hyphen if there is an error occurs
-  return userAccessKeyStatus === 'error' ? null : (
+  return accessKeysQuery.status === 'error' ? null : (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
       }}
     >
-      {userAccessKeyStatus === 'loading' && (
+      {accessKeysQuery.status === 'loading' && (
         <SpacedBox
           mr={12}
           style={{
@@ -57,7 +55,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           loading...
         </SpacedBox>
       )}
-      {userAccessKeyStatus === 'success' ? (
+      {accessKeysQuery.status === 'success' ? (
         <SpacedBox
           mr={12}
           style={{
@@ -82,7 +80,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           },
           overlay: 'Checking or creating access keys',
         }}
-        disabled={userAccessKeyStatus === 'loading'}
+        disabled={accessKeysQuery.status === 'loading'}
       />
     </div>
   );
@@ -124,16 +122,12 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const match = useRouteMatch();
   const search = queryParams.get(SEARCH_QUERY_PARAM);
 
-  const setSearch = (newSearch) => {
+  const setSearch = (newSearch: string) => {
     queryParams.set(SEARCH_QUERY_PARAM, newSearch);
     history.replace(`${match.url}?${queryParams.toString()}`);
   };
 
-  const {
-    data: listUsersResult,
-    status: listUsersStatus,
-    firstPageStatus: listUsersFirstPageStatus,
-  } = useAwsPaginatedEntities(
+  const listUsersQuery = useAwsPaginatedEntities(
     {
       queryKey: ['listIAMUsers', accountName],
       queryFn: (_ctx, marker) => {
@@ -151,8 +145,8 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     (page) => page.Users,
   );
   const iamUsers = useMemo(() => {
-    if (listUsersFirstPageStatus === 'success') {
-      const iamUsers = listUsersResult.map((user) => {
+    if (listUsersQuery.status === 'success') {
+      const iamUsers = listUsersQuery.data.map((user) => {
         return {
           userName: user.UserName,
           createdOn: formatSimpleDate(user.CreateDate),
@@ -172,7 +166,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     }
 
     return [];
-  }, [listUsersFirstPageStatus, listUsersResult, search]);
+  }, [listUsersQuery.status, listUsersQuery.data, search]);
   const columns = [
     {
       Header: 'User Name',
@@ -223,8 +217,8 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
               alignItems: 'center',
             }}
           >
-            {listUsersFirstPageStatus !== 'loading' &&
-            listUsersFirstPageStatus !== 'error' ? (
+            {listUsersQuery.status !== 'loading' &&
+            listUsersQuery.status !== 'error' ? (
               <SpacedBox mr={12}>
                 Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
               </SpacedBox>
@@ -232,25 +226,25 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
               ''
             )}
             <WithTooltipWhileLoading
-              isLoading={listUsersStatus === 'loading'}
+              isLoading={listUsersQuery.status === 'loading'}
               tooltipOverlay="Search is disabled while loading users"
             >
               <SearchInputComponent
-                disabled={listUsersStatus !== 'success'}
+                disabled={listUsersQuery.status !== 'success'}
                 value={search}
                 placeholder={'Search'}
                 disableToggle
-                onChange={(evt) => {
+                onChange={(evt: ChangeEvent<HTMLInputElement>) => {
                   setSearch(evt.target.value);
                 }}
               />
             </WithTooltipWhileLoading>
-            {listUsersStatus === 'loading' ? (
+            {listUsersQuery.status === 'loading' ? (
               <SpacedBox ml={12}>Loading users...</SpacedBox>
             ) : (
               ''
             )}
-            {listUsersStatus === 'error' ? (
+            {listUsersQuery.status === 'error' ? (
               <SpacedBox ml={12}>
                 An error occured, users listing may be incomplete. Please retry
                 and if the error persist contact your support.
@@ -277,14 +271,14 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         >
           {(Rows) => (
             <>
-              {listUsersFirstPageStatus === 'loading' ||
-              listUsersFirstPageStatus === 'idle'
+              {listUsersQuery.status === 'loading' ||
+              listUsersQuery.status === 'idle'
                 ? 'Loading users...'
                 : ''}
-              {listUsersFirstPageStatus === 'error'
+              {listUsersQuery.status === 'error'
                 ? 'We failed to retrieve users, please retry later. If the error persists, please contact your support.'
                 : ''}
-              {listUsersFirstPageStatus === 'success' ? <Rows /> : ''}
+              {listUsersQuery.status === 'success' ? <Rows /> : ''}
             </>
           )}
         </Table.SingleSelectableContent>
