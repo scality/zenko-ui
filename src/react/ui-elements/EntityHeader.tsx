@@ -1,9 +1,7 @@
-import React from 'react';
-import type { Node } from 'react';
 import { TextBadge } from './TextBadge';
 import * as L from './ListLayout2';
 type Props = {
-  icon: Node;
+  icon: JSX.Element;
   headTitle: string;
   numInstance: number;
 };

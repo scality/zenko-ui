@@ -1,11 +1,8 @@
-// @noflow
 import { Checkbox as BasicCheckbox, Tooltip } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
-import type { Node } from 'react';
-import React from 'react';
 import styled from 'styled-components';
 import {
   SmallerText,
@@ -92,7 +89,7 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  children: Node;
+  children: JSX.Element;
   hasError: boolean;
 };
 export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
@@ -118,7 +115,7 @@ const UlOverlay = styled.ul`
   padding: 0px 0px 0px ${spacing.sp20};
 `;
 type LabelProps = {
-  children: Node;
+  children: JSX.Element;
   tooltipMessages?: Array<string>;
   tooltipWidth?: string;
   style?: CSSStyleSheet;

@@ -1,4 +1,3 @@
-import type { Node } from 'react';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
@@ -124,7 +123,7 @@ const WithTooltipWhileLoading = ({
 }: {
   tooltipOverlay: string;
   isLoading?: boolean;
-  children: Node;
+  children: JSX.Element;
 }) => (
   <>
     {isLoading ? (

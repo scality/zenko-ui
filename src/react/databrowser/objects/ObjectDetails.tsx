@@ -1,5 +1,3 @@
-import React from 'react';
-import type { Node } from 'react';
 import type { AppState } from '../../../types/state';
 import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
@@ -18,11 +16,11 @@ type Props = {
   toggled: List<Record<string, any>>;
   listType: ListObjectsType;
 };
-export const InfoWarning = ({ title }: { title: Node }) => (
+export const InfoWarning = ({ title }: { title: JSX.Element }) => (
   <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
 );
 
-const warningTitle = (toggled: List<Record<string, any>>): Node => {
+const warningTitle = (toggled: List<Record<string, any>>): JSX.Element => {
   if (toggled.size === 1) {
     const firstObject = toggled.first();
     const { isDeleteMarker, isFolder } = firstObject;

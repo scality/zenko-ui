@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@scality/core-ui';
 import styled from 'styled-components';
 const StyledMiddleEllipsis = styled.div`
