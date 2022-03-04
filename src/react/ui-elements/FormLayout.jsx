@@ -51,7 +51,7 @@ export const SubTitle = styled.div`
 
 export const Fieldset = styled.fieldset`
   display: flex;
-  flex-direction: ${props => props.direction || 'column'};
+  flex-direction: ${props => props.flexDirection || 'column'};
   ${props => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
   border: 0;
   padding: 0;

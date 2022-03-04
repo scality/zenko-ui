@@ -15,6 +15,7 @@ import type { AppState } from '../../types/state';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
+import AccountUpdateUser from './AccountUpdateUser';
 
 function AccountContent() {
   const { accountName: accountNameParam } = useParams();
@@ -34,6 +35,9 @@ function AccountContent() {
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />
+        </Route>
+        <Route path={`${path}/users/:IAMUserName/update-user`}>
+          <AccountUpdateUser />
         </Route>
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />

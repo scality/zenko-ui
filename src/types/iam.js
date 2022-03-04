@@ -11,6 +11,7 @@ export interface IAMClient {
   createUser(userName: string): Promise<IAMResp>;
   deleteAccessKey(accessKey: string, userName: string): Promise<IAMResp>;
   updateAccessKey(accessKey: string, status: string, userName: string): Promise<IAMResp>;
+  updateUser(newUserName: string, userName: string): Promise<IAMResp>;
   deleteUser(userName: string): Promise<IAMResp>;
   getUser(userName: string): Promise<IAMResp>;
   listAccessKeys(userName: string): Promise<IAMResp>;

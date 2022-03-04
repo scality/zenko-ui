@@ -100,6 +100,14 @@ export default class IAMClient implements IAMClientInterface {
     return this.client.updateAccessKey(params).promise();
   }
 
+  updateUser(newUserName, userName) {
+    const params = {
+      NewUserName: newUserName,
+      UserName: userName,
+    };
+    return this.client.updateUser(params).promise();
+  }
+
   deleteUser(userName) {
     return this.client
       .deleteUser({
