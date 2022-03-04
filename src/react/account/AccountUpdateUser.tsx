@@ -39,15 +39,15 @@ const AccountUpdateUser = () => {
 
   const updateUserMutation = useMutation(
     (newUserName) => {
-      let oldUserName = IAMUserName;
+      const oldUserName = IAMUserName;
       return IAMClient.updateUser(newUserName, oldUserName)
         .then(() => {
           queryClient.setQueryData(['listIAMUsers', accountName], (old) => {
             if (old) {
               const pages = old.pages;
               pages.some((page) => {
-                let users = page.Users;
-                let index = users.findIndex(
+                const users = page.Users;
+                const index = users.findIndex(
                   (user) => user.UserName === oldUserName,
                 );
                 return index !== -1 && (users[index].UserName = newUserName);
