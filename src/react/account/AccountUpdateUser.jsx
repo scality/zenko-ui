@@ -39,6 +39,7 @@ const AccountUpdateUser = () => {
 
   const updateUserMutation = useMutation(
     (newUserName) => {
+<<<<<<< HEAD:src/react/account/AccountUpdateUser.jsx
       let oldUserName = IAMUserName;
       return IAMClient.updateUser(
         newUserName,
@@ -61,6 +62,31 @@ const AccountUpdateUser = () => {
       }).catch((err) => {
         dispatch(handleErrorMessage(`${err}`, 'byModal'));
       })
+=======
+      const oldUserName = IAMUserName;
+      return IAMClient.updateUser(newUserName, oldUserName)
+        .then(() => {
+          queryClient.setQueryData(['listIAMUsers', accountName], (old) => {
+            if (old) {
+              const pages = old.pages;
+              pages.some((page) => {
+                const users = page.Users;
+                const index = users.findIndex(
+                  (user) => user.UserName === oldUserName,
+                );
+                return index !== -1 && (users[index].UserName = newUserName);
+              });
+              return {
+                ...old,
+                pages,
+              };
+            }
+          });
+        })
+        .catch((err) => {
+          dispatch(handleErrorMessage(`${err}`, 'byModal'));
+        })
+>>>>>>> 73a1a5b (Update AccountUpdateUser.tsx):src/react/account/AccountUpdateUser.tsx
         .finally(() => {
           dispatch(networkEnd());
         });
