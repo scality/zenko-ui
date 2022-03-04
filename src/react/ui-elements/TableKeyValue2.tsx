@@ -1,7 +1,6 @@
 // @noflow
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import React from 'react';
 import { Tooltip } from '@scality/core-ui';
 // TEMPLATE
 //
@@ -102,7 +101,7 @@ const KeyContainer = styled.div`
   }
 `;
 type KeyTooltipProps = {
-  children: Node;
+  children: JSX.Element;
   tooltipMessage: string;
   tooltipWidth: string;
   required?: boolean;
