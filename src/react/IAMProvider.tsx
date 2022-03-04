@@ -1,12 +1,14 @@
-import React, { createContext, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
+import { AppState } from '../types/state';
 
-const IAMContext = createContext<null | { iamClient: IAMClient }>(null);
+//Only exported to ease testing
+export const _IAMContext = createContext<null | { iamClient: IAMClient | null }>(null);
 export const useIAMClient = () => {
-  const IAMCtxt = useContext(IAMContext);
+  const IAMCtxt = useContext(_IAMContext);
 
   if (!IAMCtxt) {
     throw new Error(
@@ -19,20 +21,20 @@ export const useIAMClient = () => {
 
 const IAMProvider = ({ children }: { children: JSX.Element }) => {
   const { accountName } = useParams<{ accountName: string }>();
-  const state = useSelector(state => state);
+  const state = useSelector((state: AppState) => state);
   const { data: IAMClientResult } = useQuery({
     queryKey: ['IAMClient', accountName],
     queryFn: () => getAssumeRoleWithWebIdentityIAM(state, accountName),
-    enabled: accountName && accountName !== '',
+    enabled: !!accountName && accountName !== '',
   });
   return (
-    <IAMContext.Provider
+    <_IAMContext.Provider
       value={{
         iamClient: IAMClientResult || null,
       }}
     >
       {children}
-    </IAMContext.Provider>
+    </_IAMContext.Provider>
   );
 };
 
