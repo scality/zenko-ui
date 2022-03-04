@@ -39,30 +39,6 @@ const AccountUpdateUser = () => {
 
   const updateUserMutation = useMutation(
     (newUserName) => {
-<<<<<<< HEAD:src/react/account/AccountUpdateUser.jsx
-      let oldUserName = IAMUserName;
-      return IAMClient.updateUser(
-        newUserName,
-        oldUserName,
-      ).then(() => {
-        queryClient.setQueryData(['listIAMUsers', accountName], old => {
-          if (old) {
-            const pages = old.pages;
-            pages.some(page => {
-              let users = page.Users;
-              let index = users.findIndex((user => user.UserName === oldUserName));
-              return index !== -1 && (users[index].UserName = newUserName);
-            });
-            return {
-              ...old,
-              pages,
-            };
-          }
-        });
-      }).catch((err) => {
-        dispatch(handleErrorMessage(`${err}`, 'byModal'));
-      })
-=======
       const oldUserName = IAMUserName;
       return IAMClient.updateUser(newUserName, oldUserName)
         .then(() => {
@@ -86,7 +62,6 @@ const AccountUpdateUser = () => {
         .catch((err) => {
           dispatch(handleErrorMessage(`${err}`, 'byModal'));
         })
->>>>>>> 73a1a5b (Update AccountUpdateUser.tsx):src/react/account/AccountUpdateUser.tsx
         .finally(() => {
           dispatch(networkEnd());
         });
@@ -149,7 +124,7 @@ const AccountUpdateUser = () => {
 
         <F.Fieldset style={{ width: '100%', flexDirection: 'row' }}>
           <F.Label
-            tooltipMessages={[<div key = {IAMUserName} style={{ textAlign: 'start' }}>
+            tooltipMessages={[<div key={IAMUserName} style={{ textAlign: 'start' }}>
               <div>The ARN and the (friendly) name for the user will be edited, but the unique ID remains the same.
               </div>
               <br />
