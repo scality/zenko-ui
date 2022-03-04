@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import MiddleEllipsis from './MiddleEllipsis';
-import type { Node } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 const HideContainer = styled.div`
@@ -40,7 +39,7 @@ export function HideCredential({ credentials }: { credentials: string }) {
   );
 }
 
-function Hide({ isHidden, children }: { isHidden: boolean; children: Node }) {
+function Hide({ isHidden, children }: { isHidden: boolean; children: JSX.Element }) {
   if (isHidden) {
     return null;
   }
