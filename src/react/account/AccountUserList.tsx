@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo } from 'react';
+import React, { ChangeEvent, useMemo } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
@@ -92,9 +92,28 @@ const renderAccessKeyComponent = ({ row }) => (
   <AsyncRenderAccessKey userName={row.original.userName} />
 );
 
+const RenderEditButton = ({ userName }: { userName: string }) => {
+  const history = useHistory();
+  return (
+    <SpacedBox ml={12}>
+      <Button
+        style={{ height: spacing.sp24 }}
+        variant='secondary'
+        label='Edit'
+        icon={<i className='fa fa-pen'></i>}
+        onClick={() => history.push(`users/${userName}/update-user`)}
+      />
+    </SpacedBox>);
+};
+
 const renderActionButtons = (rowValues) => {
-  const { arn } = rowValues;
-  return <CopyARNButton text={arn} />;
+  const { arn, userName } = rowValues;
+  return (
+    <div style={{ display: 'flex' }}>
+      <CopyARNButton text={arn} />
+      <RenderEditButton userName={userName} />
+    </div>
+  );
 };
 
 const WithTooltipWhileLoading = ({
@@ -199,6 +218,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
+        marginLeft: 'auto',
         minWidth: '25rem',
       },
       disableSortBy: true,

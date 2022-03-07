@@ -13,6 +13,7 @@ import AccountHead from './AccountHead';
 import type { AppState } from '../../types/state';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
+import AccountUpdateUser from './AccountUpdateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
 
 function AccountContent() {
@@ -31,6 +32,9 @@ function AccountContent() {
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />
+        </Route>
+        <Route path={`${path}/users/:IAMUserName/update-user`}>
+          <AccountUpdateUser />
         </Route>
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />

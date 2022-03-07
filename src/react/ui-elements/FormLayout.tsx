@@ -89,8 +89,9 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  children: JSX.Element;
+  children: JSX.Element|JSX.Element[];
   hasError: boolean;
+  id?: string;
 };
 export const ErrorInput = ({ children, hasError }: ErrorInputProps) => (
   <ErrorInputContainer>{hasError && children}</ErrorInputContainer>
@@ -115,8 +116,8 @@ const UlOverlay = styled.ul`
   padding: 0px 0px 0px ${spacing.sp20};
 `;
 type LabelProps = {
-  children: JSX.Element;
-  tooltipMessages?: Array<string>;
+  children: JSX.Element|string;
+  tooltipMessages?: JSX.Element[]|Array<string>;
   tooltipWidth?: string;
   style?: CSSStyleSheet;
 };

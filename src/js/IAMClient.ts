@@ -97,6 +97,14 @@ export default class IAMClient implements IAMClientInterface {
     return notFalsyTypeGuard(this.client).updateAccessKey(params).promise();
   }
 
+  updateUser(newUserName: string, userName: string) {
+    const params = {
+      NewUserName: newUserName,
+      UserName: userName,
+    };
+    return notFalsyTypeGuard(this.client).updateUser(params).promise();
+  }
+
   deleteUser(userName: string) {
     return notFalsyTypeGuard(this.client)
       .deleteUser({
