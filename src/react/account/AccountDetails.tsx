@@ -1,4 +1,4 @@
-import { useTheme } from 'styled-components';
+import { DefaultTheme, useTheme } from 'styled-components';
 import React from 'react';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
@@ -7,6 +7,8 @@ import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
+import { AppState } from '../../types/state';
+import { useSelector } from 'react-redux';
 type Props = {
   account: Account | null | undefined;
 };
@@ -19,8 +21,9 @@ const NotFound = () => (
 );
 
 function AccountDetails({ account }: Props) {
-  const theme = useTheme();
+  const theme: DefaultTheme = useTheme();
   const { accountName } = useParams<{accountName: string }>();
+  const features = useSelector((state: AppState) => state.auth.config.features);
 
   const { url } = useRouteMatch();
 
@@ -46,9 +49,9 @@ function AccountDetails({ account }: Props) {
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
         <Locations />
       </CustomTabs.Tab>
-      <CustomTabs.Tab label="Users" path={`${url}/users`}>
+      {features.includes("IAM_USERS") && <CustomTabs.Tab label="Users" path={`${url}/users`}>
         <AccountUserList accountName={accountName} />
-      </CustomTabs.Tab>
+      </CustomTabs.Tab>}
     </CustomTabs>
   );
 }
