@@ -6,7 +6,6 @@ import type {
   QueryObserverIdleResult,
   QueryObserverLoadingErrorResult,
   QueryObserverLoadingResult,
-  QueryObserverRefetchErrorResult,
   QueryObserverSuccessResult,
 } from 'react-query';
 import { DateTime } from 'luxon';
