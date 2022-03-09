@@ -27,6 +27,8 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
       queryKey: ['listIAMUserAccessKey', userName],
       queryFn: (_ctx, marker) => notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
       enabled: IAMClient !== null,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false
     },
     (data) => data.AccessKeyMetadata,
   );
@@ -145,7 +147,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     (page) => page.Users,
   );
   const iamUsers = useMemo(() => {
-    if (listUsersQuery.status === 'success') {
+    if (listUsersQuery.firstPageStatus === 'success') {
       const iamUsers = listUsersQuery.data.map((user) => {
         return {
           userName: user.UserName,
@@ -166,7 +168,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     }
 
     return [];
-  }, [listUsersQuery.status, listUsersQuery.data, search]);
+  }, [listUsersQuery.firstPageStatus, listUsersQuery.data, search]);
   const columns = [
     {
       Header: 'User Name',
@@ -217,8 +219,8 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
               alignItems: 'center',
             }}
           >
-            {listUsersQuery.status !== 'loading' &&
-            listUsersQuery.status !== 'error' ? (
+            {listUsersQuery.firstPageStatus !== 'loading' &&
+            listUsersQuery.firstPageStatus !== 'error' ? (
               <SpacedBox mr={12}>
                 Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
               </SpacedBox>
@@ -239,7 +241,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
                 }}
               />
             </WithTooltipWhileLoading>
-            {listUsersQuery.status === 'loading' ? (
+            {listUsersQuery.firstPageStatus === 'loading' ? (
               <SpacedBox ml={12}>Loading users...</SpacedBox>
             ) : (
               ''
@@ -271,14 +273,14 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         >
           {(Rows) => (
             <>
-              {listUsersQuery.status === 'loading' ||
-              listUsersQuery.status === 'idle'
+              {listUsersQuery.firstPageStatus === 'loading' ||
+              listUsersQuery.firstPageStatus === 'idle'
                 ? 'Loading users...'
                 : ''}
-              {listUsersQuery.status === 'error'
+              {listUsersQuery.firstPageStatus === 'error'
                 ? 'We failed to retrieve users, please retry later. If the error persists, please contact your support.'
                 : ''}
-              {listUsersQuery.status === 'success' ? <Rows /> : ''}
+              {listUsersQuery.firstPageStatus === 'success' ? <Rows /> : ''}
             </>
           )}
         </Table.SingleSelectableContent>
