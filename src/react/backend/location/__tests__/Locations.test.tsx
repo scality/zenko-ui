@@ -1,8 +1,10 @@
 import * as T from '../../../ui-elements/Table';
 import Locations from '../Locations';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
+import '@testing-library/jest-dom';
+import { mockOffsetSize, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
+import { screen, prettyDOM, getAllByRole, getByText, getByLabelText } from '@testing-library/react';
 const locationFile = {
   details: {
     bootstrapList: [],
@@ -92,9 +94,28 @@ const locations = {
 };
 const nbrOfColumnsExpected = 5;
 const nbrOfColumnsExpectedWithoutXDM = 4;
+
+beforeAll(() => {
+  mockOffsetSize(200, 800);
+});
+
+function expectFirstRow(gridCellOfFirstRow: HTMLElement[], num: number, str: string) { ///Amazon S3/
+  expect(getByText(
+    gridCellOfFirstRow[num],
+    new RegExp( str ),
+  )).toBeInTheDocument();
+}
+
+function expectButtonNotDisable(buttonOfFirstRow: HTMLElement[], num: number, str: string) {
+  expect(getByLabelText(
+    buttonOfFirstRow[num],
+    new RegExp( str ),
+  )).not.toBeDisabled();
+}
+
 describe('Locations', () => {
-  it('should render Locations component alphabetically sorted', () => {
-    const { component } = reduxMount(<Locations />, {
+  it.only('should render Locations component alphabetically sorted', () => {
+    reduxRender(<Locations />, {
       configuration: {
         latest: {
           locations,
@@ -105,121 +126,90 @@ describe('Locations', () => {
         replications: [],
       },
     });
-    expect(component.find('div#location-list')).toHaveLength(1);
-    const rows = component.find(T.Row);
-    expect(rows).toHaveLength(7);
-    const firstRow = rows.first();
-    const firstRowColumns = firstRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(firstRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(firstRowColumns[0]).toEqual('location-aws-s3');
-    expect(firstRowColumns[1]).toEqual('Amazon S3');
-    expect(firstRowColumns[2]).toEqual('bucketName1');
-    // edit button
-    expect(
-      firstRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      firstRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
-    const secondRow = rows.at(1);
-    const secondRowColumns = secondRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(secondRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(secondRowColumns[0]).toEqual('location-ceph');
-    expect(secondRowColumns[1]).toEqual('Ceph RADOS Gateway');
-    expect(secondRowColumns[2]).toEqual('bucketName2');
-    // edit button
-    expect(
-      secondRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      secondRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
-    const thirdRow = rows.at(2);
-    const thirdRowColumns = thirdRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(thirdRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(thirdRowColumns[0]).toEqual('location-file');
-    expect(thirdRowColumns[1]).toEqual('Local Filesystem');
-    expect(thirdRowColumns[2]).toEqual('');
-    // edit button
-    expect(
-      thirdRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeTruthy();
-    // delete button
-    expect(
-      thirdRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeTruthy();
-    const fourthRow = rows.at(3);
-    const fourthRowColumns = fourthRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(fourthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(fourthRowColumns[0]).toEqual('location-hd');
-    expect(fourthRowColumns[1]).toEqual('Storage Service for ARTESCA');
-    expect(fourthRowColumns[2]).toEqual('');
-    // edit button
-    expect(
-      fourthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      fourthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
-    const fifthRow = rows.at(4);
-    const fifthRowColumns = fifthRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(fifthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(fifthRowColumns[0]).toEqual('location-nfs');
-    expect(fifthRowColumns[1]).toEqual('NFS Mount');
-    expect(fifthRowColumns[2]).toEqual('');
-    // edit button
-    expect(
-      fifthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      fifthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
-    const sixthRow = rows.at(5);
-    const sixthRowColumns = sixthRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(sixthRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(sixthRowColumns[0]).toEqual('location-ring');
-    expect(sixthRowColumns[1]).toEqual('Scality RING with S3 Connector');
-    expect(sixthRowColumns[2]).toEqual('bucketName3');
-    // edit button
-    expect(
-      sixthRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      sixthRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
-    const seventhRow = rows.at(6);
-    const seventhRowColumns = seventhRow
-      .find(T.Cell)
-      .map((column) => column.text());
-    expect(seventhRowColumns.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
-    expect(seventhRowColumns[0]).toEqual('location-sproxyd');
-    expect(seventhRowColumns[1]).toEqual('Scality RING with Sproxyd Connector');
-    expect(seventhRowColumns[2]).toEqual('');
-    // edit button
-    expect(
-      seventhRow.find(T.Cell).find(T.ActionButton).first().prop('disabled'),
-    ).toBeFalsy();
-    // delete button
-    expect(
-      seventhRow.find(T.Cell).find(T.ActionButton).at(1).prop('disabled'),
-    ).toBeFalsy();
+
+    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    //console.log(prettyDOM(buttonOfFirstRow[1]))
+    /*********************************************************/
+    const firstRow = screen.getAllByRole('row')[1];
+    const gridCellOfFirstRow = getAllByRole(firstRow, 'gridcell');
+    const buttonOfFirstRow = getAllByRole(firstRow, 'button');
+
+    expectFirstRow(gridCellOfFirstRow, 0, 'location-aws-s3');
+    expectFirstRow(gridCellOfFirstRow, 1, 'Amazon S3');
+    expectFirstRow(gridCellOfFirstRow, 2, 'bucketName1');
+
+    expectButtonNotDisable(buttonOfFirstRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfFirstRow, 1, 'Delete Location');
+    /*********************************************************/
+    const secondRow = screen.getAllByRole('row')[2];
+    const gridCellOfSecondRow = getAllByRole(secondRow, 'gridcell');
+    expect(gridCellOfSecondRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfSecondRow, 0, 'location-ceph');
+    expectFirstRow(gridCellOfSecondRow, 1, 'Ceph RADOS Gateway');
+    expectFirstRow(gridCellOfSecondRow, 2, 'bucketName2');
+
+    const buttonOfSecondtRow = getAllByRole(secondRow, 'button');
+    expectButtonNotDisable(buttonOfSecondtRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfSecondtRow, 1, 'Delete Location');
+    /*********************************************************/
+    const thirdRow = screen.getAllByRole('row')[3];
+    const gridCellOfThirdRow = getAllByRole(thirdRow, 'gridcell');
+    expect(gridCellOfThirdRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfThirdRow, 0, 'location-file');
+    expectFirstRow(gridCellOfThirdRow, 1, 'Local Filesystem');
+
+    const buttonOfThirdRow = getAllByRole(secondRow, 'button');
+    expectButtonNotDisable(buttonOfThirdRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfThirdRow, 1, 'Delete Location');
+    /*********************************************************/
+    const fourthRow = screen.getAllByRole('row')[4];
+    const gridCellOfFourthRow = getAllByRole(fourthRow, 'gridcell');
+    expect(gridCellOfFourthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfFourthRow, 0, 'location-hd');
+    expectFirstRow(gridCellOfFourthRow, 1, 'Storage Service for ARTESCA');
+
+    const buttonOfFourthRow = getAllByRole(secondRow, 'button');
+    expectButtonNotDisable(buttonOfFourthRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfFourthRow, 1, 'Delete Location');
+    /*********************************************************/
+    const fifthRow = screen.getAllByRole('row')[5];
+    const gridCellOfFifthRow = getAllByRole(fifthRow, 'gridcell');
+    expect(gridCellOfFifthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfFifthRow, 0, 'location-nfs');
+    expectFirstRow(gridCellOfFifthRow, 1, 'NFS Mount');
+
+    const buttonOfFifthRow = getAllByRole(fifthRow, 'button');
+    expectButtonNotDisable(buttonOfFifthRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfFifthRow, 1, 'Delete Location');
+    /*********************************************************/
+    const sixthRow = screen.getAllByRole('row')[6];
+    const gridCellOfSixthRow = getAllByRole(sixthRow, 'gridcell');
+    expect(gridCellOfSixthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfSixthRow, 0, 'location-ring');
+    expectFirstRow(gridCellOfSixthRow, 1, 'Scality RING with S3 Connector');
+    expectFirstRow(gridCellOfSixthRow, 2, 'bucketName3');
+    console.log(prettyDOM(gridCellOfSixthRow[1]))
+
+    const buttonOfSixthtRow = getAllByRole(sixthRow, 'button');
+    expectButtonNotDisable(buttonOfSixthtRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfSixthtRow, 1, 'Delete Location');
+    /*********************************************************/
+    const seventhRow = screen.getAllByRole('row')[7];
+    const gridCellOfSeventhRow = getAllByRole(seventhRow, 'gridcell');
+    expect(gridCellOfSeventhRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+
+    expectFirstRow(gridCellOfSeventhRow, 0, 'location-sproxyd');
+    expectFirstRow(gridCellOfSeventhRow, 1, 'Scality RING with Sproxyd Connector');
+
+    const buttonOfSeventhtRow = getAllByRole(seventhRow, 'button');
+    expectButtonNotDisable(buttonOfSeventhtRow, 0, 'Edit Location');
+    expectButtonNotDisable(buttonOfSeventhtRow, 1, 'Delete Location');
+
   });
   it('should disable delete location button if location is being used for replication when XDM feature is disabled', () => {
     const { component } = reduxMount(<Locations />, {

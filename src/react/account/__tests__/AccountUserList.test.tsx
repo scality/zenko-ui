@@ -1,4 +1,13 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  prettyDOM,
+  getAllByRole,
+  getByLabelText,
+  getByText, getByPlaceholderText, getByTitle,
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
@@ -14,6 +23,7 @@ const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
 const SAMPLE_CREATE_DATE = '2022-03-02T08:35:24Z';
 const SAMPLE_ARN = `arn:aws:iam::970343539682:user/${SAMPLE_USER_NAME}`;
+const nbrOfColumnsExpectedWithoutEdit = 4;
 
 // AutoSizer uses offsetWidth and offsetHeight.
 // Jest runs in JSDom which doesn't support measurements APIs.
@@ -103,7 +113,7 @@ const wrapper = ({ children }: { children: ReactNode}) => {
 };
 
 describe('AccountUserList', () => {
-  it('should render a table with users', async () => {
+  it.skip('should render a table with users', async () => {
     //E
     render(<AccountUserList accountName="account" />, {
       wrapper,
@@ -124,5 +134,53 @@ describe('AccountUserList', () => {
     expect(screen.getByText(SAMPLE_USER_NAME)).toBeInTheDocument();
 
     //TODO test copy arn
+  });
+  it.only('test1', async () => {
+
+    render(<AccountUserList accountName="account" />, {
+      wrapper,
+    });
+    /**********           Number of columns :         ************/
+
+    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutEdit);
+
+    /**********           Buttons 'search' and 'Create user' exist :         ************/
+    const searchZone = screen.getAllByRole('button')[0];
+    expect(
+      searchZone.getElementsByClassName('fas fa-search')[0].className,
+    ).toBeDefined();
+
+    const createButton = screen.getAllByRole('button')[2];
+
+    expect(getByText(
+      createButton,
+      new RegExp('Create User'),
+    )).toBeInTheDocument();
+
+    /**********           Table columns exist :         ************/
+    const firstColumn = screen.getAllByRole('columnheader')[0];
+    expect(
+      firstColumn.textContent,
+    ).toEqual('User Name');
+
+    const secondColumn = screen.getAllByRole('columnheader')[1];
+    expect(
+      secondColumn.textContent,
+    ).toEqual('Access Keys');
+
+    const thirdColumn = screen.getAllByRole('columnheader')[2];
+    expect(
+      thirdColumn.textContent,
+    ).toEqual('Created On');
+
+    /**********           Table columns exist :         ************/
+
+    const firstRow = screen.getAllByRole('row')[1];
+    //const gridCellOfFirstRow = getAllByRole(firstRow, 'grid');
+    console.log("prettyDom***: ", prettyDOM(screen.getAllByRole('row')[1]));
+
+    /**********           Loading users :         ************/
+    expect(screen.getAllByText("Loading users...")[0]).toBeInTheDocument();
+
   });
 });
