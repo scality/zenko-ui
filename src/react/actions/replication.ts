@@ -28,7 +28,13 @@ export function deleteReplication(
       rolePathName,
     };
     return managementClient
-      .deleteBucketWorkflowReplication(params)
+      .deleteBucketWorkflowReplication(
+        params.bucketName,
+        params.instanceId,
+        params.accountId,
+        params.workflowId,
+        params.rolePathName,
+      )
       .then(() => {
         dispatch(closeWorkflowEditNotification());
         return dispatch(searchWorkflows());
@@ -58,11 +64,21 @@ export function saveReplication(
       rolePathName,
     };
     const op = replication.streamId
-      ? managementClient.updateBucketWorkflowReplication({
-          ...params,
-          workflowId: replication.streamId,
-        })
-      : managementClient.createBucketWorkflowReplication(params);
+      ? managementClient.updateBucketWorkflowReplication(
+          params.workflow,
+          params.bucketName,
+          params.instanceId,
+          params.accountId,
+          replication.streamId,
+          params.rolePathName,
+        )
+      : managementClient.createBucketWorkflowReplication(
+          params.workflow,
+          params.bucketName,
+          params.accountId,
+          params.instanceId,
+          params.rolePathName,
+        );
     return op
       .then((resp) => {
         return Promise.all([
@@ -72,7 +88,7 @@ export function saveReplication(
         ]);
       })
       .then(([resp]) =>
-        dispatch(push(`/workflows/replication-${resp.body.streamId}`)),
+        dispatch(push(`/workflows/replication-${resp.streamId}`)),
       )
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))

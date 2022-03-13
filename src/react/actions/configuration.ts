@@ -18,11 +18,10 @@ export function updateConfiguration(): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
     return managementClient
-      .getConfigurationOverlayView({
-        uuid: instanceId,
-      })
+      .getConfigurationOverlayView(instanceId)
       .then((res) => {
-        dispatch(newConfiguration(res.body));
+        console.log('getConfigurationOverlayView res', res);
+        dispatch(newConfiguration(res));
       })
       .catch((error) => {
         throw error;

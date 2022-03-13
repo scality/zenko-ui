@@ -1,3 +1,4 @@
+import { UiFacingApi } from '../js/managementClient/api';
 import type { AccessKey, SecretKey } from './account';
 import type { ConfigurationOverlay } from './config';
 export type ApiAccountResponse = {
@@ -14,7 +15,7 @@ export type ApiAccountResponse = {
 export type ApiConfigurationResponse = {
   body: ConfigurationOverlay;
 };
-export type ManagementClient = any;
+export type ManagementClient = UiFacingApi;
 export type ApiAccountKeyResponse = {
   body: {
     readonly accessKey: AccessKey;

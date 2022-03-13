@@ -41,7 +41,7 @@ export function createEndpoint(
       },
     };
     return managementClient
-      .createConfigurationOverlayEndpoint(params)
+      .createConfigurationOverlayEndpoint(params.endpoint, params.uuid)
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
       .then(() => dispatch(push('/dataservices')))
@@ -60,7 +60,7 @@ export function deleteEndpoint(hostname: Hostname): ThunkStatePromisedAction {
       hostname,
     };
     return managementClient
-      .deleteConfigurationOverlayEndpoint(params)
+      .deleteConfigurationOverlayEndpoint(params.hostname, params.uuid)
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
       .catch((error) => dispatch(handleClientError(error)))

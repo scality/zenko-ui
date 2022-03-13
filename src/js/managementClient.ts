@@ -1,23 +1,12 @@
-import Swagger from 'swagger-client';
+import { UiFacingApi } from './managementClient/api';
+import { Configuration } from './managementClient/configuration';
 
-function makeMgtClient(endpoint, token) {
-  return Swagger(endpoint + '/swagger.json', {
-    authorizations: {
-      'public-api': token,
-    },
-  })
-    .then((client) => {
-      client.spec.schemes = [endpoint.split(':')[0]];
-      const managementClient = client.apis['ui-facing'];
-      return managementClient;
-    })
-    .catch((error) => {
-      throw new Error(
-        `Unable to fetch OpenAPI descriptor: ${
-          error.message || '(unknown reason)'
-        }`,
-      );
-    });
+function makeMgtClient(endpoint: string, token: string) {
+  return Promise.resolve(
+    new UiFacingApi(
+      new Configuration({ apiKey: token, basePath: `${endpoint}/api/v1` }),
+    ),
+  );
 }
 
 export default makeMgtClient;
