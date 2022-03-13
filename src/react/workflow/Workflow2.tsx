@@ -1,5 +1,10 @@
 import * as L from '../ui-elements/ListLayout3';
-import { Redirect, useLocation, useParams } from 'react-router-dom';
+import {
+  useLocation,
+  useParams,
+  useRouteMatch,
+  useHistory,
+} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { BreadcrumbWorkflow } from '../ui-elements/Breadcrumb';
@@ -9,7 +14,7 @@ import { Warning } from '../ui-elements/Warning';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
 import { push } from 'connected-react-router';
-export default function Workflows() {
+export default function Workflows2() {
   const dispatch = useDispatch();
   const { workflowId } = useParams();
   const { pathname } = useLocation();
@@ -69,11 +74,11 @@ export default function Workflows() {
       );
     }
 
-    // redirect to the first workflow.
-    if (!createMode && workflows.length > 0 && !workflowId) {
-      console.log('workflows', workflows);
-      return <Redirect to={`/workflows/${workflows[0].id}`} />;
-    }
+    // // redirect to the first workflow.
+    // if (!createMode && workflows.length > 0 && !workflowId) {
+    //   console.log('workflows', workflows);
+    //   return <Redirect to={`/workflows/${workflows[0].id}`} />;
+    // }
 
     return (
       <L.Body>

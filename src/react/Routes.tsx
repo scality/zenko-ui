@@ -1,6 +1,12 @@
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
 import React, { useEffect } from 'react';
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
 import { loadClients, loadInstanceLatestStatus } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
@@ -32,6 +38,31 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
       />
     );
   } else return null;
+};
+
+const RedirectToAccount = () => {
+  // To be replace later by react-query or context
+  const selectedAccount = useSelector(
+    (state: AppState) => state.auth.selectedAccount,
+  );
+  if (selectedAccount) {
+    console.log('selectedAccount', selectedAccount);
+    return <Redirect to={`/accounts/${selectedAccount.userName}/workflows`} />;
+  } else {
+    // TODO
+    return null;
+  }
+};
+
+const RedirectToWorkflow = () => {
+  // To be replace later by react-query
+  const workflows = useSelector((state: AppState) => state.workflow.list);
+  if (workflows.length > 0) {
+    return <Redirect to={`workflows/${workflows[0].id}`} />;
+  } else {
+    // TODO
+    return null;
+  }
 };
 
 function PrivateRoutes() {
@@ -67,11 +98,15 @@ function PrivateRoutes() {
   return (
     <Switch>
       <Route exact path="/" render={() => <Redirect to="/accounts" />} />
-
       <Route exact path="/create-location" component={LocationEditor} />
       <Route path="/locations/:locationName/edit" component={LocationEditor} />
-
       <Route path="/accounts" exact component={Accounts} />
+      <Route path="/workflows" exact>
+        <RedirectToAccount />
+      </Route>
+      <Route exact path="/accounts/:accountName/workflows">
+        <RedirectToWorkflow />
+      </Route>
       <Route path="/accounts/:accountName?">
         <IAMProvider>
           <AccountContent />

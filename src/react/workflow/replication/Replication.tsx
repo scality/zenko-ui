@@ -29,10 +29,11 @@ import Joi from '@hapi/joi';
 import { NoLocationWarning } from '../../ui-elements/Warning';
 import type { S3BucketList } from '../../../types/s3';
 import { joiResolver } from '@hookform/resolvers';
-import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+
 const ReplicationContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -81,6 +82,7 @@ function Replication({
   loading,
 }: Props) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const { register, handleSubmit, errors, control, reset, getValues } = useForm(
     {
       resolver: joiResolver(schema),
@@ -102,14 +104,12 @@ function Replication({
     dispatch(saveReplication(s));
   };
 
-  const handleCancel = () => {
-    dispatch(push('/workflows'));
-  };
-
   const handleChange = (onChange) => (e) => {
     if (!showEditWorkflowNotification) {
       dispatch(openWorkflowEditNotification());
     }
+
+    console.log('e', e);
 
     onChange(e);
   };
@@ -240,6 +240,7 @@ function Replication({
 
                       return renderSource(locations)(result);
                     }
+                    console.log('options', options);
 
                     return (
                       <Select
@@ -330,7 +331,7 @@ function Replication({
             marginRight: spacing.sp24,
           }}
           variant="outline"
-          onClick={handleCancel}
+          onClick={() => history.push('./')}
           label="Cancel"
         />
         <Button

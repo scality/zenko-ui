@@ -38,6 +38,8 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
   );
   const tabName = query.get('tab');
 
+  console.log('old worflow cotnent');
+
   if (createMode) {
     return (
       <ContentSection>
