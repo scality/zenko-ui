@@ -1,14 +1,16 @@
-import { render, screen, waitFor, fireEvent, getByText, getAllByRole } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  getAllByRole,
+  getByText
+} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { createMemoryHistory } from 'history';
-import { Router } from 'react-router-dom';
-import IAMClient from '../../../js/IAMClient';
-import { _IAMContext } from '../../IAMProvider';
 import AccountUserList from '../AccountUserList';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { ReactNode } from 'react';
+import { wrapper } from '../../utils/test';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
@@ -17,6 +19,7 @@ const SAMPLE_ARN = `arn:aws:iam::970343539682:user/${SAMPLE_USER_NAME}`;
 const nbrOfColumnsExpected = 4;
 
 // AutoSizer uses offsetWidth and offsetHeight.
+// Jest runs in JSDom which doesn't support measurements APIs.
 function mockOffsetSize(width: number, height: number) {
   Object.defineProperty(window, 'getComputedStyle', {
     value: () => {
@@ -77,31 +80,6 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const wrapper = ({ children }: { children: ReactNode}) => {
-  const history = createMemoryHistory();
-
-  const params = {
-    accessKey: 'accessKey',
-    secretKey: 'secretKey',
-    sessionToken: 'sessionToken',
-  };
-  const iamClient = new IAMClient('http://testendpoint');
-  iamClient.login(params);
-  return (
-    <QueryClientProvider client={new QueryClient()}>
-      <Router history={history}>
-        <_IAMContext.Provider
-          value={{
-            iamClient,
-          }}
-        >
-          {children}
-        </_IAMContext.Provider>
-      </Router>
-    </QueryClientProvider>
-  );
-};
-
 describe('AccountUserList', () => {
   it('should render a table with users', async () => {
     //E
@@ -118,7 +96,6 @@ describe('AccountUserList', () => {
       screen.getByText('Search is disabled while loading users'),
     ).toBeInTheDocument();
 
-    //Wait for loading to complete
     await waitFor(() => screen.getByText(SAMPLE_USER_NAME));
     //Ensure user is displayed in the table once the loading complete
     expect(screen.getByText(SAMPLE_USER_NAME)).toBeInTheDocument();
@@ -180,4 +157,3 @@ describe('AccountUserList', () => {
 
   })
 });
-

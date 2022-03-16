@@ -13,36 +13,36 @@ import { DateTime } from 'luxon';
 type AWS_PAGINATED_ENTITIES<ENTITY> =
   | (QueryObserverIdleResult<ENTITY[]> & { firstPageStatus: 'idle' }) //idle
   | (QueryObserverLoadingErrorResult<ENTITY[]> & {
-      firstPageStatus: 'success' | 'error';
-    }) // error
+  firstPageStatus: 'success' | 'error';
+}) // error
   | (QueryObserverLoadingResult<ENTITY[]> & { firstPageStatus: 'loading' }) //loading
   | (Omit<QueryObserverLoadingResult<ENTITY[]>, 'data'> & {
-      data: ENTITY[];
-      firstPageStatus: 'success';
-    }) //loading, data
+  data: ENTITY[];
+  firstPageStatus: 'success';
+}) //loading, data
   | (QueryObserverSuccessResult<ENTITY[]> & { firstPageStatus: 'success' }); // success, data
 export const useAwsPaginatedEntities = <
   API_RESPONSE extends {
     Marker?: string;
   },
   ENTITY,
->(
+  >(
   reactQueryOptions:
     | {
-        queryFn: (
-          context: QueryFunctionContext,
-          marker?: string,
-        ) => Promise<API_RESPONSE>;
-      }
+    queryFn: (
+      context: QueryFunctionContext,
+      marker?: string,
+    ) => Promise<API_RESPONSE>;
+  }
     | Omit<QueryObserverOptions<API_RESPONSE>, 'queryFn'>,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
-  >('idle');
+    >('idle');
   const [firstPageStatus, setFirstPageStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
-  >('idle');
+    >('idle');
   const {
     data,
     status: internalStatus,
