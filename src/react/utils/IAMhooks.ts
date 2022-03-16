@@ -62,11 +62,9 @@ export const useAwsPaginatedEntities = <
     }
   }, [internalStatus, pageIndex]);
   useMemo(() => {
-    if (internalStatus === 'loading' || internalStatus === 'error') {
+    if (internalStatus === 'idle' || internalStatus === 'loading' || internalStatus === 'error') {
       setStatus(internalStatus);
-    }
-
-    if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
+    } else if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
       setStatus('success');
       setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
     } else {
