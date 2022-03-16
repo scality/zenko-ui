@@ -1,16 +1,11 @@
 import { Provider } from 'react-redux';
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { ThemeProvider } from 'styled-components';
 import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount } from 'enzyme';
 import thunk from 'redux-thunk';
-import { createMemoryHistory } from 'history';
-import IAMClient from '../../js/IAMClient';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { Router } from 'react-router-dom';
-import { _IAMContext } from '../IAMProvider';
 const theme = {
   name: 'Dark Rebrand Theme',
   brand: {
@@ -58,38 +53,6 @@ const theme = {
 };
 export const newTestStore = (state) =>
   configureStore([thunk])({ ...initialFullState, ...(state || {}) });
-
-export const wrapper = ({ children }: { children: ReactNode }) => {
-  const history = createMemoryHistory();
-
-  const params = {
-    accessKey: 'accessKey',
-    secretKey: 'secretKey',
-    sessionToken: 'sessionToken',
-  };
-  const iamClient = new IAMClient('http://testendpoint');
-  iamClient.login(params);
-  return (
-    <QueryClientProvider client={new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
-    })}>
-      <Router history={history}>
-        <_IAMContext.Provider
-          value={{
-            iamClient,
-          }}
-        >
-          {children}
-        </_IAMContext.Provider>
-      </Router>
-    </QueryClientProvider>
-  );
-};
-
 export const reduxMount = (component, testState) => {
   const store = newTestStore(testState);
   return {
@@ -100,30 +63,6 @@ export const reduxMount = (component, testState) => {
     ),
   };
 };
-// AutoSizer uses offsetWidth and offsetHeight.
-// Jest runs in JSDom which doesn't support measurements APIs.
-export function mockOffsetSize(width: number, height: number) {
-  const originalFunction = window.getComputedStyle;
-  const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
-  spyGetComputedStyle.mockImplementation((elt, _) => {
-    const originalStyle = originalFunction(elt);
-    originalStyle.fontSize = '14px';
-    return originalStyle
-  });
-
-  Object.defineProperties(window.HTMLElement.prototype, {
-    offsetHeight: {
-      get: () => {
-        return height || 100;
-      },
-    },
-    offsetWidth: {
-      get: () => {
-        return width || 100;
-      },
-    },
-  });
-}
 export async function reduxMountAct(component, testState) {
   const store = newTestStore(testState);
   let wrapper = null;
