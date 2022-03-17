@@ -56,14 +56,15 @@ export const destinationOptions = (
 export const renderSource = (locations: Locations) => {
   return function does(option: ReplicationBucketOption) {
     return (
-      <div>
+      <span style = {{ color:  option.disabled ? 'lightslategrey' : ''}}>
         <span> {option.label} </span>
         <small>
           {' '}
           ({option.location} /{' '}
           {getLocationTypeShort(option.location, locations)}){' '}
         </small>
-      </div>
+        {option.disabled && <span style={{marginLeft: '4.5rem'}}> <i className='fas fa-ban'></i></span>}
+      </span>
     );
   };
 };

@@ -198,7 +198,7 @@ function Replication({
         <T.Group>
           <T.GroupName>Source</T.GroupName>
           <T.GroupContent>
-            <T.Row>
+            <T.Row style={{ width:'49rem'}}>
               <T.KeyTooltip
                 required={createMode}
                 tooltipMessage={
@@ -260,6 +260,7 @@ function Replication({
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
+              <span style = {{marginLeft:'9px', width:'25rem'}}>Only buckets with versioning active <br/>can be source for Replication</span>
             </T.Row>
           </T.GroupContent>
         </T.Group>
