@@ -123,6 +123,6 @@ describe('AccountUserList', () => {
     //Ensure user is displayed in the table once the loading complete
     expect(screen.getByText(SAMPLE_USER_NAME)).toBeInTheDocument();
 
-    //TODO test copy arn
+    //TODO test copy new arn
   });
 });
