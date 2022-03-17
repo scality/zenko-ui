@@ -59,7 +59,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
       )}
       {accessKeysQuery.status === 'success' ? (
         <SpacedBox
-          mr={12}
+          mr={123}
           style={{
             marginLeft: 'auto',
           }}
