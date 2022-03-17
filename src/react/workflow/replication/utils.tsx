@@ -54,15 +54,18 @@ export const destinationOptions = (
     });
 };
 export const renderSource = (locations: Locations) => {
+  const disableStyles = {color: 'lightslategrey'};
+  const enableStyles = {cursor: 'pointer'};
   return function does(option: ReplicationBucketOption) {
     return (
-      <div>
+      <div title={option.disabled ? 'Versioning is disabled' : ''}  style={option.disabled ? disableStyles : enableStyles}>
         <span> {option.label} </span>
-        <small>
+        <small >
           {' '}
           ({option.location} /{' '}
           {getLocationTypeShort(option.location, locations)}){' '}
         </small>
+        {option.disabled && <span style={{float: 'right'}}> <i className='fas fa-ban'></i></span>}
       </div>
     );
   };
