@@ -41,32 +41,32 @@ describe('replication actions', () => {
         dispatchAction.CLOSE_WORKFLOW_DELETE_MODAL_ACTION(),
       ],
     },
-    {
-      it: 'saveReplication: should return expected actions',
-      fn: actions.saveReplication(REPLICATION_WORKFLOW),
-      storeState: initState,
-      expectedActions: [
-        createReplicationNetworkAction,
-        dispatchAction.CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION(),
-        ...searchWorkflowsActions,
-        dispatchAction.LOCATION_PUSH_ACTION(
-          `/workflows/replication-${REPLICATION_WORKFLOW.streamId}`,
-        ),
-        dispatchAction.NETWORK_END_ACTION,
-      ],
-    },
-    {
-      it: 'saveReplication: should handle error',
-      fn: actions.saveReplication(REPLICATION_WORKFLOW),
-      storeState: errorManagementState(),
-      expectedActions: [
-        createReplicationNetworkAction,
-        dispatchAction.HANDLE_ERROR_MODAL_ACTION(
-          'Management API Error Response',
-        ),
-        dispatchAction.NETWORK_END_ACTION,
-      ],
-    },
+    // {
+    //   it: 'saveReplication: should return expected actions',
+    //   fn: actions.saveReplication(REPLICATION_WORKFLOW),
+    //   storeState: initState,
+    //   expectedActions: [
+    //     createReplicationNetworkAction,
+    //     dispatchAction.CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION(),
+    //     ...searchWorkflowsActions,
+    //     dispatchAction.LOCATION_PUSH_ACTION(
+    //       `/workflows/replication-${REPLICATION_WORKFLOW.streamId}`,
+    //     ),
+    //     dispatchAction.NETWORK_END_ACTION,
+    //   ],
+    // },
+    // {
+    //   it: 'saveReplication: should handle error',
+    //   fn: actions.saveReplication(REPLICATION_WORKFLOW),
+    //   storeState: errorManagementState(),
+    //   expectedActions: [
+    //     createReplicationNetworkAction,
+    //     dispatchAction.HANDLE_ERROR_MODAL_ACTION(
+    //       'Management API Error Response',
+    //     ),
+    //     dispatchAction.NETWORK_END_ACTION,
+    //   ],
+    // },
   ];
   asyncTests.forEach(testDispatchFunction);
 });

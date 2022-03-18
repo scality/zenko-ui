@@ -52,7 +52,9 @@ export const useAwsPaginatedEntities = <
   } = useInfiniteQuery({
     ...reactQueryOptions,
     queryKey: [...reactQueryOptions.queryKey],
-    queryFn: (ctx) => reactQueryOptions.queryFn(ctx, ctx.pageParam),
+    queryFn: (ctx) => {
+      return reactQueryOptions.queryFn(ctx, ctx.pageParam);
+    },
     getNextPageParam: (lastPage) => lastPage.Marker,
   });
   const pageIndex = data?.pageParams?.length || 0;

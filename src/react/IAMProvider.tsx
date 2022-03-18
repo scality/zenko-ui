@@ -1,12 +1,16 @@
-import { createContext, useContext } from 'react';
-import { useSelector } from 'react-redux';
+import { createContext, useContext, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
 import { AppState } from '../types/state';
+import { selectAccountID } from './actions';
 
-//Only exported to ease testing
-export const _IAMContext = createContext<null | { iamClient: IAMClient | null }>(null);
+// Only exported to ease testing
+export const _IAMContext = createContext<null | {
+  iamClient: IAMClient | null;
+}>(null);
+
 export const useIAMClient = () => {
   const IAMCtxt = useContext(_IAMContext);
 
@@ -27,6 +31,21 @@ const IAMProvider = ({ children }: { children: JSX.Element }) => {
     queryFn: () => getAssumeRoleWithWebIdentityIAM(state, accountName),
     enabled: !!accountName && accountName !== '',
   });
+
+  // FIXME Temporary fix to get the account each time you change URL
+  const dispatch = useDispatch();
+  const accounts = useSelector(
+    (state: AppState) => state.configuration.latest.users,
+  );
+  useEffect(() => {
+    const account = accounts.find((a) => a.userName === accountName);
+    if (!account) {
+      return;
+    }
+    dispatch(selectAccountID(account.id));
+  }, [accountName]);
+  // END FIXME
+
   return (
     <_IAMContext.Provider
       value={{
