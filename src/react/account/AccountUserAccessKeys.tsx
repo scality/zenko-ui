@@ -28,6 +28,17 @@ import {
 } from '../utils/IAMhooks';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { getUserAccessKeysQuery, useUserAccessKeysQuery } from '../Queries';
+import { ObjectEntity } from '../../types/s3';
+import IAMClient from '../../js/IAMClient';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+type CellProps = {
+  row: {
+    original: ObjectEntity;
+  },
+  accessKey: string,
+  status: string
+};
 const CustomIcon = styled.i`
   color: ${props => props.color ?? props.theme.brand.infoPrimary};
   font-size: 32px;
@@ -64,13 +75,13 @@ const CreatedOnCell = rowValue => {
   );
 };
 
-const ToggleAccessKeyStatus = rowValue => {
+const ToggleAccessKeyStatus = (rowValue: CellProps ) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
-  const IAMClient = useIAMClient();
-  const { IAMUserName } = useParams();
+  const IAMClient: IAMClient = useIAMClient();
+  const { IAMUserName } : { IAMUserName: string }= useParams();
   const updateAccessKeyMutation = useMutation(
-    accessKey => {
-      return IAMClient.updateAccessKey(
+    (accessKey: string) => {
+      return notFalsyTypeGuard(IAMClient).updateAccessKey(
         accessKey,
         accessKeyStatus === 'Active' ? 'Inactive' : 'Active',
         IAMUserName,
@@ -78,7 +89,7 @@ const ToggleAccessKeyStatus = rowValue => {
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
   return (
@@ -109,16 +120,16 @@ const AccessKeysCell = rowValue => {
   );
 };
 
-const DeleteAccessKeyAction = rowValue => {
+const DeleteAccessKeyAction = (rowValue: CellProps) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
-  const IAMClient = useIAMClient();
-  const { IAMUserName } = useParams();
+  const IAMClient: IAMClient = useIAMClient();
+  const { IAMUserName } : { IAMUserName: string } = useParams();
   const [showModal, setShowModal] = useState(false);
   const deleteAccessKeyMutation = useMutation(
-    accessKey => IAMClient.deleteAccessKey(accessKey, IAMUserName),
+    (accessKey: string) => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey),
     },
   );
   return (
@@ -162,20 +173,12 @@ const AccountUserAccessKeys = () => {
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
   const theme = useTheme();
-  const {
-    data: accessKeysResult,
-    status: accessKeysStatus,
-  } = useAwsPaginatedEntities(
-    {
-      queryKey: ['listIAMUserAccessKey', IAMUserName],
-      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(IAMUserName, marker),
-      enabled: IAMClient !== null,
-    },
-    data => data.AccessKeyMetadata,
-  );
+
+  const { accessKeysResult, userAccessKeyStatus: accessKeysStatus } = useUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient));
+
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
-      return accessKeysResult.map(accesskey => {
+      return notFalsyTypeGuard(accessKeysResult).map(accesskey => {
         return {
           accessKey: accesskey.AccessKeyId,
           createdOn: formatSimpleDate(accesskey.CreateDate),
@@ -213,7 +216,7 @@ const AccountUserAccessKeys = () => {
         textAlign: 'left',
         marginRight: spacing.sp32,
       },
-      Cell: value => ToggleAccessKeyStatus(value.row.original),
+      Cell: (value: CellProps) => ToggleAccessKeyStatus(value.row.original),
     },
     {
       Header: '',
@@ -222,7 +225,7 @@ const AccountUserAccessKeys = () => {
         textAlign: 'right',
         marginLeft: 'auto',
       },
-      Cell: value => DeleteAccessKeyAction(value.row.original),
+      Cell: (value: CellProps) => DeleteAccessKeyAction(value.row.original),
     },
   ];
   const accessKeysResultLength = accessKeysResult?.length ?? 0;
@@ -335,7 +338,7 @@ const AccountUserAccessKeys = () => {
             separationLineVariant="backgroundLevel1"
             backgroundVariant="backgroundLevel3"
           >
-            {Rows => (
+            {(Rows) => (
               <>
                 {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
                   ? 'Loading access keys...'

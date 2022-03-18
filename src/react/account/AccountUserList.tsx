@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
@@ -14,14 +14,26 @@ import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/S
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useUserAccessKeysQuery } from '../Queries';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { useMutation } from 'react-query';
+import { queryClient } from '../App';
+import IAMClient from '../../js/IAMClient';
+import { ObjectEntity } from '../../types/s3';
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
 `;
+type CellProps = {
+  row: {
+    original: ObjectEntity;
+  },
+};
 
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
+  /*
   const accessKeysQuery = useAwsPaginatedEntities(
     {
       queryKey: ['listIAMUserAccessKey', userName],
@@ -31,23 +43,24 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
       refetchOnWindowFocus: false
     },
     (data) => data.AccessKeyMetadata,
-  );
+  );*/
+  const { accessKeysResult: userAccessKeyData, userAccessKeyStatus } = useUserAccessKeysQuery(userName, IAMClient);
   const accessKeys = useMemo(() => {
-    if (accessKeysQuery.status === 'success') {
-      return accessKeysQuery.data.length;
+    if (userAccessKeyStatus === 'success') {
+      return notFalsyTypeGuard(userAccessKeyData).length;
     }
 
     return 0;
-  }, [accessKeysQuery.status]);
+  }, [userAccessKeyStatus]);
   // display a hyphen if there is an error occurs
-  return accessKeysQuery.status === 'error' ? null : (
+  return userAccessKeyStatus === 'error' ? null : (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
       }}
     >
-      {accessKeysQuery.status === 'loading' && (
+      {userAccessKeyStatus === 'loading' && (
         <SpacedBox
           mr={12}
           style={{
@@ -57,7 +70,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           loading...
         </SpacedBox>
       )}
-      {accessKeysQuery.status === 'success' ? (
+      {userAccessKeyStatus === 'success' ? (
         <SpacedBox
           mr={12}
           style={{
@@ -82,7 +95,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           },
           overlay: 'Checking or creating access keys',
         }}
-        disabled={accessKeysQuery.status === 'loading'}
+        disabled={userAccessKeyStatus === 'loading'}
       />
     </div>
   );
@@ -136,6 +149,50 @@ const WithTooltipWhileLoading = ({
 
 const SEARCH_QUERY_PARAM = 'search';
 
+const DeleteUserAction = (rowValue: { userName: string }, accountName: string) => {
+  const { userName } = rowValue;
+  const IAMClient: IAMClient | null = useIAMClient();
+  const [showModal, setShowModal] = useState(false);
+  const { accessKeysResult } = useUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient));
+  //const { listGroupsResult } = useUserListGroupsQuery(userName, IAMClient);
+
+  const deleteUserMutation = useMutation(
+    (userName: string) => {
+      return notFalsyTypeGuard(IAMClient).deleteUser(userName);
+    },
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(['listIAMUsers', accountName]),
+    },
+  );
+
+  return (
+    <>
+      <DeleteConfirmation
+        show={showModal}
+        cancel={() => setShowModal(false)}
+        approve={() => {
+          deleteUserMutation.mutate(userName);
+        }}
+        titleText={`Delete User Key? \n Permanently remove the following user ${userName} ?`}
+      />
+
+      <Button
+        id='delete-accessKey-btn'
+        disabled={accessKeysResult && accessKeysResult.length >= 1}
+        icon={<i className='fas fa-trash' />}
+        label='Delete'
+        onClick={() => {
+          setShowModal(true);
+        }}
+        variant='danger'
+        tooltip={{ overlay: 'Remove accessKey', placement: 'right' }}
+      />
+    </>
+  );
+};
+
+
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const history = useHistory();
   const IAMClient = useIAMClient();
@@ -174,6 +231,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           accessKeys: null,
           arn: user.Arn,
           actions: null,
+          deleteAction: null,
         };
       });
 
@@ -223,6 +281,16 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       },
       disableSortBy: true,
       Cell: (value) => renderActionButtons(value.row.original),
+    },
+    {
+      Header: '',
+      accessor: 'deleteAction',
+      cellStyle: {
+        textAlign: 'right',
+        minWidth: '5rem',
+      },
+      disableSortBy: true,
+      Cell: (value: CellProps) => DeleteUserAction(value.row.original, accountName),
     },
   ];
   return (
