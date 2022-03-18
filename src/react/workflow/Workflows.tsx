@@ -1,20 +1,24 @@
 import * as L from '../ui-elements/ListLayout3';
-import { Redirect, useLocation, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useParams, useHistory, Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { BreadcrumbWorkflow } from '../ui-elements/Breadcrumb';
 import { EmptyStateContainer } from '../ui-elements/Container';
-import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
-import { push } from 'connected-react-router';
-export default function Workflows() {
-  const dispatch = useDispatch();
-  const { workflowId } = useParams();
-  const { pathname } = useLocation();
-  const workflows = useSelector((state: AppState) => state.workflow.list);
-  const createMode = pathname === '/create-workflow';
+import { useQuery } from 'react-query';
+import { useManagementClient } from '../ManagementProvider';
+import { getAccountId, getClients } from '../utils/actions';
+import { rolePathName } from '../../js/IAMClient';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { makeWorkflows, workflowListQuery } from '../queries';
+
+import Loader from '../ui-elements/Loader';
+
+export default function Workflows2() {
+  const history = useHistory();
+  const { workflowId } = useParams<{ workflowId?: string }>();
   const accountName = useSelector(
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
@@ -25,6 +29,24 @@ export default function Workflows() {
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+
+  const mngt = useManagementClient();
+  const workflowListData = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mngt),
+      accountId,
+      instanceId,
+      rolePathName,
+    ),
+    select: (workflows) => makeWorkflows(workflows),
+  });
+
+  const workflows = workflowListData.data ?? [];
+  const isWorkflowsReady = workflowListData.data !== undefined;
+  const noWorkflows = workflowListData?.data?.length === 0;
 
   if (accounts.length === 0) {
     return (
@@ -34,7 +56,7 @@ export default function Workflows() {
           iconClass="fas fa-5x fa-wallet"
           title="Before browsing your workflow rules, create your first account."
           btnTitle="Create Account"
-          btnAction={() => dispatch(push('/create-account'))}
+          btnAction={() => history.push('/create-account')}
         />
       </EmptyStateContainer>
     );
@@ -49,13 +71,26 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-glass-whiskey"
             title="Before browsing your workflow rules, create your first bucket."
             btnTitle="Create Bucket"
-            btnAction={() => dispatch(push('/create-bucket'))}
+            btnAction={() => history.push('/create-bucket')}
           />
         </EmptyStateContainer>
       );
     }
 
-    if (!createMode && workflows.length === 0) {
+    if (!isWorkflowsReady) {
+      return (
+        <Loader>
+          <div>Loading workflows</div>
+        </Loader>
+      );
+    }
+
+    // redirect to the first workflow.
+    if (!noWorkflows && !workflowId) {
+      return <Redirect to={`./workflows/${workflows[0].id}`} />;
+    }
+
+    if (workflows.length === 0) {
       return (
         <EmptyStateContainer>
           <Warning
@@ -63,27 +98,17 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-coins"
             title="Before browsing your workflow rules, create your first rule."
             btnTitle="Create Rule"
-            btnAction={() => dispatch(push('/create-workflow'))}
+            btnAction={() => history.push('./workflows/create-workflow')}
           />
         </EmptyStateContainer>
       );
     }
 
-    // redirect to the first workflow.
-    if (!createMode && workflows.length > 0 && !workflowId) {
-      return <Redirect to={`/workflows/${workflows[0].id}`} />;
-    }
-
     return (
       <L.Body>
-        <WorkflowList
-          createMode={createMode}
-          workflowId={workflowId}
-          workflows={workflows}
-        />
+        <WorkflowList workflowId={workflowId} workflows={workflows} />
         <WorkflowContent
           bucketList={bucketList}
-          createMode={createMode}
           wfSelected={workflows.find((w) => w.id === workflowId)}
         />
       </L.Body>

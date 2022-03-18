@@ -2,7 +2,7 @@ import type { APIWorkflows, Workflows } from '../../types/workflow';
 import type { ReplicationStreams } from '../../types/config';
 import type { WorkflowAction } from '../../types/actions';
 import type { WorkflowState } from '../../types/state';
-import { generateStreamName } from '../workflow/replication/utils';
+import { generateStreamName } from '../workflow/utils';
 import { initialWorkflowState } from './initialConstants';
 
 const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {

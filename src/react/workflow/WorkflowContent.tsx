@@ -1,10 +1,7 @@
-import { ContentSection, CreationSection } from '../ui-elements/ListLayout3';
-import Table, * as T from '../ui-elements/TableKeyValue2';
+import { ContentSection } from '../ui-elements/ListLayout3';
 import type { AppState } from '../../types/state';
-import Configuration from './details/Configuration';
+import ConfigurationTab from './ConfigurationTab';
 import { CustomTabs } from '../ui-elements/Tabs';
-import React from 'react';
-import Replication from './replication/Replication';
 import type { S3BucketList } from '../../types/s3';
 import { Warning } from '../ui-elements/Warning';
 import type { Workflow } from '../../types/workflow';
@@ -14,14 +11,13 @@ import { useSelector } from 'react-redux';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 type Props = {
   wfSelected: Workflow | null | undefined;
-  createMode: boolean;
   bucketList: S3BucketList;
 };
 export const InfoWarning = ({ title }: { title: string }) => (
   <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
 );
 
-function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
+function WorkflowContent({ wfSelected, bucketList }: Props) {
   const query = useQueryParams();
   const { pathname } = useLocation();
   const replications = useSelector(
@@ -38,30 +34,6 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
   );
   const tabName = query.get('tab');
 
-  if (createMode) {
-    return (
-      <ContentSection>
-        <CreationSection>
-          <Table id="">
-            <T.Body autoComplete="off">
-              <T.Title> Create New Workflow </T.Title>
-              <T.Subtitle> All * are mandatory fields </T.Subtitle>
-              <Replication
-                loading={loading}
-                showEditWorkflowNotification={false}
-                workflow={null}
-                replications={replications}
-                bucketList={bucketList}
-                locations={locations}
-                createMode={true}
-              />
-            </T.Body>
-          </Table>
-        </CreationSection>
-      </ContentSection>
-    );
-  }
-
   const details = () => {
     if (!wfSelected) {
       return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE} />;
@@ -69,7 +41,7 @@ function WorkflowContent({ createMode, wfSelected, bucketList }: Props) {
 
     if (!tabName) {
       return (
-        <Configuration
+        <ConfigurationTab
           showEditWorkflowNotification={showEditWorkflowNotification}
           replications={replications}
           bucketList={bucketList}

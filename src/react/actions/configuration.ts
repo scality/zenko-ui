@@ -20,7 +20,6 @@ export function updateConfiguration(): ThunkStatePromisedAction {
     return managementClient
       .getConfigurationOverlayView(instanceId)
       .then((res) => {
-        console.log('getConfigurationOverlayView res', res);
         dispatch(newConfiguration(res));
       })
       .catch((error) => {

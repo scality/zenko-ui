@@ -11,6 +11,7 @@ import type { Replication } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { push } from 'connected-react-router';
 import { rolePathName } from '../../js/IAMClient';
+
 // TODO: Add delete approval process
 export function deleteReplication(
   replication: Replication,
@@ -46,52 +47,5 @@ export function deleteReplication(
         dispatch(networkEnd());
         dispatch(closeWorkflowDeleteModal());
       });
-  };
-}
-export function saveReplication(
-  replication: Replication,
-): ThunkStatePromisedAction {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { managementClient, instanceId } = getClients(state);
-    const accountId = getAccountId(state);
-    dispatch(networkStart('Creating replication'));
-    const params = {
-      instanceId,
-      workflow: replication,
-      bucketName: replication.source.bucketName,
-      accountId,
-      rolePathName,
-    };
-    const op = replication.streamId
-      ? managementClient.updateBucketWorkflowReplication(
-          params.workflow,
-          params.bucketName,
-          params.instanceId,
-          params.accountId,
-          replication.streamId,
-          params.rolePathName,
-        )
-      : managementClient.createBucketWorkflowReplication(
-          params.workflow,
-          params.bucketName,
-          params.accountId,
-          params.instanceId,
-          params.rolePathName,
-        );
-    return op
-      .then((resp) => {
-        return Promise.all([
-          resp,
-          dispatch(closeWorkflowEditNotification()),
-          dispatch(searchWorkflows()),
-        ]);
-      })
-      .then(([resp]) =>
-        dispatch(push(`/workflows/replication-${resp.streamId}`)),
-      )
-      .catch((error) => dispatch(handleClientError(error)))
-      .catch((error) => dispatch(handleApiError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
   };
 }
