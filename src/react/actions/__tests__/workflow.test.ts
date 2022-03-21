@@ -2,11 +2,9 @@ import * as actions from '../workflow';
 import * as dispatchAction from './utils/dispatchActionsList';
 import {
   WORKFLOWS,
-  authenticatedUserState,
   errorManagementState,
   testActionFunction,
   testDispatchErrorTestFn,
-  testDispatchFunction,
 } from './utils/testUtil';
 const searchWorkflowsNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Searching for worflows',
@@ -49,19 +47,6 @@ describe('workflow actions', () => {
     },
   ];
   syncTests.forEach(testActionFunction);
-  const asyncTests = [
-    {
-      it: 'searchWorkflows: should return expected actions',
-      fn: actions.searchWorkflows(),
-      storeState: authenticatedUserState(),
-      expectedActions: [
-        searchWorkflowsNetworkAction,
-        dispatchAction.SEARCH_WORKFLOWS_SUCCESS_ACTION(),
-        dispatchAction.NETWORK_END_ACTION,
-      ],
-    },
-  ];
-  asyncTests.forEach(testDispatchFunction);
   testDispatchErrorTestFn(
     {
       message: 'Management API Error Response',
