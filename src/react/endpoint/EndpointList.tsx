@@ -1,4 +1,4 @@
-import type { Endpoint, LocationName, Locations } from '../../types/config';
+import type { Endpoint, LocationName, Hostname, Locations } from '../../types/config';
 import MemoRow, { createItemData } from './EndpointRow';
 import React, { useMemo, useRef } from 'react';
 import Table, * as T from '../ui-elements/Table';
@@ -18,6 +18,7 @@ import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { getLocationTypeFromName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Clipboard } from '../ui-elements/Clipboard';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -52,6 +53,14 @@ function EndpointList({ endpoints, locations }: Props) {
       {
         Header: 'Hostname',
         accessor: 'hostname',
+        Cell({ value: hostName }: { value: Hostname }) {
+          return (
+            <div style={{ display: 'flex' }}>
+              <span style={{paddingRight: spacing.sp14}}>{hostName}</span>
+              <Clipboard text={hostName} />
+            </div>
+          );
+        }
       },
       {
         Header: 'Location name',
