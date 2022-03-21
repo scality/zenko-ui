@@ -44,14 +44,9 @@ export function searchWorkflows(): ThunkStatePromisedAction {
     const { managementClient, instanceId } = getClients(state);
     const accountId = getAccountId(state);
     dispatch(networkStart('Searching for worflows'));
-    const params = {
-      instanceId,
-      accountId,
-      rolePathName,
-    };
     return managementClient
-      .searchWorkflows(params) // return MOCK_SEARCH_WORKFLOWS()
-      .then((res) => dispatch(searchWorkflowsSuccess(res.body))) //!\ errors will have to be handled by caller
+      .searchWorkflows(accountId, instanceId, rolePathName) // return MOCK_SEARCH_WORKFLOWS()
+      .then((res) => dispatch(searchWorkflowsSuccess(res))) //!\ errors will have to be handled by caller
       .catch((error) => {
         throw error;
       })

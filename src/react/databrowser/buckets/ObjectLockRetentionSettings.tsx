@@ -5,7 +5,6 @@ import { SmallerText } from '@scality/core-ui/dist/components/text/Text.componen
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import * as F from '../../ui-elements/FormLayout';
-import React from 'react';
 import Joi from '@hapi/joi';
 export const objectLockRetentionSettingsValidationRules = {
   isDefaultRetentionEnabled: Joi.boolean().default(false),

@@ -129,10 +129,8 @@ export function createAccount(
     };
     dispatch(networkStart('Creating account'));
     return managementClient
-      .createConfigurationOverlayUser(params)
-      .then((resp) =>
-        Promise.all([resp.body.id, dispatch(updateConfiguration())]),
-      )
+      .createConfigurationOverlayUser(params.user, params.uuid)
+      .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
       .then(([id]) => dispatch(selectAccountID(id)))
       .then(() => dispatch(push(`/accounts/${user.userName}`)))
       .catch((error) => dispatch(handleClientError(error)))
@@ -149,7 +147,11 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
     };
     dispatch(networkStart('Deleting account'));
     return managementClient
-      .deleteConfigurationOverlayUser(params)
+      .deleteConfigurationOverlayUser(
+        params.uuid,
+        undefined,
+        params.accountName,
+      )
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(push('/accounts')))
       .then(() => dispatch(closeAccountDeleteDialog()))
@@ -209,14 +211,10 @@ export function createAccountAccessKey(
     };
     dispatch(networkStart('Creating Root user Access keys'));
     return managementClient
-      .generateKeyConfigurationOverlayUser(params)
+      .generateKeyConfigurationOverlayUser(params.uuid, params.accountName)
       .then((resp) => {
         dispatch(
-          addAccountSecret(
-            resp.body.userName,
-            resp.body.accessKey,
-            resp.body.secretKey,
-          ),
+          addAccountSecret(resp.userName, resp.accessKey, resp.secretKey),
         );
         return dispatch(listAccountAccessKeys(accountName));
       })

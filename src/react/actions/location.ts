@@ -35,8 +35,15 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
     };
     dispatch(networkStart('Deploying location'));
     const op = location.objectId
-      ? managementClient.updateConfigurationOverlayLocation(params)
-      : managementClient.createConfigurationOverlayLocation(params);
+      ? managementClient.updateConfigurationOverlayLocation(
+          params.locationName,
+          params.uuid,
+          params.location,
+        )
+      : managementClient.createConfigurationOverlayLocation(
+          params.location,
+          params.uuid,
+        );
     return op
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
@@ -57,7 +64,7 @@ export function deleteLocation(
     };
     dispatch(networkStart('Deleting location'));
     return managementClient
-      .deleteConfigurationOverlayLocation(params)
+      .deleteConfigurationOverlayLocation(params.locationName, params.uuid)
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
       .catch((error) => dispatch(handleClientError(error)))

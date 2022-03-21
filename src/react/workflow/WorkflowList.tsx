@@ -4,11 +4,10 @@ import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout3';
-import React from 'react';
 import { TextTransformer } from '../ui-elements/Utility';
 import type { Workflows } from '../../types/workflow';
-import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 const columns = [
   {
     Header: 'Workflow Description',
@@ -37,10 +36,10 @@ const columns = [
 type Props = {
   workflows: Workflows;
   workflowId: string | null | undefined;
-  createMode: boolean;
 };
 
-function WorkflowList({ createMode, workflows, workflowId }: Props) {
+function WorkflowList({ workflows, workflowId }: Props) {
+  const history = useHistory();
   const dispatch = useDispatch();
   const {
     getTableProps,
@@ -62,7 +61,7 @@ function WorkflowList({ createMode, workflows, workflowId }: Props) {
     useFlexLayout,
   );
   return (
-    <ListSection disabled={createMode} id="account-list">
+    <ListSection id="account-list">
       <T.SearchContainer>
         <T.Search>
           <T.SearchInput
@@ -75,7 +74,7 @@ function WorkflowList({ createMode, workflows, workflowId }: Props) {
           icon={<i className="fas fa-plus" />}
           label="Create Workflow"
           variant="primary"
-          onClick={() => dispatch(push('/create-workflow'))}
+          onClick={() => history.push('./create-workflow')}
           type="submit"
         />
       </T.SearchContainer>

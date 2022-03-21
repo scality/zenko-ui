@@ -14,8 +14,8 @@ import Loader from './ui-elements/Loader';
 import LocationEditor from './backend/location/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
-import Workflows from './workflow/Workflows';
 import IAMProvider from './IAMProvider';
+import ManagementProvider from './ManagementProvider';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -34,6 +34,23 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
   } else return null;
 };
 
+const RedirectToAccount = () => {
+  // To be replace later by react-query or context
+  const selectedAccount = useSelector(
+    (state: AppState) => state.auth.selectedAccount,
+  );
+
+  if (selectedAccount) {
+    return <Redirect to={`/accounts/${selectedAccount.userName}/workflows`} />;
+  } else {
+    return (
+      <Loader>
+        <div>Loading workflows</div>
+      </Loader>
+    );
+  }
+};
+
 function PrivateRoutes() {
   const dispatch = useDispatch();
   const isClientsLoaded = useSelector(
@@ -46,7 +63,7 @@ function PrivateRoutes() {
     if (isAuthenticated) {
       // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
       // That will fix management API request being canceled during autentication.
-      dispatch(loadClients());
+      dispatch(loadClients()); // FIXME To be delete soon
       const refreshIntervalStatsUnit = setInterval(() => {
         const currentTime = Math.floor(Date.now() / 1000);
 
@@ -61,17 +78,22 @@ function PrivateRoutes() {
   }, [dispatch, user]);
 
   if (!isClientsLoaded) {
-    return <Loader> Loading clients </Loader>;
+    return (
+      <Loader>
+        <div>Loading clients</div>
+      </Loader>
+    );
   }
 
   return (
     <Switch>
       <Route exact path="/" render={() => <Redirect to="/accounts" />} />
-
       <Route exact path="/create-location" component={LocationEditor} />
       <Route path="/locations/:locationName/edit" component={LocationEditor} />
-
       <Route path="/accounts" exact component={Accounts} />
+      <Route path="/workflows" exact>
+        <RedirectToAccount />
+      </Route>
       <Route path="/accounts/:accountName?">
         <IAMProvider>
           <AccountContent />
@@ -89,11 +111,6 @@ function PrivateRoutes() {
         component={DataBrowser}
       />
 
-      <Route
-        path={['/create-workflow', '/workflows/:workflowId?']}
-        component={Workflows}
-      />
-
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
 
@@ -109,7 +126,9 @@ function Routes() {
         <Navbar />
       </NavbarContainer>
       <RemoveTrailingSlash />
-      <PrivateRoutes />
+      <ManagementProvider>
+        <PrivateRoutes />
+      </ManagementProvider>
     </RouteContainer>
   );
 }

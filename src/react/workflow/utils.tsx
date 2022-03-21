@@ -2,17 +2,16 @@ import type {
   Locations,
   Replication as ReplicationStream,
   ReplicationStreams,
-} from '../../../types/config';
+} from '../../types/config';
 import type {
   ReplicationBucketOption,
   ReplicationForm,
-} from '../../../types/replication';
-import React from 'react';
-import type { S3BucketList } from '../../../types/s3';
-import type { SelectOption } from '../../../types/ui';
-import { getLocationTypeShort } from '../../utils/storageOptions';
-import { isVersioning } from '../../utils';
-import { storageOptions } from '../../backend/location/LocationDetails';
+} from '../../types/replication';
+import type { S3BucketList } from '../../types/s3';
+import type { SelectOption } from '../../types/ui';
+import { getLocationTypeShort } from '../utils/storageOptions';
+import { isVersioning } from '../utils';
+import { storageOptions } from '../backend/location/LocationDetails';
 export const sourceBucketOptions = (
   streams: ReplicationStreams,
   bucketList: S3BucketList,

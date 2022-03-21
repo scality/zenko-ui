@@ -11,6 +11,7 @@ import type { Replication } from '../../types/config';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { push } from 'connected-react-router';
 import { rolePathName } from '../../js/IAMClient';
+
 // TODO: Add delete approval process
 export function deleteReplication(
   replication: Replication,
@@ -28,7 +29,13 @@ export function deleteReplication(
       rolePathName,
     };
     return managementClient
-      .deleteBucketWorkflowReplication(params)
+      .deleteBucketWorkflowReplication(
+        params.bucketName,
+        params.instanceId,
+        params.accountId,
+        params.workflowId,
+        params.rolePathName,
+      )
       .then(() => {
         dispatch(closeWorkflowEditNotification());
         return dispatch(searchWorkflows());
@@ -40,42 +47,5 @@ export function deleteReplication(
         dispatch(networkEnd());
         dispatch(closeWorkflowDeleteModal());
       });
-  };
-}
-export function saveReplication(
-  replication: Replication,
-): ThunkStatePromisedAction {
-  return (dispatch, getState) => {
-    const state = getState();
-    const { managementClient, instanceId } = getClients(state);
-    const accountId = getAccountId(state);
-    dispatch(networkStart('Creating replication'));
-    const params = {
-      instanceId,
-      workflow: replication,
-      bucketName: replication.source.bucketName,
-      accountId,
-      rolePathName,
-    };
-    const op = replication.streamId
-      ? managementClient.updateBucketWorkflowReplication({
-          ...params,
-          workflowId: replication.streamId,
-        })
-      : managementClient.createBucketWorkflowReplication(params);
-    return op
-      .then((resp) => {
-        return Promise.all([
-          resp,
-          dispatch(closeWorkflowEditNotification()),
-          dispatch(searchWorkflows()),
-        ]);
-      })
-      .then(([resp]) =>
-        dispatch(push(`/workflows/replication-${resp.body.streamId}`)),
-      )
-      .catch((error) => dispatch(handleClientError(error)))
-      .catch((error) => dispatch(handleApiError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
   };
 }

@@ -15,9 +15,13 @@ import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
 import AccountUpdateUser from './AccountUpdateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
+import CreateWorkflow from '../workflow/CreateWorkflow';
+import Workflows from '../workflow/Workflows';
 
 function AccountContent() {
-  const { accountName: accountNameParam } = useParams();
+  const { accountName: accountNameParam } =
+    useParams<{ accountName: string }>();
+
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
   const accounts = useSelector(
@@ -27,6 +31,7 @@ function AccountContent() {
     () => accounts.find((a) => a.userName === accountNameParam),
     [accounts, accountNameParam],
   );
+
   return (
     <L.Container>
       <Switch>
@@ -38,6 +43,12 @@ function AccountContent() {
         </Route>
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />
+        </Route>
+        <Route path={`${path}/workflows/create-workflow`}>
+          <CreateWorkflow />
+        </Route>
+        <Route path={`${path}/workflows/:workflowId?`}>
+          <Workflows />
         </Route>
         <Route>
           <L.BreadcrumbContainer>

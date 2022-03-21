@@ -59,7 +59,7 @@ const Row = ({
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(push(`/workflows/${workflowId}`));
+          dispatch(push(`./${workflowId}`));
         }
       }}
       {...row.getRowProps({
