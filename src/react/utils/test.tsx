@@ -1,11 +1,17 @@
 import { Provider } from 'react-redux';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount } from 'enzyme';
 import thunk from 'redux-thunk';
+import { createMemoryHistory } from 'history';
+import IAMClient from '../../js/IAMClient';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Router } from 'react-router-dom';
+import { _IAMContext } from '../IAMProvider';
+import { render } from '@testing-library/react';
 const theme = {
   name: 'Dark Rebrand Theme',
   brand: {
@@ -53,6 +59,30 @@ const theme = {
 };
 export const newTestStore = (state) =>
   configureStore([thunk])({ ...initialFullState, ...(state || {}) });
+const Wrapper = ({ children }: { children: ReactNode}) => {
+  const history = createMemoryHistory();
+
+  const params = {
+    accessKey: 'accessKey',
+    secretKey: 'secretKey',
+    sessionToken: 'sessionToken',
+  };
+  const iamClient = new IAMClient('http://testendpoint');
+  iamClient.login(params);
+  return (
+    <QueryClientProvider client={new QueryClient()}>
+      <Router history={history}>
+        <_IAMContext.Provider
+          value={{
+            iamClient,
+          }}
+        >
+          {children}
+        </_IAMContext.Provider>
+      </Router>
+    </QueryClientProvider>
+  );
+};
 export const reduxMount = (component, testState) => {
   const store = newTestStore(testState);
   return {
@@ -60,6 +90,41 @@ export const reduxMount = (component, testState) => {
       <ThemeProvider theme={theme}>
         <Provider store={store}>{component}</Provider>
       </ThemeProvider>,
+    ),
+  };
+};
+
+export function mockOffsetSize(width: number, height: number) {
+  const originalFunction = window.getComputedStyle;
+  const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
+  spyGetComputedStyle.mockImplementation((elt, _) => {
+    const originalStyle = originalFunction(elt);
+    originalStyle.fontSize = '14px';
+    return originalStyle
+  });
+
+  Object.defineProperties(window.HTMLElement.prototype, {
+    offsetHeight: {
+      get: () => {
+        return height || 100;
+      },
+    },
+    offsetWidth: {
+      get: () => {
+        return width || 100;
+      },
+    },
+  });
+}
+export const reduxRender = (component, testState) => {
+  const store = newTestStore(testState);
+  return {
+    component: render(
+      <Wrapper>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>{component}</Provider>
+        </ThemeProvider>
+      </Wrapper>
     ),
   };
 };
