@@ -1,38 +1,31 @@
-import * as T from '../../ui-elements/TableKeyValue2';
-import { Controller, useForm } from 'react-hook-form';
-import { ErrorInput } from '../../ui-elements/FormLayout';
+import * as T from '../ui-elements/TableKeyValue2';
+import { Controller, useFormContext } from 'react-hook-form';
+import { ErrorInput } from '../ui-elements/FormLayout';
 import type {
   Locations,
   Replication as ReplicationStream,
   ReplicationStreams,
-} from '../../../types/config';
+} from '../../types/config';
 import React, { useEffect } from 'react';
 import { Select, Toggle } from '@scality/core-ui';
 import {
   checkIfExternalLocation,
   checkSupportsReplicationTarget,
-} from '../../utils/storageOptions';
+} from '../utils/storageOptions';
 import {
   convertToReplicationForm,
-  convertToReplicationStream,
   destinationOptions,
-  generateStreamName,
-  newReplicationForm,
   renderDestination,
   renderSource,
   sourceBucketOptions,
 } from './utils';
-import { openWorkflowEditNotification, saveReplication } from '../../actions';
-import { Button } from '@scality/core-ui/dist/next';
-import Input from '../../ui-elements/Input';
-import Joi from '@hapi/joi';
-import { NoLocationWarning } from '../../ui-elements/Warning';
-import type { S3BucketList } from '../../../types/s3';
-import { joiResolver } from '@hookform/resolvers';
-import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+
+import Input from '../ui-elements/Input';
+import { NoLocationWarning } from '../ui-elements/Warning';
+import type { S3BucketList } from '../../types/s3';
+
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
+
 const ReplicationContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -42,77 +35,28 @@ const ReplicationContainer = styled.div`
     min-height: 42px;
   }
 `;
-const schema = Joi.object({
-  streamId: Joi.string().label('Id').allow(''),
-  streamVersion: Joi.number().label('Version').optional(),
-  // streamName: Joi.string().label('Name').min(4).allow('').messages({
-  //     'string.min': '"Name" should have a minimum length of {#limit}',
-  // }),
-  enabled: Joi.boolean().label('State').required(),
-  sourceBucket: Joi.object({
-    value: Joi.string().label('Bucket Name').required(),
-    label: Joi.string(),
-    disabled: Joi.boolean(),
-    location: Joi.string(),
-  }),
-  sourcePrefix: Joi.string().label('Prefix').allow(''),
-  destinationLocation: Joi.object({
-    value: Joi.string().label('Destination Location Name').required(),
-    label: Joi.string(),
-  }),
-});
+
 type Props = {
   replications: ReplicationStreams;
   bucketList: S3BucketList;
   locations: Locations;
   workflow: ReplicationStream | null | undefined;
-  showEditWorkflowNotification: boolean;
-  createMode: boolean;
-  loading: boolean;
 };
 
-function Replication({
+function ReplicationComponent({
   replications,
   bucketList,
   locations,
   workflow,
-  showEditWorkflowNotification,
-  createMode,
-  loading,
 }: Props) {
-  const dispatch = useDispatch();
-  const { register, handleSubmit, errors, control, reset, getValues } = useForm(
-    {
-      resolver: joiResolver(schema),
-      defaultValues: newReplicationForm(),
-    },
-  );
+  // isCreateMode activate the tooltip
+  const isCreateMode = workflow === null;
+
+  const { register, errors, control, reset, getValues } = useFormContext();
+
   useEffect(() => {
     reset(convertToReplicationForm(workflow)); // asynchronously reset form values
   }, [reset, workflow]);
-
-  const onSubmit = (values) => {
-    const stream = values;
-    let s = convertToReplicationStream(stream);
-
-    if (!s.name) {
-      s = { ...s, name: generateStreamName(s) };
-    }
-
-    dispatch(saveReplication(s));
-  };
-
-  const handleCancel = () => {
-    dispatch(push('/workflows'));
-  };
-
-  const handleChange = (onChange) => (e) => {
-    if (!showEditWorkflowNotification) {
-      dispatch(openWorkflowEditNotification());
-    }
-
-    onChange(e);
-  };
 
   // TODO: make sure we do not delete bucket or location if replication created.
   if (
@@ -153,26 +97,6 @@ function Replication({
         <T.Group>
           <T.GroupName>General</T.GroupName>
           <T.GroupContent>
-            {/* <T.Row>
-                           <T.Key> Rule Name </T.Key>
-                           <T.Value>
-                               <Controller
-                                   control={control}
-                                   id='streamName'
-                                   name='streamName'
-                                   render={({ onChange, value: streamName }) => {
-                                       return <Input
-                                           onChange={handleChange(onChange)}
-                                           value={streamName}
-                                           autoComplete='off'
-                                       />;
-                                   }}
-                               />
-                               <T.ErrorContainer>
-                                   <ErrorInput hasError={errors.streamName}> {errors.streamName?.message} </ErrorInput>
-                               </T.ErrorContainer>
-                           </T.Value>
-                       </T.Row> */}
             <T.Row>
               <T.Key> State </T.Key>
               <T.Value>
@@ -185,7 +109,7 @@ function Replication({
                       <Toggle
                         toggle={enabled}
                         label={enabled ? 'Active' : 'Inactive'}
-                        onChange={() => handleChange(onChange)(!enabled)}
+                        onChange={() => onChange(!enabled)}
                       />
                     );
                   }}
@@ -200,9 +124,11 @@ function Replication({
           <T.GroupContent>
             <T.Row>
               <T.KeyTooltip
-                required={createMode}
+                required={isCreateMode}
                 tooltipMessage={
-                  createMode && 'Source bucket has to be versioning enabled'
+                  isCreateMode
+                    ? 'Source bucket has to be versioning enabled'
+                    : ''
                 }
                 tooltipWidth="13rem"
               >
@@ -221,7 +147,7 @@ function Replication({
                     );
                     const isEditing = !!getValues('streamId');
                     const result = options.find(
-                      (l) => l.value === sourceBucket.value,
+                      (l) => l.value === sourceBucket?.value,
                     );
 
                     if (isEditing) {
@@ -243,7 +169,7 @@ function Replication({
 
                     return (
                       <Select
-                        onChange={handleChange(onChange)}
+                        onChange={onChange}
                         options={options}
                         formatOptionLabel={renderSource(locations)}
                         isDisabled={isEditing}
@@ -276,7 +202,7 @@ function Replication({
                   render={({ onChange, value: sourcePrefix }) => {
                     return (
                       <Input
-                        onChange={handleChange(onChange)}
+                        onChange={onChange}
                         value={sourcePrefix}
                         autoComplete="off"
                       />
@@ -291,7 +217,7 @@ function Replication({
           <T.GroupName>Destination</T.GroupName>
           <T.GroupContent>
             <T.Row>
-              <T.Key required={createMode}> Location Name </T.Key>
+              <T.Key required={isCreateMode}> Location Name </T.Key>
               <T.Value>
                 <Controller
                   control={control}
@@ -301,11 +227,11 @@ function Replication({
                     const options = destinationOptions(locations);
                     return (
                       <Select
-                        onChange={handleChange(onChange)}
+                        onChange={onChange}
                         options={options}
                         formatOptionLabel={renderDestination(locations)}
                         value={options.find(
-                          (l) => l.value === destinationLocation.value,
+                          (l) => l.value === destinationLocation?.value,
                         )}
                       />
                     );
@@ -322,28 +248,8 @@ function Replication({
           </T.GroupContent>
         </T.Group>
       </T.Groups>
-      <T.Footer>
-        <Button
-          disabled={loading || (!createMode && !showEditWorkflowNotification)}
-          id="cancel-workflow-btn"
-          style={{
-            marginRight: spacing.sp24,
-          }}
-          variant="outline"
-          onClick={handleCancel}
-          label="Cancel"
-        />
-        <Button
-          disabled={loading || (!createMode && !showEditWorkflowNotification)}
-          icon={<i className="fas fa-save" />}
-          id="create-workflow-btn"
-          variant="primary"
-          onClick={handleSubmit(onSubmit)}
-          label={createMode ? 'Create' : 'Save Changes'}
-        />
-      </T.Footer>
     </ReplicationContainer>
   );
 }
 
-export default Replication;
+export default ReplicationComponent;

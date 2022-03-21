@@ -94,9 +94,7 @@ export const endpoint: Endpoint = {
 };
 export class MockManagementClient implements ManagementClientInterface {
   createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
-    return Promise.resolve({
-      body: account,
-    });
+    return Promise.resolve(account);
   }
 
   deleteConfigurationOverlayUser(): Promise<void> {
@@ -117,15 +115,13 @@ export class MockManagementClient implements ManagementClientInterface {
 
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return Promise.resolve({
-      body: latestOverlay,
+      ...latestOverlay,
     });
   }
 
-  searchWorkflows(): Promise<{
-    body: APIWorkflows;
-  }> {
+  searchWorkflows(): Promise<APIWorkflows> {
     return Promise.resolve({
-      body: workflows,
+      ...workflows,
     });
   }
 
@@ -133,12 +129,8 @@ export class MockManagementClient implements ManagementClientInterface {
     return Promise.resolve();
   }
 
-  updateBucketWorkflowReplication(): Promise<{
-    body: Replication;
-  }> {
-    return Promise.resolve({
-      body: replicationWorkflow,
-    });
+  updateBucketWorkflowReplication(): Promise<Replication> {
+    return Promise.resolve(replicationWorkflow);
   }
 
   saveBucketWorkflowReplication(): Promise<{
@@ -151,24 +143,16 @@ export class MockManagementClient implements ManagementClientInterface {
 
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
     return Promise.resolve({
-      body: key,
+      ...key,
     });
   }
 
-  getLatestInstanceStatus(): Promise<{
-    body: InstanceStatus;
-  }> {
-    return Promise.resolve({
-      body: instanceStatus,
-    });
+  getLatestInstanceStatus(): Promise<InstanceStatus> {
+    return Promise.resolve(instanceStatus);
   }
 
-  createConfigurationOverlayEndpoint(): Promise<{
-    body: Endpoint;
-  }> {
-    return Promise.resolve({
-      body: endpoint,
-    });
+  createConfigurationOverlayEndpoint(): Promise<Endpoint> {
+    return Promise.resolve(endpoint);
   }
 
   deleteConfigurationOverlayEndpoint(): Promise<void> {
@@ -249,8 +233,8 @@ export class MockManagementClientWithConfigurationVersions extends MockManagemen
   }
 
   getLatestInstanceStatus(): Promise<any> {
-    return super.getLatestInstanceStatus().then(({ body }) => ({
-      body: {
+    return super.getLatestInstanceStatus().then((body) => ({
+      
         ...body,
         state: {
           ...body.state,
@@ -258,16 +242,16 @@ export class MockManagementClientWithConfigurationVersions extends MockManagemen
             this.getStatusCallCounter++
           ],
         },
-      },
+      
     }));
   }
 
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
-    return super.getConfigurationOverlayView().then(({ body }) => ({
-      body: {
+    return super.getConfigurationOverlayView().then((body) => ({
+      
         ...body,
         version: this.overlayVersions[this.getOverlayCounter++],
-      },
+      
     }));
   }
 }

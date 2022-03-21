@@ -101,7 +101,7 @@ const KeyContainer = styled.div`
   }
 `;
 type KeyTooltipProps = {
-  children: JSX.Element;
+  children: JSX.Element | string;
   tooltipMessage: string;
   tooltipWidth: string;
   required?: boolean;
@@ -153,9 +153,8 @@ export const Header = styled.div`
   justify-content: space-between;
 `;
 export const BannerContainer = styled.div`
-  flex: 1;
   margin-right: ${spacing.sp8};
-  width: 200px;
+  width: 300px;
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
 `;
 export const Footer = styled.div`

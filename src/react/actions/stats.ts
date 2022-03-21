@@ -12,11 +12,9 @@ export function loadInstanceLatestStatus() {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
     return managementClient
-      .getLatestInstanceStatus({
-        uuid: instanceId,
-      })
+      .getLatestInstanceStatus(instanceId)
       .then((res) => {
-        dispatch(instanceStatus(res.body));
+        dispatch(instanceStatus(res));
       })
       .catch((error) => dispatch(handleClientError(error)));
   };
