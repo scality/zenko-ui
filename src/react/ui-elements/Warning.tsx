@@ -36,7 +36,7 @@ const ButtonSection = styled.div`
 `;
 type WarningProps = {
   iconClass?: string;
-  title: JSX.Element;
+  title: JSX.Element|string;
   btnTitle?: string;
   btnAction?: () => void;
   centered?: boolean;
