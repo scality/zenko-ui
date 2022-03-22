@@ -7,7 +7,7 @@ import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
@@ -29,7 +29,14 @@ const schema = Joi.object({
 });
 
 function AccountCreate() {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: joiResolver(schema),
   });
   const hasError = useSelector(
@@ -86,11 +93,9 @@ function AccountCreate() {
           <F.Input
             type="text"
             id="name"
-            name="name"
-            ref={register}
+            {...register('name')}
             onChange={clearServerError}
-            autoComplete="new-password"
-          />
+            autoComplete="new-password" />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
@@ -107,13 +112,10 @@ function AccountCreate() {
             Root Account Email
           </F.Label>
           <F.Input
-            type="text"
+            type="email"
             id="email"
-            name="email"
-            ref={register}
-            onChange={clearServerError}
-            autoComplete="off"
-          />
+            {...register('email', { onChange: clearServerError })}
+            />
           <F.ErrorInput id="error-email" hasError={errors.email}>
             {' '}
             {errors.email?.message}{' '}

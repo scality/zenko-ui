@@ -78,14 +78,12 @@ export const renderDestination = (locations: Locations) => {
 };
 export function newReplicationForm(): ReplicationForm {
   return {
-    streamName: '',
     streamVersion: 1,
     streamId: '',
     enabled: true,
     sourceBucket: {},
     sourcePrefix: '',
     destinationLocation: {},
-    preferredReadLocation: null,
   };
 }
 export function newReplicationStream(): ReplicationStream {
@@ -112,7 +110,6 @@ export function convertToReplicationForm(
   }
 
   return {
-    streamName: r.name || '',
     streamVersion: r.version || 1,
     streamId: r.streamId || '',
     enabled: r.enabled,
@@ -125,7 +122,6 @@ export function convertToReplicationForm(
       label: r.destination.locations[0].name,
       value: r.destination.locations[0].name,
     },
-    preferredReadLocation: null,
   };
 }
 export function convertToReplicationStream(
@@ -137,7 +133,7 @@ export function convertToReplicationStream(
 
   return {
     streamId: r.streamId || '',
-    name: r.streamName || '',
+    name: '',
     version: r.streamVersion || 1,
     enabled: !!r.enabled,
     source: {
@@ -151,7 +147,7 @@ export function convertToReplicationStream(
             name: r.destinationLocation.value || '',
           },
         ] || [],
-      preferredReadLocation: r.preferredReadLocation,
+      preferredReadLocation: null,
     },
   };
 }

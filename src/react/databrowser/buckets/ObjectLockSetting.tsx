@@ -9,7 +9,7 @@ import { clearError, editDefaultRetention, getBucketInfo } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import type { AppState } from '../../../types/state';
 import { Banner } from '@scality/core-ui';

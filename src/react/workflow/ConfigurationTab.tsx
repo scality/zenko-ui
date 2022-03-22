@@ -25,7 +25,7 @@ import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import type { S3BucketList } from '../../types/s3';
 import type { Workflow } from '../../types/workflow';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   convertToReplicationForm,
   convertToReplicationStream,

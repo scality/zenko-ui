@@ -8,7 +8,7 @@ import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import type { Location } from '../../types/config';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../backend/location/LocationDetails';
 import { useOutsideClick } from '../utils/hooks';
@@ -18,7 +18,15 @@ const schema = Joi.object({
 });
 
 function EndpointCreate() {
-  const { register, handleSubmit, errors, control } = useForm({
+  const {
+    register,
+    handleSubmit,
+    control,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: joiResolver(schema),
   });
   const dispatch = useDispatch();
@@ -73,13 +81,11 @@ function EndpointCreate() {
           <F.Input
             type="text"
             id="hostname"
-            name="hostname"
+            {...register('hostname')}
             placeholder="s3.example.com"
-            ref={register}
             onChange={clearServerError}
             disabled={loading}
-            autoComplete="off"
-          />
+            autoComplete="off" />
           <F.ErrorInput id="error-name" hasError={errors.hostname}>
             {' '}
             {errors.hostname?.message}{' '}
@@ -94,7 +100,7 @@ function EndpointCreate() {
             id="locationName"
             name="locationName"
             defaultValue="us-east-1"
-            render={({ onChange, value: locationName }) => {
+            render={({ field: {onChange, value: locationName} }) => {
               return (
                 <F.Select
                   onChange={onChange}

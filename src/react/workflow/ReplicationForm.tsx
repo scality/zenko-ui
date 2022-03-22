@@ -77,7 +77,16 @@ function ReplicationComponent({
   // isCreateMode activate the tooltip
   const isCreateMode = workflow === null;
 
-  const { register, errors, control, reset, getValues } = useFormContext();
+  const {
+    register,
+    control,
+    reset,
+    getValues,
+
+    formState: {
+      errors,
+    },
+  } = useFormContext();
 
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
@@ -109,20 +118,12 @@ function ReplicationComponent({
 
   return (
     <ReplicationContainer>
-      <input
-        type="hidden"
-        id="streamId"
-        name="streamId"
-        ref={register}
-        autoComplete="off"
-      />
+      <input type="hidden" id="streamId" {...register('streamId')} autoComplete="off" />
       <input
         type="hidden"
         id="streamVersion"
-        name="streamVersion"
-        ref={register}
-        autoComplete="off"
-      />
+        {...register('streamVersion')}
+        autoComplete="off" />
       <T.Groups>
         <T.Group>
           <T.GroupName>General</T.GroupName>
@@ -134,7 +135,7 @@ function ReplicationComponent({
                   control={control}
                   id="enabled"
                   name="enabled"
-                  render={({ onChange, value: enabled }) => {
+                  render={({ field: {onChange, value: enabled} }) => {
                     return (
                       <Toggle
                         toggle={enabled}
@@ -169,7 +170,7 @@ function ReplicationComponent({
                   control={control}
                   id="sourceBucket"
                   name="sourceBucket"
-                  render={({ onChange, value: sourceBucket }) => {
+                  render={({ field: {onChange, value: sourceBucket} }) => {
                     const options = sourceBucketOptions(
                       replicationsQuery.data || [],
                       bucketList,
@@ -229,7 +230,7 @@ function ReplicationComponent({
                   control={control}
                   id="sourcePrefix"
                   name="sourcePrefix"
-                  render={({ onChange, value: sourcePrefix }) => {
+                  render={({ field: {onChange, value: sourcePrefix} }) => {
                     return (
                       <Input
                         onChange={onChange}
@@ -253,7 +254,7 @@ function ReplicationComponent({
                   control={control}
                   id="destinationLocation"
                   name="destinationLocation"
-                  render={({ onChange, value: destinationLocation }) => {
+                  render={({ field: {onChange, value: destinationLocation} }) => {
                     const options = destinationOptions(locations);
                     return (
                       <Select

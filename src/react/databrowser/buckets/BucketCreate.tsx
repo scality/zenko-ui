@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
@@ -53,13 +53,12 @@ function BucketCreate() {
   const {
     register,
     handleSubmit,
-    errors,
     control,
     watch,
     setValue,
     formState,
   } = useFormMethods;
-  const { isValid } = formState;
+  const { isValid, errors } = formState;
   const isObjectLockEnabled = watch('isObjectLockEnabled');
   const isAsyncNotification = watch('isAsyncNotification');
   const watchLocationName = watch('locationName');
@@ -186,8 +185,7 @@ function BucketCreate() {
               <F.Input
                 type="text"
                 id="name"
-                name="name"
-                ref={register}
+                {...register('name')}
                 autoFocus={true}
                 onChange={clearServerError}
                 autoComplete="off"
@@ -211,7 +209,7 @@ function BucketCreate() {
                 id="locationName"
                 name="locationName"
                 defaultValue="us-east-1"
-                render={({ onChange, value: locationName }) => {
+                render={({ field: {onChange, value: locationName} }) => {
                   return (
                     <F.Select
                       onChange={(value) => {
@@ -248,7 +246,7 @@ function BucketCreate() {
                   id="isAsyncNotification"
                   name="isAsyncNotification"
                   defaultValue={false}
-                  render={({ onChange, value: isAsyncNotification }) => {
+                  render={({ field: {onChange, value: isAsyncNotification} }) => {
                     return (
                       <>
                         <Toggle
@@ -281,7 +279,7 @@ function BucketCreate() {
                 id="isVersioning"
                 name="isVersioning"
                 defaultValue={false}
-                render={({ onChange, value: isVersioning }) => {
+                render={({ field: {onChange, value: isVersioning} }) => {
                   return (
                     <Toggle
                       disabled={isObjectLockEnabled || isAsyncNotification}
@@ -318,7 +316,7 @@ function BucketCreate() {
                 id="isObjectLockEnabled"
                 name="isObjectLockEnabled"
                 defaultValue={false}
-                render={({ onChange, value: isObjectLockEnabled }) => {
+                render={({ field: {onChange, value: isObjectLockEnabled} }) => {
                   return (
                     <Toggle
                       onChange={(e) => {
