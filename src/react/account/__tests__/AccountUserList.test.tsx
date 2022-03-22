@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import AccountUserList from '../AccountUserList';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { wrapper } from '../../utils/test';
+import { Wrapper as wrapper} from '../../utils/test';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';

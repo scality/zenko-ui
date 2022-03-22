@@ -11,6 +11,9 @@ import IAMClient from '../../js/IAMClient';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Router } from 'react-router-dom';
 import { _IAMContext } from '../IAMProvider';
+
+import { render } from '@testing-library/react';
+//LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
   brand: {
@@ -58,7 +61,7 @@ const theme = {
 };
 export const newTestStore = (state) =>
   configureStore([thunk])({ ...initialFullState, ...(state || {}) });
-export const wrapper = ({ children }: { children: ReactNode }) => {
+export const Wrapper = ({ children }: { children: ReactNode }) => {
   const history = createMemoryHistory();
 
   const params = {
@@ -99,6 +102,7 @@ export const reduxMount = (component, testState) => {
     ),
   };
 };
+
 export function mockOffsetSize(width: number, height: number) {
   const originalFunction = window.getComputedStyle;
   const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
@@ -121,6 +125,20 @@ export function mockOffsetSize(width: number, height: number) {
     },
   });
 }
+
+export const reduxRender = (component, testState) => {
+  const store = newTestStore(testState);
+  return {
+    component: render(
+      <Wrapper>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>{component}</Provider>
+        </ThemeProvider>
+      </Wrapper>
+    ),
+  };
+};
+
 export async function reduxMountAct(component, testState) {
   const store = newTestStore(testState);
   let wrapper = null;
