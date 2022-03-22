@@ -20,9 +20,6 @@ export const InfoWarning = ({ title }: { title: string }) => (
 function WorkflowContent({ wfSelected, bucketList }: Props) {
   const query = useQueryParams();
   const { pathname } = useLocation();
-  const replications = useSelector(
-    (state: AppState) => state.workflow.replications,
-  );
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -43,7 +40,6 @@ function WorkflowContent({ wfSelected, bucketList }: Props) {
       return (
         <ConfigurationTab
           showEditWorkflowNotification={showEditWorkflowNotification}
-          replications={replications}
           bucketList={bucketList}
           locations={locations}
           wfSelected={wfSelected}

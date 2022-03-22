@@ -34,7 +34,7 @@ export default function Workflows2() {
   const accountId = getAccountId(state);
 
   const mngt = useManagementClient();
-  const workflowListData = useQuery({
+  const workflowListDataQuery = useQuery({
     ...workflowListQuery(
       notFalsyTypeGuard(mngt),
       accountId,
@@ -44,9 +44,9 @@ export default function Workflows2() {
     select: (workflows) => makeWorkflows(workflows),
   });
 
-  const workflows = workflowListData.data ?? [];
-  const isWorkflowsReady = workflowListData.data !== undefined;
-  const noWorkflows = workflowListData?.data?.length === 0;
+  const workflows = workflowListDataQuery.data ?? [];
+  const isWorkflowsReady = workflowListDataQuery.data !== undefined;
+  const noWorkflows = workflowListDataQuery?.data?.length === 0;
 
   if (accounts.length === 0) {
     return (

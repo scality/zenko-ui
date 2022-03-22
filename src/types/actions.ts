@@ -320,17 +320,9 @@ export type CloseWorkflowEditNotificationAction = {
 export type OpenWorkflowEditNotificationAction = {
   readonly type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION';
 };
-export type OpenWorkflowDeleteModalAction = {
-  readonly type: 'OPEN_WORKFLOW_DELETE_MODAL';
-};
-export type CloseWorkflowDeleteModalAction = {
-  readonly type: 'CLOSE_WORKFLOW_DELETE_MODAL';
-};
 export type WorkflowUIAction =
   | CloseWorkflowEditNotificationAction
-  | OpenWorkflowEditNotificationAction
-  | OpenWorkflowDeleteModalAction
-  | CloseWorkflowDeleteModalAction;
+  | OpenWorkflowEditNotificationAction;
 // OIDC
 export type AddOIDCUserAction = {
   readonly type: 'ADD_OIDC_USER';
