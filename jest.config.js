@@ -7,4 +7,5 @@ module.exports = {
     '\\.(css|less)$': '<rootDir>/assetsTransformer.js',
   },
   setupFiles: ['<rootDir>/.jest-setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/.jest-setup-after-env.js']
 };

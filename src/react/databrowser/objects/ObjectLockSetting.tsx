@@ -6,7 +6,7 @@ import { push } from 'connected-react-router';
 import { DateTime } from 'luxon';
 import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
 import { Banner, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
@@ -94,10 +94,9 @@ export default function ObjectLockSetting() {
 
   const {
     handleSubmit,
-    formState: { isValid },
+    formState: { isValid, errors },
     setValue,
     watch,
-    errors,
     register,
     control,
   } = useFormMethods;
@@ -143,7 +142,7 @@ export default function ObjectLockSetting() {
                   control={control}
                   id="isRetentionEnabled"
                   name="isRetentionEnabled"
-                  render={({ onChange, value: isRetentionEnabled }) => {
+                  render={({ field: {onChange, value: isRetentionEnabled} }) => {
                     return (
                       <Toggle
                         id="edit-retention"
@@ -180,8 +179,7 @@ export default function ObjectLockSetting() {
                       type="radio"
                       id="GOVERNANCE"
                       value="GOVERNANCE"
-                      name="retentionMode"
-                      ref={register}
+                      {...register('retentionMode')}
                       disabled={defaultRetentionMode === 'COMPLIANCE'}
                     />
                     <SpacedBox ml={8}>Governance</SpacedBox>
@@ -202,8 +200,7 @@ export default function ObjectLockSetting() {
                       type="radio"
                       id="COMPLIANCE"
                       value="COMPLIANCE"
-                      name="retentionMode"
-                      ref={register}
+                      {...register("retentionMode")}
                       disabled={!isRetentionEnabled}
                     />
                     <SpacedBox ml={8}>Compliance</SpacedBox>
@@ -235,7 +232,7 @@ export default function ObjectLockSetting() {
                     control={control}
                     id="retentionUntilDate"
                     name="retentionUntilDate"
-                    render={({ onChange, value: retentionUntilDate }) => {
+                    render={({ field: {onChange, value: retentionUntilDate} }) => {
                       return (
                         <>
                           <input

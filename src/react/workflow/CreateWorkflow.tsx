@@ -1,25 +1,22 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../types/state';
 import { useHistory } from 'react-router';
 
-import ReplicationForm from './ReplicationForm';
+import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import { MutationFunction, useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import type {
   Replication,
-  Replication as ReplicationStream,
 } from '../../types/config';
 import { getAccountId, getClients } from '../utils/actions';
 import {
   handleApiError,
   handleClientError,
-  handleErrorMessage,
   networkEnd,
   networkStart,
 } from '../actions';
@@ -33,13 +30,11 @@ import { useManagementClient } from '../ManagementProvider';
 import { ApiError } from '../../types/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+import { workflowListQuery } from '../queries';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const replications = useSelector(
-    (state: AppState) => state.workflow.replications,
-  );
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -51,43 +46,25 @@ const CreateWorkflow = () => {
     (state: AppState) => state.s3.listBucketsResults.list,
   );
 
-  const schema = Joi.object({
-    streamId: Joi.string().label('Id').allow(''),
-    streamVersion: Joi.number().label('Version').optional(),
-    // streamName: Joi.string().label('Name').min(4).allow('').messages({
-    //     'string.min': '"Name" should have a minimum length of {#limit}',
-    // }),
-    enabled: Joi.boolean().label('State').required(),
-    sourceBucket: Joi.object({
-      value: Joi.string().label('Bucket Name').required(),
-      label: Joi.string(),
-      disabled: Joi.boolean(),
-      location: Joi.string(),
-    }),
-    sourcePrefix: Joi.string().label('Prefix').allow(''),
-    destinationLocation: Joi.object({
-      value: Joi.string().label('Destination Location Name').required(),
-      label: Joi.string(),
-    }),
-  });
-
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: joiResolver(schema),
+    resolver: joiResolver(replicationSchema),
     defaultValues: newReplicationForm(),
   });
 
   const { handleSubmit } = useFormMethods;
   const state = useSelector((state: AppState) => state);
   const mgnt = useManagementClient();
+  const queryClient = useQueryClient();
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+
   const createWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,
     ApiError,
     Replication
   >(
     (replication) => {
-      const { instanceId } = getClients(state);
-      const accountId = getAccountId(state);
       dispatch(networkStart('Creating replication'));
       const params = {
         instanceId,
@@ -109,6 +86,14 @@ const CreateWorkflow = () => {
     },
     {
       onSuccess: (success) => {
+        queryClient.invalidateQueries(
+          workflowListQuery(
+            notFalsyTypeGuard(mgnt),
+            accountId,
+            instanceId,
+            rolePathName,
+          ).queryKey,
+        );
         history.push(`./replication-${success.streamId}`);
       },
       onError: (error) => {
@@ -146,8 +131,6 @@ const CreateWorkflow = () => {
             </T.GroupContent>
           </T.Group>
           <ReplicationForm
-            workflow={null}
-            replications={replications}
             bucketList={bucketList}
             locations={locations}
           />

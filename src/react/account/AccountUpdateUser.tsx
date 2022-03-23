@@ -6,7 +6,7 @@ import type { AppState } from '../../types/state';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
@@ -31,7 +31,14 @@ const AccountUpdateUser = () => {
   const history = useHistory();
   const IAMClient = useIAMClient();
   const { IAMUserName, accountName } = useParams<{ IAMUserName: string, accountName: string }>();
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: joiResolver(schema)
   });
   const updateUserMutation = useMutation(
@@ -143,11 +150,9 @@ const AccountUpdateUser = () => {
           <F.Input
             type="text"
             id="name"
-            name="name"
-            ref={register}
+            {...register('name')}
             onChange={clearServerError}
-            autoComplete="new-password"
-          />
+            autoComplete="new-password" />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}

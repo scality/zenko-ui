@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import {ReactNode} from 'react';
 const Container = styled.div`
   display: flex;
   flex: 1;
@@ -36,7 +37,7 @@ const ButtonSection = styled.div`
 `;
 type WarningProps = {
   iconClass?: string;
-  title: JSX.Element|string;
+  title: ReactNode;
   btnTitle?: string;
   btnAction?: () => void;
   centered?: boolean;

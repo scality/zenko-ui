@@ -1,6 +1,5 @@
 import Locations from '../Locations';
 import React from 'react';
-import '@testing-library/jest-dom';
 import { mockOffsetSize, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
 import { screen, getAllByRole, getByRole } from '@testing-library/react';

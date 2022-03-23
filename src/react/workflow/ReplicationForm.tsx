@@ -4,9 +4,8 @@ import { ErrorInput } from '../ui-elements/FormLayout';
 import type {
   Locations,
   Replication as ReplicationStream,
-  ReplicationStreams,
 } from '../../types/config';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Select, Toggle } from '@scality/core-ui';
 import {
   checkIfExternalLocation,
@@ -19,12 +18,21 @@ import {
   renderSource,
   sourceBucketOptions,
 } from './utils';
+import Joi from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
 import { NoLocationWarning } from '../ui-elements/Warning';
 import type { S3BucketList } from '../../types/s3';
 
 import styled from 'styled-components';
+import { useQuery } from 'react-query';
+import { workflowListQuery } from '../queries';
+import { useSelector } from 'react-redux';
+import { getAccountId, getClients } from '../utils/actions';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useManagementClient } from '../ManagementProvider';
+import { rolePathName } from '../../js/IAMClient';
+import { AppState } from '../../types/state';
 
 const ReplicationContainer = styled.div`
   display: flex;
@@ -37,14 +45,32 @@ const ReplicationContainer = styled.div`
 `;
 
 type Props = {
-  replications: ReplicationStreams;
   bucketList: S3BucketList;
   locations: Locations;
-  workflow: ReplicationStream | null | undefined;
+  workflow?: ReplicationStream;
 };
 
+export const replicationSchema = Joi.object({
+  streamId: Joi.string().label('Id').allow(''),
+  streamVersion: Joi.number().label('Version').optional(),
+  // streamName: Joi.string().label('Name').min(4).allow('').messages({
+  //     'string.min': '"Name" should have a minimum length of {#limit}',
+  // }),
+  enabled: Joi.boolean().label('State').required(),
+  sourceBucket: Joi.object({
+    value: Joi.string().label('Bucket Name').required(),
+    label: Joi.string(),
+    disabled: Joi.boolean(),
+    location: Joi.string(),
+  }),
+  sourcePrefix: Joi.string().label('Prefix').allow(''),
+  destinationLocation: Joi.object({
+    value: Joi.string().label('Destination Location Name').required(),
+    label: Joi.string(),
+  }),
+});
+
 function ReplicationComponent({
-  replications,
   bucketList,
   locations,
   workflow,
@@ -52,7 +78,32 @@ function ReplicationComponent({
   // isCreateMode activate the tooltip
   const isCreateMode = workflow === null;
 
-  const { register, errors, control, reset, getValues } = useFormContext();
+  const {
+    register,
+    control,
+    reset,
+    getValues,
+
+    formState: {
+      errors,
+    },
+  } = useFormContext();
+
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+
+  const mgnt = useManagementClient();
+
+  const replicationsQuery = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mgnt),
+      accountId,
+      instanceId,
+      rolePathName,
+    ),
+    select: (workflows) => workflows.filter(w => w.replication).map(w => w.replication),
+  });
 
   useEffect(() => {
     reset(convertToReplicationForm(workflow)); // asynchronously reset form values
@@ -68,32 +119,13 @@ function ReplicationComponent({
 
   return (
     <ReplicationContainer>
-      <input
-        type="hidden"
-        id="streamId"
-        name="streamId"
-        ref={register}
-        autoComplete="off"
-      />
+      <input type="hidden" id="streamId" {...register('streamId')} autoComplete="off" />
       <input
         type="hidden"
         id="streamVersion"
-        name="streamVersion"
-        ref={register}
-        autoComplete="off"
-      />
+        {...register('streamVersion')}
+        autoComplete="off" />
       <T.Groups>
-        <T.Group>
-          <T.GroupContent>
-            <T.Row>
-              <T.Key principal={true}> Rule Type </T.Key>
-              <T.Value>
-                <i className="fas fa-coins" />
-                Replication
-              </T.Value>
-            </T.Row>
-          </T.GroupContent>
-        </T.Group>
         <T.Group>
           <T.GroupName>General</T.GroupName>
           <T.GroupContent>
@@ -104,7 +136,7 @@ function ReplicationComponent({
                   control={control}
                   id="enabled"
                   name="enabled"
-                  render={({ onChange, value: enabled }) => {
+                  render={({ field: {onChange, value: enabled} }) => {
                     return (
                       <Toggle
                         toggle={enabled}
@@ -139,9 +171,9 @@ function ReplicationComponent({
                   control={control}
                   id="sourceBucket"
                   name="sourceBucket"
-                  render={({ onChange, value: sourceBucket }) => {
+                  render={({ field: {onChange, value: sourceBucket} }) => {
                     const options = sourceBucketOptions(
-                      replications,
+                      replicationsQuery.data || [],
                       bucketList,
                       locations,
                     );
@@ -199,7 +231,7 @@ function ReplicationComponent({
                   control={control}
                   id="sourcePrefix"
                   name="sourcePrefix"
-                  render={({ onChange, value: sourcePrefix }) => {
+                  render={({ field: {onChange, value: sourcePrefix} }) => {
                     return (
                       <Input
                         onChange={onChange}
@@ -223,7 +255,7 @@ function ReplicationComponent({
                   control={control}
                   id="destinationLocation"
                   name="destinationLocation"
-                  render={({ onChange, value: destinationLocation }) => {
+                  render={({ field: {onChange, value: destinationLocation} }) => {
                     const options = destinationOptions(locations);
                     return (
                       <Select

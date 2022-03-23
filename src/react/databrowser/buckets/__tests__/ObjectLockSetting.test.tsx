@@ -1,6 +1,7 @@
 import React from 'react';
 import { MemoryRouter, Route, Switch } from 'react-router';
-import { reduxMountAct } from '../../../utils/test';
+import { reduxMountAct, reduxRender } from '../../../utils/test';
+import { screen } from "@testing-library/react";
 import ObjectLockSetting from '../ObjectLockSetting';
 describe('ObjectLockSetting', () => {
   const errorMessage = 'This is an error test message';
@@ -37,7 +38,7 @@ describe('ObjectLockSetting', () => {
     component.unmount();
   });
   it('should render ObjectLockSetting component with current data filled', async () => {
-    const component = await reduxMountAct(
+    const component = await reduxRender(
       <MemoryRouter initialEntries={['/test-bucket']} initialIndex={0}>
         <Switch>
           <Route path="/:bucketName">
@@ -62,18 +63,14 @@ describe('ObjectLockSetting', () => {
         },
       },
     );
-    expect(component.find('[data-test-id="object-lock-enabled"]').text()).toBe(
-      'Enabled',
-    );
+    
+    expect(screen.getByText(/Enabled/i)).toBeInTheDocument();
     expect(
-      component.find('input[value="GOVERNANCE"]').getDOMNode().checked,
-    ).toBe(true);
+      screen.getByRole('radio', {  name: /governance/i, checked: true }),
+    ).toBeInTheDocument();
     expect(
-      component.find('input[name="retentionPeriod"]').getDOMNode().value,
-    ).toBe('1');
-    expect(component.find('input[name="sc-select"]').getDOMNode().value).toBe(
-      'DAYS',
-    );
-    component.unmount();
+      screen.getByRole('spinbutton'),
+    ).toHaveValue(1);
+    expect(screen.getByDisplayValue(/days/i)).toBeInTheDocument();
   });
 });

@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import Joi from '@hapi/joi';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
@@ -11,33 +10,29 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import type {
   Locations,
   Replication,
-  ReplicationStreams,
 } from '../../types/config';
 import FormContainer from '../ui-elements/FormLayout';
 import * as T from '../ui-elements/TableKeyValue2';
 import {
-  closeWorkflowDeleteModal,
-  deleteReplication,
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
-  openWorkflowDeleteModal,
 } from '../actions';
 import type { AppState } from '../../types/state';
 
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import ReplicationForm from './ReplicationForm';
+import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import type { S3BucketList } from '../../types/s3';
 import type { Workflow } from '../../types/workflow';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   convertToReplicationForm,
   convertToReplicationStream,
   generateStreamName,
   newReplicationForm,
 } from './utils';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
 import { getAccountId, getClients } from '../utils/actions';
@@ -49,7 +44,6 @@ import { workflowListQuery } from '../queries';
 
 type Props = {
   wfSelected: Workflow;
-  replications: ReplicationStreams;
   bucketList: S3BucketList;
   locations: Locations;
   showEditWorkflowNotification: boolean;
@@ -64,7 +58,6 @@ const ConfigurationHeader = styled.div`
 
 function ConfigurationTab({
   wfSelected,
-  replications,
   bucketList,
   locations,
 }: Props) {
@@ -72,57 +65,94 @@ function ConfigurationTab({
   const history = useHistory();
   const queryClient = useQueryClient();
   const { workflowId } = wfSelected;
-  const isDeleteModalOpen = useSelector(
-    (state: AppState) => state.uiWorkflows.showWorkflowDeleteModal,
-  );
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const mgnt = useManagementClient();
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+
+  const replicationsQuery = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mgnt),
+      accountId,
+      instanceId,
+      rolePathName,
+    ),
+    select: (workflows) => workflows.filter(w => w.replication).map(w => w.replication),
+  });
+
   const replication = useMemo(() => {
-    return replications.find((r) => r.streamId === workflowId);
-  }, [replications, workflowId]);
+    if (replicationsQuery.status === 'success') {
+      return replicationsQuery.data.find((r) => r.streamId === workflowId);
+    }
+    
+  }, [replicationsQuery.status, workflowId]);
 
   const handleOpenDeleteModal = () => {
-    dispatch(openWorkflowDeleteModal());
+    setIsDeleteModalOpen(true);
   };
 
   const handleCloseDeleteModal = () => {
-    dispatch(closeWorkflowDeleteModal());
+    setIsDeleteModalOpen(false);
   };
 
-  const handleDeleteWorkflow = () => {
-    dispatch(deleteReplication(replication));
-  };
+  const deleteMutation = useMutation<Response, ApiError, Replication>({
+    mutationFn: (replication) => {
+      const params = {
+        bucketName: replication.source.bucketName,
+        instanceId,
+        accountId,
+        workflowId: replication.streamId,
+        rolePathName,
+      };
+      dispatch(networkStart('Deleting replication'));
+      setIsDeleteModalOpen(false);
+      return notFalsyTypeGuard(mgnt)
+        .deleteBucketWorkflowReplication(
+          params.bucketName,
+          params.instanceId,
+          params.accountId,
+          params.workflowId,
+          params.rolePathName,
+        )
+        .finally(() => {
+          dispatch(networkEnd());
+        });
+    },
 
-  const schema = Joi.object({
-    streamId: Joi.string().label('Id').allow(''),
-    streamVersion: Joi.number().label('Version').optional(),
-    // streamName: Joi.string().label('Name').min(4).allow('').messages({
-    //     'string.min': '"Name" should have a minimum length of {#limit}',
-    // }),
-    enabled: Joi.boolean().label('State').required(),
-    sourceBucket: Joi.object({
-      value: Joi.string().label('Bucket Name').required(),
-      label: Joi.string(),
-      disabled: Joi.boolean(),
-      location: Joi.string(),
-    }),
-    sourcePrefix: Joi.string().label('Prefix').allow(''),
-    destinationLocation: Joi.object({
-      value: Joi.string().label('Destination Location Name').required(),
-      label: Joi.string(),
-    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        workflowListQuery(
+          notFalsyTypeGuard(mgnt),
+          accountId,
+          instanceId,
+          rolePathName,
+        ).queryKey,
+      );
+    },
+    onError: (error) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err as ApiError, 'byModal'));
+      }
+    },
   });
 
-  const state = useSelector((state: AppState) => state);
-  const mgnt = useManagementClient();
+  const handleDeleteWorkflow = () => {
+    if (replication) {
+      deleteMutation.mutate(replication);
+    }
+  };
 
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: joiResolver(schema),
+    resolver: joiResolver(replicationSchema),
     defaultValues: newReplicationForm(),
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
-  const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
+  
   const eidtWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,
     ApiError,
@@ -159,20 +189,23 @@ function ConfigurationTab({
         );
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+        } catch (err) {
+          dispatch(handleApiError(err, 'byModal'));
+        }
       },
     },
   );
 
   const onSubmit = (values: ReplicationFormType) => {
     const stream = values;
-    let s = convertToReplicationStream(stream);
+    let replicationStream = convertToReplicationStream(stream);
 
-    if (!s.name) {
-      s = { ...s, name: generateStreamName(s) };
+    if (!replicationStream.name) {
+      replicationStream = { ...replicationStream, name: generateStreamName(replicationStream) };
     }
-    eidtWorkflowMutation.mutate(s);
+    eidtWorkflowMutation.mutate(replicationStream);
   };
 
   // TODO: Adapt it to handle the other workflow types; For now only replication workflow is supported.
@@ -210,8 +243,18 @@ function ConfigurationTab({
       <FormProvider {...useFormMethods}>
         <FormContainer style={{ backgroundColor: 'transparent' }}>
           <form onSubmit={handleSubmit(onSubmit)}>
+            <T.Group>
+              <T.GroupContent>
+                <T.Row>
+                  <T.Key principal={true}> Rule Type </T.Key>
+                  <T.Value>
+                    <i className="fas fa-coins" />
+                    Replication
+                  </T.Value>
+                </T.Row>
+              </T.GroupContent>
+            </T.Group>
             <ReplicationForm
-              replications={replications}
               workflow={replication}
               bucketList={bucketList}
               locations={locations}
@@ -223,7 +266,7 @@ function ConfigurationTab({
                   marginRight: spacing.sp24,
                 }}
                 variant="outline"
-                onClick={() => history.push('./')}
+                onClick={() => history.replace()}
                 label="Cancel"
               />
               <Button

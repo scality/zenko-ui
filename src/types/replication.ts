@@ -5,7 +5,6 @@ export type ReplicationBucketOption = {
   readonly disabled: boolean;
 };
 export type ReplicationForm = {
-  readonly streamName: string;
   readonly streamVersion: number;
   readonly streamId: string;
   readonly enabled: boolean;
@@ -22,5 +21,4 @@ export type ReplicationForm = {
     label?: string;
     value?: string;
   };
-  preferredReadLocation: string | null;
-};
+}

@@ -7,7 +7,7 @@ import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
-import { joiResolver } from '@hookform/resolvers';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
@@ -29,7 +29,14 @@ const schema = Joi.object({
 });
 
 function AccountCreate() {
-  const { register, handleSubmit, errors } = useForm({
+  const {
+    register,
+    handleSubmit,
+
+    formState: {
+      errors,
+    },
+  } = useForm({
     resolver: joiResolver(schema),
   });
   const hasError = useSelector(
@@ -80,17 +87,17 @@ function AccountCreate() {
       >
         <F.Title> Create New Account </F.Title>
         <F.Fieldset>
-          <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
+          <F.Label htmlFor="name" tooltipMessages={['Must be unique']} tooltipWidth="6rem">
             Name
           </F.Label>
           <F.Input
             type="text"
             id="name"
-            name="name"
-            ref={register}
+            {...register('name')}
             onChange={clearServerError}
             autoComplete="new-password"
-          />
+            aria-invalid={!!errors.name}
+            aria-describedby="error-name" />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
@@ -98,6 +105,7 @@ function AccountCreate() {
         </F.Fieldset>
         <F.Fieldset>
           <F.Label
+            htmlFor="email"
             tooltipMessages={[
               'Must be unique',
               'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose',
@@ -107,13 +115,12 @@ function AccountCreate() {
             Root Account Email
           </F.Label>
           <F.Input
-            type="text"
+            type="email"
             id="email"
-            name="email"
-            ref={register}
-            onChange={clearServerError}
-            autoComplete="off"
-          />
+            {...register('email', { onChange: clearServerError })}
+            aria-invalid={!!errors.email}
+            aria-describedby="error-email"
+            />
           <F.ErrorInput id="error-email" hasError={errors.email}>
             {' '}
             {errors.email?.message}{' '}
