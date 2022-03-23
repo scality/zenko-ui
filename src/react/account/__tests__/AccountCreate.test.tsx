@@ -1,7 +1,8 @@
 import AccountCreate from '../AccountCreate';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
-import { reduxMountAct } from '../../utils/test';
+import { reduxMountAct, reduxRender } from '../../utils/test';
+import { screen, act } from "@testing-library/react";
+import userEvent from '@testing-library/user-event'
+
 describe('AccountCreate', () => {
   it('should render AccountCreate component with no error banner', async () => {
     const component = await reduxMountAct(<AccountCreate />);
@@ -112,38 +113,39 @@ describe('AccountCreate', () => {
   ];
   tests.forEach((t) => {
     it(`Simulate click: ${t.description}`, async () => {
-      const component = await reduxMountAct(<AccountCreate />);
+      await reduxRender(<AccountCreate />);
+
+      userEvent.type(screen.getByRole('textbox', { name: /name/i }), t.name);
+      userEvent.type(screen.getByRole('textbox', { name: /email/i }), t.email);
       // NOTE: All validation methods in React Hook Form are treated
       // as async functions, so it's important to wrap async around your act.
       await act(async () => {
-        const elementName = component.find('input#name');
-        elementName.getDOMNode().value = t.name;
-        elementName.getDOMNode().dispatchEvent(new Event('input'));
-        const elementEmail = component.find('input#email');
-        elementEmail.getDOMNode().value = t.email;
-        elementEmail.getDOMNode().dispatchEvent(new Event('input'));
-        await act(async () => {
-          component.find('form').simulate('submit');
-        });
-      });
+        userEvent.click(screen.getByRole('button', { name: /create/i }));
+      })
 
       if (t.expectedNameError) {
-        expect(component.find('ErrorInput#error-name').text()).toContain(
-          t.expectedNameError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedNameError}.*`, 'i')),
+        ).toBeInTheDocument();
       } else {
-        expect(component.find('ErrorInput#error-name').text()).toBeFalsy();
+        expect(
+          screen
+            .getByRole('textbox', { name: /name/i })
+            .attributes.getNamedItem('aria-invalid')?.value,
+        ).toBe('false');
       }
 
       if (t.expectedEmailError) {
-        expect(component.find('ErrorInput#error-email').text()).toContain(
-          t.expectedEmailError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedEmailError}.*`, 'i')),
+        ).toBeInTheDocument();
       } else {
-        expect(component.find('ErrorInput#error-email').text()).toBeFalsy();
+        expect(
+          screen
+            .getByRole('textbox', { name: /email/i })
+            .attributes.getNamedItem('aria-invalid')?.value,
+        ).toBe('false');
       }
-
-      component.unmount();
     });
   });
 });

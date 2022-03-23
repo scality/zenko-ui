@@ -1,8 +1,9 @@
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
-import { reduxMountAct } from '../../../utils/test';
+import { reduxMountAct, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
+import { screen, act } from "@testing-library/react";
+import userEvent from '@testing-library/user-event'
+
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
   it('should render BucketCreate component with no error banner', async () => {
@@ -37,7 +38,7 @@ describe('BucketCreate', () => {
       description:
         'should render an input form error when submitting with an empty name',
       testValue: '',
-      expectedEmptyNameError: ' "Name" is not allowed to be empty ',
+      expectedEmptyNameError: '"Name" is not allowed to be empty',
       expectedMinLengthNameError: null,
       expectedMaxLengthNameError: null,
       expectedPAtternNameError: null,
@@ -48,7 +49,7 @@ describe('BucketCreate', () => {
       testValue: 'ab',
       expectedEmptyNameError: null,
       expectedMinLengthNameError:
-        ' "Name" length must be at least 3 characters long ',
+        '"Name" length must be at least 3 characters long',
       expectedMaxLengthNameError: null,
       expectedPAtternNameError: null,
     },
@@ -61,7 +62,7 @@ describe('BucketCreate', () => {
       expectedMinLengthNameError: null,
       expectedPAtternNameError: null,
       expectedMaxLengthNameError:
-        ' "Name" length must be less than or equal to 63 characters long ',
+        '"Name" length must be less than or equal to 63 characters long',
     },
     {
       description:
@@ -69,7 +70,7 @@ describe('BucketCreate', () => {
       testValue: 'dozA',
       expectedEmptyNameError: null,
       expectedMinLengthNameError: null,
-      expectedPAtternNameError: bucketErrorMessage,
+      expectedPAtternNameError: bucketErrorMessage.replaceAll(/\(/g, '\\(').replaceAll(/\)/g, '\\)'),
       expectedMaxLengthNameError: null,
     },
     {
@@ -78,39 +79,38 @@ describe('BucketCreate', () => {
       testValue: 'doz_',
       expectedEmptyNameError: null,
       expectedMinLengthNameError: null,
-      expectedPAtternNameError: bucketErrorMessage,
+      expectedPAtternNameError: bucketErrorMessage.replaceAll(/\(/g, '\\(').replaceAll(/\)/g, '\\)'),
       expectedMaxLengthNameError: null,
     },
   ];
   tests.forEach((t) => {
     it(t.description, async () => {
-      const component = await reduxMountAct(<BucketCreate />);
+      await reduxRender(<BucketCreate />);
+
+      // NOTE: All validation methods in React Hook Form are treated
+      // as async functions, so it's important to wrap async around your act.
       await act(async () => {
-        const input = component.find('input#name');
-        input.getDOMNode().value = t.testValue;
-        input.getDOMNode().dispatchEvent(new Event('input'));
-        component.find('form').simulate('submit');
-      });
-
+        userEvent.type(screen.getByRole('textbox', { name: /bucket name\*/i }), `${t.testValue}`);
+        userEvent.tab()
+      })
+      
       if (t.expectedEmptyNameError !== null) {
-        expect(component.find('ErrorInput#error-name').text()).toContain(
-          t.expectedEmptyNameError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedEmptyNameError}.*`, 'i')),
+        ).toBeInTheDocument();
       } else if (t.expectedMinLengthNameError !== null) {
-        expect(component.find('ErrorInput#error-name').text()).toContain(
-          t.expectedMinLengthNameError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedMinLengthNameError}.*`, 'i')),
+        ).toBeInTheDocument();
       } else if (t.expectedMaxLengthNameError !== null) {
-        expect(component.find('ErrorInput#error-name').text()).toContain(
-          t.expectedMaxLengthNameError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedMaxLengthNameError}.*`, 'i')),
+        ).toBeInTheDocument();
       } else if (t.expectedPAtternNameError !== null) {
-        expect(component.find('ErrorInput#error-name').text()).toContain(
-          t.expectedPAtternNameError,
-        );
+        expect(
+          screen.getByText(new RegExp(`.*${t.expectedPAtternNameError}.*`, 'i')),
+        ).toBeInTheDocument();
       }
-
-      component.unmount();
     });
   });
   it('should toggle versioning and disable it when enabling object lock', async () => {

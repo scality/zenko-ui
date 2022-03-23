@@ -87,7 +87,7 @@ function AccountCreate() {
       >
         <F.Title> Create New Account </F.Title>
         <F.Fieldset>
-          <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
+          <F.Label htmlFor="name" tooltipMessages={['Must be unique']} tooltipWidth="6rem">
             Name
           </F.Label>
           <F.Input
@@ -95,7 +95,9 @@ function AccountCreate() {
             id="name"
             {...register('name')}
             onChange={clearServerError}
-            autoComplete="new-password" />
+            autoComplete="new-password"
+            aria-invalid={!!errors.name}
+            aria-describedby="error-name" />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
@@ -103,6 +105,7 @@ function AccountCreate() {
         </F.Fieldset>
         <F.Fieldset>
           <F.Label
+            htmlFor="email"
             tooltipMessages={[
               'Must be unique',
               'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose',
@@ -115,6 +118,8 @@ function AccountCreate() {
             type="email"
             id="email"
             {...register('email', { onChange: clearServerError })}
+            aria-invalid={!!errors.email}
+            aria-describedby="error-email"
             />
           <F.ErrorInput id="error-email" hasError={errors.email}>
             {' '}

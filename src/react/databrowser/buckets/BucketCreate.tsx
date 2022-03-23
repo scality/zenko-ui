@@ -173,6 +173,7 @@ function BucketCreate() {
           <F.FormScrollArea>
             <F.Fieldset>
               <F.Label
+                htmlFor='name'
                 tooltipMessages={[
                   'Must be unique',
                   'Cannot be modified after creation',
@@ -188,6 +189,8 @@ function BucketCreate() {
                 {...register('name')}
                 autoFocus={true}
                 onChange={clearServerError}
+                aria-invalid={!!errors.name}
+                aria-describedby="error-name"
                 autoComplete="off"
               />
               <F.ErrorInput id="error-name" hasError={errors.name}>
