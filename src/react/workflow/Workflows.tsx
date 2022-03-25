@@ -15,7 +15,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
 
 import Loader from '../ui-elements/Loader';
-import { networkEnd, networkStart } from '../actions';
+import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
 
 export function useWorkflows() {
   const mgnt = useManagementClient();
@@ -41,6 +41,13 @@ export function useWorkflows() {
         .filter((w) => w.expiration)
         .map((w) => w.expiration),
     }),
+    onError: (error) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err, 'byModal'));
+      }
+    },
   });
 
   return workflowsQuery;
@@ -74,6 +81,13 @@ export default function Workflows2() {
       () => dispatch(networkStart('Loading workflows...'))
     ),
     onSettled: () => {dispatch(networkEnd());},
+    onError: (error) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err, 'byModal'));
+      }
+    },
     select: (workflows) => makeWorkflows(workflows),
   });
 
