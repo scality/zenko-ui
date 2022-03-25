@@ -49,10 +49,7 @@ export const workflowListQuery = (
          onStart();
        }
       return notFalsyTypeGuard(mgnt)
-        .searchWorkflows(accountId, instanceId, rolePathName)
-        .catch((error: ApiError) => {
-          throw error;
-        });
+        .searchWorkflows(accountId, instanceId, rolePathName);
     },
     enabled: mgnt != null,
   };

@@ -6,8 +6,9 @@ import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout3';
 import { TextTransformer } from '../ui-elements/Utility';
 import type { Workflows } from '../../types/workflow';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { AppState } from '../../types/state';
 const columns = [
   {
     Header: 'Workflow Description',
@@ -41,6 +42,9 @@ type Props = {
 function WorkflowList({ workflows, workflowId }: Props) {
   const history = useHistory();
   const dispatch = useDispatch();
+  const loading = useSelector(
+    (state: AppState) => state.networkActivity.counter > 0,
+  );
   const {
     getTableProps,
     getTableBodyProps,
@@ -73,6 +77,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
         <T.ExtraButton
           icon={<i className="fas fa-plus" />}
           label="Create Workflow"
+          disabled={loading}
           variant="primary"
           onClick={() => history.push('./create-workflow')}
           type="submit"

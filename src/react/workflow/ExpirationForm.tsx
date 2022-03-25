@@ -2,7 +2,7 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Select, Tooltip, Toggle, SpacedBox } from '@scality/core-ui';
+import { Select, Toggle, SpacedBox } from '@scality/core-ui';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
 import Joi from '@hapi/joi';
 
@@ -11,7 +11,6 @@ import Input from '../ui-elements/Input';
 import type { S3BucketList } from '../../types/s3';
 
 import styled from 'styled-components';
-import { useMemo } from 'react';
 import { IconHelp } from '../ui-elements/Help';
 
 const flexStyle = {
