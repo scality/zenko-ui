@@ -66,7 +66,7 @@ const CreateWorkflow = () => {
         }),
         expiration: Joi.when('type', {
           is: Joi.equal('expiration'),
-          then: Joi.object(expirationSchema),
+          then: expirationSchema,
           otherwise: Joi.valid(),
         }),
       }),

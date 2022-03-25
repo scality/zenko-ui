@@ -294,12 +294,7 @@ function EditForm({
 
   const schema =
     workflow && isExpirationWorkflow(workflow)
-      ? Joi.object(expirationSchema).or(
-          'currentVersionTriggerDelayDays',
-          'previousVersionTriggerDelayDays',
-          'expireDeleteMarkersTrigger',
-          'incompleteMultipartUploadTriggerDelayDays',
-        )
+      ? expirationSchema
       : Joi.object(replicationSchema);
 
   const useFormMethods = useForm({

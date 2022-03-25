@@ -50,23 +50,51 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
   );
 };
 
-export const expirationSchema = {
-  bucketName: Joi.string().label('Source Bucket Name').required(),
-  enabled: Joi.boolean().required(),
-  filter: Joi.object({
-    objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
-  }).optional(),
-  name: Joi.string().label('Rule Name').required(),
-  type: Joi.string().required(),
-  workflowId: Joi.string().optional().allow(null, ''),
-  currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
-  currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
-  previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
-  expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
-  incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
-    .optional()
-    .allow(null),
+const commonSchema = {
+    bucketName: Joi.string().label('Source Bucket Name').required(),
+    enabled: Joi.boolean().required(),
+    filter: Joi.object({
+      objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
+    }).optional(),
+    name: Joi.string().label('Rule Name').required(),
+    type: Joi.string().required(),
+    workflowId: Joi.string().optional().allow(null, ''),
+    currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
 };
+
+//At least one of currentVersion, previousVersion, expireDeleteMarkers and incompleteMutlipart are required
+export const expirationSchema = Joi.alternatives().try(Joi.object({
+    ...commonSchema,
+    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').required(),
+    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
+    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
+    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
+      .optional()
+      .allow(null),
+  }), Joi.object({
+    ...commonSchema,
+    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
+    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').required(),
+    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
+    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
+      .optional()
+      .allow(null),
+  }), Joi.object({
+    ...commonSchema,
+    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
+    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
+    expireDeleteMarkersTrigger: Joi.boolean().invalid(false).required(),
+    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
+      .optional()
+      .allow(null),
+  }), Joi.object({
+    ...commonSchema,
+    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
+    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
+    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
+    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
+      .required(),
+  }));
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   const {
