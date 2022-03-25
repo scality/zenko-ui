@@ -61,10 +61,10 @@ export const expirationSchema = {
   type: Joi.string().required(),
   workflowId: Joi.string().optional().allow(null, ''),
   currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
-  currentVersionTriggerDelayDays: Joi.number().optional().allow(null),
-  previousVersionTriggerDelayDays: Joi.number().optional().allow(null),
+  currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
+  previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
   expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
-  incompleteMultipartUploadTriggerDelayDays: Joi.number()
+  incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
     .optional()
     .allow(null),
 };
@@ -301,14 +301,18 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           name="currentVersionTriggerDelayDays"
                           value={currentVersionTriggerDelayDays || ''}
                           onChange={(e) => {
-                              onChange(e.target.value)
-                            }}
+                            onChange(e.target.value);
+                          }}
                           type="number"
                           style={{
                             width: '3rem',
                             textAlign: 'right',
                           }}
                           min={1}
+                          aria-invalid={
+                            !!errors[`${prefix}currentVersionTriggerDelayDays`]
+                          }
+                          aria-describedby="error-currentVersionTriggerDelayDays"
                           disabled={
                             currentVersionTriggerDelayDays === null ||
                             currentVersionTriggerDelayDays === undefined
@@ -320,6 +324,21 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <SpacedBox mr={8} />
                   <PluralizeDays number={currentVersionTriggerDelayDays} />
                 </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-currentVersionTriggerDelayDays"
+                  style={{height: 'auto'}}
+                  hasError={errors[`${prefix}currentVersionTriggerDelayDays`]}
+                >
+                  {' '}
+                  {
+                    errors[`${prefix}currentVersionTriggerDelayDays`]?.message
+                  }{' '}
+                </ErrorInput>
               </T.Value>
             </T.Row>
             <T.Row>
@@ -394,6 +413,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                             textAlign: 'right',
                           }}
                           min={1}
+                          aria-invalid={
+                            !!errors[`${prefix}previousVersionTriggerDelayDays`]
+                          }
+                          aria-describedby="error-previousVersionTriggerDelayDays"
                           disabled={
                             previousVersionTriggerDelayDays === null ||
                             previousVersionTriggerDelayDays === undefined
@@ -405,6 +428,21 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <SpacedBox mr={8} />
                   <PluralizeDays number={previousVersionTriggerDelayDays} />
                 </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-previousVersionTriggerDelayDays"
+                  style={{height: 'auto'}}
+                  hasError={errors[`${prefix}previousVersionTriggerDelayDays`]}
+                >
+                  {' '}
+                  {
+                    errors[`${prefix}previousVersionTriggerDelayDays`]?.message
+                  }{' '}
+                </ErrorInput>
               </T.Value>
             </T.Row>
             <T.Row>
@@ -433,7 +471,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   }) => {
                     return (
                       <Toggle
-                        disabled={currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined}
+                        disabled={
+                          currentVersionTriggerDelayDays !== null &&
+                          currentVersionTriggerDelayDays !== undefined
+                        }
                         id="expireDeleteMarkersTrigger"
                         toggle={expireDeleteMarkersTrigger}
                         onChange={(e) =>
@@ -443,11 +484,14 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     );
                   }}
                 />
-                {currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined ? (
+                {currentVersionTriggerDelayDays !== null &&
+                currentVersionTriggerDelayDays !== undefined ? (
                   <>
                     <IconHelp
-                        tooltipMessage={'This action is disabled when "Expire Current version of objects" is active'}
-                        tooltipWidth={'13rem'}
+                      tooltipMessage={
+                        'This action is disabled when "Expire Current version of objects" is active'
+                      }
+                      tooltipWidth={'13rem'}
                     />
                   </>
                 ) : (
@@ -532,6 +576,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                             textAlign: 'right',
                           }}
                           min={1}
+                          aria-invalid={
+                            !!errors[
+                              `${prefix}incompleteMultipartUploadTriggerDelayDays`
+                            ]
+                          }
+                          aria-describedby="error-incompleteMultipartUploadTriggerDelayDays"
                           disabled={
                             incompleteMultipartUploadTriggerDelayDays ===
                               null ||
@@ -547,6 +597,23 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     number={incompleteMultipartUploadTriggerDelayDays}
                   />
                 </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-incompleteMultipartUploadTriggerDelayDays"
+                  style={{height: 'auto'}}
+                  hasError={
+                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
+                  }
+                >
+                  {' '}
+                  {
+                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]?.message
+                  }{' '}
+                </ErrorInput>
               </T.Value>
             </T.Row>
           </T.GroupContent>
