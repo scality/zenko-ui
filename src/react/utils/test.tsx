@@ -1,5 +1,5 @@
 import { Provider } from 'react-redux';
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
 import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
@@ -13,6 +13,9 @@ import { Router } from 'react-router-dom';
 import { _IAMContext } from '../IAMProvider';
 
 import { render } from '@testing-library/react';
+import { _ManagementContext } from '../ManagementProvider';
+import { UiFacingApi } from '../../js/managementClient/api';
+import { Configuration } from '../../js/managementClient/configuration';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -71,21 +74,37 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   };
   const iamClient = new IAMClient('http://testendpoint');
   iamClient.login(params);
+  const mgtClient = new UiFacingApi(
+    new Configuration({
+      apiKey: 'token',
+      basePath: `http://testendpoint/api/v1`,
+    }),
+  );
   return (
-    <QueryClientProvider client={new QueryClient({
-      defaultOptions: {
-        queries: {
-          retry: false,
-        },
-      },
-    })}>
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: {
+            queries: {
+              retry: false,
+            },
+          },
+        })
+      }
+    >
       <Router history={history}>
         <_IAMContext.Provider
           value={{
             iamClient,
           }}
         >
-          {children}
+          <_ManagementContext.Provider
+            value={{
+              managementClient: mgtClient,
+            }}
+          >
+            {children}
+          </_ManagementContext.Provider>
         </_IAMContext.Provider>
       </Router>
     </QueryClientProvider>
@@ -97,7 +116,11 @@ export const reduxMount = (component, testState) => {
   return {
     component: mount(
       <ThemeProvider theme={theme}>
-        <Provider store={store}>{component}</Provider>
+        <Provider store={store}>
+          <Wrapper>
+            {component}
+          </Wrapper>
+        </Provider>
       </ThemeProvider>,
     ),
   };
@@ -109,7 +132,7 @@ export function mockOffsetSize(width: number, height: number) {
   spyGetComputedStyle.mockImplementation((elt, _) => {
     const originalStyle = originalFunction(elt);
     originalStyle.fontSize = '14px';
-    return originalStyle
+    return originalStyle;
   });
 
   Object.defineProperties(window.HTMLElement.prototype, {
@@ -134,7 +157,7 @@ export const reduxRender = (component, testState) => {
         <ThemeProvider theme={theme}>
           <Provider store={store}>{component}</Provider>
         </ThemeProvider>
-      </Wrapper>
+      </Wrapper>,
     ),
   };
 };
