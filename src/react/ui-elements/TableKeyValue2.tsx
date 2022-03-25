@@ -3,6 +3,7 @@ import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { Tooltip } from '@scality/core-ui';
 import { ReactNode } from 'react';
+import { IconHelp } from './Help';
 // TEMPLATE
 //
 // <Table>
@@ -75,7 +76,7 @@ export const Row = styled.div`
   margin-bottom: ${spacing.sp4};
   min-height: ${spacing.sp24};
 `;
-const RawKey = styled.div<{principal?: boolean, required?: boolean}>`
+const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
   color: ${(props) =>
     props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
   font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
@@ -90,16 +91,12 @@ const RawKey = styled.div<{principal?: boolean, required?: boolean}>`
 `;
 export const Key = styled(RawKey)`
   && {
-    flex: 1 1 ${props => props.size || 35}%;
+    flex: 1 1 ${(props) => props.size || 35}%;
   }
 `;
-const KeyContainer = styled.div<{size?: number}>`
+const KeyContainer = styled.div<{ size?: number }>`
   display: flex;
-  flex: 1 1 ${props => props.size || 35}%;
-  i {
-    margin-left: ${spacing.sp8};
-    color: #434343;
-  }
+  flex: 1 1 ${(props) => props.size || 35}%;
 `;
 type KeyTooltipProps = {
   children: ReactNode;
@@ -119,15 +116,10 @@ export const KeyTooltip = ({
   <KeyContainer size={size}>
     <RawKey {...props}> {children} </RawKey>
     {tooltipMessage && (
-      <Tooltip
-        overlay={tooltipMessage}
-        placement="right"
-        overlayStyle={{
-          width: tooltipWidth,
-        }}
-      >
-        <i className="fas fa-question-circle"></i>
-      </Tooltip>
+      <IconHelp
+        tooltipMessage={tooltipMessage}
+        tooltipWidth={tooltipWidth}
+      />
     )}
   </KeyContainer>
 );

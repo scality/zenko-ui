@@ -12,6 +12,7 @@ import type { S3BucketList } from '../../types/s3';
 
 import styled from 'styled-components';
 import { useMemo } from 'react';
+import { IconHelp } from '../ui-elements/Help';
 
 const flexStyle = {
   display: 'flex',
@@ -301,12 +302,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           value={currentVersionTriggerDelayDays || ''}
                           onChange={(e) => {
                               onChange(e.target.value)
-                              if (e.target.value) {
-                                setValue(
-                                  `${prefix}expireDeleteMarkersTrigger`,
-                                  false,
-                                );
-                              }
                             }}
                           type="number"
                           style={{
@@ -428,7 +423,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
               <T.Value
                 style={{
                   ...flexStyle,
-                  opacity: currentVersionTriggerDelayDays ? 0.5 : 1,
                 }}
               >
                 <Controller
@@ -439,7 +433,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   }) => {
                     return (
                       <Toggle
-                        disabled={currentVersionTriggerDelayDays}
+                        disabled={currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined}
                         id="expireDeleteMarkersTrigger"
                         toggle={expireDeleteMarkersTrigger}
                         onChange={(e) =>
@@ -449,20 +443,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     );
                   }}
                 />
-                {currentVersionTriggerDelayDays ? (
+                {currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined ? (
                   <>
-                    <SpacedBox mr={8} />
-                    <Tooltip
-                      overlay={
-                        'This action is disabled when "Expire Current version of objects" is active'
-                      }
-                      placement="right"
-                      overlayStyle={{
-                        width: '13rem',
-                      }}
-                    >
-                      <i className="fas fa-question-circle"></i>
-                    </Tooltip>
+                    <IconHelp
+                        tooltipMessage={'This action is disabled when "Expire Current version of objects" is active'}
+                        tooltipWidth={'13rem'}
+                    />
                   </>
                 ) : (
                   ''
