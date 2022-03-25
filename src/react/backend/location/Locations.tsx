@@ -20,6 +20,7 @@ import { Table, Button } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { CellProps } from 'react-table';
+import { useWorkflows } from '../../workflow/Workflows';
 
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
@@ -33,9 +34,7 @@ const renderActionButtons = (rowValues:  Location) => {
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
-  const replicationStreams = useSelector(
-    (state: AppState) => state.workflow.replications,
-  );
+  const workflowsQuery = useWorkflows();
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
@@ -75,7 +74,7 @@ const renderActionButtons = (rowValues:  Location) => {
           overlay: 'Delete Location',
           placement: 'top',
         }}
-        disabled={!canDeleteLocation(locationName, locations, replicationStreams, buckets, endpoints)}
+        disabled={!canDeleteLocation(locationName, locations, workflowsQuery.data?.replications || [], buckets, endpoints)}
       />
     </div>
   );
@@ -87,13 +86,11 @@ function Locations() {
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
-  const replicationStreams = useSelector(
-    (state: AppState) => state.workflow.replications,
-  );
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
   );
+  const workflowsQuery = useWorkflows();
   const data = useMemo(() => Object.values(locations).map(location => ({...location, _asyncMetadataUpdatesColumn: true, _actionsColumn: true})), [locations]);
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -173,7 +170,7 @@ function Locations() {
     locations,
     buckets,
     endpoints,
-    replicationStreams,
+    workflowsQuery,
     ingestionStates,
     loading,
     capabilities,

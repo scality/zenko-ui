@@ -390,12 +390,6 @@ export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION = (): CloseWorkflowDeleteModalAc
     type: 'CLOSE_WORKFLOW_DELETE_MODAL',
   };
 };
-export const SEARCH_WORKFLOWS_SUCCESS_ACTION = (): SearchWorkflowsSuccessAction => {
-  return {
-    type: 'SEARCH_WORKFLOWS_SUCCESS',
-    workflows: WORKFLOWS,
-  };
-};
 // instance status actions
 export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction = {
   type: 'INSTANCE_STATUS',

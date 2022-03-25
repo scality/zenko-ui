@@ -15,7 +15,6 @@ import type {
 import type { ConfigurationOverlay, Hostname, LocationName } from './config';
 import type { InstanceStatus } from './stats';
 import type { Marker, SearchResultList, ZenkoClient } from './zenko';
-import type { APIWorkflows } from './workflow';
 import type { AppState } from './state';
 import type { IamAccessKey } from './user';
 import type { ManagementClient } from './managementClient';
@@ -329,12 +328,6 @@ export type AddOIDCUserAction = {
   readonly user: AuthUser;
 };
 export type OIDCAction = AddOIDCUserAction;
-// WORKFLOW
-export type SearchWorkflowsSuccessAction = {
-  readonly type: 'SEARCH_WORKFLOWS_SUCCESS';
-  readonly workflows: APIWorkflows;
-};
-export type WorkflowAction = SearchWorkflowsSuccessAction;
 // SECRETS
 export type AddAccountSecretAction = {
   readonly type: 'ADD_ACCOUNT_SECRET';
@@ -377,5 +370,4 @@ export type Action =
   | SetThemeAction
   | StatsAction
   | WorkflowUIAction
-  | WorkflowAction
   | ZenkoAction;

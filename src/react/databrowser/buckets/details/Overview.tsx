@@ -27,6 +27,7 @@ import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { push } from 'connected-react-router';
 import { XDM_FEATURE } from '../../../../js/config';
+import { useWorkflows } from '../../../workflow/Workflows';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -92,9 +93,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const replicationStreams = useSelector(
-    (state: AppState) => state.workflow.replications,
-  );
+  const workflowsQuery = useWorkflows();
   const features = useSelector((state: AppState) => state.auth.config.features);
   useEffect(() => {
     dispatch(getBucketInfo(bucket.Name));
@@ -139,7 +138,7 @@ function Overview({ bucket, ingestionStates }: Props) {
       <ButtonContainer>
         <Button
           icon={<i className="fas fa-trash" />}
-          disabled={!canDeleteBucket(bucket.Name, loading, replicationStreams)}
+          disabled={!canDeleteBucket(bucket.Name, loading, workflowsQuery.data?.replications || [])}
           variant="danger"
           onClick={handleDeleteClick}
           label="Delete Bucket"

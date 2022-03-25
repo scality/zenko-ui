@@ -1,4 +1,5 @@
 import type {
+  Expiration,
   Locations,
   Replication as ReplicationStream,
   ReplicationStreams,
@@ -76,6 +77,23 @@ export const renderDestination = (locations: Locations) => {
     );
   };
 };
+export function newExpiration(): Expiration {
+  return {
+    "bucketName": "",
+    "enabled": true,
+    "filter": {
+      "objectKeyPrefix": ""
+    },
+    "name": "",
+    "type": "bucket-workflow-expiration-v1",
+    "workflowId": "",
+    "currentVersionTriggerDelayDate": "",
+    "currentVersionTriggerDelayDays": null,
+    "expireDeleteMarkersTrigger": null,
+    "incompleteMultipartUploadTriggerDelayDays": null,
+    "previousVersionTriggerDelayDays": null
+  }
+}
 export function newReplicationForm(): ReplicationForm {
   return {
     streamVersion: 1,
@@ -151,10 +169,36 @@ export function convertToReplicationStream(
     },
   };
 }
+export function prepareExpirationQuery(data: Expiration): Expiration {
+  return {
+    ...Object.fromEntries(
+      Object.entries(data).filter(([key, value]) => {
+        if(key === 'expireDeleteMarkersTrigger' && !value) return false;
+        return !(value === '' || value === null || value === 0);
+      }),
+    ),
+    filter: Object.fromEntries(
+      Object.entries(data.filter || {}).filter(([, value]) => {
+        return !(value === '' || value === null);
+      }),
+    )
+  } as Expiration;
+}
 export function generateStreamName(r: ReplicationStream): string {
   const { bucketName, prefix } = r.source;
   const locations = r.destination.locations;
   const addedPrefix = prefix ? `/${prefix}` : '';
   const locationNames = locations.map((l) => l.name);
   return `${bucketName}${addedPrefix} ➜ ${locationNames.toString()}`;
+}
+export function flattenFormErrors(obj: Record<string, unknown>, parent?: string, res?: Record<string, unknown> = {}){
+  for(const key in obj){
+      const propName = parent ? parent + '.' + key : key;
+      if(typeof obj[key] == 'object' && !('message' in obj[key] && 'ref' in obj[key] && 'type' in obj[key] && typeof obj[key].message === 'string')){
+        flattenFormErrors(obj[key] as Record<string, unknown>, propName, res);
+      } else {
+          res[propName] = obj[key];
+      }
+  }
+  return res;
 }

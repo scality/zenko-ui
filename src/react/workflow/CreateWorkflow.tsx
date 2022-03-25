@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -10,9 +10,7 @@ import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import { useMutation, useQueryClient } from 'react-query';
-import type {
-  Replication,
-} from '../../types/config';
+import type { Expiration, Replication } from '../../types/config';
 import { getAccountId, getClients } from '../utils/actions';
 import {
   handleApiError,
@@ -24,13 +22,23 @@ import { rolePathName } from '../../js/IAMClient';
 import {
   convertToReplicationStream,
   generateStreamName,
+  newExpiration,
   newReplicationForm,
+  prepareExpirationQuery,
 } from './utils';
 import { useManagementClient } from '../ManagementProvider';
 import { ApiError } from '../../types/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+import {
+  BucketWorkflowExpirationV1,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
 import { workflowListQuery } from '../queries';
+import Joi from '@hapi/joi';
+import { ExpirationForm, expirationSchema } from './ExpirationForm';
+import Select, {
+  Option,
+} from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -48,39 +56,52 @@ const CreateWorkflow = () => {
 
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: joiResolver(replicationSchema),
-    defaultValues: newReplicationForm(),
+    resolver: joiResolver(
+      Joi.object({
+        type: Joi.string().valid('replication', 'expiration'),
+        replication: Joi.when('type', {
+          is: Joi.equal('replication'),
+          then: Joi.object(replicationSchema),
+          otherwise: Joi.valid(),
+        }),
+        expiration: Joi.when('type', {
+          is: Joi.equal('expiration'),
+          then: Joi.object(expirationSchema),
+          otherwise: Joi.valid(),
+        }),
+      }),
+    ),
+    defaultValues: {
+      type: 'select',
+      replication: newReplicationForm(),
+      expiration: newExpiration(),
+    },
+
   });
 
-  const { handleSubmit } = useFormMethods;
+  const { handleSubmit, control, watch, formState } = useFormMethods;
+  const type = watch('type');
   const state = useSelector((state: AppState) => state);
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
   const accountId = getAccountId(state);
 
-  const createWorkflowMutation = useMutation<
+  const createReplicationWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,
     ApiError,
     Replication
   >(
     (replication) => {
       dispatch(networkStart('Creating replication'));
-      const params = {
-        instanceId,
-        workflow: replication,
-        bucketName: replication.source.bucketName,
-        accountId,
-        rolePathName,
-      };
 
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowReplication(
-          params.workflow,
-          params.bucketName,
-          params.accountId,
-          params.instanceId,
-          params.rolePathName,
+          replication,
+          replication.source.bucketName,
+          accountId,
+          instanceId,
+          rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
     },
@@ -103,15 +124,58 @@ const CreateWorkflow = () => {
     },
   );
 
+  const createExpirationWorkflowMutation = useMutation<
+    BucketWorkflowExpirationV1,
+    ApiError,
+    Expiration
+  >(
+    (expiration) => {
+      dispatch(networkStart('Creating expiration'));
+
+      return notFalsyTypeGuard(mgnt)
+        .createBucketWorkflowExpiration(
+          expiration,
+          expiration.bucketName,
+          accountId,
+          instanceId,
+          rolePathName,
+        )
+        .finally(() => dispatch(networkEnd()));
+    },
+    {
+      onSuccess: (success) => {
+        queryClient.invalidateQueries(
+          workflowListQuery(
+            notFalsyTypeGuard(mgnt),
+            accountId,
+            instanceId,
+            rolePathName,
+          ).queryKey,
+        );
+        history.push(`./expiration-${success.workflowId}`);
+      },
+      onError: (error) => {
+        dispatch(handleClientError(error));
+        dispatch(handleApiError(error, 'byModal'));
+      },
+    },
+  );
+
   const onSubmit = (values) => {
-    const stream = values;
-    let s = convertToReplicationStream(stream);
+    if (values.type === 'replication') {
+      const stream = values.replication;
+      let s = convertToReplicationStream(stream);
 
-    if (!s.name) {
-      s = { ...s, name: generateStreamName(s) };
+      if (!s.name) {
+        s = { ...s, name: generateStreamName(s) };
+      }
+
+      createReplicationWorkflowMutation.mutate(s);
+    } else {
+      createExpirationWorkflowMutation.mutate(
+        prepareExpirationQuery(values.expiration),
+      );
     }
-
-    createWorkflowMutation.mutate(s);
   };
 
   return (
@@ -124,16 +188,55 @@ const CreateWorkflow = () => {
               <T.Row>
                 <T.Key principal={true}> Rule Type </T.Key>
                 <T.Value>
-                  <i className="fas fa-coins" />
-                  Replication
+                  <Controller
+                    control={control}
+                    name="type"
+                    render={({ field: { onChange, value: type } }) => {
+                      return (
+                        <Select
+                          value={type}
+                          onChange={(value) => onChange(value)}
+                        >
+                          <Option
+                            value={'select'}
+                          >
+                            Select...
+                          </Option>
+                          <Option
+                            value={'replication'}
+                            icon={<i className="fas fa-coins" />}
+                          >
+                            Replication
+                          </Option>
+                          <Option
+                            value={'expiration'}
+                            icon={<i className="fas fa-stopwatch" />}
+                          >
+                            Expiration
+                          </Option>
+                        </Select>
+                      );
+                    }}
+                  />
                 </T.Value>
               </T.Row>
             </T.GroupContent>
           </T.Group>
-          <ReplicationForm
-            bucketList={bucketList}
-            locations={locations}
-          />
+          {type === 'replication' && (
+            <ReplicationForm
+              bucketList={bucketList}
+              locations={locations}
+              prefix={'replication.'}
+              isCreateMode={true}
+            />
+          )}
+          {type === 'expiration' && (
+            <ExpirationForm
+              bucketList={bucketList}
+              locations={locations}
+              prefix={'expiration.'}
+            />
+          )}
           <T.Footer>
             <Button
               disabled={loading}
@@ -141,15 +244,17 @@ const CreateWorkflow = () => {
               style={{
                 marginRight: spacing.sp24,
               }}
+              type="button"
               variant="outline"
               onClick={() => history.push('./')}
               label="Cancel"
             />
             <Button
-              disabled={loading}
+              disabled={loading || !formState.isValid}
               id="create-workflow-btn"
               variant="primary"
               label="Create"
+              type="submit"
             />
           </T.Footer>
         </F.Form>

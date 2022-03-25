@@ -2,7 +2,6 @@ import {
   handleErrorMessage,
   listBuckets,
   networkAuthFailure,
-  searchWorkflows,
 } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
@@ -27,7 +26,6 @@ export function assumeRoleWithWebIdentity(
         };
         zenkoClient.login(params);
         return Promise.all([
-          dispatch(searchWorkflows()),
           dispatch(listBuckets()),
         ]);
       })

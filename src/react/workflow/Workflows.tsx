@@ -1,6 +1,6 @@
 import * as L from '../ui-elements/ListLayout3';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { BreadcrumbWorkflow } from '../ui-elements/Breadcrumb';
 import { EmptyStateContainer } from '../ui-elements/Container';
@@ -15,6 +15,36 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
 
 import Loader from '../ui-elements/Loader';
+import { networkEnd, networkStart } from '../actions';
+
+export function useWorkflows() {
+  const mgnt = useManagementClient();
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+  const dispatch = useDispatch();
+
+  const workflowsQuery = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mgnt),
+      accountId,
+      instanceId,
+      rolePathName,
+      () => dispatch(networkStart('Loading workflows...'))
+    ),
+    onSettled: () => {dispatch(networkEnd());},
+    select: (workflows) => ({
+      replications: workflows
+        .filter((w) => w.replication)
+        .map((w) => w.replication),
+      expirations: workflows
+        .filter((w) => w.expiration)
+        .map((w) => w.expiration),
+    }),
+  });
+
+  return workflowsQuery;
+}
 
 export default function Workflows2() {
   const history = useHistory();
@@ -32,6 +62,7 @@ export default function Workflows2() {
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
   const accountId = getAccountId(state);
+  const dispatch = useDispatch();
 
   const mngt = useManagementClient();
   const workflowListDataQuery = useQuery({
@@ -40,7 +71,9 @@ export default function Workflows2() {
       accountId,
       instanceId,
       rolePathName,
+      () => dispatch(networkStart('Loading workflows...'))
     ),
+    onSettled: () => {dispatch(networkEnd());},
     select: (workflows) => makeWorkflows(workflows),
   });
 
