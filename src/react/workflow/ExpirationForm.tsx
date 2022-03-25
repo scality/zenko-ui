@@ -2,8 +2,7 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Select, Toggle, SpacedBox } from '@scality/core-ui';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Select, Tooltip, Toggle, SpacedBox } from '@scality/core-ui';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
 import Joi from '@hapi/joi';
 
@@ -52,12 +51,12 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
 };
 
 export const expirationSchema = {
-  bucketName: Joi.string().required(),
+  bucketName: Joi.string().label('Source Bucket Name').required(),
   enabled: Joi.boolean().required(),
   filter: Joi.object({
-    objectKeyPrefix: Joi.string().optional().allow(null, ''),
+    objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
   }).optional(),
-  name: Joi.string().required(),
+  name: Joi.string().label('Rule Name').required(),
   type: Joi.string().required(),
   workflowId: Joi.string().optional().allow(null, ''),
   currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
@@ -155,7 +154,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           <T.GroupName>Source</T.GroupName>
           <T.GroupContent>
             <T.Row>
-              <T.Key required={true}>Bucket Name</T.Key>
+              <T.Key required={true}> Bucket Name </T.Key>
               <T.Value>
                 <Controller
                   control={control}
@@ -235,7 +234,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     } days will be permanently removed.
                     `}
                 tooltipWidth="13rem"
-                size={50}
+                size={60}
               >
                 {' '}
                 Expire <span style={{ fontWeight: 'bold' }}>Current</span>{' '}
@@ -255,7 +254,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     return (
                       <Toggle
                         id="currentVersionTriggerDelayDaysToggle"
-                        toggle={currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined}
+                        toggle={
+                          currentVersionTriggerDelayDays !== null &&
+                          currentVersionTriggerDelayDays !== undefined
+                        }
                         onChange={(e) => {
                           onChange(e.target.checked ? 7 : null);
                           if (e.target.checked) {
@@ -274,7 +276,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   style={{
                     ...flexStyle,
                     marginLeft: 'auto',
-                    opacity: currentVersionTriggerDelayDays !== null && currentVersionTriggerDelayDays !== undefined ? 1 : 0.5,
+                    opacity:
+                      currentVersionTriggerDelayDays !== null &&
+                      currentVersionTriggerDelayDays !== undefined
+                        ? 1
+                        : 0.5,
                   }}
                 >
                   after
@@ -292,15 +298,26 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         <Input
                           id="currentVersionTriggerDelayDays"
                           name="currentVersionTriggerDelayDays"
-                          value={currentVersionTriggerDelayDays}
-                          onChange={(e) => onChange(e.target.value)}
+                          value={currentVersionTriggerDelayDays || ''}
+                          onChange={(e) => {
+                              onChange(e.target.value)
+                              if (e.target.value) {
+                                setValue(
+                                  `${prefix}expireDeleteMarkersTrigger`,
+                                  false,
+                                );
+                              }
+                            }}
                           type="number"
                           style={{
                             width: '3rem',
                             textAlign: 'right',
                           }}
                           min={1}
-                          disabled={currentVersionTriggerDelayDays === null || currentVersionTriggerDelayDays === undefined}
+                          disabled={
+                            currentVersionTriggerDelayDays === null ||
+                            currentVersionTriggerDelayDays === undefined
+                          }
                         />
                       );
                     }}
@@ -318,7 +335,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 } days will be permanently deleted. 
                 `}
                 tooltipWidth="13rem"
-                size={50}
+                size={60}
               >
                 {' '}
                 Expire <span style={{ fontWeight: 'bold' }}>Previous</span>{' '}
@@ -338,7 +355,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     return (
                       <Toggle
                         id="previousVersionTriggerDelayDaysToggle"
-                        toggle={previousVersionTriggerDelayDays !== null && previousVersionTriggerDelayDays !== undefined}
+                        toggle={
+                          previousVersionTriggerDelayDays !== null &&
+                          previousVersionTriggerDelayDays !== undefined
+                        }
                         onChange={(e) => onChange(e.target.checked ? 7 : null)}
                       />
                     );
@@ -349,7 +369,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   style={{
                     ...flexStyle,
                     marginLeft: 'auto',
-                    opacity: previousVersionTriggerDelayDays !== null && previousVersionTriggerDelayDays !== undefined ? 1 : 0.5,
+                    opacity:
+                      previousVersionTriggerDelayDays !== null &&
+                      previousVersionTriggerDelayDays !== undefined
+                        ? 1
+                        : 0.5,
                   }}
                 >
                   after
@@ -367,7 +391,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         <Input
                           id="previousVersionTriggerDelayDays"
                           name={`${prefix}previousVersionTriggerDelayDays`}
-                          value={previousVersionTriggerDelayDays}
+                          value={previousVersionTriggerDelayDays || ''}
                           onChange={(e) => onChange(e.target.value)}
                           type="number"
                           style={{
@@ -375,7 +399,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                             textAlign: 'right',
                           }}
                           min={1}
-                          disabled={previousVersionTriggerDelayDays === null || previousVersionTriggerDelayDays === undefined}
+                          disabled={
+                            previousVersionTriggerDelayDays === null ||
+                            previousVersionTriggerDelayDays === undefined
+                          }
                         />
                       );
                     }}
@@ -393,7 +420,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 Removing unneeded Delete markers will improve the listing of object versions.                
                 `}
                 tooltipWidth="13rem"
-                size={50}
+                size={60}
               >
                 {' '}
                 Remove expired Delete markers{' '}
@@ -424,8 +451,18 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 />
                 {currentVersionTriggerDelayDays ? (
                   <>
-                    This action is disabled when "Expire Current version of
-                    objects" is active
+                    <SpacedBox mr={8} />
+                    <Tooltip
+                      overlay={
+                        'This action is disabled when "Expire Current version of objects" is active'
+                      }
+                      placement="right"
+                      overlayStyle={{
+                        width: '13rem',
+                      }}
+                    >
+                      <i className="fas fa-question-circle"></i>
+                    </Tooltip>
                   </>
                 ) : (
                   ''
@@ -440,7 +477,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 Removing these incomplete multipart uploads after a number of days after the initiating the operation prevents you from having unused S3 storage.
                     `}
                 tooltipWidth="13rem"
-                size={50}
+                size={60}
               >
                 {' '}
                 Expire incomplete Multipart uploads{' '}
@@ -463,7 +500,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       <Toggle
                         id="incompleteMultipartUploadTriggerDelayDaysToggle"
                         toggle={
-                          incompleteMultipartUploadTriggerDelayDays !== null && incompleteMultipartUploadTriggerDelayDays !== undefined
+                          incompleteMultipartUploadTriggerDelayDays !== null &&
+                          incompleteMultipartUploadTriggerDelayDays !==
+                            undefined
                         }
                         onChange={(e) => onChange(e.target.checked ? 7 : null)}
                       />
@@ -476,7 +515,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     ...flexStyle,
                     marginLeft: 'auto',
                     opacity:
-                      incompleteMultipartUploadTriggerDelayDays !== null && incompleteMultipartUploadTriggerDelayDays !== undefined
+                      incompleteMultipartUploadTriggerDelayDays !== null &&
+                      incompleteMultipartUploadTriggerDelayDays !== undefined
                         ? 1
                         : 0.5,
                   }}
@@ -496,7 +536,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         <Input
                           id="incompleteMultipartUploadTriggerDelayDays"
                           name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
-                          value={incompleteMultipartUploadTriggerDelayDays}
+                          value={
+                            incompleteMultipartUploadTriggerDelayDays || ''
+                          }
                           onChange={(e) => onChange(e.target.value)}
                           type="number"
                           style={{
@@ -505,7 +547,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           }}
                           min={1}
                           disabled={
-                            incompleteMultipartUploadTriggerDelayDays === null || incompleteMultipartUploadTriggerDelayDays === undefined
+                            incompleteMultipartUploadTriggerDelayDays ===
+                              null ||
+                            incompleteMultipartUploadTriggerDelayDays ===
+                              undefined
                           }
                         />
                       );
