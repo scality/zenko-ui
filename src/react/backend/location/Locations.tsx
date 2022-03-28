@@ -1,5 +1,15 @@
-import type { LocationType, Location } from '../../../types/config';
-import React, { useCallback, useMemo, useState, ComponentType } from 'react';
+import type {
+  LocationType,
+  Location,
+  Replication,
+} from '../../../types/config';
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  ComponentType,
+  memo,
+} from 'react';
 import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
   canDeleteLocation,
@@ -27,14 +37,19 @@ const InlineButton = styled(Button)`
   margin-left: ${spacing.sp16};
 `;
 
-const renderActionButtons = (rowValues:  Location) => {
+const ActionButtons = ({
+  rowValues,
+  replications,
+}: {
+  rowValues: Location;
+  replications: Replication[];
+}) => {
   const { name: locationName } = rowValues;
   const dispatch = useDispatch();
   const history = useHistory();
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
-  const workflowsQuery = useWorkflows();
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
@@ -74,7 +89,15 @@ const renderActionButtons = (rowValues:  Location) => {
           overlay: 'Delete Location',
           placement: 'top',
         }}
-        disabled={!canDeleteLocation(locationName, locations, workflowsQuery.data?.replications || [], buckets, endpoints)}
+        disabled={
+          !canDeleteLocation(
+            locationName,
+            locations,
+            replications,
+            buckets,
+            endpoints,
+          )
+        }
       />
     </div>
   );
@@ -83,6 +106,7 @@ const renderActionButtons = (rowValues:  Location) => {
 function Locations() {
   const dispatch = useDispatch();
   const history = useHistory();
+  const workflowsQuery = useWorkflows();
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -90,8 +114,15 @@ function Locations() {
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
   );
-  const workflowsQuery = useWorkflows();
-  const data = useMemo(() => Object.values(locations).map(location => ({...location, _asyncMetadataUpdatesColumn: true, _actionsColumn: true})), [locations]);
+  const data = useMemo(
+    () =>
+      Object.values(locations).map((location) => ({
+        ...location,
+        _asyncMetadataUpdatesColumn: true,
+        _actionsColumn: true,
+      })),
+    [locations],
+  );
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
@@ -159,10 +190,22 @@ function Locations() {
       cellStyle: {
         textAlign: 'right',
         minWidth: '10rem',
-        marginLeft: 'auto'
+        marginLeft: 'auto',
       },
       disableSortBy: true,
-      Cell: (value: CellProps<Location>) => renderActionButtons(value.row.original),
+      Cell: (value: CellProps<Location>) => {
+        if (workflowsQuery.status === 'idle' || workflowsQuery.status === 'loading') {
+          return (
+            <>Checking if linked to workflows...</>
+          );  
+        }
+        return (
+          <ActionButtons
+            rowValues={value.row.original}
+            replications={workflowsQuery.data?.replications || []}
+          />
+        );
+      },
     });
     return columns;
   }, [
@@ -170,7 +213,7 @@ function Locations() {
     locations,
     buckets,
     endpoints,
-    workflowsQuery,
+    workflowsQuery.data?.replications,
     ingestionStates,
     loading,
     capabilities,
@@ -209,7 +252,8 @@ function Locations() {
                 singular: 'location',
                 plural: 'locations',
               }}
-              queryParams={SEARCH_QUERY_PARAM} />
+              queryParams={SEARCH_QUERY_PARAM}
+            />
           </div>
           <Button
             icon={<i className="fas fa-plus" />}
@@ -224,7 +268,9 @@ function Locations() {
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
-          customItemKey={(index: number, data: Array<Location>) => data[index].name}
+          customItemKey={(index: number, data: Array<Location>) =>
+            data[index].name
+          }
           key={(index: number, data: Array<Location>) => data[index].name}
         >
           {(Rows: ComponentType) => (

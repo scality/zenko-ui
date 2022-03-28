@@ -1,8 +1,14 @@
 import Locations from '../Locations';
-import React from 'react';
-import { mockOffsetSize, reduxRender } from '../../../utils/test';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import {
+  mockOffsetSize,
+  reduxRender,
+  TEST_API_BASE_URL,
+} from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
-import { screen, getAllByRole, getByRole } from '@testing-library/react';
+import { screen, getAllByRole, getByRole, waitForElementToBeRemoved, waitFor } from '@testing-library/react';
+import { List } from 'immutable';
 const locationFile = {
   details: {
     bootstrapList: [],
@@ -93,9 +99,14 @@ const locations = {
 const nbrOfColumnsExpected = 5;
 const nbrOfColumnsExpectedWithoutXDM = 4;
 
+const server = setupServer();
+
 beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
 });
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('Locations', () => {
   it('should render Locations component alphabetically sorted', () => {
@@ -111,7 +122,9 @@ describe('Locations', () => {
       },
     });
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpectedWithoutXDM,
+    );
     /*********************************************************/
     const firstRow = screen.getAllByRole('row')[1];
 
@@ -121,13 +134,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
 
@@ -142,13 +155,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(secondRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(secondRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
     /*********************************************************/
@@ -161,13 +174,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(thirdRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).toBeDisabled();
 
     expect(
       getByRole(thirdRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).toBeDisabled();
     /*********************************************************/
@@ -180,13 +193,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(fourthRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(fourthRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
     /*********************************************************/
@@ -199,13 +212,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(fifthRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(fifthRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
     /*********************************************************/
@@ -214,19 +227,20 @@ describe('Locations', () => {
     expect(gridCellOfSixthRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
     expect(screen.getByText('location-ring')).toBeInTheDocument();
-    expect(screen.getByText('Scality RING with S3 Connector')).toBeInTheDocument();
+    expect(
+      screen.getByText('Scality RING with S3 Connector'),
+    ).toBeInTheDocument();
     expect(screen.getByText('bucketName3')).toBeInTheDocument();
-
 
     expect(
       getByRole(sixthRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(sixthRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
     /*********************************************************/
@@ -235,23 +249,60 @@ describe('Locations', () => {
     expect(gridCellOfSeventhRow.length).toEqual(nbrOfColumnsExpectedWithoutXDM);
 
     expect(screen.getByText('location-sproxyd')).toBeInTheDocument();
-    expect(screen.getByText('Scality RING with Sproxyd Connector')).toBeInTheDocument();
+    expect(
+      screen.getByText('Scality RING with Sproxyd Connector'),
+    ).toBeInTheDocument();
 
     expect(
       getByRole(seventhRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(seventhRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).not.toBeDisabled();
-
   });
-  it('should disable delete location button if location is being used for replication when XDM feature is disabled', () => {
+  it('should disable delete location button if location is being used for replication when XDM feature is disabled', async () => {
+    const instanceId = 'instanceId';
+    const accountId = 'accountId';
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+        (req, res, ctx) =>
+          res(
+            ctx.json([
+              {
+                replication: {
+                  destination: { locations: [{ name: 'location-aws-s3' }] },
+                  name: null,
+                  source: {
+                    bucketName: 'test-post-react-hook-form',
+                    prefix: 'tester',
+                  },
+                  streamId: '0d55a1d7-349c-4e79-932b-a502bcc45a8f',
+                  version: null,
+                },
+              },
+            ]),
+          ),
+      ),
+    );
+
     reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of()
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      auth: {
+        config: { features: [] },
+        selectedAccount: { id: accountId },
+      },
       configuration: {
         latest: {
           locations: {
@@ -260,20 +311,14 @@ describe('Locations', () => {
           endpoints: [],
         },
       },
-      workflow: {
-        replications: [
-          {
-            destination: {
-              locations: [
-                {
-                  name: 'location-aws-s3',
-                },
-              ],
-            },
-          },
-        ],
-      },
     });
+
+    await waitForElementToBeRemoved(
+      () => [
+        ...screen.queryAllByText(/Checking if linked to workflows.../i),
+      ],
+      { timeout: 4000 },
+    )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
@@ -281,7 +326,9 @@ describe('Locations', () => {
     expect(screen.getByText('Location Type')).toBeInTheDocument();
     expect(screen.getByText('Target Bucket')).toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpectedWithoutXDM,
+    );
 
     expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
     expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -291,22 +338,55 @@ describe('Locations', () => {
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).toBeDisabled();
   });
-  it('should disable delete location button if location is being used for replication when XDM feature is enabled', () => {
+  it('should disable delete location button if location is being used for replication when XDM feature is enabled', async () => {
+    const instanceId = 'instanceId';
+    const accountId = 'accountId';
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+        (req, res, ctx) =>
+          res(
+            ctx.json([
+              {
+                replication: {
+                  destination: { locations: [{ name: 'location-aws-s3' }] },
+                  name: null,
+                  source: {
+                    bucketName: 'test-post-react-hook-form',
+                    prefix: 'tester',
+                  },
+                  streamId: '0d55a1d7-349c-4e79-932b-a502bcc45a8f',
+                  version: null,
+                },
+              },
+            ]),
+          ),
+      ),
+    );
+
     reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of()
+      },
+      instances: {
+        selectedId: instanceId,
+      },
       auth: {
         config: {
           features: [XDM_FEATURE],
         },
+        selectedAccount: { id: accountId },
       },
       configuration: {
         latest: {
@@ -316,20 +396,14 @@ describe('Locations', () => {
           endpoints: [],
         },
       },
-      workflow: {
-        replications: [
-          {
-            destination: {
-              locations: [
-                {
-                  name: 'location-aws-s3',
-                },
-              ],
-            },
-          },
-        ],
-      },
     });
+
+    await waitForElementToBeRemoved(
+      () => [
+        ...screen.queryAllByText(/Checking if linked to workflows.../i),
+      ],
+      { timeout: 4000 },
+    )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
@@ -338,7 +412,9 @@ describe('Locations', () => {
     expect(screen.getByText('Target Bucket')).toBeInTheDocument();
     expect(screen.getByText('Async Metadata updates')).toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpected);
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpected,
+    );
     expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
     expect(screen.getByText('Amazon S3')).toBeInTheDocument();
     expect(screen.getByText('bucketName1')).toBeInTheDocument();
@@ -347,13 +423,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).toBeDisabled();
   });
@@ -382,7 +458,9 @@ describe('Locations', () => {
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpectedWithoutXDM,
+    );
 
     expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
     expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -392,13 +470,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).toBeDisabled();
   });
@@ -424,7 +502,9 @@ describe('Locations', () => {
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
-    expect(screen.getAllByRole('columnheader').length).toEqual(nbrOfColumnsExpectedWithoutXDM);
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpectedWithoutXDM,
+    );
 
     expect(screen.getByText('location-aws-s3')).toBeInTheDocument();
     expect(screen.getByText('Amazon S3')).toBeInTheDocument();
@@ -434,13 +514,13 @@ describe('Locations', () => {
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Edit Location/i
+        name: /Edit Location/i,
       }),
     ).not.toBeDisabled();
 
     expect(
       getByRole(firstRow, 'button', {
-        name: /Delete Location/i
+        name: /Delete Location/i,
       }),
     ).toBeDisabled();
   });

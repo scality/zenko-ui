@@ -16,6 +16,8 @@ import { render } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
 import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
+import Activity from '../ui-elements/Activity';
+import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -64,6 +66,8 @@ const theme = {
 };
 export const newTestStore = (state) =>
   configureStore([thunk])({ ...initialFullState, ...(state || {}) });
+
+export const TEST_API_BASE_URL = 'http://testendpoint';
 export const Wrapper = ({ children }: { children: ReactNode }) => {
   const history = createMemoryHistory();
 
@@ -72,13 +76,15 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
     secretKey: 'secretKey',
     sessionToken: 'sessionToken',
   };
-  const iamClient = new IAMClient('http://testendpoint');
+  const iamClient = new IAMClient(TEST_API_BASE_URL);
   iamClient.login(params);
   const mgtClient = new UiFacingApi(
     new Configuration({
       apiKey: 'token',
-      basePath: `http://testendpoint/api/v1`,
+      basePath: `${TEST_API_BASE_URL}/api/v1`,
     }),
+    `${TEST_API_BASE_URL}/api/v1`,
+    window.fetch,
   );
   return (
     <QueryClientProvider
@@ -117,9 +123,7 @@ export const reduxMount = (component, testState) => {
     component: mount(
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <Wrapper>
-            {component}
-          </Wrapper>
+          <Wrapper>{component}</Wrapper>
         </Provider>
       </ThemeProvider>,
     ),
@@ -155,7 +159,13 @@ export const reduxRender = (component, testState) => {
     component: render(
       <Wrapper>
         <ThemeProvider theme={theme}>
-          <Provider store={store}>{component}</Provider>
+          <Provider store={store}>
+            <>
+              {component}
+              <Activity />
+              <ErrorHandlerModal />
+            </>
+          </Provider>
         </ThemeProvider>
       </Wrapper>,
     ),
