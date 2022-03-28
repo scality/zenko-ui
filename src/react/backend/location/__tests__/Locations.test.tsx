@@ -109,18 +109,45 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('Locations', () => {
-  it('should render Locations component alphabetically sorted', () => {
+  it('should render Locations component alphabetically sorted', async () => {
+    const instanceId = 'instanceId';
+    const accountId = 'accountId';
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+        (req, res, ctx) =>
+          res(
+            ctx.json([]),
+          ),
+      ),
+    );
+
     reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of()
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      auth: {
+        config: { features: [] },
+        selectedAccount: { id: accountId },
+      },
       configuration: {
         latest: {
           locations,
           endpoints: [],
         },
       },
-      workflow: {
-        replications: [],
-      },
     });
+
+    await waitForElementToBeRemoved(
+      () => [
+        ...screen.queryAllByText(/Checking if linked to workflows.../i),
+      ],
+      { timeout: 4000 },
+    )
 
     expect(screen.getAllByRole('columnheader').length).toEqual(
       nbrOfColumnsExpectedWithoutXDM,
@@ -433,8 +460,31 @@ describe('Locations', () => {
       }),
     ).toBeDisabled();
   });
-  it('should disable delete location button if location is attached to a bucket', () => {
+  it('should disable delete location button if location is attached to a bucket', async () => {
+    const instanceId = 'instanceId';
+    const accountId = 'accountId';
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+        (req, res, ctx) =>
+          res(
+            ctx.json([]),
+          ),
+      ),
+    );
+
     reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of()
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      auth: {
+        config: { features: [] },
+        selectedAccount: { id: accountId },
+      },
       configuration: {
         latest: {
           locations: {
@@ -450,11 +500,15 @@ describe('Locations', () => {
             location: 'location-aws-s3',
           },
         ],
-      },
-      workflow: {
-        replications: [],
-      },
+      }
     });
+
+    await waitForElementToBeRemoved(
+      () => [
+        ...screen.queryAllByText(/Checking if linked to workflows.../i),
+      ],
+      { timeout: 4000 },
+    )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
@@ -480,8 +534,31 @@ describe('Locations', () => {
       }),
     ).toBeDisabled();
   });
-  it('should disable delete location button if location is being used for endpoint', () => {
+  it('should disable delete location button if location is being used for endpoint', async () => {
+    const instanceId = 'instanceId';
+    const accountId = 'accountId';
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+        (req, res, ctx) =>
+          res(
+            ctx.json([]),
+          ),
+      ),
+    );
+
     reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of()
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      auth: {
+        config: { features: [] },
+        selectedAccount: { id: accountId },
+      },
       configuration: {
         latest: {
           locations: {
@@ -495,10 +572,14 @@ describe('Locations', () => {
           ],
         },
       },
-      workflow: {
-        replications: [],
-      },
     });
+
+    await waitForElementToBeRemoved(
+      () => [
+        ...screen.queryAllByText(/Checking if linked to workflows.../i),
+      ],
+      { timeout: 4000 },
+    )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
 
