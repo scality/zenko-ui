@@ -62,7 +62,7 @@ export function useWorkflows() {
   return workflowsQuery;
 }
 
-export default function Workflows2() {
+export default function Workflows() {
   const history = useHistory();
   const { workflowId } = useParams<{ workflowId?: string }>();
   const accountName = useSelector(
