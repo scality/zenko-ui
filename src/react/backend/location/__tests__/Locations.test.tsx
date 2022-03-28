@@ -146,7 +146,7 @@ describe('Locations', () => {
       () => [
         ...screen.queryAllByText(/Checking if linked to workflows.../i),
       ],
-      { timeout: 4000 },
+      { timeout: 8000 },
     )
 
     expect(screen.getAllByRole('columnheader').length).toEqual(
@@ -344,7 +344,7 @@ describe('Locations', () => {
       () => [
         ...screen.queryAllByText(/Checking if linked to workflows.../i),
       ],
-      { timeout: 4000 },
+      { timeout: 8000 },
     )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
@@ -429,7 +429,7 @@ describe('Locations', () => {
       () => [
         ...screen.queryAllByText(/Checking if linked to workflows.../i),
       ],
-      { timeout: 4000 },
+      { timeout: 8000 },
     )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
@@ -507,7 +507,7 @@ describe('Locations', () => {
       () => [
         ...screen.queryAllByText(/Checking if linked to workflows.../i),
       ],
-      { timeout: 4000 },
+      { timeout: 8000 },
     )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
@@ -578,7 +578,7 @@ describe('Locations', () => {
       () => [
         ...screen.queryAllByText(/Checking if linked to workflows.../i),
       ],
-      { timeout: 4000 },
+      { timeout: 8000 },
     )
 
     expect(screen.getAllByRole('row')).toHaveLength(2);
