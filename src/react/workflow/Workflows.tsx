@@ -15,7 +15,12 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
 
 import Loader from '../ui-elements/Loader';
-import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
+import {
+  handleApiError,
+  handleClientError,
+  networkEnd,
+  networkStart,
+} from '../actions';
 
 export function useWorkflows() {
   const mgnt = useManagementClient();
@@ -30,9 +35,13 @@ export function useWorkflows() {
       accountId,
       instanceId,
       rolePathName,
-      () => dispatch(networkStart('Loading workflows...'))
+      () => {
+        dispatch(networkStart('Loading workflows...'));
+      },
     ),
-    onSettled: () => {dispatch(networkEnd());},
+    onSettled: () => {
+      dispatch(networkEnd());
+    },
     select: (workflows) => ({
       replications: workflows
         .filter((w) => w.replication)
@@ -78,9 +87,11 @@ export default function Workflows2() {
       accountId,
       instanceId,
       rolePathName,
-      () => dispatch(networkStart('Loading workflows...'))
+      () => dispatch(networkStart('Loading workflows...')),
     ),
-    onSettled: () => {dispatch(networkEnd());},
+    onSettled: () => {
+      dispatch(networkEnd());
+    },
     onError: (error) => {
       try {
         dispatch(handleClientError(error));
