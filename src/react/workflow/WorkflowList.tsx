@@ -1,147 +1,119 @@
-import MemoRow, { createItemData } from './WorkflowRow';
-import Table, * as T from '../ui-elements/Table';
-import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import { AutoSizer } from 'react-virtualized';
-import { FixedSizeList } from 'react-window';
-import { ListSection } from '../ui-elements/ListLayout3';
+import React, { useCallback } from 'react';
 import { TextTransformer } from '../ui-elements/Utility';
 import type { Workflows } from '../../types/workflow';
-import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { AppState } from '../../types/state';
-const columns = [
-  {
-    Header: 'Workflow Description',
-    accessor: 'name',
-    width: 60,
-  },
-  {
-    Header: 'Workflow Type',
-    accessor: 'type',
+import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Workflow } from '../../types/workflow';
+import { Button } from '@scality/core-ui/dist/next';
+import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
+import { useTheme } from 'styled-components';
 
-    Cell({ value: type }: { value: string }) {
-      return <TextTransformer transform="capitalize">{type}</TextTransformer>;
-    },
+const SEARCH_QUERY_PARAM = 'search';
 
-    width: 25,
-  },
-  {
-    Header: 'State',
-    accessor: 'state',
-    Cell: ({ value }) => {
-      return value ? 'Active' : 'Inactive';
-    },
-    width: 15,
-  },
-];
 type Props = {
   workflows: Workflows;
   workflowId: string | null | undefined;
 };
 
+type RowType = {
+  id: number,
+  original: Workflow;
+  values: Workflow;
+};
+
 function WorkflowList({ workflows, workflowId }: Props) {
   const history = useHistory();
-  const dispatch = useDispatch();
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    setFilter,
-    prepareRow,
-  } = useTable(
+  const theme = useTheme();
+
+  function DataComponent({ row  }: {row: RowType }) {
+    return <span> {`${row.values.name}`} </span>;
+  }
+
+  function RowAsync({ row } : {row: RowType}) {
+    return (
+      <DataComponent
+        row={row}
+      />
+    );
+  }
+
+  const renderRowSubComponent = useCallback(
+    ({ row }) => <RowAsync row={row} />,
+    []);
+
+  const getRowId = (row: RowType) => {
+    return row?.id;
+  };
+
+  const columns = [
     {
-      columns,
-      data: workflows,
-      disableSortRemove: true,
-      autoResetFilters: false,
-      autoResetSortBy: false,
+      Header: 'Workflow Description',
+      accessor: 'name',
+      cellStyle: {
+        textAlign: 'left',
+        minWidth: '20rem',
+        marginLeft: '1rem',
+      },
+      Cell: renderRowSubComponent,
     },
-    useFilters,
-    useSortBy,
-    useFlexLayout,
-  );
+    {
+      Header: 'Workflow Type',
+      accessor: 'type',
+      cellStyle: {
+        textAlign: 'left',
+        minWidth: '10rem',
+      },
+      Cell({ value: type }: { value: string }) {
+        return <TextTransformer transform="capitalize">{type}</TextTransformer>;
+      },
+    },
+    {
+      Header: 'State',
+      accessor: 'state',
+      cellStyle: {
+        textAlign: 'left',
+        minWidth: '5rem',
+      },
+      sortType: (row1: RowType, row2: RowType) => {
+        return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
+      },
+      Cell: function({ value }: {value: boolean}) : string {
+        return value ? 'Active' : 'Inactive';
+      },
+    },
+  ];
+
   return (
-    <ListSection id="account-list">
-      <T.SearchContainer>
-        <T.Search>
-          <T.SearchInput
-            disableToggle={true}
-            placeholder="Search by Workflow Name"
-            onChange={(e) => setFilter('name', e.target.value)}
-          />
-        </T.Search>
-        <T.ExtraButton
-          icon={<i className="fas fa-plus" />}
-          label="Create Workflow"
-          disabled={loading}
-          variant="primary"
-          onClick={() => history.push('./create-workflow')}
-          type="submit"
-        />
-      </T.SearchContainer>
-      <T.Container>
-        <Table {...getTableProps()}>
-          <T.Head>
-            {headerGroups.map((headerGroup) => (
-              <T.HeadRow
-                key={headerGroup.id}
-                {...headerGroup.getHeaderGroupProps()}
-              >
-                {headerGroup.headers.map((column) => (
-                  <T.HeadCell
-                    key={column.id}
-                    {...column.getHeaderProps(
-                      column.getSortByToggleProps({
-                        title: '',
-                      }),
-                    )}
-                  >
-                    {column.render('Header')}
-                    <T.Icon>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <i className="fas fa-sort-down" />
-                        ) : (
-                          <i className="fas fa-sort-up" />
-                        )
-                      ) : (
-                        <i className="fas fa-sort" />
-                      )}
-                    </T.Icon>
-                  </T.HeadCell>
-                ))}
-              </T.HeadRow>
-            ))}
-          </T.Head>
-          <T.BodyWindowing {...getTableBodyProps()}>
-            <AutoSizer>
-              {(
-                { height, width }, // ISSUE: https://github.com/bvaughn/react-window/issues/504
-              ) => (
-                <FixedSizeList
-                  height={height || 300}
-                  itemCount={rows.length}
-                  itemSize={45}
-                  width={width || '100%'}
-                  itemData={createItemData(
-                    rows,
-                    prepareRow,
-                    workflowId,
-                    dispatch,
-                  )}
-                >
-                  {MemoRow}
-                </FixedSizeList>
-              )}
-            </AutoSizer>
-          </T.BodyWindowing>
-        </Table>
-      </T.Container>
-    </ListSection>
+     <div style={{ backgroundColor: theme.brand.backgroundLevel3, height: '100%', }}>
+       <Table columns={columns} data={workflows} defaultSortingKey={'name'} getRowId={getRowId}>
+         <div style={{ margin: '1rem' }}>
+         <TableHeader>
+           <Table.SearchWithQueryParams
+             displayedName={{
+               singular: 'workflow',
+               plural: 'workflows',
+             }}
+             queryParams={SEARCH_QUERY_PARAM} />
+
+           <Button
+             icon={<i className="fas fa-plus" />}
+             label="Create Workflow"
+             variant="primary"
+             onClick={() => history.push('./create-workflow')}
+             type="submit"
+           />
+         </TableHeader>
+         </div>
+         <Table.SingleSelectableContent
+           rowHeight="h40"
+           separationLineVariant="backgroundLevel1"
+           backgroundVariant="backgroundLevel3"
+           selectedId={workflowId}
+           onRowSelected={(selectedRow: RowType) => history.push(`./${selectedRow.original.id}`)}
+         />
+
+       </Table>
+     </div>
   );
 }
 
