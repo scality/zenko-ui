@@ -56,14 +56,7 @@ export const destinationOptions = (
 export const renderSource = (locations: Locations) => {
   return function does(option: ReplicationBucketOption) {
     return (
-      <div>
-        <span> {option.label} </span>
-        <small>
-          {' '}
-          ({option.location} /{' '}
-          {getLocationTypeShort(option.location, locations)}){' '}
-        </small>
-      </div>
+      `${option.label} (${option.location} / ${getLocationTypeShort(option.location, locations)})`
     );
   };
 };
@@ -99,9 +92,9 @@ export function newReplicationForm(): ReplicationForm {
     streamVersion: 1,
     streamId: '',
     enabled: true,
-    sourceBucket: {},
+    sourceBucket: '',
     sourcePrefix: '',
-    destinationLocation: {},
+    destinationLocation: '',
   };
 }
 export function newReplicationStream(): ReplicationStream {
@@ -131,15 +124,9 @@ export function convertToReplicationForm(
     streamVersion: r.version || 1,
     streamId: r.streamId || '',
     enabled: r.enabled,
-    sourceBucket: {
-      value: r.source.bucketName,
-      label: r.source.bucketName,
-    },
+    sourceBucket: r.source.bucketName,
     sourcePrefix: r.source.prefix || '',
-    destinationLocation: {
-      label: r.destination.locations[0].name,
-      value: r.destination.locations[0].name,
-    },
+    destinationLocation: r.destination.locations[0].name,
   };
 }
 export function convertToReplicationStream(
@@ -156,13 +143,13 @@ export function convertToReplicationStream(
     enabled: !!r.enabled,
     source: {
       prefix: r.sourcePrefix || '',
-      bucketName: r.sourceBucket.value || '',
+      bucketName: r.sourceBucket || '',
     },
     destination: {
       locations:
         [
           {
-            name: r.destinationLocation.value || '',
+            name: r.destinationLocation || '',
           },
         ] || [],
       preferredReadLocation: null,

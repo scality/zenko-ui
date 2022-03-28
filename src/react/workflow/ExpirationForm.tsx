@@ -2,7 +2,8 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Select, Toggle, SpacedBox } from '@scality/core-ui';
+import { Toggle, SpacedBox } from '@scality/core-ui';
+import Select, { Option } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
 import Joi from '@hapi/joi';
 
@@ -164,14 +165,14 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     );
 
                     return (
-                      <Select
-                        id="sourceBucket"
-                        onChange={({ value }) => onChange(value)}
-                        options={options}
-                        formatOptionLabel={renderSource(locations)}
-                        isOptionDisabled={(option) => option.disabled === true}
-                        value={result}
-                      />
+                      <Select id='sourceBucket' value={result} onChange={onChange}>
+                        {options &&
+                          options.map((o, i) => (
+                            <Option key={i} value={o.value} disabled={o.disabled}>
+                              {renderSource(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
                     );
                   }}
                 />

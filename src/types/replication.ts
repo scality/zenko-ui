@@ -8,17 +8,8 @@ export type ReplicationForm = {
   readonly streamVersion: number;
   readonly streamId: string;
   readonly enabled: boolean;
-  readonly sourceBucket: {
-    label?: string;
-    value?: string;
-    // todo: to be removed?
-    location?: string;
-    disabled?: boolean;
-  };
+  readonly sourceBucket: string;
   readonly sourcePrefix: string;
   // todo: allow multiple locations?
-  readonly destinationLocation: {
-    label?: string;
-    value?: string;
-  };
-}
+  readonly destinationLocation: string;
+};
