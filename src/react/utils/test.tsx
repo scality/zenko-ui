@@ -84,7 +84,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
       basePath: `${TEST_API_BASE_URL}/api/v1`,
     }),
     `${TEST_API_BASE_URL}/api/v1`,
-    window.fetch,
+    fetch
   );
   return (
     <QueryClientProvider
