@@ -56,27 +56,41 @@ const CreateWorkflow = () => {
 
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: joiResolver(
-      Joi.object({
-        type: Joi.string().valid('replication', 'expiration'),
-        replication: Joi.when('type', {
-          is: Joi.equal('replication'),
-          then: Joi.object(replicationSchema),
-          otherwise: Joi.valid(),
+    resolver: async (values, context, options) => {
+      const joiValidator = joiResolver(
+        Joi.object({
+          type: Joi.string().valid('replication', 'expiration'),
+          replication: Joi.when('type', {
+            is: Joi.equal('replication'),
+            then: Joi.object(replicationSchema),
+            otherwise: Joi.valid(),
+          }),
+          expiration: Joi.when('type', {
+            is: Joi.equal('expiration'),
+            then: expirationSchema,
+            otherwise: Joi.valid(),
+          }),
         }),
-        expiration: Joi.when('type', {
-          is: Joi.equal('expiration'),
-          then: expirationSchema,
-          otherwise: Joi.valid(),
-        }),
-      }),
-    ),
+      );
+      if (values.type === 'replication') {
+        return joiValidator(values, context, options);
+      } else {
+        return joiValidator(
+          {
+            type: values.type,
+            replication: values.replication,
+            expiration: prepareExpirationQuery(values.expiration),
+          },
+          context,
+          options,
+        );
+      }
+    },
     defaultValues: {
       type: 'select',
       replication: newReplicationForm(),
       expiration: newExpiration(),
     },
-
   });
 
   const { handleSubmit, control, watch, formState } = useFormMethods;
@@ -197,11 +211,11 @@ const CreateWorkflow = () => {
                           value={type}
                           onChange={(value) => onChange(value)}
                         >
-                          {type === 'select' ? <Option
-                            value={'select'}
-                          >
-                            Select...
-                          </Option> : <></>}
+                          {type === 'select' ? (
+                            <Option value={'select'}>Select...</Option>
+                          ) : (
+                            <></>
+                          )}
                           <Option
                             value={'replication'}
                             icon={<i className="fas fa-coins" />}

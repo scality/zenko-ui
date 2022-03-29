@@ -51,50 +51,33 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
 };
 
 const commonSchema = {
-    bucketName: Joi.string().label('Source Bucket Name').required(),
-    enabled: Joi.boolean().required(),
-    filter: Joi.object({
-      objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
-    }).optional(),
-    name: Joi.string().label('Rule Name').required(),
-    type: Joi.string().required(),
-    workflowId: Joi.string().optional().allow(null, ''),
-    currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
+  bucketName: Joi.string().label('Source Bucket Name').required(),
+  enabled: Joi.boolean().required(),
+  filter: Joi.object({
+    objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
+  }).optional(),
+  name: Joi.string().label('Rule Name').required(),
+  type: Joi.string().required(),
+  workflowId: Joi.string().optional().allow(null, ''),
+  currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),
 };
 
 //At least one of currentVersion, previousVersion, expireDeleteMarkers and incompleteMutlipart are required
-export const expirationSchema = Joi.alternatives().try(Joi.object({
-    ...commonSchema,
-    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').required(),
-    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
-    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
-    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
-      .optional()
-      .allow(null),
-  }), Joi.object({
-    ...commonSchema,
-    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
-    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').required(),
-    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
-    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
-      .optional()
-      .allow(null),
-  }), Joi.object({
-    ...commonSchema,
-    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
-    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
-    expireDeleteMarkersTrigger: Joi.boolean().invalid(false).required(),
-    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
-      .optional()
-      .allow(null),
-  }), Joi.object({
-    ...commonSchema,
-    currentVersionTriggerDelayDays: Joi.number().label('Expire Current version Days').optional().allow(null),
-    previousVersionTriggerDelayDays: Joi.number().label('Expire Previous version Days').optional().allow(null),
-    expireDeleteMarkersTrigger: Joi.boolean().optional().allow(null),
-    incompleteMultipartUploadTriggerDelayDays: Joi.number().label('Expire Previous version Days')
-      .required(),
-  }));
+export const expirationSchema = Joi.object({
+  ...commonSchema,
+  currentVersionTriggerDelayDays: Joi.number()
+    .label('Expire Current version Days'),
+  previousVersionTriggerDelayDays: Joi.number()
+    .label('Expire Previous version Days'),
+  expireDeleteMarkersTrigger: Joi.boolean().invalid(false),
+  incompleteMultipartUploadTriggerDelayDays: Joi.number()
+    .label('Expire Previous version Days'),
+}).or(
+  'currentVersionTriggerDelayDays',
+  'previousVersionTriggerDelayDays',
+  'expireDeleteMarkersTrigger',
+  'incompleteMultipartUploadTriggerDelayDays',
+);
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   const {
@@ -353,12 +336,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 </div>
               </T.Value>
             </T.Row>
-            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
               <T.Key size={60}></T.Key>
               <T.Value>
                 <ErrorInput
                   id="error-currentVersionTriggerDelayDays"
-                  style={{height: 'auto'}}
+                  style={{ height: 'auto' }}
                   hasError={errors[`${prefix}currentVersionTriggerDelayDays`]}
                 >
                   {' '}
@@ -457,12 +440,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 </div>
               </T.Value>
             </T.Row>
-            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
               <T.Key size={60}></T.Key>
               <T.Value>
                 <ErrorInput
                   id="error-previousVersionTriggerDelayDays"
-                  style={{height: 'auto'}}
+                  style={{ height: 'auto' }}
                   hasError={errors[`${prefix}previousVersionTriggerDelayDays`]}
                 >
                   {' '}
@@ -626,19 +609,20 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 </div>
               </T.Value>
             </T.Row>
-            <T.Row style={{minHeight: 'initial', height: 'auto'}}>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
               <T.Key size={60}></T.Key>
               <T.Value>
                 <ErrorInput
                   id="error-incompleteMultipartUploadTriggerDelayDays"
-                  style={{height: 'auto'}}
+                  style={{ height: 'auto' }}
                   hasError={
                     errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
                   }
                 >
                   {' '}
                   {
-                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]?.message
+                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
+                      ?.message
                   }{' '}
                 </ErrorInput>
               </T.Value>
