@@ -99,6 +99,12 @@ const locations = {
 const nbrOfColumnsExpected = 5;
 const nbrOfColumnsExpectedWithoutXDM = 4;
 
+const SAMPLE_USER_ID = 'GENERATED_ID';
+const SAMPLE_USER_NAME = 'test';
+const SAMPLE_CREATE_DATE = '2022-03-02T08:35:24Z';
+const SAMPLE_ARN = `arn:aws:iam::970343539682:user/${SAMPLE_USER_NAME}`;
+//const nbrOfColumnsExpected = 4;
+
 //const server = setupServer();
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -108,12 +114,11 @@ const server = setupServer(
         <ListUsersResult>
             <Users>
                 <member>
-                    <Arn>arn:aws:iam::123456789012:user/user1</Arn>
-                    <CreateDate>2019-01-01T00:00:00Z</CreateDate>
-                    <PasswordLastUsed>2019-01-01T00:00:00Z</PasswordLastUsed>
+                    <UserId>${SAMPLE_USER_ID}</UserId>
                     <Path>/</Path>
-                    <UserId>AIDAI2U7Z3F7Z7Z7I</UserId>
-                    <UserName>user1</UserName>
+                    <UserName>${SAMPLE_USER_NAME}</UserName>
+                    <Arn>${SAMPLE_ARN}</Arn>
+                    <CreateDate>${SAMPLE_CREATE_DATE}</CreateDate>
                 </member>
             </Users>
             <IsTruncated>false</IsTruncated>
