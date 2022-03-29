@@ -299,7 +299,18 @@ function EditForm({
 
   const useFormMethods = useForm({
     mode: 'all',
-    resolver: joiResolver(schema),
+    resolver: async (values, context, options) => {
+      const joiValidator = joiResolver(schema);
+      if (workflow && isExpirationWorkflow(workflow)) {
+        return joiValidator(
+          prepareExpirationQuery(values),
+          context,
+          options,
+        );
+      } else {
+        return joiValidator(values, context, options);
+      }
+    },
     defaultValues: isExpirationWorkflow(workflow)
       ? workflow
       : convertToReplicationForm(workflow),
@@ -421,7 +432,7 @@ function EditForm({
                 label="Cancel"
               />
               <Button
-                disabled={!formState.isDirty}
+                disabled={!formState.isDirty || !formState.isValid}
                 icon={<i className="fas fa-save" />}
                 id="create-workflow-btn"
                 variant="primary"
