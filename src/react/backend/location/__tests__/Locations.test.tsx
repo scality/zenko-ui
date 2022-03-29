@@ -99,7 +99,33 @@ const locations = {
 const nbrOfColumnsExpected = 5;
 const nbrOfColumnsExpectedWithoutXDM = 4;
 
-const server = setupServer();
+//const server = setupServer();
+const server = setupServer(
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    return res(
+      ctx.xml(`
+    <ListUsersResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+        <ListUsersResult>
+            <Users>
+                <member>
+                    <Arn>arn:aws:iam::123456789012:user/user1</Arn>
+                    <CreateDate>2019-01-01T00:00:00Z</CreateDate>
+                    <PasswordLastUsed>2019-01-01T00:00:00Z</PasswordLastUsed>
+                    <Path>/</Path>
+                    <UserId>AIDAI2U7Z3F7Z7Z7I</UserId>
+                    <UserName>user1</UserName>
+                </member>
+            </Users>
+            <IsTruncated>false</IsTruncated>
+        </ListUsersResult>
+        <ResponseMetadata>
+            <RequestId>61221a552b4592e5b784</RequestId>
+        </ResponseMetadata>
+    </ListUsersResponse>
+    `),
+    );
+  }),
+);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });

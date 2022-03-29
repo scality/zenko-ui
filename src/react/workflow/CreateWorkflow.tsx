@@ -39,6 +39,7 @@ import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import Select, {
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import React from 'react';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -250,6 +251,7 @@ const CreateWorkflow = () => {
               label="Cancel"
             />
             <Button
+              icon={<i className="fas fa-plus" />}
               disabled={loading || !formState.isValid}
               id="create-workflow-btn"
               variant="primary"
