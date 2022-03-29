@@ -7,10 +7,7 @@ import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 
-import type {
-  Locations,
-  Replication,
-} from '../../types/config';
+import type { Expiration, Locations, Replication } from '../../types/config';
 import FormContainer from '../ui-elements/FormLayout';
 import * as T from '../ui-elements/TableKeyValue2';
 import {
@@ -30,24 +27,32 @@ import {
   convertToReplicationForm,
   convertToReplicationStream,
   generateStreamName,
-  newReplicationForm,
+  prepareExpirationQuery,
 } from './utils';
-import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+import { useMutation, useQueryClient } from 'react-query';
+import {
+  BucketWorkflowV1,
+  BucketWorkflowExpirationV1,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
 import { getAccountId, getClients } from '../utils/actions';
 import { rolePathName } from '../../js/IAMClient';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { ReplicationForm as ReplicationFormType } from '../../types/replication';
+import {
+  ReplicationForm as TypeReplicationForm,
+  ReplicationForm as ReplicationFormType,
+} from '../../types/replication';
 import { workflowListQuery } from '../queries';
+import Joi from '@hapi/joi';
+import { ExpirationForm, expirationSchema } from './ExpirationForm';
+import { useWorkflows } from './Workflows';
 
 type Props = {
   wfSelected: Workflow;
   bucketList: S3BucketList;
   locations: Locations;
-  showEditWorkflowNotification: boolean;
-  loading: boolean;
 };
 
 const ConfigurationHeader = styled.div`
@@ -56,47 +61,24 @@ const ConfigurationHeader = styled.div`
   align-items: center;
 `;
 
-function ConfigurationTab({
-  wfSelected,
-  bucketList,
-  locations,
-}: Props) {
+function useReplicationMutations({
+  onEditSuccess,
+}: {
+  onEditSuccess: (replication: Replication) => void;
+}) {
   const dispatch = useDispatch();
   const history = useHistory();
   const queryClient = useQueryClient();
-  const { workflowId } = wfSelected;
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const mgnt = useManagementClient();
+  const managementClient = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
   const accountId = getAccountId(state);
 
-  const replicationsQuery = useQuery({
-    ...workflowListQuery(
-      notFalsyTypeGuard(mgnt),
-      accountId,
-      instanceId,
-      rolePathName,
-    ),
-    select: (workflows) => workflows.filter(w => w.replication).map(w => w.replication),
-  });
-
-  const replication = useMemo(() => {
-    if (replicationsQuery.status === 'success') {
-      return replicationsQuery.data.find((r) => r.streamId === workflowId);
-    }
-    
-  }, [replicationsQuery.status, workflowId]);
-
-  const handleOpenDeleteModal = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleCloseDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-  };
-
-  const deleteMutation = useMutation<Response, ApiError, Replication>({
+  const deleteReplicationMutation = useMutation<
+    Response,
+    ApiError,
+    Replication
+  >({
     mutationFn: (replication) => {
       const params = {
         bucketName: replication.source.bucketName,
@@ -106,8 +88,7 @@ function ConfigurationTab({
         rolePathName,
       };
       dispatch(networkStart('Deleting replication'));
-      setIsDeleteModalOpen(false);
-      return notFalsyTypeGuard(mgnt)
+      return notFalsyTypeGuard(managementClient)
         .deleteBucketWorkflowReplication(
           params.bucketName,
           params.instanceId,
@@ -123,7 +104,7 @@ function ConfigurationTab({
     onSuccess: () => {
       queryClient.invalidateQueries(
         workflowListQuery(
-          notFalsyTypeGuard(mgnt),
+          notFalsyTypeGuard(managementClient),
           accountId,
           instanceId,
           rolePathName,
@@ -139,21 +120,7 @@ function ConfigurationTab({
     },
   });
 
-  const handleDeleteWorkflow = () => {
-    if (replication) {
-      deleteMutation.mutate(replication);
-    }
-  };
-
-  const useFormMethods = useForm({
-    mode: 'all',
-    resolver: joiResolver(replicationSchema),
-    defaultValues: newReplicationForm(),
-  });
-
-  const { formState, handleSubmit, reset } = useFormMethods;
-  
-  const eidtWorkflowMutation = useMutation<
+  const editReplicationWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,
     ApiError,
     Replication
@@ -168,7 +135,7 @@ function ConfigurationTab({
         rolePathName,
       };
 
-      return notFalsyTypeGuard(mgnt)
+      return notFalsyTypeGuard(managementClient)
         .updateBucketWorkflowReplication(
           params.workflow,
           params.bucketName,
@@ -183,9 +150,16 @@ function ConfigurationTab({
       onSuccess: (success) => {
         history.replace(`./replication-${success.streamId}`);
 
-        reset(convertToReplicationForm(success));
+        if (onEditSuccess) {
+          onEditSuccess(success);
+        }
         queryClient.invalidateQueries(
-          workflowListQuery(mgnt, accountId, instanceId, rolePathName).queryKey,
+          workflowListQuery(
+            managementClient,
+            accountId,
+            instanceId,
+            rolePathName,
+          ).queryKey,
         );
       },
       onError: (error) => {
@@ -198,24 +172,196 @@ function ConfigurationTab({
     },
   );
 
-  const onSubmit = (values: ReplicationFormType) => {
-    const stream = values;
-    let replicationStream = convertToReplicationStream(stream);
+  return { deleteReplicationMutation, editReplicationWorkflowMutation };
+}
 
-    if (!replicationStream.name) {
-      replicationStream = { ...replicationStream, name: generateStreamName(replicationStream) };
-    }
-    eidtWorkflowMutation.mutate(replicationStream);
+function useExpirationMutations({
+  onEditSuccess,
+}: {
+  onEditSuccess: (expiration: BucketWorkflowExpirationV1) => void;
+}) {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const queryClient = useQueryClient();
+  const managementClient = useManagementClient();
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = getAccountId(state);
+
+  const deleteExpirationMutation = useMutation<Response, ApiError, Expiration>({
+    mutationFn: (expiration) => {
+      dispatch(networkStart('Deleting expiration'));
+      return notFalsyTypeGuard(managementClient)
+        .deleteBucketWorkflowExpiration(
+          expiration.bucketName,
+          instanceId,
+          accountId,
+          expiration.workflowId,
+          rolePathName,
+        )
+        .finally(() => {
+          dispatch(networkEnd());
+        });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        workflowListQuery(
+          notFalsyTypeGuard(managementClient),
+          accountId,
+          instanceId,
+          rolePathName,
+        ).queryKey,
+      );
+    },
+    onError: (error) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err as ApiError, 'byModal'));
+      }
+    },
+  });
+
+  const editExpirationWorkflowMutation = useMutation<
+    BucketWorkflowExpirationV1,
+    ApiError,
+    Expiration
+  >(
+    (expiration) => {
+      dispatch(networkStart('Editing expiration'));
+
+      return notFalsyTypeGuard(managementClient)
+        .updateBucketWorkflowExpiration(
+          expiration,
+          expiration.bucketName,
+          instanceId,
+          accountId,
+          expiration.workflowId,
+          rolePathName,
+        )
+        .finally(() => dispatch(networkEnd()));
+    },
+    {
+      onSuccess: (success) => {
+        history.replace(`./expiration-${success.workflowId}`);
+
+        if (onEditSuccess) {
+          onEditSuccess(success);
+        }
+        queryClient.invalidateQueries(
+          workflowListQuery(
+            notFalsyTypeGuard(managementClient),
+            accountId,
+            instanceId,
+            rolePathName,
+          ).queryKey,
+        );
+      },
+      onError: (error) => {
+        try {
+          dispatch(handleClientError(error));
+        } catch (err) {
+          dispatch(handleApiError(err, 'byModal'));
+        }
+      },
+    },
+  );
+
+  return { deleteExpirationMutation, editExpirationWorkflowMutation };
+}
+
+function isExpirationWorkflow(
+  workflow: Expiration | Replication | TypeReplicationForm,
+): workflow is Expiration {
+  return (
+    'type' in workflow &&
+    workflow.type === BucketWorkflowV1.TypeEnum.ExpirationV1
+  );
+}
+
+function EditForm({
+  workflow,
+  bucketList,
+  locations,
+}: {
+  workflow: Replication | Expiration;
+  bucketList: S3BucketList;
+  locations: Locations;
+}) {
+  const history = useHistory();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const schema =
+    workflow && isExpirationWorkflow(workflow)
+      ? expirationSchema
+      : Joi.object(replicationSchema);
+
+  const useFormMethods = useForm({
+    mode: 'all',
+    resolver: joiResolver(schema),
+    defaultValues: isExpirationWorkflow(workflow)
+      ? workflow
+      : convertToReplicationForm(workflow),
+  });
+
+  const { formState, handleSubmit, reset } = useFormMethods;
+
+  const { deleteReplicationMutation, editReplicationWorkflowMutation } =
+    useReplicationMutations({
+      onEditSuccess: (editedWorkflow) => {
+        reset(convertToReplicationForm(editedWorkflow));
+      },
+    });
+
+  const { deleteExpirationMutation, editExpirationWorkflowMutation } =
+    useExpirationMutations({
+      onEditSuccess: (editedWorkflow) => {
+        reset(editedWorkflow);
+      },
+    });
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
   };
 
-  // TODO: Adapt it to handle the other workflow types; For now only replication workflow is supported.
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteWorkflow = () => {
+    setIsDeleteModalOpen(false);
+    if (workflow && isExpirationWorkflow(workflow)) {
+      deleteExpirationMutation.mutate(workflow);
+    } else if (workflow && !isExpirationWorkflow(workflow)) {
+      deleteReplicationMutation.mutate(workflow);
+    }
+  };
+
+  const onSubmit = (values: ReplicationFormType | Expiration) => {
+    if (isExpirationWorkflow(values)) {
+      editExpirationWorkflowMutation.mutate(prepareExpirationQuery(values));
+    } else {
+      const stream = values;
+      let replicationStream = convertToReplicationStream(stream);
+
+      if (!replicationStream.name) {
+        replicationStream = {
+          ...replicationStream,
+          name: generateStreamName(replicationStream),
+        };
+      }
+      editReplicationWorkflowMutation.mutate(replicationStream);
+    }
+  };
+
   return (
     <div>
       <DeleteConfirmation
         approve={handleDeleteWorkflow}
         cancel={handleCloseDeleteModal}
         show={isDeleteModalOpen}
-        titleText={`Permanently remove the following Rule: ${wfSelected.name} ?`}
+        titleText={`Permanently remove the following Rule: ${workflow.name || (isExpirationWorkflow(workflow) ? '' : generateStreamName(workflow))} ?`}
       />
       <ConfigurationHeader>
         {formState.isDirty ? (
@@ -241,24 +387,28 @@ function ConfigurationTab({
         />
       </ConfigurationHeader>
       <FormProvider {...useFormMethods}>
-        <FormContainer style={{ backgroundColor: 'transparent' }}>
+        <FormContainer style={{ backgroundColor: 'transparent', overflowX: 'hidden' }}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <T.Group>
               <T.GroupContent>
                 <T.Row>
                   <T.Key principal={true}> Rule Type </T.Key>
-                  <T.Value>
-                    <i className="fas fa-coins" />
-                    Replication
-                  </T.Value>
+                  {isExpirationWorkflow(workflow) ? (
+                    <T.Value>Expiration</T.Value>
+                  ) : (
+                    <T.Value>
+                      <i className="fas fa-coins" />
+                      Replication
+                    </T.Value>
+                  )}
                 </T.Row>
               </T.GroupContent>
             </T.Group>
-            <ReplicationForm
-              workflow={replication}
-              bucketList={bucketList}
-              locations={locations}
-            />
+            {isExpirationWorkflow(workflow) ? (
+              <ExpirationForm bucketList={bucketList} locations={locations} />
+            ) : (
+              <ReplicationForm bucketList={bucketList} locations={locations} />
+            )}
             <T.Footer>
               <Button
                 id="cancel-workflow-btn"
@@ -266,10 +416,12 @@ function ConfigurationTab({
                   marginRight: spacing.sp24,
                 }}
                 variant="outline"
+                disabled={!formState.isDirty}
                 onClick={() => history.replace()}
                 label="Cancel"
               />
               <Button
+                disabled={!formState.isDirty}
                 icon={<i className="fas fa-save" />}
                 id="create-workflow-btn"
                 variant="primary"
@@ -281,6 +433,35 @@ function ConfigurationTab({
         </FormContainer>
       </FormProvider>
     </div>
+  );
+}
+
+function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
+  const { workflowId } = wfSelected;
+  const workflowsQuery = useWorkflows();
+
+  const workflow = useMemo(() => {
+    if (workflowsQuery.status === 'success') {
+      return (
+        workflowsQuery.data.replications.find(
+          (r) => r.streamId === workflowId,
+        ) ||
+        workflowsQuery.data.expirations.find((r) => r.workflowId === workflowId)
+      );
+    }
+  }, [workflowsQuery.status, workflowId]);
+
+  if (!workflow) {
+    return <></>;
+  }
+
+  return (
+    <EditForm
+      key={workflowId}
+      workflow={workflow}
+      bucketList={bucketList}
+      locations={locations}
+    />
   );
 }
 

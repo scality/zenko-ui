@@ -8,7 +8,7 @@ import {
   SmallerText,
   LargerText,
 } from '@scality/core-ui/dist/components/text/Text.component';
-import { LabelHTMLAttributes } from 'react';
+import { HTMLAttributes, LabelHTMLAttributes } from 'react';
 
 /* TEMPLATE:
 <FormContainer>
@@ -93,9 +93,9 @@ type ErrorInputProps = {
   children: JSX.Element|JSX.Element[];
   hasError: boolean;
   id?: string;
-};
-export const ErrorInput = ({ children, hasError, id }: ErrorInputProps) => (
-  <ErrorInputContainer id={id} role='alert'>{hasError && children}</ErrorInputContainer>
+} & HTMLAttributes<HTMLDivElement>;
+export const ErrorInput = ({ children, hasError, id, ...props }: ErrorInputProps) => (
+  <ErrorInputContainer id={id} role='alert' {...props}>{hasError && children}</ErrorInputContainer>
 );
 export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
   <WarningInputContainer>{hasError && children}</WarningInputContainer>

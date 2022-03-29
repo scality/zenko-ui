@@ -2,7 +2,7 @@ import { render, screen, waitFor, fireEvent, getAllByRole, getByText } from '@te
 import AccountUserList from '../AccountUserList';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { Wrapper as wrapper} from '../../utils/test';
+import { TEST_API_BASE_URL, Wrapper as wrapper} from '../../utils/test';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
@@ -40,7 +40,7 @@ function mockOffsetSize(width: number, height: number) {
 }
 
 const server = setupServer(
-  rest.post('http://testendpoint/', (req, res, ctx) => {
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
     return res(
       ctx.xml(`
     <ListUsersResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
@@ -137,7 +137,7 @@ describe('AccountUserList', () => {
   });
   it('handles server error', async () => {
     server.use(
-      rest.post('http://testendpoint/', (req, res, ctx) =>
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
         res(ctx.status(500, 'error'))
       ));
 

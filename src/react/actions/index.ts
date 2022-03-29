@@ -12,5 +12,4 @@ export * from './s3object';
 export * from './stats';
 export * from './sts';
 export * from './user';
-export * from './workflow';
 export * from './zenko';

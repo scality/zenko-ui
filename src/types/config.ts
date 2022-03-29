@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { BucketWorkflowV1 } from '../js/managementClient/api';
 import type { Account } from './account';
 // locations
 export type LocationName = string;
@@ -35,6 +36,21 @@ export type Replication = {
     readonly preferredReadLocation?: string | null;
   };
 };
+export type Expiration = {
+  readonly bucketName: string,
+  readonly enabled: boolean,
+  readonly filter?: {
+    readonly objectKeyPrefix?: string
+  },
+  readonly name: string,
+  readonly type: BucketWorkflowV1.TypeEnum.ExpirationV1,
+  readonly workflowId: string,
+  readonly currentVersionTriggerDelayDate?: string | null,
+  readonly currentVersionTriggerDelayDays?: number | null,
+  readonly previousVersionTriggerDelayDays?: number | null,
+  readonly expireDeleteMarkersTrigger: boolean | null,
+  readonly incompleteMultipartUploadTriggerDelayDays?: number | null
+}
 // endpoints
 export type Hostname = string;
 export type Endpoint = {

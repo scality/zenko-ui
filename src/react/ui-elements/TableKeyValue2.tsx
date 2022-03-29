@@ -3,6 +3,7 @@ import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { Tooltip } from '@scality/core-ui';
 import { ReactNode } from 'react';
+import { IconHelp } from './Help';
 // TEMPLATE
 //
 // <Table>
@@ -57,7 +58,7 @@ export const Groups = styled.div`
   max-width: 450px;
 `;
 export const Group = styled.div`
-  margin-bottom: ${spacing.sp8};
+  margin-bottom: ${spacing.sp24};
 `;
 export const GroupName = styled.div`
   font-weight: bold;
@@ -75,7 +76,7 @@ export const Row = styled.div`
   margin-bottom: ${spacing.sp4};
   min-height: ${spacing.sp24};
 `;
-const RawKey = styled.div`
+const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
   color: ${(props) =>
     props.principal ? props.theme.brand.text : props.theme.brand.textSecondary};
   font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
@@ -90,16 +91,12 @@ const RawKey = styled.div`
 `;
 export const Key = styled(RawKey)`
   && {
-    flex: 1 1 35%;
+    flex: 1 1 ${(props) => props.size || 35}%;
   }
 `;
-const KeyContainer = styled.div`
+const KeyContainer = styled.div<{ size?: number }>`
   display: flex;
-  flex: 1 1 35%;
-  i {
-    margin-left: ${spacing.sp8};
-    color: #434343;
-  }
+  flex: 1 1 ${(props) => props.size || 35}%;
 `;
 type KeyTooltipProps = {
   children: ReactNode;
@@ -107,25 +104,22 @@ type KeyTooltipProps = {
   tooltipWidth: string;
   required?: boolean;
   principal?: boolean;
+  size?: number;
 };
 export const KeyTooltip = ({
   children,
   tooltipMessage,
   tooltipWidth,
+  size,
   ...props
 }: KeyTooltipProps) => (
-  <KeyContainer>
+  <KeyContainer size={size}>
     <RawKey {...props}> {children} </RawKey>
     {tooltipMessage && (
-      <Tooltip
-        overlay={tooltipMessage}
-        placement="right"
-        overlayStyle={{
-          width: tooltipWidth,
-        }}
-      >
-        <i className="fas fa-question-circle"></i>
-      </Tooltip>
+      <IconHelp
+        tooltipMessage={tooltipMessage}
+        tooltipWidth={tooltipWidth}
+      />
     )}
   </KeyContainer>
 );
@@ -155,14 +149,15 @@ export const Header = styled.div`
 `;
 export const BannerContainer = styled.div`
   margin-right: ${spacing.sp8};
-  width: 300px;
+  width: 50%;
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
 `;
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
 
-  margin: ${spacing.sp8};
+  margin-top: ${spacing.sp8};
+  margin-bottom: ${spacing.sp8};
 `;
 export const ExtraCell = styled.div`
   margin-left: ${spacing.sp20};

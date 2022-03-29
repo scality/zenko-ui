@@ -14,6 +14,7 @@ import {
 import {
   convertToReplicationForm,
   destinationOptions,
+  flattenFormErrors,
   renderDestination,
   renderSource,
   sourceBucketOptions,
@@ -47,10 +48,11 @@ const ReplicationContainer = styled.div`
 type Props = {
   bucketList: S3BucketList;
   locations: Locations;
-  workflow?: ReplicationStream;
+  isCreateMode?: boolean;
+  prefix?: string;
 };
 
-export const replicationSchema = Joi.object({
+export const replicationSchema = {
   streamId: Joi.string().label('Id').allow(''),
   streamVersion: Joi.number().label('Version').optional(),
   // streamName: Joi.string().label('Name').min(4).allow('').messages({
@@ -68,26 +70,25 @@ export const replicationSchema = Joi.object({
     value: Joi.string().label('Destination Location Name').required(),
     label: Joi.string(),
   }),
-});
+};
 
 function ReplicationComponent({
+  prefix = '',
   bucketList,
   locations,
-  workflow,
+  isCreateMode,
 }: Props) {
-  // isCreateMode activate the tooltip
-  const isCreateMode = workflow === null;
 
   const {
     register,
     control,
-    reset,
     getValues,
 
     formState: {
-      errors,
+      errors: formErrors,
     },
   } = useFormContext();
+  const errors = flattenFormErrors(formErrors);
 
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
@@ -105,10 +106,6 @@ function ReplicationComponent({
     select: (workflows) => workflows.filter(w => w.replication).map(w => w.replication),
   });
 
-  useEffect(() => {
-    reset(convertToReplicationForm(workflow)); // asynchronously reset form values
-  }, [reset, workflow]);
-
   // TODO: make sure we do not delete bucket or location if replication created.
   if (
     !checkIfExternalLocation(locations) ||
@@ -119,13 +116,13 @@ function ReplicationComponent({
 
   return (
     <ReplicationContainer>
-      <input type="hidden" id="streamId" {...register('streamId')} autoComplete="off" />
+      <input type="hidden" id="streamId" {...register(`${prefix}streamId`)} autoComplete="off" />
       <input
         type="hidden"
         id="streamVersion"
-        {...register('streamVersion')}
+        {...register(`${prefix}streamVersion`)}
         autoComplete="off" />
-      <T.Groups>
+      <T.Groups style={{ maxWidth: 'inherit' }}>
         <T.Group>
           <T.GroupName>General</T.GroupName>
           <T.GroupContent>
@@ -134,12 +131,12 @@ function ReplicationComponent({
               <T.Value>
                 <Controller
                   control={control}
-                  id="enabled"
-                  name="enabled"
+                  name={`${prefix}enabled`}
                   render={({ field: {onChange, value: enabled} }) => {
                     return (
                       <Toggle
                         toggle={enabled}
+                        id='enabled'
                         label={enabled ? 'Active' : 'Inactive'}
                         onChange={() => onChange(!enabled)}
                       />
@@ -169,8 +166,7 @@ function ReplicationComponent({
               <T.Value>
                 <Controller
                   control={control}
-                  id="sourceBucket"
-                  name="sourceBucket"
+                  name={`${prefix}sourceBucket`}
                   render={({ field: {onChange, value: sourceBucket} }) => {
                     const options = sourceBucketOptions(
                       replicationsQuery.data || [],
@@ -201,6 +197,7 @@ function ReplicationComponent({
 
                     return (
                       <Select
+                        id="sourceBucket"
                         onChange={onChange}
                         options={options}
                         formatOptionLabel={renderSource(locations)}
@@ -212,9 +209,9 @@ function ReplicationComponent({
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput hasError={errors.sourceBucket?.value}>
+                  <ErrorInput hasError={errors[`${prefix}sourceBucket.value`]}>
                     {' '}
-                    {errors.sourceBucket?.value?.message}{' '}
+                    {errors[`${prefix}sourceBucket.value`]?.message}{' '}
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
@@ -229,11 +226,11 @@ function ReplicationComponent({
               <T.Value>
                 <Controller
                   control={control}
-                  id="sourcePrefix"
-                  name="sourcePrefix"
+                  name={`${prefix}sourcePrefix`}
                   render={({ field: {onChange, value: sourcePrefix} }) => {
                     return (
                       <Input
+                        id="sourcePrefix"
                         onChange={onChange}
                         value={sourcePrefix}
                         autoComplete="off"
@@ -253,12 +250,12 @@ function ReplicationComponent({
               <T.Value>
                 <Controller
                   control={control}
-                  id="destinationLocation"
-                  name="destinationLocation"
+                  name={`${prefix}destinationLocation`}
                   render={({ field: {onChange, value: destinationLocation} }) => {
                     const options = destinationOptions(locations);
                     return (
                       <Select
+                        id="destinationLocation"
                         onChange={onChange}
                         options={options}
                         formatOptionLabel={renderDestination(locations)}
@@ -270,9 +267,9 @@ function ReplicationComponent({
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput hasError={errors.destinationLocation?.value}>
+                  <ErrorInput hasError={errors[`${prefix}destinationLocation.value`]}>
                     {' '}
-                    {errors.destinationLocation?.value?.message}{' '}
+                    {errors[`${prefix}destinationLocation.value`]?.message}{' '}
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
