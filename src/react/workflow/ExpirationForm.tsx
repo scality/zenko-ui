@@ -2,8 +2,15 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Select, Toggle, SpacedBox } from '@scality/core-ui';
-import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
+import { Toggle, SpacedBox } from '@scality/core-ui';
+import Select, {
+  Option,
+} from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import {
+  flattenFormErrors,
+  renderSource,
+  sourceBucketOptions,
+} from './utils';
 import Joi from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
@@ -83,14 +90,10 @@ export const expirationSchema = Joi.object({
 );
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
-  const {
-    register,
-    control,
-    watch,
-    setValue,
-    formState: { errors: formErrors },
-  } = useFormContext();
+  const { register, control, watch, getValues, setValue, formState } =
+    useFormContext();
 
+  const { errors: formErrors } = formState;
   const currentVersionTriggerDelayDays = watch(
     `${prefix}currentVersionTriggerDelayDays`,
   );
@@ -105,6 +108,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
   return (
     <ExpirationContainer>
+      <input
+        type="hidden"
+        id="name"
+        {...register(`${prefix}name`)}
+        autoComplete="off"
+      />
       <input
         type="hidden"
         id="workflowId"
@@ -158,20 +167,29 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       bucketList,
                       locations,
                     );
+                    const isEditing = !!getValues(`${prefix}workflowId`);
 
                     const result = options.find(
                       (l) => l.value === sourceBucket,
                     );
 
+                    if (isEditing) {
+                      return renderSource(locations)(result);
+                    }
+
                     return (
                       <Select
                         id="sourceBucket"
-                        onChange={({ value }) => onChange(value)}
-                        options={options}
-                        formatOptionLabel={renderSource(locations)}
-                        isOptionDisabled={(option) => option.disabled === true}
-                        value={result}
-                      />
+                        value={sourceBucket}
+                        onChange={onChange}
+                      >
+                        {options &&
+                          options.map((o, i) => (
+                            <Option key={i} value={o.value} disabled={o.disabled}>
+                              {renderSource(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
                     );
                   }}
                 />

@@ -3,10 +3,9 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type {
   Locations,
-  Replication as ReplicationStream,
 } from '../../types/config';
-import { useEffect } from 'react';
-import { Select, Toggle } from '@scality/core-ui';
+import { Toggle } from '@scality/core-ui';
+import Select, { Option } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import {
   checkIfExternalLocation,
   checkSupportsReplicationTarget,
@@ -59,17 +58,9 @@ export const replicationSchema = {
   //     'string.min': '"Name" should have a minimum length of {#limit}',
   // }),
   enabled: Joi.boolean().label('State').required(),
-  sourceBucket: Joi.object({
-    value: Joi.string().label('Bucket Name').required(),
-    label: Joi.string(),
-    disabled: Joi.boolean(),
-    location: Joi.string(),
-  }),
+  sourceBucket: Joi.string().label('Bucket Name').required(),
   sourcePrefix: Joi.string().label('Prefix').allow(''),
-  destinationLocation: Joi.object({
-    value: Joi.string().label('Destination Location Name').required(),
-    label: Joi.string(),
-  }),
+  destinationLocation: Joi.string().label('Destination Location Name').required(),
 };
 
 function ReplicationComponent({
@@ -173,9 +164,9 @@ function ReplicationComponent({
                       bucketList,
                       locations,
                     );
-                    const isEditing = !!getValues('streamId');
+                    const isEditing = !!getValues(`${prefix}streamId`);
                     const result = options.find(
-                      (l) => l.value === sourceBucket?.value,
+                      (l) => l.value === sourceBucket,
                     );
 
                     if (isEditing) {
@@ -184,7 +175,7 @@ function ReplicationComponent({
                         return (
                           <span>
                             {' '}
-                            {sourceBucket.value}{' '}
+                            {sourceBucket}{' '}
                             <small>
                               (depreciated because entity does not exist){' '}
                             </small>{' '}
@@ -196,22 +187,22 @@ function ReplicationComponent({
                     }
 
                     return (
-                      <Select
-                        id="sourceBucket"
-                        onChange={onChange}
-                        options={options}
-                        formatOptionLabel={renderSource(locations)}
-                        isDisabled={isEditing}
-                        isOptionDisabled={(option) => option.disabled === true}
-                        value={result}
-                      />
+                      <Select id="sourceBucket" value={sourceBucket} onChange={onChange} isDisabled={isEditing}>
+                        {options &&
+                          options.map((o, i) => (
+                            <Option title={o.disabled ? 'Versioning is disabled' : ''} key={i} value={o.value}
+                                    disabled={o.disabled}>
+                              {renderSource(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
                     );
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput hasError={errors[`${prefix}sourceBucket.value`]}>
+                  <ErrorInput hasError={errors[`${prefix}sourceBucket`]}>
                     {' '}
-                    {errors[`${prefix}sourceBucket.value`]?.message}{' '}
+                    {errors[`${prefix}sourceBucket`]?.message}{' '}
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
@@ -267,9 +258,9 @@ function ReplicationComponent({
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput hasError={errors[`${prefix}destinationLocation.value`]}>
+                  <ErrorInput hasError={errors[`${prefix}destinationLocation`]}>
                     {' '}
-                    {errors[`${prefix}destinationLocation.value`]?.message}{' '}
+                    {errors[`${prefix}destinationLocation`]?.message}{' '}
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
