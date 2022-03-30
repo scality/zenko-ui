@@ -26,6 +26,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import {
   convertToReplicationForm,
   convertToReplicationStream,
+  generateExpirationName,
   generateStreamName,
   prepareExpirationQuery,
 } from './utils';
@@ -302,11 +303,7 @@ function EditForm({
     resolver: async (values, context, options) => {
       const joiValidator = joiResolver(schema);
       if (workflow && isExpirationWorkflow(workflow)) {
-        return joiValidator(
-          prepareExpirationQuery(values),
-          context,
-          options,
-        );
+        return joiValidator(prepareExpirationQuery(values), context, options);
       } else {
         return joiValidator(values, context, options);
       }
@@ -372,7 +369,10 @@ function EditForm({
         approve={handleDeleteWorkflow}
         cancel={handleCloseDeleteModal}
         show={isDeleteModalOpen}
-        titleText={`Permanently remove the following Rule: ${workflow.name || (isExpirationWorkflow(workflow) ? '' : generateStreamName(workflow))} ?`}
+        titleText={`Permanently remove the following Rule: ${
+          workflow.name ||
+          (isExpirationWorkflow(workflow) ? generateExpirationName(workflow) : generateStreamName(workflow))
+        } ?`}
       />
       <ConfigurationHeader>
         {formState.isDirty ? (
@@ -398,7 +398,9 @@ function EditForm({
         />
       </ConfigurationHeader>
       <FormProvider {...useFormMethods}>
-        <FormContainer style={{ backgroundColor: 'transparent', overflowX: 'hidden' }}>
+        <FormContainer
+          style={{ backgroundColor: 'transparent', overflowX: 'hidden' }}
+        >
           <form onSubmit={handleSubmit(onSubmit)}>
             <T.Group>
               <T.GroupContent>
