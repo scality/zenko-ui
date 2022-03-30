@@ -164,9 +164,9 @@ function ReplicationComponent({
                       bucketList,
                       locations,
                     );
-                    const isEditing = !!getValues('streamId');
+                    const isEditing = !!getValues(`${prefix}streamId`);
                     const result = options.find(
-                      (l) => l.value === sourceBucket?.value,
+                      (l) => l.value === sourceBucket,
                     );
 
                     if (isEditing) {
@@ -175,7 +175,7 @@ function ReplicationComponent({
                         return (
                           <span>
                             {' '}
-                            {sourceBucket.value}{' '}
+                            {sourceBucket}{' '}
                             <small>
                               (depreciated because entity does not exist){' '}
                             </small>{' '}
@@ -187,7 +187,7 @@ function ReplicationComponent({
                     }
 
                     return (
-                      <Select id="sourceBucket" value={result} onChange={onChange} isDisabled={isEditing}>
+                      <Select id="sourceBucket" value={sourceBucket} onChange={onChange} isDisabled={isEditing}>
                         {options &&
                           options.map((o, i) => (
                             <Option title={o.disabled ? 'Versioning is disabled' : ''} key={i} value={o.value}
