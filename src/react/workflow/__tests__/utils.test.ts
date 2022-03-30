@@ -30,7 +30,7 @@ describe('prepareExpirationQuery', () => {
             "filter": {
               "objectKeyPrefix": "string"
             },
-            "name": "string",
+            "name": "string/string - (Current version: 1d)",
             "type": BucketWorkflowV1.TypeEnum.ExpirationV1,
             "workflowId": "string",
             "currentVersionTriggerDelayDays": 1,
@@ -63,7 +63,7 @@ describe('prepareExpirationQuery', () => {
           "filter": {
             "objectKeyPrefix": "string"
           },
-          "name": "string",
+          "name": "string/string - (Orphan delete markers, Incomplete multipart: 1d)",
           "type": BucketWorkflowV1.TypeEnum.ExpirationV1,
           "workflowId": "string",
           "expireDeleteMarkersTrigger": true,
