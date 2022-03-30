@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
@@ -10,6 +10,8 @@ import { useWorkflows } from '../../../workflow/Workflows';
 import { AppState } from '../../../../types/state';
 import { makeWorkflows } from '../../../queries';
 import { APIWorkflows } from '../../../../types/workflow';
+import { NameLinkContaner } from '../../../ui-elements/NameLink';
+import { push } from 'connected-react-router';
 
 const TableAction = styled.div`
   display: flex;
@@ -19,6 +21,7 @@ const TableAction = styled.div`
 
 function Workflow({ bucketName }: { bucketName: string }) {
   const history = useHistory();
+  const dispatch = useDispatch();
   const accountName = useSelector(
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
@@ -26,6 +29,19 @@ function Workflow({ bucketName }: { bucketName: string }) {
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
   const workflowsQuery = useWorkflows(select, [bucketName]);
 
+  const nameCell = (value) => {
+    const id = value.row.original.id;
+    const workflowName = value.value;
+    return (
+      <NameLinkContaner
+        onClick={() =>
+          dispatch(push(`/accounts/${accountName}/workflows/${id}`))
+        }
+      >
+        {workflowName}
+      </NameLinkContaner>
+    );
+  };
   const columns = [
     {
       Header: 'Rule name',
@@ -33,6 +49,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       cellStyle: {
         minWidth: '18rem',
       },
+      Cell: (value) => nameCell(value),
     },
     {
       Header: 'Action',
