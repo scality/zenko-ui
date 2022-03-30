@@ -118,7 +118,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
           </TableHeader>
         </div>
         <Table.SingleSelectableContent
-          rowHeight="h40"
+          rowHeight="h64"
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
           selectedId={workflowId}

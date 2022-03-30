@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
@@ -11,7 +11,6 @@ import { AppState } from '../../../../types/state';
 import { makeWorkflows } from '../../../queries';
 import { APIWorkflows } from '../../../../types/workflow';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
-import { push } from 'connected-react-router';
 
 const TableAction = styled.div`
   display: flex;
@@ -21,7 +20,6 @@ const TableAction = styled.div`
 
 function Workflow({ bucketName }: { bucketName: string }) {
   const history = useHistory();
-  const dispatch = useDispatch();
   const accountName = useSelector(
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
@@ -34,9 +32,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
     const workflowName = value.value;
     return (
       <NameLinkContaner
-        onClick={() =>
-          dispatch(push(`/accounts/${accountName}/workflows/${id}`))
-        }
+        onClick={() => history.push(`/accounts/${accountName}/workflows/${id}`)}
       >
         {workflowName}
       </NameLinkContaner>
@@ -47,7 +43,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       Header: 'Rule name',
       accessor: 'name',
       cellStyle: {
-        minWidth: '18rem',
+        minWidth: '19rem',
       },
       Cell: (value) => nameCell(value),
     },
@@ -97,18 +93,21 @@ function Workflow({ bucketName }: { bucketName: string }) {
         </TableAction>
 
         <Table.SingleSelectableContent
-          rowHeight="h40"
+          rowHeight="h48"
           separationLineVariant="backgroundLevel2"
           backgroundVariant="backgroundLevel4"
         >
           {(Rows) => (
             <>
               {status === 'loading' || status === 'idle'
-                ? 'Loading workflow...'
+                ? 'Loading rules...'
                 : ''}
               {status === 'error'
-                ? 'We failed to retrieve workflows, please retry later. If the error persists, please contact your support.'
+                ? 'We failed to retrieve rules, please retry later. If the error persists, please contact your support.'
                 : ''}
+              {status === 'success' &&
+                !data?.length &&
+                'No rules found on this bucket.'}
               {status === 'success' ? <Rows /> : ''}
             </>
           )}
