@@ -13,7 +13,6 @@ import { getAccountId, getClients } from '../utils/actions';
 import { rolePathName } from '../../js/IAMClient';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
-
 import Loader from '../ui-elements/Loader';
 import {
   handleApiError,
@@ -21,8 +20,12 @@ import {
   networkEnd,
   networkStart,
 } from '../actions';
+import { APIWorkflows } from '../../types/workflow';
 
-export function useWorkflows() {
+export function useWorkflows(
+  select?: (workflows: APIWorkflows) => void,
+  filters?: [],
+) {
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
@@ -38,18 +41,21 @@ export function useWorkflows() {
       () => {
         dispatch(networkStart('Loading workflows...'));
       },
+      filters,
     ),
     onSettled: () => {
       dispatch(networkEnd());
     },
-    select: (workflows) => ({
-      replications: workflows
-        .filter((w) => w.replication)
-        .map((w) => w.replication),
-      expirations: workflows
-        .filter((w) => w.expiration)
-        .map((w) => w.expiration),
-    }),
+    select:
+      select ||
+      ((workflows) => ({
+        replications: workflows
+          .filter((w) => w.replication)
+          .map((w) => w.replication),
+        expirations: workflows
+          .filter((w) => w.expiration)
+          .map((w) => w.expiration),
+      })),
     onError: (error) => {
       try {
         dispatch(handleClientError(error));
@@ -75,32 +81,9 @@ export default function Workflows() {
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
-  const dispatch = useDispatch();
 
-  const mngt = useManagementClient();
-  const workflowListDataQuery = useQuery({
-    ...workflowListQuery(
-      notFalsyTypeGuard(mngt),
-      accountId,
-      instanceId,
-      rolePathName,
-      () => dispatch(networkStart('Loading workflows...')),
-    ),
-    onSettled: () => {
-      dispatch(networkEnd());
-    },
-    onError: (error) => {
-      try {
-        dispatch(handleClientError(error));
-      } catch (err) {
-        dispatch(handleApiError(err, 'byModal'));
-      }
-    },
-    select: (workflows) => makeWorkflows(workflows),
-  });
+  const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
+  const workflowListDataQuery = useWorkflows(select);
 
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;

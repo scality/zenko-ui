@@ -28,7 +28,6 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
           workflowId: r.workflowId,
         } as Workflow;
       }
-      
     });
   // TODO: add expiration and transition rules.
   return workflows;
@@ -40,15 +39,22 @@ export const workflowListQuery = (
   instanceId: string,
   rolePathName: string,
   onStart?: () => void,
+  filters?: [],
 ) => {
   return {
-    queryKey: ['workflowList', accountId, instanceId, rolePathName],
+    queryKey: ['workflowList', accountId, instanceId, rolePathName, filters],
     queryFn: (): Promise<APIWorkflows> => {
-       if (onStart) {
-         onStart();
-       }
-      return notFalsyTypeGuard(mgnt)
-        .searchWorkflows(accountId, instanceId, rolePathName);
+      if (onStart) {
+        onStart();
+      }
+      return notFalsyTypeGuard(mgnt).searchWorkflows(
+        accountId,
+        instanceId,
+        rolePathName,
+        {
+          bucketList: filters,
+        },
+      );
     },
     enabled: mgnt != null,
   };
