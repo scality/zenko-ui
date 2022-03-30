@@ -27,7 +27,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
   );
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
-  const workflowsQuery = useWorkflows(select, [bucketName]);
+  const { data, status } = useWorkflows(select, [bucketName]);
 
   const nameCell = (value) => {
     const id = value.row.original.id;
@@ -83,11 +83,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
         height: '100%',
       }}
     >
-      <Table
-        columns={columns}
-        data={workflowsQuery.data || []}
-        defaultSortingKey={'name'}
-      >
+      <Table columns={columns} data={data || []} defaultSortingKey={'name'}>
         <TableAction>
           <Button
             icon={<i className="fas fa-plus" />}
@@ -104,7 +100,19 @@ function Workflow({ bucketName }: { bucketName: string }) {
           rowHeight="h40"
           separationLineVariant="backgroundLevel2"
           backgroundVariant="backgroundLevel4"
-        />
+        >
+          {(Rows) => (
+            <>
+              {status === 'loading' || status === 'idle'
+                ? 'Loading workflow...'
+                : ''}
+              {status === 'error'
+                ? 'We failed to retrieve workflows, please retry later. If the error persists, please contact your support.'
+                : ''}
+              {status === 'success' ? <Rows /> : ''}
+            </>
+          )}
+        </Table.SingleSelectableContent>
       </Table>
     </div>
   );
