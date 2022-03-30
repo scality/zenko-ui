@@ -65,13 +65,16 @@ const commonSchema = {
 //At least one of currentVersion, previousVersion, expireDeleteMarkers and incompleteMutlipart are required
 export const expirationSchema = Joi.object({
   ...commonSchema,
-  currentVersionTriggerDelayDays: Joi.number()
-    .label('Expire Current version Days'),
-  previousVersionTriggerDelayDays: Joi.number()
-    .label('Expire Previous version Days'),
+  currentVersionTriggerDelayDays: Joi.number().label(
+    'Expire Current version Days',
+  ),
+  previousVersionTriggerDelayDays: Joi.number().label(
+    'Expire Previous version Days',
+  ),
   expireDeleteMarkersTrigger: Joi.boolean().invalid(false),
-  incompleteMultipartUploadTriggerDelayDays: Joi.number()
-    .label('Expire Previous version Days'),
+  incompleteMultipartUploadTriggerDelayDays: Joi.number().label(
+    'Expire Previous version Days',
+  ),
 }).or(
   'currentVersionTriggerDelayDays',
   'previousVersionTriggerDelayDays',
@@ -135,27 +138,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     );
                   }}
                 />
-              </T.Value>
-            </T.Row>
-            <T.Row>
-              <T.Key required={true}> Rule Name </T.Key>
-              <T.Value>
-                <Input
-                  id="name"
-                  {...register(`${prefix}name`)}
-                  aria-invalid={!!errors[`${prefix}name`]}
-                  aria-describedby="error-name"
-                  autoComplete="off"
-                />
-                <T.ErrorContainer>
-                  <ErrorInput
-                    id="error-name"
-                    hasError={errors[`${prefix}name`]}
-                  >
-                    {' '}
-                    {errors[`${prefix}name`]?.message}{' '}
-                  </ErrorInput>
-                </T.ErrorContainer>
               </T.Value>
             </T.Row>
           </T.GroupContent>

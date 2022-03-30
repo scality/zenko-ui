@@ -181,7 +181,8 @@ export function prepareExpirationQuery(data: Expiration): Expiration {
       Object.entries(data.filter || {}).filter(([, value]) => {
         return !(value === '' || value === null);
       }),
-    )
+    ),
+    name: generateExpirationName(data),
   } as Expiration;
 }
 export function generateStreamName(r: ReplicationStream): string {
@@ -190,6 +191,25 @@ export function generateStreamName(r: ReplicationStream): string {
   const addedPrefix = prefix ? `/${prefix}` : '';
   const locationNames = locations.map((l) => l.name);
   return `${bucketName}${addedPrefix} ➜ ${locationNames.toString()}`;
+}
+
+export function generateExpirationName(expiration: Expiration): string {
+  const addedPrefix = expiration.filter?.objectKeyPrefix ? `/${expiration.filter?.objectKeyPrefix}` : '';
+  const descriptionComponents = [];
+  if (expiration.currentVersionTriggerDelayDays) {
+    descriptionComponents.push(`Current version: ${expiration.currentVersionTriggerDelayDays}d`)
+  }
+  if (expiration.previousVersionTriggerDelayDays) {
+    descriptionComponents.push(`Previous versions: ${expiration.previousVersionTriggerDelayDays}d`)
+  }
+  if (expiration.expireDeleteMarkersTrigger) {
+    descriptionComponents.push(`Orphan delete markers`)
+  }
+  if (expiration.incompleteMultipartUploadTriggerDelayDays) {
+    descriptionComponents.push(`Incomplete multipart: ${expiration.incompleteMultipartUploadTriggerDelayDays}d`)
+  }
+  
+  return `${expiration.bucketName}${addedPrefix} - (${descriptionComponents.join(', ')})`
 }
 export function flattenFormErrors(obj: Record<string, unknown>, parent?: string, res?: Record<string, unknown> = {}){
   for(const key in obj){

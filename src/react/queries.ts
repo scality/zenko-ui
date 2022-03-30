@@ -1,8 +1,7 @@
 import { UiFacingApi } from '../js/managementClient/api';
-import { ApiError } from '../types/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
-import { generateStreamName } from './workflow/utils';
+import { generateExpirationName, generateStreamName } from './workflow/utils';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -24,7 +23,7 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
         return {
           id: `expiration-${r.workflowId}`,
           type: 'expiration',
-          name: r.name,
+          name: generateExpirationName(r),
           state: r.enabled,
           workflowId: r.workflowId,
         } as Workflow;
