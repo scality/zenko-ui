@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addTrailingSlash } from '.';
+import { AppState } from '../../types/state';
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
   useEffect(() => {
@@ -84,4 +86,16 @@ export const useClipboard = () => {
     copy: copyToClipboard,
     copyStatus: copyStatus,
   };
+};
+
+export const useAccounts = () => {
+  const accounts = useSelector(
+    (state: AppState) => state.configuration.latest.users,
+  );
+
+  return accounts.filter(
+    (account) =>
+      account.userName !== 'scality-internal-services' ||
+      account.id !== '000000000000',
+  );
 };

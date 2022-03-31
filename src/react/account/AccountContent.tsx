@@ -6,27 +6,25 @@ import {
   useParams,
   useRouteMatch,
 } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import * as L from '../ui-elements/ListLayout5';
 import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
-import type { AppState } from '../../types/state';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
 import AccountUpdateUser from './AccountUpdateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
 import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
+import { useAccounts } from '../utils/hooks';
 
 function AccountContent() {
-  const { accountName: accountNameParam } =
-    useParams<{ accountName: string }>();
+  const { accountName: accountNameParam } = useParams<{
+    accountName: string;
+  }>();
 
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
-  );
+  const accounts = useAccounts();
   const account = useMemo(
     () => accounts.find((a) => a.userName === accountNameParam),
     [accounts, accountNameParam],
