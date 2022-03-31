@@ -195,7 +195,7 @@ const CreateWorkflow = () => {
   return (
     <FormProvider {...useFormMethods}>
       <FormContainer>
-        <F.Form onSubmit={handleSubmit(onSubmit)}>
+        <F.Form onSubmit={handleSubmit(onSubmit)} style={{paddingLeft: '15%', paddingRight: '15%'}}>
           <F.Title>Create New Workflow</F.Title>
           <T.Group>
             <T.GroupContent>
@@ -265,6 +265,7 @@ const CreateWorkflow = () => {
             />
             <Button
               disabled={loading || !formState.isValid}
+              icon={<i className="fas fa-plus" />}
               id="create-workflow-btn"
               variant="primary"
               label="Create"

@@ -49,7 +49,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       accessor: 'name',
       cellStyle: {
         textAlign: 'left',
-        minWidth: '20rem',
+        minWidth: '28rem',
         marginLeft: '1rem',
       },
       Cell: renderRowSubComponent,
@@ -60,6 +60,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         minWidth: '10rem',
+        marginLeft: '3rem',
       },
       Cell({ value: type }: { value: string }) {
         return (
@@ -78,6 +79,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         minWidth: '5rem',
+        marginLeft: '1rem',
       },
       sortType: (row1: RowType, row2: RowType) => {
         return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
@@ -90,7 +92,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
 
   return (
     <div
-      style={{ backgroundColor: theme.brand.backgroundLevel3, height: '100%' }}
+      style={{ backgroundColor: theme.brand.backgroundLevel3, height: '100%', width: '50%' }}
     >
       <Table
         columns={columns}

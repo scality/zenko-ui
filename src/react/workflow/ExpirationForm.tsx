@@ -32,8 +32,8 @@ const ExpirationContainer = styled.div`
   flex-direction: column;
   width: 100%;
   ${T.Row} {
-    height: 42px;
-    min-height: 42px;
+    height: 25px;
+    max-height: 25px;
   }
 `;
 
@@ -126,6 +126,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
         {...register(`${prefix}type`)}
         autoComplete="off"
       />
+      <T.ScrollArea>
       <T.Groups style={{ maxWidth: 'inherit' }}>
         <T.Group>
           <T.GroupName>General</T.GroupName>
@@ -630,6 +631,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           </T.GroupContent>
         </T.Group>
       </T.Groups>
+      </T.ScrollArea>
     </ExpirationContainer>
   );
 }
