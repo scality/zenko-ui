@@ -57,6 +57,10 @@ export const Groups = styled.div`
 
   max-width: 450px;
 `;
+export const ScrollArea = styled.div`
+  overflow: auto;
+  max-height: calc(100vh - 19rem);
+`;
 export const Group = styled.div`
   margin-bottom: ${spacing.sp24};
 `;
@@ -149,14 +153,12 @@ export const Header = styled.div`
 `;
 export const BannerContainer = styled.div`
   margin-right: ${spacing.sp8};
-  width: 50%;
+  width: 60%;
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
 `;
 export const Footer = styled.div`
   display: flex;
   justify-content: flex-end;
-
-  margin-top: ${spacing.sp8};
   margin-bottom: ${spacing.sp8};
 `;
 export const ExtraCell = styled.div`

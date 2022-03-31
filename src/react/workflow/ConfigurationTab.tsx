@@ -407,7 +407,10 @@ function EditForm({
                 <T.Row>
                   <T.Key principal={true}> Rule Type </T.Key>
                   {isExpirationWorkflow(workflow) ? (
-                    <T.Value>Expiration</T.Value>
+                    <T.Value>
+                      <i className="fas fa-stopwatch" />
+                      Expiration
+                    </T.Value>
                   ) : (
                     <T.Value>
                       <i className="fas fa-coins" />
@@ -427,6 +430,7 @@ function EditForm({
                 id="cancel-workflow-btn"
                 style={{
                   marginRight: spacing.sp24,
+                  marginBottom: spacing.sp20,
                 }}
                 variant="outline"
                 disabled={!formState.isDirty}
@@ -435,6 +439,9 @@ function EditForm({
               />
               <Button
                 disabled={!formState.isDirty || !formState.isValid}
+                style={{
+                  marginBottom: spacing.sp20,
+                }}
                 icon={<i className="fas fa-save" />}
                 id="create-workflow-btn"
                 variant="primary"
