@@ -5,7 +5,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../types/state';
 import { useHistory } from 'react-router';
-
+import * as L from '../ui-elements/ListLayout5';
 import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
@@ -39,6 +39,8 @@ import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import Select, {
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { Breadcrumb } from '../ui-elements/Breadcrumb';
+import { useLocation } from 'react-router-dom';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -96,6 +98,14 @@ const CreateWorkflow = () => {
   const { handleSubmit, control, watch, formState } = useFormMethods;
   const type = watch('type');
   const state = useSelector((state: AppState) => state);
+  const accountName = useSelector(
+    (state: AppState) =>
+      state.auth.selectedAccount && state.auth.selectedAccount.userName,
+  );
+  const accounts = useSelector(
+    (state: AppState) => state.configuration.latest.users,
+  );
+  const { pathname } = useLocation();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
@@ -193,88 +203,96 @@ const CreateWorkflow = () => {
   };
 
   return (
-    <FormProvider {...useFormMethods}>
-      <FormContainer>
-        <F.Form onSubmit={handleSubmit(onSubmit)} style={{paddingLeft: '15%', paddingRight: '15%'}}>
-          <F.Title>Create New Workflow</F.Title>
-          <T.Group>
-            <T.GroupContent>
-              <T.Row>
-                <T.Key principal={true}> Rule Type </T.Key>
-                <T.Value>
-                  <Controller
-                    control={control}
-                    name="type"
-                    render={({ field: { onChange, value: type } }) => {
-                      return (
-                        <Select
-                          value={type}
-                          onChange={(value) => onChange(value)}
-                        >
-                          {type === 'select' ? (
-                            <Option value={'select'}>Select...</Option>
-                          ) : (
-                            <></>
-                          )}
-                          <Option
-                            value={'replication'}
-                            icon={<i className="fas fa-coins" />}
+    <>
+      <L.BreadcrumbContainer>
+        <Breadcrumb
+          accounts={accounts}
+          accountName={accountName}
+          pathname={pathname}
+        />
+      </L.BreadcrumbContainer>
+      <FormProvider {...useFormMethods}>
+        <FormContainer>
+          <F.Form onSubmit={handleSubmit(onSubmit)}>
+            <F.Title>Create New Workflow</F.Title>
+            <T.Group>
+              <T.GroupContent>
+                <T.Row>
+                  <T.Key principal={true}> Rule Type </T.Key>
+                  <T.Value>
+                    <Controller
+                      control={control}
+                      name="type"
+                      render={({ field: { onChange, value: type } }) => {
+                        return (
+                          <Select
+                            value={type}
+                            onChange={(value) => onChange(value)}
                           >
-                            Replication
-                          </Option>
-                          <Option
-                            value={'expiration'}
-                            icon={<i className="fas fa-stopwatch" />}
-                          >
-                            Expiration
-                          </Option>
-                        </Select>
-                      );
-                    }}
-                  />
-                </T.Value>
-              </T.Row>
-            </T.GroupContent>
-          </T.Group>
-          {type === 'replication' && (
-            <ReplicationForm
-              bucketList={bucketList}
-              locations={locations}
-              prefix={'replication.'}
-              isCreateMode={true}
-            />
-          )}
-          {type === 'expiration' && (
-            <ExpirationForm
-              bucketList={bucketList}
-              locations={locations}
-              prefix={'expiration.'}
-            />
-          )}
-          <T.Footer>
-            <Button
-              disabled={loading}
-              id="cancel-workflow-btn"
-              style={{
-                marginRight: spacing.sp24,
-              }}
-              type="button"
-              variant="outline"
-              onClick={() => history.push('./')}
-              label="Cancel"
-            />
-            <Button
-              disabled={loading || !formState.isValid}
-              icon={<i className="fas fa-plus" />}
-              id="create-workflow-btn"
-              variant="primary"
-              label="Create"
-              type="submit"
-            />
-          </T.Footer>
-        </F.Form>
-      </FormContainer>
-    </FormProvider>
+                            {type === 'select' ? (
+                              <Option value={'select'}>Select...</Option>
+                            ) : (
+                              <></>
+                            )}
+                            <Option
+                              value={'replication'}
+                              icon={<i className="fas fa-coins" />}
+                            >
+                              Replication
+                            </Option>
+                            <Option
+                              value={'expiration'}
+                              icon={<i className="fas fa-stopwatch" />}
+                            >
+                              Expiration
+                            </Option>
+                          </Select>
+                        );
+                      }}
+                    />
+                  </T.Value>
+                </T.Row>
+              </T.GroupContent>
+            </T.Group>
+            {type === 'replication' && (
+              <ReplicationForm
+                bucketList={bucketList}
+                locations={locations}
+                prefix={'replication.'}
+                isCreateMode={true}
+              />
+            )}
+            {type === 'expiration' && (
+              <ExpirationForm
+                bucketList={bucketList}
+                locations={locations}
+                prefix={'expiration.'}
+              />
+            )}
+            <T.Footer>
+              <Button
+                disabled={loading}
+                id="cancel-workflow-btn"
+                style={{
+                  marginRight: spacing.sp24,
+                }}
+                type="button"
+                variant="outline"
+                onClick={() => history.push('./')}
+                label="Cancel"
+              />
+              <Button
+                disabled={loading || !formState.isValid}
+                id="create-workflow-btn"
+                variant="primary"
+                label="Create"
+                type="submit"
+              />
+            </T.Footer>
+          </F.Form>
+        </FormContainer>
+      </FormProvider>
+    </>
   );
 };
 

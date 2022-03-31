@@ -10,14 +10,14 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { useQueryParams } from '../utils/hooks';
 import { ellipsis } from 'polished';
-const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
+export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   .sc-breadcrumb_item {
     display: flex;
     align-items: center;
 
     &:first-of-type {
       display: block;
-      width: 150px;
+      width: 180px;
       text-decoration: none;
       overflow: visible;
       * {
@@ -197,7 +197,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
     }
 
     dispatch(selectAccountID(account.id)).then(() =>
-      dispatch(push('/buckets')),
+      dispatch(push(pathname.includes('workflow')? '/workflows': '/buckets')),
     );
   };
 
