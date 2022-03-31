@@ -185,7 +185,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       >
                         {options &&
                           options.map((o, i) => (
-                            <Option key={i} value={o.value} disabled={o.disabled}>
+                            <Option key={i} value={o.value}>
                               {renderSource(locations)(o)}
                             </Option>
                           ))}
