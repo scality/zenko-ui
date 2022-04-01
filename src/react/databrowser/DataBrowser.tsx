@@ -14,15 +14,15 @@ import { clearError } from '../actions';
 import { push } from 'connected-react-router';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
+import { useAccounts } from '../utils/hooks';
+
 export default function DataBrowser() {
   const dispatch = useDispatch();
   const accountName = useSelector(
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
   );
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
-  );
+  const accounts = useAccounts();
   const hasError = useSelector(
     (state: AppState) =>
       !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',

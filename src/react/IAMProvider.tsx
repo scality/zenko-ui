@@ -5,6 +5,7 @@ import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
 import { AppState } from '../types/state';
 import { selectAccountID } from './actions';
+import { useAccounts } from './utils/hooks';
 
 // Only exported to ease testing
 export const _IAMContext = createContext<null | {
@@ -34,9 +35,7 @@ const IAMProvider = ({ children }: { children: JSX.Element }) => {
 
   // FIXME Temporary fix to get the account each time you change URL
   const dispatch = useDispatch();
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
-  );
+  const accounts = useAccounts();
   useEffect(() => {
     const account = accounts.find((a) => a.userName === accountName);
     if (!account) {

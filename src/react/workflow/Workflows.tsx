@@ -21,6 +21,7 @@ import {
   networkStart,
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
+import { useAccounts } from '../utils/hooks';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -75,9 +76,7 @@ export default function Workflows() {
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
   );
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
-  );
+  const accounts = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
