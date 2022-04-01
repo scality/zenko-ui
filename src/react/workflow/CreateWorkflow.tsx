@@ -41,6 +41,7 @@ import Select, {
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useLocation } from 'react-router-dom';
+import { useQueryParams } from '../utils/hooks';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,9 @@ const CreateWorkflow = () => {
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
+  const BUCKETNAME_QUERY_PARAM = 'bucket';
+  const queryParams = useQueryParams();
+  const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
 
   const useFormMethods = useForm({
     mode: 'all',
@@ -90,8 +94,8 @@ const CreateWorkflow = () => {
     },
     defaultValues: {
       type: 'select',
-      replication: newReplicationForm(),
-      expiration: newExpiration(),
+      replication: newReplicationForm(bucketName),
+      expiration: newExpiration(bucketName),
     },
   });
 
@@ -139,7 +143,12 @@ const CreateWorkflow = () => {
             rolePathName,
           ).queryKey,
         );
-        history.push(`./replication-${success.streamId}`);
+        if (bucketName !== '') {
+          // redirectly to the bucket list -> workflow tab
+          history.push(`/buckets/${bucketName}?tab=workflow`);
+        } else {
+          history.push(`./replication-${success.streamId}`);
+        }
       },
       onError: (error) => {
         dispatch(handleClientError(error));
@@ -176,7 +185,11 @@ const CreateWorkflow = () => {
             rolePathName,
           ).queryKey,
         );
-        history.push(`./expiration-${success.workflowId}`);
+        if (bucketName !== '') {
+          history.push(`/buckets/${bucketName}?tab=workflow`);
+        } else {
+          history.push(`./expiration-${success.workflowId}`);
+        }
       },
       onError: (error) => {
         dispatch(handleClientError(error));

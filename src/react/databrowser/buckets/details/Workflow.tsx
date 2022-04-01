@@ -86,7 +86,9 @@ function Workflow({ bucketName }: { bucketName: string }) {
             label="Create Rule"
             variant="secondary"
             onClick={() =>
-              history.push(`/accounts/${accountName}/workflows/create-workflow`)
+              history.push(
+                `/accounts/${accountName}/workflows/create-workflow?bucket=${bucketName}`,
+              )
             }
             type="submit"
           ></Button>

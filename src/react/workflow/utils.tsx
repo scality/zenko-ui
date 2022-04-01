@@ -55,9 +55,10 @@ export const destinationOptions = (
 };
 export const renderSource = (locations: Locations) => {
   return function does(option: ReplicationBucketOption) {
-    return (
-      `${option.label} (${option.location} / ${getLocationTypeShort(option.location, locations)})`
-    );
+    return `${option.label} (${option.location} / ${getLocationTypeShort(
+      option.location,
+      locations,
+    )})`;
   };
 };
 export const renderDestination = (locations: Locations) => {
@@ -70,29 +71,29 @@ export const renderDestination = (locations: Locations) => {
     );
   };
 };
-export function newExpiration(): Expiration {
+export function newExpiration(bucketName?: string): Expiration {
   return {
-    "bucketName": "",
-    "enabled": true,
-    "filter": {
-      "objectKeyPrefix": ""
+    bucketName: bucketName || '',
+    enabled: true,
+    filter: {
+      objectKeyPrefix: '',
     },
-    "name": "",
-    "type": "bucket-workflow-expiration-v1",
-    "workflowId": "",
-    "currentVersionTriggerDelayDate": "",
-    "currentVersionTriggerDelayDays": null,
-    "expireDeleteMarkersTrigger": null,
-    "incompleteMultipartUploadTriggerDelayDays": null,
-    "previousVersionTriggerDelayDays": null
-  }
+    name: '',
+    type: 'bucket-workflow-expiration-v1',
+    workflowId: '',
+    currentVersionTriggerDelayDate: '',
+    currentVersionTriggerDelayDays: null,
+    expireDeleteMarkersTrigger: null,
+    incompleteMultipartUploadTriggerDelayDays: null,
+    previousVersionTriggerDelayDays: null,
+  };
 }
-export function newReplicationForm(): ReplicationForm {
+export function newReplicationForm(bucketName?: string): ReplicationForm {
   return {
     streamVersion: 1,
     streamId: '',
     enabled: true,
-    sourceBucket: '',
+    sourceBucket: bucketName || '',
     sourcePrefix: '',
     destinationLocation: '',
   };
@@ -160,7 +161,7 @@ export function prepareExpirationQuery(data: Expiration): Expiration {
   return {
     ...Object.fromEntries(
       Object.entries(data).filter(([key, value]) => {
-        if(key === 'expireDeleteMarkersTrigger' && !value) return false;
+        if (key === 'expireDeleteMarkersTrigger' && !value) return false;
         return !(value === '' || value === null || value === 0);
       }),
     ),
@@ -181,31 +182,53 @@ export function generateStreamName(r: ReplicationStream): string {
 }
 
 export function generateExpirationName(expiration: Expiration): string {
-  const addedPrefix = expiration.filter?.objectKeyPrefix ? `/${expiration.filter?.objectKeyPrefix}` : '';
+  const addedPrefix = expiration.filter?.objectKeyPrefix
+    ? `/${expiration.filter?.objectKeyPrefix}`
+    : '';
   const descriptionComponents = [];
   if (expiration.currentVersionTriggerDelayDays) {
-    descriptionComponents.push(`Current version: ${expiration.currentVersionTriggerDelayDays}d`)
+    descriptionComponents.push(
+      `Current version: ${expiration.currentVersionTriggerDelayDays}d`,
+    );
   }
   if (expiration.previousVersionTriggerDelayDays) {
-    descriptionComponents.push(`Previous versions: ${expiration.previousVersionTriggerDelayDays}d`)
+    descriptionComponents.push(
+      `Previous versions: ${expiration.previousVersionTriggerDelayDays}d`,
+    );
   }
   if (expiration.expireDeleteMarkersTrigger) {
-    descriptionComponents.push(`Orphan delete markers`)
+    descriptionComponents.push(`Orphan delete markers`);
   }
   if (expiration.incompleteMultipartUploadTriggerDelayDays) {
-    descriptionComponents.push(`Incomplete multipart: ${expiration.incompleteMultipartUploadTriggerDelayDays}d`)
+    descriptionComponents.push(
+      `Incomplete multipart: ${expiration.incompleteMultipartUploadTriggerDelayDays}d`,
+    );
   }
-  
-  return `${expiration.bucketName}${addedPrefix} - (${descriptionComponents.join(', ')})`
+
+  return `${
+    expiration.bucketName
+  }${addedPrefix} - (${descriptionComponents.join(', ')})`;
 }
-export function flattenFormErrors(obj: Record<string, unknown>, parent?: string, res?: Record<string, unknown> = {}){
-  for(const key in obj){
-      const propName = parent ? parent + '.' + key : key;
-      if(typeof obj[key] == 'object' && !('message' in obj[key] && 'ref' in obj[key] && 'type' in obj[key] && typeof obj[key].message === 'string')){
-        flattenFormErrors(obj[key] as Record<string, unknown>, propName, res);
-      } else {
-          res[propName] = obj[key];
-      }
+export function flattenFormErrors(
+  obj: Record<string, unknown>,
+  parent?: string,
+  res?: Record<string, unknown> = {},
+) {
+  for (const key in obj) {
+    const propName = parent ? parent + '.' + key : key;
+    if (
+      typeof obj[key] == 'object' &&
+      !(
+        'message' in obj[key] &&
+        'ref' in obj[key] &&
+        'type' in obj[key] &&
+        typeof obj[key].message === 'string'
+      )
+    ) {
+      flattenFormErrors(obj[key] as Record<string, unknown>, propName, res);
+    } else {
+      res[propName] = obj[key];
+    }
   }
   return res;
 }

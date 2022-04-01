@@ -1,17 +1,16 @@
 import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
-import type {
-  Locations,
-} from '../../types/config';
+import type { Locations } from '../../types/config';
 import { Toggle } from '@scality/core-ui';
-import Select, { Option } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import Select, {
+  Option,
+} from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import {
   checkIfExternalLocation,
   checkSupportsReplicationTarget,
 } from '../utils/storageOptions';
 import {
-  convertToReplicationForm,
   destinationOptions,
   flattenFormErrors,
   renderDestination,
@@ -60,7 +59,9 @@ export const replicationSchema = {
   enabled: Joi.boolean().label('State').required(),
   sourceBucket: Joi.string().label('Bucket Name').required(),
   sourcePrefix: Joi.string().label('Prefix').allow(''),
-  destinationLocation: Joi.string().label('Destination Location Name').required(),
+  destinationLocation: Joi.string()
+    .label('Destination Location Name')
+    .required(),
 };
 
 function ReplicationComponent({
@@ -69,15 +70,12 @@ function ReplicationComponent({
   locations,
   isCreateMode,
 }: Props) {
-
   const {
     register,
     control,
     getValues,
 
-    formState: {
-      errors: formErrors,
-    },
+    formState: { errors: formErrors },
   } = useFormContext();
   const errors = flattenFormErrors(formErrors);
 
@@ -94,7 +92,8 @@ function ReplicationComponent({
       instanceId,
       rolePathName,
     ),
-    select: (workflows) => workflows.filter(w => w.replication).map(w => w.replication),
+    select: (workflows) =>
+      workflows.filter((w) => w.replication).map((w) => w.replication),
   });
 
   // TODO: make sure we do not delete bucket or location if replication created.
@@ -107,12 +106,18 @@ function ReplicationComponent({
 
   return (
     <ReplicationContainer>
-      <input type="hidden" id="streamId" {...register(`${prefix}streamId`)} autoComplete="off" />
+      <input
+        type="hidden"
+        id="streamId"
+        {...register(`${prefix}streamId`)}
+        autoComplete="off"
+      />
       <input
         type="hidden"
         id="streamVersion"
         {...register(`${prefix}streamVersion`)}
-        autoComplete="off" />
+        autoComplete="off"
+      />
       <T.Groups style={{ maxWidth: 'inherit' }}>
         <T.Group>
           <T.GroupName>General</T.GroupName>
@@ -123,11 +128,11 @@ function ReplicationComponent({
                 <Controller
                   control={control}
                   name={`${prefix}enabled`}
-                  render={({ field: {onChange, value: enabled} }) => {
+                  render={({ field: { onChange, value: enabled } }) => {
                     return (
                       <Toggle
                         toggle={enabled}
-                        id='enabled'
+                        id="enabled"
                         label={enabled ? 'Active' : 'Inactive'}
                         onChange={() => onChange(!enabled)}
                       />
@@ -158,7 +163,7 @@ function ReplicationComponent({
                 <Controller
                   control={control}
                   name={`${prefix}sourceBucket`}
-                  render={({ field: {onChange, value: sourceBucket} }) => {
+                  render={({ field: { onChange, value: sourceBucket } }) => {
                     const options = sourceBucketOptions(
                       replicationsQuery.data || [],
                       bucketList,
@@ -187,11 +192,20 @@ function ReplicationComponent({
                     }
 
                     return (
-                      <Select id="sourceBucket" value={sourceBucket} onChange={onChange} isDisabled={isEditing}>
+                      <Select
+                        id="sourceBucket"
+                        value={sourceBucket}
+                        onChange={onChange}
+                        isDisabled={isEditing}
+                      >
                         {options &&
                           options.map((o, i) => (
-                            <Option title={o.disabled ? 'Versioning is disabled' : ''} key={i} value={o.value}
-                                    disabled={o.disabled}>
+                            <Option
+                              title={o.disabled ? 'Versioning is disabled' : ''}
+                              key={i}
+                              value={o.value}
+                              disabled={o.disabled}
+                            >
                               {renderSource(locations)(o)}
                             </Option>
                           ))}
@@ -218,7 +232,7 @@ function ReplicationComponent({
                 <Controller
                   control={control}
                   name={`${prefix}sourcePrefix`}
-                  render={({ field: {onChange, value: sourcePrefix} }) => {
+                  render={({ field: { onChange, value: sourcePrefix } }) => {
                     return (
                       <Input
                         id="sourcePrefix"
@@ -242,7 +256,9 @@ function ReplicationComponent({
                 <Controller
                   control={control}
                   name={`${prefix}destinationLocation`}
-                  render={({ field: {onChange, value: destinationLocation} }) => {
+                  render={({
+                    field: { onChange, value: destinationLocation },
+                  }) => {
                     const options = destinationOptions(locations);
                     return (
                       <Select
