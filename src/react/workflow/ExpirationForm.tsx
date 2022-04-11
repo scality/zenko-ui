@@ -59,7 +59,7 @@ const commonSchema = {
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
   }).optional(),
-  name: Joi.string().label('Rule Name').required(),
+  name: Joi.string().label('Workflow Description').required(),
   type: Joi.string().required(),
   workflowId: Joi.string().optional().allow(null, ''),
   currentVersionTriggerDelayDate: Joi.string().optional().allow(null, ''),

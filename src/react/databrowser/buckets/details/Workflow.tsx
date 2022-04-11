@@ -40,7 +40,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
   };
   const columns = [
     {
-      Header: 'Rule name',
+      Header: 'Workflow Description',
       accessor: 'name',
       cellStyle: {
         minWidth: '19rem',
@@ -83,7 +83,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
         <TableAction>
           <Button
             icon={<i className="fas fa-plus" />}
-            label="Create Rule"
+            label="Create Workflow"
             variant="secondary"
             onClick={() =>
               history.push(
@@ -102,14 +102,14 @@ function Workflow({ bucketName }: { bucketName: string }) {
           {(Rows) => (
             <>
               {status === 'loading' || status === 'idle'
-                ? 'Loading rules...'
+                ? 'Loading workflows...'
                 : ''}
               {status === 'error'
-                ? 'We failed to retrieve rules, please retry later. If the error persists, please contact your support.'
+                ? 'We failed to retrieve workflows, please retry later. If the error persists, please contact your support.'
                 : ''}
               {status === 'success' &&
                 !data?.length &&
-                'No rules found on this bucket.'}
+                'No workflows found on this bucket.'}
               {status === 'success' ? <Rows /> : ''}
             </>
           )}
