@@ -93,7 +93,7 @@ export const useAccounts = () => {
     (state: AppState) => state.configuration.latest.users,
   );
 
-  return accounts.filter(
+  return accounts?.filter(
     (account) =>
       account.userName !== 'scality-internal-services' ||
       account.id !== '000000000000',

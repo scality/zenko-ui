@@ -138,6 +138,7 @@ function ReplicationComponent({
                           onChange(!enabled);
                           trigger(`${prefix}enabled`);
                         }}
+                        placeholder="isReplicationToggle"
                       />
                     );
                   }}
@@ -150,7 +151,7 @@ function ReplicationComponent({
         <T.Group>
           <T.GroupName>Source</T.GroupName>
           <T.GroupContent>
-            <T.Row>
+            <T.Row data-testid="select-bucket-name-replication">
               <T.KeyTooltip
                 required={isCreateMode}
                 tooltipMessage={
@@ -253,7 +254,7 @@ function ReplicationComponent({
         <T.Group>
           <T.GroupName>Destination</T.GroupName>
           <T.GroupContent>
-            <T.Row>
+            <T.Row data-testid="select-location-name-replication">
               <T.Key required={isCreateMode}> Location Name </T.Key>
               <T.Value>
                 <Controller

@@ -5,7 +5,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 const Icon = styled.i`
   margin-left: ${spacing.sp8};
-  color: ${(props) => props.theme.brand.buttonSecondary};
+  color: ${(props) => props.theme.brand?.buttonSecondary};
 `;
 type IconHelpProps = {
   tooltipMessage: string | Node;

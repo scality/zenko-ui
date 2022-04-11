@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const Hints = styled.div`
   position: absolute;
   z-index: 1;
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
   left: 20px;
   margin-top: ${spacing.sp40};
   padding: ${spacing.sp8};
@@ -25,12 +25,12 @@ export const Hint = styled.div`
 const Input = styled.input`
   display: flex;
 
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
-  color: ${(props) => props.theme.brand.textPrimary};
+  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
+  color: ${(props) => props.theme.brand?.textPrimary};
   border-width: ${spacing.sp1};
   border-style: solid;
   border-color: ${(props) =>
-    props.hasError ? props.theme.brand.danger : props.theme.brand.border};
+    props.hasError ? props.theme.brand.danger : props.theme.brand?.border};
   padding: 0px ${spacing.sp8};
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};
@@ -43,12 +43,12 @@ const Input = styled.input`
     width: fill-available;  
   `}
     :hover:enabled {
-    border: ${spacing.sp1} solid ${(props) => props.theme.brand.border};
+    border: ${spacing.sp1} solid ${(props) => props.theme.brand?.border};
   }
 
   :focus {
     outline: none;
-    border: ${spacing.sp1} solid ${(props) => props.theme.brand.secondary};
+    border: ${spacing.sp1} solid ${(props) => props.theme.brand?.secondary};
   }
 
   // Removing input background color for Chrome autocomplete

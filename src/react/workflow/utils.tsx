@@ -24,8 +24,8 @@ export const sourceBucketOptions = (
   const buckets = bucketList.map((b) => {
     const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
 
-    const locationType = locations[constraint].locationType;
-    const { supportsReplicationSource } = storageOptions[locationType];
+    const locationType = locations[constraint]?.locationType;
+    const { supportsReplicationSource } = storageOptions[locationType] || false;
     return {
       label: b.Name,
       value: b.Name,
@@ -36,7 +36,7 @@ export const sourceBucketOptions = (
         !supportsReplicationSource,
     };
   });
-  return buckets.toArray();
+  return [...buckets];
 };
 export const destinationOptions = (
   locations: Locations,
@@ -44,7 +44,7 @@ export const destinationOptions = (
   return Object.keys(locations)
     .filter((n) => {
       const locationType = locations[n].locationType;
-      return storageOptions[locationType].supportsReplicationTarget; // && destinationLocations.every((location => location.name !== n));
+      return storageOptions[locationType]?.supportsReplicationTarget; // && destinationLocations.every((location => location.name !== n));
     })
     .map((n) => {
       return {
