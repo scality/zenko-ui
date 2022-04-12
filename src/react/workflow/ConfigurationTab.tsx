@@ -369,7 +369,7 @@ function EditForm({
         approve={handleDeleteWorkflow}
         cancel={handleCloseDeleteModal}
         show={isDeleteModalOpen}
-        titleText={`Permanently remove the following Rule: ${
+        titleText={`Permanently remove the following Workflow: ${
           workflow.name ||
           (isExpirationWorkflow(workflow) ? generateExpirationName(workflow) : generateStreamName(workflow))
         } ?`}
@@ -405,7 +405,7 @@ function EditForm({
             <T.Group>
               <T.GroupContent>
                 <T.Row>
-                  <T.Key principal={true}> Rule Type </T.Key>
+                  <T.Key principal={true}> Workflow Type </T.Key>
                   {isExpirationWorkflow(workflow) ? (
                     <T.Value>
                       <i className="fas fa-stopwatch" />

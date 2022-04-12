@@ -94,7 +94,7 @@ export default function Workflows() {
         <Warning
           centered={true}
           iconClass="fas fa-5x fa-wallet"
-          title="Before browsing your workflow rules, create your first account."
+          title="Before browsing your workflows, create your first account."
           btnTitle="Create Account"
           btnAction={() => history.push('/create-account')}
         />
@@ -109,7 +109,7 @@ export default function Workflows() {
           <Warning
             centered={true}
             iconClass="fas fa-5x fa-glass-whiskey"
-            title="Before browsing your workflow rules, create your first bucket."
+            title="Before browsing your workflows, create your first bucket."
             btnTitle="Create Bucket"
             btnAction={() => history.push('/create-bucket')}
           />
@@ -136,8 +136,8 @@ export default function Workflows() {
           <Warning
             centered={true}
             iconClass="fas fa-5x fa-coins"
-            title="Before browsing your workflow rules, create your first rule."
-            btnTitle="Create Rule"
+            title="Before browsing your workflows, create your first workflow."
+            btnTitle="Create Workflow"
             btnAction={() => history.push('./workflows/create-workflow')}
           />
         </EmptyStateContainer>
