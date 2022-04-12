@@ -14,6 +14,7 @@ import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/S
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { getUserListGroupsQuery, getUserListUsersQuery } from '../queries';
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
@@ -22,16 +23,7 @@ const InlineButton = styled(Button)`
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const accessKeysQuery = useAwsPaginatedEntities(
-    {
-      queryKey: ['listIAMUserAccessKey', userName],
-      queryFn: (_ctx, marker) => notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
-      enabled: IAMClient !== null,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false
-    },
-    (data) => data.AccessKeyMetadata,
-  );
+  const accessKeysQuery = useAwsPaginatedEntities(getUserListUsersQuery(userName, notFalsyTypeGuard(IAMClient)), (page) => page.Users);
   const accessKeys = useMemo(() => {
     if (accessKeysQuery.status === 'success') {
       return accessKeysQuery.data.length;
@@ -148,23 +140,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     history.replace(`${match.url}?${queryParams.toString()}`);
   };
 
-  const listUsersQuery = useAwsPaginatedEntities(
-    {
-      queryKey: ['listIAMUsers', accountName],
-      queryFn: (_ctx, marker) => {
-        if (!IAMClient) {
-          return Promise.reject('IAMClient is not defined');
-        }
-
-        return IAMClient.listUsers(1000, marker);
-      },
-      staleTime: Infinity,
-      enabled: IAMClient !== null,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-    },
-    (page) => page.Users,
-  );
+  const listUsersQuery = useAwsPaginatedEntities(getUserListUsersQuery(accountName, IAMClient), (page) => page.Users);
   const iamUsers = useMemo(() => {
     if (listUsersQuery.firstPageStatus === 'success') {
       const iamUsers = listUsersQuery.data.map((user) => {
