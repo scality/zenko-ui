@@ -5,27 +5,16 @@ import { ButtonsContainer } from '../ui-elements/Container';
 import { listBuckets } from '../actions/s3bucket';
 import { listObjects } from '../actions/s3object';
 import { useDispatch } from 'react-redux';
+import { usePrefixWithSlash } from '../utils/hooks';
 export function RefreshButton() {
   const { bucketName } = useParams();
   const { pathname } = useLocation();
+  const prefixWithSlash = usePrefixWithSlash();
   const dispatch = useDispatch();
   const isBrowsingObjects = !!matchPath(
     pathname,
     '/buckets/:bucketName/objects',
   );
-  const prefixWithSlash = useMemo(() => {
-    const splittedPath = pathname.split('objects/');
-
-    if (splittedPath.length < 2 || splittedPath[1].length === 0) {
-      return '';
-    } else {
-      const prefix =
-        splittedPath[1].slice(-1) === '/'
-          ? splittedPath[1]
-          : `${splittedPath[1]}/`;
-      return prefix;
-    }
-  }, [pathname]);
 
   const handleRefreshClick = () => {
     if (isBrowsingObjects) {
