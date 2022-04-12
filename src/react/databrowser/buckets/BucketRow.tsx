@@ -7,6 +7,7 @@ import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { push } from 'connected-react-router';
+import { useQueryParams } from '../../utils/hooks';
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -54,12 +55,14 @@ const Row = ({
   prepareRow(row);
   const bucketName = row.original.Name;
   const isSelected = selectedBucketName === bucketName;
+  const query = useQueryParams();
+  const tabName = query.get('tab');
   return (
     <T.Row
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(push(`/buckets/${bucketName}`));
+          dispatch(push(`/buckets/${bucketName}?tab=${tabName}`));
         }
       }}
       {...row.getRowProps({
