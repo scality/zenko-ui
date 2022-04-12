@@ -8,5 +8,5 @@ export const NameLinkContaner = styled.div`
     text-decoration: underline;
   }
   padding-right: ${padding.small};
-  color: ${(props) => props.theme.brand.selectedActive};
+  color: ${(props) => props.theme.brand.textLink};
 `;
