@@ -309,18 +309,6 @@ export default function ObjectListTable({
                     style={{ ...column.headerStyle, ...headerProps.style }}
                   >
                     {column.render('Header')}
-                    <T.Icon>
-                      {!column.disableSortBy &&
-                        (column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <i className="fas fa-sort-down" />
-                          ) : (
-                            <i className="fas fa-sort-up" />
-                          )
-                        ) : (
-                          <i className="fas fa-sort" />
-                        ))}
-                    </T.Icon>
                   </T.HeadCell>
                 );
               })}
