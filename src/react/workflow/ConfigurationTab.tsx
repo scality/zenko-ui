@@ -405,7 +405,7 @@ function EditForm({
             <T.Group>
               <T.GroupContent>
                 <T.Row>
-                  <T.Key principal={true}> Workflow Type </T.Key>
+                  <T.Key principal={true}> Type </T.Key>
                   {isExpirationWorkflow(workflow) ? (
                     <T.Value>
                       <i className="fas fa-stopwatch" />
