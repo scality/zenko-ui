@@ -242,11 +242,6 @@ const CreateWorkflow = () => {
                             value={type}
                             onChange={(value) => onChange(value)}
                           >
-                            {type === 'select' ? (
-                              <Option value={'select'}>Select...</Option>
-                            ) : (
-                              <></>
-                            )}
                             <Option
                               value={'replication'}
                               icon={<i className="fas fa-coins" />}

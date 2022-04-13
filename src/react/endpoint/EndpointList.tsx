@@ -1,6 +1,12 @@
-import type { Endpoint, LocationName, Hostname, Locations } from '../../types/config';
+import type {
+  Endpoint,
+  LocationName,
+  Hostname,
+  Locations,
+} from '../../types/config';
 import MemoRow, { createItemData } from './EndpointRow';
-import React, { useMemo, useRef } from 'react';
+import { useMemo, useRef } from 'react';
+import { Button } from '@scality/core-ui/dist/next';
 import Table, * as T from '../ui-elements/Table';
 import {
   closeEndpointDeleteDialog,
@@ -19,6 +25,7 @@ import { getLocationTypeFromName } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Clipboard } from '../ui-elements/Clipboard';
+import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -56,11 +63,11 @@ function EndpointList({ endpoints, locations }: Props) {
         Cell({ value: hostName }: { value: Hostname }) {
           return (
             <div style={{ display: 'flex' }}>
-              <span style={{paddingRight: spacing.sp14}}>{hostName}</span>
+              <span style={{ paddingRight: spacing.sp14 }}>{hostName}</span>
               <Clipboard text={hostName} />
             </div>
           );
-        }
+        },
       },
       {
         Header: 'Location name',
@@ -138,13 +145,16 @@ function EndpointList({ endpoints, locations }: Props) {
             onChange={(e) => setFilter('hostname', e.target.value)}
           />
         </T.Search>
-        <T.ExtraButton
-          icon={<i className="fas fa-plus" />}
-          label="Create Data Service"
-          variant="primary"
-          onClick={() => dispatch(push('/create-dataservice'))}
-          type="submit"
-        />
+        <div style={{ marginLeft: 'auto' }}>
+          <Button
+            icon={<i className="fas fa-plus" />}
+            label="Create Data Service"
+            variant="primary"
+            onClick={() => dispatch(push('/create-dataservice'))}
+            type="submit"
+          />
+          <AuthorizedAdvancedMetricsButton />
+        </div>
       </T.SearchContainer>
       <T.Container>
         <Table {...getTableProps()}>
