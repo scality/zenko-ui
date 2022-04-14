@@ -434,8 +434,9 @@ function EditForm({
                 }}
                 variant="outline"
                 disabled={!formState.isDirty}
-                onClick={() => history.replace()}
+                onClick={() => useFormMethods.reset()}
                 label="Cancel"
+                type="button"
               />
               <Button
                 disabled={!formState.isDirty || !formState.isValid}
