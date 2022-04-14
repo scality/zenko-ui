@@ -86,7 +86,7 @@ export const expirationSchema = Joi.object({
 );
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
-  const { register, control, watch, getValues, setValue, formState } =
+  const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
 
   const { errors: formErrors } = formState;
@@ -140,7 +140,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           id="enabled"
                           toggle={enabled}
                           label={enabled ? 'Active' : 'Inactive'}
-                          onChange={() => onChange(!enabled)}
+                          onChange={() => {
+                            onChange(!enabled);
+                            trigger(`${prefix}enabled`);
+                          }}
                         />
                       );
                     }}
@@ -210,6 +213,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <Input
                     id="prefix"
                     {...register(`${prefix}filter.objectKeyPrefix`)}
+                    onChange={(evt) => {
+                      register(`${prefix}filter.objectKeyPrefix`).onChange(evt);
+                      trigger(`${prefix}filter.objectKeyPrefix`);
+                    }}
                     aria-invalid={!!errors[`${prefix}filter.objectKeyPrefix`]}
                     aria-describedby="error-prefix"
                     autoComplete="off"

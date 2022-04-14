@@ -74,7 +74,7 @@ function ReplicationComponent({
     register,
     control,
     getValues,
-
+    trigger,
     formState: { errors: formErrors },
   } = useFormContext();
   const errors = flattenFormErrors(formErrors);
@@ -134,7 +134,10 @@ function ReplicationComponent({
                         toggle={enabled}
                         id="enabled"
                         label={enabled ? 'Active' : 'Inactive'}
-                        onChange={() => onChange(!enabled)}
+                        onChange={() => {
+                          onChange(!enabled);
+                          trigger(`${prefix}enabled`);
+                        }}
                       />
                     );
                   }}
@@ -264,12 +267,15 @@ function ReplicationComponent({
                       <Select
                         id="destinationLocation"
                         onChange={onChange}
-                        options={options}
-                        formatOptionLabel={renderDestination(locations)}
-                        value={options.find(
-                          (l) => l.value === destinationLocation?.value,
-                        )}
-                      />
+                        value={destinationLocation}
+                      >
+                        {options &&
+                          options.map((o, i) => (
+                            <Option key={i} value={o.value}>
+                              {renderDestination(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
                     );
                   }}
                 />

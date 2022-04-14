@@ -290,7 +290,6 @@ function EditForm({
   bucketList: S3BucketList;
   locations: Locations;
 }) {
-  const history = useHistory();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const schema =
