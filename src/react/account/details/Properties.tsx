@@ -2,7 +2,6 @@ import type { Account } from '../../../types/account';
 import AccountInfo from './properties/AccountInfo';
 import AccountKeys from './properties/AccountKeys';
 import { AutoSizer } from 'react-virtualized';
-import React from 'react';
 import styled from 'styled-components';
 type Props = {
   account: Account;
