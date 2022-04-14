@@ -63,12 +63,10 @@ export const renderSource = (locations: Locations) => {
 };
 export const renderDestination = (locations: Locations) => {
   return function does(option: SelectOption) {
-    return (
-      <div>
-        <span> {option.label} </span>
-        <small> ({getLocationTypeShort(option.value, locations)}) </small>
-      </div>
-    );
+    return `${option.label} (${getLocationTypeShort(
+      option.value,
+      locations,
+    )})`
   };
 };
 export function newExpiration(bucketName?: string): Expiration {

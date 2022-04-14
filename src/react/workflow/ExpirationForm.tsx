@@ -15,6 +15,8 @@ import type { S3BucketList } from '../../types/s3';
 
 import styled from 'styled-components';
 import { IconHelp } from '../ui-elements/Help';
+import { isVersioning } from '../utils';
+import { ChangeEvent } from 'react';
 
 const flexStyle = {
   display: 'flex',
@@ -86,7 +88,7 @@ export const expirationSchema = Joi.object({
 );
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
-  const { register, control, watch, getValues, setValue, formState } =
+  const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
 
   const { errors: formErrors } = formState;
@@ -99,8 +101,16 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   const incompleteMultipartUploadTriggerDelayDays = watch(
     `${prefix}incompleteMultipartUploadTriggerDelayDays`,
   );
+  const sourceBucketName = watch(`${prefix}bucketName`);
+  const sourceBucket = bucketList.find(
+    (bucket) => bucket.Name === sourceBucketName,
+  );
+  const isSourceBucketVersionned = sourceBucket
+    ? isVersioning(sourceBucket.VersionStatus)
+    : false;
 
   const errors = flattenFormErrors(formErrors);
+  const isEditing = !!getValues(`${prefix}workflowId`);
 
   return (
     <ExpirationContainer>
@@ -139,7 +149,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           id="enabled"
                           toggle={enabled}
                           label={enabled ? 'Active' : 'Inactive'}
-                          onChange={() => onChange(!enabled)}
+                          onChange={() => {
+                            onChange(!enabled);
+                            trigger(`${prefix}enabled`);
+                          }}
                         />
                       );
                     }}
@@ -153,7 +166,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
             <T.GroupName>Source</T.GroupName>
             <T.GroupContent>
               <T.Row>
-                <T.Key required={true}> Bucket Name </T.Key>
+                <T.Key required={!isEditing}> Bucket Name </T.Key>
                 <T.Value>
                   <Controller
                     control={control}
@@ -164,7 +177,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         bucketList,
                         locations,
                       );
-                      const isEditing = !!getValues(`${prefix}workflowId`);
 
                       const result = options.find(
                         (l) => l.value === sourceBucket,
@@ -178,7 +190,26 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         <Select
                           id="sourceBucket"
                           value={sourceBucket}
-                          onChange={onChange}
+                          onChange={(newBucket: string) => {
+                            onChange(newBucket);
+
+                            const sourceBucket = bucketList.find(
+                              (bucket) => bucket.Name === newBucket,
+                            );
+                            const isSourceBucketVersionned = sourceBucket
+                              ? isVersioning(sourceBucket.VersionStatus)
+                              : false;
+                            if (!isSourceBucketVersionned) {
+                              setValue(
+                                `${prefix}expireDeleteMarkersTrigger`,
+                                false,
+                              );
+                              setValue(
+                                `${prefix}previousVersionTriggerDelayDays`,
+                                null,
+                              );
+                            }
+                          }}
                         >
                           {options &&
                             options.map((o, i) => (
@@ -210,6 +241,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <Input
                     id="prefix"
                     {...register(`${prefix}filter.objectKeyPrefix`)}
+                    onChange={(evt) => {
+                      register(`${prefix}filter.objectKeyPrefix`).onChange(evt);
+                      trigger(`${prefix}filter.objectKeyPrefix`);
+                    }}
                     aria-invalid={!!errors[`${prefix}filter.objectKeyPrefix`]}
                     aria-describedby="error-prefix"
                     autoComplete="off"
@@ -388,6 +423,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           id="previousVersionTriggerDelayDaysToggle"
+                          disabled={!isSourceBucketVersionned}
                           toggle={
                             previousVersionTriggerDelayDays !== null &&
                             previousVersionTriggerDelayDays !== undefined
@@ -400,6 +436,18 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     }}
                   />
 
+                  {!isSourceBucketVersionned ? (
+                    <>
+                      <IconHelp
+                        tooltipMessage={
+                          'This action is disabled when source bucket is not versionned'
+                        }
+                        tooltipWidth={'13rem'}
+                      />
+                    </>
+                  ) : (
+                    ''
+                  )}
                   <div
                     style={{
                       ...flexStyle,
@@ -498,8 +546,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           disabled={
-                            currentVersionTriggerDelayDays !== null &&
-                            currentVersionTriggerDelayDays !== undefined
+                            (currentVersionTriggerDelayDays !== null &&
+                              currentVersionTriggerDelayDays !== undefined) ||
+                            !isSourceBucketVersionned
                           }
                           id="expireDeleteMarkersTrigger"
                           toggle={expireDeleteMarkersTrigger}
@@ -510,12 +559,37 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       );
                     }}
                   />
-                  {currentVersionTriggerDelayDays !== null &&
-                  currentVersionTriggerDelayDays !== undefined ? (
+                  {(currentVersionTriggerDelayDays !== null &&
+                    currentVersionTriggerDelayDays !== undefined) ||
+                  !isSourceBucketVersionned ? (
                     <>
                       <IconHelp
                         tooltipMessage={
-                          'This action is disabled when "Expire Current version of objects" is active'
+                          <>
+                            {currentVersionTriggerDelayDays !== null &&
+                            currentVersionTriggerDelayDays !== undefined ? (
+                              <>
+                                This action is disabled when "Expire Current
+                                version of objects" is active
+                              </>
+                            ) : (
+                              ''
+                            )}
+                            {!isSourceBucketVersionned ? (
+                              <>
+                                {currentVersionTriggerDelayDays !== null &&
+                                currentVersionTriggerDelayDays !== undefined ? (
+                                  <br />
+                                ) : (
+                                  ''
+                                )}
+                                This action is disabled when source bucket is
+                                not versionned
+                              </>
+                            ) : (
+                              ''
+                            )}
+                          </>
                         }
                         tooltipWidth={'13rem'}
                       />
