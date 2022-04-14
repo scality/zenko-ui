@@ -15,6 +15,8 @@ import type { S3BucketList } from '../../types/s3';
 
 import styled from 'styled-components';
 import { IconHelp } from '../ui-elements/Help';
+import { isVersioning } from '../utils';
+import { ChangeEvent } from 'react';
 
 const flexStyle = {
   display: 'flex',
@@ -99,6 +101,13 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   const incompleteMultipartUploadTriggerDelayDays = watch(
     `${prefix}incompleteMultipartUploadTriggerDelayDays`,
   );
+  const sourceBucketName = watch(`${prefix}bucketName`);
+  const sourceBucket = bucketList.find(
+    (bucket) => bucket.Name === sourceBucketName,
+  );
+  const isSourceBucketVersionned = sourceBucket
+    ? isVersioning(sourceBucket.VersionStatus)
+    : false;
 
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
@@ -181,7 +190,26 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         <Select
                           id="sourceBucket"
                           value={sourceBucket}
-                          onChange={onChange}
+                          onChange={(newBucket: string) => {
+                            onChange(newBucket);
+
+                            const sourceBucket = bucketList.find(
+                              (bucket) => bucket.Name === newBucket,
+                            );
+                            const isSourceBucketVersionned = sourceBucket
+                              ? isVersioning(sourceBucket.VersionStatus)
+                              : false;
+                            if (!isSourceBucketVersionned) {
+                              setValue(
+                                `${prefix}expireDeleteMarkersTrigger`,
+                                false,
+                              );
+                              setValue(
+                                `${prefix}previousVersionTriggerDelayDays`,
+                                null,
+                              );
+                            }
+                          }}
                         >
                           {options &&
                             options.map((o, i) => (
@@ -395,6 +423,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           id="previousVersionTriggerDelayDaysToggle"
+                          disabled={!isSourceBucketVersionned}
                           toggle={
                             previousVersionTriggerDelayDays !== null &&
                             previousVersionTriggerDelayDays !== undefined
@@ -407,6 +436,18 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     }}
                   />
 
+                  {!isSourceBucketVersionned ? (
+                    <>
+                      <IconHelp
+                        tooltipMessage={
+                          'This action is disabled when source bucket is not versionned'
+                        }
+                        tooltipWidth={'13rem'}
+                      />
+                    </>
+                  ) : (
+                    ''
+                  )}
                   <div
                     style={{
                       ...flexStyle,
@@ -505,8 +546,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           disabled={
-                            currentVersionTriggerDelayDays !== null &&
-                            currentVersionTriggerDelayDays !== undefined
+                            (currentVersionTriggerDelayDays !== null &&
+                              currentVersionTriggerDelayDays !== undefined) ||
+                            !isSourceBucketVersionned
                           }
                           id="expireDeleteMarkersTrigger"
                           toggle={expireDeleteMarkersTrigger}
@@ -517,12 +559,37 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       );
                     }}
                   />
-                  {currentVersionTriggerDelayDays !== null &&
-                  currentVersionTriggerDelayDays !== undefined ? (
+                  {(currentVersionTriggerDelayDays !== null &&
+                    currentVersionTriggerDelayDays !== undefined) ||
+                  !isSourceBucketVersionned ? (
                     <>
                       <IconHelp
                         tooltipMessage={
-                          'This action is disabled when "Expire Current version of objects" is active'
+                          <>
+                            {currentVersionTriggerDelayDays !== null &&
+                            currentVersionTriggerDelayDays !== undefined ? (
+                              <>
+                                This action is disabled when "Expire Current
+                                version of objects" is active
+                              </>
+                            ) : (
+                              ''
+                            )}
+                            {!isSourceBucketVersionned ? (
+                              <>
+                                {currentVersionTriggerDelayDays !== null &&
+                                currentVersionTriggerDelayDays !== undefined ? (
+                                  <br />
+                                ) : (
+                                  ''
+                                )}
+                                This action is disabled when source bucket is
+                                not versionned
+                              </>
+                            ) : (
+                              ''
+                            )}
+                          </>
                         }
                         tooltipWidth={'13rem'}
                       />
