@@ -41,7 +41,7 @@ import Select, {
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useLocation } from 'react-router-dom';
-import { useQueryParams } from '../utils/hooks';
+import { useAccounts, useQueryParams } from '../utils/hooks';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -106,9 +106,7 @@ const CreateWorkflow = () => {
     (state: AppState) =>
       state.auth.selectedAccount && state.auth.selectedAccount.userName,
   );
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
-  );
+  const accounts = useAccounts();
   const { pathname } = useLocation();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
