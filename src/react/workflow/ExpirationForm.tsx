@@ -101,6 +101,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   );
 
   const errors = flattenFormErrors(formErrors);
+  const isEditing = !!getValues(`${prefix}workflowId`);
 
   return (
     <ExpirationContainer>
@@ -153,7 +154,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
             <T.GroupName>Source</T.GroupName>
             <T.GroupContent>
               <T.Row>
-                <T.Key required={true}> Bucket Name </T.Key>
+                <T.Key required={!isEditing}> Bucket Name </T.Key>
                 <T.Value>
                   <Controller
                     control={control}
@@ -164,7 +165,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         bucketList,
                         locations,
                       );
-                      const isEditing = !!getValues(`${prefix}workflowId`);
 
                       const result = options.find(
                         (l) => l.value === sourceBucket,
