@@ -1,7 +1,7 @@
 import type { AppState, AssumeRoleParams, OIDCState } from '../types/state';
 import type { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
-import type { IAMClient as IAMClientInterface } from '../types/iam';
+import type { IAMClient as IAMClientInterface, WebIdentityRoles } from '../types/iam';
 import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 export const rolePathName = 'scality-internal/storage-manager-role';
@@ -22,7 +22,7 @@ export function getAssumeRoleWithWebIdentityIAM(
   const { oidc, auth, configuration } = state;
   const { stsClient } = getClients(state);
   const accounts = configuration.latest.users;
-  const account = accounts.find((a) => a.userName === accountName);
+  const account = accounts.find((a) => a.Name === accountName);
   if (!account || !oidc || !oidc.user) return Promise.reject();
   const assumeRoleParams = getAssumeRoleWithWebIdentityParams(oidc, account.id);
   return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then((creds) => {
@@ -35,6 +35,24 @@ export function getAssumeRoleWithWebIdentityIAM(
     iamClient.login(params);
     return iamClient;
   });
+}
+
+export function getRolesForWebIdentity(endpoint: string, token: string, marker?: string, maxItems?: number): Promise<WebIdentityRoles> {
+  const data = new URLSearchParams();
+  data.append("Action", 'GetRolesForWebIdentity');
+  data.append("WebIdentityToken", token);
+  if (marker) {
+    data.append("Marker", marker);
+  }
+  if (maxItems) {
+    data.append("MaxItems", `${maxItems}`);
+  }
+  return fetch(endpoint, {method: 'POST', body: data.toString()}).then(r => {
+    if (r.ok) {
+      return r.json();
+    }
+    throw new Error(`Recieve response with status ${r.status}`);
+  })
 }
 export default class IAMClient implements IAMClientInterface {
   client?: IAM;

@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from 'react-query';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addTrailingSlash } from '.';
+import { getRolesForWebIdentity } from '../../js/IAMClient';
+import { Account } from '../../types/iam';
 import { AppState } from '../../types/state';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useIAMClient } from '../IAMProvider';
+import { useAwsPaginatedEntities } from './IAMhooks';
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
   useEffect(() => {
@@ -89,13 +95,41 @@ export const useClipboard = () => {
 };
 
 export const useAccounts = () => {
-  const accounts = useSelector(
-    (state: AppState) => state.configuration.latest.users,
+  const token = useSelector((state: AppState) => state.oidc.user.access_token);
+  const IAMEndpoint = useSelector(
+    (state: AppState) => state.auth.config.iamEndpoint,
   );
 
-  return accounts?.filter(
+  const { status, data } = useAwsPaginatedEntities(
+    {
+      queryKey: ['WebIdentityRoles', token],
+      queryFn: () => {
+        return getRolesForWebIdentity(IAMEndpoint, token);
+      },
+      enabled: !!token && !!IAMEndpoint,
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    },
+    (data) => data.Accounts,
+  );
+
+  const uniqueAccountsWithRoles = Object.values(
+    data?.reduce(
+      (agg, current) => ({
+        ...agg,
+        [current.Name]: {
+          Name: current.Name,
+          CreationDate: current.CreationDate,
+          Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
+        },
+      }),
+      {} as Record<string, Account>,
+    ) || {},
+  );
+
+  return uniqueAccountsWithRoles.filter(
     (account) =>
-      account.userName !== 'scality-internal-services' ||
-      account.id !== '000000000000',
+      account.Name !== 'scality-internal-services'
   );
 };
