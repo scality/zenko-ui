@@ -1,12 +1,12 @@
 export type AccessKey = string;
 export type SecretKey = string;
 export type CreateAccountRequest = {
-  readonly userName: string;
+  readonly Name: string;
   readonly email: string;
   readonly quotaMax: number;
 };
 export type Account = {
-  readonly userName: string;
+  readonly Name: string;
   readonly email: string;
   readonly quotaMax?: number;
   readonly canonicalId: string;

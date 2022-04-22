@@ -37,7 +37,7 @@ function AccountList({ accounts }: Props) {
     return [
       {
         Header: 'Account Name',
-        accessor: 'userName',
+        accessor: 'Name',
         cellStyle: {
           minWidth: '20rem',
         },

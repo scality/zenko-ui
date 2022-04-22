@@ -74,7 +74,7 @@ export default function Workflows() {
   const { workflowId } = useParams<{ workflowId?: string }>();
   const accountName = useSelector(
     (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.userName,
+      state.auth.selectedAccount && state.auth.selectedAccount.Name,
   );
   const accounts = useAccounts();
   const bucketList = useSelector(

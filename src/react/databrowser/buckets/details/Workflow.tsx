@@ -22,7 +22,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
   const history = useHistory();
   const accountName = useSelector(
     (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.userName,
+      state.auth.selectedAccount && state.auth.selectedAccount.Name,
   );
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
   const { data, status } = useWorkflows(select, [bucketName]);

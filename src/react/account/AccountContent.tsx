@@ -26,7 +26,7 @@ function AccountContent() {
   const { pathname } = useLocation();
   const accounts = useAccounts();
   const account = useMemo(
-    () => accounts.find((a) => a.userName === accountNameParam),
+    () => accounts.find((a) => a.Name === accountNameParam),
     [accounts, accountNameParam],
   );
 

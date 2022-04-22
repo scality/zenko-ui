@@ -37,7 +37,7 @@ const IAMProvider = ({ children }: { children: JSX.Element }) => {
   const dispatch = useDispatch();
   const accounts = useAccounts();
   useEffect(() => {
-    const account = accounts.find((a) => a.userName === accountName);
+    const account = accounts.find((a) => a.Name === accountName);
     if (!account) {
       return;
     }

@@ -54,7 +54,7 @@ function AccountCreate() {
   const onSubmit = ({ email, name }) => {
     clearServerError();
     const payload = {
-      userName: name,
+      Name: name,
       email,
     };
     dispatch(createAccount(payload));

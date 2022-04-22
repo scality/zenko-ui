@@ -41,7 +41,7 @@ const RedirectToAccount = () => {
   );
 
   if (selectedAccount) {
-    return <Redirect to={`/accounts/${selectedAccount.userName}/workflows`} />;
+    return <Redirect to={`/accounts/${selectedAccount.Name}/workflows`} />;
   } else {
     return (
       <Loader>
