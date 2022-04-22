@@ -31,7 +31,7 @@ function SecretKeyModal({ account }: Props) {
   };
 
   const handleAccessKeyCreate = () => {
-    dispatch(createAccountAccessKey(account.userName));
+    dispatch(createAccountAccessKey(account.Name));
   };
 
   if (!isModalOpen) {

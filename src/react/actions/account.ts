@@ -125,14 +125,14 @@ export function createAccount(
     const { managementClient, instanceId } = getClients(getState());
     const params = {
       uuid: instanceId,
-      user,
+      user: {...user, userName: user.Name},
     };
     dispatch(networkStart('Creating account'));
     return managementClient
       .createConfigurationOverlayUser(params.user, params.uuid)
       .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
       .then(([id]) => dispatch(selectAccountID(id)))
-      .then(() => dispatch(push(`/accounts/${user.userName}`)))
+      .then(() => dispatch(push(`/accounts/${user.Name}`)))
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
       .finally(() => dispatch(networkEnd()));

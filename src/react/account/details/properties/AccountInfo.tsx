@@ -40,7 +40,7 @@ function AccountInfo({ account }: Props) {
       return;
     }
 
-    dispatch(deleteAccount(account.userName));
+    dispatch(deleteAccount(account.Name));
   };
 
   const handleDeleteCancel = () => {
@@ -54,7 +54,7 @@ function AccountInfo({ account }: Props) {
         show={showDelete}
         cancel={handleDeleteCancel}
         approve={handleDeleteApprove}
-        titleText={`Are you sure you want to delete account: ${account.userName} ?`}
+        titleText={`Are you sure you want to delete account: ${account.Name} ?`}
       />
       <SecretKeyModal account={account} />
       <TitleRow>
@@ -81,10 +81,10 @@ function AccountInfo({ account }: Props) {
           </T.Row>
           <T.Row>
             <T.Key> Name </T.Key>
-            <T.Value> {account.userName} </T.Value>
+            <T.Value> {account.Name} </T.Value>
             <T.ExtraCell>
               {' '}
-              <Clipboard text={account.userName} />{' '}
+              <Clipboard text={account.Name} />{' '}
             </T.ExtraCell>
           </T.Row>
           <T.Row>

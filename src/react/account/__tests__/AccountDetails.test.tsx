@@ -11,7 +11,7 @@ const account1 = {
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
-  userName: 'bart',
+  Name: 'bart',
 };
 describe('AccountDetails', () => {
   beforeEach(() => {

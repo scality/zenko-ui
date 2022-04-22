@@ -20,7 +20,13 @@ export function updateConfiguration(): ThunkStatePromisedAction {
     return managementClient
       .getConfigurationOverlayView(instanceId)
       .then((res) => {
-        dispatch(newConfiguration(res));
+        const configuration = {
+          ...res,
+          users: [
+            ...res.users?.map((user) => ({ ...user, Name: user.userName })),
+          ],
+        };
+        dispatch(newConfiguration(configuration));
       })
       .catch((error) => {
         throw error;

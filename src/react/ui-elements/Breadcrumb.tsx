@@ -190,7 +190,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
     const account =
       selectedName &&
       selectedName !== accountName &&
-      accounts.find((a) => a.userName === selectedName);
+      accounts.find((a) => a.Name === selectedName);
 
     if (!account) {
       return;
@@ -210,9 +210,9 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
           value={accountName}
           variant="rounded"
         >
-          {accounts?.map((account) => (
-            <Select.Option key={account.userName} value={account.userName}>
-              {account.userName}
+          {accounts.map((account) => (
+            <Select.Option key={account.Name} value={account.Name}>
+              {account.Name}
             </Select.Option>
           ))}
         </Select>,
@@ -235,7 +235,7 @@ export function BreadcrumbWorkflow({
     const account =
       selectedName &&
       selectedName !== accountName &&
-      accounts.find((a) => a.userName === selectedName);
+      accounts.find((a) => a.Name === selectedName);
 
     if (!account) {
       return;
@@ -256,8 +256,8 @@ export function BreadcrumbWorkflow({
           variant="rounded"
         >
           {accounts.map((account) => (
-            <Select.Option key={account.userName} value={account.userName}>
-              {account.userName}
+            <Select.Option key={account.Name} value={account.Name}>
+              {account.Name}
             </Select.Option>
           ))}
         </Select>,
