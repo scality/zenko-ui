@@ -16,12 +16,19 @@ import type {
   Site,
   ZenkoClientError,
   ZenkoClient as ZenkoClientInterface,
+  SearchBucketVersionsResp,
 } from '../../types/zenko';
 import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 import { until } from 'async';
 import { loadInstanceLatestStatus } from './stats';
+import { mergeSortedVersionsAndDeleteMarkers } from '../utils/s3';
+import {
+  continueListObjectVersionsSuccess,
+  listObjectVersionsSuccess,
+  _getObjectListWithSignedUrlAndLockStatus,
+} from './s3object';
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
 export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
@@ -128,12 +135,81 @@ function _getSearchObjects(
   };
 }
 
+function _getSearchVersions(
+  bucketName: string,
+  query: string,
+  keyMarker?: Marker,
+  versionIdMarker?: Marker,
+) {
+  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+    const { zenkoClient } = getClients(getState());
+    const params = {
+      Bucket: bucketName,
+      Query: query,
+      KeyMarker: keyMarker ? keyMarker : void 0,
+      VersionIdMarker: versionIdMarker ? versionIdMarker : void 0,
+    };
+    dispatch(zenkoClearError());
+    dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
+    return zenkoClient
+      .searchBucketVersions(params)
+      .then(
+        async ({
+          NextKeyMarker,
+          NextVersionIdMarker,
+          Version,
+          DeleteMarker,
+          CommonPrefixes,
+          Prefix,
+        }: SearchBucketVersionsResp) => {
+          const list =
+            await _getObjectListWithSignedUrlAndLockStatus<S3Version>(
+              zenkoClient,
+              bucketName,
+              Version,
+            );
+          if (NextKeyMarker) {
+            return dispatch(
+              continueListObjectVersionsSuccess(
+                list,
+                DeleteMarker,
+                CommonPrefixes,
+                Prefix,
+                NextKeyMarker,
+                NextVersionIdMarker,
+              ),
+            );
+          } else {
+            return dispatch(
+              listObjectVersionsSuccess(
+                list,
+                DeleteMarker,
+                CommonPrefixes,
+                Prefix,
+                NextKeyMarker,
+                NextVersionIdMarker,
+              ),
+            );
+          }
+        },
+      )
+      .catch((err) => dispatch(zenkoHandleError(err, null, null)))
+      .finally(() => dispatch(networkEnd()));
+  };
+}
+
 export function newSearchListing(
   bucketName: string,
   query: string,
+  isVersioning: boolean,
 ): ThunkNonStatePromisedAction {
   return (dispatch: DispatchFunction) => {
     dispatch(networkStart(NETWORK_START_ACTION_STARTING_SEARCH));
+    if (isVersioning) {
+      return dispatch(_getSearchVersions(bucketName, query)).then(() =>
+        dispatch(networkEnd()),
+      );
+    }
     return dispatch(_getSearchObjects(bucketName, query)).then(() =>
       dispatch(networkEnd()),
     );
