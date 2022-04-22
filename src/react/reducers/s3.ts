@@ -107,7 +107,7 @@ const search = (objs): Array<ObjectEntity> => {
   });
 };
 
-const versioning = (
+export const versioning = (
   versions: Array<S3Version>,
   deleteMarkers: Array<S3DeleteMarker>,
   prefix,

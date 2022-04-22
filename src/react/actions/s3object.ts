@@ -198,11 +198,11 @@ export function createFolder(
   };
 }
 
-function _getObjectListWithSignedUrlAndLockStatus<
+export function _getObjectListWithSignedUrlAndLockStatus<
   T extends {
     readonly Key: string;
     readonly VersionId?: string;
-  }
+  },
 >(
   zenkoClient: ZenkoClient,
   bucketName: string,
@@ -256,11 +256,12 @@ function _getListObjectNoVersion(
     return zenkoClient
       .listObjects(params)
       .then(async (res) => {
-        const list: S3Object[] = await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
-          zenkoClient,
-          bucketName,
-          res.Contents,
-        );
+        const list: S3Object[] =
+          await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
+            zenkoClient,
+            bucketName,
+            res.Contents,
+          );
 
         if (marker) {
           return dispatch(
