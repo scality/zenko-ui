@@ -17,14 +17,17 @@ import type {
   ZenkoClientError,
   ZenkoClient as ZenkoClientInterface,
 } from '../../types/zenko';
+import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
 import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 import { until } from 'async';
 import { loadInstanceLatestStatus } from './stats';
+import { listObjectVersionsSuccess } from './s3object';
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
 export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
+
 export function zenkoClearError(): ZenkoClearAction {
   return {
     type: 'ZENKO_CLEAR_ERROR',
@@ -128,12 +131,64 @@ function _getSearchObjects(
   };
 }
 
+function _getSearchVersions(
+  bucketName: string,
+  query: string,
+  keyMarker?: Marker,
+  versionIdMarker?: Marker,
+) {
+  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
+    const { zenkoClient } = getClients(getState());
+    const params = {
+      Bucket: bucketName,
+      Query: query,
+      KeyMarker: keyMarker ? keyMarker : void 0,
+      VersionIdMarker: versionIdMarker ? versionIdMarker : void 0,
+    };
+    dispatch(zenkoClearError());
+    dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
+    return zenkoClient
+      .searchBucketVersions(params)
+      .then(
+        async ({
+          NextKeyMarker,
+          NextVersionIdMarker,
+          Version,
+          DeleteMarker,
+          CommonPrefixes,
+          Prefix,
+        }: ListObjectVersionsOutput) => {
+          return dispatch(
+            listObjectVersionsSuccess(
+              Version,
+              DeleteMarker,
+              CommonPrefixes,
+              Prefix,
+              NextKeyMarker,
+              NextVersionIdMarker,
+            ),
+          );
+        },
+      )
+      .catch((err) => {
+        return dispatch(zenkoHandleError(err, null, null));
+      })
+      .finally(() => dispatch(networkEnd()));
+  };
+}
+
 export function newSearchListing(
   bucketName: string,
   query: string,
+  isVersioning: boolean,
 ): ThunkNonStatePromisedAction {
   return (dispatch: DispatchFunction) => {
     dispatch(networkStart(NETWORK_START_ACTION_STARTING_SEARCH));
+    if (isVersioning) {
+      return dispatch(_getSearchVersions(bucketName, query)).then(() =>
+        dispatch(networkEnd()),
+      );
+    }
     return dispatch(_getSearchObjects(bucketName, query)).then(() =>
       dispatch(networkEnd()),
     );

@@ -64,9 +64,9 @@ export default function Objects() {
   const prefixWithSlash = usePrefixWithSlash();
   useEffect(() => {
     if (searchInput) {
-      dispatch(newSearchListing(bucketNameParam, searchInput)).finally(() =>
-        setLoaded(true),
-      );
+      dispatch(
+        newSearchListing(bucketNameParam, searchInput, isShowVersions),
+      ).finally(() => setLoaded(true));
     } else {
       dispatch(
         listObjects(
