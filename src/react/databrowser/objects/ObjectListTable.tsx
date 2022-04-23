@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import {
   continueListObjects,
+  continueSearchObjects,
   toggleAllObjects,
   toggleObject,
 } from '../../actions';
@@ -78,6 +79,7 @@ export default function ObjectListTable({
   const versionId = query.get('versionId');
   const isListVersion = query.get('showversions') === 'true';
   const isFolder = query.get('isFolder') === 'true';
+  const searchInput = query.get('metadatasearch');
   const versionIdOrUndefined =
     isListVersion && versionId ? versionId : undefined;
   useEffect(() => {
@@ -255,27 +257,22 @@ export default function ObjectListTable({
     ],
   );
   const hiddenColumns = isVersioningType ? [] : ['versionId'];
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data: objects,
-      disableSortRemove: true,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-      initialState: {
-        hiddenColumns,
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable(
+      {
+        columns,
+        data: objects,
+        disableSortRemove: true,
+        autoResetFilters: false,
+        autoResetSortBy: false,
+        initialState: {
+          hiddenColumns,
+        },
       },
-    },
-    useFilters,
-    useSortBy,
-    useFlexLayout,
-  );
+      useFilters,
+      useSortBy,
+      useFlexLayout,
+    );
   // NOTE: Calculates the size of the scrollbar to apply margin
   // on the "Size" column so that it can be aligned to the right even if the scrollbar is displayed
   const refList = useCallback((ref) => {
@@ -323,13 +320,19 @@ export default function ObjectListTable({
               <InfiniteLoader
                 isItemLoaded={isItemLoaded}
                 itemCount={rows.length}
-                loadMoreItems={() =>
-                  dispatch(continueListObjects(bucketName, prefixWithSlash))
-                }
+                loadMoreItems={() => {
+                  if (!searchInput) {
+                    return dispatch(
+                      continueListObjects(bucketName, prefixWithSlash),
+                    );
+                  } else {
+                    return dispatch(
+                      continueSearchObjects(bucketName, searchInput),
+                    );
+                  }
+                }}
               >
-                {(
-                  { onItemsRendered, ref },
-                ) => (
+                {({ onItemsRendered, ref }) => (
                   <FixedSizeList
                     height={height || 300}
                     itemCount={rows.length}

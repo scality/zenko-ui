@@ -23,9 +23,15 @@ import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 import { until } from 'async';
 import { loadInstanceLatestStatus } from './stats';
-import { listObjectVersionsSuccess } from './s3object';
+import {
+  continueListObjectVersionsSuccess,
+  listObjectVersionsSuccess,
+} from './s3object';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
+import { ListObjectsType } from '../../types/s3';
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
+export const NETWORK_START_ACTION_SEARCHING_VERSIONS = 'Searching versions';
 export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
 
 export function zenkoClearError(): ZenkoClearAction {
@@ -143,10 +149,13 @@ function _getSearchVersions(
       Bucket: bucketName,
       Query: query,
       KeyMarker: keyMarker ? keyMarker : void 0,
-      VersionIdMarker: versionIdMarker ? versionIdMarker : void 0,
+      VersionIdMarker:
+        versionIdMarker && versionIdMarker !== 'null'
+          ? versionIdMarker
+          : void 0,
     };
     dispatch(zenkoClearError());
-    dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
+    dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_VERSIONS));
     return zenkoClient
       .searchBucketVersions(params)
       .then(
@@ -158,6 +167,18 @@ function _getSearchVersions(
           CommonPrefixes,
           Prefix,
         }: ListObjectVersionsOutput) => {
+          if (keyMarker) {
+            return dispatch(
+              continueListObjectVersionsSuccess(
+                Version,
+                DeleteMarker,
+                CommonPrefixes,
+                Prefix,
+                NextKeyMarker,
+                NextVersionIdMarker,
+              ),
+            );
+          }
           return dispatch(
             listObjectVersionsSuccess(
               Version,
@@ -174,6 +195,51 @@ function _getSearchVersions(
         return dispatch(zenkoHandleError(err, null, null));
       })
       .finally(() => dispatch(networkEnd()));
+  };
+}
+
+function _continueSearchVersions(bucketName: string, query: string) {
+  return (dispatch, getState) => {
+    const { s3 } = getState();
+    const marker = s3.listObjectsResults.nextMarker;
+    const versionIdMarker = s3.listObjectsResults.nextVersionIdMarker;
+
+    if (!marker || !versionIdMarker) {
+      return Promise.resolve();
+    }
+
+    return dispatch(
+      _getSearchVersions(bucketName, query, marker, versionIdMarker),
+    );
+  };
+}
+function _continueSearchObjectsNoVersions(bucketName: string, query: string) {
+  return (dispatch, getState) => {
+    const { s3 } = getState();
+    const marker = s3.listObjectsResults.nextMarker;
+
+    if (!marker) {
+      return Promise.resolve();
+    }
+
+    return dispatch(_getSearchObjects(bucketName, query, marker));
+  };
+}
+
+export function continueSearchObjects(
+  bucketName: string,
+  query: string,
+  type?: ListObjectsType,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) => {
+    const { s3 } = getState();
+    const listType = type || s3.listObjectsType;
+
+    if (listType === LIST_OBJECT_VERSIONS_S3_TYPE) {
+      return dispatch(_continueSearchVersions(bucketName, query));
+    }
+
+    return dispatch(_continueSearchObjectsNoVersions(bucketName, query));
   };
 }
 

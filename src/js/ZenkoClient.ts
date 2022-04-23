@@ -114,6 +114,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Query,
         KeyMarker,
         VersionIdMarker,
+        MaxKeys: 100,
       })
       .promise();
   }
