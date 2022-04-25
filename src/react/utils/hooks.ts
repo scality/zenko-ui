@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useQuery } from 'react-query';
+import {
+  QueryKey,
+  useQuery,
+  UseQueryOptions,
+  UseQueryResult,
+} from 'react-query';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addTrailingSlash } from '.';
@@ -94,6 +99,43 @@ export const useClipboard = () => {
   };
 };
 
+export function useQueryWithUnmountSupport<
+  TQueryFnData = unknown,
+  TError = unknown,
+  TData = TQueryFnData,
+  TQueryKey extends QueryKey = QueryKey,
+>({
+  onSettled,
+  onUnmountOrSettled,
+  ...args
+}: UseQueryOptions<TQueryFnData, TError, TData, TQueryKey> & {
+  onUnmountOrSettled?: (
+    data: TData | undefined,
+    error: TError | { message: string } | null,
+  ) => void;
+}): UseQueryResult<TData, TError> {
+  useEffect(() => {
+    return () => {
+      if (onUnmountOrSettled) {
+        onUnmountOrSettled(undefined, { message: 'Unmounted' });
+      }
+    };
+  }, []);
+
+  const query = useQuery({
+    ...args,
+    onSettled: (data, err) => {
+      if (onSettled) {
+        onSettled(data, err);
+      }
+      if (onUnmountOrSettled) {
+        onUnmountOrSettled(data, err);
+      }
+    },
+  });
+  return query;
+}
+
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const IAMEndpoint = useSelector(
@@ -129,7 +171,6 @@ export const useAccounts = () => {
   );
 
   return uniqueAccountsWithRoles.filter(
-    (account) =>
-      account.Name !== 'scality-internal-services'
+    (account) => account.Name !== 'scality-internal-services',
   );
 };

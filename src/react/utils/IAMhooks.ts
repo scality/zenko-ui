@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import type {
   QueryObserverOptions,
@@ -10,7 +10,7 @@ import type {
 } from 'react-query';
 import { DateTime } from 'luxon';
 
-type AWS_PAGINATED_ENTITIES<ENTITY> =
+export type AWS_PAGINATED_ENTITIES<ENTITY> =
   | (QueryObserverIdleResult<ENTITY[]> & { firstPageStatus: 'idle' }) //idle
   | (QueryObserverLoadingErrorResult<ENTITY[]> & {
       firstPageStatus: 'success' | 'error';
@@ -26,15 +26,18 @@ export const useAwsPaginatedEntities = <
     Marker?: string;
   },
   ENTITY,
+  TError = unknown,
 >(
-  reactQueryOptions:
-    | {
-        queryFn: (
-          context: QueryFunctionContext,
-          marker?: string,
-        ) => Promise<API_RESPONSE>;
-      }
-    | Omit<QueryObserverOptions<API_RESPONSE>, 'queryFn'>,
+  reactQueryOptions: {
+    queryFn: (
+      context: QueryFunctionContext,
+      marker?: string,
+    ) => Promise<API_RESPONSE>;
+    onUnmountOrSettled?: (
+      data: ENTITY[] | undefined,
+      error: TError | null | { message: 'Unmounted' },
+    ) => void;
+  } & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
   const [status, setStatus] = useState<
@@ -43,8 +46,20 @@ export const useAwsPaginatedEntities = <
   const [firstPageStatus, setFirstPageStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle');
+
+  useEffect(() => {
+    return () => {
+      if (reactQueryOptions.onUnmountOrSettled) {
+        reactQueryOptions.onUnmountOrSettled(undefined, {
+          message: 'Unmounted',
+        });
+      }
+    };
+  }, []);
+
   const {
     data,
+    error,
     status: internalStatus,
     hasNextPage,
     fetchNextPage,
@@ -58,16 +73,34 @@ export const useAwsPaginatedEntities = <
     getNextPageParam: (lastPage) => lastPage.Marker,
   });
   const pageIndex = data?.pageParams?.length || 0;
+  const entities =
+    data &&
+    data.pages &&
+    data.pages.flatMap((page) => getEntitiesFromResult(page));
   useMemo(() => {
     if (pageIndex === 0 || (pageIndex === 1 && internalStatus === 'success')) {
       setFirstPageStatus(internalStatus);
     }
   }, [internalStatus, pageIndex]);
   useMemo(() => {
-    if (internalStatus === 'idle' || internalStatus === 'loading' || internalStatus === 'error') {
+    if (
+      internalStatus === 'idle' ||
+      internalStatus === 'loading' ||
+      internalStatus === 'error'
+    ) {
       setStatus(internalStatus);
-    } else if (internalStatus === 'success' && !hasNextPage && !isFetchingNextPage) {
+      if (internalStatus === 'error' && reactQueryOptions.onUnmountOrSettled) {
+        reactQueryOptions.onUnmountOrSettled(entities, error);
+      }
+    } else if (
+      internalStatus === 'success' &&
+      !hasNextPage &&
+      !isFetchingNextPage
+    ) {
       setStatus('success');
+      if (reactQueryOptions.onUnmountOrSettled) {
+        reactQueryOptions.onUnmountOrSettled(entities, null);
+      }
       setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
     } else {
       fetchNextPage();
@@ -75,10 +108,7 @@ export const useAwsPaginatedEntities = <
   }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   return {
-    data:
-      data &&
-      data.pages &&
-      data.pages.flatMap((page) => getEntitiesFromResult(page)),
+    data: entities,
     status,
     firstPageStatus,
   } as AWS_PAGINATED_ENTITIES<ENTITY>;
