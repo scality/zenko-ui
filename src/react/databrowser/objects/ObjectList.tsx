@@ -45,13 +45,16 @@ export default function ObjectList({
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const query = useQueryParams();
+  const searchInput = query.get('metadatasearch');
+
   const errorZenkoMsg = useSelector(
     (state: AppState) => state.zenko.error.message,
   );
   const isBucketVersioningDisabled = isVersioningDisabled(
     bucketInfo.versioning,
   );
-  const isMetadataType = listType === LIST_OBJECTS_METADATA_TYPE;
+
+  const isMetadataType = !!searchInput;
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
   const isToggledEmpty = toggled.size === 0;
 

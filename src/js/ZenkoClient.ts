@@ -1,7 +1,9 @@
 import type {
   Credentials,
   SearchBucketResp,
+  SearchBucketVersionsResp,
   SearchParams,
+  SearchVersionParams,
   Site,
   ZenkoClient as ZenkoClientInterface,
   ZenkoMapResp,
@@ -98,6 +100,21 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Bucket,
         Query,
         Marker,
+      })
+      .promise();
+  }
+
+  searchBucketVersions(
+    params: SearchVersionParams,
+  ): Promise<SearchBucketVersionsResp> {
+    const { Bucket, Query, KeyMarker, VersionIdMarker } = params;
+    return this._xmlClient
+      .searchBucketVersions({
+        Bucket,
+        Query,
+        KeyMarker,
+        VersionIdMarker,
+        MaxKeys: 100,
       })
       .promise();
   }

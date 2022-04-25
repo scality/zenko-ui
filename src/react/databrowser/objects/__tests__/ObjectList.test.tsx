@@ -198,25 +198,6 @@ describe('ObjectList', () => {
     const toggle = component.find('ToggleSwitch#list-versions-toggle');
     expect(toggle.prop('disabled')).toBe(false);
   });
-  it('should disable versioning toggle if listing metadata', () => {
-    const bucketInfo = {
-      ...BUCKET_INFO,
-      isVersioning: true,
-      versioning: 'Enabled',
-    };
-    const { component } = reduxMount(
-      <ObjectList
-        objects={List([FIRST_FORMATTED_OBJECT])}
-        toggled={List()}
-        bucketName={BUCKET_NAME}
-        prefixWithSlash=""
-        listType={LIST_OBJECTS_METADATA_TYPE}
-        bucketInfo={bucketInfo}
-      />,
-    );
-    const toggle = component.find('ToggleSwitch#list-versions-toggle');
-    expect(toggle.prop('disabled')).toBe(true);
-  });
   it('should disable versioning toggle if bucket versioning disabled', () => {
     const { component } = reduxMount(
       <ObjectList
