@@ -51,7 +51,7 @@ export function getRolesForWebIdentity(endpoint: string, token: string, marker?:
     if (r.ok) {
       return r.json();
     }
-    throw new Error(`Recieve response with status ${r.status}`);
+    throw r;
   })
 }
 export default class IAMClient implements IAMClientInterface {
