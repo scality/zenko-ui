@@ -23,7 +23,7 @@ export function updateConfiguration(): ThunkStatePromisedAction {
         const configuration = {
           ...res,
           users: [
-            ...res.users?.map((user) => ({ ...user, Name: user.userName })),
+            ...(res.users || []).map((user) => ({ ...user, Name: user.userName })),
           ],
         };
         dispatch(newConfiguration(configuration));
