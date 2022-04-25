@@ -104,7 +104,7 @@ const CreateWorkflow = () => {
   const state = useSelector((state: AppState) => state);
   const accountName = useSelector(
     (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.userName,
+      state.auth.selectedAccount && state.auth.selectedAccount.Name,
   );
   const accounts = useAccounts();
   const { pathname } = useLocation();

@@ -52,7 +52,7 @@ const Row = ({
 }: RowProps) => {
   const row = rows[index];
   prepareRow(row);
-  const accountName = row.original.userName;
+  const accountName = row.original.Name;
   const isSelected = accountName === accountNameParam;
   return (
     <T.Row

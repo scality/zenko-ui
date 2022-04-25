@@ -33,6 +33,7 @@ export const account: Account = {
   id: '538641674554',
   quotaMax: 12,
   userName: 'bart',
+  Name: 'bart',
 };
 export const latestOverlay: ConfigurationOverlay = {
   version: 2,

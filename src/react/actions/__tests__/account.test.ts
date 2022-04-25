@@ -83,7 +83,7 @@ describe('account actions', () => {
     {
       it: 'createAccount: should return expected actions',
       fn: actions.createAccount({
-        userName: 'bart',
+        Name: 'bart',
         email: 'test@test.com',
       }),
       storeState: authenticatedUserState(),
@@ -97,7 +97,7 @@ describe('account actions', () => {
     {
       it: 'createAccount: should handle error',
       fn: actions.createAccount({
-        userName: 'bart',
+        Name: 'bart',
         email: 'test@test.com',
       }),
       storeState: errorManagementState(),

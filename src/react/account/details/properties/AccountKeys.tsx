@@ -44,8 +44,8 @@ function AccountKeys({ account }: Props) {
     (state: AppState) => state.account.accessKeyList,
   );
   useEffect(() => {
-    dispatch(listAccountAccessKeys(account.userName));
-  }, [dispatch, account.userName]);
+    dispatch(listAccountAccessKeys(account.Name));
+  }, [dispatch, account.Name]);
 
   const handleOpenKeyModal = () => {
     dispatch(openAccountKeyCreateModal());
@@ -106,7 +106,7 @@ function AccountKeys({ account }: Props) {
               disabled={false}
               icon={<i className="fas fa-trash" />}
               onClick={() =>
-                dispatch(deleteAccountAccessKey(account.userName, access_key))
+                dispatch(deleteAccountAccessKey(account.Name, access_key))
               }
               variant="danger"
               tooltip={{
@@ -118,7 +118,7 @@ function AccountKeys({ account }: Props) {
         },
       },
     ],
-    [dispatch, account.userName],
+    [dispatch, account. Name],
   );
   const accessKeys = useMemo(
     () =>

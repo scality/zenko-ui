@@ -1,6 +1,23 @@
 /* eslint-disable */
 import type { Credentials } from './zenko';
 export type IAMResp = {};
+export type WebIdentityRoles = {
+  IsTruncated: boolean;
+  Marker?: string;
+  Accounts:    Account[];
+}
+
+export type Account = {
+  Name:         string;
+  CreationDate: Date;
+  Roles:        Role[];
+}
+
+export type Role = {
+  Name: string;
+  Arn:  string;
+}
+
 export interface IAMClient {
   login(creds: Credentials): void;
   logout(): void;

@@ -11,7 +11,7 @@ const account1 = {
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
-  userName: 'bart',
+  Name: 'bart',
 };
 
 function testRow(rowWrapper, { key, value, extraCellComponent }) {
@@ -40,7 +40,7 @@ describe('AccountInfo', () => {
     const secondRow = rows.at(1);
     testRow(secondRow, {
       key: 'Name',
-      value: account1.userName,
+      value: account1.Name,
       extraCellComponent: 'Clipboard',
     });
     const thirdRow = rows.at(2);

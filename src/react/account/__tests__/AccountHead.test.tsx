@@ -10,16 +10,16 @@ const account1 = {
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
-  userName: 'bart',
+  Name: 'bart',
 };
 describe('AccountHead', () => {
   it('should render AccountHead component', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
-      accountName: account1.userName,
+      accountName: account1.Name,
     });
     const { component } = reduxMount(<AccountHead account={account1} />);
     expect(component.find(HeadCenter)).toHaveLength(1);
-    expect(component.find(HeadTitle).text()).toContain(account1.userName);
+    expect(component.find(HeadTitle).text()).toContain(account1.Name);
     expect(component.find(HeadCenter)).toHaveLength(1);
   });
 });
