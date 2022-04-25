@@ -5,13 +5,15 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from 'react-query';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
-import { Account } from '../../types/iam';
+import { ApiError } from '../../types/actions';
+import { Account, WebIdentityRoles } from '../../types/iam';
 import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
 import { useIAMClient } from '../IAMProvider';
 import { useAwsPaginatedEntities } from './IAMhooks';
 export const useHeight = (myRef) => {
@@ -141,17 +143,34 @@ export const useAccounts = () => {
   const IAMEndpoint = useSelector(
     (state: AppState) => state.auth.config.iamEndpoint,
   );
+  const dispatch = useDispatch();
 
-  const { status, data } = useAwsPaginatedEntities(
+  const { data } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
     {
       queryKey: ['WebIdentityRoles', token],
       queryFn: () => {
+        dispatch(networkStart('Loading accounts...'));
         return getRolesForWebIdentity(IAMEndpoint, token);
       },
       enabled: !!token && !!IAMEndpoint,
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
+      onUnmountOrSettled: (_, error) => {
+        if (!error) {
+          dispatch(networkEnd());
+        } else {
+          if (error?.message === 'Unmounted') {
+            dispatch(networkEnd());
+            return;
+          }
+          try {
+            dispatch(handleClientError(error as ApiError));
+          } catch (err) {
+            dispatch(handleApiError(err as ApiError, 'byModal'));
+          }
+        }
+      }
     },
     (data) => data.Accounts,
   );
