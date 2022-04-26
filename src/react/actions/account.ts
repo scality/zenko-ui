@@ -30,7 +30,6 @@ import {
 } from './error';
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
-import { assumeRoleWithWebIdentity } from './sts';
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
@@ -114,10 +113,10 @@ export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
     }
 
     setAccountIDStored(account.id);
-    dispatch(selectAccount(account));
-    return dispatch(assumeRoleWithWebIdentity(account.id));
+    return dispatch(selectAccount(account));
   };
 }
+
 export function createAccount(
   user: CreateAccountRequest,
 ): ThunkStatePromisedAction {
@@ -125,7 +124,7 @@ export function createAccount(
     const { managementClient, instanceId } = getClients(getState());
     const params = {
       uuid: instanceId,
-      user: {...user, userName: user.Name},
+      user: { ...user, userName: user.Name },
     };
     dispatch(networkStart('Creating account'));
     return managementClient
@@ -172,11 +171,11 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
   };
 }
 export function listAccountAccessKeys(
-  accountName: string,
+  roleArn: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Listing Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
       .then((iamClient) => iamClient.listOwnAccessKeys())
       .then((resp) =>
         dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)),
@@ -187,14 +186,14 @@ export function listAccountAccessKeys(
   };
 }
 export function deleteAccountAccessKey(
-  accountName: string,
+  roleArn: string,
   accessKey: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Deleting Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
       .then((iamClient) => iamClient.deleteAccessKey(accessKey))
-      .then(() => dispatch(listAccountAccessKeys(accountName)))
+      .then(() => dispatch(listAccountAccessKeys(roleArn)))
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));
@@ -202,6 +201,7 @@ export function deleteAccountAccessKey(
 }
 export function createAccountAccessKey(
   accountName: string,
+  roleArn: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -216,7 +216,7 @@ export function createAccountAccessKey(
         dispatch(
           addAccountSecret(resp.userName, resp.accessKey, resp.secretKey),
         );
-        return dispatch(listAccountAccessKeys(accountName));
+        return dispatch(listAccountAccessKeys(roleArn));
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))

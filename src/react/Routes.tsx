@@ -16,6 +16,7 @@ import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
+import DataServiceRoleProvider from './DataServiceRoleProvider';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -95,9 +96,11 @@ function PrivateRoutes() {
         <RedirectToAccount />
       </Route>
       <Route path="/accounts/:accountName?">
-        <IAMProvider>
-          <AccountContent />
-        </IAMProvider>
+        <DataServiceRoleProvider>
+          <IAMProvider>
+            <AccountContent />
+          </IAMProvider>
+        </DataServiceRoleProvider>
       </Route>
 
       <Route path="/create-account" component={AccountCreate} />

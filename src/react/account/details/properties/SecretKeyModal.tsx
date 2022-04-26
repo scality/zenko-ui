@@ -14,6 +14,7 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideCredential } from '../../../ui-elements/Hide';
 import React from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 type Props = {
   account: Account;
 };
@@ -29,9 +30,9 @@ function SecretKeyModal({ account }: Props) {
     dispatch(deleteAccountSecret());
     dispatch(closeAccountKeyCreateModal());
   };
-
+  const roleArn = useDataServiceRole();
   const handleAccessKeyCreate = () => {
-    dispatch(createAccountAccessKey(account.Name));
+    dispatch(createAccountAccessKey(account.Name, roleArn));
   };
 
   if (!isModalOpen) {

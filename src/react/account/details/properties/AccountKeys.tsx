@@ -17,6 +17,9 @@ import { Warning } from '../../../ui-elements/Warning';
 import { formatShortDate } from '../../../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+import { useAccounts } from '../../../utils/hooks';
+import { useDataServiceRole } from '../../../DataServiceRoleProvider';
+
 const TableContainer = styled.div`
   display: block;
   margin-top: ${spacing.sp20};
@@ -43,9 +46,10 @@ function AccountKeys({ account }: Props) {
   const accessKeysInfo = useSelector(
     (state: AppState) => state.account.accessKeyList,
   );
+  const roleArn = useDataServiceRole();
   useEffect(() => {
-    dispatch(listAccountAccessKeys(account.Name));
-  }, [dispatch, account.Name]);
+    dispatch(listAccountAccessKeys(roleArn));
+  }, [dispatch, roleArn]);
 
   const handleOpenKeyModal = () => {
     dispatch(openAccountKeyCreateModal());
@@ -106,7 +110,7 @@ function AccountKeys({ account }: Props) {
               disabled={false}
               icon={<i className="fas fa-trash" />}
               onClick={() =>
-                dispatch(deleteAccountAccessKey(account.Name, access_key))
+                dispatch(deleteAccountAccessKey(roleArn, access_key))
               }
               variant="danger"
               tooltip={{
@@ -118,7 +122,7 @@ function AccountKeys({ account }: Props) {
         },
       },
     ],
-    [dispatch, account. Name],
+    [dispatch, account.Name],
   );
   const accessKeys = useMemo(
     () =>
@@ -130,27 +134,22 @@ function AccountKeys({ account }: Props) {
       }),
     [accessKeysInfo],
   );
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data: accessKeys,
-      initialState: {
-        sortBy: initialSortBy,
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable(
+      {
+        columns,
+        data: accessKeys,
+        initialState: {
+          sortBy: initialSortBy,
+        },
+        disableSortRemove: true,
+        autoResetFilters: false,
+        autoResetSortBy: false,
       },
-      disableSortRemove: true,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-    },
-    useFilters,
-    useSortBy,
-    useFlexLayout,
-  );
+      useFilters,
+      useSortBy,
+      useFlexLayout,
+    );
   return (
     <TableContainer>
       <h3>Root user Access keys details</h3>

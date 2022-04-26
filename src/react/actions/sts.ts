@@ -1,21 +1,18 @@
-import {
-  handleErrorMessage,
-  listBuckets,
-  networkAuthFailure,
-} from './index';
+import { handleErrorMessage, listBuckets, networkAuthFailure } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
-import { getAssumeRoleWithWebIdentityParams } from '../../js/IAMClient';
+
 export function assumeRoleWithWebIdentity(
-  accountID: string,
+  roleArn: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient, stsClient } = getClients(getState());
     const { oidc } = getState();
-    const assumeRoleParams = getAssumeRoleWithWebIdentityParams(
-      oidc,
-      accountID,
-    );
+    const assumeRoleParams = {
+      idToken: oidc.user.id_token,
+      roleArn: roleArn,
+      RoleSessionName: oidc.user.profile.sub,
+    };
     return stsClient
       .assumeRoleWithWebIdentity(assumeRoleParams)
       .then((creds) => {
@@ -25,9 +22,7 @@ export function assumeRoleWithWebIdentity(
           sessionToken: creds.Credentials.SessionToken,
         };
         zenkoClient.login(params);
-        return Promise.all([
-          dispatch(listBuckets()),
-        ]);
+        return Promise.all([dispatch(listBuckets())]);
       })
       .catch((error) => {
         let message = `Failed to return a valid set of temporary security credentials: ${

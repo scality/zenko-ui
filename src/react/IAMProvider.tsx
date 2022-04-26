@@ -1,11 +1,9 @@
-import { createContext, useContext, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { createContext, useContext } from 'react';
+import { useSelector } from 'react-redux';
 import IAMClient, { getAssumeRoleWithWebIdentityIAM } from '../js/IAMClient';
 import { useQuery } from 'react-query';
 import { AppState } from '../types/state';
-import { selectAccountID } from './actions';
-import { useAccounts } from './utils/hooks';
+import { useDataServiceRole } from './DataServiceRoleProvider';
 
 // Only exported to ease testing
 export const _IAMContext = createContext<null | {
@@ -25,25 +23,14 @@ export const useIAMClient = () => {
 };
 
 const IAMProvider = ({ children }: { children: JSX.Element }) => {
-  const { accountName } = useParams<{ accountName: string }>();
   const state = useSelector((state: AppState) => state);
-  const { data: IAMClientResult } = useQuery({
-    queryKey: ['IAMClient', accountName],
-    queryFn: () => getAssumeRoleWithWebIdentityIAM(state, accountName),
-    enabled: !!accountName && accountName !== '',
-  });
 
-  // FIXME Temporary fix to get the account each time you change URL
-  const dispatch = useDispatch();
-  const accounts = useAccounts();
-  useEffect(() => {
-    const account = accounts.find((a) => a.Name === accountName);
-    if (!account) {
-      return;
-    }
-    dispatch(selectAccountID(account.id));
-  }, [accountName]);
-  // END FIXME
+  const roleArn = useDataServiceRole();
+  const { data: IAMClientResult } = useQuery({
+    queryKey: ['IAMClient', roleArn],
+    queryFn: () => getAssumeRoleWithWebIdentityIAM(state, roleArn),
+    enabled: !!roleArn && roleArn !== '',
+  });
 
   return (
     <_IAMContext.Provider
