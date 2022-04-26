@@ -64,7 +64,7 @@ export const workflowListQuery = (
 
 export const getUserAccessKeysQuery = (userName: string, IAMClient: IAMClient) => ({
   queryKey: ['listIAMUserAccessKey', userName],
-  queryFn: (_ctx: QueryFunctionContext, marker: string) => IAMClient.listAccessKeys(userName, marker),
+  queryFn: () => IAMClient.listAccessKeys(userName),
   enabled: IAMClient !== null,
   refetchOnMount: false,
   refetchOnWindowFocus: false

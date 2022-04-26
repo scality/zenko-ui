@@ -23,12 +23,12 @@ import { formatSimpleDate } from '../utils';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import {
-  useAwsPaginatedEntities,
-  useAccessKeyOutdatedStatus,
+  useAccessKeyOutdatedStatus, useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getUserAccessKeysQuery } from '../queries';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 const CustomIcon = styled.i`
   color: ${props => props.color ?? props.theme.brand.infoPrimary};
   font-size: 32px;
@@ -78,8 +78,7 @@ const ToggleAccessKeyStatus = rowValue => {
       );
     },
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+      onSuccess: () => queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)).queryKey),
     },
   );
   return (
@@ -118,8 +117,7 @@ const DeleteAccessKeyAction = rowValue => {
   const deleteAccessKeyMutation = useMutation(
     accessKey => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
-      onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+      onSuccess: () => queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)).queryKey),
     },
   );
   return (
@@ -163,17 +161,8 @@ const AccountUserAccessKeys = () => {
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
   const theme = useTheme();
-  const {
-    data: accessKeysResult,
-    status: accessKeysStatus,
-  } = useAwsPaginatedEntities(
-    {
-      queryKey: getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
-      queryFn: getUserAccessKeysQuery(IAMUserName, IAMClient).queryFn,
-      enabled: IAMClient !== null,
-    },
-    data => data.AccessKeyMetadata,
-  );
+  const { data: accessKeysResult, status: accessKeysStatus } = useAwsPaginatedEntities(getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)), data => data.AccessKeyMetadata);
+
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
       return accessKeysResult.map(accesskey => {

@@ -11,6 +11,8 @@ import { useHistory } from 'react-router-dom';
 import { useIAMClient } from '../IAMProvider';
 import { useMutation } from 'react-query';
 import { queryClient } from '../App';
+import { getUserAccessKeysQuery } from '../queries';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 type Props = {
   IAMUserName: string;
 };
@@ -32,7 +34,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
+        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)).queryKey),
     },
   );
 
