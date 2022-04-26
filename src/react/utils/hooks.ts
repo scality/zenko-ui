@@ -95,7 +95,7 @@ export const useClipboard = () => {
 };
 
 export const useAccounts = () => {
-  const token = useSelector((state: AppState) => state.oidc.user.access_token);
+  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const IAMEndpoint = useSelector(
     (state: AppState) => state.auth.config.iamEndpoint,
   );
