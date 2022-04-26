@@ -130,6 +130,8 @@ export const reduxMount = (component, testState) => {
   };
 };
 
+// AutoSizer uses offsetWidth and offsetHeight.
+// Jest runs in JSDom which doesn't support measurements APIs.
 export function mockOffsetSize(width: number, height: number) {
   const originalFunction = window.getComputedStyle;
   const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');

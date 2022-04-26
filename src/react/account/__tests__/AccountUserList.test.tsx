@@ -2,42 +2,13 @@ import { render, screen, waitFor, fireEvent, getAllByRole, getByText } from '@te
 import AccountUserList from '../AccountUserList';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { TEST_API_BASE_URL, Wrapper as wrapper} from '../../utils/test';
+import { mockOffsetSize, TEST_API_BASE_URL, Wrapper as wrapper} from '../../utils/test';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
 const SAMPLE_CREATE_DATE = '2022-03-02T08:35:24Z';
 const SAMPLE_ARN = `arn:aws:iam::970343539682:user/${SAMPLE_USER_NAME}`;
 const nbrOfColumnsExpected = 4;
-
-// AutoSizer uses offsetWidth and offsetHeight.
-// Jest runs in JSDom which doesn't support measurements APIs.
-function mockOffsetSize(width: number, height: number) {
-  Object.defineProperty(window, 'getComputedStyle', {
-    value: () => {
-      return {
-        paddingTop: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingBottom: 10,
-        fontSize: 14
-      };
-    },
-  });
-
-  Object.defineProperties(window.HTMLElement.prototype, {
-    offsetHeight: {
-      get: () => {
-        return height || 100;
-      },
-    },
-    offsetWidth: {
-      get: () => {
-        return width || 100;
-      },
-    },
-  });
-}
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
