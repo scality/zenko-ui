@@ -2,6 +2,8 @@ import { UiFacingApi } from '../js/managementClient/api';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
 import { generateExpirationName, generateStreamName } from './workflow/utils';
+import IAMClient from '../js/IAMClient';
+import { QueryFunctionContext } from 'react-query';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -59,3 +61,26 @@ export const workflowListQuery = (
     enabled: mgnt != null,
   };
 };
+
+export const getUserAccessKeysQuery = (userName: string, IAMClient: IAMClient) => ({
+  queryKey: ['listIAMUserAccessKey', userName],
+  queryFn: (_ctx: QueryFunctionContext, marker: string) => IAMClient.listAccessKeys(userName, marker),
+  enabled: IAMClient !== null,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false
+});
+
+export const getUserListGroupsQuery = (userName: string, IAMClient: IAMClient) => ({
+  queryKey: ['listIAMUserGroups', userName],
+  queryFn: () => IAMClient.listGroupsForUser(userName),
+  enabled: IAMClient !== null,
+});
+
+export const getUserListUsersQuery = (accountName: string, IAMClient: IAMClient) => ({
+  queryKey: ['listIAMUsers', accountName],
+  queryFn: (maxItems: number, marker: string) => IAMClient.listUsers(1000, marker),
+  staleTime: Infinity,
+  enabled: IAMClient !== null,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});

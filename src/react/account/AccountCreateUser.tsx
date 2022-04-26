@@ -19,6 +19,8 @@ import { useIAMClient } from '../IAMProvider';
 import { queryClient } from '../App';
 import { useMutation } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
+import { getUserListUsersQuery } from '../queries';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
   name: Joi.string()
@@ -50,7 +52,7 @@ const AccountCreateUser = () => {
       dispatch(networkStart('Creating User'));
       return IAMClient.createUser(userName)
         .then((newUser) => {
-          queryClient.setQueryData(['listIAMUsers', accountName], (old) => {
+          queryClient.setQueryData(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))?.queryKey, (old) => {
             if (old) {
               const pages = old.pages;
               pages[pages.length - 1].Users.push({
