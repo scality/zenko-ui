@@ -9,12 +9,12 @@ import type { Locations } from '../../types/config';
 export function checkSupportsReplicationTarget(locations: Locations): boolean {
   return Object.keys(locations).some(
     (l) =>
-      storageOptions[locations[l].locationType].supportsReplicationTarget ===
+      storageOptions[locations[l].locationType]?.supportsReplicationTarget ===
       true,
   );
 }
 export function checkIfExternalLocation(locations: Locations): boolean {
-  return Object.keys(locations).some(
+  return Object.keys(locations || []).some(
     (l) => locations[l].locationType !== 'location-file-v1',
   );
 }

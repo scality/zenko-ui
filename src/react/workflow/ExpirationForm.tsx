@@ -165,7 +165,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           <T.Group>
             <T.GroupName>Source</T.GroupName>
             <T.GroupContent>
-              <T.Row>
+              <T.Row data-testid="select-bucket-name-expiration">
                 <T.Key required={!isEditing}> Bucket Name </T.Key>
                 <T.Value>
                   <Controller
@@ -266,7 +266,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           <T.Group>
             <T.GroupName>Action</T.GroupName>
             <T.GroupContent>
-              <T.Row>
+              <T.Row data-testid="toggle-action-expire-current-version">
                 <T.KeyTooltip
                   tooltipMessage={`
                     If the bucket is versioned, a delete marker will be added on objects older than ${
@@ -302,6 +302,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           id="currentVersionTriggerDelayDaysToggle"
+                          placeholder="currentVersionDelayDaysToggle"
                           toggle={
                             currentVersionTriggerDelayDays !== null &&
                             currentVersionTriggerDelayDays !== undefined
@@ -390,7 +391,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   </ErrorInput>
                 </T.Value>
               </T.Row>
-              <T.Row>
+              <T.Row data-testid="toggle-action-expire-previous-version">
                 <T.KeyTooltip
                   tooltipMessage={`
                 All the objects that become previous versions older than ${
@@ -423,6 +424,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           id="previousVersionTriggerDelayDaysToggle"
+                          placeholder="previousVersionDelayDaysToggle"
                           disabled={!isSourceBucketVersionned}
                           toggle={
                             previousVersionTriggerDelayDays !== null &&
@@ -519,7 +521,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   </ErrorInput>
                 </T.Value>
               </T.Row>
-              <T.Row>
+              <T.Row data-testid="toggle-action-remove-expired-markers">
                 <T.KeyTooltip
                   tooltipMessage={`
                 When you delete a versioned object, a delete marker is created.
@@ -551,6 +553,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                             !isSourceBucketVersionned
                           }
                           id="expireDeleteMarkersTrigger"
+                          placeholder="expireDeleteMarkersTrigger"
                           toggle={expireDeleteMarkersTrigger}
                           onChange={(e) =>
                             onChange(e.target.checked ? true : null)
@@ -599,7 +602,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   )}
                 </T.Value>
               </T.Row>
-              <T.Row>
+              <T.Row data-testid="toggle-action-expire-incomplete-multipart">
                 <T.KeyTooltip
                   tooltipMessage={`
                 When you upload or copy an object, it could be done as a set of parts.
@@ -629,6 +632,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       return (
                         <Toggle
                           id="incompleteMultipartUploadTriggerDelayDaysToggle"
+                          placeholder="incompleteMultipartUploadDelayDaysToggle"
                           toggle={
                             incompleteMultipartUploadTriggerDelayDays !==
                               null &&
@@ -730,3 +734,5 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
     </ExpirationContainer>
   );
 }
+
+export default ExpirationForm;

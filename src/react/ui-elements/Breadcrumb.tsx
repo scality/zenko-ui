@@ -210,7 +210,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
           value={accountName}
           variant="rounded"
         >
-          {accounts.map((account) => (
+          {accounts?.map((account) => (
             <Select.Option key={account.Name} value={account.Name}>
               {account.Name}
             </Select.Option>

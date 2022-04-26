@@ -83,7 +83,7 @@ export const LabelSecondary = styled(SmallerText)`
 // * ErrorInput
 const ErrorInputContainer = styled.div`
   height: ${spacing.sp16};
-  color: ${(props) => props.theme.brand.danger};
+  color: ${(props) => props.theme.brand?.danger};
 `;
 const WarningInputContainer = styled.div`
   height: ${spacing.sp16};
