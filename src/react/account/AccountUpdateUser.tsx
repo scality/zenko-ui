@@ -15,6 +15,7 @@ import { InfiniteData, useMutation } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { ListUsersResponse } from 'aws-sdk/clients/iam';
+import { getUserListUsersQuery } from '../queries';
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
   name: Joi.string()
@@ -46,12 +47,9 @@ const AccountUpdateUser = () => {
       const oldUserName = IAMUserName;
       return notFalsyTypeGuard(IAMClient).updateUser(newUserName, oldUserName)
         .then(() => {
-          const olddata = queryClient.getQueryData([
-            'listIAMUsers',
-            accountName,
-          ]);
+          const olddata = queryClient.getQueryData(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey);
           olddata && queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
-            ['listIAMUsers', accountName], (old) => {
+            getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey, (old) => {
               const pages = notFalsyTypeGuard(old).pages.map((page) => {
                 const users = page.Users;
                 const index = users.findIndex(

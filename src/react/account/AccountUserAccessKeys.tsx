@@ -28,6 +28,7 @@ import {
 } from '../utils/IAMhooks';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { getUserAccessKeysQuery } from '../queries';
 const CustomIcon = styled.i`
   color: ${props => props.color ?? props.theme.brand.infoPrimary};
   font-size: 32px;
@@ -167,8 +168,8 @@ const AccountUserAccessKeys = () => {
     status: accessKeysStatus,
   } = useAwsPaginatedEntities(
     {
-      queryKey: ['listIAMUserAccessKey', IAMUserName],
-      queryFn: (_ctx, marker) => IAMClient.listAccessKeys(IAMUserName, marker),
+      queryKey: getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
+      queryFn: getUserAccessKeysQuery(IAMUserName, IAMClient).queryFn,
       enabled: IAMClient !== null,
     },
     data => data.AccessKeyMetadata,
