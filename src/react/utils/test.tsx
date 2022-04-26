@@ -18,6 +18,9 @@ import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
 import Activity from '../ui-elements/Activity';
 import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
+import zenkoUIReducer from '../reducers';
+import { applyMiddleware, compose, createStore } from 'redux';
+import { routerMiddleware } from 'connected-react-router';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -64,13 +67,24 @@ const theme = {
     info: '#434343',
   },
 };
-export const newTestStore = (state) =>
-  configureStore([thunk])({ ...initialFullState, ...(state || {}) });
+const history = createMemoryHistory();
+export const newTestStore = (state) => {
+  const store = configureStore([thunk])({ ...initialFullState, ...(state || {}) });
+  return store;
+};
+
+export const realStoreWithInitState = (state) => {
+  const store = createStore(
+    zenkoUIReducer(history),
+    { ...initialFullState, ...(state || {}) },
+    compose(applyMiddleware(thunk, routerMiddleware(history))),
+  );
+
+  return store;
+};
 
 export const TEST_API_BASE_URL = 'http://testendpoint';
 export const Wrapper = ({ children }: { children: ReactNode }) => {
-  const history = createMemoryHistory();
-
   const params = {
     accessKey: 'accessKey',
     secretKey: 'secretKey',
@@ -156,7 +170,7 @@ export function mockOffsetSize(width: number, height: number) {
 }
 
 export const reduxRender = (component, testState) => {
-  const store = newTestStore(testState);
+  const store = realStoreWithInitState(testState);
   return {
     component: render(
       <Wrapper>
