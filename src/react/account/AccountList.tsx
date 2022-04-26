@@ -45,7 +45,7 @@ function AccountList({ accounts }: Props) {
       },
       {
         Header: 'Created on',
-        accessor: 'createDate',
+        accessor: 'CreationDate',
         cellStyle: {
           textAlign: 'right',
           minWidth: '7rem',
@@ -61,7 +61,7 @@ function AccountList({ accounts }: Props) {
         height: '100%',
       }}
     >
-      <Table columns={columns} data={accounts} defaultSortingKey={'createDate'}>
+      <Table columns={columns} data={accounts} defaultSortingKey={'CreationDate'}>
         <TableAction>
           <Table.SearchWithQueryParams
             displayedName={{
