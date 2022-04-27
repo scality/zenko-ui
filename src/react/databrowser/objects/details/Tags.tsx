@@ -69,9 +69,7 @@ function Properties({ objectMetadata }: Props) {
   };
 
   const insertEntry = () => {
-    const temp = [...items];
-    temp.push(EMPTY_ITEM);
-    setItems(temp);
+    setItems(items => [...items, EMPTY_ITEM]);
   };
 
   const deleteEntry = (index: number) => {
