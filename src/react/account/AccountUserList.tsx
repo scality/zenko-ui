@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useMemo } from 'react';
-import styled from 'styled-components';
+import { ChangeEvent, useMemo } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
@@ -14,11 +13,8 @@ import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/S
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { getUserListGroupsQuery, getUserListUsersQuery } from '../queries';
-const InlineButton = styled(Button)`
-  height: ${spacing.sp24};
-  margin-left: ${spacing.sp16};
-`;
+import { getUserListUsersQuery } from '../queries';
+import { InlineButton } from '../ui-elements/Table';
 
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();

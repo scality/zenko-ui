@@ -1,11 +1,7 @@
-import React from 'react';
 import styled from 'styled-components';
-import { Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
-const InlineButton = styled(Button)`
-  height: ${spacing.sp24};
-  margin-left: ${spacing.sp16};
+import { InlineButton } from './Table';
+const InlineButtonFixedWidth = styled(InlineButton)`
   width: 7.5rem;
 `;
 const IconSuccess = styled.i`
@@ -15,7 +11,7 @@ const IconSuccess = styled.i`
 const CopyARNButton = ({ text }: { text: string }) => {
   const { copy, copyStatus } = useClipboard();
   return (
-    <InlineButton
+    <InlineButtonFixedWidth
       variant="outline"
       label={copyStatus === COPY_STATE_SUCCESS ? 'Copied !' : 'Copy ARN'}
       icon={

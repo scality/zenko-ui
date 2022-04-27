@@ -23,19 +23,13 @@ import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { storageOptions } from '../../backend/location/LocationDetails';
-import styled from 'styled-components';
 import { XDM_FEATURE } from '../../../js/config';
 import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { CellProps } from 'react-table';
 import { useWorkflows } from '../../workflow/Workflows';
-
-const InlineButton = styled(Button)`
-  height: ${spacing.sp24};
-  margin-left: ${spacing.sp16};
-`;
+import { InlineButton } from '../../ui-elements/Table';
 
 const ActionButtons = ({
   rowValues,
