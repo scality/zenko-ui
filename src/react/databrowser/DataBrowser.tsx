@@ -1,9 +1,9 @@
 import * as L from '../ui-elements/ListLayout2';
 import { Route, Switch, useLocation } from 'react-router-dom';
+import { useParams, useRouteMatch } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
-import BucketCreate from './buckets/BucketCreate';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import ListLayoutButtons from './HeaderButtons';
@@ -18,10 +18,7 @@ import { useAccounts } from '../utils/hooks';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
-  const accountName = useSelector(
-    (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.Name,
-  );
+  const { accountName } = useParams<{ accountName: string }>();
   const accounts = useAccounts();
   const hasError = useSelector(
     (state: AppState) =>
@@ -31,9 +28,9 @@ export default function DataBrowser() {
     (state: AppState) => state.uiErrors.errorMsg,
   );
   const { pathname } = useLocation();
-
+  const { path } = useRouteMatch();
   // NOTE: create-bucket page has its own way to manage "byComponent" errors.
-  if (hasError && pathname !== '/create-bucket') {
+  if (hasError) {
     return (
       <EmptyStateContainer>
         <Warning
@@ -73,30 +70,29 @@ export default function DataBrowser() {
           pathname={pathname}
         />
         <Switch>
-          <Route exact path="/buckets/:bucketName/retention-setting" />
-          <Route path="/buckets/:bucketName" component={ListLayoutButtons} />
+          <Route exact path={`${path}/:bucketName/retention-setting`} />
+          <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
         </Switch>
       </L.BreadcrumbContainer>
       <Switch>
         <Route
           exact
-          path="/buckets/:bucketName/retention-setting"
+          path={`${path}/:bucketName/retention-setting`}
           component={ObjectLockSetting}
         />
         <Route
           exact
-          path="/buckets/:bucketName/objects/retention-setting"
+          path={`${path}/:bucketName/objects/retention-setting`}
           component={ObjectLockSettingOnObject}
         />
         <Route
           exact
           strict
-          path="/buckets/:bucketName/objects"
+          path={`${path}/:bucketName/objects`}
           component={Objects}
         />
-        <Route path="/buckets/:bucketName/objects/*" component={Objects} />
-        <Route path="/buckets/:bucketName?" component={Buckets} />
-        <Route path="/create-bucket" component={BucketCreate} />
+        <Route path={`${path}/:bucketName/objects/*`} component={Objects} />
+        <Route path={`${path}/:bucketName?`} component={Buckets} />
       </Switch>
     </L.Container>
   );

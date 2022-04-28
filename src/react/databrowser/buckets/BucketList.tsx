@@ -21,6 +21,7 @@ import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import type { AppState } from '../../../types/state';
 import { listBuckets } from '../../actions';
 import { XDM_FEATURE } from '../../../js/config';
+import { useParams } from 'react-router';
 type Props = {
   locations: Locations;
   buckets: S3BucketList;
@@ -33,6 +34,7 @@ export default function BucketList({
   locations,
   ingestionStates,
 }: Props) {
+  const { accountName } = useParams<{ accountName: string }>();
   const dispatch = useDispatch();
   const listRef = useRef(null);
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function BucketList({
   const handleCellClicked = useCallback(
     (name) => (e) => {
       e.stopPropagation();
-      dispatch(push(`/buckets/${name}/objects`));
+      dispatch(push(`/accounts/${accountName}/buckets/${name}/objects`));
     },
     [dispatch],
   );
@@ -138,7 +140,9 @@ export default function BucketList({
           icon={<i className="fas fa-plus" />}
           label="Create Bucket"
           variant="primary"
-          onClick={() => dispatch(push('/create-bucket'))}
+          onClick={() =>
+            dispatch(push(`/accounts/${accountName}/create-bucket`))
+          }
           type="submit"
         />
       </T.SearchContainer>

@@ -1,5 +1,6 @@
 import * as L from '../../ui-elements/ListLayout2';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
@@ -10,8 +11,10 @@ import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
+
 export default function Buckets() {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
   const buckets = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
@@ -46,7 +49,7 @@ export default function Buckets() {
 
   // redirect to the first bucket.
   if (!bucketNameParam) {
-    return <Redirect to={`/buckets/${buckets.first().Name}`} />;
+    return <Redirect to={`${pathname}/${buckets.first().Name}`} />;
   }
 
   return (
