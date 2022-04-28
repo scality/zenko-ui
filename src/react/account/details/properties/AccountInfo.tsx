@@ -91,7 +91,8 @@ function AccountInfo({ account }: Props) {
             <T.Key> Creation Date </T.Key>
             <T.Value> {formatDate(new Date(account.createDate))} </T.Value>
           </T.Row>
-          <T.Row>
+          {/* We have to hide this two fields until the information is ready from GetRolesForWebIdentity() */}
+          {/* <T.Row>
             <T.Key> Root User Email </T.Key>
             <T.Value> {account.email} </T.Value>
             <T.ExtraCell>
@@ -106,7 +107,7 @@ function AccountInfo({ account }: Props) {
               {' '}
               <Clipboard text={account.arn} />{' '}
             </T.ExtraCell>
-          </T.Row>
+          </T.Row> */}
         </T.Body>
       </Table>
     </TableContainer>
