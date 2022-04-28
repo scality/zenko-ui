@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
+  useQueryClient,
   UseQueryOptions,
   UseQueryResult,
 } from 'react-query';
@@ -16,6 +17,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
 import { useIAMClient } from '../IAMProvider';
 import { useAwsPaginatedEntities } from './IAMhooks';
+import { getAccountIDStored } from './localStorage';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -139,6 +141,8 @@ export function useQueryWithUnmountSupport<
   return query;
 }
 
+const regexArn = /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
+
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user.access_token);
   const IAMEndpoint = useSelector(
@@ -184,15 +188,23 @@ export const useAccounts = () => {
           Name: current.Name,
           CreationDate: current.CreationDate,
           Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
-          // retrieve the account id from the role ARN
-          id: current.Roles[0].Arn.split(':')[4],
+          id: regexArn.exec(current.Roles[0].Arn).groups['account_id'],
         },
       }),
       {} as Record<string, Account>,
     ) || {},
   );
-
   return uniqueAccountsWithRoles.filter(
     (account) => account.Name !== 'scality-internal-services',
   );
+};
+
+export const useInvalidAccountsQuery = () => {
+  //invalid the query to get accounts when deleting/creating account
+  const storedAccoutId = getAccountIDStored();
+  const queryClient = useQueryClient();
+  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
+  useEffect(() => {
+    queryClient.invalidateQueries(['WebIdentityRoles', token]);
+  }, [storedAccoutId]);
 };

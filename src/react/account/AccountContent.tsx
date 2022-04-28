@@ -15,7 +15,7 @@ import AccountUpdateUser from './AccountUpdateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
 import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
-import { useAccounts } from '../utils/hooks';
+import { useAccounts, useInvalidAccountsQuery } from '../utils/hooks';
 
 function AccountContent() {
   const { accountName: accountNameParam } = useParams<{
@@ -29,7 +29,7 @@ function AccountContent() {
     () => accounts.find((a) => a.Name === accountNameParam),
     [accounts, accountNameParam],
   );
-
+  useInvalidAccountsQuery();
   return (
     <L.Container>
       <Switch>
