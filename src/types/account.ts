@@ -5,13 +5,14 @@ export type CreateAccountRequest = {
   readonly email: string;
   readonly quotaMax: number;
 };
+export type Role = {
+  readonly Arn: string;
+  readonly Name: string;
+};
 export type Account = {
   readonly Name: string;
-  readonly email: string;
-  readonly quotaMax?: number;
-  readonly canonicalId: string;
-  readonly arn: string;
-  readonly createDate: number;
+  readonly creationDate: number;
+  readonly Roles: Array<Role>;
   readonly id: string;
 };
 export type AccountKey = {

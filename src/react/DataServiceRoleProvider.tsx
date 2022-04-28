@@ -1,6 +1,9 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useHistory } from 'react-router';
+import { Account } from '../types/account';
 import { useAccounts } from './utils/hooks';
+import { getAccountIDStored, setAccountIDStored } from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
   roleArn: string;
@@ -16,6 +19,38 @@ export const useDataServiceRole = () => {
   }
 
   return DataServiceCtxt.roleArn;
+};
+
+export const useCurrentAccount = () => {
+  const { accountName } = useParams<{ accountName: string }>();
+  const storedAccoutId = getAccountIDStored();
+  const accountsWithRoles = useAccounts();
+  const history = useHistory();
+
+  const account = accountsWithRoles.find((account) => {
+    if (accountName) return account.Name === accountName;
+    else if (storedAccoutId) return account.id === storedAccoutId;
+    else return true;
+  });
+
+  const selectAccountAndRedirectTo = (
+    path: '/buckets' | '/workflows' | '/accounts',
+    account: Account,
+  ) => {
+    setAccountIDStored(account.id);
+    if (path === '/buckets') {
+      history.push(`/accounts/${account.Name}/buckets`);
+    } else if (path === '/workflows') {
+      history.push(`/accounts/${account.Name}/workflows`);
+    } else {
+      history.push(path + '/' + account.Name);
+    }
+  };
+
+  return {
+    account,
+    selectAccountAndRedirectTo,
+  };
 };
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {

@@ -9,7 +9,7 @@ import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
 import { useQuery } from 'react-query';
 import { useManagementClient } from '../ManagementProvider';
-import { getAccountId, getClients } from '../utils/actions';
+import { getClients } from '../utils/actions';
 import { rolePathName } from '../../js/IAMClient';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
@@ -22,6 +22,7 @@ import {
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts } from '../utils/hooks';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -30,7 +31,9 @@ export function useWorkflows(
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
+  const { account } = useCurrentAccount();
+  const accountId = account?.id;
+
   const dispatch = useDispatch();
 
   const workflowsQuery = useQuery({
@@ -72,10 +75,9 @@ export function useWorkflows(
 export default function Workflows() {
   const history = useHistory();
   const { workflowId } = useParams<{ workflowId?: string }>();
-  const accountName = useSelector(
-    (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.Name,
-  );
+  const { account } = useCurrentAccount();
+  const accountName = account?.Name;
+
   const accounts = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,

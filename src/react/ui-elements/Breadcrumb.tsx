@@ -1,15 +1,13 @@
 import { Link, matchPath } from 'react-router-dom';
 import type { Account } from '../../types/account';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
-import type { Element } from 'react';
+import { Element } from 'react';
 import React from 'react';
 import { Select } from '@scality/core-ui/dist/next';
-import { push } from 'connected-react-router';
-import { selectAccountID } from '../actions';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { useQueryParams } from '../utils/hooks';
+import { useAccounts, useQueryParams } from '../utils/hooks';
 import { ellipsis } from 'polished';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   .sc-breadcrumb_item {
     display: flex;
@@ -182,22 +180,24 @@ type Props = {
   pathname: string;
 };
 export function Breadcrumb({ accounts, accountName, pathname }: Props) {
-  const dispatch = useDispatch();
   const query = useQueryParams();
-  const prefixPath = query.get('prefix');
+  const accountsWithRoles = useAccounts();
 
+  const { selectAccountAndRedirectTo } = useCurrentAccount();
+  const prefixPath = query.get('prefix');
   const switchAccount = (selectedName) => {
     const account =
       selectedName &&
       selectedName !== accountName &&
-      accounts.find((a) => a.Name === selectedName);
+      accountsWithRoles.find((a) => a.Name === selectedName);
 
-    if (!account) {
+    if (!account || !accountsWithRoles || !accountsWithRoles.length) {
       return;
     }
 
-    dispatch(selectAccountID(account.id)).then(() =>
-      dispatch(push(pathname.includes('workflow')? '/workflows': '/buckets')),
+    selectAccountAndRedirectTo(
+      pathname.includes('workflow') ? '/workflows' : '/accounts/',
+      account,
     );
   };
 
@@ -216,7 +216,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
             </Select.Option>
           ))}
         </Select>,
-        ...breadcrumbPaths(pathname, prefixPath),
+        ...breadcrumbPaths(pathname, prefixPath, accountName),
       ]}
     />
   );
@@ -229,8 +229,6 @@ export function BreadcrumbWorkflow({
   accounts,
   accountName,
 }: BreadcrumbWorkflowProps) {
-  const dispatch = useDispatch();
-
   const switchAccount = (selectedName) => {
     const account =
       selectedName &&
@@ -241,9 +239,8 @@ export function BreadcrumbWorkflow({
       return;
     }
 
-    dispatch(selectAccountID(account.id)).then(() =>
-      dispatch(push('/workflows')),
-    );
+    const { selectAccountAndRedirectTo } = useCurrentAccount();
+    selectAccountAndRedirectTo('/workflows', account);
   };
 
   return (

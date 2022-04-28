@@ -16,6 +16,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
 import { useIAMClient } from '../IAMProvider';
 import { useAwsPaginatedEntities } from './IAMhooks';
+
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
   useEffect(() => {
@@ -183,6 +184,8 @@ export const useAccounts = () => {
           Name: current.Name,
           CreationDate: current.CreationDate,
           Roles: [...(agg[current.Name]?.Roles || []), ...current.Roles],
+          // retrieve the account id from the role ARN
+          id: current.Roles[0].Arn.split(':')[4],
         },
       }),
       {} as Record<string, Account>,

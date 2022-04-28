@@ -1,5 +1,4 @@
 import { useHistory } from 'react-router';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
@@ -7,10 +6,10 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
 import { TextTransformer } from '../../../ui-elements/Utility';
 import { useWorkflows } from '../../../workflow/Workflows';
-import { AppState } from '../../../../types/state';
 import { makeWorkflows } from '../../../queries';
 import { APIWorkflows } from '../../../../types/workflow';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
+import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 
 const TableAction = styled.div`
   display: flex;
@@ -20,10 +19,8 @@ const TableAction = styled.div`
 
 function Workflow({ bucketName }: { bucketName: string }) {
   const history = useHistory();
-  const accountName = useSelector(
-    (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.Name,
-  );
+  const { account } = useCurrentAccount();
+  const accountName = account?.Name;
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
   const { data, status } = useWorkflows(select, [bucketName]);
 
