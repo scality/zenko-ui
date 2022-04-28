@@ -17,11 +17,7 @@ import type {
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import {
-  getAccountIDStored,
-  removeAccountIDStored,
-  setAccountIDStored,
-} from '../utils/localStorage';
+import { removeAccountIDStored } from '../utils/localStorage';
 import {
   handleAWSClientError,
   handleAWSError,
@@ -34,6 +30,8 @@ import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
+import { listBuckets } from './s3bucket';
+
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
   return {
     type: 'OPEN_ACCOUNT_DELETE_DIALOG',
@@ -85,37 +83,6 @@ export function deleteAccountSecret(): DeleteAccountSecretAction {
     type: 'DELETE_ACCOUNT_SECRET',
   };
 }
-export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { zenkoClient } = getClients(getState());
-    const { configuration } = getState();
-    const accounts = configuration.latest.users;
-    let account = accounts.find((a) => a.id === accountID);
-
-    if (!accountID || !account) {
-      if (accounts.length === 0) {
-        // clean S3 client and buckets' list if no account.
-        zenkoClient.logout();
-        removeAccountIDStored();
-        return Promise.resolve();
-      }
-
-      account = accounts[0];
-      const accountIDStored = getAccountIDStored();
-
-      if (accountIDStored) {
-        const accountStored = accounts.find((a) => a.id === accountIDStored);
-
-        if (accountStored) {
-          account = accountStored;
-        }
-      }
-    }
-
-    setAccountIDStored(account.id);
-    return dispatch(selectAccount(account));
-  };
-}
 
 export function createAccount(
   user: CreateAccountRequest,
@@ -130,7 +97,6 @@ export function createAccount(
     return managementClient
       .createConfigurationOverlayUser(params.user, params.uuid)
       .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
-      .then(([id]) => dispatch(selectAccountID(id)))
       .then(() => dispatch(push(`/accounts/${user.Name}`)))
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
@@ -156,7 +122,6 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
       .then(() => dispatch(closeAccountDeleteDialog()))
       .then(() => {
         removeAccountIDStored();
-        return dispatch(selectAccountID());
       })
       .catch((error) => {
         // TODO: fix closeAccountDeleteDialog that might happen twice

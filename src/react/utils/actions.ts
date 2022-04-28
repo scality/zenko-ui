@@ -7,6 +7,3 @@ export function getClients(state: AppState) {
     stsClient: state.auth.stsClient,
   };
 }
-export function getAccountId(state: AppState): string | null | undefined {
-  return state.auth.selectedAccount?.id;
-}
