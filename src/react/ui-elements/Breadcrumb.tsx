@@ -195,10 +195,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
       return;
     }
 
-    selectAccountAndRedirectTo(
-      pathname.includes('workflow') ? '/workflows' : '/accounts/',
-      account,
-    );
+    selectAccountAndRedirectTo(pathname, account);
   };
 
   return (
@@ -224,23 +221,23 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
 type BreadcrumbWorkflowProps = {
   accounts: Array<Account>;
   accountName: string | null | undefined;
+  pathname: string;
 };
 export function BreadcrumbWorkflow({
   accounts,
   accountName,
+  pathname,
 }: BreadcrumbWorkflowProps) {
+  const { selectAccountAndRedirectTo } = useCurrentAccount();
   const switchAccount = (selectedName) => {
     const account =
       selectedName &&
       selectedName !== accountName &&
       accounts.find((a) => a.Name === selectedName);
-
     if (!account) {
       return;
     }
-
-    const { selectAccountAndRedirectTo } = useCurrentAccount();
-    selectAccountAndRedirectTo('/workflows', account);
+    selectAccountAndRedirectTo(pathname, account);
   };
 
   return (

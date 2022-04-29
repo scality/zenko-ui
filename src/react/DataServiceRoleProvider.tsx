@@ -33,17 +33,15 @@ export const useCurrentAccount = () => {
     else return true;
   });
 
-  const selectAccountAndRedirectTo = (
-    path: '/buckets' | '/workflows' | '/accounts',
-    account: Account,
-  ) => {
+  const selectAccountAndRedirectTo = (pathname: string, account: Account) => {
     setAccountIDStored(account.id);
-    if (path === '/buckets') {
+
+    if (pathname.includes('/buckets')) {
       history.push(`/accounts/${account.Name}/buckets`);
-    } else if (path === '/workflows') {
+    } else if (pathname.includes('/workflows')) {
       history.push(`/accounts/${account.Name}/workflows`);
     } else {
-      history.push(path + '/' + account.Name);
+      history.push(`/accounts/${account.Name}`);
     }
   };
 
