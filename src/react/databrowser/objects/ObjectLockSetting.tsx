@@ -24,6 +24,7 @@ import {
   getRetainUntilDateHint,
 } from './utils';
 import type { AppState } from '../../../types/state';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
 const Joi = JoiImport.extend(DateExtension);
 const objectLockRetentionSettingsValidationRules = {
   isRetentionEnabled: Joi.boolean().default(false),
@@ -53,6 +54,7 @@ export default function ObjectLockSetting() {
     (state: AppState) => state.s3.objectMetadata,
   );
   const { bucketName: bucketNameParam } = useParams();
+  const { account } = useCurrentAccount();
   const objectKey = query.get('prefix');
   const versionId = query.get('versionId');
   const {
@@ -87,7 +89,7 @@ export default function ObjectLockSetting() {
     clearServerError();
     dispatch(
       push(
-        `/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
+        `/accounts/${account?.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
       ),
     );
   };
@@ -111,6 +113,7 @@ export default function ObjectLockSetting() {
         versionId,
         retentionMode,
         DateTime.fromISO(retentionUntilDate).toSeconds(),
+        account?.Name,
       ),
     );
   };
@@ -142,7 +145,9 @@ export default function ObjectLockSetting() {
                   control={control}
                   id="isRetentionEnabled"
                   name="isRetentionEnabled"
-                  render={({ field: {onChange, value: isRetentionEnabled} }) => {
+                  render={({
+                    field: { onChange, value: isRetentionEnabled },
+                  }) => {
                     return (
                       <Toggle
                         id="edit-retention"
@@ -200,7 +205,7 @@ export default function ObjectLockSetting() {
                       type="radio"
                       id="COMPLIANCE"
                       value="COMPLIANCE"
-                      {...register("retentionMode")}
+                      {...register('retentionMode')}
                       disabled={!isRetentionEnabled}
                     />
                     <SpacedBox ml={8}>Compliance</SpacedBox>
@@ -232,7 +237,9 @@ export default function ObjectLockSetting() {
                     control={control}
                     id="retentionUntilDate"
                     name="retentionUntilDate"
-                    render={({ field: {onChange, value: retentionUntilDate} }) => {
+                    render={({
+                      field: { onChange, value: retentionUntilDate },
+                    }) => {
                       return (
                         <>
                           <input

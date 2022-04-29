@@ -202,7 +202,7 @@ function _getObjectListWithSignedUrlAndLockStatus<
   T extends {
     readonly Key: string;
     readonly VersionId?: string;
-  }
+  },
 >(
   zenkoClient: ZenkoClient,
   bucketName: string,
@@ -256,11 +256,12 @@ function _getListObjectNoVersion(
     return zenkoClient
       .listObjects(params)
       .then(async (res) => {
-        const list: S3Object[] = await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
-          zenkoClient,
-          bucketName,
-          res.Contents,
-        );
+        const list: S3Object[] =
+          await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
+            zenkoClient,
+            bucketName,
+            res.Contents,
+          );
 
         if (marker) {
           return dispatch(
@@ -582,6 +583,7 @@ export function putObjectRetention(
   versionId: string,
   retentionMode: RetentionMode,
   retentionUntilDate: Date,
+  accountName: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
@@ -595,7 +597,11 @@ export function putObjectRetention(
         retentionUntilDate,
       )
       .then(() =>
-        dispatch(push(`/buckets/${bucketName}/objects?prefix=${objectName}`)),
+        dispatch(
+          push(
+            `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
+          ),
+        ),
       )
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))

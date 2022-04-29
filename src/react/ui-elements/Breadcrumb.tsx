@@ -37,17 +37,18 @@ const BaseBreadCrumb = styled(CoreUIBreadcrumb)`
 const breadcrumbPaths = (
   pathname: string,
   prefixPath: string,
+  accountName: string,
 ): Array<Element<'label'>> => {
+  const accountsURLPrefix = `/accounts/${accountName}`;
   const matchCreateBucketRoute = matchPath(pathname, {
-    path: '/create-bucket',
+    path: `${accountsURLPrefix}/create-bucket`,
   });
-
   if (matchCreateBucketRoute) {
     return [<label key="buckets">create bucket</label>];
   }
 
   const matchObjectRoutes = matchPath(pathname, {
-    path: '/buckets/:bucketName/objects*',
+    path: `${accountsURLPrefix}/buckets/:bucketName/objects*`,
   });
 
   if (matchObjectRoutes) {
@@ -63,7 +64,7 @@ const breadcrumbPaths = (
 
     if (
       matchPath(pathname, {
-        path: '/buckets/:bucketName/objects/retention-setting',
+        path: `${accountsURLPrefix}/buckets/:bucketName/objects/retention-setting`,
       })
     ) {
       splits = prefixPath ? prefixPath.split('/') : [];
@@ -87,7 +88,7 @@ const breadcrumbPaths = (
           <label key={s}>
             <Link
               to={{
-                pathname: `/buckets/${bucketName}/objects`,
+                pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
                 search: `?prefix=${prefix}/`,
               }}
             >
@@ -113,7 +114,7 @@ const breadcrumbPaths = (
         {' '}
         <Link
           to={{
-            pathname: `/buckets/${bucketName}/objects`,
+            pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
           }}
         >
           {' '}
@@ -125,7 +126,7 @@ const breadcrumbPaths = (
   }
 
   const matchObjectsRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName/objects',
+    path: `${accountsURLPrefix}/buckets/:bucketName/objects`,
   });
 
   if (matchObjectsRoute) {
@@ -145,7 +146,7 @@ const breadcrumbPaths = (
   }
 
   const matchBucketRetensionSettingRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName/retention-setting',
+    path: `${accountsURLPrefix}/buckets/:bucketName/retention-setting`,
   });
 
   if (matchBucketRetensionSettingRoute) {
@@ -164,7 +165,7 @@ const breadcrumbPaths = (
   }
 
   const matchBucketsRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName',
+    path: `${accountsURLPrefix}/buckets/:bucketName`,
   });
 
   if (matchBucketsRoute) {

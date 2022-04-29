@@ -11,6 +11,7 @@ import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
 
 export default function Buckets() {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ export default function Buckets() {
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
   const { bucketName: bucketNameParam } = useParams();
+  const { account } = useCurrentAccount();
   const bucketIndex = useMemo(
     () => buckets.findIndex((b) => b.Name === bucketNameParam),
     [buckets, bucketNameParam],
@@ -41,7 +43,9 @@ export default function Buckets() {
           iconClass="fas fa-5x fa-glass-whiskey"
           title="Create your first bucket."
           btnTitle="Create Bucket"
-          btnAction={() => dispatch(push('/create-bucket'))}
+          btnAction={() =>
+            dispatch(push(`/accounts/${account?.Name}/create-bucket`))
+          }
         />
       </EmptyStateContainer>
     );
