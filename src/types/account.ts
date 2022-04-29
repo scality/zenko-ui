@@ -11,7 +11,7 @@ export type Role = {
 };
 export type Account = {
   readonly Name: string;
-  readonly creationDate: number;
+  readonly CreationDate: number;
   readonly Roles: Array<Role>;
   readonly id: string;
 };

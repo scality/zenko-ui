@@ -89,7 +89,7 @@ function AccountInfo({ account }: Props) {
           </T.Row>
           <T.Row>
             <T.Key> Creation Date </T.Key>
-            <T.Value> {formatDate(new Date(account.createDate))} </T.Value>
+            <T.Value> {formatDate(new Date(account.CreationDate))} </T.Value>
           </T.Row>
           {/* We have to hide this two fields until the information is ready from GetRolesForWebIdentity() */}
           {/* <T.Row>
