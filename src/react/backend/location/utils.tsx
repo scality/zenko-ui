@@ -17,8 +17,9 @@ import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
-import { ActionButton } from '../../ui-elements/Table';
+import { ActionButton, InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
+import styled from 'styled-components';
 type RowProps = {
   original: Location;
 };
@@ -152,18 +153,22 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some((opt) => opt === location);
 }
 
+const Flex = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const IngestionCell = (
   ingestionStates: WorkflowScheduleUnitState | null | undefined,
   capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
   loading: boolean,
   dispatch: any,
 ) => ({
-  value: locationName,
   row: { original },
 }: {
-  value: LocationName;
   row: RowProps;
 }) => {
+  const locationName = original.name;
   const ingestion =
     ingestionStates &&
     ingestionStates[locationName] &&
@@ -174,9 +179,9 @@ const IngestionCell = (
     if (ingestion) {
       if (ingestion === 'enabled') {
         return (
-          <>
+          <Flex>
             Active
-            <ActionButton
+            <InlineButton
               disabled={loading}
               icon={<i className="far fa-pause-circle" />}
               tooltip={{
@@ -186,15 +191,15 @@ const IngestionCell = (
               onClick={() => dispatch(pauseIngestionSite(locationName))}
               variant="secondary"
             />
-          </>
+          </Flex>
         );
       }
 
       if (ingestion === 'disabled') {
         return (
-          <>
+          <Flex>
             Paused
-            <ActionButton
+            <InlineButton
               disabled={loading}
               icon={<i className="far fa-play-circle" />}
               tooltip={{
@@ -204,15 +209,15 @@ const IngestionCell = (
               onClick={() => dispatch(resumeIngestionSite(locationName))}
               variant="secondary"
             />
-          </>
+          </Flex>
         );
       }
     }
 
     return (
-      <>
+      <Flex>
         Pending <HelpAsyncNotifPending />
-      </>
+      </Flex>
     );
   }
 

@@ -155,6 +155,11 @@ export const Actions = styled.div`
 export const ActionButton = styled(Button)`
   margin-left: ${spacing.sp4};
 `;
+export const InlineButton = styled(Button)`
+  height: ${spacing.sp24};
+  margin-left: ${spacing.sp16};
+`;
+
 export const Title = styled.div`
   font-size: ${fontSize.larger};
   font-weight: bold;
