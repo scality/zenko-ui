@@ -2,6 +2,7 @@ import { handleErrorMessage, listBuckets, networkAuthFailure } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 
+// TODO: To be removed eventually
 export function assumeRoleWithWebIdentity(
   roleArn: string,
 ): ThunkStatePromisedAction {
@@ -11,7 +12,7 @@ export function assumeRoleWithWebIdentity(
     const assumeRoleParams = {
       idToken: oidc.user.id_token,
       roleArn: roleArn,
-      RoleSessionName: oidc.user.profile.sub,
+      RoleSessionName: `ui-${oidc.user.profile.sub}`,
     };
     return stsClient
       .assumeRoleWithWebIdentity(assumeRoleParams)

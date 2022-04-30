@@ -15,7 +15,7 @@ export function getAssumeRoleWithWebIdentityIAM(
   const assumeRoleParams = {
     idToken: oidc.user.id_token,
     roleArn: roleArn,
-    RoleSessionName: oidc.user.profile.sub,
+    RoleSessionName: `ui-${oidc.user.profile.sub}`,
   };
 
   return stsClient.assumeRoleWithWebIdentity(assumeRoleParams).then((creds) => {
