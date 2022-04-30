@@ -1,5 +1,5 @@
 import * as L from '../../ui-elements/ListLayout2';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';

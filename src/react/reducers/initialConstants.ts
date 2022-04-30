@@ -170,7 +170,7 @@ export const initialNetworkActivityState: NetworkActivityState = {
   messages: List(),
 };
 export const initialOidc: OIDCState = {
-  user: null,
+  user: { id_token: '', profile: { sub: '' } },
 };
 export const initialObjectUIState: ObjectsUIState = {
   showFolderCreate: false,

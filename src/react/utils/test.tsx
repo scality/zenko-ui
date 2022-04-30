@@ -21,6 +21,7 @@ import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
 import zenkoUIReducer from '../reducers';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
+import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -69,7 +70,10 @@ const theme = {
 };
 const history = createMemoryHistory();
 export const newTestStore = (state) => {
-  const store = configureStore([thunk])({ ...initialFullState, ...(state || {}) });
+  const store = configureStore([thunk])({
+    ...initialFullState,
+    ...(state || {}),
+  });
   return store;
 };
 
@@ -98,8 +102,10 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
       basePath: `${TEST_API_BASE_URL}/api/v1`,
     }),
     `${TEST_API_BASE_URL}/api/v1`,
-    fetch
+    fetch,
   );
+  const roleArn =
+    'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
   return (
     <QueryClientProvider
       client={
@@ -113,19 +119,21 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
       }
     >
       <Router history={history}>
-        <_IAMContext.Provider
-          value={{
-            iamClient,
-          }}
-        >
-          <_ManagementContext.Provider
+        <_DataServiceRoleContext.Provider value={{ roleArn }}>
+          <_IAMContext.Provider
             value={{
-              managementClient: mgtClient,
+              iamClient,
             }}
           >
-            {children}
-          </_ManagementContext.Provider>
-        </_IAMContext.Provider>
+            <_ManagementContext.Provider
+              value={{
+                managementClient: mgtClient,
+              }}
+            >
+              {children}
+            </_ManagementContext.Provider>
+          </_IAMContext.Provider>
+        </_DataServiceRoleContext.Provider>
       </Router>
     </QueryClientProvider>
   );
@@ -193,9 +201,21 @@ export async function reduxMountAct(component, testState) {
   let wrapper = null;
   await act(async () => {
     wrapper = mount(
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>{component}</Provider>
-      </ThemeProvider>,
+      <QueryClientProvider
+        client={
+          new QueryClient({
+            defaultOptions: {
+              queries: {
+                retry: false,
+              },
+            },
+          })
+        }
+      >
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>{component}</Provider>
+        </ThemeProvider>
+      </QueryClientProvider>,
     );
   });
   return wrapper;

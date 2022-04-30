@@ -7,7 +7,7 @@ import { formatDate } from '../../../../utils';
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
