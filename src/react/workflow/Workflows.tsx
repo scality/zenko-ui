@@ -11,7 +11,6 @@ import WorkflowList from './WorkflowList';
 import { useQuery } from 'react-query';
 import { useManagementClient } from '../ManagementProvider';
 import { getClients } from '../utils/actions';
-import { rolePathName } from '../../js/IAMClient';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import Loader from '../ui-elements/Loader';
@@ -23,7 +22,10 @@ import {
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts } from '../utils/hooks';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -34,6 +36,7 @@ export function useWorkflows(
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
+  const { roleName: rolePathName } = useDataServiceRole();
 
   const dispatch = useDispatch();
 

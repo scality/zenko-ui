@@ -106,6 +106,11 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   );
   const roleArn =
     'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
+  const roleName = 'storage-manager-role';
+  const role = {
+    roleArn,
+    roleName,
+  };
   return (
     <QueryClientProvider
       client={
@@ -119,7 +124,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
       }
     >
       <Router history={history}>
-        <_DataServiceRoleContext.Provider value={{ roleArn }}>
+        <_DataServiceRoleContext.Provider value={{ role }}>
           <_IAMContext.Provider
             value={{
               iamClient,

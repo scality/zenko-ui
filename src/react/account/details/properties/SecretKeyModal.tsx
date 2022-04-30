@@ -30,7 +30,7 @@ function SecretKeyModal({ account }: Props) {
     dispatch(deleteAccountSecret());
     dispatch(closeAccountKeyCreateModal());
   };
-  const roleArn = useDataServiceRole();
+  const { roleArn } = useDataServiceRole();
   const handleAccessKeyCreate = () => {
     dispatch(createAccountAccessKey(account.Name, roleArn));
   };

@@ -17,7 +17,6 @@ import { Warning } from '../../../ui-elements/Warning';
 import { formatShortDate } from '../../../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import { useAccounts } from '../../../utils/hooks';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 
 const TableContainer = styled.div`
@@ -46,7 +45,7 @@ function AccountKeys({ account }: Props) {
   const accessKeysInfo = useSelector(
     (state: AppState) => state.account.accessKeyList,
   );
-  const roleArn = useDataServiceRole();
+  const { roleArn } = useDataServiceRole();
   useEffect(() => {
     dispatch(listAccountAccessKeys(roleArn));
   }, [dispatch, roleArn]);

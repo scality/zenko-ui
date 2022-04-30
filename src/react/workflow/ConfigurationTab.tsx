@@ -38,7 +38,6 @@ import {
 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
 import { getClients } from '../utils/actions';
-import { rolePathName } from '../../js/IAMClient';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import {
@@ -49,7 +48,10 @@ import { workflowListQuery } from '../queries';
 import Joi from '@hapi/joi';
 import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { useWorkflows } from './Workflows';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 type Props = {
   wfSelected: Workflow;
@@ -75,6 +77,7 @@ function useReplicationMutations({
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
+  const { roleName: rolePathName } = useDataServiceRole();
   const accountId = account?.id;
   const deleteReplicationMutation = useMutation<
     Response,

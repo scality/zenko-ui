@@ -25,7 +25,7 @@ export const useIAMClient = () => {
 const IAMProvider = ({ children }: { children: JSX.Element }) => {
   const state = useSelector((state: AppState) => state);
 
-  const roleArn = useDataServiceRole();
+  const { roleArn } = useDataServiceRole();
   const { data: IAMClientResult } = useQuery({
     queryKey: ['IAMClient', roleArn],
     queryFn: () => getAssumeRoleWithWebIdentityIAM(state, roleArn),

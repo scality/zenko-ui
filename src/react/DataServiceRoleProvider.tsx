@@ -6,7 +6,7 @@ import { useAccounts } from './utils/hooks';
 import { getAccountIDStored, setAccountIDStored } from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
-  roleArn: string;
+  role: { roleArn: string; roleName: string };
 }>(null);
 
 export const useDataServiceRole = () => {
@@ -18,7 +18,7 @@ export const useDataServiceRole = () => {
     );
   }
 
-  return DataServiceCtxt.roleArn;
+  return DataServiceCtxt.role;
 };
 
 export const useCurrentAccount = () => {
@@ -55,18 +55,21 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const { accountName } = useParams<{ accountName: string }>();
 
   const accountsWithRoles = useAccounts();
-  const roleArn = useMemo(() => {
+  const role = useMemo(() => {
     //TODO: Being able to select which role in this account will be assumed
     const selectedAccount = accountsWithRoles.find(
       (account) => account.Name === accountName,
     );
-    return selectedAccount?.Roles[0]?.Arn || '';
+    return {
+      roleArn: selectedAccount?.Roles[0].Arn,
+      roleName: selectedAccount?.Roles[0].Name,
+    };
   }, [accountName, JSON.stringify(accountsWithRoles)]);
 
   return (
     <_DataServiceRoleContext.Provider
       value={{
-        roleArn: roleArn,
+        role,
       }}
     >
       {children}

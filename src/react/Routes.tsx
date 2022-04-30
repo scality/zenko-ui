@@ -64,7 +64,7 @@ function WithAssumeRole({
 }: PropsWithChildren<Record<string, unknown>>) {
   const dispatch = useDispatch();
   const user = useSelector((state: AppState) => state.oidc.user);
-  const roleArn = useDataServiceRole();
+  const { roleArn } = useDataServiceRole();
   useEffect(() => {
     const isAuthenticated = !!user && !user.expired;
 

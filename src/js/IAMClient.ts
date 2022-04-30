@@ -4,7 +4,6 @@ import IAM from 'aws-sdk/clients/iam';
 import type { IAMClient as IAMClientInterface, WebIdentityRoles } from '../types/iam';
 import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
-export const rolePathName = 'scality-internal/storage-manager-role';
 
 export function getAssumeRoleWithWebIdentityIAM(
   state: AppState,
