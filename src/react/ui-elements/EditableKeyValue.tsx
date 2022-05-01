@@ -120,7 +120,7 @@ export const AddButton = ({
   const itemsIndexValue = items[index].value;
 
   const isDisabled = useMemo(() => {
-    if (itemsIndex && (itemsIndexKey === '' || itemsIndexValue === '')) {
+    if (itemsIndex && (itemsIndexKey === '' && itemsIndexValue === '')) {
       return true;
     }
     return disabled || false;
@@ -139,7 +139,7 @@ export const AddButton = ({
   return (
     <CustomButton
       isVisible={isVisible}
-      variant="secondary"
+      variant="outline"
       disabled={isDisabled}
       name={`addbtn${index}`}
       id={`addbtn${index}`}

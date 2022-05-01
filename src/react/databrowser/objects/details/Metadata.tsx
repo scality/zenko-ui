@@ -9,8 +9,6 @@ import {
   AddButton,
   Buttons,
   Char,
-  Container,
-  Footer,
   Header,
   HeaderKey,
   HeaderValue,
@@ -21,6 +19,7 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Button, Select } from '@scality/core-ui/dist/next';
 import type {
   ListObjectsType,
@@ -28,23 +27,13 @@ import type {
   MetadataItems,
   ObjectMetadata,
 } from '../../../../types/s3';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
+import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { useDispatch } from 'react-redux';
-const EMPTY_ITEM = {
-  key: '',
-  value: '',
-  type: '',
-};
-const TableContainer = styled.div`
-  overflow-y: auto;
-  overflow: visible;
-  height: calc(100vh - 410px);
-  margin-bottom: ${spacing.sp4};
-`;
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -89,162 +78,140 @@ type Props = {
   listType: ListObjectsType;
 };
 
+type FormValues = {
+  metadata: (MetadataItem & { mdKey: string })[];
+};
+
 function Metadata({ objectMetadata, listType }: Props) {
   const dispatch = useDispatch();
   const { bucketName, objectKey, metadata } = objectMetadata;
-  const [items, setItems] = useState([EMPTY_ITEM]);
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
-  useEffect(() => {
-    if (metadata.length > 0) {
-      setItems(metadata);
-    } else {
-      setItems([EMPTY_ITEM]);
-    }
-  }, [metadata]);
-  const remainingOptions = useMemo(
-    () =>
-      selectOptions.filter(
-        (option) =>
-          !items.find(
-            (item) => item.key === option.value && isSystemType(item.type),
-          ),
-      ),
-    [items],
-  );
-  // NOTE: invalid if at least one items is missing key or value but not both.
-  const isValidItems = useMemo(() => {
-    return !items.find(
-      (i) =>
-        (i.key === '' && i.value !== '') || (i.value === '' && i.key !== ''),
+  const EMPTY_ITEM = {
+    key: '',
+    value: '',
+    mdKey: '',
+    type: METADATA_SYSTEM_TYPE,
+  };
+  const defaultValues = {
+    metadata: metadata.map((item) => ({
+      ...item,
+      key: isUserType(item.type) ? AMZ_META : item.key,
+      mdKey: isUserType(item.type) ? item.key.replace(AMZ_META + '-', '') : '',
+    })),
+  };
+  const {
+    register,
+    reset,
+    handleSubmit,
+    control,
+    getValues,
+    formState: { isDirty },
+  } = useForm<FormValues>({
+    defaultValues,
+  });
+
+  const onSubmit = (data) => {
+    const { systemMetadata, userMetadata } = convertToAWSMetadata(
+      data.metadata.map((item) => ({
+        key: isUserType(item.type) ? item.key + '-' + item.mdKey : item.key,
+        type: item.type,
+        value: item.value,
+      })),
     );
-  }, [items]);
 
-  const handleSelectChange = (index: number) => (v) => {
-    const temp = [...items];
-
-    if (v === AMZ_META) {
-      temp[index] = {
-        key: '',
-        value: '',
-        type: METADATA_USER_TYPE,
-      };
-    } else {
-      temp[index] = {
-        key: v,
-        value: '',
-        type: METADATA_SYSTEM_TYPE,
-      };
-    }
-
-    setItems(temp);
-  };
-
-  const handleKeyChange = (index: number) => (
-    e: React.SyntheticEvent<HTMLInputElement>,
-  ) => {
-    const temp = [...items];
-
-    if (!isUserType(temp[index].type)) {
-      return;
-    }
-
-    temp[index] = { ...temp[index], key: e.target.value };
-    setItems(temp);
-  };
-
-  const handleValueChange = (index: number) => (
-    e: React.SyntheticEvent<HTMLInputElement>,
-  ) => {
-    const temp = [...items];
-    temp[index] = { ...temp[index], value: e.target.value };
-    setItems(temp);
-  };
-
-  const insertEntry = () => {
-    const temp = [...items];
-    temp.push(EMPTY_ITEM);
-    setItems(temp);
-  };
-
-  const deleteEntry = (index: number) => {
-    let temp = [EMPTY_ITEM];
-
-    if (items.length > 1) {
-      temp = [...items];
-      temp.splice(index, 1);
-    }
-
-    setItems(temp);
-  };
-
-  const save = () => {
-    if (!isValidItems) {
-      return;
-    }
-
-    const { systemMetadata, userMetadata } = convertToAWSMetadata(items);
     dispatch(
       putObjectMetadata(bucketName, objectKey, systemMetadata, userMetadata),
     );
+
+    reset(data);
   };
 
-  const selectValue = (metadata: MetadataItem) => {
-    const { key, type } = metadata;
+  const { fields, append, remove, update } = useFieldArray({
+    control,
+    name: 'metadata',
+  });
 
-    if (isSystemType(type) && key) {
-      return selectOptions.find((l) => l.value === key);
-    }
-
-    if (isUserType(type)) {
-      return userMetadataOption;
-    }
-
-    return '';
+  const deleteEntry = () => {
+    remove(0);
+    append(EMPTY_ITEM);
   };
 
   return (
-    <Container>
-      <Header>
-        <HeaderKey> Key </HeaderKey>
-        <HeaderValue> Value </HeaderValue>
-      </Header>
-      <TableContainer>
+    <FormContainer>
+      <SpacedBox m={32}>
+        <Header>
+          <HeaderKey> Key </HeaderKey>
+          <HeaderValue> Value </HeaderValue>
+        </Header>
+      </SpacedBox>
+      <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
         <Items>
-          {items.map((p, i) => {
+          {fields.map((p, i) => {
             const isUserMD = isUserType(p.type);
-            const options = [...remainingOptions];
-            const selectedOption = selectValue(p);
-            if (selectedOption) options.unshift(selectedOption);
             return (
               <Item isShrink={isUserMD} key={i}>
                 <Inputs>
-                  <Select
-                    name="mdKeyType"
-                    onChange={handleSelectChange(i)}
-                    isDisabled={isVersioningType}
-                    value={selectedOption ? selectedOption.value : null}
-                  >
-                    {options.map((opt, i) => (
-                      <Select.Option key={i} value={opt.value}>
-                        {opt.label}
-                      </Select.Option>
-                    ))}
-                  </Select>
+                  <Controller
+                    control={control}
+                    name={`metadata.${i}.key`}
+                    render={({ field: { onChange: setKey, value: key } }) => {
+                      const remainingOptions = selectOptions.filter(
+                        (option) =>
+                          !fields.find(
+                            (item) =>
+                              isSystemType(item.type) &&
+                              option.value === item.key &&
+                              key !== item.key,
+                          ),
+                      );
+                      const onChange = (newKey) => {
+                        setKey(newKey);
+                        if (newKey === AMZ_META) {
+                          update(i, {
+                            type: METADATA_USER_TYPE,
+                            key: newKey,
+                            value: '',
+                            mdKey: '',
+                          });
+                        } else {
+                          update(i, {
+                            type: METADATA_SYSTEM_TYPE,
+                            key: newKey,
+                            value: '',
+                          });
+                        }
+                      };
+
+                      return (
+                        <F.Select
+                          onChange={onChange}
+                          value={key}
+                          disabled={isVersioningType}
+                          id={`select-${i}`}
+                        >
+                          {remainingOptions.map((opt, i) => (
+                            <Select.Option key={i} value={opt.value}>
+                              {opt.label}
+                            </Select.Option>
+                          ))}
+                        </F.Select>
+                      );
+                    }}
+                  />
                   {isUserMD && <Char>-</Char>}
                   {isUserMD && (
                     <InputExtraKey
                       className="metadata-input-extra-key"
-                      value={p.key}
-                      onChange={handleKeyChange(i)}
+                      {...register(`metadata.${i}.mdKey`)}
                       disabled={isVersioningType}
                     />
                   )}
                   <Char>:</Char>
                   <InputValue
+                    id="mdValue"
+                    {...register(`metadata.${i}.value`)}
                     className="metadata-input-value"
                     isShrink={isUserMD}
-                    value={p.value}
-                    onChange={handleValueChange(i)}
                     disabled={isVersioningType}
                     autoComplete="off"
                   />
@@ -253,32 +220,47 @@ function Metadata({ objectMetadata, listType }: Props) {
                   <SubButton
                     disabled={isVersioningType}
                     index={i}
-                    items={items}
-                    deleteEntry={deleteEntry}
+                    items={getValues().metadata}
+                    deleteEntry={() =>
+                      getValues().metadata.length === 1
+                        ? deleteEntry()
+                        : remove(i)
+                    }
                   />
                   <AddButton
                     disabled={isVersioningType}
                     index={i}
-                    items={items}
-                    insertEntry={insertEntry}
+                    items={getValues().metadata}
+                    insertEntry={() =>
+                      append({
+                        key: `${AMZ_META}`,
+                        value: '',
+                        type: METADATA_USER_TYPE,
+                      })
+                    }
                   />
                 </Buttons>
               </Item>
             );
           })}
         </Items>
-      </TableContainer>
-      <Footer>
-        <Button
-          id="metadata-button-save"
-          variant="secondary"
-          label="Save"
-          disabled={!isValidItems || isVersioningType}
-          onClick={save}
-          icon={<i className="fas fa-save" />}
-        />
-      </Footer>
-    </Container>
+        <SpacedBox m={32}>
+          <F.Footer>
+            <F.FooterButtons>
+              <Button
+                id="metadata-button-save"
+                variant="secondary"
+                style={{ margin: `${spacing.sp16}` }}
+                label="Save"
+                disabled={isVersioningType || !isDirty}
+                icon={<i className="fas fa-save" />}
+                type="submit"
+              />
+            </F.FooterButtons>
+          </F.Footer>
+        </SpacedBox>
+      </F.CustomForm>
+    </FormContainer>
   );
 }
 

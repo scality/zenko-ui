@@ -1,8 +1,6 @@
 import {
   AddButton,
   Buttons,
-  Container,
-  Footer,
   Header,
   HeaderKeyTag,
   HeaderValueTag,
@@ -12,26 +10,22 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { Button } from '@scality/core-ui/dist/next';
-import type { ObjectMetadata } from '../../../../types/s3';
+import type { ObjectMetadata, Tag } from '../../../../types/s3';
 import { putObjectTagging } from '../../../actions';
+import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { useFieldArray, useForm } from 'react-hook-form';
 const EMPTY_ITEM = {
   key: '',
   value: '',
 };
-const TableContainer = styled.div`
-  overflow-y: auto;
-  height: calc(100vh - 410px);
-  margin-bottom: ${spacing.sp4};
-`;
 
 const convertToAWSTags = (tags) =>
   tags
-    .filter((tag) => tag.key !== '' && tag.value !== '')
+    .filter((tag) => tag.key !== '')
     .map((tag) => ({
       Key: tag.key,
       Value: tag.value,
@@ -41,114 +35,102 @@ type Props = {
   objectMetadata: ObjectMetadata;
 };
 
+type FormValues = {
+  tags: (Tag)[];
+};
+
 function Properties({ objectMetadata }: Props) {
   const dispatch = useDispatch();
   const { bucketName, objectKey, tags, versionId } = objectMetadata;
-  const [items, setItems] = useState([EMPTY_ITEM]);
-  useEffect(() => {
-    if (tags.length > 0) {
-      setItems(tags);
-    } else {
-      setItems([EMPTY_ITEM]);
-    }
-  }, [tags]);
-  // NOTE: invalid if at least one items is missing key or value but not both.
-  const isValidItems = useMemo(() => {
-    return !items.find(
-      (i) =>
-        (i.key === '' && i.value !== '') || (i.value === '' && i.key !== ''),
-    );
-  }, [items]);
-
-  const handleChange = (index: number) => (
-    e: React.SyntheticEvent<HTMLInputElement>,
-  ) => {
-    const temp = [...items];
-    temp[index] = { ...temp[index], [e.target.name]: e.target.value };
-    setItems(temp);
+  const defaultValues = {
+    tags  : tags.length > 0 ? tags : [EMPTY_ITEM],
   };
 
-  const insertEntry = () => {
-    const temp = [...items];
-    temp.push(EMPTY_ITEM);
-    setItems(temp);
-  };
+  const {
+    register,
+    reset,
+    handleSubmit,
+    control,
+    getValues,
+    formState: { isDirty }
+  } = useForm<FormValues>({
+    defaultValues
+  });
 
-  const deleteEntry = (index: number) => {
-    let temp = [EMPTY_ITEM];
-
-    if (items.length > 1) {
-      temp = [...items];
-      temp.splice(index, 1);
-    }
-
-    setItems(temp);
-  };
-
-  const save = () => {
-    if (!isValidItems) {
-      return;
-    }
-
-    const tags = convertToAWSTags(items);
+  const onSubmit = (data) => {
+    const tags = convertToAWSTags(data.tags);
+    console.log('tags: ', tags);
     dispatch(putObjectTagging(bucketName, objectKey, tags, versionId));
+    reset(data);
+  };
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "tags"
+  });
+
+  const deleteEntry = () => {
+    remove(0);
+    append(EMPTY_ITEM);
   };
 
   return (
-    <Container>
+    <FormContainer>
       <Header>
         <HeaderKeyTag> Key </HeaderKeyTag>
         <HeaderValueTag> Value </HeaderValueTag>
       </Header>
-      <TableContainer>
-        <Items>
-          {items.map((p, i) => {
+      <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
+      <Items>
+          {fields.map((p, i) => {
             return (
               <Item key={i}>
                 <Inputs>
                   <InputTag
                     className="tags-input-key"
-                    value={p.key}
-                    name="key"
-                    onChange={handleChange(i)}
+                    {...register(`tags.${i}.key`)}
                     autoComplete="off"
                   />
                   <InputTag
                     className="tags-input-value"
-                    value={p.value}
-                    name="value"
-                    onChange={handleChange(i)}
+                    {...register(`tags.${i}.value`)}
                     autoComplete="off"
                   />
                 </Inputs>
                 <Buttons>
                   <SubButton
                     index={i}
-                    items={items}
-                    deleteEntry={deleteEntry}
+                    items={getValues().tags}
+                    deleteEntry={() =>
+                      getValues().tags.length === 1
+                      ? deleteEntry()
+                      : remove(i)
+                  }
                   />
                   <AddButton
                     index={i}
-                    items={items}
-                    insertEntry={insertEntry}
+                    items={getValues().tags}
+                    insertEntry={() => append({key: ' ', value: ' '})}
                   />
                 </Buttons>
               </Item>
             );
           })}
         </Items>
-      </TableContainer>
-      <Footer>
+      <F.Footer style={{margin: `${spacing.sp32}`}}>
+        <F.FooterButtons>
         <Button
           id="tags-button-save"
           variant="secondary"
           label="Save"
-          disabled={!isValidItems}
-          onClick={save}
+          disabled={!isDirty}
           icon={<i className="fas fa-save" />}
+          type="submit"
         />
-      </Footer>
-    </Container>
+        </F.FooterButtons>
+      </F.Footer>
+      </F.CustomForm>
+    </FormContainer>
   );
 }
 
