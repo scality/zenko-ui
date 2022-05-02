@@ -19,6 +19,7 @@ export default function Buckets() {
   const buckets = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
+
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -54,6 +55,18 @@ export default function Buckets() {
   // redirect to the first bucket.
   if (!bucketNameParam) {
     return <Redirect to={`${pathname}/${buckets.first().Name}`} />;
+  }
+
+  // replace the old <bucket-name> by the new one when we switch account
+  if (
+    bucketNameParam &&
+    !buckets.filter((bucket) => bucket.Name === bucketNameParam).size
+  ) {
+    return (
+      <Redirect
+        to={`/accounts/${account.Name}/buckets/${buckets.first().Name}`}
+      />
+    );
   }
 
   return (
