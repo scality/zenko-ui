@@ -144,7 +144,9 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-coins"
             title="Before browsing your workflows, create your first workflow."
             btnTitle="Create Workflow"
-            btnAction={() => history.push('./workflows/create-workflow')}
+            btnAction={() =>
+              history.push(`/accounts/${accountName}/workflows/create-workflow`)
+            }
           />
         </EmptyStateContainer>
       );
