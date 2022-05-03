@@ -82,7 +82,7 @@ export const newTestStore = (state) => {
 export const realStoreWithInitState = (state) => {
   const store = createStore(
     zenkoUIReducer(history),
-    { ...initialFullState, ...(state || {}) },
+    { ...initialFullState, ...authenticatedUserState(), ...(state || {}) },
     compose(applyMiddleware(thunk, routerMiddleware(history))),
   );
 
