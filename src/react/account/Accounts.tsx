@@ -5,12 +5,11 @@ import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import * as L from '../ui-elements/ListLayout5';
 import Header from '../ui-elements/EntityHeader';
 import MultiAccountsLogo from '../../../public/assets/logo-multi-accounts.svg';
-import { useAccounts, useInvalidAccountsQuery } from '../utils/hooks';
+import { useAccounts } from '../utils/hooks';
 
 const Accounts = () => {
   const { pathname } = useLocation();
   const accounts = useAccounts();
-  useInvalidAccountsQuery();
   return (
     <L.Container>
       <L.BreadcrumbContainer>

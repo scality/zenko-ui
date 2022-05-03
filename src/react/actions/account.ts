@@ -30,7 +30,7 @@ import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
-import { listBuckets } from './s3bucket';
+import { QueryClient } from 'react-query';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
   return {
@@ -86,6 +86,8 @@ export function deleteAccountSecret(): DeleteAccountSecretAction {
 
 export function createAccount(
   user: CreateAccountRequest,
+  queryClient: QueryClient,
+  token: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -98,12 +100,19 @@ export function createAccount(
       .createConfigurationOverlayUser(params.user, params.uuid)
       .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
       .then(() => dispatch(push(`/accounts/${user.Name}`)))
+      .then(() => {
+        queryClient.invalidateQueries(['WebIdentityRoles', token]);
+      })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
       .finally(() => dispatch(networkEnd()));
   };
 }
-export function deleteAccount(accountName: string): ThunkStatePromisedAction {
+export function deleteAccount(
+  accountName: string,
+  queryClient: QueryClient,
+  token: string,
+): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
     const params = {
@@ -122,6 +131,9 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
       .then(() => dispatch(closeAccountDeleteDialog()))
       .then(() => {
         removeAccountIDStored();
+      })
+      .then(() => {
+        queryClient.invalidateQueries(['WebIdentityRoles', token]);
       })
       .catch((error) => {
         // TODO: fix closeAccountDeleteDialog that might happen twice

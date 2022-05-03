@@ -22,6 +22,7 @@ import zenkoUIReducer from '../reducers';
 import { applyMiddleware, compose, createStore } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
+import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -72,6 +73,7 @@ const history = createMemoryHistory();
 export const newTestStore = (state) => {
   const store = configureStore([thunk])({
     ...initialFullState,
+    ...authenticatedUserState(),
     ...(state || {}),
   });
   return store;

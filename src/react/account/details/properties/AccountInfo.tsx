@@ -17,6 +17,7 @@ import SecretKeyModal from './SecretKeyModal';
 import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
+import { useQueryClient } from 'react-query';
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -27,6 +28,8 @@ type Props = {
 
 function AccountInfo({ account }: Props) {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const showDelete = useSelector(
     (state: AppState) => state.uiAccounts.showDelete,
   );
@@ -40,7 +43,7 @@ function AccountInfo({ account }: Props) {
       return;
     }
 
-    dispatch(deleteAccount(account.Name));
+    dispatch(deleteAccount(account.Name, queryClient, token));
   };
 
   const handleDeleteCancel = () => {

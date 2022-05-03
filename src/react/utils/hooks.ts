@@ -198,13 +198,3 @@ export const useAccounts = () => {
     (account) => account.Name !== 'scality-internal-services',
   );
 };
-
-export const useInvalidAccountsQuery = () => {
-  //invalid the query to get accounts when deleting/creating account
-  const storedAccoutId = getAccountIDStored();
-  const queryClient = useQueryClient();
-  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  useEffect(() => {
-    queryClient.invalidateQueries(['WebIdentityRoles', token]);
-  }, [storedAccoutId]);
-};
