@@ -1,7 +1,11 @@
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
-import React, { useEffect } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
-import { loadClients, loadInstanceLatestStatus } from './actions';
+import {
+  assumeRoleWithWebIdentity,
+  loadClients,
+  loadInstanceLatestStatus,
+} from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
 import Accounts from './account/Accounts';
@@ -16,6 +20,11 @@ import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
+import DataServiceRoleProvider, {
+  useCurrentAccount,
+  useDataServiceRole,
+} from './DataServiceRoleProvider';
+import BucketCreate from './databrowser/buckets/BucketCreate';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -36,20 +45,36 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
 
 const RedirectToAccount = () => {
   // To be replace later by react-query or context
-  const selectedAccount = useSelector(
-    (state: AppState) => state.auth.selectedAccount,
-  );
+  const { account: selectedAccount } = useCurrentAccount();
+  const { pathname } = useLocation();
 
   if (selectedAccount) {
-    return <Redirect to={`/accounts/${selectedAccount.Name}/workflows`} />;
+    return <Redirect to={`/accounts/${selectedAccount.Name}${pathname}`} />;
   } else {
     return (
       <Loader>
-        <div>Loading workflows</div>
+        <div>Loading</div>
       </Loader>
     );
   }
 };
+
+function WithAssumeRole({
+  children,
+}: PropsWithChildren<Record<string, unknown>>) {
+  const dispatch = useDispatch();
+  const user = useSelector((state: AppState) => state.oidc.user);
+  const { roleArn } = useDataServiceRole();
+  useEffect(() => {
+    const isAuthenticated = !!user && !user.expired;
+
+    if (isAuthenticated && roleArn) {
+      dispatch(assumeRoleWithWebIdentity(roleArn));
+    }
+  }, [dispatch, user, roleArn]);
+
+  return <>{children}</>;
+}
 
 function PrivateRoutes() {
   const dispatch = useDispatch();
@@ -94,22 +119,31 @@ function PrivateRoutes() {
       <Route path="/workflows" exact>
         <RedirectToAccount />
       </Route>
-      <Route path="/accounts/:accountName?">
-        <IAMProvider>
-          <AccountContent />
-        </IAMProvider>
+      <Route path="/buckets" exact>
+        <RedirectToAccount />
+      </Route>
+      <Route path="/accounts/:accountName">
+        <DataServiceRoleProvider>
+          <IAMProvider>
+            <WithAssumeRole>
+              <Switch>
+                <Route path="/accounts/:accountName/buckets">
+                  <DataBrowser />
+                </Route>
+                <Route
+                  path={'/accounts/:accountName/create-bucket'}
+                  component={BucketCreate}
+                />
+                <Route path="/accounts/:accountName">
+                  <AccountContent />
+                </Route>
+              </Switch>
+            </WithAssumeRole>
+          </IAMProvider>
+        </DataServiceRoleProvider>
       </Route>
 
       <Route path="/create-account" component={AccountCreate} />
-
-      <Route
-        path={[
-          '/buckets/:bucketName?',
-          '/buckets/:bucketName/objects',
-          '/create-bucket',
-        ]}
-        component={DataBrowser}
-      />
 
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />

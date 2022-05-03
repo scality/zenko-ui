@@ -28,6 +28,7 @@ import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { push } from 'connected-react-router';
 import { XDM_FEATURE } from '../../../../js/config';
 import { useWorkflows } from '../../../workflow/Workflows';
+import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 
 function capitalize(string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -95,6 +96,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   );
   const workflowsQuery = useWorkflows();
   const features = useSelector((state: AppState) => state.auth.config.features);
+  const { account } = useCurrentAccount();
   useEffect(() => {
     dispatch(getBucketInfo(bucket.Name));
   }, [dispatch, bucket.Name]);
@@ -138,7 +140,13 @@ function Overview({ bucket, ingestionStates }: Props) {
       <ButtonContainer>
         <Button
           icon={<i className="fas fa-trash" />}
-          disabled={!canDeleteBucket(bucket.Name, loading, workflowsQuery.data?.replications || [])}
+          disabled={
+            !canDeleteBucket(
+              bucket.Name,
+              loading,
+              workflowsQuery.data?.replications || [],
+            )
+          }
           variant="danger"
           onClick={handleDeleteClick}
           label="Delete Bucket"
@@ -208,7 +216,9 @@ function Overview({ bucket, ingestionStates }: Props) {
                       icon={<i className="fas fa-pencil-alt"></i>}
                       onClick={() =>
                         dispatch(
-                          push(`/buckets/${bucket.Name}/retention-setting`),
+                          push(
+                            `/accounts/${account?.Name}/buckets/${bucket.Name}/retention-setting`,
+                          ),
                         )
                       }
                     />

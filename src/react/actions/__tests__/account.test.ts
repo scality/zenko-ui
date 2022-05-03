@@ -16,12 +16,11 @@ import {
 } from './utils/testUtil';
 import { ErrorMockIAMClient, MockIAMClient } from '../../../js/mock/IAMClient';
 import { getAssumeRoleWithWebIdentityIAM } from '../../../js/IAMClient';
-const createAccountNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Creating account',
-);
-const deleteAccountNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Deleting account',
-);
+import { QueryClient } from 'react-query';
+const createAccountNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Creating account');
+const deleteAccountNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Deleting account');
 const createAccountAccessKeyNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Creating Root user Access keys',
 );
@@ -41,6 +40,7 @@ jest.mock('../../../js/IAMClient', () => {
     getAssumeRoleWithWebIdentityIAM: jest.fn(),
   };
 });
+const queryClient = new QueryClient();
 describe('account actions', () => {
   const syncTests = [
     {
@@ -82,10 +82,13 @@ describe('account actions', () => {
   const asyncTests = [
     {
       it: 'createAccount: should return expected actions',
-      fn: actions.createAccount({
-        Name: 'bart',
-        email: 'test@test.com',
-      }),
+      fn: actions.createAccount(
+        {
+          Name: 'bart',
+          email: 'test@test.com',
+        },
+        queryClient,
+      ),
       storeState: authenticatedUserState(),
       expectedActions: [
         createAccountNetworkAction,
@@ -111,7 +114,7 @@ describe('account actions', () => {
     },
     {
       it: 'deleteAccount: should return expected actions',
-      fn: actions.deleteAccount('bart'),
+      fn: actions.deleteAccount('bart', queryClient),
       storeState: initState,
       expectedActions: [
         deleteAccountNetworkAction,

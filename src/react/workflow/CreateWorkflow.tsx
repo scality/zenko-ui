@@ -11,14 +11,13 @@ import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import { useMutation, useQueryClient } from 'react-query';
 import type { Expiration, Replication } from '../../types/config';
-import { getAccountId, getClients } from '../utils/actions';
+import { getClients } from '../utils/actions';
 import {
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
 } from '../actions';
-import { rolePathName } from '../../js/IAMClient';
 import {
   convertToReplicationStream,
   generateStreamName,
@@ -42,6 +41,10 @@ import Select, {
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useLocation } from 'react-router-dom';
 import { useAccounts, useQueryParams } from '../utils/hooks';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -102,16 +105,15 @@ const CreateWorkflow = () => {
   const { handleSubmit, control, watch, formState } = useFormMethods;
   const type = watch('type');
   const state = useSelector((state: AppState) => state);
-  const accountName = useSelector(
-    (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.Name,
-  );
+  const { account } = useCurrentAccount();
+  const accountName = account?.Name;
+  const accountId = account?.id;
+  const { roleName: rolePathName } = useDataServiceRole();
   const accounts = useAccounts();
   const { pathname } = useLocation();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
 
   const createReplicationWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,

@@ -10,7 +10,6 @@ import { useAccounts } from '../utils/hooks';
 const Accounts = () => {
   const { pathname } = useLocation();
   const accounts = useAccounts();
-
   return (
     <L.Container>
       <L.BreadcrumbContainer>

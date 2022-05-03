@@ -1,4 +1,5 @@
 import * as L from '../ui-elements/ListLayout3';
+import { useLocation } from 'react-router';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
@@ -9,8 +10,7 @@ import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
 import { useQuery } from 'react-query';
 import { useManagementClient } from '../ManagementProvider';
-import { getAccountId, getClients } from '../utils/actions';
-import { rolePathName } from '../../js/IAMClient';
+import { getClients } from '../utils/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import Loader from '../ui-elements/Loader';
@@ -22,6 +22,10 @@ import {
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts } from '../utils/hooks';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -30,7 +34,10 @@ export function useWorkflows(
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
+  const { account } = useCurrentAccount();
+  const accountId = account?.id;
+  const { roleName: rolePathName } = useDataServiceRole();
+
   const dispatch = useDispatch();
 
   const workflowsQuery = useQuery({
@@ -72,10 +79,9 @@ export function useWorkflows(
 export default function Workflows() {
   const history = useHistory();
   const { workflowId } = useParams<{ workflowId?: string }>();
-  const accountName = useSelector(
-    (state: AppState) =>
-      state.auth.selectedAccount && state.auth.selectedAccount.Name,
-  );
+  const { account } = useCurrentAccount();
+  const accountName = account?.Name;
+  const { pathname } = useLocation();
   const accounts = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
@@ -158,7 +164,11 @@ export default function Workflows() {
   return (
     <L.Container>
       <L.BreadcrumbContainer>
-        <BreadcrumbWorkflow accounts={accounts} accountName={accountName} />
+        <BreadcrumbWorkflow
+          accounts={accounts}
+          accountName={accountName}
+          pathname={pathname}
+        />
       </L.BreadcrumbContainer>
       {content()}
     </L.Container>

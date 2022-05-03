@@ -27,11 +27,14 @@ import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import { workflowListQuery } from '../queries';
 import { useSelector } from 'react-redux';
-import { getAccountId, getClients } from '../utils/actions';
+import { getClients } from '../utils/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { rolePathName } from '../../js/IAMClient';
 import { AppState } from '../../types/state';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 const ReplicationContainer = styled.div`
   display: flex;
@@ -81,8 +84,9 @@ function ReplicationComponent({
 
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
-
+  const { account } = useCurrentAccount();
+  const accountId = account?.id;
+  const { roleName: rolePathName } = useDataServiceRole();
   const mgnt = useManagementClient();
 
   const replicationsQuery = useQuery({

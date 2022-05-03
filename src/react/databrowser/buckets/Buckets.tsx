@@ -1,5 +1,6 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useMemo } from 'react';
+import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
@@ -10,11 +11,15 @@ import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
+
 export default function Buckets() {
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
   const buckets = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );
+
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -23,6 +28,7 @@ export default function Buckets() {
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
   const { bucketName: bucketNameParam } = useParams();
+  const { account } = useCurrentAccount();
   const bucketIndex = useMemo(
     () => buckets.findIndex((b) => b.Name === bucketNameParam),
     [buckets, bucketNameParam],
@@ -38,7 +44,9 @@ export default function Buckets() {
           iconClass="fas fa-5x fa-glass-whiskey"
           title="Create your first bucket."
           btnTitle="Create Bucket"
-          btnAction={() => dispatch(push('/create-bucket'))}
+          btnAction={() =>
+            dispatch(push(`/accounts/${account?.Name}/create-bucket`))
+          }
         />
       </EmptyStateContainer>
     );
@@ -46,7 +54,19 @@ export default function Buckets() {
 
   // redirect to the first bucket.
   if (!bucketNameParam) {
-    return <Redirect to={`/buckets/${buckets.first().Name}`} />;
+    return <Redirect to={`${pathname}/${buckets.first().Name}`} />;
+  }
+
+  // replace the old <bucket-name> by the new one when we switch account
+  if (
+    bucketNameParam &&
+    !buckets.filter((bucket) => bucket.Name === bucketNameParam).size
+  ) {
+    return (
+      <Redirect
+        to={`/accounts/${account.Name}/buckets/${buckets.first().Name}`}
+      />
+    );
   }
 
   return (

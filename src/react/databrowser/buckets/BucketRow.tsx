@@ -8,6 +8,7 @@ import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { push } from 'connected-react-router';
 import { useQueryParams } from '../../utils/hooks';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -56,13 +57,18 @@ const Row = ({
   const bucketName = row.original.Name;
   const isSelected = selectedBucketName === bucketName;
   const query = useQueryParams();
+  const { account } = useCurrentAccount();
   const tabName = query.get('tab');
   return (
     <T.Row
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(push(`/buckets/${bucketName}?tab=${tabName}`));
+          dispatch(
+            push(
+              `/accounts/${account.Name}/buckets/${bucketName}?tab=${tabName}`,
+            ),
+          );
         }
       }}
       {...row.getRowProps({

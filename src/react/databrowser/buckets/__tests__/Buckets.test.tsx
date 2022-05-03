@@ -5,7 +5,7 @@ import BucketList from '../BucketList';
 import Buckets from '../Buckets';
 import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
-import { OWNER_NAME } from '../../../actions/__tests__/utils/testUtil';
+import { ACCOUNT } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
 describe('Buckets', () => {
@@ -21,6 +21,11 @@ describe('Buckets', () => {
       Name: 'bucket2',
     },
   ];
+  beforeAll(() => {
+    jest.spyOn(router, 'useLocation').mockReturnValue({
+      pathname: `/accounts/${ACCOUNT}/buckets`,
+    });
+  });
   it('should display EmptyStateContainer if no bucket is present', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
       bucketName: '',
@@ -42,7 +47,6 @@ describe('Buckets', () => {
         s3: {
           listBucketsResults: {
             list: List(buckets),
-            ownerName: OWNER_NAME,
           },
         },
       },

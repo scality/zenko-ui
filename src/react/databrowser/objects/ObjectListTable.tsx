@@ -24,6 +24,7 @@ import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useQueryParams } from '../../utils/hooks';
+import { useParams } from 'react-router';
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
   margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
@@ -47,6 +48,8 @@ export default function ObjectListTable({
   isVersioningType,
   prefixWithSlash,
 }: Props) {
+  const { accountName } = useParams<{ accountName: string }>();
+
   const [isTableScrollbarVisible, setIsTableScrollbarVisible] = useState(false);
   const [tableWidth, setTableWidth] = useState(0);
   const dispatch = useDispatch();
@@ -70,7 +73,11 @@ export default function ObjectListTable({
     (bucketName, key) => (e) => {
       e.stopPropagation();
       query.set('prefix', key);
-      dispatch(push(`/buckets/${bucketName}/objects?${query.toString()}`));
+      dispatch(
+        push(
+          `/accounts/${accountName}/buckets/${bucketName}/objects?${query.toString()}`,
+        ),
+      );
     },
     [dispatch],
   );

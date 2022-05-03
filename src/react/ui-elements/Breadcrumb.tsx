@@ -1,15 +1,13 @@
 import { Link, matchPath } from 'react-router-dom';
 import type { Account } from '../../types/account';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
-import type { Element } from 'react';
+import { Element } from 'react';
 import React from 'react';
 import { Select } from '@scality/core-ui/dist/next';
-import { push } from 'connected-react-router';
-import { selectAccountID } from '../actions';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { useQueryParams } from '../utils/hooks';
+import { useAccounts, useQueryParams } from '../utils/hooks';
 import { ellipsis } from 'polished';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   .sc-breadcrumb_item {
     display: flex;
@@ -39,17 +37,18 @@ const BaseBreadCrumb = styled(CoreUIBreadcrumb)`
 const breadcrumbPaths = (
   pathname: string,
   prefixPath: string,
+  accountName: string,
 ): Array<Element<'label'>> => {
+  const accountsURLPrefix = `/accounts/${accountName}`;
   const matchCreateBucketRoute = matchPath(pathname, {
-    path: '/create-bucket',
+    path: `${accountsURLPrefix}/create-bucket`,
   });
-
   if (matchCreateBucketRoute) {
     return [<label key="buckets">create bucket</label>];
   }
 
   const matchObjectRoutes = matchPath(pathname, {
-    path: '/buckets/:bucketName/objects*',
+    path: `${accountsURLPrefix}/buckets/:bucketName/objects*`,
   });
 
   if (matchObjectRoutes) {
@@ -65,7 +64,7 @@ const breadcrumbPaths = (
 
     if (
       matchPath(pathname, {
-        path: '/buckets/:bucketName/objects/retention-setting',
+        path: `${accountsURLPrefix}/buckets/:bucketName/objects/retention-setting`,
       })
     ) {
       splits = prefixPath ? prefixPath.split('/') : [];
@@ -89,7 +88,7 @@ const breadcrumbPaths = (
           <label key={s}>
             <Link
               to={{
-                pathname: `/buckets/${bucketName}/objects`,
+                pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
                 search: `?prefix=${prefix}/`,
               }}
             >
@@ -115,7 +114,7 @@ const breadcrumbPaths = (
         {' '}
         <Link
           to={{
-            pathname: `/buckets/${bucketName}/objects`,
+            pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
           }}
         >
           {' '}
@@ -127,7 +126,7 @@ const breadcrumbPaths = (
   }
 
   const matchObjectsRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName/objects',
+    path: `${accountsURLPrefix}/buckets/:bucketName/objects`,
   });
 
   if (matchObjectsRoute) {
@@ -147,7 +146,7 @@ const breadcrumbPaths = (
   }
 
   const matchBucketRetensionSettingRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName/retention-setting',
+    path: `${accountsURLPrefix}/buckets/:bucketName/retention-setting`,
   });
 
   if (matchBucketRetensionSettingRoute) {
@@ -166,7 +165,7 @@ const breadcrumbPaths = (
   }
 
   const matchBucketsRoute = matchPath(pathname, {
-    path: '/buckets/:bucketName',
+    path: `${accountsURLPrefix}/buckets/:bucketName`,
   });
 
   if (matchBucketsRoute) {
@@ -182,23 +181,22 @@ type Props = {
   pathname: string;
 };
 export function Breadcrumb({ accounts, accountName, pathname }: Props) {
-  const dispatch = useDispatch();
   const query = useQueryParams();
-  const prefixPath = query.get('prefix');
+  const accountsWithRoles = useAccounts();
 
+  const { selectAccountAndRedirectTo } = useCurrentAccount();
+  const prefixPath = query.get('prefix');
   const switchAccount = (selectedName) => {
     const account =
       selectedName &&
       selectedName !== accountName &&
-      accounts.find((a) => a.Name === selectedName);
+      accountsWithRoles.find((a) => a.Name === selectedName);
 
-    if (!account) {
+    if (!account || !accountsWithRoles || !accountsWithRoles.length) {
       return;
     }
 
-    dispatch(selectAccountID(account.id)).then(() =>
-      dispatch(push(pathname.includes('workflow')? '/workflows': '/buckets')),
-    );
+    selectAccountAndRedirectTo(pathname, account);
   };
 
   return (
@@ -216,7 +214,7 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
             </Select.Option>
           ))}
         </Select>,
-        ...breadcrumbPaths(pathname, prefixPath),
+        ...breadcrumbPaths(pathname, prefixPath, accountName),
       ]}
     />
   );
@@ -224,26 +222,23 @@ export function Breadcrumb({ accounts, accountName, pathname }: Props) {
 type BreadcrumbWorkflowProps = {
   accounts: Array<Account>;
   accountName: string | null | undefined;
+  pathname: string;
 };
 export function BreadcrumbWorkflow({
   accounts,
   accountName,
+  pathname,
 }: BreadcrumbWorkflowProps) {
-  const dispatch = useDispatch();
-
+  const { selectAccountAndRedirectTo } = useCurrentAccount();
   const switchAccount = (selectedName) => {
     const account =
       selectedName &&
       selectedName !== accountName &&
       accounts.find((a) => a.Name === selectedName);
-
     if (!account) {
       return;
     }
-
-    dispatch(selectAccountID(account.id)).then(() =>
-      dispatch(push('/workflows')),
-    );
+    selectAccountAndRedirectTo(pathname, account);
   };
 
   return (

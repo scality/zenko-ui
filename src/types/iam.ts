@@ -4,19 +4,20 @@ export type IAMResp = {};
 export type WebIdentityRoles = {
   IsTruncated: boolean;
   Marker?: string;
-  Accounts:    Account[];
-}
+  Accounts: Account[];
+};
 
 export type Account = {
-  Name:         string;
+  Name: string;
   CreationDate: Date;
-  Roles:        Role[];
-}
+  Roles: Role[];
+  id: string;
+};
 
 export type Role = {
   Name: string;
-  Arn:  string;
-}
+  Arn: string;
+};
 
 export interface IAMClient {
   login(creds: Credentials): void;

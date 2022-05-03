@@ -29,7 +29,6 @@ function AccountContent() {
     () => accounts.find((a) => a.Name === accountNameParam),
     [accounts, accountNameParam],
   );
-
   return (
     <L.Container>
       <Switch>

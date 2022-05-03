@@ -17,11 +17,7 @@ import type {
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import {
-  getAccountIDStored,
-  removeAccountIDStored,
-  setAccountIDStored,
-} from '../utils/localStorage';
+import { removeAccountIDStored } from '../utils/localStorage';
 import {
   handleAWSClientError,
   handleAWSError,
@@ -30,11 +26,12 @@ import {
 } from './error';
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
-import { assumeRoleWithWebIdentity } from './sts';
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
+import { QueryClient } from 'react-query';
+
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
   return {
     type: 'OPEN_ACCOUNT_DELETE_DIALOG',
@@ -86,59 +83,36 @@ export function deleteAccountSecret(): DeleteAccountSecretAction {
     type: 'DELETE_ACCOUNT_SECRET',
   };
 }
-export function selectAccountID(accountID?: string): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { zenkoClient } = getClients(getState());
-    const { configuration } = getState();
-    const accounts = configuration.latest.users;
-    let account = accounts.find((a) => a.id === accountID);
 
-    if (!accountID || !account) {
-      if (accounts.length === 0) {
-        // clean S3 client and buckets' list if no account.
-        zenkoClient.logout();
-        removeAccountIDStored();
-        return Promise.resolve();
-      }
-
-      account = accounts[0];
-      const accountIDStored = getAccountIDStored();
-
-      if (accountIDStored) {
-        const accountStored = accounts.find((a) => a.id === accountIDStored);
-
-        if (accountStored) {
-          account = accountStored;
-        }
-      }
-    }
-
-    setAccountIDStored(account.id);
-    dispatch(selectAccount(account));
-    return dispatch(assumeRoleWithWebIdentity(account.id));
-  };
-}
 export function createAccount(
   user: CreateAccountRequest,
+  queryClient: QueryClient,
+  token: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
     const params = {
       uuid: instanceId,
-      user: {...user, userName: user.Name},
+      user: { ...user, userName: user.Name },
     };
     dispatch(networkStart('Creating account'));
     return managementClient
       .createConfigurationOverlayUser(params.user, params.uuid)
       .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
-      .then(([id]) => dispatch(selectAccountID(id)))
       .then(() => dispatch(push(`/accounts/${user.Name}`)))
+      .then(() => {
+        queryClient.invalidateQueries(['WebIdentityRoles', token]);
+      })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
       .finally(() => dispatch(networkEnd()));
   };
 }
-export function deleteAccount(accountName: string): ThunkStatePromisedAction {
+export function deleteAccount(
+  accountName: string,
+  queryClient: QueryClient,
+  token: string,
+): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
     const params = {
@@ -157,7 +131,9 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
       .then(() => dispatch(closeAccountDeleteDialog()))
       .then(() => {
         removeAccountIDStored();
-        return dispatch(selectAccountID());
+      })
+      .then(() => {
+        queryClient.invalidateQueries(['WebIdentityRoles', token]);
       })
       .catch((error) => {
         // TODO: fix closeAccountDeleteDialog that might happen twice
@@ -172,11 +148,11 @@ export function deleteAccount(accountName: string): ThunkStatePromisedAction {
   };
 }
 export function listAccountAccessKeys(
-  accountName: string,
+  roleArn: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Listing Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
       .then((iamClient) => iamClient.listOwnAccessKeys())
       .then((resp) =>
         dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)),
@@ -187,14 +163,14 @@ export function listAccountAccessKeys(
   };
 }
 export function deleteAccountAccessKey(
-  accountName: string,
+  roleArn: string,
   accessKey: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Deleting Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), accountName)
+    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
       .then((iamClient) => iamClient.deleteAccessKey(accessKey))
-      .then(() => dispatch(listAccountAccessKeys(accountName)))
+      .then(() => dispatch(listAccountAccessKeys(roleArn)))
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));
@@ -202,6 +178,7 @@ export function deleteAccountAccessKey(
 }
 export function createAccountAccessKey(
   accountName: string,
+  roleArn: string,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -216,7 +193,7 @@ export function createAccountAccessKey(
         dispatch(
           addAccountSecret(resp.userName, resp.accessKey, resp.secretKey),
         );
-        return dispatch(listAccountAccessKeys(accountName));
+        return dispatch(listAccountAccessKeys(roleArn));
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))

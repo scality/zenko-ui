@@ -7,7 +7,7 @@ import { formatDate } from '../../../../utils';
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
@@ -30,7 +30,8 @@ describe('AccountInfo', () => {
     expect(button.text()).toContain('Delete Account');
     expect(component.find(Table)).toHaveLength(1);
     const rows = component.find(T.Row);
-    expect(rows).toHaveLength(5);
+    // TODO: switched from 5 -> 3 because we hide the root user email and arn
+    expect(rows).toHaveLength(3);
     const firstRow = rows.first();
     testRow(firstRow, {
       key: 'Account ID',
@@ -46,19 +47,19 @@ describe('AccountInfo', () => {
     const thirdRow = rows.at(2);
     testRow(thirdRow, {
       key: 'Creation Date',
-      value: formatDate(new Date(account1.createDate)),
+      value: formatDate(new Date(account1.CreationDate)),
     });
-    const fifthRow = rows.at(3);
-    testRow(fifthRow, {
-      key: 'Root User Email',
-      value: account1.email,
-      extraCellComponent: 'Clipboard',
-    });
-    const sixthRow = rows.at(4);
-    testRow(sixthRow, {
-      key: 'Root User ARN',
-      value: account1.arn,
-      extraCellComponent: 'Clipboard',
-    });
+    // const fifthRow = rows.at(3);
+    // testRow(fifthRow, {
+    //   key: 'Root User Email',
+    //   value: account1.email,
+    //   extraCellComponent: 'Clipboard',
+    // });
+    // const sixthRow = rows.at(4);
+    // testRow(sixthRow, {
+    //   key: 'Root User ARN',
+    //   value: account1.arn,
+    //   extraCellComponent: 'Clipboard',
+    // });
   });
 });

@@ -10,6 +10,7 @@ import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
+import { useQueryClient } from 'react-query';
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
@@ -33,9 +34,7 @@ function AccountCreate() {
     register,
     handleSubmit,
 
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: joiResolver(schema),
   });
@@ -50,14 +49,15 @@ function AccountCreate() {
     (state: AppState) => state.networkActivity.counter > 0,
   );
   const dispatch = useDispatch();
-
+  const queryClient = useQueryClient();
+  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const onSubmit = ({ email, name }) => {
     clearServerError();
     const payload = {
       Name: name,
       email,
     };
-    dispatch(createAccount(payload));
+    dispatch(createAccount(payload, queryClient, token));
   };
 
   const handleCancel = (e) => {
@@ -87,7 +87,11 @@ function AccountCreate() {
       >
         <F.Title> Create New Account </F.Title>
         <F.Fieldset>
-          <F.Label htmlFor="name" tooltipMessages={['Must be unique']} tooltipWidth="6rem">
+          <F.Label
+            htmlFor="name"
+            tooltipMessages={['Must be unique']}
+            tooltipWidth="6rem"
+          >
             Name
           </F.Label>
           <F.Input
@@ -97,7 +101,8 @@ function AccountCreate() {
             onChange={clearServerError}
             autoComplete="new-password"
             aria-invalid={!!errors.name}
-            aria-describedby="error-name" />
+            aria-describedby="error-name"
+          />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
@@ -120,7 +125,7 @@ function AccountCreate() {
             {...register('email', { onChange: clearServerError })}
             aria-invalid={!!errors.email}
             aria-describedby="error-email"
-            />
+          />
           <F.ErrorInput id="error-email" hasError={errors.email}>
             {' '}
             {errors.email?.message}{' '}

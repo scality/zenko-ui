@@ -37,8 +37,7 @@ import {
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
-import { getAccountId, getClients } from '../utils/actions';
-import { rolePathName } from '../../js/IAMClient';
+import { getClients } from '../utils/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import {
@@ -49,6 +48,10 @@ import { workflowListQuery } from '../queries';
 import Joi from '@hapi/joi';
 import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { useWorkflows } from './Workflows';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
 
 type Props = {
   wfSelected: Workflow;
@@ -73,8 +76,9 @@ function useReplicationMutations({
   const managementClient = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
-
+  const { account } = useCurrentAccount();
+  const { roleName: rolePathName } = useDataServiceRole();
+  const accountId = account?.id;
   const deleteReplicationMutation = useMutation<
     Response,
     ApiError,
@@ -187,7 +191,8 @@ function useExpirationMutations({
   const managementClient = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
-  const accountId = getAccountId(state);
+  const { account } = useCurrentAccount();
+  const accountId = account.id;
 
   const deleteExpirationMutation = useMutation<Response, ApiError, Expiration>({
     mutationFn: (expiration) => {
@@ -370,7 +375,9 @@ function EditForm({
         show={isDeleteModalOpen}
         titleText={`Permanently remove the following Workflow: ${
           workflow.name ||
-          (isExpirationWorkflow(workflow) ? generateExpirationName(workflow) : generateStreamName(workflow))
+          (isExpirationWorkflow(workflow)
+            ? generateExpirationName(workflow)
+            : generateStreamName(workflow))
         } ?`}
       />
       <ConfigurationHeader>

@@ -15,7 +15,6 @@ import {
   handleErrorMessage,
   loadInstanceLatestStatus,
   networkAuthFailure,
-  selectAccountID,
   setZenkoClient,
   updateConfiguration,
 } from './index';
@@ -135,7 +134,6 @@ export function loadClients(): ThunkStatePromisedAction {
           dispatch(loadInstanceLatestStatus()),
         ]);
       })
-      .then(() => dispatch(selectAccountID()))
       .then(() => dispatch(loadClientsSuccess()))
       .catch((error) => {
         if (error.message) {
