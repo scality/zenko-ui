@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import { Account } from '../types/account';
-import { useAccounts } from './utils/hooks';
+import { regexArn, useAccounts } from './utils/hooks';
 import { getAccountIDStored, setAccountIDStored } from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
@@ -53,16 +53,16 @@ export const useCurrentAccount = () => {
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const { accountName } = useParams<{ accountName: string }>();
-
   const accountsWithRoles = useAccounts();
   const role = useMemo(() => {
     //TODO: Being able to select which role in this account will be assumed
     const selectedAccount = accountsWithRoles.find(
       (account) => account.Name === accountName,
     );
+    const roleArn = selectedAccount?.Roles[0].Arn;
     return {
-      roleArn: selectedAccount?.Roles[0].Arn,
-      roleName: selectedAccount?.Roles[0].Name,
+      roleArn: roleArn,
+      roleName: roleArn ? regexArn.exec(roleArn).groups['role_name'] : '',
     };
   }, [accountName, JSON.stringify(accountsWithRoles)]);
 

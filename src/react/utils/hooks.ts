@@ -141,7 +141,8 @@ export function useQueryWithUnmountSupport<
   return query;
 }
 
-const regexArn = /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
+export const regexArn =
+  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
 
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user.access_token);
@@ -179,7 +180,6 @@ export const useAccounts = () => {
     },
     (data) => data.Accounts,
   );
-
   const uniqueAccountsWithRoles = Object.values(
     data?.reduce(
       (agg, current) => ({
