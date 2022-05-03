@@ -47,6 +47,11 @@ describe('CreateWorkflow', () => {
           config: { features: [] },
           selectedAccount: { id: accountId },
         },
+        oidc: {
+          user: {
+            access_token: ''
+          }
+        },
         configuration: {
           latest: {
             endpoints: [],
