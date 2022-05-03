@@ -1,4 +1,5 @@
-import { ChangeEvent, useMemo } from 'react';
+import React, { ChangeEvent, useMemo, useState } from 'react';
+import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
 import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
@@ -13,29 +14,41 @@ import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/S
 import { Tooltip } from '@scality/core-ui';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { getUserListUsersQuery } from '../queries';
-import { InlineButton } from '../ui-elements/Table';
+import { useMutation, useQuery } from 'react-query';
+import { queryClient } from '../App';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { Banner } from '@scality/core-ui';
+import {
+  getUserListUsersQuery,
+  getUserAccessKeysQuery,
+  getUserListGroupsQuery,
+} from '../queries';
+import user from '../reducers/user';
+const InlineButton = styled(Button)`
+  height: ${spacing.sp24};
+  margin-left: ${spacing.sp16};
+`;
 
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const accessKeysQuery = useAwsPaginatedEntities(getUserListUsersQuery(userName, notFalsyTypeGuard(IAMClient)), (page) => page.Users);
+  const {data: accessKeysResult, status: userAccessKeyStatus} = useAwsPaginatedEntities(getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)), data => data.AccessKeyMetadata);
   const accessKeys = useMemo(() => {
-    if (accessKeysQuery.status === 'success') {
-      return accessKeysQuery.data.length;
+    if (userAccessKeyStatus === 'success') {
+      return notFalsyTypeGuard(accessKeysResult).length;
     }
 
     return 0;
-  }, [accessKeysQuery.status]);
+  }, [userAccessKeyStatus]);
   // display a hyphen if there is an error occurs
-  return accessKeysQuery.status === 'error' ? null : (
+  return userAccessKeyStatus === 'error' ? null : (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
       }}
     >
-      {accessKeysQuery.status === 'loading' && (
+      {userAccessKeyStatus === 'loading' && (
         <SpacedBox
           mr={12}
           style={{
@@ -45,7 +58,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           loading...
         </SpacedBox>
       )}
-      {accessKeysQuery.status === 'success' ? (
+      {userAccessKeyStatus === 'success' ? (
         <SpacedBox
           mr={12}
           style={{
@@ -70,7 +83,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           },
           overlay: 'Checking or creating access keys',
         }}
-        disabled={accessKeysQuery.status === 'loading'}
+        disabled={userAccessKeyStatus === 'loading'}
       />
     </div>
   );
@@ -100,6 +113,7 @@ const renderActionButtons = (rowValues) => {
     <div style={{ display: 'flex' }}>
       <CopyARNButton text={arn} />
       <RenderEditButton userName={userName} />
+      <DeleteUserAction userName={userName} />
     </div>
   );
 };
@@ -122,6 +136,56 @@ const WithTooltipWhileLoading = ({
   </>
 );
 
+const DeleteUserAction = (rowValue: { userName : string} , accountName: string) => {
+  const { userName } = rowValue;
+  const IAMClient = useIAMClient();
+  const [showModal, setShowModal] = useState(false);
+  const { data: accessKeysResult, status: accessKeyStatus } = useAwsPaginatedEntities(getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)), data => data.AccessKeyMetadata);
+  const { data: listGroupsResult, status: listGroupStatus } = useQuery(getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)));
+
+  const deleteUserMutation = useMutation(
+    (userName: string) => {
+      return notFalsyTypeGuard(IAMClient).deleteUser(userName);
+    },
+    {
+      onSuccess: () => queryClient.invalidateQueries(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey),
+    },
+  );
+
+  return (
+    <>
+      <DeleteConfirmation
+        show={showModal}
+        cancel={() => setShowModal(false)}
+        approve={() => {
+          deleteUserMutation.mutate(userName);
+        }}
+        titleText={`Permanently remove the following user ${userName} ?`}
+      />
+
+      <Button
+        id='delete-accessKey-btn'
+        disabled={(accessKeysResult && accessKeysResult?.length >= 1) || (listGroupsResult && listGroupsResult.Groups?.length >= 1) || accessKeyStatus === 'loading' || listGroupStatus === 'loading'}
+        icon={<i className='fas fa-trash' />}
+        style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
+        label='Delete'
+        onClick={() => {
+          setShowModal(true);
+        }}
+        variant='danger'
+        tooltip={{ overlay: accessKeyStatus === 'loading' ? 'loading...':'Remove accessKey', placement: 'right' }}
+      />
+      {accessKeyStatus === 'error' &&  <Banner
+        icon={<i className="fas fa-exclamation-triangle" />}
+        title="Error: Unable to delete user"
+        variant="danger"
+      >
+        Error: Unable to delete user.
+      </Banner>}
+    </>
+  );
+};
+
 const SEARCH_QUERY_PARAM = 'search';
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
@@ -139,7 +203,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const listUsersQuery = useAwsPaginatedEntities(getUserListUsersQuery(accountName, IAMClient), (page) => page.Users);
   const iamUsers = useMemo(() => {
     if (listUsersQuery.firstPageStatus === 'success') {
-      const iamUsers = listUsersQuery.data.map((user) => {
+      const iamUsers = listUsersQuery && listUsersQuery.data && listUsersQuery.data.map((user) => {
         return {
           userName: user.UserName,
           createdOn: formatSimpleDate(user.CreateDate),
@@ -183,6 +247,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       cellStyle: {
         textAlign: 'right',
         minWidth: '7rem',
+        marginRight: 'auto',
       },
     }, // Table cell for all the actions (Copy ARN, Edit and Delete)
     {
@@ -190,8 +255,9 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        marginLeft: 'auto',
-        minWidth: '25rem',
+        marginRight: 'auto',
+        marginLeft: '26rem',
+        minWidth: '5rem',
       },
       disableSortBy: true,
       Cell: (value) => renderActionButtons(value.row.original),
@@ -213,7 +279,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           >
             {listUsersQuery.firstPageStatus !== 'loading' &&
             listUsersQuery.firstPageStatus !== 'error' ? (
-              <SpacedBox mr={12}>
+              iamUsers && <SpacedBox mr={12}>
                 Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
               </SpacedBox>
             ) : (
