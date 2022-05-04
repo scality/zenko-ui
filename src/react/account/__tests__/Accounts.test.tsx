@@ -1,7 +1,5 @@
-import {
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import router from 'react-router';
+import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -13,6 +11,7 @@ import {
   TEST_API_BASE_URL,
 } from '../../utils/test';
 import Accounts from '../Accounts';
+import { createMemoryHistory } from 'history';
 
 const TEST_ACCOUNT = 'Test Account';
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
@@ -101,6 +100,58 @@ describe('Accounts', () => {
       expect(
         screen.getByText('The server is temporarily unavailable.'),
       ).toBeInTheDocument();
+    } catch (e) {
+      console.log(
+        'should list accounts display an error when retrieval of accounts failed',
+        e,
+      );
+      throw e;
+    }
+  });
+
+  it('should redirect the user to buckets when no storage manager or storage account owner role can be assumed', async () => {
+    try {
+      //S
+      const mockedHistory = createMemoryHistory();
+      mockedHistory.replace = jest.fn();
+      jest.spyOn(router, 'useHistory').mockReturnValue(mockedHistory);
+      server.use(
+        rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
+          res(
+            ctx.json({
+              IsTruncated: false,
+              Accounts: [
+                {
+                  Name: TEST_ACCOUNT,
+                  CreationDate: TEST_ACCOUNT_CREATION_DATE,
+                  Roles: [
+                    {
+                      Name: 'another-role',
+                      Arn: 'arn:aws:iam::064609833007:role/another-role',
+                    },
+                  ],
+                },
+              ],
+            }),
+          ),
+        ),
+      );
+
+      //E
+      reduxRender(<Accounts />, {
+        uiErrors: initialErrorsUIState,
+        networkActivity: {
+          counter: 0,
+          messages: List.of(),
+        },
+        oidc: { user: { access_token: 'token' } },
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      });
+      //V
+      //Wait for account to be loaded
+      await waitFor(() => screen.getByText(TEST_ACCOUNT));
+
+      expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets')
     } catch (e) {
       console.log(
         'should list accounts display an error when retrieval of accounts failed',

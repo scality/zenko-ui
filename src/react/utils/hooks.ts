@@ -2,22 +2,24 @@ import { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
-  useQueryClient,
   UseQueryOptions,
   UseQueryResult,
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
 import { Account, WebIdentityRoles } from '../../types/iam';
 import { AppState } from '../../types/state';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { handleApiError, handleClientError, networkEnd, networkStart } from '../actions';
-import { useIAMClient } from '../IAMProvider';
+import {
+  handleApiError,
+  handleClientError,
+  networkEnd,
+  networkStart,
+} from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
-import { getAccountIDStored } from './localStorage';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -144,12 +146,17 @@ export function useQueryWithUnmountSupport<
 export const regexArn =
   /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
 
+const STORAGE_MANAGER_ROLE = 'storage-manager-role';
+const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
+
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user.access_token);
   const IAMEndpoint = useSelector(
     (state: AppState) => state.auth.config.iamEndpoint,
   );
   const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
 
   const { data } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
     {
@@ -162,9 +169,21 @@ export const useAccounts = () => {
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      onUnmountOrSettled: (_, error) => {
+      onUnmountOrSettled: (accountsWithRoles, error) => {
         if (!error) {
           dispatch(networkEnd());
+          const canAssumeAdminAccountRolesOnAnyAccount =
+            !!accountsWithRoles?.find((accountWithRoles) =>
+              accountWithRoles.Roles.find(
+                (role) =>
+                  role.Name === STORAGE_MANAGER_ROLE ||
+                  role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
+              ),
+            );
+            
+            if (!canAssumeAdminAccountRolesOnAnyAccount && !location.pathname.includes('bucket') && !location.pathname.includes('workflows')) {
+              history.replace('/buckets')
+            }
         } else {
           if (error?.message === 'Unmounted') {
             dispatch(networkEnd());
@@ -176,7 +195,7 @@ export const useAccounts = () => {
             dispatch(handleApiError(err as ApiError, 'byModal'));
           }
         }
-      }
+      },
     },
     (data) => data.Accounts,
   );
