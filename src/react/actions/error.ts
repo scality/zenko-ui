@@ -53,8 +53,11 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
         dispatch(networkAuthFailure());
         break;
       case 400:
-        if (error.message.includes('token has expired')) {
+        if (error.message?.includes('token has expired')) {
+          dispatch(handleErrorMessage(error.message, 'byAuth'));
           dispatch(networkAuthFailure());
+        } else {
+          throw error;
         }
         break;
 

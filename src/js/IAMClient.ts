@@ -44,11 +44,37 @@ export function getRolesForWebIdentity(endpoint: string, token: string, marker?:
     if (r.ok) {
       return r.json();
     }
+    let error;
+    let textResponse;
     try {
-      throw {status: r.status, ...await r.json()};
+      textResponse = await r.text();
     } catch (e) {
-      throw r;  
+      throw r;
     }
+
+    try {
+      //Try to parse the json error
+      error = {status: r.status, ...JSON.parse(textResponse)};
+    } catch (e) {
+      try {
+        //Fallback to xml error parsing
+        const parser = new DOMParser();
+        const errorDocument = parser.parseFromString(textResponse, "text/xml");
+        const codeElements = errorDocument.getElementsByTagName('Code');
+        const messageElements = errorDocument.getElementsByTagName('Message');
+
+        if (codeElements.length > 0 && messageElements.length > 0) {
+          error = {status: r.status, message: messageElements[0].textContent, code: codeElements[0].textContent};
+        } else {
+          error = r;
+        }
+      } catch (e) {
+        //Fallback to simple error handling based on the fetch response object
+        error = r;
+      }
+    }
+    
+    throw error;
   })
 }
 export default class IAMClient implements IAMClientInterface {

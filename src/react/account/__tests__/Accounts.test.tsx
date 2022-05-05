@@ -109,6 +109,53 @@ describe('Accounts', () => {
     }
   });
 
+  it('should handle token expired errror correctly', async () => {
+    try {
+      //S
+      server.use(
+        rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
+          res(
+            ctx.status(400),
+            ctx.xml(`<ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+          <Error>
+              <Code>ExpiredToken</Code>
+              <Message>The provided token has expired.</Message>
+          </Error>
+          <RequestId>489bb474e54ea9c60e35</RequestId>
+      </ErrorResponse>
+      `),
+          ),
+        ),
+      );
+      //E
+      reduxRender(<Accounts />, {
+        uiErrors: initialErrorsUIState,
+        networkActivity: {
+          counter: 0,
+          messages: List.of(),
+        },
+        oidc: { user: { access_token: 'token' } },
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      });
+      //V
+
+      //Wait for error
+      await waitFor(() =>
+        screen.getByText(/The provided token has expired./i),
+      );
+
+      expect(
+        screen.getByText(/The provided token has expired./i),
+      ).toBeInTheDocument();
+    } catch (e) {
+      console.log(
+        'should list accounts display an error when retrieval of accounts failed',
+        e,
+      );
+      throw e;
+    }
+  });
+
   it('should redirect the user to buckets when no storage manager or storage account owner role can be assumed', async () => {
     try {
       //S
@@ -151,7 +198,7 @@ describe('Accounts', () => {
       //Wait for account to be loaded
       await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
-      expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets')
+      expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
     } catch (e) {
       console.log(
         'should list accounts display an error when retrieval of accounts failed',
