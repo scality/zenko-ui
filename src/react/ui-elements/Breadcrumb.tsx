@@ -1,21 +1,23 @@
 import { Link, matchPath } from 'react-router-dom';
-import type { Account } from '../../types/account';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
 import { Element } from 'react';
 import React from 'react';
-import { Select } from '@scality/core-ui/dist/next';
 import styled from 'styled-components';
-import { useAccounts, useQueryParams } from '../utils/hooks';
 import { ellipsis } from 'polished';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useDispatch } from 'react-redux';
+import { openAccountRoleSelectModal } from '../actions';
+import AccountRoleSelectModal from '../account/AccountRoleSelectModal';
+import { AccountSelectorButton } from './Table';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
+  align-items: baseline;
   .sc-breadcrumb_item {
     display: flex;
     align-items: center;
 
     &:first-of-type {
       display: block;
-      width: 180px;
       text-decoration: none;
       overflow: visible;
       * {
@@ -34,7 +36,7 @@ const BaseBreadCrumb = styled(CoreUIBreadcrumb)`
   }
 `;
 
-const breadcrumbPaths = (
+export const breadcrumbPathsBuckets = (
   pathname: string,
   prefixPath: string,
   accountName: string,
@@ -176,90 +178,42 @@ const breadcrumbPaths = (
 };
 
 type Props = {
-  accounts: Array<Account>;
   accountName: string | null | undefined;
-  pathname: string;
+  breadcrumbPaths?: Array<Element<'label'>>;
 };
-export function Breadcrumb({ accounts, accountName, pathname }: Props) {
-  const query = useQueryParams();
-  const accountsWithRoles = useAccounts();
+//breadcrumb for data browser and workflows
+export function Breadcrumb({ accountName, breadcrumbPaths }: Props) {
+  const dispatch = useDispatch();
 
-  const { selectAccountAndRedirectTo } = useCurrentAccount();
-  const prefixPath = query.get('prefix');
-  const switchAccount = (selectedName) => {
-    const account =
-      selectedName &&
-      selectedName !== accountName &&
-      accountsWithRoles.find((a) => a.Name === selectedName);
-
-    if (!account || !accountsWithRoles || !accountsWithRoles.length) {
-      return;
-    }
-
-    selectAccountAndRedirectTo(pathname, account);
+  const switchAccount = () => {
+    dispatch(openAccountRoleSelectModal());
   };
-
+  const paths = [
+    <AccountSelectorButton
+      variant="primary"
+      onClick={switchAccount}
+      label={
+        <>
+          {accountName}
+          <SpacedBox ml={2}>
+            <i className="fas fa-chevron-down fa-xs" />
+          </SpacedBox>
+        </>
+      }
+      icon={<i className="fas fa-wallet" />}
+    ></AccountSelectorButton>,
+  ];
+  if (breadcrumbPaths) {
+    paths.push(...breadcrumbPaths);
+  }
   return (
-    <CustomBreadCrumb
-      paths={[
-        <Select
-          key={0}
-          onChange={switchAccount}
-          value={accountName}
-          variant="rounded"
-        >
-          {accounts.map((account) => (
-            <Select.Option key={account.Name} value={account.Name}>
-              {account.Name}
-            </Select.Option>
-          ))}
-        </Select>,
-        ...breadcrumbPaths(pathname, prefixPath, accountName),
-      ]}
-    />
+    <>
+      <CustomBreadCrumb paths={paths} />
+      <AccountRoleSelectModal></AccountRoleSelectModal>
+    </>
   );
 }
-type BreadcrumbWorkflowProps = {
-  accounts: Array<Account>;
-  accountName: string | null | undefined;
-  pathname: string;
-};
-export function BreadcrumbWorkflow({
-  accounts,
-  accountName,
-  pathname,
-}: BreadcrumbWorkflowProps) {
-  const { selectAccountAndRedirectTo } = useCurrentAccount();
-  const switchAccount = (selectedName) => {
-    const account =
-      selectedName &&
-      selectedName !== accountName &&
-      accounts.find((a) => a.Name === selectedName);
-    if (!account) {
-      return;
-    }
-    selectAccountAndRedirectTo(pathname, account);
-  };
 
-  return (
-    <CustomBreadCrumb
-      paths={[
-        <Select
-          key={0}
-          onChange={switchAccount}
-          value={accountName}
-          variant="rounded"
-        >
-          {accounts.map((account) => (
-            <Select.Option key={account.Name} value={account.Name}>
-              {account.Name}
-            </Select.Option>
-          ))}
-        </Select>,
-      ]}
-    />
-  );
-}
 export function BreadcrumbAccount({ pathname }: { pathname: string }) {
   const matchAccountUserAccessKey = matchPath(pathname, {
     path: '/accounts/:accountName/users/:userName/access-keys',

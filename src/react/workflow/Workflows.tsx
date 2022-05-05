@@ -1,9 +1,8 @@
 import * as L from '../ui-elements/ListLayout3';
-import { useLocation } from 'react-router';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { BreadcrumbWorkflow } from '../ui-elements/Breadcrumb';
+import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import WorkflowContent from './WorkflowContent';
@@ -81,7 +80,6 @@ export default function Workflows() {
   const { workflowId } = useParams<{ workflowId?: string }>();
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
-  const { pathname } = useLocation();
   const accounts = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
@@ -166,11 +164,7 @@ export default function Workflows() {
   return (
     <L.Container>
       <L.BreadcrumbContainer>
-        <BreadcrumbWorkflow
-          accounts={accounts}
-          accountName={accountName}
-          pathname={pathname}
-        />
+        <Breadcrumb accountName={accountName} />
       </L.BreadcrumbContainer>
       {content()}
     </L.Container>

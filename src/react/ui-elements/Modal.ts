@@ -20,6 +20,6 @@ export const CustomModal = styled(Modal)`
   }
 `;
 export const ModalBody = styled.div`
-  max-width: 600px;
+  max-width: 80rem;
   line-height: 150%;
 `;

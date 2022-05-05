@@ -40,7 +40,7 @@ import Select, {
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useLocation } from 'react-router-dom';
-import { useAccounts, useQueryParams } from '../utils/hooks';
+import { useQueryParams } from '../utils/hooks';
 import {
   useCurrentAccount,
   useDataServiceRole,
@@ -109,7 +109,6 @@ const CreateWorkflow = () => {
   const accountName = account?.Name;
   const accountId = account?.id;
   const { roleName: rolePathName } = useDataServiceRole();
-  const accounts = useAccounts();
   const { pathname } = useLocation();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
@@ -218,11 +217,7 @@ const CreateWorkflow = () => {
   return (
     <>
       <L.BreadcrumbContainer>
-        <Breadcrumb
-          accounts={accounts}
-          accountName={accountName}
-          pathname={pathname}
-        />
+        <Breadcrumb accountName={accountName} pathname={pathname} />
       </L.BreadcrumbContainer>
       <FormProvider {...useFormMethods}>
         <FormContainer>
