@@ -17,7 +17,7 @@ import type {
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import { removeAccountIDStored } from '../utils/localStorage';
+import { removeRoleArnStored } from '../utils/localStorage';
 import {
   handleAWSClientError,
   handleAWSError,
@@ -130,7 +130,7 @@ export function deleteAccount(
       .then(() => dispatch(push('/accounts')))
       .then(() => dispatch(closeAccountDeleteDialog()))
       .then(() => {
-        removeAccountIDStored();
+        removeRoleArnStored();
       })
       .then(() => {
         queryClient.invalidateQueries(['WebIdentityRoles', token]);
