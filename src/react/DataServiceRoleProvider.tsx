@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import { generatePath, useHistory } from 'react-router';
 import { regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 
@@ -37,19 +37,16 @@ export const useCurrentAccount = () => {
   }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
 
   const selectAccountAndRoleRedirectTo = (
-    pathname: string,
+    path: string,
     accountName: string,
     roleArn: string,
   ) => {
     setRoleArnStored(roleArn);
-
-    if (pathname.includes('/buckets')) {
-      history.push(`/accounts/${accountName}/buckets`);
-    } else if (pathname.includes('/workflows')) {
-      history.push(`/accounts/${accountName}/workflows`);
-    } else {
-      history.push(`/accounts/${accountName}`);
-    }
+    history.push(
+      generatePath(path, {
+        accountName: accountName,
+      }),
+    );
   };
   return {
     account,
