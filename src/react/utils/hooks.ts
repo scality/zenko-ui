@@ -148,6 +148,12 @@ export const regexArn =
 
 const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
+const DATA_CONSUMER_ROLE = 'data-consumer-role';
+export const SCALITY_INTERNAL_ROLES = [
+  STORAGE_MANAGER_ROLE,
+  STORAGE_ACCOUNT_OWNER_ROLE,
+  DATA_CONSUMER_ROLE,
+];
 
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user.access_token);
@@ -180,10 +186,14 @@ export const useAccounts = () => {
                   role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
               ),
             );
-            
-            if (!canAssumeAdminAccountRolesOnAnyAccount && !location.pathname.includes('bucket') && !location.pathname.includes('workflows')) {
-              history.replace('/buckets')
-            }
+
+          if (
+            !canAssumeAdminAccountRolesOnAnyAccount &&
+            !location.pathname.includes('bucket') &&
+            !location.pathname.includes('workflows')
+          ) {
+            history.replace('/buckets');
+          }
         } else {
           if (error?.message === 'Unmounted') {
             dispatch(networkEnd());
