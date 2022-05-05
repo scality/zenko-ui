@@ -52,6 +52,11 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
       case 403:
         dispatch(networkAuthFailure());
         break;
+      case 400:
+        if (error.message.includes('token has expired')) {
+          dispatch(networkAuthFailure());
+        }
+        break;
 
       default:
         throw error;
@@ -60,15 +65,21 @@ export function handleClientError(error: ApiError): ThunkNonStateAction {
 }
 export function handleAWSClientError(error: AWSError): ThunkNonStateAction {
   return (dispatch: DispatchFunction) => {
-    switch (error.statusCode) {
-      case 401:
-      case 403:
-        dispatch(handleErrorMessage(error.message, 'byAuth'));
-        dispatch(networkAuthFailure());
-        break;
-
-      default:
-        throw error;
+    if (error.code === 'ExpiredToken') {
+      dispatch(handleErrorMessage(error.message, 'byAuth'));
+      dispatch(networkAuthFailure());
+    } else {
+      switch (error.statusCode) {
+        case 401:
+        case 403:
+          dispatch(handleErrorMessage(error.message, 'byAuth'));
+          dispatch(networkAuthFailure());
+          break;
+  
+        default:
+          throw error;
+      }
     }
+    
   };
 }

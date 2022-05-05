@@ -40,11 +40,15 @@ export function getRolesForWebIdentity(endpoint: string, token: string, marker?:
   if (maxItems) {
     data.append("MaxItems", `${maxItems}`);
   }
-  return fetch(endpoint, {method: 'POST', body: data.toString()}).then(r => {
+  return fetch(endpoint, {method: 'POST', body: data.toString()}).then(async r => {
     if (r.ok) {
       return r.json();
     }
-    throw r;
+    try {
+      throw {status: r.status, ...await r.json()};
+    } catch (e) {
+      throw r;  
+    }
   })
 }
 export default class IAMClient implements IAMClientInterface {
