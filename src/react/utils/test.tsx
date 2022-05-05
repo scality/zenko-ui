@@ -23,6 +23,7 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
+import ReauthDialog from '../ui-elements/ReauthDialog';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -195,6 +196,7 @@ export const reduxRender = (component, testState) => {
               {component}
               <Activity />
               <ErrorHandlerModal />
+              <ReauthDialog />
             </>
           </Provider>
         </ThemeProvider>
