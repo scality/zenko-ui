@@ -20,6 +20,7 @@ import {
   networkStart,
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -144,7 +145,7 @@ export function useQueryWithUnmountSupport<
 }
 
 export const regexArn =
-  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
+  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_path>(?:[^/]*\/)*)(?<role_name>[^/]+)$/;
 
 const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
@@ -226,4 +227,13 @@ export const useAccounts = () => {
   return uniqueAccountsWithRoles.filter(
     (account) => account.Name !== 'scality-internal-services',
   );
+};
+
+export const useRolePathName = () => {
+  const { roleArn } = useDataServiceRole();
+  const parsedArn = regexArn.exec(roleArn);
+  const rolePath = parsedArn?.groups['role_path'] || '';
+  const roleName = parsedArn?.groups['role_name'] || '';
+  const rolePathName = rolePath + roleName;
+  return rolePathName;
 };

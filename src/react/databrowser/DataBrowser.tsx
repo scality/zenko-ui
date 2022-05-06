@@ -68,7 +68,6 @@ export default function DataBrowser() {
     <L.Container>
       <L.BreadcrumbContainer>
         <Breadcrumb
-          accountName={accountName}
           breadcrumbPaths={breadcrumbPathsBuckets(
             pathname,
             prefixPath,

@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useRouteMatch } from 'react-router';
 import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Tooltip } from '@scality/core-ui';
-import { AppState } from '../../types/state';
-import { closeAccountRoleSelectModal } from '../actions';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {
@@ -14,29 +12,24 @@ import {
 } from '../DataServiceRoleProvider';
 import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '../ui-elements/Help';
+import { AccountSelectorButton } from '../ui-elements/Table';
 
-function AccountRoleSelectModal() {
-  const dispatch = useDispatch();
+function AccountRoleSelectButtonAndModal() {
   const accounts = useAccounts();
   const { path } = useRouteMatch();
-
   const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
+  const accountName = account?.Name;
   const { roleArn } = useDataServiceRole();
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
-  const [currentAccountName, setCurrentAccountName] = useState(account?.Name);
-  const isModalOpen = useSelector(
-    (state: AppState) => state.uiAccounts.showAccountRoleSelect,
-  );
-
+  const [currentAccountName, setCurrentAccountName] = useState(accountName);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const accountsWithRoles = [];
   accounts.forEach((account) => {
     const accountName = account.Name;
     account.Roles.forEach((role) => {
-      const rolePathName = regexArn.exec(role.Arn)?.groups['role_name'] || '';
-      const rolePath = rolePathName.includes('/')
-        ? rolePathName.split('/')[0]
-        : '/';
-      const roleName = rolePathName.split('/')[1] || rolePathName;
+      const parsedArn = regexArn.exec(role.Arn);
+      const rolePath = parsedArn?.groups['role_path'] || '';
+      const roleName = parsedArn?.groups['role_name'] || '';
       accountsWithRoles.push({
         accountName,
         roleName,
@@ -46,12 +39,8 @@ function AccountRoleSelectModal() {
     });
   });
 
-  if (!isModalOpen) {
-    return null;
-  }
-
   const handleClose = () => {
-    dispatch(closeAccountRoleSelectModal());
+    setIsModalOpen(false);
   };
   const modalFooter = () => {
     return (
@@ -102,7 +91,8 @@ function AccountRoleSelectModal() {
                     width: '12rem',
                   }}
                 >
-                  {roleName} <Icon className="fas fa-info-circle fa-xs"></Icon>
+                  {roleName}{' '}
+                  <Icon className="fas fa-question-circle fa-xs"></Icon>
                 </Tooltip>
               </>
             );
@@ -151,17 +141,32 @@ function AccountRoleSelectModal() {
   }
 
   return (
-    <Modal
-      close={handleClose}
-      footer={modalFooter()}
-      isOpen={true}
-      title="Select Account and Role to assume"
-    >
-      <ModalBody>
-        <AccountRoleList />
-      </ModalBody>
-    </Modal>
+    <>
+      <AccountSelectorButton
+        variant="primary"
+        onClick={() => setIsModalOpen(true)}
+        label={
+          <>
+            {currentAccountName}
+            <SpacedBox ml={2}>
+              <i className="fas fa-chevron-down fa-xs" />
+            </SpacedBox>
+          </>
+        }
+        icon={<i className="fas fa-wallet" />}
+      ></AccountSelectorButton>
+      <Modal
+        close={handleClose}
+        footer={modalFooter()}
+        isOpen={isModalOpen}
+        title="Select Account and Role to assume"
+      >
+        <ModalBody>
+          <AccountRoleList />
+        </ModalBody>
+      </Modal>
+    </>
   );
 }
 
-export default AccountRoleSelectModal;
+export default AccountRoleSelectButtonAndModal;

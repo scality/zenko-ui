@@ -4,11 +4,7 @@ import { Element } from 'react';
 import React from 'react';
 import styled from 'styled-components';
 import { ellipsis } from 'polished';
-import { useDispatch } from 'react-redux';
-import { openAccountRoleSelectModal } from '../actions';
-import AccountRoleSelectModal from '../account/AccountRoleSelectModal';
-import { AccountSelectorButton } from './Table';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   align-items: baseline;
@@ -178,40 +174,17 @@ export const breadcrumbPathsBuckets = (
 };
 
 type Props = {
-  accountName: string | null | undefined;
   breadcrumbPaths?: Array<Element<'label'>>;
 };
 //breadcrumb for data browser and workflows
-export function Breadcrumb({ accountName, breadcrumbPaths }: Props) {
-  const dispatch = useDispatch();
-
-  const switchAccount = () => {
-    dispatch(openAccountRoleSelectModal());
-  };
+export function Breadcrumb({ breadcrumbPaths }: Props) {
   const paths = [
-    <AccountSelectorButton
-      variant="primary"
-      onClick={switchAccount}
-      label={
-        <>
-          {accountName}
-          <SpacedBox ml={2}>
-            <i className="fas fa-chevron-down fa-xs" />
-          </SpacedBox>
-        </>
-      }
-      icon={<i className="fas fa-wallet" />}
-    ></AccountSelectorButton>,
+    <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
   ];
   if (breadcrumbPaths) {
     paths.push(...breadcrumbPaths);
   }
-  return (
-    <>
-      <CustomBreadCrumb paths={paths} />
-      <AccountRoleSelectModal></AccountRoleSelectModal>
-    </>
-  );
+  return <CustomBreadCrumb paths={paths} />;
 }
 
 export function BreadcrumbAccount({ pathname }: { pathname: string }) {
