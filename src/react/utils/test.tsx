@@ -108,10 +108,8 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   );
   const roleArn =
     'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
-  const roleName = 'storage-manager-role';
   const role = {
     roleArn,
-    roleName,
   };
   return (
     <QueryClientProvider

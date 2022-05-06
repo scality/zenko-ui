@@ -5,7 +5,7 @@ import { regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
-  role: { roleArn: string; roleName: string };
+  role: { roleArn: string };
 }>(null);
 
 export const useDataServiceRole = () => {
@@ -66,14 +66,10 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
       const roleArn = selectedAccount?.Roles[0].Arn;
       return {
         roleArn: roleArn,
-        roleName: roleArn ? regexArn.exec(roleArn).groups['role_name'] : '',
       };
     } else {
       return {
         roleArn: storedRoleArn,
-        roleName: storedRoleArn
-          ? regexArn.exec(storedRoleArn).groups['role_name']
-          : '',
       };
     }
   }, [storedRoleArn, accountName, JSON.stringify(accountsWithRoles)]);

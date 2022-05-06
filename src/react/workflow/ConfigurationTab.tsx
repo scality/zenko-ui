@@ -52,6 +52,7 @@ import {
   useCurrentAccount,
   useDataServiceRole,
 } from '../DataServiceRoleProvider';
+import { useRolePathName } from '../utils/hooks';
 
 type Props = {
   wfSelected: Workflow;
@@ -77,7 +78,7 @@ function useReplicationMutations({
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
-  const { roleName: rolePathName } = useDataServiceRole();
+  const rolePathName = useRolePathName();
   const accountId = account?.id;
   const deleteReplicationMutation = useMutation<
     Response,
@@ -193,7 +194,7 @@ function useExpirationMutations({
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account.id;
-  const { roleName: rolePathName } = useDataServiceRole();
+  const rolePathName = useRolePathName();
   const deleteExpirationMutation = useMutation<Response, ApiError, Expiration>({
     mutationFn: (expiration) => {
       dispatch(networkStart('Deleting expiration'));

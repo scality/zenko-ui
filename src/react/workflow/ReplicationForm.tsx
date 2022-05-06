@@ -31,10 +31,8 @@ import { getClients } from '../utils/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { AppState } from '../../types/state';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useRolePathName } from '../utils/hooks';
 
 const ReplicationContainer = styled.div`
   display: flex;
@@ -86,7 +84,7 @@ function ReplicationComponent({
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
-  const { roleName: rolePathName } = useDataServiceRole();
+  const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
 
   const replicationsQuery = useQuery({

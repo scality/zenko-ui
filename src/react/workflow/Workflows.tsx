@@ -20,11 +20,8 @@ import {
   networkStart,
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
-import { useAccounts } from '../utils/hooks';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
+import { useAccounts, useRolePathName } from '../utils/hooks';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -35,8 +32,7 @@ export function useWorkflows(
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
-  const { roleName: rolePathName } = useDataServiceRole();
-
+  const rolePathName = useRolePathName();
   const dispatch = useDispatch();
 
   const workflowsQuery = useQuery({
@@ -164,7 +160,7 @@ export default function Workflows() {
   return (
     <L.Container>
       <L.BreadcrumbContainer>
-        <Breadcrumb accountName={accountName} />
+        <Breadcrumb />
       </L.BreadcrumbContainer>
       {content()}
     </L.Container>
