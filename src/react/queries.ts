@@ -58,7 +58,7 @@ export const workflowListQuery = (
         },
       );
     },
-    enabled: mgnt != null,
+    enabled: mgnt != null && accountId !== undefined,
   };
 };
 
