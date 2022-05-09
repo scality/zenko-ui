@@ -1,10 +1,11 @@
-const ACCOUNT_ID_KEY = 'account-id';
-export function getAccountIDStored(): string {
-  return localStorage.getItem(ACCOUNT_ID_KEY) || '';
+const ROLE_ARN = 'role-arn';
+
+export function getRoleArnStored(): string {
+  return localStorage.getItem(ROLE_ARN) || '';
 }
-export function setAccountIDStored(accountID: string): void {
-  localStorage.setItem(ACCOUNT_ID_KEY, accountID);
+export function setRoleArnStored(roleArn: string): void {
+  localStorage.setItem(ROLE_ARN, roleArn);
 }
-export function removeAccountIDStored(): void {
-  localStorage.removeItem(ACCOUNT_ID_KEY);
+export function removeRoleArnStored(): void {
+  localStorage.removeItem(ROLE_ARN);
 }
