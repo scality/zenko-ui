@@ -3,7 +3,7 @@ import { Route, Switch, useLocation } from 'react-router-dom';
 import { useParams, useRouteMatch } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Breadcrumb } from '../ui-elements/Breadcrumb';
+import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import ListLayoutButtons from './HeaderButtons';
@@ -14,7 +14,7 @@ import { clearError } from '../actions';
 import { push } from 'connected-react-router';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
-import { useAccounts } from '../utils/hooks';
+import { useAccounts, useQueryParams } from '../utils/hooks';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -28,7 +28,10 @@ export default function DataBrowser() {
     (state: AppState) => state.uiErrors.errorMsg,
   );
   const { pathname } = useLocation();
+  const query = useQueryParams();
+  const prefixPath = query.get('prefix');
   const { path } = useRouteMatch();
+
   // NOTE: create-bucket page has its own way to manage "byComponent" errors.
   if (hasError) {
     return (
@@ -65,9 +68,11 @@ export default function DataBrowser() {
     <L.Container>
       <L.BreadcrumbContainer>
         <Breadcrumb
-          accounts={accounts}
-          accountName={accountName}
-          pathname={pathname}
+          breadcrumbPaths={breadcrumbPathsBuckets(
+            pathname,
+            prefixPath,
+            accountName,
+          )}
         />
         <Switch>
           <Route exact path={`${path}/:bucketName/retention-setting`} />

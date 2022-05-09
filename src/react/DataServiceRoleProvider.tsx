@@ -1,12 +1,11 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { useHistory } from 'react-router';
-import { Account } from '../types/account';
+import { generatePath, useHistory } from 'react-router';
 import { regexArn, useAccounts } from './utils/hooks';
-import { getAccountIDStored, setAccountIDStored } from './utils/localStorage';
+import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
-  role: { roleArn: string; roleName: string };
+  role: { roleArn: string };
 }>(null);
 
 export const useDataServiceRole = () => {
@@ -23,48 +22,57 @@ export const useDataServiceRole = () => {
 
 export const useCurrentAccount = () => {
   const { accountName } = useParams<{ accountName: string }>();
-  const storedAccoutId = getAccountIDStored();
+  const storedRoleArn = getRoleArnStored();
+  const accountId = storedRoleArn
+    ? regexArn.exec(storedRoleArn).groups['account_id']
+    : '';
   const accountsWithRoles = useAccounts();
   const history = useHistory();
+  const account = useMemo(() => {
+    return accountsWithRoles.find((account) => {
+      if (accountName) return account.Name === accountName;
+      else if (accountId) return account.id === accountId;
+      else return true;
+    });
+  }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
 
-  const account = accountsWithRoles.find((account) => {
-    if (accountName) return account.Name === accountName;
-    else if (storedAccoutId) return account.id === storedAccoutId;
-    else return true;
-  });
-
-  const selectAccountAndRedirectTo = (pathname: string, account: Account) => {
-    setAccountIDStored(account.id);
-
-    if (pathname.includes('/buckets')) {
-      history.push(`/accounts/${account.Name}/buckets`);
-    } else if (pathname.includes('/workflows')) {
-      history.push(`/accounts/${account.Name}/workflows`);
-    } else {
-      history.push(`/accounts/${account.Name}`);
-    }
+  const selectAccountAndRoleRedirectTo = (
+    path: string,
+    accountName: string,
+    roleArn: string,
+  ) => {
+    setRoleArnStored(roleArn);
+    history.push(
+      generatePath(path, {
+        accountName: accountName,
+      }),
+    );
   };
-
   return {
     account,
-    selectAccountAndRedirectTo,
+    selectAccountAndRoleRedirectTo,
   };
 };
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const { accountName } = useParams<{ accountName: string }>();
   const accountsWithRoles = useAccounts();
+  const storedRoleArn = getRoleArnStored();
   const role = useMemo(() => {
-    //TODO: Being able to select which role in this account will be assumed
-    const selectedAccount = accountsWithRoles.find(
-      (account) => account.Name === accountName,
-    );
-    const roleArn = selectedAccount?.Roles[0].Arn;
-    return {
-      roleArn: roleArn,
-      roleName: roleArn ? regexArn.exec(roleArn).groups['role_name'] : '',
-    };
-  }, [accountName, JSON.stringify(accountsWithRoles)]);
+    if (!storedRoleArn) {
+      const selectedAccount = accountsWithRoles.find(
+        (account) => account.Name === accountName,
+      );
+      const roleArn = selectedAccount?.Roles[0].Arn;
+      return {
+        roleArn: roleArn,
+      };
+    } else {
+      return {
+        roleArn: storedRoleArn,
+      };
+    }
+  }, [storedRoleArn, accountName, JSON.stringify(accountsWithRoles)]);
 
   return (
     <_DataServiceRoleContext.Provider

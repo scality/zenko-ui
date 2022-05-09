@@ -1,9 +1,8 @@
 import * as L from '../ui-elements/ListLayout3';
-import { useLocation } from 'react-router';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { BreadcrumbWorkflow } from '../ui-elements/Breadcrumb';
+import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import WorkflowContent from './WorkflowContent';
@@ -21,11 +20,8 @@ import {
   networkStart,
 } from '../actions';
 import { APIWorkflows } from '../../types/workflow';
-import { useAccounts } from '../utils/hooks';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
+import { useAccounts, useRolePathName } from '../utils/hooks';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
@@ -36,8 +32,7 @@ export function useWorkflows(
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
-  const { roleName: rolePathName } = useDataServiceRole();
-
+  const rolePathName = useRolePathName();
   const dispatch = useDispatch();
 
   const workflowsQuery = useQuery({
@@ -81,7 +76,6 @@ export default function Workflows() {
   const { workflowId } = useParams<{ workflowId?: string }>();
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
-  const { pathname } = useLocation();
   const accounts = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
@@ -144,7 +138,9 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-coins"
             title="Before browsing your workflows, create your first workflow."
             btnTitle="Create Workflow"
-            btnAction={() => history.push('./workflows/create-workflow')}
+            btnAction={() =>
+              history.push(`/accounts/${accountName}/workflows/create-workflow`)
+            }
           />
         </EmptyStateContainer>
       );
@@ -164,11 +160,7 @@ export default function Workflows() {
   return (
     <L.Container>
       <L.BreadcrumbContainer>
-        <BreadcrumbWorkflow
-          accounts={accounts}
-          accountName={accountName}
-          pathname={pathname}
-        />
+        <Breadcrumb />
       </L.BreadcrumbContainer>
       {content()}
     </L.Container>

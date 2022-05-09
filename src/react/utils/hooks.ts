@@ -20,6 +20,7 @@ import {
   networkStart,
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -144,10 +145,16 @@ export function useQueryWithUnmountSupport<
 }
 
 export const regexArn =
-  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_name>.+)$/;
+  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_path>(?:[^/]*\/)*)(?<role_name>[^/]+)$/;
 
 const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
+const DATA_CONSUMER_ROLE = 'data-consumer-role';
+export const SCALITY_INTERNAL_ROLES = [
+  STORAGE_MANAGER_ROLE,
+  STORAGE_ACCOUNT_OWNER_ROLE,
+  DATA_CONSUMER_ROLE,
+];
 
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
@@ -180,10 +187,14 @@ export const useAccounts = () => {
                   role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
               ),
             );
-            
-            if (!canAssumeAdminAccountRolesOnAnyAccount && !location.pathname.includes('bucket') && !location.pathname.includes('workflows')) {
-              history.replace('/buckets')
-            }
+
+          if (
+            !canAssumeAdminAccountRolesOnAnyAccount &&
+            !location.pathname.includes('bucket') &&
+            !location.pathname.includes('workflows')
+          ) {
+            history.replace('/buckets');
+          }
         } else {
           if (error?.message === 'Unmounted') {
             dispatch(networkEnd());
@@ -216,4 +227,13 @@ export const useAccounts = () => {
   return uniqueAccountsWithRoles.filter(
     (account) => account.Name !== 'scality-internal-services',
   );
+};
+
+export const useRolePathName = () => {
+  const { roleArn } = useDataServiceRole();
+  const parsedArn = regexArn.exec(roleArn);
+  const rolePath = parsedArn?.groups['role_path'] || '';
+  const roleName = parsedArn?.groups['role_name'] || '';
+  const rolePathName = rolePath + roleName;
+  return rolePathName;
 };

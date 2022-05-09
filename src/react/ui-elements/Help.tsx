@@ -3,7 +3,7 @@ import React from 'react';
 import type { Node } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-const Icon = styled.i`
+export const Icon = styled.i`
   margin-left: ${spacing.sp8};
   color: ${(props) => props.theme.brand?.buttonSecondary};
 `;
