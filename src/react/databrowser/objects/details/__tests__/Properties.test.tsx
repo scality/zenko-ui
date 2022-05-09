@@ -136,6 +136,17 @@ describe('Properties', () => {
           isLegalHoldEnabled: true,
         }}
       />,
+      {
+        s3: {
+          bucketInfo: {
+            name: 'test-bucket',
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+            versioning: 'Enabled',
+          },
+        },
+      },
     );
     const tableItems = component.find(T.Row);
     const seventh = tableItems.at(6);
