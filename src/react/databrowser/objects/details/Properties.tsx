@@ -34,6 +34,11 @@ function Properties({ objectMetadata }: Props) {
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
+  //Display Legal Hold when the Bucket is versioned and object-lock enabled.
+  const isLegalHoldSettingVisible =
+    bucketInfo?.versioning === 'Enabled' &&
+    bucketInfo?.objectLockConfiguration.ObjectLockEnabled === 'Enabled';
+
   const query = useQueryParams();
   const metadataSearch = query.get('metadatasearch');
   // In order to keep object selection between toggling show versions, add `versionId` in the query params
@@ -134,8 +139,7 @@ function Properties({ objectMetadata }: Props) {
                   )}
                 </T.GroupValues>
               </T.Row>
-              {/* Display the legal hold when the object lock is enabled at bucket level */}
-              {objectMetadata.lockStatus !== 'NONE' && (
+              {isLegalHoldSettingVisible && (
                 <T.Row>
                   <T.Key>Legal Hold</T.Key>
                   <T.Value>
