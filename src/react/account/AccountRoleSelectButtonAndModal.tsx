@@ -18,11 +18,12 @@ function AccountRoleSelectButtonAndModal() {
   const accounts = useAccounts();
   const { path } = useRouteMatch();
   const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
-  const accountName = account?.Name;
   const { roleArn } = useDataServiceRole();
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
-  const [currentAccountName, setCurrentAccountName] = useState(accountName);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const accountName = account?.Name;
+  const [assumedAccount, setAssumedAccount] = useState(accountName);
+
   const accountsWithRoles = [];
   accounts.forEach((account) => {
     const accountName = account.Name;
@@ -51,12 +52,12 @@ function AccountRoleSelectButtonAndModal() {
           variant="primary"
           onClick={() => {
             setRoleArnStored(assumedRoleArn);
-            handleClose();
             selectAccountAndRoleRedirectTo(
               path,
-              currentAccountName,
+              assumedAccount,
               assumedRoleArn,
             );
+            handleClose();
           }}
           label="Continue"
           disabled={assumedRoleArn === getRoleArnStored()}
@@ -124,7 +125,7 @@ function AccountRoleSelectButtonAndModal() {
             backgroundVariant="backgroundLevel1"
             onRowSelected={(rowData) => {
               setAssumedRoleArn(rowData.original.roleArn);
-              setCurrentAccountName(rowData.original.accountName);
+              setAssumedAccount(rowData.original.accountName);
             }}
             selectedId={assumedRoleArn}
             children={(Rows) => {
@@ -147,7 +148,7 @@ function AccountRoleSelectButtonAndModal() {
         onClick={() => setIsModalOpen(true)}
         label={
           <>
-            {currentAccountName}
+            {accountName}
             <SpacedBox ml={2}>
               <i className="fas fa-chevron-down fa-xs" />
             </SpacedBox>

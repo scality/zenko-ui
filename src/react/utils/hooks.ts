@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -7,7 +7,7 @@ import {
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
@@ -20,7 +20,11 @@ import {
   networkStart,
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
-import { useDataServiceRole } from '../DataServiceRoleProvider';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
+import { setRoleArnStored } from './localStorage';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -147,8 +151,8 @@ export function useQueryWithUnmountSupport<
 export const regexArn =
   /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_path>(?:[^/]*\/)*)(?<role_name>[^/]+)$/;
 
-const STORAGE_MANAGER_ROLE = 'storage-manager-role';
-const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
+export const STORAGE_MANAGER_ROLE = 'storage-manager-role';
+export const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
 const DATA_CONSUMER_ROLE = 'data-consumer-role';
 export const SCALITY_INTERNAL_ROLES = [
   STORAGE_MANAGER_ROLE,
