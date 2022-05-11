@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -8,6 +8,7 @@ import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import type { Account } from '../../types/account';
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
+import { AppState } from '../../types/state';
 
 const TableAction = styled.div`
   display: flex;
@@ -20,6 +21,9 @@ type Props = {
 
 function AccountList({ accounts }: Props) {
   const dispatch = useDispatch();
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
 
   const nameCell = ({ value }) => {
     return (
@@ -61,7 +65,11 @@ function AccountList({ accounts }: Props) {
         height: '100%',
       }}
     >
-      <Table columns={columns} data={accounts} defaultSortingKey={'CreationDate'}>
+      <Table
+        columns={columns}
+        data={accounts}
+        defaultSortingKey={'CreationDate'}
+      >
         <TableAction>
           <Table.SearchWithQueryParams
             displayedName={{
@@ -69,13 +77,17 @@ function AccountList({ accounts }: Props) {
               plural: 'accounts',
             }}
           />
-          <Button
-            icon={<i className="fas fa-plus" />}
-            label="Create Account"
-            variant="primary"
-            onClick={() => dispatch(push('/create-account'))}
-            type="submit"
-          ></Button>
+          {userGroups.includes('StorageManager') ? (
+            <Button
+              icon={<i className="fas fa-plus" />}
+              label="Create Account"
+              variant="primary"
+              onClick={() => dispatch(push('/create-account'))}
+              type="submit"
+            ></Button>
+          ) : (
+            ''
+          )}
         </TableAction>
         <Table.SingleSelectableContent
           rowHeight="h40"
