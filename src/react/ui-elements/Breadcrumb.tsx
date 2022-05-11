@@ -1,7 +1,6 @@
 import { Link, matchPath } from 'react-router-dom';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
 import { Element } from 'react';
-import React from 'react';
 import styled from 'styled-components';
 import { ellipsis } from 'polished';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
@@ -21,13 +20,6 @@ export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
       }
       border-bottom: 0 !important;
     }
-    ${ellipsis('16rem')}
-  }
-`;
-const BaseBreadCrumb = styled(CoreUIBreadcrumb)`
-  .sc-breadcrumb_item {
-    display: flex;
-    align-items: center;
     ${ellipsis('16rem')}
   }
 `;
@@ -193,33 +185,14 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
   });
 
   if (matchAccountUserAccessKey) {
-    const accountName = matchAccountUserAccessKey.params.accountName || '';
     const userName = matchAccountUserAccessKey.params.userName;
     return (
-      <BaseBreadCrumb
+      <CustomBreadCrumb
         paths={[
-          <label key="accounts">
-            <Link
-              to={{
-                pathname: '/accounts',
-              }}
-            >
-              {' '}
-              All Accounts{' '}
-            </Link>
-          </label>,
-          <label key="account-name">
-            <Link
-              to={{
-                pathname: `/accounts/${accountName}/users`,
-              }}
-            >
-              {accountName}
-            </Link>
-          </label>,
+          <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
           <label key="user-name">keys for {userName}</label>,
         ]}
-      ></BaseBreadCrumb>
+      ></CustomBreadCrumb>
     );
   }
 
@@ -229,23 +202,11 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
 
   if (matchAccountRoute) {
     return (
-      <BaseBreadCrumb
+      <CustomBreadCrumb
         paths={[
-          <label key="accounts">
-            <Link
-              to={{
-                pathname: '/accounts',
-              }}
-            >
-              {' '}
-              All Accounts{' '}
-            </Link>
-          </label>,
-          <label key="account-name">
-            {matchAccountRoute.params.accountName}
-          </label>,
+          <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
         ]}
-      ></BaseBreadCrumb>
+      ></CustomBreadCrumb>
     );
   }
 
@@ -255,9 +216,9 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
 
   if (matchAllAccountsRoute) {
     return (
-      <BaseBreadCrumb
+      <CustomBreadCrumb
         paths={[<label key="accounts">All Accounts</label>]}
-      ></BaseBreadCrumb>
+      ></CustomBreadCrumb>
     );
   }
 
