@@ -1,9 +1,9 @@
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
-import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { TextTransformer } from '../../../ui-elements/Utility';
 import { useWorkflows } from '../../../workflow/Workflows';
 import { makeWorkflows } from '../../../queries';

@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 import { TextTransformer } from '../ui-elements/Utility';
 import type { Workflows } from '../../types/workflow';
 import { useHistory } from 'react-router-dom';
-import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Workflow } from '../../types/workflow';
 import { Button } from '@scality/core-ui/dist/next';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { useTheme } from 'styled-components';
-import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -92,7 +92,11 @@ function WorkflowList({ workflows, workflowId }: Props) {
 
   return (
     <div
-      style={{ backgroundColor: theme.brand.backgroundLevel3, height: '100%', width: '50%' }}
+      style={{
+        backgroundColor: theme.brand.backgroundLevel3,
+        height: '100%',
+        width: '50%',
+      }}
     >
       <Table
         columns={columns}

@@ -1,7 +1,7 @@
 import { ChangeEvent, useMemo } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
-import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
@@ -9,9 +9,9 @@ import { useAwsPaginatedEntities } from '../utils/IAMhooks';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import CopyARNButton from '../ui-elements/CopyARNButton';
 import { useQueryParams } from '../utils/hooks';
-import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
+import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 import { Tooltip } from '@scality/core-ui';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { getUserListUsersQuery } from '../queries';
 import { InlineButton } from '../ui-elements/Table';
@@ -19,7 +19,10 @@ import { InlineButton } from '../ui-elements/Table';
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const accessKeysQuery = useAwsPaginatedEntities(getUserListUsersQuery(userName, notFalsyTypeGuard(IAMClient)), (page) => page.Users);
+  const accessKeysQuery = useAwsPaginatedEntities(
+    getUserListUsersQuery(userName, notFalsyTypeGuard(IAMClient)),
+    (page) => page.Users,
+  );
   const accessKeys = useMemo(() => {
     if (accessKeysQuery.status === 'success') {
       return accessKeysQuery.data.length;
@@ -86,12 +89,13 @@ const RenderEditButton = ({ userName }: { userName: string }) => {
     <SpacedBox ml={12}>
       <Button
         style={{ height: spacing.sp24 }}
-        variant='secondary'
-        label='Edit'
-        icon={<i className='fa fa-pen'></i>}
+        variant="secondary"
+        label="Edit"
+        icon={<i className="fa fa-pen"></i>}
         onClick={() => history.push(`users/${userName}/update-user`)}
       />
-    </SpacedBox>);
+    </SpacedBox>
+  );
 };
 
 const renderActionButtons = (rowValues) => {
@@ -136,7 +140,10 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     history.replace(`${match.url}?${queryParams.toString()}`);
   };
 
-  const listUsersQuery = useAwsPaginatedEntities(getUserListUsersQuery(accountName, IAMClient), (page) => page.Users);
+  const listUsersQuery = useAwsPaginatedEntities(
+    getUserListUsersQuery(accountName, IAMClient),
+    (page) => page.Users,
+  );
   const iamUsers = useMemo(() => {
     if (listUsersQuery.firstPageStatus === 'success') {
       const iamUsers = listUsersQuery.data.map((user) => {
@@ -223,7 +230,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
               isLoading={listUsersQuery.status === 'loading'}
               tooltipOverlay="Search is disabled while loading users"
             >
-              <SearchInputComponent
+              <SearchInput
                 disabled={listUsersQuery.status !== 'success'}
                 value={search}
                 placeholder={'Search'}

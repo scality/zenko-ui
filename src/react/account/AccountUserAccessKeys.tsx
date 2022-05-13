@@ -10,9 +10,9 @@ import {
 import { Tooltip, Toggle, Banner } from '@scality/core-ui';
 import { useMutation } from 'react-query';
 import { Table, Button } from '@scality/core-ui/dist/next';
-import Icon from '@scality/core-ui/dist/components/icon/Icon.component';
-import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
+import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import { Clipboard } from '../ui-elements/Clipboard';
@@ -30,7 +30,7 @@ import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getUserAccessKeysQuery } from '../queries';
 const CustomIcon = styled.i`
-  color: ${props => props.color ?? props.theme.brand.infoPrimary};
+  color: ${(props) => props.color ?? props.theme.brand.infoPrimary};
   font-size: 32px;
 `;
 const HeadSection = styled.div`
@@ -46,7 +46,7 @@ const HeadSectionSeparator = styled.div`
   margin: 0 ${spacing.sp8};
 `;
 
-const CreatedOnCell = rowValue => {
+const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
   return (
     <div>
@@ -65,12 +65,12 @@ const CreatedOnCell = rowValue => {
   );
 };
 
-const ToggleAccessKeyStatus = rowValue => {
+const ToggleAccessKeyStatus = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
   const { IAMUserName } = useParams();
   const updateAccessKeyMutation = useMutation(
-    accessKey => {
+    (accessKey) => {
       return IAMClient.updateAccessKey(
         accessKey,
         accessKeyStatus === 'Active' ? 'Inactive' : 'Active',
@@ -96,7 +96,7 @@ const ToggleAccessKeyStatus = rowValue => {
   );
 };
 
-const AccessKeysCell = rowValue => {
+const AccessKeysCell = (rowValue) => {
   const { accessKey } = rowValue;
   return (
     <div
@@ -110,13 +110,13 @@ const AccessKeysCell = rowValue => {
   );
 };
 
-const DeleteAccessKeyAction = rowValue => {
+const DeleteAccessKeyAction = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
   const { IAMUserName } = useParams();
   const [showModal, setShowModal] = useState(false);
   const deleteAccessKeyMutation = useMutation(
-    accessKey => IAMClient.deleteAccessKey(accessKey, IAMUserName),
+    (accessKey) => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
       onSuccess: () =>
         queryClient.invalidateQueries(['listIAMUserAccessKey', IAMUserName]),
@@ -163,20 +163,18 @@ const AccountUserAccessKeys = () => {
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
   const theme = useTheme();
-  const {
-    data: accessKeysResult,
-    status: accessKeysStatus,
-  } = useAwsPaginatedEntities(
-    {
-      queryKey: getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
-      queryFn: getUserAccessKeysQuery(IAMUserName, IAMClient).queryFn,
-      enabled: IAMClient !== null,
-    },
-    data => data.AccessKeyMetadata,
-  );
+  const { data: accessKeysResult, status: accessKeysStatus } =
+    useAwsPaginatedEntities(
+      {
+        queryKey: getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
+        queryFn: getUserAccessKeysQuery(IAMUserName, IAMClient).queryFn,
+        enabled: IAMClient !== null,
+      },
+      (data) => data.AccessKeyMetadata,
+    );
   const data = useMemo(() => {
     if (accessKeysStatus === 'success') {
-      return accessKeysResult.map(accesskey => {
+      return accessKeysResult.map((accesskey) => {
         return {
           accessKey: accesskey.AccessKeyId,
           createdOn: formatSimpleDate(accesskey.CreateDate),
@@ -195,12 +193,12 @@ const AccountUserAccessKeys = () => {
       cellStyle: {
         minWidth: '20rem',
       },
-      Cell: value => AccessKeysCell(value.row.original),
+      Cell: (value) => AccessKeysCell(value.row.original),
     },
     {
       Header: 'Created On',
       accessor: 'createdOn',
-      Cell: value => CreatedOnCell(value.row.original),
+      Cell: (value) => CreatedOnCell(value.row.original),
       cellStyle: {
         minWidth: '10rem',
         textAlign: 'right',
@@ -214,7 +212,7 @@ const AccountUserAccessKeys = () => {
         textAlign: 'left',
         marginRight: spacing.sp32,
       },
-      Cell: value => ToggleAccessKeyStatus(value.row.original),
+      Cell: (value) => ToggleAccessKeyStatus(value.row.original),
     },
     {
       Header: '',
@@ -223,7 +221,7 @@ const AccountUserAccessKeys = () => {
         textAlign: 'right',
         marginLeft: 'auto',
       },
-      Cell: value => DeleteAccessKeyAction(value.row.original),
+      Cell: (value) => DeleteAccessKeyAction(value.row.original),
     },
   ];
   const accessKeysResultLength = accessKeysResult?.length ?? 0;
@@ -336,7 +334,7 @@ const AccountUserAccessKeys = () => {
             separationLineVariant="backgroundLevel1"
             backgroundVariant="backgroundLevel3"
           >
-            {Rows => (
+            {(Rows) => (
               <>
                 {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
                   ? 'Loading access keys...'

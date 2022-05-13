@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
-import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import type { Account } from '../../types/account';
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useRouteMatch } from 'react-router';
-import Table from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Tooltip } from '@scality/core-ui';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {

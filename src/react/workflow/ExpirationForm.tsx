@@ -3,7 +3,8 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
 import { Toggle, SpacedBox } from '@scality/core-ui';
-import Select, {
+import {
+  Select,
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';

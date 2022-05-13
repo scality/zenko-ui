@@ -15,7 +15,7 @@ import { storageOptions } from './storageOptions';
 import { useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
 import { XDM_FEATURE } from '../../../../js/config';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 type Props = {
   editingExisting: boolean;
   details: LocationDetails;
