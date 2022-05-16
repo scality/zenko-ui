@@ -46,7 +46,7 @@ export type ErrorsUIState = {
   readonly errorType: ErrorViewType | null;
 };
 export type ConfigurationState = {
-  readonly latest: ConfigurationOverlay;
+  readonly latest: ConfigurationOverlay | null;
 };
 export type AccountState = {
   readonly display: Account;

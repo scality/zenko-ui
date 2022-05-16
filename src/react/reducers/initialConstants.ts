@@ -64,19 +64,7 @@ export const initialBucketUIState: BucketsUIState = {
   showDelete: '',
 };
 export const initialConfiguration: ConfigurationState = {
-  latest: {
-    version: 1,
-    updatedAt: '2017-09-28T19:39:22.191Z',
-    creator: 'initial',
-    instanceId: 'demo-instance',
-    locations: {},
-    users: [],
-    endpoints: [],
-    workflows: {
-      lifecycle: {},
-      transition: {},
-    },
-  },
+  latest: null,
 };
 export const initialErrorsUIState: ErrorsUIState = {
   errorMsg: null,
