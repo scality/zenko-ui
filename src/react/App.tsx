@@ -14,6 +14,12 @@ import ZenkoUI from './ZenkoUI';
 //         [require('react-redux/lib'), 'useSelector'],
 //     ],
 // });
+if (process.env.NODE_ENV === 'development') {
+  (async () => {
+    const { worker } = await import('../js/mock/mswBrowserMocks');
+    worker.start();
+  })();
+}
 export const queryClient = new QueryClient();
 const  rootElement = document.getElementById('app')
 rootElement && ReactDOM.render(
