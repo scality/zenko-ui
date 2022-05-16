@@ -313,34 +313,22 @@ export namespace BucketWorkflowExpirationV1 {
 export interface BucketWorkflowTransitionV1 extends BucketWorkflowV1 {
     /**
      * 
-     * @type {Array<any>}
+     * @type {string}
      * @memberof BucketWorkflowTransitionV1
      */
-    currentVersionLocations?: Array<any>;
+    applyToVersions?: BucketWorkflowTransitionV1.ApplyToVersionsEnum;
     /**
      * 
      * @type {string}
      * @memberof BucketWorkflowTransitionV1
      */
-    currentVersionTriggerDelayDate?: string;
+    triggerDelayDate?: string;
     /**
      * 
      * @type {number}
      * @memberof BucketWorkflowTransitionV1
      */
-    currentVersionTriggerDelayDays?: number;
-    /**
-     * 
-     * @type {Array<any>}
-     * @memberof BucketWorkflowTransitionV1
-     */
-    previousVersionLocations?: Array<any>;
-    /**
-     * 
-     * @type {number}
-     * @memberof BucketWorkflowTransitionV1
-     */
-    previousVersionTriggerDelayDays?: number;
+    triggerDelayDays?: number;
 }
 
 /**
@@ -348,6 +336,14 @@ export interface BucketWorkflowTransitionV1 extends BucketWorkflowV1 {
  * @namespace BucketWorkflowTransitionV1
  */
 export namespace BucketWorkflowTransitionV1 {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum ApplyToVersionsEnum {
+        Current = <any> 'current',
+        Previous = <any> 'previous'
+    }
 }
 
 /**
@@ -1358,6 +1354,21 @@ export namespace LocationAzureV1 {
 /**
  * 
  * @export
+ * @interface LocationDmfV1
+ */
+export interface LocationDmfV1 extends LocationV1 {
+}
+
+/**
+ * @export
+ * @namespace LocationDmfV1
+ */
+export namespace LocationDmfV1 {
+}
+
+/**
+ * 
+ * @export
  * @interface LocationFileV1
  */
 export interface LocationFileV1 extends LocationV1 {
@@ -1409,6 +1420,12 @@ export interface LocationV1 {
      * @memberof LocationV1
      */
     isBuiltin?: boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof LocationV1
+     */
+    isCold?: boolean;
     /**
      * 
      * @type {boolean}
@@ -1471,7 +1488,8 @@ export namespace LocationV1 {
         ScalityHdclientV1 = <any> 'location-scality-hdclient-v1',
         ScalityHdclientV2 = <any> 'location-scality-hdclient-v2',
         CephRadosgwS3V1 = <any> 'location-ceph-radosgw-s3-v1',
-        NfsMountV1 = <any> 'location-nfs-mount-v1'
+        NfsMountV1 = <any> 'location-nfs-mount-v1',
+        DmfV1 = <any> 'location-dmf-v1'
     }
 }
 
@@ -2037,6 +2055,14 @@ export namespace ScheduleV1 {
         Enabled = <any> 'enabled',
         Disabled = <any> 'disabled'
     }
+}
+
+/**
+ * Search Workflow List
+ * @export
+ * @interface SearchWorkflowsListV1
+ */
+export interface SearchWorkflowsListV1 extends Array<any> {
 }
 
 /**
@@ -5259,7 +5285,7 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchWorkflows(accountId: string, instanceId: string, roleName?: string, filters?: Filters, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<any>> {
+        searchWorkflows(accountId: string, instanceId: string, roleName?: string, filters?: Filters, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<SearchWorkflowsListV1> {
             const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).searchWorkflows(accountId, instanceId, roleName, filters, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
