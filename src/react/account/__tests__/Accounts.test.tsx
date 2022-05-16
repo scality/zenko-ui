@@ -140,9 +140,7 @@ describe('Accounts', () => {
       //V
 
       //Wait for error
-      await waitFor(() =>
-        screen.getByText(/The provided token has expired./i),
-      );
+      await waitFor(() => screen.getByText(/The provided token has expired./i));
 
       expect(
         screen.getByText(/The provided token has expired./i),
@@ -202,6 +200,62 @@ describe('Accounts', () => {
     } catch (e) {
       console.log(
         'should list accounts display an error when retrieval of accounts failed',
+        e,
+      );
+      throw e;
+    }
+  });
+
+  it('should display Create Account Button for Storage Manager', async () => {
+    try {
+      //E
+      reduxRender(<Accounts />, {
+        oidc: {
+          user: {
+            access_token: 'token',
+            profile: { groups: ['StorageManager'] },
+          },
+        },
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      });
+      //V
+      //Wait for account to be loaded
+      await waitFor(() => screen.getByText(TEST_ACCOUNT));
+
+      const createAccountButton = screen.getByRole('button', {
+        name: /Create Account/i,
+      });
+      expect(createAccountButton).toBeInTheDocument();
+    } catch (e) {
+      console.log(
+        'should display Create Account Button for Storage Manager',
+        e,
+      );
+      throw e;
+    }
+  });
+
+  it('should hide Create Account Button for Storage Account Owner', async () => {
+    try {
+      //E
+      reduxRender(<Accounts />, {
+        oidc: {
+          user: {
+            access_token: 'token',
+            profile: { groups: ['StorageAccountOwner'] },
+          },
+        },
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      });
+      //V
+      //Wait for account to be loaded
+      await waitFor(() => screen.getByText(TEST_ACCOUNT));
+      expect(
+        screen.queryByRole('button', { name: /Create Account/i }),
+      ).not.toBeInTheDocument();
+    } catch (e) {
+      console.log(
+        'should hide Create Account Button for Storage Account Owner',
         e,
       );
       throw e;
