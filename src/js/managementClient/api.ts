@@ -316,6 +316,12 @@ export interface BucketWorkflowTransitionV1 extends BucketWorkflowV1 {
      * @type {string}
      * @memberof BucketWorkflowTransitionV1
      */
+    locationName?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BucketWorkflowTransitionV1
+     */
     applyToVersions?: BucketWorkflowTransitionV1.ApplyToVersionsEnum;
     /**
      * 
