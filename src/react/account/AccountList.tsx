@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -9,6 +9,11 @@ import type { Account } from '../../types/account';
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
+import {
+  STORAGE_ACCOUNT_OWNER_ROLE,
+  STORAGE_MANAGER_ROLE,
+} from '../utils/hooks';
+import { setRoleArnStored } from '../utils/localStorage';
 
 const TableAction = styled.div`
   display: flex;
@@ -26,8 +31,29 @@ function AccountList({ accounts }: Props) {
   );
 
   const nameCell = ({ value }) => {
+    const selectedAccount = accounts.find((account) => account.Name === value);
+    // preferable to assume the `Storage Account Owner` Role then `Storage Manager` Role
+    const assumeRoleArn = useMemo(() => {
+      const roleStorageAccountOwner = selectedAccount?.Roles.find(
+        (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
+      );
+      const roleStorageManager = selectedAccount?.Roles.find(
+        (role) => role.Name === STORAGE_MANAGER_ROLE,
+      );
+      if (roleStorageAccountOwner) {
+        return roleStorageAccountOwner.Arn;
+      } else if (roleStorageManager) {
+        return roleStorageManager.Arn;
+      }
+      return selectedAccount?.Roles[0].Arn;
+    }, []);
     return (
-      <NameLinkContaner onClick={() => dispatch(push(`/accounts/${value}`))}>
+      <NameLinkContaner
+        onClick={() => {
+          setRoleArnStored(assumeRoleArn);
+          dispatch(push(`/accounts/${value}`));
+        }}
+      >
         {value}
       </NameLinkContaner>
     );

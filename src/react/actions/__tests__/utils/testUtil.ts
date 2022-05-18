@@ -44,6 +44,7 @@ import thunk from 'redux-thunk';
 import zenkoUIReducer from '../../../reducers';
 import type { EnabledState } from '../../../../types/stats';
 import { XDM_FEATURE } from '../../../../js/config';
+import { configuration } from '../../../utils/test';
 type ActionTestObject = {
   skip?: boolean;
   it: string;
@@ -237,6 +238,7 @@ export function authenticatedUserState(): AppState {
 export function storeStateWithRunningConfigurationVersion2(): AppState {
   return {
     ...initState,
+    configuration,
     instanceStatus: {
       ...initState.instanceStatus,
       latest: {

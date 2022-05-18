@@ -5,6 +5,7 @@ import {
   assumeRoleWithWebIdentity,
   loadClients,
   loadInstanceLatestStatus,
+  setManagementClient,
 } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import AccountCreate from './account/AccountCreate';
@@ -25,6 +26,8 @@ import DataServiceRoleProvider, {
   useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
+import makeMgtClient from '../js/managementClient';
+import { useQuery } from 'react-query';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -82,13 +85,34 @@ function PrivateRoutes() {
     (state: AppState) => state.auth.isClientsLoaded,
   );
   const user = useSelector((state: AppState) => state.oidc.user);
+  const managementEndpoint = useSelector(
+    (state: AppState) => state.auth?.config?.managementEndpoint,
+  );
+  const latestConfiguration = useSelector(
+    (state: AppState) => state.configuration?.latest,
+  );
+
+  useQuery({
+    queryKey: ['managementClient', user?.id_token],
+    queryFn: () => {
+      return makeMgtClient(managementEndpoint, user.id_token);
+    },
+    onSuccess: (managementClient) => {
+      dispatch(setManagementClient(managementClient));
+    },
+    enabled: !!managementEndpoint && !!user?.id_token,
+  });
+
   useEffect(() => {
     const isAuthenticated = !!user && !user.expired;
 
     if (isAuthenticated) {
       // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
       // That will fix management API request being canceled during autentication.
-      dispatch(loadClients()); // FIXME To be delete soon
+      if (!latestConfiguration) {
+        dispatch(loadClients()); // FIXME To be delete soon
+      }
+
       const refreshIntervalStatsUnit = setInterval(() => {
         const currentTime = Math.floor(Date.now() / 1000);
 
@@ -100,7 +124,7 @@ function PrivateRoutes() {
         clearInterval(refreshIntervalStatsUnit);
       };
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, latestConfiguration]);
 
   if (!isClientsLoaded) {
     return (

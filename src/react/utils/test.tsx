@@ -71,10 +71,26 @@ const theme = {
   },
 };
 const history = createMemoryHistory();
+export const configuration = {
+  latest: {
+    version: 1,
+    updatedAt: '2017-09-28T19:39:22.191Z',
+    creator: 'initial',
+    instanceId: 'demo-instance',
+    locations: {},
+    users: [],
+    endpoints: [],
+    workflows: {
+      lifecycle: {},
+      transition: {},
+    },
+  },
+};
 export const newTestStore = (state) => {
   const store = configureStore([thunk])({
     ...initialFullState,
     ...authenticatedUserState(),
+    configuration,
     ...(state || {}),
   });
   return store;
@@ -83,7 +99,12 @@ export const newTestStore = (state) => {
 export const realStoreWithInitState = (state) => {
   const store = createStore(
     zenkoUIReducer(history),
-    { ...initialFullState, ...authenticatedUserState(), ...(state || {}) },
+    {
+      ...initialFullState,
+      ...authenticatedUserState(),
+      configuration,
+      ...(state || {}),
+    },
     compose(applyMiddleware(thunk, routerMiddleware(history))),
   );
 

@@ -1,11 +1,4 @@
-import React, { useMemo } from 'react';
-import {
-  Route,
-  Switch,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from 'react-router-dom';
+import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
 import * as L from '../ui-elements/ListLayout5';
 import AccountDetails from './AccountDetails';
 import AccountHead from './AccountHead';
@@ -15,20 +8,13 @@ import AccountUpdateUser from './AccountUpdateUser';
 import AccountUserAccessKeys from './AccountUserAccessKeys';
 import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
-import { useAccounts } from '../utils/hooks';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 function AccountContent() {
-  const { accountName: accountNameParam } = useParams<{
-    accountName: string;
-  }>();
-
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const accounts = useAccounts();
-  const account = useMemo(
-    () => accounts.find((a) => a.Name === accountNameParam),
-    [accounts, accountNameParam],
-  );
+  const { account } = useCurrentAccount();
+
   return (
     <L.Container>
       <Switch>

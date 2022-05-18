@@ -35,7 +35,6 @@ export const useCurrentAccount = () => {
       else return true;
     });
   }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
-
   const selectAccountAndRoleRedirectTo = (
     path: string,
     accountName: string,
@@ -55,29 +54,25 @@ export const useCurrentAccount = () => {
 };
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
-  const { accountName } = useParams<{ accountName: string }>();
-  const accountsWithRoles = useAccounts();
   const storedRoleArn = getRoleArnStored();
-  const role = useMemo(() => {
-    if (!storedRoleArn) {
-      const selectedAccount = accountsWithRoles.find(
-        (account) => account.Name === accountName,
-      );
-      const roleArn = selectedAccount?.Roles[0].Arn;
-      return {
-        roleArn: roleArn,
-      };
+  const { account } = useCurrentAccount();
+  const storedAccountID = regexArn.exec(storedRoleArn)?.groups['account_id'];
+
+  const roleArn = useMemo(() => {
+    if (!storedRoleArn || account?.id !== storedAccountID) {
+      // If the account is not the same as the one stored in the localstorage or it's empty, asssume the first Role in the list.
+      const defaultAssumedRoleArn = account?.Roles[0].Arn;
+      if (defaultAssumedRoleArn) setRoleArnStored(defaultAssumedRoleArn);
+      return defaultAssumedRoleArn;
     } else {
-      return {
-        roleArn: storedRoleArn,
-      };
+      return storedRoleArn;
     }
-  }, [storedRoleArn, accountName, JSON.stringify(accountsWithRoles)]);
+  }, [storedRoleArn, JSON.stringify(account)]);
 
   return (
     <_DataServiceRoleContext.Provider
       value={{
-        role,
+        role: { roleArn },
       }}
     >
       {children}
