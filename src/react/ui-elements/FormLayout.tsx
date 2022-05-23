@@ -101,10 +101,18 @@ export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
   <WarningInputContainer>{hasError && children}</WarningInputContainer>
 );
 // * Label
-const LabelContainer = styled.label`
+const LabelContainer = styled.label<{required?: boolean}>`
   display: flex;
   align-items: center;
   width: 35%;
+  ${(props) =>
+    props.required
+      ? `
+        &:after {
+            content: '*';
+        }
+    `
+      : ''}
 `;
 const TooltipContainer = styled.div`
   margin-left: ${spacing.sp8};
@@ -121,6 +129,7 @@ type LabelProps = {
   tooltipMessages?: JSX.Element[]|Array<string>;
   tooltipWidth?: string;
   style?: CSSStyleSheet;
+  required?: boolean;
 } & LabelHTMLAttributes<HTMLLabelElement>;
 export const Label = ({
   children,
