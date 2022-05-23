@@ -7,8 +7,6 @@ import {
   Label,
 } from '../../../ui-elements/FormLayout';
 import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
-import type { InstanceStateSnapshot } from '../../../../types/stats';
-import type { LocationDetails } from '../../../../types/config';
 import React, { useEffect, useState } from 'react';
 import { isIngestSource } from '../../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
@@ -16,13 +14,7 @@ import { useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
 import { XDM_FEATURE } from '../../../../js/config';
 import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-type Props = {
-  editingExisting: boolean;
-  details: LocationDetails;
-  onChange: (details: LocationDetails) => void;
-  locationType: string;
-  capabilities: Pick<InstanceStateSnapshot, 'capabilities'>;
-};
+import { LocationDetailsFormProps } from '.';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -43,13 +35,13 @@ export default function LocationDetailsAwsCustom({
   editingExisting,
   locationType,
   onChange,
-}: Props) {
+}: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => ({
     ...Object.assign({}, INIT_STATE, details),
     secretKey: '',
   }));
 
-  const onFormItemChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+  const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     setFormState({ ...formState, [target.name]: value });

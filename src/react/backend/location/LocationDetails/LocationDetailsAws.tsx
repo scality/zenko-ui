@@ -6,13 +6,9 @@ import {
   Input,
   Label,
 } from '../../../ui-elements/FormLayout';
-import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
-type Props = {
-  details: LocationDetails;
-  onChange: (details: LocationDetails) => void;
-  editingExisting: boolean;
-};
+import { LocationDetailsFormProps } from '.';
+
 type State = {
   serverSideEncryption: boolean;
   bucketMatch: boolean;
@@ -27,15 +23,15 @@ const INIT_STATE: State = {
   secretKey: '',
   bucketName: '',
 };
-export default class LocationDetailsAws extends React.Component<Props, State> {
-  constructor(props: Props) {
+export default class LocationDetailsAws extends React.Component<LocationDetailsFormProps, State> {
+  constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
     // XXX disable changing it if not provided
     this.state.secretKey = '';
   }
 
-  onChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+  onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
     this.setState({
@@ -52,7 +48,7 @@ export default class LocationDetailsAws extends React.Component<Props, State> {
     this.updateForm();
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: LocationDetailsFormProps, nextState: State) {
     return this.state !== nextState;
   }
 

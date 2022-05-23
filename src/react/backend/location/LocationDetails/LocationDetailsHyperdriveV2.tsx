@@ -1,10 +1,7 @@
 import { Fieldset, InputList, Label } from '../../../ui-elements/FormLayout';
-import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
-type Props = {
-  details: LocationDetails;
-  onChange: (details: LocationDetails) => void;
-};
+import { LocationDetailsFormProps } from '.';
+
 type State = {
   bootstrapList: Array<string>;
 };
@@ -13,10 +10,10 @@ const INIT_STATE = {
 };
 const MAX_HYPERDRIVE = 10;
 export default class LocationDetailsHyperdriveV2 extends React.Component<
-  Props,
+  LocationDetailsFormProps,
   State
 > {
-  constructor(props: Props) {
+  constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
   }
@@ -27,7 +24,7 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
     });
   };
 
-  componentDidUpdate(prevProps: Props, prevState: State) {
+  componentDidUpdate(prevProps: LocationDetailsFormProps, prevState: State) {
     if (this.state !== prevState) {
       this.props.onChange(this.state);
     }

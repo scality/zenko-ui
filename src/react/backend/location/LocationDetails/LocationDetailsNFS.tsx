@@ -7,11 +7,7 @@ import {
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 import urlParse from 'url-parse';
-type Props = {
-  editingExisting: boolean;
-  details: LocationDetails;
-  onChange: (details: LocationDetails) => void;
-};
+import { LocationDetailsFormProps } from '.';
 type State = {
   protocol: 'tcp' | 'udp';
   version: 'v3' | 'v4';
@@ -86,8 +82,8 @@ const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map((ver) => {
     label: ver.toUpperCase(),
   };
 });
-export default class LocationDetailsNFS extends React.Component<Props, State> {
-  constructor(props: Props) {
+export default class LocationDetailsNFS extends React.Component<LocationDetailsFormProps, State> {
+  constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign(
       {},
@@ -96,7 +92,7 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
     );
   }
 
-  onChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+  onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     let value;
 
@@ -144,7 +140,7 @@ export default class LocationDetailsNFS extends React.Component<Props, State> {
     this.updateForm();
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: LocationDetailsFormProps, nextState: State) {
     return this.state !== nextState;
   }
 
