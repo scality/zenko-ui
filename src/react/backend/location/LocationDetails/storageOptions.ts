@@ -6,6 +6,7 @@ import LocationDetailsGcp from './LocationDetailsGcp';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
 import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsSproxyd from './LocationDetailsSproxyd';
+import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
 export const storageOptions: Record<string, any> = {
   'location-scality-hdclient-v2': {
@@ -136,5 +137,14 @@ export const storageOptions: Record<string, any> = {
     supportsReplicationSource: true,
     hasIcon: false,
     hidden: true,
+  },
+  'location-dmf-v1': {
+    name: 'Tape DMF',
+    short: 'DMF',
+    formDetails: LocationDetailsTapeDMF,
+    supportsVersioning: true,
+    supportsReplicationTarget: false,
+    supportsReplicationSource: true,
+    hasIcon: false
   },
 };

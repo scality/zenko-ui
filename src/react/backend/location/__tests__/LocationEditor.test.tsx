@@ -16,7 +16,7 @@ describe('LocationEditor', () => {
       keyCode: 40,
     });
     const options = component.find('div.sc-select__option');
-    expect(options.length).toBe(6);
+    expect(options.length).toBe(7);
     expect(options.first().find('span').text()).toBe(
       'Storage Service for ARTESCA',
     );
@@ -28,6 +28,9 @@ describe('LocationEditor', () => {
     expect(options.at(4).find('span').text()).toBe('Google Cloud Storage');
     expect(options.at(5).find('span').text()).toBe(
       'Microsoft Azure Blob Storage',
+    );
+    expect(options.at(6).find('span').text()).toBe(
+      'Tape DMF',
     );
   });
 });
