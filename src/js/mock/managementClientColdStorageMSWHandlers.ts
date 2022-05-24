@@ -164,7 +164,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
 
   //Locations mocks below
   rest.post(
-    `${baseUrl}/api/v1/instance/${instanceId}/locations`,
+    `${baseUrl}/api/v1/config/${instanceId}/location`,
     (req, res, ctx) =>
       res(
         ctx.json({
@@ -183,7 +183,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
   ),
 
   rest.put(
-    `${baseUrl}/api/v1/instance/${instanceId}/location/europe25-myroom-cold`,
+    `${baseUrl}/api/v1/config/${instanceId}/location/europe25-myroom-cold`,
     (req, res, ctx) =>
       res(
         ctx.json({
