@@ -4,6 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 export const Container = styled.div`
   flex: 1;
 `;
@@ -137,8 +138,11 @@ export const AddButton = ({
   }, [itemsLength, index]);
 
   return (
+    <>
+    {!isVisible && <SpacedBox ml={16} />}
     <CustomButton
       isVisible={isVisible}
+      type="button"
       variant="secondary"
       disabled={isDisabled}
       name={`addbtn${index}`}
@@ -149,7 +153,7 @@ export const AddButton = ({
         placement: 'top',
       }}
       icon={<i className="fa fa-plus-square" />}
-    />
+    /></>
   );
 };
 type SubButtonProps = {
@@ -174,6 +178,7 @@ export const SubButton = ({
     <Button
       variant="danger"
       disabled={isDisabled}
+      type="button"
       name={`delbtn${index}`}
       id={`delbtn${index}`}
       onClick={() => deleteEntry(index)}
