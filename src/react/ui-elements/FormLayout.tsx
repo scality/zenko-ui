@@ -109,6 +109,7 @@ const LabelContainer = styled.label<{required?: boolean}>`
     props.required
       ? `
         &:after {
+            margin-left: ${spacing.sp2};
             content: '*';
         }
     `

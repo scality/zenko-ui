@@ -158,7 +158,7 @@ function LocationEditor() {
           {`${locationEditing ? 'Edit' : 'Add New'} Storage Location`}
         </F.Title>
         <F.Fieldset>
-          <F.Label htmlFor="name"> Location Name </F.Label>
+          <F.Label htmlFor="name" required> Location Name </F.Label>
           <F.Input
             id="name"
             type="text"
@@ -172,7 +172,7 @@ function LocationEditor() {
           />
         </F.Fieldset>
         <F.Fieldset>
-          <F.Label htmlFor="locationType"> Location Type </F.Label>
+          <F.Label htmlFor="locationType" required> Location Type </F.Label>
           <F.Select
             id="locationType"
             name="locationType"
