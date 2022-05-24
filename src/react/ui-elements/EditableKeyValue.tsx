@@ -139,21 +139,23 @@ export const AddButton = ({
 
   return (
     <>
-    {!isVisible && <SpacedBox ml={16} />}
-    <CustomButton
-      isVisible={isVisible}
-      type="button"
-      variant="secondary"
-      disabled={isDisabled}
-      name={`addbtn${index}`}
-      id={`addbtn${index}`}
-      onClick={onClickFn}
-      tooltip={{
-        overlay: 'Add',
-        placement: 'top',
-      }}
-      icon={<i className="fa fa-plus-square" />}
-    /></>
+      {!isVisible && <SpacedBox ml={16} />}
+      <CustomButton
+        isVisible={isVisible}
+        type="button"
+        variant="secondary"
+        disabled={isDisabled}
+        name={`addbtn${index}`}
+        id={`addbtn${index}`}
+        onClick={onClickFn}
+        aria-label="Add"
+        tooltip={{
+          overlay: 'Add',
+          placement: 'top',
+        }}
+        icon={<i className="fa fa-plus-square" />}
+      />
+    </>
   );
 };
 type SubButtonProps = {
@@ -179,6 +181,7 @@ export const SubButton = ({
       variant="danger"
       disabled={isDisabled}
       type="button"
+      aria-label="Remove"
       name={`delbtn${index}`}
       id={`delbtn${index}`}
       onClick={() => deleteEntry(index)}
