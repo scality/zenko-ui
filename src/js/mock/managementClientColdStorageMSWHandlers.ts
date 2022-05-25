@@ -37,6 +37,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
               username: 'username',
               password: 'password',
             },
+            objectId: '5bb68d3f-9eec-11ec-ae58-6e38b828d159',
           },
           'chapter-ux': {
             details: {
@@ -169,6 +170,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
       res(
         ctx.json({
           locationType: 'location-dmf-v1',
+          objectId: '5bb68d3f-9eec-11ec-ae58-6e38b828d159',
           name: 'europe25-myroom-cold',
           isCold: true,
           details: {
@@ -189,6 +191,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
         ctx.json({
           locationType: 'location-dmf-v1',
           name: 'europe25-myroom-cold',
+          objectId: '5bb68d3f-9eec-11ec-ae58-6e38b828d159',
           isCold: true,
           details: {
             endpoint: 'ws://tape.myroom.europe25.cnes:8181',
@@ -198,6 +201,14 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
             password: 'password',
           },
         }),
+      ),
+  ),
+
+  rest.delete(
+    `${baseUrl}/api/v1/config/${instanceId}/location/europe25-myroom-cold`,
+    (req, res, ctx) =>
+      res(
+        ctx.status(204),
       ),
   ),
 
