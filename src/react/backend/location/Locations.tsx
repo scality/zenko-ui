@@ -1,15 +1,5 @@
-import type {
-  LocationType,
-  Location,
-  Replication,
-} from '../../../types/config';
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  ComponentType,
-  memo,
-} from 'react';
+import type { Location, Replication } from '../../../types/config';
+import { useCallback, useMemo, useState, ComponentType } from 'react';
 import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
   canDeleteLocation,
@@ -30,6 +20,7 @@ import { useHistory } from 'react-router-dom';
 import { CellProps } from 'react-table';
 import { useWorkflows } from '../../workflow/Workflows';
 import { InlineButton } from '../../ui-elements/Table';
+import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 
 const ActionButtons = ({
   rowValues,
@@ -146,8 +137,18 @@ function Locations() {
           textAlign: 'left',
           minWidth: '10rem',
         },
-        Cell({ value: locationType }: { value: LocationType }) {
-          return storageOptions[locationType]?.name || 'N/A';
+        Cell(value: CellProps<Location>) {
+          const rowValues = value.row.original;
+          const locationType =
+            storageOptions[rowValues.locationType]?.name || 'N/A';
+          if (rowValues.isCold) {
+            return (
+              <span>
+                <ColdStorageIcon /> {locationType}
+              </span>
+            );
+          }
+          return locationType;
         },
       },
       {
@@ -188,10 +189,11 @@ function Locations() {
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {
-        if (workflowsQuery.status === 'idle' || workflowsQuery.status === 'loading') {
-          return (
-            <>Checking if linked to workflows...</>
-          );  
+        if (
+          workflowsQuery.status === 'idle' ||
+          workflowsQuery.status === 'loading'
+        ) {
+          return <>Checking if linked to workflows...</>;
         }
         return (
           <ActionButtons

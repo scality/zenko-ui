@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import styled from 'styled-components';
 import { AddButton, SubButton } from '../../../ui-elements/EditableKeyValue';
+import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
 type State = {
   endpoint: string;
   repoId: string[];
@@ -117,7 +118,7 @@ export default function LocationDetailsTapeDMF({
         <Label>Temperature</Label>
         <SpacedBox mt={2}>
           <span>
-            <i className="fas fa-snowflake" /> Cold
+            <ColdStorageIcon /> Cold
           </span>
         </SpacedBox>
       </Fieldset>

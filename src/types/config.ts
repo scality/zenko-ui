@@ -13,6 +13,7 @@ export type Location = {
   readonly isBuiltin: boolean;
   readonly sizeLimitGB: number;
   readonly legacyAwsBehavior?: boolean;
+  readonly isCold?: boolean;
 };
 export type DestinationLocations = Array<TargetLocationObject>;
 export type Locations = Readonly<PerLocationMap<Location>>;
