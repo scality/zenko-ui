@@ -115,7 +115,7 @@ export function locationWithIngestion(locations, capabilities) {
 }
 export function isIngestLocation(location, capabilities) {
   const locationType = location.locationType;
-  const ingestCapability = storageOptions[locationType].ingestCapability;
+  const ingestCapability = storageOptions[locationType]?.ingestCapability;
 
   if (!!ingestCapability && !!capabilities[ingestCapability]) {
     if (
