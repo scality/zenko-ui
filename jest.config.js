@@ -1,8 +1,6 @@
 module.exports = {
   testMatch: ['**/__tests__/?(*.)+(test).ts?(x)'],
-  transformIgnorePatterns: [
-    "/node_modules/(?!vega-lite).*"
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!(vega-lite|@scality)/)'],
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
@@ -10,5 +8,5 @@ module.exports = {
     '\\.(css|less)$': '<rootDir>/assetsTransformer.js',
   },
   setupFiles: ['<rootDir>/.jest-setup.js'],
-  setupFilesAfterEnv: ['<rootDir>/.jest-setup-after-env.js']
+  setupFilesAfterEnv: ['<rootDir>/.jest-setup-after-env.js'],
 };

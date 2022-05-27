@@ -2,7 +2,7 @@ import React, { ChangeEvent, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { Table, Button } from '@scality/core-ui/dist/next';
-import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
@@ -10,9 +10,9 @@ import { useAwsPaginatedEntities } from '../utils/IAMhooks';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import CopyARNButton from '../ui-elements/CopyARNButton';
 import { useQueryParams } from '../utils/hooks';
-import SearchInputComponent from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
+import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 import { Tooltip } from '@scality/core-ui';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
@@ -23,7 +23,6 @@ import {
   getUserAccessKeysQuery,
   getUserListGroupsQuery,
 } from '../queries';
-import user from '../reducers/user';
 const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
@@ -32,7 +31,11 @@ const InlineButton = styled(Button)`
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const {data: accessKeysResult, status: userAccessKeyStatus} = useAwsPaginatedEntities(getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)), data => data.AccessKeyMetadata);
+  const { data: accessKeysResult, status: userAccessKeyStatus } =
+    useAwsPaginatedEntities(
+      getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
+      (data) => data.AccessKeyMetadata,
+    );
   const accessKeys = useMemo(() => {
     if (userAccessKeyStatus === 'success') {
       return notFalsyTypeGuard(accessKeysResult).length;
@@ -99,12 +102,13 @@ const RenderEditButton = ({ userName }: { userName: string }) => {
     <SpacedBox ml={12}>
       <Button
         style={{ height: spacing.sp24 }}
-        variant='secondary'
-        label='Edit'
-        icon={<i className='fa fa-pen'></i>}
+        variant="secondary"
+        label="Edit"
+        icon={<i className="fa fa-pen"></i>}
         onClick={() => history.push(`users/${userName}/update-user`)}
       />
-    </SpacedBox>);
+    </SpacedBox>
+  );
 };
 
 const renderActionButtons = (rowValues) => {
@@ -136,19 +140,32 @@ const WithTooltipWhileLoading = ({
   </>
 );
 
-const DeleteUserAction = (rowValue: { userName : string} , accountName: string) => {
+const DeleteUserAction = (
+  rowValue: { userName: string },
+  accountName: string,
+) => {
   const { userName } = rowValue;
   const IAMClient = useIAMClient();
   const [showModal, setShowModal] = useState(false);
-  const { data: accessKeysResult, status: accessKeyStatus } = useAwsPaginatedEntities(getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)), data => data.AccessKeyMetadata);
-  const { data: listGroupsResult, status: listGroupStatus } = useQuery(getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)));
+  const { data: accessKeysResult, status: accessKeyStatus } =
+    useAwsPaginatedEntities(
+      getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
+      (data) => data.AccessKeyMetadata,
+    );
+  const { data: listGroupsResult, status: listGroupStatus } = useQuery(
+    getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)),
+  );
 
   const deleteUserMutation = useMutation(
     (userName: string) => {
       return notFalsyTypeGuard(IAMClient).deleteUser(userName);
     },
     {
-      onSuccess: () => queryClient.invalidateQueries(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey),
+      onSuccess: () =>
+        queryClient.invalidateQueries(
+          getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
+            .queryKey,
+        ),
     },
   );
 
@@ -164,24 +181,35 @@ const DeleteUserAction = (rowValue: { userName : string} , accountName: string) 
       />
 
       <Button
-        id='delete-accessKey-btn'
-        disabled={(accessKeysResult && accessKeysResult?.length >= 1) || (listGroupsResult && listGroupsResult.Groups?.length >= 1) || accessKeyStatus === 'loading' || listGroupStatus === 'loading'}
-        icon={<i className='fas fa-trash' />}
+        id="delete-accessKey-btn"
+        disabled={
+          (accessKeysResult && accessKeysResult?.length >= 1) ||
+          (listGroupsResult && listGroupsResult.Groups?.length >= 1) ||
+          accessKeyStatus === 'loading' ||
+          listGroupStatus === 'loading'
+        }
+        icon={<i className="fas fa-trash" />}
         style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
-        label='Delete'
+        label="Delete"
         onClick={() => {
           setShowModal(true);
         }}
-        variant='danger'
-        tooltip={{ overlay: accessKeyStatus === 'loading' ? 'loading...':'Remove accessKey', placement: 'right' }}
-      />
-      {accessKeyStatus === 'error' &&  <Banner
-        icon={<i className="fas fa-exclamation-triangle" />}
-        title="Error: Unable to delete user"
         variant="danger"
-      >
-        Error: Unable to delete user.
-      </Banner>}
+        tooltip={{
+          overlay:
+            accessKeyStatus === 'loading' ? 'loading...' : 'Remove accessKey',
+          placement: 'right',
+        }}
+      />
+      {accessKeyStatus === 'error' && (
+        <Banner
+          icon={<i className="fas fa-exclamation-triangle" />}
+          title="Error: Unable to delete user"
+          variant="danger"
+        >
+          Error: Unable to delete user.
+        </Banner>
+      )}
     </>
   );
 };
@@ -200,18 +228,24 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
     history.replace(`${match.url}?${queryParams.toString()}`);
   };
 
-  const listUsersQuery = useAwsPaginatedEntities(getUserListUsersQuery(accountName, IAMClient), (page) => page.Users);
+  const listUsersQuery = useAwsPaginatedEntities(
+    getUserListUsersQuery(accountName, IAMClient),
+    (page) => page.Users,
+  );
   const iamUsers = useMemo(() => {
     if (listUsersQuery.firstPageStatus === 'success') {
-      const iamUsers = listUsersQuery && listUsersQuery.data && listUsersQuery.data.map((user) => {
-        return {
-          userName: user.UserName,
-          createdOn: formatSimpleDate(user.CreateDate),
-          accessKeys: null,
-          arn: user.Arn,
-          actions: null,
-        };
-      });
+      const iamUsers =
+        listUsersQuery &&
+        listUsersQuery.data &&
+        listUsersQuery.data.map((user) => {
+          return {
+            userName: user.UserName,
+            createdOn: formatSimpleDate(user.CreateDate),
+            accessKeys: null,
+            arn: user.Arn,
+            actions: null,
+          };
+        });
 
       if (search) {
         return iamUsers.filter((user) =>
@@ -278,18 +312,19 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
             }}
           >
             {listUsersQuery.firstPageStatus !== 'loading' &&
-            listUsersQuery.firstPageStatus !== 'error' ? (
-              iamUsers && <SpacedBox mr={12}>
-                Total {iamUsers.length} {iamUsers.length > 1 ? 'users' : 'user'}
-              </SpacedBox>
-            ) : (
-              ''
-            )}
+            listUsersQuery.firstPageStatus !== 'error'
+              ? iamUsers && (
+                  <SpacedBox mr={12}>
+                    Total {iamUsers.length}{' '}
+                    {iamUsers.length > 1 ? 'users' : 'user'}
+                  </SpacedBox>
+                )
+              : ''}
             <WithTooltipWhileLoading
               isLoading={listUsersQuery.status === 'loading'}
               tooltipOverlay="Search is disabled while loading users"
             >
-              <SearchInputComponent
+              <SearchInput
                 disabled={listUsersQuery.status !== 'success'}
                 value={search}
                 placeholder={'Search'}

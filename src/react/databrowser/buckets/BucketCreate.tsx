@@ -1,5 +1,5 @@
 import { Banner, Toggle } from '@scality/core-ui';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import {
@@ -50,14 +50,8 @@ function BucketCreate() {
       retentionPeriodFrequencyChoice: 'DAYS',
     },
   });
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState,
-  } = useFormMethods;
+  const { register, handleSubmit, control, watch, setValue, formState } =
+    useFormMethods;
   const { isValid, errors } = formState;
   const isObjectLockEnabled = watch('isObjectLockEnabled');
   const isAsyncNotification = watch('isAsyncNotification');
@@ -173,7 +167,7 @@ function BucketCreate() {
           <F.FormScrollArea>
             <F.Fieldset>
               <F.Label
-                htmlFor='name'
+                htmlFor="name"
                 tooltipMessages={[
                   'Must be unique',
                   'Cannot be modified after creation',
@@ -212,7 +206,7 @@ function BucketCreate() {
                 id="locationName"
                 name="locationName"
                 defaultValue="us-east-1"
-                render={({ field: {onChange, value: locationName} }) => {
+                render={({ field: { onChange, value: locationName } }) => {
                   return (
                     <F.Select
                       onChange={(value) => {
@@ -249,7 +243,9 @@ function BucketCreate() {
                   id="isAsyncNotification"
                   name="isAsyncNotification"
                   defaultValue={false}
-                  render={({ field: {onChange, value: isAsyncNotification} }) => {
+                  render={({
+                    field: { onChange, value: isAsyncNotification },
+                  }) => {
                     return (
                       <>
                         <Toggle
@@ -282,7 +278,7 @@ function BucketCreate() {
                 id="isVersioning"
                 name="isVersioning"
                 defaultValue={false}
-                render={({ field: {onChange, value: isVersioning} }) => {
+                render={({ field: { onChange, value: isVersioning } }) => {
                   return (
                     <Toggle
                       disabled={isObjectLockEnabled || isAsyncNotification}
@@ -319,7 +315,9 @@ function BucketCreate() {
                 id="isObjectLockEnabled"
                 name="isObjectLockEnabled"
                 defaultValue={false}
-                render={({ field: {onChange, value: isObjectLockEnabled} }) => {
+                render={({
+                  field: { onChange, value: isObjectLockEnabled },
+                }) => {
                   return (
                     <Toggle
                       onChange={(e) => {

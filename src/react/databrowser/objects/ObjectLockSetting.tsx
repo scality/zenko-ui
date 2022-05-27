@@ -10,7 +10,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
 import { Banner, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
 import {
   clearError,

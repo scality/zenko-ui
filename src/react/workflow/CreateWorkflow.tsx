@@ -35,16 +35,14 @@ import {
 import { workflowListQuery } from '../queries';
 import Joi from '@hapi/joi';
 import { ExpirationForm, expirationSchema } from './ExpirationForm';
-import Select, {
+import {
+  Select,
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useLocation } from 'react-router-dom';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
@@ -236,18 +234,18 @@ const CreateWorkflow = () => {
                             value={type}
                             onChange={(value) => onChange(value)}
                           >
-                            <Option
+                            <Select.Option
                               value={'replication'}
                               icon={<i className="fas fa-coins" />}
                             >
                               Replication
-                            </Option>
-                            <Option
+                            </Select.Option>
+                            <Select.Option
                               value={'expiration'}
                               icon={<i className="fas fa-stopwatch" />}
                             >
                               Expiration
-                            </Option>
+                            </Select.Option>
                           </Select>
                         );
                       }}
