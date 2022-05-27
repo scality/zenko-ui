@@ -1,4 +1,11 @@
-import React, { createContext, Fragment, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  Fragment,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import {
   closeObjectDeleteModal,
@@ -20,7 +27,7 @@ import { maybePluralize } from '../../utils';
 import { useTheme } from 'styled-components';
 import styled from 'styled-components';
 import Input from '../../ui-elements/Input';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 
 export const Icon = styled.i`
   display: inline;
@@ -90,15 +97,17 @@ type Props = {
   bucketInfo: BucketInfo;
 };
 
-const ConfirmationContext = createContext<{confirmed: boolean, setConfirmed}>({});
+const ConfirmationContext = createContext<{ confirmed: boolean; setConfirmed }>(
+  {},
+);
 
 function ConfirmationInput({ toggledFiles }) {
-  const [inputValue, setInputValue] = useState("");
-  const {confirmed, setConfirmed} = useContext(ConfirmationContext);
+  const [inputValue, setInputValue] = useState('');
+  const { confirmed, setConfirmed } = useContext(ConfirmationContext);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
-    (target.value === 'confirm') ? setConfirmed(true) :  setConfirmed(false);
+    target.value === 'confirm' ? setConfirmed(true) : setConfirmed(false);
     setInputValue(target.value);
   };
 
@@ -110,9 +119,16 @@ function ConfirmationInput({ toggledFiles }) {
         onChange={handleInputChange}
         disabled={confirmed || toggledFiles.length === 0}
         value={inputValue}
-        style={{ cursor: (confirmed || !toggledFiles.length) ? 'not-allowed': 'default' }}
+        style={{
+          cursor: confirmed || !toggledFiles.length ? 'not-allowed' : 'default',
+        }}
       />
-      {confirmed && <IconSuccess className='fas fa-check' style={{marginLeft: '0.5rem'}}/>}
+      {confirmed && (
+        <IconSuccess
+          className="fas fa-check"
+          style={{ marginLeft: '0.5rem' }}
+        />
+      )}
     </>
   );
 }
@@ -129,18 +145,23 @@ const ObjectDelete = ({
   const dispatch: DispatchAPI<Action> = useDispatch();
 
   const [toggledFiles, setToggledFiles] = useState([...toggled]);
-  const hasLockedFiles = toggledFiles.some(file => file.lockStatus === 'LOCKED');
+  const hasLockedFiles = toggledFiles.some(
+    (file) => file.lockStatus === 'LOCKED',
+  );
   const totalSize = useMemo(() => fileSizer(toggledFiles), [toggledFiles]);
 
   const [confirmed, setConfirmed] = useState(false);
-  const provided = useMemo(() => ({
-    confirmed,
-    setConfirmed: (confirmed) => setConfirmed(confirmed)
-  }), [confirmed]);
+  const provided = useMemo(
+    () => ({
+      confirmed,
+      setConfirmed: (confirmed) => setConfirmed(confirmed),
+    }),
+    [confirmed],
+  );
   const theme = useTheme();
 
   useEffect(() => {
-    setToggledFiles( [...toggled]);
+    setToggledFiles([...toggled]);
   }, [toggled]);
 
   if (!show) {
@@ -159,8 +180,8 @@ const ObjectDelete = ({
   };
 
   const removeFile = (fileKey: string) => {
-    setToggledFiles(toggledFiles.filter(s => s.key !==fileKey));
-  }
+    setToggledFiles(toggledFiles.filter((s) => s.key !== fileKey));
+  };
 
   const deleteSelectedFiles = () => {
     if (toggledFiles.length === 0) {
@@ -182,7 +203,9 @@ const ObjectDelete = ({
           Key: s.key,
         };
       });
-    dispatch(deleteFiles(bucketName, prefixWithSlash, [...objects], [...folders]));
+    dispatch(
+      deleteFiles(bucketName, prefixWithSlash, [...objects], [...folders]),
+    );
   };
 
   return (
@@ -199,7 +222,9 @@ const ObjectDelete = ({
           />
           <Button
             id="object-delete-delete-button"
-            disabled={toggledFiles.length === 0 || (hasLockedFiles && !confirmed)}
+            disabled={
+              toggledFiles.length === 0 || (hasLockedFiles && !confirmed)
+            }
             variant="danger"
             onClick={deleteSelectedFiles}
             label="Delete"
@@ -221,14 +246,23 @@ const ObjectDelete = ({
                   <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
                   <Description>
                     {s.size && <PrettyBytes bytes={s.size} />}
-                    {(s.lockStatus === "LOCKED") && <div
-                      style={{
-                        color: theme.brand?.textTertiary,
-                      }}
-                    >
-                      <Icon style={{ display: 'inline', marginRight: '0.57rem' }} className="fa fa-lock"></Icon>
-                      {confirmed ? <span>Protected, will be deleted</span> : <span>Protected, will not be deleted</span>}
-                    </div>}
+                    {s.lockStatus === 'LOCKED' && (
+                      <div
+                        style={{
+                          color: theme.brand?.textTertiary,
+                        }}
+                      >
+                        <Icon
+                          style={{ display: 'inline', marginRight: '0.57rem' }}
+                          className="fa fa-lock"
+                        ></Icon>
+                        {confirmed ? (
+                          <span>Protected, will be deleted</span>
+                        ) : (
+                          <span>Protected, will not be deleted</span>
+                        )}
+                      </div>
+                    )}
                   </Description>
                 </T.Cell>
                 <RemoveCell>
@@ -243,46 +277,44 @@ const ObjectDelete = ({
           </T.Body>
         </Table>
       </Files>
-      <SpacedBox
-        mb={12}
-      >
+      <SpacedBox mb={12}>
         {' '}
         Total: <PrettyBytes bytes={totalSize} />{' '}
       </SpacedBox>
-      {hasLockedFiles && <Fragment>
-      <SpacedBox
-        mt={12}
-        mb={12}
-      >
-      <Banner
-        icon={<i className="fas fa-exclamation-circle" />}
-        variant="warning"
-      >
-        At least one object you want to delete is under <br />
-        Object-Lock retention <Icon style={{ display: 'inline', margin: '0.063rem' }} className="fa fa-lock"></Icon> with governance mode.
-      </Banner>
-      </SpacedBox>
-      <SpacedBox
-        mb={12}
-      >
-        {' '}
-        <div>Protected objects won't be deleted unless you choose to bypass</div>
-        the governance retention.
-      </SpacedBox>
-      <SpacedBox
-        mb={8}
-      >
-        {' '}
-        <span
-          style={{ marginRight: '0.85rem' }}
-        >
-          Type "confirm" to bypass governance retention:
-        </span>
-        <ConfirmationContext.Provider value={provided}>
-          <ConfirmationInput toggledFiles={toggledFiles}/>
-        </ConfirmationContext.Provider>
-      </SpacedBox>
-      </Fragment>}
+      {hasLockedFiles && (
+        <Fragment>
+          <SpacedBox mt={12} mb={12}>
+            <Banner
+              icon={<i className="fas fa-exclamation-circle" />}
+              variant="warning"
+            >
+              At least one object you want to delete is under <br />
+              Object-Lock retention{' '}
+              <Icon
+                style={{ display: 'inline', margin: '0.063rem' }}
+                className="fa fa-lock"
+              ></Icon>{' '}
+              with governance mode.
+            </Banner>
+          </SpacedBox>
+          <SpacedBox mb={12}>
+            {' '}
+            <div>
+              Protected objects won't be deleted unless you choose to bypass
+            </div>
+            the governance retention.
+          </SpacedBox>
+          <SpacedBox mb={8}>
+            {' '}
+            <span style={{ marginRight: '0.85rem' }}>
+              Type "confirm" to bypass governance retention:
+            </span>
+            <ConfirmationContext.Provider value={provided}>
+              <ConfirmationInput toggledFiles={toggledFiles} />
+            </ConfirmationContext.Provider>
+          </SpacedBox>
+        </Fragment>
+      )}
     </Modal>
   );
 };
