@@ -1,8 +1,8 @@
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
 import { reduxMountAct, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
-import { screen, act } from "@testing-library/react";
-import userEvent from '@testing-library/user-event'
+import { screen, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
@@ -70,7 +70,9 @@ describe('BucketCreate', () => {
       testValue: 'dozA',
       expectedEmptyNameError: null,
       expectedMinLengthNameError: null,
-      expectedPAtternNameError: bucketErrorMessage.replaceAll(/\(/g, '\\(').replaceAll(/\)/g, '\\)'),
+      expectedPAtternNameError: bucketErrorMessage
+        .replaceAll(/\(/g, '\\(')
+        .replaceAll(/\)/g, '\\)'),
       expectedMaxLengthNameError: null,
     },
     {
@@ -79,7 +81,9 @@ describe('BucketCreate', () => {
       testValue: 'doz_',
       expectedEmptyNameError: null,
       expectedMinLengthNameError: null,
-      expectedPAtternNameError: bucketErrorMessage.replaceAll(/\(/g, '\\(').replaceAll(/\)/g, '\\)'),
+      expectedPAtternNameError: bucketErrorMessage
+        .replaceAll(/\(/g, '\\(')
+        .replaceAll(/\)/g, '\\)'),
       expectedMaxLengthNameError: null,
     },
   ];
@@ -90,25 +94,34 @@ describe('BucketCreate', () => {
       // NOTE: All validation methods in React Hook Form are treated
       // as async functions, so it's important to wrap async around your act.
       await act(async () => {
-        userEvent.type(screen.getByRole('textbox', { name: /bucket name\*/i }), `${t.testValue}`);
-        userEvent.tab()
-      })
-      
+        userEvent.type(
+          screen.getByRole('textbox', { name: /bucket name\*/i }),
+          `${t.testValue}`,
+        );
+        userEvent.tab();
+      });
+
       if (t.expectedEmptyNameError !== null) {
         expect(
           screen.getByText(new RegExp(`.*${t.expectedEmptyNameError}.*`, 'i')),
         ).toBeInTheDocument();
       } else if (t.expectedMinLengthNameError !== null) {
         expect(
-          screen.getByText(new RegExp(`.*${t.expectedMinLengthNameError}.*`, 'i')),
+          screen.getByText(
+            new RegExp(`.*${t.expectedMinLengthNameError}.*`, 'i'),
+          ),
         ).toBeInTheDocument();
       } else if (t.expectedMaxLengthNameError !== null) {
         expect(
-          screen.getByText(new RegExp(`.*${t.expectedMaxLengthNameError}.*`, 'i')),
+          screen.getByText(
+            new RegExp(`.*${t.expectedMaxLengthNameError}.*`, 'i'),
+          ),
         ).toBeInTheDocument();
       } else if (t.expectedPAtternNameError !== null) {
         expect(
-          screen.getByText(new RegExp(`.*${t.expectedPAtternNameError}.*`, 'i')),
+          screen.getByText(
+            new RegExp(`.*${t.expectedPAtternNameError}.*`, 'i'),
+          ),
         ).toBeInTheDocument();
       }
     });
@@ -164,5 +177,34 @@ describe('BucketCreate', () => {
       component.find('input[placeholder="Versioning"]').getDOMNode().disabled,
     ).toBe(true);
     component.unmount();
+  });
+  it('should disable cold location as a source storage location when creating a bucket', async () => {
+    const coldLocation = 'europe25-myroom-cold';
+    //E
+    await reduxRender(<BucketCreate />, {
+      configuration: {
+        latest: {
+          locations: {
+            [coldLocation]: {
+              locationType: 'location-dmf-v1',
+              name: coldLocation,
+              isCold: true,
+              details: {
+                endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+                repoId: ['repoId'],
+                nsId: 'nsId',
+                username: 'username',
+                password: 'password',
+              },
+            },
+          },
+        },
+      },
+    });
+    await userEvent.click(screen.getByText('Location Name'));
+    //V
+    expect(
+      screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
+    ).toHaveAttribute('aria-disabled', 'true');
   });
 });
