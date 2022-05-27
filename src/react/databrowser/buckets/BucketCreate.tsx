@@ -148,7 +148,10 @@ function BucketCreate() {
 
   const renderLocation = (option: Location) => {
     const locationType = option.locationType;
-    const locationTypeName = storageOptions[locationType].name;
+    const locationTypeName = storageOptions[locationType]?.name;
+    if (option.isCold) {
+      return `${option.name} (${locationTypeName}) - Cold Location can't be used`;
+    }
     return `${option.name} (${locationTypeName})`;
   };
 
@@ -219,7 +222,11 @@ function BucketCreate() {
                       value={locationName}
                     >
                       {Object.values(locations).map((location: any, i) => (
-                        <F.Select.Option key={i} value={location.name}>
+                        <F.Select.Option
+                          key={i}
+                          value={location.name}
+                          disabled={location?.isCold}
+                        >
                           {renderLocation(location)}
                         </F.Select.Option>
                       ))}
