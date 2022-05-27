@@ -4,7 +4,7 @@ import React, { useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 export const Container = styled.div`
   flex: 1;
 `;

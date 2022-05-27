@@ -1,5 +1,5 @@
 import { Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import styled from 'styled-components';
@@ -116,9 +116,9 @@ export default function LocationDetailsTapeDMF({
       <Fieldset>
         <Label>Temperature</Label>
         <SpacedBox mt={2}>
-        <span>
-          <i className="fas fa-snowflake" /> Cold
-        </span>
+          <span>
+            <i className="fas fa-snowflake" /> Cold
+          </span>
         </SpacedBox>
       </Fieldset>
       <Fieldset>
