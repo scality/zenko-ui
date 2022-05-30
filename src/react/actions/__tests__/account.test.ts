@@ -36,9 +36,9 @@ const listAccountAccessKeysActions = [
   dispatchAction.NETWORK_END_ACTION,
 ];
 jest.mock('../../../js/IAMClient', () => {
-  return {
-    getAssumeRoleWithWebIdentityIAM: jest.fn(),
-  };
+  const module = jest.requireActual('../../../js/IAMClient');
+  module.getAssumeRoleWithWebIdentityIAM = jest.fn();
+  return module;
 });
 const queryClient = new QueryClient();
 describe('account actions', () => {

@@ -18,6 +18,7 @@ import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 import { useQueryClient } from 'react-query';
+import { useRolePathName } from '../../../utils/hooks';
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -33,6 +34,7 @@ function AccountInfo({ account }: Props) {
   const showDelete = useSelector(
     (state: AppState) => state.uiAccounts.showDelete,
   );
+  const rolePathName = useRolePathName();
 
   const handleDeleteClick = () => {
     dispatch(openAccountDeleteDialog());
@@ -43,7 +45,7 @@ function AccountInfo({ account }: Props) {
       return;
     }
 
-    dispatch(deleteAccount(account.Name, queryClient, token));
+    dispatch(deleteAccount(account.Name, queryClient, token, rolePathName));
   };
 
   const handleDeleteCancel = () => {

@@ -1,13 +1,33 @@
 import * as T from '../../../../ui-elements/TableKeyValue';
-import { reduxMount, testTableRow } from '../../../../utils/test';
+import {
+  reduxMount,
+  reduxRender,
+  testTableRow,
+  TEST_API_BASE_URL,
+  TEST_MANAGEMENT_CLIENT,
+  TEST_ROLE_PATH_NAME,
+} from '../../../../utils/test';
 import AccountInfo from '../AccountInfo';
-import React from 'react';
 import Table from '../../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../../utils';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+
+const server = setupServer();
+
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
   CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  Roles: [],
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
@@ -61,5 +81,36 @@ describe('AccountInfo', () => {
     //   value: account1.arn,
     //   extraCellComponent: 'Clipboard',
     // });
+  });
+
+  it('should delete account', async () => {
+    //S
+    const mockedRequestSearchParamsInterceptor = jest.fn();
+    server.use(
+      rest.delete(
+        `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
+        (req, res, ctx) => {
+          mockedRequestSearchParamsInterceptor(req.url.searchParams.toString());
+          return res(ctx.status(200));
+        },
+      ),
+    );
+    reduxRender(<AccountInfo account={account1} />, {
+      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+      instances: { selectedId: INSTANCE_ID },
+    });
+    //E
+    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() =>
+      expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalled(),
+    );
+    //V
+    expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(
+      new URLSearchParams({
+        accountName: account1.Name,
+        roleName: TEST_ROLE_PATH_NAME,
+      }).toString(),
+    );
   });
 });

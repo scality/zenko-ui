@@ -112,12 +112,14 @@ export function deleteAccount(
   accountName: string,
   queryClient: QueryClient,
   token: string,
+  rolePathName: string
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
     const params = {
       uuid: instanceId,
       accountName,
+      rolePathName,
     };
     dispatch(networkStart('Deleting account'));
     return managementClient
@@ -125,6 +127,7 @@ export function deleteAccount(
         params.uuid,
         undefined,
         params.accountName,
+        params.rolePathName,
       )
       .then(() => dispatch(updateConfiguration()))
       .then(() => dispatch(push('/accounts')))

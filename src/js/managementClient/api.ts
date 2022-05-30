@@ -3928,7 +3928,7 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, options: any = {}): FetchArgs {
+        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, roleName?: string, options: any = {}): FetchArgs {
             // verify required parameter 'uuid' is not null or undefined
             if (uuid === null || uuid === undefined) {
                 throw new RequiredError('uuid','Required parameter uuid was null or undefined when calling deleteConfigurationOverlayUser.');
@@ -3954,6 +3954,10 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
 
             if (accountName !== undefined) {
                 localVarQueryParameter['accountName'] = accountName;
+            }
+
+            if (roleName !== undefined) {
+                localVarQueryParameter['roleName'] = roleName;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -5103,8 +5107,8 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
-            const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, options);
+        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, roleName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, roleName, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -5644,8 +5648,8 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, options?: any) {
-            return UiFacingApiFp(configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, options)(fetch, basePath);
+        deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, roleName?: string, options?: any) {
+            return UiFacingApiFp(configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, roleName, options)(fetch, basePath);
         },
         /**
          * Generate account access key
@@ -6057,8 +6061,8 @@ export class UiFacingApi extends BaseAPI {
      * @throws {RequiredError}
      * @memberof UiFacingApi
      */
-    public deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, options?: any) {
-        return UiFacingApiFp(this.configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, options)(this.fetch, this.basePath);
+    public deleteConfigurationOverlayUser(uuid: string, accessKey?: string, accountName?: string, roleName?: string, options?: any) {
+        return UiFacingApiFp(this.configuration).deleteConfigurationOverlayUser(uuid, accessKey, accountName, roleName, options)(this.fetch, this.basePath);
     }
 
     /**
