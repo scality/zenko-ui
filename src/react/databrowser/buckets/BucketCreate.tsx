@@ -16,13 +16,12 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../../backend/location/LocationDetails';
 import { useOutsideClick } from '../../utils/hooks';
-import type { Location } from '../../../types/config';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';
 import { XDM_FEATURE } from '../../../js/config';
+import { renderLocation } from '../../backend/location/utils';
 export const bucketErrorMessage =
   'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
 const schema = Joi.object({
@@ -144,15 +143,6 @@ function BucketCreate() {
   const handleCancel = () => {
     clearServerError();
     dispatch(push('/buckets'));
-  };
-
-  const renderLocation = (option: Location) => {
-    const locationType = option.locationType;
-    const locationTypeName = storageOptions[locationType]?.name;
-    if (option.isCold) {
-      return `${option.name} (${locationTypeName}) - Cold Location can't be used`;
-    }
-    return `${option.name} (${locationTypeName})`;
   };
 
   const matchVersioning = (checked: boolean) => {
