@@ -149,7 +149,7 @@ function Metadata({ objectMetadata, listType }: Props) {
           {fields.map((field, index) => {
             const isUserMD = isUserType(field.type);
             return (
-              <Item isShrink={isUserMD} key={index}>
+              <Item isShrink={isUserMD} key={field.key + index}>
                 <Inputs>
                   <Controller
                     control={control}
