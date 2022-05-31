@@ -1,4 +1,4 @@
-import { Fieldset, InputList, Label } from '../../../ui-elements/FormLayout';
+import { Fieldset, InputList } from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
 
@@ -6,7 +6,7 @@ type State = {
   bootstrapList: Array<string>;
 };
 const INIT_STATE = {
-  bootstrapList: [],
+  bootstrapList: [''],
 };
 const MAX_HYPERDRIVE = 10;
 export default class LocationDetailsHyperdriveV2 extends React.Component<
@@ -34,13 +34,18 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="bootstrapList">Bootstrap List</Label>
           <InputList
-            name="bootstrapList"
             id="bootstrapList"
-            entries={this.state.bootstrapList}
-            listLimit={MAX_HYPERDRIVE}
-            onUpdate={this.onListChange}
+            required
+            label="Bootstrap List"
+            getInputProps={() => ({
+              autoComplete: 'off',
+              type: 'text',
+              placeholder: 'example:localhost:8181',
+            })}
+            values={this.state.bootstrapList}
+            onChange={this.onListChange}
+            maxItems={MAX_HYPERDRIVE}
           />
         </Fieldset>
       </div>
