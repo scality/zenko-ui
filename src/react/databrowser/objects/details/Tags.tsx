@@ -59,7 +59,6 @@ function Properties({ objectMetadata }: Props) {
 
   const onSubmit = (data) => {
     const tags = convertToAWSTags(data.tags);
-    console.log('tags: ', tags);
     dispatch(putObjectTagging(bucketName, objectKey, tags, versionId));
     reset(data);
   };
@@ -82,35 +81,37 @@ function Properties({ objectMetadata }: Props) {
       </Header>
       <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
       <Items>
-          {fields.map((p, i) => {
+          {fields.map((tag, index) => {
             return (
-              <Item key={i}>
+              <Item key={index}>
                 <Inputs>
                   <InputTag
                     className="tags-input-key"
-                    {...register(`tags.${i}.key`)}
+                    aria-label={`Tag ${index+1} key`}
+                    {...register(`tags.${index}.key`)}
                     autoComplete="off"
                   />
                   <InputTag
                     className="tags-input-value"
-                    {...register(`tags.${i}.value`)}
+                    aria-label={`Tag ${index+1} value`}
+                    {...register(`tags.${index}.value`)}
                     autoComplete="off"
                   />
                 </Inputs>
                 <Buttons>
                   <SubButton
-                    index={i}
+                    index={index}
                     items={getValues().tags}
                     deleteEntry={() =>
                       getValues().tags.length === 1
                       ? deleteEntry()
-                      : remove(i)
+                      : remove(index)
                   }
                   />
                   <AddButton
-                    index={i}
+                    index={index}
                     items={getValues().tags}
-                    insertEntry={() => append({key: ' ', value: ' '})}
+                    insertEntry={() => append({key: '', value: ''})}
                   />
                 </Buttons>
               </Item>
