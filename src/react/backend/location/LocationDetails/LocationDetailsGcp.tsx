@@ -22,7 +22,10 @@ const INIT_STATE: State = {
   bucketName: '',
   mpuBucketName: '',
 };
-export default class LocationDetailsGcp extends React.Component<LocationDetailsFormProps, State> {
+export default class LocationDetailsGcp extends React.Component<
+  LocationDetailsFormProps,
+  State
+> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
@@ -63,7 +66,7 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="GOOG1MPCLRB86WCKTN2C"
+            placeholder="example: GOOG1MPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
@@ -75,7 +78,7 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"

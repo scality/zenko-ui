@@ -65,7 +65,7 @@ export default class LocationDetailsAzure extends React.Component<
             name="endpoint"
             id="endpoint"
             type="text"
-            placeholder="https://storagesample.blob.core.windows.net"
+            placeholder="example: https://storagesample.blob.core.windows.net"
             value={this.state.endpoint}
             autoComplete="off"
             onChange={this.onChange}

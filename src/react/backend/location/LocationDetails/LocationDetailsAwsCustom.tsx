@@ -66,7 +66,7 @@ export default function LocationDetailsAwsCustom({
           name="accessKey"
           id="accessKey"
           type="text"
-          placeholder="AKI5HMPCLRB86WCKTN2C"
+          placeholder="example: AKI5HMPCLRB86WCKTN2C"
           value={formState.accessKey}
           onChange={onFormItemChange}
           autoComplete="off"
@@ -78,7 +78,7 @@ export default function LocationDetailsAwsCustom({
           name="secretKey"
           id="secretKey"
           type="password"
-          placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+          placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
           value={formState.secretKey}
           onChange={onFormItemChange}
           autoComplete="new-password"
@@ -109,7 +109,7 @@ export default function LocationDetailsAwsCustom({
           value={formState.endpoint}
           onChange={onFormItemChange}
           autoComplete="off"
-          placeholder="https://hosted-s3-server.internal.example.com:4443"
+          placeholder="example: https://hosted-s3-server.internal.example.com:4443"
         />
         <small>
           Endpoint to reach the S3 server, including scheme and port. The

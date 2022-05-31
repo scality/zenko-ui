@@ -23,7 +23,10 @@ const INIT_STATE: State = {
   secretKey: '',
   bucketName: '',
 };
-export default class LocationDetailsAws extends React.Component<LocationDetailsFormProps, State> {
+export default class LocationDetailsAws extends React.Component<
+  LocationDetailsFormProps,
+  State
+> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
@@ -65,7 +68,7 @@ export default class LocationDetailsAws extends React.Component<LocationDetailsF
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="AKI5HMPCLRB86WCKTN2C"
+            placeholder="example: AKI5HMPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
@@ -77,7 +80,7 @@ export default class LocationDetailsAws extends React.Component<LocationDetailsF
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"

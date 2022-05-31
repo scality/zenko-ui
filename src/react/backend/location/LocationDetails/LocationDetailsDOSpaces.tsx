@@ -66,7 +66,7 @@ export default class LocationDetailsDOSpaces extends React.Component<
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="AKI5HMPCLRB86WCKTN2C"
+            placeholder="example: AKI5HMPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
@@ -78,7 +78,7 @@ export default class LocationDetailsDOSpaces extends React.Component<
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"
@@ -105,7 +105,7 @@ export default class LocationDetailsDOSpaces extends React.Component<
           <Input
             name="endpoint"
             type="text"
-            placeholder="nyc3.digitaloceanspaces.com"
+            placeholder="example: nyc3.digitaloceanspaces.com"
             value={this.state.endpoint}
             onChange={this.onChange}
             autoComplete="off"

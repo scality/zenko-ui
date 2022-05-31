@@ -82,7 +82,10 @@ const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map((ver) => {
     label: ver.toUpperCase(),
   };
 });
-export default class LocationDetailsNFS extends React.Component<LocationDetailsFormProps, State> {
+export default class LocationDetailsNFS extends React.Component<
+  LocationDetailsFormProps,
+  State
+> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign(
@@ -189,7 +192,7 @@ export default class LocationDetailsNFS extends React.Component<LocationDetailsF
             name="server"
             id="nfs-server"
             disabled={editingExisting}
-            placeholder="nfsserver.example.com"
+            placeholder="example: nfsserver.example.com"
             value={this.state.server}
             onChange={this.onChange}
             autoComplete="off"
@@ -202,7 +205,7 @@ export default class LocationDetailsNFS extends React.Component<LocationDetailsF
             name="path"
             id="nfs-path"
             disabled={editingExisting}
-            placeholder="/path/to/export"
+            placeholder="example: /path/to/export"
             value={this.state.path}
             onChange={this.onChange}
             autoComplete="off"

@@ -84,7 +84,7 @@ export default class LocationDetailsSproxyd extends React.Component<
             getInputProps={() => ({
               autoComplete: 'off',
               type: 'text',
-              placeholder: 'example:localhost:8181',
+              placeholder: 'example: localhost:8181',
             })}
             values={this.state.bootstrapList}
             onChange={this.onListChange}
@@ -97,7 +97,7 @@ export default class LocationDetailsSproxyd extends React.Component<
             name="proxyPath"
             id="proxyPath"
             type="text"
-            placeholder="/proxy/path"
+            placeholder="example: /proxy/path"
             value={this.state.proxyPath}
             onChange={this.onChange}
             autoComplete="off"
@@ -109,7 +109,7 @@ export default class LocationDetailsSproxyd extends React.Component<
             name="chordCos"
             id="chordCos"
             type="text"
-            placeholder="3"
+            placeholder="example: 3"
             value={this.state.chordCos}
             onChange={this.onChange}
             autoComplete="off"

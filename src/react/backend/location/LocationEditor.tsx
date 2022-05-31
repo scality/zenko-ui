@@ -168,7 +168,7 @@ function LocationEditor() {
             debounceTimeout={0}
             onChange={onChange}
             value={location.name}
-            placeholder="us-west-2"
+            placeholder="example: us-west-2"
             disabled={editingExisting}
             autoComplete="off"
           />

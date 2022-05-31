@@ -73,7 +73,7 @@ function EndpointCreate() {
             type="text"
             id="hostname"
             {...register('hostname')}
-            placeholder="s3.example.com"
+            placeholder="example: s3.example.com"
             onChange={clearServerError}
             disabled={loading}
             autoComplete="off"
