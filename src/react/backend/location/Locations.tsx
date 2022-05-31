@@ -135,7 +135,7 @@ function Locations() {
         accessor: 'locationType',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '10rem',
+          minWidth: '24rem',
         },
         Cell(value: CellProps<Location>) {
           const rowValues = value.row.original;

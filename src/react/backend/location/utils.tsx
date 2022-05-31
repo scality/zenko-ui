@@ -17,9 +17,10 @@ import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
 import { isIngestLocation } from '../../utils/storageOptions';
 import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
-import { ActionButton, InlineButton } from '../../ui-elements/Table';
+import { InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
 import styled from 'styled-components';
+import { SpacedBox } from '@scality/core-ui';
 type RowProps = {
   original: Location;
 };
@@ -183,8 +184,13 @@ const IngestionCell =
                 disabled={loading}
                 icon={<i className="far fa-pause-circle" />}
                 tooltip={{
-                  overlay: 'Async Metadata updates is active, pause it.',
+                  overlay: (
+                    <SpacedBox pl={12}>
+                      Async Metadata updates is active, pause it.
+                    </SpacedBox>
+                  ),
                   placement: 'top',
+                  overlayStyle: { width: '18rem' },
                 }}
                 onClick={() => dispatch(pauseIngestionSite(locationName))}
                 variant="secondary"
@@ -201,8 +207,13 @@ const IngestionCell =
                 disabled={loading}
                 icon={<i className="far fa-play-circle" />}
                 tooltip={{
-                  overlay: 'Async Metadata updates is paused, resume it.',
+                  overlay: (
+                    <SpacedBox pl={12}>
+                      Async Metadata updates is paused, resume it.
+                    </SpacedBox>
+                  ),
                   placement: 'top',
+                  overlayStyle: { width: '18rem' },
                 }}
                 onClick={() => dispatch(resumeIngestionSite(locationName))}
                 variant="secondary"
