@@ -61,7 +61,9 @@ export default class LocationDetailsDOSpaces extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">Spaces Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            Spaces Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
@@ -73,7 +75,9 @@ export default class LocationDetailsDOSpaces extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">Spaces Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            Spaces Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
@@ -89,7 +93,9 @@ export default class LocationDetailsDOSpaces extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Space Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Space Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"
@@ -101,7 +107,9 @@ export default class LocationDetailsDOSpaces extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="endpoint">Endpoint</Label>
+          <Label htmlFor="endpoint" required>
+            Endpoint
+          </Label>
           <Input
             name="endpoint"
             type="text"

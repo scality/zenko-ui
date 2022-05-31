@@ -63,7 +63,9 @@ export default class LocationDetailsAws extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">AWS Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            AWS Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
@@ -75,7 +77,9 @@ export default class LocationDetailsAws extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">AWS Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            AWS Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
@@ -91,7 +95,9 @@ export default class LocationDetailsAws extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Bucket Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Bucket Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"

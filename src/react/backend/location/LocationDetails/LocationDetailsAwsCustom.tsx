@@ -61,7 +61,9 @@ export default function LocationDetailsAwsCustom({
   return (
     <div>
       <Fieldset>
-        <Label htmlFor="accessKey">Access Key</Label>
+        <Label htmlFor="accessKey" required>
+          Access Key
+        </Label>
         <Input
           name="accessKey"
           id="accessKey"
@@ -73,7 +75,9 @@ export default function LocationDetailsAwsCustom({
         />
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="secretKey">Secret Key</Label>
+        <Label htmlFor="secretKey" required>
+          Secret Key
+        </Label>
         <Input
           name="secretKey"
           id="secretKey"
@@ -89,7 +93,9 @@ export default function LocationDetailsAwsCustom({
         </small>
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="bucketName">Target Bucket Name</Label>
+        <Label htmlFor="bucketName" required>
+          Target Bucket Name
+        </Label>
         <Input
           name="bucketName"
           id="bucketName"
@@ -102,7 +108,9 @@ export default function LocationDetailsAwsCustom({
         />
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="endpoint">Endpoint</Label>
+        <Label htmlFor="endpoint" required>
+          Endpoint
+        </Label>
         <Input
           name="endpoint"
           type="text"

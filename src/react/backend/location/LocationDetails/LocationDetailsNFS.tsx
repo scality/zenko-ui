@@ -152,7 +152,9 @@ export default class LocationDetailsNFS extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="nfs-protocol">NFS Protocol</Label>
+          <Label htmlFor="nfs-protocol" required>
+            NFS Protocol
+          </Label>
           <Select
             type="select"
             name="protocol"
@@ -169,7 +171,9 @@ export default class LocationDetailsNFS extends React.Component<
           </Select>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-version">NFS Version</Label>
+          <Label htmlFor="nfs-version" required>
+            NFS Version
+          </Label>
           <Select
             type="select"
             name="version"
@@ -186,7 +190,9 @@ export default class LocationDetailsNFS extends React.Component<
           </Select>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-server">Server</Label>
+          <Label htmlFor="nfs-server" required>
+            Server
+          </Label>
           <Input
             type="text"
             name="server"
@@ -199,7 +205,9 @@ export default class LocationDetailsNFS extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-path">Export Path</Label>
+          <Label htmlFor="nfs-path" required>
+            Export Path
+          </Label>
           <Input
             type="text"
             name="path"
@@ -212,7 +220,10 @@ export default class LocationDetailsNFS extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-options">NFS Options</Label> {/*maybe add info*/}
+          <Label htmlFor="nfs-options" required>
+            NFS Options
+          </Label>{' '}
+          {/*maybe add info*/}
           <Input
             type="text"
             name="options"

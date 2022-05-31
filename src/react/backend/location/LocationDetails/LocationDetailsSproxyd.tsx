@@ -92,7 +92,9 @@ export default class LocationDetailsSproxyd extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="">Proxy Path</Label>
+          <Label htmlFor="" required>
+            Proxy Path
+          </Label>
           <Input
             name="proxyPath"
             id="proxyPath"
@@ -104,7 +106,9 @@ export default class LocationDetailsSproxyd extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="chordCos">Replication Factor for Small Objects</Label>
+          <Label htmlFor="chordCos" required>
+            Replication Factor for Small Objects
+          </Label>
           <Input
             name="chordCos"
             id="chordCos"

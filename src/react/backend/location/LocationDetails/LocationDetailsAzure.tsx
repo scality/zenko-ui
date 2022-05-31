@@ -60,7 +60,9 @@ export default class LocationDetailsAzure extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="endpoint">Azure Storage Endpoint</Label>
+          <Label htmlFor="endpoint" required>
+            Azure Storage Endpoint
+          </Label>
           <Input
             name="endpoint"
             id="endpoint"
@@ -72,7 +74,9 @@ export default class LocationDetailsAzure extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="accessKey">Azure Account Name</Label>
+          <Label htmlFor="accessKey" required>
+            Azure Account Name
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
@@ -84,7 +88,9 @@ export default class LocationDetailsAzure extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">Azure Access Key</Label>
+          <Label htmlFor="secretKey" required>
+            Azure Access Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
@@ -100,7 +106,9 @@ export default class LocationDetailsAzure extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Azure Container Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Azure Container Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"

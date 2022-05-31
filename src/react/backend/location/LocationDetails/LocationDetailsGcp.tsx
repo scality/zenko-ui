@@ -61,7 +61,9 @@ export default class LocationDetailsGcp extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">GCP Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            GCP Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
@@ -73,7 +75,9 @@ export default class LocationDetailsGcp extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">GCP Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            GCP Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
@@ -89,7 +93,9 @@ export default class LocationDetailsGcp extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Bucket Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Bucket Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"
@@ -101,7 +107,7 @@ export default class LocationDetailsGcp extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="mpuBucketName">
+          <Label htmlFor="mpuBucketName" required>
             Target Helper Bucket Name for Multi-part Uploads
           </Label>
           <Input
