@@ -1,27 +1,25 @@
-import * as s3objects from '../../../../actions/s3object';
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../../../../utils';
 import Metadata from '../Metadata';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
-import React from 'react';
-import { reduxMount, reduxRender } from '../../../../utils/test';
-import { fireEvent, screen } from '@testing-library/react';
+import {
+  reduxMount,
+  reduxRender,
+  TEST_API_BASE_URL,
+} from '../../../../utils/test';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+const server = setupServer();
+
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 describe('Metadata', () => {
-  const putObjectMetadataMock = jest
-    .spyOn(s3objects, 'putObjectMetadata')
-    .mockReturnValue({
-      type: '',
-    });
-  const optionLabels = [
-    'cache-control',
-    'content-disposition',
-    'content-encoding',
-    'content-type',
-    'website-redirect-location',
-    'x-amz-meta',
-    'content-language',
-    'expires',
-  ];
   const instanceId = 'instanceId';
   const accountId = 'accountId';
 
@@ -35,8 +33,8 @@ describe('Metadata', () => {
     },
     oidc: {
       user: {
-        access_token: ''
-      }
+        access_token: '',
+      },
     },
     configuration: {
       latest: {
@@ -50,88 +48,191 @@ describe('Metadata', () => {
   });
   it('Metadata should render', () => {
     const { component } = reduxMount(
-      <Metadata objectMetadata={OBJECT_METADATA} />,
+      <Metadata objectMetadata={OBJECT_METADATA} listType={'s3'} />,
+      {},
     );
     expect(component.find(Metadata).isEmptyRender()).toBe(false);
   });
 
-  it('should add new key/value metadata and should trigger function if save button is pressed', () => {
-    const { component: { container } }  = reduxRender(
-      <Metadata
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          metadata: [
-            {
-              key: 'CacheControl',
-              value: 'no-cache',
-              type: METADATA_SYSTEM_TYPE,
-            },
-          ],
-        }}
-      />
-      , metadataConfig);
+  it('should enable save when value of a metadata changed', async () => {
+    try {
+      //S
+      const metadataKey = 'CacheControl';
+      const metadataValue = 'no-cache';
+      const metadataNewValue = 'newvalue';
+      const mockedRequestHeadersInterceptor = jest.fn();
+      server.use(
+        rest.put(
+          `${TEST_API_BASE_URL}/${OBJECT_METADATA.bucketName}/${OBJECT_METADATA.objectName}`,
+          (req, res, ctx) => {
+            if (req.headers.get('x-amz-metadata-directive') === 'REPLACE') {
+              mockedRequestHeadersInterceptor(req.headers.all());
+              return res(
+                ctx.set({
+                  'x-amz-id-2': '845e54f5ea43aad26594',
+                  'x-amz-request-id': '845e54f5ea43aad26594',
+                  'x-amz-version-id':
+                    '39383334363031303831373133363939393939395247303030303132342e34',
+                }),
+                ctx.xml(`<?xml version="1.0" encoding="UTF-8"?>
+              <CopyObjectResult>
+                <LastModified>2022-05-31T09:16:49.226Z</LastModified>
+                <ETag>&quot;c116ba5a33b986bfd172375f0e6ce514&quot;</ETag>
+              </CopyObjectResult>`),
+              );
+            }
+            return res(ctx.status(200));
+          },
+        ),
+      );
 
-    expect(container.getElementsByClassName('sc-select')[0].lastChild).toHaveValue('CacheControl');
-    expect(screen.getByRole('textbox', {name:''}  )).toHaveValue('no-cache');
-    expect(screen.getByRole('button', {name:'Remove'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Add'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Save'}  )).toBeDisabled();
-    userEvent.type(screen.getByRole('textbox', {name:''}  ), 'newValue');
-    userEvent.click(screen.getByRole('textbox', {name:'select'}  ));
-    userEvent.type(screen.getByRole('textbox', {name:'select'}  ), 'newKey');
-    expect(putObjectMetadataMock).toHaveBeenCalledTimes(0);
-    expect(screen.getByRole('button', {name:'Save'}  )).not.toBeDisabled();
-  //  fireEvent.click(screen.getByRole('button', {name:'Save'}  ));
-    fireEvent.keyDown(screen.getAllByRole('button', {name:'Save'}  )[0]);
-    expect(putObjectMetadataMock).toHaveBeenCalledTimes(0);
-    expect(screen.getByRole('button', {name:'Add'}  )).not.toBeDisabled();
+      const {
+        component: { container },
+      } = reduxRender(
+        <Metadata
+          objectMetadata={{
+            ...OBJECT_METADATA,
+            metadata: [
+              {
+                key: metadataKey,
+                value: metadataValue,
+                type: METADATA_SYSTEM_TYPE,
+              },
+            ],
+          }}
+          listType={'s3'}
+        />,
+        metadataConfig,
+      );
+
+      //V
+      expect(
+        container.getElementsByClassName('sc-select')[0].lastChild,
+      ).toHaveValue(metadataKey);
+      expect(
+        screen.getByRole('textbox', { name: `${metadataKey} value` }),
+      ).toHaveValue(metadataValue);
+      expect(screen.getByRole('button', { name: 'Remove' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Add' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      //E - change metadata value
+      userEvent.type(
+        screen.getByRole('textbox', { name: `${metadataKey} value` }),
+        metadataNewValue,
+      );
+      expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+      //Submit the form
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await waitFor(() =>
+        expect(mockedRequestHeadersInterceptor).toHaveBeenCalled(),
+      );
+      //V
+      expect(mockedRequestHeadersInterceptor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'cache-control': metadataValue + metadataNewValue,
+        }),
+      );
+    } catch (e) {
+      console.log('should enable save when value of a metadata changed', e);
+      throw e;
+    }
   });
-  it('remove button and add button should be disabled', () => {
-    reduxRender(
-      <Metadata
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          metadata: [
-            {
-              key: 'CacheControl',
-              value: 'no-cache',
-              type: METADATA_SYSTEM_TYPE,
-            },
-          ],
-        }}
-      />
-      , metadataConfig);
 
-    expect(screen.getByRole('button', {name:'Remove'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Add'}  )).not.toBeDisabled();
-  });
-  it('should render SelectBox with key/value pass in props', () => {
-    const { component: { container } }  = reduxRender(
-      <Metadata
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          metadata: [
-            {
-              key: 'CacheControl',
-              value: 'no-cache',
-              type: METADATA_SYSTEM_TYPE,
-            },
-          ],
-        }}
-      />
-      , metadataConfig);
+  it('should be possible to add a custom metadata', async () => {
+    try {
+      //S
+      const metadataKey = 'CacheControl';
+      const metadataValue = 'no-cache';
+      const customMetadataKey = 'test';
+      const customMetadataValue = 'newvalue';
+      const mockedRequestHeadersInterceptor = jest.fn();
+      server.use(
+        rest.put(
+          `${TEST_API_BASE_URL}/${OBJECT_METADATA.bucketName}/${OBJECT_METADATA.objectName}`,
+          (req, res, ctx) => {
+            if (req.headers.get('x-amz-metadata-directive') === 'REPLACE') {
+              mockedRequestHeadersInterceptor(req.headers.all());
+              return res(
+                ctx.set({
+                  'x-amz-id-2': '845e54f5ea43aad26594',
+                  'x-amz-request-id': '845e54f5ea43aad26594',
+                  'x-amz-version-id':
+                    '39383334363031303831373133363939393939395247303030303132342e34',
+                }),
+                ctx.xml(`<?xml version="1.0" encoding="UTF-8"?>
+              <CopyObjectResult>
+                <LastModified>2022-05-31T09:16:49.226Z</LastModified>
+                <ETag>&quot;c116ba5a33b986bfd172375f0e6ce514&quot;</ETag>
+              </CopyObjectResult>`),
+              );
+            }
+            return res(ctx.status(200));
+          },
+        ),
+      );
 
-    expect(screen.getByRole('textbox', {name:''}  ).id).toBe('mdValue');
-    expect(screen.getByRole('textbox', {name:'select'}  )).toBeInTheDocument();
-    expect(container.getElementsByClassName('sc-select')[0].lastChild).toHaveValue('CacheControl');
-    expect(screen.getByRole('textbox', {name:''}  )).toHaveValue('no-cache');
-    expect(screen.getByRole('button', {name:'Remove'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Add'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Save'}  )).toBeDisabled();
+      const {
+        component: { container },
+      } = reduxRender(
+        <Metadata
+          objectMetadata={{
+            ...OBJECT_METADATA,
+            metadata: [
+              {
+                key: metadataKey,
+                value: metadataValue,
+                type: METADATA_SYSTEM_TYPE,
+              },
+            ],
+          }}
+          listType={'s3'}
+        />,
+        metadataConfig,
+      );
+
+      //V
+      expect(
+        container.getElementsByClassName('sc-select')[0].lastChild,
+      ).toHaveValue(metadataKey);
+      expect(
+        screen.getByRole('textbox', { name: `${metadataKey} value` }),
+      ).toHaveValue(metadataValue);
+      expect(screen.getByRole('button', { name: 'Remove' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Add' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      //E - add a metadata
+      await fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+      await userEvent.type(
+        screen.getByRole('textbox', { name: 'Custom metadata key' }),
+        customMetadataKey,
+      );
+      await userEvent.type(
+        screen.getByRole('textbox', { name: 'x-amz-meta value' }),
+        customMetadataValue,
+      );
+      //Submit the form
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await waitFor(() =>
+        expect(mockedRequestHeadersInterceptor).toHaveBeenCalled(),
+      );
+      //V
+      expect(mockedRequestHeadersInterceptor).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'cache-control': metadataValue,
+          ['x-amz-meta-' + customMetadataKey]: customMetadataValue,
+        }),
+      );
+    } catch (e) {
+      console.log('should be possible to add a custom metadata', e);
+      throw e;
+    }
   });
   it('should disable inputs and buttons if versioning mode', () => {
-    const { component: { container } }  = reduxRender(
+    reduxRender(
       <Metadata
+        listType="ver"
         objectMetadata={{
           ...OBJECT_METADATA,
           metadata: [
@@ -142,50 +243,68 @@ describe('Metadata', () => {
             },
           ],
         }}
-      />
-      , metadataConfig);
+      />,
+      metadataConfig,
+    );
 
-    expect(screen.getByRole('textbox', {name:''}  ).id).toBe('mdValue');
-    expect(screen.getByRole('textbox', {name:'select'}  )).toBeInTheDocument();
-    expect(container.getElementsByClassName('sc-select')[0].lastChild).toHaveValue('CacheControl');
-    expect(screen.getByRole('textbox', {name:''}  )).toHaveValue('no-cache');
-    expect(screen.getByRole('button', {name:'Remove'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Add'}  )).not.toBeDisabled();
-    expect(screen.getByRole('button', {name:'Save'}  )).toBeDisabled();
-
+    expect(
+      screen.getByRole('textbox', { name: 'CacheControl value' }),
+    ).toHaveValue('no-cache');
+    expect(
+      screen.getByRole('textbox', { name: 'CacheControl value' }),
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
-  it('should delete key/value if remove button is pressed', () => {
-    const { component: { container } }  = reduxRender(
-      <Metadata
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          metadata: [
-            {
-              key: 'CacheControl',
-              value: 'no-cache',
-              type: METADATA_SYSTEM_TYPE,
-            },
-            {
-              key: 'cache-type',
-              value: '1',
-              type: METADATA_USER_TYPE,
-            },
-          ],
-        }}
-      />
-      , metadataConfig);
+  it('should delete key/value if remove button is pressed', async () => {
+    try {
+      const {
+        component: { container },
+      } = reduxRender(
+        <Metadata
+          listType="s3"
+          objectMetadata={{
+            ...OBJECT_METADATA,
+            metadata: [
+              {
+                key: 'CacheControl',
+                value: 'no-cache',
+                type: METADATA_SYSTEM_TYPE,
+              },
+              {
+                key: 'cache-type',
+                value: '1',
+                type: METADATA_USER_TYPE,
+              },
+            ],
+          }}
+        />,
+        metadataConfig,
+      );
 
-    expect(screen.getAllByRole('textbox', {name:''}  )[0].id).toBe('mdValue');
-    expect(screen.getAllByRole('textbox', {name:'select'}  )[0]).toBeInTheDocument();
+      expect(
+        container.getElementsByClassName('sc-select')[0].lastChild,
+      ).toHaveValue('CacheControl');
+      expect(
+        screen.getByRole('textbox', { name: 'CacheControl value' }),
+      ).toHaveValue('no-cache');
 
-    expect(container.getElementsByClassName('sc-select')[0].lastChild).toHaveValue('CacheControl');
-    expect(screen.getAllByRole('textbox', {name:''}  )[0]).toHaveValue('no-cache');
-
-    expect(container.getElementsByClassName('sc-select')[1].lastChild).toHaveValue('x-amz-meta');
-    expect(screen.getAllByRole('textbox', {name:''}  )[1]).toHaveValue('cache-type');
-
-    expect(screen.getAllByRole('textbox', {name:''}  )[2]).toBeInTheDocument();
-    fireEvent.click(screen.getAllByRole('button', {name:'Remove'}  )[0]);
-    expect(screen.getAllByRole('textbox', {name:''}  )[2]).toBe(undefined);
+      expect(
+        container.getElementsByClassName('sc-select')[1].lastChild,
+      ).toHaveValue('x-amz-meta');
+      expect(
+        screen.getByRole('textbox', { name: 'x-amz-meta-cache-type value' }),
+      ).toHaveValue('1');
+      await fireEvent.click(
+        screen.getAllByRole('button', { name: 'Remove' })[0],
+      );
+      expect(() =>
+        screen.getByRole('textbox', { name: 'CacheControl value' }),
+      ).toThrow();
+    } catch (e) {
+      console.log('should delete key/value if remove button is pressed', e);
+      throw e;
+    }
   });
 });

@@ -139,6 +139,7 @@ export const AddButton = ({
   return (
     <CustomButton
       isVisible={isVisible}
+      type="button"
       variant="outline"
       disabled={isDisabled}
       name={`addbtn${index}`}
@@ -173,6 +174,7 @@ export const SubButton = ({
   return (
     <Button
       variant="danger"
+      type="button"
       disabled={isDisabled}
       name={`delbtn${index}`}
       id={`delbtn${index}`}

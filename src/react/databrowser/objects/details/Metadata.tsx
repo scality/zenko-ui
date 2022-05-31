@@ -19,7 +19,7 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import SpacedBox from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import {SpacedBox} from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Button, Select } from '@scality/core-ui/dist/next';
 import type {
   ListObjectsType,
@@ -113,7 +113,7 @@ function Metadata({ objectMetadata, listType }: Props) {
   const onSubmit = (data) => {
     const { systemMetadata, userMetadata } = convertToAWSMetadata(
       data.metadata.map((item) => ({
-        key: isUserType(item.type) ? item.key + '-' + item.mdKey : item.key,
+        key: isUserType(item.type) ? item.mdKey : item.key,
         type: item.type,
         value: item.value,
       })),
@@ -146,14 +146,14 @@ function Metadata({ objectMetadata, listType }: Props) {
       </SpacedBox>
       <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
         <Items>
-          {fields.map((p, i) => {
-            const isUserMD = isUserType(p.type);
+          {fields.map((field, index) => {
+            const isUserMD = isUserType(field.type);
             return (
-              <Item isShrink={isUserMD} key={i}>
+              <Item isShrink={isUserMD} key={index}>
                 <Inputs>
                   <Controller
                     control={control}
-                    name={`metadata.${i}.key`}
+                    name={`metadata.${index}.key`}
                     render={({ field: { onChange: setKey, value: key } }) => {
                       const remainingOptions = selectOptions.filter(
                         (option) =>
@@ -167,14 +167,14 @@ function Metadata({ objectMetadata, listType }: Props) {
                       const onChange = (newKey) => {
                         setKey(newKey);
                         if (newKey === AMZ_META) {
-                          update(i, {
+                          update(index, {
                             type: METADATA_USER_TYPE,
                             key: newKey,
                             value: '',
                             mdKey: '',
                           });
                         } else {
-                          update(i, {
+                          update(index, {
                             type: METADATA_SYSTEM_TYPE,
                             key: newKey,
                             value: '',
@@ -187,7 +187,7 @@ function Metadata({ objectMetadata, listType }: Props) {
                           onChange={onChange}
                           value={key}
                           disabled={isVersioningType}
-                          id={`select-${i}`}
+                          id={`select-${index}`}
                         >
                           {remainingOptions.map((opt, i) => (
                             <Select.Option key={i} value={opt.value}>
@@ -202,14 +202,16 @@ function Metadata({ objectMetadata, listType }: Props) {
                   {isUserMD && (
                     <InputExtraKey
                       className="metadata-input-extra-key"
-                      {...register(`metadata.${i}.mdKey`)}
+                      {...register(`metadata.${index}.mdKey`)}
+                      aria-label={`Custom metadata key`}
                       disabled={isVersioningType}
                     />
                   )}
                   <Char>:</Char>
                   <InputValue
                     id="mdValue"
-                    {...register(`metadata.${i}.value`)}
+                    {...register(`metadata.${index}.value`)}
+                    aria-label={`${field.key}${field.mdKey ? `-${field.mdKey}` : ''} value`}
                     className="metadata-input-value"
                     isShrink={isUserMD}
                     disabled={isVersioningType}
@@ -219,17 +221,17 @@ function Metadata({ objectMetadata, listType }: Props) {
                 <Buttons>
                   <SubButton
                     disabled={isVersioningType}
-                    index={i}
+                    index={index}
                     items={getValues().metadata}
                     deleteEntry={() =>
                       getValues().metadata.length === 1
                         ? deleteEntry()
-                        : remove(i)
+                        : remove(index)
                     }
                   />
                   <AddButton
                     disabled={isVersioningType}
-                    index={i}
+                    index={index}
                     items={getValues().metadata}
                     insertEntry={() =>
                       append({

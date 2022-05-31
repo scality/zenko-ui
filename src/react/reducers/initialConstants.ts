@@ -20,6 +20,7 @@ import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
 import { defaultTheme } from '@scality/core-ui/dist/style/theme';
+import ZenkoClient from '../../js/ZenkoClient';
 export const initialAccountState: AccountState = {
   display: {},
   accessKeyList: [],
