@@ -158,71 +158,69 @@ const Flex = styled.div`
   align-items: center;
 `;
 
-const IngestionCell = (
-  ingestionStates: WorkflowScheduleUnitState | null | undefined,
-  capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
-  loading: boolean,
-  dispatch: any,
-) => ({
-  row: { original },
-}: {
-  row: RowProps;
-}) => {
-  const locationName = original.name;
-  const ingestion =
-    ingestionStates &&
-    ingestionStates[locationName] &&
-    ingestionStates[locationName];
-  const isIngestionPending = isIngestLocation(original, capabilities);
+const IngestionCell =
+  (
+    ingestionStates: WorkflowScheduleUnitState | null | undefined,
+    capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
+    loading: boolean,
+    dispatch: any,
+  ) =>
+  ({ row: { original } }: { row: RowProps }) => {
+    const locationName = original.name;
+    const ingestion =
+      ingestionStates &&
+      ingestionStates[locationName] &&
+      ingestionStates[locationName];
+    const isIngestionPending = isIngestLocation(original, capabilities);
 
-  if (isIngestionPending) {
-    if (ingestion) {
-      if (ingestion === 'enabled') {
-        return (
-          <Flex>
-            Active
-            <InlineButton
-              disabled={loading}
-              icon={<i className="far fa-pause-circle" />}
-              tooltip={{
-                overlay: 'Async Metadata updates is active, pause it.',
-                placement: 'top',
-              }}
-              onClick={() => dispatch(pauseIngestionSite(locationName))}
-              variant="secondary"
-            />
-          </Flex>
-        );
+    if (isIngestionPending) {
+      if (ingestion) {
+        if (ingestion === 'enabled') {
+          return (
+            <Flex>
+              Active
+              <InlineButton
+                disabled={loading}
+                icon={<i className="far fa-pause-circle" />}
+                tooltip={{
+                  overlay: 'Async Metadata updates is active, pause it.',
+                  placement: 'top',
+                }}
+                onClick={() => dispatch(pauseIngestionSite(locationName))}
+                variant="secondary"
+              />
+            </Flex>
+          );
+        }
+
+        if (ingestion === 'disabled') {
+          return (
+            <Flex>
+              Paused
+              <InlineButton
+                disabled={loading}
+                icon={<i className="far fa-play-circle" />}
+                tooltip={{
+                  overlay: 'Async Metadata updates is paused, resume it.',
+                  placement: 'top',
+                }}
+                onClick={() => dispatch(resumeIngestionSite(locationName))}
+                variant="secondary"
+              />
+            </Flex>
+          );
+        }
       }
 
-      if (ingestion === 'disabled') {
-        return (
-          <Flex>
-            Paused
-            <InlineButton
-              disabled={loading}
-              icon={<i className="far fa-play-circle" />}
-              tooltip={{
-                overlay: 'Async Metadata updates is paused, resume it.',
-                placement: 'top',
-              }}
-              onClick={() => dispatch(resumeIngestionSite(locationName))}
-              variant="secondary"
-            />
-          </Flex>
-        );
-      }
+      return (
+        <Flex>
+          Pending <HelpAsyncNotifPending />
+        </Flex>
+      );
     }
 
-    return (
-      <Flex>
-        Pending <HelpAsyncNotifPending />
-      </Flex>
-    );
-  }
-
-  return '-';
-};
+    return '-';
+  };
 
 function convertToBucketInfo(bucketInfo: BucketInfo | null) {
   const objectLockEnabled =
@@ -251,6 +249,16 @@ function convertToBucketInfo(bucketInfo: BucketInfo | null) {
   };
 }
 
+//disable the Cold Location as a source storage location
+function renderLocation(location: Location) {
+  const locationType = location.locationType;
+  const locationTypeName = storageOptions[locationType]?.name;
+  if (location.isCold) {
+    return `${location.name} (${locationTypeName}) - Cold Location can't be used`;
+  }
+  return `${location.name} (${locationTypeName})`;
+}
+
 export {
   newLocationForm,
   convertToLocation,
@@ -261,4 +269,5 @@ export {
   isLocationExists,
   IngestionCell,
   convertToBucketInfo,
+  renderLocation,
 };

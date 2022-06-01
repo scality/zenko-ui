@@ -7,11 +7,10 @@ import type { AppState } from '../../types/state';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import type { Location } from '../../types/config';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../backend/location/LocationDetails';
 import { useOutsideClick } from '../utils/hooks';
+import { renderLocation } from '../backend/location/utils';
 const schema = Joi.object({
   hostname: Joi.string().label('Host Name').required().min(3),
   locationName: Joi.string().required(),
@@ -23,9 +22,7 @@ function EndpointCreate() {
     handleSubmit,
     control,
 
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: joiResolver(schema),
   });
@@ -64,12 +61,6 @@ function EndpointCreate() {
     dispatch(push('/dataservices'));
   };
 
-  const renderLocation = (option: Location) => {
-    const locationType = option.locationType;
-    const locationTypeName = storageOptions[locationType].name;
-    return `${option.name} (${locationTypeName})`;
-  };
-
   return (
     <FormContainer>
       <F.Form ref={formRef}>
@@ -85,7 +76,8 @@ function EndpointCreate() {
             placeholder="s3.example.com"
             onChange={clearServerError}
             disabled={loading}
-            autoComplete="off" />
+            autoComplete="off"
+          />
           <F.ErrorInput id="error-name" hasError={errors.hostname}>
             {' '}
             {errors.hostname?.message}{' '}
@@ -100,7 +92,7 @@ function EndpointCreate() {
             id="locationName"
             name="locationName"
             defaultValue="us-east-1"
-            render={({ field: {onChange, value: locationName} }) => {
+            render={({ field: { onChange, value: locationName } }) => {
               return (
                 <F.Select
                   onChange={onChange}
@@ -109,7 +101,11 @@ function EndpointCreate() {
                   disabled={loading}
                 >
                   {Object.values(locations).map((location: any, i) => (
-                    <F.Select.Option key={i} value={location.name}>
+                    <F.Select.Option
+                      key={i}
+                      value={location.name}
+                      disabled={location?.isCold}
+                    >
                       {renderLocation(location)}
                     </F.Select.Option>
                   ))}
