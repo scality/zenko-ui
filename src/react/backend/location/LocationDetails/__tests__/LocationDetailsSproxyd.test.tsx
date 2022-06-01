@@ -42,7 +42,7 @@ describe('class <LocationDetailsSproxyd />', () => {
     expect(component.find('input[name="proxyPath"]').props().value).toEqual('');
     expect(component.find('input[name="chordCos"]')).toHaveLength(1);
     expect(component.find('input[name="chordCos"]').props().value).toEqual(0);
-    expect(component.find('InputList').props().entries).toEqual(['']);
+    expect(component.find('InputList').props().values).toEqual(['']);
   });
   it('should show sproxyd details when editing an existing location', () => {
     const locationDetails = {
@@ -59,7 +59,7 @@ describe('class <LocationDetailsSproxyd />', () => {
     );
     expect(component.find('input[name="chordCos"]')).toHaveLength(1);
     expect(component.find('input[name="chordCos"]').props().value).toEqual(3);
-    expect(component.find('InputList').props().entries).toEqual([
+    expect(component.find('InputList').props().values).toEqual([
       'localhost:42',
       'localhost:43',
       'localhost:44',

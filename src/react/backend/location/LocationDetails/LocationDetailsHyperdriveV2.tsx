@@ -1,6 +1,7 @@
-import { Fieldset, InputList } from '../../../ui-elements/FormLayout';
+import { Fieldset } from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
+import InputList from '../../../ui-elements/InputList';
 
 type State = {
   bootstrapList: Array<string>;
@@ -23,6 +24,15 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
       bootstrapList: newList,
     });
   };
+
+  updateForm = () => {
+    if (this.props.onChange) {
+      this.props.onChange(this.state);
+    }
+  };
+  componentDidMount() {
+    this.updateForm();
+  }
 
   componentDidUpdate(prevProps: LocationDetailsFormProps, prevState: State) {
     if (this.state !== prevState) {

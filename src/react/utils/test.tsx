@@ -273,9 +273,7 @@ export function checkBox(component, name, checked) {
   });
 }
 export function editListEntry(component, value, index) {
-  const wrapper = component
-    .find('InputList')
-    .find(`input[name="entry${index}"]`);
+  const wrapper = component.find(`input[name="bootstrapList[${index}]"]`);
   wrapper.simulate('change', {
     target: {
       value,
@@ -283,11 +281,11 @@ export function editListEntry(component, value, index) {
   });
 }
 export function addListEntry(component) {
-  const btnWrapper = component.find('InputList').find('button[name="addbtn"]');
+  const btnWrapper = component.find('button[name="addbtn0"]');
   btnWrapper.simulate('click');
 }
 export function delListEntry(component, index) {
-  const btnWrapper = component.find('InputList').find(`button#delbtn${index}`);
+  const btnWrapper = component.find(`button[name="delbtn${index}"]`);
   btnWrapper.simulate('click');
 }
 export function testTableRow(
