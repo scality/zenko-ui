@@ -19,7 +19,7 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import {SpacedBox} from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Button, Select } from '@scality/core-ui/dist/next';
 import type {
   ListObjectsType,
@@ -27,12 +27,10 @@ import type {
   MetadataItems,
   ObjectMetadata,
 } from '../../../../types/s3';
-import React, { useMemo } from 'react';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
 import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { useDispatch } from 'react-redux';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 const userMetadataOption = {
   value: AMZ_META,
@@ -45,13 +43,13 @@ const selectOptions = systemMetadata
   }))
   .concat([userMetadataOption]);
 
-const isUserType = (type) => type === METADATA_USER_TYPE;
+const isUserType = (type: string) => type === METADATA_USER_TYPE;
 
-const isSystemType = (type) => type === METADATA_SYSTEM_TYPE;
+const isSystemType = (type: string) => type === METADATA_SYSTEM_TYPE;
 
 const convertToAWSMetadata = (items: MetadataItems) => {
-  const userMetadata = {};
-  const systemMetadata = {};
+  const userMetadata: Record<string, string> = {};
+  const systemMetadata: Record<string, string> = {};
 
   for (const item of items) {
     const { type, key, value } = item;
@@ -110,7 +108,9 @@ function Metadata({ objectMetadata, listType }: Props) {
     defaultValues,
   });
 
-  const onSubmit = (data) => {
+  const { metadata: metadataFormValues } = getValues();
+
+  const onSubmit = (data: FormValues) => {
     const { systemMetadata, userMetadata } = convertToAWSMetadata(
       data.metadata.map((item) => ({
         key: isUserType(item.type) ? item.mdKey : item.key,
@@ -164,7 +164,7 @@ function Metadata({ objectMetadata, listType }: Props) {
                               key !== item.key,
                           ),
                       );
-                      const onChange = (newKey) => {
+                      const onChange = (newKey: string) => {
                         setKey(newKey);
                         if (newKey === AMZ_META) {
                           update(index, {
@@ -178,6 +178,7 @@ function Metadata({ objectMetadata, listType }: Props) {
                             type: METADATA_SYSTEM_TYPE,
                             key: newKey,
                             value: '',
+                            mdKey: '',
                           });
                         }
                       };
@@ -211,7 +212,9 @@ function Metadata({ objectMetadata, listType }: Props) {
                   <InputValue
                     id="mdValue"
                     {...register(`metadata.${index}.value`)}
-                    aria-label={`${field.key}${field.mdKey ? `-${field.mdKey}` : ''} value`}
+                    aria-label={`${field.key}${
+                      field.mdKey ? `-${field.mdKey}` : ''
+                    } value`}
                     className="metadata-input-value"
                     isShrink={isUserMD}
                     disabled={isVersioningType}
@@ -222,17 +225,15 @@ function Metadata({ objectMetadata, listType }: Props) {
                   <SubButton
                     disabled={isVersioningType}
                     index={index}
-                    items={getValues().metadata}
+                    items={metadataFormValues}
                     deleteEntry={() =>
-                      getValues().metadata.length === 1
-                        ? deleteEntry()
-                        : remove(index)
+                      metadataFormValues.length === 1 ? deleteEntry() : remove(index)
                     }
                   />
                   <AddButton
                     disabled={isVersioningType}
                     index={index}
-                    items={getValues().metadata}
+                    items={metadataFormValues}
                     insertEntry={() =>
                       append({
                         key: `${AMZ_META}`,
@@ -249,15 +250,16 @@ function Metadata({ objectMetadata, listType }: Props) {
         <SpacedBox m={32}>
           <F.Footer>
             <F.FooterButtons>
-              <Button
-                id="metadata-button-save"
-                variant="secondary"
-                style={{ margin: `${spacing.sp16}` }}
-                label="Save"
-                disabled={isVersioningType || !isDirty}
-                icon={<i className="fas fa-save" />}
-                type="submit"
-              />
+              <SpacedBox m={16}>
+                <Button
+                  id="metadata-button-save"
+                  variant="secondary"
+                  label="Save"
+                  disabled={isVersioningType || !isDirty}
+                  icon={<i className="fas fa-save" />}
+                  type="submit"
+                />
+              </SpacedBox>
             </F.FooterButtons>
           </F.Footer>
         </SpacedBox>

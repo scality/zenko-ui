@@ -10,7 +10,6 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import React from 'react';
 import { Button } from '@scality/core-ui/dist/next';
 import type { ObjectMetadata, Tag } from '../../../../types/s3';
 import { putObjectTagging } from '../../../actions';
@@ -18,12 +17,13 @@ import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { SpacedBox } from '@scality/core-ui';
 const EMPTY_ITEM = {
   key: '',
   value: '',
 };
 
-const convertToAWSTags = (tags) =>
+const convertToAWSTags = (tags: Tag[]) =>
   tags
     .filter((tag) => tag.key !== '')
     .map((tag) => ({
@@ -36,14 +36,14 @@ type Props = {
 };
 
 type FormValues = {
-  tags: (Tag)[];
+  tags: Tag[];
 };
 
 function Properties({ objectMetadata }: Props) {
   const dispatch = useDispatch();
   const { bucketName, objectKey, tags, versionId } = objectMetadata;
   const defaultValues = {
-    tags  : tags.length > 0 ? tags : [EMPTY_ITEM],
+    tags: tags.length > 0 ? tags : [EMPTY_ITEM],
   };
 
   const {
@@ -52,12 +52,14 @@ function Properties({ objectMetadata }: Props) {
     handleSubmit,
     control,
     getValues,
-    formState: { isDirty }
+    formState: { isDirty },
   } = useForm<FormValues>({
-    defaultValues
+    defaultValues,
   });
 
-  const onSubmit = (data) => {
+  const { tags: tagsFormValues } = getValues();
+
+  const onSubmit = (data: FormValues) => {
     const tags = convertToAWSTags(data.tags);
     dispatch(putObjectTagging(bucketName, objectKey, tags, versionId));
     reset(data);
@@ -65,7 +67,7 @@ function Properties({ objectMetadata }: Props) {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "tags"
+    name: 'tags',
   });
 
   const deleteEntry = () => {
@@ -80,20 +82,20 @@ function Properties({ objectMetadata }: Props) {
         <HeaderValueTag> Value </HeaderValueTag>
       </Header>
       <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
-      <Items>
-          {fields.map((tag, index) => {
+        <Items>
+          {fields.map((_, index) => {
             return (
               <Item key={index}>
                 <Inputs>
                   <InputTag
                     className="tags-input-key"
-                    aria-label={`Tag ${index+1} key`}
+                    aria-label={`Tag ${index + 1} key`}
                     {...register(`tags.${index}.key`)}
                     autoComplete="off"
                   />
                   <InputTag
                     className="tags-input-value"
-                    aria-label={`Tag ${index+1} value`}
+                    aria-label={`Tag ${index + 1} value`}
                     {...register(`tags.${index}.value`)}
                     autoComplete="off"
                   />
@@ -101,35 +103,37 @@ function Properties({ objectMetadata }: Props) {
                 <Buttons>
                   <SubButton
                     index={index}
-                    items={getValues().tags}
+                    items={tagsFormValues}
                     deleteEntry={() =>
-                      getValues().tags.length === 1
-                      ? deleteEntry()
-                      : remove(index)
-                  }
+                      tagsFormValues.length === 1
+                        ? deleteEntry()
+                        : remove(index)
+                    }
                   />
                   <AddButton
                     index={index}
-                    items={getValues().tags}
-                    insertEntry={() => append({key: '', value: ''})}
+                    items={tagsFormValues}
+                    insertEntry={() => append({ key: '', value: '' })}
                   />
                 </Buttons>
               </Item>
             );
           })}
         </Items>
-      <F.Footer style={{margin: `${spacing.sp32}`}}>
-        <F.FooterButtons>
-        <Button
-          id="tags-button-save"
-          variant="secondary"
-          label="Save"
-          disabled={!isDirty}
-          icon={<i className="fas fa-save" />}
-          type="submit"
-        />
-        </F.FooterButtons>
-      </F.Footer>
+        <SpacedBox m={32}>
+          <F.Footer>
+            <F.FooterButtons>
+              <Button
+                id="tags-button-save"
+                variant="secondary"
+                label="Save"
+                disabled={!isDirty}
+                icon={<i className="fas fa-save" />}
+                type="submit"
+              />
+            </F.FooterButtons>
+          </F.Footer>
+        </SpacedBox>
       </F.CustomForm>
     </FormContainer>
   );
