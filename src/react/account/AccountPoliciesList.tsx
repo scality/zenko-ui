@@ -28,10 +28,14 @@ const EditButton = ({
   policyName,
   policyPath,
   accountName,
+  policyArn,
+  DefaultVersionId,
 }: {
   policyName: string;
   policyPath: string;
   accountName: string;
+  policyArn: string;
+  DefaultVersionId: string;
 }) => {
   const history = useHistory();
   const isEditPolicyDisabled =
@@ -47,7 +51,11 @@ const EditButton = ({
         label="Edit"
         icon={<i className="fa fa-pen"></i>}
         onClick={() =>
-          history.push(`/accounts/${accountName}/policies/${policyName}/update`)
+          history.push(
+            `/accounts/${accountName}/policies/${encodeURIComponent(
+              policyArn,
+            )}/${DefaultVersionId}/update-policy`,
+          )
         }
         tooltip={{
           overlayStyle: {
@@ -100,28 +108,30 @@ const ActionButtons = ({
   rowValues: InternalPolicy;
   accountName: string;
 }) => {
-  const { arn, policyName, policyPath } = rowValues;
+  const { policyArn, policyName, policyPath, DefaultVersionId } = rowValues;
   return (
-    <Box display="flex" marginLeft='auto'>
+    <Box display="flex" marginLeft="auto">
       <AttachButton
         policyName={policyName}
         accountName={accountName}
-        policyArn={arn}
+        policyArn={policyArn}
       />
       <EditButton
         policyName={policyName}
         policyPath={policyPath}
+        policyArn={policyArn}
         accountName={accountName}
+        DefaultVersionId={DefaultVersionId}
       />
       <CopyButton
-        text={arn}
+        text={policyArn}
         labelName={'ARN'}
         aria-label={`Copy ARN ${policyName}`}
       />
       <DeletePolicyAction
         policyName={policyName}
         path={policyPath}
-        arn={arn}
+        arn={policyArn}
         accountName={accountName}
       />
     </Box>
@@ -221,7 +231,8 @@ type InternalPolicy = {
   policyName: string;
   modifiedOn: string;
   attachments: number;
-  arn: string;
+  DefaultVersionId: string;
+  policyArn: string;
   actions: null;
 };
 
@@ -245,7 +256,8 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
               ? formatShortDate(policy.UpdateDate)
               : '-',
             attachments: policy.AttachmentCount || 0,
-            arn: policy.Arn || '',
+            policyArn: policy.Arn || '',
+            DefaultVersionId: policy?.DefaultVersionId || '',
             actions: null,
           };
         }) || [];
@@ -291,7 +303,6 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        
         minWidth: '50%',
       },
       disableSortBy: true,

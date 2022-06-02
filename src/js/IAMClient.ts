@@ -241,11 +241,22 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
-  createPolicy(policyName: string, policyDocument: string) {
+  getPolicyVersion(policyArn: string, defaultVersionId: string) {
     return notFalsyTypeGuard(this.client)
-      .createPolicy({
-        PolicyName: policyName,
-        PolicyDocument: policyDocument,
+      .getPolicyVersion({
+        PolicyArn: policyArn,
+        VersionId: defaultVersionId
+      })
+      .promise();
+  }
+
+
+  CreatePolicyVersion(arn: string, document: string) {
+    return notFalsyTypeGuard(this.client)
+      .createPolicyVersion({
+        PolicyArn: arn,
+        PolicyDocument: document,
+        SetAsDefault: true
       })
       .promise();
   }

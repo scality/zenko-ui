@@ -161,3 +161,10 @@ export const getListAttachedUserPoliciesQuery = (
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
+
+export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMClient: IAMClient) => ({
+  queryKey:  ['getPolicy', policyArn, defaultVersionId],
+  queryFn: () => IAMClient.getPolicyVersion(policyArn, defaultVersionId),
+  enabled: IAMClient !== null,
+  refetchOnWindowFocus: false,
+});

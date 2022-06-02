@@ -7,13 +7,19 @@ const InlineButtonFixedWidth = styled(InlineButton)`
 const IconSuccess = styled.i`
   color: ${(props) => props.theme.brand.statusHealthy};
 `;
+type Props = {
+  text: string;
+  labelName?: string;
+};
 
-const CopyButton = ({ text, labelName, ...rest }: { text: string, labelName?: string }) => {
+const CopyButton = ({ text, labelName, ...rest }: Props) => {
   const { copy, copyStatus } = useClipboard();
   return (
     <InlineButtonFixedWidth
       variant="outline"
-      label={copyStatus === COPY_STATE_SUCCESS ? 'Copied !' : `Copy ${labelName}`}
+      label={
+        copyStatus === COPY_STATE_SUCCESS ? 'Copied !' : `Copy ${labelName}`
+      }
       icon={
         copyStatus === COPY_STATE_SUCCESS ? (
           <IconSuccess className="fas fa-check" />

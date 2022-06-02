@@ -9,6 +9,7 @@ import AccountUserAccessKeys from './AccountUserAccessKeys';
 import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import UpdateAccountPolicy from './UpdateAccountPolicy';
 import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
 
@@ -28,6 +29,11 @@ function AccountContent() {
         </Route>
         <Route path={`${path}/users/:IAMUserName/update-user`}>
           <AccountUpdateUser />
+        </Route>
+        <Route
+          path={`${path}/policies/:policyArn/:DefaultVersionId/update-policy`}
+        >
+          <UpdateAccountPolicy />
         </Route>
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />
