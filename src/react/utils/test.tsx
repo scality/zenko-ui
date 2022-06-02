@@ -116,26 +116,26 @@ export const realStoreWithInitState = (state) => {
   return store;
 };
 
+export const TEST_ROLE_PATH_NAME = 'scality-internal/storage-manager-role';
+export const TEST_ROLE_ARN = `arn:aws:iam::000000000000:role/${TEST_ROLE_PATH_NAME}`;
+const params = {
+  accessKey: 'accessKey',
+  secretKey: 'secretKey',
+  sessionToken: 'sessionToken',
+};
+const iamClient = new IAMClient(TEST_API_BASE_URL);
+iamClient.login(params);
+export const TEST_MANAGEMENT_CLIENT = new UiFacingApi(
+  new Configuration({
+    apiKey: 'token',
+    basePath: `${TEST_API_BASE_URL}/api/v1`,
+  }),
+  `${TEST_API_BASE_URL}/api/v1`,
+  fetch,
+);
 export const Wrapper = ({ children }: { children: ReactNode }) => {
-  const params = {
-    accessKey: 'accessKey',
-    secretKey: 'secretKey',
-    sessionToken: 'sessionToken',
-  };
-  const iamClient = new IAMClient(TEST_API_BASE_URL);
-  iamClient.login(params);
-  const mgtClient = new UiFacingApi(
-    new Configuration({
-      apiKey: 'token',
-      basePath: `${TEST_API_BASE_URL}/api/v1`,
-    }),
-    `${TEST_API_BASE_URL}/api/v1`,
-    fetch,
-  );
-  const roleArn =
-    'arn:aws:iam::000000000000:role/scality-internal/storage-manager-role';
   const role = {
-    roleArn,
+    roleArn: TEST_ROLE_ARN,
   };
   return (
     <QueryClientProvider
@@ -158,7 +158,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
           >
             <_ManagementContext.Provider
               value={{
-                managementClient: mgtClient,
+                managementClient: TEST_MANAGEMENT_CLIENT,
               }}
             >
               {children}
