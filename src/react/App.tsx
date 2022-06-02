@@ -15,7 +15,8 @@ import ZenkoUI from './ZenkoUI';
 //     ],
 // });
 export const queryClient = new QueryClient();
-ReactDOM.render(
+const  rootElement = document.getElementById('app')
+rootElement && ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
       <QueryClientProvider client={queryClient}>
@@ -24,5 +25,5 @@ ReactDOM.render(
       </QueryClientProvider>
     </ConnectedRouter>
   </Provider>,
-  document.getElementById('app'),
+  rootElement,
 );

@@ -35,12 +35,10 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
   return workflows;
 };
 
-export const workflowListQuery = (
-  mgnt: UiFacingApi,
-  accountId: string,
+export const workflowListQuery = ( onStart?: () => void, mgnt: UiFacingApi, accountId: string,
   instanceId: string,
   rolePathName: string,
-  onStart?: () => void,
+
   filters?: [],
 ) => {
   return {
@@ -83,4 +81,13 @@ export const getUserListUsersQuery = (accountName: string, IAMClient: IAMClient)
   enabled: IAMClient !== null,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
+});
+
+export const getPoliciesQuery = (UserName: string, IAMClient: IAMClient) => ({
+  queryKey: ['listPolicies', UserName],
+  queryFn: (maxItems: number, marker: string) => IAMClient.listPolicies(1000, marker),
+  enabled: IAMClient !== null,
+  onError: console.log,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false
 });
