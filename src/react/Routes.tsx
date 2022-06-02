@@ -1,5 +1,5 @@
 import { NavbarContainer, RouteContainer } from './ui-elements/Container';
-import React, { PropsWithChildren, useEffect } from 'react';
+import React, { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import {
   assumeRoleWithWebIdentity,
@@ -93,19 +93,18 @@ function PrivateRoutes() {
   );
 
   useQuery({
-    queryKey: ['managementClient', user?.id_token],
+    queryKey: ['managementClient', user?.access_token || ''],
     queryFn: () => {
-      return makeMgtClient(managementEndpoint, user.id_token);
+      return makeMgtClient(managementEndpoint, user.access_token);
     },
     onSuccess: (managementClient) => {
       dispatch(setManagementClient(managementClient));
     },
-    enabled: !!managementEndpoint && !!user?.id_token,
+    enabled: !!managementEndpoint && !!user?.access_token,
   });
 
+  const isAuthenticated = !!user && !user.expired && user?.access_token;
   useEffect(() => {
-    const isAuthenticated = !!user && !user.expired;
-
     if (isAuthenticated) {
       // TODO: forbid loading clients when authorization server redirects the user back to ui.zenko.local with an authorization code.
       // That will fix management API request being canceled during autentication.
@@ -124,7 +123,12 @@ function PrivateRoutes() {
         clearInterval(refreshIntervalStatsUnit);
       };
     }
-  }, [dispatch, user, latestConfiguration]);
+  }, [dispatch, isAuthenticated, user, latestConfiguration]);
+
+  const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
+  useMemo(() => {if (!isAuthenticated && oidcLogout) {
+    oidcLogout(true);
+  }}, [isAuthenticated, oidcLogout])
 
   if (!isClientsLoaded) {
     return (

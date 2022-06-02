@@ -32,7 +32,7 @@ const ManagementProvider = ({ children }: { children: JSX.Element }) => {
     const isAuthenticated = !!user && !user.expired;
 
     if (isAuthenticated) {
-      makeMgtClient(config.managementEndpoint, user.id_token).then(
+      makeMgtClient(config.managementEndpoint, user.access_token).then(
         (managementClient) => {
           setMgtClient(managementClient);
         },
