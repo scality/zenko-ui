@@ -24,6 +24,7 @@ import { routerMiddleware } from 'connected-react-router';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
+import ZenkoClient from '../../js/ZenkoClient';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -96,13 +97,17 @@ export const newTestStore = (state) => {
   return store;
 };
 
+export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
+  const zenkoClient = new ZenkoClient(TEST_API_BASE_URL);
+  zenkoClient.login({ accessKey: 'accessKey', secretKey: 'secretKey', sessionToken: 'sessionToken' })
   const store = createStore(
     zenkoUIReducer(history),
     {
       ...initialFullState,
       ...authenticatedUserState(),
       configuration,
+      ...{zenko: {...initialFullState.zenko, zenkoClient}},
       ...(state || {}),
     },
     compose(applyMiddleware(thunk, routerMiddleware(history))),
@@ -111,7 +116,6 @@ export const realStoreWithInitState = (state) => {
   return store;
 };
 
-export const TEST_API_BASE_URL = 'http://testendpoint';
 export const Wrapper = ({ children }: { children: ReactNode }) => {
   const params = {
     accessKey: 'accessKey',

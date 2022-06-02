@@ -192,6 +192,10 @@ export const Form = styled.form`
   padding-left: 30%;
   padding-right: 30%;
 `;
+export const CustomForm = styled.form`
+  height: calc(100vh - 510px);
+  margin: ${spacing.sp32}
+`;
 const FormContainer = styled.div`
   height: 100%;
   background-color: ${(props) => props.theme.brand.backgroundLevel1};

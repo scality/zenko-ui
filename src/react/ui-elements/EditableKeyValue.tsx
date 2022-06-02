@@ -121,7 +121,7 @@ export const AddButton = ({
   const itemsIndexValue = items[index].value;
 
   const isDisabled = useMemo(() => {
-    if (itemsIndex && (itemsIndexKey === '' || itemsIndexValue === '')) {
+    if (itemsIndex && (itemsIndexKey === '' && itemsIndexValue === '')) {
       return true;
     }
     return disabled || false;
@@ -143,7 +143,7 @@ export const AddButton = ({
       <CustomButton
         isVisible={isVisible}
         type="button"
-        variant="secondary"
+        variant="outline"
         disabled={isDisabled}
         name={`addbtn${index}`}
         id={`addbtn${index}`}
@@ -179,6 +179,7 @@ export const SubButton = ({
   return (
     <Button
       variant="danger"
+      type="button"
       disabled={isDisabled}
       type="button"
       aria-label="Remove"

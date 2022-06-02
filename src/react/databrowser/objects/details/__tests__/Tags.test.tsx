@@ -1,15 +1,47 @@
-import * as s3objects from '../../../../actions/s3object';
-import { Item } from '../../../../ui-elements/EditableKeyValue';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
-import React from 'react';
 import Tags from '../Tags';
-import { reduxMount } from '../../../../utils/test';
+import {
+  reduxMount,
+  reduxRender,
+  TEST_API_BASE_URL,
+} from '../../../../utils/test';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+const server = setupServer();
+
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 describe('Tags', () => {
-  const putObjectTaggingMock = jest
-    .spyOn(s3objects, 'putObjectTagging')
-    .mockReturnValue({
-      type: '',
-    });
+  const instanceId = 'instanceId';
+  const accountId = 'accountId';
+
+  const tagsConfig = {
+    instances: {
+      selectedId: instanceId,
+    },
+    auth: {
+      config: { features: [] },
+      selectedAccount: { id: accountId },
+    },
+    oidc: {
+      user: {
+        access_token: '',
+      },
+    },
+    configuration: {
+      latest: {
+        endpoints: [],
+      },
+    },
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -18,56 +50,79 @@ describe('Tags', () => {
     expect(component.find(Tags).isEmptyRender()).toBe(false);
   });
   it('should render by default an Item with empty values in each input when there are no key/value present', () => {
-    const { component } = reduxMount(<Tags objectMetadata={OBJECT_METADATA} />);
-    // check if only one item row is rendered
-    const items = component.find(Item);
-    expect(items).toHaveLength(1);
-    // check if item row values are rendered
-    const firstItem = items.first();
-    expect(firstItem.find('input.tags-input-key').prop('value')).toBe('');
-    expect(firstItem.find('input.tags-input-value').prop('value')).toBe('');
+    reduxRender(<Tags objectMetadata={OBJECT_METADATA} />, tagsConfig);
+
+    expect(screen.getByRole('textbox', { name: 'Tag 1 key' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Tag 1 value' })).toHaveValue(
+      '',
+    );
   });
-  it('should add new key/value tag and should trigger function if save button is pressed', () => {
-    const { component } = reduxMount(<Tags objectMetadata={OBJECT_METADATA} />);
-    // check if only one item row is rendered
-    let items = component.find(Item);
-    expect(items).toHaveLength(1);
-    // fill input key and input value
-    const firstItem = items.first();
-    firstItem.find('input.tags-input-key').simulate('change', {
-      target: {
-        name: 'key',
-        value: 'key1',
-      },
-    });
-    firstItem.find('input.tags-input-value').simulate('change', {
-      target: {
-        name: 'value',
-        value: 'value1',
-      },
-    });
-    // click on add button
-    firstItem.find('button#addbtn0').simulate('click');
-    // check if new item row added
-    items = component.find(Item);
-    expect(items).toHaveLength(2);
-    // check if function when pressing save button is triggered
-    expect(putObjectTaggingMock).toHaveBeenCalledTimes(0);
-    component.find('button#tags-button-save').simulate('click');
-    expect(putObjectTaggingMock).toHaveBeenCalledTimes(1);
+  it('should add new key/value tag and should trigger api call when form is submitted', async () => {
+    //S
+    const key1 = 'key1';
+    const value1 = 'value1';
+    const key2 = 'key2';
+    const value2 = 'value2';
+    const mockedRequestBodyInterceptor = jest.fn();
+    server.use(
+      rest.put(
+        `${TEST_API_BASE_URL}/${OBJECT_METADATA.bucketName}/${OBJECT_METADATA.objectName}`,
+        (req, res, ctx) => {
+          if (req.url.searchParams.has('tagging')) {
+            mockedRequestBodyInterceptor(req.body);
+            return res(
+              ctx.set({
+                'x-amz-id-2': '845e54f5ea43aad26594',
+                'x-amz-request-id': '845e54f5ea43aad26594',
+                'x-amz-version-id':
+                  '39383334363031303831373133363939393939395247303030303132342e34',
+              }),
+              ctx.status(200),
+            );
+          }
+          return res(ctx.status(200));
+        },
+      ),
+    );
+    reduxRender(
+      <Tags
+        objectMetadata={{
+          ...OBJECT_METADATA,
+          tags: [
+            {
+              key: key1,
+              value: value1,
+            },
+          ],
+        }}
+      />,
+      tagsConfig,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    userEvent.type(screen.getByRole('textbox', { name: 'Tag 2 key' }), key2);
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Tag 2 value' }),
+      value2,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() =>
+      expect(mockedRequestBodyInterceptor).toHaveBeenCalled(),
+    );
+    expect(mockedRequestBodyInterceptor).toHaveBeenCalledWith(
+      expect.stringContaining(
+        `<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet><Tag><Key>${key1}</Key><Value>${value1}</Value></Tag><Tag><Key>${key2}</Key><Value>${value2}</Value></Tag></TagSet></Tagging>`,
+      ),
+    );
   });
-  it('remove button and add button should be disabled', () => {
-    const { component } = reduxMount(<Tags objectMetadata={OBJECT_METADATA} />);
-    // check if only one item row is rendered
-    const items = component.find(Item);
-    expect(items).toHaveLength(1);
-    // check if item row values are rendered
-    const firstItem = items.first();
-    expect(firstItem.find('button#addbtn0').prop('disabled')).toBe(true);
-    expect(firstItem.find('button#delbtn0').prop('disabled')).toBe(true);
+  it('remove button and add button should be disabled by default', () => {
+    reduxRender(<Tags objectMetadata={OBJECT_METADATA} />, tagsConfig);
+
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
   });
   it('should render an Item with key/value pass in props', () => {
-    const { component } = reduxMount(
+    reduxRender(
       <Tags
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -79,19 +134,18 @@ describe('Tags', () => {
           ],
         }}
       />,
+      tagsConfig,
     );
-    // check if only one item row is rendered
-    const items = component.find(Item);
-    expect(items).toHaveLength(1);
-    // check if item row values are rendered
-    const firstItem = items.first();
-    expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key1');
-    expect(firstItem.find('input.tags-input-value').prop('value')).toBe(
+
+    expect(screen.getByRole('textbox', { name: 'Tag 1 key' })).toHaveValue(
+      'key1',
+    );
+    expect(screen.getByRole('textbox', { name: 'Tag 1 value' })).toHaveValue(
       'value1',
     );
   });
   it('should delete key/value if remove button is pressed', () => {
-    const { component } = reduxMount(
+    reduxRender(
       <Tags
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -107,34 +161,36 @@ describe('Tags', () => {
           ],
         }}
       />,
+      tagsConfig,
     );
-    // check if two item rows are rendered
-    let items = component.find(Item);
-    expect(items).toHaveLength(2);
-    // check if first item row values are rendered
-    let firstItem = items.first();
-    expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key1');
-    expect(firstItem.find('input.tags-input-value').prop('value')).toBe(
+
+    expect(screen.getByRole('textbox', { name: 'Tag 1 key' })).toHaveValue(
+      'key1',
+    );
+    expect(screen.getByRole('textbox', { name: 'Tag 1 value' })).toHaveValue(
       'value1',
     );
-    // check if second item row values are rendered
-    const secondItem = items.at(1);
-    expect(secondItem.find('input.tags-input-key').prop('value')).toBe('key2');
-    expect(secondItem.find('input.tags-input-value').prop('value')).toBe(
+
+    expect(screen.getByRole('textbox', { name: 'Tag 2 key' })).toHaveValue(
+      'key2',
+    );
+    expect(screen.getByRole('textbox', { name: 'Tag 2 value' })).toHaveValue(
       'value2',
     );
-    // check if first AddButton is hidden and second one is visible
-    expect(firstItem.find('Button#addbtn0').prop('isVisible')).toBe(false);
-    expect(secondItem.find('Button#addbtn1').prop('isVisible')).toBe(true);
-    // check if there is only one key/value left after triggered remove button
-    firstItem.find('button#delbtn0').simulate('click');
-    // check if only one item row is rendered
-    items = component.find(Item);
-    expect(items).toHaveLength(1);
-    // check if item row values are rendered
-    firstItem = items.first();
-    expect(firstItem.find('input.tags-input-key').prop('value')).toBe('key2');
-    expect(firstItem.find('input.tags-input-value').prop('value')).toBe(
+
+    expect(
+      screen.getAllByRole('button', { name: 'Remove' })[0],
+    ).not.toBeDisabled();
+    expect(
+      screen.getAllByRole('button', { name: 'Add' })[0],
+    ).not.toBeDisabled();
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Remove' })[0]);
+
+    expect(screen.getByRole('textbox', { name: 'Tag 1 key' })).toHaveValue(
+      'key2',
+    );
+    expect(screen.getByRole('textbox', { name: 'Tag 1 value' })).toHaveValue(
       'value2',
     );
   });
