@@ -51,13 +51,13 @@ function Properties({ objectMetadata }: Props) {
     reset,
     handleSubmit,
     control,
-    getValues,
+    watch,
     formState: { isDirty },
   } = useForm<FormValues>({
     defaultValues,
   });
 
-  const { tags: tagsFormValues } = getValues();
+  const tagsFormValues = watch("tags");
 
   const onSubmit = (data: FormValues) => {
     const tags = convertToAWSTags(data.tags);
