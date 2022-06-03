@@ -74,12 +74,14 @@ describe('CreateWorkflow', () => {
 
       userEvent.click(notFalsyTypeGuard(form.querySelector('.sc-select__control')));
 
-      expect(container.getElementsByClassName('sc-select__option').length).toBe(2);
+      expect(container.getElementsByClassName('sc-select__option').length).toBe(3);
       const replicationOption = screen.getByRole('option', { name: 'Replication' });
       const ExpirationOption = screen.getByRole('option', { name: 'Expiration' });
+      const TransitionOption = screen.getByRole('option', { name: 'Transition' });
 
       expect(replicationOption).toBeInTheDocument();
       expect(ExpirationOption).toBeInTheDocument();
+      expect(TransitionOption).toBeInTheDocument();
 
       userEvent.click(notFalsyTypeGuard(ExpirationOption));
       expect(screen.getByText('Expiration')).toBeInTheDocument();

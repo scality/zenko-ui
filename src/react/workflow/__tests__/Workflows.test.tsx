@@ -90,7 +90,7 @@ describe('Workflows', () => {
       expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
       expect(
         screen.getByRole('row', {
-          name: /new \(current versions\) ➜ dmf-location - 15 days transition active/i,
+          name: /new \(current versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
         }),
       ).toBeInTheDocument();
     } catch (e) {

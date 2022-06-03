@@ -13,7 +13,12 @@ import type { SelectOption } from '../../types/ui';
 import { getLocationTypeShort } from '../utils/storageOptions';
 import { isVersioning } from '../utils';
 import { storageOptions } from '../backend/location/LocationDetails';
-import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
+import {
+  BucketWorkflowTransitionV2,
+  BucketWorkflowV1,
+} from '../../js/managementClient/api';
+import { CustomHelpers } from '@hapi/joi';
+import type { Tag } from '../../types/s3';
 
 export const sourceBucketOptions = (
   streams: ReplicationStreams,
@@ -90,6 +95,24 @@ export function newExpiration(bucketName?: string): Expiration {
   };
 }
 
+export function newTransition(bucketName?: string): BucketWorkflowTransitionV2 {
+  return {
+    bucketName: bucketName || '',
+    enabled: true,
+    filter: {
+      objectKeyPrefix: '',
+      objectTags: [{ key: '', value: '' }],
+    },
+    name: '',
+    type: BucketWorkflowV1.TypeEnum.TransitionV2,
+    workflowId: '',
+    applyToVersion: BucketWorkflowTransitionV2.ApplyToVersionEnum.Current,
+    locationName: '',
+    triggerDelayDays: undefined,
+    triggerDelayDate: '',
+  };
+}
+
 export function newReplicationForm(bucketName?: string): ReplicationForm {
   return {
     streamVersion: 1,
@@ -160,6 +183,18 @@ export function convertToReplicationStream(
         ] || [],
       preferredReadLocation: null,
     },
+  };
+}
+
+export function prepareTransitionQuery(
+  data: BucketWorkflowTransitionV2,
+): BucketWorkflowTransitionV2 {
+  return {
+    ...data,
+    triggerDelayDays:
+      data.triggerDelayDays && typeof data.triggerDelayDays === 'string'
+        ? parseInt(data.triggerDelayDays, 10)
+        : data.triggerDelayDays,
   };
 }
 
@@ -259,24 +294,36 @@ export function flattenFormErrors(
   return res;
 }
 
-export function removeEmptyTagKeys(expiration: Expiration) {
-  if (expiration.filter && expiration.filter.objectTags) {
-    const sanitizedTags = expiration.filter.objectTags.filter(
-      (tag) => tag.key !== '',
+export function removeEmptyTagKeys<
+  T extends Expiration | BucketWorkflowTransitionV2,
+>(workflow: T): T {
+  if (workflow.filter && workflow.filter.objectTags) {
+    const sanitizedTags = workflow.filter.objectTags.filter(
+      (tag: Tag) => tag.key !== '',
     );
-    expiration.filter.objectTags.splice(0, expiration.filter.objectTags.length);
-    expiration.filter.objectTags.push(...sanitizedTags);
+    workflow.filter.objectTags.splice(0, workflow.filter.objectTags.length);
+    workflow.filter.objectTags.push(...sanitizedTags);
 
     return {
-      ...expiration,
+      ...workflow,
       ...{
         filter: {
-          objectKeyPrefix: expiration.filter.objectKeyPrefix,
+          objectKeyPrefix: workflow.filter.objectKeyPrefix,
           objectTags: sanitizedTags,
         },
       },
     };
   }
 
-  return expiration;
+  return workflow;
 }
+
+export const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
+  const keys = value.map((obj: Tag): string => obj.key);
+  const hasDuplicates = new Set(keys).size !== keys.length;
+  if (hasDuplicates) {
+    return helper.message(`Please use a unique key`);
+  } else {
+    return value;
+  }
+};

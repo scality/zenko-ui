@@ -7,7 +7,7 @@ import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryResult } from 'react-query';
 import { useManagementClient } from '../ManagementProvider';
 import { getClients } from '../utils/actions';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -22,11 +22,13 @@ import {
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { BucketWorkflowExpirationV1, BucketWorkflowTransitionV2, ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
   filters?: [],
-) {
+): UseQueryResult<{replications: ReplicationStreamInternalV1[], expirations: BucketWorkflowExpirationV1[], transitions: BucketWorkflowTransitionV2[]}, unknown> {
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);

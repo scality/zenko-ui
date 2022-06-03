@@ -27,7 +27,9 @@ import {
   convertToReplicationStream,
   generateExpirationName,
   generateStreamName,
+  generateTransitionName,
   prepareExpirationQuery,
+  prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
 import { useMutation, useQueryClient } from 'react-query';
@@ -51,6 +53,7 @@ import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { useWorkflows } from './Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useRolePathName } from '../utils/hooks';
+import { TransitionForm, transitionSchema } from './TransitionForm';
 
 type Props = {
   wfSelected: Workflow;
@@ -395,6 +398,19 @@ function isExpirationWorkflow(
   );
 }
 
+function isTransitionWorkflow(
+  workflow:
+    | Expiration
+    | Replication
+    | TypeReplicationForm
+    | BucketWorkflowTransitionV2,
+): workflow is BucketWorkflowTransitionV2 {
+  return (
+    'type' in workflow &&
+    workflow.type === BucketWorkflowV1.TypeEnum.TransitionV2
+  );
+}
+
 function isReplicationWorkflow(
   workflow:
     | Expiration
@@ -408,16 +424,18 @@ function isReplicationWorkflow(
   );
 }
 
-function initDefaultValues(workflow: Expiration) {
+function initDefaultValues(workflow: Expiration | BucketWorkflowTransitionV2) {
   if (
-    workflow.filter &&
-    (!workflow.filter.objectTags || workflow.filter.objectTags.length === 0)
+    (workflow.filter &&
+      (!workflow.filter.objectTags ||
+        workflow.filter.objectTags.length === 0)) ||
+    !workflow.filter
   ) {
     return {
       ...workflow,
       ...{
         filter: {
-          objectKeyPrefix: workflow.filter.objectKeyPrefix,
+          objectKeyPrefix: workflow.filter?.objectKeyPrefix || '',
           objectTags: [{ key: '', value: '' }],
         },
       },
@@ -441,7 +459,9 @@ function EditForm({
   const schema =
     workflow && isExpirationWorkflow(workflow)
       ? expirationSchema
-      : Joi.object(replicationSchema);
+      : isReplicationWorkflow(workflow)
+      ? Joi.object(replicationSchema)
+      : Joi.object(transitionSchema);
 
   const useFormMethods = useForm({
     mode: 'all',
@@ -455,7 +475,9 @@ function EditForm({
     },
     defaultValues: isExpirationWorkflow(workflow)
       ? initDefaultValues(workflow)
-      : convertToReplicationForm(workflow),
+      : isReplicationWorkflow(workflow)
+      ? convertToReplicationForm(workflow)
+      : initDefaultValues(workflow),
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
@@ -474,7 +496,12 @@ function EditForm({
       },
     });
 
-  const { deleteTransitionMutation } = useTransitionMutations();
+  const { deleteTransitionMutation, editTransitionWorkflowMutation } =
+    useTransitionMutations({
+      onEditSuccess: (editedWorkflow) => {
+        reset(editedWorkflow);
+      },
+    });
 
   const handleOpenDeleteModal = () => {
     setIsDeleteModalOpen(true);
@@ -498,6 +525,8 @@ function EditForm({
   const onSubmit = (values: ReplicationFormType | Expiration) => {
     if (isExpirationWorkflow(values)) {
       editExpirationWorkflowMutation.mutate(prepareExpirationQuery(values));
+    } else if (isTransitionWorkflow(values)) {
+      editTransitionWorkflowMutation.mutate(prepareTransitionQuery(values));
     } else {
       const stream = values;
       let replicationStream = convertToReplicationStream(stream);
@@ -522,7 +551,9 @@ function EditForm({
           workflow.name ||
           (isExpirationWorkflow(workflow)
             ? generateExpirationName(workflow)
-            : generateStreamName(workflow))
+            : isReplicationWorkflow(workflow)
+            ? generateStreamName(workflow)
+            : generateTransitionName(workflow))
         } ?`}
       />
       <ConfigurationHeader>
@@ -562,10 +593,15 @@ function EditForm({
                       <i className="fas fa-stopwatch" />
                       Expiration
                     </T.Value>
-                  ) : (
+                  ) : isReplicationWorkflow(workflow) ? (
                     <T.Value>
                       <i className="fas fa-coins" />
                       Replication
+                    </T.Value>
+                  ) : (
+                    <T.Value>
+                      <i className="fas fa-rocket" />
+                      Transition
                     </T.Value>
                   )}
                 </T.Row>
@@ -573,8 +609,10 @@ function EditForm({
             </T.Group>
             {isExpirationWorkflow(workflow) ? (
               <ExpirationForm bucketList={bucketList} locations={locations} />
-            ) : (
+            ) : isReplicationWorkflow(workflow) ? (
               <ReplicationForm bucketList={bucketList} locations={locations} />
+            ) : (
+              <TransitionForm bucketList={bucketList} locations={locations} />
             )}
             <T.Footer>
               <Button
@@ -618,7 +656,10 @@ function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
         workflowsQuery.data.replications.find(
           (r) => r.streamId === workflowId,
         ) ||
-        workflowsQuery.data.expirations.find((r) => r.workflowId === workflowId)
+        workflowsQuery.data.expirations.find(
+          (r) => r.workflowId === workflowId,
+        ) ||
+        workflowsQuery.data.transitions.find((r) => r.workflowId === workflowId)
       );
     }
   }, [workflowsQuery.status, workflowId]);

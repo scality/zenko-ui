@@ -231,7 +231,9 @@ function ReplicationComponent({
           </T.GroupContent>
         </T.Group>
         <T.Group>
-          <T.GroupName>Filter (optional)</T.GroupName>
+          <T.GroupName>
+            <i className="fas fa-filter"></i> Filter (optional)
+          </T.GroupName>
           <T.GroupContent>
             <T.Row>
               <T.Key> Prefix </T.Key>
