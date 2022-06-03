@@ -57,12 +57,14 @@ describe('Tags', () => {
       '',
     );
   });
-  it('should add new key/value tag and should trigger api call when form is submitted', async () => {
+  it('should add 2 new key/value tag and should trigger api call when form is submitted', async () => {
     //S
     const key1 = 'key1';
     const value1 = 'value1';
     const key2 = 'key2';
     const value2 = 'value2';
+    const key3 = 'key3';
+    const value3 = 'value3';
     const mockedRequestBodyInterceptor = jest.fn();
     server.use(
       rest.put(
@@ -105,13 +107,19 @@ describe('Tags', () => {
       screen.getByRole('textbox', { name: 'Tag 2 value' }),
       value2,
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    userEvent.type(screen.getByRole('textbox', { name: 'Tag 3 key' }), key3);
+    userEvent.type(
+      screen.getByRole('textbox', { name: 'Tag 3 value' }),
+      value3,
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() =>
       expect(mockedRequestBodyInterceptor).toHaveBeenCalled(),
     );
     expect(mockedRequestBodyInterceptor).toHaveBeenCalledWith(
       expect.stringContaining(
-        `<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet><Tag><Key>${key1}</Key><Value>${value1}</Value></Tag><Tag><Key>${key2}</Key><Value>${value2}</Value></Tag></TagSet></Tagging>`,
+        `<Tagging xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><TagSet><Tag><Key>${key1}</Key><Value>${value1}</Value></Tag><Tag><Key>${key2}</Key><Value>${value2}</Value></Tag><Tag><Key>${key3}</Key><Value>${value3}</Value></Tag></TagSet></Tagging>`,
       ),
     );
   });
