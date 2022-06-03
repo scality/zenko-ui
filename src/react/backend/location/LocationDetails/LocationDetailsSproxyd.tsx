@@ -92,7 +92,7 @@ export default class LocationDetailsSproxyd extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="" required>
+          <Label htmlFor="proxyPath" required>
             Proxy Path
           </Label>
           <Input
