@@ -68,24 +68,28 @@ export default class LocationDetailsWasabi extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">Wasabi Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            Wasabi Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="AKI5HMPCLRB86WCKTN2C"
+            placeholder="example: AKI5HMPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">Wasabi Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            Wasabi Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"
@@ -96,7 +100,9 @@ export default class LocationDetailsWasabi extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Wasabi Target Bucket Name</Label>
+          <Label htmlFor="bucketName" required>
+            Wasabi Target Bucket Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"
@@ -115,7 +121,9 @@ export default class LocationDetailsWasabi extends React.Component<
             display: 'none',
           }}
         >
-          <Label htmlFor="endpoint">Wasabi Endpoint</Label>
+          <Label htmlFor="endpoint" required>
+            Wasabi Endpoint
+          </Label>
           <Input
             name="endpoint"
             type="text"

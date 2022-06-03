@@ -76,7 +76,6 @@ function LocationEditor() {
     if (e) {
       e.preventDefault();
     }
-
     clearServerError();
     dispatch(saveLocation(convertToLocation(location)));
   };
@@ -158,7 +157,10 @@ function LocationEditor() {
           {`${locationEditing ? 'Edit' : 'Add New'} Storage Location`}
         </F.Title>
         <F.Fieldset>
-          <F.Label htmlFor="name" required> Location Name </F.Label>
+          <F.Label htmlFor="name" required>
+            {' '}
+            Location Name{' '}
+          </F.Label>
           <F.Input
             id="name"
             type="text"
@@ -166,13 +168,16 @@ function LocationEditor() {
             debounceTimeout={0}
             onChange={onChange}
             value={location.name}
-            placeholder="us-west-2"
+            placeholder="example: us-west-2"
             disabled={editingExisting}
             autoComplete="off"
           />
         </F.Fieldset>
         <F.Fieldset>
-          <F.Label htmlFor="locationType" required> Location Type </F.Label>
+          <F.Label htmlFor="locationType" required>
+            {' '}
+            Location Type{' '}
+          </F.Label>
           <F.Select
             id="locationType"
             name="locationType"

@@ -22,7 +22,10 @@ const INIT_STATE: State = {
   bucketName: '',
   mpuBucketName: '',
 };
-export default class LocationDetailsGcp extends React.Component<LocationDetailsFormProps, State> {
+export default class LocationDetailsGcp extends React.Component<
+  LocationDetailsFormProps,
+  State
+> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
@@ -58,24 +61,28 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">GCP Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            GCP Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="GOOG1MPCLRB86WCKTN2C"
+            placeholder="example: GOOG1MPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">GCP Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            GCP Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"
@@ -86,7 +93,9 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Bucket Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Bucket Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"
@@ -98,7 +107,7 @@ export default class LocationDetailsGcp extends React.Component<LocationDetailsF
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="mpuBucketName">
+          <Label htmlFor="mpuBucketName" required>
             Target Helper Bucket Name for Multi-part Uploads
           </Label>
           <Input

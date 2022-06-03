@@ -90,21 +90,28 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  children: JSX.Element|JSX.Element[];
+  children: JSX.Element | JSX.Element[];
   hasError: boolean;
   id?: string;
 } & HTMLAttributes<HTMLDivElement>;
-export const ErrorInput = ({ children, hasError, id, ...props }: ErrorInputProps) => (
-  <ErrorInputContainer id={id} role='alert' {...props}>{hasError && children}</ErrorInputContainer>
+export const ErrorInput = ({
+  children,
+  hasError,
+  id,
+  ...props
+}: ErrorInputProps) => (
+  <ErrorInputContainer id={id} role="alert" {...props}>
+    {hasError && children}
+  </ErrorInputContainer>
 );
 export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
   <WarningInputContainer>{hasError && children}</WarningInputContainer>
 );
 // * Label
-const LabelContainer = styled.label<{required?: boolean}>`
+const LabelContainer = styled.label<{ required?: boolean }>`
   display: flex;
   align-items: center;
-  width: 35%;
+  width: 60%;
   ${(props) =>
     props.required
       ? `
@@ -126,8 +133,8 @@ const UlOverlay = styled.ul`
   padding: 0px 0px 0px ${spacing.sp20};
 `;
 type LabelProps = {
-  children: JSX.Element|string;
-  tooltipMessages?: JSX.Element[]|Array<string>;
+  children: JSX.Element | string;
+  tooltipMessages?: JSX.Element[] | Array<string>;
   tooltipWidth?: string;
   style?: CSSStyleSheet;
   required?: boolean;

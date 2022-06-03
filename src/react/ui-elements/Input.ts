@@ -42,7 +42,7 @@ const Input = styled.input`
     width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
     width: fill-available;  
   `}
-    :hover:enabled {
+  :hover:enabled {
     border: ${spacing.sp1} solid ${(props) => props.theme.brand?.border};
   }
 
@@ -50,7 +50,12 @@ const Input = styled.input`
     outline: none;
     border: ${spacing.sp1} solid ${(props) => props.theme.brand?.secondary};
   }
-
+  ${(props) =>
+    props.disabled &&
+    `  pointer-events: auto;
+cursor: not-allowed;
+opacity: 0.5;
+`}
   // Removing input background color for Chrome autocomplete
   &:-webkit-autofill,
   &:-webkit-autofill:hover,

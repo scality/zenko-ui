@@ -82,7 +82,10 @@ const NFS_VERSIONS: Array<Options> = ['v3', 'v4'].map((ver) => {
     label: ver.toUpperCase(),
   };
 });
-export default class LocationDetailsNFS extends React.Component<LocationDetailsFormProps, State> {
+export default class LocationDetailsNFS extends React.Component<
+  LocationDetailsFormProps,
+  State
+> {
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign(
@@ -149,7 +152,9 @@ export default class LocationDetailsNFS extends React.Component<LocationDetailsF
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="nfs-protocol">NFS Protocol</Label>
+          <Label htmlFor="nfs-protocol" required>
+            NFS Protocol
+          </Label>
           <Select
             type="select"
             name="protocol"
@@ -166,7 +171,9 @@ export default class LocationDetailsNFS extends React.Component<LocationDetailsF
           </Select>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-version">NFS Version</Label>
+          <Label htmlFor="nfs-version" required>
+            NFS Version
+          </Label>
           <Select
             type="select"
             name="version"
@@ -183,33 +190,40 @@ export default class LocationDetailsNFS extends React.Component<LocationDetailsF
           </Select>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-server">Server</Label>
+          <Label htmlFor="nfs-server" required>
+            Server
+          </Label>
           <Input
             type="text"
             name="server"
             id="nfs-server"
             disabled={editingExisting}
-            placeholder="nfsserver.example.com"
+            placeholder="example: nfsserver.example.com"
             value={this.state.server}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-path">Export Path</Label>
+          <Label htmlFor="nfs-path" required>
+            Export Path
+          </Label>
           <Input
             type="text"
             name="path"
             id="nfs-path"
             disabled={editingExisting}
-            placeholder="/path/to/export"
+            placeholder="example: /path/to/export"
             value={this.state.path}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="nfs-options">NFS Options</Label> {/*maybe add info*/}
+          <Label htmlFor="nfs-options" required>
+            NFS Options
+          </Label>{' '}
+          {/*maybe add info*/}
           <Input
             type="text"
             name="options"

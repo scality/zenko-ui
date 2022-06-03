@@ -2,9 +2,8 @@ import { Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
-import styled from 'styled-components';
-import { AddButton, SubButton } from '../../../ui-elements/EditableKeyValue';
 import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
+import InputList from '../../../ui-elements/InputList';
 type State = {
   endpoint: string;
   repoId: string[];
@@ -19,76 +18,6 @@ const INIT_STATE: State = {
   username: '',
   password: '',
 };
-
-const RepoIdInputContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-`;
-
-function RepoIdsInput({
-  repoIds,
-  onChange,
-}: {
-  repoIds: string[];
-  onChange: (repoIds: string[]) => void;
-}) {
-  const insertEntry = () => {
-    onChange([...repoIds, '']);
-  };
-
-  const deleteEntry = (entryIndex: number) => {
-    let tempRepoIds = [...repoIds];
-    tempRepoIds.splice(entryIndex, 1);
-    if (tempRepoIds.length === 0) {
-      tempRepoIds = [''];
-    }
-    onChange([...tempRepoIds]);
-  };
-
-  return (
-    <>
-      {
-        <Fieldset>
-          <Label required htmlFor={`repoIds[${repoIds.length - 1}]`}>
-            RepoId(s)
-          </Label>
-          {repoIds.map((repoId, index) => (
-            <RepoIdInputContainer key={index}>
-              <Input
-                name={`repoIds[${index}]`}
-                id={`repoIds[${index}]`}
-                type="text"
-                placeholder=""
-                value={repoId}
-                onChange={(evt) => {
-                  const tempRepoIds = [...repoIds];
-                  tempRepoIds[index] = evt.target.value;
-                  onChange(tempRepoIds);
-                }}
-                autoComplete="off"
-              />
-              <SubButton
-                index={index}
-                key={`delete-${repoId}`}
-                deleteEntry={deleteEntry}
-                items={repoIds}
-                disabled={repoId === ''}
-              />
-              <AddButton
-                index={index}
-                key={`add-${repoId}`}
-                insertEntry={insertEntry}
-                items={repoIds}
-                disabled={repoId === ''}
-              />
-            </RepoIdInputContainer>
-          ))}
-        </Fieldset>
-      }
-    </>
-  );
-}
 
 export default function LocationDetailsTapeDMF({
   details,
@@ -136,10 +65,16 @@ export default function LocationDetailsTapeDMF({
           autoComplete="off"
         />
       </Fieldset>
-      <RepoIdsInput
-        repoIds={formState.repoId}
-        onChange={(repoId) => onInternalStateChange('repoId', repoId)}
-      />
+      <Fieldset>
+        <InputList
+          id="repoids"
+          required
+          label="RepoId(s)"
+          getInputProps={() => ({ autoComplete: 'off', type: 'text' })}
+          values={formState.repoId}
+          onChange={(repoId) => onInternalStateChange('repoId', repoId)}
+        />
+      </Fieldset>
       <Fieldset>
         <Label required htmlFor="nsId">
           Namespace Id

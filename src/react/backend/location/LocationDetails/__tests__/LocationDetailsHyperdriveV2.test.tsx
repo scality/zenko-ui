@@ -35,7 +35,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
   });
   it('should show empty bootstrap list', () => {
     const component = mount(<LocationDetailsHyperdriveV2 {...props} />);
-    expect(component.find('InputList').props().entries).toEqual(['']);
+    expect(component.find('InputList').props().values).toEqual(['']);
   });
   it('should show three items in the bootstrap list', () => {
     const locationDetails = {
@@ -44,7 +44,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
     const component = mount(
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
-    expect(component.find('InputList').props().entries).toEqual([
+    expect(component.find('InputList').props().values).toEqual([
       'localhost:83',
       'localhost:84',
       'localhost:85',
@@ -69,10 +69,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
     const component = mount(
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
-    expect(
-      component.find('InputList #addbtn').last().hasClass('visible'),
-    ).toEqual(true);
-    expect(component.find('InputList #addbtn').last().props().disabled).toEqual(
+    expect(component.find('button[name="addbtn1"]').props().disabled).toEqual(
       true,
     );
   });

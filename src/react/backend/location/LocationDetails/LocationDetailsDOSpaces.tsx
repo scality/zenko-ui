@@ -61,24 +61,28 @@ export default class LocationDetailsDOSpaces extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label htmlFor="accessKey">Spaces Access Key</Label>
+          <Label htmlFor="accessKey" required>
+            Spaces Access Key
+          </Label>
           <Input
             name="accessKey"
             id="accessKey"
             type="text"
-            placeholder="AKI5HMPCLRB86WCKTN2C"
+            placeholder="example: AKI5HMPCLRB86WCKTN2C"
             value={this.state.accessKey}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="secretKey">Spaces Secret Key</Label>
+          <Label htmlFor="secretKey" required>
+            Spaces Secret Key
+          </Label>
           <Input
             name="secretKey"
             id="secretKey"
             type="password"
-            placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
             value={this.state.secretKey}
             onChange={this.onChange}
             autoComplete="new-password"
@@ -89,7 +93,9 @@ export default class LocationDetailsDOSpaces extends React.Component<
           </small>
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="bucketName">Target Space Name</Label>
+          <Label htmlFor="bucketName" required>
+            Target Space Name
+          </Label>
           <Input
             name="bucketName"
             id="bucketName"
@@ -101,11 +107,13 @@ export default class LocationDetailsDOSpaces extends React.Component<
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="endpoint">Endpoint</Label>
+          <Label htmlFor="endpoint" required>
+            Endpoint
+          </Label>
           <Input
             name="endpoint"
             type="text"
-            placeholder="nyc3.digitaloceanspaces.com"
+            placeholder="example: nyc3.digitaloceanspaces.com"
             value={this.state.endpoint}
             onChange={this.onChange}
             autoComplete="off"

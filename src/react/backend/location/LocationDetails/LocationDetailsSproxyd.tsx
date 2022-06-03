@@ -16,7 +16,7 @@ type State = {
   chordCos: number;
 };
 const INIT_STATE = {
-  bootstrapList: [],
+  bootstrapList: [''],
   proxyPath: '',
   chordCos: 0,
 };
@@ -77,39 +77,43 @@ export default class LocationDetailsSproxyd extends React.Component<
     return (
       <div>
         <Fieldset>
-          <Label
-            htmlFor="bootstrapList"
-            tooltipMessages={[`max. ${SPROXYD_LIMIT} entries`]}
-          >
-            Bootstrap List
-          </Label>
           <InputList
-            name="bootstrapList"
             id="bootstrapList"
-            entries={this.state.bootstrapList}
-            listLimit={SPROXYD_LIMIT}
-            onUpdate={this.onListChange}
+            required
+            label="Bootstrap List"
+            getInputProps={() => ({
+              autoComplete: 'off',
+              type: 'text',
+              placeholder: 'example: localhost:8181',
+            })}
+            values={this.state.bootstrapList}
+            onChange={this.onListChange}
+            maxItems={SPROXYD_LIMIT}
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="">Proxy Path</Label>
+          <Label htmlFor="proxyPath" required>
+            Proxy Path
+          </Label>
           <Input
             name="proxyPath"
             id="proxyPath"
             type="text"
-            placeholder="/proxy/path"
+            placeholder="example: /proxy/path"
             value={this.state.proxyPath}
             onChange={this.onChange}
             autoComplete="off"
           />
         </Fieldset>
         <Fieldset>
-          <Label htmlFor="chordCos">Replication Factor for Small Objects</Label>
+          <Label htmlFor="chordCos" required>
+            Replication Factor for Small Objects
+          </Label>
           <Input
             name="chordCos"
             id="chordCos"
             type="text"
-            placeholder="3"
+            placeholder="example: 3"
             value={this.state.chordCos}
             onChange={this.onChange}
             autoComplete="off"

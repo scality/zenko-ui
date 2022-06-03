@@ -1,195 +1,92 @@
-/* eslint-disable */
-// FIXME: Refactor this class with function
-import { Button as BasicButton } from '@scality/core-ui/dist/next';
-import { default as BasicInput } from './Input';
-import React from 'react';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-type Props = {
-  className: string;
-  entries: Array<string>;
-  listLimit: number;
-  onUpdate: (entries: Array<string>) => void;
-};
-type State = {
-  entries: Array<string>;
-};
-const InputGroups = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-const InputGroup = styled.div`
-  display: flex;
-`;
-const Input = styled(BasicInput)`
-  margin-bottom: ${spacing.sp8};
-`;
-const Button = styled(BasicButton)`
-  margin-left: ${spacing.sp8};
-  &.invisible {
-    visibility: hidden;
-  }
-`;
-export default class InputList extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      entries: [...this.props.entries],
-    };
-  }
+import { HTMLProps } from 'react';
+import { Box } from '@scality/core-ui/dist/next';
+import { AddButton, SubButton } from './EditableKeyValue';
+import { Input, Label } from './FormLayout';
 
-  insertEntry = () => {
-    const updatedList = [...this.state.entries];
-    updatedList.push('');
-    this.setState({
-      entries: updatedList,
-    });
-  };
-  deleteEntry = (index: number) => {
-    const updatedList = [...this.state.entries];
-    updatedList.splice(index, 1);
-    this.setState({
-      entries: updatedList,
-    });
-  };
-  updateEntry =
-    (index: number) => (e: React.SyntheticEvent<HTMLInputElement>) => {
-      const updatedList = [...this.state.entries];
-      updatedList[index] = e.target.value;
-      this.setState({
-        entries: updatedList,
-      });
-    };
-  updateList = () => {
-    if (this.props.onUpdate) {
-      this.props.onUpdate(this.state.entries);
+function InputList({
+  label,
+  id,
+  values,
+  required,
+  onChange,
+  getInputProps,
+  maxItems,
+}: {
+  id: string;
+  maxItems?: number;
+  required?: boolean;
+  label?: string;
+  values: string[];
+  onChange: (values: string[]) => void;
+  getInputProps?: (
+    value: string,
+    index: number,
+  ) => Omit<
+    HTMLProps<HTMLInputElement>,
+    'onChange' | 'name' | 'value' | 'id' | 'ref' | 'as'
+  >;
+}) {
+  const isMaxItemsReached =
+    maxItems !== undefined && maxItems !== null && values.length === maxItems;
+  const insertEntry = () => {
+    if (!isMaxItemsReached) {
+      onChange([...values, '']);
     }
   };
-  maybeAddButton = (index: number) => {
-    let isVisible = 'invisible';
-    let isDisabled = false;
 
-    let onClickFn = () => {};
-
-    if (
-      index === this.state.entries.length - 1 ||
-      this.state.entries.length <= 0
-    ) {
-      isVisible = 'visible';
-
-      onClickFn = () => this.insertEntry();
+  const deleteEntry = (entryIndex: number) => {
+    let tempValues = [...values];
+    tempValues.splice(entryIndex, 1);
+    if (tempValues.length === 0) {
+      tempValues = [''];
     }
-
-    if (
-      (this.props.listLimit > 0 &&
-        this.state.entries.length >= this.props.listLimit) ||
-      this.state.entries[index] === ''
-    ) {
-      isDisabled = true;
-
-      onClickFn = () => {};
-    }
-
-    return (
-      <Button
-        variant="secondary"
-        className={isVisible}
-        label="Add"
-        disabled={isDisabled}
-        name="addbtn"
-        id="addbtn"
-        onClick={onClickFn}
-        icon={<i className="fa fa-plus-square" />}
-      />
-    );
-  };
-  maybeSubButton = (index: number) => {
-    let isDisabled = true;
-
-    let onClickFn = () => {};
-
-    if (this.state.entries.length > 1) {
-      isDisabled = false;
-
-      onClickFn = () => this.deleteEntry(index);
-    }
-
-    return (
-      <Button
-        variant="danger"
-        label="Remove"
-        disabled={isDisabled}
-        name={`delbtn${index}`}
-        id={`delbtn${index}`}
-        onClick={onClickFn}
-        icon={<i className="fa fa-minus-square" />}
-      />
-    );
+    onChange([...tempValues]);
   };
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    return this.state !== nextState;
-  }
-
-  componentDidUpdate() {
-    this.updateList();
-  }
-
-  componentDidMount() {
-    if (this.state.entries.length <= 0) {
-      this.insertEntry();
-    }
-  }
-
-  handleKeyEvent = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && this.state.entries.length < this.props.listLimit) {
-      this.insertEntry();
-    }
-  };
-  genEntry = (value: string, index: number) => {
-    return (
-      <InputGroup
-        key={`input-entry-${index}`}
-        className="my-2"
-        name="listEntries"
-      >
-        <Input
-          type="text"
-          name={`entry${index}`}
-          id={`entry${index}`}
-          onChange={this.updateEntry(index)}
-          placeholder="localhost:8181"
-          value={value}
-          autoComplete="off"
-        />
-        {this.maybeSubButton(index)}
-        {this.maybeAddButton(index)}
-      </InputGroup>
-    );
-  };
-
-  render() {
-    const { entries } = this.state;
-    const lastEntry = entries.length - 1;
-    return (
-      <InputGroups className={this.props.className}>
-        {entries.slice(0, -1).map(this.genEntry)}
-        <InputGroup>
+  return (
+    <>
+      {label && (
+        <Label
+          required={required}
+          htmlFor={`${id}[${values.length - 1}]`}
+          tooltipMessages={maxItems ? [`max. ${maxItems} entries`] : undefined}
+          tooltipWidth={'10rem'}
+        >
+          {label}
+        </Label>
+      )}
+      {values.map((value, index) => (
+        <Box display="flex" gap="1rem" alignItems="center" key={index}>
           <Input
-            className="form-control"
-            type="text"
-            name={`entry${lastEntry}`}
-            id={`entry${lastEntry}`}
-            onChange={this.updateEntry(lastEntry)}
-            placeholder="localhost:8181"
-            value={entries[lastEntry]}
-            autoComplete="off"
-            onKeyPress={this.handleKeyEvent}
+            {...(getInputProps ? getInputProps(value, index) : {})}
+            name={`${id}[${index}]`}
+            id={`${id}[${index}]`}
+            value={value}
+            onChange={(evt) => {
+              const tempValues = [...values];
+              tempValues[index] = evt.target.value;
+              onChange(tempValues);
+            }}
           />
-          {this.maybeSubButton(lastEntry)}
-          {this.maybeAddButton(lastEntry)}
-        </InputGroup>
-      </InputGroups>
-    );
-  }
+          {/* disable the sub button only for the first value which is not empty*/}
+          <SubButton
+            index={index}
+            key={`${id}-delete-${values.join(',') + index}`}
+            deleteEntry={deleteEntry}
+            items={values}
+            disabled={values.length === 1 && values[0] === ''}
+          />
+          <AddButton
+            index={index}
+            key={`${id}-add-${values.join(',') + index}`}
+            insertEntry={insertEntry}
+            items={values}
+            disabled={value === '' || isMaxItemsReached}
+          />
+        </Box>
+      ))}
+    </>
+  );
 }
+
+export default InputList;

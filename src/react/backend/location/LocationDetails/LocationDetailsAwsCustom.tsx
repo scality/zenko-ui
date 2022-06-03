@@ -61,24 +61,28 @@ export default function LocationDetailsAwsCustom({
   return (
     <div>
       <Fieldset>
-        <Label htmlFor="accessKey">Access Key</Label>
+        <Label htmlFor="accessKey" required>
+          Access Key
+        </Label>
         <Input
           name="accessKey"
           id="accessKey"
           type="text"
-          placeholder="AKI5HMPCLRB86WCKTN2C"
+          placeholder="example: AKI5HMPCLRB86WCKTN2C"
           value={formState.accessKey}
           onChange={onFormItemChange}
           autoComplete="off"
         />
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="secretKey">Secret Key</Label>
+        <Label htmlFor="secretKey" required>
+          Secret Key
+        </Label>
         <Input
           name="secretKey"
           id="secretKey"
           type="password"
-          placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+          placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
           value={formState.secretKey}
           onChange={onFormItemChange}
           autoComplete="new-password"
@@ -89,7 +93,9 @@ export default function LocationDetailsAwsCustom({
         </small>
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="bucketName">Target Bucket Name</Label>
+        <Label htmlFor="bucketName" required>
+          Target Bucket Name
+        </Label>
         <Input
           name="bucketName"
           id="bucketName"
@@ -102,14 +108,16 @@ export default function LocationDetailsAwsCustom({
         />
       </Fieldset>
       <Fieldset>
-        <Label htmlFor="endpoint">Endpoint</Label>
+        <Label htmlFor="endpoint" required>
+          Endpoint
+        </Label>
         <Input
           name="endpoint"
           type="text"
           value={formState.endpoint}
           onChange={onFormItemChange}
           autoComplete="off"
-          placeholder="https://hosted-s3-server.internal.example.com:4443"
+          placeholder="example: https://hosted-s3-server.internal.example.com:4443"
         />
         <small>
           Endpoint to reach the S3 server, including scheme and port. The
