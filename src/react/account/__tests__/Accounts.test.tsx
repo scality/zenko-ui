@@ -206,6 +206,44 @@ describe('Accounts', () => {
     }
   });
 
+  it('should not redirect the user to buckets when storage manager and no roles can be assumed', async () => {
+    try {
+      //S
+      const mockedHistory = createMemoryHistory();
+      mockedHistory.replace = jest.fn();
+      jest.spyOn(router, 'useHistory').mockReturnValue(mockedHistory);
+      server.use(
+        rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
+          res(
+            ctx.json({
+              IsTruncated: false,
+              Accounts: [],
+            }),
+          ),
+        ),
+      );
+
+      //E
+      reduxRender(<Accounts />, {
+        uiErrors: initialErrorsUIState,
+        networkActivity: {
+          counter: 0,
+          messages: List.of(),
+        },
+        oidc: { user: { access_token: 'token', profile: {groups: 'StorageManager'} } },
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      });
+      //V
+      expect(mockedHistory.replace).not.toHaveBeenCalled();
+    } catch (e) {
+      console.log(
+        'should list accounts display an error when retrieval of accounts failed',
+        e,
+      );
+      throw e;
+    }
+  });
+
   it('should display Create Account Button for Storage Manager', async () => {
     try {
       //E

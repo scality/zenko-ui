@@ -168,6 +168,9 @@ export const useAccounts = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
 
   const { data } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
     {
@@ -195,7 +198,8 @@ export const useAccounts = () => {
           if (
             !canAssumeAdminAccountRolesOnAnyAccount &&
             !location.pathname.includes('bucket') &&
-            !location.pathname.includes('workflows')
+            !location.pathname.includes('workflows') &&
+            !userGroups.includes('StorageManager')
           ) {
             history.replace('/buckets');
           }
