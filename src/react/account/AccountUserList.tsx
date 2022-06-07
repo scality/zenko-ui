@@ -118,10 +118,81 @@ const renderActionButtons = (rowValues) => {
     <div style={{ display: 'flex' }}>
       <CopyARNButton text={arn} />
       <RenderEditButton userName={userName} />
+      <DeleteUserAction userName={userName} />
     </div>
   );
 };
 
+const DeleteUserAction = (rowValue: { userName : string} , accountName: string) => {
+  const { userName } = rowValue;
+  const IAMClient = useIAMClient();
+  const [showModal, setShowModal] = useState(false);
+  const { data: accessKeysResult, status: accessKeyStatus } =
+    useAwsPaginatedEntities(
+      getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
+      (data) => data.AccessKeyMetadata,
+    );
+  const { data: listGroupsResult, status: listGroupStatus } = useQuery(
+    getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)),
+  );
+
+  const deleteUserMutation = useMutation(
+    (userName: string) => {
+      return notFalsyTypeGuard(IAMClient).deleteUser(userName);
+    },
+    {
+      onSuccess: () =>
+        queryClient.invalidateQueries(
+          getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
+            .queryKey,
+        ),
+    },
+  );
+
+  return (
+    <>
+      <DeleteConfirmation
+        show={showModal}
+        cancel={() => setShowModal(false)}
+        approve={() => {
+          deleteUserMutation.mutate(userName);
+        }}
+        titleText={`Permanently remove the following user ${userName} ?`}
+      />
+
+      <Button
+        id="delete-accessKey-btn"
+        disabled={
+          (accessKeysResult && accessKeysResult?.length >= 1) ||
+          (listGroupsResult && listGroupsResult.Groups?.length >= 1) ||
+          accessKeyStatus === 'loading' ||
+          listGroupStatus === 'loading'
+        }
+        icon={<i className="fas fa-trash" />}
+        style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
+        label="Delete"
+        onClick={() => {
+          setShowModal(true);
+        }}
+        variant="danger"
+        tooltip={{
+          overlay:
+            accessKeyStatus === 'loading' ? 'loading...' : 'Remove accessKey',
+          placement: 'right',
+        }}
+      />
+      {accessKeyStatus === 'error' && (
+        <Banner
+          icon={<i className="fas fa-exclamation-triangle" />}
+          title="Error: Unable to delete user"
+          variant="danger"
+        >
+          Error: Unable to delete user.
+        </Banner>
+      )}
+    </>
+  );
+};
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const history = useHistory();
