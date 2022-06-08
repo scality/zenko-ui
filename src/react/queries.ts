@@ -90,6 +90,7 @@ export const getListUsersQuery = (
   queryKey: ['listIAMUsers', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     notFalsyTypeGuard(IAMClient).listUsers(1000, marker),
+  staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,

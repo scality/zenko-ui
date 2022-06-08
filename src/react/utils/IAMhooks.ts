@@ -107,6 +107,9 @@ export const useAwsPaginatedEntities = <
       !isFetchingNextPage
     ) {
       setStatus('success');
+      if (reactQueryOptions.onPageSuccess) {
+        reactQueryOptions.onPageSuccess(entities || [])
+      }
       if (reactQueryOptions.onUnmountOrSettled) {
         reactQueryOptions.onUnmountOrSettled(entities, null);
       }
