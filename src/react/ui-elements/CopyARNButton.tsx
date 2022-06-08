@@ -8,7 +8,7 @@ const IconSuccess = styled.i`
   color: ${(props) => props.theme.brand.statusHealthy};
 `;
 
-const CopyARNButton = ({ text }: { text: string }) => {
+const CopyARNButton = ({ text, ...rest }: { text: string }) => {
   const { copy, copyStatus } = useClipboard();
   return (
     <InlineButtonFixedWidth
@@ -24,6 +24,7 @@ const CopyARNButton = ({ text }: { text: string }) => {
       onClick={() => {
         copy(text);
       }}
+      {...rest}
     />
   );
 };

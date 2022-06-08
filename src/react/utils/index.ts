@@ -21,7 +21,7 @@ export const systemMetadata = [
     header: 'website-redirect-location',
   },
 ];
-export const systemMetadataKeys = systemMetadata.map(m => m.key);
+export const systemMetadataKeys = systemMetadata.map((m) => m.key);
 export const AMZ_META = 'x-amz-meta';
 export const METADATA_USER_TYPE = 'user';
 export const METADATA_SYSTEM_TYPE = 'system';
@@ -53,7 +53,7 @@ export function errorParser(error) {
 export function formatDate(d) {
   return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
-export function formatShortDate(d) {
+export function formatShortDate(d: Date) {
   const date = DateTime.fromISO(d?.toISOString()).toISODate();
   const time = DateTime.fromISO(d?.toISOString()).toFormat('TT');
   return `${date} ${time}`;
@@ -61,9 +61,9 @@ export function formatShortDate(d) {
 export function formatSimpleDate(d) {
   return d.toISOString().split('T')[0];
 }
-export const stripTrailingSlash = name =>
+export const stripTrailingSlash = (name) =>
   name.slice(-1) === '/' ? name.slice(0, -1) : name;
-export const addTrailingSlash = name =>
+export const addTrailingSlash = (name) =>
   name ? (name.slice(-1) !== '/' ? `${name}/` : name) : '';
 export const maybePluralize = (count, noun, suffix = 's') =>
   `${count} ${noun}${count > 1 ? suffix : ''}`;
@@ -74,6 +74,6 @@ export function stripQuotes(s) {
 
   return s;
 }
-export const isEmptyItem = item => item.key === '' && item.value === '';
-export const isVersioning = type => type === 'Enabled';
-export const isVersioningDisabled = type => type === 'Disabled';
+export const isEmptyItem = (item) => item.key === '' && item.value === '';
+export const isVersioning = (type) => type === 'Enabled';
+export const isVersioningDisabled = (type) => type === 'Disabled';

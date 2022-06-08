@@ -35,10 +35,12 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
   return workflows;
 };
 
-export const workflowListQuery = ( onStart?: () => void, mgnt: UiFacingApi, accountId: string,
+export const workflowListQuery = (
+  mgnt: UiFacingApi,
+  accountId: string,
   instanceId: string,
   rolePathName: string,
-
+  onStart?: () => void,
   filters?: [],
 ) => {
   return {
@@ -60,34 +62,48 @@ export const workflowListQuery = ( onStart?: () => void, mgnt: UiFacingApi, acco
   };
 };
 
-export const getUserAccessKeysQuery = (userName: string, IAMClient: IAMClient) => ({
+export const getUserAccessKeysQuery = (
+  userName: string,
+  IAMClient: IAMClient,
+) => ({
   queryKey: ['listIAMUserAccessKey', userName],
-  queryFn: (_ctx: QueryFunctionContext, marker: string) => IAMClient.listAccessKeys(userName, marker),
+  queryFn: (_ctx: QueryFunctionContext, marker: string) =>
+    IAMClient.listAccessKeys(userName, marker),
   enabled: IAMClient !== null,
   refetchOnMount: false,
-  refetchOnWindowFocus: false
+  refetchOnWindowFocus: false,
 });
 
-export const getUserListGroupsQuery = (userName: string, IAMClient: IAMClient) => ({
+export const getUserListGroupsQuery = (
+  userName: string,
+  IAMClient: IAMClient,
+) => ({
   queryKey: ['listIAMUserGroups', userName],
   queryFn: () => IAMClient.listGroupsForUser(userName),
   enabled: IAMClient !== null,
 });
 
-export const getUserListUsersQuery = (accountName: string, IAMClient: IAMClient) => ({
+export const getUserListUsersQuery = (
+  accountName: string,
+  IAMClient: IAMClient,
+) => ({
   queryKey: ['listIAMUsers', accountName],
-  queryFn: (maxItems: number, marker: string) => IAMClient.listUsers(1000, marker),
+  queryFn: (_ctx: QueryFunctionContext, marker: string) =>
+    IAMClient.listUsers(1000, marker),
   staleTime: Infinity,
   enabled: IAMClient !== null,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
 
-export const getPoliciesQuery = (UserName: string, IAMClient: IAMClient) => ({
-  queryKey: ['listPolicies', UserName],
-  queryFn: (maxItems: number, marker: string) => IAMClient.listPolicies(1000, marker),
-  enabled: IAMClient !== null,
-  onError: console.log,
+export const getListPoliciesQuery = (
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listPolicies', accountName],
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listPolicies(1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
-  refetchOnWindowFocus: false
+  refetchOnWindowFocus: false,
 });

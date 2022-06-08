@@ -123,7 +123,10 @@ const renderActionButtons = (rowValues) => {
   );
 };
 
-const DeleteUserAction = (rowValue: { userName : string} , accountName: string) => {
+const DeleteUserAction = (
+  rowValue: { userName: string },
+  accountName: string,
+) => {
   const { userName } = rowValue;
   const IAMClient = useIAMClient();
   const [showModal, setShowModal] = useState(false);
@@ -196,31 +199,38 @@ const DeleteUserAction = (rowValue: { userName : string} , accountName: string) 
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const history = useHistory();
-  const getQuery = (IAMClient: IAMClient) => getUserListUsersQuery(notFalsyTypeGuard(accountName), IAMClient);
+  const getQuery = (IAMClient: IAMClient) =>
+    getUserListUsersQuery(notFalsyTypeGuard(accountName), IAMClient);
   const getEntitiesFromResult = (page) => page.Users;
 
-  const prepareData = (queryResult, search) => {
+  const prepareData = (queryResult) => {
     if (queryResult.firstPageStatus === 'success') {
-      const iamUsers = queryResult && queryResult.data && queryResult.data.map((user) => {
-        return {
-          userName: user.UserName,
-          createdOn: formatSimpleDate(user.CreateDate),
-          accessKeys: null,
-          arn: user.Arn,
-          actions: null,
-        };
-      });
-
-      if (search) {
-        return iamUsers.filter((user) =>
-          user.userName.toLowerCase().startsWith(search.toLowerCase()),
-        );
-      }
+      const iamUsers =
+        queryResult &&
+        queryResult.data &&
+        queryResult.data.map((user) => {
+          return {
+            userName: user.UserName,
+            createdOn: formatSimpleDate(user.CreateDate),
+            accessKeys: null,
+            arn: user.Arn,
+            actions: null,
+          };
+        });
 
       return iamUsers;
     }
 
     return [];
+  };
+
+  const filterData = (iamUsers, search) => {
+    if (search) {
+      return iamUsers.filter((user) =>
+        user.userName.toLowerCase().startsWith(search.toLowerCase()),
+      );
+    }
+    return iamUsers;
   };
   const columns = [
     {
@@ -264,13 +274,15 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
   return (
     <AwsPaginatedResourceTable
       columns={columns}
-      additionalHeaders={<Button
-        icon={<i className="fas fa-plus" />}
-        label="Create User"
-        variant="primary"
-        onClick={() => history.push('create-user')}
-        type="submit"
-      />}
+      additionalHeaders={
+        <Button
+          icon={<i className="fas fa-plus" />}
+          label="Create User"
+          variant="primary"
+          onClick={() => history.push('create-user')}
+          type="submit"
+        />
+      }
       defaultSortingKey={'userName'}
       getItemKey={(index, iamUsers) => {
         return iamUsers[index].Arn;
@@ -278,16 +290,19 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       query={{
         getResourceQuery: getQuery,
         getEntitiesFromResult,
-        prepareData
+        prepareData,
+        filterData,
       }}
       labels={{
         singularResourceName: 'user',
         pluralResourceName: 'users',
         loading: 'Loading users...',
         disabledSearchWhileLoading: 'Search is disabled while loading users',
-        errorPreviousHeaders: 'An error occured, users listing may be incomplete. Please retry' +
+        errorPreviousHeaders:
+          'An error occured, users listing may be incomplete. Please retry' +
           ' and if the error persist contact your support.',
-        errorInTableContent: 'We failed to retrieve users, please retry later. If the error persists, please contact your support.',
+        errorInTableContent:
+          'We failed to retrieve users, please retry later. If the error persists, please contact your support.',
       }}
     />
   );
