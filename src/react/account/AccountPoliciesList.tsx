@@ -225,15 +225,15 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
   ): InternalPolicy[] => {
     if (queryResult.firstPageStatus === 'success') {
       const iamPolicies =
-        queryResult.data?.map((user) => {
+        queryResult.data?.map((policy) => {
           return {
-            policyPath: user.Path?.substring(1) || '',
-            policyName: user.PolicyName || '',
-            modifiedOn: user.UpdateDate
-              ? formatShortDate(user.UpdateDate)
+            policyPath: policy.Path?.substring(1) || '',
+            policyName: policy.PolicyName || '',
+            modifiedOn: policy.UpdateDate
+              ? formatShortDate(policy.UpdateDate)
               : '-',
-            attachments: user.AttachmentCount || 0,
-            arn: user.Arn || '',
+            attachments: policy.AttachmentCount || 0,
+            arn: policy.Arn || '',
             actions: null,
           };
         }) || [];

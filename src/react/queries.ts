@@ -64,12 +64,12 @@ export const workflowListQuery = (
 
 export const getUserAccessKeysQuery = (
   userName: string,
-  IAMClient: IAMClient,
+  IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listIAMUserAccessKey', userName],
   queryFn: (_ctx: QueryFunctionContext, marker: string) =>
-    IAMClient.listAccessKeys(userName, marker),
-  enabled: IAMClient !== null,
+    notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -83,15 +83,14 @@ export const getUserListGroupsQuery = (
   enabled: IAMClient !== null,
 });
 
-export const getUserListUsersQuery = (
+export const getListUsersQuery = (
   accountName: string,
-  IAMClient: IAMClient,
+  IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listIAMUsers', accountName],
-  queryFn: (_ctx: QueryFunctionContext, marker: string) =>
-    IAMClient.listUsers(1000, marker),
-  staleTime: Infinity,
-  enabled: IAMClient !== null,
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listUsers(1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });

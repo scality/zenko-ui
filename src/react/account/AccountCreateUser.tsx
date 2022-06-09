@@ -19,7 +19,7 @@ import { useIAMClient } from '../IAMProvider';
 import { queryClient } from '../App';
 import { useMutation } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
-import { getUserListUsersQuery } from '../queries';
+import { getListUsersQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
@@ -40,9 +40,7 @@ const AccountCreateUser = () => {
     register,
     handleSubmit,
 
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
     resolver: joiResolver(schema),
   });
@@ -52,16 +50,20 @@ const AccountCreateUser = () => {
       dispatch(networkStart('Creating User'));
       return IAMClient.createUser(userName)
         .then((newUser) => {
-          queryClient.setQueryData(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))?.queryKey, (old) => {
-            if (old) {
-              const pages = old.pages;
-              pages[pages.length - 1].Users.push({
-                ...newUser.User,
-                CreateDate: new Date(),
-              });
-              return { ...old, pages };
-            }
-          });
+          queryClient.setQueryData(
+            getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
+              ?.queryKey,
+            (old) => {
+              if (old) {
+                const pages = old.pages;
+                pages[pages.length - 1].Users.push({
+                  ...newUser.User,
+                  CreateDate: new Date(),
+                });
+                return { ...old, pages };
+              }
+            },
+          );
         })
         .finally(() => {
           dispatch(networkEnd());
@@ -132,7 +134,8 @@ const AccountCreateUser = () => {
             id="name"
             {...register('name')}
             onChange={clearServerError}
-            autoComplete="new-password" />
+            autoComplete="new-password"
+          />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
