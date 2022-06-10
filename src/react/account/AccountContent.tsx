@@ -10,6 +10,7 @@ import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import CreateAccountPolicy from './CreateAccountPolicy';
+import AttachmentTabs from './AttachmentTabs';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -23,13 +24,19 @@ function AccountContent() {
           <AccountCreateUser />
         </Route>
         <Route path={`${path}/create-policy`}>
-          <CreateAccountPolicy/>
+          <CreateAccountPolicy />
         </Route>
         <Route path={`${path}/users/:IAMUserName/update-user`}>
           <AccountUpdateUser />
         </Route>
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />
+        </Route>
+        <Route path={`${path}/users/:IAMUserName/attachments`}>
+          <AttachmentTabs />
+        </Route>
+        <Route path={`${path}/policies/:policyName/attachments`}>
+          <AttachmentTabs />
         </Route>
         <Route path={`${path}/workflows/create-workflow`}>
           <CreateWorkflow />
