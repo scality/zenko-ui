@@ -9,6 +9,7 @@ import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import { AppState } from '../../types/state';
 import { useSelector } from 'react-redux';
+import AccountPoliciesList from './AccountPoliciesList';
 type Props = {
   account: Account | null | undefined;
 };
@@ -22,7 +23,7 @@ const NotFound = () => (
 
 function AccountDetails({ account }: Props) {
   const theme: DefaultTheme = useTheme();
-  const { accountName } = useParams<{accountName: string }>();
+  const { accountName } = useParams<{ accountName: string }>();
   const features = useSelector((state: AppState) => state.auth.config.features);
 
   const { url } = useRouteMatch();
@@ -49,9 +50,16 @@ function AccountDetails({ account }: Props) {
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
         <Locations />
       </CustomTabs.Tab>
-      {features.includes("IAM_USERS") && <CustomTabs.Tab label="Users" path={`${url}/users`}>
-        <AccountUserList accountName={accountName} />
-      </CustomTabs.Tab>}
+      {features.includes('IAM_USERS') && (
+        <CustomTabs.Tab label="Users" path={`${url}/users`}>
+          <AccountUserList accountName={accountName} />
+        </CustomTabs.Tab>
+      )}
+      {features.includes('IAM_USERS') && (
+        <CustomTabs.Tab label="Policies" path={`${url}/policies`}>
+          <AccountPoliciesList accountName={accountName} />
+        </CustomTabs.Tab>
+      )}
     </CustomTabs>
   );
 }

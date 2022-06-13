@@ -62,25 +62,47 @@ export const workflowListQuery = (
   };
 };
 
-export const getUserAccessKeysQuery = (userName: string, IAMClient: IAMClient) => ({
+export const getUserAccessKeysQuery = (
+  userName: string,
+  IAMClient?: IAMClient | null,
+) => ({
   queryKey: ['listIAMUserAccessKey', userName],
-  queryFn: () => IAMClient.listAccessKeys(userName),
-  enabled: IAMClient !== null,
+  queryFn: (_ctx: QueryFunctionContext, marker: string) =>
+    notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
-  refetchOnWindowFocus: false
+  refetchOnWindowFocus: false,
 });
 
-export const getUserListGroupsQuery = (userName: string, IAMClient: IAMClient) => ({
+export const getUserListGroupsQuery = (
+  userName: string,
+  IAMClient: IAMClient,
+) => ({
   queryKey: ['listIAMUserGroups', userName],
   queryFn: () => IAMClient.listGroupsForUser(userName),
   enabled: IAMClient !== null,
 });
 
-export const getUserListUsersQuery = (accountName: string, IAMClient: IAMClient) => ({
+export const getListUsersQuery = (
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
   queryKey: ['listIAMUsers', accountName],
-  queryFn: (maxItems: number, marker: string) => IAMClient.listUsers(1000, marker),
-  staleTime: Infinity,
-  enabled: IAMClient !== null,
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listUsers(1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+export const getListPoliciesQuery = (
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listPolicies', accountName],
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listPolicies(1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });

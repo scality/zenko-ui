@@ -154,6 +154,14 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
+  deletePolicy(arn: string) {
+    return notFalsyTypeGuard(this.client)
+      .deletePolicy({
+        PolicyArn: arn,
+      })
+      .promise();
+  }
+
   getUser(userName: string) {
     return notFalsyTypeGuard(this.client)
       .getUser({
@@ -176,9 +184,7 @@ export default class IAMClient implements IAMClientInterface {
 
   listAttachedUserPolicies(userName: string) {
     return notFalsyTypeGuard(this.client)
-      .listAttachedUserPolicies({
-        UserName: userName,
-      })
+      .listAttachedUserPolicies({ UserName: userName })
       .promise();
   }
 
@@ -193,6 +199,15 @@ export default class IAMClient implements IAMClientInterface {
   listUsers(maxItems?: number, marker?: string) {
     return notFalsyTypeGuard(this.client)
       .listUsers({
+        MaxItems: maxItems,
+        Marker: marker,
+      })
+      .promise();
+  }
+
+  listPolicies(maxItems?: number, marker?: string) {
+    return notFalsyTypeGuard(this.client)
+      .listPolicies({
         MaxItems: maxItems,
         Marker: marker,
       })

@@ -15,7 +15,7 @@ import { InfiniteData, useMutation } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { ListUsersResponse } from 'aws-sdk/clients/iam';
-import { getUserListUsersQuery } from '../queries';
+import { getListUsersQuery } from '../queries';
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
   name: Joi.string()
@@ -31,40 +31,49 @@ const AccountUpdateUser = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const IAMClient = useIAMClient();
-  const { IAMUserName, accountName } = useParams<{ IAMUserName: string, accountName: string }>();
+  const { IAMUserName, accountName } = useParams<{
+    IAMUserName: string;
+    accountName: string;
+  }>();
   const {
     register,
     handleSubmit,
 
-    formState: {
-      errors,
-    },
+    formState: { errors },
   } = useForm({
-    resolver: joiResolver(schema)
+    resolver: joiResolver(schema),
   });
   const updateUserMutation = useMutation(
     (newUserName: string) => {
       const oldUserName = IAMUserName;
-      return notFalsyTypeGuard(IAMClient).updateUser(newUserName, oldUserName)
+      return notFalsyTypeGuard(IAMClient)
+        .updateUser(newUserName, oldUserName)
         .then(() => {
-          const olddata = queryClient.getQueryData(getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey);
-          olddata && queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
-            getUserListUsersQuery(accountName, notFalsyTypeGuard(IAMClient)).queryKey, (old) => {
-              const pages = notFalsyTypeGuard(old).pages.map((page) => {
-                const users = page.Users;
-                const index = users.findIndex(
-                  (user) => user.UserName === oldUserName,
-                );
-                if(index !== -1) {
-                  users[index].UserName = newUserName;
-                }
-                return page;
-              });
-              return {
-                ...notFalsyTypeGuard(old),
-                pages,
-              };
-          });
+          const olddata = queryClient.getQueryData(
+            getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
+              .queryKey,
+          );
+          olddata &&
+            queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
+              getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
+                .queryKey,
+              (old) => {
+                const pages = notFalsyTypeGuard(old).pages.map((page) => {
+                  const users = page.Users;
+                  const index = users.findIndex(
+                    (user) => user.UserName === oldUserName,
+                  );
+                  if (index !== -1) {
+                    users[index].UserName = newUserName;
+                  }
+                  return page;
+                });
+                return {
+                  ...notFalsyTypeGuard(old),
+                  pages,
+                };
+              },
+            );
         })
         .catch((err) => {
           dispatch(handleErrorMessage(`${err}`, 'byModal'));
@@ -76,7 +85,7 @@ const AccountUpdateUser = () => {
     {
       onSuccess: () => {
         history.goBack();
-      }
+      },
     },
   );
 
@@ -94,7 +103,7 @@ const AccountUpdateUser = () => {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const onSubmit = ({ name }: {name: string}) => {
+  const onSubmit = ({ name }: { name: string }) => {
     clearServerError();
     updateUserMutation.mutate(name);
   };
@@ -125,24 +134,36 @@ const AccountUpdateUser = () => {
       >
         <F.Title> Edit a User</F.Title>
 
-        <F.Fieldset style={{ width: '100%'}}>
+        <F.Fieldset style={{ width: '100%' }}>
           <F.Label
-            tooltipMessages={[<div key={IAMUserName} style={{ textAlign: 'start' }}>
-              <div>The ARN and the (friendly) name for the user will be edited, but the unique ID remains the same.
-              </div>
-              <br />
-              <div>The User stays in the same Groups, under its new name.</div>
-              <br />
-              <div>Policies:</div>
-              <div>- Any Policies attached to the user stays with this user, under its new name.</div>
-              <div>- Any Role (Trust) Policies that refer to the User as a Principal are automatically updated with the
-                new name.
-              </div>
-              <div>- Any Policies that refer to the User as a Resource are not updated, you have to do it manually.
-              </div>
-            </div>]
-            }
-            tooltipWidth="40rem">
+            tooltipMessages={[
+              <div key={IAMUserName} style={{ textAlign: 'start' }}>
+                <div>
+                  The ARN and the (friendly) name for the user will be edited,
+                  but the unique ID remains the same.
+                </div>
+                <br />
+                <div>
+                  The User stays in the same Groups, under its new name.
+                </div>
+                <br />
+                <div>Policies:</div>
+                <div>
+                  - Any Policies attached to the user stays with this user,
+                  under its new name.
+                </div>
+                <div>
+                  - Any Role (Trust) Policies that refer to the User as a
+                  Principal are automatically updated with the new name.
+                </div>
+                <div>
+                  - Any Policies that refer to the User as a Resource are not
+                  updated, you have to do it manually.
+                </div>
+              </div>,
+            ]}
+            tooltipWidth="40rem"
+          >
             User Name
           </F.Label>
           <F.Input
@@ -150,13 +171,14 @@ const AccountUpdateUser = () => {
             id="name"
             {...register('name')}
             onChange={clearServerError}
-            autoComplete="new-password" />
+            autoComplete="new-password"
+          />
           <F.ErrorInput id="error-name" hasError={errors.name}>
             {' '}
             {errors.name?.message}{' '}
           </F.ErrorInput>
         </F.Fieldset>
-        <F.Footer style={{ marginTop: "1rem" }}>
+        <F.Footer style={{ marginTop: '1rem' }}>
           <F.FooterError>
             {hasError && (
               <Banner

@@ -21,6 +21,23 @@ export type AWS_PAGINATED_ENTITIES<ENTITY> =
       firstPageStatus: 'success';
     }) //loading, data
   | (QueryObserverSuccessResult<ENTITY[]> & { firstPageStatus: 'success' }); // success, data
+export type AWS_PAGINATED_QUERY<
+  API_RESPONSE extends {
+    Marker?: string;
+  },
+  ENTITY,
+  TError = unknown,
+> = {
+  queryFn: (
+    context: QueryFunctionContext,
+    marker?: string,
+  ) => Promise<API_RESPONSE>;
+  onUnmountOrSettled?: (
+    data: ENTITY[] | undefined,
+    error: TError | null | { message: 'Unmounted' },
+  ) => void;
+} & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>;
+
 export const useAwsPaginatedEntities = <
   API_RESPONSE extends {
     Marker?: string;
@@ -28,16 +45,7 @@ export const useAwsPaginatedEntities = <
   ENTITY,
   TError = unknown,
 >(
-  reactQueryOptions: {
-    queryFn: (
-      context: QueryFunctionContext,
-      marker?: string,
-    ) => Promise<API_RESPONSE>;
-    onUnmountOrSettled?: (
-      data: ENTITY[] | undefined,
-      error: TError | null | { message: 'Unmounted' },
-    ) => void;
-  } & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>,
+  reactQueryOptions: AWS_PAGINATED_QUERY<API_RESPONSE, ENTITY, TError>,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
   const [status, setStatus] = useState<
