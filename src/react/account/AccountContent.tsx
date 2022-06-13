@@ -9,6 +9,7 @@ import AccountUserAccessKeys from './AccountUserAccessKeys';
 import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import CreateAccountPolicy from './CreateAccountPolicy';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -20,6 +21,9 @@ function AccountContent() {
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />
+        </Route>
+        <Route path={`${path}/create-policy`}>
+          <CreateAccountPolicy/>
         </Route>
         <Route path={`${path}/users/:IAMUserName/update-user`}>
           <AccountUpdateUser />

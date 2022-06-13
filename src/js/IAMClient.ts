@@ -213,6 +213,15 @@ export default class IAMClient implements IAMClientInterface {
       })
       .promise();
   }
+
+  createPolicy(policyName: string, policyDocument: string) {
+    return notFalsyTypeGuard(this.client)
+      .createPolicy({
+        PolicyName: policyName,
+        PolicyDocument: policyDocument,
+      })
+      .promise();
+  }
 } // OFFLINE
 // export default class IAMClient {
 //     constructor() {

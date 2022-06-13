@@ -4,7 +4,7 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
-import CopyARNButton from '../ui-elements/CopyARNButton';
+import CopyButton from '../ui-elements/CopyButton';
 import { Tooltip } from '@scality/core-ui';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -105,7 +105,7 @@ const ActionButtons = ({
         policyPath={policyPath}
         accountName={accountName}
       />
-      <CopyARNButton text={arn} aria-label={`Copy ARN ${policyName}`} />
+      <CopyButton text={arn} labelName={'ARN'} aria-label={`Copy ARN ${policyName}`} />
       <DeletePolicyAction
         policyName={policyName}
         path={policyPath}

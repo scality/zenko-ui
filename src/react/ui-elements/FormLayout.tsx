@@ -1,14 +1,16 @@
-import { Checkbox as BasicCheckbox, Tooltip } from '@scality/core-ui';
+import { Checkbox as BasicCheckbox, TextArea, Tooltip } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   SmallerText,
   LargerText,
 } from '@scality/core-ui/dist/components/text/Text.component';
 import { HTMLAttributes, LabelHTMLAttributes } from 'react';
+import TextAreaCustom from '../account/TextAreaCustom';
+import { getTheme } from '@scality/core-ui/dist/utils';
 
 /* TEMPLATE:
 <FormContainer>
@@ -68,6 +70,32 @@ export const Checkbox = styled(BasicCheckbox)``;
 export const Input = styled(BasicInput)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
+export const LargeCustomInput = styled(TextAreaCustom)`
+  display:inline;
+  float:left;
+  margin: 1rem 0.1rem 0.3rem 0rem;
+
+  padding: ${spacing.sp1};
+  border-radius: 4px;
+  ${(props) => {
+    const { border, textSecondary, primary, secondary } = getTheme(props);
+    return css`
+      border-color: ${border};
+      color: ${textSecondary};
+      background: ${primary};
+      &:focus {
+        border-color: ${secondary};
+        outline: none;
+      }
+    `;
+  }}
+`;
+export const Hr = styled.hr`
+  border-color: ${(props) => props.theme.brand?.buttonSecondary};
+  height: 0.05rem;
+  width: 40rem;
+  margin-bottom: 1rem;
+`;
 export const InputList = styled(BasicInputList)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
@@ -110,7 +138,7 @@ const TooltipContainer = styled.div`
   margin-left: ${spacing.sp8};
 `;
 const IconQuestionCircle = styled.i`
-  color: ${(props) => props.theme.brand.buttonSecondary};
+  color: ${(props) => props.theme.brand?.buttonSecondary};
 `;
 const UlOverlay = styled.ul`
   text-align: left;
@@ -177,7 +205,7 @@ export const FooterButtons = styled.div`
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
   padding-top: 1%;
   padding-left: 30%;
   padding-right: 30%;
@@ -188,7 +216,7 @@ export const CustomForm = styled.form`
 `;
 const FormContainer = styled.div`
   height: 100%;
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
   margin: ${spacing.sp8};
   margin-bottom: ${spacing.sp24};
   overflow: auto;
