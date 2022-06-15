@@ -1,9 +1,13 @@
-import { render, screen, act } from '@testing-library/react';
+import { screen, act } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { mockOffsetSize, TEST_API_BASE_URL, Wrapper as wrapper} from '../../utils/test';
+import {
+  mockOffsetSize,
+  reduxRender,
+  TEST_API_BASE_URL,
+  Wrapper as wrapper,
+} from '../../utils/test';
 import CreateAccountPolicy from '../CreateAccountPolicy';
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
 const server = setupServer(
@@ -41,12 +45,14 @@ afterAll(() => server.close());
 
 describe('CreateAccountPolicy', () => {
   it('should display all fields for CreateAccountPolicy form', async () => {
-    render(<CreateAccountPolicy />, {
+    reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
     expect(screen.getByText('Policy Creation')).toBeInTheDocument();
     expect(screen.getByText('All * are mandatory fields')).toBeInTheDocument();
-    expect(screen.getByText('We are supporting AWS IAM standards.')).toBeInTheDocument();
+    expect(
+      screen.getByText('We are supporting AWS IAM standards.'),
+    ).toBeInTheDocument();
 
     const policyNameInput = screen.getByTestId('policyNameInput');
     expect(policyNameInput).toBeInTheDocument();
@@ -62,44 +68,37 @@ describe('CreateAccountPolicy', () => {
 
     const cancelButton = screen.getByRole('button', { name: /Cancel/i });
     expect(cancelButton).toBeInTheDocument();
-
   });
-  it('should disable create button if policy name input and  policy document textarea are empty', async () => {
-    try {
-    render(<CreateAccountPolicy />, {
+  it('should disable Create button if policy name input and policy document textarea are empty', async () => {
+    reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
     const policyNameInput = screen.getByTestId('policyNameInput');
     const policyDocumentInput = screen.getByTestId('policyDocumentInput');
     act(() => {
-     userEvent.type(policyNameInput, '');
+      userEvent.type(policyNameInput, '');
     });
     act(() => {
-     userEvent.type(policyDocumentInput, '');
+      userEvent.type(policyDocumentInput, '');
     });
     const createButton = screen.getByRole('button', { name: /Create/i });
     act(() => {
-     userEvent.click(createButton);
+      userEvent.click(createButton);
     });
     expect(createButton).toBeDisabled();
-    } catch (e) {
-      console.log('Error : ', e?.message);
-      throw e;
-    }
   });
-  it('should check if  alert message is displayed when we click in create button with the policy name input empty ', async () => {
-    try {
-    render(<CreateAccountPolicy />, {
+  it('should check if alert message is displayed when we click on Create button with the policy name input empty ', async () => {
+    reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
     const policyNameInput = screen.getByTestId('policyNameInput');
     act(() => {
-     userEvent.type(policyNameInput, '');
+      userEvent.type(policyNameInput, '');
     });
     const policyDocumentInput = screen.getByTestId('policyDocumentInput');
     act(() => {
       userEvent.type(policyDocumentInput, 'document');
-      });
+    });
     const createButton = screen.getByRole('button', { name: /Create/i });
     expect(createButton).not.toBeDisabled();
     act(() => {
@@ -107,14 +106,9 @@ describe('CreateAccountPolicy', () => {
     });
     const policyNameAlert = screen.getAllByRole('alert')[0];
     expect(policyNameAlert).toBeInTheDocument();
-    } catch (e) {
-      console.log('Error : ', e);
-      throw e;
-    }
   });
-  it('should check if  copy button is enabled if policy document is not empty', async () => {
-    try {
-    render(<CreateAccountPolicy />, {
+  it('should check if Copy button is enabled if policy document is not empty', async () => {
+    reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
     const policyDocumentInput = screen.getByTestId('policyDocumentInput');
@@ -125,9 +119,5 @@ describe('CreateAccountPolicy', () => {
       userEvent.type(policyDocumentInput, 'document');
     });
     expect(copyButton).not.toBeDisabled();
-    } catch (e) {
-      console.log('Error : ', e);
-      throw e;
-    }
   });
 });

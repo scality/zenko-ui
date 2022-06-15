@@ -9,7 +9,6 @@ import {
   LargerText,
 } from '@scality/core-ui/dist/components/text/Text.component';
 import { HTMLAttributes, LabelHTMLAttributes } from 'react';
-import TextAreaCustom from '../account/TextAreaCustom';
 import { getTheme } from '@scality/core-ui/dist/utils';
 
 /* TEMPLATE:
@@ -70,9 +69,9 @@ export const Checkbox = styled(BasicCheckbox)``;
 export const Input = styled(BasicInput)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
-export const LargeCustomInput = styled(TextAreaCustom)`
-  display:inline;
-  float:left;
+export const LargeCustomInput = styled(TextArea)`
+  display: inline;
+  float: left;
   margin: 1rem 0.1rem 0.3rem 0rem;
 
   padding: ${spacing.sp1};
@@ -118,12 +117,19 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  children: JSX.Element|JSX.Element[];
+  children: JSX.Element | JSX.Element[];
   hasError: boolean;
   id?: string;
 } & HTMLAttributes<HTMLDivElement>;
-export const ErrorInput = ({ children, hasError, id, ...props }: ErrorInputProps) => (
-  <ErrorInputContainer id={id} role='alert' {...props}>{hasError && children}</ErrorInputContainer>
+export const ErrorInput = ({
+  children,
+  hasError,
+  id,
+  ...props
+}: ErrorInputProps) => (
+  <ErrorInputContainer id={id} role="alert" {...props}>
+    {hasError && children}
+  </ErrorInputContainer>
 );
 export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
   <WarningInputContainer>{hasError && children}</WarningInputContainer>
@@ -145,8 +151,8 @@ const UlOverlay = styled.ul`
   padding: 0px 0px 0px ${spacing.sp20};
 `;
 type LabelProps = {
-  children: JSX.Element|string;
-  tooltipMessages?: JSX.Element[]|Array<string>;
+  children: JSX.Element | string;
+  tooltipMessages?: JSX.Element[] | Array<string>;
   tooltipWidth?: string;
   style?: CSSStyleSheet;
 } & LabelHTMLAttributes<HTMLLabelElement>;
@@ -212,7 +218,7 @@ export const Form = styled.form`
 `;
 export const CustomForm = styled.form`
   height: calc(100vh - 510px);
-  margin: ${spacing.sp32}
+  margin: ${spacing.sp32};
 `;
 const FormContainer = styled.div`
   height: 100%;
