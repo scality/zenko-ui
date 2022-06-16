@@ -346,7 +346,7 @@ const AccountUserAccessKeys = () => {
                 {accessKeysStatus === 'error'
                   ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
                   : ''}
-                {accessKeysStatus === 'success' ? <Rows /> : ''}
+                {accessKeysStatus === 'success' ? Rows : ''}
               </>
             )}
           </Table.SingleSelectableContent>

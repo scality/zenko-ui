@@ -107,7 +107,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
               {status === 'success' &&
                 !data?.length &&
                 'No workflows found on this bucket.'}
-              {status === 'success' ? <Rows /> : ''}
+              {status === 'success' ? Rows : ''}
             </>
           )}
         </Table.SingleSelectableContent>

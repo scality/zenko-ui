@@ -175,7 +175,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
               {queryResult.firstPageStatus === 'error'
                 ? errorInTableContent
                 : ''}
-              {queryResult.firstPageStatus === 'success' ? <Rows /> : ''}
+              {queryResult.firstPageStatus === 'success' ? Rows : ''}
             </>
           )}
         </Table.SingleSelectableContent>

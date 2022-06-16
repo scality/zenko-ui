@@ -269,11 +269,7 @@ function Locations() {
           }
           key={(index: number, data: Array<Location>) => data[index].name}
         >
-          {(Rows: ComponentType) => (
-            <>
-              <Rows />
-            </>
-          )}
+          {(Rows: ComponentType) => <>{Rows}</>}
         </Table.SingleSelectableContent>
       </Table>
     </div>

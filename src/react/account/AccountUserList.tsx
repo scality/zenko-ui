@@ -10,7 +10,7 @@ import {
   AWS_PAGINATED_ENTITIES,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import CopyARNButton from '../ui-elements/CopyARNButton';
+import CopyButton from '../ui-elements/CopyButton';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery } from 'react-query';
@@ -135,7 +135,7 @@ const ActionButtons = ({
   return (
     <Box display={'flex'}>
       <EditButton userName={userName} />
-      <CopyARNButton text={arn} />
+      <CopyButton text={arn} labelName={'ARN'} />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );

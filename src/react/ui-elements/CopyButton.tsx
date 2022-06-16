@@ -8,12 +8,12 @@ const IconSuccess = styled.i`
   color: ${(props) => props.theme.brand.statusHealthy};
 `;
 
-const CopyARNButton = ({ text, ...rest }: { text: string }) => {
+const CopyButton = ({ text, labelName, ...rest }: { text: string, labelName?: string }) => {
   const { copy, copyStatus } = useClipboard();
   return (
     <InlineButtonFixedWidth
       variant="outline"
-      label={copyStatus === COPY_STATE_SUCCESS ? 'Copied !' : 'Copy ARN'}
+      label={copyStatus === COPY_STATE_SUCCESS ? 'Copied !' : `Copy ${labelName}`}
       icon={
         copyStatus === COPY_STATE_SUCCESS ? (
           <IconSuccess className="fas fa-check" />
@@ -21,7 +21,10 @@ const CopyARNButton = ({ text, ...rest }: { text: string }) => {
           <i className="far fa-clone" />
         )
       }
-      onClick={() => {
+      onClick={(e) => {
+        if (e) {
+          e.preventDefault();
+        }
         copy(text);
       }}
       {...rest}
@@ -29,4 +32,4 @@ const CopyARNButton = ({ text, ...rest }: { text: string }) => {
   );
 };
 
-export default CopyARNButton;
+export default CopyButton;

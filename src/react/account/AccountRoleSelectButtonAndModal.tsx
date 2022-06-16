@@ -129,11 +129,7 @@ function AccountRoleSelectButtonAndModal() {
             }}
             selectedId={assumedRoleArn}
             children={(Rows) => {
-              return (
-                <>
-                  <Rows />
-                </>
-              );
+              return <>{Rows}</>;
             }}
           ></Table.SingleSelectableContent>
         </Table>
