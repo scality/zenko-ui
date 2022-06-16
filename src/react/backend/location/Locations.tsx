@@ -188,10 +188,11 @@ function Locations() {
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {
-        if (workflowsQuery.status === 'idle' || workflowsQuery.status === 'loading') {
-          return (
-            <>Checking if linked to workflows...</>
-          );  
+        if (
+          workflowsQuery.status === 'idle' ||
+          workflowsQuery.status === 'loading'
+        ) {
+          return <>Checking if linked to workflows...</>;
         }
         return (
           <ActionButtons
@@ -267,11 +268,7 @@ function Locations() {
           }
           key={(index: number, data: Array<Location>) => data[index].name}
         >
-          {(Rows: ComponentType) => (
-            <>
-              <Rows />
-            </>
-          )}
+          {(Rows: ComponentType) => <>{Rows}</>}
         </Table.SingleSelectableContent>
       </Table>
     </div>
