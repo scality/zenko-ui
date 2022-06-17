@@ -70,4 +70,5 @@ export interface ZenkoClient extends S3Client {
     KeyMarker: string | undefined;
     VersionIdMarker: string | undefined;
   }): Promise<SearchBucketVersionsResp>;
+  getIsLogin(): boolean;
 }

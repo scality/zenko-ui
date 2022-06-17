@@ -15,12 +15,14 @@ import ZenkoClientBase from 'zenkoclient';
 class ZenkoClient extends S3Client implements ZenkoClientInterface {
   endpoint: string;
   _xmlClient: ZenkoClientBase;
+  _isLogin: boolean;
 
   constructor(endpoint) {
     super(endpoint);
     this.endpoint = endpoint;
 
     this._init();
+    this._isLogin = false;
   }
 
   _init() {
@@ -91,6 +93,8 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     // but seems to work for all the other S3 calls.
     // this.client.config.update({
     //     accessKeyId: accessKey, secretAccessKey: secretKey, sessionToken });
+
+    this._isLogin = true;
   }
 
   searchBucket(params: SearchParams): Promise<SearchBucketResp> {
@@ -131,6 +135,10 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       Site: site,
     };
     return this._jsonClient.resumeIngestionSite(params).promise();
+  }
+
+  getIsLogin() {
+    return this._isLogin;
   }
 }
 
