@@ -28,6 +28,7 @@ import DataServiceRoleProvider, {
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { useQuery } from 'react-query';
+import { getClients } from './utils/actions';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -67,7 +68,10 @@ function WithAssumeRole({
 }: PropsWithChildren<Record<string, unknown>>) {
   const dispatch = useDispatch();
   const user = useSelector((state: AppState) => state.oidc.user);
+  const { zenkoClient } = getClients(useSelector((state: AppState) => state));
+  const isZenkoClientLogin = zenkoClient.getIsLogin();
   const { roleArn } = useDataServiceRole();
+
   useEffect(() => {
     const isAuthenticated = !!user && !user.expired;
 
@@ -76,7 +80,15 @@ function WithAssumeRole({
     }
   }, [dispatch, user, roleArn]);
 
-  return <>{children}</>;
+  if (isZenkoClientLogin) {
+    return <>{children}</>;
+  } else {
+    return (
+      <Loader>
+        <div>Loading</div>
+      </Loader>
+    );
+  }
 }
 
 function PrivateRoutes() {
@@ -126,9 +138,11 @@ function PrivateRoutes() {
   }, [dispatch, isAuthenticated, user, latestConfiguration]);
 
   const oidcLogout = useSelector((state: AppState) => state.auth.oidcLogout);
-  useMemo(() => {if (!isAuthenticated && oidcLogout) {
-    oidcLogout(true);
-  }}, [isAuthenticated, oidcLogout])
+  useMemo(() => {
+    if (!isAuthenticated && oidcLogout) {
+      oidcLogout(true);
+    }
+  }, [isAuthenticated, oidcLogout]);
 
   if (!isClientsLoaded) {
     return (
