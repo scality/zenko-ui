@@ -2,7 +2,11 @@ import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { generatePath, useHistory } from 'react-router';
 import { regexArn, useAccounts } from './utils/hooks';
-import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
+import {
+  getRoleArnStored,
+  removeRoleArnStored,
+  setRoleArnStored,
+} from './utils/localStorage';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -27,6 +31,19 @@ export const useCurrentAccount = () => {
     ? regexArn.exec(storedRoleArn).groups['account_id']
     : '';
   const accountsWithRoles = useAccounts();
+
+  // invalide the stored ARN if it's not in the list accountsWithRoles
+  useMemo(() => {
+    const isStoredArnValide = accountsWithRoles.find((account) => {
+      return account.Roles.find((role) => {
+        return role.Arn === storedRoleArn;
+      });
+    });
+    if (!isStoredArnValide && storedRoleArn && accountsWithRoles.length) {
+      removeRoleArnStored();
+    }
+  }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
+
   const history = useHistory();
   const account = useMemo(() => {
     return accountsWithRoles.find((account) => {
