@@ -353,6 +353,53 @@ export namespace BucketWorkflowTransitionV1 {
 }
 
 /**
+ * Lifecycle transition policy (single rule) to apply to a bucket
+ * @export
+ * @interface BucketWorkflowTransitionV2
+ */
+export interface BucketWorkflowTransitionV2 extends BucketWorkflowV1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof BucketWorkflowTransitionV2
+     */
+    applyToVersion: BucketWorkflowTransitionV2.ApplyToVersionEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof BucketWorkflowTransitionV2
+     */
+    locationName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof BucketWorkflowTransitionV2
+     */
+    triggerDelayDate?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof BucketWorkflowTransitionV2
+     */
+    triggerDelayDays?: number;
+}
+
+/**
+ * @export
+ * @namespace BucketWorkflowTransitionV2
+ */
+export namespace BucketWorkflowTransitionV2 {
+    /**
+     * @export
+     * @enum {string}
+     */
+    export enum ApplyToVersionEnum {
+        Current = <any> 'current',
+        Noncurrent = <any> 'noncurrent'
+    }
+}
+
+/**
  * Workflow to apply to a bucket
  * @export
  * @interface BucketWorkflowV1
@@ -408,6 +455,7 @@ export namespace BucketWorkflowV1 {
     export enum TypeEnum {
         ExpirationV1 = <any> 'bucket-workflow-expiration-v1',
         TransitionV1 = <any> 'bucket-workflow-transition-v1',
+        TransitionV2 = <any> 'bucket-workflow-transition-v2',
         ReplicationV1 = <any> 'bucket-workflow-replication-v1'
     }
 }
@@ -3299,6 +3347,68 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Creates a bucket transition workflow.
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} accountId 
+         * @param {string} instanceId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, accountId: string, instanceId: string, roleName?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'workflow' is not null or undefined
+            if (workflow === null || workflow === undefined) {
+                throw new RequiredError('workflow','Required parameter workflow was null or undefined when calling createBucketWorkflowTransition.');
+            }
+            // verify required parameter 'bucketName' is not null or undefined
+            if (bucketName === null || bucketName === undefined) {
+                throw new RequiredError('bucketName','Required parameter bucketName was null or undefined when calling createBucketWorkflowTransition.');
+            }
+            // verify required parameter 'accountId' is not null or undefined
+            if (accountId === null || accountId === undefined) {
+                throw new RequiredError('accountId','Required parameter accountId was null or undefined when calling createBucketWorkflowTransition.');
+            }
+            // verify required parameter 'instanceId' is not null or undefined
+            if (instanceId === null || instanceId === undefined) {
+                throw new RequiredError('instanceId','Required parameter instanceId was null or undefined when calling createBucketWorkflowTransition.');
+            }
+            const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition`
+                .replace(`{${"bucketName"}}`, encodeURIComponent(String(bucketName)))
+                .replace(`{${"accountId"}}`, encodeURIComponent(String(accountId)))
+                .replace(`{${"instanceId"}}`, encodeURIComponent(String(instanceId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication public-api required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-Authentication-Token")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-Authentication-Token"] = localVarApiKeyValue;
+            }
+
+            if (roleName !== undefined) {
+                localVarQueryParameter['roleName'] = roleName;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"BucketWorkflowTransitionV2" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(workflow || {}) : (workflow || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Creates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -3699,6 +3809,65 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Deletes a bucket transition workflow
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBucketWorkflowTransition(bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'bucketName' is not null or undefined
+            if (bucketName === null || bucketName === undefined) {
+                throw new RequiredError('bucketName','Required parameter bucketName was null or undefined when calling deleteBucketWorkflowTransition.');
+            }
+            // verify required parameter 'instanceId' is not null or undefined
+            if (instanceId === null || instanceId === undefined) {
+                throw new RequiredError('instanceId','Required parameter instanceId was null or undefined when calling deleteBucketWorkflowTransition.');
+            }
+            // verify required parameter 'accountId' is not null or undefined
+            if (accountId === null || accountId === undefined) {
+                throw new RequiredError('accountId','Required parameter accountId was null or undefined when calling deleteBucketWorkflowTransition.');
+            }
+            // verify required parameter 'workflowId' is not null or undefined
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId','Required parameter workflowId was null or undefined when calling deleteBucketWorkflowTransition.');
+            }
+            const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+                .replace(`{${"bucketName"}}`, encodeURIComponent(String(bucketName)))
+                .replace(`{${"instanceId"}}`, encodeURIComponent(String(instanceId)))
+                .replace(`{${"accountId"}}`, encodeURIComponent(String(accountId)))
+                .replace(`{${"workflowId"}}`, encodeURIComponent(String(workflowId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'DELETE' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication public-api required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-Authentication-Token")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-Authentication-Token"] = localVarApiKeyValue;
+            }
+
+            if (roleName !== undefined) {
+                localVarQueryParameter['roleName'] = roleName;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Deletes a bucket expiration workflow
          * @param {string} bucketName 
          * @param {string} instanceId 
@@ -3925,6 +4094,7 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
          * @param {string} uuid 
          * @param {string} [accessKey] 
          * @param {string} [accountName] 
+         * @param {string} [roleName] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -4554,6 +4724,74 @@ export const UiFacingApiFetchParamCreator = function (configuration?: Configurat
             };
         },
         /**
+         * Updates a bucket transition workflow
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options: any = {}): FetchArgs {
+            // verify required parameter 'workflow' is not null or undefined
+            if (workflow === null || workflow === undefined) {
+                throw new RequiredError('workflow','Required parameter workflow was null or undefined when calling updateBucketWorkflowTransition.');
+            }
+            // verify required parameter 'bucketName' is not null or undefined
+            if (bucketName === null || bucketName === undefined) {
+                throw new RequiredError('bucketName','Required parameter bucketName was null or undefined when calling updateBucketWorkflowTransition.');
+            }
+            // verify required parameter 'instanceId' is not null or undefined
+            if (instanceId === null || instanceId === undefined) {
+                throw new RequiredError('instanceId','Required parameter instanceId was null or undefined when calling updateBucketWorkflowTransition.');
+            }
+            // verify required parameter 'accountId' is not null or undefined
+            if (accountId === null || accountId === undefined) {
+                throw new RequiredError('accountId','Required parameter accountId was null or undefined when calling updateBucketWorkflowTransition.');
+            }
+            // verify required parameter 'workflowId' is not null or undefined
+            if (workflowId === null || workflowId === undefined) {
+                throw new RequiredError('workflowId','Required parameter workflowId was null or undefined when calling updateBucketWorkflowTransition.');
+            }
+            const localVarPath = `/instance/{instanceId}/account/{accountId}/bucket/{bucketName}/workflow/transition/{workflowId}`
+                .replace(`{${"bucketName"}}`, encodeURIComponent(String(bucketName)))
+                .replace(`{${"instanceId"}}`, encodeURIComponent(String(instanceId)))
+                .replace(`{${"accountId"}}`, encodeURIComponent(String(accountId)))
+                .replace(`{${"workflowId"}}`, encodeURIComponent(String(workflowId)));
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'PUT' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication public-api required
+            if (configuration && configuration.apiKey) {
+                const localVarApiKeyValue = typeof configuration.apiKey === 'function'
+					? configuration.apiKey("X-Authentication-Token")
+					: configuration.apiKey;
+                localVarHeaderParameter["X-Authentication-Token"] = localVarApiKeyValue;
+            }
+
+            if (roleName !== undefined) {
+                localVarQueryParameter['roleName'] = roleName;
+            }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"BucketWorkflowTransitionV2" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(workflow || {}) : (workflow || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * updates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -4843,6 +5081,28 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Creates a bucket transition workflow.
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} accountId 
+         * @param {string} instanceId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, accountId: string, instanceId: string, roleName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV2> {
+            const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).createBucketWorkflowTransition(workflow, bucketName, accountId, instanceId, roleName, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Creates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -5003,6 +5263,28 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Deletes a bucket transition workflow
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBucketWorkflowTransition(bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
+            const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).deleteBucketWorkflowTransition(bucketName, instanceId, accountId, workflowId, roleName, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response;
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * Deletes a bucket expiration workflow
          * @param {string} bucketName 
          * @param {string} instanceId 
@@ -5104,6 +5386,7 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
          * @param {string} uuid 
          * @param {string} [accessKey] 
          * @param {string} [accountName] 
+         * @param {string} [roleName] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5373,6 +5656,29 @@ export const UiFacingApiFp = function(configuration?: Configuration) {
             };
         },
         /**
+         * Updates a bucket transition workflow
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<BucketWorkflowTransitionV2> {
+            const localVarFetchArgs = UiFacingApiFetchParamCreator(configuration).updateBucketWorkflowTransition(workflow, bucketName, instanceId, accountId, workflowId, roleName, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
          * updates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -5501,6 +5807,19 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
             return UiFacingApiFp(configuration).createBucketWorkflowReplication(workflow, bucketName, accountId, instanceId, roleName, options)(fetch, basePath);
         },
         /**
+         * Creates a bucket transition workflow.
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} accountId 
+         * @param {string} instanceId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, accountId: string, instanceId: string, roleName?: string, options?: any) {
+            return UiFacingApiFp(configuration).createBucketWorkflowTransition(workflow, bucketName, accountId, instanceId, roleName, options)(fetch, basePath);
+        },
+        /**
          * Creates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -5589,6 +5908,19 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
             return UiFacingApiFp(configuration).deleteBucketWorkflowReplication(bucketName, instanceId, accountId, workflowId, roleName, options)(fetch, basePath);
         },
         /**
+         * Deletes a bucket transition workflow
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteBucketWorkflowTransition(bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any) {
+            return UiFacingApiFp(configuration).deleteBucketWorkflowTransition(bucketName, instanceId, accountId, workflowId, roleName, options)(fetch, basePath);
+        },
+        /**
          * Deletes a bucket expiration workflow
          * @param {string} bucketName 
          * @param {string} instanceId 
@@ -5645,6 +5977,7 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
          * @param {string} uuid 
          * @param {string} [accessKey] 
          * @param {string} [accountName] 
+         * @param {string} [roleName] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -5788,6 +6121,20 @@ export const UiFacingApiFactory = function (configuration?: Configuration, fetch
             return UiFacingApiFp(configuration).updateBucketWorkflowReplication(workflow, bucketName, instanceId, accountId, workflowId, roleName, options)(fetch, basePath);
         },
         /**
+         * Updates a bucket transition workflow
+         * @param {BucketWorkflowTransitionV2} workflow 
+         * @param {string} bucketName 
+         * @param {string} instanceId 
+         * @param {string} accountId 
+         * @param {string} workflowId 
+         * @param {string} [roleName] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any) {
+            return UiFacingApiFp(configuration).updateBucketWorkflowTransition(workflow, bucketName, instanceId, accountId, workflowId, roleName, options)(fetch, basePath);
+        },
+        /**
          * updates a bucket expiration workflow
          * @param {BucketWorkflowExpirationV1} workflow 
          * @param {string} bucketName 
@@ -5884,6 +6231,21 @@ export class UiFacingApi extends BaseAPI {
      */
     public createBucketWorkflowReplication(workflow: ReplicationStreamInternalV1, bucketName: string, accountId: string, instanceId: string, roleName?: string, options?: any) {
         return UiFacingApiFp(this.configuration).createBucketWorkflowReplication(workflow, bucketName, accountId, instanceId, roleName, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Creates a bucket transition workflow.
+     * @param {BucketWorkflowTransitionV2} workflow 
+     * @param {string} bucketName 
+     * @param {string} accountId 
+     * @param {string} instanceId 
+     * @param {string} [roleName] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UiFacingApi
+     */
+    public createBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, accountId: string, instanceId: string, roleName?: string, options?: any) {
+        return UiFacingApiFp(this.configuration).createBucketWorkflowTransition(workflow, bucketName, accountId, instanceId, roleName, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -5991,6 +6353,21 @@ export class UiFacingApi extends BaseAPI {
     }
 
     /**
+     * Deletes a bucket transition workflow
+     * @param {string} bucketName 
+     * @param {string} instanceId 
+     * @param {string} accountId 
+     * @param {string} workflowId 
+     * @param {string} [roleName] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UiFacingApi
+     */
+    public deleteBucketWorkflowTransition(bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any) {
+        return UiFacingApiFp(this.configuration).deleteBucketWorkflowTransition(bucketName, instanceId, accountId, workflowId, roleName, options)(this.fetch, this.basePath);
+    }
+
+    /**
      * Deletes a bucket expiration workflow
      * @param {string} bucketName 
      * @param {string} instanceId 
@@ -6057,6 +6434,7 @@ export class UiFacingApi extends BaseAPI {
      * @param {string} uuid 
      * @param {string} [accessKey] 
      * @param {string} [accountName] 
+     * @param {string} [roleName] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UiFacingApi
@@ -6225,6 +6603,22 @@ export class UiFacingApi extends BaseAPI {
      */
     public updateBucketWorkflowReplication(workflow: ReplicationStreamInternalV1, bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any) {
         return UiFacingApiFp(this.configuration).updateBucketWorkflowReplication(workflow, bucketName, instanceId, accountId, workflowId, roleName, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Updates a bucket transition workflow
+     * @param {BucketWorkflowTransitionV2} workflow 
+     * @param {string} bucketName 
+     * @param {string} instanceId 
+     * @param {string} accountId 
+     * @param {string} workflowId 
+     * @param {string} [roleName] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UiFacingApi
+     */
+    public updateBucketWorkflowTransition(workflow: BucketWorkflowTransitionV2, bucketName: string, instanceId: string, accountId: string, workflowId: string, roleName?: string, options?: any) {
+        return UiFacingApiFp(this.configuration).updateBucketWorkflowTransition(workflow, bucketName, instanceId, accountId, workflowId, roleName, options)(this.fetch, this.basePath);
     }
 
     /**
