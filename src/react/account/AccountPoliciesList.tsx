@@ -65,9 +65,11 @@ const EditButton = ({
 
 const AttachButton = ({
   policyName,
+  policyArn,
   accountName,
 }: {
   policyName: string;
+  policyArn: string;
   accountName: string;
 }) => {
   const history = useHistory();
@@ -80,7 +82,9 @@ const AttachButton = ({
         icon={<i className="fas fa-link"></i>}
         onClick={() =>
           history.push(
-            `/accounts/${accountName}/policies/${policyName}/attachments`,
+            `/accounts/${accountName}/policies/${encodeURIComponent(
+              policyArn,
+            )}/attachments`,
           )
         }
         aria-label={`Attach ${policyName}`}
@@ -99,13 +103,21 @@ const ActionButtons = ({
   const { arn, policyName, policyPath } = rowValues;
   return (
     <Box display="flex">
-      <AttachButton policyName={policyName} accountName={accountName} />
+      <AttachButton
+        policyName={policyName}
+        accountName={accountName}
+        policyArn={arn}
+      />
       <EditButton
         policyName={policyName}
         policyPath={policyPath}
         accountName={accountName}
       />
-      <CopyButton text={arn} labelName={'ARN'} aria-label={`Copy ARN ${policyName}`} />
+      <CopyButton
+        text={arn}
+        labelName={'ARN'}
+        aria-label={`Copy ARN ${policyName}`}
+      />
       <DeletePolicyAction
         policyName={policyName}
         path={policyPath}

@@ -1,7 +1,10 @@
 import type { AppState } from '../types/state';
 import type { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
-import type { IAMClient as IAMClientInterface, WebIdentityRoles } from '../types/iam';
+import type {
+  IAMClient as IAMClientInterface,
+  WebIdentityRoles,
+} from '../types/iam';
 import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 
@@ -30,52 +33,66 @@ export function getAssumeRoleWithWebIdentityIAM(
   });
 }
 
-export function getRolesForWebIdentity(endpoint: string, token: string, marker?: string, maxItems?: number): Promise<WebIdentityRoles> {
+export function getRolesForWebIdentity(
+  endpoint: string,
+  token: string,
+  marker?: string,
+  maxItems?: number,
+): Promise<WebIdentityRoles> {
   const data = new URLSearchParams();
-  data.append("Action", 'GetRolesForWebIdentity');
-  data.append("WebIdentityToken", token);
+  data.append('Action', 'GetRolesForWebIdentity');
+  data.append('WebIdentityToken', token);
   if (marker) {
-    data.append("Marker", marker);
+    data.append('Marker', marker);
   }
   if (maxItems) {
-    data.append("MaxItems", `${maxItems}`);
+    data.append('MaxItems', `${maxItems}`);
   }
-  return fetch(endpoint, {method: 'POST', body: data.toString()}).then(async r => {
-    if (r.ok) {
-      return r.json();
-    }
-    let error;
-    let textResponse;
-    try {
-      textResponse = await r.text();
-    } catch (e) {
-      throw r;
-    }
-
-    try {
-      //Try to parse the json error
-      error = {status: r.status, ...JSON.parse(textResponse)};
-    } catch (e) {
+  return fetch(endpoint, { method: 'POST', body: data.toString() }).then(
+    async (r) => {
+      if (r.ok) {
+        return r.json();
+      }
+      let error;
+      let textResponse;
       try {
-        //Fallback to xml error parsing
-        const parser = new DOMParser();
-        const errorDocument = parser.parseFromString(textResponse, "text/xml");
-        const codeElements = errorDocument.getElementsByTagName('Code');
-        const messageElements = errorDocument.getElementsByTagName('Message');
+        textResponse = await r.text();
+      } catch (e) {
+        throw r;
+      }
 
-        if (codeElements.length > 0 && messageElements.length > 0) {
-          error = {status: r.status, message: messageElements[0].textContent, code: codeElements[0].textContent};
-        } else {
+      try {
+        //Try to parse the json error
+        error = { status: r.status, ...JSON.parse(textResponse) };
+      } catch (e) {
+        try {
+          //Fallback to xml error parsing
+          const parser = new DOMParser();
+          const errorDocument = parser.parseFromString(
+            textResponse,
+            'text/xml',
+          );
+          const codeElements = errorDocument.getElementsByTagName('Code');
+          const messageElements = errorDocument.getElementsByTagName('Message');
+
+          if (codeElements.length > 0 && messageElements.length > 0) {
+            error = {
+              status: r.status,
+              message: messageElements[0].textContent,
+              code: codeElements[0].textContent,
+            };
+          } else {
+            error = r;
+          }
+        } catch (e) {
+          //Fallback to simple error handling based on the fetch response object
           error = r;
         }
-      } catch (e) {
-        //Fallback to simple error handling based on the fetch response object
-        error = r;
       }
-    }
-    
-    throw error;
-  })
+
+      throw error;
+    },
+  );
 }
 export default class IAMClient implements IAMClientInterface {
   client?: IAM;
@@ -219,6 +236,78 @@ export default class IAMClient implements IAMClientInterface {
       .createPolicy({
         PolicyName: policyName,
         PolicyDocument: policyDocument,
+      })
+      .promise();
+  }
+
+  attachUserPolicy(userName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .attachUserPolicy({
+        UserName: userName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  detachUserPolicy(userName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .detachUserPolicy({
+        UserName: userName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  attachGroupPolicy(groupName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .attachGroupPolicy({
+        GroupName: groupName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  detachGroupPolicy(groupName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .detachGroupPolicy({
+        GroupName: groupName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  attachRolePolicy(roleName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .attachRolePolicy({
+        RoleName: roleName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  detachRolePolicy(roleName: string, policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .detachRolePolicy({
+        RoleName: roleName,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
+  addUserToGroup(groupName: string, userName: string) {
+    return notFalsyTypeGuard(this.client)
+      .addUserToGroup({
+        GroupName: groupName,
+        UserName: userName,
+      })
+      .promise();
+  }
+
+  removeUserFromGroup(groupName: string, userName: string) {
+    return notFalsyTypeGuard(this.client)
+      .removeUserFromGroup({
+        GroupName: groupName,
+        UserName: userName,
       })
       .promise();
   }
