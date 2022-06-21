@@ -8,6 +8,7 @@ import {
   render,
   screen,
   waitFor,
+  fireEvent,
 } from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';
@@ -101,6 +102,7 @@ describe('ExpirationForm', () => {
       expect(screen.getByText('Bucket Name')).toBeInTheDocument();
       expect(screen.getByText('Filters (optional)')).toBeInTheDocument();
       expect(screen.getByText('Prefix')).toBeInTheDocument();
+      expect(screen.getByText('Tags')).toBeInTheDocument();
       expect(screen.getByText('Action')).toBeInTheDocument();
       expect(screen.getByText('Current')).toBeInTheDocument();
       expect(screen.getByText('Previous')).toBeInTheDocument();
@@ -111,6 +113,34 @@ describe('ExpirationForm', () => {
       expect(spinButton[0].getAttribute('type')).toBe('number');
       expect(spinButton[1].getAttribute('type')).toBe('number');
       expect(spinButton[2].getAttribute('type')).toBe('number');
+
+      const firstKeyField = screen.getByRole('textbox', { name: 'Tag 1 key'});
+      expect(firstKeyField).toBeInTheDocument();
+      const firstValueField = screen.getByRole('textbox', { name: 'Tag 1 value'});
+      expect(firstValueField).toBeInTheDocument();
+
+      const sampleKeyName = 'someKeyName';
+      userEvent.type(firstKeyField, sampleKeyName);
+      expect(firstKeyField).toHaveValue(sampleKeyName);
+
+      const sampleValue = 'someValue';
+      userEvent.type(firstValueField, sampleValue);
+      expect(firstValueField).toHaveValue(sampleValue);
+
+      const addButon = screen.getByRole('button', { name: 'Add' });
+      expect(addButon).toBeInTheDocument();
+      fireEvent.click(addButon);
+
+      const secondKeyField = screen.getByRole('textbox', { name: 'Tag 2 key'});
+      expect(secondKeyField).toBeInTheDocument();
+      const secondValueField = screen.getByRole('textbox', { name: 'Tag 2 value'});
+      expect(secondValueField).toBeInTheDocument();
+
+      const delButton2 = screen.getAllByRole('button', { name: 'Remove'})[1];
+      expect(delButton2).toBeInTheDocument();
+      fireEvent.click(delButton2);
+      expect(secondKeyField).not.toBeInTheDocument();
+      expect(secondValueField).not.toBeInTheDocument();
 
       const sourceBucket = screen.getByTestId('select-bucket-name-expiration');
       userEvent.click(notFalsyTypeGuard(sourceBucket.querySelector('.sc-select__control')));

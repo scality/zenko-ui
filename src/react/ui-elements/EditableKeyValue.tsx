@@ -108,12 +108,14 @@ type AddButtonProps = {
   items: Array<any>;
   insertEntry: () => void;
   disabled?: boolean;
+  iconStyle: any;
 };
 export const AddButton = ({
   index,
   items,
   insertEntry,
   disabled,
+  iconStyle,
 }: AddButtonProps) => {
   const itemsLength = items.length;
   const itemsIndex = items[index];
@@ -153,7 +155,7 @@ export const AddButton = ({
           overlay: 'Add',
           placement: 'top',
         }}
-        icon={<i className="fa fa-plus-square" />}
+        icon={<i className="fa fa-plus-square" style={iconStyle}/>}
       />
     </>
   );
@@ -163,12 +165,14 @@ type SubButtonProps = {
   items: Array<any>;
   deleteEntry: (arg0: number) => void;
   disabled?: boolean;
+  iconStyle: any;
 };
 export const SubButton = ({
   index,
   items,
   deleteEntry,
   disabled,
+  iconStyle,
 }: SubButtonProps) => {
   let isDisabled = disabled || false;
 
@@ -190,7 +194,7 @@ export const SubButton = ({
         overlay: 'Remove',
         placement: 'top',
       }}
-      icon={<i className="fa fa-minus-square" />}
+      icon={<i className="fa fa-minus-square" style={iconStyle} />}
     />
   );
 };

@@ -17,7 +17,7 @@ import type { S3BucketList } from '../../types/s3';
 import styled from 'styled-components';
 import { IconHelp } from '../ui-elements/Help';
 import { isVersioning } from '../utils';
-import { ChangeEvent } from 'react';
+import TagsFilter from './TagsFilter';
 
 const flexStyle = {
   display: 'flex',
@@ -56,11 +56,21 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
   );
 };
 
+const hasUniqueKeys = (value: any, helper: any, options = { keyName: 'key'}) => {
+  const keys = value.map((obj: any ) => obj[options.keyName]);
+  const hasDuplicates = (new Set(keys)).size !== keys.length;
+  if (hasDuplicates) {
+      return helper.message(`Please use a unique ${options.keyName}`);
+  } else {
+      return value;
+  }
+}
 const commonSchema = {
   bucketName: Joi.string().label('Source Bucket Name').required(),
   enabled: Joi.boolean().required(),
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
+    objectTags: Joi.array().label('Tags').custom(hasUniqueKeys, 'unique keys validation').optional(),
   }).optional(),
   name: Joi.string().label('Workflow Description').required(),
   type: Joi.string().required(),
@@ -112,6 +122,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
+  const filterTags = getValues(`${prefix}filter.objectTags`)
+    ? getValues(`${prefix}filter.objectTags`).map((tag) => ({key: tag.key, value: tag.value ?? '',}))
+    : [];
 
   return (
     <ExpirationContainer>
@@ -260,6 +273,27 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     </ErrorInput>
                   </T.ErrorContainer>
                 </T.Value>
+              </T.Row>
+              <T.Row style={{ maxHeight: 'initial', height: '100%', marginTop: '2rem', alignItems: 'baseline'}}>
+                <T.Key>Tags</T.Key>
+                <T.Value>
+                  <TagsFilter
+                    {...register(`${prefix}filter.objectTags`)}
+                    handleChange={(data) => { setValue(`${prefix}filter.objectTags`, data, { shouldDirty: true }); }}
+                    objectMetadata={{ tags: filterTags }}
+                  />
+                </T.Value>
+              </T.Row>
+              <T.Row>
+              <T.ErrorContainer>
+                <ErrorInput
+                  id="error-prefix"
+                  hasError={errors[`${prefix}filter.objectTags`]}
+                >
+                  {' '}
+                  {errors[`${prefix}filter.objectTags`]?.message}{' '}
+                </ErrorInput>
+              </T.ErrorContainer>
               </T.Row>
             </T.GroupContent>
           </T.Group>

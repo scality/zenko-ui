@@ -83,6 +83,7 @@ export type Expiration = {
   readonly enabled: boolean;
   readonly filter?: {
     readonly objectKeyPrefix?: string;
+    readonly objectTags?: Array<{ key: string; value: string }>;
   };
   readonly name: string;
   readonly type: BucketWorkflowV1.TypeEnum.ExpirationV1;
