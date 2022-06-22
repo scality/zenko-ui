@@ -1,20 +1,14 @@
-import { useLocation, useRouteMatch } from 'react-router';
+import { useLocation } from 'react-router';
 import { useTheme } from 'styled-components';
-import { CustomTabs } from '../ui-elements/Tabs';
-import { useQueryParams } from '../utils/hooks';
+import { CustomTabs } from '../../ui-elements/Tabs';
+import { useQueryParams } from '../../utils/hooks';
+import { ResourceType } from './AttachmentConfirmationModal';
 
-const AttachmentTabs = () => {
+const AttachmentTabs = ({ resourceType }: { resourceType: ResourceType }) => {
   const query = useQueryParams();
   const { pathname } = useLocation();
   const theme = useTheme();
   const queryObject = Object.fromEntries(query.entries());
-
-  const isAttachToUser = useRouteMatch(
-    '/accounts/:accountName/users/:IAMUserName/attachments',
-  );
-  const isAttachToPolicy = useRouteMatch(
-    '/accounts/:accountName/policies/:policyArn/attachments',
-  );
 
   const { backgroundLevel3, backgroundLevel4 } = theme.brand;
   const customTabStyle = {
@@ -25,7 +19,7 @@ const AttachmentTabs = () => {
   };
   return (
     <CustomTabs {...customTabStyle}>
-      {isAttachToPolicy && (
+      {resourceType === 'policy' && (
         <CustomTabs.Tab
           label="Users"
           path={pathname}
@@ -34,7 +28,7 @@ const AttachmentTabs = () => {
           <>Attachment Table</>
         </CustomTabs.Tab>
       )}
-      {(isAttachToPolicy || isAttachToUser) && (
+      {(resourceType === 'policy' || resourceType === 'user') && (
         <CustomTabs.Tab
           label="Groups"
           path={pathname}
@@ -43,7 +37,7 @@ const AttachmentTabs = () => {
           <>Attachment Table</>
         </CustomTabs.Tab>
       )}
-      {isAttachToPolicy && (
+      {resourceType === 'policy' && (
         <CustomTabs.Tab
           label="Roles"
           path={pathname}
@@ -52,7 +46,7 @@ const AttachmentTabs = () => {
           <>Attachment Table</>
         </CustomTabs.Tab>
       )}
-      {isAttachToUser && (
+      {resourceType === 'user' && (
         <CustomTabs.Tab
           label="Policies"
           path={pathname}
