@@ -163,7 +163,6 @@ export type ObjectMetadata = {
   readonly tags: Tags;
 };
 export type ExpirationWFTagsFilter = {
-  readonly bucketName: string;
   readonly tags: Tags;
 };
 export type EnabledOrDisabled = 'Disabled' | 'Enabled';
