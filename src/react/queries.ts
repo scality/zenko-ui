@@ -107,3 +107,15 @@ export const getListPoliciesQuery = (
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
+
+export const getListEntitiesForPolicyQuery = (
+  policyArn: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listEntitiesForPolicy', policyArn],
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listEntitiesForPolicy(policyArn, 1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});

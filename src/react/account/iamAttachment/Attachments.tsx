@@ -1,6 +1,6 @@
 import { useParams, useRouteMatch } from 'react-router';
 import { regexArn } from '../../utils/hooks';
-import { ResourceType } from './AttachmentConfirmationModal';
+import { ResourceType } from './AttachmentTypes';
 
 const Attachments = () => {
   const isAttachToUser = useRouteMatch(

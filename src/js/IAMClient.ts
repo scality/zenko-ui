@@ -205,6 +205,16 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
+  listEntitiesForPolicy(policyArn: string, maxItems?: number, marker?: string) {
+    return notFalsyTypeGuard(this.client)
+      .listEntitiesForPolicy({
+        MaxItems: maxItems,
+        Marker: marker,
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
+
   listGroupsForUser(userName: string) {
     return notFalsyTypeGuard(this.client)
       .listGroupsForUser({
