@@ -7,26 +7,14 @@ import { useMutation } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { AppState } from '../../../types/state';
+import {
+  AttachmentOperation,
+  AttachmentAction,
+  ResourceType,
+  EntityType,
+} from './AttachmentTypes';
 
-type EntityType = 'user' | 'role' | 'policy' | 'group';
-export type ResourceType = 'policy' | 'user';
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
-
-type AttachableEntity = {
-  name: string;
-  arn: string;
-  type: EntityType;
-};
-
-export enum AttachmentType {
-  ADD,
-  REMOVE,
-}
-
-export type AttachmentOperation = {
-  action: AttachmentType;
-  entity: AttachableEntity;
-};
 
 //The entity is the "thing" you want to attach to the resource, sorry about the naming :(
 function AttachmentConfirmationModal({
@@ -57,36 +45,36 @@ function AttachmentConfirmationModal({
       type,
       entityName,
     }: {
-      action: AttachmentType;
+      action: AttachmentAction;
       type: EntityType;
       entityName: string;
     }) => {
-      if (action === AttachmentType.ADD && type === 'user') {
+      if (action === AttachmentAction.ADD && type === 'user') {
         return notFalsyTypeGuard(IAMClient).attachUserPolicy(
           entityName,
           resourceId,
         );
-      } else if (action === AttachmentType.REMOVE && type === 'user') {
+      } else if (action === AttachmentAction.REMOVE && type === 'user') {
         return notFalsyTypeGuard(IAMClient).detachUserPolicy(
           entityName,
           resourceId,
         );
-      } else if (action === AttachmentType.ADD && type === 'group') {
+      } else if (action === AttachmentAction.ADD && type === 'group') {
         return notFalsyTypeGuard(IAMClient).attachGroupPolicy(
           entityName,
           resourceId,
         );
-      } else if (action === AttachmentType.REMOVE && type === 'group') {
+      } else if (action === AttachmentAction.REMOVE && type === 'group') {
         return notFalsyTypeGuard(IAMClient).detachGroupPolicy(
           entityName,
           resourceId,
         );
-      } else if (action === AttachmentType.ADD && type === 'role') {
+      } else if (action === AttachmentAction.ADD && type === 'role') {
         return notFalsyTypeGuard(IAMClient).attachRolePolicy(
           entityName,
           resourceId,
         );
-      } else if (action === AttachmentType.REMOVE && type === 'role') {
+      } else if (action === AttachmentAction.REMOVE && type === 'role') {
         return notFalsyTypeGuard(IAMClient).detachRolePolicy(
           entityName,
           resourceId,
@@ -97,7 +85,7 @@ function AttachmentConfirmationModal({
   );
   const [attachmentOperationsFlat, setAttachmentOperationsFlat] = useState<
     {
-      action: AttachmentType;
+      action: AttachmentAction;
       type: EntityType;
       entityName: string;
       arn: string;
@@ -120,7 +108,7 @@ function AttachmentConfirmationModal({
       if (
         attachmentOperationFlat.attachmentStatus ===
           'Waiting for confirmation' ||
-        attachmentOperationFlat.attachmentStatus === 'error'
+        attachmentOperationFlat.attachmentStatus === 'Error'
       ) {
         attachUserPolicyMutation.mutate(
           {
@@ -133,7 +121,7 @@ function AttachmentConfirmationModal({
                   if (attachmentOperation.arn === attachmentOperationFlat.arn) {
                     return {
                       ...attachmentOperation,
-                      attachmentStatus: error ? 'error' : 'success',
+                      attachmentStatus: error ? 'Error' : 'Success',
                     };
                   }
                   return attachmentOperation;
@@ -179,8 +167,8 @@ function AttachmentConfirmationModal({
       {
         Header: 'Action',
         accessor: 'action',
-        Cell: ({ value }) => {
-          return value === AttachmentType.ADD ? (
+        Cell: ({ value }: { value: AttachmentAction }) => {
+          return value === AttachmentAction.ADD ? (
             <span>
               <i className="fas fa-link" /> Attach
             </span>
@@ -221,7 +209,7 @@ function AttachmentConfirmationModal({
           width: '15rem',
         },
         Cell: ({ value }: { value: AttachmentStatus }) => {
-          if (value === 'error') {
+          if (value === 'Error') {
             return (
               <>
                 {value}{' '}
@@ -260,6 +248,7 @@ function AttachmentConfirmationModal({
 
   return (
     <Modal
+      //@ts-expect-error TODO core-ui typing is incorrect here. It should return void.
       close={handleClose}
       footer={modalFooter()}
       isOpen={isModalOpen}

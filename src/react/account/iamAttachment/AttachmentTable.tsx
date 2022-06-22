@@ -10,25 +10,11 @@ import { Loader, SearchInput, Tooltip } from '@scality/core-ui';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { tableRowHeight } from '@scality/core-ui/dist/components/tablev2/TableUtils';
-
-export type AttachableEntity = {
-  name: string;
-  arn: string;
-};
+import { AttachableEntity, AttachmentOperation, AttachmentAction } from './AttachmentTypes';
 
 type AttachableEntityWithPendingStatus = {
   isPending?: boolean;
 } & AttachableEntity
-
-export enum AttachmentType {
-  ADD,
-  REMOVE,
-}
-
-export type AttachmentOperation = {
-  type: AttachmentType;
-  entity: AttachableEntity;
-};
 
 export type AttachmentTableProps<
   API_RESPONSE extends {
@@ -124,11 +110,11 @@ export const AttachmentTable = <
         attachmentsOperations: AttachmentOperation[];
       },
       action:
-        | { type: AttachmentType.ADD; entity: AttachableEntity }
-        | { type: AttachmentType.REMOVE; entity: AttachableEntity },
+        | { action: AttachmentAction.ADD; entity: AttachableEntity }
+        | { action: AttachmentAction.REMOVE; entity: AttachableEntity },
     ) => {
-      switch (action.type) {
-        case AttachmentType.ADD:
+      switch (action.action) {
+        case AttachmentAction.ADD:
           if (
             !state.desiredAttachedEntities.find(
               (entity) => entity.arn === action.entity.arn,
@@ -146,7 +132,7 @@ export const AttachmentTable = <
             return newState;
           }
           break;
-        case AttachmentType.REMOVE:
+        case AttachmentAction.REMOVE:
           if (
             state.desiredAttachedEntities.find(
               (entity) => entity.arn === action.entity.arn,
@@ -169,7 +155,7 @@ export const AttachmentTable = <
             if (
               existingOperationIndexOnThisEntity !== -1 &&
               state.attachmentsOperations[existingOperationIndexOnThisEntity]
-                .type === AttachmentType.ADD
+                .action === AttachmentAction.ADD
             ) {
               newAttachmentsOperations.splice(
                 existingOperationIndexOnThisEntity,
@@ -178,7 +164,7 @@ export const AttachmentTable = <
             } else if (
               existingOperationIndexOnThisEntity !== -1 &&
               state.attachmentsOperations[existingOperationIndexOnThisEntity]
-                .type === AttachmentType.REMOVE
+                .action === AttachmentAction.REMOVE
             ) {
               return state;
             } else {
@@ -207,7 +193,7 @@ export const AttachmentTable = <
   const onSelectedItemChange = useCallback(
     ({ selectedItem }) => {
       if (selectedItem) {
-        dispatch({ type: AttachmentType.ADD, entity: selectedItem });
+        dispatch({ action: AttachmentAction.ADD, entity: selectedItem });
         if (resetRef.current) resetRef.current();
       }
     },
@@ -407,7 +393,7 @@ export const AttachmentTable = <
               <InlineButton
                 onClick={() => {
                   dispatch({
-                    type: AttachmentType.REMOVE,
+                    action: AttachmentAction.REMOVE,
                     entity: { name: entity.name, arn: entity.arn },
                   });
                 }}
