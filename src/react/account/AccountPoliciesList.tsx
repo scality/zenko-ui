@@ -257,19 +257,19 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
 
   const columns = [
     {
-      Header: 'Policy Path',
-      accessor: 'policyPath',
-      cellStyle: {
-        minWidth: '10rem',
-      },
-    },
-    {
       Header: 'Policy Name',
       accessor: 'policyName',
       cellStyle: {
         minWidth: '18rem',
       },
       Cell: (value) => <AccessPolicyNameCell rowValues={value.row.original} />,
+    },
+    {
+      Header: 'Policy Path',
+      accessor: 'policyPath',
+      cellStyle: {
+        minWidth: '10rem',
+      },
     },
     {
       Header: 'Last Modified',

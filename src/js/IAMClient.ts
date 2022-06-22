@@ -321,6 +321,24 @@ export default class IAMClient implements IAMClientInterface {
       })
       .promise();
   }
+
+  listGroups(maxItems?: number, marker?: string) {
+    return notFalsyTypeGuard(this.client)
+      .listGroups({
+        MaxItems: maxItems,
+        Marker: marker,
+      })
+      .promise();
+  }
+
+  listRoles(maxItems?: number, marker?: string) {
+    return notFalsyTypeGuard(this.client)
+      .listRoles({
+        MaxItems: maxItems,
+        Marker: marker,
+      })
+      .promise();
+  }
 } // OFFLINE
 // export default class IAMClient {
 //     constructor() {

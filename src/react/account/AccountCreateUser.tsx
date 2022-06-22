@@ -132,8 +132,7 @@ const AccountCreateUser = () => {
           <F.Input
             type="text"
             id="name"
-            {...register('name')}
-            onChange={clearServerError}
+            {...register('name', { onChange: clearServerError })}
             autoComplete="new-password"
           />
           <F.ErrorInput id="error-name" hasError={errors.name}>

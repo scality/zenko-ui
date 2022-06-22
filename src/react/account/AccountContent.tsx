@@ -10,8 +10,7 @@ import CreateWorkflow from '../workflow/CreateWorkflow';
 import Workflows from '../workflow/Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import CreateAccountPolicy from './CreateAccountPolicy';
-import AttachmentTabs from './iamAttachment/AttachmentTabs';
-import AttachmentConfirmationModal from './iamAttachment/AttachmentConfirmationModal';
+import Attachments from './iamAttachment/Attachments';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -33,11 +32,11 @@ function AccountContent() {
         <Route path={`${path}/users/:IAMUserName/access-keys`}>
           <AccountUserAccessKeys />
         </Route>
-        {/* <Route path={`${path}/users/:IAMUserName/attachments`}>
-          <AttachmentTabs />
-        </Route> */}
+        <Route path={`${path}/users/:IAMUserName/attachments`}>
+          <Attachments />
+        </Route>
         <Route path={`${path}/policies/:policyArn/attachments`}>
-          <AttachmentConfirmationModal />
+          <Attachments />
         </Route>
         <Route path={`${path}/workflows/create-workflow`}>
           <CreateWorkflow />

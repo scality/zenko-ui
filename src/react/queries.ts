@@ -76,11 +76,13 @@ export const getUserAccessKeysQuery = (
 
 export const getUserListGroupsQuery = (
   userName: string,
-  IAMClient: IAMClient,
+  IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listIAMUserGroups', userName],
-  queryFn: () => IAMClient.listGroupsForUser(userName),
-  enabled: IAMClient !== null,
+  queryFn: () => notFalsyTypeGuard(IAMClient).listGroupsForUser(userName),
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
 });
 
 export const getListUsersQuery = (
@@ -115,6 +117,46 @@ export const getListEntitiesForPolicyQuery = (
   queryKey: ['listEntitiesForPolicy', policyArn],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     notFalsyTypeGuard(IAMClient).listEntitiesForPolicy(policyArn, 1000, marker),
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+export const getListGroupsQuery = (
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listGroups', accountName],
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listGroups(1000, marker),
+  staleTime: Infinity,
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+export const getListRolesQuery = (
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listRoles', accountName],
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
+    notFalsyTypeGuard(IAMClient).listRoles(1000, marker),
+  staleTime: Infinity,
+  enabled: IAMClient !== null && IAMClient !== undefined,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
+});
+
+export const getListAttachedUserPoliciesQuery = (
+  userName: string,
+  accountName: string,
+  IAMClient?: IAMClient | null,
+) => ({
+  queryKey: ['listAttachedUserPolicies', userName, accountName],
+  queryFn: () =>
+    notFalsyTypeGuard(IAMClient).listAttachedUserPolicies(userName),
+  staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,

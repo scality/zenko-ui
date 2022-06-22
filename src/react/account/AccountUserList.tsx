@@ -124,6 +124,32 @@ const EditButton = ({ userName }: { userName: string }) => {
   );
 };
 
+const AttachButton = ({
+  userName,
+  accountName,
+}: {
+  userName: string;
+  accountName: string;
+}) => {
+  const history = useHistory();
+  return (
+    <SpacedBox ml={12}>
+      <Button
+        style={{ height: spacing.sp24 }}
+        variant="secondary"
+        label="Attach"
+        icon={<i className="fas fa-link"></i>}
+        onClick={() =>
+          history.push(
+            `/accounts/${accountName}/users/${userName}/attachments`,
+          )
+        }
+        aria-label={`Attach ${userName}`}
+      />
+    </SpacedBox>
+  );
+};
+
 const ActionButtons = ({
   rowValues,
   accountName,
@@ -134,6 +160,7 @@ const ActionButtons = ({
   const { arn, userName } = rowValues;
   return (
     <Box display={'flex'}>
+      <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
       <CopyButton text={arn} labelName={'ARN'} />
       <DeleteUserAction userName={userName} accountName={accountName} />

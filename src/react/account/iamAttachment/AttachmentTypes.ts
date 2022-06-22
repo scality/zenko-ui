@@ -3,7 +3,7 @@ export type ResourceType = 'policy' | 'user';
 
 export type AttachableEntity = {
   name: string;
-  arn: string;
+  id: string;
   type: EntityType;
 };
 
