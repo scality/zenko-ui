@@ -85,13 +85,13 @@ export type Expiration = {
     readonly objectKeyPrefix?: string;
     readonly objectTags?: Tag[];
   };
-  readonly name: string;
+  readonly name?: string;
   readonly type: BucketWorkflowV1.TypeEnum.ExpirationV1;
-  readonly workflowId: string;
+  readonly workflowId?: string;
   readonly currentVersionTriggerDelayDate?: string | null;
   readonly currentVersionTriggerDelayDays?: number | null;
   readonly previousVersionTriggerDelayDays?: number | null;
-  readonly expireDeleteMarkersTrigger: boolean | null;
+  readonly expireDeleteMarkersTrigger?: boolean | null;
   readonly incompleteMultipartUploadTriggerDelayDays?: number | null;
 };
 // endpoints
