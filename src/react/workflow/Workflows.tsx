@@ -111,7 +111,7 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-glass-whiskey"
             title="Before browsing your workflows, create your first bucket."
             btnTitle="Create Bucket"
-            btnAction={() => history.push('/create-bucket')}
+            btnAction={() => history.push(`/accounts/${accountName}/create-bucket`)}
           />
         </EmptyStateContainer>
       );
