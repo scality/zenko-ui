@@ -141,7 +141,7 @@ const CreateWorkflow = () => {
         );
         if (bucketName !== '') {
           // redirectly to the bucket list -> workflow tab
-          history.push(`/buckets/${bucketName}?tab=workflow`);
+          history.push(`/accounts/${accountId}/buckets/${bucketName}?tab=workflow`);
         } else {
           history.push(`./replication-${success.streamId}`);
         }
