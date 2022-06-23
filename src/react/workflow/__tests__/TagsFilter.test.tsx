@@ -6,7 +6,6 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import userEvent from '@testing-library/user-event';
 import TagsFilter from "../TagsFilter";
-import { debug } from 'webpack';
 
 describe('TagsFilter', () => {
   it('should render TagsFilters', () => {
@@ -21,7 +20,6 @@ describe('TagsFilter', () => {
         <Controller
           name="filter.objectTags"
           control={control}
-          defaultValue={[{key: '', value: ''}]}
           render={({ field: { onChange, value } }) => {
             return (
               <TagsFilter

@@ -21,7 +21,7 @@ const EMPTY_ITEM = {
 type Props = {
   tags: Tag[];
   handleChange:  (data: Tag[]) => void;
-  control: Control<FieldValues, any>;
+  control: Control<FieldValues, { key: string; value: string; }[]>;
   fieldName: string;
   watch: UseFormWatch<FieldValues>
 };
