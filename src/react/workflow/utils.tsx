@@ -76,6 +76,7 @@ export function newExpiration(bucketName?: string): Expiration {
     enabled: true,
     filter: {
       objectKeyPrefix: '',
+      objectTags: [{ key: '', value: '' }],
     },
     name: '',
     type: 'bucket-workflow-expiration-v1',
@@ -191,7 +192,7 @@ export function generateExpirationName(expiration: Expiration): string {
     ? `/${expiration.filter?.objectKeyPrefix}`
     : '';
   const filteredByTagsPrefix = expiration.filter?.objectTags && expiration.filter?.objectTags.length > 0
-    ? `[${expiration.filter.objectTags.length}]` : '';
+    ? `[tags:${expiration.filter.objectTags.length}]` : '';
   const descriptionComponents = [];
   if (expiration.currentVersionTriggerDelayDays) {
     descriptionComponents.push(

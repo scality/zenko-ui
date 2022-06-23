@@ -50,7 +50,6 @@ import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { useWorkflows } from './Workflows';
 import {
   useCurrentAccount,
-  useDataServiceRole,
 } from '../DataServiceRoleProvider';
 import { useRolePathName } from '../utils/hooks';
 
@@ -230,6 +229,18 @@ function useExpirationMutations({
     },
   });
 
+  const removeEmptyTagKeys = (expiration: Expiration) => {
+    if (expiration.filter && expiration.filter.objectTags) {
+      const sanitizedTags = expiration.filter.objectTags.filter((tag) => tag.key !== '');
+      expiration.filter.objectTags.splice(0, expiration.filter.objectTags.length);
+      expiration.filter.objectTags.push(...sanitizedTags);
+
+      return { ...expiration, ...{ filter: { objectKeyPrefix: expiration.filter.objectKeyPrefix, objectTags: sanitizedTags }}};
+    }
+
+    return expiration;
+  };
+
   const editExpirationWorkflowMutation = useMutation<
     BucketWorkflowExpirationV1,
     ApiError,
@@ -237,14 +248,16 @@ function useExpirationMutations({
   >(
     (expiration) => {
       dispatch(networkStart('Editing expiration'));
+      
+      const sanitizedExpiration = removeEmptyTagKeys(expiration)
 
       return notFalsyTypeGuard(managementClient)
         .updateBucketWorkflowExpiration(
-          expiration,
-          expiration.bucketName,
+          sanitizedExpiration,
+          sanitizedExpiration.bucketName,
           instanceId,
           accountId,
-          expiration.workflowId,
+          sanitizedExpiration.workflowId,
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -252,7 +265,7 @@ function useExpirationMutations({
     {
       onSuccess: (success) => {
         history.replace(`./expiration-${success.workflowId}`);
-
+        
         if (onEditSuccess) {
           onEditSuccess(success);
         }
@@ -287,6 +300,14 @@ function isExpirationWorkflow(
   );
 }
 
+function initDefaultValues(workflow: Expiration) {
+  if (workflow.filter && (!workflow.filter.objectTags || workflow.filter.objectTags.length === 0)) {
+    return { ... workflow, ...{ filter: { objectKeyPrefix: workflow.filter.objectKeyPrefix, objectTags: [ { key: '', value: '' }]}}};
+  }
+
+  return workflow;
+}
+
 function EditForm({
   workflow,
   bucketList,
@@ -314,7 +335,7 @@ function EditForm({
       }
     },
     defaultValues: isExpirationWorkflow(workflow)
-      ? workflow
+      ? initDefaultValues(workflow)
       : convertToReplicationForm(workflow),
   });
 
@@ -330,7 +351,7 @@ function EditForm({
   const { deleteExpirationMutation, editExpirationWorkflowMutation } =
     useExpirationMutations({
       onEditSuccess: (editedWorkflow) => {
-        reset(editedWorkflow);
+        reset(initDefaultValues(editedWorkflow));
       },
     });
 

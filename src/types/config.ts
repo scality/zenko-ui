@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { BucketWorkflowV1 } from '../js/managementClient/api';
 import type { Account } from './account';
-
+import { Tag } from './s3';
 // locations
 export const JAGUAR_S3_ENDPOINT = 'https://s3.fr-lyo.jaguar-network.com';
 export const JAGUAR_S3_LOCATION_KEY = 'location-jaguar-ring-s3-v1';
@@ -83,7 +83,7 @@ export type Expiration = {
   readonly enabled: boolean;
   readonly filter?: {
     readonly objectKeyPrefix?: string;
-    readonly objectTags?: Array<{ key: string; value: string }>;
+    readonly objectTags?: Tag[];
   };
   readonly name: string;
   readonly type: BucketWorkflowV1.TypeEnum.ExpirationV1;

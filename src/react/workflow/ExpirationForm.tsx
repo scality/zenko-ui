@@ -8,11 +8,11 @@ import {
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
-import Joi from '@hapi/joi';
+import Joi, { CustomHelpers } from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
 
-import type { S3BucketList } from '../../types/s3';
+import type { S3BucketList, Tag } from '../../types/s3';
 
 import styled from 'styled-components';
 import { IconHelp } from '../ui-elements/Help';
@@ -56,11 +56,11 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
   );
 };
 
-const hasUniqueKeys = (value: any, helper: any, options = { keyName: 'key'}) => {
-  const keys = value.map((obj: any ) => obj[options.keyName]);
+const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
+  const keys = value.map((obj: Tag ): string => obj.key);
   const hasDuplicates = (new Set(keys)).size !== keys.length;
   if (hasDuplicates) {
-      return helper.message(`Please use a unique ${options.keyName}`);
+      return helper.message(`Please use a unique key`);
   } else {
       return value;
   }
@@ -70,7 +70,16 @@ const commonSchema = {
   enabled: Joi.boolean().required(),
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
-    objectTags: Joi.array().label('Tags').custom(hasUniqueKeys, 'unique keys validation').optional(),
+    objectTags: Joi
+      .array()
+      .default([{ key: '', value: ''}])
+      .items(
+        Joi.object({
+          key: Joi.string().allow(''),
+          value: Joi.string().allow(''),
+        })
+      )
+      .custom(hasUniqueKeys, 'unique keys validation'),
   }).optional(),
   name: Joi.string().label('Workflow Description').required(),
   type: Joi.string().required(),
@@ -122,9 +131,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
-  const filterTags = getValues(`${prefix}filter.objectTags`)
-    ? getValues(`${prefix}filter.objectTags`).map((tag) => ({key: tag.key, value: tag.value ?? '',}))
-    : [];
 
   return (
     <ExpirationContainer>
@@ -277,11 +283,24 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
               <T.Row style={{ maxHeight: 'initial', height: '100%', marginTop: '2rem', alignItems: 'baseline'}}>
                 <T.Key>Tags</T.Key>
                 <T.Value>
-                  <TagsFilter
-                    {...register(`${prefix}filter.objectTags`)}
-                    handleChange={(data) => { setValue(`${prefix}filter.objectTags`, data, { shouldDirty: true }); }}
-                    objectMetadata={{ tags: filterTags }}
+                  <Controller
+                    name={`${prefix}filter.objectTags`}
+                    control={control}
+                    defaultValue={[{key: '', value: ''}]}
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <TagsFilter
+                          handleChange={onChange}
+                          control={control}
+                          fieldName={`${prefix}filter.objectTags`}
+                          tags={value}
+                          watch={watch}
+                        />
+                      );
+                    }}
                   />
+
+                  
                 </T.Value>
               </T.Row>
               <T.Row>

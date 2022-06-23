@@ -1,6 +1,6 @@
 import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
-import React, { useCallback, useMemo } from 'react';
+import React, { CSSProperties, useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -103,12 +103,12 @@ const CustomButton = styled(Button)`
     `
       : ''}
 `;
-type AddButtonProps = {
+type AddButtonProps<T = unknown> = {
   index: number;
-  items: Array<any>;
+  items: Array<T>;
   insertEntry: () => void;
   disabled?: boolean;
-  iconStyle: any;
+  iconStyle: CSSProperties,
 };
 export const AddButton = ({
   index,
@@ -117,6 +117,9 @@ export const AddButton = ({
   disabled,
   iconStyle,
 }: AddButtonProps) => {
+  if (!items || !items[index]) {
+    return null;
+  }
   const itemsLength = items.length;
   const itemsIndex = items[index];
   const itemsIndexKey = items[index].key;
@@ -160,12 +163,12 @@ export const AddButton = ({
     </>
   );
 };
-type SubButtonProps = {
+type SubButtonProps<T = unknown> = {
   index: number;
-  items: Array<any>;
+  items: Array<T>;
   deleteEntry: (arg0: number) => void;
   disabled?: boolean;
-  iconStyle: any;
+  iconStyle: CSSProperties;
 };
 export const SubButton = ({
   index,

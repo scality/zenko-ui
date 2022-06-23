@@ -10,48 +10,26 @@ import {
   Items,
   SubButton,
 } from '../ui-elements/EditableKeyValue';
-import type { Tags, Tag } from '../../types/s3';
+import type { Tag } from '../../types/s3';
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { FieldValues, Control, useFieldArray, UseFormWatch } from 'react-hook-form';
 const EMPTY_ITEM = {
   key: '',
   value: '',
 };
 
-const removeEmptyKeys = (tags: Tag[]) =>
-  tags
-    .filter((tag) => tag.key !== '');
-
 type Props = {
-  objectMetadata: { tags: Tags };
-  handleChange:  (data: Array<{key, value}>) => void;
-};
-
-type FormValues = {
   tags: Tag[];
+  handleChange:  (data: Tag[]) => void;
+  control: Control<FieldValues, any>;
+  fieldName: string;
+  watch: UseFormWatch<FieldValues>
 };
 
-function TagsFilter({ objectMetadata, handleChange }: Props) {
-  const {
-    tags,
-  } = objectMetadata;
-  const defaultValues = {
-    tags: tags.length > 0 ? tags : [EMPTY_ITEM],
-  };
-
-  const {
-    register,
-    control,
-    watch,
-  } = useForm<FormValues>({
-    defaultValues,
-  });
-
-  const tagsFormValues = watch("tags");
+function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'tags',
+    name: fieldName,
   });
 
   const deleteEntry = () => {
@@ -59,9 +37,7 @@ function TagsFilter({ objectMetadata, handleChange }: Props) {
     append(EMPTY_ITEM);
   };
 
-  useEffect(() => {
-    handleChange(removeEmptyKeys(tagsFormValues));
-  }, [JSON.stringify(tagsFormValues)]);
+  const tagsFormValues = watch(fieldName);
 
   return (
     <FormContainer style={{ margin: 0, marginBottom: 0 }}>
@@ -78,13 +54,23 @@ function TagsFilter({ objectMetadata, handleChange }: Props) {
                   <InputTag
                     className="tags-input-key"
                     aria-label={`Tag ${index + 1} key`}
-                    {...register(`tags.${index}.key`)}
+                    value={tags[index]?.key}
+                    onChange={({ target }) => {
+                      const updatedTags = tags.slice(0);
+                      updatedTags[index].key = target.value;
+                      handleChange(updatedTags);
+                    }}
                     autoComplete="off"
                   />
                   <InputTag
                     className="tags-input-value"
                     aria-label={`Tag ${index + 1} value`}
-                    {...register(`tags.${index}.value`)}
+                    onChange={({ target }) => {
+                      const updatedTags = [...tags];
+                      updatedTags[index].value = target.value;
+                      handleChange(updatedTags);
+                    }}
+                    value={tags[index]?.value}
                     autoComplete="off"
                   />
                 </Inputs>
