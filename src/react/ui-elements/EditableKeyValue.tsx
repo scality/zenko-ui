@@ -117,9 +117,6 @@ export const AddButton = ({
   disabled,
   iconStyle,
 }: AddButtonProps) => {
-  if (!items || !items[index]) {
-    return null;
-  }
   const itemsLength = items.length;
   const itemsIndex = items[index];
   const itemsIndexKey = items[index].key;

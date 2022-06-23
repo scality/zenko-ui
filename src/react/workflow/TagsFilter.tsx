@@ -45,7 +45,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
         <HeaderKeyTag> Key </HeaderKeyTag>
         <HeaderValueTag> Value </HeaderValueTag>
       </Header>
-      <F.CustomForm style={{ height: 'initial', margin: 0 }}>
+      <F.CustomForm style={{ height: 'initial', margin: 0 }} data-testid="tags-form">
         <Items>
           {fields.map((_, index) => {
             return (
@@ -54,6 +54,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
                   <InputTag
                     className="tags-input-key"
                     aria-label={`Tag ${index + 1} key`}
+                    data-testid={`tag-${index+1}-key`}
                     value={tags[index]?.key}
                     onChange={({ target }) => {
                       const updatedTags = tags.slice(0);
@@ -65,6 +66,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
                   <InputTag
                     className="tags-input-value"
                     aria-label={`Tag ${index + 1} value`}
+                    data-testid={`tag-${index+1}-value`}
                     onChange={({ target }) => {
                       const updatedTags = [...tags];
                       updatedTags[index].value = target.value;
