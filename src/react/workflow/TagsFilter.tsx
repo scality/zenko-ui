@@ -12,7 +12,12 @@ import {
 } from '../ui-elements/EditableKeyValue';
 import type { Tag } from '../../types/s3';
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import { FieldValues, Control, useFieldArray, UseFormWatch } from 'react-hook-form';
+import {
+  FieldValues,
+  Control,
+  useFieldArray,
+  UseFormWatch,
+} from 'react-hook-form';
 const EMPTY_ITEM = {
   key: '',
   value: '',
@@ -20,10 +25,10 @@ const EMPTY_ITEM = {
 
 type Props = {
   tags: Tag[];
-  handleChange:  (data: Tag[]) => void;
-  control: Control<FieldValues, { key: string; value: string; }[]>;
+  handleChange: (data: Tag[]) => void;
+  control: Control<FieldValues, { key: string; value: string }[]>;
   fieldName: string;
-  watch: UseFormWatch<FieldValues>
+  watch: UseFormWatch<FieldValues>;
 };
 
 function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
@@ -45,7 +50,10 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
         <HeaderKeyTag> Key </HeaderKeyTag>
         <HeaderValueTag> Value </HeaderValueTag>
       </Header>
-      <F.CustomForm style={{ height: 'initial', margin: 0 }} data-testid="tags-form">
+      <F.CustomForm
+        style={{ height: 'initial', margin: 0 }}
+        data-testid="tags-form"
+      >
         <Items>
           {fields.map((_, index) => {
             return (
@@ -54,7 +62,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
                   <InputTag
                     className="tags-input-key"
                     aria-label={`Tag ${index + 1} key`}
-                    data-testid={`tag-${index+1}-key`}
+                    data-testid={`tag-${index + 1}-key`}
                     value={tags[index]?.key}
                     onChange={({ target }) => {
                       const updatedTags = tags.slice(0);
@@ -66,7 +74,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
                   <InputTag
                     className="tags-input-value"
                     aria-label={`Tag ${index + 1} value`}
-                    data-testid={`tag-${index+1}-value`}
+                    data-testid={`tag-${index + 1}-value`}
                     onChange={({ target }) => {
                       const updatedTags = [...tags];
                       updatedTags[index].value = target.value;

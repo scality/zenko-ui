@@ -48,9 +48,7 @@ import { workflowListQuery } from '../queries';
 import Joi from '@hapi/joi';
 import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { useWorkflows } from './Workflows';
-import {
-  useCurrentAccount,
-} from '../DataServiceRoleProvider';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useRolePathName } from '../utils/hooks';
 
 type Props = {
@@ -231,11 +229,24 @@ function useExpirationMutations({
 
   const removeEmptyTagKeys = (expiration: Expiration) => {
     if (expiration.filter && expiration.filter.objectTags) {
-      const sanitizedTags = expiration.filter.objectTags.filter((tag) => tag.key !== '');
-      expiration.filter.objectTags.splice(0, expiration.filter.objectTags.length);
+      const sanitizedTags = expiration.filter.objectTags.filter(
+        (tag) => tag.key !== '',
+      );
+      expiration.filter.objectTags.splice(
+        0,
+        expiration.filter.objectTags.length,
+      );
       expiration.filter.objectTags.push(...sanitizedTags);
 
-      return { ...expiration, ...{ filter: { objectKeyPrefix: expiration.filter.objectKeyPrefix, objectTags: sanitizedTags }}};
+      return {
+        ...expiration,
+        ...{
+          filter: {
+            objectKeyPrefix: expiration.filter.objectKeyPrefix,
+            objectTags: sanitizedTags,
+          },
+        },
+      };
     }
 
     return expiration;
@@ -248,8 +259,8 @@ function useExpirationMutations({
   >(
     (expiration) => {
       dispatch(networkStart('Editing expiration'));
-      
-      const sanitizedExpiration = removeEmptyTagKeys(expiration)
+
+      const sanitizedExpiration = removeEmptyTagKeys(expiration);
 
       return notFalsyTypeGuard(managementClient)
         .updateBucketWorkflowExpiration(
@@ -265,7 +276,7 @@ function useExpirationMutations({
     {
       onSuccess: (success) => {
         history.replace(`./expiration-${success.workflowId}`);
-        
+
         if (onEditSuccess) {
           onEditSuccess(success);
         }
@@ -301,8 +312,19 @@ function isExpirationWorkflow(
 }
 
 function initDefaultValues(workflow: Expiration) {
-  if (workflow.filter && (!workflow.filter.objectTags || workflow.filter.objectTags.length === 0)) {
-    return { ... workflow, ...{ filter: { objectKeyPrefix: workflow.filter.objectKeyPrefix, objectTags: [ { key: '', value: '' }]}}};
+  if (
+    workflow.filter &&
+    (!workflow.filter.objectTags || workflow.filter.objectTags.length === 0)
+  ) {
+    return {
+      ...workflow,
+      ...{
+        filter: {
+          objectKeyPrefix: workflow.filter.objectKeyPrefix,
+          objectTags: [{ key: '', value: '' }],
+        },
+      },
+    };
   }
 
   return workflow;
