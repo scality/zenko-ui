@@ -182,7 +182,7 @@ const CreateWorkflow = () => {
           ).queryKey,
         );
         if (bucketName !== '') {
-          history.push(`/buckets/${bucketName}?tab=workflow`);
+          history.push(`/accounts/${accountId}/buckets/${bucketName}?tab=workflow`);
         } else {
           history.push(`./expiration-${success.workflowId}`);
         }
