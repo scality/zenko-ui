@@ -159,7 +159,7 @@ const ActionButtons = ({
 }) => {
   const { arn, userName } = rowValues;
   return (
-    <Box display={'flex'}>
+    <Box display={'flex'} marginLeft='auto'>
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
       <CopyButton text={arn} labelName={'ARN'} />
@@ -283,7 +283,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       Header: 'User Name',
       accessor: 'userName',
       cellStyle: {
-        minWidth: '20rem',
+        minWidth: '30%',
       },
     },
     {
@@ -291,7 +291,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'accessKeys',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10rem',
+        minWidth: '10%',
       },
       Cell: renderAccessKeyComponent,
     },
@@ -300,8 +300,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'createdOn',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '7rem',
-        marginRight: 'auto',
+        minWidth: '10%',
       },
     }, // Table cell for all the actions (Copy ARN, Edit and Delete)
     {
@@ -309,9 +308,8 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        marginRight: 'auto',
-        marginLeft: '26rem',
-        minWidth: '5rem',
+        minWidth: '50%',
+        marginLeft: 'auto',
       },
       disableSortBy: true,
       Cell: (value: CellProps<InternalUser>) => (

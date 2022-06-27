@@ -102,7 +102,7 @@ const ActionButtons = ({
 }) => {
   const { arn, policyName, policyPath } = rowValues;
   return (
-    <Box display="flex">
+    <Box display="flex" marginLeft='auto'>
       <AttachButton
         policyName={policyName}
         accountName={accountName}
@@ -260,7 +260,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: 'Policy Name',
       accessor: 'policyName',
       cellStyle: {
-        minWidth: '18rem',
+        minWidth: '20%',
       },
       Cell: (value) => <AccessPolicyNameCell rowValues={value.row.original} />,
     },
@@ -268,7 +268,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: 'Policy Path',
       accessor: 'policyPath',
       cellStyle: {
-        minWidth: '10rem',
+        minWidth: '10%',
       },
     },
     {
@@ -276,7 +276,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'modifiedOn',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10rem',
+        minWidth: '10%',
       },
     },
     {
@@ -284,16 +284,15 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'attachments',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '14rem',
+        minWidth: '10%',
       },
     },
     {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        marginRight: 'auto',
-        marginLeft: '22rem',
-        minWidth: '5rem',
+        
+        minWidth: '50%',
       },
       disableSortBy: true,
       Cell: (value) => (
