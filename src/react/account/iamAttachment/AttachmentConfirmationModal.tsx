@@ -133,6 +133,12 @@ function AttachmentConfirmationModal({
           queryClient.invalidateQueries(
             getListEntitiesForPolicyQuery(resourceId, IAMClient),
           );
+          queryClient.refetchQueries(
+            getListPoliciesQuery(
+              notFalsyTypeGuard(account).Name,
+              notFalsyTypeGuard(IAMClient),
+            )
+          );
           if (flatEntity.type === 'user') {
             queryClient.refetchQueries(
               getListAttachedUserPoliciesQuery(
