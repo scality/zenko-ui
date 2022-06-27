@@ -65,9 +65,11 @@ const EditButton = ({
 
 const AttachButton = ({
   policyName,
+  policyArn,
   accountName,
 }: {
   policyName: string;
+  policyArn: string;
   accountName: string;
 }) => {
   const history = useHistory();
@@ -80,7 +82,9 @@ const AttachButton = ({
         icon={<i className="fas fa-link"></i>}
         onClick={() =>
           history.push(
-            `/accounts/${accountName}/policies/${policyName}/attachments`,
+            `/accounts/${accountName}/policies/${encodeURIComponent(
+              policyArn,
+            )}/attachments`,
           )
         }
         aria-label={`Attach ${policyName}`}
@@ -98,14 +102,22 @@ const ActionButtons = ({
 }) => {
   const { arn, policyName, policyPath } = rowValues;
   return (
-    <Box display="flex">
-      <AttachButton policyName={policyName} accountName={accountName} />
+    <Box display="flex" marginLeft='auto'>
+      <AttachButton
+        policyName={policyName}
+        accountName={accountName}
+        policyArn={arn}
+      />
       <EditButton
         policyName={policyName}
         policyPath={policyPath}
         accountName={accountName}
       />
-      <CopyButton text={arn} labelName={'ARN'} aria-label={`Copy ARN ${policyName}`} />
+      <CopyButton
+        text={arn}
+        labelName={'ARN'}
+        aria-label={`Copy ARN ${policyName}`}
+      />
       <DeletePolicyAction
         policyName={policyName}
         path={policyPath}
@@ -245,26 +257,26 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
 
   const columns = [
     {
-      Header: 'Policy Path',
-      accessor: 'policyPath',
-      cellStyle: {
-        minWidth: '10rem',
-      },
-    },
-    {
       Header: 'Policy Name',
       accessor: 'policyName',
       cellStyle: {
-        minWidth: '18rem',
+        minWidth: '20%',
       },
       Cell: (value) => <AccessPolicyNameCell rowValues={value.row.original} />,
+    },
+    {
+      Header: 'Policy Path',
+      accessor: 'policyPath',
+      cellStyle: {
+        minWidth: '10%',
+      },
     },
     {
       Header: 'Last Modified',
       accessor: 'modifiedOn',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10rem',
+        minWidth: '10%',
       },
     },
     {
@@ -272,16 +284,15 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'attachments',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '14rem',
+        minWidth: '10%',
       },
     },
     {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        marginRight: 'auto',
-        marginLeft: '22rem',
-        minWidth: '5rem',
+        
+        minWidth: '50%',
       },
       disableSortBy: true,
       Cell: (value) => (

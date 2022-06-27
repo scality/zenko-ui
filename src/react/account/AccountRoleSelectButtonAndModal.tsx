@@ -29,8 +29,8 @@ function AccountRoleSelectButtonAndModal() {
     const accountName = account.Name;
     account.Roles.forEach((role) => {
       const parsedArn = regexArn.exec(role.Arn);
-      const rolePath = parsedArn?.groups['role_path'] || '';
-      const roleName = parsedArn?.groups['role_name'] || '';
+      const rolePath = parsedArn?.groups['path'] || '';
+      const roleName = parsedArn?.groups['name'] || '';
       accountsWithRoles.push({
         accountName,
         roleName,

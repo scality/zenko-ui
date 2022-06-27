@@ -36,6 +36,7 @@ export type AWS_PAGINATED_QUERY<
     data: ENTITY[] | undefined,
     error: TError | null | { message: 'Unmounted' },
   ) => void;
+  onPageSuccess?: (data: ENTITY[]) => void;
 } & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>;
 
 export const useAwsPaginatedEntities = <
@@ -106,11 +107,17 @@ export const useAwsPaginatedEntities = <
       !isFetchingNextPage
     ) {
       setStatus('success');
+      if (reactQueryOptions.onPageSuccess) {
+        reactQueryOptions.onPageSuccess(entities || [])
+      }
       if (reactQueryOptions.onUnmountOrSettled) {
         reactQueryOptions.onUnmountOrSettled(entities, null);
       }
       setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
     } else {
+      if (reactQueryOptions.onPageSuccess) {
+        reactQueryOptions.onPageSuccess(entities || [])
+      }
       fetchNextPage();
     }
   }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);

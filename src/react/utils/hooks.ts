@@ -149,7 +149,7 @@ export function useQueryWithUnmountSupport<
 }
 
 export const regexArn =
-  /arn:aws:iam::(?<account_id>\d{12}):role\/(?<role_path>(?:[^/]*\/)*)(?<role_name>[^/]+)$/;
+  /arn:aws:iam::(?<account_id>\d{12}):(?<resource_type>role|policy)\/(?<path>(?:[^/]*\/)*)(?<name>[^/]+)$/;
 
 export const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 export const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
@@ -240,8 +240,8 @@ export const useAccounts = () => {
 export const useRolePathName = () => {
   const { roleArn } = useDataServiceRole();
   const parsedArn = regexArn.exec(roleArn);
-  const rolePath = parsedArn?.groups['role_path'] || '';
-  const roleName = parsedArn?.groups['role_name'] || '';
+  const rolePath = parsedArn?.groups['path'] || '';
+  const roleName = parsedArn?.groups['name'] || '';
   const rolePathName = rolePath + roleName;
   return rolePathName;
 };
