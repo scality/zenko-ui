@@ -1,3 +1,8 @@
+import {
+  JAGUAR_S3_LOCATION_KEY,
+  LocationTypeKey,
+  ORANGE_S3_LOCATION_KEY,
+} from '../../../../types/config';
 import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
@@ -8,7 +13,21 @@ import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
-export const storageOptions: Record<string, any> = {
+
+type StorageOptionValues = {
+  name: string;
+  short: string;
+  formDetails: JSX.Element | any;
+  supportsVersioning: boolean;
+  supportsReplicationTarget: boolean;
+  supportsReplicationSource: boolean;
+  hasIcon: boolean;
+  checkCapability?: string;
+  ingestCapability?: string;
+  hidden?: boolean;
+  supportsVersion?: string;
+};
+export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-scality-hdclient-v2': {
     name: 'Storage Service for ARTESCA',
     short: 'Storage Service',
@@ -31,7 +50,7 @@ export const storageOptions: Record<string, any> = {
   },
   'location-scality-ring-s3-v1': {
     name: 'Scality RING with S3 Connector',
-    short: 'RING',
+    short: 'RING S3',
     formDetails: LocationDetailsAwsCustom,
     supportsVersioning: true,
     supportsReplicationTarget: true,
@@ -39,6 +58,26 @@ export const storageOptions: Record<string, any> = {
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
     ingestCapability: 's3cIngestLocation',
+  },
+  [JAGUAR_S3_LOCATION_KEY]: {
+    name: 'Atlas Object Storage',
+    short: 'Atlas S3',
+    formDetails: LocationDetailsAwsCustom,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: true,
+    hasIcon: false,
+    checkCapability: 'locationTypeS3Custom',
+  },
+  [ORANGE_S3_LOCATION_KEY]: {
+    name: 'Flexible Datastore',
+    short: 'OBS S3',
+    formDetails: LocationDetailsAwsCustom,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: true,
+    hasIcon: false,
+    checkCapability: 'locationTypeS3Custom',
   },
   'location-aws-s3-v1': {
     name: 'Amazon S3',
@@ -71,6 +110,7 @@ export const storageOptions: Record<string, any> = {
   'location-file-v1': {
     name: 'Local Filesystem',
     short: 'Local Filesystem',
+    formDetails: null,
     supportsVersioning: true,
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
@@ -105,7 +145,7 @@ export const storageOptions: Record<string, any> = {
     name: 'NFS Mount',
     short: 'NFS',
     formDetails: LocationDetailsNFS,
-    supportsVersion: false,
+    supportsVersioning: false,
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
     hasIcon: false,
@@ -124,10 +164,6 @@ export const storageOptions: Record<string, any> = {
     checkCapability: 'locationTypeSproxyd',
     hidden: true,
   },
-  // 'location-mem-v1': {
-  //     name: 'Volatile In-Memory',
-  //     hasIcon: false,
-  // },
   'location-wasabi-v1': {
     name: 'Wasabi',
     short: 'Wasabi',
@@ -145,6 +181,6 @@ export const storageOptions: Record<string, any> = {
     supportsVersioning: true,
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
-    hasIcon: false
+    hasIcon: false,
   },
 };

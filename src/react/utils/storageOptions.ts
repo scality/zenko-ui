@@ -1,11 +1,18 @@
-/* eslint-disable */
 import type { InstanceStateSnapshot } from '../../types/stats';
 import type {
   LabelFunction,
   StorageOptionSelect,
 } from '../../types/storageOptionsHelper';
 import { storageOptions } from '../backend/location/LocationDetails';
-import type { Locations } from '../../types/config';
+import {
+  JAGUAR_S3_ENDPOINT,
+  JAGUAR_S3_LOCATION_KEY,
+  Location,
+  Locations,
+  ORANGE_S3_ENDPOINT,
+  ORANGE_S3_LOCATION_KEY,
+} from '../../types/config';
+import { LocationForm } from '../../types/location';
 export function checkSupportsReplicationTarget(locations: Locations): boolean {
   return Object.keys(locations).some(
     (l) =>
@@ -18,58 +25,61 @@ export function checkIfExternalLocation(locations: Locations): boolean {
     (l) => locations[l].locationType !== 'location-file-v1',
   );
 }
-export function getLocationName(locationType) {
-  const locationTypeName = storageOptions[locationType]
-    ? storageOptions[locationType].name
-    : '';
-  return locationTypeName;
-}
-export function getLocationType(locationConstraint, locations) {
-  const constraint = locationConstraint || 'us-east-1'; // defaults to empty
 
-  const locationType =
-    locations && locations[constraint]
-      ? locations[constraint].locationType
-      : '';
-  return locationType;
-}
-export function getLocationTypeFromName(locationConstraint, locations) {
-  const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+/**
+ * Retrieve the `LocationTypeKey` so that it can be use to to get the right
+ * storage option.
+ * The `JAGUAR_S3_LOCATION_KEY` and `ORANGE_S3_LOCATION_KEY` work like
+ * `location-scality-ring-s3-v1` in the UI with predefine values but are not
+ * implemented in the backend.
+ *
+ * We need to add extra logic because changing the backend is expensive.
+ * This can be greatly simplify later if the backend implement Jaguar & Orange.
+ *
+ * @param location
+ * @returns a string which represent a locationType
+ */
+export const getLocationTypeKey = (location: LocationForm | Location) => {
+  if (location) {
+    if (location.locationType === 'location-scality-ring-s3-v1') {
+      if (location.details.endpoint === JAGUAR_S3_ENDPOINT) {
+        return JAGUAR_S3_LOCATION_KEY;
+      } else if (location.details.endpoint === ORANGE_S3_ENDPOINT) {
+        return ORANGE_S3_LOCATION_KEY;
+      } else {
+        return location.locationType;
+      }
+    } else {
+      return location.locationType;
+    }
+  } else {
+    return '';
+  }
+};
 
-  const locationType =
-    locations && locations[constraint]
-      ? locations[constraint].locationType
-      : '';
-  const locationTypeName = storageOptions[locationType]
-    ? storageOptions[locationType].name
-    : '';
-  return locationTypeName;
-}
-export function getLocationTypeShort(locationConstraint, locations) {
-  const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+const selectStorageLocationFromLocationType = (location: Location) => {
+  const locationTypeKey = getLocationTypeKey(location);
+  if (locationTypeKey !== '') {
+    return storageOptions[locationTypeKey];
+  } else {
+    return null;
+  }
+};
 
-  const locationType =
-    locations && locations[constraint]
-      ? locations[constraint].locationType
-      : '';
-  const locationTypeName = storageOptions[locationType]
-    ? storageOptions[locationType].short
-    : '';
-  return locationTypeName;
-}
-export function getLocationBucketName(locationConstraint, locations) {
-  const constraint = locationConstraint || 'us-east-1'; // defaults to empty
+export const getLocationType = (location: Location) => {
+  const storageLocation = selectStorageLocationFromLocationType(location);
+  return storageLocation?.name ?? '';
+};
 
-  const bucketName =
-    locations && locations[constraint] && locations[constraint].details
-      ? locations[constraint].details.bucketName
-      : '';
-  return bucketName;
-}
+export const getLocationTypeShort = (location: Location) => {
+  const storageLocation = selectStorageLocationFromLocationType(location);
+  return storageLocation?.short ?? '';
+};
+
 export function selectStorageOptions(
   capabilities: Pick<InstanceStateSnapshot, 'capabilities'>,
   labelFn?: LabelFunction,
-  exceptHidden: boolean = true,
+  exceptHidden = true,
 ): Array<StorageOptionSelect> {
   return Object.keys(storageOptions)
     .filter((o) => {

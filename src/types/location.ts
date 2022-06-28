@@ -1,4 +1,5 @@
-import type { LocationDetails, LocationName, LocationType } from './config';
+import type { Location } from './config';
+
 export type LocationFormOptions = {
   readonly isTransient: boolean;
   readonly isBuiltin: boolean;
@@ -6,10 +7,8 @@ export type LocationFormOptions = {
   readonly sizeLimitGB?: string;
   readonly legacyAwsBehavior?: boolean;
 };
-export type LocationForm = {
-  readonly name: LocationName;
-  readonly locationType: LocationType;
-  readonly details: LocationDetails;
+
+export type LocationForm = Location & {
   readonly objectId: string;
   readonly options: LocationFormOptions;
 };
