@@ -1,3 +1,6 @@
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Box } from '@scality/core-ui/dist/next';
 import {
   Checkbox,
   CheckboxContainer,
@@ -7,14 +10,29 @@ import {
   Label,
 } from '../../../ui-elements/FormLayout';
 import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
-import React, { useEffect, useState } from 'react';
 import { isIngestSource } from '../../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
-import { useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
 import { XDM_FEATURE } from '../../../../js/config';
 import { LocationDetailsFormProps } from '.';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+
+import {
+  JAGUAR_S3_ENDPOINT,
+  JAGUAR_S3_LOCATION_KEY,
+  LocationTypeKey,
+  ORANGE_S3_ENDPOINT,
+  ORANGE_S3_LOCATION_KEY,
+} from '../../../../types/config';
+
+const computeInitialEndpoint = (locationType: LocationTypeKey) => {
+  if (locationType === JAGUAR_S3_LOCATION_KEY) {
+    return { endpoint: JAGUAR_S3_ENDPOINT };
+  } else if (locationType === ORANGE_S3_LOCATION_KEY) {
+    return { endpoint: ORANGE_S3_ENDPOINT };
+  } else {
+    return {};
+  }
+};
 
 type State = {
   bucketMatch: boolean;
@@ -37,10 +55,17 @@ export default function LocationDetailsAwsCustom({
   locationType,
   onChange,
 }: LocationDetailsFormProps) {
-  const [formState, setFormState] = useState<State>(() => ({
-    ...Object.assign({}, INIT_STATE, details),
-    secretKey: '',
-  }));
+  const [formState, setFormState] = useState<State>(() => {
+    return {
+      ...Object.assign(
+        {},
+        INIT_STATE,
+        details,
+        computeInitialEndpoint(locationType),
+        { secretKey: '' },
+      ),
+    };
+  });
 
   const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
@@ -58,6 +83,9 @@ export default function LocationDetailsAwsCustom({
   }, []);
   const isIngest = isIngestSource(storageOptions, locationType, capabilities);
   const features = useSelector((state: AppState) => state.auth.config.features);
+  const isRingS3Reseller =
+    locationType === JAGUAR_S3_LOCATION_KEY ||
+    locationType === ORANGE_S3_LOCATION_KEY;
   return (
     <div>
       <Fieldset>
@@ -107,23 +135,26 @@ export default function LocationDetailsAwsCustom({
           disabled={editingExisting}
         />
       </Fieldset>
-      <Fieldset>
-        <Label htmlFor="endpoint" required>
-          Endpoint
-        </Label>
-        <Input
-          name="endpoint"
-          type="text"
-          value={formState.endpoint}
-          onChange={onFormItemChange}
-          autoComplete="off"
-          placeholder="example: https://hosted-s3-server.internal.example.com:4443"
-        />
-        <small>
-          Endpoint to reach the S3 server, including scheme and port. The
-          buckets will have a path-style access.
-        </small>
-      </Fieldset>
+      {!isRingS3Reseller ? (
+        <Fieldset>
+          <Label htmlFor="endpoint" required>
+            Endpoint
+          </Label>
+
+          <Input
+            name="endpoint"
+            type="text"
+            value={formState.endpoint}
+            onChange={onFormItemChange}
+            autoComplete="off"
+            placeholder="example: https://hosted-s3-server.internal.example.com:4443"
+          />
+          <small>
+            Endpoint to reach the S3 server, including scheme and port. The
+            buckets will have a path-style access.
+          </small>
+        </Fieldset>
+      ) : null}
       {(isIngest && features.includes(XDM_FEATURE)) || !isIngest ? (
         <Fieldset>
           <CheckboxContainer>
@@ -158,7 +189,7 @@ export default function LocationDetailsAwsCustom({
           </WarningInput>
         </Fieldset>
       ) : (
-        <SpacedBox mb={8} />
+        <Box mb={8} />
       )}
     </div>
   );

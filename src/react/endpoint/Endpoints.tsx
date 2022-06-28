@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import EndpointList from './EndpointList';
-import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
 

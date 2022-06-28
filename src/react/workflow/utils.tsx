@@ -13,6 +13,7 @@ import type { SelectOption } from '../../types/ui';
 import { getLocationTypeShort } from '../utils/storageOptions';
 import { isVersioning } from '../utils';
 import { storageOptions } from '../backend/location/LocationDetails';
+
 export const sourceBucketOptions = (
   streams: ReplicationStreams,
   bucketList: S3BucketList,
@@ -38,6 +39,7 @@ export const sourceBucketOptions = (
   });
   return [...buckets];
 };
+
 export const destinationOptions = (
   locations: Locations,
 ): Array<SelectOption> => {
@@ -53,22 +55,21 @@ export const destinationOptions = (
       };
     });
 };
+
 export const renderSource = (locations: Locations) => {
   return function does(option: ReplicationBucketOption) {
     return `${option.label} (${option.location} / ${getLocationTypeShort(
-      option.location,
-      locations,
+      locations[option.location],
     )})`;
   };
 };
+
 export const renderDestination = (locations: Locations) => {
   return function does(option: SelectOption) {
-    return `${option.label} (${getLocationTypeShort(
-      option.value,
-      locations,
-    )})`
+    return `${option.label} (${getLocationTypeShort(locations[option.value])})`;
   };
 };
+
 export function newExpiration(bucketName?: string): Expiration {
   return {
     bucketName: bucketName || '',
@@ -86,6 +87,7 @@ export function newExpiration(bucketName?: string): Expiration {
     previousVersionTriggerDelayDays: null,
   };
 }
+
 export function newReplicationForm(bucketName?: string): ReplicationForm {
   return {
     streamVersion: 1,
@@ -96,6 +98,7 @@ export function newReplicationForm(bucketName?: string): ReplicationForm {
     destinationLocation: '',
   };
 }
+
 export function newReplicationStream(): ReplicationStream {
   return {
     streamId: '',
@@ -112,6 +115,7 @@ export function newReplicationStream(): ReplicationStream {
     },
   };
 }
+
 export function convertToReplicationForm(
   r: ReplicationStream | null | undefined,
 ): ReplicationForm {
@@ -128,6 +132,7 @@ export function convertToReplicationForm(
     destinationLocation: r.destination.locations[0].name,
   };
 }
+
 export function convertToReplicationStream(
   r: ReplicationForm,
 ): ReplicationStream {
@@ -155,6 +160,7 @@ export function convertToReplicationStream(
     },
   };
 }
+
 export function prepareExpirationQuery(data: Expiration): Expiration {
   return {
     ...Object.fromEntries(
@@ -171,6 +177,7 @@ export function prepareExpirationQuery(data: Expiration): Expiration {
     name: generateExpirationName(data),
   } as Expiration;
 }
+
 export function generateStreamName(r: ReplicationStream): string {
   const { bucketName, prefix } = r.source;
   const locations = r.destination.locations;
@@ -207,6 +214,7 @@ export function generateExpirationName(expiration: Expiration): string {
     expiration.bucketName
   }${addedPrefix} - (${descriptionComponents.join(', ')})`;
 }
+
 export function flattenFormErrors(
   obj: Record<string, unknown>,
   parent?: string,

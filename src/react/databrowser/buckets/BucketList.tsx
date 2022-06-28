@@ -11,7 +11,7 @@ import { TextAligner } from '../../ui-elements/Utility';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { formatShortDate } from '../../utils';
 import {
-  getLocationTypeFromName,
+  getLocationType,
   getLocationIngestionState,
 } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
@@ -65,7 +65,7 @@ export default function BucketList({
         accessor: 'LocationConstraint',
 
         Cell({ value: locationName }: { value: LocationName }) {
-          const locationType = getLocationTypeFromName(locationName, locations);
+          const locationType = getLocationType(locations[locationName]);
           return `${locationName || 'us-east-1'} / ${locationType}`;
         },
       },
