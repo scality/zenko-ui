@@ -8,7 +8,6 @@ import {
   bucketInfoResponseObjectLockDefaultRetention,
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
-import React from 'react';
 import { Toggle } from '@scality/core-ui';
 import { reduxMount } from '../../../../utils/test';
 const BUCKET = {
