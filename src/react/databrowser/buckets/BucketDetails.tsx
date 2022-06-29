@@ -24,34 +24,29 @@ const NotFound = () => (
 function BucketDetails({ bucket, ingestionStates }: Props) {
   const { pathname } = useLocation();
   const query = useQueryParams();
-  const tabName = query.get('tab');
   const queryObject = Object.fromEntries(query.entries());
-
-  const details = () => {
-    if (!bucket) {
-      return <NotFound />;
-    }
-
-    if (tabName === 'workflow') {
-      return <Workflow bucketName={bucket.Name}></Workflow>;
-    } else
-      return <Overview bucket={bucket} ingestionStates={ingestionStates} />;
-  };
 
   return (
     <ContentSection>
-      <CustomTabs>
-        <CustomTabs.Tab label="Overview" path={pathname}>
-          {details()}
-        </CustomTabs.Tab>
-        <CustomTabs.Tab
-          label="Workflow"
-          path={pathname}
-          query={{ ...queryObject, tab: 'workflow' }}
-        >
-          {details()}
-        </CustomTabs.Tab>
-      </CustomTabs>
+      {bucket && (
+        <CustomTabs>
+          <CustomTabs.Tab
+            label="Overview"
+            path={pathname}
+            query={{ ...queryObject, tab: null }}
+          >
+            <Overview bucket={bucket} ingestionStates={ingestionStates} />
+          </CustomTabs.Tab>
+          <CustomTabs.Tab
+            label="Workflow"
+            path={pathname}
+            query={{ ...queryObject, tab: 'workflow' }}
+          >
+            <Workflow bucketName={bucket.Name}></Workflow>
+          </CustomTabs.Tab>
+        </CustomTabs>
+      )}
+      {!bucket && <NotFound />}
     </ContentSection>
   );
 }
