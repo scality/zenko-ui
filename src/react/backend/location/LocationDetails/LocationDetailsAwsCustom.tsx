@@ -23,6 +23,7 @@ import {
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
 } from '../../../../types/config';
+import { checkIsRingS3Reseller } from '../utils';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -83,9 +84,8 @@ export default function LocationDetailsAwsCustom({
   }, []);
   const isIngest = isIngestSource(storageOptions, locationType, capabilities);
   const features = useSelector((state: AppState) => state.auth.config.features);
-  const isRingS3Reseller =
-    locationType === JAGUAR_S3_LOCATION_KEY ||
-    locationType === ORANGE_S3_LOCATION_KEY;
+  const isRingS3Reseller = checkIsRingS3Reseller(locationType);
+
   return (
     <div>
       <Fieldset>

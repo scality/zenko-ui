@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
 import {
+  checkIsRingS3Reseller,
   convertToForm,
   convertToLocation,
   isLocationExists,
@@ -13,11 +14,7 @@ import {
 import type { AppState } from '../../../types/state';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import {
-  JAGUAR_S3_LOCATION_KEY,
-  LocationName,
-  ORANGE_S3_LOCATION_KEY,
-} from '../../../types/config';
+import { LocationName } from '../../../types/config';
 import LocationOptions from './LocationOptions';
 import { goBack } from 'connected-react-router';
 import locationFormCheck from './locationFormCheck';
@@ -87,9 +84,8 @@ function LocationEditor() {
 
     let submitLocation = { ...location };
 
-    const isRingS3Reseller =
-      submitLocation.locationType === JAGUAR_S3_LOCATION_KEY ||
-      submitLocation.locationType === ORANGE_S3_LOCATION_KEY;
+    const isRingS3Reseller = checkIsRingS3Reseller(submitLocation.locationType);
+
     if (isRingS3Reseller) {
       submitLocation = {
         ...submitLocation,

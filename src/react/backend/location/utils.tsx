@@ -1,10 +1,13 @@
 import { $PropertyType } from 'utility-types';
 import { HelpAsyncNotifPending } from '../../ui-elements/Help';
-import type {
+import {
   Endpoint,
+  JAGUAR_S3_LOCATION_KEY,
   Location,
   LocationName,
   Locations as LocationsType,
+  LocationTypeKey,
+  ORANGE_S3_LOCATION_KEY,
   Replication,
 } from '../../../types/config';
 import type {
@@ -267,6 +270,13 @@ function renderLocation(location: Location) {
   }
   return `${location.name} (${locationTypeName})`;
 }
+
+export const checkIsRingS3Reseller = (locationType: LocationTypeKey) => {
+  return (
+    locationType === JAGUAR_S3_LOCATION_KEY ||
+    locationType === ORANGE_S3_LOCATION_KEY
+  );
+};
 
 export {
   newLocationForm,
