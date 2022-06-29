@@ -1,11 +1,13 @@
 import { $PropertyType } from 'utility-types';
-import React from 'react';
 import { HelpAsyncNotifPending } from '../../ui-elements/Help';
-import type {
+import {
   Endpoint,
+  JAGUAR_S3_LOCATION_KEY,
   Location,
   LocationName,
   Locations as LocationsType,
+  LocationTypeKey,
+  ORANGE_S3_LOCATION_KEY,
   Replication,
 } from '../../../types/config';
 import type {
@@ -15,7 +17,7 @@ import type {
 } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
-import { isIngestLocation } from '../../utils/storageOptions';
+import { getLocationType, isIngestLocation } from '../../utils/storageOptions';
 import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
 import { InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
@@ -262,13 +264,19 @@ function convertToBucketInfo(bucketInfo: BucketInfo | null) {
 
 //disable the Cold Location as a source storage location
 function renderLocation(location: Location) {
-  const locationType = location.locationType;
-  const locationTypeName = storageOptions[locationType]?.name;
+  const locationTypeName = getLocationType(location);
   if (location.isCold) {
     return `${location.name} (${locationTypeName}) - Cold Location can't be used`;
   }
   return `${location.name} (${locationTypeName})`;
 }
+
+export const checkIsRingS3Reseller = (locationType: LocationTypeKey) => {
+  return (
+    locationType === JAGUAR_S3_LOCATION_KEY ||
+    locationType === ORANGE_S3_LOCATION_KEY
+  );
+};
 
 export {
   newLocationForm,

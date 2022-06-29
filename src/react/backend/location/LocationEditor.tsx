@@ -4,6 +4,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { clearError, saveLocation } from '../../actions';
 import {
+  checkIsRingS3Reseller,
   convertToForm,
   convertToLocation,
   isLocationExists,
@@ -13,11 +14,14 @@ import {
 import type { AppState } from '../../../types/state';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import type { LocationName } from '../../../types/config';
+import { LocationName } from '../../../types/config';
 import LocationOptions from './LocationOptions';
 import { goBack } from 'connected-react-router';
 import locationFormCheck from './locationFormCheck';
-import { selectStorageOptions } from '../../utils/storageOptions';
+import {
+  selectStorageOptions,
+  getLocationTypeKey,
+} from '../../utils/storageOptions';
 import { useOutsideClick } from '../../utils/hooks';
 import { useParams } from 'react-router-dom';
 
@@ -28,7 +32,7 @@ const makeLabel = (locationType) => {
 
 function LocationEditor() {
   const dispatch = useDispatch();
-  const { locationName } = useParams();
+  const { locationName } = useParams<{ locationName: string }>();
   const locationEditing = useSelector(
     (state: AppState) =>
       state.configuration.latest.locations[locationName || ''],
@@ -77,7 +81,18 @@ function LocationEditor() {
       e.preventDefault();
     }
     clearServerError();
-    dispatch(saveLocation(convertToLocation(location)));
+
+    let submitLocation = { ...location };
+
+    const isRingS3Reseller = checkIsRingS3Reseller(submitLocation.locationType);
+
+    if (isRingS3Reseller) {
+      submitLocation = {
+        ...submitLocation,
+        ...{ locationType: 'location-scality-ring-s3-v1' },
+      };
+    }
+    dispatch(saveLocation(convertToLocation(submitLocation)));
   };
 
   const cancel = (e) => {
@@ -150,6 +165,8 @@ function LocationEditor() {
     displayErrorMessage = `Could not save: ${errorMessage}`;
   }
 
+  const locationTypeKey = getLocationTypeKey(location);
+
   return (
     <FormContainer>
       <F.Form ref={formRef}>
@@ -158,8 +175,7 @@ function LocationEditor() {
         </F.Title>
         <F.Fieldset>
           <F.Label htmlFor="name" required>
-            {' '}
-            Location Name{' '}
+            Location Name
           </F.Label>
           <F.Input
             id="name"
@@ -175,8 +191,7 @@ function LocationEditor() {
         </F.Fieldset>
         <F.Fieldset>
           <F.Label htmlFor="locationType" required>
-            {' '}
-            Location Type{' '}
+            Location Type
           </F.Label>
           <F.Select
             id="locationType"
@@ -184,7 +199,7 @@ function LocationEditor() {
             placeholder="Select an option..."
             onChange={onTypeChange}
             isDisabled={editingExisting}
-            value={location.locationType}
+            value={locationTypeKey}
           >
             {selectOptions.map((opt, i) => (
               <F.Select.Option key={i} value={opt.value}>

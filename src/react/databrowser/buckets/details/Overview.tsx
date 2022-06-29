@@ -17,7 +17,7 @@ import type { BucketInfo, S3Bucket } from '../../../../types/s3';
 import { TableContainer } from '../../../ui-elements/Table';
 import { Toggle } from '@scality/core-ui';
 import {
-  getLocationTypeFromName,
+  getLocationType,
   getLocationIngestionState,
 } from '../../../utils/storageOptions';
 import { maybePluralize } from '../../../utils';
@@ -129,6 +129,7 @@ function Overview({ bucket, ingestionStates }: Props) {
     ingestionStates,
     bucketInfo.locationConstraint || 'us-east-1',
   );
+
   return (
     <TableContainer>
       <DeleteConfirmation
@@ -235,13 +236,10 @@ function Overview({ bucket, ingestionStates }: Props) {
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
-                  {bucketInfo.locationConstraint || 'us-east-1'} /
+                  {bucketInfo.locationConstraint || 'us-east-1'}
+                  {' / '}
                   <small>
-                    {' '}
-                    {getLocationTypeFromName(
-                      bucketInfo.locationConstraint,
-                      locations,
-                    )}{' '}
+                    {getLocationType(locations[bucketInfo.locationConstraint])}
                   </small>
                 </T.Value>
               </T.Row>

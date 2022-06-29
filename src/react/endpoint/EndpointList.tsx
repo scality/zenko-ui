@@ -21,7 +21,7 @@ import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { FixedSizeList } from 'react-window';
 import { ListSection } from '../ui-elements/ListLayout4';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { getLocationTypeFromName } from '../utils/storageOptions';
+import { getLocationType } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Clipboard } from '../ui-elements/Clipboard';
@@ -74,7 +74,7 @@ function EndpointList({ endpoints, locations }: Props) {
         accessor: 'locationName',
 
         Cell({ value: locationName }: { value: LocationName }) {
-          const locationType = getLocationTypeFromName(locationName, locations);
+          const locationType = getLocationType(locations[locationName]);
           return (
             <span>
               {' '}

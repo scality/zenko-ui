@@ -1,4 +1,8 @@
-import type { Location, Replication } from '../../../types/config';
+import {
+  JAGUAR_S3_ENDPOINT,
+  Location,
+  Replication,
+} from '../../../types/config';
 import { useCallback, useMemo, useState, ComponentType } from 'react';
 import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
@@ -21,6 +25,7 @@ import { CellProps } from 'react-table';
 import { useWorkflows } from '../../workflow/Workflows';
 import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
+import { getLocationType } from '../../utils/storageOptions';
 
 const ActionButtons = ({
   rowValues,
@@ -95,6 +100,7 @@ function Locations() {
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
+
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
@@ -139,8 +145,7 @@ function Locations() {
         },
         Cell(value: CellProps<Location>) {
           const rowValues = value.row.original;
-          const locationType =
-            storageOptions[rowValues.locationType]?.name || 'N/A';
+          const locationType = getLocationType(rowValues);
           if (rowValues.isCold) {
             return (
               <span>

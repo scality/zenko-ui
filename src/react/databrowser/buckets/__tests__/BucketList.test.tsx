@@ -6,6 +6,7 @@ import { Row } from '../../../ui-elements/Table';
 import { formatShortDate } from '../../../utils';
 import { reduxMount } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
+
 describe('BucketList', () => {
   const buckets = List([
     {
@@ -40,6 +41,9 @@ describe('BucketList', () => {
               locationType: 'location-scality-ring-s3-v1',
               name: 's3c-ring',
               objectId: '',
+              details: {
+                endpoint: 'https://s3.scality.com',
+              },
             },
           }}
           selectedBucketName=""
@@ -97,6 +101,9 @@ describe('BucketList', () => {
               locationType: 'location-scality-ring-s3-v1',
               name: 's3c-ring',
               objectId: '',
+              details: {
+                endpoint: 'https://s3.scality.com',
+              },
             },
           }}
           selectedBucketName=""
