@@ -168,3 +168,16 @@ export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMC
   enabled: IAMClient !== null,
   refetchOnWindowFocus: false,
 });
+
+export const getListPolicyVersionsQuery = (
+  policyArn: string,
+  IAMClient?: IAMClient | null,) => {
+  return ({
+    queryKey: ['listPolicyVersions', policyArn],
+    queryFn: () =>
+      notFalsyTypeGuard(IAMClient).listPolicyVersions(policyArn),
+    enabled: IAMClient !== null && IAMClient !== undefined,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+}

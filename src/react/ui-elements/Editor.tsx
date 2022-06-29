@@ -6,6 +6,7 @@ type Props = {
   height?: string;
   language?: string;
   value?: string;
+  readOnly?: boolean;
   onChange: (data: React.ChangeEvent) => void;
 };
 
@@ -15,6 +16,7 @@ const Editor = ({
   language,
   value,
   onChange,
+  readOnly,
   ...rest
 }: Props) => (
   <MonacoEditor
@@ -27,6 +29,7 @@ const Editor = ({
     onChange={onChange}
     keepCurrentModel={true}
     saveViewState={false}
+    options={{readOnly}}
     {...rest}
   />
 );

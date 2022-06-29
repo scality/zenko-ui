@@ -7,6 +7,7 @@ import type {
 } from '../types/iam';
 import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
+import { policyDocumentType } from 'aws-sdk/clients/iam';
 
 export function getAssumeRoleWithWebIdentityIAM(
   state: AppState,
@@ -245,19 +246,41 @@ export default class IAMClient implements IAMClientInterface {
     return notFalsyTypeGuard(this.client)
       .getPolicyVersion({
         PolicyArn: policyArn,
-        VersionId: defaultVersionId
+        VersionId: defaultVersionId,
       })
       .promise();
   }
 
+  listPolicyVersions(policyArn: string) {
+    return notFalsyTypeGuard(this.client)
+      .listPolicyVersions({
+        PolicyArn: policyArn,
+      })
+      .promise();
+  }
 
-  CreatePolicyVersion(arn: string, document: string) {
+  createPolicy(policyName: string, policyDocument: policyDocumentType) {
+    return notFalsyTypeGuard(this.client)
+      .createPolicy({
+        PolicyName: policyName,
+        PolicyDocument: policyDocument,
+      })
+      .promise();
+  }
+
+  createPolicyVersion(arn: string, document: string) {
     return notFalsyTypeGuard(this.client)
       .createPolicyVersion({
         PolicyArn: arn,
         PolicyDocument: document,
-        SetAsDefault: true
+        SetAsDefault: true,
       })
+      .promise();
+  }
+
+  deletePolicyVersion(arn: string, versionId: string) {
+    return notFalsyTypeGuard(this.client)
+      .deletePolicyVersion({ PolicyArn: arn, VersionId: versionId })
       .promise();
   }
 
