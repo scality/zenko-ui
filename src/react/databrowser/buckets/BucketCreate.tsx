@@ -173,9 +173,8 @@ function BucketCreate() {
               <F.Input
                 type="text"
                 id="name"
-                {...register('name')}
+                {...register('name', { onChange: clearServerError })}
                 autoFocus={true}
-                onChange={clearServerError}
                 aria-invalid={!!errors.name}
                 aria-describedby="error-name"
                 autoComplete="off"
