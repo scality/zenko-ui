@@ -165,7 +165,6 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
           customItemKey={getItemKey}
-          hasScrollbar={false}
         >
           {(Rows) => (
             <>
