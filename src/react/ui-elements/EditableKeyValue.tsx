@@ -1,6 +1,6 @@
 import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
-import React, { useCallback, useMemo } from 'react';
+import React, { CSSProperties, useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -103,17 +103,19 @@ const CustomButton = styled(Button)`
     `
       : ''}
 `;
-type AddButtonProps = {
+type AddButtonProps<T = unknown> = {
   index: number;
-  items: Array<any>;
+  items: Array<T>;
   insertEntry: () => void;
   disabled?: boolean;
+  iconStyle: CSSProperties,
 };
 export const AddButton = ({
   index,
   items,
   insertEntry,
   disabled,
+  iconStyle,
 }: AddButtonProps) => {
   const itemsLength = items.length;
   const itemsIndex = items[index];
@@ -153,22 +155,24 @@ export const AddButton = ({
           overlay: 'Add',
           placement: 'top',
         }}
-        icon={<i className="fa fa-plus-square" />}
+        icon={<i className="fa fa-plus-square" style={iconStyle}/>}
       />
     </>
   );
 };
-type SubButtonProps = {
+type SubButtonProps<T = unknown> = {
   index: number;
-  items: Array<any>;
+  items: Array<T>;
   deleteEntry: (arg0: number) => void;
   disabled?: boolean;
+  iconStyle: CSSProperties;
 };
 export const SubButton = ({
   index,
   items,
   deleteEntry,
   disabled,
+  iconStyle,
 }: SubButtonProps) => {
   let isDisabled = disabled || false;
 
@@ -190,7 +194,7 @@ export const SubButton = ({
         overlay: 'Remove',
         placement: 'top',
       }}
-      icon={<i className="fa fa-minus-square" />}
+      icon={<i className="fa fa-minus-square" style={iconStyle} />}
     />
   );
 };
