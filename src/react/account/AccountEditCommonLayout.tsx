@@ -73,14 +73,14 @@ export const CommonPolicyLayout = ({
           <SecondaryText> All * are mandatory fields </SecondaryText>
         )}
         <StyledFieldSet>
-          <StyledLabel htmlFor="policyName" data-testid="policyNameLabel">
+          <StyledLabel htmlFor="policyName">
             Policy Name{isCreateMode && <>*</>}
           </StyledLabel>
           {policyNameField}
         </StyledFieldSet>
         {policyArn && (
           <StyledFieldSet>
-            <StyledLabel htmlFor="policyARN" data-testid="policyARNLabel">
+            <StyledLabel htmlFor="policyARN">
               Policy ARN
             </StyledLabel>
             <span>{policyArn}</span>
@@ -100,7 +100,6 @@ export const CommonPolicyLayout = ({
               }}
               render={({ field: { onChange, value } }) => (
                 <Editor
-                  data-testid="policyDocumentInput"
                   language="application/json"
                   width="33rem"
                   height="10.5rem"

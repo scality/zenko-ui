@@ -22,10 +22,10 @@ type FormValues = {
 const UpdateAccountPolicy = () => {
   const IAMClient = useIAMClient();
   const history = useHistory();
-  const { policyArn: encodedPolicyArn, DefaultVersionId } = useParams<{
+  const { policyArn: encodedPolicyArn, defaultVersionId } = useParams<{
     accountName: string;
     policyArn: string;
-    DefaultVersionId: string;
+    defaultVersionId: string;
   }>();
   const { account } = useCurrentAccount();
   const defaultValues = {
@@ -53,12 +53,13 @@ const UpdateAccountPolicy = () => {
   );
   const isLatestVersionTheDefaultOne =
     policyVersions?.Versions?.[0].IsDefaultVersion || false;
+
   const isReadOnly =
     policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
 
   const queryClient = useQueryClient();
   const { data: policyResult, status } = useQuery({
-    ...getPolicyQuery(policyArn, DefaultVersionId, IAMClient),
+    ...getPolicyQuery(policyArn, defaultVersionId, IAMClient),
     onSuccess: (data) => {
       const formattedDocument = JSON.stringify(
         JSON.parse(decodeURIComponent(data?.PolicyVersion?.Document ?? '')),

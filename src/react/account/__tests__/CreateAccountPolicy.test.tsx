@@ -1,4 +1,4 @@
-import { screen, act } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -54,11 +54,8 @@ describe('CreateAccountPolicy', () => {
       screen.getByText('We are supporting AWS IAM standards.'),
     ).toBeInTheDocument();
 
-    const policyNameInput = screen.getByTestId('policyNameInput');
+    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
     expect(policyNameInput).toBeInTheDocument();
-
-    const policyDocumentInput = screen.getByTestId('policyDocumentInput');
-    expect(policyDocumentInput).toBeInTheDocument();
 
     const copyButton = screen.getByRole('button', { name: /Copy Text/i });
     expect(copyButton).toBeInTheDocument();
@@ -73,37 +70,26 @@ describe('CreateAccountPolicy', () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
-    const policyNameInput = screen.getByTestId('policyNameInput');
-    const policyDocumentInput = screen.getByTestId('policyDocumentInput');
-    act(() => {
-      userEvent.type(policyNameInput, '');
-    });
-    act(() => {
-      userEvent.type(policyDocumentInput, '');
-    });
+    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
+    
+    userEvent.type(policyNameInput, '');
     const createButton = screen.getByRole('button', { name: /Create/i });
-    act(() => {
-      userEvent.click(createButton);
-    });
+
+    userEvent.click(createButton);
     expect(createButton).toBeDisabled();
   });
-  it('should check if alert message is displayed when we click on Create button with the policy name input empty ', async () => {
+  it('should check if create button is disabled when no policy name is provided', async () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
-    const policyNameInput = screen.getByTestId('policyNameInput');
-    act(() => {
-      userEvent.type(policyNameInput, '');
-    });
-    const policyDocumentInput = screen.getByTestId('policyDocumentInput');
-    act(() => {
-      userEvent.type(policyDocumentInput, 'document');
-    });
+    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
+    userEvent.type(policyNameInput, '');
+    
+    
     const createButton = screen.getByRole('button', { name: /Create/i });
-    expect(createButton).not.toBeDisabled();
-    act(() => {
-      userEvent.click(createButton);
-    });
+    expect(createButton).toBeDisabled();
+    
+    userEvent.click(createButton);
     const policyNameAlert = screen.getAllByRole('alert')[0];
     expect(policyNameAlert).toBeInTheDocument();
   });
@@ -111,13 +97,9 @@ describe('CreateAccountPolicy', () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
-    const policyDocumentInput = screen.getByTestId('policyDocumentInput');
 
     const copyButton = screen.getByRole('button', { name: /Copy Text/i });
-    expect(copyButton).toBeDisabled();
-    act(() => {
-      userEvent.type(policyDocumentInput, 'document');
-    });
+
     expect(copyButton).not.toBeDisabled();
   });
 });

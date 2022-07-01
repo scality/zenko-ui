@@ -94,7 +94,8 @@ const CreateAccountPolicy = () => {
         <>
           <F.Input
             type="text"
-            data-testid="policyNameInput"
+            id="policyName"
+            placeholder='Policy name'
             autoFocus
             readOnly={false}
             {...register('policyName', {

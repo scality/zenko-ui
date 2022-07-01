@@ -31,7 +31,7 @@ function AccountContent() {
           <AccountUpdateUser />
         </Route>
         <Route
-          path={`${path}/policies/:policyArn/:DefaultVersionId/update-policy`}
+          path={`${path}/policies/:policyArn/:defaultVersionId/update-policy`}
         >
           <UpdateAccountPolicy />
         </Route>
