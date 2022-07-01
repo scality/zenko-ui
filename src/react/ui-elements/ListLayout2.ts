@@ -88,7 +88,6 @@ export const ListSection = styled.div`
   display: flex;
   flex: 1 1 65%;
   flex-direction: column;
-  min-width: 650px;
 
   background-color: ${(props) => props.theme.brand.backgroundLevel2};
   padding-top: ${spacing.sp16};

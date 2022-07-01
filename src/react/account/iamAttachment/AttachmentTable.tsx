@@ -524,6 +524,7 @@ export const AttachmentTable = <
                   icon={<i className="fas fa-times"></i>}
                   label="Remove"
                   variant="danger"
+                  disabled={!!entity.disableDetach}
                 />
               ),
             },

@@ -5,6 +5,7 @@ export type AttachableEntity = {
   name: string;
   id: string;
   type: EntityType;
+  disableDetach?: boolean;
 };
 
 export enum AttachmentAction {
