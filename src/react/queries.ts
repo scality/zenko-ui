@@ -4,6 +4,7 @@ import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
 import { generateExpirationName, generateStreamName } from './workflow/utils';
 import IAMClient from '../js/IAMClient';
 import { QueryFunctionContext } from 'react-query';
+import { getAccountSeeds } from '../js/vault';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -160,4 +161,9 @@ export const getListAttachedUserPoliciesQuery = (
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
+});
+
+export const getAccountSeedsQuery = () => ({
+  queryKey: ['AccountSeeds'],
+  queryFn: getAccountSeeds,
 });

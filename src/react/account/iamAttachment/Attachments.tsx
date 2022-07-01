@@ -1,5 +1,4 @@
 import { BasicText, EmphaseText, LargerText } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useParams, useRouteMatch } from 'react-router';
 import styled from 'styled-components';
@@ -75,6 +74,7 @@ const Attachments = () => {
         <AttachmentTabs
           resourceId={resourceId}
           resourceType={resourceType}
+          resourceName={resourceName}
           onAttachmentsOperationsChanged={setAttachmentOperations}
         />
       </AttachmentContainer>
@@ -84,7 +84,11 @@ const Attachments = () => {
           resourceId={resourceId}
           resourceName={resourceName}
           resourceType={resourceType}
-          redirectUrl={isAttachToPolicy ? `/accounts/${account?.Name}/policies` : `/accounts/${account?.Name}/users`}
+          redirectUrl={
+            isAttachToPolicy
+              ? `/accounts/${account?.Name}/policies`
+              : `/accounts/${account?.Name}/users`
+          }
         />
       </AttachmentFooterContainer>
     </>
