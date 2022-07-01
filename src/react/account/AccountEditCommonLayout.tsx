@@ -7,6 +7,8 @@ import CopyButton from '../ui-elements/CopyButton';
 import { Clipboard } from '../ui-elements/Clipboard';
 import Editor from '../ui-elements/Editor';
 import styled from 'styled-components';
+import { Monaco } from '@monaco-editor/react';
+import policySchema from '../../../policyJsonSchema.json';
 
 const FooterWrapper = styled.div`
   position: fixed;
@@ -39,124 +41,140 @@ const StyledFieldSet = styled(F.Fieldset)`
 `;
 
 export const CommonPolicyLayout = ({
-    onSubmit,
-    policyArn,
-    policyNameField,
-    isReadOnly,
-    control,
-    policyDocument,
-    errors,
-    isDirty,
-    handleCancel,
-  }: {
-    policyArn?: string;
-    policyNameField: JSX.Element;
-    onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-    isReadOnly?: boolean;
-    control: Control<{ policyDocument: string }>;
-    policyDocument: string;
-    errors?: { policyDocument?: { message?: string } };
-    isDirty: boolean;
-    handleCancel: (e: MouseEvent) => void;
-  }) => {
-    const isCreateMode = !policyArn;
-    return (
-      <FormContainer>
-        <F.Form onSubmit={onSubmit}>
-          <F.Title>
-            Policy {isCreateMode ? 'Creation' : !isReadOnly ? 'Edition' : ''}
-          </F.Title>
-          <FittingHr />
-          {isCreateMode && (
-            <SecondaryText> All * are mandatory fields </SecondaryText>
-          )}
+  onSubmit,
+  policyArn,
+  policyNameField,
+  isReadOnly,
+  control,
+  policyDocument,
+  errors,
+  isDirty,
+  handleCancel,
+}: {
+  policyArn?: string;
+  policyNameField: JSX.Element;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  isReadOnly?: boolean;
+  control: Control<{ policyDocument: string }>;
+  policyDocument: string;
+  errors?: { policyDocument?: { message?: string } };
+  isDirty: boolean;
+  handleCancel: (e: MouseEvent) => void;
+}) => {
+  const isCreateMode = !policyArn;
+  return (
+    <FormContainer>
+      <F.Form onSubmit={onSubmit}>
+        <F.Title>
+          Policy {isCreateMode ? 'Creation' : !isReadOnly ? 'Edition' : ''}
+        </F.Title>
+        <FittingHr />
+        {isCreateMode && (
+          <SecondaryText> All * are mandatory fields </SecondaryText>
+        )}
+        <StyledFieldSet>
+          <StyledLabel htmlFor="policyName" data-testid="policyNameLabel">
+            Policy Name{isCreateMode && <>*</>}
+          </StyledLabel>
+          {policyNameField}
+        </StyledFieldSet>
+        {policyArn && (
           <StyledFieldSet>
-            <StyledLabel htmlFor="policyName" data-testid="policyNameLabel">
-              Policy Name{isCreateMode && <>*</>}
+            <StyledLabel htmlFor="policyARN" data-testid="policyARNLabel">
+              Policy ARN
             </StyledLabel>
-            {policyNameField}
+            <span>{policyArn}</span>
+            <Clipboard text={policyArn} />
           </StyledFieldSet>
-          {policyArn && (
-            <StyledFieldSet>
-              <StyledLabel htmlFor="policyARN" data-testid="policyARNLabel">
-                Policy ARN
-              </StyledLabel>
-              <span>{policyArn}</span>
-              <Clipboard text={policyArn} />
-            </StyledFieldSet>
-          )}
-          <F.Fieldset>
-            <F.Label htmlFor="policyDocument">Policy Document{isCreateMode && <>*</>}</F.Label>
-            <StyledBox>
-              <Controller
-                control={control}
-                name="policyDocument"
-                rules={{
-                  required: 'The policy document is required',
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <Editor
-                    data-testid="policyDocumentInput"
-                    language="application/json"
-                    width="33rem"
-                    height="10.5rem"
-                    onChange={onChange}
-                    value={value}
-                    readOnly={isReadOnly}
-                  />
-                )}
-              />
-              <CopyButton
-                text={policyDocument}
-                labelName={'Text'}
-                style={{ marginLeft: '1rem' }}
-              />
-            </StyledBox>
-          </F.Fieldset>
-          <Box mt="1rem" mb="1rem">
-            <SecondaryText style={{ fontStyle: 'italic' }}>
-              We are supporting AWS IAM standards.
-            </SecondaryText>
-          </Box>
-          <F.ErrorInput
-            id="error-name"
-            hasError={!!errors?.policyDocument}
-            style={{ height: 'initial' }}
-          >
-            <> {errors?.policyDocument?.message} </>
-          </F.ErrorInput>
-          <FooterWrapper>
-            <StyledFooter>
-              <F.Hr />
-              {isReadOnly && (
-                <F.FooterButtons>
-                  <Button
-                    variant="outline"
-                    label="Close"
-                    onClick={handleCancel}
-                  />
-                </F.FooterButtons>
+        )}
+        <F.Fieldset>
+          <F.Label htmlFor="policyDocument">
+            Policy Document{isCreateMode && <>*</>}
+          </F.Label>
+          <StyledBox>
+            <Controller
+              control={control}
+              name="policyDocument"
+              rules={{
+                required: 'The policy document is required',
+              }}
+              render={({ field: { onChange, value } }) => (
+                <Editor
+                  data-testid="policyDocumentInput"
+                  language="application/json"
+                  width="33rem"
+                  height="10.5rem"
+                  onChange={onChange}
+                  value={value}
+                  readOnly={isReadOnly}
+                  beforeMount={(monaco: Monaco) => {
+                    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+                      validate: true,
+                      schemas: [
+                        {
+                          uri: 'http://myserver/foo-schema.json', // id of the first schema
+                          fileMatch: ['*'],
+                          schema: policySchema,
+                        },
+                      ],
+                    });
+                  }}
+                />
               )}
-              {!isReadOnly && (
-                <F.FooterButtons>
-                  <Button
-                    variant="outline"
-                    label="Cancel"
-                    onClick={handleCancel}
-                  />
-                  <Button
-                    disabled={!isDirty}
-                    type="submit"
-                    id="create-account-btn"
-                    variant="primary"
-                    icon={!isCreateMode ? <i className="fas fa-save" /> : undefined}
-                    label={isCreateMode ? 'Create' : 'Save'}
-                  />
-                </F.FooterButtons>
-              )}
-            </StyledFooter>
-          </FooterWrapper>
-        </F.Form>
-      </FormContainer>
-    );
-  };
+            />
+            <CopyButton
+              text={policyDocument}
+              labelName={'Text'}
+              style={{ marginLeft: '1rem' }}
+            />
+          </StyledBox>
+        </F.Fieldset>
+        <Box mt="1rem" mb="1rem">
+          <SecondaryText style={{ fontStyle: 'italic' }}>
+            We are supporting AWS IAM standards.
+          </SecondaryText>
+        </Box>
+        <F.ErrorInput
+          id="error-name"
+          hasError={!!errors?.policyDocument}
+          style={{ height: 'initial' }}
+        >
+          <> {errors?.policyDocument?.message} </>
+        </F.ErrorInput>
+        <FooterWrapper>
+          <StyledFooter>
+            <F.Hr />
+            {isReadOnly && (
+              <F.FooterButtons>
+                <Button
+                  variant="outline"
+                  label="Close"
+                  onClick={handleCancel}
+                />
+              </F.FooterButtons>
+            )}
+            {!isReadOnly && (
+              <F.FooterButtons>
+                <Button
+                  variant="outline"
+                  label="Cancel"
+                  onClick={handleCancel}
+                />
+                <Button
+                  disabled={!isDirty}
+                  type="submit"
+                  id="create-account-btn"
+                  variant="primary"
+                  icon={
+                    !isCreateMode ? <i className="fas fa-save" /> : undefined
+                  }
+                  label={isCreateMode ? 'Create' : 'Save'}
+                />
+              </F.FooterButtons>
+            )}
+          </StyledFooter>
+        </FooterWrapper>
+      </F.Form>
+    </FormContainer>
+  );
+};
