@@ -95,7 +95,6 @@ function Workflow({ bucketName }: { bucketName: string }) {
           rowHeight="h48"
           separationLineVariant="backgroundLevel2"
           backgroundVariant="backgroundLevel4"
-          hasScrollbar={false}
         >
           {(Rows) => (
             <>
