@@ -101,6 +101,7 @@ describe('ExpirationForm', () => {
       expect(screen.getByText('Bucket Name')).toBeInTheDocument();
       expect(screen.getByText('Filters (optional)')).toBeInTheDocument();
       expect(screen.getByText('Prefix')).toBeInTheDocument();
+      expect(screen.getByText('Tags')).toBeInTheDocument();
       expect(screen.getByText('Action')).toBeInTheDocument();
       expect(screen.getByText('Current')).toBeInTheDocument();
       expect(screen.getByText('Previous')).toBeInTheDocument();

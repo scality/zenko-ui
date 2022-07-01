@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "watch": "jest --watch",
     "test:coverage": "jest --coverage --ci",
     "test:lint": "eslint src",
     "start:dev": "webpack-dev-server --config webpack.dev.js",
@@ -70,8 +71,8 @@
     "@hapi/joi": "^17.1.1",
     "@hapi/joi-date": "^2.0.1",
     "@hookform/resolvers": "^2.8.8",
-    "@scality/core-ui": "github:scality/core-ui.git#v0.39.2",
     "@monaco-editor/react": "^4.4.5",
+    "@scality/core-ui": "github:scality/core-ui.git#v0.39.3",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",
     "@types/react-window": "^1.8.5",

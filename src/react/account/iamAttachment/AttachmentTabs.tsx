@@ -2,8 +2,10 @@ import { Loader } from '@scality/core-ui';
 import { useReducer } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
+import { useQuery } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
 import {
+  getAccountSeedsQuery,
   getListAttachedUserPoliciesQuery,
   getListEntitiesForPolicyQuery,
   getListGroupsQuery,
@@ -95,10 +97,12 @@ const AttachmentTableProxy = <
 const AttachmentTabs = ({
   resourceType,
   resourceId,
+  resourceName,
   onAttachmentsOperationsChanged,
 }: {
   resourceType: ResourceType;
   resourceId: string;
+  resourceName: string;
   onAttachmentsOperationsChanged: (
     attachmentOperations: AttachmentOperation[],
   ) => void;
@@ -132,6 +136,12 @@ const AttachmentTabs = ({
     tabContentColor: backgroundLevel3,
     tabLineColor: backgroundLevel4,
   };
+
+  const { data: accountSeeds } = useQuery(getAccountSeedsQuery());
+  const policyRolePair =
+    accountSeeds?.filter(
+      (seed) => seed.permissionPolicy.policyName === resourceName,
+    ) || [];
 
   return (
     <CustomTabs {...customTabStyle}>
@@ -289,10 +299,15 @@ const AttachmentTabs = ({
             getAttachedEntitesFromResult={(response) => {
               return (
                 response.PolicyRoles?.map((role) => {
+                  const disableDetach =
+                    !!policyRolePair.find(
+                      (pair) => pair.role.roleName === role.RoleName,
+                    ) !== undefined;
                   return {
                     name: role.RoleName || '',
                     id: role.RoleName || '',
                     type: 'role',
+                    disableDetach,
                   };
                 }) || []
               );

@@ -162,6 +162,9 @@ export type ObjectMetadata = {
   readonly metadata: MetadataItems;
   readonly tags: Tags;
 };
+export type ExpirationWFTagsFilter = {
+  readonly tags: Tags;
+};
 export type EnabledOrDisabled = 'Disabled' | 'Enabled';
 export type Versioning = EnabledOrDisabled | 'Suspended';
 export type BucketInfo = {

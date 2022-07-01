@@ -8,16 +8,16 @@ import {
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { flattenFormErrors, renderSource, sourceBucketOptions } from './utils';
-import Joi from '@hapi/joi';
+import Joi, { CustomHelpers } from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
 
-import type { S3BucketList } from '../../types/s3';
+import type { S3BucketList, Tag } from '../../types/s3';
 
 import styled from 'styled-components';
 import { IconHelp } from '../ui-elements/Help';
 import { isVersioning } from '../utils';
-import { ChangeEvent } from 'react';
+import TagsFilter from './TagsFilter';
 
 const flexStyle = {
   display: 'flex',
@@ -56,11 +56,30 @@ const PluralizeDays = ({ number }: { number: number | string }) => {
   );
 };
 
+const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
+  const keys = value.map((obj: Tag ): string => obj.key);
+  const hasDuplicates = (new Set(keys)).size !== keys.length;
+  if (hasDuplicates) {
+      return helper.message(`Please use a unique key`);
+  } else {
+      return value;
+  }
+}
 const commonSchema = {
   bucketName: Joi.string().label('Source Bucket Name').required(),
   enabled: Joi.boolean().required(),
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
+    objectTags: Joi
+      .array()
+      .default([{ key: '', value: ''}])
+      .items(
+        Joi.object({
+          key: Joi.string().allow(''),
+          value: Joi.string().allow(''),
+        })
+      )
+      .custom(hasUniqueKeys, 'unique keys validation'),
   }).optional(),
   name: Joi.string().label('Workflow Description').required(),
   type: Joi.string().required(),
@@ -260,6 +279,40 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     </ErrorInput>
                   </T.ErrorContainer>
                 </T.Value>
+              </T.Row>
+              <T.Row style={{ maxHeight: 'initial', height: '100%', marginTop: '2rem', alignItems: 'baseline'}}>
+                <T.Key>Tags</T.Key>
+                <T.Value>
+                  <Controller
+                    name={`${prefix}filter.objectTags`}
+                    control={control}
+                    defaultValue={[{key: '', value: ''}]}
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <TagsFilter
+                          handleChange={onChange}
+                          control={control}
+                          fieldName={`${prefix}filter.objectTags`}
+                          tags={value}
+                          watch={watch}
+                        />
+                      );
+                    }}
+                  />
+
+                  
+                </T.Value>
+              </T.Row>
+              <T.Row>
+              <T.ErrorContainer>
+                <ErrorInput
+                  id="error-prefix"
+                  hasError={errors[`${prefix}filter.objectTags`]}
+                >
+                  {' '}
+                  {errors[`${prefix}filter.objectTags`]?.message}{' '}
+                </ErrorInput>
+              </T.ErrorContainer>
               </T.Row>
             </T.GroupContent>
           </T.Group>

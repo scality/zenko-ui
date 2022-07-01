@@ -4,6 +4,7 @@ import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
 import { generateExpirationName, generateStreamName } from './workflow/utils';
 import IAMClient from '../js/IAMClient';
 import { QueryFunctionContext } from 'react-query';
+import { getAccountSeeds } from '../js/vault';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -162,8 +163,12 @@ export const getListAttachedUserPoliciesQuery = (
   refetchOnWindowFocus: false,
 });
 
-export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMClient: IAMClient) => ({
-  queryKey:  ['getPolicy', policyArn, defaultVersionId],
+export const getPolicyQuery = (
+  policyArn: string,
+  defaultVersionId: string,
+  IAMClient: IAMClient,
+) => ({
+  queryKey: ['getPolicy', policyArn, defaultVersionId],
   queryFn: () => IAMClient.getPolicyVersion(policyArn, defaultVersionId),
   enabled: IAMClient !== null,
   refetchOnWindowFocus: false,
@@ -171,13 +176,18 @@ export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMC
 
 export const getListPolicyVersionsQuery = (
   policyArn: string,
-  IAMClient?: IAMClient | null,) => {
-  return ({
+  IAMClient?: IAMClient | null,
+) => {
+  return {
     queryKey: ['listPolicyVersions', policyArn],
-    queryFn: () =>
-      notFalsyTypeGuard(IAMClient).listPolicyVersions(policyArn),
+    queryFn: () => notFalsyTypeGuard(IAMClient).listPolicyVersions(policyArn),
     enabled: IAMClient !== null && IAMClient !== undefined,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
-  });
-}
+  };
+};
+
+export const getAccountSeedsQuery = () => ({
+  queryKey: ['AccountSeeds'],
+  queryFn: getAccountSeeds,
+});
