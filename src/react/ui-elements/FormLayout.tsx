@@ -151,6 +151,7 @@ const LabelContainer = styled.label<{ required?: boolean }>`
 `;
 const TooltipContainer = styled.div`
   margin-left: ${spacing.sp8};
+  display: inline;
 `;
 const IconQuestionCircle = styled.i`
   color: ${(props) => props.theme.brand?.buttonSecondary};

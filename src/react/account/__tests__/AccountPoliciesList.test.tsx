@@ -35,6 +35,28 @@ const nbrOfColumnsExpected = 5;
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    const params = new URLSearchParams(req.body);
+    if (params.get('Action') === 'ListPolicyVersions') {
+      return res(
+        ctx.xml(`
+<ListPolicyVersionsResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+  <ListPolicyVersionsResult>
+    <Versions>
+      <member>
+        <CreateDate>2022-06-14T12:42:46Z</CreateDate>
+        <IsDefaultVersion>true</IsDefaultVersion>
+        <VersionId>v1</VersionId>
+      </member>
+    </Versions>
+    <IsTruncated>false</IsTruncated>
+  </ListPolicyVersionsResult>
+  <ResponseMetadata>
+    <RequestId>976aa56f5944abe75a41</RequestId>
+  </ResponseMetadata>
+</ListPolicyVersionsResponse>;
+      `),
+      );
+    }
     return res(
       ctx.xml(`
 <ListPoliciesResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
@@ -138,7 +160,7 @@ describe('AccountPoliciesList', () => {
     );
     expect(attachButton).not.toBeDisabled();
   });
-  it('should enable Edit button for Non Scality internal Policy', async () => {
+  it('should render Edit button for Non Scality internal Policy', async () => {
     reduxRender(<AccountPoliciesList accountName="account" />, {
       wrapper,
     });
@@ -149,33 +171,20 @@ describe('AccountPoliciesList', () => {
       name: new RegExp(`Edit ${NON_SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
     });
 
-    expect(editButton).not.toBeDisabled();
+    expect(editButton).toBeInTheDocument();
   });
-  it('should enable Edit button for Scality Data Consumer Policy', async () => {
+  it('should render view button for Scality internal Policies', async () => {
     reduxRender(<AccountPoliciesList accountName="account" />, {
       wrapper,
     });
     //E
     await waitFor(() => screen.getAllByText('Edit'));
     //V
-    const editButton = screen.getByRole('button', {
-      name: new RegExp(`Edit ${SCALITY_DATA_CONSUMER_POLICY_NAME}`, 'i'),
+    const viewButton = screen.getByRole('button', {
+      name: new RegExp(`View ${SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
     });
 
-    expect(editButton).not.toBeDisabled();
-  });
-  it('should disable Edit button for Scality Storage Manager Policy and Storage Account Owner Policy', async () => {
-    reduxRender(<AccountPoliciesList accountName="account" />, {
-      wrapper,
-    });
-    //E
-    await waitFor(() => screen.getAllByText('Edit'));
-    //V
-    const editButton = screen.getByRole('button', {
-      name: new RegExp(`Edit ${SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
-    });
-
-    expect(editButton).toBeDisabled();
+    expect(viewButton).toBeInTheDocument();
   });
   it('should render enabled Copy ARN button', async () => {
     reduxRender(<AccountPoliciesList accountName="account" />, {
@@ -211,5 +220,51 @@ describe('AccountPoliciesList', () => {
       name: new RegExp(`Delete ${NON_SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
     });
     expect(deleteButton).not.toBeDisabled();
+  });
+  it('should render view button for non internal policies when their default version is not the latest one', async () => {
+    //S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        const params = new URLSearchParams(req.body);
+        if (params.get('Action') === 'ListPolicyVersions') {
+          return res(
+            ctx.xml(`
+  <ListPolicyVersionsResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+    <ListPolicyVersionsResult>
+    <Versions>
+        <member>
+          <CreateDate>2022-06-14T12:44:46Z</CreateDate>
+          <IsDefaultVersion>false</IsDefaultVersion>
+          <VersionId>v2</VersionId>
+        </member>
+        <member>
+          <CreateDate>2022-06-14T12:42:46Z</CreateDate>
+          <IsDefaultVersion>true</IsDefaultVersion>
+          <VersionId>v1</VersionId>
+        </member>
+      </Versions>
+      <IsTruncated>false</IsTruncated>
+    </ListPolicyVersionsResult>
+    <ResponseMetadata>
+      <RequestId>976aa56f5944abe75a41</RequestId>
+    </ResponseMetadata>
+  </ListPolicyVersionsResponse>;
+        `),
+          );
+        }
+      }),
+    );
+
+    reduxRender(<AccountPoliciesList accountName="account" />, {
+      wrapper,
+    });
+    //E
+    await waitFor(() => screen.getAllByText('View'));
+    //V
+    const viewButton = screen.getByRole('button', {
+      name: new RegExp(`View ${NON_SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
+    });
+
+    expect(viewButton).toBeInTheDocument();
   });
 });

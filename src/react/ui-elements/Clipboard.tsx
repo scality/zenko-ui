@@ -1,15 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
-const Container = styled.div`
+const Container = styled.span`
   cursor: pointer;
 `;
 export const IconSuccess = styled.i`
   color: ${(props) => props.theme.brand.success};
 `;
 export const IconCopy = styled.i`
-  color: ${(props) => props.theme.brand.textSecondary};
-  display: ${(props) => (props.hidden ? 'none' : 'block')};
+  color: ${(props) => props.theme.brand?.textSecondary};
 `;
 export const Clipboard = ({ text }: { text: string }) => {
   const { copy, copyStatus } = useClipboard();

@@ -161,3 +161,23 @@ export const getListAttachedUserPoliciesQuery = (
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
+
+export const getPolicyQuery = (policyArn: string, defaultVersionId: string, IAMClient: IAMClient) => ({
+  queryKey:  ['getPolicy', policyArn, defaultVersionId],
+  queryFn: () => IAMClient.getPolicyVersion(policyArn, defaultVersionId),
+  enabled: IAMClient !== null,
+  refetchOnWindowFocus: false,
+});
+
+export const getListPolicyVersionsQuery = (
+  policyArn: string,
+  IAMClient?: IAMClient | null,) => {
+  return ({
+    queryKey: ['listPolicyVersions', policyArn],
+    queryFn: () =>
+      notFalsyTypeGuard(IAMClient).listPolicyVersions(policyArn),
+    enabled: IAMClient !== null && IAMClient !== undefined,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+}

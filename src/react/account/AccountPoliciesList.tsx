@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -8,10 +8,10 @@ import CopyButton from '../ui-elements/CopyButton';
 import { Tooltip } from '@scality/core-ui';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getListPoliciesQuery } from '../queries';
+import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import { Icon } from '../ui-elements/Help';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 import IAMClient from '../../js/IAMClient';
@@ -21,45 +21,87 @@ import { ApiError } from '../../types/actions';
 import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
 
-const STORAGE_ACCOUNT_OWNER_POLICY = 'storage-account-owner-policy';
-const STORAGE_MANAGER_POLICY = 'storage-manager-policy';
-
 const EditButton = ({
   policyName,
   policyPath,
   accountName,
+  policyArn,
+  defaultVersionId,
 }: {
   policyName: string;
   policyPath: string;
   accountName: string;
+  policyArn: string;
+  defaultVersionId: string;
 }) => {
   const history = useHistory();
-  const isEditPolicyDisabled =
-    [STORAGE_MANAGER_POLICY, STORAGE_ACCOUNT_OWNER_POLICY].includes(
-      policyName,
-    ) && policyPath === 'scality-internal/';
+
+  const IAMClient = useIAMClient();
+  const { data, status } = useQuery(
+    getListPolicyVersionsQuery(policyArn, IAMClient),
+  );
+
+  const isLatestVersionTheDefaultOne =
+    data?.Versions?.[0].IsDefaultVersion || false;
+
+  const isEditPolicyDisabled = policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
+
   return (
-    <SpacedBox ml={12}>
-      <Button
-        style={{ height: spacing.sp24 }}
-        disabled={isEditPolicyDisabled}
+    <Box ml={12}>
+      {isEditPolicyDisabled && <Button
+        style={{ height: spacing.sp24, width: "5rem" }}
         variant="secondary"
-        label="Edit"
-        icon={<i className="fa fa-pen"></i>}
+        label="View"
+        icon={<i className="fa fa-eye"></i>}
         onClick={() =>
-          history.push(`/accounts/${accountName}/policies/${policyName}/update`)
+          history.push(
+            `/accounts/${accountName}/policies/${encodeURIComponent(
+              policyArn,
+            )}/${defaultVersionId}/update-policy`,
+          )
         }
         tooltip={{
           overlayStyle: {
             width: '16.5rem',
           },
-          overlay: isEditPolicyDisabled
-            ? 'You cannot edit a predefined Scality Policy'
+          overlay: status === 'idle' || status === 'loading' || !data
+            ? 'Disabled while loading...'
+            : !isLatestVersionTheDefaultOne
+            ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
+            : '',
+        }}
+        aria-label={`View ${policyName}`}
+      />}
+      {!isEditPolicyDisabled && <Button
+        style={{ height: spacing.sp24, width: "5rem" }}
+        disabled={
+          status === 'idle' ||
+          status === 'loading' ||
+          status === 'error' ||
+          !data ||
+          !isLatestVersionTheDefaultOne
+        }
+        variant="secondary"
+        label="Edit"
+        icon={<i className="fa fa-pen"></i>}
+        onClick={() =>
+          history.push(
+            `/accounts/${accountName}/policies/${encodeURIComponent(
+              policyArn,
+            )}/${defaultVersionId}/update-policy`,
+          )
+        }
+        tooltip={{
+          overlayStyle: {
+            width: '16.5rem',
+          },
+          overlay: status === 'idle' || status === 'loading' || !data
+            ? 'Disabled while loading...'
             : '',
         }}
         aria-label={`Edit ${policyName}`}
-      />
-    </SpacedBox>
+      />}
+    </Box>
   );
 };
 
@@ -100,28 +142,30 @@ const ActionButtons = ({
   rowValues: InternalPolicy;
   accountName: string;
 }) => {
-  const { arn, policyName, policyPath } = rowValues;
+  const { policyArn, policyName, policyPath, defaultVersionId } = rowValues;
   return (
-    <Box display="flex" marginLeft='auto'>
+    <Box display="flex" marginLeft="auto">
       <AttachButton
         policyName={policyName}
         accountName={accountName}
-        policyArn={arn}
+        policyArn={policyArn}
       />
       <EditButton
         policyName={policyName}
         policyPath={policyPath}
+        policyArn={policyArn}
         accountName={accountName}
+        defaultVersionId={defaultVersionId}
       />
       <CopyButton
-        text={arn}
+        text={policyArn}
         labelName={'ARN'}
         aria-label={`Copy ARN ${policyName}`}
       />
       <DeletePolicyAction
         policyName={policyName}
         path={policyPath}
-        arn={arn}
+        arn={policyArn}
         accountName={accountName}
       />
     </Box>
@@ -221,7 +265,8 @@ type InternalPolicy = {
   policyName: string;
   modifiedOn: string;
   attachments: number;
-  arn: string;
+  defaultVersionId: string;
+  policyArn: string;
   actions: null;
 };
 
@@ -245,7 +290,8 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
               ? formatShortDate(policy.UpdateDate)
               : '-',
             attachments: policy.AttachmentCount || 0,
-            arn: policy.Arn || '',
+            policyArn: policy.Arn || '',
+            defaultVersionId: policy?.DefaultVersionId || '',
             actions: null,
           };
         }) || [];
@@ -291,7 +337,6 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        
         minWidth: '50%',
       },
       disableSortBy: true,

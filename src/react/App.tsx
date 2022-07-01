@@ -21,7 +21,7 @@ if (process.env.NODE_ENV === 'development') {
   })();
 }
 export const queryClient = new QueryClient();
-const  rootElement = document.getElementById('app')
+const  rootElement = document.getElementById('app');
 rootElement && ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
