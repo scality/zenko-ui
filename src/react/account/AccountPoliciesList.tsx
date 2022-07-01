@@ -70,7 +70,7 @@ const EditButton = ({
             ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
             : '',
         }}
-        aria-label={`Edit ${policyName}`}
+        aria-label={`View ${policyName}`}
       />}
       {!isEditPolicyDisabled && <Button
         style={{ height: spacing.sp24, width: "5rem" }}
