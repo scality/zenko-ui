@@ -19,11 +19,6 @@ const StyledFooter = styled(F.Footer)`
   flex-direction: column;
 `;
 
-const StyledBox = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const FittingHr = styled(F.Hr)`
   width: 100%;
 `;
@@ -74,7 +69,7 @@ export const CommonPolicyLayout = ({
         )}
         <StyledFieldSet>
           <StyledLabel htmlFor="policyName">
-            Policy Name{isCreateMode && <>*</>}
+            Policy Name{isCreateMode && <> *</>}
           </StyledLabel>
           {policyNameField}
         </StyledFieldSet>
@@ -89,9 +84,9 @@ export const CommonPolicyLayout = ({
         )}
         <F.Fieldset>
           <F.Label htmlFor="policyDocument">
-            Policy Document{isCreateMode && <>*</>}
+            Policy Document{isCreateMode && <> *</>}
           </F.Label>
-          <StyledBox>
+          <Box display='flex' flex-direction='row' gap={1} mt={2}>
             <Controller
               control={control}
               name="policyDocument"
@@ -102,7 +97,7 @@ export const CommonPolicyLayout = ({
                 <Editor
                   language="application/json"
                   width="33rem"
-                  height="10.5rem"
+                  height="20rem"
                   onChange={onChange}
                   value={value}
                   readOnly={isReadOnly}
@@ -124,9 +119,8 @@ export const CommonPolicyLayout = ({
             <CopyButton
               text={policyDocument}
               labelName={'Text'}
-              style={{ marginLeft: '1rem' }}
             />
-          </StyledBox>
+          </Box>
         </F.Fieldset>
         <Box mt="1rem" mb="1rem">
           <SecondaryText style={{ fontStyle: 'italic' }}>
