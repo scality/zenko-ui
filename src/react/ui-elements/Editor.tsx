@@ -1,5 +1,5 @@
 import React from 'react';
-import MonacoEditor from '@monaco-editor/react';
+import MonacoEditor, { EditorProps } from '@monaco-editor/react';
 
 type Props = {
   width?: string;
@@ -8,7 +8,7 @@ type Props = {
   value?: string;
   readOnly?: boolean;
   onChange: (data: React.ChangeEvent) => void;
-};
+} & EditorProps;
 
 const Editor = ({
   height,
