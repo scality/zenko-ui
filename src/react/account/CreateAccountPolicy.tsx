@@ -95,6 +95,7 @@ const CreateAccountPolicy = () => {
           <F.Input
             type="text"
             data-testid="policyNameInput"
+            autoFocus
             readOnly={false}
             {...register('policyName', {
               required: 'The policy name is required',
