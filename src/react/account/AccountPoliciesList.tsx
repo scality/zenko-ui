@@ -44,63 +44,70 @@ const EditButton = ({
   const isLatestVersionTheDefaultOne =
     data?.Versions?.[0].IsDefaultVersion || false;
 
-  const isEditPolicyDisabled = policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
+  const isEditPolicyDisabled =
+    policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
 
   return (
     <Box ml={12}>
-      {isEditPolicyDisabled && <Button
-        style={{ height: spacing.sp24, width: "5rem" }}
-        variant="secondary"
-        label="View"
-        icon={<i className="fa fa-eye"></i>}
-        onClick={() =>
-          history.push(
-            `/accounts/${accountName}/policies/${encodeURIComponent(
-              policyArn,
-            )}/${defaultVersionId}/update-policy`,
-          )
-        }
-        tooltip={{
-          overlayStyle: {
-            width: '16.5rem',
-          },
-          overlay: status === 'idle' || status === 'loading' || !data
-            ? 'Disabled while loading...'
-            : !isLatestVersionTheDefaultOne
-            ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
-            : '',
-        }}
-        aria-label={`View ${policyName}`}
-      />}
-      {!isEditPolicyDisabled && <Button
-        style={{ height: spacing.sp24, width: "5rem" }}
-        disabled={
-          status === 'idle' ||
-          status === 'loading' ||
-          status === 'error' ||
-          !data ||
-          !isLatestVersionTheDefaultOne
-        }
-        variant="secondary"
-        label="Edit"
-        icon={<i className="fa fa-pen"></i>}
-        onClick={() =>
-          history.push(
-            `/accounts/${accountName}/policies/${encodeURIComponent(
-              policyArn,
-            )}/${defaultVersionId}/update-policy`,
-          )
-        }
-        tooltip={{
-          overlayStyle: {
-            width: '16.5rem',
-          },
-          overlay: status === 'idle' || status === 'loading' || !data
-            ? 'Disabled while loading...'
-            : '',
-        }}
-        aria-label={`Edit ${policyName}`}
-      />}
+      {isEditPolicyDisabled && (
+        <Button
+          style={{ height: spacing.sp24, width: '5rem' }}
+          variant="secondary"
+          label="View"
+          icon={<i className="fa fa-eye"></i>}
+          onClick={() =>
+            history.push(
+              `/accounts/${accountName}/policies/${encodeURIComponent(
+                policyArn,
+              )}/${defaultVersionId}/update-policy`,
+            )
+          }
+          tooltip={{
+            overlayStyle: {
+              width: '16.5rem',
+            },
+            overlay:
+              status === 'idle' || status === 'loading' || !data
+                ? 'Disabled while loading...'
+                : !isLatestVersionTheDefaultOne
+                ? 'The latest version of the policy is not the default one, hence editing of the policy is disabled in the UI. Please use a S3 API client to edit the versions of this policy.'
+                : '',
+          }}
+          aria-label={`View ${policyName}`}
+        />
+      )}
+      {!isEditPolicyDisabled && (
+        <Button
+          style={{ height: spacing.sp24, width: '5rem' }}
+          disabled={
+            status === 'idle' ||
+            status === 'loading' ||
+            status === 'error' ||
+            !data ||
+            !isLatestVersionTheDefaultOne
+          }
+          variant="secondary"
+          label="Edit"
+          icon={<i className="fa fa-pen"></i>}
+          onClick={() =>
+            history.push(
+              `/accounts/${accountName}/policies/${encodeURIComponent(
+                policyArn,
+              )}/${defaultVersionId}/update-policy`,
+            )
+          }
+          tooltip={{
+            overlayStyle: {
+              width: '16.5rem',
+            },
+            overlay:
+              status === 'idle' || status === 'loading' || !data
+                ? 'Disabled while loading...'
+                : '',
+          }}
+          aria-label={`Edit ${policyName}`}
+        />
+      )}
     </Box>
   );
 };
@@ -142,7 +149,8 @@ const ActionButtons = ({
   rowValues: InternalPolicy;
   accountName: string;
 }) => {
-  const { policyArn, policyName, policyPath, defaultVersionId } = rowValues;
+  const { policyArn, policyName, policyPath, defaultVersionId, attachments } =
+    rowValues;
   return (
     <Box display="flex" marginLeft="auto">
       <AttachButton
@@ -167,6 +175,7 @@ const ActionButtons = ({
         path={policyPath}
         arn={policyArn}
         accountName={accountName}
+        attachments={attachments}
       />
     </Box>
   );
@@ -177,11 +186,13 @@ const DeletePolicyAction = ({
   path,
   arn,
   accountName,
+  attachments,
 }: {
   policyName: string;
   path: string;
   arn: string;
   accountName: string;
+  attachments: number;
 }) => {
   const dispatch = useDispatch();
   const IAMClient = useIAMClient();
@@ -220,7 +231,7 @@ const DeletePolicyAction = ({
       <Box ml="0.6rem">
         <Button
           style={{ height: spacing.sp24 }}
-          disabled={isInternalPolicy}
+          disabled={!!attachments || isInternalPolicy}
           icon={<i className="fas fa-trash" />}
           label=""
           onClick={() => {
@@ -230,7 +241,9 @@ const DeletePolicyAction = ({
           tooltip={{
             placement: 'top',
             overlay: isInternalPolicy
-              ? 'You cannot delete a predefined Scality Policy'
+              ? `You can't delete a predefined Scality policy`
+              : attachments
+              ? `You can't delete a policy with attachments`
               : 'Delete',
           }}
           aria-label={`Delete ${policyName}`}

@@ -48,6 +48,7 @@ export const useAwsPaginatedEntities = <
 >(
   reactQueryOptions: AWS_PAGINATED_QUERY<API_RESPONSE, ENTITY, TError>,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
+  preventNextPagesRetrieval = false,
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
@@ -108,7 +109,7 @@ export const useAwsPaginatedEntities = <
     ) {
       setStatus('success');
       if (reactQueryOptions.onPageSuccess) {
-        reactQueryOptions.onPageSuccess(entities || [])
+        reactQueryOptions.onPageSuccess(entities || []);
       }
       if (reactQueryOptions.onUnmountOrSettled) {
         reactQueryOptions.onUnmountOrSettled(entities, null);
@@ -116,9 +117,11 @@ export const useAwsPaginatedEntities = <
       setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
     } else {
       if (reactQueryOptions.onPageSuccess) {
-        reactQueryOptions.onPageSuccess(entities || [])
+        reactQueryOptions.onPageSuccess(entities || []);
       }
-      fetchNextPage();
+      if (!preventNextPagesRetrieval) {
+        fetchNextPage();
+      }
     }
   }, [internalStatus, hasNextPage, fetchNextPage, isFetchingNextPage]);
 
