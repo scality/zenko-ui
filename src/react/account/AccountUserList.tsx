@@ -17,6 +17,7 @@ import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import {
+  getListAttachedUserPoliciesQuery,
   getListUsersQuery,
   getUserAccessKeysQuery,
   getUserListGroupsQuery,
@@ -140,9 +141,7 @@ const AttachButton = ({
         label="Attach"
         icon={<i className="fas fa-link"></i>}
         onClick={() =>
-          history.push(
-            `/accounts/${accountName}/users/${userName}/attachments`,
-          )
+          history.push(`/accounts/${accountName}/users/${userName}/attachments`)
         }
         aria-label={`Attach ${userName}`}
       />
@@ -159,7 +158,7 @@ const ActionButtons = ({
 }) => {
   const { arn, userName } = rowValues;
   return (
-    <Box display={'flex'} marginLeft='auto'>
+    <Box display={'flex'} marginLeft="auto">
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
       <CopyButton text={arn} labelName={'ARN'} />
@@ -183,8 +182,23 @@ const DeleteUserAction = ({
       getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
       (data) => data.AccessKeyMetadata,
     );
-  const { data: listGroupsResult, status: listGroupStatus } = useQuery(
-    getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)),
+  const { data: listGroupsResult, status: listGroupStatus } =
+    useAwsPaginatedEntities(
+      getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)),
+      (result) => result.Groups,
+      true,
+    );
+  const {
+    data: listAttachedUserPoliciesResult,
+    status: listAttachedUserPoliciesStatus,
+  } = useAwsPaginatedEntities(
+    getListAttachedUserPoliciesQuery(
+      userName,
+      notFalsyTypeGuard(accountName),
+      notFalsyTypeGuard(IAMClient),
+    ),
+    (result) => result?.AttachedPolicies || [],
+    true,
   );
 
   const deleteUserMutation = useMutation(
@@ -209,6 +223,8 @@ const DeleteUserAction = ({
     },
   );
 
+  const isUserDeletionDisabled =
+    accessKeysResult && accessKeysResult?.length >= 1;
   return (
     <>
       <DeleteConfirmation
@@ -221,12 +237,14 @@ const DeleteUserAction = ({
       />
 
       <Button
-        id="delete-accessKey-btn"
         disabled={
           (accessKeysResult && accessKeysResult?.length >= 1) ||
-          (listGroupsResult && listGroupsResult.Groups?.length >= 1) ||
+          (listGroupsResult && listGroupsResult.length >= 1) ||
+          (listAttachedUserPoliciesResult &&
+            listAttachedUserPoliciesResult?.length >= 1) ||
           accessKeyStatus === 'loading' ||
-          listGroupStatus === 'loading'
+          listGroupStatus === 'loading' ||
+          listAttachedUserPoliciesStatus === 'loading'
         }
         icon={<i className="fas fa-trash" />}
         style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
@@ -235,9 +253,23 @@ const DeleteUserAction = ({
           setShowModal(true);
         }}
         variant="danger"
-        tooltip={{
-          overlay: accessKeyStatus === 'loading' ? 'loading...' : 'Delete',
-        }}
+        tooltip={
+          accessKeysResult && accessKeysResult?.length >= 1
+            ? {
+                overlay: `You can't delete the user with access keys`,
+                overlayStyle: { width: '10rem' },
+              }
+            : (listGroupsResult && listGroupsResult.length >= 1) ||
+              (listAttachedUserPoliciesResult &&
+                listAttachedUserPoliciesResult?.length >= 1)
+            ? {
+                overlay: `You can't delete the user with attachments`,
+                overlayStyle: { width: '10rem' },
+              }
+            : {
+                overlay: 'Delete',
+              }
+        }
       />
     </>
   );
