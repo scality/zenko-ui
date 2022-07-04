@@ -24,6 +24,7 @@ import {
   newExpiration,
   newReplicationForm,
   prepareExpirationQuery,
+  removeEmptyTagKeys,
 } from './utils';
 import { useManagementClient } from '../ManagementProvider';
 import { ApiError } from '../../types/actions';
@@ -141,7 +142,9 @@ const CreateWorkflow = () => {
         );
         if (bucketName !== '') {
           // redirectly to the bucket list -> workflow tab
-          history.push(`/accounts/${accountId}/buckets/${bucketName}?tab=workflow`);
+          history.push(
+            `/accounts/${accountId}/buckets/${bucketName}?tab=workflow`,
+          );
         } else {
           history.push(`./replication-${success.streamId}`);
         }
@@ -160,11 +163,11 @@ const CreateWorkflow = () => {
   >(
     (expiration) => {
       dispatch(networkStart('Creating expiration'));
-
+      const sanitizedExpiration = removeEmptyTagKeys(expiration);
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowExpiration(
-          expiration,
-          expiration.bucketName,
+          sanitizedExpiration,
+          sanitizedExpiration.bucketName,
           accountId,
           instanceId,
           rolePathName,
@@ -182,7 +185,9 @@ const CreateWorkflow = () => {
           ).queryKey,
         );
         if (bucketName !== '') {
-          history.push(`/accounts/${accountId}/buckets/${bucketName}?tab=workflow`);
+          history.push(
+            `/accounts/${accountId}/buckets/${bucketName}?tab=workflow`,
+          );
         } else {
           history.push(`./expiration-${success.workflowId}`);
         }

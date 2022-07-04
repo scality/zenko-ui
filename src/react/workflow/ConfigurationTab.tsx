@@ -29,6 +29,7 @@ import {
   generateExpirationName,
   generateStreamName,
   prepareExpirationQuery,
+  removeEmptyTagKeys,
 } from './utils';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -226,31 +227,6 @@ function useExpirationMutations({
       }
     },
   });
-
-  const removeEmptyTagKeys = (expiration: Expiration) => {
-    if (expiration.filter && expiration.filter.objectTags) {
-      const sanitizedTags = expiration.filter.objectTags.filter(
-        (tag) => tag.key !== '',
-      );
-      expiration.filter.objectTags.splice(
-        0,
-        expiration.filter.objectTags.length,
-      );
-      expiration.filter.objectTags.push(...sanitizedTags);
-
-      return {
-        ...expiration,
-        ...{
-          filter: {
-            objectKeyPrefix: expiration.filter.objectKeyPrefix,
-            objectTags: sanitizedTags,
-          },
-        },
-      };
-    }
-
-    return expiration;
-  };
 
   const editExpirationWorkflowMutation = useMutation<
     BucketWorkflowExpirationV1,

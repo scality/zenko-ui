@@ -191,8 +191,10 @@ export function generateExpirationName(expiration: Expiration): string {
   const addedPrefix = expiration.filter?.objectKeyPrefix
     ? `/${expiration.filter?.objectKeyPrefix}`
     : '';
-  const filteredByTagsPrefix = expiration.filter?.objectTags && expiration.filter?.objectTags.length > 0
-    ? `[tags:${expiration.filter.objectTags.length}]` : '';
+  const filteredByTagsPrefix =
+    expiration.filter?.objectTags && expiration.filter?.objectTags.length > 0
+      ? `[tags:${expiration.filter.objectTags.length}]`
+      : '';
   const descriptionComponents = [];
   if (expiration.currentVersionTriggerDelayDays) {
     descriptionComponents.push(
@@ -215,7 +217,9 @@ export function generateExpirationName(expiration: Expiration): string {
 
   return `${
     expiration.bucketName
-  }${addedPrefix}${filteredByTagsPrefix} - (${descriptionComponents.join(', ')})`;
+  }${addedPrefix}${filteredByTagsPrefix} - (${descriptionComponents.join(
+    ', ',
+  )})`;
 }
 
 export function flattenFormErrors(
@@ -240,4 +244,26 @@ export function flattenFormErrors(
     }
   }
   return res;
+}
+
+export function removeEmptyTagKeys(expiration: Expiration) {
+  if (expiration.filter && expiration.filter.objectTags) {
+    const sanitizedTags = expiration.filter.objectTags.filter(
+      (tag) => tag.key !== '',
+    );
+    expiration.filter.objectTags.splice(0, expiration.filter.objectTags.length);
+    expiration.filter.objectTags.push(...sanitizedTags);
+
+    return {
+      ...expiration,
+      ...{
+        filter: {
+          objectKeyPrefix: expiration.filter.objectKeyPrefix,
+          objectTags: sanitizedTags,
+        },
+      },
+    };
+  }
+
+  return expiration;
 }
