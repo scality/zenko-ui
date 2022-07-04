@@ -68,7 +68,7 @@ export const getUserAccessKeysQuery = (
   IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listIAMUserAccessKey', userName],
-  queryFn: (_ctx: QueryFunctionContext, marker: string) =>
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
@@ -80,7 +80,14 @@ export const getUserListGroupsQuery = (
   IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listIAMUserGroups', userName],
-  queryFn: () => notFalsyTypeGuard(IAMClient).listGroupsForUser(userName),
+  queryFn: (_ctx: QueryFunctionContext, marker?: string) => {
+    return notFalsyTypeGuard(IAMClient).listGroupsForUser(
+      userName,
+      1000,
+      marker,
+    );
+  },
+  staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,

@@ -216,10 +216,12 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
-  listGroupsForUser(userName: string) {
+  listGroupsForUser(userName: string, maxItems?: number, marker?: string) {
     return notFalsyTypeGuard(this.client)
       .listGroupsForUser({
         UserName: userName,
+        MaxItems: maxItems,
+        Marker: marker,
       })
       .promise();
   }
