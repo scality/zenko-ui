@@ -308,4 +308,75 @@ describe('AccountPoliciesList', () => {
 
     expect(viewButton).toBeInTheDocument();
   });
+  it('should handle error when deleting a non Scality internal policy', async () => {
+    // S
+    const mockedDeletePolicyInterceptor = jest.fn();
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        const params = new URLSearchParams(req.body);
+        if (params.get('Action') === 'DeletePolicy') {
+          const policyARN = params.get('PolicyArn');
+          mockedDeletePolicyInterceptor(policyARN);
+          return res(ctx.status(409), ctx.xml(`<ErrorResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+            <Error>
+              <Code>DeleteConflict</Code>
+              <Message>The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities.</Message>
+            </Error>
+            <RequestId>1915575716448fe8b5ee</RequestId>
+            </ErrorResponse>`));
+        }
+        return mockIAMApi(req, res, ctx);
+      }),
+    );
+
+    reduxRender(<AccountPoliciesList accountName="account" />, {
+      wrapper,
+    });
+
+    // E
+    await waitFor(() => screen.getAllByText(/Edit/i));
+
+    const deleteButton = screen.getByRole('button', {
+      name: new RegExp(`Delete ${NON_SCALITY_INTERNAL_POLICY_NAME}`, 'i'),
+    });
+    expect(deleteButton).not.toBeDisabled();
+
+    fireEvent.click(deleteButton);
+
+    await waitFor(() =>
+      screen.getAllByText(
+        new RegExp(
+          `Permanently remove the following policy ${NON_SCALITY_INTERNAL_POLICY_NAME} ?`,
+          'i',
+        ),
+      ),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() =>
+      expect(mockedDeletePolicyInterceptor).toHaveBeenCalled(),
+    );
+
+    // V
+    expect(mockedDeletePolicyInterceptor).toHaveBeenCalledWith(
+      NON_SCALITY_INTERNAL_ARN,
+    );
+
+    await waitFor(() =>
+      screen.getAllByText(
+        new RegExp(
+          `The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities.`,
+          'i',
+        ),
+      ),
+    );
+
+    expect(screen.getByText(
+      new RegExp(
+        `The request was rejected because it attempted to delete a resource that has attached subordinate entities. The error message describes these entities.`,
+        'i',
+      ),
+    )).toBeInTheDocument();
+  });
 });
