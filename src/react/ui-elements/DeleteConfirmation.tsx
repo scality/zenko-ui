@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { Button } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal } from './Modal';
-import React from 'react';
 type Props = {
   approve: () => void;
   cancel: () => void;
