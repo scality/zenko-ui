@@ -42,6 +42,7 @@ const AccountUpdateUser = () => {
     formState: { errors },
   } = useForm({
     resolver: joiResolver(schema),
+    defaultValues: { name: IAMUserName },
   });
   const updateUserMutation = useMutation(
     (newUserName: string) => {
