@@ -26,123 +26,121 @@ const tobeAttachedUserArn = 'arn:aws:iam::718643629313:user/dev1';
 const groupName = 'devs';
 const groupArn = 'arn:aws:iam::718643629313:group/devs';
 
-const server = setupServer(
-  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-    const params = new URLSearchParams(req.body);
-    if (params.get('Action') === 'ListUsers') {
-      return res(
-        ctx.xml(`
-      <ListUsersResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-         <ListUsersResult>
-           <Users>
-             <member>
-               <UserId>ANAOQ65XCATLB2KMVXI508ZFXTOK12W5</UserId>
-               <Path>/</Path>
-               <UserName>${tobeAttachedUserName}</UserName>
-               <Arn>${tobeAttachedUserArn}</Arn>
-               <CreateDate>2022-07-04T13:34:25Z</CreateDate>
-             </member>
-           </Users>
-           <IsTruncated>false</IsTruncated>
-         </ListUsersResult>
-         <ResponseMetadata>
-           <RequestId>e43fc97c3c4f9895c92e</RequestId>
-         </ResponseMetadata>
-       </ListUsersResponse>`),
-      );
-    }
-    if (params.get('Action') === 'ListGroups') {
-      return res(
-        ctx.xml(`
-      <ListGroupsResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-  <ListGroupsResult>
-    <Groups>
-      <member>
-        <Path>/</Path>
-        <GroupName>${groupName}</GroupName>
-        <GroupId>N0L8CM7DIHD6YWN8V8796U3PTM8EEB01</GroupId>
-        <Arn>${groupArn}</Arn>
-        <CreateDate>2022-06-23T12:29:50Z</CreateDate>
-      </member>
-    </Groups>
-    <IsTruncated>false</IsTruncated>
-  </ListGroupsResult>
-  <ResponseMetadata>
-    <RequestId>99ed69425849972f4e3d</RequestId>
-  </ResponseMetadata>
-</ListGroupsResponse>;
-      `),
-      );
-    }
-    if (params.get('Action') === 'AttachUserPolicy') {
-      return res(
-        ctx.xml(`
-      <AttachUserPolicyResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-        <ResponseMetadata>
-          <RequestId>2e30c3c68e45ad7122f7</RequestId>
-        </ResponseMetadata>
-      </AttachUserPolicyResponse>;
-      `),
-      );
-    }
-    if (params.get('Action') === 'AttachGroupPolicy') {
-      return res(ctx.status(500));
-    }
-    if (params.get('Action') === 'ListGroupsForUser') {
-      return res(
-        ctx.xml(`
-      <ListGroupsForUserResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-  <ListGroupsForUserResult>
-    <Groups>
-      <member>
-        <Path>/</Path>
-        <GroupName>${groupName}</GroupName>
-        <GroupId>N0L8CM7DIHD6YWN8V8796U3PTM8EEB01</GroupId>
-        <Arn>${groupArn}</Arn>
-        <CreateDate>2022-06-23T12:29:50Z</CreateDate>
-      </member>
-    </Groups>
-    <IsTruncated>false</IsTruncated>
-  </ListGroupsForUserResult>
-  <ResponseMetadata>
-    <RequestId>e23e78bd624aba46bb85</RequestId>
-  </ResponseMetadata>
-</ListGroupsForUserResponse>;
-      `),
-      );
-    }
-
-    if (params.get('Action') === 'RemoveUserFromGroup') {
-      return res(
-        ctx.xml(`
-        <RemoveUserFromGroupResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-  <ResponseMetadata>
-    <RequestId>b6c00e6cc143a8a66b8e</RequestId>
-  </ResponseMetadata>
-</RemoveUserFromGroupResponse>;
-        `),
-      );
-    }
+const initialMock = (req, res, ctx) => {
+  const params = new URLSearchParams(req.body);
+  if (params.get('Action') === 'ListUsers') {
     return res(
       ctx.xml(`
-      <ListEntitiesForPolicyResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
-          <ListEntitiesForPolicyResult>
-              <PolicyRoles>
-                  <member><RoleName>${attachedRoleName}</RoleName></member>
-              </PolicyRoles>
-              <PolicyGroups>
-                  <member><GroupName>${attachedGroupName}</GroupName></member>
-              </PolicyGroups>
-              <PolicyUsers>
-                  <member><UserName>${attachedUserName}</UserName></member>
-              </PolicyUsers>
-              <IsTruncated>false</IsTruncated>
-          </ListEntitiesForPolicyResult>
-          <ResponseMetadata><RequestId>d5199fe5464489b0f507</RequestId></ResponseMetadata>
-      </ListEntitiesForPolicyResponse>
+    <ListUsersResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+       <ListUsersResult>
+         <Users>
+           <member>
+             <UserId>ANAOQ65XCATLB2KMVXI508ZFXTOK12W5</UserId>
+             <Path>/</Path>
+             <UserName>${tobeAttachedUserName}</UserName>
+             <Arn>${tobeAttachedUserArn}</Arn>
+             <CreateDate>2022-07-04T13:34:25Z</CreateDate>
+           </member>
+         </Users>
+         <IsTruncated>false</IsTruncated>
+       </ListUsersResult>
+       <ResponseMetadata>
+         <RequestId>e43fc97c3c4f9895c92e</RequestId>
+       </ResponseMetadata>
+     </ListUsersResponse>`),
+    );
+  }
+  if (params.get('Action') === 'ListGroups') {
+    return res(
+      ctx.xml(`
+    <ListGroupsResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+<ListGroupsResult>
+  <Groups>
+    <member>
+      <Path>/</Path>
+      <GroupName>${groupName}</GroupName>
+      <GroupId>N0L8CM7DIHD6YWN8V8796U3PTM8EEB01</GroupId>
+      <Arn>${groupArn}</Arn>
+      <CreateDate>2022-06-23T12:29:50Z</CreateDate>
+    </member>
+  </Groups>
+  <IsTruncated>false</IsTruncated>
+</ListGroupsResult>
+<ResponseMetadata>
+  <RequestId>99ed69425849972f4e3d</RequestId>
+</ResponseMetadata>
+</ListGroupsResponse>;
+    `),
+    );
+  }
+  if (params.get('Action') === 'AttachUserPolicy') {
+    return res(
+      ctx.xml(`
+    <AttachUserPolicyResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+      <ResponseMetadata>
+        <RequestId>2e30c3c68e45ad7122f7</RequestId>
+      </ResponseMetadata>
+    </AttachUserPolicyResponse>;
+    `),
+    );
+  }
+  if (params.get('Action') === 'ListGroupsForUser') {
+    return res(
+      ctx.xml(`
+    <ListGroupsForUserResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+<ListGroupsForUserResult>
+  <Groups>
+    <member>
+      <Path>/</Path>
+      <GroupName>${groupName}</GroupName>
+      <GroupId>N0L8CM7DIHD6YWN8V8796U3PTM8EEB01</GroupId>
+      <Arn>${groupArn}</Arn>
+      <CreateDate>2022-06-23T12:29:50Z</CreateDate>
+    </member>
+  </Groups>
+  <IsTruncated>false</IsTruncated>
+</ListGroupsForUserResult>
+<ResponseMetadata>
+  <RequestId>e23e78bd624aba46bb85</RequestId>
+</ResponseMetadata>
+</ListGroupsForUserResponse>;
+    `),
+    );
+  }
+
+  if (params.get('Action') === 'RemoveUserFromGroup') {
+    return res(
+      ctx.xml(`
+      <RemoveUserFromGroupResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+<ResponseMetadata>
+  <RequestId>b6c00e6cc143a8a66b8e</RequestId>
+</ResponseMetadata>
+</RemoveUserFromGroupResponse>;
       `),
     );
-  }),
+  }
+  return res(
+    ctx.xml(`
+    <ListEntitiesForPolicyResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+        <ListEntitiesForPolicyResult>
+            <PolicyRoles>
+                <member><RoleName>${attachedRoleName}</RoleName></member>
+            </PolicyRoles>
+            <PolicyGroups>
+                <member><GroupName>${attachedGroupName}</GroupName></member>
+            </PolicyGroups>
+            <PolicyUsers>
+                <member><UserName>${attachedUserName}</UserName></member>
+            </PolicyUsers>
+            <IsTruncated>false</IsTruncated>
+        </ListEntitiesForPolicyResult>
+        <ResponseMetadata><RequestId>d5199fe5464489b0f507</RequestId></ResponseMetadata>
+    </ListEntitiesForPolicyResponse>
+    `),
+  );
+};
+const server = setupServer(
+  rest.post(`${TEST_API_BASE_URL}/`, initialMock),
 
   rest.get('http://localhost/account-seeds.json', (req, res, ctx) => {
     return res(ctx.json(accountSeeds));
@@ -319,13 +317,24 @@ describe('Policy Attachments', () => {
   });
 
   it('should render Retry button if attachment failed', async () => {
+    //S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        const params = new URLSearchParams(req.body);
+        if (params.get('Action') === 'AttachGroupPolicy') {
+          return res(ctx.status(500));
+        }
+        return initialMock(req, res, ctx);
+      }),
+    );
+    //E
     userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() =>
       expect(
         screen.getByPlaceholderText('Search by entity name'),
       ).not.toBeDisabled(),
     );
-    //E
+
     userEvent.click(screen.getByPlaceholderText('Search by entity name'));
     await waitFor(() =>
       screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
@@ -403,6 +412,7 @@ describe('User Attachments', () => {
   });
 
   it('should remove the user from group after confirmation', async () => {
+    await waitFor(() => screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() => screen.getByText('Attachment status'));
     //V
     expect(
