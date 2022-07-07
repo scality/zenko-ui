@@ -88,6 +88,17 @@ function Properties({ objectMetadata }: Props) {
                   {formatShortDate(new Date(objectMetadata.lastModified))}{' '}
                 </T.Value>
               </T.Row>
+              {objectMetadata.expiration ? (
+                <T.Row>
+                  <T.Key> Expires On </T.Key>
+                  <T.Value>
+                    {' '}
+                    {formatShortDate(objectMetadata.expiration)}{' '}
+                  </T.Value>
+                </T.Row>
+              ) : (
+                ''
+              )}
               <T.Row>
                 <T.Key> ETag </T.Key>
                 <T.GroupValues>

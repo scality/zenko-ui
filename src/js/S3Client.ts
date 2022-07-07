@@ -33,7 +33,7 @@ export default class S3Client {
     return this.client
       .listBuckets()
       .promise()
-      .then(list => {
+      .then((list) => {
         return Promise.all(
           list.Buckets.map((bucket, key) => {
             return Promise.all([
@@ -134,7 +134,7 @@ export default class S3Client {
 
   uploadObject(bucketName, prefixWithSlash, files) {
     return Promise.all(
-      files.map(file => {
+      files.map((file) => {
         const key = `${prefixWithSlash}${file.name}`;
         const params = {
           Bucket: bucketName,
@@ -158,14 +158,18 @@ export default class S3Client {
       }
 
       return Promise.all(
-        folders.map(folder => {
+        folders.map((folder) => {
           return this.listObjectVersions({
             Bucket: bucketName,
             Prefix: folder.Key,
-          }).then(res => {
+          }).then((res) => {
             const { Versions, DeleteMarkers, CommonPrefixes } = res;
-            const filteredVersions = Versions.filter(v => v.Key === folder.Key);
-            const filteredDM = DeleteMarkers.filter(v => v.Key === folder.Key);
+            const filteredVersions = Versions.filter(
+              (v) => v.Key === folder.Key,
+            );
+            const filteredDM = DeleteMarkers.filter(
+              (v) => v.Key === folder.Key,
+            );
 
             // only delete "empty folders"
             if (
@@ -180,13 +184,13 @@ export default class S3Client {
               };
             }
 
-            const versions = filteredVersions.map(v => {
+            const versions = filteredVersions.map((v) => {
               return {
                 Key: v.Key,
                 VersionId: v.VersionId,
               };
             });
-            const deleteMarkers = filteredDM.map(v => {
+            const deleteMarkers = filteredDM.map((v) => {
               return {
                 Key: v.Key,
                 VersionId: v.VersionId,
@@ -204,8 +208,8 @@ export default class S3Client {
           });
         }),
       )
-        .then(results => {
-          const error = results.find(result => result.Errors.length > 0);
+        .then((results) => {
+          const error = results.find((result) => result.Errors.length > 0);
 
           if (error) {
             return reject(error.Errors[0]);
@@ -213,7 +217,7 @@ export default class S3Client {
 
           return resolve();
         })
-        .catch(error => reject(error));
+        .catch((error) => reject(error));
     });
   }
 
@@ -227,7 +231,7 @@ export default class S3Client {
       if (objects.length > 1000) {
         const chunks = chunkArray(objects, 1000);
         return Promise.all(
-          chunks.map(chunk => {
+          chunks.map((chunk) => {
             const params = {
               Bucket: bucketName,
               Delete: {
@@ -238,7 +242,7 @@ export default class S3Client {
           }),
         )
           .then(() => resolve())
-          .catch(error => reject(error));
+          .catch((error) => reject(error));
       }
 
       const params = {
@@ -252,7 +256,7 @@ export default class S3Client {
         const hasAccessDeniedError =
           data &&
           data.Errors &&
-          data.Errors.some(error => error.Code === 'AccessDenied');
+          data.Errors.some((error) => error.Code === 'AccessDenied');
 
         if (error || hasAccessDeniedError) {
           reject(error || data);
@@ -414,7 +418,7 @@ export default class S3Client {
 
   _getBucketCors(params) {
     return new Promise((resolve, reject) => {
-      this.client.getBucketCors(params, error => {
+      this.client.getBucketCors(params, (error) => {
         if (error) {
           if (error.code === 'NoSuchCORSConfiguration') {
             return resolve(false);
@@ -466,7 +470,7 @@ export default class S3Client {
 
   _getBucketReplication(params) {
     return new Promise((resolve, reject) => {
-      this.client.getBucketReplication(params, error => {
+      this.client.getBucketReplication(params, (error) => {
         if (error) {
           if (error.code === 'ReplicationConfigurationNotFoundError') {
             return resolve(false);
@@ -527,27 +531,22 @@ export default class S3Client {
         this._getBucketVersioning(params),
         this._getBucketObjectLockConfiguration(params),
       ])
-        .then(values => {
-          const [
-            cors,
-            location,
-            acl,
-            versioning,
-            objectLockConfiguration,
-          ] = values;
+        .then((values) => {
+          const [cors, location, acl, versioning, objectLockConfiguration] =
+            values;
           bucketInfo.cors = cors;
           bucketInfo.locationConstraint = location;
           bucketInfo.owner = acl.Owner.DisplayName;
           bucketInfo.aclGrantees = acl.Grants.length;
           bucketInfo.public = acl.Grants.find(
-            grant => grant.Grantee.URI === publicAclIndicator,
+            (grant) => grant.Grantee.URI === publicAclIndicator,
           );
           bucketInfo.versioning = versioning;
           bucketInfo.isVersioning = isVersioning(versioning);
           bucketInfo.objectLockConfiguration = objectLockConfiguration;
           return resolve(bucketInfo);
         })
-        .catch(error => {
+        .catch((error) => {
           return reject(error);
         });
     });

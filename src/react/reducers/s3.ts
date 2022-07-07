@@ -161,6 +161,19 @@ const convertToFormTags = (tags: TagSet): Tags =>
     value: t.Value,
   }));
 
+const parseExpirationDate = (expiresOn: string | undefined): Date | null => {
+  if (!expiresOn) {
+    return null;
+  }
+
+  const extractExpirationDate = new RegExp(/expiry-date="([^"]+)"/);
+  const regExpExecArray = extractExpirationDate.exec(expiresOn);
+  if (regExpExecArray && regExpExecArray.length > 1) {
+    return new Date(regExpExecArray[1]);
+  }
+  return null;
+};
+
 export default function s3(state: S3State = initialS3State, action: S3Action) {
   switch (action.type) {
     case 'LIST_BUCKETS_SUCCESS':
@@ -274,6 +287,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           contentLength: action.info.ContentLength,
           eTag: stripQuotes(action.info.ETag),
           versionId: action.info.VersionId,
+          expiration: parseExpirationDate(action.info.Expiration),
           metadata: convertToFormMetadata(action.info),
           tags: convertToFormTags(action.tags),
           ..._getObjectLockInformation(action),

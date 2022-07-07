@@ -38,6 +38,7 @@ export const objectMetadata = {
   contentType: 'image/jpeg',
   eTag: 'af4a08eac69ced858c99caee22978773',
   lastModified: 'Fri Oct 16 2020 10:06:54',
+  expiration: new Date('Wed, 13 Jul 2022 07:58:11'),
   metadata: [],
   objectKey: 'bg.jpg',
   objectName: 'bg.jpg',

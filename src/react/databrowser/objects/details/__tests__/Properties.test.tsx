@@ -52,8 +52,13 @@ describe('Properties', () => {
       '2020-10-16 10:06:54',
     );
     const fifthItemFirstGroup = firstGroupInfosContentItems.at(4);
-    expect(fifthItemFirstGroup.find(T.Key).text()).toContain('ETag');
-    expect(fifthItemFirstGroup.find(T.GroupValues).text()).toContain(
+    expect(fifthItemFirstGroup.find(T.Key).text()).toContain('Expires On');
+    expect(fifthItemFirstGroup.find(T.Value).text()).toContain(
+      '2022-07-13 07:58:11',
+    );
+    const sixthItemFirstGroup = firstGroupInfosContentItems.at(5);
+    expect(sixthItemFirstGroup.find(T.Key).text()).toContain('ETag');
+    expect(sixthItemFirstGroup.find(T.GroupValues).text()).toContain(
       OBJECT_METADATA.eTag,
     );
   });
@@ -80,7 +85,7 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const sixth = tableItems.at(5);
+    const sixth = tableItems.at(6);
     expect(sixth.find(T.Key).text()).toContain('Lock');
     expect(sixth.find(T.GroupValues).text()).toContain('Locked (governance)');
     expect(sixth.find(T.GroupValues).text()).toContain(
@@ -114,7 +119,7 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const sixth = tableItems.at(5);
+    const sixth = tableItems.at(6);
     expect(sixth.find(T.Key).text()).toContain('Lock');
     expect(sixth.find(T.GroupValues).text()).toContain(
       'Released since 2020-10-17 10:06:54',
@@ -149,7 +154,7 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(6);
+    const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Legal Hold');
     expect(seventh.find(T.Value).text()).toContain('Active');
   });

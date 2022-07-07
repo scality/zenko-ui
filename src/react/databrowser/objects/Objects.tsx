@@ -99,7 +99,7 @@ export default function Objects() {
         getObjectMetadata(
           bucketNameParam,
           firstToggledItem.key,
-          firstToggledItem.versionId,
+          !firstToggledItem.isLatest ? firstToggledItem.versionId : null,
         ),
       );
     } else {
