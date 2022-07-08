@@ -8,11 +8,9 @@ export const Container = styled.div`
   flex: 1;
 `;
 export const BreadcrumbContainer = styled.div`
-  margin: 0px ${spacing.sp8};
   height: ${spacing.sp24};
   display: flex;
   min-height: ${spacing.sp24};
-  padding: ${spacing.sp4} 0px;
   background-color: ${(props) => props.theme.brand.backgroundLevel1};
 
   .sc-breadcrumb_item {
@@ -26,23 +24,23 @@ export const Body = styled.div`
   width: 100%;
 `;
 export const ListSection = styled.div`
-    display: flex;
-    flex: 1 1 50%;
-    flex-direction: column;
+  display: flex;
+  flex: 1 1 50%;
+  flex-direction: column;
 
-    ${(props) => {
-      if (props.disabled) {
-        return css`
-          opacity: 0.2;
-          pointer-events: none;
-        `;
-      }
-    }}
-    background-color: ${(props) => props.theme.brand.backgroundLevel2};
-    min-width: 500px;
-    margin-left: ${spacing.sp1};
-    padding-bottom: ${spacing.sp16};
-    padding-top: ${spacing.sp16};
+  ${(props) => {
+    if (props.disabled) {
+      return css`
+        opacity: 0.2;
+        pointer-events: none;
+      `;
+    }
+  }}
+  background-color: ${(props) => props.theme.brand.backgroundLevel2};
+  min-width: 500px;
+  margin-left: ${spacing.sp1};
+  padding-bottom: ${spacing.sp16};
+  padding-top: ${spacing.sp16};
 `;
 export const ContentSection = styled.div`
   display: flex;

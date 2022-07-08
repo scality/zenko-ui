@@ -13,7 +13,6 @@ import styled from 'styled-components';
 //  </L.Content>
 //</L.Container>;
 export const BreadcrumbContainer = styled.div`
-  margin: 0px ${spacing.sp8};
   height: ${spacing.sp24};
   display: flex;
   min-height: ${spacing.sp24};
