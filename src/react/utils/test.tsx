@@ -71,7 +71,7 @@ const theme = {
     info: '#434343',
   },
 };
-const history = createMemoryHistory();
+export const history = createMemoryHistory();
 export const configuration = {
   latest: {
     version: 1,
