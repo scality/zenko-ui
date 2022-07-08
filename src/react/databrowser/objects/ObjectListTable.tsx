@@ -302,15 +302,17 @@ export default function ObjectListTable({
               {...headerGroup.getHeaderGroupProps()}
             >
               {headerGroup.headers.map((column) => {
-                const headerProps = column.getHeaderProps(
-                  column.getSortByToggleProps(),
-                );
+                const headerProps = column.getHeaderProps();
                 return (
                   <T.HeadCell
                     id={`object-list-table-head-${column.id}`}
                     key={column.id}
                     {...headerProps}
-                    style={{ ...column.headerStyle, ...headerProps.style }}
+                    style={{
+                      ...column.headerStyle,
+                      ...headerProps.style,
+                      cursor: 'default',
+                    }}
                   >
                     {column.render('Header')}
                   </T.HeadCell>
