@@ -256,7 +256,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
       ),
   ),
   rest.post(
-    `${baseUrl}/api/v1/config/instance/{instanceId}/bucket/{bucketName}/workflow/transition`,
+    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_NAME}/bucket/${BUCKET_NAME}/workflow/transition`,
     (req, res, ctx) =>
       res(
         ctx.json([
@@ -273,7 +273,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
       ),
   ),
   rest.put(
-    `${baseUrl}/api/v1/config/instance/${instanceId}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
+    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_NAME}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
     (req, res, ctx) =>
       res(
         ctx.json([
@@ -290,7 +290,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
       ),
   ),
   rest.delete(
-    `${baseUrl}/api/v1/config/instance/${instanceId}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
+    `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_NAME}/bucket/${BUCKET_NAME}/workflow/transition/1e55a1d7-349c-4e79-932b-b502bcc45a8f`,
     (req, res, ctx) => res(ctx.status(200)),
   ),
 ];
