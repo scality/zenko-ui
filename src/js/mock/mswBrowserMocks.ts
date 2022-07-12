@@ -6,6 +6,6 @@ import { getColdStorageHandlers } from './managementClientColdStorageMSWHandlers
 export const worker = setupWorker(
   ...getColdStorageHandlers(
     'http://management.zenko.local',
-    'a5536227-39e1-4e7c-be68-29a19b404131',
+    '25050307-cd09-4feb-9c2e-c93e2e844fea',
   ),
 );
