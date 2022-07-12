@@ -233,7 +233,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
             transition: {
               bucketName: BUCKET_NAME,
               workflowId: '0d55a1d7-349c-4e79-932b-b502bcc45a8f',
-              applyToVersions: 'current',
+              applyToVersion: 'current',
               type: 'bucket-workflow-transition-v2',
               triggerDelayDays: 15,
               locationName: 'dmf-location',
@@ -244,7 +244,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
             transition: {
               bucketName: BUCKET_NAME,
               workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
-              applyToVersions: 'previous',
+              applyToVersion: 'previous',
               type: 'bucket-workflow-transition-v2',
               triggerDelayDays: 15,
               locationName: 'dmf-location',
@@ -262,7 +262,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
           {
             bucketName: BUCKET_NAME,
             workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
-            applyToVersions: 'previous',
+            applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
             triggerDelayDays: 15,
             locationName: 'dmf-location',
@@ -279,7 +279,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
           {
             bucketName: BUCKET_NAME,
             workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
-            applyToVersions: 'previous',
+            applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
             triggerDelayDays: 15,
             locationName: 'dmf-location',
