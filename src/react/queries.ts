@@ -1,7 +1,11 @@
 import { UiFacingApi } from '../js/managementClient/api';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
-import { generateExpirationName, generateStreamName } from './workflow/utils';
+import {
+  generateExpirationName,
+  generateStreamName,
+  generateTransitionName,
+} from './workflow/utils';
 import IAMClient from '../js/IAMClient';
 import { QueryFunctionContext } from 'react-query';
 import { getAccountSeeds } from '../js/vault';
@@ -9,7 +13,7 @@ import { getAccountSeeds } from '../js/vault';
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
   const workflows = apiWorkflows
-    .filter((w) => !!w.replication || !!w.expiration)
+    .filter((w) => !!w.replication || !!w.expiration || !!w.transition)
     .map((w) => {
       if (w.replication) {
         const r = w.replication;
@@ -21,7 +25,7 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
           state: r.enabled,
           workflowId: r.streamId,
         } as Workflow;
-      } else {
+      } else if (w.expiration) {
         const r = w.expiration;
         return {
           id: `expiration-${r.workflowId}`,
@@ -30,6 +34,15 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
           state: r.enabled,
           workflowId: r.workflowId,
         } as Workflow;
+      } else {
+        const r = w.transition;
+        return {
+          id: `transition-${r.workflowId}`,
+          type: 'transition',
+          name: generateTransitionName(r),
+          state: r.enabled,
+          workflowId: r.workflowId,
+        };
       }
     });
   // TODO: add expiration and transition rules.

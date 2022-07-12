@@ -66,7 +66,13 @@ function WorkflowList({ workflows, workflowId }: Props) {
         return (
           <TextTransformer transform="capitalize">
             <Icon
-              name={type === 'replication' ? 'Replication' : 'Expiration'}
+              name={
+                type === 'replication'
+                  ? 'Replication'
+                  : type === 'expiration'
+                  ? 'Expiration'
+                  : 'Transition'
+              }
             ></Icon>{' '}
             {type}
           </TextTransformer>

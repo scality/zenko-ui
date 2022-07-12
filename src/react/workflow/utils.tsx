@@ -13,6 +13,7 @@ import type { SelectOption } from '../../types/ui';
 import { getLocationTypeShort } from '../utils/storageOptions';
 import { isVersioning } from '../utils';
 import { storageOptions } from '../backend/location/LocationDetails';
+import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 
 export const sourceBucketOptions = (
   streams: ReplicationStreams,
@@ -179,6 +180,19 @@ export function prepareExpirationQuery(data: Expiration): Expiration {
   } as Expiration;
 }
 
+export function generateBucketPrefix(
+  w: BucketWorkflowTransitionV2 | Expiration,
+) {
+  const addedPrefix = w.filter?.objectKeyPrefix
+    ? `/${w.filter?.objectKeyPrefix}`
+    : '';
+  const filteredByTagsPrefix =
+    w.filter?.objectTags && w.filter?.objectTags.length > 0
+      ? `[tags:${w.filter.objectTags.length}]`
+      : '';
+  return `${w.bucketName}${addedPrefix}${filteredByTagsPrefix}`;
+}
+
 export function generateStreamName(r: ReplicationStream): string {
   const { bucketName, prefix } = r.source;
   const locations = r.destination.locations;
@@ -188,13 +202,6 @@ export function generateStreamName(r: ReplicationStream): string {
 }
 
 export function generateExpirationName(expiration: Expiration): string {
-  const addedPrefix = expiration.filter?.objectKeyPrefix
-    ? `/${expiration.filter?.objectKeyPrefix}`
-    : '';
-  const filteredByTagsPrefix =
-    expiration.filter?.objectTags && expiration.filter?.objectTags.length > 0
-      ? `[tags:${expiration.filter.objectTags.length}]`
-      : '';
   const descriptionComponents = [];
   if (expiration.currentVersionTriggerDelayDays) {
     descriptionComponents.push(
@@ -215,11 +222,17 @@ export function generateExpirationName(expiration: Expiration): string {
     );
   }
 
-  return `${
-    expiration.bucketName
-  }${addedPrefix}${filteredByTagsPrefix} - (${descriptionComponents.join(
+  return `${generateBucketPrefix(expiration)} - (${descriptionComponents.join(
     ', ',
   )})`;
+}
+
+export function generateTransitionName(t: BucketWorkflowTransitionV2) {
+  return `${generateBucketPrefix(t)} (${
+    t.applyToVersion === BucketWorkflowTransitionV2.ApplyToVersionEnum.Current
+      ? 'current'
+      : 'previous'
+  } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays} days`;
 }
 
 export function flattenFormErrors(

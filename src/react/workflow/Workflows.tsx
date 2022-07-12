@@ -58,6 +58,9 @@ export function useWorkflows(
         expirations: workflows
           .filter((w) => w.expiration)
           .map((w) => w.expiration),
+        transitions: workflows
+          .filter((w) => w.transition)
+          .map((w) => w.transition),
       })),
     onError: (error) => {
       try {
@@ -111,7 +114,9 @@ export default function Workflows() {
             iconClass="fas fa-5x fa-glass-whiskey"
             title="Before browsing your workflows, create your first bucket."
             btnTitle="Create Bucket"
-            btnAction={() => history.push(`/accounts/${accountName}/create-bucket`)}
+            btnAction={() =>
+              history.push(`/accounts/${accountName}/create-bucket`)
+            }
           />
         </EmptyStateContainer>
       );

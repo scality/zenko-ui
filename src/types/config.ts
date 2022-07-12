@@ -94,6 +94,7 @@ export type Expiration = {
   readonly expireDeleteMarkersTrigger?: boolean | null;
   readonly incompleteMultipartUploadTriggerDelayDays?: number | null;
 };
+
 // endpoints
 export type Hostname = string;
 export type Endpoint = {
