@@ -65,7 +65,7 @@ describe('AccountUserList', () => {
     expect(screen.getAllByText('Loading users...')).toHaveLength(2);
 
     //Ensure tooltip is displayed on top of search field while loading users
-    fireEvent.mouseOver(screen.getByPlaceholderText('Search'));
+    fireEvent.pointerEnter(screen.getByPlaceholderText('Search'));
     expect(
       screen.getByText('Search is disabled while loading users'),
     ).toBeInTheDocument();
