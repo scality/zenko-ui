@@ -6,7 +6,6 @@ import { useHistory } from 'react-router-dom';
 import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-
 import type { Expiration, Locations, Replication } from '../../types/config';
 import FormContainer from '../ui-elements/FormLayout';
 import * as T from '../ui-elements/TableKeyValue2';
@@ -36,6 +35,7 @@ import {
   BucketWorkflowV1,
   BucketWorkflowExpirationV1,
   ReplicationStreamInternalV1,
+  BucketWorkflowTransitionV2,
 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
 import { getClients } from '../utils/actions';
@@ -278,12 +278,133 @@ function useExpirationMutations({
   return { deleteExpirationMutation, editExpirationWorkflowMutation };
 }
 
+function useTransitionMutations(
+  {
+    onEditSuccess,
+  }: {
+    onEditSuccess?: (expiration: BucketWorkflowTransitionV2) => void;
+  } = { onEditSuccess: undefined },
+) {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const queryClient = useQueryClient();
+  const managementClient = useManagementClient();
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const { account } = useCurrentAccount();
+  const accountId = account.id;
+  const rolePathName = useRolePathName();
+  const deleteTransitionMutation = useMutation<
+    Response,
+    ApiError,
+    BucketWorkflowTransitionV2
+  >({
+    mutationFn: (expiration) => {
+      dispatch(networkStart('Deleting transition'));
+      return notFalsyTypeGuard(managementClient)
+        .deleteBucketWorkflowTransition(
+          expiration.bucketName,
+          instanceId,
+          accountId,
+          expiration.workflowId,
+          rolePathName,
+        )
+        .finally(() => {
+          dispatch(networkEnd());
+        });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries(
+        workflowListQuery(
+          notFalsyTypeGuard(managementClient),
+          accountId,
+          instanceId,
+          rolePathName,
+        ).queryKey,
+      );
+    },
+    onError: (error) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err as ApiError, 'byModal'));
+      }
+    },
+  });
+
+  const editTransitionWorkflowMutation = useMutation<
+    BucketWorkflowTransitionV2,
+    ApiError,
+    BucketWorkflowTransitionV2
+  >(
+    (transition) => {
+      dispatch(networkStart('Editing transition'));
+
+      const sanitizedExpiration = removeEmptyTagKeys(transition);
+
+      return notFalsyTypeGuard(managementClient)
+        .updateBucketWorkflowTransition(
+          sanitizedExpiration,
+          sanitizedExpiration.bucketName,
+          instanceId,
+          accountId,
+          sanitizedExpiration.workflowId,
+          rolePathName,
+        )
+        .finally(() => dispatch(networkEnd()));
+    },
+    {
+      onSuccess: (success) => {
+        history.replace(`./transition-${success.workflowId}`);
+
+        if (onEditSuccess) {
+          onEditSuccess(success);
+        }
+        queryClient.invalidateQueries(
+          workflowListQuery(
+            notFalsyTypeGuard(managementClient),
+            accountId,
+            instanceId,
+            rolePathName,
+          ).queryKey,
+        );
+      },
+      onError: (error) => {
+        try {
+          dispatch(handleClientError(error));
+        } catch (err) {
+          dispatch(handleApiError(err as ApiError, 'byModal'));
+        }
+      },
+    },
+  );
+  return { deleteTransitionMutation, editTransitionWorkflowMutation };
+}
+
 function isExpirationWorkflow(
-  workflow: Expiration | Replication | TypeReplicationForm,
+  workflow:
+    | Expiration
+    | Replication
+    | TypeReplicationForm
+    | BucketWorkflowTransitionV2,
 ): workflow is Expiration {
   return (
     'type' in workflow &&
     workflow.type === BucketWorkflowV1.TypeEnum.ExpirationV1
+  );
+}
+
+function isReplicationWorkflow(
+  workflow:
+    | Expiration
+    | Replication
+    | TypeReplicationForm
+    | BucketWorkflowTransitionV2,
+): workflow is Replication {
+  return (
+    'type' in workflow &&
+    workflow.type === BucketWorkflowV1.TypeEnum.ReplicationV1
   );
 }
 
@@ -311,7 +432,7 @@ function EditForm({
   bucketList,
   locations,
 }: {
-  workflow: Replication | Expiration;
+  workflow: Replication | Expiration | BucketWorkflowTransitionV2;
   bucketList: S3BucketList;
   locations: Locations;
 }) {
@@ -353,6 +474,8 @@ function EditForm({
       },
     });
 
+  const { deleteTransitionMutation } = useTransitionMutations();
+
   const handleOpenDeleteModal = () => {
     setIsDeleteModalOpen(true);
   };
@@ -365,8 +488,10 @@ function EditForm({
     setIsDeleteModalOpen(false);
     if (workflow && isExpirationWorkflow(workflow)) {
       deleteExpirationMutation.mutate(workflow);
-    } else if (workflow && !isExpirationWorkflow(workflow)) {
+    } else if (workflow && isReplicationWorkflow(workflow)) {
       deleteReplicationMutation.mutate(workflow);
+    } else {
+      deleteTransitionMutation.mutate(workflow);
     }
   };
 
