@@ -67,13 +67,13 @@ export function listAccountAccessKeySuccess(
   };
 }
 export function addAccountSecret(
-  accountName: string,
+  userName: string,
   accessKey: AccessKey,
   secretKey: SecretKey,
 ): AddAccountSecretAction {
   return {
     type: 'ADD_ACCOUNT_SECRET',
-    accountName,
+    userName,
     accessKey,
     secretKey,
   };
@@ -112,7 +112,7 @@ export function deleteAccount(
   accountName: string,
   queryClient: QueryClient,
   token: string,
-  rolePathName: string
+  rolePathName: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());

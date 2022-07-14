@@ -331,7 +331,7 @@ export type OIDCAction = AddOIDCUserAction;
 // SECRETS
 export type AddAccountSecretAction = {
   readonly type: 'ADD_ACCOUNT_SECRET';
-  readonly accountName: string;
+  readonly userName: string;
   readonly accessKey: AccessKey;
   readonly secretKey: SecretKey;
 };

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import TextBadge from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
@@ -13,7 +13,7 @@ import {
 import CopyButton from '../ui-elements/CopyButton';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import {

@@ -16,7 +16,7 @@ export type Account = {
   readonly id: string;
 };
 export type AccountKey = {
-  readonly accountName: string;
+  readonly userName: string;
   readonly accessKey: AccessKey;
   readonly secretKey: SecretKey;
 };
