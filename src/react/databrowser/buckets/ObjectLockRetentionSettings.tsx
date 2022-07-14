@@ -2,10 +2,11 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { Banner, Input, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import * as F from '../../ui-elements/FormLayout';
 import Joi from '@hapi/joi';
+import styled from 'styled-components';
+import { Box } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 export const objectLockRetentionSettingsValidationRules = {
   isDefaultRetentionEnabled: Joi.boolean().default(false),
   retentionMode: Joi.when('isDefaultRetentionEnabled', {
@@ -24,6 +25,11 @@ export const objectLockRetentionSettingsValidationRules = {
     otherwise: Joi.valid(),
   }),
 };
+
+const StyledSelect = styled<F.Select>(F.Select)({
+  margin: 0,
+});
+
 export default function ObjectLockRetentionSettings(props: {
   isEditRetentionSetting?: boolean;
 }) {
@@ -73,18 +79,19 @@ export default function ObjectLockRetentionSettings(props: {
           }}
         />
       </F.Fieldset>
-      <SpacedBox md={2}>
+      <Box md={2}>
         <F.LabelSecondary>
           Automatically protect objects put into this bucket from being deleted
           or overwritten.
         </F.LabelSecondary>
-      </SpacedBox>
+      </Box>
       <div
         style={{
           opacity: isDefaultRetentionEnabled ? 1 : 0.5,
+          paddingBottom: '1rem',
         }}
       >
-        <SpacedBox mt={2}>
+        <Box mt={2}>
           <Banner
             variant="infoPrimary"
             icon={<i className="fas fa-exclamation-circle" />}
@@ -93,7 +100,7 @@ export default function ObjectLockRetentionSettings(props: {
               'If objects are uploaded into the bucket with their own Retention settings, these will override the Default Retention setting placed on the bucket'
             }
           </Banner>
-        </SpacedBox>
+        </Box>
 
         <F.Fieldset>
           <F.Label>Retention mode</F.Label>
@@ -111,7 +118,7 @@ export default function ObjectLockRetentionSettings(props: {
                 {...register('retentionMode')}
                 disabled={!isDefaultRetentionEnabled}
               />
-              <SpacedBox ml={8}>Governance</SpacedBox>
+              <Box ml={1}>Governance</Box>
             </F.Label>
           </F.Fieldset>
           <SmallerText>
@@ -132,7 +139,7 @@ export default function ObjectLockRetentionSettings(props: {
                 {...register('retentionMode')}
                 disabled={!isDefaultRetentionEnabled}
               />
-              <SpacedBox ml={8}>Compliance</SpacedBox>
+              <Box ml={1}>Compliance</Box>
             </F.Label>
           </F.Fieldset>
           <SmallerText>
@@ -140,62 +147,55 @@ export default function ObjectLockRetentionSettings(props: {
             period.
           </SmallerText>
         </F.Fieldset>
-        <F.Fieldset direction="row" alignItems="baseline">
+        <F.Fieldset direction="row" alignItems="center">
           <F.Label>Retention period</F.Label>
 
-          <div>
-            <Controller
-              control={control}
-              id="retentionPeriod"
-              name="retentionPeriod"
-              render={({ field: { onChange, value: retentionPeriod } }) => {
-                return (
-                  <Input
-                    name="retentionPeriod"
-                    value={retentionPeriod}
-                    onChange={(e) => onChange(e.target.value)}
-                    type="number"
-                    style={{
-                      width: spacing.sp40,
-                    }}
-                    min={1}
-                    disabled={!isDefaultRetentionEnabled}
-                  />
-                );
-              }}
-            />
-          </div>
-
-          <SpacedBox
-            style={{
-              width: '25%',
+          <Controller
+            control={control}
+            id="retentionPeriod"
+            name="retentionPeriod"
+            render={({ field: { onChange, value: retentionPeriod } }) => {
+              return (
+                <Input
+                  name="retentionPeriod"
+                  value={retentionPeriod}
+                  onChange={(e) => onChange(e.target.value)}
+                  type="number"
+                  style={{
+                    width: '4.5rem',
+                    boxSizing: 'border-box',
+                    height: spacing.sp32,
+                  }}
+                  min={1}
+                  disabled={!isDefaultRetentionEnabled}
+                />
+              );
             }}
-            ml={8}
-          >
-            <Controller
-              control={control}
-              id="retentionPeriodFrequencyChoice"
-              name="retentionPeriodFrequencyChoice"
-              defaultValue={'DAYS'}
-              render={({
-                field: { onChange, value: retentionPeriodFrequencyChoice },
-              }) => {
-                return (
-                  <>
-                    <F.Select
-                      onChange={onChange}
-                      placeholder="retentionPeriodFrequencyChoice"
-                      value={retentionPeriodFrequencyChoice}
-                      disabled={!isDefaultRetentionEnabled}
-                    >
-                      <F.Select.Option value={'DAYS'}>Days</F.Select.Option>
-                      <F.Select.Option value={'YEARS'}>Years</F.Select.Option>
-                    </F.Select>
-                  </>
-                );
-              }}
-            />
-          </SpacedBox>
+          />
+
+          <Controller
+            control={control}
+            id="retentionPeriodFrequencyChoice"
+            name="retentionPeriodFrequencyChoice"
+            defaultValue={'DAYS'}
+            render={({
+              field: { onChange, value: retentionPeriodFrequencyChoice },
+            }) => {
+              return (
+                <Box width="25%" ml={2}>
+                  <StyledSelect
+                    onChange={onChange}
+                    placeholder="retentionPeriodFrequencyChoice"
+                    value={retentionPeriodFrequencyChoice}
+                    disabled={!isDefaultRetentionEnabled}
+                  >
+                    <F.Select.Option value={'DAYS'}>Days</F.Select.Option>
+                    <F.Select.Option value={'YEARS'}>Years</F.Select.Option>
+                  </StyledSelect>
+                </Box>
+              );
+            }}
+          />
 
           <F.ErrorInput
             id="error-retentionPeriod"
