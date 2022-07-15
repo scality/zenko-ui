@@ -22,7 +22,7 @@ const instanceId = 'instanceId';
 const accountName = 'pat';
 const expirationId = 'expirationId';
 
-const S3BucketList: List<S3Bucket>  = [
+const S3BucketList: List<S3Bucket>  = List.of(
   {
   CreationDate: '2020-01-01T00:00:00.000Z',
   Name: 'bucket1',
@@ -35,7 +35,7 @@ const S3BucketList: List<S3Bucket>  = [
     LocationConstraint: 'us-east-1',
     VersionStatus: 'Suspended'
   }
-]
+)
 
 const locations: PerLocationMap<any> = {
   "chapter-ux": {
