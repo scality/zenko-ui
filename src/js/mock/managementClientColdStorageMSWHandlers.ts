@@ -6,9 +6,12 @@ import { rest } from 'msw';
  *   - Bucket name "new"
  */
 
-const ACCOUNT_ID = '718643629313';
-const BUCKET_NAME = 'new';
-
+export const ACCOUNT_ID = '718643629313';
+export const BUCKET_NAME = 'new';
+export const TRANSITION_WORKFLOW_CURRENT_ID =
+  '0d55a1d7-349c-4e79-932b-b502bcc45a8f';
+export const TRANSITION_WORKFLOW_PREVIOUS_ID =
+  '1e55a1d7-349c-4e79-932b-b502bcc45a8f';
 export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
   //Config overlay mock below
   rest.get(
@@ -232,7 +235,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
           {
             transition: {
               bucketName: BUCKET_NAME,
-              workflowId: '0d55a1d7-349c-4e79-932b-b502bcc45a8f',
+              workflowId: TRANSITION_WORKFLOW_CURRENT_ID,
               applyToVersion: 'current',
               type: 'bucket-workflow-transition-v2',
               triggerDelayDays: 15,
@@ -243,7 +246,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
           {
             transition: {
               bucketName: BUCKET_NAME,
-              workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
+              workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
               applyToVersion: 'previous',
               type: 'bucket-workflow-transition-v2',
               triggerDelayDays: 15,
@@ -261,7 +264,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
         ctx.json([
           {
             bucketName: BUCKET_NAME,
-            workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
+            workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
             applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
             triggerDelayDays: 15,
@@ -278,7 +281,7 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
         ctx.json([
           {
             bucketName: BUCKET_NAME,
-            workflowId: '1e55a1d7-349c-4e79-932b-b502bcc45a8f',
+            workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
             applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
             triggerDelayDays: 15,

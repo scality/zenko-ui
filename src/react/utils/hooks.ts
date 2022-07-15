@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -7,7 +7,7 @@ import {
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useHistory, useParams } from 'react-router';
+import { useHistory } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
@@ -20,11 +20,7 @@ import {
   networkStart,
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
-import { setRoleArnStored } from './localStorage';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
