@@ -25,6 +25,7 @@ import {
   newReplicationForm,
   newTransition,
   prepareExpirationQuery,
+  prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
 import { useManagementClient } from '../ManagementProvider';
@@ -92,7 +93,6 @@ const CreateWorkflow = () => {
         }),
       );
       if (values.type === 'replication' || values.type === 'transition') {
-        joiValidator(values, context, options).then(console.log);
         return joiValidator(values, context, options);
       } else {
         return joiValidator(
@@ -222,7 +222,7 @@ const CreateWorkflow = () => {
       const sanitizedTransition = removeEmptyTagKeys(transition);
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowTransition(
-          sanitizedTransition,
+          prepareTransitionQuery(sanitizedTransition),
           sanitizedTransition.bucketName,
           accountId,
           instanceId,

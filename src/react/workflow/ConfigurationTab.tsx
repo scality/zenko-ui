@@ -445,6 +445,15 @@ function initDefaultValues(workflow: Expiration | BucketWorkflowTransitionV2) {
   return workflow;
 }
 
+function initTransitionDefaultValue(
+  workflow: BucketWorkflowTransitionV2,
+): BucketWorkflowTransitionV2 {
+  return {
+    ...initDefaultValues(workflow),
+    triggerDelayDays: `${workflow.triggerDelayDays}`,
+  };
+}
+
 function EditForm({
   workflow,
   bucketList,
@@ -477,7 +486,7 @@ function EditForm({
       ? initDefaultValues(workflow)
       : isReplicationWorkflow(workflow)
       ? convertToReplicationForm(workflow)
-      : initDefaultValues(workflow),
+      : initTransitionDefaultValue(workflow),
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
