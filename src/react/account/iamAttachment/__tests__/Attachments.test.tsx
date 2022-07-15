@@ -150,6 +150,7 @@ const server = setupServer(
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 100);
+  jest.setTimeout(10_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
