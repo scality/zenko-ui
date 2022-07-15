@@ -16,6 +16,7 @@ export const CustomModal = styled(Modal)`
     justify-content: flex-end;
     button {
       margin-left: ${spacing.sp4};
+      width: 5.5rem;
     }
   }
 `;
