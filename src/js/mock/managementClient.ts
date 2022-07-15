@@ -68,13 +68,13 @@ export const workflows: APIWorkflows = [
 ];
 export const accountAccessKey: AccessKey = 'ak1';
 export const accountSecretKey: SecretKey = 'sk1';
-export const accountName = 'bart';
+export const userName = 'bart';
 export const key = {
   accessKey: accountAccessKey,
   createDate: '2021-04-28T11:19:34.000Z',
   id: '538641674554',
   secretKey: accountSecretKey,
-  userName: accountName,
+  userName: userName,
 };
 export const instanceStatus: InstanceStatus = {
   metrics: {},
@@ -235,24 +235,19 @@ export class MockManagementClientWithConfigurationVersions extends MockManagemen
 
   getLatestInstanceStatus(): Promise<any> {
     return super.getLatestInstanceStatus().then((body) => ({
-      
-        ...body,
-        state: {
-          ...body.state,
-          runningConfigurationVersion: this.runningVersions[
-            this.getStatusCallCounter++
-          ],
-        },
-      
+      ...body,
+      state: {
+        ...body.state,
+        runningConfigurationVersion:
+          this.runningVersions[this.getStatusCallCounter++],
+      },
     }));
   }
 
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return super.getConfigurationOverlayView().then((body) => ({
-      
-        ...body,
-        version: this.overlayVersions[this.getOverlayCounter++],
-      
+      ...body,
+      version: this.overlayVersions[this.getOverlayCounter++],
     }));
   }
 }

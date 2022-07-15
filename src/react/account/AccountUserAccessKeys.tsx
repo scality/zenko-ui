@@ -69,7 +69,9 @@ const CreatedOnCell = (rowValue) => {
 const ToggleAccessKeyStatus = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
-  const { IAMUserName } = useParams();
+  const { IAMUserName } = useParams<{
+    IAMUserName: string;
+  }>();
   const updateAccessKeyMutation = useMutation(
     (accessKey) => {
       return IAMClient.updateAccessKey(
@@ -117,7 +119,9 @@ const AccessKeysCell = (rowValue) => {
 const DeleteAccessKeyAction = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
-  const { IAMUserName } = useParams();
+  const { IAMUserName } = useParams<{
+    IAMUserName: string;
+  }>();
   const [showModal, setShowModal] = useState(false);
   const deleteAccessKeyMutation = useMutation(
     (accessKey) => IAMClient.deleteAccessKey(accessKey, IAMUserName),
@@ -172,7 +176,7 @@ const AccountUserAccessKeys = () => {
   const theme = useTheme();
   const { data: accessKeysResult, status: accessKeysStatus } =
     useAwsPaginatedEntities(
-      getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)),
+      getUserAccessKeysQuery(IAMUserName, IAMClient),
       (data) => data.AccessKeyMetadata,
     );
 

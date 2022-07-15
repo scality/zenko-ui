@@ -12,12 +12,19 @@ import { Banner } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideCredential } from '../../../ui-elements/Hide';
-import React from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
+import CopyButton from '../../../ui-elements/CopyButton';
+import { Box } from '@scality/core-ui/dist/next';
+import styled from 'styled-components';
 type Props = {
   account: Account;
 };
+
+const StyledCopybutton = styled(CopyButton)({
+  height: '1.914rem',
+  width: '11rem',
+});
 
 function SecretKeyModal({ account }: Props) {
   const dispatch = useDispatch();
@@ -104,7 +111,7 @@ const modalBody = (key: AccountKey | null) => {
         <T.Body>
           <T.Row>
             <T.Key> Account name </T.Key>
-            <T.Value> {key.accountName} </T.Value>
+            <T.Value> {key.userName} </T.Value>
           </T.Row>
           <T.Row>
             <T.Key> Access key ID </T.Key>
@@ -127,6 +134,15 @@ const modalBody = (key: AccountKey | null) => {
           </T.Row>
         </T.Body>
       </Table>
+      <Box
+        display={'flex'}
+        style={{ alignItems: 'end', flexDirection: 'column' }}
+      >
+        <StyledCopybutton
+          text={`Username\t${key.userName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
+          labelName="to Clipboard"
+        />
+      </Box>
     </ModalBody>
   );
 };

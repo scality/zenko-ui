@@ -12,7 +12,7 @@ const account = {
   Name: 'bart',
 };
 const accountKey = {
-  accountName: 'bart',
+  userName: 'bart',
   accessKey: 'ak1',
   secretKey: 'sk1',
 };
@@ -54,7 +54,7 @@ describe('SecretKeyModal', () => {
     const firstRow = rows.first();
     testRow(firstRow, {
       key: 'Account name',
-      value: accountKey.accountName,
+      value: accountKey.userName,
     });
     const secondRow = rows.at(1);
     testRow(secondRow, {

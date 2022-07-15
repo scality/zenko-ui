@@ -2,7 +2,7 @@ import type { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
 import { Banner } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
 import React, { useState } from 'react';
@@ -13,19 +13,30 @@ import { useMutation } from 'react-query';
 import { queryClient } from '../App';
 import { getUserAccessKeysQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import CopyButton from '../ui-elements/CopyButton';
+import styled from 'styled-components';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 type Props = {
   IAMUserName: string;
 };
+
+const StyledCopybutton = styled(CopyButton)({
+  height: '1.914rem',
+  width: '11rem',
+});
 
 function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   const history = useHistory();
   const IAMClient = useIAMClient();
   const [newKey, setNewKey] = useState(null);
+  const { account } = useCurrentAccount();
+
+  const accountName = account?.Name;
   const createAccessKeyMutation = useMutation(
     (userName) => {
       return IAMClient.createAccessKey(userName).then((res) => {
         const newKey = {
-          accountName: res.AccessKey.UserName,
+          userName: res.AccessKey.UserName,
           accessKey: res.AccessKey.AccessKeyId,
           secretKey: res.AccessKey.SecretAccessKey,
         };
@@ -34,7 +45,10 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     },
     {
       onSuccess: () =>
-        queryClient.invalidateQueries(getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient)).queryKey),
+        queryClient.invalidateQueries(
+          getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient))
+            .queryKey,
+        ),
     },
   );
 
@@ -73,12 +87,12 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
       isOpen={true}
       title="Create Access keys"
     >
-      {modalBody(newKey)}
+      {modalBody(newKey, accountName)}
     </Modal>
   );
 }
 
-const modalBody = (key: AccountKey | null) => {
+const modalBody = (key: AccountKey | null, accountName: string) => {
   if (key === null) {
     return (
       <ModalBody>
@@ -106,8 +120,12 @@ const modalBody = (key: AccountKey | null) => {
       >
         <T.Body>
           <T.Row>
-            <T.Key> User </T.Key>
-            <T.Value> {key.accountName} </T.Value>
+            <T.Key> Username </T.Key>
+            <T.Value> {key.userName} </T.Value>
+          </T.Row>
+          <T.Row>
+            <T.Key> Account name </T.Key>
+            <T.Value> {accountName} </T.Value>
           </T.Row>
           <T.Row>
             <T.Key> Access key ID </T.Key>
@@ -130,6 +148,12 @@ const modalBody = (key: AccountKey | null) => {
           </T.Row>
         </T.Body>
       </Table>
+      <Box display="flex" alignItems="flex-end" flexDirection="column">
+        <StyledCopybutton
+          text={`Username\t${key.userName}\nAccount name\t${accountName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
+          labelName="to Clipboard"
+        />
+      </Box>
     </ModalBody>
   );
 };

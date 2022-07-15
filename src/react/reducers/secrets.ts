@@ -10,7 +10,7 @@ export default function secrets(
       return {
         ...state,
         accountKey: {
-          accountName: action.accountName,
+          userName: action.userName,
           accessKey: action.accessKey,
           secretKey: action.secretKey,
         },

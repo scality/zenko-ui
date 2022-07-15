@@ -131,10 +131,11 @@ export const SET_OIDC_LOGOUT_ACTION: SetOIDCLogoutAction = {
   logout: LOGOUT_MOCK,
 };
 // * account action
-export const LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION: ListAccountAccessKeySuccessAction = {
-  type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
-  accessKeys: ACCOUNT_ACCESS_KEYS,
-};
+export const LIST_ACCOUNT_ACCESS_KEY_SUCCESS_ACTION: ListAccountAccessKeySuccessAction =
+  {
+    type: 'LIST_ACCOUNT_ACCESS_KEY_SUCCESS',
+    accessKeys: ACCOUNT_ACCESS_KEYS,
+  };
 // * error action
 export function HANDLE_ERROR_MODAL_ACTION(errorMsg: string): HandleErrorAction {
   return {
@@ -201,15 +202,17 @@ export const NETWORK_AUTH_FAILURE_ACTION: NetworkActivityAuthFailureAction = {
   type: 'NETWORK_AUTH_FAILURE',
 };
 // * account actions
-export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction = {
-  type: 'OPEN_ACCOUNT_DELETE_DIALOG',
-};
-export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction = {
-  type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
-};
+export const OPEN_ACCOUNT_DELETE_DIALOG_ACTION: OpenAccountDeleteDialogAction =
+  {
+    type: 'OPEN_ACCOUNT_DELETE_DIALOG',
+  };
+export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction =
+  {
+    type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
+  };
 export const ADD_ACCOUNT_SECRET_ACTION: AddAccountSecretAction = {
   type: 'ADD_ACCOUNT_SECRET',
-  accountName: ACCOUNT_NAME,
+  userName: ACCOUNT_NAME,
   accessKey: ACCOUNT_ACCESS_KEY,
   secretKey: ACCOUNT_SECRET_KEY,
 };
@@ -223,9 +226,10 @@ export const OPEN_LOCATION_DELETE_DIALOG_ACTION = (
   type: 'OPEN_LOCATION_DELETE_DIALOG',
   locationName,
 });
-export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction = {
-  type: 'CLOSE_LOCATION_DELETE_DIALOG',
-};
+export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction =
+  {
+    type: 'CLOSE_LOCATION_DELETE_DIALOG',
+  };
 // * endpoint actions
 export const OPEN_ENDPOINT_DELETE_DIALOG_ACTION = (
   hostname: Hostname,
@@ -233,9 +237,10 @@ export const OPEN_ENDPOINT_DELETE_DIALOG_ACTION = (
   type: 'OPEN_ENDPOINT_DELETE_DIALOG',
   hostname,
 });
-export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogAction = {
-  type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
-};
+export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogAction =
+  {
+    type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
+  };
 // * buckets actions
 export const LIST_BUCKETS_SUCCESS_ACTION = (
   list: Array<S3Bucket>,
@@ -251,9 +256,10 @@ export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (
   type: 'OPEN_BUCKET_DELETE_DIALOG',
   bucketName,
 });
-export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction = {
-  type: 'CLOSE_BUCKET_DELETE_DIALOG',
-};
+export const CLOSE_BUCKET_DELETE_DIALOG_ACTION: CloseBucketDeleteDialogAction =
+  {
+    type: 'CLOSE_BUCKET_DELETE_DIALOG',
+  };
 export const GET_BUCKET_INFO_SUCCESS_ACTION: GetBucketInfoSuccessAction = {
   type: 'GET_BUCKET_INFO_SUCCESS',
   info: BUCKET_INFO_RESPONSE,
@@ -273,36 +279,42 @@ export const LIST_OBJECTS_SUCCESS_ACTION = (
     nextMarker: nextContinuationToken,
   };
 };
-export const OPEN_FOLDER_CREATE_MODAL_ACTION = (): OpenFolderCreateModalAction => {
-  return {
-    type: 'OPEN_FOLDER_CREATE_MODAL',
+export const OPEN_FOLDER_CREATE_MODAL_ACTION =
+  (): OpenFolderCreateModalAction => {
+    return {
+      type: 'OPEN_FOLDER_CREATE_MODAL',
+    };
   };
-};
-export const CLOSE_FOLDER_CREATE_MODAL_ACTION = (): CloseFolderCreateModalAction => {
-  return {
-    type: 'CLOSE_FOLDER_CREATE_MODAL',
+export const CLOSE_FOLDER_CREATE_MODAL_ACTION =
+  (): CloseFolderCreateModalAction => {
+    return {
+      type: 'CLOSE_FOLDER_CREATE_MODAL',
+    };
   };
-};
-export const OPEN_OBJECT_UPLOAD_MODAL_ACTION = (): OpenObjectUploadModalAction => {
-  return {
-    type: 'OPEN_OBJECT_UPLOAD_MODAL',
+export const OPEN_OBJECT_UPLOAD_MODAL_ACTION =
+  (): OpenObjectUploadModalAction => {
+    return {
+      type: 'OPEN_OBJECT_UPLOAD_MODAL',
+    };
   };
-};
-export const CLOSE_OBJECT_UPLOAD_MODAL_ACTION = (): CloseObjectUploadModalAction => {
-  return {
-    type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+export const CLOSE_OBJECT_UPLOAD_MODAL_ACTION =
+  (): CloseObjectUploadModalAction => {
+    return {
+      type: 'CLOSE_OBJECT_UPLOAD_MODAL',
+    };
   };
-};
-export const OPEN_OBJECT_DELETE_MODAL_ACTION = (): OpenObjectDeleteModalAction => {
-  return {
-    type: 'OPEN_OBJECT_DELETE_MODAL',
+export const OPEN_OBJECT_DELETE_MODAL_ACTION =
+  (): OpenObjectDeleteModalAction => {
+    return {
+      type: 'OPEN_OBJECT_DELETE_MODAL',
+    };
   };
-};
-export const CLOSE_OBJECT_DELETE_MODAL_ACTION = (): CloseObjectDeleteModalAction => {
-  return {
-    type: 'CLOSE_OBJECT_DELETE_MODAL',
+export const CLOSE_OBJECT_DELETE_MODAL_ACTION =
+  (): CloseObjectDeleteModalAction => {
+    return {
+      type: 'CLOSE_OBJECT_DELETE_MODAL',
+    };
   };
-};
 export const TOGGLE_OBJECT_ACTION = (objectKey: string): ToggleObjectAction => {
   return {
     type: 'TOGGLE_OBJECT',
@@ -370,26 +382,30 @@ export const ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION = (
   };
 };
 // workflow actions
-export const OPEN_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): OpenWorkflowEditNotificationAction => {
-  return {
-    type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
+export const OPEN_WORKFLOW_EDIT_NOTIFICATION_ACTION =
+  (): OpenWorkflowEditNotificationAction => {
+    return {
+      type: 'OPEN_WORKFLOW_EDIT_NOTIFICATION',
+    };
   };
-};
-export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION = (): CloseWorkflowEditNotificationAction => {
-  return {
-    type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION =
+  (): CloseWorkflowEditNotificationAction => {
+    return {
+      type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
+    };
   };
-};
-export const OPEN_WORKFLOW_DELETE_MODAL_ACTION = (): OpenWorkflowDeleteModalAction => {
-  return {
-    type: 'OPEN_WORKFLOW_DELETE_MODAL',
+export const OPEN_WORKFLOW_DELETE_MODAL_ACTION =
+  (): OpenWorkflowDeleteModalAction => {
+    return {
+      type: 'OPEN_WORKFLOW_DELETE_MODAL',
+    };
   };
-};
-export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION = (): CloseWorkflowDeleteModalAction => {
-  return {
-    type: 'CLOSE_WORKFLOW_DELETE_MODAL',
+export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION =
+  (): CloseWorkflowDeleteModalAction => {
+    return {
+      type: 'CLOSE_WORKFLOW_DELETE_MODAL',
+    };
   };
-};
 // instance status actions
 export const INSTANCE_STATUS_ACTION_RUNNINGv1: InstanceStatusAction = {
   type: 'INSTANCE_STATUS',

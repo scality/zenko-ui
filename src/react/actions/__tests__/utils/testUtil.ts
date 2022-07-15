@@ -4,7 +4,7 @@ import {
   ErrorMockManagementClient,
   account,
   accountAccessKey,
-  accountName,
+  userName,
   accountSecretKey,
   instanceStatus,
   latestOverlay,
@@ -111,7 +111,7 @@ export const BUCKET_INFO_RESPONSE = bucketInfoResponseNoVersioning;
 export const WORKFLOWS = workflows;
 export const REPLICATION_WORKFLOW = replicationWorkflow;
 export const ACCOUNT_ACCESS_KEYS = accountAccessKeys;
-export const ACCOUNT_NAME = accountName;
+export const ACCOUNT_NAME = userName;
 export const ACCOUNT_ACCESS_KEY = accountAccessKey;
 export const ACCOUNT_SECRET_KEY = accountSecretKey;
 export const LOGOUT_MOCK = () => {};
