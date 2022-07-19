@@ -78,11 +78,10 @@ export function handleAWSClientError(error: AWSError): ThunkNonStateAction {
           dispatch(handleErrorMessage(error.message, 'byAuth'));
           dispatch(networkAuthFailure());
           break;
-  
+
         default:
           throw error;
       }
     }
-    
   };
 }
