@@ -159,8 +159,8 @@ export const InlineButton = styled(Button)`
   height: ${spacing.sp24};
   margin-left: ${spacing.sp16};
 `;
-export const AccountSelectorButton = styled(Button)`
-  height: ${spacing.sp24};
+export const AccountSelectorButton = styled(Button)<{ bigButton?: boolean }>`
+  height: ${(props) => (props.bigButton ? spacing.sp32 : spacing.sp24)};
 `;
 export const Title = styled.div`
   font-size: ${fontSize.larger};
