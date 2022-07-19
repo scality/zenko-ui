@@ -66,7 +66,9 @@ const Row = ({
         if (!isSelected) {
           dispatch(
             push(
-              `/accounts/${account.Name}/buckets/${bucketName}?tab=${tabName}`,
+              tabName
+                ? `/accounts/${account.Name}/buckets/${bucketName}?tab=${tabName}`
+                : `/accounts/${account.Name}/buckets/${bucketName}`,
             ),
           );
         }
