@@ -22,13 +22,23 @@ import {
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
-import { BucketWorkflowExpirationV1, BucketWorkflowTransitionV2, ReplicationStreamInternalV1 } from '../../js/managementClient/api';
-
+import {
+  BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
 
 export function useWorkflows(
   select?: (workflows: APIWorkflows) => void,
   filters?: [],
-): UseQueryResult<{replications: ReplicationStreamInternalV1[], expirations: BucketWorkflowExpirationV1[], transitions: BucketWorkflowTransitionV2[]}, unknown> {
+): UseQueryResult<
+  {
+    replications: ReplicationStreamInternalV1[];
+    expirations: BucketWorkflowExpirationV1[];
+    transitions: BucketWorkflowTransitionV2[];
+  },
+  unknown
+> {
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
