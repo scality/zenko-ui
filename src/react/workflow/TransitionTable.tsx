@@ -3,6 +3,7 @@ import { Box, Table } from '@scality/core-ui/dist/next';
 import { useTheme } from 'styled-components';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { APIWorkflows } from '../../types/workflow';
+import { GentleEmphaseSecondaryText } from '../ui-elements/Table';
 import { useWorkflows } from './Workflows';
 
 type Props = {
@@ -13,7 +14,6 @@ type Props = {
   triggerDelayDays?: string;
   locationName?: string;
 };
-
 const TransitionTable = ({
   bucketName,
   applyToVersion,
@@ -23,7 +23,7 @@ const TransitionTable = ({
   locationName,
 }: Props) => {
   const theme = useTheme();
-  const { data: transitions, status } = useWorkflows(
+  const { data: transitions } = useWorkflows(
     (workflows: APIWorkflows) => {
       return workflows.filter((wf) => wf.transition).map((wf) => wf.transition);
     },
@@ -68,6 +68,13 @@ const TransitionTable = ({
       cellStyle: {
         paddingLeft: '1rem',
       },
+      Cell: ({ value, row: { original: row } }) => {
+        return row.triggerDelayDays === triggerDelayDays ? (
+          <GentleEmphaseSecondaryText>{value}</GentleEmphaseSecondaryText>
+        ) : (
+          value
+        );
+      },
     },
     {
       Header: 'Storage Location',
@@ -75,12 +82,26 @@ const TransitionTable = ({
       cellStyle: {
         minWidth: '12rem',
       },
+      Cell: ({ value, row: { original: row } }) => {
+        return row.triggerDelayDays === triggerDelayDays ? (
+          <GentleEmphaseSecondaryText>{value}</GentleEmphaseSecondaryText>
+        ) : (
+          value
+        );
+      },
     },
     {
       Header: 'Description',
       accessor: 'description',
       cellStyle: {
         minWidth: '36rem',
+      },
+      Cell: ({ value, row: { original: row } }) => {
+        return row.triggerDelayDays === triggerDelayDays ? (
+          <GentleEmphaseSecondaryText>{value}</GentleEmphaseSecondaryText>
+        ) : (
+          value
+        );
       },
     },
   ];

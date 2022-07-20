@@ -5,7 +5,10 @@ import {
   useAwsPaginatedEntities,
 } from '../../utils/IAMhooks';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import { InlineButton } from '../../ui-elements/Table';
+import {
+  GentleEmphaseSecondaryText,
+  InlineButton,
+} from '../../ui-elements/Table';
 import { Loader, SearchInput, SecondaryText, Tooltip } from '@scality/core-ui';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -100,19 +103,6 @@ const AttachmentTableContainer = styled.div`
   height: 80%;
   background: ${(props) => props.theme.brand.backgroundLevel3};
   padding: ${spacing.sp24};
-`;
-
-const GentleEmphaseSecondaryText = styled(SecondaryText)<{
-  alignRight?: boolean;
-}>`
-  font-style: italic;
-  ${(props) =>
-    props.alignRight
-      ? `
-    text-align: right;
-    display: block;
-  `
-      : ''}
 `;
 
 const StyledTable = styled.div`

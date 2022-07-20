@@ -379,6 +379,7 @@ export const TransitionForm = ({
                           type="number"
                           value={triggerDelayDays}
                           autoComplete="off"
+                          min={0}
                         />
                       );
                     }}
