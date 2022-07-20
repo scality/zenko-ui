@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { useRouteMatch } from 'react-router';
+import { useLocation } from 'react-router';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Tooltip } from '@scality/core-ui';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
-import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
+import {
+  regexArn,
+  SCALITY_INTERNAL_ROLES,
+  useAccounts,
+  useRedirectDataConsumers,
+} from '../utils/hooks';
 import {
   useCurrentAccount,
   useDataServiceRole,
@@ -14,17 +19,30 @@ import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '../ui-elements/Help';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
-function AccountRoleSelectButtonAndModal() {
+export function AccountRoleSelectButtonAndModal({
+  bigButton,
+  buttonLabel,
+}: {
+  bigButton?: boolean;
+  buttonLabel?: string;
+}) {
   const accounts = useAccounts();
-  const { path } = useRouteMatch();
+  const location = useLocation();
   const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
   const { roleArn } = useDataServiceRole();
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
+  const redirectDataConsummers = useRedirectDataConsumers();
 
-  const accountsWithRoles = [];
+  const accountsWithRoles: {
+    accountName: string;
+    roleName: string;
+    rolePath: string;
+    roleArn: string;
+  }[] = [];
+
   accounts.forEach((account) => {
     const accountName = account.Name;
     account.Roles.forEach((role) => {
@@ -51,13 +69,16 @@ function AccountRoleSelectButtonAndModal() {
           icon={<i className="fas fa-arrow-right"></i>}
           variant="primary"
           onClick={() => {
+            const parsedArn = regexArn.exec(assumedRoleArn);
+            const roleName = parsedArn?.groups?.name || '';
             setRoleArnStored(assumedRoleArn);
             selectAccountAndRoleRedirectTo(
-              path,
+              location.pathname + location.search,
               assumedAccount,
               assumedRoleArn,
             );
-            handleClose();
+            redirectDataConsummers([{ Name: roleName }], handleClose);
+            window.location.reload();
           }}
           label="Continue"
           disabled={assumedRoleArn === getRoleArnStored()}
@@ -144,18 +165,25 @@ function AccountRoleSelectButtonAndModal() {
   return (
     <>
       <AccountSelectorButton
+        bigButton={bigButton}
         variant="primary"
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
         label={
-          <>
-            {accountName}
-            <SpacedBox ml={12}>
-              <i className="fas fa-chevron-down fa-xs" />
-            </SpacedBox>
-          </>
+          buttonLabel ? (
+            buttonLabel
+          ) : (
+            <>
+              {accountName}
+              <SpacedBox ml={12}>
+                <i className="fas fa-chevron-down fa-xs" />
+              </SpacedBox>
+            </>
+          )
         }
         icon={<i className="fas fa-wallet" />}
-      ></AccountSelectorButton>
+      />
       <Modal
         close={handleClose}
         footer={modalFooter()}
