@@ -1,6 +1,5 @@
 import { Link, matchPath } from 'react-router-dom';
 import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
-import { Element } from 'react';
 import styled from 'styled-components';
 import { ellipsis } from 'polished';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
@@ -28,7 +27,7 @@ export const breadcrumbPathsBuckets = (
   pathname: string,
   prefixPath: string,
   accountName: string,
-): Array<Element<'label'>> => {
+): JSX.IntrinsicElements['label'][] => {
   const accountsURLPrefix = `/accounts/${accountName}`;
   const matchCreateBucketRoute = matchPath(pathname, {
     path: `${accountsURLPrefix}/create-bucket`,
@@ -50,7 +49,7 @@ export const breadcrumbPathsBuckets = (
 
     // When browsing inside a folder, display the folder name as the last breadcrumb path
     const isInFolder = prefixPath && prefixPath.slice(-1) === '/';
-    let splits = [];
+    let splits: string[] = [];
 
     if (
       matchPath(pathname, {
@@ -166,13 +165,11 @@ export const breadcrumbPathsBuckets = (
 };
 
 type Props = {
-  breadcrumbPaths?: Array<Element<'label'>>;
+  breadcrumbPaths?: JSX.IntrinsicElements['label'][];
 };
 //breadcrumb for data browser and workflows
 export function Breadcrumb({ breadcrumbPaths }: Props) {
-  const paths = [
-    <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
-  ];
+  const paths = [<AccountRoleSelectButtonAndModal />];
   if (breadcrumbPaths) {
     paths.push(...breadcrumbPaths);
   }
@@ -189,7 +186,7 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
     return (
       <CustomBreadCrumb
         paths={[
-          <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
+          <AccountRoleSelectButtonAndModal />,
           <label key="user-name">keys for {userName}</label>,
         ]}
       ></CustomBreadCrumb>
@@ -203,9 +200,7 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
   if (matchAccountRoute) {
     return (
       <CustomBreadCrumb
-        paths={[
-          <AccountRoleSelectButtonAndModal></AccountRoleSelectButtonAndModal>,
-        ]}
+        paths={[<AccountRoleSelectButtonAndModal />]}
       ></CustomBreadCrumb>
     );
   }

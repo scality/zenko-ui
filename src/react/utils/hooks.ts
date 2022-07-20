@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -7,7 +7,7 @@ import {
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useHistory, useParams } from 'react-router';
+import { useHistory } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
@@ -20,11 +20,7 @@ import {
   networkStart,
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
-import {
-  useCurrentAccount,
-  useDataServiceRole,
-} from '../DataServiceRoleProvider';
-import { setRoleArnStored } from './localStorage';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -160,17 +156,40 @@ export const SCALITY_INTERNAL_ROLES = [
   DATA_CONSUMER_ROLE,
 ];
 
+export const useRedirectDataConsumers = () => {
+  const history = useHistory();
+  const location = useLocation();
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
+
+  return React.useCallback((roles, callback = () => null) => {
+    const canAssumeAdminAccountRolesOnAnyAccount = roles.find(
+      (role: { Name: string }) =>
+        role.Name === STORAGE_MANAGER_ROLE ||
+        role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
+    );
+    if (
+      !canAssumeAdminAccountRolesOnAnyAccount &&
+      !location.pathname.includes('bucket') &&
+      !location.pathname.includes('workflows') &&
+      !userGroups.includes('StorageManager')
+    ) {
+      history.replace('/buckets');
+    } else {
+      callback();
+    }
+  }, []);
+};
+
 export const useAccounts = () => {
   const token = useSelector((state: AppState) => state.oidc.user.access_token);
   const IAMEndpoint = useSelector(
     (state: AppState) => state.auth.config.iamEndpoint,
   );
   const dispatch = useDispatch();
-  const history = useHistory();
-  const location = useLocation();
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
+
+  const redirectDataConsumers = useRedirectDataConsumers();
 
   const { data } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
     {
@@ -186,22 +205,10 @@ export const useAccounts = () => {
       onUnmountOrSettled: (accountsWithRoles, error) => {
         if (!error) {
           dispatch(networkEnd());
-          const canAssumeAdminAccountRolesOnAnyAccount =
-            !!accountsWithRoles?.find((accountWithRoles) =>
-              accountWithRoles.Roles.find(
-                (role) =>
-                  role.Name === STORAGE_MANAGER_ROLE ||
-                  role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
-              ),
-            );
-
-          if (
-            !canAssumeAdminAccountRolesOnAnyAccount &&
-            !location.pathname.includes('bucket') &&
-            !location.pathname.includes('workflows') &&
-            !userGroups.includes('StorageManager')
-          ) {
-            history.replace('/buckets');
+          if (accountsWithRoles?.entries) {
+            accountsWithRoles.forEach((accountWithRoles) => {
+              redirectDataConsumers(accountWithRoles.Roles);
+            });
           }
         } else {
           if (error?.message === 'Unmounted') {
