@@ -12,6 +12,9 @@ export const TRANSITION_WORKFLOW_CURRENT_ID =
   '0d55a1d7-349c-4e79-932b-b502bcc45a8f';
 export const TRANSITION_WORKFLOW_PREVIOUS_ID =
   '1e55a1d7-349c-4e79-932b-b502bcc45a8f';
+export const TRIGGER_DELAY_DAYS = 15;
+export const COLD_LOCATION_NAME = 'europe25-myroom-cold';
+
 export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
   //Config overlay mock below
   rest.get(
@@ -238,8 +241,8 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
               workflowId: TRANSITION_WORKFLOW_CURRENT_ID,
               applyToVersion: 'current',
               type: 'bucket-workflow-transition-v2',
-              triggerDelayDays: 15,
-              locationName: 'europe25-myroom-cold',
+              triggerDelayDays: TRIGGER_DELAY_DAYS,
+              locationName: COLD_LOCATION_NAME,
               enabled: true,
             },
           },
@@ -249,8 +252,8 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
               workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
               applyToVersion: 'previous',
               type: 'bucket-workflow-transition-v2',
-              triggerDelayDays: 15,
-              locationName: 'europe25-myroom-cold',
+              triggerDelayDays: TRIGGER_DELAY_DAYS,
+              locationName: COLD_LOCATION_NAME,
               enabled: true,
             },
           },
@@ -267,8 +270,8 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
             workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
             applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
-            triggerDelayDays: 15,
-            locationName: 'europe25-myroom-cold',
+            triggerDelayDays: TRIGGER_DELAY_DAYS,
+            locationName: COLD_LOCATION_NAME,
             enabled: true,
           },
         ]),
@@ -284,8 +287,8 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
             workflowId: TRANSITION_WORKFLOW_PREVIOUS_ID,
             applyToVersion: 'previous',
             type: 'bucket-workflow-transition-v2',
-            triggerDelayDays: 15,
-            locationName: 'europe25-myroom-cold',
+            triggerDelayDays: TRIGGER_DELAY_DAYS,
+            locationName: COLD_LOCATION_NAME,
             enabled: true,
           },
         ]),
