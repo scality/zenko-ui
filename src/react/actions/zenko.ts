@@ -31,6 +31,7 @@ import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import { ListObjectsType } from '../../types/s3';
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
+export const NETWORK_START_ACTION_SEARCHING_NEXT_OBJECTS = 'Loading next page of objects matching your search';
 export const NETWORK_START_ACTION_SEARCHING_VERSIONS = 'Searching versions';
 export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
 
@@ -98,7 +99,11 @@ function _getSearchObjects(
       Marker: marker ? marker : void 0,
     };
     dispatch(zenkoClearError());
-    dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
+    if (marker) {
+      dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_NEXT_OBJECTS));
+    } else {
+      dispatch(networkStart(NETWORK_START_ACTION_SEARCHING_OBJECTS));
+    }
     return zenkoClient
       .searchBucket(params)
       .then(async ({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {

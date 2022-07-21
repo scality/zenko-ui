@@ -104,6 +104,8 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Bucket,
         Query,
         Marker,
+        MaxKeys: 100,
+        Delimiter: '/'
       })
       .promise();
   }
@@ -112,12 +114,13 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     params: SearchVersionParams,
   ): Promise<SearchBucketVersionsResp> {
     const { Bucket, Query, KeyMarker, VersionIdMarker } = params;
+
     return this._xmlClient
       .searchBucketVersions({
         Bucket,
         Query,
         KeyMarker,
-        VersionIdMarker,
+        VersionIdMarker: parseInt(VersionIdMarker, 10),
         MaxKeys: 100,
       })
       .promise();

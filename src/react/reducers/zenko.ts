@@ -10,6 +10,7 @@ export default function (
       return { ...state, zenkoClient: action.zenkoClient };
 
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':
+    case 'ZENKO_CLIENT_APPEND_SEARCH_LIST':
     case 'LIST_OBJECTS_SUCCESS':
     case 'ZENKO_CLEAR_ERROR':
       return {
