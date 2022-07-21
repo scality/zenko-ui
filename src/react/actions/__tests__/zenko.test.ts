@@ -24,6 +24,9 @@ const startingSearchNetworkAction = dispatchAction.NETWORK_START_ACTION(
 const searchingObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
   NETWORK_START_ACTION_SEARCHING_OBJECTS,
 );
+const searchingNextObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
+  actions.NETWORK_START_ACTION_SEARCHING_NEXT_OBJECTS,
+);
 const continueSearchNetworkAction = dispatchAction.NETWORK_START_ACTION(
   NETWORK_START_ACTION_CONTINUE_SEARCH,
 );
@@ -166,7 +169,7 @@ describe('zenko actions', () => {
       expectedActions: [
         continueSearchNetworkAction,
         dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
-        searchingObjectsNetworkAction,
+        searchingNextObjectsNetworkAction,
         dispatchAction.ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION(null, []),
         dispatchAction.NETWORK_END_ACTION,
         dispatchAction.NETWORK_END_ACTION,
@@ -180,7 +183,7 @@ describe('zenko actions', () => {
       expectedActions: [
         continueSearchNetworkAction,
         dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
-        searchingObjectsNetworkAction,
+        searchingNextObjectsNetworkAction,
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
         dispatchAction.NETWORK_END_ACTION,
         dispatchAction.NETWORK_END_ACTION,
