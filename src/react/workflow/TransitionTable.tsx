@@ -2,15 +2,17 @@ import { Banner } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { useTheme } from 'styled-components';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
+import { Tag } from '../../types/s3';
 import { APIWorkflows } from '../../types/workflow';
 import { GentleEmphaseSecondaryText } from '../ui-elements/Table';
-import { useWorkflows } from './Workflows';
+import { filterWorkflows } from './utils';
+import { useWorkflowsWithSelect } from './Workflows';
 
 type Props = {
   bucketName: string;
   applyToVersion: BucketWorkflowTransitionV2.ApplyToVersionEnum;
   objectKeyPrefix: string;
-  objectTags: [];
+  objectTags: Tag[];
   triggerDelayDays?: string;
   locationName?: string;
 };
@@ -23,35 +25,44 @@ const TransitionTable = ({
   locationName,
 }: Props) => {
   const theme = useTheme();
-  const { data: transitions } = useWorkflows(
+  const { data: transitions, status } = useWorkflowsWithSelect(
     (workflows: APIWorkflows) => {
-      return workflows.filter((wf) => wf.transition).map((wf) => wf.transition);
-    },
-    {
-      objectKeyPrefix: objectKeyPrefix,
-      objectTags: objectTags,
+      return workflows
+        .filter((wf) => wf.transition)
+        .map((wf) => wf.transition)
+        .filter(
+          (ts: BucketWorkflowTransitionV2) =>
+            ts.applyToVersion === applyToVersion &&
+            ts.bucketName === bucketName,
+        );
     },
   );
 
   const transitionList =
-    transitions?.filter(
-      (ts: BucketWorkflowTransitionV2) =>
-        ts.applyToVersion === applyToVersion && ts.bucketName === bucketName,
-    ) || [];
+    (status === 'success' &&
+      filterWorkflows(transitions, {
+        objectKeyPrefix,
+        objectTags,
+      })) ||
+    [];
 
-  const isTransitionWithDate = transitionList?.find(
-    (ts: BucketWorkflowTransitionV2) => ts.triggerDelayDate,
-  );
+  const isTransitionWithDate =
+    status === 'success' &&
+    transitionList.find(
+      (ts: BucketWorkflowTransitionV2) => ts.triggerDelayDate,
+    );
 
   // Manually add the workflow description
-  const transitionWithDesciption = transitionList.map(
-    (ts: BucketWorkflowTransitionV2) => {
-      return {
-        description: `All current objects order than ${ts.triggerDelayDays} day(s) will transition to ${ts.locationName}`,
-        ...ts,
-      };
-    },
-  );
+  const transitionWithDesciption =
+    (status === 'success' &&
+      transitionList.map((ts: BucketWorkflowTransitionV2) => {
+        return {
+          description: `All current objects order than ${ts.triggerDelayDays} day(s) will transition to ${ts.locationName}`,
+          ...ts,
+        };
+      })) ||
+    [];
+
   if (triggerDelayDays && locationName) {
     transitionWithDesciption.push({
       triggerDelayDays,
@@ -115,7 +126,7 @@ const TransitionTable = ({
           {transitionWithDate}
         </Banner>
       )}
-      {transitionWithDesciption.length && (
+      {transitionWithDesciption.length ? (
         <Box m={2} height="8rem" backgroundColor={theme.brand.backgroundLevel2}>
           <Table
             columns={columns}
@@ -129,6 +140,8 @@ const TransitionTable = ({
             />
           </Table>
         </Box>
+      ) : (
+        ''
       )}
     </>
   );
