@@ -213,6 +213,7 @@ export type ZenkoAction =
   | ZenkoClearAction
   | ZenkoErrorAction
   | ZenkoWriteSearchListAction
+  | ZenkoAppendSearchListAction
   | ListObjectsSuccessAction;
 // ui buckets actions
 export type OpenBucketDeleteDialogAction = {

@@ -229,6 +229,16 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
         },
       };
 
+    case 'ZENKO_CLIENT_APPEND_SEARCH_LIST':
+      return {
+        ...state,
+        listObjectsType: LIST_OBJECTS_METADATA_TYPE,
+        listObjectsResults: {
+          list: List([...state.listObjectsResults.list, ...search(action.list)]),
+          nextMarker: action.nextMarker,
+        },
+      };
+
     case 'ZENKO_CLIENT_WRITE_SEARCH_LIST':
       return {
         ...state,
