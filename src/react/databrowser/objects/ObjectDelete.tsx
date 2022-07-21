@@ -28,6 +28,7 @@ import { useTheme } from 'styled-components';
 import styled from 'styled-components';
 import Input from '../../ui-elements/Input';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
 
 export const Icon = styled.i`
   display: inline;
@@ -62,22 +63,39 @@ const RemoveCell = styled(T.Cell)`
   width: 0.625rem;
 `;
 
-const title = (files, isVersioning) => {
+const isPermanentDelete = (
+  files: Record<string, any>[],
+  isVersioningBucket: boolean,
+): boolean =>
+  isVersioningBucket
+    ? files.some((f) => !!f.versionId)
+      ? true
+      : false
+    : false;
+
+const title = (files: Record<string, any>[], isVersioning: boolean) => {
   const foldersSize = files.filter((f) => f.isFolder).length;
   const objectsSize = files.length - foldersSize;
-  const permanently = isVersioning
-    ? files.some((f) => !!f.versionId)
-      ? 'permanently'
-      : ''
-    : 'permanently';
+  const isCurrentSelectionPermanentlyDeleted = isPermanentDelete(
+    files,
+    isVersioning,
+  );
+
   // return `Do you want to ${permanently} delete the selected ${maybePluralize(objectsSize, 'object')} ` +
   // `and ${maybePluralize(foldersSize, 'folder')}?`;
   return (
     <span>
       {' '}
-      Do you want to <strong> {permanently} </strong> delete the selected{' '}
-      {maybePluralize(objectsSize, 'object')} and{' '}
-      {maybePluralize(foldersSize, 'folder')}?{' '}
+      Do you want to{' '}
+      <strong>
+        {' '}
+        {isCurrentSelectionPermanentlyDeleted ? 'permanently' : ''}{' '}
+      </strong>{' '}
+      delete the selected{' '}
+      {isCurrentSelectionPermanentlyDeleted
+        ? maybePluralize(objectsSize, 'object version')
+        : maybePluralize(objectsSize, 'object')}{' '}
+      and {maybePluralize(foldersSize, 'folder')}?{' '}
     </span>
   );
 };
@@ -159,7 +177,30 @@ const ObjectDelete = ({
     [confirmed],
   );
   const theme = useTheme();
-
+  const [isVersionDeletionConfirmed, setIsVersionDeletionConfirmed] =
+    useState(false);
+  const isCurrentSelectionPermanentlyDeleted = isPermanentDelete(
+    toggledFiles,
+    bucketInfo.isVersioning,
+  );
+  const notificationText = !isCurrentSelectionPermanentlyDeleted
+    ? `Delete ${maybePluralize(
+        toggled.size,
+        'marker',
+        's',
+        false,
+      )} will be added to the selected ${maybePluralize(
+        toggled.size,
+        'object',
+        's',
+        false,
+      )}.`
+    : `The selected ${maybePluralize(
+        toggled.size,
+        'version',
+        's',
+        false,
+      )} will be permanently removed from the Bucket.`;
   useEffect(() => {
     setToggledFiles([...toggled]);
   }, [toggled]);
@@ -175,6 +216,7 @@ const ObjectDelete = ({
 
   const cancel = () => {
     cleanFiles();
+    setIsVersionDeletionConfirmed(false);
     dispatch(toggleAllObjects(false));
     dispatch(closeObjectDeleteModal());
   };
@@ -206,6 +248,7 @@ const ObjectDelete = ({
     dispatch(
       deleteFiles(bucketName, prefixWithSlash, [...objects], [...folders]),
     );
+    setIsVersionDeletionConfirmed(false);
   };
 
   return (
@@ -223,7 +266,11 @@ const ObjectDelete = ({
           <Button
             id="object-delete-delete-button"
             disabled={
-              toggledFiles.length === 0 || (hasLockedFiles && !confirmed)
+              toggledFiles.length === 0 ||
+              (hasLockedFiles && !confirmed) ||
+              (isCurrentSelectionPermanentlyDeleted &&
+                !isVersionDeletionConfirmed &&
+                !hasLockedFiles)
             }
             variant="danger"
             onClick={deleteSelectedFiles}
@@ -281,6 +328,28 @@ const ObjectDelete = ({
         {' '}
         Total: <PrettyBytes bytes={totalSize} />{' '}
       </SpacedBox>
+      <Banner
+        variant="base"
+        id="notification"
+        icon={<i className="fas fa-info-circle" />}
+      >
+        <span>{notificationText}</span>
+      </Banner>
+      {isCurrentSelectionPermanentlyDeleted && !hasLockedFiles && (
+        <CheckboxContainer>
+          <Checkbox
+            name="confirmingPemanentDeletion"
+            id="confirmingPemanentDeletionCheckbox"
+            checked={isVersionDeletionConfirmed}
+            onChange={() =>
+              setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
+            }
+          />
+          <label htmlFor="confirmingPemanentDeletionCheckbox">
+            Confirm the deletion
+          </label>
+        </CheckboxContainer>
+      )}
       {hasLockedFiles && (
         <Fragment>
           <SpacedBox mt={12} mb={12}>
