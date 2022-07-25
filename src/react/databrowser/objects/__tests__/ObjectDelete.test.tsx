@@ -8,6 +8,7 @@ import { List } from 'immutable';
 import ObjectDelete from '../ObjectDelete';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
+import { act } from 'react-dom/test-utils';
 describe('ObjectDelete', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -84,6 +85,8 @@ describe('ObjectDelete', () => {
         },
       },
     );
+    const checkbox = component.find('input#confirmingPemanentDeletionCheckbox');
+    act(() => checkbox.props().onChange());
     expect(deleteFilesSpy).toHaveBeenCalledTimes(0);
     component.find('button#object-delete-delete-button').simulate('click');
     expect(deleteFilesSpy).toHaveBeenCalledTimes(1);
