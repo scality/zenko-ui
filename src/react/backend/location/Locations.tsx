@@ -1,8 +1,4 @@
-import {
-  JAGUAR_S3_ENDPOINT,
-  Location,
-  Replication,
-} from '../../../types/config';
+import { Location, Replication } from '../../../types/config';
 import { useCallback, useMemo, useState, ComponentType } from 'react';
 import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
@@ -16,7 +12,6 @@ import type { AppState } from '../../../types/state';
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { storageOptions } from '../../backend/location/LocationDetails';
 import { XDM_FEATURE } from '../../../js/config';
 import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
 import { Table, Button } from '@scality/core-ui/dist/next';
