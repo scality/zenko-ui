@@ -7,12 +7,11 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';
 import type { AppState } from '../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, ScrollbarWrapper } from '@scality/core-ui';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import Routes from './Routes';
-import ScrollbarWrapper from './ui-elements/ScrollbarWrapper';
 import { ThemeProvider } from 'styled-components';
 import { loadAppConfig } from './actions';
 
@@ -63,8 +62,6 @@ function ZenkoUI() {
   return (
     <ThemeProvider theme={theme}>
       <ScrollbarWrapper>
-        {' '}
-        {/* TODO: replace with core-ui scrollbar when colors are set correctly */}
         <MainContainer>
           <ReauthDialog />
           {content()}
