@@ -14,6 +14,10 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { List } from 'immutable';
+import {
+  ACCOUNT_ID,
+  getColdStorageHandlers,
+} from '../../../../js/mock/managementClientColdStorageMSWHandlers';
 const locationFile = {
   details: {
     bootstrapList: [],
@@ -92,6 +96,18 @@ const locationSproxyd = {
   name: 'location-sproxyd',
   objectId: '6',
 };
+const locationDmf = {
+  locationType: 'location-dmf-v1',
+  name: 'europe25-myroom-cold',
+  isCold: true,
+  details: {
+    endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+    repoId: ['repoId'],
+    nsId: 'nsId',
+    username: 'username',
+    password: 'password',
+  },
+};
 const locations = {
   'location-file': locationFile,
   'location-aws-s3': locationAwsS3,
@@ -100,16 +116,19 @@ const locations = {
   'location-hd': locationHD,
   'location-ring': locationRing,
   'location-sproxyd': locationSproxyd,
+  'location-dmf': locationDmf,
 };
 const nbrOfColumnsExpected = 5;
 const nbrOfColumnsExpectedWithoutXDM = 4;
 
 const instanceId = 'instanceId';
 const accountId = 'accountId';
-const server = setupServer(rest.post(
-  `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
-  (req, res, ctx) => res(ctx.json([])),
-),);
+const server = setupServer(
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
+    (req, res, ctx) => res(ctx.json([])),
+  ),
+);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -611,5 +630,66 @@ describe.skip('Locations', () => {
       );
       throw e;
     }
+  });
+
+  it.only('should disable delete location button if transition workflow is created on it', async () => {
+    const TEST_ACCOUNT = 'Test Account';
+    const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
+
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [
+              {
+                Name: TEST_ACCOUNT,
+                CreationDate: TEST_ACCOUNT_CREATION_DATE,
+                Roles: [
+                  {
+                    Name: 'storage-manager-role',
+                    Arn: `arn:aws:iam::${ACCOUNT_ID}:role/scality-internal/storage-manager-role`,
+                  },
+                ],
+              },
+            ],
+          }),
+        );
+      }),
+      ...getColdStorageHandlers(TEST_API_BASE_URL, instanceId),
+    );
+    reduxRender(<Locations />, {
+      networkActivity: {
+        counter: 0,
+        messages: List.of(),
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      auth: {
+        config: { features: [], iamEndpoint: TEST_API_BASE_URL },
+        selectedAccount: { id: ACCOUNT_ID },
+      },
+      configuration: {
+        latest: {
+          locations: {
+            'location-dmf': locationDmf,
+          },
+        },
+      },
+    });
+
+    await waitForElementToBeRemoved(
+      () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
+      { timeout: 8000 },
+    );
+
+    const firstRow = screen.getAllByRole('row')[1];
+
+    expect(
+      getByRole(firstRow, 'button', {
+        name: /You can't delete this location/i,
+      }),
+    ).toBeDisabled();
   });
 });
