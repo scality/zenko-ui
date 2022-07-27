@@ -47,6 +47,16 @@ const ActionButtons = ({
     (locationName) => dispatch(deleteLocation(locationName)),
     [dispatch],
   );
+
+  const isDeletionEnable = canDeleteLocation(
+    locationName,
+    locations,
+    replications,
+    transitions,
+    buckets,
+    endpoints,
+  );
+
   return (
     <div>
       <DeleteConfirmation
@@ -74,19 +84,12 @@ const ActionButtons = ({
         onClick={() => setShowModal(true)}
         type="button"
         tooltip={{
-          overlay: 'Delete Location',
-          placement: 'top',
+          overlay: isDeletionEnable
+            ? 'Delete Location'
+            : `You can't delete this location`,
+          overlayStyle: { width: '8rem' },
         }}
-        disabled={
-          !canDeleteLocation(
-            locationName,
-            locations,
-            replications,
-            transitions,
-            buckets,
-            endpoints,
-          )
-        }
+        disabled={!isDeletionEnable}
       />
     </div>
   );
