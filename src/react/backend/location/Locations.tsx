@@ -21,13 +21,16 @@ import { useWorkflows } from '../../workflow/Workflows';
 import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../../utils/storageOptions';
+import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
 
 const ActionButtons = ({
   rowValues,
   replications,
+  transitions,
 }: {
   rowValues: Location;
   replications: Replication[];
+  transitions: BucketWorkflowTransitionV2[];
 }) => {
   const { name: locationName } = rowValues;
   const dispatch = useDispatch();
@@ -79,6 +82,7 @@ const ActionButtons = ({
             locationName,
             locations,
             replications,
+            transitions,
             buckets,
             endpoints,
           )
@@ -199,6 +203,7 @@ function Locations() {
           <ActionButtons
             rowValues={value.row.original}
             replications={workflowsQuery.data?.replications || []}
+            transitions={workflowsQuery.data?.transitions || []}
           />
         );
       },

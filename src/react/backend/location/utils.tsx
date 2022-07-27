@@ -23,6 +23,7 @@ import { InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
 import styled from 'styled-components';
 import { SpacedBox } from '@scality/core-ui';
+import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
 type RowProps = {
   original: Location;
 };
@@ -105,6 +106,7 @@ function canDeleteLocation(
   locationName: LocationName,
   locations: LocationsType,
   replicationStreams: Array<Replication>,
+  transitions: Array<BucketWorkflowTransitionV2>,
   buckets: BucketList,
   endpoints: Array<Endpoint>,
 ) {
@@ -128,6 +130,14 @@ function canDeleteLocation(
       return destLocation.name !== locationName;
     });
   });
+
+  const isTransitionCreatedOnLocation = !!transitions.find(
+    (t: BucketWorkflowTransitionV2) => t.locationName === locationName,
+  );
+
+  if (isTransitionCreatedOnLocation) {
+    return false;
+  }
 
   if (!checkStreamLocations) {
     return false;
