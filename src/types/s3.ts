@@ -97,6 +97,7 @@ export type ObjectEntity = {
     readonly retainUntilDate: string;
   };
   readonly isLatest: boolean;
+  readonly storageClass: string;
   readonly versionId?: string;
   readonly isDeleteMarker?: boolean;
   readonly isLegalHoldEnabled?: boolean;

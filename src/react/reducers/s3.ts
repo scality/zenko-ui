@@ -47,6 +47,7 @@ const objects = (objs, prefix): Array<ObjectEntity> =>
         signedUrl: o.SignedUrl,
         ..._getObjectLockInformation(o),
         isLegalHoldEnabled: o.IsLegalHoldEnabled,
+        storageClass: o.StorageClass,
       };
     });
 
@@ -247,7 +248,10 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
         ...state,
         listObjectsType: LIST_OBJECTS_METADATA_TYPE,
         listObjectsResults: {
-          list: List([...state.listObjectsResults.list, ...search(action.list)]),
+          list: List([
+            ...state.listObjectsResults.list,
+            ...search(action.list),
+          ]),
           nextMarker: action.nextMarker,
         },
       };

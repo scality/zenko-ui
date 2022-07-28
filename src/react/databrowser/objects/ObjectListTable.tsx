@@ -241,7 +241,6 @@ export default function ObjectListTable({
           marginRight: isTableScrollbarVisible ? spacing.sp8 : spacing.sp16,
         },
         accessor: (row) => (row.size ? row.size : ''),
-
         Cell({ value: size }: { value: string }) {
           return (
             <TextAligner alignment={'right'}>
@@ -249,8 +248,17 @@ export default function ObjectListTable({
             </TextAligner>
           );
         },
-
         width: 10,
+      },
+      {
+        Header: 'Storage Location',
+        accessor: 'storageClass',
+        width: 20,
+        Cell({ value: storageClass }: { value: string }) {
+          return (
+            <div>{storageClass === 'STANDARD' ? 'default' : storageClass}</div>
+          );
+        },
       },
     ],
     [
