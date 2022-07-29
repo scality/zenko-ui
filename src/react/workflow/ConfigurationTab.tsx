@@ -411,19 +411,6 @@ function isTransitionWorkflow(
   );
 }
 
-function isReplicationWorkflow(
-  workflow:
-    | Expiration
-    | Replication
-    | TypeReplicationForm
-    | BucketWorkflowTransitionV2,
-): workflow is Replication {
-  return (
-    'type' in workflow &&
-    workflow.type === BucketWorkflowV1.TypeEnum.ReplicationV1
-  );
-}
-
 function initDefaultValues(workflow: Expiration | BucketWorkflowTransitionV2) {
   if (
     (workflow.filter &&
@@ -468,9 +455,9 @@ function EditForm({
   const schema =
     workflow && isExpirationWorkflow(workflow)
       ? expirationSchema
-      : isReplicationWorkflow(workflow)
-      ? Joi.object(replicationSchema)
-      : Joi.object(transitionSchema);
+      : isTransitionWorkflow(workflow)
+      ? Joi.object(transitionSchema)
+      : Joi.object(replicationSchema);
 
   const useFormMethods = useForm({
     mode: 'all',
@@ -484,9 +471,9 @@ function EditForm({
     },
     defaultValues: isExpirationWorkflow(workflow)
       ? initDefaultValues(workflow)
-      : isReplicationWorkflow(workflow)
-      ? convertToReplicationForm(workflow)
-      : initTransitionDefaultValue(workflow),
+      : isTransitionWorkflow(workflow)
+      ? initTransitionDefaultValue(workflow)
+      : convertToReplicationForm(workflow),
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
@@ -524,10 +511,10 @@ function EditForm({
     setIsDeleteModalOpen(false);
     if (workflow && isExpirationWorkflow(workflow)) {
       deleteExpirationMutation.mutate(workflow);
-    } else if (workflow && isReplicationWorkflow(workflow)) {
-      deleteReplicationMutation.mutate(workflow);
-    } else {
+    } else if (workflow && isTransitionWorkflow(workflow)) {
       deleteTransitionMutation.mutate(workflow);
+    } else {
+      deleteReplicationMutation.mutate(workflow);
     }
   };
 
@@ -560,9 +547,9 @@ function EditForm({
           workflow.name ||
           (isExpirationWorkflow(workflow)
             ? generateExpirationName(workflow)
-            : isReplicationWorkflow(workflow)
-            ? generateStreamName(workflow)
-            : generateTransitionName(workflow))
+            : isTransitionWorkflow(workflow)
+            ? generateTransitionName(workflow)
+            : generateStreamName(workflow))
         } ?`}
       />
       <ConfigurationHeader>
@@ -602,15 +589,15 @@ function EditForm({
                       <i className="fas fa-stopwatch" />
                       Expiration
                     </T.Value>
-                  ) : isReplicationWorkflow(workflow) ? (
-                    <T.Value>
-                      <i className="fas fa-coins" />
-                      Replication
-                    </T.Value>
-                  ) : (
+                  ) : isTransitionWorkflow(workflow) ? (
                     <T.Value>
                       <i className="fas fa-rocket" />
                       Transition
+                    </T.Value>
+                  ) : (
+                    <T.Value>
+                      <i className="fas fa-coins" />
+                      Replication
                     </T.Value>
                   )}
                 </T.Row>
@@ -618,10 +605,10 @@ function EditForm({
             </T.Group>
             {isExpirationWorkflow(workflow) ? (
               <ExpirationForm bucketList={bucketList} locations={locations} />
-            ) : isReplicationWorkflow(workflow) ? (
-              <ReplicationForm bucketList={bucketList} locations={locations} />
-            ) : (
+            ) : isTransitionWorkflow(workflow) ? (
               <TransitionForm bucketList={bucketList} locations={locations} />
+            ) : (
+              <ReplicationForm bucketList={bucketList} locations={locations} />
             )}
             <T.Footer>
               <Button
@@ -672,7 +659,7 @@ function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
       );
     }
   }, [workflowsQuery.status, workflowId]);
-
+  console.log('workflow', workflow);
   if (!workflow) {
     return <></>;
   }
