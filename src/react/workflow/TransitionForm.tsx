@@ -64,7 +64,7 @@ export const TransitionForm = ({
 
   const { errors } = formState;
   const isEditing = !!getValues(`${prefix}workflowId`);
-
+  const applyToVersion = getValues(`${prefix}applyToVersion`);
   const locationName = watch(`${prefix}locationName`);
   const triggerDelayDays = watch(`${prefix}triggerDelayDays`);
 
@@ -73,8 +73,11 @@ export const TransitionForm = ({
   const isSourceBucketVersionned = sourceBucket
     ? isVersioning(sourceBucket.VersionStatus)
     : false;
+  // Disable the previous version if the bucket is not versionned and the default value is `Current version`
+  const isPreviousVersionDisabled =
+    !isSourceBucketVersionned && applyToVersion === 'current';
   useMemo(() => {
-    if (!isSourceBucketVersionned) {
+    if (!isSourceBucketVersionned && !isEditing) {
       setValue(`${prefix}applyToVersion`, 'current');
     }
   }, [isSourceBucketVersionned]);
@@ -280,15 +283,15 @@ export const TransitionForm = ({
                       id="previous"
                       value="previous"
                       {...register(`${prefix}applyToVersion`)}
-                      disabled={!isSourceBucketVersionned}
+                      disabled={isPreviousVersionDisabled}
                     />
                     <Box
                       ml={1}
-                      style={{ opacity: isSourceBucketVersionned ? 1 : 0.5 }}
+                      style={{ opacity: isPreviousVersionDisabled ? 0.5 : 1 }}
                     >
                       Previous version
                     </Box>
-                    {!isSourceBucketVersionned ? (
+                    {isPreviousVersionDisabled ? (
                       <>
                         <IconHelp
                           tooltipMessage={
