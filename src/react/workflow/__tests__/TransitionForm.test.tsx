@@ -305,7 +305,7 @@ describe('TransitionForm', () => {
     //Check if the transition table render
     expect(
       screen.getByRole('row', {
-        name: /2 chapter-ux objects older than 2 day\(s\) will transition to chapter-ux/i,
+        name: /2 chapter-ux objects older than 2 days will transition to chapter-ux/i,
       }),
     ).toBeInTheDocument();
   });

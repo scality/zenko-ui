@@ -103,8 +103,7 @@ export default function Workflows() {
     (state: AppState) => state.s3.listBucketsResults.list,
   );
 
-  const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
-  const workflowListDataQuery = useWorkflowsWithSelect(select);
+  const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;

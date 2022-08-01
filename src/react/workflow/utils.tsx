@@ -351,14 +351,10 @@ export const filterWorkflows = (
 ): BucketWorkflowTransitionV2[] => {
   const sanitizedTags = filters.objectTags.filter((tag: Tag) => tag.key !== '');
 
-  return transitions
-    .filter((ts: BucketWorkflowTransitionV2) => {
-      if (filters.objectKeyPrefix) {
-        return ts.filter?.objectKeyPrefix === filters.objectKeyPrefix;
-      }
-      return true;
-    })
-    .filter((ts: BucketWorkflowTransitionV2) =>
-      hasIdenticalTags(ts.filter?.objectTags || [], sanitizedTags),
-    );
+  return transitions.filter((ts: BucketWorkflowTransitionV2) => {
+    if (filters.objectKeyPrefix) {
+      return ts.filter?.objectKeyPrefix === filters.objectKeyPrefix;
+    }
+    return hasIdenticalTags(ts.filter?.objectTags || [], sanitizedTags);
+  });
 };

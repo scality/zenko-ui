@@ -65,7 +65,6 @@ export const TransitionForm = ({
 
   const { errors } = formState;
   const isEditing = !!getValues(`${prefix}workflowId`);
-  const applyToVersion = getValues(`${prefix}applyToVersion`);
   const locationName = watch(`${prefix}locationName`);
   const triggerDelayDays = watch(`${prefix}triggerDelayDays`);
   const bucketName = watch(`${prefix}bucketName`);

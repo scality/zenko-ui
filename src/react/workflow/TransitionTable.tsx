@@ -57,7 +57,14 @@ const TransitionTable = ({
     (status === 'success' &&
       transitionList.map((ts: BucketWorkflowTransitionV2) => {
         return {
-          description: `All current objects order than ${ts.triggerDelayDays} day(s) will transition to ${ts.locationName}`,
+          description: `All current objects older than ${
+            ts.triggerDelayDays
+          } day${
+            typeof ts.triggerDelayDays === 'number' && ts.triggerDelayDays > 1
+              ? 's '
+              : ' '
+          }
+          will transition to ${ts.locationName}`,
           ...ts,
         };
       })) ||
@@ -67,11 +74,16 @@ const TransitionTable = ({
     transitionWithDesciption.push({
       triggerDelayDays,
       locationName,
-      description: `Objects older than ${triggerDelayDays} day(s) will transition to ${locationName} `,
+      description: `Objects older than ${triggerDelayDays} day${
+        typeof triggerDelayDays === 'string' &&
+        parseInt(triggerDelayDays, 10) > 1
+          ? 's '
+          : ' '
+      } will transition to ${locationName} `,
     });
   }
 
-  const transitionWithDate = `A Transition Workflow was set up based on a specific date. We can't guarantee you the Workflow would be consistent.`;
+  const transitionWithDate = `A Transition Workflow was set up based on a specific date. We can't guarantee you the Workflow will be consistent.`;
   const columns = [
     {
       Header: 'Days',

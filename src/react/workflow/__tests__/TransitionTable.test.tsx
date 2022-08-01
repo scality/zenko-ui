@@ -88,7 +88,7 @@ describe('Transition Table', () => {
     //V
     expect(
       screen.getByRole('row', {
-        name: /15 europe25-myroom-cold all current objects order than 15 day\(s\) will transition to europe25-myroom-cold/i,
+        name: /15 europe25-myroom-cold all current objects older than 15 days will transition to europe25-myroom-cold/i,
       }),
     ).toBeInTheDocument();
   });
@@ -146,7 +146,7 @@ describe('Transition Table', () => {
     //V
     expect(
       screen.getByRole('row', {
-        name: /15 europe25-myroom-cold all current objects order than 15 day\(s\) will transition to europe25-myroom-cold/i,
+        name: /15 europe25-myroom-cold all current objects older than 15 days will transition to europe25-myroom-cold/i,
       }),
     ).toBeInTheDocument();
   });
@@ -300,7 +300,7 @@ describe('Transition Table', () => {
     //V
     expect(
       screen.getByRole('row', {
-        name: /15 europe25-myroom-cold all current objects order than 15 day\(s\) will transition to europe25-myroom-cold/i,
+        name: /15 europe25-myroom-cold all current objects older than 15 days will transition to europe25-myroom-cold/i,
       }),
     ).toBeInTheDocument();
   });
