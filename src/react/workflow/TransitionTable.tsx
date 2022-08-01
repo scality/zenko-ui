@@ -1,5 +1,6 @@
 import { Banner } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
+import { useRouteMatch } from 'react-router';
 import { useTheme } from 'styled-components';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Tag } from '../../types/s3';
@@ -25,6 +26,9 @@ const TransitionTable = ({
   locationName,
 }: Props) => {
   const theme = useTheme();
+  const isWorkflowCreationPage = useRouteMatch(
+    '/accounts/:accountName/workflows/create-workflow',
+  );
   const { data: transitions, status } = useWorkflowsWithSelect(
     (workflows: APIWorkflows) => {
       return workflows
@@ -117,7 +121,7 @@ const TransitionTable = ({
       Header: 'Description',
       accessor: 'description',
       cellStyle: {
-        minWidth: '36rem',
+        minWidth: isWorkflowCreationPage ? '36rem' : '28rem',
       },
       Cell: ({ value, row: { original: row } }) => {
         return row.triggerDelayDays === triggerDelayDays ? (
