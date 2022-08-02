@@ -66,7 +66,8 @@ const Attachments = () => {
       <AttachmentContainer>
         <TitleBlock>Attach entities</TitleBlock>
         <DescriptiveBlock>
-          Select the entities you want to attach or detach to the{' '}
+          Search for the entries you want to attach or click remove for the
+          items you want to detach from the{' '}
           {isAttachToPolicy ? 'Policy' : 'User'}:{' '}
           <EmphaseText>{resourceName}</EmphaseText>
         </DescriptiveBlock>
