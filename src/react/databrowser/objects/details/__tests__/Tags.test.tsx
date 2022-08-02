@@ -46,11 +46,27 @@ describe('Tags', () => {
     jest.clearAllMocks();
   });
   it('Tags should render', async () => {
-    const { component } = reduxMount(<Tags objectMetadata={OBJECT_METADATA} />);
+    const { component } = reduxMount(
+      <Tags
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={OBJECT_METADATA.tags}
+        versionId={OBJECT_METADATA.versionId}
+      />,
+      {},
+    );
     expect(component.find(Tags).isEmptyRender()).toBe(false);
   });
   it('should render by default an Item with empty values in each input when there are no key/value present', () => {
-    reduxRender(<Tags objectMetadata={OBJECT_METADATA} />, tagsConfig);
+    reduxRender(
+      <Tags
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={OBJECT_METADATA.tags}
+        versionId={OBJECT_METADATA.versionId}
+      />,
+      tagsConfig,
+    );
 
     expect(screen.getByRole('textbox', { name: 'Tag 1 key' })).toHaveValue('');
     expect(screen.getByRole('textbox', { name: 'Tag 1 value' })).toHaveValue(
@@ -88,15 +104,15 @@ describe('Tags', () => {
     );
     reduxRender(
       <Tags
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          tags: [
-            {
-              key: key1,
-              value: value1,
-            },
-          ],
-        }}
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={[
+          {
+            key: key1,
+            value: value1,
+          },
+        ]}
+        versionId={OBJECT_METADATA.versionId}
       />,
       tagsConfig,
     );
@@ -124,7 +140,15 @@ describe('Tags', () => {
     );
   });
   it('remove button and add button should be disabled by default', () => {
-    reduxRender(<Tags objectMetadata={OBJECT_METADATA} />, tagsConfig);
+    reduxRender(
+      <Tags
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={OBJECT_METADATA.tags}
+        versionId={OBJECT_METADATA.versionId}
+      />,
+      tagsConfig,
+    );
 
     expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
@@ -132,15 +156,15 @@ describe('Tags', () => {
   it('should render an Item with key/value pass in props', () => {
     reduxRender(
       <Tags
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          tags: [
-            {
-              key: 'key1',
-              value: 'value1',
-            },
-          ],
-        }}
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={[
+          {
+            key: 'key1',
+            value: 'value1',
+          },
+        ]}
+        versionId={OBJECT_METADATA.versionId}
       />,
       tagsConfig,
     );
@@ -155,19 +179,19 @@ describe('Tags', () => {
   it('should delete key/value if remove button is pressed', () => {
     reduxRender(
       <Tags
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          tags: [
-            {
-              key: 'key1',
-              value: 'value1',
-            },
-            {
-              key: 'key2',
-              value: 'value2',
-            },
-          ],
-        }}
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        tags={[
+          {
+            key: 'key1',
+            value: 'value1',
+          },
+          {
+            key: 'key2',
+            value: 'value2',
+          },
+        ]}
+        versionId={OBJECT_METADATA.versionId}
       />,
       tagsConfig,
     );
