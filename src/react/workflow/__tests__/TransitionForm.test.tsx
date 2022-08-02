@@ -1,13 +1,11 @@
-import {
-  getByRole,
-  getByText,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { getByRole, getByText, screen, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Wrapper as wrapper } from '../../utils/test';
+import {
+  mockOffsetSize,
+  reduxRender,
+  Wrapper as wrapper,
+} from '../../utils/test';
 import { List } from 'immutable';
 import { S3Bucket } from '../../../types/s3';
 import { TransitionForm, transitionSchema } from '../TransitionForm';
@@ -38,6 +36,7 @@ const S3BucketList: List<S3Bucket> = List.of(
 
 const locationName = 'chapter-ux';
 const locationType = 'ARTESCA';
+const triggerDelayDays = '2';
 
 const locations: Locations = {
   [locationName]: {
@@ -76,9 +75,13 @@ const WithFormProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+beforeAll(() => {
+  mockOffsetSize(200, 800);
+});
+
 describe('TransitionForm', () => {
   beforeEach(() => {
-    render(
+    reduxRender(
       <WithFormProvider>
         <TransitionForm bucketList={S3BucketList} locations={locations} />
       </WithFormProvider>,
@@ -265,5 +268,45 @@ describe('TransitionForm', () => {
       expect(screen.getByText(/Form is valid/i)).toBeInTheDocument(),
     );
     expect(screen.getByText(/Form is valid/i)).toBeInTheDocument();
+  });
+
+  it('should display the transition table', async () => {
+    //E
+    const sourceBucketContainer =
+      screen.getByText(/Bucket Name/i).parentElement;
+    userEvent.click(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
+    userEvent.click(
+      screen.getByRole('option', {
+        name: new RegExp(`${versionedBucket} \\(us-east-1 / \\)`, 'i'),
+      }),
+    );
+    const storageLocationContainer =
+      screen.getByText(/Storage location/i).parentElement;
+    userEvent.click(
+      notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
+    );
+    userEvent.click(
+      screen.getByRole('option', {
+        name: new RegExp(`${locationName} \\(${locationType}\\)`, 'i'),
+      }),
+    );
+    userEvent.type(
+      screen.getByRole('spinbutton', { name: /Days after object creation/i }),
+      triggerDelayDays,
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText(/description/i)).toBeInTheDocument(),
+    );
+
+    //V
+    //Check if the transition table render
+    expect(
+      screen.getByRole('row', {
+        name: /2 chapter-ux objects older than 2 days will transition to chapter-ux/i,
+      }),
+    ).toBeInTheDocument();
   });
 });

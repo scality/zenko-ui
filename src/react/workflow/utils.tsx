@@ -327,3 +327,34 @@ export const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
     return value;
   }
 };
+
+const hasIdenticalTags = (tagsA: Array<Tag>, tagsB: Array<Tag>): boolean => {
+  tagsA.sort((tag1: Tag, tag2: Tag) => {
+    if (tag1 > tag2) return 1;
+    return -1;
+  });
+  tagsB.sort((tag1: Tag, tag2: Tag) => {
+    if (tag1 > tag2) return 1;
+    return -1;
+  });
+  return JSON.stringify(tagsA) === JSON.stringify(tagsB);
+};
+
+type Filter = {
+  objectKeyPrefix: string;
+  objectTags: Tag[];
+};
+
+export const filterWorkflows = (
+  transitions: BucketWorkflowTransitionV2[],
+  filters: Filter,
+): BucketWorkflowTransitionV2[] => {
+  const sanitizedTags = filters.objectTags.filter((tag: Tag) => tag.key !== '');
+
+  return transitions.filter((ts: BucketWorkflowTransitionV2) => {
+    if (filters.objectKeyPrefix) {
+      return ts.filter?.objectKeyPrefix === filters.objectKeyPrefix;
+    }
+    return hasIdenticalTags(ts.filter?.objectTags || [], sanitizedTags);
+  });
+};

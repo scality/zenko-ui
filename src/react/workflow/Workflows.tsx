@@ -22,13 +22,18 @@ import {
 import { APIWorkflows } from '../../types/workflow';
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
-import { BucketWorkflowExpirationV1, BucketWorkflowTransitionV2, ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+import {
+  BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
 
+type Filter = string[];
 
-export function useWorkflows(
-  select?: (workflows: APIWorkflows) => void,
-  filters?: [],
-): UseQueryResult<{replications: ReplicationStreamInternalV1[], expirations: BucketWorkflowExpirationV1[], transitions: BucketWorkflowTransitionV2[]}, unknown> {
+export function useWorkflowsWithSelect<T>(
+  select: (workflows: APIWorkflows) => T,
+  filters?: Filter,
+): UseQueryResult<T, unknown> {
   const mgnt = useManagementClient();
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
@@ -51,19 +56,7 @@ export function useWorkflows(
     onSettled: () => {
       dispatch(networkEnd());
     },
-    select:
-      select ||
-      ((workflows) => ({
-        replications: workflows
-          .filter((w) => w.replication)
-          .map((w) => w.replication),
-        expirations: workflows
-          .filter((w) => w.expiration)
-          .map((w) => w.expiration),
-        transitions: workflows
-          .filter((w) => w.transition)
-          .map((w) => w.transition),
-      })),
+    select: select,
     onError: (error) => {
       try {
         dispatch(handleClientError(error));
@@ -76,6 +69,30 @@ export function useWorkflows(
   return workflowsQuery;
 }
 
+export function useWorkflows(filters?: Filter): UseQueryResult<
+  {
+    expirations: BucketWorkflowExpirationV1[];
+    transitions: BucketWorkflowTransitionV2[];
+    replications: ReplicationStreamInternalV1[];
+  },
+  unknown
+> {
+  return useWorkflowsWithSelect(
+    (workflows: APIWorkflows) => ({
+      replications: workflows
+        .filter((w) => w.replication)
+        .map((w) => w.replication),
+      expirations: workflows
+        .filter((w) => w.expiration)
+        .map((w) => w.expiration),
+      transitions: workflows
+        .filter((w) => w.transition)
+        .map((w) => w.transition),
+    }),
+    filters,
+  );
+}
+
 export default function Workflows() {
   const history = useHistory();
   const { workflowId } = useParams<{ workflowId?: string }>();
@@ -86,8 +103,7 @@ export default function Workflows() {
     (state: AppState) => state.s3.listBucketsResults.list,
   );
 
-  const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
-  const workflowListDataQuery = useWorkflows(select);
+  const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;

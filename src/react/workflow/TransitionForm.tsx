@@ -23,6 +23,7 @@ import { useMemo } from 'react';
 import { IconHelp } from '../ui-elements/Help';
 import Input from '../ui-elements/Input';
 import TagsFilter from './TagsFilter';
+import TransitionTable from './TransitionTable';
 
 export const transitionSchema = {
   workflowId: Joi.string().optional().allow(null, ''),
@@ -64,11 +65,13 @@ export const TransitionForm = ({
 
   const { errors } = formState;
   const isEditing = !!getValues(`${prefix}workflowId`);
-  const applyToVersion = getValues(`${prefix}applyToVersion`);
   const locationName = watch(`${prefix}locationName`);
   const triggerDelayDays = watch(`${prefix}triggerDelayDays`);
-
   const bucketName = watch(`${prefix}bucketName`);
+  const applyToVersion = watch(`${prefix}applyToVersion`);
+  const objectKeyPrefix = watch(`${prefix}filter.objectKeyPrefix`);
+  const objectTags = watch(`${prefix}filter.objectTags`);
+
   const sourceBucket = bucketList.find((bucket) => bucket.Name === bucketName);
   const isSourceBucketVersionned = sourceBucket
     ? isVersioning(sourceBucket.VersionStatus)
@@ -306,6 +309,16 @@ export const TransitionForm = ({
                   </F.Label>
                 </T.Value>
               </T.Row>
+              {bucketName && (
+                <TransitionTable
+                  bucketName={bucketName}
+                  applyToVersion={applyToVersion}
+                  objectKeyPrefix={objectKeyPrefix}
+                  objectTags={objectTags}
+                  triggerDelayDays={triggerDelayDays}
+                  locationName={locationName}
+                />
+              )}
               <T.Row>
                 <T.Key required={true}> Storage location </T.Key>
                 <T.Value>
@@ -346,7 +359,10 @@ export const TransitionForm = ({
                 </T.Value>
               </T.Row>
               <T.Row>
-                <T.Key required={true} id='triggerDelayDays-prefix'> Days after object creation </T.Key>
+                <T.Key required={true} id="triggerDelayDays-prefix">
+                  {' '}
+                  Days after object creation{' '}
+                </T.Key>
                 <T.Value>
                   <Controller
                     control={control}
@@ -357,11 +373,12 @@ export const TransitionForm = ({
                       return (
                         <Input
                           id="triggerDelayDays"
-                          aria-labelledby='triggerDelayDays-prefix'
+                          aria-labelledby="triggerDelayDays-prefix"
                           onChange={onChange}
                           type="number"
                           value={triggerDelayDays}
                           autoComplete="off"
+                          min={0}
                         />
                       );
                     }}

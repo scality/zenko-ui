@@ -5,11 +5,12 @@ import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { TextTransformer } from '../../../ui-elements/Utility';
-import { useWorkflows } from '../../../workflow/Workflows';
+import { useWorkflowsWithSelect } from '../../../workflow/Workflows';
 import { makeWorkflows } from '../../../queries';
 import { APIWorkflows } from '../../../../types/workflow';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
+import { WorkflowTypeIcon } from '../../../workflow/WorkflowList';
 
 const TableAction = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
-  const { data, status } = useWorkflows(select, [bucketName]);
+  const { data, status } = useWorkflowsWithSelect(select, [bucketName]);
 
   const nameCell = (value) => {
     const id = value.row.original.id;
@@ -47,16 +48,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
     {
       Header: 'Action',
       accessor: 'type',
-      Cell({ value: type }: { value: string }) {
-        return (
-          <TextTransformer transform="capitalize">
-            <Icon
-              name={type === 'replication' ? 'Replication' : 'Expiration'}
-            ></Icon>{' '}
-            {type}
-          </TextTransformer>
-        );
-      },
+      Cell: WorkflowTypeIcon,
       cellStyle: {
         minWidth: '8rem',
       },

@@ -4,7 +4,10 @@ import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { SearchInput as SearchInputCore } from '@scality/core-ui';
+import {
+  SearchInput as SearchInputCore,
+  SecondaryText,
+} from '@scality/core-ui';
 import styled from 'styled-components';
 // TEMPLATE
 //
@@ -239,5 +242,17 @@ export const TableContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+`;
+export const GentleEmphaseSecondaryText = styled(SecondaryText)<{
+  alignRight?: boolean;
+}>`
+  font-style: italic;
+  ${(props) =>
+    props.alignRight
+      ? `
+    text-align: right;
+    display: block;
+  `
+      : ''}
 `;
 export default Table;

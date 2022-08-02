@@ -224,8 +224,8 @@ export const Form = styled.form`
   flex-direction: column;
   background-color: ${(props) => props.theme.brand?.backgroundLevel1};
   padding-top: 1%;
-  padding-left: 30%;
-  padding-right: 30%;
+  padding-left: 20%;
+  padding-right: 20%;
 `;
 export const CustomForm = styled.form`
   height: calc(100vh - 510px);

@@ -55,7 +55,7 @@ export const workflowListQuery = (
   instanceId: string,
   rolePathName: string,
   onStart?: () => void,
-  filters?: [],
+  filters?: string[],
 ) => {
   return {
     queryKey: ['workflowList', accountId, instanceId, rolePathName, filters],
