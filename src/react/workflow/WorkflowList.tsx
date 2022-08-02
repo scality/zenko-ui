@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { TextTransformer } from '../ui-elements/Utility';
 import type { Workflows } from '../../types/workflow';
 import { useHistory } from 'react-router-dom';
@@ -10,7 +10,22 @@ import { useTheme } from 'styled-components';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 
 const SEARCH_QUERY_PARAM = 'search';
-
+export function WorkflowTypeIcon({ value: type }: { value: string }) {
+  return (
+    <TextTransformer transform="capitalize">
+      <Icon
+        name={
+          type === 'replication'
+            ? 'Replication'
+            : type === 'expiration'
+            ? 'Expiration'
+            : 'Transition'
+        }
+      ></Icon>{' '}
+      {type}
+    </TextTransformer>
+  );
+}
 type Props = {
   workflows: Workflows;
   workflowId: string | null | undefined;
@@ -62,22 +77,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
         minWidth: '10rem',
         marginLeft: '3rem',
       },
-      Cell({ value: type }: { value: string }) {
-        return (
-          <TextTransformer transform="capitalize">
-            <Icon
-              name={
-                type === 'replication'
-                  ? 'Replication'
-                  : type === 'expiration'
-                  ? 'Expiration'
-                  : 'Transition'
-              }
-            ></Icon>{' '}
-            {type}
-          </TextTransformer>
-        );
-      },
+      Cell: WorkflowTypeIcon,
     },
     {
       Header: 'State',

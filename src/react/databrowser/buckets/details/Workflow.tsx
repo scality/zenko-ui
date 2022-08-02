@@ -10,6 +10,7 @@ import { makeWorkflows } from '../../../queries';
 import { APIWorkflows } from '../../../../types/workflow';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
+import { WorkflowTypeIcon } from '../../../workflow/WorkflowList';
 
 const TableAction = styled.div`
   display: flex;
@@ -47,16 +48,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
     {
       Header: 'Action',
       accessor: 'type',
-      Cell({ value: type }: { value: string }) {
-        return (
-          <TextTransformer transform="capitalize">
-            <Icon
-              name={type === 'replication' ? 'Replication' : 'Expiration'}
-            ></Icon>{' '}
-            {type}
-          </TextTransformer>
-        );
-      },
+      Cell: WorkflowTypeIcon,
       cellStyle: {
         minWidth: '8rem',
       },
