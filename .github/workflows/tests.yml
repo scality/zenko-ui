@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
     steps:
     - name: Checkout
       uses: actions/checkout@v2.3.5
@@ -81,6 +84,9 @@ jobs:
   end2end:
     needs: [build]
     runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
     env:
       KEYCLOAK_ROOT: "http://127.0.0.1:8080"
       KEYCLOAK_REALM: "myrealm"
