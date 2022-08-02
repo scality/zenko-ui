@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router';
+import { useRouteMatch } from 'react-router';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Tooltip } from '@scality/core-ui';
@@ -27,7 +27,7 @@ export function AccountRoleSelectButtonAndModal({
   buttonLabel?: string;
 }) {
   const accounts = useAccounts();
-  const location = useLocation();
+  const { path } = useRouteMatch();
   const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
   const { roleArn } = useDataServiceRole();
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
@@ -73,7 +73,7 @@ export function AccountRoleSelectButtonAndModal({
             const roleName = parsedArn?.groups?.name || '';
             setRoleArnStored(assumedRoleArn);
             selectAccountAndRoleRedirectTo(
-              location.pathname + location.search,
+              path,
               assumedAccount,
               assumedRoleArn,
             );
