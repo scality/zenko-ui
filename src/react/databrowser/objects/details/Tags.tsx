@@ -18,6 +18,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { SpacedBox } from '@scality/core-ui';
+import { useEffect } from 'react';
 const EMPTY_ITEM = {
   key: '',
   value: '',
@@ -32,19 +33,23 @@ const convertToAWSTags = (tags: Tag[]) =>
     }));
 
 type Props = {
-  objectMetadata: ObjectMetadata;
+  bucketName: string;
+  objectKey: string;
+  tags: Tag[];
+  versionId: string;
 };
 
 type FormValues = {
   tags: Tag[];
 };
 
-function Properties({ objectMetadata }: Props) {
+const prepareFormData = (tags: Tag[]) => ({
+  tags: tags.length > 0 ? tags : [EMPTY_ITEM],
+});
+
+function Properties({ bucketName, objectKey, tags, versionId }: Props) {
   const dispatch = useDispatch();
-  const { bucketName, objectKey, tags, versionId } = objectMetadata;
-  const defaultValues = {
-    tags: tags.length > 0 ? tags : [EMPTY_ITEM],
-  };
+  const defaultValues = prepareFormData(tags);
 
   const {
     register,
@@ -57,7 +62,11 @@ function Properties({ objectMetadata }: Props) {
     defaultValues,
   });
 
-  const tagsFormValues = watch("tags");
+  useEffect(() => {
+    reset(prepareFormData(tags));
+  }, [tags]);
+
+  const tagsFormValues = watch('tags');
 
   const onSubmit = (data: FormValues) => {
     const tags = convertToAWSTags(data.tags);

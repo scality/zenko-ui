@@ -25,13 +25,13 @@ import type {
   ListObjectsType,
   MetadataItem,
   MetadataItems,
-  ObjectMetadata,
 } from '../../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
 import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { useDispatch } from 'react-redux';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useEffect } from 'react';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -72,17 +72,27 @@ const convertToAWSMetadata = (items: MetadataItems) => {
 };
 
 type Props = {
-  objectMetadata: ObjectMetadata;
   listType: ListObjectsType;
+  bucketName: string;
+  objectKey: string;
+  metadata: MetadataItems;
 };
 
 type FormValues = {
   metadata: (MetadataItem & { mdKey: string })[];
 };
 
-function Metadata({ objectMetadata, listType }: Props) {
+const prepareFormData = (metadata: MetadataItems) => ({
+  metadata: metadata.map((item) => ({
+    ...item,
+    key: isUserType(item.type) ? AMZ_META : item.key,
+    mdKey: isUserType(item.type) ? item.key.replace(AMZ_META + '-', '') : '',
+  })),
+});
+
+function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
   const dispatch = useDispatch();
-  const { bucketName, objectKey, metadata } = objectMetadata;
+
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
   const EMPTY_ITEM = {
     key: '',
@@ -90,13 +100,7 @@ function Metadata({ objectMetadata, listType }: Props) {
     mdKey: '',
     type: METADATA_SYSTEM_TYPE,
   };
-  const defaultValues = {
-    metadata: metadata.map((item) => ({
-      ...item,
-      key: isUserType(item.type) ? AMZ_META : item.key,
-      mdKey: isUserType(item.type) ? item.key.replace(AMZ_META + '-', '') : '',
-    })),
-  };
+  const defaultValues = prepareFormData(metadata);
   const {
     register,
     reset,
@@ -107,6 +111,9 @@ function Metadata({ objectMetadata, listType }: Props) {
   } = useForm<FormValues>({
     defaultValues,
   });
+  useEffect(() => {
+    reset(prepareFormData(metadata));
+  }, [metadata]);
 
   const { metadata: metadataFormValues } = getValues();
 
@@ -227,7 +234,9 @@ function Metadata({ objectMetadata, listType }: Props) {
                     index={index}
                     items={metadataFormValues}
                     deleteEntry={() =>
-                      metadataFormValues.length === 1 ? deleteEntry() : remove(index)
+                      metadataFormValues.length === 1
+                        ? deleteEntry()
+                        : remove(index)
                     }
                   />
                   <AddButton

@@ -60,11 +60,25 @@ function ObjectDetails({ toggled, listType }: Props) {
     }
 
     if (tabName === 'metadata') {
-      return <Metadata objectMetadata={objectMetadata} listType={listType} />;
+      return (
+        <Metadata
+          bucketName={objectMetadata.bucketName}
+          objectKey={objectMetadata.objectKey}
+          metadata={objectMetadata.metadata}
+          listType={listType}
+        />
+      );
     }
 
     if (tabName === 'tags') {
-      return <Tags objectMetadata={objectMetadata} />;
+      return (
+        <Tags
+          bucketName={objectMetadata.bucketName}
+          objectKey={objectMetadata.objectKey}
+          tags={objectMetadata.tags}
+          versionId={objectMetadata.versionId}
+        />
+      );
     }
 
     return null;

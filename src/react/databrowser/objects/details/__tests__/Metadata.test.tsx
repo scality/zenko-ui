@@ -48,7 +48,12 @@ describe('Metadata', () => {
   });
   it('Metadata should render', () => {
     const { component } = reduxMount(
-      <Metadata objectMetadata={OBJECT_METADATA} listType={'s3'} />,
+      <Metadata
+        objectKey={OBJECT_METADATA.objectKey}
+        bucketName={OBJECT_METADATA.bucketName}
+        metadata={OBJECT_METADATA.metadata}
+        listType={'s3'}
+      />,
       {},
     );
     expect(component.find(Metadata).isEmptyRender()).toBe(false);
@@ -90,16 +95,15 @@ describe('Metadata', () => {
         component: { container },
       } = reduxRender(
         <Metadata
-          objectMetadata={{
-            ...OBJECT_METADATA,
-            metadata: [
-              {
-                key: metadataKey,
-                value: metadataValue,
-                type: METADATA_SYSTEM_TYPE,
-              },
-            ],
-          }}
+          objectKey={OBJECT_METADATA.objectKey}
+          bucketName={OBJECT_METADATA.bucketName}
+          metadata={[
+            {
+              key: metadataKey,
+              value: metadataValue,
+              type: METADATA_SYSTEM_TYPE,
+            },
+          ]}
           listType={'s3'}
         />,
         metadataConfig,
@@ -176,16 +180,15 @@ describe('Metadata', () => {
         component: { container },
       } = reduxRender(
         <Metadata
-          objectMetadata={{
-            ...OBJECT_METADATA,
-            metadata: [
-              {
-                key: metadataKey,
-                value: metadataValue,
-                type: METADATA_SYSTEM_TYPE,
-              },
-            ],
-          }}
+          metadata={[
+            {
+              key: metadataKey,
+              value: metadataValue,
+              type: METADATA_SYSTEM_TYPE,
+            },
+          ]}
+          objectKey={OBJECT_METADATA.objectKey}
+          bucketName={OBJECT_METADATA.bucketName}
           listType={'s3'}
         />,
         metadataConfig,
@@ -233,16 +236,15 @@ describe('Metadata', () => {
     reduxRender(
       <Metadata
         listType="ver"
-        objectMetadata={{
-          ...OBJECT_METADATA,
-          metadata: [
-            {
-              key: 'CacheControl',
-              value: 'no-cache',
-              type: METADATA_SYSTEM_TYPE,
-            },
-          ],
-        }}
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        metadata={[
+          {
+            key: 'CacheControl',
+            value: 'no-cache',
+            type: METADATA_SYSTEM_TYPE,
+          },
+        ]}
       />,
       metadataConfig,
     );
@@ -264,21 +266,20 @@ describe('Metadata', () => {
       } = reduxRender(
         <Metadata
           listType="s3"
-          objectMetadata={{
-            ...OBJECT_METADATA,
-            metadata: [
-              {
-                key: 'CacheControl',
-                value: 'no-cache',
-                type: METADATA_SYSTEM_TYPE,
-              },
-              {
-                key: 'cache-type',
-                value: '1',
-                type: METADATA_USER_TYPE,
-              },
-            ],
-          }}
+          metadata={[
+            {
+              key: 'CacheControl',
+              value: 'no-cache',
+              type: METADATA_SYSTEM_TYPE,
+            },
+            {
+              key: 'cache-type',
+              value: '1',
+              type: METADATA_USER_TYPE,
+            },
+          ]}
+          bucketName={OBJECT_METADATA.bucketName}
+          objectKey={OBJECT_METADATA.objectKey}
         />,
         metadataConfig,
       );
