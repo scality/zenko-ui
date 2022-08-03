@@ -1,12 +1,13 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const {version} = require('./package.json');
 
 module.exports = {
   entry: {
     zenko_ui: './src/react/App',
   },
   output: {
-    filename: 'js/[name].js',
+    filename: `js/[name].${version}.js`,
     path: path.resolve(__dirname, 'public/assets'),
     publicPath: '/',
   },
