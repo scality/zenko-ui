@@ -1,4 +1,5 @@
-import { SpacedBox, Tooltip } from '@scality/core-ui';
+import { Tooltip } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
 
 const ColdStorageIcon = () => {
   const tooltipMessages = [
@@ -10,11 +11,11 @@ const ColdStorageIcon = () => {
     <Tooltip
       overlay={
         tooltipMessages.length > 1 ? (
-          <SpacedBox pl={12}>
+          <Box pl={12}>
             {tooltipMessages.map((message, i) => (
               <li key={i}> {message} </li>
             ))}
-          </SpacedBox>
+          </Box>
         ) : (
           tooltipMessages[0]
         )
