@@ -25,15 +25,27 @@ const ErrorHandlerModal = () => {
   }
 
   return (
-    <Modal
-      close={close}
-      footer={<Button variant="primary" onClick={close} label="Close" />}
-      isOpen={true}
-      title="Error"
-    >
-      {errorMessage}
-    </Modal>
+    <DumbErrorModal errorMessage={errorMessage} isOpen={true} close={close} />
   );
 };
+
+export const DumbErrorModal = ({
+  close,
+  isOpen,
+  errorMessage,
+}: {
+  close: () => void;
+  isOpen: boolean;
+  errorMessage: string | JSX.Element | null;
+}) => (
+  <Modal
+    close={close}
+    footer={<Button variant="primary" onClick={close} label="Close" />}
+    isOpen={isOpen}
+    title="Error"
+  >
+    {errorMessage}
+  </Modal>
+);
 
 export default ErrorHandlerModal;
