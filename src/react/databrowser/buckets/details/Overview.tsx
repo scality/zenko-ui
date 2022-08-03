@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import {
   closeBucketDeleteDialog,
@@ -12,9 +12,8 @@ import type { AppState } from '../../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import type { Replication } from '../../../../types/config';
 import type { BucketInfo, S3Bucket } from '../../../../types/s3';
-import { TableContainer } from '../../../ui-elements/Table';
+import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import { Toggle } from '@scality/core-ui';
 import {
   getLocationType,
@@ -29,8 +28,9 @@ import { push } from 'connected-react-router';
 import { XDM_FEATURE } from '../../../../js/config';
 import { useWorkflows } from '../../../workflow/Workflows';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
+import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 
-function capitalize(string) {
+function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
     return c.toUpperCase();
   });
@@ -56,20 +56,8 @@ function getDefaultBucketRetention(bucketInfo: BucketInfo): string {
   return 'Inactive';
 }
 
-function canDeleteBucket(
-  bucketName: string,
-  loading: boolean,
-  replicationStreams: Array<Replication>,
-) {
+function canDeleteBucket(loading: boolean) {
   if (loading) {
-    return false;
-  }
-
-  const checkBucketStream = replicationStreams.find((r) => {
-    return r.source.bucketName === bucketName;
-  });
-
-  if (checkBucketStream) {
     return false;
   }
 
@@ -80,6 +68,21 @@ type Props = {
   bucket: S3Bucket;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
 };
+
+const workflowAttachedError = (count: number) => (
+  <div>
+    The bucket you tried to delete has{' '}
+    {maybePluralize(count, 'workflow', 's', true)} attached to it, you should{' '}
+    <CellLink
+      to={{
+        pathname: '/workflows',
+      }}
+    >
+      delete
+    </CellLink>{' '}
+    {count > 1 ? 'them' : 'it'} first.
+  </div>
+);
 
 function Overview({ bucket, ingestionStates }: Props) {
   const theme = useTheme();
@@ -94,15 +97,27 @@ function Overview({ bucket, ingestionStates }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const workflowsQuery = useWorkflows();
+  const workflowsQuery = useWorkflows([bucket.Name]);
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   useEffect(() => {
     dispatch(getBucketInfo(bucket.Name));
   }, [dispatch, bucket.Name]);
 
+  const workflows = workflowsQuery.data;
+  const attachedWorkflowsCount =
+    (workflows?.expirations?.length || 0) +
+    (workflows?.replications.length || 0) +
+    (workflows?.transitions.length || 0);
+
   const handleDeleteClick = () => {
     if (!bucket) {
+      return;
+    }
+
+    if (attachedWorkflowsCount > 0) {
+      setIsErrorModalOpen(true);
       return;
     }
 
@@ -138,16 +153,21 @@ function Overview({ bucket, ingestionStates }: Props) {
         approve={handleDeleteApprove}
         titleText={`Are you sure you want to delete bucket: ${bucket.Name} ?`}
       />
+      <DumbErrorModal
+        isOpen={isErrorModalOpen}
+        close={() => {
+          setIsErrorModalOpen(false);
+        }}
+        errorMessage={
+          isErrorModalOpen
+            ? workflowAttachedError(attachedWorkflowsCount)
+            : null
+        }
+      />
       <ButtonContainer>
         <Button
           icon={<i className="fas fa-trash" />}
-          disabled={
-            !canDeleteBucket(
-              bucket.Name,
-              loading,
-              workflowsQuery.data?.replications || [],
-            )
-          }
+          disabled={!canDeleteBucket(loading)}
           variant="danger"
           onClick={handleDeleteClick}
           label="Delete Bucket"
