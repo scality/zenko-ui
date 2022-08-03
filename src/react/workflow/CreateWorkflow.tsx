@@ -156,7 +156,7 @@ const CreateWorkflow = () => {
         if (bucketName !== '') {
           // redirectly to the bucket list -> workflow tab
           history.push(
-            `/accounts/${accountId}/buckets/${bucketName}?tab=workflow`,
+            `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
           history.push(`./replication-${success.streamId}`);
@@ -199,7 +199,7 @@ const CreateWorkflow = () => {
         );
         if (bucketName !== '') {
           history.push(
-            `/accounts/${accountId}/buckets/${bucketName}?tab=workflow`,
+            `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
           history.push(`./expiration-${success.workflowId}`);
@@ -242,7 +242,7 @@ const CreateWorkflow = () => {
         );
         if (bucketName !== '') {
           history.push(
-            `/accounts/${accountId}/buckets/${bucketName}?tab=workflow`,
+            `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
           history.push(`./transition-${success.workflowId}`);
