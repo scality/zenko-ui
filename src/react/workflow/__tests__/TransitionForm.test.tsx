@@ -14,6 +14,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from '@hapi/joi';
 import { newTransition } from '../utils';
 import userEvent from '@testing-library/user-event';
+import router from 'react-router';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 
 const versionedBucket = 'bucket1';
@@ -81,6 +82,9 @@ beforeAll(() => {
 
 describe('TransitionForm', () => {
   beforeEach(() => {
+    jest.spyOn(router, 'useRouteMatch').mockReturnValue({
+      params: { workflowId: '' },
+    });
     reduxRender(
       <WithFormProvider>
         <TransitionForm bucketList={S3BucketList} locations={locations} />
