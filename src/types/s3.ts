@@ -26,6 +26,7 @@ export type HeadObjectResponse = {
   readonly ETag: string;
   readonly VersionId: string;
   readonly Metadata: Record<string, string>;
+  readonly StorageClass?: string;
   readonly Expiration?: string;
 };
 export type S3BucketList = List<S3Bucket>;
@@ -164,6 +165,7 @@ export type ObjectMetadata = {
   readonly metadata: MetadataItems;
   readonly tags: Tags;
   readonly expiration?: Date;
+  readonly storageClass: string;
 };
 export type ExpirationWFTagsFilter = {
   readonly tags: Tags;

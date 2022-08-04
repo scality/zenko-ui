@@ -306,6 +306,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           tags: convertToFormTags(action.tags),
           ..._getObjectLockInformation(action),
           isLegalHoldEnabled: action.isLegalHoldEnabled,
+          storageClass: action.info.StorageClass,
         },
       };
 

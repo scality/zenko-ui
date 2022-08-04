@@ -106,6 +106,10 @@ function Properties({ objectMetadata }: Props) {
                   <Clipboard text={objectMetadata.eTag} />{' '}
                 </T.GroupValues>
               </T.Row>
+              <T.Row>
+                <T.Key> Location </T.Key>
+                <T.Value>{objectMetadata.storageClass || 'default'}</T.Value>
+              </T.Row>
             </T.GroupContent>
           </T.Group>
           <T.Group>
