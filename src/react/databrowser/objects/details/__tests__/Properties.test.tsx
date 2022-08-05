@@ -158,4 +158,57 @@ describe('Properties', () => {
     expect(eighth.find(T.Key).text()).toContain('Legal Hold');
     expect(eighth.find(T.Value).text()).toContain('Active');
   });
+
+  it('Properties should render expected location and temperature field if the location is cold location', async () => {
+    const { component } = reduxMount(
+      <Properties
+        objectMetadata={{
+          ...OBJECT_METADATA,
+          lockStatus: 'LOCKED',
+          objectRetention: {
+            mode: 'GOVERNANCE',
+            retainUntilDate: '2020-10-17 10:06:54',
+          },
+          isLegalHoldEnabled: true,
+          storageClass: 'europe25-myroom-cold',
+        }}
+      />,
+      {
+        s3: {
+          bucketInfo: {
+            name: 'test-bucket',
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+            versioning: 'Enabled',
+          },
+        },
+        configuration: {
+          latest: {
+            locations: {
+              ['europe25-myroom-cold']: {
+                locationType: 'location-dmf-v1',
+                name: 'europe25-myroom-cold',
+                isCold: true,
+                details: {
+                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+                  repoId: ['repoId'],
+                  nsId: 'nsId',
+                  username: 'username',
+                  password: 'password',
+                },
+              },
+            },
+          },
+        },
+      },
+    );
+    const tableItems = component.find(T.Row);
+    const sixth = tableItems.at(6);
+    expect(sixth.find(T.Key).text()).toContain('Location');
+    expect(sixth.find(T.Value).text()).toContain('europe25-myroom-cold');
+    const seventh = tableItems.at(7);
+    expect(seventh.find(T.Key).text()).toContain('Temperature');
+    expect(seventh.find(T.Value).text()).toContain('Cold');
+  });
 });
