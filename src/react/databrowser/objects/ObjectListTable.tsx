@@ -12,6 +12,7 @@ import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import { AutoSizer } from 'react-virtualized';
 import { Checkbox } from '../../ui-elements/FormLayout';
+import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
@@ -58,6 +59,9 @@ export default function ObjectListTable({
   );
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
+  );
+  const locations = useSelector(
+    (state: AppState) => state.configuration.latest.locations,
   );
   const objectsLength = objects.size;
   const isToggledFull = toggled.size > 0 && toggled.size === objectsLength;
@@ -241,7 +245,6 @@ export default function ObjectListTable({
           marginRight: isTableScrollbarVisible ? spacing.sp8 : spacing.sp16,
         },
         accessor: (row) => (row.size ? row.size : ''),
-
         Cell({ value: size }: { value: string }) {
           return (
             <TextAligner alignment={'right'}>
@@ -249,8 +252,20 @@ export default function ObjectListTable({
             </TextAligner>
           );
         },
-
         width: 10,
+      },
+      {
+        Header: 'Storage Location',
+        accessor: 'storageClass',
+        width: 20,
+        Cell({ value: storageClass }: { value: string }) {
+          return (
+            <div>
+              {locations.storageClass?.isCold ? <ColdStorageIcon /> : ''}{' '}
+              {storageClass === 'STANDARD' ? 'default' : storageClass}
+            </div>
+          );
+        },
       },
     ],
     [
