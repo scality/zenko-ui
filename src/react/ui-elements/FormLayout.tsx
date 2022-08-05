@@ -1,15 +1,15 @@
 import { Checkbox as BasicCheckbox, TextArea, Tooltip } from '@scality/core-ui';
+import {
+  LargerText,
+  SmallerText,
+} from '@scality/core-ui/dist/components/text/Text.component';
+import { Select as BasicSelect } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import { getTheme } from '@scality/core-ui/dist/utils';
+import { HTMLAttributes, LabelHTMLAttributes } from 'react';
+import styled, { css } from 'styled-components';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
-import { Select as BasicSelect } from '@scality/core-ui/dist/next';
-import styled, { css } from 'styled-components';
-import {
-  SmallerText,
-  LargerText,
-} from '@scality/core-ui/dist/components/text/Text.component';
-import { HTMLAttributes, LabelHTMLAttributes } from 'react';
-import { getTheme } from '@scality/core-ui/dist/utils';
 
 /* TEMPLATE:
 <FormContainer>
@@ -45,13 +45,21 @@ export const SubTitle = styled.div`
   color: ${(props) => props.theme.brand.textPrimary};
   font-weight: bold;
 `;
-export const Fieldset = styled.fieldset`
+export const SectionTitle = styled.div<{ fontSize?: string }>`
+  display: flex;
+  color: ${(props) => props.theme.brand.textPrimary};
+  font-size: ${(props) => props.fontSize || 'inherit'};
+`;
+export const Fieldset = styled.fieldset<{
+  direction?: string;
+  alignItems?: string;
+}>`
   display: flex;
   flex-direction: ${(props) => props.direction || 'column'};
   ${(props) => (props.alignItems ? `align-items: ${props.alignItems};` : '')}
   border: 0;
   padding: 0;
-  margin-top: ${spacing.sp16};
+  margin-top: ${spacing.sp12};
 `;
 export const Select = styled(BasicSelect)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
@@ -139,17 +147,13 @@ const LabelContainer = styled.label<{ required?: boolean }>`
   display: flex;
   align-items: center;
   width: 60%;
-  ${(props) =>
-    props.required
-      ? `
-        &:after {
-            margin-left: ${spacing.sp2};
-            content: '*';
-        }
-    `
-      : ''}
 `;
-const TooltipContainer = styled.div`
+
+const RequiredField = styled.span`
+  margin-left: ${spacing.sp2};
+`;
+
+export const TooltipContainer = styled.div`
   margin-left: ${spacing.sp8};
   display: inline;
 `;
@@ -171,10 +175,12 @@ export const Label = ({
   children,
   tooltipMessages,
   tooltipWidth,
+  required,
   ...labelProps
 }: LabelProps) => (
   <LabelContainer {...labelProps}>
     {children}
+    {required && <RequiredField>*</RequiredField>}
     {tooltipMessages && tooltipMessages.length > 0 && (
       <TooltipContainer>
         <Tooltip

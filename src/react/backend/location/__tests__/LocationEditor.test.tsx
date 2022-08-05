@@ -1,10 +1,10 @@
-import LocationEditor from '../LocationEditor';
 import { MemoryRouter } from 'react-router-dom';
+import LocationEditor from '../LocationEditor';
 
-import { mockOffsetSize, reduxRender } from '../../../utils/test';
 import { fireEvent } from '@testing-library/react';
-import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import userEvent from '@testing-library/user-event';
+import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import { mockOffsetSize, reduxRender } from '../../../utils/test';
 
 beforeAll(() => {
   mockOffsetSize(2000, 2000);
@@ -31,13 +31,13 @@ describe('LocationEditor', () => {
     ).toBe('Storage Service for ARTESCA');
 
     [
-      'Scality Artesca S3',
+      'Scality ARTESCA S3',
       'Scality RING with S3 Connector',
-      'Atlas Object Storage',
-      'Flexible Datastore',
       'Amazon S3',
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
+      'Atlas Object Storage',
+      'Flexible Datastore',
       'Tape DMF',
     ].forEach((locationName) => {
       fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });

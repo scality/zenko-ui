@@ -1,8 +1,23 @@
-import FormContainer, * as F from '../../ui-elements/FormLayout';
-import { LocationDetails, storageOptions } from './LocationDetails';
+import { Banner, SecondaryText } from '@scality/core-ui';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { goBack } from 'connected-react-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { LocationName } from '../../../types/config';
+import type { AppState } from '../../../types/state';
 import { clearError, saveLocation } from '../../actions';
+import FormContainer, * as F from '../../ui-elements/FormLayout';
+import { useOutsideClick } from '../../utils/hooks';
+import {
+  getLocationTypeKey,
+  selectStorageOptions,
+} from '../../utils/storageOptions';
+import { LocationDetails, storageOptions } from './LocationDetails';
+import locationFormCheck from './locationFormCheck';
+import LocationOptions from './LocationOptions';
 import {
   checkIsRingS3Reseller,
   convertToForm,
@@ -11,25 +26,21 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
-import type { AppState } from '../../../types/state';
-import { Banner } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
-import { LocationName } from '../../../types/config';
-import LocationOptions from './LocationOptions';
-import { goBack } from 'connected-react-router';
-import locationFormCheck from './locationFormCheck';
-import {
-  selectStorageOptions,
-  getLocationTypeKey,
-} from '../../utils/storageOptions';
-import { useOutsideClick } from '../../utils/hooks';
-import { useParams } from 'react-router-dom';
 
 const makeLabel = (locationType) => {
   const details = storageOptions[locationType];
   return details.name;
 };
 
+const SecondaryTextItalic = styled(SecondaryText)({
+  fontStyle: 'italic',
+});
+
+const HorizontalLine = styled.hr`
+  border: ${spacing.sp1} inset ${(props) => props.theme.brand.backgroundLevel2};
+  width: 100%;
+  margin: 0;
+`;
 function LocationEditor() {
   const dispatch = useDispatch();
   const { locationName } = useParams<{ locationName: string }>();
@@ -173,8 +184,24 @@ function LocationEditor() {
         <F.Title>
           {`${locationEditing ? 'Edit' : 'Add New'} Storage Location`}
         </F.Title>
+        <HorizontalLine />
+        <Box mt={spacing.sp16} mb={spacing.sp24}>
+          <SecondaryTextItalic>All * are mandatory fields</SecondaryTextItalic>
+        </Box>
+        <F.SectionTitle fontSize={fontSize.large}>General</F.SectionTitle>
         <F.Fieldset>
-          <F.Label htmlFor="name" required>
+          <F.Label
+            htmlFor="name"
+            required
+            tooltipMessages={[
+              <>
+                Location name that will be used in ARTESCA Data Services. It is
+                not known to the storage provider. <br /> <br />
+                Use only lowercase letters, numbers, and dashes.
+              </>,
+            ]}
+            tooltipWidth="38rem"
+          >
             Location Name
           </F.Label>
           <F.Input
@@ -190,7 +217,19 @@ function LocationEditor() {
           />
         </F.Fieldset>
         <F.Fieldset>
-          <F.Label htmlFor="locationType" required>
+          <F.Label
+            htmlFor="locationType"
+            tooltipMessages={[
+              <>
+                Each Storage location type has its own requirements.
+                <br /> <br />
+                Unlike ARTESCA local storage, all public clouds require
+                authentication information.
+              </>,
+            ]}
+            tooltipWidth="32rem"
+            required
+          >
             Location Type
           </F.Label>
           <F.Select
