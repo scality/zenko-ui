@@ -1,5 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { reduxRender } from '../../../../utils/test';
 import LocationDetailsTapeDMF from '../LocationDetailsTapeDMF';
 
 describe('LocationDetailsTapeDMF', () => {
@@ -13,12 +14,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //E
@@ -44,12 +46,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //E
@@ -75,12 +78,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //E
@@ -106,12 +110,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //V
@@ -158,12 +163,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //E
@@ -189,12 +195,13 @@ describe('LocationDetailsTapeDMF', () => {
       password: '',
     };
     const onChange = jest.fn();
-    render(
+    reduxRender(
       <LocationDetailsTapeDMF
         locationType="location-dmf-v1"
         details={sampleDetails}
         onChange={onChange}
       />,
+      {},
     );
 
     //E

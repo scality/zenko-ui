@@ -1,8 +1,16 @@
-import { Fieldset, Input, Label } from '../../../ui-elements/FormLayout';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { Box } from '@scality/core-ui/dist/next';
+import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { LocationDetailsFormProps } from '.';
 import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
+import {
+  Fieldset,
+  Input,
+  Label,
+  SectionTitle,
+} from '../../../ui-elements/FormLayout';
+import { IconHelp } from '../../../ui-elements/Help';
 import InputList from '../../../ui-elements/InputList';
 type State = {
   endpoint: string;
@@ -18,6 +26,23 @@ const INIT_STATE: State = {
   username: '',
   password: '',
 };
+
+const FontWeightNormalSpan = styled.span`
+  font-weight: normal;
+`;
+
+const InheritContainerWidthLabel = styled(Label)({
+  width: 'inherit',
+});
+
+const TertiaryText = styled.span`
+  color: ${(props) => props.theme.brand.textTertiary};
+  margin-left: ${spacing.sp4};
+`;
+
+const EndpointFieldset = styled(Fieldset)({
+  marginTop: spacing.sp20,
+});
 
 export default function LocationDetailsTapeDMF({
   details,
@@ -43,15 +68,26 @@ export default function LocationDetailsTapeDMF({
 
   return (
     <div>
-      <Fieldset>
-        <Label>Temperature</Label>
-        <SpacedBox mt={2}>
-          <span>
-            <ColdStorageIcon /> Cold
-          </span>
-        </SpacedBox>
+      <Fieldset direction="row">
+        <InheritContainerWidthLabel
+          tooltipMessages={[
+            <>
+              The Temperature of this Location is Cold. <br /> <br /> You can
+              move your data in this Location through a Transition Workflow.
+              <br /> <br />
+              Once your data are in this Location, you can only trigger a
+              request for restoration to get a temporary access to the object.
+            </>,
+          ]}
+          tooltipWidth="30rem"
+        >
+          Temperature
+        </InheritContainerWidthLabel>
+        <Box ml={spacing.sp20}>
+          <ColdStorageIcon /> <TertiaryText>Cold</TertiaryText>
+        </Box>
       </Fieldset>
-      <Fieldset>
+      <EndpointFieldset>
         <Label required htmlFor="endpoint">
           Endpoint
         </Label>
@@ -64,7 +100,24 @@ export default function LocationDetailsTapeDMF({
           onChange={onFormItemChange}
           autoComplete="off"
         />
-      </Fieldset>
+      </EndpointFieldset>
+      <Box mt={spacing.sp24} mb={spacing.sp24}>
+        <SectionTitle fontSize={fontSize.large}>
+          DMF-specific parameters{' '}
+          <IconHelp
+            tooltipMessage={
+              <FontWeightNormalSpan>
+                repoId and namespace id identify where objects on the Tape come
+                from. <br /> <br />
+                Review your Cold storage service provider's documentation to
+                have more details.
+              </FontWeightNormalSpan>
+            }
+            tooltipWidth="32rem"
+            placement="right"
+          />
+        </SectionTitle>
+      </Box>
       <Fieldset>
         <InputList
           id="repoids"
@@ -89,6 +142,23 @@ export default function LocationDetailsTapeDMF({
           autoComplete="off"
         />
       </Fieldset>
+      <Box mt={spacing.sp24} mb={spacing.sp24}>
+        <SectionTitle fontSize={fontSize.large}>
+          Credentials{' '}
+          <IconHelp
+            tooltipMessage={
+              <FontWeightNormalSpan>
+                This location type requires credentials. <br /> <br />
+                It is a best practice to enter credentials specifically
+                generated for this access, with only the privileges needed to
+                perform the desired tasks.
+              </FontWeightNormalSpan>
+            }
+            tooltipWidth="32rem"
+            placement="right"
+          />
+        </SectionTitle>
+      </Box>
       <Fieldset>
         <Label required htmlFor="username">
           Username
