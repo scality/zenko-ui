@@ -2,9 +2,9 @@ import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import { reduxMount } from '../../../../utils/test';
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import MiddleEllipsis from '../../../../ui-elements/MiddleEllipsis';
-import React from 'react';
 import Properties from '../Properties';
 import router from 'react-router';
+
 describe('Properties', () => {
   beforeAll(() => {
     jest.spyOn(router, 'useLocation').mockReturnValue({
@@ -85,14 +85,14 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const sixth = tableItems.at(6);
-    expect(sixth.find(T.Key).text()).toContain('Lock');
-    expect(sixth.find(T.GroupValues).text()).toContain('Locked (governance)');
-    expect(sixth.find(T.GroupValues).text()).toContain(
+    const seventh = tableItems.at(7);
+    expect(seventh.find(T.Key).text()).toContain('Lock');
+    expect(seventh.find(T.GroupValues).text()).toContain('Locked (governance)');
+    expect(seventh.find(T.GroupValues).text()).toContain(
       'until 2020-10-17 10:06:54',
     );
     expect(
-      sixth.find('button#edit-object-retention-setting-btn').prop('label'),
+      seventh.find('button#edit-object-retention-setting-btn').prop('label'),
     ).toBe('Edit');
   });
   it('Properties should render expected values when lock is released', () => {
@@ -119,13 +119,13 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const sixth = tableItems.at(6);
-    expect(sixth.find(T.Key).text()).toContain('Lock');
-    expect(sixth.find(T.GroupValues).text()).toContain(
+    const seventh = tableItems.at(7);
+    expect(seventh.find(T.Key).text()).toContain('Lock');
+    expect(seventh.find(T.GroupValues).text()).toContain(
       'Released since 2020-10-17 10:06:54',
     );
     expect(
-      sixth.find('button#edit-object-retention-setting-btn').prop('label'),
+      seventh.find('button#edit-object-retention-setting-btn').prop('label'),
     ).toBe('Edit');
   });
   it('Properties should render expected legal hold value when the object lock is set', () => {
@@ -154,8 +154,8 @@ describe('Properties', () => {
       },
     );
     const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Legal Hold');
-    expect(seventh.find(T.Value).text()).toContain('Active');
+    const eighth = tableItems.at(8);
+    expect(eighth.find(T.Key).text()).toContain('Legal Hold');
+    expect(eighth.find(T.Value).text()).toContain('Active');
   });
 });
