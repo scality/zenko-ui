@@ -3,7 +3,7 @@ import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
-import { PrettyBytes, Toggle } from '@scality/core-ui';
+import { PrettyBytes, SecondaryText, Toggle } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
@@ -16,6 +16,7 @@ import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
 import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
+import { DateTime } from 'luxon';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -55,6 +56,14 @@ function Properties({ objectMetadata }: Props) {
       dispatch(push(`${pathname}?${query.toString()}`));
     }
   }, [objectMetadata.versionId]);
+  // Display the remaining days for the restored object from a cold location
+  const restoreExpiryDays: number = objectMetadata.restore?.expiryDate
+    ? Math.floor(
+        DateTime.fromISO(objectMetadata.restore.expiryDate.toISOString())
+          .diff(DateTime.now(), 'days')
+          .toObject().days,
+      )
+    : -1;
   return (
     <div>
       <Table id="object-details-table">
@@ -121,13 +130,22 @@ function Properties({ objectMetadata }: Props) {
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.Value>
-                    {location.isCold ? (
-                      <>
-                        <ColdStorageIcon />
-                        Cold
-                      </>
-                    ) : (
-                      ''
+                    <ColdStorageIcon /> Cold{' '}
+                    {objectMetadata.restore?.ongoingRequest && (
+                      <span>
+                        <i className="fas fa-arrow-alt-circle-up" />
+                        Restoration in progress...
+                      </span>
+                    )}
+                    {objectMetadata.restore?.expiryDate && (
+                      <span>
+                        <i className="fas fa-stopwatch" />
+                        Restored{' '}
+                        <SecondaryText>
+                          ({restoreExpiryDays}{' '}
+                          {restoreExpiryDays > 1 ? 'days' : 'day'} remaining)
+                        </SecondaryText>
+                      </span>
                     )}
                   </T.Value>
                 </T.Row>

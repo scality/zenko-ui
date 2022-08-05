@@ -175,6 +175,22 @@ const parseExpirationDate = (expiresOn: string | undefined): Date | null => {
   return null;
 };
 
+const parseRestoreOngoingRequest = (restore: string | undefined): boolean => {
+  if (!restore) {
+    return false;
+  }
+  const extractOngoingRequest = new RegExp(/ongoing-request="([^"]+)"/);
+  const regExpExecArray = extractOngoingRequest.exec(restore);
+  if (regExpExecArray && regExpExecArray.length > 1) {
+    if (regExpExecArray[1] === 'false') {
+      return false;
+    } else if (regExpExecArray[1] === 'true') {
+      return true;
+    }
+  }
+  return false;
+};
+
 export default function s3(state: S3State = initialS3State, action: S3Action) {
   switch (action.type) {
     case 'LIST_BUCKETS_SUCCESS':
@@ -307,6 +323,10 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           ..._getObjectLockInformation(action),
           isLegalHoldEnabled: action.isLegalHoldEnabled,
           storageClass: action.info.StorageClass,
+          restore: {
+            ongoingRequest: parseRestoreOngoingRequest(action.info.Restore),
+            expiryDate: parseExpirationDate(action.info.Restore),
+          },
         },
       };
 
