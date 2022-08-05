@@ -165,7 +165,7 @@ export type ObjectMetadata = {
   readonly metadata: MetadataItems;
   readonly tags: Tags;
   readonly expiration?: Date;
-  readonly storageClass: string;
+  readonly storageClass?: string;
 };
 export type ExpirationWFTagsFilter = {
   readonly tags: Tags;

@@ -4,7 +4,7 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import { PrettyBytes, Toggle } from '@scality/core-ui';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +15,8 @@ import { AppState } from '../../../../types/state';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
+import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
+
 type Props = {
   objectMetadata: ObjectMetadata;
 };
@@ -32,6 +34,11 @@ function Properties({ objectMetadata }: Props) {
     (state: AppState) => state.networkActivity.counter > 0,
   );
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
+  const locations = useSelector(
+    (state: AppState) => state.configuration.latest.locations,
+  );
+  const location =
+    objectMetadata.storageClass && locations[objectMetadata.storageClass];
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   //Display Legal Hold when the Bucket is versioned and object-lock enabled.
@@ -110,6 +117,21 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Location </T.Key>
                 <T.Value>{objectMetadata.storageClass || 'default'}</T.Value>
               </T.Row>
+              {location?.isCold && (
+                <T.Row>
+                  <T.Key> Temperature </T.Key>
+                  <T.Value>
+                    {location.isCold ? (
+                      <>
+                        <ColdStorageIcon />
+                        Cold
+                      </>
+                    ) : (
+                      ''
+                    )}
+                  </T.Value>
+                </T.Row>
+              )}
             </T.GroupContent>
           </T.Group>
           <T.Group>
