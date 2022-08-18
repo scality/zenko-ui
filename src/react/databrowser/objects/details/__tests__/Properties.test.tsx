@@ -4,6 +4,7 @@ import * as T from '../../../../ui-elements/TableKeyValue2';
 import MiddleEllipsis from '../../../../ui-elements/MiddleEllipsis';
 import Properties from '../Properties';
 import router from 'react-router';
+import { DateTime } from 'luxon';
 
 describe('Properties', () => {
   beforeAll(() => {
@@ -210,5 +211,119 @@ describe('Properties', () => {
     const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Temperature');
     expect(seventh.find(T.Value).text()).toContain('Cold');
+  });
+
+  it('Properties should render restore in progress status when the object is restoring from the cold location', async () => {
+    const { component } = reduxMount(
+      <Properties
+        objectMetadata={{
+          ...OBJECT_METADATA,
+          lockStatus: 'LOCKED',
+          objectRetention: {
+            mode: 'GOVERNANCE',
+            retainUntilDate: '2020-10-17 10:06:54',
+          },
+          isLegalHoldEnabled: true,
+          storageClass: 'europe25-myroom-cold',
+          restore: { ongoingRequest: true },
+        }}
+      />,
+      {
+        s3: {
+          bucketInfo: {
+            name: 'test-bucket',
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+            versioning: 'Enabled',
+          },
+        },
+        configuration: {
+          latest: {
+            locations: {
+              ['europe25-myroom-cold']: {
+                locationType: 'location-dmf-v1',
+                name: 'europe25-myroom-cold',
+                isCold: true,
+                details: {
+                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+                  repoId: ['repoId'],
+                  nsId: 'nsId',
+                  username: 'username',
+                  password: 'password',
+                },
+              },
+            },
+          },
+        },
+      },
+    );
+    const tableItems = component.find(T.Row);
+    const seventh = tableItems.at(7);
+    expect(seventh.find(T.Key).text()).toContain('Temperature');
+    expect(seventh.find(T.Value).text()).toContain(
+      'Restoration in progress...',
+    );
+  });
+
+  it('Properties should render restored status when the object is already restored from cold location', async () => {
+    //mock the DateTime now
+    jest
+      .spyOn(DateTime, 'now')
+      .mockImplementationOnce(() => DateTime.fromISO('2022-12-20'));
+    const { component } = reduxMount(
+      <Properties
+        objectMetadata={{
+          ...OBJECT_METADATA,
+          lockStatus: 'LOCKED',
+          objectRetention: {
+            mode: 'GOVERNANCE',
+            retainUntilDate: '2020-10-17 10:06:54',
+          },
+          isLegalHoldEnabled: true,
+          storageClass: 'europe25-myroom-cold',
+          restore: {
+            ongoingRequest: false,
+            expiryDate: new Date('Fri, 21 Dec 2022 00:00:00 GMT'),
+          },
+        }}
+      />,
+      {
+        s3: {
+          bucketInfo: {
+            name: 'test-bucket',
+            objectLockConfiguration: {
+              ObjectLockEnabled: 'Enabled',
+            },
+            versioning: 'Enabled',
+          },
+        },
+        configuration: {
+          latest: {
+            locations: {
+              ['europe25-myroom-cold']: {
+                locationType: 'location-dmf-v1',
+                name: 'europe25-myroom-cold',
+                isCold: true,
+                details: {
+                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+                  repoId: ['repoId'],
+                  nsId: 'nsId',
+                  username: 'username',
+                  password: 'password',
+                },
+              },
+            },
+          },
+        },
+      },
+    );
+    //V
+    const tableItems = component.find(T.Row);
+    const seventh = tableItems.at(7);
+    expect(seventh.find(T.Key).text()).toContain('Temperature');
+    expect(seventh.find(T.Value).text()).toContain(
+      'Restored (1 day remaining)',
+    );
   });
 });
