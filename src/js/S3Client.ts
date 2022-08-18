@@ -1,4 +1,7 @@
 import S3 from 'aws-sdk/clients/s3';
+import AWS from 'aws-sdk/lib/core';
+//@ts-expect-error - Signers module is not typed
+import OriginalV4Signer from 'aws-sdk/lib/signers/v4';
 import { chunkArray } from './utils';
 import { isVersioning } from '../react/utils';
 const MULTIPART_UPLOAD = {
@@ -6,6 +9,57 @@ const MULTIPART_UPLOAD = {
   queueSize: 1,
 };
 const publicAclIndicator = 'http://acs.amazonaws.com/groups/global/AllUsers';
+//@ts-expect-error - Signers is not typed
+AWS.Signers.V4 = function V4(request, serviceName, options) {
+  const originalRequest = JSON.parse(JSON.stringify(request));
+  console.log('Original request', JSON.parse(JSON.stringify(originalRequest)));
+  if (request.path.startsWith('/s3')) {
+    request.path = request.path.replace('/s3', '');
+    request.endpoint.path = request.path.replace('/s3', '');
+    request.endpoint.pathname = request.path.replace('/s3', '');
+    request.endpoint.port = 80;
+
+    request.headers.Host = 's3.latest.scality.local';
+
+    request.endpoint.host = 's3.latest.scality.local';
+    request.endpoint.hostname = 's3.latest.scality.local';
+    request.endpoint.href = 'http://s3.latest.scality.local';
+  } else if (request.path.startsWith('/iam')) {
+    request.path = request.path.replace('/iam', '/');
+    request.endpoint.path = request.path.replace('/iam', '/');
+    request.endpoint.pathname = request.path.replace('/iam', '/');
+    request.endpoint.port = 80;
+
+    request.headers.Host = 'iam.latest.scality.local';
+
+    request.endpoint.host = 'iam.latest.scality.local';
+    request.endpoint.hostname = 'iam.latest.scality.local';
+    request.endpoint.href = 'https://iam.latest.scality.local';
+  }
+  console.log('Signing request', JSON.parse(JSON.stringify(request)));
+
+  const originalV4Signer = new OriginalV4Signer(request, serviceName, options);
+  originalV4Signer.originalAddAuthorization = originalV4Signer.addAuthorization;
+  originalV4Signer.addAuthorization = function addAuthorization(
+    credentials,
+    date,
+  ) {
+    const result = this.originalAddAuthorization(credentials, date);
+
+    console.log('Request with headers', JSON.parse(JSON.stringify(request)));
+    request.endpoint = originalRequest.endpoint;
+    request.headers = {
+      ...originalRequest.headers,
+      ...request.headers,
+      Host: originalRequest.headers.Host,
+    };
+    request.path = originalRequest.path;
+    console.log('Request post auth', JSON.parse(JSON.stringify(request)));
+    return result;
+  };
+
+  return originalV4Signer;
+};
 export default class S3Client {
   client: S3;
 

@@ -307,6 +307,10 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           ..._getObjectLockInformation(action),
           isLegalHoldEnabled: action.isLegalHoldEnabled,
           storageClass: action.info.StorageClass,
+          restore: {
+            ongoingRequest: parseRestoreOngoingRequest(action.info.Restore),
+            expiryDate: parseExpirationDate(action.info.Restore),
+          },
         },
       };
 
