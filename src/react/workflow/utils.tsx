@@ -1,5 +1,4 @@
 import type {
-  Expiration,
   Locations,
   Replication as ReplicationStream,
   ReplicationStreams,
@@ -15,6 +14,7 @@ import { isVersioning } from '../utils';
 import { storageOptions } from '../backend/location/LocationDetails';
 import {
   BucketWorkflowTransitionV2,
+  BucketWorkflowExpirationV1,
   BucketWorkflowV1,
 } from '../../js/managementClient/api';
 import { CustomHelpers } from '@hapi/joi';
@@ -76,7 +76,7 @@ export const renderDestination = (locations: Locations) => {
   };
 };
 
-export function newExpiration(bucketName?: string): Expiration {
+export function newExpiration(bucketName?: string): BucketWorkflowExpirationV1 {
   return {
     bucketName: bucketName || '',
     enabled: true,
@@ -85,13 +85,13 @@ export function newExpiration(bucketName?: string): Expiration {
       objectTags: [{ key: '', value: '' }],
     },
     name: '',
-    type: 'bucket-workflow-expiration-v1',
+    type: BucketWorkflowV1.TypeEnum.ExpirationV1,
     workflowId: '',
     currentVersionTriggerDelayDate: '',
-    currentVersionTriggerDelayDays: null,
-    expireDeleteMarkersTrigger: null,
-    incompleteMultipartUploadTriggerDelayDays: null,
-    previousVersionTriggerDelayDays: null,
+    currentVersionTriggerDelayDays: undefined,
+    expireDeleteMarkersTrigger: undefined,
+    incompleteMultipartUploadTriggerDelayDays: undefined,
+    previousVersionTriggerDelayDays: undefined,
   };
 }
 
@@ -120,7 +120,7 @@ export function newReplicationForm(bucketName?: string): ReplicationForm {
     enabled: true,
     sourceBucket: bucketName || '',
     sourcePrefix: '',
-    destinationLocation: '',
+    destinationLocation: [''],
   };
 }
 
@@ -154,7 +154,7 @@ export function convertToReplicationForm(
     enabled: r.enabled,
     sourceBucket: r.source.bucketName,
     sourcePrefix: r.source.prefix || '',
-    destinationLocation: r.destination.locations[0].name,
+    destinationLocation: r.destination.locations.map(({ name }) => name),
   };
 }
 
@@ -175,12 +175,7 @@ export function convertToReplicationStream(
       bucketName: r.sourceBucket || '',
     },
     destination: {
-      locations:
-        [
-          {
-            name: r.destinationLocation || '',
-          },
-        ] || [],
+      locations: r.destinationLocation.map((name) => ({ name })),
       preferredReadLocation: null,
     },
   };
@@ -198,7 +193,9 @@ export function prepareTransitionQuery(
   };
 }
 
-export function prepareExpirationQuery(data: Expiration): Expiration {
+export function prepareExpirationQuery(
+  data: BucketWorkflowExpirationV1,
+): BucketWorkflowExpirationV1 {
   return {
     ...Object.fromEntries(
       Object.entries(data).filter(([key, value]) => {
@@ -212,11 +209,11 @@ export function prepareExpirationQuery(data: Expiration): Expiration {
       }),
     ),
     name: generateExpirationName(data),
-  } as Expiration;
+  } as BucketWorkflowExpirationV1;
 }
 
 export function generateBucketPrefix(
-  w: BucketWorkflowTransitionV2 | Expiration,
+  w: BucketWorkflowTransitionV2 | BucketWorkflowExpirationV1,
 ) {
   const addedPrefix = w.filter?.objectKeyPrefix
     ? `/${w.filter?.objectKeyPrefix}`
@@ -236,7 +233,9 @@ export function generateStreamName(r: ReplicationStream): string {
   return `${bucketName}${addedPrefix} ➜ ${locationNames.toString()}`;
 }
 
-export function generateExpirationName(expiration: Expiration): string {
+export function generateExpirationName(
+  expiration: BucketWorkflowExpirationV1,
+): string {
   const descriptionComponents = [];
   if (expiration.currentVersionTriggerDelayDays) {
     descriptionComponents.push(
@@ -273,29 +272,29 @@ export function generateTransitionName(t: BucketWorkflowTransitionV2) {
 export function flattenFormErrors(
   obj: Record<string, unknown>,
   parent?: string,
-  res?: Record<string, unknown> = {},
+  res: Record<string, unknown> = {},
 ) {
   for (const key in obj) {
     const propName = parent ? parent + '.' + key : key;
+    const value: any = obj[key];
     if (
-      typeof obj[key] == 'object' &&
-      !(
-        'message' in obj[key] &&
-        'ref' in obj[key] &&
-        'type' in obj[key] &&
-        typeof obj[key].message === 'string'
-      )
+      value &&
+      typeof value === 'object' &&
+      'ref' in value &&
+      'type' in value &&
+      'message' in value &&
+      typeof value.message === 'string'
     ) {
-      flattenFormErrors(obj[key] as Record<string, unknown>, propName, res);
+      flattenFormErrors(value as Record<string, unknown>, propName, res);
     } else {
-      res[propName] = obj[key];
+      res[propName] = value;
     }
   }
   return res;
 }
 
 export function removeEmptyTagKeys<
-  T extends Expiration | BucketWorkflowTransitionV2,
+  T extends BucketWorkflowExpirationV1 | BucketWorkflowTransitionV2,
 >(workflow: T): T {
   if (workflow.filter && workflow.filter.objectTags) {
     const sanitizedTags = workflow.filter.objectTags.filter(
@@ -322,7 +321,7 @@ export const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
   const keys = value.map((obj: Tag): string => obj.key);
   const hasDuplicates = new Set(keys).size !== keys.length;
   if (hasDuplicates) {
-    return helper.message(`Please use a unique key`);
+    return helper.message({ en: `Please use a unique key` });
   } else {
     return value;
   }
