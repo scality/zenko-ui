@@ -12,7 +12,7 @@ export const Items = styled.div`
   display: flex;
   flex-direction: column;
 `;
-export const Item = styled.div`
+export const Item = styled.div<{ isShrink?: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -75,7 +75,7 @@ export const InputExtraKey = styled(Input)`
   width: 28%;
   min-width: 28%;
 `;
-export const InputValue = styled(Input)`
+export const InputValue = styled(Input)<{ isShrink?: boolean }>`
   flex: 0 ${(props) => (props.isShrink ? '22%' : '39%')};
   width: ${(props) => (props.isShrink ? '22%' : '39%')};
   min-width: ${(props) => (props.isShrink ? '22%' : '39%')};
@@ -95,7 +95,7 @@ export const Char = styled.div`
   min-width: 2%;
   text-align: center;
 `;
-const CustomButton = styled(Button)`
+const CustomButton = styled(Button)<{ isVisible?: boolean }>`
   ${(props) =>
     !props.isVisible
       ? `
@@ -137,7 +137,7 @@ export const AddButton = ({
     if (!(itemsLength > 0 && index !== itemsLength - 1)) {
       insertEntry();
     }
-  }, [itemsLength, index]);
+  }, [itemsLength, index, insertEntry]);
 
   return (
     <>

@@ -1,7 +1,6 @@
 // @noflow
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import { Tooltip } from '@scality/core-ui';
 import { ReactNode } from 'react';
 import { IconHelp } from './Help';
 // TEMPLATE
@@ -82,7 +81,9 @@ export const Row = styled.div`
 `;
 const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
   color: ${(props) =>
-    props.principal ? props.theme.brand.text : props.theme.brand?.textSecondary};
+    props.principal
+      ? props.theme.brand.textPrimary
+      : props.theme.brand?.textSecondary};
   font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
   ${(props) =>
     props.required
@@ -93,7 +94,7 @@ const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
     `
       : ''}
 `;
-export const Key = styled(RawKey)`
+export const Key = styled(RawKey)<{ size?: number }>`
   && {
     flex: 1 1 ${(props) => props.size || 35}%;
   }
@@ -120,10 +121,7 @@ export const KeyTooltip = ({
   <KeyContainer size={size}>
     <RawKey {...props}> {children} </RawKey>
     {tooltipMessage && (
-      <IconHelp
-        tooltipMessage={tooltipMessage}
-        tooltipWidth={tooltipWidth}
-      />
+      <IconHelp tooltipMessage={tooltipMessage} tooltipWidth={tooltipWidth} />
     )}
   </KeyContainer>
 );
@@ -146,12 +144,12 @@ export const ErrorContainer = styled.div`
 const Table = styled.div`
   width: 100%;
 `;
-export const Header = styled.div`
+export const Header = styled.div<{ isRemoved?: boolean }>`
   display: ${(props) => (props.isRemoved ? 'none' : 'flex')};
   flex-direction: row;
   justify-content: space-between;
 `;
-export const BannerContainer = styled.div`
+export const BannerContainer = styled.div<{ isHidden?: boolean }>`
   margin-right: ${spacing.sp8};
   width: 60%;
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};

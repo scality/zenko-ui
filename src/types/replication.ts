@@ -11,5 +11,5 @@ export type ReplicationForm = {
   readonly sourceBucket: string;
   readonly sourcePrefix: string;
   // todo: allow multiple locations?
-  readonly destinationLocation: string;
+  readonly destinationLocation: string[];
 };

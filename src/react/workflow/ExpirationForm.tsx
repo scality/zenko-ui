@@ -22,7 +22,7 @@ import { isVersioning } from '../utils';
 import TagsFilter from './TagsFilter';
 import { WorkflowFormContainer } from '../ui-elements/WorkflowFormContainer';
 
-const flexStyle = {
+const flexStyle: React.CSSProperties = {
   display: 'flex',
   justifyItems: 'stretch',
   flexDirection: 'row',
@@ -185,7 +185,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         (l) => l.value === sourceBucket,
                       );
 
-                      if (isEditing) {
+                      if (isEditing && result) {
                         return renderSource(locations)(result);
                       }
 
@@ -225,9 +225,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     }}
                   />
                   <T.ErrorContainer>
-                    <ErrorInput hasError={errors[`${prefix}bucketName`]}>
+                    <ErrorInput hasError={!!errors[`${prefix}bucketName`]}>
                       {' '}
-                      {errors[`${prefix}bucketName`]?.message}{' '}
+                      {(errors[`${prefix}bucketName`] as any)?.message}{' '}
                     </ErrorInput>
                   </T.ErrorContainer>
                 </T.Value>
@@ -440,7 +440,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   tooltipMessage={`
                 All the objects that become previous versions older than ${
                   previousVersionTriggerDelayDays || 'provided'
-                } days will be permanently deleted. 
+                } days will be permanently deleted.
                 `}
                   tooltipWidth="13rem"
                   size={60}
@@ -570,7 +570,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   tooltipMessage={`
                 When you delete a versioned object, a delete marker is created.
                 If all previous versions of the object subsequently expire, an expired-object Delete marker is left.
-                Removing unneeded Delete markers will improve the listing of object versions.                
+                Removing unneeded Delete markers will improve the listing of object versions.
                 `}
                   tooltipWidth="13rem"
                   size={60}

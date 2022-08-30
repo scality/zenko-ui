@@ -10,7 +10,7 @@ import ReplicationForm, { replicationSchema } from './ReplicationForm';
 import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import { useMutation, useQueryClient } from 'react-query';
-import type { Expiration, Replication } from '../../types/config';
+import type { Replication } from '../../types/config';
 import { getClients } from '../utils/actions';
 import {
   handleApiError,
@@ -41,7 +41,6 @@ import Joi from '@hapi/joi';
 import { ExpirationForm, expirationSchema } from './ExpirationForm';
 import { Select } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
-import { useLocation } from 'react-router-dom';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { TransitionForm, transitionSchema } from './TransitionForm';
@@ -56,7 +55,7 @@ const CreateWorkflow = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
+    (state: AppState) => state.configuration.latest?.locations,
   );
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -99,6 +98,7 @@ const CreateWorkflow = () => {
           {
             type: values.type,
             replication: values.replication,
+            transition: values.transition,
             expiration: prepareExpirationQuery(values.expiration),
           },
           context,
@@ -120,7 +120,6 @@ const CreateWorkflow = () => {
   const { account } = useCurrentAccount();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
-  const { pathname } = useLocation();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
@@ -130,15 +129,15 @@ const CreateWorkflow = () => {
     ApiError,
     Replication
   >(
-    (replication) => {
+    async (replication) => {
       dispatch(networkStart('Creating replication'));
 
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowReplication(
           replication,
           replication.source.bucketName,
-          accountId,
-          instanceId,
+          accountId!,
+          instanceId!,
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -148,8 +147,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId,
-            instanceId,
+            accountId!,
+            instanceId!,
             rolePathName,
           ).queryKey,
         );
@@ -172,17 +171,17 @@ const CreateWorkflow = () => {
   const createExpirationWorkflowMutation = useMutation<
     BucketWorkflowExpirationV1,
     ApiError,
-    Expiration
+    BucketWorkflowExpirationV1
   >(
-    (expiration) => {
+    async (expiration) => {
       dispatch(networkStart('Creating expiration'));
       const sanitizedExpiration = removeEmptyTagKeys(expiration);
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowExpiration(
           sanitizedExpiration,
           sanitizedExpiration.bucketName,
-          accountId,
-          instanceId,
+          accountId!,
+          instanceId!,
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -192,8 +191,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId,
-            instanceId,
+            accountId!,
+            instanceId!,
             rolePathName,
           ).queryKey,
         );
@@ -217,15 +216,15 @@ const CreateWorkflow = () => {
     ApiError,
     BucketWorkflowTransitionV2
   >(
-    (transition) => {
+    async (transition) => {
       dispatch(networkStart('Creating transition'));
       const sanitizedTransition = removeEmptyTagKeys(transition);
       return notFalsyTypeGuard(mgnt)
         .createBucketWorkflowTransition(
           prepareTransitionQuery(sanitizedTransition),
           sanitizedTransition.bucketName,
-          accountId,
-          instanceId,
+          accountId!,
+          instanceId!,
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -235,8 +234,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId,
-            instanceId,
+            accountId!,
+            instanceId!,
             rolePathName,
           ).queryKey,
         );
@@ -255,7 +254,7 @@ const CreateWorkflow = () => {
     },
   );
 
-  const onSubmit = (values) => {
+  const onSubmit: Parameters<typeof handleSubmit>[0] = (values) => {
     if (values.type === 'replication') {
       const stream = values.replication;
       let s = convertToReplicationStream(stream);
@@ -277,7 +276,7 @@ const CreateWorkflow = () => {
   return (
     <>
       <L.BreadcrumbContainer>
-        <Breadcrumb pathname={pathname} />
+        <Breadcrumb />
       </L.BreadcrumbContainer>
       <FormProvider {...useFormMethods}>
         <FormContainer>

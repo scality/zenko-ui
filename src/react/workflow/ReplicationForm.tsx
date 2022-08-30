@@ -1,6 +1,13 @@
 import * as T from '../ui-elements/TableKeyValue2';
-import { Controller, useFormContext } from 'react-hook-form';
+import {
+  Control,
+  FieldValues,
+  Controller,
+  useFormContext,
+  useFieldArray,
+} from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
+import { AddButton, SubButton, Buttons } from '../ui-elements/EditableKeyValue';
 import type { Locations } from '../../types/config';
 import { Toggle } from '@scality/core-ui';
 import {
@@ -61,12 +68,13 @@ export const replicationSchema = {
   enabled: Joi.boolean().label('State').required(),
   sourceBucket: Joi.string().label('Bucket Name').required(),
   sourcePrefix: Joi.string().label('Prefix').allow(''),
-  destinationLocation: Joi.string()
-    .label('Destination Location Name')
+  destinationLocation: Joi.array()
+    .items(Joi.string().allow('').label('Destination Location Name'))
+    .min(1)
     .required(),
 };
 
-function ReplicationComponent({
+function ReplicationForm({
   prefix = '',
   bucketList,
   locations,
@@ -91,8 +99,8 @@ function ReplicationComponent({
   const replicationsQuery = useQuery({
     ...workflowListQuery(
       notFalsyTypeGuard(mgnt),
-      accountId,
-      instanceId,
+      accountId!,
+      instanceId!,
       rolePathName,
     ),
     select: (workflows) =>
@@ -221,9 +229,9 @@ function ReplicationComponent({
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput hasError={errors[`${prefix}sourceBucket`]}>
+                  <ErrorInput hasError={!!errors[`${prefix}sourceBucket`]}>
                     {' '}
-                    {errors[`${prefix}sourceBucket`]?.message}{' '}
+                    {(errors[`${prefix}sourceBucket`] as any)?.message}{' '}
                   </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
@@ -256,48 +264,123 @@ function ReplicationComponent({
             </T.Row>
           </T.GroupContent>
         </T.Group>
-        <T.Group>
-          <T.GroupName>Destination</T.GroupName>
-          <T.GroupContent>
-            <T.Row data-testid="select-location-name-replication">
-              <T.Key required={isCreateMode}> Location Name </T.Key>
-              <T.Value>
-                <Controller
-                  control={control}
-                  name={`${prefix}destinationLocation`}
-                  render={({
-                    field: { onChange, value: destinationLocation },
-                  }) => {
-                    const options = destinationOptions(locations);
-                    return (
-                      <Select
-                        id="destinationLocation"
-                        onChange={onChange}
-                        value={destinationLocation}
-                      >
-                        {options &&
-                          options.map((o, i) => (
-                            <Option key={i} value={o.value}>
-                              {renderDestination(locations)(o)}
-                            </Option>
-                          ))}
-                      </Select>
-                    );
-                  }}
-                />
-                <T.ErrorContainer>
-                  <ErrorInput hasError={errors[`${prefix}destinationLocation`]}>
-                    {' '}
-                    {errors[`${prefix}destinationLocation`]?.message}{' '}
-                  </ErrorInput>
-                </T.ErrorContainer>
-              </T.Value>
-            </T.Row>
-          </T.GroupContent>
-        </T.Group>
+        <RenderDestination
+          prefix={prefix}
+          control={control}
+          name={`${prefix}destinationLocation`}
+          isCreateMode={isCreateMode}
+          locations={locations}
+          errors={errors}
+        />
       </T.Groups>
     </ReplicationContainer>
   );
 }
 
-export default ReplicationComponent;
+const RenderDestination = ({
+  prefix,
+  control,
+  name,
+  isCreateMode,
+  locations,
+  errors,
+}: {
+  prefix: string;
+  control: Control<FieldValues, string>;
+  name: string;
+  isCreateMode?: boolean;
+  locations: Locations;
+  errors: Record<string, any>;
+}) => {
+  return (
+    <T.Group>
+      <T.GroupName>Destination</T.GroupName>
+      <T.GroupContent>
+        <Controller
+          control={control}
+          name={name}
+          render={({ field: { onChange, value: destinationLocations } }) => {
+            if (!Array.isArray(destinationLocations)) return null;
+            return destinationLocations.map((destLoc: string, index) => {
+              const options = destinationOptions(locations);
+              const err = errors[`${prefix}destinationLocation.${index}`];
+              return (
+                <T.Row data-testid="select-location-name-replication">
+                  <T.Key required={index === 0 && isCreateMode}>
+                    {index === 0 ? 'Location Name' : ''}
+                  </T.Key>
+                  <T.GroupValues>
+                    <T.Value style={{ marginRight: 12 }}>
+                      <Select
+                        id="destinationLocation"
+                        hasError={!!err}
+                        onChange={(value) => {
+                          const newValues = [...destinationLocations];
+                          newValues[index] = value;
+                          onChange(newValues);
+                        }}
+                        value={destLoc}
+                      >
+                        {options &&
+                          options.map((o, i) => (
+                            <Option
+                              key={i}
+                              value={o.value}
+                              disabled={
+                                destLoc !== o.value &&
+                                destinationLocations.includes(o.value)
+                              }
+                            >
+                              {renderDestination(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
+                      <T.ErrorContainer>
+                        <ErrorInput hasError={!!errors[name]}>
+                          {' '}
+                          {errors[name]?.message}{' '}
+                        </ErrorInput>
+                      </T.ErrorContainer>
+                    </T.Value>
+                    <Buttons>
+                      <SubButton
+                        disabled={destinationLocations[0] === ''}
+                        index={index}
+                        items={destinationLocations}
+                        iconStyle={{}}
+                        deleteEntry={() => {
+                          if (destinationLocations.length === 1) {
+                            onChange(['']);
+                          } else {
+                            const newValues = [...destinationLocations];
+                            newValues.splice(index, 1);
+                            onChange(newValues);
+                          }
+                        }}
+                      />
+                      <AddButton
+                        disabled={
+                          destinationLocations.length === options.length ||
+                          destinationLocations.includes('')
+                        }
+                        index={index}
+                        items={destinationLocations}
+                        iconStyle={{}}
+                        insertEntry={() => {
+                          if (destinationLocations.includes('')) return;
+                          onChange([...destinationLocations, '']);
+                        }}
+                      />
+                    </Buttons>
+                  </T.GroupValues>
+                </T.Row>
+              );
+            });
+          }}
+        />
+      </T.GroupContent>
+    </T.Group>
+  );
+};
+
+export default ReplicationForm;
