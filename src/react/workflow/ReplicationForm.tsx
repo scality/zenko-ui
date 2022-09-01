@@ -28,6 +28,7 @@ import {
 import Joi from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
+import * as Inputs from '../ui-elements/Input';
 import { NoLocationWarning } from '../ui-elements/Warning';
 import type { S3BucketList } from '../../types/s3';
 
@@ -69,7 +70,7 @@ export const replicationSchema = {
   sourceBucket: Joi.string().label('Bucket Name').required(),
   sourcePrefix: Joi.string().label('Prefix').allow(''),
   destinationLocation: Joi.array()
-    .items(Joi.string().allow('').label('Destination Location Name'))
+    .items(Joi.string().label('Destination Location Name'))
     .min(1)
     .required(),
 };
@@ -260,6 +261,12 @@ function ReplicationForm({
                     );
                   }}
                 />
+                <T.ErrorContainer>
+                  <ErrorInput hasError={!!errors[`${prefix}sourcePrefix`]}>
+                    {' '}
+                    {errors[`${prefix}sourcePrefix`]?.message}{' '}
+                  </ErrorInput>
+                </T.ErrorContainer>
               </T.Value>
             </T.Row>
           </T.GroupContent>
@@ -336,9 +343,9 @@ const RenderDestination = ({
                           ))}
                       </Select>
                       <T.ErrorContainer>
-                        <ErrorInput hasError={!!errors[name]}>
+                        <ErrorInput hasError={!!err}>
                           {' '}
-                          {errors[name]?.message}{' '}
+                          {err?.message}{' '}
                         </ErrorInput>
                       </T.ErrorContainer>
                     </T.Value>

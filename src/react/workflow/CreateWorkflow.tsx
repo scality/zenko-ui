@@ -69,28 +69,27 @@ const CreateWorkflow = () => {
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
 
   const useFormMethods = useForm({
-    mode: 'all',
+    mode: 'onTouched',
     resolver: async (values, context, options) => {
-      const joiValidator = joiResolver(
-        Joi.object({
-          type: Joi.string().valid('replication', 'expiration', 'transition'),
-          replication: Joi.when('type', {
-            is: Joi.equal('replication'),
-            then: Joi.object(replicationSchema),
-            otherwise: Joi.valid(),
-          }),
-          transition: Joi.when('type', {
-            is: Joi.equal('transition'),
-            then: Joi.object(transitionSchema),
-            otherwise: Joi.valid(),
-          }),
-          expiration: Joi.when('type', {
-            is: Joi.equal('expiration'),
-            then: expirationSchema,
-            otherwise: Joi.valid(),
-          }),
+      const schema = Joi.object({
+        type: Joi.string().valid('replication', 'expiration', 'transition'),
+        replication: Joi.when('type', {
+          is: Joi.equal('replication'),
+          then: Joi.object(replicationSchema),
+          otherwise: Joi.valid(),
         }),
-      );
+        transition: Joi.when('type', {
+          is: Joi.equal('transition'),
+          then: Joi.object(transitionSchema),
+          otherwise: Joi.valid(),
+        }),
+        expiration: Joi.when('type', {
+          is: Joi.equal('expiration'),
+          then: expirationSchema,
+          otherwise: Joi.valid(),
+        }),
+      });
+      const joiValidator = joiResolver(schema);
       if (values.type === 'replication' || values.type === 'transition') {
         return joiValidator(values, context, options);
       } else {
@@ -123,6 +122,7 @@ const CreateWorkflow = () => {
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
+  const isValid = formState.isValid;
 
   const createReplicationWorkflowMutation = useMutation<
     ReplicationStreamInternalV1,
@@ -290,9 +290,12 @@ const CreateWorkflow = () => {
                     <Controller
                       control={control}
                       name="type"
-                      render={({ field: { onChange, value: type } }) => {
+                      render={({
+                        field: { onChange, onBlur, value: type },
+                      }) => {
                         return (
                           <Select
+                          onBlur={onBlur}
                             value={type}
                             onChange={(value) => onChange(value)}
                           >
@@ -357,7 +360,7 @@ const CreateWorkflow = () => {
                 label="Cancel"
               />
               <Button
-                disabled={loading || !formState.isValid}
+                disabled={loading || !isValid}
                 id="create-workflow-btn"
                 variant="primary"
                 label="Create"
