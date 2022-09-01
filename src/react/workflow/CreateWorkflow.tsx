@@ -80,7 +80,7 @@ const CreateWorkflow = () => {
     transition: newTransition(bucketName),
   };
   const useFormMethods = useForm({
-    mode: 'all',
+    mode: 'onTouched',
     resolver: async (values, context, options) => {
       const schema = Joi.object({
         type: Joi.string().valid('replication', 'expiration', 'transition'),

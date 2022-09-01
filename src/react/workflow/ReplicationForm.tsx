@@ -260,9 +260,10 @@ function ReplicationForm({
                   }}
                 />
                 <T.ErrorContainer>
-                  <ErrorInput
-                    error={errors[`${prefix}sourcePrefix`]?.message}
-                  />
+                  <ErrorInput hasError={!!errors[`${prefix}sourcePrefix`]}>
+                    {' '}
+                    {errors[`${prefix}sourcePrefix`]?.message}{' '}
+                  </ErrorInput>
                 </T.ErrorContainer>
               </T.Value>
             </T.Row>
@@ -342,7 +343,10 @@ const RenderDestination = ({
                           ))}
                       </Select>
                       <T.ErrorContainer>
-                        <ErrorInput error={err?.message} />
+                        <ErrorInput hasError={!!err}>
+                          {' '}
+                          {err?.message}{' '}
+                        </ErrorInput>
                       </T.ErrorContainer>
                     </T.Value>
                     <Buttons>
