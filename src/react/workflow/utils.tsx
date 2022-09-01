@@ -273,17 +273,19 @@ export function flattenFormErrors(
   obj: Record<string, unknown>,
   parent?: string,
   res: Record<string, unknown> = {},
-) {
+): Record<string, any | undefined> {
   for (const key in obj) {
     const propName = parent ? parent + '.' + key : key;
     const value: any = obj[key];
     if (
       value &&
       typeof value === 'object' &&
-      'ref' in value &&
-      'type' in value &&
-      'message' in value &&
-      typeof value.message === 'string'
+      !(
+        'ref' in value &&
+        'type' in value &&
+        'message' in value &&
+        typeof value.message === 'string'
+      )
     ) {
       flattenFormErrors(value as Record<string, unknown>, propName, res);
     } else {

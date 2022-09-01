@@ -22,7 +22,7 @@ export const Hint = styled.div`
   }
 `;
 // make my own import due to some imput event target undefined issue
-const Input = styled.input`
+const Input = styled.input<{ hasError?: boolean }>`
   display: flex;
 
   background-color: ${(props) => props.theme.brand?.backgroundLevel1};
