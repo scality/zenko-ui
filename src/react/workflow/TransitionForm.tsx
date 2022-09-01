@@ -12,6 +12,7 @@ import {
 } from './utils';
 import { SecondaryText, Toggle } from '@scality/core-ui';
 import { isVersioning } from '../utils';
+import { flattenFormErrors } from './utils';
 import {
   Select,
   Option,
@@ -63,7 +64,8 @@ export const TransitionForm = ({
   const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
 
-  const { errors } = formState;
+  const { errors: formErrors } = formState;
+  const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
   const locationName = watch(`${prefix}locationName`);
   const triggerDelayDays = watch(`${prefix}triggerDelayDays`);
