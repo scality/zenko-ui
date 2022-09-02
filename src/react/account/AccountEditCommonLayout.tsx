@@ -75,9 +75,7 @@ export const CommonPolicyLayout = ({
         </StyledFieldSet>
         {policyArn && (
           <StyledFieldSet>
-            <StyledLabel htmlFor="policyARN">
-              Policy ARN
-            </StyledLabel>
+            <StyledLabel htmlFor="policyARN">Policy ARN</StyledLabel>
             <span>{policyArn}</span>
             <Clipboard text={policyArn} />
           </StyledFieldSet>
@@ -86,7 +84,7 @@ export const CommonPolicyLayout = ({
           <F.Label htmlFor="policyDocument">
             Policy Document{isCreateMode && <> *</>}
           </F.Label>
-          <Box display='flex' flex-direction='row' gap={1} mt={2}>
+          <Box display="flex" flex-direction="row" gap={1} mt={2}>
             <Controller
               control={control}
               name="policyDocument"
@@ -116,10 +114,7 @@ export const CommonPolicyLayout = ({
                 />
               )}
             />
-            <CopyButton
-              text={policyDocument}
-              labelName={'Text'}
-            />
+            <CopyButton text={policyDocument} labelName={'Text'} />
           </Box>
         </F.Fieldset>
         <Box mt="1rem" mb="1rem">
@@ -129,11 +124,9 @@ export const CommonPolicyLayout = ({
         </Box>
         <F.ErrorInput
           id="error-name"
-          hasError={!!errors?.policyDocument}
+          error={errors?.policyDocument?.message}
           style={{ height: 'initial' }}
-        >
-          <> {errors?.policyDocument?.message} </>
-        </F.ErrorInput>
+        />
         <FooterWrapper>
           <StyledFooter>
             <F.Hr />

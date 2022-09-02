@@ -78,10 +78,7 @@ function EndpointCreate() {
             disabled={loading}
             autoComplete="off"
           />
-          <F.ErrorInput id="error-name" hasError={errors.hostname}>
-            {' '}
-            {errors.hostname?.message}{' '}
-          </F.ErrorInput>
+          <F.ErrorInput id="error-name" error={errors.hostname?.message} />
         </F.Fieldset>
         <F.Fieldset>
           <F.Label tooltipMessages={['Cannot be modified after creation']}>

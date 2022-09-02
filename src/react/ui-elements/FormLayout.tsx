@@ -125,23 +125,26 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  children: JSX.Element | JSX.Element[];
-  hasError: boolean;
+  error?: string;
   id?: string;
 } & HTMLAttributes<HTMLDivElement>;
-export const ErrorInput = ({
-  children,
-  hasError,
-  id,
-  ...props
-}: ErrorInputProps) => (
-  <ErrorInputContainer id={id} role="alert" {...props}>
-    {hasError && children}
-  </ErrorInputContainer>
-);
-export const WarningInput = ({ children, hasError }: ErrorInputProps) => (
-  <WarningInputContainer>{hasError && children}</WarningInputContainer>
-);
+export const ErrorInput = ({ error, id, ...props }: ErrorInputProps) => {
+  if (!error) return null;
+  return (
+    <ErrorInputContainer id={id} role="alert" {...props}>
+      {error}
+    </ErrorInputContainer>
+  );
+};
+
+export const WarningInput = ({ error, id }: ErrorInputProps) => {
+  if (!error) return null;
+  return (
+    <WarningInputContainer id={id}>
+      <small>{error}</small>
+    </WarningInputContainer>
+  );
+};
 // * Label
 const LabelContainer = styled.label<{ required?: boolean }>`
   display: flex;

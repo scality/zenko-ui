@@ -95,7 +95,7 @@ const CreateAccountPolicy = () => {
           <F.Input
             type="text"
             id="policyName"
-            placeholder='Policy name'
+            placeholder="Policy name"
             autoFocus
             readOnly={false}
             {...register('policyName', {
@@ -103,9 +103,7 @@ const CreateAccountPolicy = () => {
             })}
             style={{ width: '20rem', flexGrow: 1 }}
           />
-          {errors?.policyName && <F.ErrorInput id="error-name" hasError={errors?.policyName}>
-            <> {errors?.policyName?.message} </>
-          </F.ErrorInput>}
+          <F.ErrorInput id="error-name" error={errors?.policyName?.message} />
         </>
       }
       errors={errors}

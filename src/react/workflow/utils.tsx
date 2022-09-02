@@ -19,6 +19,7 @@ import {
 } from '../../js/managementClient/api';
 import { CustomHelpers } from '@hapi/joi';
 import type { Tag } from '../../types/s3';
+import { FieldError, FieldErrors } from 'react-hook-form';
 
 export const sourceBucketOptions = (
   streams: ReplicationStreams,
@@ -269,11 +270,11 @@ export function generateTransitionName(t: BucketWorkflowTransitionV2) {
   } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays} days`;
 }
 
-export function flattenFormErrors(
-  obj: Record<string, unknown>,
+export function flattenFormErrors<T = unknown>(
+  obj: FieldErrors<T>,
   parent?: string,
-  res: Record<string, unknown> = {},
-): Record<string, any | undefined> {
+  res: Record<string, FieldError> = {},
+): Record<string, FieldError> {
   for (const key in obj) {
     const propName = parent ? parent + '.' + key : key;
     const value: any = obj[key];

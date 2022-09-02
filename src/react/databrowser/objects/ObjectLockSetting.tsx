@@ -267,11 +267,8 @@ export default function ObjectLockSetting() {
 
                 <F.ErrorInput
                   id="error-retentionUntilDate"
-                  hasError={errors.retentionUntilDate}
-                >
-                  {' '}
-                  {errors.retentionUntilDate?.message}{' '}
-                </F.ErrorInput>
+                  error={errors.retentionUntilDate?.message}
+                />
               </F.Fieldset>
             </div>
           </>

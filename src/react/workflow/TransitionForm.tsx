@@ -181,10 +181,9 @@ export const TransitionForm = ({
                     }}
                   />
                   <T.ErrorContainer>
-                    <ErrorInput hasError={errors[`${prefix}bucketName`]}>
-                      {' '}
-                      {errors[`${prefix}bucketName`]?.message}{' '}
-                    </ErrorInput>
+                    <ErrorInput
+                      error={errors[`${prefix}bucketName`]?.message}
+                    />
                   </T.ErrorContainer>
                 </T.Value>
               </T.Row>
@@ -214,11 +213,8 @@ export const TransitionForm = ({
                   <T.ErrorContainer>
                     <ErrorInput
                       id="error-prefix"
-                      hasError={errors[`${prefix}filter.objectKeyPrefix`]}
-                    >
-                      {' '}
-                      {errors[`${prefix}filter.objectKeyPrefix`]?.message}{' '}
-                    </ErrorInput>
+                      error={errors[`${prefix}filter.objectKeyPrefix`]?.message}
+                    />
                   </T.ErrorContainer>
                 </T.Value>
               </T.Row>
@@ -247,11 +243,8 @@ export const TransitionForm = ({
                 <T.ErrorContainer>
                   <ErrorInput
                     id="error-objectTags"
-                    hasError={errors[`${prefix}filter.objectTags`]}
-                  >
-                    {' '}
-                    {errors[`${prefix}filter.objectTags`]?.message}{' '}
-                  </ErrorInput>
+                    error={errors[`${prefix}filter.objectTags`]?.message}
+                  />
                 </T.ErrorContainer>
               </T.Row>
             </T.GroupContent>
@@ -353,10 +346,9 @@ export const TransitionForm = ({
                     }}
                   />
                   <T.ErrorContainer>
-                    <ErrorInput hasError={errors[`${prefix}locationName`]}>
-                      {' '}
-                      {errors[`${prefix}locationName`]?.message}{' '}
-                    </ErrorInput>
+                    <ErrorInput
+                      error={errors[`${prefix}locationName`]?.message}
+                    />
                   </T.ErrorContainer>
                 </T.Value>
               </T.Row>

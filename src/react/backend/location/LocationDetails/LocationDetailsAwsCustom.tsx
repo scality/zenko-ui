@@ -181,12 +181,13 @@ export default function LocationDetailsAwsCustom({
             Your objects will be stored in the target bucket without a
             source-bucket prefix.
           </small>
-          <WarningInput hasError={!!formState.bucketMatch}>
-            <small>
-              Storing multiple buckets in a location with this option enabled
-              can lead to data loss.
-            </small>
-          </WarningInput>
+          <WarningInput
+            error={
+              formState.bucketMatch
+                ? 'Storing multiple buckets in a location with this option enabled\ncan lead to data loss.'
+                : undefined
+            }
+          />
         </Fieldset>
       ) : (
         <Box mb={8} />

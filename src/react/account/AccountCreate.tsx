@@ -103,10 +103,7 @@ function AccountCreate() {
             aria-invalid={!!errors.name}
             aria-describedby="error-name"
           />
-          <F.ErrorInput id="error-name" hasError={errors.name}>
-            {' '}
-            {errors.name?.message}{' '}
-          </F.ErrorInput>
+          <F.ErrorInput id="error-name" error={errors.name?.message} />
         </F.Fieldset>
         <F.Fieldset>
           <F.Label
@@ -126,10 +123,7 @@ function AccountCreate() {
             aria-invalid={!!errors.email}
             aria-describedby="error-email"
           />
-          <F.ErrorInput id="error-email" hasError={errors.email}>
-            {' '}
-            {errors.email?.message}{' '}
-          </F.ErrorInput>
+          <F.ErrorInput id="error-email" error={errors.email?.message} />
         </F.Fieldset>
         <F.Footer>
           <F.FooterError>

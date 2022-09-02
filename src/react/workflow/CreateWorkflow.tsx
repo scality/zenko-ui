@@ -1,5 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import {
+  Controller,
+  FormProvider,
+  SubmitHandler,
+  useForm,
+} from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -68,6 +73,12 @@ const CreateWorkflow = () => {
   const queryParams = useQueryParams();
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
 
+  const defaultFormValues = {
+    type: 'select',
+    replication: newReplicationForm(bucketName),
+    expiration: newExpiration(bucketName),
+    transition: newTransition(bucketName),
+  };
   const useFormMethods = useForm({
     mode: 'all',
     resolver: async (values, context, options) => {
@@ -105,13 +116,10 @@ const CreateWorkflow = () => {
         );
       }
     },
-    defaultValues: {
-      type: 'select',
-      replication: newReplicationForm(bucketName),
-      expiration: newExpiration(bucketName),
-      transition: newTransition(bucketName),
-    },
+    defaultValues: defaultFormValues,
   });
+
+  useFormMethods.getValues;
 
   const { handleSubmit, control, watch, formState } = useFormMethods;
   const type = watch('type');
@@ -254,7 +262,7 @@ const CreateWorkflow = () => {
     },
   );
 
-  const onSubmit: Parameters<typeof handleSubmit>[0] = (values) => {
+  const onSubmit: SubmitHandler<typeof defaultFormValues> = (values) => {
     if (values.type === 'replication') {
       const stream = values.replication;
       let s = convertToReplicationStream(stream);
@@ -295,7 +303,7 @@ const CreateWorkflow = () => {
                       }) => {
                         return (
                           <Select
-                          onBlur={onBlur}
+                            onBlur={onBlur}
                             value={type}
                             onChange={(value) => onChange(value)}
                           >

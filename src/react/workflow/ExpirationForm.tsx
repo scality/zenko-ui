@@ -225,10 +225,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     }}
                   />
                   <T.ErrorContainer>
-                    <ErrorInput hasError={!!errors[`${prefix}bucketName`]}>
-                      {' '}
-                      {(errors[`${prefix}bucketName`] as any)?.message}{' '}
-                    </ErrorInput>
+                    <ErrorInput
+                      error={errors[`${prefix}bucketName`]?.message}
+                    />
                   </T.ErrorContainer>
                 </T.Value>
               </T.Row>
@@ -257,11 +256,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <T.ErrorContainer>
                     <ErrorInput
                       id="error-prefix"
-                      hasError={errors[`${prefix}filter.objectKeyPrefix`]}
-                    >
-                      {' '}
-                      {errors[`${prefix}filter.objectKeyPrefix`]?.message}{' '}
-                    </ErrorInput>
+                      error={errors[`${prefix}filter.objectKeyPrefix`]?.message}
+                    />
                   </T.ErrorContainer>
                 </T.Value>
               </T.Row>
@@ -297,11 +293,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 <T.ErrorContainer>
                   <ErrorInput
                     id="error-prefix"
-                    hasError={errors[`${prefix}filter.objectTags`]}
-                  >
-                    {' '}
-                    {errors[`${prefix}filter.objectTags`]?.message}{' '}
-                  </ErrorInput>
+                    error={errors[`${prefix}filter.objectTags`]?.message}
+                  />
                 </T.ErrorContainer>
               </T.Row>
             </T.GroupContent>
@@ -426,13 +419,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <ErrorInput
                     id="error-currentVersionTriggerDelayDays"
                     style={{ height: 'auto' }}
-                    hasError={errors[`${prefix}currentVersionTriggerDelayDays`]}
-                  >
-                    {' '}
-                    {
+                    error={
                       errors[`${prefix}currentVersionTriggerDelayDays`]?.message
-                    }{' '}
-                  </ErrorInput>
+                    }
+                  />
                 </T.Value>
               </T.Row>
               <T.Row data-testid="toggle-action-expire-previous-version">
@@ -553,16 +543,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <ErrorInput
                     id="error-previousVersionTriggerDelayDays"
                     style={{ height: 'auto' }}
-                    hasError={
-                      errors[`${prefix}previousVersionTriggerDelayDays`]
-                    }
-                  >
-                    {' '}
-                    {
+                    error={
                       errors[`${prefix}previousVersionTriggerDelayDays`]
                         ?.message
-                    }{' '}
-                  </ErrorInput>
+                    }
+                  />
                 </T.Value>
               </T.Row>
               <T.Row data-testid="toggle-action-remove-expired-markers">
@@ -756,19 +741,12 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   <ErrorInput
                     id="error-incompleteMultipartUploadTriggerDelayDays"
                     style={{ height: 'auto' }}
-                    hasError={
-                      errors[
-                        `${prefix}incompleteMultipartUploadTriggerDelayDays`
-                      ]
-                    }
-                  >
-                    {' '}
-                    {
+                    error={
                       errors[
                         `${prefix}incompleteMultipartUploadTriggerDelayDays`
                       ]?.message
-                    }{' '}
-                  </ErrorInput>
+                    }
+                  />
                 </T.Value>
               </T.Row>
             </T.GroupContent>

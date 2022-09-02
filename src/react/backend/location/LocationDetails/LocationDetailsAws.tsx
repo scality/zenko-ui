@@ -122,12 +122,13 @@ export default class LocationDetailsAws extends React.Component<
           <small>
             Store objects in the target bucket without a source-bucket prefix.
           </small>
-          <WarningInput hasError={!!this.state.bucketMatch}>
-            <small>
-              Storing multiple buckets in a location with this option enabled
-              can lead to data loss.
-            </small>
-          </WarningInput>
+          <WarningInput
+            error={
+              this.state.bucketMatch
+                ? 'Storing multiple buckets in a location with this option enabled\ncan lead to data loss.'
+                : undefined
+            }
+          />
         </Fieldset>
         <Fieldset
           style={{

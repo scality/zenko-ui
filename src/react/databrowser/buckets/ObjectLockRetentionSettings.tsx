@@ -199,11 +199,8 @@ export default function ObjectLockRetentionSettings(props: {
 
           <F.ErrorInput
             id="error-retentionPeriod"
-            hasError={errors.retentionPeriod}
-          >
-            {' '}
-            {errors.retentionPeriod?.message}{' '}
-          </F.ErrorInput>
+            error={errors.retentionPeriod?.message}
+          />
         </F.Fieldset>
       </div>
     </>

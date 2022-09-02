@@ -179,12 +179,16 @@ function BucketCreate() {
                 aria-describedby="error-name"
                 autoComplete="off"
               />
-              <F.ErrorInput id="error-name" hasError={errors.name}>
-                {' '}
-                {errors.name?.type === 'string.pattern.base'
-                  ? bucketErrorMessage
-                  : errors.name?.message}{' '}
-              </F.ErrorInput>
+              <F.ErrorInput
+                id="error-name"
+                error={
+                  errors.name
+                    ? errors.name?.type === 'string.pattern.base'
+                      ? bucketErrorMessage
+                      : errors.name?.message
+                    : undefined
+                }
+              />
             </F.Fieldset>
             <F.Fieldset>
               <F.Label
