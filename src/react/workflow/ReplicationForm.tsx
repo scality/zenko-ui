@@ -312,7 +312,9 @@ const RenderDestination = ({
               const options = destinationOptions(locations);
               const err = errors[`${prefix}destinationLocation.${index}`];
               return (
-                <T.Row data-testid="select-location-name-replication">
+                <T.Row
+                  data-testid={`select-location-name-replication-${index}`}
+                >
                   <T.Key required={index === 0 && isCreateMode}>
                     {index === 0 ? 'Location Name' : ''}
                   </T.Key>
