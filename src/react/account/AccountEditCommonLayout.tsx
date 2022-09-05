@@ -44,6 +44,7 @@ export const CommonPolicyLayout = ({
   policyDocument,
   errors,
   isDirty,
+  isValid,
   handleCancel,
 }: {
   policyArn?: string;
@@ -54,6 +55,7 @@ export const CommonPolicyLayout = ({
   policyDocument: string;
   errors?: { policyDocument?: { message?: string } };
   isDirty: boolean;
+  isValid: boolean;
   handleCancel: (e: MouseEvent) => void;
 }) => {
   const isCreateMode = !policyArn;
@@ -147,7 +149,7 @@ export const CommonPolicyLayout = ({
                   onClick={handleCancel}
                 />
                 <Button
-                  disabled={!isDirty}
+                  disabled={!isDirty || !isValid}
                   type="submit"
                   id="create-account-btn"
                   variant="primary"

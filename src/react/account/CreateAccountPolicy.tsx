@@ -40,8 +40,9 @@ const CreateAccountPolicy = () => {
     handleSubmit,
     watch,
     control,
-    formState: { isDirty, errors },
+    formState: { isDirty, isValid, errors },
   } = useForm<PolicyFormValues>({
+    mode: 'all',
     defaultValues,
   });
 
@@ -88,6 +89,7 @@ const CreateAccountPolicy = () => {
       control={control}
       handleCancel={handleCancel}
       isDirty={isDirty}
+      isValid={isValid}
       onSubmit={handleSubmit(onSubmit)}
       policyDocument={watchAllFields.policyDocument}
       policyNameField={

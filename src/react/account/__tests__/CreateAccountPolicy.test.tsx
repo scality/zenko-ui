@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -54,7 +54,9 @@ describe('CreateAccountPolicy', () => {
       screen.getByText('We are supporting AWS IAM standards.'),
     ).toBeInTheDocument();
 
-    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
+    const policyNameInput = screen.getByRole('textbox', {
+      name: /Policy name/i,
+    });
     expect(policyNameInput).toBeInTheDocument();
 
     const copyButton = screen.getByRole('button', { name: /Copy Text/i });
@@ -70,8 +72,10 @@ describe('CreateAccountPolicy', () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
-    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
-    
+    const policyNameInput = screen.getByRole('textbox', {
+      name: /Policy name/i,
+    });
+
     userEvent.type(policyNameInput, '');
     const createButton = screen.getByRole('button', { name: /Create/i });
 
@@ -82,14 +86,15 @@ describe('CreateAccountPolicy', () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
-    const policyNameInput = screen.getByRole('textbox', {name: /Policy name/i});
-    userEvent.type(policyNameInput, '');
-    
-    
+    const policyNameInput = screen.getByRole('textbox', {
+      name: /Policy name/i,
+    });
     const createButton = screen.getByRole('button', { name: /Create/i });
-    expect(createButton).toBeDisabled();
-    
-    userEvent.click(createButton);
+    userEvent.type(policyNameInput, 'Foo');
+    await waitFor(() => expect(createButton).toBeEnabled());
+    userEvent.clear(policyNameInput);
+    await waitFor(() => expect(createButton).toBeDisabled());
+
     const policyNameAlert = screen.getAllByRole('alert')[0];
     expect(policyNameAlert).toBeInTheDocument();
   });
