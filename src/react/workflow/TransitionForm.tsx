@@ -149,7 +149,6 @@ export const TransitionForm = ({
                     name={`${prefix}bucketName`}
                     render={({ field: { onChange, value: sourceBucket } }) => {
                       const options = sourceBucketOptions(
-                        [],
                         bucketList,
                         locations,
                       );

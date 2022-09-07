@@ -176,7 +176,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     name={`${prefix}bucketName`}
                     render={({ field: { onChange, value: sourceBucket } }) => {
                       const options = sourceBucketOptions(
-                        [],
                         bucketList,
                         locations,
                       );

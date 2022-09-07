@@ -11,10 +11,13 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../types/state';
 import { useHistory } from 'react-router';
 import * as L from '../ui-elements/ListLayout5';
-import ReplicationForm, { replicationSchema } from './ReplicationForm';
+import ReplicationForm, {
+  disallowedPrefixes,
+  replicationSchema,
+} from './ReplicationForm';
 import * as T from '../ui-elements/TableKeyValue2';
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import type { Replication } from '../../types/config';
 import { getClients } from '../utils/actions';
 import {
@@ -72,6 +75,13 @@ const CreateWorkflow = () => {
   const BUCKETNAME_QUERY_PARAM = 'bucket';
   const queryParams = useQueryParams();
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
+  const state = useSelector((state: AppState) => state);
+  const { account } = useCurrentAccount();
+  const accountId = account?.id;
+  const rolePathName = useRolePathName();
+  const mgnt = useManagementClient();
+  const queryClient = useQueryClient();
+  const { instanceId } = getClients(state);
 
   const defaultFormValues = {
     type: 'select',
@@ -79,14 +89,28 @@ const CreateWorkflow = () => {
     expiration: newExpiration(bucketName),
     transition: newTransition(bucketName),
   };
+  const replicationsQuery = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mgnt),
+      accountId!,
+      instanceId!,
+      rolePathName,
+    ),
+    select: (workflows) =>
+      workflows.filter((w) => w.replication).map((w) => w.replication),
+  });
+
   const useFormMethods = useForm({
     mode: 'onTouched',
     resolver: async (values, context, options) => {
+      const bucketName = values.replication.sourceBucket;
+      const streams = replicationsQuery.data ?? [];
+      const disPrefixes = disallowedPrefixes(bucketName, streams);
       const schema = Joi.object({
         type: Joi.string().valid('replication', 'expiration', 'transition'),
         replication: Joi.when('type', {
           is: Joi.equal('replication'),
-          then: Joi.object(replicationSchema),
+          then: Joi.object(replicationSchema(disPrefixes)),
           otherwise: Joi.valid(),
         }),
         transition: Joi.when('type', {
@@ -101,19 +125,12 @@ const CreateWorkflow = () => {
         }),
       });
       const joiValidator = joiResolver(schema);
-      if (values.type === 'replication' || values.type === 'transition') {
-        return joiValidator(values, context, options);
+      if (['replication', 'transition'].includes(values.type)) {
+        const validation = await joiValidator(values, context, options);
+        return validation;
       } else {
-        return joiValidator(
-          {
-            type: values.type,
-            replication: values.replication,
-            transition: values.transition,
-            expiration: prepareExpirationQuery(values.expiration),
-          },
-          context,
-          options,
-        );
+        const expiration = prepareExpirationQuery(values.expiration);
+        return joiValidator({ ...values, expiration }, context, options);
       }
     },
     defaultValues: defaultFormValues,
@@ -123,13 +140,6 @@ const CreateWorkflow = () => {
 
   const { handleSubmit, control, watch, formState } = useFormMethods;
   const type = watch('type');
-  const state = useSelector((state: AppState) => state);
-  const { account } = useCurrentAccount();
-  const accountId = account?.id;
-  const rolePathName = useRolePathName();
-  const mgnt = useManagementClient();
-  const queryClient = useQueryClient();
-  const { instanceId } = getClients(state);
   const isValid = formState.isValid;
 
   const createReplicationWorkflowMutation = useMutation<

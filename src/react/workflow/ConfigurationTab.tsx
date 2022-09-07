@@ -457,7 +457,7 @@ function EditForm({
       ? expirationSchema
       : isTransitionWorkflow(workflow)
       ? Joi.object(transitionSchema)
-      : Joi.object(replicationSchema);
+      : Joi.object(replicationSchema([]));
 
   const useFormMethods = useForm({
     mode: 'all',

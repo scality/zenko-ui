@@ -22,13 +22,9 @@ import type { Tag } from '../../types/s3';
 import { FieldError, FieldErrors } from 'react-hook-form';
 
 export const sourceBucketOptions = (
-  streams: ReplicationStreams,
   bucketList: S3BucketList,
   locations: Locations,
 ): Array<ReplicationBucketOption> => {
-  const bucketsUsedForReplication = streams.map(
-    (stream) => stream.source.bucketName,
-  );
   const buckets = bucketList.map((b) => {
     const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
 
@@ -38,10 +34,7 @@ export const sourceBucketOptions = (
       label: b.Name,
       value: b.Name,
       location: constraint,
-      disabled:
-        !isVersioning(b.VersionStatus) ||
-        bucketsUsedForReplication.indexOf(b.Name) > -1 ||
-        !supportsReplicationSource,
+      disabled: !isVersioning(b.VersionStatus) || !supportsReplicationSource,
     };
   });
   return [...buckets];
@@ -294,6 +287,19 @@ export function flattenFormErrors<T = unknown>(
     }
   }
   return res;
+}
+
+export type TouchedFields = { [key: string]: TouchedFields | boolean };
+export type FlattenedFields = { [key: string]: boolean };
+export function flattenFormTouchedFields(
+  fields: TouchedFields,
+  parent?: string,
+): FlattenedFields {
+  return Object.entries(fields).reduce((acc, [key, entry]) => {
+    const k = parent ? `${parent}.${key}` : key;
+    if (typeof entry === 'boolean') return { ...acc, [k]: entry };
+    return { ...acc, ...flattenFormTouchedFields(entry, k) };
+  }, {} as FlattenedFields);
 }
 
 export function removeEmptyTagKeys<

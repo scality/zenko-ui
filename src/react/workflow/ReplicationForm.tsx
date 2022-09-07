@@ -8,7 +8,7 @@ import {
 } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import { AddButton, SubButton, Buttons } from '../ui-elements/EditableKeyValue';
-import type { Locations } from '../../types/config';
+import type { Locations, Replication } from '../../types/config';
 import { Toggle } from '@scality/core-ui';
 import {
   Select,
@@ -21,6 +21,7 @@ import {
 import {
   destinationOptions,
   flattenFormErrors,
+  flattenFormTouchedFields,
   renderDestination,
   renderSource,
   sourceBucketOptions,
@@ -59,7 +60,22 @@ type Props = {
   prefix?: string;
 };
 
-export const replicationSchema = {
+export const disallowedPrefixes = (
+  bucketName: string,
+  streams: Replication[],
+) => {
+  return streams
+    .filter((s) => {
+      const src = s.source.bucketName;
+      return !!src && src === bucketName;
+    })
+    .flatMap((s) => {
+      const { prefix } = s.source;
+      return prefix ? [prefix] : [];
+    });
+};
+
+export const replicationSchema = (sourcesPrefix: string[]) => ({
   streamId: Joi.string().label('Id').allow(''),
   streamVersion: Joi.number().label('Version').optional(),
   // streamName: Joi.string().label('Name').min(4).allow('').messages({
@@ -67,12 +83,15 @@ export const replicationSchema = {
   // }),
   enabled: Joi.boolean().label('State').required(),
   sourceBucket: Joi.string().label('Bucket Name').required(),
-  sourcePrefix: Joi.string().label('Prefix').allow(''),
+  sourcePrefix: Joi.string()
+    .label('Prefix')
+    .disallow(...sourcesPrefix)
+    .allow(''),
   destinationLocation: Joi.array()
     .items(Joi.string().label('Destination Location Name'))
     .min(1)
     .required(),
-};
+});
 
 function ReplicationForm({
   prefix = '',
@@ -85,27 +104,16 @@ function ReplicationForm({
     control,
     getValues,
     trigger,
-    formState: { errors: formErrors },
+    formState: { errors: formErrors, touchedFields: formTouched },
   } = useFormContext();
   const errors = flattenFormErrors(formErrors);
-
+  const touchedFields = flattenFormTouchedFields(formTouched);
   const state = useSelector((state: AppState) => state);
   const { instanceId } = getClients(state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
-
-  const replicationsQuery = useQuery({
-    ...workflowListQuery(
-      notFalsyTypeGuard(mgnt),
-      accountId!,
-      instanceId!,
-      rolePathName,
-    ),
-    select: (workflows) =>
-      workflows.filter((w) => w.replication).map((w) => w.replication),
-  });
 
   // TODO: make sure we do not delete bucket or location if replication created.
   if (
@@ -178,12 +186,11 @@ function ReplicationForm({
                 <Controller
                   control={control}
                   name={`${prefix}sourceBucket`}
-                  render={({ field: { onChange, value: sourceBucket } }) => {
-                    const options = sourceBucketOptions(
-                      replicationsQuery.data || [],
-                      bucketList,
-                      locations,
-                    );
+                  render={({
+                    field: { onChange, onBlur, value: sourceBucket },
+                  }) => {
+                    // const streams = replicationsQuery.data || [];
+                    const options = sourceBucketOptions(bucketList, locations);
                     const isEditing = !!getValues(`${prefix}streamId`);
                     const result = options.find(
                       (l) => l.value === sourceBucket,
@@ -208,9 +215,13 @@ function ReplicationForm({
 
                     return (
                       <Select
+                        onBlur={onBlur}
                         id="sourceBucket"
                         value={sourceBucket}
-                        onChange={onChange}
+                        onChange={(...values) => {
+                          onChange(...values);
+                          trigger();
+                        }}
                         isDisabled={isEditing}
                       >
                         {options &&
@@ -230,7 +241,10 @@ function ReplicationForm({
                 />
                 <T.ErrorContainer>
                   <ErrorInput
-                    error={errors[`${prefix}sourceBucket`]?.message}
+                    error={
+                      touchedFields[`${prefix}sourceBucket`] &&
+                      errors[`${prefix}sourceBucket`]?.message
+                    }
                   />
                 </T.ErrorContainer>
               </T.Value>
@@ -248,9 +262,12 @@ function ReplicationForm({
                 <Controller
                   control={control}
                   name={`${prefix}sourcePrefix`}
-                  render={({ field: { onChange, value: sourcePrefix } }) => {
+                  render={({
+                    field: { onChange, onBlur, value: sourcePrefix },
+                  }) => {
                     return (
                       <Input
+                        onBlur={onBlur}
                         id="sourcePrefix"
                         onChange={onChange}
                         value={sourcePrefix}
@@ -261,7 +278,10 @@ function ReplicationForm({
                 />
                 <T.ErrorContainer>
                   <ErrorInput
-                    error={errors[`${prefix}sourcePrefix`]?.message}
+                    error={
+                      touchedFields[`${prefix}sourcePrefix`] &&
+                      errors[`${prefix}sourcePrefix`]?.message
+                    }
                   />
                 </T.ErrorContainer>
               </T.Value>
@@ -269,6 +289,7 @@ function ReplicationForm({
           </T.GroupContent>
         </T.Group>
         <RenderDestination
+          touchedFields={touchedFields}
           prefix={prefix}
           control={control}
           name={`${prefix}destinationLocation`}
@@ -288,6 +309,7 @@ const RenderDestination = ({
   isCreateMode,
   locations,
   errors,
+  touchedFields,
 }: {
   prefix: string;
   control: Control<FieldValues, string>;
@@ -295,6 +317,7 @@ const RenderDestination = ({
   isCreateMode?: boolean;
   locations: Locations;
   errors: Record<string, FieldError>;
+  touchedFields: { [key: string]: boolean };
 }) => {
   return (
     <T.Group>
@@ -303,11 +326,15 @@ const RenderDestination = ({
         <Controller
           control={control}
           name={name}
-          render={({ field: { onChange, value: destinationLocations } }) => {
+          render={({
+            field: { onChange, onBlur, value: destinationLocations },
+          }) => {
             if (!Array.isArray(destinationLocations)) return null;
             return destinationLocations.map((destLoc: string, index) => {
               const options = destinationOptions(locations);
-              const err = errors[`${prefix}destinationLocation.${index}`];
+              const prefix_ = `${prefix}destinationLocation.${index}`;
+              const err = errors[prefix_];
+              const touched = touchedFields[prefix_];
               return (
                 <T.Row
                   data-testid={`select-location-name-replication-${index}`}
@@ -318,6 +345,7 @@ const RenderDestination = ({
                   <T.GroupValues>
                     <T.Value style={{ marginRight: 12 }}>
                       <Select
+                        onBlur={onBlur}
                         id="destinationLocation"
                         hasError={!!err}
                         onChange={(value) => {
@@ -342,7 +370,7 @@ const RenderDestination = ({
                           ))}
                       </Select>
                       <T.ErrorContainer>
-                        <ErrorInput error={err?.message} />
+                        <ErrorInput error={touched && err?.message} />
                       </T.ErrorContainer>
                     </T.Value>
                     <Buttons>
