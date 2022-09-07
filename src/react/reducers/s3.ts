@@ -104,6 +104,7 @@ const search = (objs): Array<ObjectEntity> => {
       ..._getObjectLockInformation(o),
       toggled: false,
       isLegalHoldEnabled: o.IsLegalHoldEnabled,
+      storageClass: o.StorageClass,
     };
   });
 };
@@ -130,6 +131,7 @@ const versioning = (
         ..._getObjectLockInformation(o),
         toggled: false,
         isLegalHoldEnabled: o.IsLegalHoldEnabled || false,
+        storageClass: o.StorageClass,
       };
     });
 };
