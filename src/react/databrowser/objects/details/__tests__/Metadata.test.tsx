@@ -308,4 +308,21 @@ describe('Metadata', () => {
       throw e;
     }
   });
+
+  it('should have controls if the object has no metadata', () => {
+    const { component } = reduxRender(
+      <Metadata
+        listType="s3"
+        metadata={[]}
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+      />,
+      metadataConfig,
+    );
+
+    expect(component.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+    expect(
+      component.getByRole('button', { name: 'Remove' }),
+    ).toBeInTheDocument();
+  });
 });

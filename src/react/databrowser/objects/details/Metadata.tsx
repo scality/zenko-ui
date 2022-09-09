@@ -100,7 +100,9 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
     mdKey: '',
     type: METADATA_SYSTEM_TYPE,
   };
-  const defaultValues = prepareFormData(metadata);
+  const defaultValues = prepareFormData(
+    metadata && metadata.length > 0 ? metadata : [EMPTY_ITEM],
+  );
   const {
     register,
     reset,
@@ -137,6 +139,10 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
     control,
     name: 'metadata',
   });
+
+  if (fields.length === 0) {
+    append([EMPTY_ITEM]);
+  }
 
   const deleteEntry = () => {
     remove(0);
