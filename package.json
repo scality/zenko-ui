@@ -70,7 +70,7 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@hapi/joi": "^17.1.1",
     "@hapi/joi-date": "^2.0.1",
-    "@hookform/resolvers": "^2.8.8",
+    "@hookform/resolvers": "^2.9.7",
     "@monaco-editor/react": "^4.4.5",
     "@scality/core-ui": "github:scality/core-ui.git#v0.40.0",
     "@types/react-table": "^7.7.10",
