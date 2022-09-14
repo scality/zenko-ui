@@ -1,6 +1,5 @@
 import { Tooltip } from '@scality/core-ui';
 import React from 'react';
-import type { Node } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 export const Icon = styled.i`
@@ -8,7 +7,7 @@ export const Icon = styled.i`
   color: ${(props) => props.theme.brand?.buttonSecondary};
 `;
 type IconHelpProps = {
-  tooltipMessage: string | Node;
+  tooltipMessage: React.ReactNode;
   iconClass?: string;
   tooltipWidth?: string;
   placement?: string;

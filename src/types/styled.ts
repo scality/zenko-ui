@@ -20,9 +20,10 @@ declare module 'styled-components' {
       backgroundLevel4: string;
       textPrimary: string;
       textSecondary: string;
-      textTertiary: string;
       textReverse: string;
       textLink: string;
+
+      // @deprecated
       alert: string;
       base: string;
       primary: string;

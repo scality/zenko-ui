@@ -45,7 +45,7 @@ const Input = styled.input<{ hasError?: boolean }>`
 
   :focus {
     outline: none;
-    border: ${spacing.sp1} solid ${(props) => props.theme.brand?.secondary};
+    border: ${spacing.sp1} solid ${(props) => props.theme.brand?.selectedActive};
   }
   ${(props) =>
     props.disabled &&

@@ -1,8 +1,9 @@
 import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import {ReactNode} from 'react';
-const Container = styled.div`
+import { ReactNode } from 'react';
+import { Icon } from '@scality/core-ui';
+const Container = styled.div<{ centered?: boolean }>`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -36,21 +37,21 @@ const ButtonSection = styled.div`
   margin-top: ${spacing.sp16};
 `;
 type WarningProps = {
-  iconClass?: string;
+  icon?: ReactNode;
   title: ReactNode;
   btnTitle?: string;
   btnAction?: () => void;
   centered?: boolean;
 };
 export const Warning = ({
-  iconClass,
+  icon,
   title,
   btnTitle,
   btnAction,
   centered,
 }: WarningProps) => (
   <Container centered={centered}>
-    {!!iconClass && <i className={iconClass}></i>}
+    {icon}
     <Title> {title} </Title>
     {!!btnTitle && !!btnAction && (
       <ButtonSection>
@@ -65,14 +66,14 @@ type WarningMetadataProps = {
 };
 export const WarningMetadata = ({ description }: WarningMetadataProps) => (
   <Container2>
-    <i className="fas fa-2x fa-exclamation-circle"></i>
+    <Icon size="2x" name="Exclamation-circle" />
     <Title> Metadata Search returned an error. </Title>
     <Description> {description} </Description>
   </Container2>
 );
 export const NoBucketWarning = () => (
   <Container2>
-    <i className="fas fa-2x fa-exclamation-circle"></i>
+    <Icon size="2x" name="Exclamation-circle" />
     <Title> No bucket </Title>
     <Description>
       {' '}
@@ -83,7 +84,7 @@ export const NoBucketWarning = () => (
 );
 export const NoLocationWarning = () => (
   <Container2>
-    <i className="fas fa-2x fa-exclamation-circle"></i>
+    <Icon size="2x" name="Exclamation-circle" />
     <Title> No location </Title>
     <Description>
       {' '}

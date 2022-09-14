@@ -23,30 +23,26 @@ import {
   getUserListGroupsQuery,
 } from '../../queries';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { LargerText, SecondaryText } from '@scality/core-ui';
+import { Icon, LargerText, SecondaryText } from '@scality/core-ui';
 
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
-
-const ColoredIcon = styled.i<{ color: keyof DefaultTheme['brand'] }>`
-  color: ${(props) => props.theme.brand[props.color]};
-`;
 
 const EntityIcon = ({ type }: { type: EntityType }) => {
   return type === 'user' ? (
     <span>
-      <i className="fas fa-user" /> User
+      <Icon name="User" /> User
     </span>
   ) : type === 'group' ? (
     <span>
-      <i className="fas fa-users" /> Group
+      <Icon name="Group" /> Group
     </span>
   ) : type === 'policy' ? (
     <span>
-      <i className="fas fa-file-signature" /> Policy
+      <Icon name="Policy" /> Policy
     </span>
   ) : (
     <span>
-      <i className="fas fa-hat-cowboy" /> Role
+      <Icon name="Role" /> Role
     </span>
   );
 };
@@ -137,7 +133,7 @@ function AttachmentConfirmationModal({
             getListPoliciesQuery(
               notFalsyTypeGuard(account).Name,
               notFalsyTypeGuard(IAMClient),
-            )
+            ),
           );
           if (flatEntity.type === 'user') {
             queryClient.refetchQueries(
@@ -221,7 +217,7 @@ function AttachmentConfirmationModal({
           <>
             <Button variant="outline" onClick={handleClose} label="Cancel" />
             <Button
-              icon={<i className="fas fa-arrow-right"></i>}
+              icon={<Icon name="Arrow-right" />}
               variant="primary"
               onClick={attach}
               label="Confirm"
@@ -230,7 +226,7 @@ function AttachmentConfirmationModal({
           </>
         ) : (
           <Button
-            icon={<i className="fas fa-arrow-right"></i>}
+            icon={<Icon name="Arrow-right" />}
             variant="primary"
             onClick={() => history.push(redirectUrl)}
             label="Exit"
@@ -253,11 +249,11 @@ function AttachmentConfirmationModal({
         Cell: ({ value }: { value: AttachmentAction }) => {
           return value === AttachmentAction.ADD ? (
             <span>
-              <i className="fas fa-link" /> Attach
+              <Icon name="Link" /> Attach
             </span>
           ) : (
             <Box color={theme.brand.statusCritical}>
-              <i className="fas fa-unlink" /> Detach
+              <Icon name="Unlink" /> Detach
             </Box>
           );
         },
@@ -289,10 +285,7 @@ function AttachmentConfirmationModal({
           if (attachmentOperationsStatuses[resourceId] === 'Error') {
             return (
               <Box display="flex" gap={8} alignItems="center">
-                <ColoredIcon
-                  color="statusCritical"
-                  className="fas fa-times-circle"
-                />
+                <Icon color="statusCritical" name="Times-circle" />
                 {attachmentOperationsStatuses[resourceId]}{' '}
                 <InlineButton
                   onClick={attach}
@@ -305,10 +298,7 @@ function AttachmentConfirmationModal({
           if (attachmentOperationsStatuses[resourceId] === 'Success') {
             return (
               <Box display="flex" gap={8} alignItems="center">
-                <ColoredIcon
-                  color="statusHealthy"
-                  className="fas fa-check-circle"
-                />
+                <Icon color="statusHealthy" name="Check-circle" />
                 {attachmentOperationsStatuses[resourceId]}
               </Box>
             );
@@ -330,9 +320,7 @@ function AttachmentConfirmationModal({
           <SecondaryText>
             <EntityIcon type={resourceType} />
           </SecondaryText>
-          <p>
-            {resourceName}
-          </p>
+          <p>{resourceName}</p>
         </Box>
         <Table
           columns={columns}
@@ -361,7 +349,7 @@ function AttachmentConfirmationModal({
           onClick={() => history.push(redirectUrl)}
         />
         <Button
-          icon={<i className="fas fa-save"></i>}
+          icon={<Icon name="Save" />}
           label="Save"
           onClick={() => setIsModalOpen(true)}
           variant="primary"
@@ -376,7 +364,7 @@ function AttachmentConfirmationModal({
         title={
           <Box display="flex" gap={8}>
             <LargerText>
-              <i className="fas fa-link" />
+              <Icon name="Link" />
             </LargerText>
             <LargerText>Attachment</LargerText>
           </Box>

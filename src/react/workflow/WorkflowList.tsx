@@ -116,7 +116,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
             />
 
             <Button
-              icon={<i className="fas fa-plus" />}
+              icon={<Icon name="Create-add" />}
               label="Create Workflow"
               variant="primary"
               onClick={() => history.push('./create-workflow')}

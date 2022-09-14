@@ -24,9 +24,7 @@ export function RefreshButton() {
     }
   };
 
-  return (
-    <Button icon={<i className="fas fa-sync" />} onClick={handleRefreshClick} />
-  );
+  return <Button icon={<Icon name="Sync" />} onClick={handleRefreshClick} />;
 }
 export default function Buttons() {
   return (

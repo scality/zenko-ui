@@ -133,13 +133,13 @@ function Properties({ objectMetadata }: Props) {
                     <ColdStorageIcon /> Cold{' '}
                     {objectMetadata.restore?.ongoingRequest && (
                       <span>
-                        <i className="fas fa-arrow-alt-circle-up" />
+                        <Icon name="Arrow-alt-circle-up" />
                         Restoration in progress...
                       </span>
                     )}
                     {objectMetadata.restore?.expiryDate && (
                       <span>
-                        <i className="fas fa-stopwatch" />
+                        <Icon name="Expiration" />
                         Restored{' '}
                         <SecondaryText>
                           ({restoreExpiryDays}{' '}
@@ -161,7 +161,7 @@ function Properties({ objectMetadata }: Props) {
                   <div>
                     {objectMetadata.lockStatus === 'LOCKED' && (
                       <>
-                        Locked <i className="fa fa-lock"></i>(
+                        Locked <Icon name="Lock" />(
                         {objectMetadata.objectRetention.mode.toLowerCase()})
                         <br />
                         until {objectMetadata.objectRetention.retainUntilDate}
@@ -182,7 +182,7 @@ function Properties({ objectMetadata }: Props) {
                       id="edit-object-retention-setting-btn"
                       variant="outline"
                       label="Edit"
-                      icon={<i className="fas fa-pencil-alt"></i>}
+                      icon={<Icon name="Pencil" />}
                       onClick={() =>
                         dispatch(
                           push(
@@ -221,9 +221,7 @@ function Properties({ objectMetadata }: Props) {
                           )
                         }
                       />
-                      {isLegalHoldEnabled && (
-                        <Icon className="fas fa-balance-scale"></Icon>
-                      )}
+                      {isLegalHoldEnabled && <Icon name="Rebalance" />}
                     </div>
                   </T.Value>
                 </T.Row>

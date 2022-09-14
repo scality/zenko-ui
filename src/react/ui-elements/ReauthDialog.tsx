@@ -7,6 +7,7 @@ import { useLocation } from 'react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 import DataServiceRoleProvider from '../DataServiceRoleProvider';
+import { Icon } from '@scality/core-ui';
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
@@ -41,7 +42,7 @@ const ReauthDialog = () => {
               style={{
                 marginRight: spacing.sp24,
               }}
-              icon={<i className="fas fa-sign-out-alt" />}
+              icon={<Icon name="Log-out" />}
               variant="secondary"
               onClick={() => oidcLogout(true)}
               label="Log Out"

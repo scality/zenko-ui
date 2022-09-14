@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const HideContainer = styled.div`
   display: flex;
 `;
-const HideValue = styled.div`
+const HideValue = styled.div<{ shown?: boolean }>`
   ${(props) => props.shown && 'width: 260px;'}
 `;
 const HideAction = styled.div`
@@ -39,7 +39,13 @@ export function HideCredential({ credentials }: { credentials: string }) {
   );
 }
 
-function Hide({ isHidden, children }: { isHidden: boolean; children: JSX.Element }) {
+function Hide({
+  isHidden,
+  children,
+}: {
+  isHidden: boolean;
+  children: JSX.Element;
+}) {
   if (isHidden) {
     return null;
   }

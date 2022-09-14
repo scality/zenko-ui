@@ -83,7 +83,7 @@ export const Row = styled(HeadRow)`
         border-right: ${spacing.sp4} solid ${theme.brand.selectedActive};
     `}
 `;
-export const Cell = styled.td`
+export const Cell = styled.td<{ shade?: boolean }>`
   vertical-align: middle;
   color: ${(props) =>
     props.shade ? props.theme.brand.base : props.theme.brand.text};
@@ -131,7 +131,7 @@ export const Search = styled.div`
 export const SearchInput = styled(SearchInputCore)`
   width: 100%;
 `;
-export const SearchMetadataContainer = styled.form`
+export const SearchMetadataContainer = styled.form<{ isHidden?: boolean }>`
   flex: 1 0 auto;
   display: flex;
   max-width: 600px;
@@ -178,7 +178,7 @@ const Table = styled.table`
 `;
 // specific to listobject/md search
 export const SearchMetadataInput = styled(Input)`
-  background-color: ${(props) => props.theme.brand.background};
+  background-color: ${(props) => props.theme.brand.backgroundLevel1};
   padding: 0px ${spacing.sp32};
   max-height: ${spacing.sp32};
   box-sizing: border-box;
@@ -186,7 +186,7 @@ export const SearchMetadataInput = styled(Input)`
 export const ContainerWithSubHeader = styled(Container)`
   margin-top: 0px;
 `;
-export const SearchInputIcon = styled.i`
+export const SearchInputIcon = styled.i<{ isHidden?: boolean }>`
   position: absolute;
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
   right: 10px;
@@ -234,7 +234,7 @@ export const ButtonContainer = styled.div`
     margin-left: ${spacing.sp4};
   }
 `;
-export const SubHeaderContainer = styled.div`
+export const SubHeaderContainer = styled.div<{ isHidden?: boolean }>`
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
   margin-left: ${spacing.sp4};
 `;

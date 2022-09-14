@@ -88,7 +88,7 @@ const EditButton = ({
           }
           variant="secondary"
           label="Edit"
-          icon={<i className="fa fa-pen"></i>}
+          icon={<Icon name="Pen" />}
           onClick={() =>
             history.push(
               `/accounts/${accountName}/policies/${encodeURIComponent(
@@ -128,7 +128,7 @@ const AttachButton = ({
         style={{ height: spacing.sp24 }}
         variant="secondary"
         label="Attach"
-        icon={<i className="fas fa-link"></i>}
+        icon={<Icon name="Link" />}
         onClick={() =>
           history.push(
             `/accounts/${accountName}/policies/${encodeURIComponent(
@@ -232,7 +232,7 @@ const DeletePolicyAction = ({
         <Button
           style={{ height: spacing.sp24 }}
           disabled={!!attachments || isInternalPolicy}
-          icon={<i className="fas fa-trash" />}
+          icon={<Icon name="Delete" />}
           label=""
           onClick={() => {
             setShowModal(true);
@@ -366,7 +366,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={<i className="fas fa-plus" />}
+          icon={<Icon name="Create-add" />}
           label="Create Policy"
           variant="primary"
           onClick={() => history.push('create-policy')}

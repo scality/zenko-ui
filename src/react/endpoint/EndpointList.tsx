@@ -26,6 +26,7 @@ import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
+import { Icon } from '@scality/core-ui';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -94,7 +95,7 @@ function EndpointList({ endpoints, locations }: Props) {
             <T.Actions>
               <T.ActionButton
                 disabled={original.isBuiltin}
-                icon={<i className="fas fa-trash" />}
+                icon={<Icon name="Delete" />}
                 tooltip={{
                   overlay: 'Delete Data Service',
                   placement: 'top',
@@ -147,7 +148,7 @@ function EndpointList({ endpoints, locations }: Props) {
         </T.Search>
         <div style={{ marginLeft: 'auto' }}>
           <Button
-            icon={<i className="fas fa-plus" />}
+            icon={<Icon name="Create-add" />}
             label="Create Data Service"
             variant="primary"
             onClick={() => dispatch(push('/create-dataservice'))}
@@ -174,12 +175,12 @@ function EndpointList({ endpoints, locations }: Props) {
                       {!column.disableSortBy &&
                         (column.isSorted ? (
                           column.isSortedDesc ? (
-                            <i className="fas fa-sort-down" />
+                            <Icon name="Sort-down" />
                           ) : (
-                            <i className="fas fa-sort-up" />
+                            <Icon name="Sort-up" />
                           )
                         ) : (
-                          <i className="fas fa-sort" />
+                          <Icon name="Sort" />
                         ))}
                     </T.Icon>
                   </T.HeadCell>

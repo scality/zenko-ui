@@ -1,12 +1,12 @@
+import { Icon } from '@scality/core-ui';
 import styled from 'styled-components';
 import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
+import { IconSuccess } from './Icons';
 import { InlineButton } from './Table';
 const InlineButtonFixedWidth = styled(InlineButton)`
   width: 7.5rem;
 `;
-const IconSuccess = styled.i`
-  color: ${(props) => props.theme.brand.statusHealthy};
-`;
+
 type Props = {
   text: string;
   labelName?: string;
@@ -22,9 +22,9 @@ const CopyButton = ({ text, labelName, ...rest }: Props) => {
       }
       icon={
         copyStatus === COPY_STATE_SUCCESS ? (
-          <IconSuccess className="fas fa-check" />
+          <IconSuccess name="Check" />
         ) : (
-          <i className="far fa-clone" />
+          <Icon name="Copy" />
         )
       }
       onClick={(e) => {

@@ -8,13 +8,14 @@ import type { Workflow } from '../../types/workflow';
 import { useLocation } from 'react-router-dom';
 import { useQueryParams } from '../utils/hooks';
 import { useSelector } from 'react-redux';
+import { Icon } from '@scality/core-ui';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 type Props = {
   wfSelected: Workflow | null | undefined;
   bucketList: S3BucketList;
 };
 export const InfoWarning = ({ title }: { title: string }) => (
-  <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
+  <Warning icon={<Icon name="Info-circle" size="2x" />} title={title} />
 );
 
 function WorkflowContent({ wfSelected, bucketList }: Props) {
@@ -31,7 +32,7 @@ function WorkflowContent({ wfSelected, bucketList }: Props) {
   );
   const tabName = query.get('tab');
 
-  const details = () => {
+  const Details = () => {
     if (!wfSelected) {
       return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE} />;
     }
@@ -55,7 +56,7 @@ function WorkflowContent({ wfSelected, bucketList }: Props) {
     <ContentSection>
       <CustomTabs>
         <CustomTabs.Tab label="Configuration" path={pathname}>
-          {details()}
+          <Details />
         </CustomTabs.Tab>
       </CustomTabs>
     </ContentSection>

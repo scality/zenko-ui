@@ -1,7 +1,7 @@
 import type { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
@@ -68,7 +68,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
         <div>
           <Button variant="outline" onClick={handleClose} label="Cancel" />
           <Button
-            icon={<i className="fas fa-arrow-right" />}
+            icon={<Icon name="Arrow-right" />}
             variant="primary"
             onClick={handleAccessKeyCreate}
             label="Continue"
@@ -104,10 +104,7 @@ const modalBody = (key: AccountKey | null, accountName: string) => {
 
   return (
     <ModalBody>
-      <Banner
-        icon={<i className="fas fa-exclamation-triangle" />}
-        variant="warning"
-      >
+      <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
         An Access key ID and its Secret Access key have been created. <br />
         The Secret Access key cannot be retrieved afterwards, so make sure to
         keep and secure it now. <br />

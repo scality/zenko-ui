@@ -22,6 +22,7 @@ import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
+import { Icon } from '@scality/core-ui';
 
 const ActionButtons = ({
   rowValues,
@@ -67,7 +68,7 @@ const ActionButtons = ({
                     Permanently remove the following location ${locationName} ?`}
       />
       <InlineButton
-        icon={<i className="far fa-edit" />}
+        icon={<Icon name="Edit" />}
         variant="secondary"
         onClick={() => history.push(`/locations/${locationName}/edit`)}
         type="button"
@@ -79,7 +80,7 @@ const ActionButtons = ({
         disabled={!canEditLocation(locationName, locations)}
       />
       <InlineButton
-        icon={<i className="fas fa-trash" />}
+        icon={<Icon name="Delete" />}
         variant="danger"
         onClick={() => setShowModal(true)}
         type="button"
@@ -226,7 +227,7 @@ function Locations() {
   if (Object.keys(locations).length === 0) {
     return (
       <Warning
-        iconClass="fas fa-5x fa-map-marker-alt"
+        icon={<Icon name="Map-marker" size="5x" />}
         title="Create your first storage location."
         btnTitle="Create Location"
         btnAction={() => dispatch(push('/create-location'))}
@@ -260,7 +261,7 @@ function Locations() {
             />
           </div>
           <Button
-            icon={<i className="fas fa-plus" />}
+            icon={<Icon name="Create-add" />}
             label="Create Location"
             variant="primary"
             onClick={() => history.push('/create-location')}

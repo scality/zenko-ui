@@ -27,6 +27,7 @@ import {
   BucketWorkflowTransitionV2,
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
+import { Icon } from '@scality/core-ui';
 
 type Filter = string[];
 
@@ -114,7 +115,7 @@ export default function Workflows() {
       <EmptyStateContainer>
         <Warning
           centered={true}
-          iconClass="fas fa-5x fa-wallet"
+          icon={<Icon name="Account" size="5x" />}
           title="Before browsing your workflows, create your first account."
           btnTitle="Create Account"
           btnAction={() => history.push('/create-account')}
@@ -123,13 +124,13 @@ export default function Workflows() {
     );
   }
 
-  const content = () => {
+  const Content = () => {
     if (bucketList.size === 0) {
       return (
         <EmptyStateContainer>
           <Warning
             centered={true}
-            iconClass="fas fa-5x fa-glass-whiskey"
+            icon={<Icon name="Bucket" size="5x" />}
             title="Before browsing your workflows, create your first bucket."
             btnTitle="Create Bucket"
             btnAction={() =>
@@ -158,7 +159,7 @@ export default function Workflows() {
         <EmptyStateContainer>
           <Warning
             centered={true}
-            iconClass="fas fa-5x fa-coins"
+            icon={<Icon name="Replication" size="5x" />}
             title="Before browsing your workflows, create your first workflow."
             btnTitle="Create Workflow"
             btnAction={() =>
@@ -185,7 +186,7 @@ export default function Workflows() {
       <L.BreadcrumbContainer>
         <Breadcrumb />
       </L.BreadcrumbContainer>
-      {content()}
+      <Content />
     </L.Container>
   );
 }

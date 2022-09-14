@@ -17,7 +17,7 @@ import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { SpacedBox } from '@scality/core-ui';
+import { Icon, SpacedBox } from '@scality/core-ui';
 import { useEffect } from 'react';
 const EMPTY_ITEM = {
   key: '',
@@ -137,7 +137,7 @@ function Properties({ bucketName, objectKey, tags, versionId }: Props) {
                 variant="secondary"
                 label="Save"
                 disabled={!isDirty}
-                icon={<i className="fas fa-save" />}
+                icon={<Icon name="Save" />}
                 type="submit"
               />
             </F.FooterButtons>

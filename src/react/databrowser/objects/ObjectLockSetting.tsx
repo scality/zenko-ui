@@ -277,7 +277,7 @@ export default function ObjectLockSetting() {
               {hasError && (
                 <Banner
                   id="zk-error-banner"
-                  icon={<i className="fas fa-exclamation-triangle" />}
+                  icon={<Icon name="Exclamation-triangle" />}
                   title="Error"
                   variant="danger"
                 >
@@ -300,7 +300,7 @@ export default function ObjectLockSetting() {
                 type="submit"
                 variant="primary"
                 label="Save"
-                icon={<i className="fas fa-save"></i>}
+                icon={<Icon name="Save" />}
               />
             </F.FooterButtons>
           </F.Footer>

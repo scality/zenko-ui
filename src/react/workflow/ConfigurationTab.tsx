@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import type { Expiration, Locations, Replication } from '../../types/config';
@@ -556,7 +556,7 @@ function EditForm({
         {formState.isDirty ? (
           <T.BannerContainer>
             <Banner
-              icon={<i className="fas fa-exclamation-triangle" />}
+              icon={<Icon name="Exclamation-triangle" />}
               variant="warning"
             >
               If you leave this screen without saving, your changes will be
@@ -568,7 +568,7 @@ function EditForm({
         )}
 
         <Button
-          icon={<i className="fas fa-trash" />}
+          icon={<Icon name="Delete" />}
           label="Delete Workflow"
           variant="danger"
           onClick={handleOpenDeleteModal}
@@ -586,17 +586,17 @@ function EditForm({
                   <T.Key principal={true}> Type </T.Key>
                   {isExpirationWorkflow(workflow) ? (
                     <T.Value>
-                      <i className="fas fa-stopwatch" />
+                      <Icon name="Expiration" />
                       Expiration
                     </T.Value>
                   ) : isTransitionWorkflow(workflow) ? (
                     <T.Value>
-                      <i className="fas fa-rocket" />
+                      <Icon name="Transition" />
                       Transition
                     </T.Value>
                   ) : (
                     <T.Value>
-                      <i className="fas fa-coins" />
+                      <Icon name="Replication" />
                       Replication
                     </T.Value>
                   )}
@@ -628,7 +628,7 @@ function EditForm({
                 style={{
                   marginBottom: spacing.sp20,
                 }}
-                icon={<i className="fas fa-save" />}
+                icon={<Icon name="Save" />}
                 id="create-workflow-btn"
                 variant="primary"
                 label="Save"

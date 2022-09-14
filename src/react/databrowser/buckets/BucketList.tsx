@@ -22,6 +22,7 @@ import type { AppState } from '../../../types/state';
 import { listBuckets } from '../../actions';
 import { XDM_FEATURE } from '../../../js/config';
 import { useParams } from 'react-router';
+import { Icon } from '@scality/core-ui';
 type Props = {
   locations: Locations;
   buckets: S3BucketList;
@@ -137,7 +138,7 @@ export default function BucketList({
           />{' '}
         </T.Search>
         <T.ExtraButton
-          icon={<i className="fas fa-plus" />}
+          icon={<Icon name="Create-add" />}
           label="Create Bucket"
           variant="primary"
           onClick={() =>

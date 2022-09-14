@@ -12,7 +12,7 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import type { AppState } from '../../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { convertToBucketInfo } from '../../backend/location/utils';
 const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 export default function ObjectLockSetting() {
@@ -123,7 +123,7 @@ export default function ObjectLockSetting() {
               {hasError && (
                 <Banner
                   id="zk-error-banner"
-                  icon={<i className="fas fa-exclamation-triangle" />}
+                  icon={<Icon name="Exclamation-triangle" />}
                   title="Error"
                   variant="danger"
                 >
@@ -146,7 +146,7 @@ export default function ObjectLockSetting() {
                 type="submit"
                 variant="primary"
                 label="Save"
-                icon={<i className="fas fa-save"></i>}
+                icon={<Icon name="Save" />}
               />
             </F.FooterButtons>
           </F.Footer>

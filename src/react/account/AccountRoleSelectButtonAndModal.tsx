@@ -16,7 +16,8 @@ import {
   useDataServiceRole,
 } from '../DataServiceRoleProvider';
 import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
-import { Icon } from '../ui-elements/Help';
+import { Icon } from '@scality/core-ui';
+import * as Help from '../ui-elements/Help';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
 export function AccountRoleSelectButtonAndModal({
@@ -66,7 +67,7 @@ export function AccountRoleSelectButtonAndModal({
       <div>
         <Button variant="outline" onClick={handleClose} label="Cancel" />
         <Button
-          icon={<i className="fas fa-arrow-right"></i>}
+          icon={<Icon name="Arrow-right" />}
           variant="primary"
           onClick={() => {
             const parsedArn = regexArn.exec(assumedRoleArn);
@@ -115,10 +116,10 @@ export function AccountRoleSelectButtonAndModal({
                     width: '12rem',
                   }}
                 >
-                  <Icon
+                  <Help.Icon
                     className="fas fa-question-circle fa-xs"
                     style={{ fontSize: '1rem' }}
-                  ></Icon>
+                  ></Help.Icon>
                 </Tooltip>
               </span>
             );
@@ -177,7 +178,7 @@ export function AccountRoleSelectButtonAndModal({
             <>
               {accountName}
               <SpacedBox ml={12}>
-                <i className="fas fa-chevron-down fa-xs" />
+                <Icon name="Chevron-down" size="xs" />
               </SpacedBox>
             </>
           )

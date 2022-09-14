@@ -32,6 +32,7 @@ import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { useDispatch } from 'react-redux';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
+import { Icon } from '@scality/core-ui';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -271,7 +272,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                   variant="secondary"
                   label="Save"
                   disabled={isVersioningType || !isDirty}
-                  icon={<i className="fas fa-save" />}
+                  icon={<Icon name="Save" />}
                   type="submit"
                 />
               </SpacedBox>

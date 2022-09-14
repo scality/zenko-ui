@@ -19,6 +19,7 @@ import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 import { useQueryClient } from 'react-query';
 import { useRolePathName } from '../../../utils/hooks';
+import { Icon } from '@scality/core-ui';
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -67,7 +68,7 @@ function AccountInfo({ account }: Props) {
         <ButtonContainer>
           <Button
             id="delete-account-btn"
-            icon={<i className="fas fa-trash" />}
+            icon={<Icon name="Delete" />}
             onClick={handleDeleteClick}
             variant="danger"
             label="Delete Account"

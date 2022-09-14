@@ -1,4 +1,4 @@
-import { Banner, SecondaryText } from '@scality/core-ui';
+import { Banner, Icon, SecondaryText } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { goBack } from 'connected-react-router';
@@ -257,7 +257,7 @@ function LocationEditor() {
           <F.FooterError>
             {displayErrorMessage && (
               <Banner
-                icon={<i className="fas fa-exclamation-triangle" />}
+                icon={<Icon name="Exclamation-triangle" />}
                 title="Error"
                 variant="danger"
               >
@@ -274,7 +274,7 @@ function LocationEditor() {
             />
             <Button
               variant="primary"
-              icon={locationEditing && <i className="fas fa-save" />}
+              icon={locationEditing && <Icon name="Save" />}
               disabled={
                 disable || loading || !isLocationExists(location.locationType)
               }

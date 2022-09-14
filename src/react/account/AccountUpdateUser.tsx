@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { clearError, handleErrorMessage, networkEnd } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
@@ -181,7 +181,7 @@ const AccountUpdateUser = () => {
             {hasError && (
               <Banner
                 id="zk-error-banner"
-                icon={<i className="fas fa-exclamation-triangle" />}
+                icon={<Icon name="Exclamation-triangle" />}
                 title="Error"
                 variant="danger"
               >
@@ -198,7 +198,7 @@ const AccountUpdateUser = () => {
               label="Cancel"
             />
             <Button
-              icon={<i className="fas fa-save" />}
+              icon={<Icon name="Save" />}
               disabled={loading}
               type="submit"
               id="update-account-btn"

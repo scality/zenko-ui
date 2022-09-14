@@ -10,7 +10,7 @@ const MiddleEllipsisContainer = styled.div`
     display: block;
   }
 `;
-const MiddleEllipsisText = styled.span`
+const MiddleEllipsisText = styled.span<{ calculationDone?: boolean }>`
   opacity: ${(props) => (props.calculationDone ? '1' : '0')};
 `;
 export const ellipseNode = (

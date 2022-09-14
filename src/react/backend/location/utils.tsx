@@ -196,7 +196,7 @@ const IngestionCell =
               Active
               <InlineButton
                 disabled={loading}
-                icon={<i className="far fa-pause-circle" />}
+                icon={<Icon name="Pause-circle" />}
                 tooltip={{
                   overlay: (
                     <SpacedBox pl={12}>
@@ -219,7 +219,7 @@ const IngestionCell =
               Paused
               <InlineButton
                 disabled={loading}
-                icon={<i className="far fa-play-circle" />}
+                icon={<Icon name="Play-circle" />}
                 tooltip={{
                   overlay: (
                     <SpacedBox pl={12}>

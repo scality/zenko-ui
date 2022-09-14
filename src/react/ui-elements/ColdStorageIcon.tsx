@@ -1,4 +1,4 @@
-import { Tooltip } from '@scality/core-ui';
+import { Icon, Tooltip } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 
 const ColdStorageIcon = () => {
@@ -24,7 +24,7 @@ const ColdStorageIcon = () => {
         width: '30rem',
       }}
     >
-      <i className="fas fa-snowflake" />
+      <Icon name="Snowflake" />
     </Tooltip>
   );
 };

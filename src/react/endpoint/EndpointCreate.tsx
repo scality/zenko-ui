@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { clearError, createEndpoint } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
@@ -116,7 +116,7 @@ function EndpointCreate() {
             {hasError && (
               <Banner
                 id="zk-error-banner"
-                icon={<i className="fas fa-exclamation-triangle" />}
+                icon={<Icon name="Exclamation-triangle" />}
                 title="Error"
                 variant="danger"
               >

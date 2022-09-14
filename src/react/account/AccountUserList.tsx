@@ -29,6 +29,7 @@ import { useDispatch } from 'react-redux';
 import { handleApiError, handleClientError } from '../actions';
 import { ApiError } from '../../types/actions';
 import { User } from 'aws-sdk/clients/iam';
+import { Icon } from '@scality/core-ui';
 
 type InternalUser = {
   userName: string;
@@ -90,7 +91,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
         </SpacedBox>
       ) : null}
       <InlineButton
-        icon={<i className="fas fa-eye" />}
+        icon={<Icon name="Eye" />}
         variant="secondary"
         onClick={() => history.push(`users/${userName}/access-keys`)}
         type="button"
@@ -118,7 +119,7 @@ const EditButton = ({ userName }: { userName: string }) => {
         style={{ height: spacing.sp24 }}
         variant="secondary"
         label="Edit"
-        icon={<i className="fa fa-pen"></i>}
+        icon={<Icon name="Pen" />}
         onClick={() => history.push(`users/${userName}/update-user`)}
       />
     </SpacedBox>
@@ -139,7 +140,7 @@ const AttachButton = ({
         style={{ height: spacing.sp24 }}
         variant="secondary"
         label="Attach"
-        icon={<i className="fas fa-link"></i>}
+        icon={<Icon name="Link" />}
         onClick={() =>
           history.push(`/accounts/${accountName}/users/${userName}/attachments`)
         }
@@ -246,13 +247,13 @@ const DeleteUserAction = ({
           listGroupStatus === 'loading' ||
           listAttachedUserPoliciesStatus === 'loading'
         }
-        icon={<i className="fas fa-trash" />}
+        icon={<Icon name="Delete" />}
         style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
         label=""
         onClick={() => {
           setShowModal(true);
         }}
-        variant="danger"
+        variant="statusCritical"
         tooltip={
           accessKeysResult && accessKeysResult?.length >= 1
             ? {
@@ -357,7 +358,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={<i className="fas fa-plus" />}
+          icon={<Icon name="Created-add" />}
           label="Create User"
           variant="primary"
           onClick={() => history.push('create-user')}

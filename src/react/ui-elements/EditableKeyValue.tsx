@@ -108,7 +108,7 @@ type AddButtonProps<T = unknown> = {
   items: Array<T>;
   insertEntry: () => void;
   disabled?: boolean;
-  iconStyle: CSSProperties,
+  iconStyle?: CSSProperties;
 };
 export const AddButton = ({
   index,
@@ -123,7 +123,7 @@ export const AddButton = ({
   const itemsIndexValue = items[index].value;
 
   const isDisabled = useMemo(() => {
-    if (itemsIndex && (itemsIndexKey === '' && itemsIndexValue === '')) {
+    if (itemsIndex && itemsIndexKey === '' && itemsIndexValue === '') {
       return true;
     }
     return disabled || false;
@@ -155,7 +155,7 @@ export const AddButton = ({
           overlay: 'Add',
           placement: 'top',
         }}
-        icon={<i className="fa fa-plus-square" style={iconStyle}/>}
+        icon={<i className="fa fa-plus-square" style={iconStyle} />}
       />
     </>
   );
@@ -165,7 +165,7 @@ type SubButtonProps<T = unknown> = {
   items: Array<T>;
   deleteEntry: (arg0: number) => void;
   disabled?: boolean;
-  iconStyle: CSSProperties;
+  iconStyle?: CSSProperties;
 };
 export const SubButton = ({
   index,

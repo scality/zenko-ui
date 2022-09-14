@@ -5,6 +5,7 @@ import { EmptyStateContainer } from '../ui-elements/Container';
 import EndpointList from './EndpointList';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
+import { Icon } from '@scality/core-ui';
 
 const Endpoints = () => {
   const dispatch = useDispatch();
@@ -21,7 +22,7 @@ const Endpoints = () => {
       <EmptyStateContainer>
         <Warning
           centered={true}
-          iconClass="fas fa-5x fa-wallet"
+          icon={<Icon name="Wallet" size="5x" />}
           title="Create your first Data Service."
           btnTitle="Create Data Service"
           btnAction={() => dispatch(push('/create-dataservice'))}

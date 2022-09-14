@@ -9,7 +9,13 @@ import {
   GentleEmphaseSecondaryText,
   InlineButton,
 } from '../../ui-elements/Table';
-import { Loader, SearchInput, SecondaryText, Tooltip } from '@scality/core-ui';
+import {
+  Icon,
+  Loader,
+  SearchInput,
+  SecondaryText,
+  Tooltip,
+} from '@scality/core-ui';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import {
@@ -64,10 +70,10 @@ const MenuContainer = styled.ul<{
       border-top-right-radius: 0;
       border-bottom-right-radius: 4px;
       border-bottom-left-radius: 4px;
-      border: 1px solid ${props.theme.brand.secondary};
+      border: 1px solid ${props.theme.brand.selectedActive};
   `
       : props.searchInputIsFocused
-      ? `border-bottom: 1px solid ${props.theme.brand.secondary};`
+      ? `border-bottom: 1px solid ${props.theme.brand.selectedActive};`
       : ''}
   border-top: 0;
   li {
@@ -511,7 +517,7 @@ export const AttachmentTable = <
                       },
                     });
                   }}
-                  icon={<i className="fas fa-times"></i>}
+                  icon={<Icon name="Close" />}
                   label="Remove"
                   variant="danger"
                   disabled={!!entity.disableDetach}

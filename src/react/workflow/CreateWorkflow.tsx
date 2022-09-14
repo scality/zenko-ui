@@ -52,10 +52,15 @@ import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { TransitionForm, transitionSchema } from './TransitionForm';
+import {
+  Icon,
+  iconTable,
+} from '@scality/core-ui/dist/components/icon/Icon.component';
 
-const OptionIcon = ({ iconClass }: { iconClass: string }) => (
+type IconName = keyof typeof iconTable;
+const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
-    <span className={iconClass} />
+    <Icon name={icon} />
   </Box>
 );
 
@@ -319,19 +324,19 @@ const CreateWorkflow = () => {
                           >
                             <Select.Option
                               value={'replication'}
-                              icon={<OptionIcon iconClass="fas fa-coins" />}
+                              icon={<OptionIcon icon="Replication" />}
                             >
                               Replication
                             </Select.Option>
                             <Select.Option
                               value={'expiration'}
-                              icon={<OptionIcon iconClass="fas fa-stopwatch" />}
+                              icon={<OptionIcon icon="Expiration" />}
                             >
                               Expiration
                             </Select.Option>
                             <Select.Option
                               value={'transition'}
-                              icon={<OptionIcon iconClass="fas fa-rocket" />}
+                              icon={<OptionIcon icon="Transition" />}
                             >
                               Transition
                             </Select.Option>

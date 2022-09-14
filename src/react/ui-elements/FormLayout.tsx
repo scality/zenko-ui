@@ -1,4 +1,9 @@
-import { Checkbox as BasicCheckbox, TextArea, Tooltip } from '@scality/core-ui';
+import {
+  Checkbox as BasicCheckbox,
+  Icon,
+  TextArea,
+  Tooltip,
+} from '@scality/core-ui';
 import {
   LargerText,
   SmallerText,
@@ -8,6 +13,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { getTheme } from '@scality/core-ui/dist/utils';
 import { HTMLAttributes, LabelHTMLAttributes } from 'react';
 import styled, { css } from 'styled-components';
+import { IconQuestionCircle } from './Icons';
 import { default as BasicInput } from './Input';
 import { default as BasicInputList } from './InputList';
 
@@ -85,20 +91,21 @@ export const LargeCustomInput = styled(TextArea)`
   padding: ${spacing.sp1};
   border-radius: 4px;
   ${(props) => {
-    const { border, textSecondary, primary, secondary } = getTheme(props);
+    const { border, textSecondary, backgroundLevel1, selectedActive } =
+      getTheme(props);
     return css`
       border-color: ${border};
       color: ${textSecondary};
-      background: ${primary};
+      background: ${backgroundLevel1};
       &:focus {
-        border-color: ${secondary};
+        border-color: ${selectedActive};
         outline: none;
       }
     `;
   }}
 `;
 export const Hr = styled.hr`
-  border-color: ${(props) => props.theme.brand?.buttonSecondary};
+  border-color: ${(props) => props.theme.brand.buttonSecondary};
   height: 0.05rem;
   width: 40rem;
   margin-bottom: 1rem;
@@ -118,11 +125,11 @@ export const LabelSecondary = styled(SmallerText)`
 // * ErrorInput
 const ErrorInputContainer = styled.div`
   height: ${spacing.sp16};
-  color: ${(props) => props.theme.brand?.danger};
+  color: ${(props) => props.theme.brand.statusCritical};
 `;
 const WarningInputContainer = styled.div`
   height: ${spacing.sp16};
-  color: ${(props) => props.theme.brand.warning};
+  color: ${(props) => props.theme.brand.statusWarning};
 `;
 type ErrorInputProps = {
   error?: React.ReactNode;
@@ -159,9 +166,6 @@ const RequiredField = styled.span`
 export const TooltipContainer = styled.div`
   margin-left: ${spacing.sp8};
   display: inline;
-`;
-const IconQuestionCircle = styled.i`
-  color: ${(props) => props.theme.brand?.buttonSecondary};
 `;
 const UlOverlay = styled.ul`
   text-align: left;
@@ -203,7 +207,7 @@ export const Label = ({
             width: tooltipWidth,
           }}
         >
-          <IconQuestionCircle className="fas fa-question-circle"></IconQuestionCircle>
+          <IconQuestionCircle name="Info" />
         </Tooltip>
       </TooltipContainer>
     )}

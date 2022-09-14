@@ -1,6 +1,6 @@
 // @noflow
 import { Controller, useFormContext } from 'react-hook-form';
-import { Banner, Input, Toggle } from '@scality/core-ui';
+import { Banner, Icon, Input, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import * as F from '../../ui-elements/FormLayout';
 import Joi from '@hapi/joi';
@@ -94,7 +94,7 @@ export default function ObjectLockRetentionSettings(props: {
         <Box mt={2}>
           <Banner
             variant="infoPrimary"
-            icon={<i className="fas fa-exclamation-circle" />}
+            icon={<Icon name="Exclamation-circle" />}
           >
             {
               'If objects are uploaded into the bucket with their own Retention settings, these will override the Default Retention setting placed on the bucket'

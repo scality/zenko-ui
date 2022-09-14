@@ -71,7 +71,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       <Table columns={columns} data={data || []} defaultSortingKey={'name'}>
         <TableAction>
           <Button
-            icon={<i className="fas fa-plus" />}
+            icon={<Icon name="Create-add" />}
             label="Create Workflow"
             variant="secondary"
             onClick={() =>
@@ -80,7 +80,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
               )
             }
             type="submit"
-          ></Button>
+          />
         </TableAction>
 
         <Table.SingleSelectableContent

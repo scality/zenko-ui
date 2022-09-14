@@ -58,7 +58,7 @@ const CreatedOnCell = (rowValue) => {
             width: '20rem',
           }}
         >
-          <Icon name={'Exclamation-circle'} color={'statusWarning'} />
+          <Icon name="Exclamation-circle" color="statusWarning" />
         </Tooltip>
       ) : null}
       {rowValue.createdOn}
@@ -147,7 +147,7 @@ const DeleteAccessKeyAction = (rowValue) => {
       <Button
         id="delete-accessKey-btn"
         disabled={accessKeyStatus === 'Active'}
-        icon={<i className="fas fa-trash" />}
+        icon={<Icon name="Delete" />}
         label="Delete"
         onClick={() => {
           setShowModal(true);
@@ -257,9 +257,9 @@ const AccountUserAccessKeys = () => {
                 }}
               >
                 <Icon
-                  name={'Exclamation-circle'}
-                  size={'lg'}
-                  color={'statusWarning'}
+                  name="Exclamation-circle"
+                  size="lg"
+                  color="statusWarning"
                 />
               </div>
             }
@@ -330,7 +330,7 @@ const AccountUserAccessKeys = () => {
             }}
           >
             <Button
-              icon={<i className="fas fa-plus" />}
+              icon={<Icon name="Create-add" />}
               label="Create Access Keys"
               variant="primary"
               onClick={() => history.push('access-keys/create')}

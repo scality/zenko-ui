@@ -1,27 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import { COPY_STATE_SUCCESS, useClipboard } from '../utils/hooks';
+import { Icon } from '@scality/core-ui';
+import { IconCopy, IconSuccess } from './Icons';
 const Container = styled.span`
   cursor: pointer;
 `;
-export const IconSuccess = styled.i`
-  color: ${(props) => props.theme.brand.success};
-`;
-export const IconCopy = styled.i`
-  color: ${(props) => props.theme.brand?.textSecondary};
-`;
+
 export const Clipboard = ({ text }: { text: string }) => {
   const { copy, copyStatus } = useClipboard();
+  const isClipboard = Boolean(navigator?.clipboard);
   return (
     <Container>
       {copyStatus === COPY_STATE_SUCCESS ? (
-        <IconSuccess className="fas fa-check"></IconSuccess>
+        <IconSuccess name="Check" />
       ) : (
-        <IconCopy
-          hidden={!navigator || !navigator.clipboard}
-          className="far fa-clone"
-          onClick={() => copy(text)}
-        ></IconCopy>
+        isClipboard && <IconCopy name="Copy" onClick={() => copy(text)} />
       )}
     </Container>
   );

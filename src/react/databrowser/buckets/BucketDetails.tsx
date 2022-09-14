@@ -8,6 +8,7 @@ import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useQueryParams } from '../../utils/hooks';
+import { Icon } from '@scality/core-ui';
 
 type Props = {
   bucket: S3Bucket | null | undefined;
@@ -16,7 +17,7 @@ type Props = {
 
 const NotFound = () => (
   <Warning
-    iconClass="fas fa-3x fa-exclamation-triangle"
+    icon={<Icon name="Exclamation-triangle" size="3x" />}
     title="Bucket not found."
   />
 );

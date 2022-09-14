@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';
 import type { AppState } from '../types/state';
-import { Banner, ScrollbarWrapper } from '@scality/core-ui';
+import { Banner, Icon, ScrollbarWrapper } from '@scality/core-ui';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
@@ -31,12 +31,12 @@ function ZenkoUI() {
     dispatch(loadAppConfig());
   }, [dispatch]);
 
-  function content() {
+  function Content() {
     if (configFailure) {
       return (
         <Container>
           <Banner
-            icon={<i className="fas fa-exclamation-triangle" />}
+            icon={<Icon name="Exclamation-triangle" />}
             title="Error: Unable to load the appplication"
             variant="danger"
           >
@@ -64,7 +64,7 @@ function ZenkoUI() {
       <ScrollbarWrapper>
         <MainContainer>
           <ReauthDialog />
-          {content()}
+          <Content />
         </MainContainer>
       </ScrollbarWrapper>
     </ThemeProvider>

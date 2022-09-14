@@ -1,4 +1,4 @@
-import { Loader } from '@scality/core-ui';
+import { Icon, Loader } from '@scality/core-ui';
 import { useReducer } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
@@ -150,7 +150,7 @@ const AttachmentTabs = ({
           label="Users"
           path={pathname}
           query={{ ...queryObject, tab: null }}
-          icon={<i className="fas fa-user" />}
+          icon={<Icon name="User" />}
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -191,7 +191,7 @@ const AttachmentTabs = ({
           label="Groups"
           path={pathname}
           query={{ ...queryObject, tab: 'groups' }}
-          icon={<i className="fas fa-users" />}
+          icon={<Icon name="Group" />}
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -234,7 +234,7 @@ const AttachmentTabs = ({
           label="Groups"
           path={pathname}
           query={{ ...queryObject, tab: null }}
-          icon={<i className="fas fa-users" />}
+          icon={<Icon name="Group" />}
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -275,7 +275,7 @@ const AttachmentTabs = ({
           label="Roles"
           path={pathname}
           query={{ ...queryObject, tab: 'roles' }}
-          icon={<i className="fas fa-hat-cowboy" />}
+          icon={<Icon name="Role" />}
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -324,7 +324,7 @@ const AttachmentTabs = ({
           label="Policies"
           path={pathname}
           query={{ ...queryObject, tab: 'policies' }}
-          icon={<i className="fas fa-file-signature" />}
+          icon={<Icon name="Policy" />}
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>

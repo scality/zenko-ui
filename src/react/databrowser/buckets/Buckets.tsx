@@ -12,6 +12,7 @@ import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { Icon } from '@scality/core-ui';
 
 export default function Buckets() {
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ export default function Buckets() {
       <EmptyStateContainer>
         <Warning
           centered={true}
-          iconClass="fas fa-5x fa-glass-whiskey"
+          icon={<Icon name="Bucket" size="5x" />}
           title="Create your first bucket."
           btnTitle="Create Bucket"
           btnAction={() =>

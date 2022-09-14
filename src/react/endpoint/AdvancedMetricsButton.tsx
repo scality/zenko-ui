@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Icon } from '@scality/core-ui';
 
 type ShellNavbarEntry = {
   en: string;
@@ -77,7 +78,7 @@ export function AuthorizedAdvancedMetricsButton() {
           <Button
             label="Advanced Metrics"
             variant={'secondary'}
-            icon={<i className="fas fa-external-link-alt" />}
+            icon={<Icon name="External-link" />}
           />
         </a>
       ) : (

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { Warning } from '../../../ui-elements/Warning';
@@ -107,7 +107,7 @@ function AccountKeys({ account }: Props) {
           return (
             <Button
               disabled={false}
-              icon={<i className="fas fa-trash" />}
+              icon={<Icon name="Delete" />}
               onClick={() =>
                 dispatch(deleteAccountAccessKey(roleArn, access_key))
               }
@@ -160,10 +160,7 @@ function AccountKeys({ account }: Props) {
         }}
       >
         <HideMe isHidden={!accessKeys || accessKeys.length === 0}>
-          <Banner
-            variant="danger"
-            icon={<i className="fas fa-exclamation-triangle" />}
-          >
+          <Banner variant="danger" icon={<Icon name="Exclamation-triangle" />}>
             Security Status: Root user Access keys give unrestricted access to
             account resources. It is a best practice to delete root Access keys
             and use IAM user access keys instead.
@@ -176,7 +173,7 @@ function AccountKeys({ account }: Props) {
             marginLeft: spacing.sp16,
             whiteSpace: 'nowrap',
           }}
-          icon={<i className="fas fa-plus" />}
+          icon={<Icon name="Create-add" />}
           onClick={handleOpenKeyModal}
           label="Create Access key"
         />
@@ -203,12 +200,12 @@ function AccountKeys({ account }: Props) {
                         {!column.disableSortBy &&
                           (column.isSorted ? (
                             column.isSortedDesc ? (
-                              <i className="fas fa-sort-down" />
+                              <Icon name="Sort-down" />
                             ) : (
-                              <i className="fas fa-sort-up" />
+                              <Icon name="Sort-up" />
                             )
                           ) : (
-                            <i className="fas fa-sort" />
+                            <Icon name="Sort" />
                           ))}
                       </T.Icon>
                     </T.HeadCell>
@@ -244,7 +241,7 @@ function AccountKeys({ account }: Props) {
             ) : (
               <Warning
                 centered={true}
-                iconClass="fas fa-exclamation-triangle"
+                icon={<Icon name="Exclamation-triangle" />}
                 title="No key created"
               />
             )}

@@ -8,7 +8,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { PrettyBytes } from '@scality/core-ui';
+import { Icon, PrettyBytes } from '@scality/core-ui';
 import { maybePluralize } from '../../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -61,7 +61,7 @@ export const FileList = ({
 }: FileListProps) => (
   <div>
     <Button
-      icon={<i className="fas fa-plus" />}
+      icon={<Icon name="Create-add" />}
       label="Add more files"
       variant="secondary"
       onClick={open}
@@ -84,7 +84,7 @@ export const FileList = ({
                 {' '}
                 <div onClick={() => removeFile(file.path)}>
                   {' '}
-                  <i className="fas fa-times"></i>{' '}
+                  <Icon name="Close" />{' '}
                 </div>{' '}
               </RemoveCell>
             </T.Row>
@@ -99,11 +99,11 @@ type NoFileProps = {
 };
 export const NoFile = ({ open }: NoFileProps) => (
   <EmptyFile>
-    <i className="fas fa-3x fa-file-upload"></i>
+    <Icon name="Upload" size="3x" />
     <div> Drag and drop files and folders here </div>
     <div> OR </div>
     <Button
-      icon={<i className="fas fa-plus" />}
+      icon={<Icon name="Create-add" />}
       label="Add files"
       variant="secondary"
       onClick={open}

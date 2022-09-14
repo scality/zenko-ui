@@ -15,6 +15,7 @@ import { push } from 'connected-react-router';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
+import { Icon } from '@scality/core-ui';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -38,7 +39,7 @@ export default function DataBrowser() {
       <EmptyStateContainer>
         <Warning
           centered={true}
-          iconClass="fas fa-5x fa-exclamation-triangle"
+          icon={<Icon name="Exclamation-triangle" size="5x" />}
           title={errorMessage || 'An unexpected error has occurred.'}
           btnTitle="Display buckets"
           btnAction={() => {
@@ -55,7 +56,7 @@ export default function DataBrowser() {
       <EmptyStateContainer>
         <Warning
           centered={true}
-          iconClass="fas fa-5x fa-wallet"
+          icon={<Icon name="Account" size="5x" />}
           title="Before browsing your data, create your first account."
           btnTitle="Create Account"
           btnAction={() => dispatch(push('/create-account'))}

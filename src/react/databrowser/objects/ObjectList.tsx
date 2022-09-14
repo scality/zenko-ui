@@ -21,7 +21,7 @@ import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';
 import React from 'react';
-import { Toggle } from '@scality/core-ui';
+import { Icon, Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { useQueryParams } from '../../utils/hooks';
@@ -60,12 +60,7 @@ export default function ObjectList({
 
   const maybeListTable = () => {
     if (errorZenkoMsg) {
-      return (
-        <WarningMetadata
-          iconClass="fas fa-2x fa-info-circle"
-          description={errorZenkoMsg}
-        />
-      );
+      return <WarningMetadata description={errorZenkoMsg} />;
     }
 
     return (
@@ -90,21 +85,21 @@ export default function ObjectList({
           <T.ExtraButton
             id="object-list-upload-button"
             label="Upload"
-            icon={<i className="fas fa-upload" />}
+            icon={<Icon name="Simple-upload" />}
             variant="secondary"
             onClick={() => dispatch(openObjectUploadModal())}
           />
           <T.ExtraButton
             id="object-list-create-folder-button"
             label="Folder"
-            icon={<i className="fas fa-plus" />}
+            icon={<Icon name="Create-add" />}
             variant="secondary"
             onClick={() => dispatch(openFolderCreateModal())}
           />
           <T.ExtraButton
             id="object-list-delete-button"
             label="Delete"
-            icon={<i className="fas fa-trash" />}
+            icon={<Icon name="Delete" />}
             disabled={isToggledEmpty}
             variant="danger"
             onClick={() => dispatch(openObjectDeleteModal())}
@@ -126,9 +121,7 @@ export default function ObjectList({
           />
         </T.ButtonContainer>
       </T.HeaderContainer>
-      <T.SubHeaderContainer
-        isHidden={!isMetadataType || !!errorZenkoMsg ? 1 : 0}
-      >
+      <T.SubHeaderContainer isHidden={!isMetadataType || !!errorZenkoMsg}>
         {' '}
         {maybePluralize(objects.size, 'metadata search result')}{' '}
       </T.SubHeaderContainer>

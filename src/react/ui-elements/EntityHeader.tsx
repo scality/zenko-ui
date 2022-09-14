@@ -15,7 +15,7 @@ export default function Header({ icon, headTitle, numInstance }: Props) {
         <L.HeadTitleContainer>
           <L.HeadTitle>
             {headTitle}
-            <TextBadge text={numInstance} variant="infoPrimary" />
+            <TextBadge text={numInstance.toString()} variant="infoPrimary" />
           </L.HeadTitle>
         </L.HeadTitleContainer>
       </L.HeadBody>
