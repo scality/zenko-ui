@@ -183,9 +183,8 @@ export default function LocationDetailsAwsCustom({
           </small>
           <WarningInput
             error={
-              formState.bucketMatch
-                ? 'Storing multiple buckets in a location with this option enabled\ncan lead to data loss.'
-                : undefined
+              formState.bucketMatch &&
+              'Storing multiple buckets in a location with this option enabled can lead to data loss.'
             }
           />
         </Fieldset>

@@ -124,9 +124,8 @@ export default class LocationDetailsAws extends React.Component<
           </small>
           <WarningInput
             error={
-              this.state.bucketMatch
-                ? 'Storing multiple buckets in a location with this option enabled\ncan lead to data loss.'
-                : undefined
+              this.state.bucketMatch &&
+              'Storing multiple buckets in a location with this option enabled can lead to data loss.'
             }
           />
         </Fieldset>

@@ -4,7 +4,7 @@ import {
   FieldValues,
   Controller,
   useFormContext,
-  useFieldArray,
+  FieldError,
 } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import { AddButton, SubButton, Buttons } from '../ui-elements/EditableKeyValue';
@@ -28,7 +28,6 @@ import {
 import Joi from '@hapi/joi';
 
 import Input from '../ui-elements/Input';
-import * as Inputs from '../ui-elements/Input';
 import { NoLocationWarning } from '../ui-elements/Warning';
 import type { S3BucketList } from '../../types/s3';
 
@@ -295,7 +294,7 @@ const RenderDestination = ({
   name: string;
   isCreateMode?: boolean;
   locations: Locations;
-  errors: Record<string, any>;
+  errors: Record<string, FieldError>;
 }) => {
   return (
     <T.Group>

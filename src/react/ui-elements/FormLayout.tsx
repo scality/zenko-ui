@@ -125,7 +125,7 @@ const WarningInputContainer = styled.div`
   color: ${(props) => props.theme.brand.warning};
 `;
 type ErrorInputProps = {
-  error?: string;
+  error?: React.ReactNode;
   id?: string;
 } & HTMLAttributes<HTMLDivElement>;
 export const ErrorInput = ({ error, id, ...props }: ErrorInputProps) => {
