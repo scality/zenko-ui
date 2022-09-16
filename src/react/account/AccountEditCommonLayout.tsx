@@ -1,6 +1,6 @@
 import { FormEvent } from 'react';
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import { SecondaryText } from '@scality/core-ui';
+import { Icon, SecondaryText } from '@scality/core-ui';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';
 import CopyButton from '../ui-elements/CopyButton';
@@ -153,9 +153,7 @@ export const CommonPolicyLayout = ({
                   type="submit"
                   id="create-account-btn"
                   variant="primary"
-                  icon={
-                    !isCreateMode ? <i className="fas fa-save" /> : undefined
-                  }
+                  icon={!isCreateMode ? <Icon name="Save" /> : undefined}
                   label={isCreateMode ? 'Create' : 'Save'}
                 />
               </F.FooterButtons>

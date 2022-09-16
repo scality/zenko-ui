@@ -14,6 +14,7 @@ import {
   STORAGE_MANAGER_ROLE,
 } from '../utils/hooks';
 import { setRoleArnStored } from '../utils/localStorage';
+import { Icon } from '@scality/core-ui';
 
 const TableAction = styled.div`
   display: flex;
@@ -105,7 +106,7 @@ function AccountList({ accounts }: Props) {
           />
           {userGroups.includes('StorageManager') ? (
             <Button
-              icon={<i className="fas fa-plus" />}
+              icon={<Icon name="Create-add" />}
               label="Create Account"
               variant="primary"
               onClick={() => dispatch(push('/create-account'))}

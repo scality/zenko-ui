@@ -1,9 +1,9 @@
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import React, { useRef } from 'react';
+import React, { MouseEventHandler, useRef } from 'react';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
@@ -51,7 +51,7 @@ function AccountCreate() {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  const onSubmit = ({ email, name }) => {
+  const onSubmit = ({ email, name }: { name: string; email: string }) => {
     clearServerError();
     const payload = {
       Name: name,
@@ -60,7 +60,7 @@ function AccountCreate() {
     dispatch(createAccount(payload, queryClient, token));
   };
 
-  const handleCancel = (e) => {
+  const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
     if (e) {
       e.preventDefault();
     }
@@ -130,7 +130,7 @@ function AccountCreate() {
             {hasError && (
               <Banner
                 id="zk-error-banner"
-                icon={<i className="fas fa-exclamation-triangle" />}
+                icon={<Icon name="Exclamation-triangle" />}
                 title="Error"
                 variant="danger"
               >

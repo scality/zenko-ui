@@ -1,11 +1,28 @@
 import { Tooltip } from '@scality/core-ui';
-import React from 'react';
+import * as Core from '@scality/core-ui';
+import { IconName } from '@scality/core-ui/dist/components/icon/Icon.component';
+import React, { CSSProperties } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-export const Icon = styled.i`
-  margin-left: ${spacing.sp8};
-  color: ${(props) => props.theme.brand?.buttonSecondary};
-`;
+import { SizeProp } from '@fortawesome/fontawesome-svg-core';
+
+export const Icon = ({
+  name,
+  size,
+  style,
+}: {
+  name: IconName;
+  size?: SizeProp;
+  style: CSSProperties;
+}) => (
+  <Core.Icon
+    size={size}
+    name={name}
+    color="buttonSecondary"
+    style={{ ...style, marginLeft: spacing.sp8 }}
+  />
+);
+
 type IconHelpProps = {
   tooltipMessage: React.ReactNode;
   iconClass?: string;

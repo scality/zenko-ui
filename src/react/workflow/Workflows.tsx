@@ -124,7 +124,7 @@ export default function Workflows() {
     );
   }
 
-  const Content = () => {
+  const content = () => {
     if (bucketList.size === 0) {
       return (
         <EmptyStateContainer>
@@ -186,7 +186,7 @@ export default function Workflows() {
       <L.BreadcrumbContainer>
         <Breadcrumb />
       </L.BreadcrumbContainer>
-      <Content />
+      {content()}
     </L.Container>
   );
 }

@@ -117,9 +117,10 @@ export function AccountRoleSelectButtonAndModal({
                   }}
                 >
                   <Help.Icon
-                    className="fas fa-question-circle fa-xs"
+                    name="Info"
+                    size="xs"
                     style={{ fontSize: '1rem' }}
-                  ></Help.Icon>
+                  />
                 </Tooltip>
               </span>
             );
@@ -183,7 +184,7 @@ export function AccountRoleSelectButtonAndModal({
             </>
           )
         }
-        icon={<i className="fas fa-wallet" />}
+        icon={<Icon name="Account" />}
       />
       <Modal
         close={handleClose}

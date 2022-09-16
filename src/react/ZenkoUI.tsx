@@ -31,7 +31,7 @@ function ZenkoUI() {
     dispatch(loadAppConfig());
   }, [dispatch]);
 
-  function Content() {
+  function content() {
     if (configFailure) {
       return (
         <Container>
@@ -64,7 +64,7 @@ function ZenkoUI() {
       <ScrollbarWrapper>
         <MainContainer>
           <ReauthDialog />
-          <Content />
+          {content()}
         </MainContainer>
       </ScrollbarWrapper>
     </ThemeProvider>

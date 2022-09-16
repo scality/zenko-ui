@@ -54,7 +54,7 @@ const EditButton = ({
           style={{ height: spacing.sp24, width: '5rem' }}
           variant="secondary"
           label="View"
-          icon={<i className="fa fa-eye"></i>}
+          icon={<Icon name="Eye" />}
           onClick={() =>
             history.push(
               `/accounts/${accountName}/policies/${encodeURIComponent(
@@ -265,7 +265,7 @@ const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
             width: '13rem',
           }}
         >
-          {policyName} <Icon className="fas fa-question-circle fa-xs"></Icon>
+          {policyName} <Icon name="Info" size="xs" />
         </Tooltip>
       )}
       {!isInternalPolicy && <>{policyName} </>}
