@@ -189,7 +189,6 @@ function ReplicationForm({
                   render={({
                     field: { onChange, onBlur, value: sourceBucket },
                   }) => {
-                    // const streams = replicationsQuery.data || [];
                     const options = sourceBucketOptions(bucketList, locations);
                     const isEditing = !!getValues(`${prefix}streamId`);
                     const result = options.find(
@@ -332,9 +331,9 @@ const RenderDestination = ({
             if (!Array.isArray(destinationLocations)) return null;
             return destinationLocations.map((destLoc: string, index) => {
               const options = destinationOptions(locations);
-              const prefix_ = `${prefix}destinationLocation.${index}`;
-              const err = errors[prefix_];
-              const touched = touchedFields[prefix_];
+              const fieldName = `${prefix}destinationLocation.${index}`;
+              const err = errors[fieldName];
+              const touched = touchedFields[fieldName];
               return (
                 <T.Row
                   data-testid={`select-location-name-replication-${index}`}
