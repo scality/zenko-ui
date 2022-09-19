@@ -8,6 +8,8 @@ import {
   Locations as LocationsType,
   LocationTypeKey,
   ORANGE_S3_LOCATION_KEY,
+  OUTSCALE_PUBLIC_S3_LOCATION_KEY,
+  OUTSCALE_SNC_S3_LOCATION_KEY,
   Replication,
 } from '../../../types/config';
 import type {
@@ -284,7 +286,9 @@ function renderLocation(location: Location) {
 export const checkIsRingS3Reseller = (locationType: LocationTypeKey) => {
   return (
     locationType === JAGUAR_S3_LOCATION_KEY ||
-    locationType === ORANGE_S3_LOCATION_KEY
+    locationType === ORANGE_S3_LOCATION_KEY ||
+    locationType === OUTSCALE_PUBLIC_S3_LOCATION_KEY ||
+    locationType === OUTSCALE_SNC_S3_LOCATION_KEY
   );
 };
 

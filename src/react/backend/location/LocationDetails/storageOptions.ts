@@ -2,6 +2,8 @@ import {
   JAGUAR_S3_LOCATION_KEY,
   LocationTypeKey,
   ORANGE_S3_LOCATION_KEY,
+  OUTSCALE_PUBLIC_S3_LOCATION_KEY,
+  OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../../types/config';
 import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
@@ -90,6 +92,26 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   [JAGUAR_S3_LOCATION_KEY]: {
     name: 'Atlas Object Storage',
     short: 'Atlas S3',
+    formDetails: LocationDetailsAwsCustom,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: true,
+    hasIcon: false,
+    checkCapability: 'locationTypeS3Custom',
+  },
+  [OUTSCALE_PUBLIC_S3_LOCATION_KEY]: {
+    name: '3DS Outscale OOS Public',
+    short: 'OOS Public',
+    formDetails: LocationDetailsAwsCustom,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: true,
+    hasIcon: false,
+    checkCapability: 'locationTypeS3Custom',
+  },
+  [OUTSCALE_SNC_S3_LOCATION_KEY]: {
+    name: '3DS Outscale OOS SNC',
+    short: 'OOS SNC',
     formDetails: LocationDetailsAwsCustom,
     supportsVersioning: true,
     supportsReplicationTarget: true,

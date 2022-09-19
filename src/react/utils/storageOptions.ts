@@ -11,6 +11,10 @@ import {
   Locations,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
+  OUTSCALE_PUBLIC_S3_ENDPOINT,
+  OUTSCALE_PUBLIC_S3_LOCATION_KEY,
+  OUTSCALE_SNC_S3_ENDPOINT,
+  OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../types/config';
 import { LocationForm } from '../../types/location';
 export function checkSupportsReplicationTarget(locations: Locations): boolean {
@@ -46,6 +50,10 @@ export const getLocationTypeKey = (location: LocationForm | Location) => {
         return JAGUAR_S3_LOCATION_KEY;
       } else if (location.details.endpoint === ORANGE_S3_ENDPOINT) {
         return ORANGE_S3_LOCATION_KEY;
+      } else if (location.details.endpoint === OUTSCALE_PUBLIC_S3_ENDPOINT) {
+        return OUTSCALE_PUBLIC_S3_LOCATION_KEY;
+      } else if (location.details.endpoint === OUTSCALE_SNC_S3_ENDPOINT) {
+        return OUTSCALE_SNC_S3_LOCATION_KEY;
       } else {
         return location.locationType;
       }
