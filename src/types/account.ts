@@ -3,7 +3,7 @@ export type SecretKey = string;
 export type CreateAccountRequest = {
   readonly Name: string;
   readonly email: string;
-  readonly quotaMax: number;
+  readonly quotaMax?: number;
 };
 export type Role = {
   readonly Arn: string;
