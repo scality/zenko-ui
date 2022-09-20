@@ -37,6 +37,8 @@ describe('LocationEditor', () => {
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
       'Atlas Object Storage',
+      '3DS Outscale OOS Public',
+      '3DS Outscale OOS SNC',
       'Flexible Datastore',
       'Tape DMF',
     ].forEach((locationName) => {

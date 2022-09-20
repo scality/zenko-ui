@@ -5,8 +5,17 @@ import { Tag } from './s3';
 // locations
 export const JAGUAR_S3_ENDPOINT = 'https://s3.fr-lyo.jaguar-network.com';
 export const JAGUAR_S3_LOCATION_KEY = 'location-jaguar-ring-s3-v1';
+
 export const ORANGE_S3_ENDPOINT = 'https://cloud.orange-business.com';
 export const ORANGE_S3_LOCATION_KEY = 'location-orange-ring-s3-v1';
+
+export const OUTSCALE_PUBLIC_S3_ENDPOINT = 'https://oos.eu-west-2.outscale.com';
+export const OUTSCALE_PUBLIC_S3_LOCATION_KEY =
+  'location-3ds-outscale-oos-public';
+
+export const OUTSCALE_SNC_S3_ENDPOINT =
+  'https://oos.cloudgouv-eu-west-1.outscale.com';
+export const OUTSCALE_SNC_S3_LOCATION_KEY = 'location-3ds-outscale-oos-snc';
 
 export type LocationName = string;
 
@@ -15,7 +24,9 @@ type LocationS3Type =
   | 'location-scality-ring-s3-v1'
   | 'location-jaguar-ring-s3-v1'
   | 'location-orange-ring-s3-v1'
-  | 'location-aws-s3-v1';
+  | 'location-aws-s3-v1'
+  | 'location-3ds-outscale-oos-public'
+  | 'location-3ds-outscale-oos-snc';
 type LocationFSType =
   | 'location-scality-hdclient-v2'
   | 'location-aws-s3-v1'

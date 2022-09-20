@@ -22,6 +22,10 @@ import {
   LocationTypeKey,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
+  OUTSCALE_PUBLIC_S3_ENDPOINT,
+  OUTSCALE_PUBLIC_S3_LOCATION_KEY,
+  OUTSCALE_SNC_S3_ENDPOINT,
+  OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../../types/config';
 import { checkIsRingS3Reseller } from '../utils';
 
@@ -30,6 +34,10 @@ const computeInitialEndpoint = (locationType: LocationTypeKey) => {
     return { endpoint: JAGUAR_S3_ENDPOINT };
   } else if (locationType === ORANGE_S3_LOCATION_KEY) {
     return { endpoint: ORANGE_S3_ENDPOINT };
+  } else if (locationType === OUTSCALE_PUBLIC_S3_LOCATION_KEY) {
+    return { endpoint: OUTSCALE_PUBLIC_S3_ENDPOINT };
+  } else if (locationType === OUTSCALE_SNC_S3_LOCATION_KEY) {
+    return { endpoint: OUTSCALE_SNC_S3_ENDPOINT };
   } else {
     return {};
   }
