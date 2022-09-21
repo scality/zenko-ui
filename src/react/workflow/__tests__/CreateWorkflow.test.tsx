@@ -6,10 +6,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
 } from '../../utils/test';
-import {
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
@@ -19,10 +16,12 @@ const instanceId = 'instanceId';
 const accountId = 'accountId';
 const accountName = 'pat';
 
-const server = setupServer(rest.post(
-  `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/create-workflow`,
-  (req, res, ctx) => res(ctx.json([])),
-),);
+const server = setupServer(
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/create-workflow`,
+    (req, res, ctx) => res(ctx.json([])),
+  ),
+);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -35,7 +34,9 @@ afterAll(() => server.close());
 describe('CreateWorkflow', () => {
   it('should render a form for create workflow', async () => {
     try {
-      const { component: { container } }  = reduxRender(<CreateWorkflow />, {
+      const {
+        component: { container },
+      } = reduxRender(<CreateWorkflow />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -49,8 +50,8 @@ describe('CreateWorkflow', () => {
         },
         oidc: {
           user: {
-            access_token: ''
-          }
+            access_token: '',
+          },
         },
         configuration: {
           latest: {
@@ -69,15 +70,27 @@ describe('CreateWorkflow', () => {
       const cancelButton = screen.getByText('Cancel');
       expect(cancelButton).toBeInTheDocument();
 
-      expect(container.getElementsByClassName('sc-select__option').length).toBe(0);
+      expect(container.getElementsByClassName('sc-select__option').length).toBe(
+        0,
+      );
       const form = notFalsyTypeGuard(container.querySelector('form'));
 
-      userEvent.click(notFalsyTypeGuard(form.querySelector('.sc-select__control')));
+      userEvent.click(
+        notFalsyTypeGuard(form.querySelector('.sc-select__control')),
+      );
 
-      expect(container.getElementsByClassName('sc-select__option').length).toBe(3);
-      const replicationOption = screen.getByRole('option', { name: 'Replication' });
-      const ExpirationOption = screen.getByRole('option', { name: 'Expiration' });
-      const TransitionOption = screen.getByRole('option', { name: 'Transition' });
+      expect(container.getElementsByClassName('sc-select__option').length).toBe(
+        3,
+      );
+      const replicationOption = screen.getByRole('option', {
+        name: 'Replication Replication',
+      });
+      const ExpirationOption = screen.getByRole('option', {
+        name: 'Expiration Expiration',
+      });
+      const TransitionOption = screen.getByRole('option', {
+        name: 'Transition Transition',
+      });
 
       expect(replicationOption).toBeInTheDocument();
       expect(ExpirationOption).toBeInTheDocument();
@@ -86,15 +99,15 @@ describe('CreateWorkflow', () => {
       userEvent.click(notFalsyTypeGuard(ExpirationOption));
       expect(screen.getByText('Expiration')).toBeInTheDocument();
 
-      userEvent.click(notFalsyTypeGuard(form.querySelector('.sc-select__control')));
+      userEvent.click(
+        notFalsyTypeGuard(form.querySelector('.sc-select__control')),
+      );
       expect(screen.getByText('Replication')).toBeInTheDocument();
 
       expect(createButton).not.toBeDisabled();
-
     } catch (e) {
       console.log('should render a form for create workflow: ', e);
       throw e;
     }
   });
-
 });

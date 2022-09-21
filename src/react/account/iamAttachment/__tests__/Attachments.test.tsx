@@ -417,11 +417,11 @@ describe('User Attachments', () => {
     await waitFor(() => screen.getByText('Attachment status'));
     //V
     expect(
-      screen.getByRole('row', { name: /devs attached remove/i }),
+      screen.getByRole('row', { name: /devs attached close remove/i }),
     ).toBeInTheDocument();
 
     const pendingGroup = screen.getByRole('row', {
-      name: /devs attached remove/i,
+      name: /devs attached close remove/i,
     });
     expect(
       getByRole(pendingGroup, 'button', {

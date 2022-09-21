@@ -129,7 +129,7 @@ describe('Tags', () => {
       screen.getByRole('textbox', { name: 'Tag 3 value' }),
       value3,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Save' }));
     await waitFor(() =>
       expect(mockedRequestBodyInterceptor).toHaveBeenCalled(),
     );

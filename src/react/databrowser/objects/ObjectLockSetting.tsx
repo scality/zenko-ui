@@ -8,7 +8,7 @@ import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
-import { Banner, Toggle } from '@scality/core-ui';
+import { Banner, Icon, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import FormContainer, * as F from '../../ui-elements/FormLayout';

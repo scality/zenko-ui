@@ -50,25 +50,6 @@ const theme = {
     textTertiary: '#B5B5B5',
     textReverse: '#000000',
     textLink: '#71AEFF',
-    // degraded colors
-    alert: '#FFE508',
-    base: '#7B7B7B',
-    primary: '#1D1D1D',
-    primaryDark1: '#171717',
-    primaryDark2: '#0A0A0A',
-    secondary: '#0F7FFF',
-    secondaryDark1: '#1C3D59',
-    secondaryDark2: '#1C2E3F',
-    success: '#006F62',
-    healthy: '#30AC26',
-    healthyLight: '#69E44C',
-    warning: '#FFC10A',
-    danger: '#AA1D05',
-    critical: '#BE321F',
-    background: '#121212',
-    backgroundBluer: '#192A41',
-    borderLight: '#A5A5A5',
-    info: '#434343',
   },
 };
 export const history = createMemoryHistory();
@@ -100,14 +81,18 @@ export const newTestStore = (state) => {
 export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
   const zenkoClient = new ZenkoClient(TEST_API_BASE_URL);
-  zenkoClient.login({ accessKey: 'accessKey', secretKey: 'secretKey', sessionToken: 'sessionToken' })
+  zenkoClient.login({
+    accessKey: 'accessKey',
+    secretKey: 'secretKey',
+    sessionToken: 'sessionToken',
+  });
   const store = createStore(
     zenkoUIReducer(history),
     {
       ...initialFullState,
       ...authenticatedUserState(),
       configuration,
-      ...{zenko: {...initialFullState.zenko, zenkoClient}},
+      ...{ zenko: { ...initialFullState.zenko, zenkoClient } },
       ...(state || {}),
     },
     compose(applyMiddleware(thunk, routerMiddleware(history))),
@@ -170,7 +155,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const reduxMount = (component, testState) => {
+export const reduxMount = (component: React.ReactNode, testState?: any) => {
   const store = newTestStore(testState);
   return {
     component: mount(
@@ -252,8 +237,12 @@ export async function reduxMountAct(component, testState) {
   });
   return wrapper;
 }
-export const themeMount = (component) => {
-  return mount(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
+export const themeMount = (component: React.ReactNode) => {
+  return mount(
+    <QueryClientProvider client={new QueryClient()}>
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+    </QueryClientProvider>,
+  );
 };
 export function updateInputText(component, name, value) {
   component.find(`input[name="${name}"]`).simulate('change', {

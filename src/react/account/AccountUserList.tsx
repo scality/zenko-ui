@@ -358,7 +358,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={<Icon name="Created-add" />}
+          icon={<Icon name="Create-add" />}
           label="Create User"
           variant="primary"
           onClick={() => history.push('create-user')}

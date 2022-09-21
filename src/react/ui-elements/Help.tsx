@@ -13,7 +13,7 @@ export const Icon = ({
 }: {
   name: IconName;
   size?: SizeProp;
-  style: CSSProperties;
+  style?: CSSProperties;
 }) => (
   <Core.Icon
     size={size}
@@ -25,13 +25,13 @@ export const Icon = ({
 
 type IconHelpProps = {
   tooltipMessage: React.ReactNode;
-  iconClass?: string;
+  name?: IconName;
   tooltipWidth?: string;
   placement?: string;
 };
 export const IconHelp = ({
   tooltipMessage,
-  iconClass = 'fas fa-question-circle',
+  name = 'Info',
   tooltipWidth,
   placement = 'right',
 }: IconHelpProps) => (
@@ -42,7 +42,7 @@ export const IconHelp = ({
       width: tooltipWidth,
     }}
   >
-    <Icon className={iconClass}></Icon>
+    <Icon name={name} />
   </Tooltip>
 );
 export const HelpAsyncNotification = () => (

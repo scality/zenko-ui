@@ -270,7 +270,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                 <Button
                   id="metadata-button-save"
                   variant="secondary"
-                  label="Save"
+                  aria-label="Save"
                   disabled={isVersioningType || !isDirty}
                   icon={<Icon name="Save" />}
                   type="submit"
