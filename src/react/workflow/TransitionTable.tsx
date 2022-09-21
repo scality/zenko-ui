@@ -1,4 +1,4 @@
-import { Banner } from '@scality/core-ui';
+import { Banner, Icon } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { useRouteMatch } from 'react-router';
 import { useTheme } from 'styled-components';
@@ -135,10 +135,7 @@ const TransitionTable = ({
   return (
     <>
       {isTransitionWithDate && (
-        <Banner
-          icon={<i className="fas fa-exclamation-triangle" />}
-          variant="warning"
-        >
+        <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
           {transitionWithDate}
         </Banner>
       )}

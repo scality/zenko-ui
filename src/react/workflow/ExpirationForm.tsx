@@ -2,7 +2,7 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Toggle, SpacedBox } from '@scality/core-ui';
+import { Toggle, SpacedBox, Icon } from '@scality/core-ui';
 import {
   Select,
   Option,
@@ -235,7 +235,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
           <T.Group>
             <T.GroupName>
-              <i className="fas fa-filter"></i> Filters (optional)
+              <Icon name="Filter" /> Filters (optional)
             </T.GroupName>
             <T.GroupContent>
               <T.Row>

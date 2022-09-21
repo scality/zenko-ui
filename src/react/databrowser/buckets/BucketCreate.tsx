@@ -1,4 +1,4 @@
-import { Banner, Toggle } from '@scality/core-ui';
+import { Banner, Icon, Toggle } from '@scality/core-ui';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import FormContainer, * as F from '../../ui-elements/FormLayout';
@@ -344,7 +344,7 @@ function BucketCreate() {
               {hasError && (
                 <Banner
                   id="zk-error-banner"
-                  icon={<i className="fas fa-exclamation-triangle" />}
+                  icon={<Icon name="Exclamation-triangle" />}
                   title="Error"
                   variant="danger"
                 >

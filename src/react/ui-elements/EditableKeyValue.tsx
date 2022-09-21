@@ -5,6 +5,7 @@ import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+import { Icon } from '@scality/core-ui';
 export const Container = styled.div`
   flex: 1;
 `;
@@ -155,7 +156,7 @@ export const AddButton = ({
           overlay: 'Add',
           placement: 'top',
         }}
-        icon={<i className="fa fa-plus-square" style={iconStyle} />}
+        icon={<Icon name="Add-plus" style={iconStyle} />}
       />
     </>
   );
@@ -194,7 +195,7 @@ export const SubButton = ({
         overlay: 'Remove',
         placement: 'top',
       }}
-      icon={<i className="fa fa-minus-square" style={iconStyle} />}
+      icon={<Icon name="Remove-minus" style={iconStyle} />}
     />
   );
 };

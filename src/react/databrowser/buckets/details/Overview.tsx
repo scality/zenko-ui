@@ -14,7 +14,7 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import type { BucketInfo, S3Bucket } from '../../../../types/s3';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
-import { Toggle } from '@scality/core-ui';
+import { Icon, Toggle } from '@scality/core-ui';
 import {
   getLocationType,
   getLocationIngestionState,
@@ -166,7 +166,7 @@ function Overview({ bucket, ingestionStates }: Props) {
       />
       <ButtonContainer>
         <Button
-          icon={<i className="fas fa-trash" />}
+          icon={<Icon name="Delete" />}
           disabled={!canDeleteBucket(loading)}
           variant="danger"
           onClick={handleDeleteClick}
@@ -234,7 +234,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                       id="edit-retention-btn"
                       variant="outline"
                       label="Edit"
-                      icon={<i className="fas fa-pencil-alt"></i>}
+                      icon={<Icon name="Pencil" />}
                       onClick={() =>
                         dispatch(
                           push(

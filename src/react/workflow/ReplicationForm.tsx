@@ -9,7 +9,7 @@ import {
 import { ErrorInput } from '../ui-elements/FormLayout';
 import { AddButton, SubButton, Buttons } from '../ui-elements/EditableKeyValue';
 import type { Locations, Replication } from '../../types/config';
-import { Toggle } from '@scality/core-ui';
+import { Icon, Toggle } from '@scality/core-ui';
 import {
   Select,
   Option,
@@ -252,7 +252,7 @@ function ReplicationForm({
         </T.Group>
         <T.Group>
           <T.GroupName>
-            <i className="fas fa-filter"></i> Filter (optional)
+            <Icon name="Filter" /> Filter (optional)
           </T.GroupName>
           <T.GroupContent>
             <T.Row>

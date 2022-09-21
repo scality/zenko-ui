@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Controller, useForm } from 'react-hook-form';
 import userEvent from '@testing-library/user-event';
 import TagsFilter from '../TagsFilter';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 describe('TagsFilter', () => {
   it('should render TagsFilters', () => {
@@ -31,7 +32,11 @@ describe('TagsFilter', () => {
       );
     };
 
-    render(<ExpirationForm />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ExpirationForm />
+      </QueryClientProvider>,
+    );
 
     const firstKeyField = screen.getByTestId('tag-1-key');
     expect(firstKeyField).toBeInTheDocument();

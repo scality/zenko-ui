@@ -172,12 +172,12 @@ export default function BucketList({
                         {!column.disableSortBy &&
                           (column.isSorted ? (
                             column.isSortedDesc ? (
-                              <i className="fas fa-sort-down" />
+                              <Icon name="Sort-down" />
                             ) : (
-                              <i className="fas fa-sort-up" />
+                              <Icon name="Sort-up" />
                             )
                           ) : (
-                            <i className="fas fa-sort" />
+                            <Icon name="Sort" />
                           ))}
                       </T.Icon>
                     </T.HeadCell>

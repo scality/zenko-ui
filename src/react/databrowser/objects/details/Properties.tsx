@@ -3,7 +3,7 @@ import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
-import { PrettyBytes, SecondaryText, Toggle } from '@scality/core-ui';
+import { Icon, PrettyBytes, SecondaryText, Toggle } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
@@ -23,9 +23,6 @@ type Props = {
 };
 const TruncatedValue = styled.div`
   max-width: 18rem;
-`;
-const Icon = styled.i`
-  margin-left: ${spacing.sp4};
 `;
 
 function Properties({ objectMetadata }: Props) {
@@ -169,7 +166,7 @@ function Properties({ objectMetadata }: Props) {
                     )}
                     {objectMetadata.lockStatus === 'RELEASED' && (
                       <>
-                        Released <i className="fa fa-lock-open"></i>
+                        Released <Icon name="Lock-open" />
                         <br />
                         since {objectMetadata.objectRetention.retainUntilDate}
                       </>

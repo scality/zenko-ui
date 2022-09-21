@@ -10,7 +10,7 @@ import {
   renderSource,
   sourceBucketOptions,
 } from './utils';
-import { SecondaryText, Toggle } from '@scality/core-ui';
+import { Icon, SecondaryText, Toggle } from '@scality/core-ui';
 import { isVersioning } from '../utils';
 import { flattenFormErrors } from './utils';
 import {
@@ -191,7 +191,7 @@ export const TransitionForm = ({
 
           <T.Group>
             <T.GroupName>
-              <i className="fas fa-filter"></i> Filters (optional)
+              <Icon name="Filter" /> Filters (optional)
             </T.GroupName>
             <T.GroupContent>
               <T.Row>

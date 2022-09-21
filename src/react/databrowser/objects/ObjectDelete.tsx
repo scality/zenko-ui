@@ -312,7 +312,7 @@ const ObjectDelete = ({
                   {' '}
                   <div onClick={() => removeFile(s.key)}>
                     {' '}
-                    <i className="fas fa-times"></i>{' '}
+                    <Icon className="Close" />{' '}
                   </div>{' '}
                 </RemoveCell>
               </T.Row>
@@ -328,7 +328,7 @@ const ObjectDelete = ({
         <Banner
           variant="base"
           id="notification"
-          icon={<i className="fas fa-info-circle" />}
+          icon={<Icon name="Info-circle" />}
         >
           <span>{notificationText}</span>
         </Banner>
@@ -353,10 +353,7 @@ const ObjectDelete = ({
       {hasLockedFiles && (
         <Fragment>
           <SpacedBox mt={12} mb={12}>
-            <Banner
-              icon={<i className="fas fa-exclamation-circle" />}
-              variant="warning"
-            >
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
               At least one object you want to delete is under <br />
               Object-Lock retention{' '}
               <Icon
