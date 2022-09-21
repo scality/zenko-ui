@@ -1,14 +1,9 @@
 import * as L from '../../ui-elements/ListLayout2';
 import type { LocationName, Locations } from '../../../types/config';
-import MemoRow, { createItemData } from './BucketRow';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import Table, * as T from '../../ui-elements/Table';
-import { useFilters, useSortBy, useTable } from 'react-table';
-import { AutoSizer } from 'react-virtualized';
-import { FixedSizeList } from 'react-window';
-import type { S3BucketList } from '../../../types/s3';
+import React, { useMemo, useState } from 'react';
+import * as T from '../../ui-elements/Table';
+import type { S3Bucket, S3BucketList } from '../../../types/s3';
 import { TextAligner } from '../../ui-elements/Utility';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { formatShortDate } from '../../utils';
 import {
   getLocationType,
@@ -19,10 +14,13 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import type { AppState } from '../../../types/state';
-import { listBuckets } from '../../actions';
 import { XDM_FEATURE } from '../../../js/config';
 import { useParams } from 'react-router';
 import { Icon } from '@scality/core-ui';
+import { Table } from '@scality/core-ui/dist/next';
+import { useQueryParams } from '../../utils/hooks';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
+
 type Props = {
   locations: Locations;
   buckets: S3BucketList;
@@ -31,24 +29,18 @@ type Props = {
 };
 export default function BucketList({
   selectedBucketName,
-  buckets,
+  buckets: bucketsImmutableList,
   locations,
   ingestionStates,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
   const dispatch = useDispatch();
-  const listRef = useRef(null);
-  useEffect(() => {
-    dispatch(listBuckets());
-  }, []);
-  const handleCellClicked = useCallback(
-    (name) => (e) => {
-      e.stopPropagation();
-      dispatch(push(`/accounts/${accountName}/buckets/${name}/objects`));
-    },
-    [dispatch],
-  );
   const features = useSelector((state: AppState) => state.auth.config.features);
+  const query = useQueryParams();
+  const { account } = useCurrentAccount();
+  const tabName = query.get('tab');
+  const [bucketNameFilter, setBucketNameFilter] = useState<string>('');
+
   const columns = useMemo(() => {
     const columns = [
       {
@@ -57,8 +49,17 @@ export default function BucketList({
 
         Cell({ value: name }: { value: string }) {
           return (
-            <T.CellClick onClick={handleCellClicked(name)}>{name}</T.CellClick>
+            <T.CellLink
+              onClick={(event) => event.stopPropagation()}
+              to={`/accounts/${accountName}/buckets/${name}/objects`}
+            >
+              {name}
+            </T.CellLink>
           );
+        },
+        cellStyle: {
+          flex: '1',
+          paddingLeft: '1rem',
         },
       },
       {
@@ -68,6 +69,9 @@ export default function BucketList({
         Cell({ value: locationName }: { value: LocationName }) {
           const locationType = getLocationType(locations[locationName]);
           return `${locationName || 'us-east-1'} / ${locationType}`;
+        },
+        cellStyle: {
+          flex: '1',
         },
       },
     ];
@@ -82,50 +86,43 @@ export default function BucketList({
         Cell({ value: locationName }: { value: LocationName }) {
           return getLocationIngestionState(ingestionStates, locationName).value;
         },
+        cellStyle: {
+          flex: '1',
+        },
       });
     }
 
     columns.push({
       Header: 'Created on',
       accessor: 'CreationDate',
-      headerStyle: {
-        textAlign: 'right',
+      cellStyle: {
+        flex: '1',
         paddingRight: spacing.sp32,
+        textAlign: 'right',
       },
 
       Cell({ value }: { value: string }) {
         return (
-          <TextAligner
-            alignment="right"
-            style={{
-              paddingRight: spacing.sp16,
-            }}
-          >
+          <TextAligner alignment="right">
             {formatShortDate(new Date(value))}
           </TextAligner>
         );
       },
     });
     return columns;
-  }, [locations, handleCellClicked, ingestionStates, features]);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    setFilter,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data: buckets,
-      disableSortRemove: true,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-    },
-    useFilters,
-    useSortBy,
-  );
+  }, [locations, ingestionStates, features]);
+
+  const buckets = useMemo(
+    () => bucketsImmutableList.toJS(),
+    [bucketsImmutableList.size],
+  ) as S3Bucket[];
+  const selectedId = useMemo(() => {
+    if (buckets) {
+      return buckets.findIndex((bucket) => bucket.Name === selectedBucketName);
+    }
+    return null;
+  }, [selectedBucketName, buckets]);
+
   return (
     <L.ListSection id="bucket-list">
       <T.SearchContainer>
@@ -134,7 +131,7 @@ export default function BucketList({
           <T.SearchInput
             disableToggle={true}
             placeholder="Search by Bucket Name"
-            onChange={(e) => setFilter('Name', e.target.value)}
+            onChange={(e) => setBucketNameFilter(e.target.value)}
           />{' '}
         </T.Search>
         <T.ExtraButton
@@ -148,67 +145,31 @@ export default function BucketList({
         />
       </T.SearchContainer>
       <T.Container>
-        <Table {...getTableProps()}>
-          <T.Head>
-            {headerGroups.map((headerGroup) => (
-              <T.HeadRow
-                key={headerGroup.id}
-                {...headerGroup.getHeaderGroupProps()}
-              >
-                {headerGroup.headers.map((column) => {
-                  const headerProps = column.getHeaderProps(
-                    column.getSortByToggleProps({
-                      title: '',
-                    }),
-                  );
-                  return (
-                    <T.HeadCell
-                      key={column.id}
-                      {...headerProps}
-                      style={{ ...column.headerStyle, ...headerProps.style }}
-                    >
-                      {column.render('Header')}
-                      <T.Icon>
-                        {!column.disableSortBy &&
-                          (column.isSorted ? (
-                            column.isSortedDesc ? (
-                              <Icon name="Sort-down" />
-                            ) : (
-                              <Icon name="Sort-up" />
-                            )
-                          ) : (
-                            <Icon name="Sort" />
-                          ))}
-                      </T.Icon>
-                    </T.HeadCell>
-                  );
-                })}
-              </T.HeadRow>
-            ))}
-          </T.Head>
-          <T.BodyWindowing {...getTableBodyProps()}>
-            <AutoSizer>
-              {(
-                { height, width }, // ISSUE: https://github.com/bvaughn/react-window/issues/504
-              ) => (
-                <FixedSizeList
-                  ref={listRef}
-                  height={height || 300}
-                  itemCount={rows.length}
-                  itemSize={convertRemToPixels(parseFloat(spacing.sp40)) || 45}
-                  width={width || '100%'}
-                  itemData={createItemData(
-                    rows,
-                    prepareRow,
-                    selectedBucketName,
-                    dispatch,
-                  )}
-                >
-                  {MemoRow}
-                </FixedSizeList>
-              )}
-            </AutoSizer>
-          </T.BodyWindowing>
+        <Table
+          columns={columns}
+          data={buckets}
+          defaultSortingKey="CreationDate"
+          allFilters={[{ id: 'Name', value: bucketNameFilter }]}
+        >
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            selectedId={selectedId?.toString()}
+            onRowSelected={(row) => {
+              const isSelected = selectedBucketName === row.original.Name;
+
+              if (!isSelected) {
+                dispatch(
+                  push(
+                    tabName
+                      ? `/accounts/${account?.Name}/buckets/${row.original.Name}?tab=${tabName}`
+                      : `/accounts/${account?.Name}/buckets/${row.original.Name}`,
+                  ),
+                );
+              }
+            }}
+            separationLineVariant="backgroundLevel3"
+            backgroundVariant="backgroundLevel1"
+          />
         </Table>
       </T.Container>
     </L.ListSection>

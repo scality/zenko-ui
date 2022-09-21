@@ -34,6 +34,8 @@ export const Container = styled.div`
   flex: 1;
   margin-top: ${spacing.sp20};
   width: 100%;
+  height: 100%;
+  flex-direction: column;
 `;
 // * table head
 export const Head = styled.thead`

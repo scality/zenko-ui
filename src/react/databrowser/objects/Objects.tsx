@@ -1,14 +1,12 @@
 import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
+import { getBucketInfo, listObjects, newSearchListing } from '../../actions';
 import {
-  getBucketInfo,
   getObjectMetadata,
-  listObjects,
   resetObjectMetadata,
-  newSearchListing,
-} from '../../actions';
-import { UPLOADING_OBJECT } from '../../actions/s3object';
+  UPLOADING_OBJECT,
+} from '../../actions/s3object';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
@@ -48,17 +46,19 @@ export default function Objects() {
   const query = useQueryParams();
   const isShowVersions = query.get('showversions') === 'true';
   const searchInput = query.get('metadatasearch');
-  const objectKey = query.get('prefix');
-  const versionId = query.get('versionId');
+  const queryObjectKey = query.get('prefix');
+  const queryVersionId = query.get('versionId');
   const toggled = useMemo(
     () =>
       objects.filter(
         (o) =>
           o.toggled ||
-          (!isShowVersions && o.key === objectKey) ||
-          (isShowVersions && o.key === objectKey && o.versionId === versionId),
+          (!isShowVersions && o.key === queryObjectKey) ||
+          (isShowVersions &&
+            o.key === queryObjectKey &&
+            o.versionId === queryVersionId),
       ),
-    [objects, isShowVersions, objectKey, versionId],
+    [objects, isShowVersions, queryObjectKey, queryVersionId],
   );
   const { bucketName: bucketNameParam } = useParams();
   const prefixWithSlash = usePrefixWithSlash();

@@ -5,10 +5,7 @@ import type {
   ListObjectsType,
   ObjectEntity,
 } from '../../../types/s3';
-import {
-  LIST_OBJECTS_METADATA_TYPE,
-  LIST_OBJECT_VERSIONS_S3_TYPE,
-} from '../../utils/s3';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
 import {
   openFolderCreateModal,
@@ -83,21 +80,18 @@ export default function ObjectList({
         />
         <T.ButtonContainer>
           <T.ExtraButton
-            id="object-list-upload-button"
             label="Upload"
             icon={<Icon name="Simple-upload" />}
             variant="secondary"
             onClick={() => dispatch(openObjectUploadModal())}
           />
           <T.ExtraButton
-            id="object-list-create-folder-button"
             label="Folder"
             icon={<Icon name="Create-add" />}
             variant="secondary"
             onClick={() => dispatch(openFolderCreateModal())}
           />
           <T.ExtraButton
-            id="object-list-delete-button"
             label="Delete"
             icon={<Icon name="Delete" />}
             disabled={isToggledEmpty}
@@ -105,10 +99,10 @@ export default function ObjectList({
             onClick={() => dispatch(openObjectDeleteModal())}
           />
           <Toggle
-            id="list-versions-toggle"
             disabled={isMetadataType || isBucketVersioningDisabled}
             toggle={isVersioningType}
             label="List Versions"
+            role="switch"
             onChange={() => {
               query.set('showversions', !isVersioningType ? 'true' : 'false');
 

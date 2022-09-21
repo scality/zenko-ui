@@ -59,7 +59,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       accessor: 'name',
       cellStyle: {
         textAlign: 'left',
-        minWidth: '28rem',
+        flex: '3',
         marginLeft: '1rem',
       },
       Cell: renderRowSubComponent,
@@ -69,7 +69,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       accessor: 'type',
       cellStyle: {
         textAlign: 'left',
-        minWidth: '10rem',
+        flex: '1',
         marginLeft: '3rem',
       },
       Cell: WorkflowTypeIcon,
@@ -79,7 +79,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       accessor: 'state',
       cellStyle: {
         textAlign: 'left',
-        minWidth: '5rem',
+        flex: '0.5',
         marginLeft: '1rem',
       },
       sortType: (row1: Row<Workflow>, row2: Row<Workflow>) => {

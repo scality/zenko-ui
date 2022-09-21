@@ -2,12 +2,15 @@ import BucketList from '../BucketList';
 import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
-import { Row } from '../../../ui-elements/Table';
 import { formatShortDate } from '../../../utils';
-import { reduxMount } from '../../../utils/test';
+import { mockOffsetSize, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
 
 describe('BucketList', () => {
+  beforeAll(() => {
+    mockOffsetSize(200, 800);
+  });
+
   const buckets = List([
     {
       CreationDate: '2020-04-19T16:15:29+00:00',
@@ -25,7 +28,7 @@ describe('BucketList', () => {
     's3c-ring': 'enabled',
   };
   it('should list buckets with the data associated when XDM feature is enabled', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
           buckets={buckets}
@@ -58,34 +61,42 @@ describe('BucketList', () => {
         },
       },
     );
-    const rows = component.find(Row);
-    const firstRow = rows.first();
-    const firstBucketCellLink = firstRow.find('Cell').at(0);
-    const firstBucketCellLocation = firstRow.find('Cell').at(1);
-    const firstBucketCellAsyncNotification = firstRow.find('Cell').at(2);
-    const firstBucketCellDate = firstRow.find('Cell').at(3);
-    expect(firstBucketCellLink.text()).toContain('bucket1');
-    expect(firstBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
-    expect(firstBucketCellAsyncNotification.text()).toBe('-');
-    expect(firstBucketCellDate.text()).toBe(
+
+    const rows = component
+      .getAllByRole('rowgroup')[1]
+      .getElementsByClassName('tr');
+
+    const firstRow = rows[0];
+    const firstRowCells = firstRow.getElementsByClassName('td');
+    const firstBucketCellLink = firstRowCells[0];
+    const firstBucketCellLocation = firstRowCells[1];
+    const firstBucketCellAsyncNotification = firstRowCells[2];
+    const firstBucketCellDate = firstRowCells[3];
+    expect(firstBucketCellLink.textContent).toContain('bucket1');
+    expect(firstBucketCellLocation.textContent).toBe(
+      'us-east-1 / Local Filesystem',
+    );
+    expect(firstBucketCellAsyncNotification.textContent).toBe('-');
+    expect(firstBucketCellDate.textContent).toBe(
       formatShortDate(new Date(buckets.get(0).CreationDate)),
     );
-    const secondRow = rows.at(1);
-    const secondBucketCellLink = secondRow.find('Cell').at(0);
-    const secondBucketCellLocation = secondRow.find('Cell').at(1);
-    const secondBucketCellAsyncNotification = secondRow.find('Cell').at(2);
-    const secondBucketCellDate = secondRow.find('Cell').at(3);
-    expect(secondBucketCellLink.text()).toContain('bucket2');
-    expect(secondBucketCellLocation.text()).toBe(
+    const secondRow = rows[1];
+    const secondRowCells = secondRow.getElementsByClassName('td');
+    const secondBucketCellLink = secondRowCells[0];
+    const secondBucketCellLocation = secondRowCells[1];
+    const secondBucketCellAsyncNotification = secondRowCells[2];
+    const secondBucketCellDate = secondRowCells[3];
+    expect(secondBucketCellLink.textContent).toContain('bucket2');
+    expect(secondBucketCellLocation.textContent).toBe(
       's3c-ring / Scality RING with S3 Connector',
     );
-    expect(secondBucketCellAsyncNotification.text()).toBe('Active');
-    expect(secondBucketCellDate.text()).toBe(
+    expect(secondBucketCellAsyncNotification.textContent).toBe('Active');
+    expect(secondBucketCellDate.textContent).toBe(
       formatShortDate(new Date(buckets.get(1).CreationDate)),
     );
   });
   it('should list buckets with the data associated when XDM feature is disabled', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
           buckets={buckets}
@@ -110,31 +121,40 @@ describe('BucketList', () => {
           ingestionStates={{}}
         />
       </MemoryRouter>,
+      {},
     );
-    const rows = component.find(Row);
-    const firstRow = rows.first();
-    const firstBucketCellLink = firstRow.find('Cell').at(0);
-    const firstBucketCellLocation = firstRow.find('Cell').at(1);
-    const firstBucketCellDate = firstRow.find('Cell').at(2);
-    expect(firstBucketCellLink.text()).toContain('bucket1');
-    expect(firstBucketCellLocation.text()).toBe('us-east-1 / Local Filesystem');
-    expect(firstBucketCellDate.text()).toBe(
+
+    const rows = component
+      .getAllByRole('rowgroup')[1]
+      .getElementsByClassName('tr');
+
+    const firstRow = rows[0];
+    const firstRowCells = firstRow.getElementsByClassName('td');
+    const firstBucketCellLink = firstRowCells[0];
+    const firstBucketCellLocation = firstRowCells[1];
+    const firstBucketCellDate = firstRowCells[2];
+    expect(firstBucketCellLink.textContent).toContain('bucket1');
+    expect(firstBucketCellLocation.textContent).toBe(
+      'us-east-1 / Local Filesystem',
+    );
+    expect(firstBucketCellDate.textContent).toBe(
       formatShortDate(new Date(buckets.get(0).CreationDate)),
     );
-    const secondRow = rows.at(1);
-    const secondBucketCellLink = secondRow.find('Cell').at(0);
-    const secondBucketCellLocation = secondRow.find('Cell').at(1);
-    const secondBucketCellDate = secondRow.find('Cell').at(2);
-    expect(secondBucketCellLink.text()).toContain('bucket2');
-    expect(secondBucketCellLocation.text()).toBe(
+    const secondRow = rows[1];
+    const secondRowCells = secondRow.getElementsByClassName('td');
+    const secondBucketCellLink = secondRowCells[0];
+    const secondBucketCellLocation = secondRowCells[1];
+    const secondBucketCellDate = secondRowCells[2];
+    expect(secondBucketCellLink.textContent).toContain('bucket2');
+    expect(secondBucketCellLocation.textContent).toBe(
       's3c-ring / Scality RING with S3 Connector',
     );
-    expect(secondBucketCellDate.text()).toBe(
+    expect(secondBucketCellDate.textContent).toBe(
       formatShortDate(new Date(buckets.get(1).CreationDate)),
     );
   });
   it('should select row if the bucket name specified in the parameter matches one of the bucket names listed', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
           buckets={buckets}
@@ -142,23 +162,34 @@ describe('BucketList', () => {
           selectedBucketName={selectedBucketName}
         />
       </MemoryRouter>,
+      {},
     );
-    const rows = component.find(Row);
-    const firstRow = rows.first();
-    expect(firstRow.prop('isSelected')).toBe(false);
-    const secondRow = rows.at(1);
-    expect(secondRow.prop('isSelected')).toBe(true);
+
+    const rows = component
+      .getAllByRole('rowgroup')[1]
+      .getElementsByClassName('tr');
+
+    const firstRow = rows[0];
+    expect(firstRow).toHaveAttribute('aria-selected', 'false');
+    const secondRow = rows[1];
+    expect(secondRow).toHaveAttribute('aria-selected', 'true');
   });
+
   it('should select no row if there is no bucket name specified in the parameter', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <BucketList buckets={buckets} locations={{}} selectedBucketName="" />
       </MemoryRouter>,
+      {},
     );
-    const rows = component.find(Row);
-    const firstRow = rows.first();
-    expect(firstRow.prop('isSelected')).toBe(false);
-    const secondRow = rows.at(1);
-    expect(secondRow.prop('isSelected')).toBe(false);
+
+    const rows = component
+      .getAllByRole('rowgroup')[1]
+      .getElementsByClassName('tr');
+
+    const firstRow = rows[0];
+    expect(firstRow).toHaveAttribute('aria-selected', 'false');
+    const secondRow = rows[1];
+    expect(secondRow).toHaveAttribute('aria-selected', 'false');
   });
 });
