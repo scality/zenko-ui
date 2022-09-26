@@ -1,5 +1,4 @@
-import FormContainer, * as F from '../ui-elements/FormLayout';
-import React, { useRef } from 'react';
+import { MouseEvent, MouseEventHandler, useRef } from 'react';
 import {
   clearError,
   handleErrorMessage,
@@ -8,8 +7,15 @@ import {
 } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers/joi';
@@ -17,10 +23,12 @@ import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
 import { queryClient } from '../App';
-import { useMutation } from 'react-query';
+import { useMutation, InfiniteData } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import { getListUsersQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { CreateUserResponse, ListUsersResponse } from 'aws-sdk/clients/iam';
+
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
   name: Joi.string()
@@ -39,25 +47,29 @@ const AccountCreateUser = () => {
   const {
     register,
     handleSubmit,
-
     formState: { errors },
   } = useForm({
+    mode: 'all',
     resolver: joiResolver(schema),
+    defaultValues: { name: '' },
   });
-  const { accountName } = useParams();
-  const createAccessKeyMutation = useMutation(
-    (userName) => {
+
+  const { accountName } = useParams<{ accountName: string }>();
+
+  const createUserMutation = useMutation(
+    (userName: string) => {
       dispatch(networkStart('Creating User'));
-      return IAMClient.createUser(userName)
-        .then((newUser) => {
-          queryClient.setQueryData(
+      return notFalsyTypeGuard(IAMClient)
+        .createUser(userName)
+        .then((newUser: CreateUserResponse) => {
+          queryClient.setQueryData<InfiniteData<ListUsersResponse> | undefined>(
             getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
               ?.queryKey,
-            (old) => {
+            (old: InfiniteData<ListUsersResponse> | undefined) => {
               if (old) {
                 const pages = old.pages;
                 pages[pages.length - 1].Users.push({
-                  ...newUser.User,
+                  ...notFalsyTypeGuard(newUser.User),
                   CreateDate: new Date(),
                 });
                 return { ...old, pages };
@@ -94,12 +106,14 @@ const AccountCreateUser = () => {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const onSubmit = ({ name }) => {
+  const onSubmit = ({ name }: { name: string }) => {
     clearServerError();
-    createAccessKeyMutation.mutate(name);
+    createUserMutation.mutate(name);
   };
 
-  const handleCancel = (e) => {
+  const handleCancel: MouseEventHandler<HTMLButtonElement> = (
+    e: MouseEvent<HTMLElement>,
+  ) => {
     if (e) {
       e.preventDefault();
     }
@@ -117,58 +131,62 @@ const AccountCreateUser = () => {
   // clear server errors if clicked on outside of element.
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
+
   return (
-    <FormContainer>
-      <F.Form
-        autoComplete="off"
-        ref={formRef}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <F.Title> Create New User </F.Title>
-        <F.Fieldset>
-          <F.Label tooltipMessages={['Must be unique']} tooltipWidth="6rem">
-            Name
-          </F.Label>
-          <F.Input
-            type="text"
-            id="name"
-            {...register('name', { onChange: clearServerError })}
-            autoComplete="new-password"
+    <Form
+      layout={{ title: 'Create a User', kind: 'page' }}
+      requireMode="all"
+      ref={formRef}
+      autoComplete="off"
+      onSubmit={handleSubmit(onSubmit)}
+      rightActions={
+        <Stack gap="r16">
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            label="Cancel"
           />
-          <F.ErrorInput id="error-name" error={errors.name?.message} />
-        </F.Fieldset>
-        <F.Footer>
-          <F.FooterError>
-            {hasError && (
-              <Banner
-                id="zk-error-banner"
-                icon={<Icon name="Exclamation-triangle" />}
-                title="Error"
-                variant="danger"
-              >
-                {errorMessage}
-              </Banner>
-            )}
-          </F.FooterError>
-          <F.FooterButtons>
-            <Button
-              disabled={loading}
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              label="Cancel"
+          <Button
+            disabled={loading}
+            type="submit"
+            id="create-account-btn"
+            variant="primary"
+            label="Create"
+          />
+        </Stack>
+      }
+      banner={
+        errorMessage && (
+          <Banner
+            variant="danger"
+            icon={<Icon name="Exclamation-triangle" />}
+            title={'Error'}
+          >
+            {errorMessage}
+          </Banner>
+        )
+      }
+    >
+      <FormSection>
+        <FormGroup
+          label="User name"
+          id="name"
+          help="Must be unique"
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              id="name"
+              autoFocus
+              {...register('name', { onChange: clearServerError })}
             />
-            <Button
-              disabled={loading}
-              type="submit"
-              id="create-account-btn"
-              variant="primary"
-              label="Create"
-            />
-          </F.FooterButtons>
-        </F.Footer>
-      </F.Form>
-    </FormContainer>
+          }
+          required
+          error={errors.name?.message}
+        />
+      </FormSection>
+    </Form>
   );
 };
 
