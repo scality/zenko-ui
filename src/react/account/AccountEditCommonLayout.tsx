@@ -1,9 +1,8 @@
 import { FormEvent } from 'react';
 import FormContainer, * as F from '../ui-elements/FormLayout';
 import { Icon, SecondaryText } from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';
-import CopyButton from '../ui-elements/CopyButton';
 import { Clipboard } from '../ui-elements/Clipboard';
 import Editor from '../ui-elements/Editor';
 import styled from 'styled-components';
@@ -116,7 +115,11 @@ export const CommonPolicyLayout = ({
                 />
               )}
             />
-            <CopyButton text={policyDocument} labelName={'Text'} />
+            <CopyButton
+              textToCopy={policyDocument}
+              label="Text"
+              variant="outline"
+            />
           </Box>
         </F.Fieldset>
         <Box mt="1rem" mb="1rem">

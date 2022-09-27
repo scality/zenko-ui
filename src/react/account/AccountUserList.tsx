@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
@@ -10,7 +10,6 @@ import {
   AWS_PAGINATED_ENTITIES,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import CopyButton from '../ui-elements/CopyButton';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation } from 'react-query';
@@ -162,7 +161,7 @@ const ActionButtons = ({
     <Box display={'flex'} marginLeft="auto">
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
-      <CopyButton text={arn} labelName={'ARN'} />
+      <CopyButton textToCopy={arn} label="ARN" variant="outline" />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );

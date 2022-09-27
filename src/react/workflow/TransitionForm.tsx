@@ -10,7 +10,7 @@ import {
   renderSource,
   sourceBucketOptions,
 } from './utils';
-import { Icon, SecondaryText, Toggle } from '@scality/core-ui';
+import { Icon, IconHelp, SecondaryText, Toggle } from '@scality/core-ui';
 import { isVersioning } from '../utils';
 import { flattenFormErrors } from './utils';
 import {
@@ -21,7 +21,6 @@ import { ErrorInput } from '../ui-elements/FormLayout';
 import * as F from '../ui-elements/FormLayout';
 import { Box } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
-import { IconHelp } from '../ui-elements/Help';
 import Input from '../ui-elements/Input';
 import TagsFilter from './TagsFilter';
 import TransitionTable from './TransitionTable';
@@ -294,7 +293,7 @@ export const TransitionForm = ({
                           tooltipMessage={
                             'This action is disabled when source bucket is not versionned'
                           }
-                          tooltipWidth={'13rem'}
+                          overlayStyle={{ width: '13rem' }}
                         />
                       </>
                     ) : (

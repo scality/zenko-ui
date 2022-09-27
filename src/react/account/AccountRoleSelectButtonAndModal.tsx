@@ -3,6 +3,7 @@ import { useRouteMatch } from 'react-router';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Tooltip } from '@scality/core-ui';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import {
@@ -17,7 +18,6 @@ import {
 } from '../DataServiceRoleProvider';
 import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '@scality/core-ui';
-import * as Help from '../ui-elements/Help';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
 export function AccountRoleSelectButtonAndModal({
@@ -116,10 +116,11 @@ export function AccountRoleSelectButtonAndModal({
                     width: '12rem',
                   }}
                 >
-                  <Help.Icon
+                  <Icon
                     name="Info"
                     size="xs"
-                    style={{ fontSize: '1rem' }}
+                    color="buttonSecondary"
+                    style={{ fontSize: '1rem', marginLeft: spacing.sp8 }}
                   />
                 </Tooltip>
               </span>

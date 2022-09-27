@@ -9,12 +9,11 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
 import { Banner, Icon } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideCredential } from '../../../ui-elements/Hide';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import CopyButton from '../../../ui-elements/CopyButton';
 import { Box } from '@scality/core-ui/dist/next';
 import styled from 'styled-components';
 type Props = {
@@ -136,8 +135,9 @@ const modalBody = (key: AccountKey | null) => {
         style={{ alignItems: 'end', flexDirection: 'column' }}
       >
         <StyledCopybutton
-          text={`Username\t${key.userName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
-          labelName="to Clipboard"
+          textToCopy={`Username\t${key.userName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
+          label="to Clipboard"
+          variant="outline"
         />
       </Box>
     </ModalBody>

@@ -1,3 +1,4 @@
+import { IconHelp } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import React, { useState } from 'react';
@@ -10,7 +11,6 @@ import {
   Label,
   SectionTitle,
 } from '../../../ui-elements/FormLayout';
-import { IconHelp } from '../../../ui-elements/Help';
 import InputList from '../../../ui-elements/InputList';
 type State = {
   endpoint: string;
@@ -105,15 +105,8 @@ export default function LocationDetailsTapeDMF({
         <SectionTitle fontSize={fontSize.large}>
           DMF-specific parameters{' '}
           <IconHelp
-            tooltipMessage={
-              <FontWeightNormalSpan>
-                repoId and namespace id identify where objects on the Tape come
-                from. <br /> <br />
-                Review your Cold storage service provider's documentation to
-                have more details.
-              </FontWeightNormalSpan>
-            }
-            tooltipWidth="32rem"
+            tooltipMessage="repoId and namespace id identify where objects on the Tape come from.\n\nReview your Cold storage service provider's documentation to have more details."
+            overlayStyle={{ width: '32rem' }}
             placement="right"
           />
         </SectionTitle>
@@ -146,15 +139,8 @@ export default function LocationDetailsTapeDMF({
         <SectionTitle fontSize={fontSize.large}>
           Credentials{' '}
           <IconHelp
-            tooltipMessage={
-              <FontWeightNormalSpan>
-                This location type requires credentials. <br /> <br />
-                It is a best practice to enter credentials specifically
-                generated for this access, with only the privileges needed to
-                perform the desired tasks.
-              </FontWeightNormalSpan>
-            }
-            tooltipWidth="32rem"
+            tooltipMessage="This location type requires credentials.\n\nIt is a best practice to enter credentials specifically generated for this access, with only the privileges needed to perform the desired tasks."
+            overlayStyle={{ width: '32rem' }}
             placement="right"
           />
         </SectionTitle>

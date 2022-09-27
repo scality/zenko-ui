@@ -1,4 +1,10 @@
-import { getByRole, screen, waitFor, within } from '@testing-library/react';
+import {
+  getByRole,
+  prettyDOM,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';

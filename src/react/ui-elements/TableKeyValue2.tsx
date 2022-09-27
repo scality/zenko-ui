@@ -2,7 +2,7 @@
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { ReactNode } from 'react';
-import { IconHelp } from './Help';
+import { IconHelp } from '@scality/core-ui';
 // TEMPLATE
 //
 // <Table>
@@ -121,7 +121,10 @@ export const KeyTooltip = ({
   <KeyContainer size={size}>
     <RawKey {...props}> {children} </RawKey>
     {tooltipMessage && (
-      <IconHelp tooltipMessage={tooltipMessage} tooltipWidth={tooltipWidth} />
+      <IconHelp
+        tooltipMessage={tooltipMessage}
+        overlayStyle={{ width: tooltipWidth }}
+      />
     )}
   </KeyContainer>
 );

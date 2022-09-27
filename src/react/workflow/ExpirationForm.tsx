@@ -2,7 +2,7 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Toggle, SpacedBox, Icon } from '@scality/core-ui';
+import { Toggle, SpacedBox, Icon, IconHelp } from '@scality/core-ui';
 import {
   Select,
   Option,
@@ -17,7 +17,6 @@ import Joi from '@hapi/joi';
 import Input from '../ui-elements/Input';
 import type { S3BucketList } from '../../types/s3';
 
-import { IconHelp } from '../ui-elements/Help';
 import { isVersioning } from '../utils';
 import TagsFilter from './TagsFilter';
 import { WorkflowFormContainer } from '../ui-elements/WorkflowFormContainer';
@@ -477,7 +476,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         tooltipMessage={
                           'This action is disabled when source bucket is not versionned'
                         }
-                        tooltipWidth={'13rem'}
+                        variant="outline"
+                        overlayStyle={{ width: '13rem' }}
                       />
                     </>
                   ) : (
@@ -595,34 +595,21 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   !isSourceBucketVersionned ? (
                     <>
                       <IconHelp
-                        tooltipMessage={
-                          <>
-                            {currentVersionTriggerDelayDays !== null &&
-                            currentVersionTriggerDelayDays !== undefined ? (
-                              <>
-                                This action is disabled when "Expire Current
-                                version of objects" is active
-                              </>
-                            ) : (
-                              ''
-                            )}
-                            {!isSourceBucketVersionned ? (
-                              <>
-                                {currentVersionTriggerDelayDays !== null &&
-                                currentVersionTriggerDelayDays !== undefined ? (
-                                  <br />
-                                ) : (
-                                  ''
-                                )}
-                                This action is disabled when source bucket is
-                                not versionned
-                              </>
-                            ) : (
-                              ''
-                            )}
-                          </>
-                        }
-                        tooltipWidth={'13rem'}
+                        tooltipMessage={`${
+                          currentVersionTriggerDelayDays !== null &&
+                          currentVersionTriggerDelayDays !== undefined
+                            ? 'This action is disabled when "Expire Current version of objects" is active'
+                            : ''
+                        }${
+                          !isSourceBucketVersionned
+                            ? (currentVersionTriggerDelayDays !== null &&
+                              currentVersionTriggerDelayDays !== undefined
+                                ? '\n'
+                                : '') +
+                              'This action is disabled when source bucket is not versionned'
+                            : ''
+                        }`}
+                        overlayStyle={{ width: '13rem' }}
                       />
                     </>
                   ) : (

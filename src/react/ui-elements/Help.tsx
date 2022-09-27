@@ -1,99 +1,42 @@
-import { Tooltip } from '@scality/core-ui';
-import * as Core from '@scality/core-ui';
+import { Tooltip, IconHelp } from '@scality/core-ui';
 import { IconName } from '@scality/core-ui/dist/components/icon/Icon.component';
 import React, { CSSProperties } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { SizeProp } from '@fortawesome/fontawesome-svg-core';
 
-export const Icon = ({
-  name,
-  size,
-  style,
-}: {
-  name: IconName;
-  size?: SizeProp;
-  style?: CSSProperties;
-}) => (
-  <Core.Icon
-    size={size}
-    name={name}
-    color="buttonSecondary"
-    style={{ ...style, marginLeft: spacing.sp8 }}
-  />
-);
-
-type IconHelpProps = {
-  tooltipMessage: React.ReactNode;
-  name?: IconName;
-  tooltipWidth?: string;
-  placement?: string;
-};
-export const IconHelp = ({
-  tooltipMessage,
-  name = 'Info',
-  tooltipWidth,
-  placement = 'right',
-}: IconHelpProps) => (
-  <Tooltip
-    overlay={tooltipMessage}
-    placement={placement}
-    overlayStyle={{
-      width: tooltipWidth,
-    }}
-  >
-    <Icon name={name} />
-  </Tooltip>
-);
 export const HelpAsyncNotification = () => (
   <IconHelp
     placement="top"
-    tooltipWidth="16rem"
+    overlayStyle={{ width: '16rem' }}
     tooltipMessage="Pause/resume Async Metadata updates is handled at the location level."
   />
 );
 export const HelpNonAsyncLocation = () => (
   <IconHelp
     placement="top"
-    tooltipWidth="16rem"
+    overlayStyle={{ width: '16rem' }}
     tooltipMessage="Selected Storage Location does not support Async Metadata updates."
   />
 );
 export const HelpAsyncNotifPending = () => (
   <IconHelp
     placement="top"
-    tooltipWidth="16rem"
-    tooltipMessage={
-      <>
-        Enable Async Metadata updates for this location <br />
-        by choosing Enable Async Metadata updates while <br />
-        creating a bucket for this location.
-      </>
-    }
+    overlayStyle={{ width: '16rem' }}
+    tooltipMessage="Enable Async Metadata updates for this location\nby choosing Enable Async Metadata updates while\ncreating a bucket for this location."
   />
 );
 export const HelpLocationCreationAsyncNotification = () => (
   <IconHelp
     placement="top"
-    tooltipWidth="24rem"
-    tooltipMessage={
-      <>
-        Your storage account is informed of updates and changes to the external
-        Backend (public cloud, RING or other) through an async metadata updater
-        mechanism.
-        <br />
-        It will be able to view and manage all data on this backend without
-        being on the data path. <br />
-        This maintains standard access from applications to the external
-        Backend. <br />
-      </>
-    }
+    overlayStyle={{ width: '24rem' }}
+    tooltipMessage="Your storage account is informed of updates and changes to the external Backend (public cloud, RING or other) through an async metadata updater mechanism.\nIt will be able to view and manage all data on this backend without being on the data path.\nThis maintains standard access from applications to the external Backend.\n"
   />
 );
 export const HelpLocationTargetBucket = () => (
   <IconHelp
     placement="bottom"
-    tooltipWidth="16rem"
+    overlayStyle={{ width: '16rem' }}
     tooltipMessage="Name of the bucket/container created in the specific location (e.g.
           RING, Azure, AWS S3, GCP...), and where buckets attached to that
           location will store data."
@@ -108,7 +51,7 @@ export const HelpBucketCreateVersioning = ({
 }) => (
   <IconHelp
     placement="top"
-    tooltipWidth="24rem"
+    overlayStyle={{ width: '24rem' }}
     tooltipMessage={`Automatically activated when 
     ${isObjectLockEnabled ? 'Object-lock' : ''} 
     ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''} 

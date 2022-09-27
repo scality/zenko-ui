@@ -2,7 +2,7 @@ import type { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
 import { Banner, Icon } from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
 import React, { useState } from 'react';
@@ -13,7 +13,6 @@ import { useMutation } from 'react-query';
 import { queryClient } from '../App';
 import { getUserAccessKeysQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import CopyButton from '../ui-elements/CopyButton';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 type Props = {
@@ -147,8 +146,9 @@ const modalBody = (key: AccountKey | null, accountName: string) => {
       </Table>
       <Box display="flex" alignItems="flex-end" flexDirection="column">
         <StyledCopybutton
-          text={`Username\t${key.userName}\nAccount name\t${accountName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
-          labelName="to Clipboard"
+          variant="outline"
+          textToCopy={`Username\t${key.userName}\nAccount name\t${accountName}\nAccess key ID\t${key.accessKey}\nSecret Access key\t${key.secretKey}`}
+          label="to Clipboard"
         />
       </Box>
     </ModalBody>

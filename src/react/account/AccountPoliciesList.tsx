@@ -1,18 +1,16 @@
 import { PropsWithChildren, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, Button } from '@scality/core-ui/dist/next';
+import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
-import CopyButton from '../ui-elements/CopyButton';
-import { Tooltip } from '@scality/core-ui';
+import { Icon, Tooltip } from '@scality/core-ui';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
-import { Icon } from '../ui-elements/Help';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
 import IAMClient from '../../js/IAMClient';
 import { useDispatch } from 'react-redux';
@@ -166,8 +164,9 @@ const ActionButtons = ({
         defaultVersionId={defaultVersionId}
       />
       <CopyButton
-        text={policyArn}
-        labelName={'ARN'}
+        textToCopy={policyArn}
+        label="ARN"
+        variant="outline"
         aria-label={`Copy ARN ${policyName}`}
       />
       <DeletePolicyAction
@@ -366,7 +365,13 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={<Icon name="Create-add" />}
+          icon={
+            <Icon
+              name="Create-add"
+              color="buttonSecondary"
+              style={{ marginLeft: spacing.sp8 }}
+            />
+          }
           label="Create Policy"
           variant="primary"
           onClick={() => history.push('create-policy')}
