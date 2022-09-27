@@ -8,6 +8,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { useTheme } from 'styled-components';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
+import { Row } from 'react-table';
 
 const SEARCH_QUERY_PARAM = 'search';
 export function WorkflowTypeIcon({ value: type }: { value: string }) {
@@ -28,34 +29,28 @@ export function WorkflowTypeIcon({ value: type }: { value: string }) {
 }
 type Props = {
   workflows: Workflows;
-  workflowId: string | null | undefined;
-};
-
-type RowType = {
-  id: number;
-  original: Workflow;
-  values: Workflow;
+  workflowId?: string;
 };
 
 function WorkflowList({ workflows, workflowId }: Props) {
   const history = useHistory();
   const theme = useTheme();
 
-  function DataComponent({ row }: { row: RowType }) {
+  function DataComponent({ row }: { row: Row<Workflow> }) {
     return <span> {`${row.values.name}`} </span>;
   }
 
-  function RowAsync({ row }: { row: RowType }) {
+  function RowAsync({ row }: { row: Row<Workflow> }) {
     return <DataComponent row={row} />;
   }
 
   const renderRowSubComponent = useCallback(
-    ({ row }) => <RowAsync row={row} />,
+    ({ row }: {row: Row<Workflow>}) => <RowAsync row={row} />,
     [],
   );
 
-  const getRowId = (row: RowType) => {
-    return row?.id;
+  const getRowId = (row: Workflow) => {
+    return row.id;
   };
 
   const columns = [
@@ -87,7 +82,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
         minWidth: '5rem',
         marginLeft: '1rem',
       },
-      sortType: (row1: RowType, row2: RowType) => {
+      sortType: (row1: Row<Workflow>, row2: Row<Workflow>) => {
         return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
       },
       Cell: function ({ value }: { value: boolean }): string {
@@ -134,7 +129,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
           selectedId={workflowId}
-          onRowSelected={(selectedRow: RowType) =>
+          onRowSelected={(selectedRow: Row<Workflow>) =>
             history.push(`./${selectedRow.original.id}`)
           }
         />
