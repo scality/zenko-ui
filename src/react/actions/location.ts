@@ -49,7 +49,16 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
       .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
       .then(() => dispatch(goBack()))
       .catch((error) => dispatch(handleClientError(error)))
-      .catch((error) => dispatch(handleApiError(error, 'byComponent')))
+      .catch((error) => {
+        if (error instanceof Response) {
+          return error
+            .json()
+            .then((e) => dispatch(handleApiError(e, 'byComponent')))
+            //@ts-expect-error intentionnaly ignore error/apierror type mismatch
+            .catch(() => dispatch(handleApiError(error, 'byComponent')));
+        }
+        return dispatch(handleApiError(error, 'byComponent'));
+      })
       .finally(() => dispatch(networkEnd()));
   };
 }
