@@ -51,7 +51,7 @@ export const Warning = ({
   centered,
 }: WarningProps) => (
   <Container centered={centered}>
-    {icon}
+    <div>{icon}</div>
     <Title> {title} </Title>
     {!!btnTitle && !!btnAction && (
       <ButtonSection>
