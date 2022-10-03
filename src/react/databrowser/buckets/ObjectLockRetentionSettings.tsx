@@ -1,13 +1,13 @@
-// @noflow
+import { ChangeEvent } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { Banner, Icon, Input, Toggle } from '@scality/core-ui';
-import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import * as F from '../../ui-elements/FormLayout';
+import { FormGroup, FormSection, Stack, Text, Toggle } from '@scality/core-ui';
+import { Input, Select } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import styled from 'styled-components';
-import { Box } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+
+import { convertRemToPixels } from '@scality/core-ui/dist/components/tablev2/TableUtils';
+
 export const objectLockRetentionSettingsValidationRules = {
+  isObjectLockEnabled: Joi.boolean(),
   isDefaultRetentionEnabled: Joi.boolean().default(false),
   retentionMode: Joi.when('isDefaultRetentionEnabled', {
     is: Joi.equal(true),
@@ -16,7 +16,7 @@ export const objectLockRetentionSettingsValidationRules = {
   }),
   retentionPeriod: Joi.when('isDefaultRetentionEnabled', {
     is: Joi.equal(true),
-    then: Joi.number().required(),
+    then: Joi.number().min(1).required(),
     otherwise: Joi.valid(),
   }),
   retentionPeriodFrequencyChoice: Joi.when('isDefaultRetentionEnabled', {
@@ -26,183 +26,239 @@ export const objectLockRetentionSettingsValidationRules = {
   }),
 };
 
-const StyledSelect = styled<F.Select>(F.Select)({
-  margin: 0,
-});
-
-export default function ObjectLockRetentionSettings(props: {
+export default function ObjectLockRetentionSettings({
+  isEditRetentionSetting = false,
+}: {
   isEditRetentionSetting?: boolean;
 }) {
-  const { isEditRetentionSetting } = props;
   const {
     control,
     register,
     watch,
-
     formState: { errors },
+    setValue,
   } = useFormContext();
   const isDefaultRetentionEnabled = watch('isDefaultRetentionEnabled');
+  const isObjectLockEnabled = watch('isObjectLockEnabled');
+  const matchVersioning = (checked: boolean) => {
+    if (checked) {
+      setValue('isVersioning', true);
+    }
+  };
   return (
-    <>
-      <F.Fieldset direction={'row'}>
-        <F.Label
-          tooltipMessages={
-            isEditRetentionSetting
-              ? [
-                  'These settings apply only to new objects placed into the bucket without any specific specific object-lock parameters.',
-                ]
-              : [
-                  'These settings apply only to new objects placed into the bucket without any specific specific object-lock parameters.',
-                  'You can activate this option after the bucket creation.',
-                ]
-          }
-          tooltipWidth="28rem"
-        >
-          Default Retention
-        </F.Label>
-        <Controller
-          control={control}
-          id="isDefaultRetentionEnabled"
-          name="isDefaultRetentionEnabled"
-          defaultValue={false}
-          render={({
-            field: { onChange, value: isDefaultRetentionEnabled },
-          }) => {
-            return (
-              <Toggle
-                onChange={(e) => onChange(e.target.checked)}
-                placeholder="isDefaultRetentionEnabled"
-                label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
-                toggle={isDefaultRetentionEnabled}
-              />
-            );
-          }}
-        />
-      </F.Fieldset>
-      <Box md={2}>
-        <F.LabelSecondary>
-          Automatically protect objects put into this bucket from being deleted
-          or overwritten.
-        </F.LabelSecondary>
-      </Box>
-      <div
-        style={{
-          opacity: isDefaultRetentionEnabled ? 1 : 0.5,
-          paddingBottom: '1rem',
-        }}
-      >
-        <Box mt={2}>
-          <Banner
-            variant="infoPrimary"
-            icon={<Icon name="Exclamation-circle" />}
-          >
-            {
-              'If objects are uploaded into the bucket with their own Retention settings, these will override the Default Retention setting placed on the bucket'
-            }
-          </Banner>
-        </Box>
-
-        <F.Fieldset>
-          <F.Label>Retention mode</F.Label>
-          <F.Fieldset direction="row">
-            <F.Label
-              for="GOVERNANCE"
-              style={{
-                alignItems: 'baseline',
-              }}
-            >
-              <F.Input
-                type="radio"
-                id="GOVERNANCE"
-                value="GOVERNANCE"
-                {...register('retentionMode')}
-                disabled={!isDefaultRetentionEnabled}
-              />
-              <Box ml={1}>Governance</Box>
-            </F.Label>
-          </F.Fieldset>
-          <SmallerText>
-            An user with a specific IAM permissions can overwrite/delete
-            protected object versions during the retention period.
-          </SmallerText>
-          <F.Fieldset direction="row">
-            <F.Label
-              for="COMPLIANCE"
-              style={{
-                alignItems: 'baseline',
-              }}
-            >
-              <F.Input
-                type="radio"
-                id="COMPLIANCE"
-                value="COMPLIANCE"
-                {...register('retentionMode')}
-                disabled={!isDefaultRetentionEnabled}
-              />
-              <Box ml={1}>Compliance</Box>
-            </F.Label>
-          </F.Fieldset>
-          <SmallerText>
-            No one can overwrite protected object versions during the retention
-            period.
-          </SmallerText>
-        </F.Fieldset>
-        <F.Fieldset direction="row" alignItems="center">
-          <F.Label>Retention period</F.Label>
-
+    <FormSection
+      title={isEditRetentionSetting ? null : { name: 'Object-lock' }}
+      forceLabelWidth={convertRemToPixels(17.5)}
+    >
+      <FormGroup
+        id="isObjectLockEnabled"
+        label="Object-lock"
+        content={
           <Controller
             control={control}
-            id="retentionPeriod"
-            name="retentionPeriod"
-            render={({ field: { onChange, value: retentionPeriod } }) => {
+            name="isObjectLockEnabled"
+            defaultValue={isEditRetentionSetting}
+            render={({ field: { onChange, value: isObjectLockEnabled } }) => {
               return (
-                <Input
-                  name="retentionPeriod"
-                  value={retentionPeriod}
-                  onChange={(e) => onChange(e.target.value)}
-                  type="number"
-                  style={{
-                    width: '4.5rem',
-                    boxSizing: 'border-box',
-                    height: spacing.sp32,
+                <Toggle
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    onChange(e.target.checked);
+                    matchVersioning(e.target.checked);
                   }}
-                  min={1}
-                  disabled={!isDefaultRetentionEnabled}
+                  placeholder="isObjectLockEnabled"
+                  label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
+                  toggle={isObjectLockEnabled}
+                  disabled={isObjectLockEnabled}
                 />
               );
             }}
           />
-
-          <Controller
-            control={control}
-            id="retentionPeriodFrequencyChoice"
-            name="retentionPeriodFrequencyChoice"
-            defaultValue={'DAYS'}
-            render={({
-              field: { onChange, value: retentionPeriodFrequencyChoice },
-            }) => {
-              return (
-                <Box width="25%" ml={2}>
-                  <StyledSelect
-                    onChange={onChange}
-                    placeholder="retentionPeriodFrequencyChoice"
-                    value={retentionPeriodFrequencyChoice}
-                    disabled={!isDefaultRetentionEnabled}
-                  >
-                    <F.Select.Option value={'DAYS'}>Days</F.Select.Option>
-                    <F.Select.Option value={'YEARS'}>Years</F.Select.Option>
-                  </StyledSelect>
-                </Box>
-              );
-            }}
-          />
-
-          <F.ErrorInput
-            id="error-retentionPeriod"
+        }
+        labelHelpTooltip={
+          <ul>
+            <li>Permanently allows objects in this bucket to be locked</li>
+            <li>
+              Object-lock option cannot be removed after bucket creation, but
+              you will be able to disable the retention itself on edition.
+            </li>
+            <li>
+              Once the bucket is created, you might be blocked from deleting the
+              objects and the bucket.
+            </li>
+            <li>
+              Enabling Object-lock automatically activates Versioning for the
+              bucket, and you won’t be able to suspend Versioning.
+            </li>
+          </ul>
+        }
+        helpErrorPosition="bottom"
+        disabled={isEditRetentionSetting}
+      ></FormGroup>
+      {isObjectLockEnabled && (
+        <>
+          <FormGroup
+            id="isDefaultRetentionEnabled"
+            label="Default Retention"
+            helpErrorPosition="bottom"
+            labelHelpTooltip={
+              isEditRetentionSetting ? (
+                <ul>
+                  <li>
+                    These settings apply only to new objects placed into the
+                    bucket without any specific specific object-lock parameters.
+                  </li>
+                  <li>
+                    Automatically protect objects put into this bucket from
+                    being deleted or overwritten.
+                  </li>
+                  <li>
+                    If objects are uploaded into the bucket with their own
+                    Retention settings, these will override the Default
+                    Retention setting placed on the bucket.
+                  </li>
+                </ul>
+              ) : (
+                <ul>
+                  <li>
+                    Automatically protect objects put into this bucket from
+                    being deleted or overwritten.
+                  </li>
+                  <li>
+                    These settings apply only to new objects placed into the
+                    bucket without any specific specific object-lock parameters.
+                  </li>
+                  <li>
+                    You can activate this option after the bucket creation.
+                  </li>
+                  <li>
+                    If objects are uploaded into the bucket with their own
+                    Retention settings, these will override the Default
+                    Retention setting placed on the bucket.
+                  </li>
+                </ul>
+              )
+            }
+            content={
+              <Controller
+                control={control}
+                name="isDefaultRetentionEnabled"
+                render={({
+                  field: { onChange, value: isDefaultRetentionEnabled },
+                }) => {
+                  return (
+                    <Toggle
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        onChange(e.target.checked)
+                      }
+                      placeholder="isDefaultRetentionEnabled"
+                      label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
+                      toggle={isDefaultRetentionEnabled}
+                    />
+                  );
+                }}
+              />
+            }
+          ></FormGroup>
+          <FormGroup
+            id="objectlockMode"
+            label="Retention mode"
+            direction="vertical"
+            disabled={!isDefaultRetentionEnabled}
+            helpErrorPosition="bottom"
+            content={
+              <div style={{ opacity: isDefaultRetentionEnabled ? 1 : 0.5 }}>
+                <Stack direction="vertical">
+                  <Stack direction="vertical">
+                    <Stack>
+                      <input
+                        id="locktype-governance"
+                        type="radio"
+                        value="GOVERNANCE"
+                        disabled={!isDefaultRetentionEnabled}
+                        {...register('retentionMode')}
+                      />
+                      <label htmlFor="locktype-governance">Governance</label>
+                    </Stack>
+                    <Text color="textSecondary" isEmphazed variant="Smaller">
+                      An user with a specific IAM permissions can
+                      overwrite/delete protected object versions during the
+                      retention period.
+                    </Text>
+                  </Stack>
+                  <Stack>
+                    <input
+                      id="locktype-compliance"
+                      type="radio"
+                      value="COMPLIANCE"
+                      disabled={!isDefaultRetentionEnabled}
+                      {...register('retentionMode')}
+                    />
+                    <label htmlFor="locktype-compliance">Compliance</label>
+                  </Stack>
+                  <Text color="textSecondary" isEmphazed variant="Smaller">
+                    No one can overwrite protected object versions during the
+                    retention period.
+                  </Text>
+                </Stack>
+              </div>
+            }
+          ></FormGroup>
+          <FormGroup
+            id="retentionPeriod"
+            label="Retention period"
+            direction="horizontal"
+            helpErrorPosition="bottom"
+            help="Must be a positive whole number."
             error={errors.retentionPeriod?.message}
-          />
-        </F.Fieldset>
-      </div>
-    </>
+            content={
+              <Stack direction="horizontal">
+                <Controller
+                  control={control}
+                  name="retentionPeriod"
+                  render={({ field: { onChange, value: retentionPeriod } }) => {
+                    return (
+                      <Input
+                        id="retentionPeriod"
+                        name="retentionPeriod"
+                        value={retentionPeriod}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          onChange(e.target.value)
+                        }
+                        type="number"
+                        min={1}
+                        disabled={!isDefaultRetentionEnabled}
+                        size="2/3"
+                      />
+                    );
+                  }}
+                />
+                <Controller
+                  control={control}
+                  name="retentionPeriodFrequencyChoice"
+                  defaultValue={'DAYS'}
+                  render={({
+                    field: { onChange, value: retentionPeriodFrequencyChoice },
+                  }) => {
+                    return (
+                      <Select
+                        id="retentionPeriodFrequencyChoice"
+                        onChange={onChange}
+                        placeholder="retentionPeriodFrequencyChoice"
+                        value={retentionPeriodFrequencyChoice}
+                        disabled={!isDefaultRetentionEnabled}
+                        size={'1/3'}
+                      >
+                        <Select.Option value={'DAYS'}>Days</Select.Option>
+                        <Select.Option value={'YEARS'}>Years</Select.Option>
+                      </Select>
+                    );
+                  }}
+                />
+              </Stack>
+            }
+          ></FormGroup>
+        </>
+      )}
+    </FormSection>
   );
 }

@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Button } from '@scality/core-ui/dist/next';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';
-import FormContainer, * as F from '../../ui-elements/FormLayout';
 import { clearError, editDefaultRetention, getBucketInfo } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
@@ -12,7 +11,7 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import type { AppState } from '../../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
+import { Banner, Icon, Form, Stack } from '@scality/core-ui';
 import { convertToBucketInfo } from '../../backend/location/utils';
 const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 export default function ObjectLockSetting() {
@@ -54,13 +53,18 @@ export default function ObjectLockSetting() {
     dispatch(push('/buckets'));
   };
 
-  const { bucketName } = useParams();
+  const { bucketName } = useParams<{ bucketName: string }>();
 
   const onSubmit = ({
     isDefaultRetentionEnabled,
     retentionMode,
     retentionPeriod,
     retentionPeriodFrequencyChoice,
+  }: {
+    isDefaultRetentionEnabled: boolean;
+    retentionMode: string;
+    retentionPeriod: number;
+    retentionPeriodFrequencyChoice: string;
   }) => {
     clearServerError();
     const retentionPeriodToSubmit =
@@ -83,6 +87,7 @@ export default function ObjectLockSetting() {
   const { handleSubmit, setValue, formState } = useFormMethods;
   const { isValid } = formState;
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (bucketInfo?.name !== bucketName) dispatch(getBucketInfo(bucketName));
     else {
@@ -95,63 +100,49 @@ export default function ObjectLockSetting() {
       );
     }
   }, [dispatch, bucketName, bucketInfo?.name]);
+
   return (
     <FormProvider {...useFormMethods}>
-      <FormContainer>
-        <F.Form onSubmit={handleSubmit(onSubmit)}>
-          <F.Title> Object-lock settings </F.Title>
-          <F.Fieldset direction={'row'}>
-            <F.Label
-              tooltipMessages={[
-                'Object-lock option cannot be removed after bucket creation, but you will be able to disable the retention itself on edition.',
-              ]}
-              tooltipWidth="28rem"
+      <Form
+        onSubmit={handleSubmit(onSubmit)}
+        requireMode="partial"
+        layout={{
+          kind: 'page',
+          title: 'Object-lock settings',
+        }}
+        rightActions={
+          <Stack gap="r16">
+            <Button
+              id="cancel-btn"
+              variant="outline"
+              onClick={handleCancel}
+              type="button"
+              label="Cancel"
+            />
+            <Button
+              disabled={!isObjectLockEnabled || !isValid}
+              id="edit-retention-setting-btn"
+              type="submit"
+              variant="primary"
+              label="Save"
+              icon={<i className="fas fa-save"></i>}
+            />
+          </Stack>
+        }
+        banner={
+          hasError && (
+            <Banner
+              icon={<Icon name="Exclamation-triangle" />}
+              title="Error"
+              variant="danger"
             >
-              Object-lock
-            </F.Label>
-            <F.Label data-test-id="object-lock-enabled">
-              {objectLockEnabled || 'loading'}
-            </F.Label>
-          </F.Fieldset>
-          {isObjectLockEnabled && (
-            <ObjectLockRetentionSettings
-              isEditRetentionSetting={true}
-            ></ObjectLockRetentionSettings>
-          )}
-          <F.Footer>
-            <F.FooterError>
-              {hasError && (
-                <Banner
-                  id="zk-error-banner"
-                  icon={<Icon name="Exclamation-triangle" />}
-                  title="Error"
-                  variant="danger"
-                >
-                  {errorMessage}
-                </Banner>
-              )}
-            </F.FooterError>
-
-            <F.FooterButtons>
-              <Button
-                id="cancel-btn"
-                variant="outline"
-                onClick={handleCancel}
-                type="button"
-                label="Cancel"
-              />
-              <Button
-                disabled={!objectLockEnabled || !isValid}
-                id="edit-retention-setting-btn"
-                type="submit"
-                variant="primary"
-                label="Save"
-                icon={<Icon name="Save" />}
-              />
-            </F.FooterButtons>
-          </F.Footer>
-        </F.Form>
-      </FormContainer>
+              {errorMessage}
+            </Banner>
+          )
+        }
+      >
+        <ObjectLockRetentionSettings isEditRetentionSetting />
+      </Form>
     </FormProvider>
   );
 }

@@ -1,17 +1,18 @@
-import { Banner, Icon, Toggle } from '@scality/core-ui';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import FormContainer, * as F from '../../ui-elements/FormLayout';
 import {
-  HelpAsyncNotification,
-  HelpNonAsyncLocation,
-  HelpBucketCreateVersioning,
-} from '../../ui-elements/Help';
-import React, { useMemo, useRef } from 'react';
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+  Toggle,
+} from '@scality/core-ui';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { ChangeEvent, useMemo, useRef } from 'react';
 import { clearError, createBucket } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { isIngestLocation } from '../../utils/storageOptions';
@@ -22,28 +23,43 @@ import ObjectLockRetentionSettings, {
 } from './ObjectLockRetentionSettings';
 import { XDM_FEATURE } from '../../../js/config';
 import { renderLocation } from '../../backend/location/utils';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useParams } from 'react-router';
+
+const helpNonAsyncLocation =
+  'Selected Storage Location does not support Async Metadata updates.';
+const helpAsyncNotification =
+  'Pause/resume Async Metadata updates is handled at the location level.';
+
 export const bucketErrorMessage =
   'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
 const schema = Joi.object({
   name: Joi.string()
-    .label('Name')
+    .label('Bucket Name')
     .required()
     .min(3)
     .pattern(/^[a-z0-9.-]+$/)
     .max(63),
   locationName: Joi.string().required(),
   isVersioning: Joi.boolean(),
-  isObjectLockEnabled: Joi.boolean(),
   isAsyncNotification: Joi.boolean(),
   ...objectLockRetentionSettingsValidationRules,
 });
 
 function BucketCreate() {
   // TODO: redirect to list buckets if no account
+  const { accountName } = useParams<{ accountName: string }>();
+
   const useFormMethods = useForm({
-    mode: 'all',
+    mode: 'onChange',
     resolver: joiResolver(schema),
     defaultValues: {
+      name: '',
+      locationName: 'us-east-1',
+      isVersioning: false,
+      isAsyncNotification: false,
+      isObjectLockEnabled: false,
+      isDefaultRetentionEnabled: false,
       retentionMode: 'GOVERNANCE',
       retentionPeriod: 1,
       retentionPeriodFrequencyChoice: 'DAYS',
@@ -67,7 +83,7 @@ function BucketCreate() {
     (state: AppState) => state.networkActivity.counter > 0,
   );
   const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
+    (state: AppState) => state.configuration.latest?.locations,
   );
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
@@ -102,6 +118,16 @@ function BucketCreate() {
     retentionPeriod,
     retentionPeriodFrequencyChoice,
     isAsyncNotification,
+  }: {
+    name: string;
+    locationName: string;
+    isVersioning: boolean;
+    isObjectLockEnabled: boolean;
+    isDefaultRetentionEnabled: boolean;
+    retentionMode: string;
+    retentionPeriod: number;
+    retentionPeriodFrequencyChoice: string;
+    isAsyncNotification: boolean;
   }) => {
     clearServerError();
     const retentionPeriodToSubmit =
@@ -116,6 +142,7 @@ function BucketCreate() {
 
     if (
       isAsyncNotification &&
+      locations &&
       isIngestLocation(locations[locationName], capabilities)
     ) {
       lName = `${locationName}:ingest`;
@@ -153,58 +180,90 @@ function BucketCreate() {
 
   return (
     <FormProvider {...useFormMethods}>
-      <FormContainer>
-        <F.Form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-          <F.Title> Create a New Bucket </F.Title>
-          <F.SubTitle>All * Are Mandatory Fields</F.SubTitle>
-          <F.FormScrollArea>
-            <F.Fieldset>
-              <F.Label
-                htmlFor="name"
-                tooltipMessages={[
-                  'Must be unique',
-                  'Cannot be modified after creation',
-                  bucketErrorMessage,
-                ]}
-                tooltipWidth="20rem"
-              >
-                Bucket Name*
-              </F.Label>
-              <F.Input
-                type="text"
+      <Form
+        layout={{
+          kind: 'page',
+          title: 'Create a New Bucket',
+          subTitle: `in Account: ${accountName}`,
+        }}
+        requireMode="partial"
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmit)}
+        rightActions={
+          <Stack gap="r16">
+            <Button
+              disabled={loading}
+              id="cancel-btn"
+              variant="outline"
+              onClick={handleCancel}
+              type="button"
+              label="Cancel"
+            />
+            <Button
+              disabled={loading || !isValid}
+              id="create-account-btn"
+              type="submit"
+              variant="primary"
+              label="Create"
+            />
+          </Stack>
+        }
+        banner={
+          errorMessage && (
+            <Banner
+              variant="danger"
+              icon={<Icon name="Exclamation-triangle" />}
+              title={'Error'}
+            >
+              {errorMessage}
+            </Banner>
+          )
+        }
+      >
+        <FormSection forceLabelWidth={convertRemToPixels(17.5)}>
+          <FormGroup
+            id="name"
+            label="Bucket Name"
+            required
+            direction="horizontal"
+            content={
+              <Input
                 id="name"
+                autoFocus
                 {...register('name', { onChange: clearServerError })}
-                autoFocus={true}
-                aria-invalid={!!errors.name}
-                aria-describedby="error-name"
-                autoComplete="off"
-              />
-              <F.ErrorInput
-                id="error-name"
-                error={
-                  errors.name
-                    ? errors.name?.type === 'string.pattern.base'
-                      ? bucketErrorMessage
-                      : errors.name?.message
-                    : undefined
-                }
-              />
-            </F.Fieldset>
-            <F.Fieldset>
-              <F.Label
-                tooltipMessages={['Cannot be modified after creation']}
-                tooltipWidth="13rem"
-              >
-                Select Storage Location*
-              </F.Label>
+              ></Input>
+            }
+            labelHelpTooltip={
+              <ul>
+                <li>Must be unique</li>
+                <li>Cannot be modified after creation</li>
+                <li>{bucketErrorMessage}</li>
+              </ul>
+            }
+            helpErrorPosition="bottom"
+            error={
+              errors.name
+                ? errors.name?.type === 'string.pattern.base'
+                  ? bucketErrorMessage
+                  : errors.name?.message
+                : undefined
+            }
+          ></FormGroup>
+          <FormGroup
+            id="locationName"
+            label="Selected Storage Service Location"
+            required
+            direction="horizontal"
+            labelHelpTooltip="Cannot be modified after creation"
+            helpErrorPosition="bottom"
+            content={
               <Controller
                 control={control}
-                id="locationName"
                 name="locationName"
-                defaultValue="us-east-1"
                 render={({ field: { onChange, value: locationName } }) => {
                   return (
-                    <F.Select
+                    <Select
+                      id="locationName"
                       onChange={(value) => {
                         onChange(value);
                         // Note: when changing location we make sure
@@ -213,36 +272,46 @@ function BucketCreate() {
                       }}
                       placeholder="Location Name"
                       value={locationName}
+                      size="1"
                     >
-                      {Object.values(locations).map((location: any, i) => (
-                        <F.Select.Option
-                          key={i}
-                          value={location.name}
-                          disabled={location?.isCold}
-                        >
-                          {renderLocation(location)}
-                        </F.Select.Option>
-                      ))}
-                    </F.Select>
+                      {locations &&
+                        Object.values(locations).map((location, i) => (
+                          <Select.Option
+                            key={i}
+                            value={location.name}
+                            disabled={location?.isCold}
+                          >
+                            {renderLocation(location)}
+                          </Select.Option>
+                        ))}
+                    </Select>
                   );
                 }}
               />
-            </F.Fieldset>
-            {features.includes(XDM_FEATURE) && (
-              <F.Fieldset direction={'row'}>
-                <F.Label
-                  tooltipMessages={[
-                    'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
-                  ]}
-                  tooltipWidth="28rem"
-                >
-                  Async Metadata updates
-                </F.Label>
+            }
+          ></FormGroup>
+          {features.includes(XDM_FEATURE) ? (
+            <FormGroup
+              id="isAsyncNotification"
+              label="Async Metadata updates"
+              help={
+                watchLocationName &&
+                isAsyncNotificationReady &&
+                isAsyncNotification
+                  ? helpAsyncNotification
+                  : watchLocationName && !isAsyncNotificationReady
+                  ? helpNonAsyncLocation
+                  : ''
+              }
+              helpErrorPosition="bottom"
+              disabled={!isAsyncNotificationReady}
+              labelHelpTooltip={
+                'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.'
+              }
+              content={
                 <Controller
                   control={control}
-                  id="isAsyncNotification"
                   name="isAsyncNotification"
-                  defaultValue={false}
                   render={({
                     field: { onChange, value: isAsyncNotification },
                   }) => {
@@ -250,7 +319,7 @@ function BucketCreate() {
                       <>
                         <Toggle
                           disabled={!isAsyncNotificationReady}
-                          onChange={(e) => {
+                          onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             onChange(e.target.checked);
                             matchVersioning(e.target.checked);
                           }}
@@ -258,31 +327,42 @@ function BucketCreate() {
                           toggle={isAsyncNotification}
                           placeholder="isAsyncNotification"
                         />
-                        {watchLocationName &&
-                          isAsyncNotificationReady &&
-                          isAsyncNotification && <HelpAsyncNotification />}
                       </>
                     );
                   }}
                 />
-                {watchLocationName && !isAsyncNotificationReady && (
-                  <HelpNonAsyncLocation />
-                )}
-              </F.Fieldset>
-            )}
-            <F.SessionSeperation />
-            <F.Fieldset direction={'row'}>
-              <F.Label>Versioning</F.Label>
+              }
+            ></FormGroup>
+          ) : (
+            <></>
+          )}
+          <FormGroup
+            id="isVersioning"
+            label="Versioning"
+            labelHelpTooltip={
+              <ul>
+                <li>
+                  Versioning keeps multiple versions of each objects in your
+                  bucket. You can restore deleted or overwritten objects as a
+                  result of unintended user actions or application failures.
+                </li>
+                <li>
+                  It's possible to enable and suspend versioning at the bucket
+                  level after the bucket creation.
+                </li>
+              </ul>
+            }
+            content={
               <Controller
                 control={control}
-                id="isVersioning"
                 name="isVersioning"
-                defaultValue={false}
                 render={({ field: { onChange, value: isVersioning } }) => {
                   return (
                     <Toggle
                       disabled={isObjectLockEnabled || isAsyncNotification}
-                      onChange={(e) => onChange(e.target.checked)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        onChange(e.target.checked)
+                      }
                       placeholder="Versioning"
                       label={isVersioning ? 'Active' : 'Inactive'}
                       toggle={isVersioning}
@@ -290,88 +370,22 @@ function BucketCreate() {
                   );
                 }}
               />
-              {(isObjectLockEnabled || isAsyncNotification) && (
-                <HelpBucketCreateVersioning
-                  isObjectLockEnabled={isObjectLockEnabled}
-                  isAsyncNotification={isAsyncNotification}
-                />
-              )}
-            </F.Fieldset>
-            <F.SessionSeperation />
-            <F.SubTitle>Object-lock option</F.SubTitle>
-            <F.Fieldset direction={'row'}>
-              <F.Label
-                tooltipMessages={[
-                  'Object-lock option cannot be removed after bucket creation, but you will be able to disable the retention itself on edition.',
-                  'Once the bucket is created, you might be blocked from deleting the objects and the bucket.',
-                  'Enabling Object-lock automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.',
-                ]}
-                tooltipWidth="28rem"
-              >
-                Object-lock
-              </F.Label>
-              <Controller
-                control={control}
-                id="isObjectLockEnabled"
-                name="isObjectLockEnabled"
-                defaultValue={false}
-                render={({
-                  field: { onChange, value: isObjectLockEnabled },
-                }) => {
-                  return (
-                    <Toggle
-                      onChange={(e) => {
-                        onChange(e.target.checked);
-                        matchVersioning(e.target.checked);
-                      }}
-                      placeholder="isObjectLockEnabled"
-                      label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
-                      toggle={isObjectLockEnabled}
-                    />
-                  );
-                }}
-              />
-            </F.Fieldset>
-            <SpacedBox md={2}>
-              <F.LabelSecondary>
-                Permanently allows objects in this bucket to be locked.
-              </F.LabelSecondary>
-            </SpacedBox>
-            {isObjectLockEnabled && <ObjectLockRetentionSettings />}
-          </F.FormScrollArea>
-          <F.Footer>
-            <F.FooterError>
-              {hasError && (
-                <Banner
-                  id="zk-error-banner"
-                  icon={<Icon name="Exclamation-triangle" />}
-                  title="Error"
-                  variant="danger"
-                >
-                  {errorMessage}
-                </Banner>
-              )}
-            </F.FooterError>
-            <F.FooterButtons>
-              <Button
-                disabled={loading}
-                id="cancel-btn"
-                variant="outline"
-                onClick={handleCancel}
-                type="button"
-                label="Cancel"
-              />
-              <Button
-                disabled={loading || !isValid}
-                id="create-account-btn"
-                type="submit"
-                variant="primary"
-                label="Create"
-              />
-            </F.FooterButtons>
-          </F.Footer>
-        </F.Form>
-      </FormContainer>
+            }
+            disabled={isObjectLockEnabled || isAsyncNotification}
+            helpErrorPosition="bottom"
+            help={
+              isObjectLockEnabled || isAsyncNotification
+                ? `Automatically activated when
+            ${isObjectLockEnabled ? 'Object-lock' : ''}
+            ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''}
+            ${isAsyncNotification ? 'Async Metadata updates' : ''}
+            is Enabled`
+                : 'Automatically activated when Object-lock is Active.'
+            }
+          ></FormGroup>
+        </FormSection>
+        <ObjectLockRetentionSettings />
+      </Form>
     </FormProvider>
   );
 }

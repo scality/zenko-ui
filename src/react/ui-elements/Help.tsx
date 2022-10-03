@@ -7,13 +7,6 @@ export const HelpAsyncNotification = () => (
     tooltipMessage="Pause/resume Async Metadata updates is handled at the location level."
   />
 );
-export const HelpNonAsyncLocation = () => (
-  <IconHelp
-    placement="top"
-    overlayStyle={{ width: '16rem' }}
-    tooltipMessage="Selected Storage Location does not support Async Metadata updates."
-  />
-);
 export const HelpAsyncNotifPending = () => (
   <IconHelp
     placement="top"
@@ -55,22 +48,5 @@ export const HelpLocationTargetBucket = () => (
     tooltipMessage="Name of the bucket/container created in the specific location (e.g.
           RING, Azure, AWS S3, GCP...), and where buckets attached to that
           location will store data."
-  />
-);
-export const HelpBucketCreateVersioning = ({
-  isObjectLockEnabled,
-  isAsyncNotification,
-}: {
-  isObjectLockEnabled: boolean;
-  isAsyncNotification: boolean;
-}) => (
-  <IconHelp
-    placement="top"
-    overlayStyle={{ width: '24rem' }}
-    tooltipMessage={`Automatically activated when 
-    ${isObjectLockEnabled ? 'Object-lock' : ''} 
-    ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''} 
-    ${isAsyncNotification ? 'Async Metadata updates' : ''} 
-    is Enabled`}
   />
 );
