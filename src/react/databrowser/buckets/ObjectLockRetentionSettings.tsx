@@ -1,9 +1,8 @@
 import { ChangeEvent } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
+import Joi from '@hapi/joi';
 import { FormGroup, FormSection, Stack, Text, Toggle } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
-
 import { convertRemToPixels } from '@scality/core-ui/dist/components/tablev2/TableUtils';
 
 export const objectLockRetentionSettingsValidationRules = {
@@ -158,7 +157,7 @@ export default function ObjectLockRetentionSettings({
                 }}
               />
             }
-          ></FormGroup>
+          />
           <FormGroup
             id="objectlockMode"
             label="Retention mode"
@@ -202,7 +201,7 @@ export default function ObjectLockRetentionSettings({
                 </Stack>
               </div>
             }
-          ></FormGroup>
+          />
           <FormGroup
             id="retentionPeriod"
             label="Retention period"
@@ -256,7 +255,7 @@ export default function ObjectLockRetentionSettings({
                 />
               </Stack>
             }
-          ></FormGroup>
+          />
         </>
       )}
     </FormSection>

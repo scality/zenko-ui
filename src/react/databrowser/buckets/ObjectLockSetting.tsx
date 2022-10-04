@@ -132,6 +132,7 @@ export default function ObjectLockSetting() {
         banner={
           hasError && (
             <Banner
+              id="zk-error-banner"
               icon={<Icon name="Exclamation-triangle" />}
               title="Error"
               variant="danger"

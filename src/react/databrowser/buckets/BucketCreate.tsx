@@ -51,7 +51,7 @@ function BucketCreate() {
   const { accountName } = useParams<{ accountName: string }>();
 
   const useFormMethods = useForm({
-    mode: 'onChange',
+    mode: 'all',
     resolver: joiResolver(schema),
     defaultValues: {
       name: '',
@@ -211,6 +211,7 @@ function BucketCreate() {
         banner={
           errorMessage && (
             <Banner
+              id="zk-error-banner"
               variant="danger"
               icon={<Icon name="Exclamation-triangle" />}
               title={'Error'}
@@ -248,10 +249,10 @@ function BucketCreate() {
                   : errors.name?.message
                 : undefined
             }
-          ></FormGroup>
+          />
           <FormGroup
             id="locationName"
-            label="Selected Storage Service Location"
+            label="Storage Service Location"
             required
             direction="horizontal"
             labelHelpTooltip="Cannot be modified after creation"
@@ -289,7 +290,7 @@ function BucketCreate() {
                 }}
               />
             }
-          ></FormGroup>
+          />
           {features.includes(XDM_FEATURE) ? (
             <FormGroup
               id="isAsyncNotification"
@@ -332,7 +333,7 @@ function BucketCreate() {
                   }}
                 />
               }
-            ></FormGroup>
+            />
           ) : (
             <></>
           )}
@@ -382,7 +383,7 @@ function BucketCreate() {
             is Enabled`
                 : 'Automatically activated when Object-lock is Active.'
             }
-          ></FormGroup>
+          />
         </FormSection>
         <ObjectLockRetentionSettings />
       </Form>

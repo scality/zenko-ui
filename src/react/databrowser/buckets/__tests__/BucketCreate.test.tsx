@@ -1,3 +1,4 @@
+import router from 'react-router';
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
 import { reduxMountAct, reduxRender } from '../../../utils/test';
 import { XDM_FEATURE } from '../../../../js/config';
@@ -6,6 +7,12 @@ import userEvent from '@testing-library/user-event';
 
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
+  beforeAll(() => {
+    jest.spyOn(router, 'useParams').mockReturnValue({
+      accountName: 'accountName',
+    });
+  });
+
   it('should render BucketCreate component with no error banner', async () => {
     const component = await reduxMountAct(<BucketCreate />);
     expect(component.find('#zk-error-banner')).toHaveLength(0);
@@ -38,7 +45,7 @@ describe('BucketCreate', () => {
       description:
         'should render an input form error when submitting with an empty name',
       testValue: '',
-      expectedEmptyNameError: '"Name" is not allowed to be empty',
+      expectedEmptyNameError: '"Bucket Name" is not allowed to be empty',
       expectedMinLengthNameError: null,
       expectedMaxLengthNameError: null,
       expectedPAtternNameError: null,
@@ -49,7 +56,7 @@ describe('BucketCreate', () => {
       testValue: 'ab',
       expectedEmptyNameError: null,
       expectedMinLengthNameError:
-        '"Name" length must be at least 3 characters long',
+        '"Bucket Name" length must be at least 3 characters long',
       expectedMaxLengthNameError: null,
       expectedPAtternNameError: null,
     },
@@ -62,7 +69,7 @@ describe('BucketCreate', () => {
       expectedMinLengthNameError: null,
       expectedPAtternNameError: null,
       expectedMaxLengthNameError:
-        '"Name" length must be less than or equal to 63 characters long',
+        '"Bucket Name" length must be less than or equal to 63 characters long',
     },
     {
       description:
@@ -95,7 +102,7 @@ describe('BucketCreate', () => {
       // as async functions, so it's important to wrap async around your act.
       await act(async () => {
         userEvent.type(
-          screen.getByRole('textbox', { name: /bucket name\*/i }),
+          screen.getByRole('textbox', { name: /bucket name */i }),
           `${t.testValue}`,
         );
         userEvent.tab();
