@@ -106,10 +106,11 @@ function _getSearchObjects(
     }
     return zenkoClient
       .searchBucket(params)
-      .then(async ({ IsTruncated, NextMarker, Contents }: SearchBucketResp) => {
-        const nextMarker = (IsTruncated && NextMarker) || null;
+      .then(async ({ IsTruncated, NextContinuationToken, Contents }: SearchBucketResp) => {
+        const nextMarker = (IsTruncated && NextContinuationToken) || null;
+
         const list = await Promise.all(
-          Contents.map(async (object) => {
+          (Contents || []).map(async (object) => {
             object.IsFolder = _isFolder(object.Key);
 
             if (!object.IsFolder) {
