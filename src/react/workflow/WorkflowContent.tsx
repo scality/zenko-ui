@@ -18,45 +18,36 @@ export const InfoWarning = ({ title }: { title: string }) => (
   <Warning icon={<Icon name="Info-circle" size="2x" />} title={title} />
 );
 
-function WorkflowContent({ wfSelected, bucketList }: Props) {
+function Details({ wfSelected, bucketList }: Props) {
   const query = useQueryParams();
-  const { pathname } = useLocation();
   const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
-  );
-  const showEditWorkflowNotification = useSelector(
-    (state: AppState) => state.uiWorkflows.showEditWorkflowNotification,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
+    (state: AppState) => state.configuration.latest?.locations ?? {},
   );
   const tabName = query.get('tab');
+  if (!wfSelected) {
+    return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE} />;
+  }
 
-  const Details = () => {
-    if (!wfSelected) {
-      return <InfoWarning title={SELECT_A_WORKFLOW_MESSAGE} />;
-    }
+  if (!tabName) {
+    return (
+      <ConfigurationTab
+        bucketList={bucketList}
+        locations={locations}
+        wfSelected={wfSelected}
+      />
+    );
+  }
 
-    if (!tabName) {
-      return (
-        <ConfigurationTab
-          showEditWorkflowNotification={showEditWorkflowNotification}
-          bucketList={bucketList}
-          locations={locations}
-          wfSelected={wfSelected}
-          loading={loading}
-        />
-      );
-    }
+  return null;
+}
 
-    return null;
-  };
-
+function WorkflowContent(props: Props) {
+  const { pathname } = useLocation();
   return (
     <ContentSection>
       <CustomTabs>
         <CustomTabs.Tab label="Configuration" path={pathname}>
-          <Details />
+          <Details {...props} />
         </CustomTabs.Tab>
       </CustomTabs>
     </ContentSection>
