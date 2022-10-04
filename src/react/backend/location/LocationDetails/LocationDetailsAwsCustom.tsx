@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Box } from '@scality/core-ui/dist/next';
-import {
-  Checkbox,
-  CheckboxContainer,
-  WarningInput,
-  Fieldset,
-  Input,
-  Label,
-} from '../../../ui-elements/FormLayout';
+import { Box, Input } from '@scality/core-ui/dist/next';
 import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
 import { isIngestSource } from '../../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
@@ -28,6 +20,13 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../../types/config';
 import { checkIsRingS3Reseller } from '../utils';
+import {
+  Checkbox,
+  FormGroup,
+  FormSection,
+  Stack,
+  Text,
+} from '@scality/core-ui';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -95,110 +94,124 @@ export default function LocationDetailsAwsCustom({
   const isRingS3Reseller = checkIsRingS3Reseller(locationType);
 
   return (
-    <div>
-      <Fieldset>
-        <Label htmlFor="accessKey" required>
-          Access Key
-        </Label>
-        <Input
-          name="accessKey"
+    <>
+      <FormSection>
+        <FormGroup
           id="accessKey"
-          type="text"
-          placeholder="example: AKI5HMPCLRB86WCKTN2C"
-          value={formState.accessKey}
-          onChange={onFormItemChange}
-          autoComplete="off"
-        />
-      </Fieldset>
-      <Fieldset>
-        <Label htmlFor="secretKey" required>
-          Secret Key
-        </Label>
-        <Input
-          name="secretKey"
-          id="secretKey"
-          type="password"
-          placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
-          value={formState.secretKey}
-          onChange={onFormItemChange}
-          autoComplete="new-password"
-        />
-        <small>
-          Your credentials are encrypted in transit, then at rest using your
-          instance&apos;s RSA key pair so that we&apos;re unable to see them.
-        </small>
-      </Fieldset>
-      <Fieldset>
-        <Label htmlFor="bucketName" required>
-          Target Bucket Name
-        </Label>
-        <Input
-          name="bucketName"
-          id="bucketName"
-          type="text"
-          placeholder="Target Bucket Name"
-          value={formState.bucketName}
-          onChange={onFormItemChange}
-          autoComplete="off"
-          disabled={editingExisting}
-        />
-      </Fieldset>
-      {!isRingS3Reseller ? (
-        <Fieldset>
-          <Label htmlFor="endpoint" required>
-            Endpoint
-          </Label>
-
-          <Input
-            name="endpoint"
-            type="text"
-            value={formState.endpoint}
-            onChange={onFormItemChange}
-            autoComplete="off"
-            placeholder="example: https://hosted-s3-server.internal.example.com:4443"
-          />
-          <small>
-            Endpoint to reach the S3 server, including scheme and port. The
-            buckets will have a path-style access.
-          </small>
-        </Fieldset>
-      ) : null}
-      {(isIngest && features.includes(XDM_FEATURE)) || !isIngest ? (
-        <Fieldset>
-          <CheckboxContainer>
-            <Checkbox
-              name="bucketMatch"
-              disabled={editingExisting}
-              value={formState.bucketMatch}
-              checked={formState.bucketMatch}
+          content={
+            <Input
+              name="accessKey"
+              id="accessKey"
+              type="text"
+              placeholder="AKI5HMPCLRB86WCKTN2C"
+              value={formState.accessKey}
               onChange={onFormItemChange}
+              autoComplete="off"
             />
-            <span>
-              {isIngest ? (
-                <>
-                  {' '}
-                  Async Metadata updates Ready{' '}
-                  <HelpLocationCreationAsyncNotification />{' '}
-                </>
-              ) : (
-                'Write objects without prefix'
-              )}
-            </span>
-          </CheckboxContainer>
-          <small>
-            Your objects will be stored in the target bucket without a
-            source-bucket prefix.
-          </small>
-          <WarningInput
+          }
+          required
+          label="Access Key"
+          helpErrorPosition="bottom"
+        />
+
+        <FormGroup
+          id="secretKey"
+          label="Secret Key"
+          required
+          labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
+          instance's RSA key pair so that we're unable to see them."
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              name="secretKey"
+              id="secretKey"
+              type="password"
+              placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+              value={formState.secretKey}
+              onChange={onFormItemChange}
+              autoComplete="new-password"
+            />
+          }
+        />
+
+        <FormGroup
+          id="bucketName"
+          label="Target Bucket Name"
+          required
+          content={
+            <Input
+              name="bucketName"
+              id="bucketName"
+              type="text"
+              placeholder="bucket-name"
+              value={formState.bucketName}
+              onChange={onFormItemChange}
+              autoComplete="off"
+              disabled={editingExisting}
+            />
+          }
+          helpErrorPosition="bottom"
+        />
+
+        {!isRingS3Reseller ? (
+          <FormGroup
+            content={
+              <Input
+                name="endpoint"
+                type="text"
+                value={formState.endpoint}
+                onChange={onFormItemChange}
+                autoComplete="off"
+                placeholder="https://hosted-s3-server.internal.example.com:4443"
+              />
+            }
+            label="Endpoint"
+            id="endpoint"
+            required
+            labelHelpTooltip="Endpoint to reach the S3 server, including scheme and port. The
+        buckets will have a path-style access."
+            helpErrorPosition="bottom"
+          />
+        ) : (
+          <></>
+        )}
+      </FormSection>
+      {(isIngest && features.includes(XDM_FEATURE)) || !isIngest ? (
+        <FormSection>
+          <FormGroup
+            label=""
+            id="bucketMatch"
+            content={
+              <Checkbox
+                name="bucketMatch"
+                disabled={editingExisting}
+                checked={formState.bucketMatch}
+                onChange={onFormItemChange}
+                label={
+                  isIngest ? (
+                    <>
+                      {' '}
+                      Async Metadata updates Ready{' '}
+                      <HelpLocationCreationAsyncNotification />{' '}
+                    </>
+                  ) : (
+                    'Write objects without prefix'
+                  )
+                }
+              />
+            }
+            helpErrorPosition="bottom"
+            help="Your objects will be stored in the target bucket without a source-bucket prefix."
             error={
-              formState.bucketMatch &&
-              'Storing multiple buckets in a location with this option enabled can lead to data loss.'
+              formState.bucketMatch
+                ? 'Storing multiple buckets in a location with this option enabled can lead to data loss.'
+                : undefined
             }
           />
-        </Fieldset>
+        </FormSection>
       ) : (
         <Box mb={8} />
       )}
-    </div>
+    </>
   );
 }

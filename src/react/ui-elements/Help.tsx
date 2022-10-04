@@ -1,9 +1,4 @@
-import { Tooltip, IconHelp } from '@scality/core-ui';
-import { IconName } from '@scality/core-ui/dist/components/icon/Icon.component';
-import React, { CSSProperties } from 'react';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { SizeProp } from '@fortawesome/fontawesome-svg-core';
+import { IconHelp } from '@scality/core-ui';
 
 export const HelpAsyncNotification = () => (
   <IconHelp
@@ -23,14 +18,34 @@ export const HelpAsyncNotifPending = () => (
   <IconHelp
     placement="top"
     overlayStyle={{ width: '16rem' }}
-    tooltipMessage="Enable Async Metadata updates for this location\nby choosing Enable Async Metadata updates while\ncreating a bucket for this location."
+    tooltipMessage={
+      <>
+        Enable Async Metadata updates for this location
+        <br />
+        by choosing Enable Async Metadata updates while
+        <br />
+        creating a bucket for this location.
+      </>
+    }
   />
 );
 export const HelpLocationCreationAsyncNotification = () => (
   <IconHelp
     placement="top"
     overlayStyle={{ width: '24rem' }}
-    tooltipMessage="Your storage account is informed of updates and changes to the external Backend (public cloud, RING or other) through an async metadata updater mechanism.\nIt will be able to view and manage all data on this backend without being on the data path.\nThis maintains standard access from applications to the external Backend.\n"
+    tooltipMessage={
+      <>
+        Your storage account is informed of updates and changes to the external
+        Backend (public cloud, RING or other) through an async metadata updater
+        mechanism.
+        <br />
+        It will be able to view and manage all data on this backend without
+        being on the data path.
+        <br />
+        This maintains standard access from applications to the external
+        Backend.
+      </>
+    }
   />
 );
 export const HelpLocationTargetBucket = () => (

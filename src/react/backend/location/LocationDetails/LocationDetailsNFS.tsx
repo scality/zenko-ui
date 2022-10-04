@@ -1,13 +1,9 @@
-import {
-  Fieldset,
-  Input,
-  Label,
-  Select,
-} from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
 import urlParse from 'url-parse';
 import { LocationDetailsFormProps } from '.';
+import { FormGroup, FormSection } from '@scality/core-ui';
+import { Input, Select } from '@scality/core-ui/dist/next';
 type State = {
   protocol: 'tcp' | 'udp';
   version: 'v3' | 'v4';
@@ -150,92 +146,108 @@ export default class LocationDetailsNFS extends React.Component<
   render() {
     const { editingExisting } = this.props;
     return (
-      <div>
-        <Fieldset>
-          <Label htmlFor="nfs-protocol" required>
-            NFS Protocol
-          </Label>
-          <Select
-            type="select"
-            name="protocol"
-            id="nfs-protocol"
-            isDisabled={editingExisting}
-            onChange={this.onProtocolChange}
-            value={this.state.protocol}
-          >
-            {NFS_PROTOCOLS.map((opt, i) => (
-              <Select.Option key={i} value={opt.value}>
-                {opt.label}
-              </Select.Option>
-            ))}
-          </Select>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="nfs-version" required>
-            NFS Version
-          </Label>
-          <Select
-            type="select"
-            name="version"
-            id="nfs-version"
-            isDisabled={editingExisting}
-            onChange={this.onVersionChange}
-            value={this.state.version}
-          >
-            {NFS_VERSIONS.map((opt, i) => (
-              <Select.Option key={i} value={opt.value}>
-                {opt.label}
-              </Select.Option>
-            ))}
-          </Select>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="nfs-server" required>
-            Server
-          </Label>
-          <Input
-            type="text"
-            name="server"
-            id="nfs-server"
-            disabled={editingExisting}
-            placeholder="example: nfsserver.example.com"
-            value={this.state.server}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="nfs-path" required>
-            Export Path
-          </Label>
-          <Input
-            type="text"
-            name="path"
-            id="nfs-path"
-            disabled={editingExisting}
-            placeholder="example: /path/to/export"
-            value={this.state.path}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="nfs-options" required>
-            NFS Options
-          </Label>{' '}
-          {/*maybe add info*/}
-          <Input
-            type="text"
-            name="options"
-            id="nfs-options"
-            disabled={editingExisting}
-            placeholder="rw,async"
-            value={this.state.options}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-      </div>
+      <FormSection>
+        <FormGroup
+          id="nfs-protocol"
+          label="NFS Protocol"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Select
+              id="nfs-protocol"
+              disabled={editingExisting}
+              onChange={this.onProtocolChange}
+              value={this.state.protocol}
+            >
+              {NFS_PROTOCOLS.map((opt, i) => (
+                <Select.Option key={i} value={opt.value}>
+                  {opt.label}
+                </Select.Option>
+              ))}
+            </Select>
+          }
+        />
+
+        <FormGroup
+          id="nfs-version"
+          label="NFS Version"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Select
+              id="nfs-version"
+              disabled={editingExisting}
+              onChange={this.onVersionChange}
+              value={this.state.version}
+            >
+              {NFS_VERSIONS.map((opt, i) => (
+                <Select.Option key={i} value={opt.value}>
+                  {opt.label}
+                </Select.Option>
+              ))}
+            </Select>
+          }
+        />
+
+        <FormGroup
+          id="nfs-server"
+          label="Server"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              type="text"
+              name="server"
+              id="nfs-server"
+              disabled={editingExisting}
+              placeholder="example: nfsserver.example.com"
+              value={this.state.server}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+
+        <FormGroup
+          id="nfs-path"
+          label="Export Path"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              type="text"
+              name="path"
+              id="nfs-path"
+              disabled={editingExisting}
+              placeholder="example: /path/to/export"
+              value={this.state.path}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+
+        <FormGroup
+          id="nfs-options"
+          label="NFS Options"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              type="text"
+              name="options"
+              id="nfs-options"
+              disabled={editingExisting}
+              placeholder="rw,async"
+              value={this.state.options}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+
+        {/*maybe add info*/}
+      </FormSection>
     );
   }
 }

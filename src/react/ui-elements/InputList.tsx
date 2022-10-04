@@ -2,6 +2,7 @@ import { HTMLProps } from 'react';
 import { Box } from '@scality/core-ui/dist/next';
 import { AddButton, SubButton } from './EditableKeyValue';
 import { Input, Label } from './FormLayout';
+import { FormGroup } from '@scality/core-ui';
 
 function InputList({
   label,
@@ -44,48 +45,47 @@ function InputList({
   };
 
   return (
-    <>
-      {label && (
-        <Label
-          required={required}
-          htmlFor={`${id}[${values.length - 1}]`}
-          tooltipMessages={maxItems ? [`max. ${maxItems} entries`] : undefined}
-          tooltipWidth={'10rem'}
-        >
-          {label}
-        </Label>
-      )}
-      {values.map((value, index) => (
-        <Box display="flex" gap="1rem" alignItems="center" key={index}>
-          <Input
-            {...(getInputProps ? getInputProps(value, index) : {})}
-            name={`${id}[${index}]`}
-            id={`${id}[${index}]`}
-            value={value}
-            onChange={(evt) => {
-              const tempValues = [...values];
-              tempValues[index] = evt.target.value;
-              onChange(tempValues);
-            }}
-          />
-          {/* disable the sub button only for the first value which is not empty*/}
-          <SubButton
-            index={index}
-            key={`${id}-delete-${values.join(',') + index}`}
-            deleteEntry={deleteEntry}
-            items={values}
-            disabled={values.length === 1 && values[0] === ''}
-          />
-          <AddButton
-            index={index}
-            key={`${id}-add-${values.join(',') + index}`}
-            insertEntry={insertEntry}
-            items={values}
-            disabled={value === '' || isMaxItemsReached}
-          />
-        </Box>
-      ))}
-    </>
+    <FormGroup
+      required={required}
+      id={`${id}[${values.length - 1}]`}
+      label={label || ''}
+      labelHelpTooltip={maxItems ? `max. ${maxItems} entries` : undefined}
+      helpErrorPosition="bottom"
+      content={
+        <>
+          {values.map((value, index) => (
+            <Box display="flex" gap="1rem" alignItems="center" key={index}>
+              <Input
+                {...(getInputProps ? getInputProps(value, index) : {})}
+                name={`${id}[${index}]`}
+                id={`${id}[${index}]`}
+                value={value}
+                onChange={(evt) => {
+                  const tempValues = [...values];
+                  tempValues[index] = evt.target.value;
+                  onChange(tempValues);
+                }}
+              />
+              {/* disable the sub button only for the first value which is not empty*/}
+              <SubButton
+                index={index}
+                key={`${id}-delete-${values.join(',') + index}`}
+                deleteEntry={deleteEntry}
+                items={values}
+                disabled={values.length === 1 && values[0] === ''}
+              />
+              <AddButton
+                index={index}
+                key={`${id}-add-${values.join(',') + index}`}
+                insertEntry={insertEntry}
+                items={values}
+                disabled={value === '' || isMaxItemsReached}
+              />
+            </Box>
+          ))}
+        </>
+      }
+    />
   );
 }
 
