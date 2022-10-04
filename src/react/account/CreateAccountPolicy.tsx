@@ -1,4 +1,3 @@
-import * as F from '../ui-elements/FormLayout';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
@@ -10,6 +9,8 @@ import { handleApiError, handleClientError } from '../actions';
 import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
+import { Input } from '@scality/core-ui/dist/next';
+import { ChangeEvent } from 'react';
 
 type PolicyFormValues = {
   policyName: string;
@@ -46,7 +47,7 @@ const CreateAccountPolicy = () => {
     defaultValues,
   });
 
-  const watchAllFields = watch();
+  const policyDocument = watch('policyDocument');
 
   const createPolicyMutation = useMutation(
     ({ policyName, policyDocument }: PolicyFormValues) => {
@@ -77,7 +78,7 @@ const CreateAccountPolicy = () => {
     createPolicyMutation.mutate({ policyName, policyDocument });
   };
 
-  const handleCancel = (e: MouseEvent) => {
+  const handleCancel = (e: ChangeEvent<HTMLInputElement>) => {
     if (e) {
       e.preventDefault();
     }
@@ -91,22 +92,16 @@ const CreateAccountPolicy = () => {
       isDirty={isDirty}
       isValid={isValid}
       onSubmit={handleSubmit(onSubmit)}
-      policyDocument={watchAllFields.policyDocument}
+      policyDocument={policyDocument}
       policyNameField={
-        <>
-          <F.Input
-            type="text"
-            id="policyName"
-            placeholder="Policy name"
-            autoFocus
-            readOnly={false}
-            {...register('policyName', {
-              required: 'The policy name is required',
-            })}
-            style={{ width: '20rem', flexGrow: 1 }}
-          />
-          <F.ErrorInput id="error-name" error={errors?.policyName?.message} />
-        </>
+        <Input
+          type="text"
+          id="policyName"
+          readOnly={false}
+          {...register('policyName', {
+            required: 'The policy name is required',
+          })}
+        />
       }
       errors={errors}
     />

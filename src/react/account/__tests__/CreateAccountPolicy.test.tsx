@@ -49,7 +49,7 @@ describe('CreateAccountPolicy', () => {
       wrapper,
     });
     expect(screen.getByText('Policy Creation')).toBeInTheDocument();
-    expect(screen.getByText('All * are mandatory fields')).toBeInTheDocument();
+    expect(screen.getByText('* are required fields')).toBeInTheDocument();
     expect(
       screen.getByText('We are supporting AWS IAM standards.'),
     ).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('CreateAccountPolicy', () => {
     });
     expect(policyNameInput).toBeInTheDocument();
 
-    const copyButton = screen.getByRole('button', { name: /Copy Text/i });
+    const copyButton = screen.getByRole('button', { name: /copy/i });
     expect(copyButton).toBeInTheDocument();
 
     const createButton = screen.getByRole('button', { name: /Create/i });
@@ -94,16 +94,16 @@ describe('CreateAccountPolicy', () => {
     await waitFor(() => expect(createButton).toBeEnabled());
     userEvent.clear(policyNameInput);
     await waitFor(() => expect(createButton).toBeDisabled());
-
-    const policyNameAlert = screen.getAllByRole('alert')[0];
-    expect(policyNameAlert).toBeInTheDocument();
+    //V
+    expect(screen.getByText('The policy name is required')).toBeInTheDocument();
+    expect(createButton).toBeDisabled();
   });
   it('should check if Copy button is enabled if policy document is not empty', async () => {
     reduxRender(<CreateAccountPolicy />, {
       wrapper,
     });
 
-    const copyButton = screen.getByRole('button', { name: /Copy Text/i });
+    const copyButton = screen.getByRole('button', { name: /copy/i });
 
     expect(copyButton).not.toBeDisabled();
   });

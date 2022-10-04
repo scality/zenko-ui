@@ -10,9 +10,9 @@ import {
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import Loader from '../ui-elements/Loader';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
-
 import { regexArn } from '../utils/hooks';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
+import { ChangeEvent } from 'react';
 
 type FormValues = {
   policyName: string;
@@ -28,21 +28,16 @@ const UpdateAccountPolicy = () => {
     defaultVersionId: string;
   }>();
   const { account } = useCurrentAccount();
-  const defaultValues = {
-    policyName: '',
-    policyDocument: '',
-  };
+
   const {
     control,
     handleSubmit,
     watch,
-    formState: { isDirty, errors },
+    formState: { isDirty, isValid, errors },
     setValue,
     setError,
-  } = useForm<FormValues>({
-    defaultValues,
-  });
-  const watchAllFields = watch();
+  } = useForm<FormValues>({});
+  const policyDocument = watch('policyDocument');
   const policyArn = decodeURIComponent(encodedPolicyArn);
   const policyArnComponents = regexArn.exec(policyArn)?.groups;
   const policyName = policyArnComponents?.name;
@@ -59,7 +54,11 @@ const UpdateAccountPolicy = () => {
 
   const queryClient = useQueryClient();
   const { data: policyResult, status } = useQuery({
-    ...getPolicyQuery(policyArn, defaultVersionId, IAMClient),
+    ...getPolicyQuery(
+      policyArn,
+      defaultVersionId,
+      notFalsyTypeGuard(IAMClient),
+    ),
     onSuccess: (data) => {
       const formattedDocument = JSON.stringify(
         JSON.parse(decodeURIComponent(data?.PolicyVersion?.Document ?? '')),
@@ -109,7 +108,7 @@ const UpdateAccountPolicy = () => {
     updatePolicyMutation.mutate({ policyName, policyDocument });
   };
 
-  const handleCancel = (e: Event) => {
+  const handleCancel = (e: ChangeEvent<HTMLInputElement>) => {
     if (e) {
       e.preventDefault();
     }
@@ -133,13 +132,14 @@ const UpdateAccountPolicy = () => {
     <CommonPolicyLayout
       control={control}
       isDirty={isDirty}
+      isValid={isValid}
+      isReadOnly={isReadOnly}
       onSubmit={handleSubmit(onSubmit)}
-      policyDocument={watchAllFields.policyDocument}
+      policyArn={policyArn}
+      policyDocument={policyDocument}
       policyNameField={<span>{policyName}</span>}
       handleCancel={handleCancel}
       errors={errors}
-      isReadOnly={isReadOnly}
-      policyArn={policyArn}
     />
   );
 };
