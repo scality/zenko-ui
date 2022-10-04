@@ -1,16 +1,23 @@
-import FormContainer, * as F from '../ui-elements/FormLayout';
-import React, { MouseEventHandler, useRef } from 'react';
+import { MouseEventHandler, useRef } from 'react';
 import { clearError, createAccount } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useQueryClient } from 'react-query';
+
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
@@ -33,9 +40,9 @@ function AccountCreate() {
   const {
     register,
     handleSubmit,
-
     formState: { errors },
   } = useForm({
+    mode: 'all',
     resolver: joiResolver(schema),
   });
   const hasError = useSelector(
@@ -51,7 +58,7 @@ function AccountCreate() {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  const onSubmit = ({ email, name }: { name: string; email: string }) => {
+  const onSubmit = ({ name, email }: { name: string; email: string }) => {
     clearServerError();
     const payload = {
       Name: name,
@@ -79,84 +86,78 @@ function AccountCreate() {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
   return (
-    <FormContainer>
-      <F.Form
-        autoComplete="off"
-        ref={formRef}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <F.Title> Create New Account </F.Title>
-        <F.Fieldset>
-          <F.Label
-            htmlFor="name"
-            tooltipMessages={['Must be unique']}
-            tooltipWidth="6rem"
-          >
-            Name
-          </F.Label>
-          <F.Input
-            type="text"
-            id="name"
-            {...register('name')}
-            onChange={clearServerError}
-            autoComplete="new-password"
-            aria-invalid={!!errors.name}
-            aria-describedby="error-name"
+    <Form
+      autoComplete="off"
+      ref={formRef}
+      onSubmit={handleSubmit(onSubmit)}
+      layout={{ kind: 'page', title: 'Create New Account' }}
+      requireMode="partial"
+      rightActions={
+        <Stack gap="r16">
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            label="Cancel"
           />
-          <F.ErrorInput id="error-name" error={errors.name?.message} />
-        </F.Fieldset>
-        <F.Fieldset>
-          <F.Label
-            htmlFor="email"
-            tooltipMessages={[
-              'Must be unique',
-              'When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose',
-            ]}
-            tooltipWidth="20rem"
-          >
-            Root Account Email
-          </F.Label>
-          <F.Input
-            type="email"
-            id="email"
-            {...register('email', { onChange: clearServerError })}
-            aria-invalid={!!errors.email}
-            aria-describedby="error-email"
+          <Button
+            disabled={loading}
+            type="submit"
+            id="create-account-btn"
+            variant="primary"
+            label="Create"
           />
-          <F.ErrorInput id="error-email" error={errors.email?.message} />
-        </F.Fieldset>
-        <F.Footer>
-          <F.FooterError>
-            {hasError && (
-              <Banner
-                id="zk-error-banner"
-                icon={<Icon name="Exclamation-triangle" />}
-                title="Error"
-                variant="danger"
-              >
-                {errorMessage}
-              </Banner>
-            )}
-          </F.FooterError>
-          <F.FooterButtons>
-            <Button
-              disabled={loading}
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              label="Cancel"
+        </Stack>
+      }
+      banner={
+        hasError && (
+          <Banner
+            id="zk-error-banner"
+            icon={<Icon name="Exclamation-triangle" />}
+            title="Error"
+            variant="danger"
+          >
+            {errorMessage}
+          </Banner>
+        )
+      }
+    >
+      <FormSection>
+        <FormGroup
+          id="name"
+          label="Name"
+          direction="vertical"
+          help="Must be unique"
+          helpErrorPosition="bottom"
+          error={errors.name?.message ?? ''}
+          content={
+            <Input
+              type="text"
+              id="name"
+              {...register('name')}
+              onChange={clearServerError}
             />
-            <Button
-              disabled={loading}
-              type="submit"
-              id="create-account-btn"
-              variant="primary"
-              label="Create"
+          }
+        />
+        <FormGroup
+          id="email"
+          label="Root Account Email"
+          direction="vertical"
+          helpErrorPosition="bottom"
+          labelHelpTooltip="When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose"
+          error={errors.email?.message ?? ''}
+          content={
+            <Input
+              type="email"
+              id="email"
+              {...register('email')}
+              onChange={clearServerError}
             />
-          </F.FooterButtons>
-        </F.Footer>
-      </F.Form>
-    </FormContainer>
+          }
+        />
+      </FormSection>
+    </Form>
   );
 }
 
