@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
@@ -8,10 +8,16 @@ import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Button } from '@scality/core-ui/dist/next';
-import { Banner, Icon, Toggle } from '@scality/core-ui';
-import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-import FormContainer, * as F from '../../ui-elements/FormLayout';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+  Toggle,
+} from '@scality/core-ui';
+import { Text } from '@scality/core-ui/dist/components/text/Text.component';
 import {
   clearError,
   getObjectMetadata,
@@ -25,6 +31,7 @@ import {
 } from './utils';
 import type { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+
 const Joi = JoiImport.extend(DateExtension);
 const objectLockRetentionSettingsValidationRules = {
   isRetentionEnabled: Joi.boolean().default(false),
@@ -35,10 +42,12 @@ const objectLockRetentionSettingsValidationRules = {
   }),
   retentionUntilDate: Joi.date().format('YYYY-MM-DD').raw(),
 };
-const schema = Joi.object(objectLockRetentionSettingsValidationRules); // Since IAM role permission hasn't been implemented, we only provide the minimum ability to edit the retention from the UI
-// and limit the following actions:
-// 1. When the retention is disabled by default, it's not allowed to enable it.
-// 2. The default retention mode is COMPLIANCE, it's not allowed to switch to the GOVERNANCE mode.
+const schema = Joi.object(objectLockRetentionSettingsValidationRules);
+
+/* Since IAM role permission hasn't been implemented, we only provide the minimum ability to edit the retention from the UI
+ and limit the following actions:
+ 1. Not allowed to disable the retention.
+ 2. The default retention mode is COMPLIANCE, it's not allowed to switch to the GOVERNANCE mode. */
 
 export default function ObjectLockSetting() {
   const dispatch = useDispatch();
@@ -53,10 +62,10 @@ export default function ObjectLockSetting() {
   const objectMetadata = useSelector(
     (state: AppState) => state.s3.objectMetadata,
   );
-  const { bucketName: bucketNameParam } = useParams();
+  const { bucketName: bucketNameParam } = useParams<{ bucketName: string }>();
   const { account } = useCurrentAccount();
-  const objectKey = query.get('prefix');
-  const versionId = query.get('versionId');
+  const objectKey = query.get('prefix') || '';
+  const versionId = query.get('versionId') || '';
   const {
     isDefaultRetentionEnabled,
     defaultRetentionMode,
@@ -69,6 +78,7 @@ export default function ObjectLockSetting() {
     defaultRetentionUntilDate,
     defaultRetentionMode,
   );
+
   const useFormMethods = useForm({
     mode: 'all',
     resolver: joiResolver(schema),
@@ -103,8 +113,14 @@ export default function ObjectLockSetting() {
     control,
   } = useFormMethods;
   const isRetentionEnabled = watch('isRetentionEnabled');
-
-  const onSubmit = ({ retentionMode, retentionUntilDate }) => {
+  const retentionUntilDate = watch('retentionUntilDate');
+  const onSubmit = ({
+    retentionMode,
+    retentionUntilDate,
+  }: {
+    retentionMode: string;
+    retentionUntilDate: string;
+  }) => {
     clearServerError();
     dispatch(
       putObjectRetention(
@@ -130,182 +146,155 @@ export default function ObjectLockSetting() {
   ]);
   return (
     <FormProvider {...useFormMethods}>
-      <FormContainer>
-        <F.Form onSubmit={handleSubmit(onSubmit)}>
-          <F.Title> Object-lock settings </F.Title>
-          <>
-            <div
-              style={{
-                opacity: isDefaultRetentionEnabled ? 0.5 : 1,
-              }}
+      <Form
+        onSubmit={handleSubmit(onSubmit)}
+        layout={{ kind: 'page', title: 'Object-lock settings' }}
+        rightActions={
+          <Stack gap="r16">
+            <Button
+              id="cancel-btn"
+              variant="outline"
+              onClick={handleCancel}
+              type="button"
+              label="Cancel"
+            />
+            <Button
+              disabled={!isValid}
+              id="edit-retention-setting-btn"
+              type="submit"
+              variant="primary"
+              label="Save"
+              icon={<Icon name="Save" />}
+            />
+          </Stack>
+        }
+        banner={
+          hasError && (
+            <Banner
+              icon={<Icon name="Exclamation-triangle" />}
+              title="Error"
+              variant="danger"
             >
-              <F.Fieldset direction={'row'}>
-                <F.Label>Retention</F.Label>
-                <Controller
-                  control={control}
-                  id="isRetentionEnabled"
-                  name="isRetentionEnabled"
-                  render={({
-                    field: { onChange, value: isRetentionEnabled },
-                  }) => {
-                    return (
-                      <Toggle
-                        id="edit-retention"
-                        disabled={isDefaultRetentionEnabled}
-                        onChange={(e) => onChange(e.target.checked)}
-                        placeholder="isRetentionEnabled"
-                        label={isRetentionEnabled ? 'Active' : 'Inactive'}
-                        toggle={isRetentionEnabled}
+              {errorMessage}
+            </Banner>
+          )
+        }
+      >
+        <FormSection>
+          <FormGroup
+            id="isRetentionEnabled"
+            label="Retention"
+            disabled={isDefaultRetentionEnabled}
+            content={
+              <Controller
+                control={control}
+                name="isRetentionEnabled"
+                render={({
+                  field: { onChange, value: isRetentionEnabled },
+                }) => {
+                  return (
+                    <Toggle
+                      id="edit-retention"
+                      disabled={isDefaultRetentionEnabled}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        onChange(e.target.checked)
+                      }
+                      placeholder="isRetentionEnabled"
+                      label={isRetentionEnabled ? 'Active' : 'Inactive'}
+                      toggle={isRetentionEnabled}
+                    />
+                  );
+                }}
+              />
+            }
+          ></FormGroup>
+          <FormGroup
+            id="objectlockMode"
+            label="Retention mode"
+            direction="vertical"
+            disabled={!isRetentionEnabled}
+            helpErrorPosition="bottom"
+            content={
+              <div
+                style={{
+                  opacity:
+                    (isDefaultRetentionEnabled || isRetentionEnabled) &&
+                    defaultRetentionMode !== 'COMPLIANCE'
+                      ? 1
+                      : 0.5,
+                }}
+              >
+                <Stack direction="vertical">
+                  <Stack direction="vertical">
+                    <Stack>
+                      <input
+                        id="locktype-governance"
+                        type="radio"
+                        value="GOVERNANCE"
+                        disabled={defaultRetentionMode === 'COMPLIANCE'}
+                        {...register('retentionMode')}
                       />
-                    );
-                  }}
-                />
-              </F.Fieldset>
-            </div>
-            <div
-              style={{
-                opacity:
-                  (isDefaultRetentionEnabled || isRetentionEnabled) &&
-                  defaultRetentionMode !== 'COMPLIANCE'
-                    ? 1
-                    : 0.5,
-              }}
-            >
-              <F.Fieldset>
-                <F.Label>Retention mode</F.Label>
-                <F.Fieldset direction="row">
-                  <F.Label
-                    for="GOVERNANCE"
-                    style={{
-                      alignItems: 'baseline',
-                    }}
-                  >
-                    <F.Input
+                      <label htmlFor="locktype-governance">Governance</label>
+                    </Stack>
+                    <Text color="textSecondary" isEmphazed variant="Smaller">
+                      An user with a specific IAM permissions can
+                      overwrite/delete protected object versions during the
+                      retention period.
+                    </Text>
+                  </Stack>
+                  <Stack>
+                    <input
+                      id="locktype-compliance"
                       type="radio"
-                      id="GOVERNANCE"
-                      value="GOVERNANCE"
-                      {...register('retentionMode')}
-                      disabled={defaultRetentionMode === 'COMPLIANCE'}
-                    />
-                    <SpacedBox ml={8}>Governance</SpacedBox>
-                  </F.Label>
-                </F.Fieldset>
-                <SmallerText>
-                  An user with a specific IAM permissions can overwrite/delete
-                  protected object versions during the retention period.
-                </SmallerText>
-                <F.Fieldset direction="row">
-                  <F.Label
-                    for="COMPLIANCE"
-                    style={{
-                      alignItems: 'baseline',
-                    }}
-                  >
-                    <F.Input
-                      type="radio"
-                      id="COMPLIANCE"
                       value="COMPLIANCE"
-                      {...register('retentionMode')}
                       disabled={!isRetentionEnabled}
+                      {...register('retentionMode')}
                     />
-                    <SpacedBox ml={8}>Compliance</SpacedBox>
-                  </F.Label>
-                </F.Fieldset>
-                <SmallerText>
-                  No one can overwrite protected object versions during the
-                  retention period.
-                </SmallerText>
-              </F.Fieldset>
-            </div>
-            <div
-              style={{
-                opacity: isRetentionEnabled ? 1 : 0.5,
-              }}
-            >
-              <F.Fieldset alignItems="baseline">
-                <F.Label
-                  tooltipMessages={[
-                    'After the retain until date, objects are no longer protected by the chosen retention mode.',
-                  ]}
-                  tooltipWidth="28rem"
-                >
-                  Retention until date
-                </F.Label>
+                    <label htmlFor="locktype-compliance">Compliance</label>
+                  </Stack>
+                  <Text color="textSecondary" isEmphazed variant="Smaller">
+                    No one can overwrite protected object versions during the
+                    retention period.
+                  </Text>
+                </Stack>
+              </div>
+            }
+          ></FormGroup>
 
-                <SpacedBox mt={8}>
-                  <Controller
-                    control={control}
-                    id="retentionUntilDate"
-                    name="retentionUntilDate"
-                    render={({
-                      field: { onChange, value: retentionUntilDate },
-                    }) => {
-                      return (
-                        <>
-                          <input
-                            type="date"
-                            name="retention-until-date"
-                            disabled={!isRetentionEnabled}
-                            onChange={(e) => onChange(e.target.value)}
-                            value={retentionUntilDate}
-                            min={minRetainUtilDate}
-                          />
-                          {retentionUntilDate >= minRetainUtilDate && (
-                            <span
-                              style={{
-                                paddingLeft: '1rem',
-                              }}
-                            >
-                              {getRetainUntilDateHint(retentionUntilDate)}
-                            </span>
-                          )}
-                        </>
-                      );
-                    }}
-                  />
-                </SpacedBox>
-
-                <F.ErrorInput
-                  id="error-retentionUntilDate"
-                  error={errors.retentionUntilDate?.message}
-                />
-              </F.Fieldset>
-            </div>
-          </>
-          <F.Footer>
-            <F.FooterError>
-              {hasError && (
-                <Banner
-                  id="zk-error-banner"
-                  icon={<Icon name="Exclamation-triangle" />}
-                  title="Error"
-                  variant="danger"
-                >
-                  {errorMessage}
-                </Banner>
-              )}
-            </F.FooterError>
-
-            <F.FooterButtons>
-              <Button
-                id="cancel-btn"
-                variant="outline"
-                onClick={handleCancel}
-                type="button"
-                label="Cancel"
+          <FormGroup
+            id="retentionUntilDate"
+            label="Retention until date"
+            helpErrorPosition="right"
+            labelHelpTooltip="After the retain until date, objects are no longer protected by the chosen retention mode."
+            error={errors.retentionUntilDate?.message}
+            help={
+              retentionUntilDate >= minRetainUtilDate
+                ? getRetainUntilDateHint(retentionUntilDate)
+                : 'Format: DD/MM/YYYY'
+            }
+            content={
+              <Controller
+                control={control}
+                name="retentionUntilDate"
+                render={({
+                  field: { onChange, value: retentionUntilDate },
+                }) => {
+                  return (
+                    <input
+                      type="date"
+                      name="retention-until-date"
+                      disabled={!isRetentionEnabled}
+                      onChange={(e) => onChange(e.target.value)}
+                      value={retentionUntilDate}
+                      min={minRetainUtilDate}
+                    />
+                  );
+                }}
               />
-              <Button
-                disabled={!isValid}
-                id="edit-retention-setting-btn"
-                type="submit"
-                variant="primary"
-                label="Save"
-                icon={<Icon name="Save" />}
-              />
-            </F.FooterButtons>
-          </F.Footer>
-        </F.Form>
-      </FormContainer>
+            }
+          ></FormGroup>
+        </FormSection>
+      </Form>
     </FormProvider>
   );
 }
