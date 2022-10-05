@@ -1,11 +1,10 @@
-import { PropsWithChildren, useState } from 'react';
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
 import { Icon, Tooltip } from '@scality/core-ui';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
@@ -46,10 +45,11 @@ const EditButton = ({
     policyPath === 'scality-internal/' || !isLatestVersionTheDefaultOne;
 
   return (
-    <Box ml={12}>
+    <Box>
       {isEditPolicyDisabled && (
         <Button
-          style={{ height: spacing.sp24, width: '5rem' }}
+          size="inline"
+          style={{ width: '5rem' }}
           variant="secondary"
           label="View"
           icon={<Icon name="Eye" />}
@@ -121,22 +121,20 @@ const AttachButton = ({
 }) => {
   const history = useHistory();
   return (
-    <SpacedBox ml={12}>
-      <Button
-        style={{ height: spacing.sp24 }}
-        variant="secondary"
-        label="Attach"
-        icon={<Icon name="Link" />}
-        onClick={() =>
-          history.push(
-            `/accounts/${accountName}/policies/${encodeURIComponent(
-              policyArn,
-            )}/attachments`,
-          )
-        }
-        aria-label={`Attach ${policyName}`}
-      />
-    </SpacedBox>
+    <Button
+      size="inline"
+      variant="secondary"
+      label="Attach"
+      icon={<Icon name="Link" />}
+      onClick={() =>
+        history.push(
+          `/accounts/${accountName}/policies/${encodeURIComponent(
+            policyArn,
+          )}/attachments`,
+        )
+      }
+      aria-label={`Attach ${policyName}`}
+    />
   );
 };
 
@@ -150,7 +148,12 @@ const ActionButtons = ({
   const { policyArn, policyName, policyPath, defaultVersionId, attachments } =
     rowValues;
   return (
-    <Box display="flex" marginLeft="auto">
+    <Box
+      gap={spacing.sp12}
+      alignSelf="flex-end"
+      display="flex"
+      alignItems="center"
+    >
       <AttachButton
         policyName={policyName}
         accountName={accountName}
@@ -164,6 +167,7 @@ const ActionButtons = ({
         defaultVersionId={defaultVersionId}
       />
       <CopyButton
+        size="inline"
         textToCopy={policyArn}
         label="ARN"
         variant="outline"
@@ -207,7 +211,7 @@ const DeletePolicyAction = ({
           getListPoliciesQuery(accountName, notFalsyTypeGuard(IAMClient))
             .queryKey,
         ),
-      onError: (error) => {
+      onError: (error: ApiError) => {
         try {
           dispatch(handleClientError(error));
         } catch (err) {

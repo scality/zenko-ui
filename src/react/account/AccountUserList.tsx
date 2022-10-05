@@ -113,15 +113,13 @@ const renderAccessKeyComponent = ({ row }) => (
 const EditButton = ({ userName }: { userName: string }) => {
   const history = useHistory();
   return (
-    <SpacedBox ml={12}>
-      <Button
-        style={{ height: spacing.sp24 }}
-        variant="secondary"
-        label="Edit"
-        icon={<Icon name="Pen" />}
-        onClick={() => history.push(`users/${userName}/update-user`)}
-      />
-    </SpacedBox>
+    <Button
+      size="inline"
+      variant="secondary"
+      label="Edit"
+      icon={<Icon name="Pen" />}
+      onClick={() => history.push(`users/${userName}/update-user`)}
+    />
   );
 };
 
@@ -134,18 +132,16 @@ const AttachButton = ({
 }) => {
   const history = useHistory();
   return (
-    <SpacedBox ml={12}>
-      <Button
-        style={{ height: spacing.sp24 }}
-        variant="secondary"
-        label="Attach"
-        icon={<Icon name="Link" />}
-        onClick={() =>
-          history.push(`/accounts/${accountName}/users/${userName}/attachments`)
-        }
-        aria-label={`Attach ${userName}`}
-      />
-    </SpacedBox>
+    <Button
+      size="inline"
+      variant="secondary"
+      label="Attach"
+      icon={<Icon name="Link" />}
+      onClick={() =>
+        history.push(`/accounts/${accountName}/users/${userName}/attachments`)
+      }
+      aria-label={`Attach ${userName}`}
+    />
   );
 };
 
@@ -158,10 +154,20 @@ const ActionButtons = ({
 }) => {
   const { arn, userName } = rowValues;
   return (
-    <Box display={'flex'} marginLeft="auto">
+    <Box
+      gap={spacing.sp12}
+      alignSelf="flex-end"
+      display="flex"
+      alignItems="center"
+    >
       <AttachButton userName={userName} accountName={accountName || ''} />
       <EditButton userName={userName} />
-      <CopyButton textToCopy={arn} label="ARN" variant="outline" />
+      <CopyButton
+        textToCopy={arn}
+        label="ARN"
+        variant="outline"
+        size="inline"
+      />
       <DeleteUserAction userName={userName} accountName={accountName} />
     </Box>
   );
@@ -223,8 +229,6 @@ const DeleteUserAction = ({
     },
   );
 
-  const isUserDeletionDisabled =
-    accessKeysResult && accessKeysResult?.length >= 1;
   return (
     <>
       <DeleteConfirmation
@@ -252,7 +256,7 @@ const DeleteUserAction = ({
         onClick={() => {
           setShowModal(true);
         }}
-        variant="statusCritical"
+        variant="danger"
         tooltip={
           accessKeysResult && accessKeysResult?.length >= 1
             ? {
