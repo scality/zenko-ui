@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { S3 } from 'aws-sdk';
 import S3Client from '../js/S3Client';
 import type {
   CommonPrefix,
@@ -34,20 +35,8 @@ export type SearchResult = {
   IsLegalHoldEnabled?: boolean;
 };
 export type SearchResultList = Array<SearchResult>;
-export type SearchBucketResp = {
-  IsTruncated?: boolean;
-  NextMarker?: Marker;
-  Contents: SearchResultList;
-};
-export type SearchBucketVersionsResp = {
-  readonly IsTruncated?: boolean;
-  readonly NextKeyMarker?: Marker;
-  readonly NextVersionIdMarker?: Marker;
-  readonly Version: Array<S3Version>;
-  readonly DeleteMarker: Array<S3DeleteMarker>;
-  readonly commonPrefixes: CommonPrefix;
-  readonly Prefix: string;
-};
+export type SearchBucketResp = S3.Types.ListObjectsV2Output;
+export type SearchBucketVersionsResp = S3.Types.ListObjectVersionsOutput;
 export type Credentials = {
   readonly accessKey: string;
   readonly secretKey: string;

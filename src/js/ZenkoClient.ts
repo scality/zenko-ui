@@ -16,8 +16,9 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
   endpoint: string;
   _xmlClient: ZenkoClientBase;
   _isLogin: boolean;
+  _jsonClient: ZenkoClientBase;
 
-  constructor(endpoint) {
+  constructor(endpoint: string) {
     super(endpoint);
     this.endpoint = endpoint;
 
@@ -100,12 +101,11 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
   searchBucket(params: SearchParams): Promise<SearchBucketResp> {
     const { Bucket, Query, Marker } = params;
     return this._xmlClient
-      .searchBucket({
+      .searchBucketV2({
         Bucket,
         Query,
-        Marker,
-        MaxKeys: 100,
-        Delimiter: '/'
+        ContinuationToken: Marker,
+        MaxKeys: 100
       })
       .promise();
   }
@@ -120,7 +120,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Bucket,
         Query,
         KeyMarker,
-        VersionIdMarker: parseInt(VersionIdMarker, 10),
+        VersionIdMarker: parseInt(VersionIdMarker || '0', 10),
         MaxKeys: 100,
       })
       .promise();
