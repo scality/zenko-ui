@@ -171,7 +171,7 @@ export default function Workflows() {
     }
 
     return (
-      <L.Body>
+      <L.Body style={{ overflow: 'hidden' }}>
         <WorkflowList workflowId={workflowId} workflows={workflows} />
         <WorkflowContent
           bucketList={bucketList}
@@ -182,7 +182,7 @@ export default function Workflows() {
   };
 
   return (
-    <L.Container>
+    <L.Container style={{ overflow: 'hidden' }}>
       <L.BreadcrumbContainer>
         <Breadcrumb />
       </L.BreadcrumbContainer>

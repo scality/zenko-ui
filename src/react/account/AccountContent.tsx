@@ -19,7 +19,11 @@ function AccountContent() {
   const { account } = useCurrentAccount();
 
   return (
-    <L.Container>
+    <L.Container
+      style={{
+        overflow: pathname.includes('workflows') ? 'hidden' : undefined,
+      }}
+    >
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />

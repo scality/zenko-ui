@@ -2,7 +2,15 @@ import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
 import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
-import { Toggle, SpacedBox, Icon, IconHelp } from '@scality/core-ui';
+import {
+  Toggle,
+  Icon,
+  SpacedBox,
+  IconHelp,
+  FormGroup,
+  FormSection,
+  Stack,
+} from '@scality/core-ui';
 import {
   Select,
   Option,
@@ -20,6 +28,8 @@ import type { S3BucketList } from '../../types/s3';
 import { isVersioning } from '../utils';
 import TagsFilter from './TagsFilter';
 import { WorkflowFormContainer } from '../ui-elements/WorkflowFormContainer';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { Box } from '@scality/core-ui/dist/next';
 
 const flexStyle: React.CSSProperties = {
   display: 'flex',
@@ -89,11 +99,44 @@ export const expirationSchema = Joi.object({
   'incompleteMultipartUploadTriggerDelayDays',
 );
 
-export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
-  const { register, control, watch, getValues, setValue, formState, trigger } =
-    useFormContext();
+export function GeneralExpirationGroup({ prefix = '' }: { prefix?: string }) {
+  const methods = useFormContext();
+  return (
+    <FormGroup
+      direction="horizontal"
+      id="enabled"
+      label="State"
+      required
+      content={
+        <Controller
+          control={methods.control}
+          name={`${prefix}enabled`}
+          render={({ field }) => {
+            const enabled = field.value;
+            const onChange = () => {
+              field.onChange(!enabled);
+              methods.trigger(`${prefix}enabled`);
+            };
+            return (
+              <Toggle
+                id="enabled"
+                toggle={enabled}
+                label={enabled ? 'Active' : 'Inactive'}
+                onChange={onChange}
+              />
+            );
+          }}
+        />
+      }
+    />
+  );
+}
 
-  const { errors: formErrors } = formState;
+export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
+  const forceLabelWidth = convertRemToPixels(10);
+  const methods = useFormContext();
+  const { register, control, watch, getValues, setValue, trigger } = methods;
+  const { errors: formErrors } = methods.formState;
   const currentVersionTriggerDelayDays = watch(
     `${prefix}currentVersionTriggerDelayDays`,
   );
@@ -115,7 +158,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
   const isEditing = !!getValues(`${prefix}workflowId`);
 
   return (
-    <WorkflowFormContainer>
+    <>
       <input
         type="hidden"
         id="name"
@@ -134,176 +177,127 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
         {...register(`${prefix}type`)}
         autoComplete="off"
       />
-      <T.ScrollArea>
-        <T.Groups style={{ maxWidth: 'inherit' }}>
-          <T.Group>
-            <T.GroupName>General</T.GroupName>
-            <T.GroupContent>
-              <T.Row>
-                <T.Key> State </T.Key>
-                <T.Value>
-                  <Controller
-                    control={control}
-                    name={`${prefix}enabled`}
-                    render={({ field: { onChange, value: enabled } }) => {
-                      return (
-                        <Toggle
-                          id="enabled"
-                          toggle={enabled}
-                          label={enabled ? 'Active' : 'Inactive'}
-                          onChange={() => {
-                            onChange(!enabled);
-                            trigger(`${prefix}enabled`);
-                          }}
-                        />
-                      );
-                    }}
-                  />
-                </T.Value>
-              </T.Row>
-            </T.GroupContent>
-          </T.Group>
-
-          <T.Group>
-            <T.GroupName>Source</T.GroupName>
-            <T.GroupContent>
-              <T.Row data-testid="select-bucket-name-expiration">
-                <T.Key required={!isEditing}> Bucket Name </T.Key>
-                <T.Value>
-                  <Controller
-                    control={control}
-                    name={`${prefix}bucketName`}
-                    render={({ field: { onChange, value: sourceBucket } }) => {
-                      const options = sourceBucketOptions(
-                        bucketList,
-                        locations,
-                      );
-
-                      const result = options.find(
-                        (l) => l.value === sourceBucket,
-                      );
-
-                      if (isEditing && result) {
-                        return renderSource(locations)(result);
-                      }
-
-                      return (
-                        <Select
-                          id="sourceBucket"
-                          value={sourceBucket}
-                          onChange={(newBucket: string) => {
-                            onChange(newBucket);
-
-                            const sourceBucket = bucketList.find(
-                              (bucket) => bucket.Name === newBucket,
+      <Stack direction="vertical" withSeparators gap="r24">
+        <FormSection
+          title={{ name: 'Source', icon: 'Simple-upload' }}
+          forceLabelWidth={forceLabelWidth}
+        >
+          <FormGroup
+            required
+            label="Bucket Name"
+            id="bucketName"
+            direction="horizontal"
+            error={errors[`${prefix}bucketName`]?.message}
+            helpErrorPosition="right"
+            content={
+              <Controller
+                control={control}
+                name={`${prefix}bucketName`}
+                render={({ field: { onChange, value: sourceBucket } }) => {
+                  const options = sourceBucketOptions(bucketList, locations);
+                  const result = options.find((l) => l.value === sourceBucket);
+                  if (isEditing && result) {
+                    return renderSource(locations)(result);
+                  }
+                  return (
+                    <Box style={{ width: '20.5rem' }}>
+                      <Select
+                        id="sourceBucket"
+                        value={sourceBucket}
+                        onChange={(newBucket: string) => {
+                          onChange(newBucket);
+                          const sourceBucket = bucketList.find(
+                            (bucket) => bucket.Name === newBucket,
+                          );
+                          const isSourceBucketVersionned = sourceBucket
+                            ? isVersioning(sourceBucket.VersionStatus)
+                            : false;
+                          if (!isSourceBucketVersionned) {
+                            setValue(
+                              `${prefix}expireDeleteMarkersTrigger`,
+                              false,
                             );
-                            const isSourceBucketVersionned = sourceBucket
-                              ? isVersioning(sourceBucket.VersionStatus)
-                              : false;
-                            if (!isSourceBucketVersionned) {
-                              setValue(
-                                `${prefix}expireDeleteMarkersTrigger`,
-                                false,
-                              );
-                              setValue(
-                                `${prefix}previousVersionTriggerDelayDays`,
-                                null,
-                              );
-                            }
-                          }}
-                        >
-                          {options &&
-                            options.map((o, i) => (
-                              <Option key={i} value={o.value}>
-                                {renderSource(locations)(o)}
-                              </Option>
-                            ))}
-                        </Select>
-                      );
-                    }}
-                  />
-                  <T.ErrorContainer>
-                    <ErrorInput
-                      error={errors[`${prefix}bucketName`]?.message}
-                    />
-                  </T.ErrorContainer>
-                </T.Value>
-              </T.Row>
-            </T.GroupContent>
-          </T.Group>
-
-          <T.Group>
-            <T.GroupName>
-              <Icon name="Filter" /> Filters (optional)
-            </T.GroupName>
-            <T.GroupContent>
-              <T.Row>
-                <T.Key> Prefix </T.Key>
-                <T.Value>
-                  <Input
-                    id="prefix"
-                    {...register(`${prefix}filter.objectKeyPrefix`)}
-                    onChange={(evt) => {
-                      register(`${prefix}filter.objectKeyPrefix`).onChange(evt);
-                      trigger(`${prefix}filter.objectKeyPrefix`);
-                    }}
-                    aria-invalid={!!errors[`${prefix}filter.objectKeyPrefix`]}
-                    aria-describedby="error-prefix"
-                    autoComplete="off"
-                  />
-                  <T.ErrorContainer>
-                    <ErrorInput
-                      id="error-prefix"
-                      error={errors[`${prefix}filter.objectKeyPrefix`]?.message}
-                    />
-                  </T.ErrorContainer>
-                </T.Value>
-              </T.Row>
-              <T.Row
-                style={{
-                  maxHeight: 'initial',
-                  height: '100%',
-                  marginTop: '2rem',
-                  alignItems: 'baseline',
+                            setValue(
+                              `${prefix}previousVersionTriggerDelayDays`,
+                              null,
+                            );
+                          }
+                        }}
+                      >
+                        {options &&
+                          options.map((o, i) => (
+                            <Option key={i} value={o.value}>
+                              {renderSource(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
+                    </Box>
+                  );
                 }}
-              >
-                <T.Key>Tags</T.Key>
-                <T.Value>
-                  <Controller
-                    name={`${prefix}filter.objectTags`}
-                    control={control}
-                    defaultValue={[{ key: '', value: '' }]}
-                    render={({ field: { onChange, value } }) => {
-                      return (
-                        <TagsFilter
-                          handleChange={onChange}
-                          control={control}
-                          fieldName={`${prefix}filter.objectTags`}
-                          tags={value}
-                          watch={watch}
-                        />
-                      );
-                    }}
-                  />
-                </T.Value>
-              </T.Row>
-              <T.Row>
-                <T.ErrorContainer>
-                  <ErrorInput
-                    id="error-prefix"
-                    error={errors[`${prefix}filter.objectTags`]?.message}
-                  />
-                </T.ErrorContainer>
-              </T.Row>
-            </T.GroupContent>
-          </T.Group>
+              />
+            }
+          />
+        </FormSection>
 
-          <T.Group>
-            <T.GroupName>Action</T.GroupName>
-            <T.GroupContent>
-              <T.Row data-testid="toggle-action-expire-current-version">
-                <T.KeyTooltip
-                  tooltipMessage={`
+        <FormSection
+          title={{ name: 'Filters', icon: 'Filter' }}
+          forceLabelWidth={forceLabelWidth}
+        >
+          <FormGroup
+            label="Prefix"
+            id="prefix"
+            direction="horizontal"
+            error={errors[`${prefix}filter.objectKeyPrefix`]?.message}
+            helpErrorPosition="right"
+            content={
+              <Input
+                id="prefix"
+                {...register(`${prefix}filter.objectKeyPrefix`)}
+                onChange={(evt) => {
+                  register(`${prefix}filter.objectKeyPrefix`).onChange(evt);
+                  trigger(`${prefix}filter.objectKeyPrefix`);
+                }}
+                aria-invalid={!!errors[`${prefix}filter.objectKeyPrefix`]}
+                aria-describedby="error-prefix"
+                autoComplete="off"
+              />
+            }
+          />
+          <FormGroup
+            label="Tags"
+            id="filter.objectTags"
+            direction="horizontal"
+            error={errors[`${prefix}filter.objectTags`]?.message}
+            helpErrorPosition="bottom"
+            content={
+              <Controller
+                name={`${prefix}filter.objectTags`}
+                control={control}
+                defaultValue={[{ key: '', value: '' }]}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <TagsFilter
+                      handleChange={onChange}
+                      control={control}
+                      fieldName={`${prefix}filter.objectTags`}
+                      tags={value}
+                      watch={watch}
+                    />
+                  );
+                }}
+              />
+            }
+          />
+        </FormSection>
+
+        <FormSection
+          title={{ name: 'Action' }}
+          forceLabelWidth={forceLabelWidth}
+        >
+          <T.GroupContent>
+            <T.Row data-testid="toggle-action-expire-current-version">
+              <T.KeyTooltip
+                tooltipMessage={`
                     If the bucket is versioned, a delete marker will be added on objects older than ${
                       currentVersionTriggerDelayDays || 'provided'
                     } days. This does not free up storage space.
@@ -311,20 +305,59 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       currentVersionTriggerDelayDays || 'provided'
                     } days will be permanently removed.
                     `}
-                  tooltipWidth="13rem"
-                  size={60}
-                >
-                  {' '}
-                  Expire <span style={{ fontWeight: 'bold' }}>
-                    Current
-                  </span>{' '}
-                  version of objects{' '}
-                </T.KeyTooltip>
-                <T.Value
+                tooltipWidth="13rem"
+                size={60}
+              >
+                {' '}
+                Expire <span style={{ fontWeight: 'bold' }}>Current</span>{' '}
+                version of objects{' '}
+              </T.KeyTooltip>
+              <T.Value
+                style={{
+                  ...flexStyle,
+                }}
+              >
+                <Controller
+                  control={control}
+                  name={`${prefix}currentVersionTriggerDelayDays`}
+                  render={({
+                    field: { onChange, value: currentVersionTriggerDelayDays },
+                  }) => {
+                    return (
+                      <Toggle
+                        id="currentVersionTriggerDelayDaysToggle"
+                        placeholder="currentVersionDelayDaysToggle"
+                        toggle={
+                          currentVersionTriggerDelayDays !== null &&
+                          currentVersionTriggerDelayDays !== undefined
+                        }
+                        onChange={(e) => {
+                          onChange(e.target.checked ? 7 : null);
+                          if (e.target.checked) {
+                            setValue(
+                              `${prefix}expireDeleteMarkersTrigger`,
+                              false,
+                            );
+                          }
+                        }}
+                      />
+                    );
+                  }}
+                />
+
+                <div
                   style={{
                     ...flexStyle,
+                    marginLeft: 'auto',
+                    opacity:
+                      currentVersionTriggerDelayDays !== null &&
+                      currentVersionTriggerDelayDays !== undefined
+                        ? 1
+                        : 0.5,
                   }}
                 >
+                  after
+                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}currentVersionTriggerDelayDays`}
@@ -335,115 +368,114 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       },
                     }) => {
                       return (
-                        <Toggle
-                          id="currentVersionTriggerDelayDaysToggle"
-                          placeholder="currentVersionDelayDaysToggle"
-                          toggle={
-                            currentVersionTriggerDelayDays !== null &&
-                            currentVersionTriggerDelayDays !== undefined
-                          }
+                        <Input
+                          id="currentVersionT  f riggerDelayDays"
+                          name="currentVersionTriggerDelayDays"
+                          value={currentVersionTriggerDelayDays || ''}
                           onChange={(e) => {
-                            onChange(e.target.checked ? 7 : null);
-                            if (e.target.checked) {
-                              setValue(
-                                `${prefix}expireDeleteMarkersTrigger`,
-                                false,
-                              );
-                            }
+                            onChange(e.target.value);
                           }}
+                          type="number"
+                          style={{
+                            width: '3rem',
+                            textAlign: 'right',
+                          }}
+                          min={1}
+                          aria-invalid={
+                            !!errors[`${prefix}currentVersionTriggerDelayDays`]
+                          }
+                          aria-describedby="error-currentVersionTriggerDelayDays"
+                          disabled={
+                            currentVersionTriggerDelayDays === null ||
+                            currentVersionTriggerDelayDays === undefined
+                          }
                         />
                       );
                     }}
                   />
-
-                  <div
-                    style={{
-                      ...flexStyle,
-                      marginLeft: 'auto',
-                      opacity:
-                        currentVersionTriggerDelayDays !== null &&
-                        currentVersionTriggerDelayDays !== undefined
-                          ? 1
-                          : 0.5,
-                    }}
-                  >
-                    after
-                    <SpacedBox mr={8} />
-                    <Controller
-                      control={control}
-                      name={`${prefix}currentVersionTriggerDelayDays`}
-                      render={({
-                        field: {
-                          onChange,
-                          value: currentVersionTriggerDelayDays,
-                        },
-                      }) => {
-                        return (
-                          <Input
-                            id="currentVersionTriggerDelayDays"
-                            name="currentVersionTriggerDelayDays"
-                            value={currentVersionTriggerDelayDays || ''}
-                            onChange={(e) => {
-                              onChange(e.target.value);
-                            }}
-                            type="number"
-                            style={{
-                              width: '3rem',
-                              textAlign: 'right',
-                            }}
-                            min={1}
-                            aria-invalid={
-                              !!errors[
-                                `${prefix}currentVersionTriggerDelayDays`
-                              ]
-                            }
-                            aria-describedby="error-currentVersionTriggerDelayDays"
-                            disabled={
-                              currentVersionTriggerDelayDays === null ||
-                              currentVersionTriggerDelayDays === undefined
-                            }
-                          />
-                        );
-                      }}
-                    />
-                    <SpacedBox mr={8} />
-                    <PluralizeDays number={currentVersionTriggerDelayDays} />
-                  </div>
-                </T.Value>
-              </T.Row>
-              <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-                <T.Key size={60}></T.Key>
-                <T.Value>
-                  <ErrorInput
-                    id="error-currentVersionTriggerDelayDays"
-                    style={{ height: 'auto' }}
-                    error={
-                      errors[`${prefix}currentVersionTriggerDelayDays`]?.message
-                    }
-                  />
-                </T.Value>
-              </T.Row>
-              <T.Row data-testid="toggle-action-expire-previous-version">
-                <T.KeyTooltip
-                  tooltipMessage={`
+                  <SpacedBox mr={8} />
+                  <PluralizeDays number={currentVersionTriggerDelayDays} />
+                </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-currentVersionTriggerDelayDays"
+                  style={{ height: 'auto' }}
+                  error={
+                    errors[`${prefix}currentVersionTriggerDelayDays`]?.message
+                  }
+                />
+              </T.Value>
+            </T.Row>
+            <T.Row data-testid="toggle-action-expire-previous-version">
+              <T.KeyTooltip
+                tooltipMessage={`
                 All the objects that become previous versions older than ${
                   previousVersionTriggerDelayDays || 'provided'
                 } days will be permanently deleted.
                 `}
-                  tooltipWidth="13rem"
-                  size={60}
-                >
-                  {' '}
-                  Expire <span style={{ fontWeight: 'bold' }}>
-                    Previous
-                  </span>{' '}
-                  version of objects{' '}
-                </T.KeyTooltip>
-                <T.Value
+                tooltipWidth="13rem"
+                size={60}
+              >
+                {' '}
+                Expire <span style={{ fontWeight: 'bold' }}>Previous</span>{' '}
+                version of objects{' '}
+              </T.KeyTooltip>
+              <T.Value
+                style={{
+                  ...flexStyle,
+                }}
+              >
+                <Controller
+                  control={control}
+                  name={`${prefix}previousVersionTriggerDelayDays`}
+                  render={({
+                    field: { onChange, value: previousVersionTriggerDelayDays },
+                  }) => {
+                    return (
+                      <Toggle
+                        id="previousVersionTriggerDelayDaysToggle"
+                        placeholder="previousVersionDelayDaysToggle"
+                        disabled={!isSourceBucketVersionned}
+                        toggle={
+                          previousVersionTriggerDelayDays !== null &&
+                          previousVersionTriggerDelayDays !== undefined
+                        }
+                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
+                      />
+                    );
+                  }}
+                />
+
+                {!isSourceBucketVersionned ? (
+                  <>
+                    <IconHelp
+                      tooltipMessage={
+                        'This action is disabled when source bucket is not versionned'
+                      }
+                      variant="outline"
+                      overlayStyle={{ width: '13rem' }}
+                    />
+                  </>
+                ) : (
+                  ''
+                )}
+                <div
                   style={{
                     ...flexStyle,
+                    marginLeft: 'auto',
+                    opacity:
+                      previousVersionTriggerDelayDays !== null &&
+                      previousVersionTriggerDelayDays !== undefined
+                        ? 1
+                        : 0.5,
                   }}
                 >
+                  after
+                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}previousVersionTriggerDelayDays`}
@@ -454,187 +486,169 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       },
                     }) => {
                       return (
-                        <Toggle
-                          id="previousVersionTriggerDelayDaysToggle"
-                          placeholder="previousVersionDelayDaysToggle"
-                          disabled={!isSourceBucketVersionned}
-                          toggle={
-                            previousVersionTriggerDelayDays !== null &&
-                            previousVersionTriggerDelayDays !== undefined
+                        <Input
+                          id="previousVersionTriggerDelayDays"
+                          name={`${prefix}previousVersionTriggerDelayDays`}
+                          value={previousVersionTriggerDelayDays || ''}
+                          onChange={(e) => onChange(e.target.value)}
+                          type="number"
+                          style={{
+                            width: '3rem',
+                            textAlign: 'right',
+                          }}
+                          min={1}
+                          aria-invalid={
+                            !!errors[`${prefix}previousVersionTriggerDelayDays`]
                           }
-                          onChange={(e) =>
-                            onChange(e.target.checked ? 7 : null)
+                          aria-describedby="error-previousVersionTriggerDelayDays"
+                          disabled={
+                            previousVersionTriggerDelayDays === null ||
+                            previousVersionTriggerDelayDays === undefined
                           }
                         />
                       );
                     }}
                   />
-
-                  {!isSourceBucketVersionned ? (
-                    <>
-                      <IconHelp
-                        tooltipMessage={
-                          'This action is disabled when source bucket is not versionned'
-                        }
-                        variant="outline"
-                        overlayStyle={{ width: '13rem' }}
-                      />
-                    </>
-                  ) : (
-                    ''
-                  )}
-                  <div
-                    style={{
-                      ...flexStyle,
-                      marginLeft: 'auto',
-                      opacity:
-                        previousVersionTriggerDelayDays !== null &&
-                        previousVersionTriggerDelayDays !== undefined
-                          ? 1
-                          : 0.5,
-                    }}
-                  >
-                    after
-                    <SpacedBox mr={8} />
-                    <Controller
-                      control={control}
-                      name={`${prefix}previousVersionTriggerDelayDays`}
-                      render={({
-                        field: {
-                          onChange,
-                          value: previousVersionTriggerDelayDays,
-                        },
-                      }) => {
-                        return (
-                          <Input
-                            id="previousVersionTriggerDelayDays"
-                            name={`${prefix}previousVersionTriggerDelayDays`}
-                            value={previousVersionTriggerDelayDays || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                            type="number"
-                            style={{
-                              width: '3rem',
-                              textAlign: 'right',
-                            }}
-                            min={1}
-                            aria-invalid={
-                              !!errors[
-                                `${prefix}previousVersionTriggerDelayDays`
-                              ]
-                            }
-                            aria-describedby="error-previousVersionTriggerDelayDays"
-                            disabled={
-                              previousVersionTriggerDelayDays === null ||
-                              previousVersionTriggerDelayDays === undefined
-                            }
-                          />
-                        );
-                      }}
-                    />
-                    <SpacedBox mr={8} />
-                    <PluralizeDays number={previousVersionTriggerDelayDays} />
-                  </div>
-                </T.Value>
-              </T.Row>
-              <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-                <T.Key size={60}></T.Key>
-                <T.Value>
-                  <ErrorInput
-                    id="error-previousVersionTriggerDelayDays"
-                    style={{ height: 'auto' }}
-                    error={
-                      errors[`${prefix}previousVersionTriggerDelayDays`]
-                        ?.message
-                    }
-                  />
-                </T.Value>
-              </T.Row>
-              <T.Row data-testid="toggle-action-remove-expired-markers">
-                <T.KeyTooltip
-                  tooltipMessage={`
+                  <SpacedBox mr={8} />
+                  <PluralizeDays number={previousVersionTriggerDelayDays} />
+                </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-previousVersionTriggerDelayDays"
+                  style={{ height: 'auto' }}
+                  error={
+                    errors[`${prefix}previousVersionTriggerDelayDays`]?.message
+                  }
+                />
+              </T.Value>
+            </T.Row>
+            <T.Row data-testid="toggle-action-remove-expired-markers">
+              <T.KeyTooltip
+                tooltipMessage={`
                 When you delete a versioned object, a delete marker is created.
                 If all previous versions of the object subsequently expire, an expired-object Delete marker is left.
                 Removing unneeded Delete markers will improve the listing of object versions.
                 `}
-                  tooltipWidth="13rem"
-                  size={60}
-                >
-                  {' '}
-                  Remove expired Delete markers{' '}
-                </T.KeyTooltip>
-                <T.Value
-                  style={{
-                    ...flexStyle,
-                  }}
-                >
-                  <Controller
-                    control={control}
-                    name={`${prefix}expireDeleteMarkersTrigger`}
-                    render={({
-                      field: { onChange, value: expireDeleteMarkersTrigger },
-                    }) => {
-                      return (
-                        <Toggle
-                          disabled={
-                            (currentVersionTriggerDelayDays !== null &&
-                              currentVersionTriggerDelayDays !== undefined) ||
-                            !isSourceBucketVersionned
-                          }
-                          id="expireDeleteMarkersTrigger"
-                          placeholder="expireDeleteMarkersTrigger"
-                          toggle={expireDeleteMarkersTrigger}
-                          onChange={(e) =>
-                            onChange(e.target.checked ? true : null)
-                          }
-                        />
-                      );
-                    }}
-                  />
-                  {(currentVersionTriggerDelayDays !== null &&
-                    currentVersionTriggerDelayDays !== undefined) ||
-                  !isSourceBucketVersionned ? (
-                    <>
-                      <IconHelp
-                        tooltipMessage={`${
-                          currentVersionTriggerDelayDays !== null &&
-                          currentVersionTriggerDelayDays !== undefined
-                            ? 'This action is disabled when "Expire Current version of objects" is active'
-                            : ''
-                        }${
+                tooltipWidth="13rem"
+                size={60}
+              >
+                {' '}
+                Remove expired Delete markers{' '}
+              </T.KeyTooltip>
+              <T.Value
+                style={{
+                  ...flexStyle,
+                }}
+              >
+                <Controller
+                  control={control}
+                  name={`${prefix}expireDeleteMarkersTrigger`}
+                  render={({
+                    field: { onChange, value: expireDeleteMarkersTrigger },
+                  }) => {
+                    return (
+                      <Toggle
+                        disabled={
+                          (currentVersionTriggerDelayDays !== null &&
+                            currentVersionTriggerDelayDays !== undefined) ||
                           !isSourceBucketVersionned
-                            ? (currentVersionTriggerDelayDays !== null &&
-                              currentVersionTriggerDelayDays !== undefined
-                                ? '\n'
-                                : '') +
-                              'This action is disabled when source bucket is not versionned'
-                            : ''
-                        }`}
-                        overlayStyle={{ width: '13rem' }}
+                        }
+                        id="expireDeleteMarkersTrigger"
+                        placeholder="expireDeleteMarkersTrigger"
+                        toggle={expireDeleteMarkersTrigger}
+                        onChange={(e) =>
+                          onChange(e.target.checked ? true : null)
+                        }
                       />
-                    </>
-                  ) : (
-                    ''
-                  )}
-                </T.Value>
-              </T.Row>
-              <T.Row data-testid="toggle-action-expire-incomplete-multipart">
-                <T.KeyTooltip
-                  tooltipMessage={`
+                    );
+                  }}
+                />
+                {(currentVersionTriggerDelayDays !== null &&
+                  currentVersionTriggerDelayDays !== undefined) ||
+                !isSourceBucketVersionned ? (
+                  <>
+                    <IconHelp
+                      tooltipMessage={`${
+                        currentVersionTriggerDelayDays !== null &&
+                        currentVersionTriggerDelayDays !== undefined
+                          ? 'This action is disabled when "Expire Current version of objects" is active'
+                          : ''
+                      }${
+                        !isSourceBucketVersionned
+                          ? (currentVersionTriggerDelayDays !== null &&
+                            currentVersionTriggerDelayDays !== undefined
+                              ? '\n'
+                              : '') +
+                            'This action is disabled when source bucket is not versionned'
+                          : ''
+                      }`}
+                      overlayStyle={{ width: '13rem' }}
+                    />
+                  </>
+                ) : (
+                  ''
+                )}
+              </T.Value>
+            </T.Row>
+            <T.Row data-testid="toggle-action-expire-incomplete-multipart">
+              <T.KeyTooltip
+                tooltipMessage={`
                 When you upload or copy an object, it could be done as a set of parts.
                 These multiparts are not visible in the browser until the operation is complete.
                 Removing these incomplete multipart uploads after a number of days after the initiating the operation prevents you from having unused S3 storage.
                     `}
-                  tooltipWidth="13rem"
-                  size={60}
-                >
-                  {' '}
-                  Expire incomplete Multipart uploads{' '}
-                </T.KeyTooltip>
-                <T.Value
+                tooltipWidth="13rem"
+                size={60}
+              >
+                {' '}
+                Expire incomplete Multipart uploads{' '}
+              </T.KeyTooltip>
+              <T.Value
+                style={{
+                  ...flexStyle,
+                }}
+              >
+                <Controller
+                  control={control}
+                  name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
+                  render={({
+                    field: {
+                      onChange,
+                      value: incompleteMultipartUploadTriggerDelayDays,
+                    },
+                  }) => {
+                    return (
+                      <Toggle
+                        id="incompleteMultipartUploadTriggerDelayDaysToggle"
+                        placeholder="incompleteMultipartUploadDelayDaysToggle"
+                        toggle={
+                          incompleteMultipartUploadTriggerDelayDays !== null &&
+                          incompleteMultipartUploadTriggerDelayDays !==
+                            undefined
+                        }
+                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
+                      />
+                    );
+                  }}
+                />
+
+                <div
                   style={{
                     ...flexStyle,
+                    marginLeft: 'auto',
+                    opacity:
+                      incompleteMultipartUploadTriggerDelayDays !== null &&
+                      incompleteMultipartUploadTriggerDelayDays !== undefined
+                        ? 1
+                        : 0.5,
                   }}
                 >
+                  after
+                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
@@ -645,101 +659,59 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       },
                     }) => {
                       return (
-                        <Toggle
-                          id="incompleteMultipartUploadTriggerDelayDaysToggle"
-                          placeholder="incompleteMultipartUploadDelayDaysToggle"
-                          toggle={
-                            incompleteMultipartUploadTriggerDelayDays !==
-                              null &&
-                            incompleteMultipartUploadTriggerDelayDays !==
-                              undefined
+                        <Input
+                          id="incompleteMultipartUploadTriggerDelayDays"
+                          name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
+                          value={
+                            incompleteMultipartUploadTriggerDelayDays || ''
                           }
-                          onChange={(e) =>
-                            onChange(e.target.checked ? 7 : null)
+                          onChange={(e) => onChange(e.target.value)}
+                          type="number"
+                          style={{
+                            width: '3rem',
+                            textAlign: 'right',
+                          }}
+                          min={1}
+                          aria-invalid={
+                            !!errors[
+                              `${prefix}incompleteMultipartUploadTriggerDelayDays`
+                            ]
+                          }
+                          aria-describedby="error-incompleteMultipartUploadTriggerDelayDays"
+                          disabled={
+                            incompleteMultipartUploadTriggerDelayDays ===
+                              null ||
+                            incompleteMultipartUploadTriggerDelayDays ===
+                              undefined
                           }
                         />
                       );
                     }}
                   />
-
-                  <div
-                    style={{
-                      ...flexStyle,
-                      marginLeft: 'auto',
-                      opacity:
-                        incompleteMultipartUploadTriggerDelayDays !== null &&
-                        incompleteMultipartUploadTriggerDelayDays !== undefined
-                          ? 1
-                          : 0.5,
-                    }}
-                  >
-                    after
-                    <SpacedBox mr={8} />
-                    <Controller
-                      control={control}
-                      name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
-                      render={({
-                        field: {
-                          onChange,
-                          value: incompleteMultipartUploadTriggerDelayDays,
-                        },
-                      }) => {
-                        return (
-                          <Input
-                            id="incompleteMultipartUploadTriggerDelayDays"
-                            name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
-                            value={
-                              incompleteMultipartUploadTriggerDelayDays || ''
-                            }
-                            onChange={(e) => onChange(e.target.value)}
-                            type="number"
-                            style={{
-                              width: '3rem',
-                              textAlign: 'right',
-                            }}
-                            min={1}
-                            aria-invalid={
-                              !!errors[
-                                `${prefix}incompleteMultipartUploadTriggerDelayDays`
-                              ]
-                            }
-                            aria-describedby="error-incompleteMultipartUploadTriggerDelayDays"
-                            disabled={
-                              incompleteMultipartUploadTriggerDelayDays ===
-                                null ||
-                              incompleteMultipartUploadTriggerDelayDays ===
-                                undefined
-                            }
-                          />
-                        );
-                      }}
-                    />
-                    <SpacedBox mr={8} />
-                    <PluralizeDays
-                      number={incompleteMultipartUploadTriggerDelayDays}
-                    />
-                  </div>
-                </T.Value>
-              </T.Row>
-              <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-                <T.Key size={60}></T.Key>
-                <T.Value>
-                  <ErrorInput
-                    id="error-incompleteMultipartUploadTriggerDelayDays"
-                    style={{ height: 'auto' }}
-                    error={
-                      errors[
-                        `${prefix}incompleteMultipartUploadTriggerDelayDays`
-                      ]?.message
-                    }
+                  <SpacedBox mr={8} />
+                  <PluralizeDays
+                    number={incompleteMultipartUploadTriggerDelayDays}
                   />
-                </T.Value>
-              </T.Row>
-            </T.GroupContent>
-          </T.Group>
-        </T.Groups>
-      </T.ScrollArea>
-    </WorkflowFormContainer>
+                </div>
+              </T.Value>
+            </T.Row>
+            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
+              <T.Key size={60}></T.Key>
+              <T.Value>
+                <ErrorInput
+                  id="error-incompleteMultipartUploadTriggerDelayDays"
+                  style={{ height: 'auto' }}
+                  error={
+                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
+                      ?.message
+                  }
+                />
+              </T.Value>
+            </T.Row>
+          </T.GroupContent>
+        </FormSection>
+      </Stack>
+    </>
   );
 }
 

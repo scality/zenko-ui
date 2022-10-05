@@ -1,11 +1,10 @@
 import { Button } from '@scality/core-ui/dist/next';
 import Input from './Input';
-import React, { CSSProperties, useCallback, useMemo } from 'react';
+import { CSSProperties, useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-import { Icon } from '@scality/core-ui';
+import { Icon, SpacedBox } from '@scality/core-ui';
 export const Container = styled.div`
   flex: 1;
 `;

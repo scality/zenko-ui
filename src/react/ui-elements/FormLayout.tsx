@@ -173,10 +173,10 @@ const UlOverlay = styled.ul`
   padding: 0px 0px 0px ${spacing.sp20};
 `;
 type LabelProps = {
-  children: JSX.Element | string;
+  children: ReactNode;
   tooltipMessages?: JSX.Element[] | Array<string>;
   tooltipWidth?: string;
-  style?: CSSStyleSheet;
+  style?: CSSProperties;
   required?: boolean;
 } & LabelHTMLAttributes<HTMLLabelElement>;
 export const Label = ({
@@ -204,9 +204,7 @@ export const Label = ({
             )
           }
           placement="right"
-          overlayStyle={{
-            width: tooltipWidth,
-          }}
+          overlayStyle={{ width: tooltipWidth }}
         >
           <IconQuestionCircle name="Info" />
         </Tooltip>
@@ -247,7 +245,6 @@ export const CustomForm = styled.form`
 `;
 const FormContainer = styled.div`
   height: 100%;
-  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
   margin: ${spacing.sp8};
   margin-bottom: ${spacing.sp24};
   overflow: auto;

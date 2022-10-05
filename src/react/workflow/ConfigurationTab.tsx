@@ -3,11 +3,16 @@ import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import { Banner, Icon } from '@scality/core-ui';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import type { Expiration, Locations, Replication } from '../../types/config';
-import FormContainer from '../ui-elements/FormLayout';
 import * as T from '../ui-elements/TableKeyValue2';
 import {
   handleApiError,
@@ -18,7 +23,10 @@ import {
 import type { AppState } from '../../types/state';
 
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import ReplicationForm, { replicationSchema } from './ReplicationForm';
+import ReplicationForm, {
+  GeneralReplicationGroup,
+  replicationSchema,
+} from './ReplicationForm';
 import type { S3BucketList } from '../../types/s3';
 import type { Workflow } from '../../types/workflow';
 import { joiResolver } from '@hookform/resolvers/joi';
@@ -49,11 +57,20 @@ import {
 } from '../../types/replication';
 import { workflowListQuery } from '../queries';
 import Joi from '@hapi/joi';
-import { ExpirationForm, expirationSchema } from './ExpirationForm';
+import {
+  ExpirationForm,
+  expirationSchema,
+  GeneralExpirationGroup,
+} from './ExpirationForm';
 import { useWorkflows } from './Workflows';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useRolePathName } from '../utils/hooks';
-import { TransitionForm, transitionSchema } from './TransitionForm';
+import {
+  GeneralTransitionGroup,
+  TransitionForm,
+  transitionSchema,
+} from './TransitionForm';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 
 type Props = {
   wfSelected: Workflow;
@@ -538,7 +555,7 @@ function EditForm({
   };
 
   return (
-    <div>
+    <>
       <DeleteConfirmation
         approve={handleDeleteWorkflow}
         cancel={handleCloseDeleteModal}
@@ -552,71 +569,36 @@ function EditForm({
             : generateStreamName(workflow))
         } ?`}
       />
-      <ConfigurationHeader>
-        {formState.isDirty ? (
-          <T.BannerContainer>
-            <Banner
-              icon={<Icon name="Exclamation-triangle" />}
-              variant="warning"
-            >
-              If you leave this screen without saving, your changes will be
-              lost.
-            </Banner>
-          </T.BannerContainer>
-        ) : (
-          <div />
-        )}
-
-        <Button
-          icon={<Icon name="Delete" />}
-          label="Delete Workflow"
-          variant="danger"
-          onClick={handleOpenDeleteModal}
-          type="button"
-        />
-      </ConfigurationHeader>
       <FormProvider {...useFormMethods}>
-        <FormContainer
-          style={{ backgroundColor: 'transparent', overflowX: 'hidden' }}
-        >
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <T.Group>
-              <T.GroupContent>
-                <T.Row>
-                  <T.Key principal={true}> Type </T.Key>
-                  {isExpirationWorkflow(workflow) ? (
-                    <T.Value>
-                      <Icon name="Expiration" />
-                      Expiration
-                    </T.Value>
-                  ) : isTransitionWorkflow(workflow) ? (
-                    <T.Value>
-                      <Icon name="Transition" />
-                      Transition
-                    </T.Value>
-                  ) : (
-                    <T.Value>
-                      <Icon name="Replication" />
-                      Replication
-                    </T.Value>
-                  )}
-                </T.Row>
-              </T.GroupContent>
-            </T.Group>
-            {isExpirationWorkflow(workflow) ? (
-              <ExpirationForm bucketList={bucketList} locations={locations} />
-            ) : isTransitionWorkflow(workflow) ? (
-              <TransitionForm bucketList={bucketList} locations={locations} />
-            ) : (
-              <ReplicationForm bucketList={bucketList} locations={locations} />
-            )}
-            <T.Footer>
+        <Form
+          requireMode="all"
+          banner={
+            formState.isDirty && (
+              <T.BannerContainer>
+                <Banner
+                  icon={<Icon name="Exclamation-triangle" />}
+                  variant="warning"
+                >
+                  If you leave this screen without saving, your changes will be
+                  lost.
+                </Banner>
+              </T.BannerContainer>
+            )
+          }
+          layout={{ kind: 'tab' }}
+          onSubmit={handleSubmit(onSubmit)}
+          rightActions={
+            <Stack gap="r16">
+              <Button
+                disabled={!formState.isDirty || !formState.isValid}
+                icon={<Icon name="Save" />}
+                id="create-workflow-btn"
+                variant="primary"
+                label="Save"
+                type="submit"
+              />
               <Button
                 id="cancel-workflow-btn"
-                style={{
-                  marginRight: spacing.sp24,
-                  marginBottom: spacing.sp20,
-                }}
                 variant="outline"
                 disabled={!formState.isDirty}
                 onClick={() => useFormMethods.reset()}
@@ -624,21 +606,63 @@ function EditForm({
                 type="button"
               />
               <Button
-                disabled={!formState.isDirty || !formState.isValid}
-                style={{
-                  marginBottom: spacing.sp20,
-                }}
-                icon={<Icon name="Save" />}
-                id="create-workflow-btn"
-                variant="primary"
-                label="Save"
-                type="submit"
+                icon={<Icon name="Delete" />}
+                label="Delete Workflow"
+                variant="danger"
+                onClick={handleOpenDeleteModal}
+                type="button"
               />
-            </T.Footer>
-          </form>
-        </FormContainer>
+            </Stack>
+          }
+        >
+          <FormSection forceLabelWidth={convertRemToPixels(10)}>
+            <FormGroup
+              required
+              label="Type"
+              disabled
+              id="type"
+              content={
+                isExpirationWorkflow(workflow) ? (
+                  <Stack direction="horizontal">
+                    <Icon name="Expiration" />
+                    Expiration
+                  </Stack>
+                ) : isTransitionWorkflow(workflow) ? (
+                  <Stack direction="horizontal">
+                    <Icon name="Transition" />
+                    Transition
+                  </Stack>
+                ) : (
+                  <Stack direction="horizontal">
+                    <Icon name="Replication" />
+                    Replication
+                  </Stack>
+                )
+              }
+            />
+          </FormSection>
+          <FormSection
+            forceLabelWidth={convertRemToPixels(10)}
+            title={{ name: 'General' }}
+          >
+            {isExpirationWorkflow(workflow) ? (
+              <GeneralExpirationGroup />
+            ) : isTransitionWorkflow(workflow) ? (
+              <GeneralTransitionGroup />
+            ) : (
+              <GeneralReplicationGroup />
+            )}
+          </FormSection>
+          {isExpirationWorkflow(workflow) ? (
+            <ExpirationForm bucketList={bucketList} locations={locations} />
+          ) : isTransitionWorkflow(workflow) ? (
+            <TransitionForm bucketList={bucketList} locations={locations} />
+          ) : (
+            <ReplicationForm bucketList={bucketList} locations={locations} />
+          )}
+        </Form>
       </FormProvider>
-    </div>
+    </>
   );
 }
 
