@@ -1,13 +1,7 @@
-import {
-  Checkbox,
-  CheckboxContainer,
-  WarningInput,
-  Fieldset,
-  Input,
-  Label,
-} from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
+import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 
 type State = {
   serverSideEncryption: boolean;
@@ -61,90 +55,105 @@ export default class LocationDetailsAws extends React.Component<
 
   render() {
     return (
-      <div>
-        <Fieldset>
-          <Label htmlFor="accessKey" required>
-            AWS Access Key
-          </Label>
-          <Input
-            name="accessKey"
+      <>
+        <FormSection>
+          <FormGroup
+            label="AWS Access Key"
             id="accessKey"
-            type="text"
-            placeholder="example: AKI5HMPCLRB86WCKTN2C"
-            value={this.state.accessKey}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="secretKey" required>
-            AWS Secret Key
-          </Label>
-          <Input
-            name="secretKey"
-            id="secretKey"
-            type="password"
-            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
-            value={this.state.secretKey}
-            onChange={this.onChange}
-            autoComplete="new-password"
-          />
-          <small>
-            Your credentials are encrypted in transit, then at rest using your
-            instance&apos;s RSA key pair so that we&apos;re unable to see them.
-          </small>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="bucketName" required>
-            Target Bucket Name
-          </Label>
-          <Input
-            name="bucketName"
-            id="bucketName"
-            type="text"
-            placeholder="Bucket Name"
-            value={this.state.bucketName}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <CheckboxContainer>
-            <Checkbox
-              name="bucketMatch"
-              value={this.state.bucketMatch}
-              checked={this.state.bucketMatch}
-              disabled={this.props.editingExisting}
-              onChange={this.onChange}
-            />
-            <span> Write objects without prefix </span>
-          </CheckboxContainer>
-          <small>
-            Store objects in the target bucket without a source-bucket prefix.
-          </small>
-          <WarningInput
-            error={
-              this.state.bucketMatch &&
-              'Storing multiple buckets in a location with this option enabled can lead to data loss.'
+            required
+            helpErrorPosition="bottom"
+            content={
+              <Input
+                name="accessKey"
+                id="accessKey"
+                type="text"
+                placeholder="AKI5HMPCLRB86WCKTN2C"
+                value={this.state.accessKey}
+                onChange={this.onChange}
+                autoComplete="off"
+              />
             }
           />
-        </Fieldset>
-        <Fieldset
-          style={{
-            marginTop: '0px',
-          }}
-        >
-          <CheckboxContainer>
-            <Checkbox
-              name="serverSideEncryption"
-              value={this.state.serverSideEncryption}
-              checked={this.state.serverSideEncryption}
-              onChange={this.onChange}
-            />
-            <span> Server-Side Encryption </span>
-          </CheckboxContainer>
-        </Fieldset>
-      </div>
+
+          <FormGroup
+            label="AWS Secret Key"
+            id="secretKey"
+            required
+            helpErrorPosition="bottom"
+            labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
+            instance's RSA key pair so that we're unable to see them."
+            content={
+              <Input
+                name="secretKey"
+                id="secretKey"
+                type="password"
+                placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+                value={this.state.secretKey}
+                onChange={this.onChange}
+                autoComplete="new-password"
+              />
+            }
+          />
+
+          <FormGroup
+            label="Target Bucket Name"
+            id="bucketName"
+            required
+            helpErrorPosition="bottom"
+            content={
+              <Input
+                name="bucketName"
+                id="bucketName"
+                type="text"
+                placeholder="Bucket Name"
+                value={this.state.bucketName}
+                onChange={this.onChange}
+                autoComplete="off"
+              />
+            }
+          />
+        </FormSection>
+        <FormSection>
+          <FormGroup
+            label=""
+            id="bucketMatch"
+            direction="vertical"
+            helpErrorPosition="bottom"
+            error={
+              this.state.bucketMatch
+                ? 'Storing multiple buckets in a location with this option enabled can lead to data loss.'
+                : undefined
+            }
+            content={
+              <Checkbox
+                name="bucketMatch"
+                id="bucketMatch"
+                checked={this.state.bucketMatch}
+                disabled={this.props.editingExisting}
+                onChange={this.onChange}
+                label="Write objects without prefix"
+              />
+            }
+            help="Store objects in the target bucket without a source-bucket prefix."
+          />
+
+          <FormGroup
+            label=""
+            direction="vertical"
+            id="serverSideEncryption"
+            helpErrorPosition="bottom"
+            content={
+              <Checkbox
+                name="serverSideEncryption"
+                value={this.state.serverSideEncryption}
+                checked={this.state.serverSideEncryption}
+                onChange={this.onChange}
+                label="Server-Side Encryption"
+              />
+            }
+          />
+        </FormSection>
+      </>
     );
   }
 }

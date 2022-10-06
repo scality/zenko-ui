@@ -1,15 +1,10 @@
-import {
-  Checkbox,
-  CheckboxContainer,
-  Fieldset,
-  Label,
-} from '../../ui-elements/FormLayout';
 import { default as BasicInput } from '../../ui-elements/Input';
 import type { LocationFormOptions } from '../../../types/location';
 import type { LocationName } from '../../../types/config';
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
+import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 
 const isTransientEnabled = (locationType: LocationName) => {
   return (
@@ -25,7 +20,7 @@ export const Input = styled(BasicInput)`
 type Props = {
   locationType: LocationName;
   locationOptions: LocationFormOptions;
-  onChange: (e: React.SyntheticEvent<HTMLInputElement>) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
 function LocationOptions(props: Props) {
@@ -35,23 +30,22 @@ function LocationOptions(props: Props) {
 
   return (
     hasFields && (
-      <Fieldset>
-        <Label htmlFor="locationType"> Advanced Options </Label>
-        <CheckboxContainer
-          style={{
-            display: showTransientOption ? 'block' : 'none',
-          }}
-        >
-          <Checkbox
-            type="checkbox"
-            name="isTransient"
+      <FormSection title={{ name: 'Advanced Options' }}>
+        {showTransientOption && (
+          <FormGroup
+            label="Is transient ?"
             id="isTransientCheckbox"
-            checked={isTransient}
-            onChange={props.onChange}
+            content={
+              <Checkbox
+                id="isTransientCheckbox"
+                checked={isTransient}
+                label='Delete objects after successful replication when checked'
+                onChange={props.onChange}
+              />
+            }
           />
-          <span> Delete objects after successful replication </span>
-        </CheckboxContainer>
-      </Fieldset>
+        )}
+      </FormSection>
     )
   );
 }

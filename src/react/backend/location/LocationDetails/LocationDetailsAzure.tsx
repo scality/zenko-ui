@@ -1,12 +1,7 @@
-import {
-  Checkbox,
-  CheckboxContainer,
-  Fieldset,
-  Input,
-  Label,
-} from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
+import { FormGroup, FormSection } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -58,88 +53,81 @@ export default class LocationDetailsAzure extends React.Component<
 
   render() {
     return (
-      <div>
-        <Fieldset>
-          <Label htmlFor="endpoint" required>
-            Azure Storage Endpoint
-          </Label>
-          <Input
-            name="endpoint"
-            id="endpoint"
-            type="text"
-            placeholder="example: https://storagesample.blob.core.windows.net"
-            value={this.state.endpoint}
-            autoComplete="off"
-            onChange={this.onChange}
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="accessKey" required>
-            Azure Account Name
-          </Label>
-          <Input
-            name="accessKey"
-            id="accessKey"
-            type="text"
-            placeholder="account-name"
-            value={this.state.accessKey}
-            autoComplete="off"
-            onChange={this.onChange}
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="secretKey" required>
-            Azure Access Key
-          </Label>
-          <Input
-            name="secretKey"
-            id="secretKey"
-            type="password"
-            placeholder="azureSecretKey"
-            value={this.state.secretKey}
-            autoComplete="new-password"
-            onChange={this.onChange}
-          />
-          <small>
-            Your credentials are encrypted in transit, then at rest using your
-            instance&apos;s RSA key pair so that we&apos;re unable to see them.
-          </small>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="bucketName" required>
-            Target Azure Container Name
-          </Label>
-          <Input
-            name="bucketName"
-            id="bucketName"
-            type="text"
-            placeholder="Container Name"
-            value={this.state.bucketName}
-            autoComplete="off"
-            onChange={this.onChange}
-          />
-        </Fieldset>
-        <Fieldset
-          style={{
-            display: 'none',
-          }}
-        >
-          <CheckboxContainer>
-            <Checkbox
-              name="bucketMatch"
-              type="checkbox"
-              value={this.state.bucketMatch}
-              checked={this.state.bucketMatch}
+      <FormSection>
+        <FormGroup
+          label="Azure Storage Endpoint"
+          id="endpoint"
+          helpErrorPosition="bottom"
+          required
+          content={
+            <Input
+              name="endpoint"
+              id="endpoint"
+              type="text"
+              placeholder="https://storagesample.blob.core.windows.net"
+              value={this.state.endpoint}
+              autoComplete="off"
               onChange={this.onChange}
             />
-            <span> Bucket Match </span>
-          </CheckboxContainer>
-          <small>
-            Stores objects in the target container without a source-bucket
-            prefix.
-          </small>
-        </Fieldset>
-      </div>
+          }
+        />
+
+        <FormGroup
+          label="Azure Account Name"
+          id="accessKey"
+          helpErrorPosition="bottom"
+          required
+          content={
+            <Input
+              name="accessKey"
+              id="accessKey"
+              type="text"
+              placeholder="account-name"
+              value={this.state.accessKey}
+              autoComplete="off"
+              onChange={this.onChange}
+            />
+          }
+        />
+
+        <FormGroup
+          id="secretKey"
+          required
+          label="Azure Access Key"
+          labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
+            instance's RSA key pair so that we're unable to see them."
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              name="secretKey"
+              id="secretKey"
+              type="password"
+              placeholder="azureSecretKey"
+              value={this.state.secretKey}
+              autoComplete="new-password"
+              onChange={this.onChange}
+            />
+          }
+        />
+
+        <FormGroup
+          id="bucketName"
+          label="Target Azure Container Name"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              name="bucketName"
+              id="bucketName"
+              type="text"
+              placeholder="Container Name"
+              value={this.state.bucketName}
+              autoComplete="off"
+              onChange={this.onChange}
+            />
+          }
+        />
+      </FormSection>
     );
   }
 }

@@ -5,7 +5,6 @@ import {
   updateInputText,
 } from '../../../../utils/test';
 import LocationDetailsAws from '../LocationDetailsAws';
-import React from 'react';
 const props = {
   details: {},
   onChange: () => {},
@@ -48,10 +47,6 @@ describe('class <LocationDetailsAws />', () => {
     expect(component.find('input[name="bucketName"]').props().value).toEqual(
       '',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      false,
-    );
     expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(
       1,
     );
@@ -81,10 +76,6 @@ describe('class <LocationDetailsAws />', () => {
     expect(component.find('input[name="bucketName"]').props().value).toEqual(
       'bn',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      true,
-    );
     expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(
       1,
     );
@@ -97,14 +88,13 @@ describe('class <LocationDetailsAws />', () => {
       secretKey: 'sk',
       accessKey: 'ak',
       bucketName: 'bn',
-      bucketMatch: true,
+      bucketMatch: false,
       serverSideEncryption: true,
     };
     let location = {};
     const component = mount(
       <LocationDetailsAws {...props} onChange={(l) => (location = l)} />,
     );
-    checkBox(component, 'bucketMatch', true);
     checkBox(component, 'serverSideEncryption', true);
     updateInputText(component, 'accessKey', 'ak');
     updateInputText(component, 'secretKey', 'sk');

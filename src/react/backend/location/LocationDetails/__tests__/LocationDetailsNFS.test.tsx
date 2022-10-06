@@ -124,13 +124,13 @@ describe('class <LocationDetailsNFS />', () => {
     );
     expect(
       component.find('SelectBox#nfs-protocol').props().disabled,
-    ).toBeFalsy();
+    ).not.toBeFalsy();
     expect(component.find('SelectBox#nfs-version')).toHaveLength(1);
     expect(component.find('SelectBox#nfs-version').text()).toEqual('V3');
     expect(component.find('SelectBox#nfs-version').props().value).toEqual('v3');
     expect(
       component.find('SelectBox#nfs-version').props().disabled,
-    ).toBeFalsy();
+    ).not.toBeFalsy();
     expect(component.find('input[name="server"]')).toHaveLength(1);
     expect(component.find('input[name="server"]').props().value).toEqual('ep');
     expect(component.find('input[name="server"]').props().disabled).toBe(true);

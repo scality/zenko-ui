@@ -5,7 +5,7 @@ import {
   updateInputText,
 } from '../../../../utils/test';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
-import React from 'react';
+
 const props = {
   details: {},
   onChange: () => {},
@@ -48,10 +48,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
     );
     expect(component.find('input[name="endpoint"]')).toHaveLength(1);
     expect(component.find('input[name="endpoint"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      false,
-    );
   });
   it('should show custom details when editing an existing location', async () => {
     const locationDetails = {
@@ -79,10 +75,6 @@ describe('class <LocationDetailsAwsCustom />', () => {
     expect(component.find('input[name="endpoint"]').props().value).toEqual(
       'https://ep',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      true,
-    );
   });
   it('should call onChange on location details updates', async () => {
     const refLocation = {
@@ -90,13 +82,12 @@ describe('class <LocationDetailsAwsCustom />', () => {
       secretKey: 'sk',
       accessKey: 'ak',
       bucketName: 'bn',
-      bucketMatch: true,
+      bucketMatch: false,
     };
     let location = {};
     const component = await reduxMountAct(
       <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
     );
-    checkBox(component, 'bucketMatch', true);
     updateInputText(component, 'accessKey', 'ak');
     updateInputText(component, 'secretKey', 'sk');
     updateInputText(component, 'bucketName', 'bn');

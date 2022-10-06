@@ -1,11 +1,8 @@
-import {
-  Fieldset,
-  Input,
-  InputList,
-  Label,
-} from '../../../ui-elements/FormLayout';
+import { InputList } from '../../../ui-elements/FormLayout';
 import type { LocationDetails } from '../../../../types/config';
 import React from 'react';
+import { FormGroup, FormSection } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 type Props = {
   details: LocationDetails;
   onChange: (details: LocationDetails) => void;
@@ -75,51 +72,55 @@ export default class LocationDetailsSproxyd extends React.Component<
 
   render() {
     return (
-      <div>
-        <Fieldset>
-          <InputList
-            id="bootstrapList"
-            required
-            label="Bootstrap List"
-            getInputProps={() => ({
-              autoComplete: 'off',
-              type: 'text',
-              placeholder: 'example: localhost:8181',
-            })}
-            values={this.state.bootstrapList}
-            onChange={this.onListChange}
-            maxItems={SPROXYD_LIMIT}
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="proxyPath" required>
-            Proxy Path
-          </Label>
-          <Input
-            name="proxyPath"
-            id="proxyPath"
-            type="text"
-            placeholder="example: /proxy/path"
-            value={this.state.proxyPath}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="chordCos" required>
-            Replication Factor for Small Objects
-          </Label>
-          <Input
-            name="chordCos"
-            id="chordCos"
-            type="text"
-            placeholder="example: 3"
-            value={this.state.chordCos}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-      </div>
+      <FormSection>
+        <InputList
+          id="bootstrapList"
+          required
+          label="Bootstrap List"
+          getInputProps={() => ({
+            autoComplete: 'off',
+            type: 'text',
+            placeholder: 'localhost:8181',
+          })}
+          values={this.state.bootstrapList}
+          onChange={this.onListChange}
+          maxItems={SPROXYD_LIMIT}
+        />
+
+        <FormGroup
+          id="proxyPath"
+          label="Proxy Path"
+          required
+          content={
+            <Input
+              name="proxyPath"
+              id="proxyPath"
+              type="text"
+              placeholder="/proxy/path"
+              value={this.state.proxyPath}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+
+        <FormGroup
+          id="chordCos"
+          label="Replication Factor for Small Objects"
+          required
+          content={
+            <Input
+              name="chordCos"
+              id="chordCos"
+              type="text"
+              placeholder="3"
+              value={this.state.chordCos}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+      </FormSection>
     );
   }
 }

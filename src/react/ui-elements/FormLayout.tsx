@@ -110,9 +110,10 @@ export const Hr = styled.hr`
   width: 40rem;
   margin-bottom: 1rem;
 `;
-export const InputList = styled(BasicInputList)`
+export const InputList = styled((props) => <BasicInputList {...props} />)`
   margin: ${spacing.sp8} 0px ${spacing.sp4} 0px;
 `;
+
 export const SessionSeperation = styled.div`
   width: 23px;
   height: 1px;

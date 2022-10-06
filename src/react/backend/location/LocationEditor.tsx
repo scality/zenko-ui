@@ -1,6 +1,13 @@
-import { Banner, Icon, SecondaryText } from '@scality/core-ui';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
+import { Button, Input, Select } from '@scality/core-ui/dist/next';
+
 import { goBack } from 'connected-react-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
@@ -9,7 +16,6 @@ import styled from 'styled-components';
 import { LocationName } from '../../../types/config';
 import type { AppState } from '../../../types/state';
 import { clearError, saveLocation } from '../../actions';
-import FormContainer, * as F from '../../ui-elements/FormLayout';
 import { useOutsideClick } from '../../utils/hooks';
 import {
   getLocationTypeKey,
@@ -27,20 +33,16 @@ import {
   newLocationForm,
 } from './utils';
 
+//Temporary hack waiting for the layout
+const StyledForm = styled(Form)`
+  height: calc(100vh - 48px);
+`;
+
 const makeLabel = (locationType) => {
   const details = storageOptions[locationType];
   return details.name;
 };
 
-const SecondaryTextItalic = styled(SecondaryText)({
-  fontStyle: 'italic',
-});
-
-const HorizontalLine = styled.hr`
-  border: ${spacing.sp1} inset ${(props) => props.theme.brand.backgroundLevel2};
-  width: 100%;
-  margin: 0;
-`;
 function LocationEditor() {
   const dispatch = useDispatch();
   const { locationName } = useParams<{ locationName: string }>();
@@ -154,16 +156,14 @@ function LocationEditor() {
     }
 
     return (
-      <div className="form-group">
-        <LocationDetails
-          edit
-          locationType={location.locationType}
-          details={location.details}
-          onChange={onDetailsChange}
-          editingExisting={editingExisting}
-          capabilities={capabilities}
-        />
-      </div>
+      <LocationDetails
+        edit
+        locationType={location.locationType}
+        details={location.details}
+        onChange={onDetailsChange}
+        editingExisting={editingExisting}
+        capabilities={capabilities}
+      />
     );
   };
 
@@ -179,112 +179,112 @@ function LocationEditor() {
   const locationTypeKey = getLocationTypeKey(location);
 
   return (
-    <FormContainer>
-      <F.Form ref={formRef}>
-        <F.Title>
-          {`${locationEditing ? 'Edit' : 'Add New'} Storage Location`}
-        </F.Title>
-        <HorizontalLine />
-        <Box mt={spacing.sp16} mb={spacing.sp24}>
-          <SecondaryTextItalic>All * are mandatory fields</SecondaryTextItalic>
-        </Box>
-        <F.SectionTitle fontSize={fontSize.large}>General</F.SectionTitle>
-        <F.Fieldset>
-          <F.Label
-            htmlFor="name"
-            required
-            tooltipMessages={[
-              <>
-                Location name that will be used in ARTESCA Data Services. It is
-                not known to the storage provider. <br /> <br />
-                Use only lowercase letters, numbers, and dashes.
-              </>,
-            ]}
-            tooltipWidth="38rem"
+    <StyledForm
+      ref={formRef}
+      layout={{
+        kind: 'page',
+        title: `${locationEditing ? 'Edit' : 'Add New'} Storage Location`,
+      }}
+      requireMode="partial"
+      banner={
+        displayErrorMessage && (
+          <Banner
+            icon={<Icon name="Exclamation-triangle" />}
+            title="Error"
+            variant="danger"
           >
-            Location Name
-          </F.Label>
-          <F.Input
-            id="name"
-            type="text"
-            name="name"
-            debounceTimeout={0}
-            onChange={onChange}
-            value={location.name}
-            placeholder="example: us-west-2"
-            disabled={editingExisting}
-            autoComplete="off"
+            {displayErrorMessage}
+          </Banner>
+        )
+      }
+      rightActions={
+        <Stack gap="r16">
+          <Button
+            variant="outline"
+            disabled={loading}
+            onClick={cancel}
+            label="Cancel"
           />
-        </F.Fieldset>
-        <F.Fieldset>
-          <F.Label
-            htmlFor="locationType"
-            tooltipMessages={[
-              <>
-                Each Storage location type has its own requirements.
-                <br /> <br />
-                Unlike ARTESCA local storage, all public clouds require
-                authentication information.
-              </>,
-            ]}
-            tooltipWidth="32rem"
-            required
-          >
-            Location Type
-          </F.Label>
-          <F.Select
-            id="locationType"
-            name="locationType"
-            placeholder="Select an option..."
-            onChange={onTypeChange}
-            isDisabled={editingExisting}
-            value={locationTypeKey}
-          >
-            {selectOptions.map((opt, i) => (
-              <F.Select.Option key={i} value={opt.value}>
-                {opt.label}
-              </F.Select.Option>
-            ))}
-          </F.Select>
-        </F.Fieldset>
-        {maybeShowDetails()}
-        <LocationOptions
-          locationType={location.locationType}
-          locationOptions={location.options}
-          onChange={onOptionsChange}
+
+          <Button
+            variant="primary"
+            icon={locationEditing && <Icon name="Save" />}
+            disabled={
+              disable || loading || !isLocationExists(location.locationType)
+            }
+            onClick={save}
+            label={locationEditing ? 'Save Changes' : 'Create'}
+          />
+        </Stack>
+      }
+    >
+      <FormSection title={{ name: 'General' }}>
+        <FormGroup
+          id="name"
+          content={
+            <Input
+              id="name"
+              type="text"
+              name="name"
+              onChange={onChange}
+              value={location.name}
+              placeholder="us-west-2"
+              disabled={editingExisting}
+              autoComplete="off"
+            />
+          }
+          required
+          labelHelpTooltip={
+            <>
+              Location name that will be used in ARTESCA Data Services. It is
+              not known to the storage provider. <br /> <br />
+              Use only lowercase letters, numbers, and dashes.
+            </>
+          }
+          label="Location Name"
         />
-        <F.Footer>
-          <F.FooterError>
-            {displayErrorMessage && (
-              <Banner
-                icon={<Icon name="Exclamation-triangle" />}
-                title="Error"
-                variant="danger"
-              >
-                {displayErrorMessage}
-              </Banner>
-            )}
-          </F.FooterError>
-          <F.FooterButtons>
-            <Button
-              variant="outline"
-              disabled={loading}
-              onClick={cancel}
-              label="Cancel"
-            />
-            <Button
-              variant="primary"
-              icon={locationEditing && <Icon name="Save" />}
-              disabled={
-                disable || loading || !isLocationExists(location.locationType)
-              }
-              onClick={save}
-              label={locationEditing ? 'Save Changes' : 'Create'}
-            />
-          </F.FooterButtons>
-        </F.Footer>
-      </F.Form>
-    </FormContainer>
+
+        <FormGroup
+          id="locationType"
+          labelHelpTooltip={
+            <>
+              Each Storage location type has its own requirements.
+              <br /> <br />
+              Unlike ARTESCA local storage, all public clouds require
+              authentication information.
+            </>
+          }
+          required
+          label="Location Type"
+          content={
+            <Select
+              id="locationType"
+              placeholder="Select an option..."
+              onChange={onTypeChange}
+              disabled={editingExisting}
+              value={locationTypeKey}
+            >
+              {selectOptions.map((opt, i) => (
+                <Select.Option key={i} value={opt.value}>
+                  {opt.label}
+                </Select.Option>
+              ))}
+            </Select>
+          }
+        />
+      </FormSection>
+
+      {locationTypeKey && (
+        <>
+          {maybeShowDetails()}
+          <LocationOptions
+            locationType={location.locationType}
+            locationOptions={location.options}
+            onChange={onOptionsChange}
+          />
+        </>
+      )}
+    </StyledForm>
   );
 }
 

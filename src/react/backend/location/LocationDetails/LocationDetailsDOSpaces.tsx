@@ -1,12 +1,7 @@
-import {
-  Checkbox,
-  CheckboxContainer,
-  Fieldset,
-  Input,
-  Label,
-} from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
+import { FormGroup, FormSection } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 type State = {
   bucketMatch: boolean;
   accessKey: string;
@@ -59,88 +54,82 @@ export default class LocationDetailsDOSpaces extends React.Component<
 
   render() {
     return (
-      <div>
-        <Fieldset>
-          <Label htmlFor="accessKey" required>
-            Spaces Access Key
-          </Label>
-          <Input
-            name="accessKey"
-            id="accessKey"
-            type="text"
-            placeholder="example: AKI5HMPCLRB86WCKTN2C"
-            value={this.state.accessKey}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="secretKey" required>
-            Spaces Secret Key
-          </Label>
-          <Input
-            name="secretKey"
-            id="secretKey"
-            type="password"
-            placeholder="example: QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
-            value={this.state.secretKey}
-            onChange={this.onChange}
-            autoComplete="new-password"
-          />
-          <small>
-            Your credentials are encrypted in transit, then at rest using your
-            instance&apos;s RSA key pair so that we&apos;re unable to see them.
-          </small>
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="bucketName" required>
-            Target Space Name
-          </Label>
-          <Input
-            name="bucketName"
-            id="bucketName"
-            type="text"
-            placeholder="space-target"
-            value={this.state.bucketName}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-        </Fieldset>
-        <Fieldset>
-          <Label htmlFor="endpoint" required>
-            Endpoint
-          </Label>
-          <Input
-            name="endpoint"
-            type="text"
-            placeholder="example: nyc3.digitaloceanspaces.com"
-            value={this.state.endpoint}
-            onChange={this.onChange}
-            autoComplete="off"
-          />
-          <small>As shown in the Settings page for this space</small>
-        </Fieldset>
-        <Fieldset
-          style={{
-            display: 'non',
-          }}
-        >
-          <CheckboxContainer>
-            <Checkbox
-              name="bucketMatch"
-              type="checkbox"
-              value={this.state.bucketMatch}
-              checked={this.state.bucketMatch}
+      <FormSection>
+        <FormGroup
+          id="accessKey"
+          label="Spaces Access Key"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              name="accessKey"
+              id="accessKey"
+              type="text"
+              placeholder="AKI5HMPCLRB86WCKTN2C"
+              value={this.state.accessKey}
               onChange={this.onChange}
+              autoComplete="off"
             />
-            <span> Bucket Match </span>
-          </CheckboxContainer>
-          <small>
-            Stores objects in the target container without a source-bucket
-            prefix.
-          </small>
-        </Fieldset>
-      </div>
+          }
+        />
+
+        <FormGroup
+          id="secretKey"
+          label="Spaces Secret Key"
+          required
+          helpErrorPosition="bottom"
+          labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
+            instance's RSA key pair so that we're unable to see them."
+          content={
+            <Input
+              name="secretKey"
+              id="secretKey"
+              type="password"
+              placeholder="QFvIo6l76oe9xgCAw1N/zlPFtdTSZXMMUuANeXc6"
+              value={this.state.secretKey}
+              onChange={this.onChange}
+              autoComplete="new-password"
+            />
+          }
+        />
+
+        <FormGroup
+          id="bucketName"
+          label="Target Space Name"
+          required
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              name="bucketName"
+              id="bucketName"
+              type="text"
+              placeholder="space-target"
+              value={this.state.bucketName}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+
+        <FormGroup
+          id="endpoint"
+          label="Endpoint"
+          required
+          helpErrorPosition="bottom"
+          help="As shown in the Settings page for this space"
+          content={
+            <Input
+              id="endpoint"
+              name="endpoint"
+              type="text"
+              placeholder="nyc3.digitaloceanspaces.com"
+              value={this.state.endpoint}
+              onChange={this.onChange}
+              autoComplete="off"
+            />
+          }
+        />
+      </FormSection>
     );
   }
 }

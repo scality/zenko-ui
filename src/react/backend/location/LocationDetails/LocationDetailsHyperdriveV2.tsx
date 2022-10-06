@@ -1,7 +1,7 @@
-import { Fieldset } from '../../../ui-elements/FormLayout';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import InputList from '../../../ui-elements/InputList';
+import { FormSection } from '@scality/core-ui';
 
 type State = {
   bootstrapList: Array<string>;
@@ -42,23 +42,21 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
 
   render() {
     return (
-      <div>
-        <Fieldset>
-          <InputList
-            id="bootstrapList"
-            required
-            label="Bootstrap List"
-            getInputProps={() => ({
-              autoComplete: 'off',
-              type: 'text',
-              placeholder: 'example: localhost:8181',
-            })}
-            values={this.state.bootstrapList}
-            onChange={this.onListChange}
-            maxItems={MAX_HYPERDRIVE}
-          />
-        </Fieldset>
-      </div>
+      <FormSection>
+        <InputList
+          id="bootstrapList"
+          required
+          label="Bootstrap List"
+          getInputProps={() => ({
+            autoComplete: 'off',
+            type: 'text',
+            placeholder: 'localhost:8181',
+          })}
+          values={this.state.bootstrapList}
+          onChange={this.onListChange}
+          maxItems={MAX_HYPERDRIVE}
+        />
+      </FormSection>
     );
   }
 }
