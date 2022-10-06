@@ -105,7 +105,7 @@ const UpdateAccountPolicy = () => {
 
   const onSubmit = (data: FormValues) => {
     const policyDocument = data.policyDocument;
-    updatePolicyMutation.mutate({ policyName, policyDocument });
+    updatePolicyMutation.mutate({ policyDocument });
   };
 
   const handleCancel = (e: ChangeEvent<HTMLInputElement>) => {

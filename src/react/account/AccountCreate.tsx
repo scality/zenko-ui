@@ -36,12 +36,14 @@ const schema = Joi.object({
     .message('Invalid Root Account Email'),
 });
 
+type AccountFormField = { name: string; email: string };
+
 function AccountCreate() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<AccountFormField>({
     mode: 'all',
     resolver: joiResolver(schema),
   });
@@ -58,7 +60,7 @@ function AccountCreate() {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  const onSubmit = ({ name, email }: { name: string; email: string }) => {
+  const onSubmit = ({ name, email }: AccountFormField) => {
     clearServerError();
     const payload = {
       Name: name,
