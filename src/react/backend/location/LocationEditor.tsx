@@ -1,4 +1,11 @@
-import { Banner, Form, FormGroup, FormSection, Stack } from '@scality/core-ui';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 
 import { goBack } from 'connected-react-router';
@@ -182,7 +189,7 @@ function LocationEditor() {
       banner={
         displayErrorMessage && (
           <Banner
-            icon={<i className="fas fa-exclamation-triangle" />}
+            icon={<Icon name="Exclamation-triangle" />}
             title="Error"
             variant="danger"
           >
@@ -191,7 +198,7 @@ function LocationEditor() {
         )
       }
       rightActions={
-        <Stack>
+        <Stack gap="r16">
           <Button
             variant="outline"
             disabled={loading}
@@ -201,7 +208,7 @@ function LocationEditor() {
 
           <Button
             variant="primary"
-            icon={locationEditing && <i className="fas fa-save" />}
+            icon={locationEditing && <Icon name="Save" />}
             disabled={
               disable || loading || !isLocationExists(location.locationType)
             }
