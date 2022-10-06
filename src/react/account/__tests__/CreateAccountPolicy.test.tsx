@@ -59,7 +59,7 @@ describe('CreateAccountPolicy', () => {
     });
     expect(policyNameInput).toBeInTheDocument();
 
-    const copyButton = screen.getByRole('button', { name: /copy/i });
+    const copyButton = screen.getByRole('button', { name: /copy policy/i });
     expect(copyButton).toBeInTheDocument();
 
     const createButton = screen.getByRole('button', { name: /Create/i });
@@ -103,7 +103,7 @@ describe('CreateAccountPolicy', () => {
       wrapper,
     });
 
-    const copyButton = screen.getByRole('button', { name: /copy/i });
+    const copyButton = screen.getByRole('button', { name: /copy policy/i });
 
     expect(copyButton).not.toBeDisabled();
   });

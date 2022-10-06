@@ -103,7 +103,7 @@ describe('UpdateAccountPolicy', () => {
     expect(screen.getByText('Policy ARN')).toBeInTheDocument();
     expect(screen.getByText('Policy Document')).toBeInTheDocument();
 
-    const copyButton = screen.getByRole('button', { name: /copy/i });
+    const copyButton = screen.getByRole('button', { name: /copy policy/i });
     expect(copyButton).toBeInTheDocument();
 
     const createButton = screen.getByRole('button', { name: /Close/i });
@@ -127,7 +127,7 @@ describe('UpdateAccountPolicy', () => {
     expect(screen.getByText('Policy ARN')).toBeInTheDocument();
     expect(screen.getByText('Policy Document')).toBeInTheDocument();
 
-    const copyButton = screen.getByRole('button', { name: /copy/i });
+    const copyButton = screen.getByRole('button', { name: /copy policy/i });
     expect(copyButton).toBeInTheDocument();
 
     const saveButton = screen.getByRole('button', { name: /Save/i });
