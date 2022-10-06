@@ -87,6 +87,7 @@ function EndpointCreate() {
             variant="outline"
             onClick={handleCancel}
             label="Cancel"
+            type="button"
           />
           <Button
             disabled={loading}

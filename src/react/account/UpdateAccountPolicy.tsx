@@ -12,7 +12,7 @@ import Loader from '../ui-elements/Loader';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { regexArn } from '../utils/hooks';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
-import { ChangeEvent } from 'react';
+import { MouseEvent } from 'react';
 
 type FormValues = {
   policyName: string;
@@ -108,7 +108,7 @@ const UpdateAccountPolicy = () => {
     updatePolicyMutation.mutate({ policyDocument });
   };
 
-  const handleCancel = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCancel = (e: MouseEvent<HTMLButtonElement>) => {
     if (e) {
       e.preventDefault();
     }

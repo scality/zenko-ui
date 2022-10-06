@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent } from 'react';
+import { FormEvent, MouseEvent } from 'react';
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';
@@ -31,7 +31,7 @@ export const CommonPolicyLayout = ({
   };
   isDirty: boolean;
   isValid: boolean;
-  handleCancel: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleCancel: (e: MouseEvent<HTMLButtonElement>) => void;
 }) => {
   const isCreateMode = !policyArn;
   return (
@@ -46,10 +46,20 @@ export const CommonPolicyLayout = ({
       requireMode={isCreateMode ? 'partial' : 'all'}
       rightActions={
         isReadOnly ? (
-          <Button variant="outline" label="Close" onClick={handleCancel} />
+          <Button
+            variant="outline"
+            label="Close"
+            onClick={handleCancel}
+            type="button"
+          />
         ) : (
           <Stack gap="r16">
-            <Button variant="outline" label="Cancel" onClick={handleCancel} />
+            <Button
+              variant="outline"
+              label="Cancel"
+              onClick={handleCancel}
+              type="button"
+            />
             <Button
               disabled={!isDirty || !isValid}
               type="submit"

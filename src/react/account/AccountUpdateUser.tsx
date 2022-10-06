@@ -1,5 +1,5 @@
 import FormContainer, * as F from '../ui-elements/FormLayout';
-import React, { useRef } from 'react';
+import { MouseEvent, useRef } from 'react';
 import { clearError, handleErrorMessage, networkEnd } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
@@ -109,7 +109,7 @@ const AccountUpdateUser = () => {
     updateUserMutation.mutate(name);
   };
 
-  const handleCancel = (e: MouseEvent) => {
+  const handleCancel = (e: MouseEvent<HTMLButtonElement>) => {
     if (e) {
       e.preventDefault();
     }

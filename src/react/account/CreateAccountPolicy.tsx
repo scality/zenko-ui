@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
 import { Input } from '@scality/core-ui/dist/next';
-import { ChangeEvent } from 'react';
+import { MouseEvent } from 'react';
 
 type PolicyFormValues = {
   policyName: string;
@@ -78,7 +78,7 @@ const CreateAccountPolicy = () => {
     createPolicyMutation.mutate({ policyName, policyDocument });
   };
 
-  const handleCancel = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleCancel = (e: MouseEvent<HTMLButtonElement>) => {
     if (e) {
       e.preventDefault();
     }
