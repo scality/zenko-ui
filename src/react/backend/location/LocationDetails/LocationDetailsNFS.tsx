@@ -154,6 +154,7 @@ export default class LocationDetailsNFS extends React.Component<
           helpErrorPosition="bottom"
           content={
             <Select
+              name="protocol"
               id="nfs-protocol"
               disabled={editingExisting}
               onChange={this.onProtocolChange}
