@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button, Input } from '@scality/core-ui/dist/next';
 import {
   Banner,
   Form,
@@ -282,10 +282,13 @@ export default function ObjectLockSetting() {
                 }) => {
                   return (
                     <input
+                      id="retentionUntilDate"
                       type="date"
                       name="retention-until-date"
                       disabled={!isRetentionEnabled}
-                      onChange={(e) => onChange(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        onChange(e.target.value)
+                      }
                       value={retentionUntilDate}
                       min={minRetainUtilDate}
                     />

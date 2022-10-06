@@ -139,6 +139,8 @@ function AccountCreate() {
               id="name"
               {...register('name')}
               onChange={clearServerError}
+              autoFocus
+              autoComplete="off"
             />
           }
         />

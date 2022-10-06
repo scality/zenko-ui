@@ -90,7 +90,7 @@ export const CommonPolicyLayout = ({
             content={
               <>
                 <span>{policyArn}</span>
-                <Clipboard text={policyArn} />
+                <CopyButton textToCopy={policyArn} />
               </>
             }
           />
