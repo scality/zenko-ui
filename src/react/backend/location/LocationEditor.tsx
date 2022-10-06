@@ -5,6 +5,7 @@ import { goBack } from 'connected-react-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import { LocationName } from '../../../types/config';
 import type { AppState } from '../../../types/state';
 import { clearError, saveLocation } from '../../actions';
@@ -24,6 +25,11 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
+
+//Temporary hack waiting for the layout
+const StyledForm = styled(Form)`
+  height: calc(100vh - 48px);
+`;
 
 const makeLabel = (locationType) => {
   const details = storageOptions[locationType];
@@ -166,7 +172,7 @@ function LocationEditor() {
   const locationTypeKey = getLocationTypeKey(location);
 
   return (
-    <Form
+    <StyledForm
       ref={formRef}
       layout={{
         kind: 'page',
@@ -261,15 +267,17 @@ function LocationEditor() {
         />
       </FormSection>
 
-      {locationTypeKey && <>
-        {maybeShowDetails()}
-        <LocationOptions
-          locationType={location.locationType}
-          locationOptions={location.options}
-          onChange={onOptionsChange}
-        />
-      </>}
-    </Form>
+      {locationTypeKey && (
+        <>
+          {maybeShowDetails()}
+          <LocationOptions
+            locationType={location.locationType}
+            locationOptions={location.options}
+            onChange={onOptionsChange}
+          />
+        </>
+      )}
+    </StyledForm>
   );
 }
 

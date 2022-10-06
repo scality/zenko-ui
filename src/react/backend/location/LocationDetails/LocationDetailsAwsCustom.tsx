@@ -180,6 +180,7 @@ export default function LocationDetailsAwsCustom({
         <FormSection>
           <FormGroup
             label=""
+            direction="vertical"
             id="bucketMatch"
             content={
               <Checkbox
@@ -190,7 +191,6 @@ export default function LocationDetailsAwsCustom({
                 label={
                   isIngest ? (
                     <>
-                      {' '}
                       Async Metadata updates Ready{' '}
                       <HelpLocationCreationAsyncNotification />{' '}
                     </>
@@ -209,9 +209,7 @@ export default function LocationDetailsAwsCustom({
             }
           />
         </FormSection>
-      ) : (
-        <Box mb={8} />
-      )}
+      ) : null}
     </>
   );
 }

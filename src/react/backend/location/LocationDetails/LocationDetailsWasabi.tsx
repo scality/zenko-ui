@@ -123,6 +123,7 @@ export default class LocationDetailsWasabi extends React.Component<
           <FormGroup
             id="bucketMatch"
             label=""
+            direction="vertical"
             helpErrorPosition="bottom"
             error={
               this.state.bucketMatch

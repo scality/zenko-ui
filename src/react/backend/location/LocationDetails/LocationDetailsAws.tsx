@@ -117,6 +117,7 @@ export default class LocationDetailsAws extends React.Component<
           <FormGroup
             label=""
             id="bucketMatch"
+            direction="vertical"
             helpErrorPosition="bottom"
             error={
               this.state.bucketMatch
@@ -138,6 +139,7 @@ export default class LocationDetailsAws extends React.Component<
 
           <FormGroup
             label=""
+            direction="vertical"
             id="serverSideEncryption"
             helpErrorPosition="bottom"
             content={
