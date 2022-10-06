@@ -5,7 +5,7 @@ import {
   updateInputText,
 } from '../../../../utils/test';
 import LocationDetailsGcp from '../LocationDetailsGcp';
-import React from 'react';
+
 const props = {
   details: {},
   onChange: () => {},
@@ -52,10 +52,6 @@ describe('class <LocationDetailsGcp />', () => {
     expect(component.find('input[name="mpuBucketName"]').props().value).toEqual(
       '',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      false,
-    );
   });
   it('should show gcp details when editing an existing location', () => {
     const locationDetails = {
@@ -83,10 +79,6 @@ describe('class <LocationDetailsGcp />', () => {
     expect(component.find('input[name="mpuBucketName"]').props().value).toEqual(
       'mbn',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      true,
-    );
   });
   it('should call onChange on location details updates', () => {
     const refLocation = {
@@ -94,13 +86,13 @@ describe('class <LocationDetailsGcp />', () => {
       accessKey: 'ak',
       bucketName: 'bn',
       mpuBucketName: 'mbn',
-      bucketMatch: true,
+      bucketMatch: false,
     };
     let location = {};
     const component = mount(
       <LocationDetailsGcp {...props} onChange={(l) => (location = l)} />,
     );
-    checkBox(component, 'bucketMatch', true);
+
     updateInputText(component, 'accessKey', 'ak');
     updateInputText(component, 'secretKey', 'sk');
     updateInputText(component, 'bucketName', 'bn');

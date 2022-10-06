@@ -1,11 +1,6 @@
 /* eslint-disable */
-import {
-  checkBox,
-  themeMount as mount,
-  updateInputText,
-} from '../../../../utils/test';
+import { themeMount as mount, updateInputText } from '../../../../utils/test';
 import LocationDetailsAzure from '../LocationDetailsAzure';
-import React from 'react';
 const props = {
   details: {},
   onChange: () => {},
@@ -48,10 +43,6 @@ describe('class <LocationDetailsAzure />', () => {
     expect(component.find('input[name="bucketName"]').props().value).toEqual(
       '',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      false,
-    );
     expect(component.find('input[name="endpoint"]')).toHaveLength(1);
     expect(component.find('input[name="endpoint"]').props().value).toEqual('');
   });
@@ -81,24 +72,19 @@ describe('class <LocationDetailsAzure />', () => {
     expect(component.find('input[name="bucketName"]').props().value).toEqual(
       'bn',
     );
-    expect(component.find('input[name="bucketMatch"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketMatch"]').props().value).toEqual(
-      true,
-    );
   });
   it('should call onChange on location details updates', () => {
     const refLocation = {
       secretKey: 'sk',
       accessKey: 'ak',
       bucketName: 'bn',
-      bucketMatch: true,
+      bucketMatch: false,
       endpoint: 'https://ep',
     };
     let location = {};
     const component = mount(
       <LocationDetailsAzure {...props} onChange={(l) => (location = l)} />,
     );
-    checkBox(component, 'bucketMatch', true);
     updateInputText(component, 'accessKey', 'ak');
     updateInputText(component, 'secretKey', 'sk');
     updateInputText(component, 'bucketName', 'bn');
