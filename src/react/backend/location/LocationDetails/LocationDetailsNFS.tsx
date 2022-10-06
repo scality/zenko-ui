@@ -201,7 +201,7 @@ export default class LocationDetailsNFS extends React.Component<
               name="server"
               id="nfs-server"
               disabled={editingExisting}
-              placeholder="example: nfsserver.example.com"
+              placeholder="nfsserver.example.com"
               value={this.state.server}
               onChange={this.onChange}
               autoComplete="off"
@@ -220,7 +220,7 @@ export default class LocationDetailsNFS extends React.Component<
               name="path"
               id="nfs-path"
               disabled={editingExisting}
-              placeholder="example: /path/to/export"
+              placeholder="/path/to/export"
               value={this.state.path}
               onChange={this.onChange}
               autoComplete="off"

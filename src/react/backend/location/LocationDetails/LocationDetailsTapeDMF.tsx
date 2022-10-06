@@ -81,7 +81,7 @@ export default function LocationDetailsTapeDMF({
               name="endpoint"
               id="endpoint"
               type="text"
-              placeholder="example: ws://path.to.my.dmf"
+              placeholder="ws://path.to.my.dmf"
               value={formState.endpoint}
               onChange={onFormItemChange}
               autoComplete="off"

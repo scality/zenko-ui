@@ -50,7 +50,7 @@ export default class LocationDetailsHyperdriveV2 extends React.Component<
           getInputProps={() => ({
             autoComplete: 'off',
             type: 'text',
-            placeholder: 'example: localhost:8181',
+            placeholder: 'localhost:8181',
           })}
           values={this.state.bootstrapList}
           onChange={this.onListChange}
