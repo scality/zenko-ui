@@ -38,11 +38,6 @@ type InternalUser = {
   actions: null;
 };
 
-const InlineButton = styled(Button)`
-  height: ${spacing.sp24};
-  margin-left: ${spacing.sp16};
-`;
-
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const history = useHistory();
@@ -89,17 +84,13 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           )}
         </SpacedBox>
       ) : null}
-      <InlineButton
-        icon={<Icon name="Eye" />}
+      <Button
+        size="inline"
+        icon={<Icon name="Eye" color="textSecondary" />}
         variant="secondary"
         onClick={() => history.push(`users/${userName}/access-keys`)}
         type="button"
-        tooltip={{
-          overlayStyle: {
-            width: '14rem',
-          },
-          overlay: 'Checking or creating access keys',
-        }}
+        tooltip={{ overlay: 'Checking or creating access keys' }}
         disabled={userAccessKeyStatus === 'loading'}
       />
     </div>
@@ -117,7 +108,7 @@ const EditButton = ({ userName }: { userName: string }) => {
       size="inline"
       variant="secondary"
       label="Edit"
-      icon={<Icon name="Pen" />}
+      icon={<Icon name="Pen" color="textSecondary" />}
       onClick={() => history.push(`users/${userName}/update-user`)}
     />
   );
@@ -361,7 +352,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={<Icon name="Create-add" />}
+          icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create User"
           variant="primary"
           onClick={() => history.push('create-user')}

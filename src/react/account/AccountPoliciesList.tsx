@@ -76,7 +76,8 @@ const EditButton = ({
       )}
       {!isEditPolicyDisabled && (
         <Button
-          style={{ height: spacing.sp24, width: '5rem' }}
+          size="inline"
+          style={{ width: '5rem' }}
           disabled={
             status === 'idle' ||
             status === 'loading' ||
@@ -264,11 +265,15 @@ const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
       {isInternalPolicy && (
         <Tooltip
           overlay={'This is a predefined Scality Policy'}
-          overlayStyle={{
-            width: '13rem',
-          }}
+          overlayStyle={{ width: '13rem' }}
         >
-          {policyName} <Icon name="Info" size="xs" />
+          {policyName}
+          <Icon
+            name="Info"
+            size="xs"
+            color="buttonSecondary"
+            style={{ marginLeft: spacing.sp16 }}
+          />
         </Tooltip>
       )}
       {!isInternalPolicy && <>{policyName} </>}
@@ -369,13 +374,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       columns={columns}
       additionalHeaders={
         <Button
-          icon={
-            <Icon
-              name="Create-add"
-              color="buttonSecondary"
-              style={{ marginLeft: spacing.sp8 }}
-            />
-          }
+          icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create Policy"
           variant="primary"
           onClick={() => history.push('create-policy')}
