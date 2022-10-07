@@ -99,7 +99,12 @@ export const expirationSchema = Joi.object({
   'incompleteMultipartUploadTriggerDelayDays',
 );
 
-export function GeneralExpirationGroup({ prefix = '' }: { prefix?: string }) {
+export function GeneralExpirationGroup({
+  prefix = '',
+}: {
+  prefix?: string;
+  required?: boolean;
+}) {
   const methods = useFormContext();
   return (
     <FormGroup
@@ -200,7 +205,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     return renderSource(locations)(result);
                   }
                   return (
-                    <Box style={{ width: '20.5rem' }}>
+                    <Box
+                      style={{ width: '20.5rem' }}
+                      data-testid="select-bucket-name-expiration"
+                    >
                       <Select
                         id="sourceBucket"
                         value={sourceBucket}
@@ -294,7 +302,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           title={{ name: 'Action' }}
           forceLabelWidth={forceLabelWidth}
         >
-          <T.GroupContent>
+          <T.GroupContent required>
             <T.Row data-testid="toggle-action-expire-current-version">
               <T.KeyTooltip
                 tooltipMessage={`
@@ -308,15 +316,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 tooltipWidth="13rem"
                 size={60}
               >
-                {' '}
                 Expire <span style={{ fontWeight: 'bold' }}>Current</span>{' '}
-                version of objects{' '}
+                version of objects
               </T.KeyTooltip>
-              <T.Value
-                style={{
-                  ...flexStyle,
-                }}
-              >
+              <T.Value style={{ ...flexStyle }}>
                 <Controller
                   control={control}
                   name={`${prefix}currentVersionTriggerDelayDays`}
@@ -420,15 +423,10 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 tooltipWidth="13rem"
                 size={60}
               >
-                {' '}
                 Expire <span style={{ fontWeight: 'bold' }}>Previous</span>{' '}
-                version of objects{' '}
+                version of objects
               </T.KeyTooltip>
-              <T.Value
-                style={{
-                  ...flexStyle,
-                }}
-              >
+              <T.Value style={{ ...flexStyle }}>
                 <Controller
                   control={control}
                   name={`${prefix}previousVersionTriggerDelayDays`}
@@ -451,15 +449,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 />
 
                 {!isSourceBucketVersionned ? (
-                  <>
-                    <IconHelp
-                      tooltipMessage={
-                        'This action is disabled when source bucket is not versionned'
-                      }
-                      variant="outline"
-                      overlayStyle={{ width: '13rem' }}
-                    />
-                  </>
+                  <IconHelp
+                    tooltipMessage="This action is disabled when source bucket is not versionned"
+                    variant="outline"
+                    overlayStyle={{ width: '13rem' }}
+                  />
                 ) : (
                   ''
                 )}
@@ -536,14 +530,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 tooltipWidth="13rem"
                 size={60}
               >
-                {' '}
-                Remove expired Delete markers{' '}
+                Remove expired Delete markers
               </T.KeyTooltip>
-              <T.Value
-                style={{
-                  ...flexStyle,
-                }}
-              >
+              <T.Value style={{ ...flexStyle }}>
                 <Controller
                   control={control}
                   name={`${prefix}expireDeleteMarkersTrigger`}
@@ -604,14 +593,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 tooltipWidth="13rem"
                 size={60}
               >
-                {' '}
-                Expire incomplete Multipart uploads{' '}
+                Expire incomplete Multipart uploads
               </T.KeyTooltip>
-              <T.Value
-                style={{
-                  ...flexStyle,
-                }}
-              >
+              <T.Value style={{ ...flexStyle }}>
                 <Controller
                   control={control}
                   name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}

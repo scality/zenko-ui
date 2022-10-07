@@ -79,7 +79,12 @@ export const replicationSchema = (sourcesPrefix: string[]) => ({
     .required(),
 });
 
-export function GeneralReplicationGroup({ prefix = '' }: { prefix?: string }) {
+export function GeneralReplicationGroup({
+  prefix = '',
+}: {
+  prefix?: string;
+  required?: boolean;
+}) {
   const methods = useFormContext();
   return (
     <FormGroup
@@ -199,7 +204,10 @@ function ReplicationForm({
                     return renderSource(locations)(result);
                   }
                   return (
-                    <Box style={{ width: '20.5rem' }}>
+                    <Box
+                      style={{ width: '20.5rem' }}
+                      data-testid="select-bucket-name-replication"
+                    >
                       <Select
                         onBlur={onBlur}
                         id="sourceBucket"
@@ -230,7 +238,7 @@ function ReplicationForm({
           />
         </FormSection>
         <FormSection
-          title={{ name: 'Filters', icon: 'Filter' }}
+          title={{ name: 'Filter', icon: 'Filter' }}
           forceLabelWidth={forceLabelWidth}
         >
           <FormGroup

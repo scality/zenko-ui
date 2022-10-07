@@ -9,13 +9,14 @@ import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import ReplicationForm from '../ReplicationForm';
+import ReplicationForm, { GeneralReplicationGroup } from '../ReplicationForm';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import userEvent from '@testing-library/user-event';
 import { PerLocationMap } from '../../../types/config';
 import { S3Bucket } from '../../../types/s3';
 import { log } from 'vega';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
+import { Form, FormSection } from '@scality/core-ui';
 
 const instanceId = 'instanceId';
 const accountId = 'accountId';
@@ -122,11 +123,16 @@ describe('ReplicationForm', () => {
       const { component } =
         reduxRender(
           <WithFormProvider>
-            <ReplicationForm
-              prefix="replication."
-              bucketList={S3BucketList}
-              locations={locations}
-            />
+            <Form layout={{ kind: 'tab' }}>
+              <FormSection title={{ name: 'General' }}>
+                <GeneralReplicationGroup prefix="replication." />
+              </FormSection>
+              <ReplicationForm
+                prefix="replication."
+                bucketList={S3BucketList}
+                locations={locations}
+              />
+            </Form>
           </WithFormProvider>,
           {
             networkActivity: {
@@ -148,15 +154,15 @@ describe('ReplicationForm', () => {
             },
           }
         );
-      
+
       await waitFor(() => screen.getByText(/General/i));
-      expect(screen.getByText('State')).toBeInTheDocument();
-      expect(screen.getByText('Source')).toBeInTheDocument();
-      expect(screen.getByText('Bucket Name')).toBeInTheDocument();
-      expect(screen.getByText('Filter (optional)')).toBeInTheDocument();
-      expect(screen.getByText('Prefix')).toBeInTheDocument();
-      expect(screen.getByText('Destination')).toBeInTheDocument();
-      expect(screen.getByText('Location Name')).toBeInTheDocument();
+      expect(screen.getByText(/State/i)).toBeInTheDocument();
+      expect(screen.getByText(/Source/i)).toBeInTheDocument();
+      expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
+      expect(screen.getByText(/Filter/i)).toBeInTheDocument();
+      expect(screen.getByText(/Prefix/i)).toBeInTheDocument();
+      expect(screen.getByText(/Destination/i)).toBeInTheDocument();
+      expect(screen.getByText(/Location Name/i)).toBeInTheDocument();
 
       const formValidationa = screen.getByTestId('form-replication');
       expect(formValidationa.textContent).toBe('form-valid');
@@ -168,7 +174,7 @@ describe('ReplicationForm', () => {
       userEvent.click(srcCtl);
 
       const sOpt = sourceBucket.querySelector('.sc-select__option')
-      expect(sOpt?.textContent).toBe( "bucket1 (us-east-1 / Local Filesystem)");
+      expect(sOpt?.textContent).toBe("bucket1 (us-east-1 / Local Filesystem)");
       expect(sOpt?.getAttribute('aria-disabled')).toBe('true');
       userEvent.click((srcCtl));
       expect(srcCtl?.textContent).toBe("Select...");
@@ -176,19 +182,19 @@ describe('ReplicationForm', () => {
 
       const sOpts = sourceBucket.querySelectorAll('.sc-select__option')[1]
       const sOpt2 = notFalsyTypeGuard(sOpts);
-      expect(sOpt2.textContent).toBe( "bucket2 (us-east-1 / Local Filesystem)");
+      expect(sOpt2.textContent).toBe("bucket2 (us-east-1 / Local Filesystem)");
       userEvent.click(sOpt2);
       expect(srcCtl?.textContent).toBe("bucket2 (us-east-1 / Local Filesystem)");
 
       // Select the first destination.
       const LocationName = screen.getByTestId('select-location-name-replication-0');
       const lControl = LocationName.querySelector('.sc-select__control')
-      const locCtl= notFalsyTypeGuard(lControl);
+      const locCtl = notFalsyTypeGuard(lControl);
       userEvent.click(locCtl);
       expect(locCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const lOption = LocationName.querySelector('.sc-select__option');
       const lOpt = notFalsyTypeGuard(lOption)
-      expect(lOpt?.textContent).toBe( "chapter-ux (ARTESCA)");
+      expect(lOpt?.textContent).toBe("chapter-ux (ARTESCA)");
       userEvent.click(lOpt);
       expect(locCtl.querySelector('.sc-select__single-value')?.textContent).toBe('chapter-ux (ARTESCA)');
       const lAddButton = LocationName.querySelector('#addbtn0')
@@ -203,7 +209,7 @@ describe('ReplicationForm', () => {
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const nlOption = NewLocationName.querySelectorAll('.sc-select__option')[1]
       const nlOpt = notFalsyTypeGuard(nlOption)
-      expect(nlOpt?.textContent).toBe( "chapter-ux2 (ARTESCA)");
+      expect(nlOpt?.textContent).toBe("chapter-ux2 (ARTESCA)");
       userEvent.click(nlOpt);
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe('chapter-ux2 (ARTESCA)');
       const nlAddButon = NewLocationName.querySelector('#addbtn1')

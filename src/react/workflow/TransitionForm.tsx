@@ -64,7 +64,12 @@ type Props = {
   prefix?: string;
 };
 
-export function GeneralTransitionGroup({ prefix = '' }: { prefix?: string }) {
+export function GeneralTransitionGroup({
+  prefix = '',
+}: {
+  prefix?: string;
+  required?: boolean;
+}) {
   const methods = useFormContext();
   return (
     <FormGroup

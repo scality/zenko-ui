@@ -62,7 +62,7 @@ describe('CreateWorkflow', () => {
 
       await waitFor(() => screen.getByText(/Create New Workflow/i));
 
-      expect(screen.getByText('Type')).toBeInTheDocument();
+      expect(screen.getByText(/Rule Type/i)).toBeInTheDocument();
 
       const createButton = screen.getByText('Create');
       expect(createButton).toBeInTheDocument();

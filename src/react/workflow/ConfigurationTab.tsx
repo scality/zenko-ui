@@ -645,12 +645,13 @@ function EditForm({
             forceLabelWidth={convertRemToPixels(10)}
             title={{ name: 'General' }}
           >
+            {/* The required prop is a little hacky to remove the "optional" label of FormSection */}
             {isExpirationWorkflow(workflow) ? (
-              <GeneralExpirationGroup />
+              <GeneralExpirationGroup required />
             ) : isTransitionWorkflow(workflow) ? (
-              <GeneralTransitionGroup />
+              <GeneralTransitionGroup required />
             ) : (
-              <GeneralReplicationGroup />
+              <GeneralReplicationGroup required />
             )}
           </FormSection>
           {isExpirationWorkflow(workflow) ? (

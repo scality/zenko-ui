@@ -10,7 +10,6 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../types/state';
 import { useHistory } from 'react-router';
-import * as L from '../ui-elements/ListLayout5';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
@@ -51,7 +50,6 @@ import {
   GeneralExpirationGroup,
 } from './ExpirationForm';
 import { Select } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
-import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import {
