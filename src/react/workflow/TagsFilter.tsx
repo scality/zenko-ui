@@ -1,23 +1,15 @@
-import {
-  AddButton,
-  Buttons,
-  Header,
-  HeaderKeyTag,
-  HeaderValueTag,
-  InputTag,
-  Inputs,
-  Item,
-  Items,
-  SubButton,
-} from '../ui-elements/EditableKeyValue';
+import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
 import type { Tag } from '../../types/s3';
-import FormContainer, * as F from '../ui-elements/FormLayout';
 import {
   FieldValues,
   Control,
   useFieldArray,
   UseFormWatch,
 } from 'react-hook-form';
+import { Input } from '@scality/core-ui/dist/next';
+import { Stack } from '@scality/core-ui';
+import { convertSizeToRem } from '@scality/core-ui/dist/components/inputv2/inputv2';
+
 const EMPTY_ITEM = {
   key: '',
   value: '',
@@ -45,69 +37,58 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
   const tagsFormValues = watch(fieldName);
 
   return (
-    <FormContainer style={{ margin: 0, marginBottom: 0 }}>
-      <Header>
-        <HeaderKeyTag> Key </HeaderKeyTag>
-        <HeaderValueTag> Value </HeaderValueTag>
-      </Header>
-      <F.CustomForm
-        style={{ height: 'initial', margin: 0 }}
-        data-testid="tags-form"
-      >
-        <Items>
-          {fields.map((_, index) => {
-            return (
-              <Item key={index}>
-                <Inputs>
-                  <InputTag
-                    className="tags-input-key"
-                    aria-label={`Tag ${index + 1} key`}
-                    data-testid={`tag-${index + 1}-key`}
-                    value={tags[index]?.key}
-                    onChange={({ target }) => {
-                      const updatedTags = tags.slice(0);
-                      updatedTags[index].key = target.value;
-                      handleChange(updatedTags);
-                    }}
-                    autoComplete="off"
-                  />
-                  <InputTag
-                    className="tags-input-value"
-                    aria-label={`Tag ${index + 1} value`}
-                    data-testid={`tag-${index + 1}-value`}
-                    onChange={({ target }) => {
-                      const updatedTags = [...tags];
-                      updatedTags[index].value = target.value;
-                      handleChange(updatedTags);
-                    }}
-                    value={tags[index]?.value}
-                    autoComplete="off"
-                  />
-                </Inputs>
-                <Buttons>
-                  <SubButton
-                    index={index}
-                    items={tagsFormValues}
-                    iconStyle={{ margin: 0 }}
-                    deleteEntry={() =>
-                      tagsFormValues.length === 1
-                        ? deleteEntry()
-                        : remove(index)
-                    }
-                  />
-                  <AddButton
-                    index={index}
-                    items={tagsFormValues}
-                    iconStyle={{ margin: 0 }}
-                    insertEntry={() => append({ key: '', value: '' })}
-                  />
-                </Buttons>
-              </Item>
-            );
-          })}
-        </Items>
-      </F.CustomForm>
-    </FormContainer>
+    <Stack direction="vertical">
+      <Stack gap="r8">
+        <div style={{ width: convertSizeToRem('1/2') }}>Key</div>
+        <div style={{ width: convertSizeToRem('1/2') }}>Value</div>
+      </Stack>
+      <Stack gap="r8" direction="vertical">
+        {fields.map((_, index) => (
+          <Stack gap="r8">
+            <Input
+              size="1/2"
+              autoComplete="off"
+              className="tags-input-key"
+              aria-label={`Tag ${index + 1} key`}
+              data-testid={`tag-${index + 1}-key`}
+              value={tags[index]?.key}
+              onChange={({ target }) => {
+                const updatedTags = [...tags];
+                updatedTags[index].key = target.value;
+                handleChange(updatedTags);
+              }}
+            />
+            <Input
+              size="1/2"
+              autoComplete="off"
+              className="tags-input-value"
+              aria-label={`Tag ${index + 1} value`}
+              data-testid={`tag-${index + 1}-value`}
+              value={tags[index]?.value}
+              onChange={({ target }) => {
+                const updatedTags = [...tags];
+                updatedTags[index].value = target.value;
+                handleChange(updatedTags);
+              }}
+            />
+            <SubButton
+              index={index}
+              items={tagsFormValues}
+              iconStyle={{ margin: 0 }}
+              deleteEntry={() =>
+                tagsFormValues.length === 1 ? deleteEntry() : remove(index)
+              }
+            />
+            <AddButton
+              index={index}
+              items={tagsFormValues}
+              iconStyle={{ margin: 0 }}
+              insertEntry={() => append({ key: '', value: '' })}
+            />
+          </Stack>
+        ))}
+      </Stack>
+    </Stack>
   );
 }
 

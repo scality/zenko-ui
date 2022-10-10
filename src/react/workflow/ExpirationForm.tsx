@@ -1,15 +1,13 @@
-import * as T from '../ui-elements/TableKeyValue2';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ErrorInput } from '../ui-elements/FormLayout';
 import type { Locations } from '../../types/config';
 import {
   Toggle,
-  Icon,
-  SpacedBox,
   IconHelp,
   FormGroup,
   FormSection,
   Stack,
+  Text,
+  spacing,
 } from '@scality/core-ui';
 import {
   Select,
@@ -22,21 +20,12 @@ import {
   sourceBucketOptions,
 } from './utils';
 import Joi from '@hapi/joi';
-import Input from '../ui-elements/Input';
 import type { S3BucketList } from '../../types/s3';
 
 import { isVersioning } from '../utils';
 import TagsFilter from './TagsFilter';
-import { WorkflowFormContainer } from '../ui-elements/WorkflowFormContainer';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { Box } from '@scality/core-ui/dist/next';
-
-const flexStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyItems: 'stretch',
-  flexDirection: 'row',
-  alignItems: 'center',
-};
+import { Box, Input } from '@scality/core-ui/dist/next';
 
 type Props = {
   bucketList: S3BucketList;
@@ -116,21 +105,17 @@ export function GeneralExpirationGroup({
         <Controller
           control={methods.control}
           name={`${prefix}enabled`}
-          render={({ field }) => {
-            const enabled = field.value;
-            const onChange = () => {
-              field.onChange(!enabled);
-              methods.trigger(`${prefix}enabled`);
-            };
-            return (
-              <Toggle
-                id="enabled"
-                toggle={enabled}
-                label={enabled ? 'Active' : 'Inactive'}
-                onChange={onChange}
-              />
-            );
-          }}
+          render={({ field: { value: enabled, onChange } }) => (
+            <Toggle
+              id="enabled"
+              toggle={enabled}
+              label={enabled ? 'Active' : 'Inactive'}
+              onChange={() => {
+                onChange(!enabled);
+                methods.trigger(`${prefix}enabled`);
+              }}
+            />
+          )}
         />
       }
     />
@@ -205,41 +190,37 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     return renderSource(locations)(result);
                   }
                   return (
-                    <Box
-                      style={{ width: '20.5rem' }}
+                    <Select
                       data-testid="select-bucket-name-expiration"
-                    >
-                      <Select
-                        id="sourceBucket"
-                        value={sourceBucket}
-                        onChange={(newBucket: string) => {
-                          onChange(newBucket);
-                          const sourceBucket = bucketList.find(
-                            (bucket) => bucket.Name === newBucket,
+                      id="sourceBucket"
+                      value={sourceBucket}
+                      onChange={(newBucket: string) => {
+                        onChange(newBucket);
+                        const sourceBucket = bucketList.find(
+                          (bucket) => bucket.Name === newBucket,
+                        );
+                        const isSourceBucketVersionned = sourceBucket
+                          ? isVersioning(sourceBucket.VersionStatus)
+                          : false;
+                        if (!isSourceBucketVersionned) {
+                          setValue(
+                            `${prefix}expireDeleteMarkersTrigger`,
+                            false,
                           );
-                          const isSourceBucketVersionned = sourceBucket
-                            ? isVersioning(sourceBucket.VersionStatus)
-                            : false;
-                          if (!isSourceBucketVersionned) {
-                            setValue(
-                              `${prefix}expireDeleteMarkersTrigger`,
-                              false,
-                            );
-                            setValue(
-                              `${prefix}previousVersionTriggerDelayDays`,
-                              null,
-                            );
-                          }
-                        }}
-                      >
-                        {options &&
-                          options.map((o, i) => (
-                            <Option key={i} value={o.value}>
-                              {renderSource(locations)(o)}
-                            </Option>
-                          ))}
-                      </Select>
-                    </Box>
+                          setValue(
+                            `${prefix}previousVersionTriggerDelayDays`,
+                            null,
+                          );
+                        }
+                      }}
+                    >
+                      {options &&
+                        options.map((o, i) => (
+                          <Option key={i} value={o.value}>
+                            {renderSource(locations)(o)}
+                          </Option>
+                        ))}
+                    </Select>
                   );
                 }}
               />
@@ -282,30 +263,34 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 name={`${prefix}filter.objectTags`}
                 control={control}
                 defaultValue={[{ key: '', value: '' }]}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <TagsFilter
-                      handleChange={onChange}
-                      control={control}
-                      fieldName={`${prefix}filter.objectTags`}
-                      tags={value}
-                      watch={watch}
-                    />
-                  );
-                }}
+                render={({ field: { onChange, value } }) => (
+                  <TagsFilter
+                    handleChange={onChange}
+                    control={control}
+                    fieldName={`${prefix}filter.objectTags`}
+                    tags={value}
+                    watch={watch}
+                  />
+                )}
               />
             }
           />
         </FormSection>
 
-        <FormSection
-          title={{ name: 'Action' }}
-          forceLabelWidth={forceLabelWidth}
-        >
-          <T.GroupContent required>
-            <T.Row data-testid="toggle-action-expire-current-version">
-              <T.KeyTooltip
-                tooltipMessage={`
+        <FormSection title={{ name: 'Action' }}>
+          <FormGroup
+            data-testid="toggle-action-expire-current-version"
+            required
+            id="expireVersions"
+            direction="horizontal"
+            error={errors[`${prefix}currentVersionTriggerDelayDays`]?.message}
+            helpErrorPosition="bottom"
+            label={
+              <>
+                Expire <Text isEmphazed>Current</Text> version of objects
+              </>
+            }
+            labelHelpTooltip={`
                     If the bucket is versioned, a delete marker will be added on objects older than ${
                       currentVersionTriggerDelayDays || 'provided'
                     } days. This does not free up storage space.
@@ -313,20 +298,18 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                       currentVersionTriggerDelayDays || 'provided'
                     } days will be permanently removed.
                     `}
-                tooltipWidth="13rem"
-                size={60}
-              >
-                Expire <span style={{ fontWeight: 'bold' }}>Current</span>{' '}
-                version of objects
-              </T.KeyTooltip>
-              <T.Value style={{ ...flexStyle }}>
-                <Controller
-                  control={control}
-                  name={`${prefix}currentVersionTriggerDelayDays`}
-                  render={({
-                    field: { onChange, value: currentVersionTriggerDelayDays },
-                  }) => {
-                    return (
+            content={
+              <Stack>
+                <Box style={{ width: convertRemToPixels(5) }}>
+                  <Controller
+                    control={control}
+                    name={`${prefix}currentVersionTriggerDelayDays`}
+                    render={({
+                      field: {
+                        onChange,
+                        value: currentVersionTriggerDelayDays,
+                      },
+                    }) => (
                       <Toggle
                         id="currentVersionTriggerDelayDaysToggle"
                         placeholder="currentVersionDelayDaysToggle"
@@ -344,23 +327,21 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           }
                         }}
                       />
-                    );
-                  }}
-                />
-
-                <div
-                  style={{
-                    ...flexStyle,
-                    marginLeft: 'auto',
-                    opacity:
-                      currentVersionTriggerDelayDays !== null &&
-                      currentVersionTriggerDelayDays !== undefined
-                        ? 1
-                        : 0.5,
-                  }}
+                    )}
+                  />
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={spacing.r8}
+                  opacity={
+                    currentVersionTriggerDelayDays !== null &&
+                    currentVersionTriggerDelayDays !== undefined
+                      ? 1
+                      : 0.5
+                  }
                 >
                   after
-                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}currentVersionTriggerDelayDays`}
@@ -369,107 +350,59 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange,
                         value: currentVersionTriggerDelayDays,
                       },
-                    }) => {
-                      return (
-                        <Input
-                          id="currentVersionT  f riggerDelayDays"
-                          name="currentVersionTriggerDelayDays"
-                          value={currentVersionTriggerDelayDays || ''}
-                          onChange={(e) => {
-                            onChange(e.target.value);
-                          }}
-                          type="number"
-                          style={{
-                            width: '3rem',
-                            textAlign: 'right',
-                          }}
-                          min={1}
-                          aria-invalid={
-                            !!errors[`${prefix}currentVersionTriggerDelayDays`]
-                          }
-                          aria-describedby="error-currentVersionTriggerDelayDays"
-                          disabled={
-                            currentVersionTriggerDelayDays === null ||
-                            currentVersionTriggerDelayDays === undefined
-                          }
-                        />
-                      );
-                    }}
+                    }) => (
+                      <Input
+                        size="1/3"
+                        id="currentVersionTriggerDelayDays"
+                        name="currentVersionTriggerDelayDays"
+                        value={currentVersionTriggerDelayDays || ''}
+                        onChange={(e) => onChange(e.target.value)}
+                        type="number"
+                        style={{ width: '3rem', textAlign: 'right' }}
+                        min={1}
+                        aria-invalid={
+                          !!errors[`${prefix}currentVersionTriggerDelayDays`]
+                        }
+                        aria-describedby="error-currentVersionTriggerDelayDays"
+                        disabled={
+                          currentVersionTriggerDelayDays === null ||
+                          currentVersionTriggerDelayDays === undefined
+                        }
+                      />
+                    )}
                   />
-                  <SpacedBox mr={8} />
                   <PluralizeDays number={currentVersionTriggerDelayDays} />
-                </div>
-              </T.Value>
-            </T.Row>
-            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-              <T.Key size={60}></T.Key>
-              <T.Value>
-                <ErrorInput
-                  id="error-currentVersionTriggerDelayDays"
-                  style={{ height: 'auto' }}
-                  error={
-                    errors[`${prefix}currentVersionTriggerDelayDays`]?.message
-                  }
-                />
-              </T.Value>
-            </T.Row>
-            <T.Row data-testid="toggle-action-expire-previous-version">
-              <T.KeyTooltip
-                tooltipMessage={`
+                </Box>
+              </Stack>
+            }
+          />
+
+          <FormGroup
+            disabled={!isSourceBucketVersionned}
+            data-testid="toggle-action-expire-previous-version"
+            required
+            id="expireVersions"
+            direction="horizontal"
+            error={errors[`${prefix}previousVersionTriggerDelayDays`]?.message}
+            helpErrorPosition="bottom"
+            label={
+              <>
+                Expire <Text isEmphazed>Previous</Text> version of objects
+              </>
+            }
+            labelHelpTooltip={`
                 All the objects that become previous versions older than ${
                   previousVersionTriggerDelayDays || 'provided'
                 } days will be permanently deleted.
                 `}
-                tooltipWidth="13rem"
-                size={60}
-              >
-                Expire <span style={{ fontWeight: 'bold' }}>Previous</span>{' '}
-                version of objects
-              </T.KeyTooltip>
-              <T.Value style={{ ...flexStyle }}>
-                <Controller
-                  control={control}
-                  name={`${prefix}previousVersionTriggerDelayDays`}
-                  render={({
-                    field: { onChange, value: previousVersionTriggerDelayDays },
-                  }) => {
-                    return (
-                      <Toggle
-                        id="previousVersionTriggerDelayDaysToggle"
-                        placeholder="previousVersionDelayDaysToggle"
-                        disabled={!isSourceBucketVersionned}
-                        toggle={
-                          previousVersionTriggerDelayDays !== null &&
-                          previousVersionTriggerDelayDays !== undefined
-                        }
-                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
-                      />
-                    );
-                  }}
-                />
-
-                {!isSourceBucketVersionned ? (
-                  <IconHelp
-                    tooltipMessage="This action is disabled when source bucket is not versionned"
-                    variant="outline"
-                    overlayStyle={{ width: '13rem' }}
-                  />
-                ) : (
-                  ''
-                )}
-                <div
-                  style={{
-                    ...flexStyle,
-                    marginLeft: 'auto',
-                    opacity:
-                      previousVersionTriggerDelayDays !== null &&
-                      previousVersionTriggerDelayDays !== undefined
-                        ? 1
-                        : 0.5,
-                  }}
+            content={
+              <Stack>
+                <Box
+                  display="flex"
+                  style={{ width: convertRemToPixels(5) }}
+                  alignItems="center"
+                  gap={spacing.r4}
                 >
-                  after
-                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}previousVersionTriggerDelayDays`}
@@ -478,68 +411,108 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange,
                         value: previousVersionTriggerDelayDays,
                       },
-                    }) => {
-                      return (
-                        <Input
-                          id="previousVersionTriggerDelayDays"
-                          name={`${prefix}previousVersionTriggerDelayDays`}
-                          value={previousVersionTriggerDelayDays || ''}
-                          onChange={(e) => onChange(e.target.value)}
-                          type="number"
-                          style={{
-                            width: '3rem',
-                            textAlign: 'right',
-                          }}
-                          min={1}
-                          aria-invalid={
-                            !!errors[`${prefix}previousVersionTriggerDelayDays`]
-                          }
-                          aria-describedby="error-previousVersionTriggerDelayDays"
-                          disabled={
-                            previousVersionTriggerDelayDays === null ||
-                            previousVersionTriggerDelayDays === undefined
-                          }
-                        />
-                      );
-                    }}
+                    }) => (
+                      <Toggle
+                        disabled={!isSourceBucketVersionned}
+                        id="previousVersionTriggerDelayDaysToggle"
+                        placeholder="previousVersionDelayDaysToggle"
+                        toggle={
+                          previousVersionTriggerDelayDays !== null &&
+                          previousVersionTriggerDelayDays !== undefined
+                        }
+                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
+                      />
+                    )}
                   />
-                  <SpacedBox mr={8} />
-                  <PluralizeDays number={previousVersionTriggerDelayDays} />
-                </div>
-              </T.Value>
-            </T.Row>
-            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-              <T.Key size={60}></T.Key>
-              <T.Value>
-                <ErrorInput
-                  id="error-previousVersionTriggerDelayDays"
-                  style={{ height: 'auto' }}
-                  error={
-                    errors[`${prefix}previousVersionTriggerDelayDays`]?.message
+                  {!isSourceBucketVersionned ? (
+                    <IconHelp
+                      tooltipMessage="This action is disabled when source bucket is not versionned"
+                      variant="outline"
+                      overlayStyle={{ width: '13rem' }}
+                    />
+                  ) : (
+                    ''
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={spacing.r8}
+                  opacity={
+                    previousVersionTriggerDelayDays !== null &&
+                    previousVersionTriggerDelayDays !== undefined
+                      ? 1
+                      : 0.5
                   }
-                />
-              </T.Value>
-            </T.Row>
-            <T.Row data-testid="toggle-action-remove-expired-markers">
-              <T.KeyTooltip
-                tooltipMessage={`
+                >
+                  after
+                  <Controller
+                    control={control}
+                    name={`${prefix}previousVersionTriggerDelayDays`}
+                    render={({
+                      field: {
+                        onChange,
+                        value: previousVersionTriggerDelayDays,
+                      },
+                    }) => (
+                      <Input
+                        size="1/3"
+                        id="previousVersionTriggerDelayDays"
+                        name={`${prefix}previousVersionTriggerDelayDays`}
+                        value={previousVersionTriggerDelayDays || ''}
+                        onChange={(e) => onChange(e.target.value)}
+                        type="number"
+                        style={{ width: '3rem', textAlign: 'right' }}
+                        min={1}
+                        aria-invalid={
+                          !!errors[`${prefix}previousVersionTriggerDelayDays`]
+                        }
+                        aria-describedby="error-previousVersionTriggerDelayDays"
+                        disabled={
+                          previousVersionTriggerDelayDays === null ||
+                          previousVersionTriggerDelayDays === undefined
+                        }
+                      />
+                    )}
+                  />
+                  <PluralizeDays number={previousVersionTriggerDelayDays} />
+                </Box>
+              </Stack>
+            }
+          />
+
+          <FormGroup
+            data-testid="toggle-action-remove-expired-markers"
+            required
+            id="expireVersions"
+            direction="horizontal"
+            error={errors[`${prefix}expireDeleteMarkersTrigger`]?.message}
+            helpErrorPosition="bottom"
+            label="Remove expired Delete markers"
+            labelHelpTooltip={`
                 When you delete a versioned object, a delete marker is created.
                 If all previous versions of the object subsequently expire, an expired-object Delete marker is left.
                 Removing unneeded Delete markers will improve the listing of object versions.
                 `}
-                tooltipWidth="13rem"
-                size={60}
-              >
-                Remove expired Delete markers
-              </T.KeyTooltip>
-              <T.Value style={{ ...flexStyle }}>
-                <Controller
-                  control={control}
-                  name={`${prefix}expireDeleteMarkersTrigger`}
-                  render={({
-                    field: { onChange, value: expireDeleteMarkersTrigger },
-                  }) => {
-                    return (
+            disabled={
+              (currentVersionTriggerDelayDays !== null &&
+                currentVersionTriggerDelayDays !== undefined) ||
+              !isSourceBucketVersionned
+            }
+            content={
+              <Stack>
+                <Box
+                  display="flex"
+                  style={{ width: convertRemToPixels(5) }}
+                  alignItems="center"
+                  gap={spacing.r4}
+                >
+                  <Controller
+                    control={control}
+                    name={`${prefix}expireDeleteMarkersTrigger`}
+                    render={({
+                      field: { onChange, value: expireDeleteMarkersTrigger },
+                    }) => (
                       <Toggle
                         disabled={
                           (currentVersionTriggerDelayDays !== null &&
@@ -553,59 +526,71 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           onChange(e.target.checked ? true : null)
                         }
                       />
-                    );
-                  }}
-                />
-                {(currentVersionTriggerDelayDays !== null &&
-                  currentVersionTriggerDelayDays !== undefined) ||
-                !isSourceBucketVersionned ? (
-                  <>
-                    <IconHelp
-                      tooltipMessage={`${
-                        currentVersionTriggerDelayDays !== null &&
-                        currentVersionTriggerDelayDays !== undefined
-                          ? 'This action is disabled when "Expire Current version of objects" is active'
-                          : ''
-                      }${
-                        !isSourceBucketVersionned
-                          ? (currentVersionTriggerDelayDays !== null &&
-                            currentVersionTriggerDelayDays !== undefined
-                              ? '\n'
-                              : '') +
-                            'This action is disabled when source bucket is not versionned'
-                          : ''
-                      }`}
-                      overlayStyle={{ width: '13rem' }}
-                    />
-                  </>
-                ) : (
-                  ''
-                )}
-              </T.Value>
-            </T.Row>
-            <T.Row data-testid="toggle-action-expire-incomplete-multipart">
-              <T.KeyTooltip
-                tooltipMessage={`
+                    )}
+                  />
+                  {(currentVersionTriggerDelayDays !== null &&
+                    currentVersionTriggerDelayDays !== undefined) ||
+                  !isSourceBucketVersionned ? (
+                    <>
+                      <IconHelp
+                        tooltipMessage={`${
+                          currentVersionTriggerDelayDays !== null &&
+                          currentVersionTriggerDelayDays !== undefined
+                            ? 'This action is disabled when "Expire Current version of objects" is active'
+                            : ''
+                        }${
+                          !isSourceBucketVersionned
+                            ? (currentVersionTriggerDelayDays !== null &&
+                              currentVersionTriggerDelayDays !== undefined
+                                ? '\n'
+                                : '') +
+                              'This action is disabled when source bucket is not versionned'
+                            : ''
+                        }`}
+                        overlayStyle={{ width: '13rem' }}
+                      />
+                    </>
+                  ) : (
+                    ''
+                  )}
+                </Box>
+              </Stack>
+            }
+          />
+
+          <FormGroup
+            data-testid="toggle-action-expire-incomplete-multipart"
+            required
+            id="expireVersions"
+            direction="horizontal"
+            error={
+              errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
+                ?.message
+            }
+            helpErrorPosition="bottom"
+            label="Expire incomplete Multipart uploads"
+            labelHelpTooltip={`
                 When you upload or copy an object, it could be done as a set of parts.
                 These multiparts are not visible in the browser until the operation is complete.
                 Removing these incomplete multipart uploads after a number of days after the initiating the operation prevents you from having unused S3 storage.
                     `}
-                tooltipWidth="13rem"
-                size={60}
-              >
-                Expire incomplete Multipart uploads
-              </T.KeyTooltip>
-              <T.Value style={{ ...flexStyle }}>
-                <Controller
-                  control={control}
-                  name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
-                  render={({
-                    field: {
-                      onChange,
-                      value: incompleteMultipartUploadTriggerDelayDays,
-                    },
-                  }) => {
-                    return (
+            content={
+              <Stack>
+                <Box
+                  display="flex"
+                  style={{ width: convertRemToPixels(5) }}
+                  alignItems="center"
+                  gap={spacing.r4}
+                >
+                  <Controller
+                    control={control}
+                    name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
+                    render={({
+                      field: {
+                        onChange,
+                        value: incompleteMultipartUploadTriggerDelayDays,
+                      },
+                    }) => (
                       <Toggle
                         id="incompleteMultipartUploadTriggerDelayDaysToggle"
                         placeholder="incompleteMultipartUploadDelayDaysToggle"
@@ -616,23 +601,30 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         }
                         onChange={(e) => onChange(e.target.checked ? 7 : null)}
                       />
-                    );
-                  }}
-                />
-
-                <div
-                  style={{
-                    ...flexStyle,
-                    marginLeft: 'auto',
-                    opacity:
-                      incompleteMultipartUploadTriggerDelayDays !== null &&
-                      incompleteMultipartUploadTriggerDelayDays !== undefined
-                        ? 1
-                        : 0.5,
-                  }}
+                    )}
+                  />
+                  {!isSourceBucketVersionned ? (
+                    <IconHelp
+                      tooltipMessage="This action is disabled when source bucket is not versionned"
+                      variant="outline"
+                      overlayStyle={{ width: '13rem' }}
+                    />
+                  ) : (
+                    ''
+                  )}
+                </Box>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={spacing.r8}
+                  opacity={
+                    incompleteMultipartUploadTriggerDelayDays !== null &&
+                    incompleteMultipartUploadTriggerDelayDays !== undefined
+                      ? 1
+                      : 0.5
+                  }
                 >
                   after
-                  <SpacedBox mr={8} />
                   <Controller
                     control={control}
                     name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
@@ -641,58 +633,37 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange,
                         value: incompleteMultipartUploadTriggerDelayDays,
                       },
-                    }) => {
-                      return (
-                        <Input
-                          id="incompleteMultipartUploadTriggerDelayDays"
-                          name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
-                          value={
-                            incompleteMultipartUploadTriggerDelayDays || ''
-                          }
-                          onChange={(e) => onChange(e.target.value)}
-                          type="number"
-                          style={{
-                            width: '3rem',
-                            textAlign: 'right',
-                          }}
-                          min={1}
-                          aria-invalid={
-                            !!errors[
-                              `${prefix}incompleteMultipartUploadTriggerDelayDays`
-                            ]
-                          }
-                          aria-describedby="error-incompleteMultipartUploadTriggerDelayDays"
-                          disabled={
-                            incompleteMultipartUploadTriggerDelayDays ===
-                              null ||
-                            incompleteMultipartUploadTriggerDelayDays ===
-                              undefined
-                          }
-                        />
-                      );
-                    }}
+                    }) => (
+                      <Input
+                        size="1/3"
+                        id="incompleteMultipartUploadTriggerDelayDays"
+                        name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
+                        value={incompleteMultipartUploadTriggerDelayDays || ''}
+                        onChange={(e) => onChange(e.target.value)}
+                        type="number"
+                        style={{ width: '3rem', textAlign: 'right' }}
+                        min={1}
+                        aria-invalid={
+                          !!errors[
+                            `${prefix}incompleteMultipartUploadTriggerDelayDays`
+                          ]
+                        }
+                        aria-describedby="error-incompleteMultipartUploadTriggerDelayDays"
+                        disabled={
+                          incompleteMultipartUploadTriggerDelayDays === null ||
+                          incompleteMultipartUploadTriggerDelayDays ===
+                            undefined
+                        }
+                      />
+                    )}
                   />
-                  <SpacedBox mr={8} />
                   <PluralizeDays
                     number={incompleteMultipartUploadTriggerDelayDays}
                   />
-                </div>
-              </T.Value>
-            </T.Row>
-            <T.Row style={{ minHeight: 'initial', height: 'auto' }}>
-              <T.Key size={60}></T.Key>
-              <T.Value>
-                <ErrorInput
-                  id="error-incompleteMultipartUploadTriggerDelayDays"
-                  style={{ height: 'auto' }}
-                  error={
-                    errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]
-                      ?.message
-                  }
-                />
-              </T.Value>
-            </T.Row>
-          </T.GroupContent>
+                </Box>
+              </Stack>
+            }
+          />
         </FormSection>
       </Stack>
     </>

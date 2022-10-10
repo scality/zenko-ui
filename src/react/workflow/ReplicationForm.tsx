@@ -32,11 +32,10 @@ import {
 } from './utils';
 import Joi from '@hapi/joi';
 
-import Input from '../ui-elements/Input';
 import { NoLocationWarning } from '../ui-elements/Warning';
 import type { S3BucketList } from '../../types/s3';
 
-import { Box } from '@scality/core-ui/dist/next';
+import { Box, Input } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 
 type Props = {
@@ -204,33 +203,29 @@ function ReplicationForm({
                     return renderSource(locations)(result);
                   }
                   return (
-                    <Box
-                      style={{ width: '20.5rem' }}
+                    <Select
                       data-testid="select-bucket-name-replication"
+                      onBlur={onBlur}
+                      id="sourceBucket"
+                      value={sourceBucket}
+                      onChange={(...values) => {
+                        onChange(...values);
+                        trigger();
+                      }}
+                      disabled={isEditing}
                     >
-                      <Select
-                        onBlur={onBlur}
-                        id="sourceBucket"
-                        value={sourceBucket}
-                        onChange={(...values) => {
-                          onChange(...values);
-                          trigger();
-                        }}
-                        disabled={isEditing}
-                      >
-                        {options &&
-                          options.map((o, i) => (
-                            <Option
-                              title={o.disabled ? 'Versioning is disabled' : ''}
-                              key={i}
-                              value={o.value}
-                              disabled={o.disabled}
-                            >
-                              {renderSource(locations)(o)}
-                            </Option>
-                          ))}
-                      </Select>
-                    </Box>
+                      {options &&
+                        options.map((o, i) => (
+                          <Option
+                            title={o.disabled ? 'Versioning is disabled' : ''}
+                            key={i}
+                            value={o.value}
+                            disabled={o.disabled}
+                          >
+                            {renderSource(locations)(o)}
+                          </Option>
+                        ))}
+                    </Select>
                   );
                 }}
               />
@@ -288,7 +283,6 @@ const RenderDestination = ({
   prefix,
   control,
   name,
-  isCreateMode,
   locations,
   errors,
   touchedFields,
@@ -331,37 +325,34 @@ const RenderDestination = ({
                       <Box
                         gap={spacing.r8}
                         display="flex"
-                        style={{ width: '25rem' }}
                         justifyContent="space-between"
                         alignItems="center"
                         data-testid={`select-location-name-replication-${index}`}
                       >
-                        <Box flex="1">
-                          <Select
-                            onBlur={onBlur}
-                            id="destinationLocation"
-                            onChange={(value) => {
-                              const newValues = [...destinationLocations];
-                              newValues[index] = value;
-                              onChange(newValues);
-                            }}
-                            value={destLoc}
-                          >
-                            {options &&
-                              options.map((o, i) => (
-                                <Option
-                                  key={i}
-                                  value={o.value}
-                                  disabled={
-                                    destLoc !== o.value &&
-                                    destinationLocations.includes(o.value)
-                                  }
-                                >
-                                  {renderDestination(locations)(o)}
-                                </Option>
-                              ))}
-                          </Select>
-                        </Box>
+                        <Select
+                          onBlur={onBlur}
+                          id="destinationLocation"
+                          onChange={(value) => {
+                            const newValues = [...destinationLocations];
+                            newValues[index] = value;
+                            onChange(newValues);
+                          }}
+                          value={destLoc}
+                        >
+                          {options &&
+                            options.map((o, i) => (
+                              <Option
+                                key={i}
+                                value={o.value}
+                                disabled={
+                                  destLoc !== o.value &&
+                                  destinationLocations.includes(o.value)
+                                }
+                              >
+                                {renderDestination(locations)(o)}
+                              </Option>
+                            ))}
+                        </Select>
                         <SubButton
                           disabled={destinationLocations[0] === ''}
                           index={index}

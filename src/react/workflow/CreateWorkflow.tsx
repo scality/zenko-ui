@@ -312,9 +312,6 @@ const CreateWorkflow = () => {
             <Button
               disabled={loading}
               id="cancel-workflow-btn"
-              style={{
-                marginRight: spacing.sp24,
-              }}
               type="button"
               variant="outline"
               onClick={() => history.push('./')}
@@ -343,37 +340,33 @@ const CreateWorkflow = () => {
               <Controller
                 control={control}
                 name="type"
-                render={({ field: { onChange, onBlur, value: type } }) => {
-                  return (
-                    <Box style={{ width: '20.5rem' }}>
-                      <Select
-                        id="type"
-                        onBlur={onBlur}
-                        value={type}
-                        onChange={(value) => onChange(value)}
-                      >
-                        <Select.Option
-                          value="replication"
-                          icon={<OptionIcon icon="Replication" />}
-                        >
-                          Replication
-                        </Select.Option>
-                        <Select.Option
-                          value="expiration"
-                          icon={<OptionIcon icon="Expiration" />}
-                        >
-                          Expiration
-                        </Select.Option>
-                        <Select.Option
-                          value="transition"
-                          icon={<OptionIcon icon="Transition" />}
-                        >
-                          Transition
-                        </Select.Option>
-                      </Select>
-                    </Box>
-                  );
-                }}
+                render={({ field: { onChange, onBlur, value: type } }) => (
+                  <Select
+                    id="type"
+                    onBlur={onBlur}
+                    value={type}
+                    onChange={(value) => onChange(value)}
+                  >
+                    <Select.Option
+                      value="replication"
+                      icon={<OptionIcon icon="Replication" />}
+                    >
+                      Replication
+                    </Select.Option>
+                    <Select.Option
+                      value="expiration"
+                      icon={<OptionIcon icon="Expiration" />}
+                    >
+                      Expiration
+                    </Select.Option>
+                    <Select.Option
+                      value="transition"
+                      icon={<OptionIcon icon="Transition" />}
+                    >
+                      Transition
+                    </Select.Option>
+                  </Select>
+                )}
               />
             }
           />

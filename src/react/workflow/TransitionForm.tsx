@@ -3,7 +3,6 @@ import Joi from '@hapi/joi';
 import type { S3BucketList } from '../../types/s3';
 import type { Locations } from '../../types/config';
 import { Controller, useFormContext } from 'react-hook-form';
-import { WorkflowFormContainer } from '../ui-elements/WorkflowFormContainer';
 import {
   hasUniqueKeys,
   renderDestination,
@@ -13,9 +12,7 @@ import {
 import {
   FormGroup,
   FormSection,
-  Icon,
   IconHelp,
-  SecondaryText,
   spacing,
   Stack,
   Toggle,
@@ -27,9 +24,8 @@ import {
   Option,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import * as F from '../ui-elements/FormLayout';
-import { Box } from '@scality/core-ui/dist/next';
+import { Box, Input } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
-import Input from '../ui-elements/Input';
 import TagsFilter from './TagsFilter';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useTheme } from 'styled-components';
@@ -234,17 +230,15 @@ export const TransitionForm = ({
                 name={`${prefix}filter.objectTags`}
                 control={control}
                 defaultValue={[{ key: '', value: '' }]}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <TagsFilter
-                      handleChange={onChange}
-                      control={control}
-                      fieldName={`${prefix}filter.objectTags`}
-                      tags={value}
-                      watch={watch}
-                    />
-                  );
-                }}
+                render={({ field: { onChange, value } }) => (
+                  <TagsFilter
+                    handleChange={onChange}
+                    control={control}
+                    fieldName={`${prefix}filter.objectTags`}
+                    tags={value}
+                    watch={watch}
+                  />
+                )}
               />
             }
           />
@@ -353,19 +347,17 @@ export const TransitionForm = ({
                   name={`${prefix}triggerDelayDays`}
                   render={({
                     field: { onChange, value: triggerDelayDays },
-                  }) => {
-                    return (
-                      <Input
-                        id="triggerDelayDays"
-                        aria-labelledby="triggerDelayDays-prefix"
-                        onChange={onChange}
-                        type="number"
-                        value={triggerDelayDays}
-                        autoComplete="off"
-                        min={0}
-                      />
-                    );
-                  }}
+                  }) => (
+                    <Input
+                      id="triggerDelayDays"
+                      aria-labelledby="triggerDelayDays-prefix"
+                      onChange={onChange}
+                      type="number"
+                      value={triggerDelayDays}
+                      autoComplete="off"
+                      min={0}
+                    />
+                  )}
                 />
               }
             />
