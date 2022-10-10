@@ -165,7 +165,8 @@ function ReplicationForm({
           <FormGroup
             required
             id="sourceBucket"
-            labelHelpTooltip={
+            helpErrorPosition="bottom"
+            help={
               isCreateMode
                 ? 'Source bucket has to be versioning enabled'
                 : undefined
@@ -204,7 +205,6 @@ function ReplicationForm({
                   }
                   return (
                     <Select
-                      data-testid="select-bucket-name-replication"
                       onBlur={onBlur}
                       id="sourceBucket"
                       value={sourceBucket}

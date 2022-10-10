@@ -191,7 +191,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   }
                   return (
                     <Select
-                      data-testid="select-bucket-name-expiration"
                       id="sourceBucket"
                       value={sourceBucket}
                       onChange={(newBucket: string) => {
@@ -279,9 +278,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
         <FormSection title={{ name: 'Action' }}>
           <FormGroup
-            data-testid="toggle-action-expire-current-version"
             required
-            id="expireVersions"
+            id="expireCurrentVersions"
             direction="horizontal"
             error={errors[`${prefix}currentVersionTriggerDelayDays`]?.message}
             helpErrorPosition="bottom"
@@ -379,9 +377,8 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
 
           <FormGroup
             disabled={!isSourceBucketVersionned}
-            data-testid="toggle-action-expire-previous-version"
             required
-            id="expireVersions"
+            id="expirePreviousVersions"
             direction="horizontal"
             error={errors[`${prefix}previousVersionTriggerDelayDays`]?.message}
             helpErrorPosition="bottom"
@@ -484,7 +481,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           <FormGroup
             data-testid="toggle-action-remove-expired-markers"
             required
-            id="expireVersions"
+            id="deleteMarkers"
             direction="horizontal"
             error={errors[`${prefix}expireDeleteMarkersTrigger`]?.message}
             helpErrorPosition="bottom"
@@ -561,7 +558,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
           <FormGroup
             data-testid="toggle-action-expire-incomplete-multipart"
             required
-            id="expireVersions"
+            id="expireIncompleteMultipart"
             direction="horizontal"
             error={
               errors[`${prefix}incompleteMultipartUploadTriggerDelayDays`]

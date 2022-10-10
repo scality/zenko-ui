@@ -168,7 +168,7 @@ describe('ReplicationForm', () => {
       expect(formValidationa.textContent).toBe('form-valid');
 
       // Select the Source Bucket.
-      const sourceBucket = screen.getByTestId('select-bucket-name-replication');
+      const sourceBucket = component.container.querySelector('#sourceBucket')!;
       const sControl = sourceBucket.querySelector('.sc-select__control');
       const srcCtl = notFalsyTypeGuard(sControl);
       userEvent.click(srcCtl);

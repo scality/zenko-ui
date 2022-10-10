@@ -111,7 +111,7 @@ describe('TransitionForm', () => {
     expect(stateToggle).toBeInTheDocument();
 
     //Source bucket name to be in the document
-    const source = screen.getByText(/Source/i);
+    const source = screen.getAllByText(/Source/i)[0]!;
     const sourceBucketContainer = source.parentElement!.parentElement!;
     const sourceInput = getByRole(sourceBucketContainer, 'textbox', hidden);
     expect(sourceInput).toBeInTheDocument();

@@ -5,7 +5,7 @@ import {
   TEST_API_BASE_URL,
   Wrapper as wrapper,
 } from '../../utils/test';
-import { render, screen, waitFor } from '@testing-library/react';
+import { prettyDOM, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -95,7 +95,7 @@ const WithFormProvider = ({ children }) => {
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
     try {
-      render(
+      const result = render(
         <WithFormProvider>
           <Form layout={{ kind: 'tab' }}>
             <FormSection title={{ name: 'General' }}>
@@ -111,19 +111,19 @@ describe('ExpirationForm', () => {
 
       await waitFor(() => screen.getByText(/General/i));
       expect(screen.getByText(/State/i)).toBeInTheDocument();
-      expect(screen.getByText(/Source/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Source/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
       expect(screen.getByText(/Filters/i)).toBeInTheDocument();
       expect(screen.getByText(/Prefix/i)).toBeInTheDocument();
       expect(screen.getByText(/Tags/i)).toBeInTheDocument();
-      expect(screen.getByText(/Action/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Action/i)[0]).toBeInTheDocument();
       expect(screen.getByText(/Current/i)).toBeInTheDocument();
       expect(screen.getByText(/Previous/i)).toBeInTheDocument();
       expect(
-        screen.getByText('Remove expired Delete markers'),
+        screen.getByText(/Remove expired Delete markers/i),
       ).toBeInTheDocument();
       expect(
-        screen.getByText('Expire incomplete Multipart uploads'),
+        screen.getByText(/Expire incomplete Multipart uploads/i),
       ).toBeInTheDocument();
 
       const spinButton = screen.getAllByRole('spinbutton');
@@ -131,41 +131,40 @@ describe('ExpirationForm', () => {
       expect(spinButton[1].getAttribute('type')).toBe('number');
       expect(spinButton[2].getAttribute('type')).toBe('number');
 
-      const sourceBucket = screen.getByTestId('select-bucket-name-expiration');
+      const sourceBucket = result.container.querySelector('#sourceBucket')!;
       userEvent.click(
         notFalsyTypeGuard(sourceBucket.querySelector('.sc-select__control')),
       );
       userEvent.click(screen.getAllByRole('option')[0]);
-
-      expect(sourceBucket.lastChild?.textContent).toBe(
+      expect(sourceBucket.children[1]?.textContent).toBe(
         'bucket1 (us-east-1 / Local Filesystem)',
       );
 
-      const expireCurrentToggleState = screen.getByTestId(
-        'toggle-action-expire-current-version',
-      );
+      const expireCurrentToggleState = result.container.querySelector(
+        '[for="expireCurrentVersions"]',
+      )!.parentElement!.parentElement!.parentElement!;
       const expireCurrent = expireCurrentToggleState.querySelector(
         'input[placeholder="currentVersionDelayDaysToggle"]',
       );
       userEvent.click(notFalsyTypeGuard(expireCurrent));
 
-      const expirePreviousToggleState = screen.getByTestId(
-        'toggle-action-expire-previous-version',
-      );
+      const expirePreviousToggleState = result.container.querySelector(
+        '[for="expirePreviousVersions"]',
+      )!.parentElement!.parentElement!.parentElement!;
       const expirePrevious = expirePreviousToggleState.querySelector(
         'input[placeholder="previousVersionDelayDaysToggle"]',
       );
 
-      const removeExpiredToggleState = screen.getByTestId(
-        'toggle-action-remove-expired-markers',
-      );
+      const removeExpiredToggleState = result.container.querySelector(
+        '[for="deleteMarkers"]',
+      )!.parentElement!.parentElement!.parentElement!;
       const removeExpired = removeExpiredToggleState.querySelector(
         'input[placeholder="expireDeleteMarkersTrigger"]',
       );
 
-      const expireIncompleteMultipartToggleState = screen.getByTestId(
-        'toggle-action-expire-incomplete-multipart',
-      );
+      const expireIncompleteMultipartToggleState =
+        result.container.querySelector('[for="expireIncompleteMultipart"]')!
+          .parentElement!.parentElement!.parentElement!;
       const expireIncompleteMultipart =
         expireIncompleteMultipartToggleState.querySelector(
           'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
@@ -178,7 +177,7 @@ describe('ExpirationForm', () => {
         notFalsyTypeGuard(sourceBucket.querySelector('.sc-select__control')),
       );
       userEvent.click(screen.getAllByRole('option')[1]);
-      expect(sourceBucket.lastChild?.textContent).toBe(
+      expect(sourceBucket.children[1]?.textContent).toBe(
         'bucket2 (us-east-1 / Local Filesystem)',
       );
 

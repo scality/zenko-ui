@@ -250,6 +250,12 @@ export const TransitionForm = ({
             id="transition"
             required
             direction="vertical"
+            help={
+              isPreviousVersionDisabled
+                ? 'This action is disabled when source bucket is not versionned'
+                : undefined
+            }
+            helpErrorPosition="bottom"
             content={
               <T.Value>
                 <F.Label
@@ -281,16 +287,6 @@ export const TransitionForm = ({
                   >
                     Previous version
                   </Box>
-                  {isPreviousVersionDisabled ? (
-                    <>
-                      <IconHelp
-                        tooltipMessage="This action is disabled when source bucket is not versionned"
-                        overlayStyle={{ width: '13rem' }}
-                      />
-                    </>
-                  ) : (
-                    ''
-                  )}
                 </F.Label>
               </T.Value>
             }
