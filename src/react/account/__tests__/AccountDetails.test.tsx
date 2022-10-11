@@ -1,9 +1,9 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
-import { CustomTabs } from '../../ui-elements/Tabs';
 import React from 'react';
-import { Warning } from '../../ui-elements/Warning';
-import { reduxMount } from '../../utils/test';
+import { reduxRender } from '../../utils/test';
+import { screen } from '@testing-library/react';
+
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
@@ -13,6 +13,7 @@ const account1 = {
   quotaMax: 1,
   Name: 'bart',
 };
+
 describe('AccountDetails', () => {
   beforeEach(() => {
     jest.spyOn(router, 'useParams').mockReturnValue({});
@@ -21,7 +22,7 @@ describe('AccountDetails', () => {
     });
   });
   it('should render empty AccountDetails component if no account props', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <AccountDetails />
       </MemoryRouter>,
@@ -33,12 +34,11 @@ describe('AccountDetails', () => {
         },
       },
     );
-    expect(component.find(CustomTabs)).toHaveLength(0);
-    expect(component.find(Warning)).toHaveLength(1);
-    expect(component.find(Warning).text()).toContain('Account not found.');
+    expect(component.queryByRole('tablist')).toBeFalsy();
+    expect(component.getByText('Account not found.')).toBeInTheDocument();
   });
   it('should render AccountDetails component', () => {
-    const { component } = reduxMount(
+    const { component } = reduxRender(
       <MemoryRouter>
         <AccountDetails account={account1} />
       </MemoryRouter>,
@@ -50,8 +50,9 @@ describe('AccountDetails', () => {
         },
       },
     );
-    expect(component.find(CustomTabs)).toHaveLength(1);
+
+    expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
-    expect(component.find(Warning)).toHaveLength(1);
+    expect(component.getByText('No key created')).toBeInTheDocument();
   });
 });
