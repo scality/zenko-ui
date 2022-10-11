@@ -169,7 +169,9 @@ export const TransitionForm = ({
               <Controller
                 control={control}
                 name={`${prefix}bucketName`}
-                render={({ field: { onChange, value: sourceBucket } }) => {
+                render={({
+                  field: { onChange, onBlur, value: sourceBucket },
+                }) => {
                   const options = sourceBucketOptions(bucketList, locations);
                   const result = options.find((l) => l.value === sourceBucket);
                   if (isEditing && result) {
@@ -179,6 +181,7 @@ export const TransitionForm = ({
                     <Select
                       id="sourceBucket"
                       value={sourceBucket}
+                      onBlur={onBlur}
                       onChange={(newBucket: string) => onChange(newBucket)}
                     >
                       {options &&
@@ -230,8 +233,9 @@ export const TransitionForm = ({
                 name={`${prefix}filter.objectTags`}
                 control={control}
                 defaultValue={[{ key: '', value: '' }]}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, onBlur, value } }) => (
                   <TagsFilter
+                    onBlur={onBlur}
                     handleChange={onChange}
                     control={control}
                     fieldName={`${prefix}filter.objectTags`}
@@ -311,12 +315,13 @@ export const TransitionForm = ({
                   control={control}
                   name={`${prefix}locationName`}
                   render={({
-                    field: { onChange, value: destinationLocation },
+                    field: { onChange, onBlur, value: destinationLocation },
                   }) => {
                     const options = locationsToOptions(locations);
                     return (
                       <Select
                         id="destinationLocation"
+                        onBlur={onBlur}
                         onChange={onChange}
                         value={destinationLocation}
                       >
@@ -338,22 +343,13 @@ export const TransitionForm = ({
               required
               direction="horizontal"
               content={
-                <Controller
-                  control={control}
-                  name={`${prefix}triggerDelayDays`}
-                  render={({
-                    field: { onChange, value: triggerDelayDays },
-                  }) => (
-                    <Input
-                      id="triggerDelayDays"
-                      aria-labelledby="triggerDelayDays-prefix"
-                      onChange={onChange}
-                      type="number"
-                      value={triggerDelayDays}
-                      autoComplete="off"
-                      min={0}
-                    />
-                  )}
+                <Input
+                  id="triggerDelayDays"
+                  aria-labelledby="triggerDelayDays-prefix"
+                  type="number"
+                  autoComplete="off"
+                  min={0}
+                  {...register(`${prefix}triggerDelayDays`)}
                 />
               }
             />

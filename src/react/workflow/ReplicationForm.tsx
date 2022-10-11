@@ -103,6 +103,7 @@ export function GeneralReplicationGroup({
             };
             return (
               <Toggle
+                onBlur={field.onBlur}
                 toggle={enabled}
                 id="enabled"
                 label={enabled ? 'Active' : 'Inactive'}

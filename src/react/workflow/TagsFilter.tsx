@@ -21,9 +21,17 @@ type Props = {
   control: Control<FieldValues, { key: string; value: string }[]>;
   fieldName: string;
   watch: UseFormWatch<FieldValues>;
+  onBlur: React.FocusEventHandler<HTMLInputElement>;
 };
 
-function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
+function TagsFilter({
+  tags,
+  handleChange,
+  control,
+  fieldName,
+  watch,
+  onBlur,
+}: Props) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: fieldName,
@@ -52,6 +60,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
               aria-label={`Tag ${index + 1} key`}
               data-testid={`tag-${index + 1}-key`}
               value={tags[index]?.key}
+              onBlur={onBlur}
               onChange={({ target }) => {
                 const updatedTags = [...tags];
                 updatedTags[index].key = target.value;
@@ -65,6 +74,7 @@ function TagsFilter({ tags, handleChange, control, fieldName, watch }: Props) {
               aria-label={`Tag ${index + 1} value`}
               data-testid={`tag-${index + 1}-value`}
               value={tags[index]?.value}
+              onBlur={onBlur}
               onChange={({ target }) => {
                 const updatedTags = [...tags];
                 updatedTags[index].value = target.value;

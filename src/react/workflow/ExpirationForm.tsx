@@ -105,11 +105,12 @@ export function GeneralExpirationGroup({
         <Controller
           control={methods.control}
           name={`${prefix}enabled`}
-          render={({ field: { value: enabled, onChange } }) => (
+          render={({ field: { value: enabled, onChange, onBlur } }) => (
             <Toggle
               id="enabled"
               toggle={enabled}
               label={enabled ? 'Active' : 'Inactive'}
+              onBlur={onBlur}
               onChange={() => {
                 onChange(!enabled);
                 methods.trigger(`${prefix}enabled`);
@@ -183,7 +184,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
               <Controller
                 control={control}
                 name={`${prefix}bucketName`}
-                render={({ field: { onChange, value: sourceBucket } }) => {
+                render={({
+                  field: { onChange, value: sourceBucket, onBlur },
+                }) => {
                   const options = sourceBucketOptions(bucketList, locations);
                   const result = options.find((l) => l.value === sourceBucket);
                   if (isEditing && result) {
@@ -191,6 +194,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   }
                   return (
                     <Select
+                      onBlur={onBlur}
                       id="sourceBucket"
                       value={sourceBucket}
                       onChange={(newBucket: string) => {
@@ -262,8 +266,9 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 name={`${prefix}filter.objectTags`}
                 control={control}
                 defaultValue={[{ key: '', value: '' }]}
-                render={({ field: { onChange, value } }) => (
+                render={({ field: { onChange, value, onBlur } }) => (
                   <TagsFilter
+                    onBlur={onBlur}
                     handleChange={onChange}
                     control={control}
                     fieldName={`${prefix}filter.objectTags`}
@@ -305,6 +310,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: currentVersionTriggerDelayDays,
                       },
                     }) => (
@@ -315,14 +321,14 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           currentVersionTriggerDelayDays !== null &&
                           currentVersionTriggerDelayDays !== undefined
                         }
+                        onBlur={onBlur}
                         onChange={(e) => {
                           onChange(e.target.checked ? 7 : null);
                           if (e.target.checked) {
-                            setValue(
-                              `${prefix}expireDeleteMarkersTrigger`,
-                              false,
-                            );
+                            const value = `${prefix}expireDeleteMarkersTrigger`;
+                            setValue(value, false);
                           }
+                          methods.trigger();
                         }}
                       />
                     )}
@@ -346,6 +352,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: currentVersionTriggerDelayDays,
                       },
                     }) => (
@@ -354,6 +361,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         id="currentVersionTriggerDelayDays"
                         name="currentVersionTriggerDelayDays"
                         value={currentVersionTriggerDelayDays || ''}
+                        onBlur={onBlur}
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
@@ -406,6 +414,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: previousVersionTriggerDelayDays,
                       },
                     }) => (
@@ -417,7 +426,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           previousVersionTriggerDelayDays !== null &&
                           previousVersionTriggerDelayDays !== undefined
                         }
-                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
+                        onBlur={onBlur}
+                        onChange={(e) => {
+                          onChange(e.target.checked ? 7 : null);
+                          methods.trigger();
+                        }}
                       />
                     )}
                   />
@@ -449,6 +462,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: previousVersionTriggerDelayDays,
                       },
                     }) => (
@@ -457,6 +471,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         id="previousVersionTriggerDelayDays"
                         name={`${prefix}previousVersionTriggerDelayDays`}
                         value={previousVersionTriggerDelayDays || ''}
+                        onBlur={onBlur}
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
@@ -508,7 +523,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     control={control}
                     name={`${prefix}expireDeleteMarkersTrigger`}
                     render={({
-                      field: { onChange, value: expireDeleteMarkersTrigger },
+                      field: {
+                        onChange,
+                        onBlur,
+                        value: expireDeleteMarkersTrigger,
+                      },
                     }) => (
                       <Toggle
                         disabled={
@@ -519,9 +538,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         id="expireDeleteMarkersTrigger"
                         placeholder="expireDeleteMarkersTrigger"
                         toggle={expireDeleteMarkersTrigger}
-                        onChange={(e) =>
-                          onChange(e.target.checked ? true : null)
-                        }
+                        onBlur={onBlur}
+                        onChange={(e) => {
+                          onChange(e.target.checked ? true : null);
+                          methods.trigger();
+                        }}
                       />
                     )}
                   />
@@ -585,6 +606,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: incompleteMultipartUploadTriggerDelayDays,
                       },
                     }) => (
@@ -596,7 +618,11 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                           incompleteMultipartUploadTriggerDelayDays !==
                             undefined
                         }
-                        onChange={(e) => onChange(e.target.checked ? 7 : null)}
+                        onBlur={onBlur}
+                        onChange={(e) => {
+                          onChange(e.target.checked ? 7 : null);
+                          methods.trigger();
+                        }}
                       />
                     )}
                   />
@@ -628,6 +654,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                     render={({
                       field: {
                         onChange,
+                        onBlur,
                         value: incompleteMultipartUploadTriggerDelayDays,
                       },
                     }) => (
@@ -636,6 +663,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         id="incompleteMultipartUploadTriggerDelayDays"
                         name={`${prefix}incompleteMultipartUploadTriggerDelayDays`}
                         value={incompleteMultipartUploadTriggerDelayDays || ''}
+                        onBlur={onBlur}
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
