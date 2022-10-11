@@ -92,6 +92,7 @@ export type S3State = {
   readonly bucketInfo: BucketInfo | null;
   readonly listObjectsResults: {
     readonly list: List<ObjectEntity>;
+    readonly selected: List<string>;
     readonly nextMarker: Marker;
     readonly nextVersionIdMarker: Marker;
   };

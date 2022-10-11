@@ -1,16 +1,9 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import * as T from '../../ui-elements/Table';
 import {
   continueListObjects,
   continueSearchObjects,
   getObjectMetadata,
-  resetObjectMetadata,
   toggleAllObjects,
   toggleObject,
 } from '../../actions';
@@ -256,10 +249,10 @@ export default function ObjectListTable({
   ]);
 
   const searchInput = query.get('metadatasearch');
-  const objectList = useMemo(
-    () => objects.toJS(),
-    [objects.size],
-  ) as ObjectEntity[];
+  const objectList = useMemo(() => {
+    console.log('useMemo objects');
+    return objects.toJS();
+  }, [objects]) as ObjectEntity[];
 
   const initiallySelectedRowsIds = useMemo(() => {
     const initiallySelectedRowsIds = new Set<string>();
@@ -274,48 +267,58 @@ export default function ObjectListTable({
     );
 
     return initiallySelectedRowsIds;
-  }, []);
+  }, [toggled, objects]);
 
-  const handleRowSelected = useCallback((row) => {
-    console.log('handleRowSelected');
-    const selectedObject = getObject(
-      objects,
-      row.original.key,
-      row.original.versionId,
-      isVersioningType,
-    );
-
-    mutateQuery(query, row.original.key, row.original.versionId);
-    if (!selectedObject.isFolder && !selectedObject.isDeleteMarker) {
-      dispatch(
-        getObjectMetadata(
-          bucketNameParam,
-          selectedObject.key,
-          !selectedObject.isLatest ? selectedObject.versionId : null,
-        ),
+  const handleRowSelected = useCallback(
+    (row) => {
+      const selectedObject = getObject(
+        objectList,
+        row.original.key,
+        row.original.versionId,
+        isVersioningType,
       );
-    }
 
-    dispatch(push(`${pathname}?${query.toString()}`));
-    dispatch(toggleAllObjects(false)); // keep only one selected
-    dispatch(toggleObject(row.original.key, row.original.versionId));
-  }, []);
+      mutateQuery(query, row.original.key, row.original.versionId);
+      if (!selectedObject.isFolder && !selectedObject.isDeleteMarker) {
+        dispatch(
+          getObjectMetadata(
+            bucketNameParam,
+            selectedObject.key,
+            !selectedObject.isLatest ? selectedObject.versionId : null,
+          ),
+        );
+      }
+
+      dispatch(push(`${pathname}?${query.toString()}`));
+      dispatch(toggleAllObjects(false)); // keep only one selected
+      dispatch(toggleObject(row.original.key, row.original.versionId));
+    },
+    [objectList],
+  );
 
   const handleMultipleRowsSelected = useCallback(
     (rows: Row<Record<string, unknown>>[]) => {
-      console.log('handleMultipleRowsSelected');
+      console.log('rows selected: ', rows);
       if (rows.length === 0) {
-        query.delete('prefix');
+        // if (query.get('prefix') && query.get('prefix')?.indexOf('/') !== -1) {
+        //   const prefixExploded = query.get('prefix')?.split('/');
+        //   if (prefixExploded && prefixExploded[1]) {
+        //     query.set('prefix', prefixExploded[1]);
+        //   }
+        // } else {
+        //   query.delete('prefix');
+        // }
+
         query.delete('versionId');
         dispatch(push(`${pathname}?${query.toString()}`));
         dispatch(toggleAllObjects(false));
       } else {
-        if (rows.length === objects.size) {
+        if (rows.length === objectList.length) {
           dispatch(toggleAllObjects(true));
         } else {
           rows.forEach((row) => {
             const object = getObject(
-              objects,
+              objectList,
               row.original.key,
               row.original.versionId,
               isVersioningType,
@@ -327,7 +330,7 @@ export default function ObjectListTable({
         }
       }
     },
-    [],
+    [objectList],
   );
 
   return (
