@@ -54,6 +54,7 @@ export const initialS3State: S3State = {
   bucketInfo: null,
   listObjectsResults: {
     list: List(),
+    selected: List(),
     nextMarker: null,
   },
   objectMetadata: null,
