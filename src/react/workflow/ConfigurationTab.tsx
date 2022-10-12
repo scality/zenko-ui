@@ -618,8 +618,7 @@ function EditForm({
           <FormSection forceLabelWidth={convertRemToPixels(10)}>
             <FormGroup
               required
-              label="Type"
-              disabled
+              label="Rule Type"
               id="type"
               content={
                 isExpirationWorkflow(workflow) ? (
