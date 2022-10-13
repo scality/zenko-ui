@@ -116,12 +116,27 @@ const CreateWorkflow = () => {
     resolver: async (values, context, options) => {
       const bucketName = values.replication.sourceBucket;
       const streams = replicationsQuery.data ?? [];
+      const unallowedBucketName = streams.flatMap((s) => {
+        const { prefix, bucketName } = s.source;
+        if (!prefix || prefix === '') return [bucketName];
+        return [];
+      });
+      const prefixMandatory = !!streams.find((s) => {
+        const { prefix } = s.source;
+        return prefix && prefix !== '' && bucketName === s.source.bucketName;
+      });
       const disPrefixes = disallowedPrefixes(bucketName, streams);
       const schema = Joi.object({
         type: Joi.string().valid('replication', 'expiration', 'transition'),
         replication: Joi.when('type', {
           is: Joi.equal('replication'),
-          then: Joi.object(replicationSchema(disPrefixes)),
+          then: Joi.object(
+            replicationSchema(
+              unallowedBucketName,
+              disPrefixes,
+              prefixMandatory,
+            ),
+          ),
           otherwise: Joi.valid(),
         }),
         transition: Joi.when('type', {

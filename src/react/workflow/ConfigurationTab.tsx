@@ -24,6 +24,7 @@ import type { AppState } from '../../types/state';
 
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import ReplicationForm, {
+  disallowedPrefixes,
   GeneralReplicationGroup,
   replicationSchema,
 } from './ReplicationForm';
@@ -462,19 +463,43 @@ function EditForm({
   workflow,
   bucketList,
   locations,
+  workflows,
 }: {
   workflow: Replication | Expiration | BucketWorkflowTransitionV2;
   bucketList: S3BucketList;
   locations: Locations;
+  workflows: {
+    replications: Replication[];
+    expirations: Expiration[];
+    transitions: BucketWorkflowTransitionV2[];
+  };
 }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const isPrefixMandatory = (workflow: Replication) => {
+    return !!workflows.replications.find(
+      (s) =>
+        s.source.bucketName === workflow.source.bucketName &&
+        s.streamId !== workflow.streamId &&
+        s.source.prefix &&
+        s.source.prefix !== '',
+    );
+  };
   const schema =
     workflow && isExpirationWorkflow(workflow)
       ? expirationSchema
       : isTransitionWorkflow(workflow)
       ? Joi.object(transitionSchema)
-      : Joi.object(replicationSchema([]));
+      : Joi.object(
+          replicationSchema(
+            [],
+            disallowedPrefixes(
+              workflow.source.bucketName,
+              workflows.replications,
+            ).filter((s) => s !== workflow.source.prefix),
+            isPrefixMandatory(workflow),
+          ),
+        );
 
   const useFormMethods = useForm({
     mode: 'all',
@@ -658,7 +683,11 @@ function EditForm({
           ) : isTransitionWorkflow(workflow) ? (
             <TransitionForm bucketList={bucketList} locations={locations} />
           ) : (
-            <ReplicationForm bucketList={bucketList} locations={locations} />
+            <ReplicationForm
+              bucketList={bucketList}
+              locations={locations}
+              existingReplicationStream={isPrefixMandatory(workflow)}
+            />
           )}
         </Form>
       </FormProvider>
@@ -694,6 +723,11 @@ function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
       workflow={workflow}
       bucketList={bucketList}
       locations={locations}
+      workflows={{
+        replications: workflowsQuery.data?.replications ?? [],
+        expirations: workflowsQuery.data?.expirations ?? [],
+        transitions: workflowsQuery.data?.transitions ?? [],
+      }}
     />
   );
 }

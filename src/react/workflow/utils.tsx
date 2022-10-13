@@ -1,7 +1,6 @@
 import type {
   Locations,
   Replication as ReplicationStream,
-  ReplicationStreams,
 } from '../../types/config';
 import type {
   ReplicationBucketOption,
@@ -27,14 +26,15 @@ export const sourceBucketOptions = (
 ): Array<ReplicationBucketOption> => {
   const buckets = bucketList.map((b) => {
     const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
-
     const locationType = locations[constraint]?.locationType;
     const { supportsReplicationSource } = storageOptions[locationType] || false;
+    const isVersioned = !isVersioning(b.VersionStatus);
+    const disabled = isVersioned || !supportsReplicationSource;
     return {
       label: b.Name,
       value: b.Name,
       location: constraint,
-      disabled: !isVersioning(b.VersionStatus) || !supportsReplicationSource,
+      disabled,
     };
   });
   return [...buckets];

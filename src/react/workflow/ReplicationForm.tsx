@@ -8,10 +8,14 @@ import {
 import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
 import type { Locations, Replication } from '../../types/config';
 import {
+  Banner,
   FormGroup,
   FormSection,
+  Icon,
+  Link,
   spacing,
   Stack,
+  Text,
   Toggle,
 } from '@scality/core-ui';
 import {
@@ -31,18 +35,27 @@ import {
   sourceBucketOptions,
 } from './utils';
 import Joi from '@hapi/joi';
-
 import { NoLocationWarning } from '../ui-elements/Warning';
 import type { S3BucketList } from '../../types/s3';
-
 import { Box, Input } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useQuery } from 'react-query';
+import { workflowListQuery } from '../queries';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useSelector } from 'react-redux';
+import { getClients } from '../utils/actions';
+import { AppState } from '../../types/state';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useRolePathName } from '../utils/hooks';
+import { useManagementClient } from '../ManagementProvider';
+import { Account } from '../../types/iam';
 
 type Props = {
   bucketList: S3BucketList;
   locations: Locations;
   isCreateMode?: boolean;
   prefix?: string;
+  existingReplicationStream?: boolean;
 };
 
 export const disallowedPrefixes = (
@@ -60,23 +73,38 @@ export const disallowedPrefixes = (
     });
 };
 
-export const replicationSchema = (sourcesPrefix: string[]) => ({
-  streamId: Joi.string().label('Id').allow(''),
-  streamVersion: Joi.number().label('Version').optional(),
-  // streamName: Joi.string().label('Name').min(4).allow('').messages({
-  //     'string.min': '"Name" should have a minimum length of {#limit}',
-  // }),
-  enabled: Joi.boolean().label('State').required(),
-  sourceBucket: Joi.string().label('Bucket Name').required(),
-  sourcePrefix: Joi.string()
+export const replicationSchema = (
+  unallowedBucketName: string[],
+  sourcesPrefix: string[],
+  prefixMandatory: boolean,
+) => {
+  const disallowedPrefixes = Joi.string()
     .label('Prefix')
-    .disallow(...sourcesPrefix)
-    .allow(''),
-  destinationLocation: Joi.array()
-    .items(Joi.string().label('Destination Location Name'))
-    .min(1)
-    .required(),
-});
+    .disallow(...sourcesPrefix);
+  const sourcePrefix = prefixMandatory
+    ? disallowedPrefixes.disallow('').required()
+    : disallowedPrefixes.allow('');
+  return {
+    streamId: Joi.string().label('Id').allow(''),
+    streamVersion: Joi.number().label('Version').optional(),
+    // streamName: Joi.string().label('Name').min(4).allow('').messages({
+    //     'string.min': '"Name" should have a minimum length of {#limit}',
+    // }),
+    enabled: Joi.boolean().label('State').required(),
+    sourceBucket: Joi.string()
+      .label('Bucket Name')
+      .disallow(...unallowedBucketName)
+      .required(),
+    sourcePrefix: sourcePrefix.messages({
+      'any.invalid':
+        'The Prefix filter needs to be unique for any Replication from this bucket.',
+    }),
+    destinationLocation: Joi.array()
+      .items(Joi.string().label('Destination Location Name'))
+      .min(1)
+      .required(),
+  };
+};
 
 export function GeneralReplicationGroup({
   prefix = '',
@@ -118,11 +146,31 @@ export function GeneralReplicationGroup({
   );
 }
 
+const useReplicationStreams = (account?: Account) => {
+  const state = useSelector((state: AppState) => state);
+  const { instanceId } = getClients(state);
+  const accountId = account?.id;
+  const rolePathName = useRolePathName();
+  const mgnt = useManagementClient();
+  const replicationsQuery = useQuery({
+    ...workflowListQuery(
+      notFalsyTypeGuard(mgnt),
+      accountId!,
+      instanceId!,
+      rolePathName,
+    ),
+    select: (workflows) =>
+      workflows.filter((w) => w.replication).map((w) => w.replication),
+  });
+  return replicationsQuery.data ?? [];
+};
+
 function ReplicationForm({
   prefix = '',
   bucketList,
   locations,
   isCreateMode,
+  ...props
 }: Props) {
   const forceLabelWidth = convertRemToPixels(10);
   const methods = useFormContext();
@@ -135,6 +183,8 @@ function ReplicationForm({
   } = methods;
   const errors = flattenFormErrors(formErrors);
   const touchedFields = flattenFormTouchedFields(formTouched);
+  const { account } = useCurrentAccount();
+  const replicationStreams = useReplicationStreams(account);
   // TODO: make sure we do not delete bucket or location if replication created.
   if (
     !checkIfExternalLocation(locations) ||
@@ -142,7 +192,20 @@ function ReplicationForm({
   ) {
     return <NoLocationWarning />;
   }
-
+  const sourceBucket = methods.watch(`${prefix}sourceBucket`);
+  const replicationsSameBucketName = replicationStreams.filter(
+    (s) => s.source.bucketName === sourceBucket,
+  );
+  const parentReplicationStream = replicationsSameBucketName.find((stream) => {
+    const { prefix } = stream.source;
+    return prefix === '' || !prefix;
+  });
+  const existingReplicationStream = replicationsSameBucketName.find(
+    (stream) => {
+      const { prefix } = stream.source;
+      return prefix !== '' && prefix;
+    },
+  );
   return (
     <>
       <input
@@ -159,80 +222,118 @@ function ReplicationForm({
       />
 
       <Stack direction="vertical" withSeparators gap="r24">
-        <FormSection
-          title={{ name: 'Source', icon: 'Simple-upload' }}
-          forceLabelWidth={forceLabelWidth}
-        >
-          <FormGroup
-            required
-            id="sourceBucket"
-            helpErrorPosition="bottom"
-            help={
-              isCreateMode
-                ? 'Source bucket has to be versioning enabled'
-                : undefined
-            }
-            direction="horizontal"
-            label="Bucket Name"
-            error={
-              touchedFields[`${prefix}sourceBucket`]
-                ? errors[`${prefix}sourceBucket`]?.message
-                : undefined
-            }
-            content={
-              <Controller
-                control={control}
-                name={`${prefix}sourceBucket`}
-                render={({
-                  field: { onChange, onBlur, value: sourceBucket },
-                }) => {
-                  const options = sourceBucketOptions(bucketList, locations);
-                  const isEditing = !!getValues(`${prefix}streamId`);
-                  const result = options.find((l) => l.value === sourceBucket);
-                  if (isEditing) {
-                    // TODO: To be removed once retrieving workflows per account:
-                    if (!result) {
-                      return (
-                        <span>
-                          {' '}
-                          {sourceBucket}{' '}
-                          <small>
-                            (depreciated because entity does not exist){' '}
-                          </small>{' '}
-                        </span>
-                      );
+        <Stack direction="vertical" gap="r24">
+          <FormSection
+            title={{ name: 'Source', icon: 'Simple-upload' }}
+            forceLabelWidth={forceLabelWidth}
+          >
+            <FormGroup
+              required
+              id="sourceBucket"
+              helpErrorPosition="bottom"
+              help={
+                isCreateMode
+                  ? 'Source bucket has to be versioning enabled.'
+                  : undefined
+              }
+              direction="horizontal"
+              label="Bucket Name"
+              content={
+                <Controller
+                  control={control}
+                  name={`${prefix}sourceBucket`}
+                  render={({
+                    field: { onChange, onBlur, value: sourceBucket },
+                  }) => {
+                    const options = sourceBucketOptions(bucketList, locations);
+                    const isEditing = !!getValues(`${prefix}streamId`);
+                    const result = options.find(
+                      (l) => l.value === sourceBucket,
+                    );
+                    if (isEditing) {
+                      // TODO: To be removed once retrieving workflows per account:
+                      if (!result) {
+                        return (
+                          <span>
+                            {' '}
+                            {sourceBucket}{' '}
+                            <small>
+                              (depreciated because entity does not exist){' '}
+                            </small>{' '}
+                          </span>
+                        );
+                      }
+                      return renderSource(locations)(result);
                     }
-                    return renderSource(locations)(result);
-                  }
-                  return (
-                    <Select
-                      onBlur={onBlur}
-                      id="sourceBucket"
-                      value={sourceBucket}
-                      onChange={(...values) => {
-                        onChange(...values);
-                        trigger();
-                      }}
-                      disabled={isEditing}
-                    >
-                      {options &&
-                        options.map((o, i) => (
-                          <Option
-                            title={o.disabled ? 'Versioning is disabled' : ''}
-                            key={i}
-                            value={o.value}
-                            disabled={o.disabled}
-                          >
-                            {renderSource(locations)(o)}
-                          </Option>
-                        ))}
-                    </Select>
-                  );
-                }}
-              />
-            }
-          />
-        </FormSection>
+                    return (
+                      <Select
+                        onBlur={onBlur}
+                        id="sourceBucket"
+                        value={sourceBucket}
+                        onChange={(...values) => {
+                          onChange(...values);
+                          trigger();
+                        }}
+                        disabled={isEditing}
+                      >
+                        {options &&
+                          options.map((o, i) => (
+                            <Option
+                              title={o.disabled ? 'Versioning is disabled' : ''}
+                              key={i}
+                              value={o.value}
+                              disabled={o.disabled}
+                            >
+                              {renderSource(locations)(o)}
+                            </Option>
+                          ))}
+                      </Select>
+                    );
+                  }}
+                />
+              }
+            />
+          </FormSection>
+          {parentReplicationStream && isCreateMode && (
+            <Banner
+              variant="warning"
+              icon={
+                <Icon
+                  name="Exclamation-circle"
+                  size="2x"
+                  color="statusWarning"
+                />
+              }
+            >
+              <Stack direction="vertical" gap="r1">
+                <Text>
+                  There is already a Replication Workflow from this Bucket (with
+                  no Prefix filter), you need to edit the existing Workflow, you
+                  cannot create the new one.
+                </Text>
+                <Link
+                  href={`/accounts/${account!.Name}/workflows/replication-${
+                    parentReplicationStream.streamId
+                  }`}
+                >
+                  Edit the workflow
+                </Link>
+              </Stack>
+            </Banner>
+          )}
+          {((existingReplicationStream && isCreateMode) ||
+            (methods.formState.isDirty && props.existingReplicationStream)) && (
+            <Banner
+              variant="infoPrimary"
+              icon={<Icon name="Info-circle" size="2x" color="infoPrimary" />}
+            >
+              <Text>
+                At least one Replication Workflow already exists from this
+                Bucket, with a Prefix filter.
+              </Text>
+            </Banner>
+          )}
+        </Stack>
         <FormSection
           title={{ name: 'Filter', icon: 'Filter' }}
           forceLabelWidth={forceLabelWidth}
@@ -240,28 +341,18 @@ function ReplicationForm({
           <FormGroup
             label="Prefix"
             id="sourcePrefix"
+            helpErrorPosition="bottom"
+            required={!!existingReplicationStream}
             error={
               touchedFields[`${prefix}sourcePrefix`]
                 ? errors[`${prefix}sourcePrefix`]?.message
                 : undefined
             }
             content={
-              <Controller
-                control={control}
-                name={`${prefix}sourcePrefix`}
-                render={({
-                  field: { onChange, onBlur, value: sourcePrefix },
-                }) => {
-                  return (
-                    <Input
-                      onBlur={onBlur}
-                      id="sourcePrefix"
-                      onChange={onChange}
-                      value={sourcePrefix}
-                      autoComplete="off"
-                    />
-                  );
-                }}
+              <Input
+                {...register(`${prefix}sourcePrefix`)}
+                id="sourcePrefix"
+                autoComplete="off"
               />
             }
           />
