@@ -416,6 +416,19 @@ function isExpirationWorkflow(
   );
 }
 
+function isReplicationWorkflow(
+  workflow:
+    | Expiration
+    | Replication
+    | TypeReplicationForm
+    | BucketWorkflowTransitionV2,
+): workflow is Replication {
+  return (
+    'type' in workflow &&
+    workflow.type === BucketWorkflowV1.TypeEnum.ReplicationV1
+  );
+}
+
 function isTransitionWorkflow(
   workflow:
     | Expiration
@@ -476,15 +489,17 @@ function EditForm({
 }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const isPrefixMandatory = (workflow: Replication) => {
-    return !!workflows.replications.find(
+  const isPrefixMandatory =
+    workflow &&
+    isReplicationWorkflow(workflow) &&
+    !!workflows.replications.find(
       (s) =>
         s.source.bucketName === workflow.source.bucketName &&
         s.streamId !== workflow.streamId &&
         s.source.prefix &&
         s.source.prefix !== '',
     );
-  };
+
   const schema =
     workflow && isExpirationWorkflow(workflow)
       ? expirationSchema
@@ -497,7 +512,7 @@ function EditForm({
               workflow.source.bucketName,
               workflows.replications,
             ).filter((s) => s !== workflow.source.prefix),
-            isPrefixMandatory(workflow),
+            isPrefixMandatory,
           ),
         );
 
@@ -686,7 +701,7 @@ function EditForm({
             <ReplicationForm
               bucketList={bucketList}
               locations={locations}
-              existingReplicationStream={isPrefixMandatory(workflow)}
+              isPrefixMandatory={isPrefixMandatory}
             />
           )}
         </Form>

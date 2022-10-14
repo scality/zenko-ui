@@ -55,7 +55,7 @@ type Props = {
   locations: Locations;
   isCreateMode?: boolean;
   prefix?: string;
-  existingReplicationStream?: boolean;
+  isPrefixMandatory?: boolean;
 };
 
 export const disallowedPrefixes = (
@@ -322,7 +322,7 @@ function ReplicationForm({
             </Banner>
           )}
           {((existingReplicationStream && isCreateMode) ||
-            (methods.formState.isDirty && props.existingReplicationStream)) && (
+            (methods.formState.isDirty && props.isPrefixMandatory)) && (
             <Banner
               variant="infoPrimary"
               icon={<Icon name="Info-circle" size="2x" color="infoPrimary" />}
