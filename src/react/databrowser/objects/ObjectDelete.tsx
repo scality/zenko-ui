@@ -13,31 +13,22 @@ import {
   toggleAllObjects,
 } from '../../actions';
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import { Banner } from '@scality/core-ui';
+import { Banner, Stack } from '@scality/core-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
 import type { BucketInfo } from '../../../types/s3';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import { List } from 'immutable';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { PrettyBytes } from '@scality/core-ui';
+import { PrettyBytes, Icon } from '@scality/core-ui';
 import { maybePluralize } from '../../utils';
 import { useTheme } from 'styled-components';
 import styled from 'styled-components';
 import Input from '../../ui-elements/Input';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
-
-export const Icon = styled.i`
-  display: inline;
-  color: ${(props) => props.theme.brand.buttonSecondary};
-`;
-
-export const IconSuccess = styled.i`
-  color: ${(props) => props.theme.brand.statusHealthy};
-`;
 
 const Files = styled.div`
   height: 15.63rem;
@@ -46,15 +37,11 @@ const Files = styled.div`
   margin: ${spacing.sp8} 0rem;
   border: ${spacing.sp1} solid ${(props) => props.theme.brand.border};
 `;
-const Description = styled.div`
-  margin-top: ${spacing.sp4};
-`;
 const VersionId = styled.div`
   font-size: ${fontSize.small};
   margin-top: ${spacing.sp4};
 `;
 const ConfirmInput = styled(Input)`
-  display: inline;
   width: 3.4375rem;
   margin-left: 0.313rem;
   margin-right: 0.313rem;
@@ -111,11 +98,12 @@ type Props = {
   bucketInfo: BucketInfo;
 };
 
-const ConfirmationContext = createContext<{ confirmed: boolean; setConfirmed }>(
-  {},
-);
+const ConfirmationContext = createContext<{
+  confirmed: boolean;
+  setConfirmed: (value: boolean) => void;
+}>({} as any);
 
-function ConfirmationInput({ toggledFiles }) {
+function ConfirmationInput({ toggledFiles }: { toggledFiles: unknown[] }) {
   const [inputValue, setInputValue] = useState('');
   const { confirmed, setConfirmed } = useContext(ConfirmationContext);
 
@@ -125,25 +113,20 @@ function ConfirmationInput({ toggledFiles }) {
     setInputValue(target.value);
   };
 
+  const cursor = confirmed || !toggledFiles.length ? 'not-allowed' : 'default';
+
   return (
-    <>
+    <Stack direction="horizontal" gap="r8">
       <ConfirmInput
         id="confirm"
         type="text"
         onChange={handleInputChange}
         disabled={confirmed || toggledFiles.length === 0}
         value={inputValue}
-        style={{
-          cursor: confirmed || !toggledFiles.length ? 'not-allowed' : 'default',
-        }}
+        style={{ cursor }}
       />
-      {confirmed && (
-        <IconSuccess
-          className="fas fa-check"
-          style={{ marginLeft: '0.5rem' }}
-        />
-      )}
-    </>
+      {confirmed && <Icon name="Check" color="statusHealthy" />}
+    </Stack>
   );
 }
 
@@ -165,13 +148,7 @@ const ObjectDelete = ({
   const totalSize = useMemo(() => fileSizer(toggledFiles), [toggledFiles]);
 
   const [confirmed, setConfirmed] = useState(false);
-  const provided = useMemo(
-    () => ({
-      confirmed,
-      setConfirmed: (confirmed) => setConfirmed(confirmed),
-    }),
-    [confirmed],
-  );
+  const provided = useMemo(() => ({ confirmed, setConfirmed }), [confirmed]);
   const theme = useTheme();
   const [isVersionDeletionConfirmed, setIsVersionDeletionConfirmed] =
     useState(false);
@@ -179,24 +156,12 @@ const ObjectDelete = ({
     toggledFiles,
     bucketInfo.isVersioning,
   );
+  const markersStr = maybePluralize(toggled.size, 'marker', 's', false);
+  const objectsStr = maybePluralize(toggled.size, 'object', 's', false);
+  const versionsStr = maybePluralize(toggled.size, 'version', 's', false);
   const notificationText = !isCurrentSelectionPermanentlyDeleted
-    ? `Delete ${maybePluralize(
-        toggled.size,
-        'marker',
-        's',
-        false,
-      )} will be added to the selected ${maybePluralize(
-        toggled.size,
-        'object',
-        's',
-        false,
-      )}.`
-    : `The selected ${maybePluralize(
-        toggled.size,
-        'version',
-        's',
-        false,
-      )} will be permanently removed from the Bucket.`;
+    ? `Delete ${markersStr} will be added to the selected ${objectsStr}.`
+    : `The selected ${versionsStr} will be permanently removed from the Bucket.`;
   useEffect(() => {
     setToggledFiles([...toggled]);
   }, [toggled]);
@@ -287,33 +252,28 @@ const ObjectDelete = ({
                   {' '}
                   {s.key}
                   <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
-                  <Description>
+                  <Box marginTop={spacing.sp4}>
                     {s.size && <PrettyBytes bytes={s.size} />}
                     {s.lockStatus === 'LOCKED' && (
-                      <div
-                        style={{
-                          color: theme.brand?.textTertiary,
-                        }}
+                      <Box
+                        display="flex"
+                        color={theme.brand?.textTertiary}
+                        gap={spacing.sp4}
                       >
-                        <Icon
-                          style={{ display: 'inline', marginRight: '0.57rem' }}
-                          className="fa fa-lock"
-                        ></Icon>
-                        {confirmed ? (
-                          <span>Protected, will be deleted</span>
-                        ) : (
-                          <span>Protected, will not be deleted</span>
-                        )}
-                      </div>
+                        <Icon color="buttonSecondary" name="Lock" />
+                        <span>
+                          {confirmed
+                            ? 'Protected, will be deleted'
+                            : 'Protected, will not be deleted'}
+                        </span>
+                      </Box>
                     )}
-                  </Description>
+                  </Box>
                 </T.Cell>
                 <RemoveCell>
-                  {' '}
                   <div onClick={() => removeFile(s.key)}>
-                    {' '}
-                    <Icon className="Close" />{' '}
-                  </div>{' '}
+                    <Icon name="Close" color="buttonSecondary" />
+                  </div>
                 </RemoveCell>
               </T.Row>
             ))}
@@ -321,8 +281,7 @@ const ObjectDelete = ({
         </Table>
       </Files>
       <SpacedBox mb={12}>
-        {' '}
-        Total: <PrettyBytes bytes={totalSize} />{' '}
+        Total: <PrettyBytes bytes={totalSize} />
       </SpacedBox>
       {toggledFiles.length > 0 && (
         <Banner
@@ -355,23 +314,20 @@ const ObjectDelete = ({
           <SpacedBox mt={12} mb={12}>
             <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
               At least one object you want to delete is under <br />
-              Object-Lock retention{' '}
-              <Icon
-                style={{ display: 'inline', margin: '0.063rem' }}
-                className="fa fa-lock"
-              ></Icon>{' '}
+              Object-Lock retention <Icon
+                name="Lock"
+                color="buttonSecondary"
+              />{' '}
               with governance mode.
             </Banner>
           </SpacedBox>
           <SpacedBox mb={12}>
-            {' '}
             <div>
               Protected objects won't be deleted unless you choose to bypass
             </div>
             the governance retention.
           </SpacedBox>
           <SpacedBox mb={8}>
-            {' '}
             <span style={{ marginRight: '0.85rem' }}>
               Type "confirm" to bypass governance retention:
             </span>

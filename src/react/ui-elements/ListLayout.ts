@@ -70,19 +70,6 @@ export const HeadRight = styled.div`
 
   align-items: center;
 `;
-export const IconCircle = styled.i`
-  color: ${(props) => props.theme.brand.infoPrimary};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
-  border-radius: 100%;
-  border: ${spacing.sp1} solid ${(props) => props.theme.brand.infoPrimary};
-  width: 80px;
-  height: 80px;
-  text-align: center;
-  line-height: 80px;
-  vertical-align: middle;
-  margin-right: ${spacing.sp16};
-  font-size: 32px;
-`;
 export const Details = styled.div`
   display: flex;
   flex: 1;
