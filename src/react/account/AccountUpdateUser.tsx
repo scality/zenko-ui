@@ -1,10 +1,9 @@
-import FormContainer, * as F from '../ui-elements/FormLayout';
 import { MouseEvent, useRef } from 'react';
 import { clearError, handleErrorMessage, networkEnd } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
@@ -27,6 +26,7 @@ const schema = Joi.object({
     .message('Invalid Name'),
 });
 
+//TODO this component is duplicated ith AccountCreateUser...
 const AccountUpdateUser = () => {
   const dispatch = useDispatch();
   const history = useHistory();
@@ -127,88 +127,85 @@ const AccountUpdateUser = () => {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
   return (
-    <FormContainer>
-      <F.Form
-        autoComplete="off"
-        ref={formRef}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <F.Title> Edit a User</F.Title>
-
-        <F.Fieldset style={{ width: '100%' }}>
-          <F.Label
-            tooltipMessages={[
-              <div key={IAMUserName} style={{ textAlign: 'start' }}>
-                <div>
-                  The ARN and the (friendly) name for the user will be edited,
-                  but the unique ID remains the same.
-                </div>
-                <br />
-                <div>
-                  The User stays in the same Groups, under its new name.
-                </div>
-                <br />
-                <div>Policies:</div>
-                <div>
-                  - Any Policies attached to the user stays with this user,
-                  under its new name.
-                </div>
-                <div>
-                  - Any Role (Trust) Policies that refer to the User as a
-                  Principal are automatically updated with the new name.
-                </div>
-                <div>
-                  - Any Policies that refer to the User as a Resource are not
-                  updated, you have to do it manually.
-                </div>
-              </div>,
-            ]}
-            tooltipWidth="40rem"
-          >
-            User Name
-          </F.Label>
-          <F.Input
-            type="text"
-            id="name"
-            {...register('name')}
-            onChange={clearServerError}
-            autoComplete="new-password"
+    <Form
+      layout={{ title: 'Edit a User', kind: 'page' }}
+      requireMode="all"
+      ref={formRef}
+      autoComplete="off"
+      onSubmit={handleSubmit(onSubmit)}
+      rightActions={
+        <Stack gap="r16">
+          <Button
+            disabled={loading}
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            label="Cancel"
           />
-          <F.ErrorInput id="error-name" error={errors.name?.message} />
-        </F.Fieldset>
-        <F.Footer style={{ marginTop: '1rem' }}>
-          <F.FooterError>
-            {hasError && (
-              <Banner
-                id="zk-error-banner"
-                icon={<Icon name="Exclamation-triangle" />}
-                title="Error"
-                variant="danger"
-              >
-                {errorMessage}
-              </Banner>
-            )}
-          </F.FooterError>
-          <F.FooterButtons>
-            <Button
-              disabled={loading}
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              label="Cancel"
+          <Button
+            icon={<Icon name="Save" />}
+            disabled={loading}
+            type="submit"
+            id="update-account-btn"
+            variant="primary"
+            label="Save"
+          />
+        </Stack>
+      }
+      banner={
+        errorMessage && (
+          <Banner
+            variant="danger"
+            icon={<Icon name="Exclamation-triangle" />}
+            title={'Error'}
+          >
+            {errorMessage}
+          </Banner>
+        )
+      }
+    >
+      <FormSection>
+        <FormGroup
+          label="User name"
+          id="name"
+          help="Must be unique"
+          helpErrorPosition="bottom"
+          labelHelpTooltip={
+            <div style={{ textAlign: 'start' }}>
+              <div>
+                The ARN and the (friendly) name for the user will be edited, but
+                the unique ID remains the same.
+              </div>
+              <br />
+              <div>The User stays in the same Groups, under its new name.</div>
+              <br />
+              <div>Policies:</div>
+              <div>
+                - Any Policies attached to the user stays with this user, under
+                its new name.
+              </div>
+              <div>
+                - Any Role (Trust) Policies that refer to the User as a
+                Principal are automatically updated with the new name.
+              </div>
+              <div>
+                - Any Policies that refer to the User as a Resource are not
+                updated, you have to do it manually.
+              </div>
+            </div>
+          }
+          content={
+            <Input
+              id="name"
+              autoFocus
+              {...register('name', { onChange: clearServerError })}
             />
-            <Button
-              icon={<Icon name="Save" />}
-              disabled={loading}
-              type="submit"
-              id="update-account-btn"
-              variant="primary"
-              label="Save"
-            />
-          </F.FooterButtons>
-        </F.Footer>
-      </F.Form>
-    </FormContainer>
+          }
+          required
+          error={errors.name?.message}
+        />
+      </FormSection>
+    </Form>
   );
 };
 

@@ -6,7 +6,6 @@ import type {
   ObjectEntity,
 } from '../../../types/s3';
 import {
-  LIST_OBJECTS_METADATA_TYPE,
   LIST_OBJECT_VERSIONS_S3_TYPE,
 } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
@@ -20,7 +19,6 @@ import type { AppState } from '../../../types/state';
 import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';
-import React from 'react';
 import { Icon, Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';

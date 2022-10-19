@@ -300,13 +300,11 @@ const ObjectDelete = ({
               name="confirmingPemanentDeletion"
               id="confirmingPemanentDeletionCheckbox"
               checked={isVersionDeletionConfirmed}
+              label='Confirm the deletion'
               onChange={() =>
                 setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
               }
             />
-            <label htmlFor="confirmingPemanentDeletionCheckbox">
-              Confirm the deletion
-            </label>
           </CheckboxContainer>
         )}
       {hasLockedFiles && (

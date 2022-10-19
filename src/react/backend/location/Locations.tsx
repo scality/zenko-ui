@@ -162,14 +162,14 @@ function Locations() {
       {
         Header: (
           <>
-            Target Bucket
+            Target Bucket{' '}
             <HelpLocationTargetBucket />
           </>
         ),
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '24rem',
+          minWidth: '26rem',
         },
       },
     ];

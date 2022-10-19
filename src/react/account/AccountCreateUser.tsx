@@ -175,6 +175,30 @@ const AccountCreateUser = () => {
           id="name"
           help="Must be unique"
           helpErrorPosition="bottom"
+          labelHelpTooltip={
+            <div style={{ textAlign: 'start' }}>
+              <div>
+                The ARN and the (friendly) name for the user will be edited, but
+                the unique ID remains the same.
+              </div>
+              <br />
+              <div>The User stays in the same Groups, under its new name.</div>
+              <br />
+              <div>Policies:</div>
+              <div>
+                - Any Policies attached to the user stays with this user, under
+                its new name.
+              </div>
+              <div>
+                - Any Role (Trust) Policies that refer to the User as a
+                Principal are automatically updated with the new name.
+              </div>
+              <div>
+                - Any Policies that refer to the User as a Resource are not
+                updated, you have to do it manually.
+              </div>
+            </div>
+          }
           content={
             <Input
               id="name"

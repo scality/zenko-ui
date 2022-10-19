@@ -19,7 +19,6 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Button, Select } from '@scality/core-ui/dist/next';
 import type {
   ListObjectsType,
@@ -28,11 +27,10 @@ import type {
 } from '../../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
-import FormContainer, * as F from '../../../ui-elements/FormLayout';
 import { useDispatch } from 'react-redux';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
-import { Icon } from '@scality/core-ui';
+import { Form, Icon } from '@scality/core-ui';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -151,14 +149,26 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
   };
 
   return (
-    <FormContainer>
-      <SpacedBox m={32}>
+    <Form
+      layout={{ kind: 'tab' }}
+      onSubmit={handleSubmit(onSubmit)}
+      rightActions={
+        <Button
+          id="metadata-button-save"
+          variant="secondary"
+          label="Save"
+          disabled={isVersioningType || !isDirty}
+          icon={<Icon name="Save" />}
+          type="submit"
+        />
+      }
+    >
+      <div>
         <Header>
           <HeaderKey> Key </HeaderKey>
           <HeaderValue> Value </HeaderValue>
         </Header>
-      </SpacedBox>
-      <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
+
         <Items>
           {fields.map((field, index) => {
             const isUserMD = isUserType(field.type);
@@ -198,7 +208,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                       };
 
                       return (
-                        <F.Select
+                        <Select
                           onChange={onChange}
                           value={key}
                           disabled={isVersioningType}
@@ -209,7 +219,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                               {opt.label}
                             </Select.Option>
                           ))}
-                        </F.Select>
+                        </Select>
                       );
                     }}
                   />
@@ -263,24 +273,8 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
             );
           })}
         </Items>
-        <SpacedBox m={32}>
-          <F.Footer>
-            <F.FooterButtons>
-              <SpacedBox m={16}>
-                <Button
-                  id="metadata-button-save"
-                  variant="secondary"
-                  aria-label="Save"
-                  disabled={isVersioningType || !isDirty}
-                  icon={<Icon name="Save" />}
-                  type="submit"
-                />
-              </SpacedBox>
-            </F.FooterButtons>
-          </F.Footer>
-        </SpacedBox>
-      </F.CustomForm>
-    </FormContainer>
+      </div>
+    </Form>
   );
 }
 

@@ -245,8 +245,6 @@ export const CustomForm = styled.form`
 `;
 const FormContainer = styled.div`
   height: 100%;
-  margin: ${spacing.sp8};
-  margin-bottom: ${spacing.sp24};
   overflow: auto;
 `;
 export const FormScrollArea = styled.div`
