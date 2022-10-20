@@ -7,7 +7,6 @@ import {
 } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../types/state';
 import { useHistory } from 'react-router';
 import ReplicationForm, {
@@ -73,9 +72,10 @@ const OptionIcon = ({ icon }: { icon: IconName }) => (
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
+  const locations =
+    useSelector((state: AppState) => state.configuration.latest?.locations) ??
+    {};
+
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
@@ -103,8 +103,8 @@ const CreateWorkflow = () => {
   const replicationsQuery = useQuery({
     ...workflowListQuery(
       notFalsyTypeGuard(mgnt),
-      accountId!,
-      instanceId!,
+      accountId,
+      instanceId,
       rolePathName,
     ),
     select: (workflows) =>
@@ -147,8 +147,6 @@ const CreateWorkflow = () => {
     defaultValues: defaultFormValues,
   });
 
-  useFormMethods.getValues;
-
   const { handleSubmit, control, watch, formState } = useFormMethods;
   const type = watch('type');
   const isValid = formState.isValid;
@@ -165,8 +163,8 @@ const CreateWorkflow = () => {
         .createBucketWorkflowReplication(
           replication,
           replication.source.bucketName,
-          accountId!,
-          instanceId!,
+          notFalsyTypeGuard(accountId),
+          notFalsyTypeGuard(instanceId),
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -176,8 +174,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId!,
-            instanceId!,
+            notFalsyTypeGuard(accountId),
+            notFalsyTypeGuard(instanceId),
             rolePathName,
           ).queryKey,
         );
@@ -209,8 +207,8 @@ const CreateWorkflow = () => {
         .createBucketWorkflowExpiration(
           sanitizedExpiration,
           sanitizedExpiration.bucketName,
-          accountId!,
-          instanceId!,
+          notFalsyTypeGuard(accountId),
+          notFalsyTypeGuard(instanceId),
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -220,8 +218,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId!,
-            instanceId!,
+            notFalsyTypeGuard(accountId),
+            notFalsyTypeGuard(instanceId),
             rolePathName,
           ).queryKey,
         );
@@ -252,8 +250,8 @@ const CreateWorkflow = () => {
         .createBucketWorkflowTransition(
           prepareTransitionQuery(sanitizedTransition),
           sanitizedTransition.bucketName,
-          accountId!,
-          instanceId!,
+          notFalsyTypeGuard(accountId),
+          notFalsyTypeGuard(instanceId),
           rolePathName,
         )
         .finally(() => dispatch(networkEnd()));
@@ -263,8 +261,8 @@ const CreateWorkflow = () => {
         queryClient.invalidateQueries(
           workflowListQuery(
             notFalsyTypeGuard(mgnt),
-            accountId!,
-            instanceId!,
+            notFalsyTypeGuard(accountId),
+            notFalsyTypeGuard(instanceId),
             rolePathName,
           ).queryKey,
         );
