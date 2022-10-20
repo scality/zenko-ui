@@ -209,6 +209,7 @@ export default function ObjectLockRetentionSettings({
             helpErrorPosition="bottom"
             help="Must be a positive whole number."
             error={errors.retentionPeriod?.message}
+            disabled={!isDefaultRetentionEnabled}
             content={
               <Stack direction="horizontal">
                 <Controller
@@ -225,7 +226,7 @@ export default function ObjectLockRetentionSettings({
                         }
                         type="number"
                         min={1}
-                        disabled={!isDefaultRetentionEnabled}
+                        
                         size="2/3"
                       />
                     );
