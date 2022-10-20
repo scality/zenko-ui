@@ -36,7 +36,7 @@ const UpdateAccountPolicy = () => {
     formState: { isDirty, isValid, errors },
     setValue,
     setError,
-  } = useForm<FormValues>({});
+  } = useForm<FormValues>({ mode: 'onChange' });
   const policyDocument = watch('policyDocument');
   const policyArn = decodeURIComponent(encodedPolicyArn);
   const policyArnComponents = regexArn.exec(policyArn)?.groups;
