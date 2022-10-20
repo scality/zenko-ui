@@ -137,7 +137,7 @@ export const Value = styled.div`
 `;
 export const GroupValues = styled.div`
   display: flex;
-  width: 25rem;
+  flex: 1 1 65%;
   justify-content: space-between;
   align-items: center;
 `;
