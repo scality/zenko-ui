@@ -174,6 +174,7 @@ export const Title = styled.div`
 `;
 const Table = styled.table`
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
   border-collapse: collapse;
