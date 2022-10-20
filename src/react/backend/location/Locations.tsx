@@ -169,7 +169,7 @@ function Locations() {
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '26rem',
+          minWidth: '24rem',
         },
       },
     ];
