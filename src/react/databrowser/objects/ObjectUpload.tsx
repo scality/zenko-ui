@@ -8,7 +8,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { Icon, PrettyBytes } from '@scality/core-ui';
+import { Icon, PrettyBytes, Stack, Wrap } from '@scality/core-ui';
 import { maybePluralize } from '../../utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -172,21 +172,24 @@ const ObjectUpload = ({ bucketName }: Props) => {
       id="object-upload"
       close={cancel}
       footer={
-        <div>
-          <Button
-            id="object-upload-cancel-button"
-            variant="outline"
-            onClick={cancel}
-            label="Cancel"
-          />
-          <Button
-            id="object-upload-upload-button"
-            disabled={acceptedFiles.length === 0}
-            variant="secondary"
-            onClick={upload}
-            label="Upload"
-          />
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            <Button
+              id="object-upload-cancel-button"
+              variant="outline"
+              onClick={cancel}
+              label="Cancel"
+            />
+            <Button
+              id="object-upload-upload-button"
+              disabled={acceptedFiles.length === 0}
+              variant="secondary"
+              onClick={upload}
+              label="Upload"
+            />
+          </Stack>
+        </Wrap>
       }
       isOpen={true}
       title={title(acceptedFiles.length)}
