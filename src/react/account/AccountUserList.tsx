@@ -43,7 +43,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const history = useHistory();
   const { data: accessKeysResult, status: userAccessKeyStatus } =
     useAwsPaginatedEntities(
-      getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
+      getUserAccessKeysQuery(userName, IAMClient),
       (data) => data.AccessKeyMetadata,
     );
   const accessKeys = useMemo(() => {
@@ -176,12 +176,12 @@ const DeleteUserAction = ({
   const [showModal, setShowModal] = useState(false);
   const { data: accessKeysResult, status: accessKeyStatus } =
     useAwsPaginatedEntities(
-      getUserAccessKeysQuery(userName, notFalsyTypeGuard(IAMClient)),
+      getUserAccessKeysQuery(userName, IAMClient),
       (data) => data.AccessKeyMetadata,
     );
   const { data: listGroupsResult, status: listGroupStatus } =
     useAwsPaginatedEntities(
-      getUserListGroupsQuery(userName, notFalsyTypeGuard(IAMClient)),
+      getUserListGroupsQuery(userName, IAMClient),
       (result) => result.Groups,
       true,
     );
@@ -192,7 +192,7 @@ const DeleteUserAction = ({
     getListAttachedUserPoliciesQuery(
       userName,
       notFalsyTypeGuard(accountName),
-      notFalsyTypeGuard(IAMClient),
+      IAMClient,
     ),
     (result) => result?.AttachedPolicies || [],
     true,
@@ -200,15 +200,12 @@ const DeleteUserAction = ({
 
   const deleteUserMutation = useMutation(
     (userName: string) => {
-      return notFalsyTypeGuard(IAMClient).deleteUser(userName);
+      return IAMClient.deleteUser(userName);
     },
     {
       onSuccess: () =>
         queryClient.invalidateQueries(
-          getListUsersQuery(
-            notFalsyTypeGuard(accountName),
-            notFalsyTypeGuard(IAMClient),
-          ).queryKey,
+          getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient).queryKey,
         ),
       onError: (error) => {
         try {

@@ -45,8 +45,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     {
       onSuccess: () =>
         queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient))
-            .queryKey,
+          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
         ),
     },
   );

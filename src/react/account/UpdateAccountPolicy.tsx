@@ -54,11 +54,7 @@ const UpdateAccountPolicy = () => {
 
   const queryClient = useQueryClient();
   const { data: policyResult, status } = useQuery({
-    ...getPolicyQuery(
-      policyArn,
-      defaultVersionId,
-      notFalsyTypeGuard(IAMClient),
-    ),
+    ...getPolicyQuery(policyArn, defaultVersionId, IAMClient),
     onSuccess: (data) => {
       const formattedDocument = JSON.stringify(
         JSON.parse(decodeURIComponent(data?.PolicyVersion?.Document ?? '')),
@@ -72,26 +68,20 @@ const UpdateAccountPolicy = () => {
   const updatePolicyMutation = useMutation(
     async ({ policyDocument }: { policyDocument: string }) => {
       if (policyVersions?.Versions?.length === 5) {
-        await notFalsyTypeGuard(IAMClient).deletePolicyVersion(
+        await IAMClient.deletePolicyVersion(
           policyArn,
           policyVersions.Versions[policyVersions.Versions.length - 1].VersionId,
         );
       }
-      return notFalsyTypeGuard(IAMClient).createPolicyVersion(
-        policyArn,
-        policyDocument,
-      );
+      return IAMClient.createPolicyVersion(policyArn, policyDocument);
     },
     {
       onSuccess: () => {
         queryClient.refetchQueries(
-          getListPoliciesQuery(
-            notFalsyTypeGuard(account).Name,
-            notFalsyTypeGuard(IAMClient),
-          ),
+          getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient),
         );
         queryClient.refetchQueries(
-          getListPolicyVersionsQuery(policyArn, notFalsyTypeGuard(IAMClient)),
+          getListPolicyVersionsQuery(policyArn, IAMClient),
         );
         history.push(`/accounts/${account?.Name}/policies`);
       },

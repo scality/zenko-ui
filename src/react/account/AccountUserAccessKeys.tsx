@@ -83,8 +83,7 @@ const ToggleAccessKeyStatus = (rowValue) => {
     {
       onSuccess: () =>
         queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient))
-            .queryKey,
+          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
         ),
     },
   );
@@ -128,8 +127,7 @@ const DeleteAccessKeyAction = (rowValue) => {
     {
       onSuccess: () =>
         queryClient.invalidateQueries(
-          getUserAccessKeysQuery(IAMUserName, notFalsyTypeGuard(IAMClient))
-            .queryKey,
+          getUserAccessKeysQuery(IAMUserName, IAMClient).queryKey,
         ),
     },
   );

@@ -204,13 +204,12 @@ const DeletePolicyAction = ({
   const isInternalPolicy = path.includes('scality-internal');
   const deletePolicyMutation = useMutation(
     (arn: string) => {
-      return notFalsyTypeGuard(IAMClient).deletePolicy(arn);
+      return IAMClient.deletePolicy(arn);
     },
     {
       onSuccess: () =>
         queryClient.invalidateQueries(
-          getListPoliciesQuery(accountName, notFalsyTypeGuard(IAMClient))
-            .queryKey,
+          getListPoliciesQuery(accountName, IAMClient).queryKey,
         ),
       onError: (error: ApiError) => {
         try {

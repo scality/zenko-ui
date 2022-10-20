@@ -297,6 +297,7 @@ const RenderDestination = ({
   touchedFields: { [key: string]: boolean };
 }) => {
   const forceLabelWidth = convertRemToPixels(10);
+  const { trigger } = useFormContext();
   return (
     <Controller
       control={control}
@@ -337,6 +338,7 @@ const RenderDestination = ({
                             const newValues = [...destinationLocations];
                             newValues[index] = value;
                             onChange(newValues);
+                            trigger();
                           }}
                           value={destLoc}
                         >

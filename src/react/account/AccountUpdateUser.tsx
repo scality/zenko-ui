@@ -47,17 +47,14 @@ const AccountUpdateUser = () => {
   const updateUserMutation = useMutation(
     (newUserName: string) => {
       const oldUserName = IAMUserName;
-      return notFalsyTypeGuard(IAMClient)
-        .updateUser(newUserName, oldUserName)
+      return IAMClient.updateUser(newUserName, oldUserName)
         .then(() => {
           const olddata = queryClient.getQueryData(
-            getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
-              .queryKey,
+            getListUsersQuery(accountName, IAMClient).queryKey,
           );
           olddata &&
             queryClient.setQueryData<InfiniteData<ListUsersResponse>>(
-              getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
-                .queryKey,
+              getListUsersQuery(accountName, IAMClient).queryKey,
               (old) => {
                 const pages = notFalsyTypeGuard(old).pages.map((page) => {
                   const users = page.Users;

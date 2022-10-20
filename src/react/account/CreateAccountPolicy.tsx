@@ -51,17 +51,13 @@ const CreateAccountPolicy = () => {
 
   const createPolicyMutation = useMutation(
     ({ policyName, policyDocument }: PolicyFormValues) => {
-      return notFalsyTypeGuard(IAMClient).createPolicy(
-        policyName,
-        policyDocument,
-      );
+      return IAMClient.createPolicy(policyName, policyDocument);
     },
     {
       onSuccess: () => {
         history.push(`/accounts/${accountName}/policies`);
         queryClient.invalidateQueries(
-          getListPoliciesQuery(accountName, notFalsyTypeGuard(IAMClient))
-            .queryKey,
+          getListPoliciesQuery(accountName, IAMClient).queryKey,
         );
       },
       onError: (error) => {

@@ -13,7 +13,7 @@ import {
   ResourceType,
   EntityType,
 } from './AttachmentTypes';
-import styled, { DefaultTheme, useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useHistory } from 'react-router';
 import { InlineButton } from '../../ui-elements/Table';
 import {
@@ -90,32 +90,29 @@ function AttachmentConfirmationModal({
       id: string;
     }) => {
       if (action === AttachmentAction.ADD && type === 'user') {
-        return notFalsyTypeGuard(IAMClient).attachUserPolicy(id, resourceId);
+        return IAMClient.attachUserPolicy(id, resourceId);
       } else if (action === AttachmentAction.REMOVE && type === 'user') {
-        return notFalsyTypeGuard(IAMClient).detachUserPolicy(id, resourceId);
+        return IAMClient.detachUserPolicy(id, resourceId);
       } else if (action === AttachmentAction.ADD && type === 'group') {
         if (resourceType === 'policy') {
-          return notFalsyTypeGuard(IAMClient).attachGroupPolicy(id, resourceId);
+          return IAMClient.attachGroupPolicy(id, resourceId);
         } else {
-          return notFalsyTypeGuard(IAMClient).addUserToGroup(id, resourceId);
+          return IAMClient.addUserToGroup(id, resourceId);
         }
       } else if (action === AttachmentAction.REMOVE && type === 'group') {
         if (resourceType === 'policy') {
-          return notFalsyTypeGuard(IAMClient).detachGroupPolicy(id, resourceId);
+          return IAMClient.detachGroupPolicy(id, resourceId);
         } else {
-          return notFalsyTypeGuard(IAMClient).removeUserFromGroup(
-            id,
-            resourceId,
-          );
+          return IAMClient.removeUserFromGroup(id, resourceId);
         }
       } else if (action === AttachmentAction.ADD && type === 'role') {
-        return notFalsyTypeGuard(IAMClient).attachRolePolicy(id, resourceId);
+        return IAMClient.attachRolePolicy(id, resourceId);
       } else if (action === AttachmentAction.REMOVE && type === 'role') {
-        return notFalsyTypeGuard(IAMClient).detachRolePolicy(id, resourceId);
+        return IAMClient.detachRolePolicy(id, resourceId);
       } else if (action === AttachmentAction.ADD && type === 'policy') {
-        return notFalsyTypeGuard(IAMClient).attachUserPolicy(resourceId, id);
+        return IAMClient.attachUserPolicy(resourceId, id);
       } else if (action === AttachmentAction.REMOVE && type === 'policy') {
-        return notFalsyTypeGuard(IAMClient).detachUserPolicy(resourceId, id);
+        return IAMClient.detachUserPolicy(resourceId, id);
       }
       throw new Error(`Attachment to ${type} is not yet supported`);
     },
@@ -130,10 +127,7 @@ function AttachmentConfirmationModal({
             getListEntitiesForPolicyQuery(resourceId, IAMClient),
           );
           queryClient.refetchQueries(
-            getListPoliciesQuery(
-              notFalsyTypeGuard(account).Name,
-              notFalsyTypeGuard(IAMClient),
-            ),
+            getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient),
           );
           if (flatEntity.type === 'user') {
             queryClient.refetchQueries(
@@ -161,10 +155,8 @@ function AttachmentConfirmationModal({
               getListEntitiesForPolicyQuery(flatEntity.id, IAMClient),
             );
             queryClient.invalidateQueries(
-              getListPoliciesQuery(
-                notFalsyTypeGuard(account).Name,
-                notFalsyTypeGuard(IAMClient),
-              ).queryKey,
+              getListPoliciesQuery(notFalsyTypeGuard(account).Name, IAMClient)
+                .queryKey,
             );
           }
         }

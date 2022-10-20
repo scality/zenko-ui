@@ -82,7 +82,7 @@ export const getUserAccessKeysQuery = (
 ) => ({
   queryKey: ['listIAMUserAccessKey', userName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listAccessKeys(userName, marker),
+    IAMClient.listAccessKeys(userName, marker),
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -94,11 +94,7 @@ export const getUserListGroupsQuery = (
 ) => ({
   queryKey: ['listIAMUserGroups', userName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) => {
-    return notFalsyTypeGuard(IAMClient).listGroupsForUser(
-      userName,
-      1000,
-      marker,
-    );
+    return IAMClient.listGroupsForUser(userName, 1000, marker);
   },
   staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
@@ -112,7 +108,7 @@ export const getListUsersQuery = (
 ) => ({
   queryKey: ['listIAMUsers', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listUsers(1000, marker),
+    IAMClient.listUsers(1000, marker),
   staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
@@ -125,7 +121,7 @@ export const getListPoliciesQuery = (
 ) => ({
   queryKey: ['listPolicies', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listPolicies(1000, marker),
+    IAMClient.listPolicies(1000, marker),
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -137,7 +133,7 @@ export const getListEntitiesForPolicyQuery = (
 ) => ({
   queryKey: ['listEntitiesForPolicy', policyArn],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listEntitiesForPolicy(policyArn, 1000, marker),
+    IAMClient.listEntitiesForPolicy(policyArn, 1000, marker),
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -149,7 +145,7 @@ export const getListGroupsQuery = (
 ) => ({
   queryKey: ['listGroups', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listGroups(1000, marker),
+    IAMClient.listGroups(1000, marker),
   staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
@@ -162,7 +158,7 @@ export const getListRolesQuery = (
 ) => ({
   queryKey: ['listRoles', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    notFalsyTypeGuard(IAMClient).listRoles(1000, marker),
+    IAMClient.listRoles(1000, marker),
   staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
@@ -175,8 +171,7 @@ export const getListAttachedUserPoliciesQuery = (
   IAMClient?: IAMClient | null,
 ) => ({
   queryKey: ['listAttachedUserPolicies', userName, accountName],
-  queryFn: () =>
-    notFalsyTypeGuard(IAMClient).listAttachedUserPolicies(userName),
+  queryFn: () => IAMClient.listAttachedUserPolicies(userName),
   staleTime: Infinity,
   enabled: IAMClient !== null && IAMClient !== undefined,
   refetchOnMount: false,
@@ -200,7 +195,7 @@ export const getListPolicyVersionsQuery = (
 ) => {
   return {
     queryKey: ['listPolicyVersions', policyArn],
-    queryFn: () => notFalsyTypeGuard(IAMClient).listPolicyVersions(policyArn),
+    queryFn: () => IAMClient.listPolicyVersions(policyArn),
     enabled: IAMClient !== null && IAMClient !== undefined,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

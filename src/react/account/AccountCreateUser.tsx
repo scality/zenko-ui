@@ -59,12 +59,10 @@ const AccountCreateUser = () => {
   const createUserMutation = useMutation(
     (userName: string) => {
       dispatch(networkStart('Creating User'));
-      return notFalsyTypeGuard(IAMClient)
-        .createUser(userName)
+      return IAMClient.createUser(userName)
         .then((newUser: CreateUserResponse) => {
           queryClient.setQueryData<InfiniteData<ListUsersResponse> | undefined>(
-            getListUsersQuery(accountName, notFalsyTypeGuard(IAMClient))
-              ?.queryKey,
+            getListUsersQuery(accountName, IAMClient)?.queryKey,
             (old: InfiniteData<ListUsersResponse> | undefined) => {
               if (old) {
                 const pages = old.pages;

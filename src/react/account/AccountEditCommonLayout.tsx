@@ -2,7 +2,6 @@ import { FormEvent, MouseEvent } from 'react';
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';
-import { Clipboard } from '../ui-elements/Clipboard';
 import Editor from '../ui-elements/Editor';
 import { Monaco } from '@monaco-editor/react';
 import policySchema from '../../../policyJsonSchema.json';
@@ -34,6 +33,7 @@ export const CommonPolicyLayout = ({
   handleCancel: (e: MouseEvent<HTMLButtonElement>) => void;
 }) => {
   const isCreateMode = !policyArn;
+
   return (
     <Form
       onSubmit={onSubmit}
