@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Loader } from '@scality/core-ui';
+import { Loader, Stack, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
@@ -25,17 +25,20 @@ const DeleteConfirmation = ({ approve, cancel, show, titleText }: Props) => {
       close={cancel}
       isOpen={true}
       footer={
-        <div>
-          <Button variant="outline" onClick={cancel} label="Cancel" />
-          <Button
-            disabled={loading}
-            className="delete-confirmation-delete-button"
-            variant="danger"
-            onClick={() => approve()}
-            icon={loading && <Loader size="larger" />}
-            label="Delete"
-          />
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            <Button variant="outline" onClick={cancel} label="Cancel" />
+            <Button
+              disabled={loading}
+              className="delete-confirmation-delete-button"
+              variant="danger"
+              onClick={() => approve()}
+              icon={loading && <Loader size="larger" />}
+              label="Delete"
+            />
+          </Stack>
+        </Wrap>
       }
       title="Confirmation"
     >

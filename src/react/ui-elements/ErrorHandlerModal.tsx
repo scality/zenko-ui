@@ -7,6 +7,7 @@ import type { DispatchAPI } from 'redux';
 import { CustomModal as Modal } from './Modal';
 import React from 'react';
 import { clearError } from '../actions';
+import { Wrap } from '@scality/core-ui';
 
 const ErrorHandlerModal = () => {
   const showError = useSelector(
@@ -40,7 +41,12 @@ export const DumbErrorModal = ({
 }) => (
   <Modal
     close={close}
-    footer={<Button variant="primary" onClick={close} label="Close" />}
+    footer={
+      <Wrap>
+        <p></p>
+        <Button variant="primary" onClick={close} label="Close" />
+      </Wrap>
+    }
     isOpen={isOpen}
     title="Error"
   >

@@ -13,7 +13,7 @@ import {
   toggleAllObjects,
 } from '../../actions';
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import { Banner, Stack } from '@scality/core-ui';
+import { Banner, Stack, Wrap } from '@scality/core-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -217,27 +217,30 @@ const ObjectDelete = ({
       id="object-delete"
       close={cancel}
       footer={
-        <div>
-          <Button
-            id="object-delete-cancel-button"
-            variant="outline"
-            onClick={cancel}
-            label="Cancel"
-          />
-          <Button
-            id="object-delete-delete-button"
-            disabled={
-              toggledFiles.length === 0 ||
-              (hasLockedFiles && !confirmed) ||
-              (isCurrentSelectionPermanentlyDeleted &&
-                !isVersionDeletionConfirmed &&
-                !hasLockedFiles)
-            }
-            variant="danger"
-            onClick={deleteSelectedFiles}
-            label="Delete"
-          />
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            <Button
+              id="object-delete-cancel-button"
+              variant="outline"
+              onClick={cancel}
+              label="Cancel"
+            />
+            <Button
+              id="object-delete-delete-button"
+              disabled={
+                toggledFiles.length === 0 ||
+                (hasLockedFiles && !confirmed) ||
+                (isCurrentSelectionPermanentlyDeleted &&
+                  !isVersionDeletionConfirmed &&
+                  !hasLockedFiles)
+              }
+              variant="danger"
+              onClick={deleteSelectedFiles}
+              label="Delete"
+            />
+          </Stack>
+        </Wrap>
       }
       isOpen={true}
       title="Confirmation"
@@ -300,7 +303,7 @@ const ObjectDelete = ({
               name="confirmingPemanentDeletion"
               id="confirmingPemanentDeletionCheckbox"
               checked={isVersionDeletionConfirmed}
-              label='Confirm the deletion'
+              label="Confirm the deletion"
               onChange={() =>
                 setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
               }

@@ -1,7 +1,7 @@
 import type { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
-import { Banner, Icon } from '@scality/core-ui';
+import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
@@ -64,15 +64,18 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
 
     if (isFirstModal) {
       return (
-        <div>
-          <Button variant="outline" onClick={handleClose} label="Cancel" />
-          <Button
-            icon={<Icon name="Arrow-right" />}
-            variant="primary"
-            onClick={handleAccessKeyCreate}
-            label="Continue"
-          />
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            <Button variant="outline" onClick={handleClose} label="Cancel" />
+            <Button
+              icon={<Icon name="Arrow-right" />}
+              variant="primary"
+              onClick={handleAccessKeyCreate}
+              label="Continue"
+            />
+          </Stack>
+        </Wrap>
       );
     }
 

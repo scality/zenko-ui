@@ -8,7 +8,7 @@ import {
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
+import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { HideCredential } from '../../../ui-elements/Hide';
@@ -50,15 +50,18 @@ function SecretKeyModal({ account }: Props) {
 
     if (isFirstModal) {
       return (
-        <div>
-          <Button variant="outline" onClick={handleClose} label="Cancel" />
-          <Button
-            icon={<Icon name="Arrow-right" />}
-            variant="primary"
-            onClick={handleAccessKeyCreate}
-            label="Continue"
-          />
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            <Button variant="outline" onClick={handleClose} label="Cancel" />
+            <Button
+              icon={<Icon name="Arrow-right" />}
+              variant="primary"
+              onClick={handleAccessKeyCreate}
+              label="Continue"
+            />
+          </Stack>
+        </Wrap>
       );
     }
 

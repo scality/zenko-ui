@@ -7,7 +7,7 @@ import { useLocation } from 'react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 import DataServiceRoleProvider from '../DataServiceRoleProvider';
-import { Icon } from '@scality/core-ui';
+import { Icon, Stack, Wrap } from '@scality/core-ui';
 const DEFAULT_MESSAGE = 'We need to log you in.';
 
 const ReauthDialog = () => {
@@ -36,25 +36,28 @@ const ReauthDialog = () => {
         window.location.reload();
       }}
       footer={
-        <div>
-          {oidcLogout && (
-            <Button
-              style={{
-                marginRight: spacing.sp24,
-              }}
-              icon={<Icon name="Log-out" />}
-              variant="secondary"
-              onClick={() => oidcLogout(true)}
-              label="Log Out"
-            />
-          )}
-          <DataServiceRoleProvider>
-            <AccountRoleSelectButtonAndModal
-              bigButton
-              buttonLabel="Switch Account"
-            />
-          </DataServiceRoleProvider>
-        </div>
+        <Wrap>
+          <p></p>
+          <Stack>
+            {oidcLogout && (
+              <Button
+                style={{
+                  marginRight: spacing.sp24,
+                }}
+                icon={<Icon name="Log-out" />}
+                variant="secondary"
+                onClick={() => oidcLogout(true)}
+                label="Log Out"
+              />
+            )}
+            <DataServiceRoleProvider>
+              <AccountRoleSelectButtonAndModal
+                bigButton
+                buttonLabel="Switch Account"
+              />
+            </DataServiceRoleProvider>
+          </Stack>
+        </Wrap>
       }
       isOpen={true}
       title="Authentication Error"

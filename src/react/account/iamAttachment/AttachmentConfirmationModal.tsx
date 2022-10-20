@@ -23,7 +23,7 @@ import {
   getUserListGroupsQuery,
 } from '../../queries';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { Icon, LargerText, SecondaryText } from '@scality/core-ui';
+import { Icon, LargerText, SecondaryText, Stack, Wrap } from '@scality/core-ui';
 
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
 
@@ -212,28 +212,31 @@ function AttachmentConfirmationModal({
   );
   const modalFooter = () => {
     return (
-      <div>
-        {isAttachNotDone ? (
-          <>
-            <Button variant="outline" onClick={handleClose} label="Cancel" />
+      <Wrap>
+        <p></p>
+        <Stack>
+          {isAttachNotDone ? (
+            <>
+              <Button variant="outline" onClick={handleClose} label="Cancel" />
+              <Button
+                icon={<Icon name="Arrow-right" />}
+                variant="primary"
+                onClick={attach}
+                label="Confirm"
+                disabled={loading}
+              />
+            </>
+          ) : (
             <Button
               icon={<Icon name="Arrow-right" />}
               variant="primary"
-              onClick={attach}
-              label="Confirm"
+              onClick={() => history.push(redirectUrl)}
+              label="Exit"
               disabled={loading}
             />
-          </>
-        ) : (
-          <Button
-            icon={<Icon name="Arrow-right" />}
-            variant="primary"
-            onClick={() => history.push(redirectUrl)}
-            label="Exit"
-            disabled={loading}
-          />
-        )}
-      </div>
+          )}
+        </Stack>
+      </Wrap>
     );
   };
 
