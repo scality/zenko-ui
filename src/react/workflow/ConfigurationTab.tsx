@@ -623,7 +623,6 @@ function EditForm({
               content={
                 isExpirationWorkflow(workflow) ? (
                   <Stack direction="horizontal">
-                    xw
                     <Icon name="Expiration" />
                     Expiration
                   </Stack>
