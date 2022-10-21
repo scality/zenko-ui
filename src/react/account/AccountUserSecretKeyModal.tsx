@@ -79,7 +79,12 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
       );
     }
 
-    return <Button onClick={handleClose} variant="primary" label="Close" />;
+    return (
+      <Wrap>
+        <p></p>
+        <Button onClick={handleClose} variant="primary" label="Close" />
+      </Wrap>
+    );
   };
 
   return (
