@@ -141,7 +141,7 @@ describe('ObjectUpload', () => {
           );
           expect(component.find('td').at(0).find('small').text()).toBe('4 B');
           expect(
-            component.find('div.sc-modal-header').find('span').text(),
+            component.find('div.sc-modal-header').find('span').at(0).text(),
           ).toBe('Upload 1 file');
           expect(uploadFilesMock).toHaveBeenCalledTimes(0);
           component
