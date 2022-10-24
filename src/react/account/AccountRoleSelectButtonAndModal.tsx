@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouteMatch } from 'react-router';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
-import { Tooltip } from '@scality/core-ui';
+import { Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
@@ -64,27 +64,30 @@ export function AccountRoleSelectButtonAndModal({
   };
   const modalFooter = () => {
     return (
-      <div>
-        <Button variant="outline" onClick={handleClose} label="Cancel" />
-        <Button
-          icon={<Icon name="Arrow-right" />}
-          variant="primary"
-          onClick={() => {
-            const parsedArn = regexArn.exec(assumedRoleArn);
-            const roleName = parsedArn?.groups?.name || '';
-            setRoleArnStored(assumedRoleArn);
-            selectAccountAndRoleRedirectTo(
-              path,
-              assumedAccount,
-              assumedRoleArn,
-            );
-            redirectDataConsummers([{ Name: roleName }], handleClose);
-            window.location.reload();
-          }}
-          label="Continue"
-          disabled={assumedRoleArn === getRoleArnStored()}
-        />
-      </div>
+      <Wrap>
+        <p></p>
+        <Stack>
+          <Button variant="outline" onClick={handleClose} label="Cancel" />
+          <Button
+            icon={<Icon name="Arrow-right" />}
+            variant="primary"
+            onClick={() => {
+              const parsedArn = regexArn.exec(assumedRoleArn);
+              const roleName = parsedArn?.groups?.name || '';
+              setRoleArnStored(assumedRoleArn);
+              selectAccountAndRoleRedirectTo(
+                path,
+                assumedAccount,
+                assumedRoleArn,
+              );
+              redirectDataConsummers([{ Name: roleName }], handleClose);
+              window.location.reload();
+            }}
+            label="Continue"
+            disabled={assumedRoleArn === getRoleArnStored()}
+          />
+        </Stack>
+      </Wrap>
     );
   };
 

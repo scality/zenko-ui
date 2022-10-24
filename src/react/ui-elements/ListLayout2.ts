@@ -61,7 +61,7 @@ export const HeadSlice = styled.div`
 export const HeadBody = styled.div``;
 export const HeadIcon = styled.i`
   display: flex;
-  color: ${(props) => props.theme.brand.statusHealthy};
+  color: ${(props) => props.theme.brand.infoPrimary};
   background-color: ${(props) => props.theme.brand.backgroundLevel1};
   border-radius: 100%;
   border: ${spacing.sp1} solid ${(props) => props.theme.brand.infoPrimary};

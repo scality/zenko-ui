@@ -11,13 +11,11 @@ import {
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
 import { Button } from '@scality/core-ui/dist/next';
-import type { ObjectMetadata, Tag } from '../../../../types/s3';
+import type { Tag } from '../../../../types/s3';
 import { putObjectTagging } from '../../../actions';
-import FormContainer, * as F from '../../../ui-elements/FormLayout';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch } from 'react-redux';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Icon, SpacedBox } from '@scality/core-ui';
+import { Form, Icon } from '@scality/core-ui';
 import { useEffect } from 'react';
 const EMPTY_ITEM = {
   key: '',
@@ -85,66 +83,64 @@ function Properties({ bucketName, objectKey, tags, versionId }: Props) {
   };
 
   return (
-    <FormContainer>
+    <Form
+      layout={{kind: 'tab'}}
+      onSubmit={handleSubmit(onSubmit)}
+      rightActions={
+        <Button
+          id="tags-button-save"
+          variant="secondary"
+          label="Save"
+          disabled={!isDirty}
+          icon={<Icon name="Save" />}
+          type="submit"
+        />
+      }
+    >
+      <div>
       <Header>
         <HeaderKeyTag> Key </HeaderKeyTag>
         <HeaderValueTag> Value </HeaderValueTag>
       </Header>
-      <F.CustomForm onSubmit={handleSubmit(onSubmit)}>
-        <Items>
-          {fields.map((_, index) => {
-            return (
-              <Item key={index}>
-                <Inputs>
-                  <InputTag
-                    className="tags-input-key"
-                    aria-label={`Tag ${index + 1} key`}
-                    {...register(`tags.${index}.key`)}
-                    autoComplete="off"
-                  />
-                  <InputTag
-                    className="tags-input-value"
-                    aria-label={`Tag ${index + 1} value`}
-                    {...register(`tags.${index}.value`)}
-                    autoComplete="off"
-                  />
-                </Inputs>
-                <Buttons>
-                  <SubButton
-                    index={index}
-                    items={tagsFormValues}
-                    deleteEntry={() =>
-                      tagsFormValues.length === 1
-                        ? deleteEntry()
-                        : remove(index)
-                    }
-                  />
-                  <AddButton
-                    index={index}
-                    items={tagsFormValues}
-                    insertEntry={() => append({ key: '', value: '' })}
-                  />
-                </Buttons>
-              </Item>
-            );
-          })}
-        </Items>
-        <SpacedBox m={32}>
-          <F.Footer>
-            <F.FooterButtons>
-              <Button
-                id="tags-button-save"
-                variant="secondary"
-                label="Save"
-                disabled={!isDirty}
-                icon={<Icon name="Save" />}
-                type="submit"
-              />
-            </F.FooterButtons>
-          </F.Footer>
-        </SpacedBox>
-      </F.CustomForm>
-    </FormContainer>
+
+      <Items>
+        {fields.map((_, index) => {
+          return (
+            <Item key={index}>
+              <Inputs>
+                <InputTag
+                  className="tags-input-key"
+                  aria-label={`Tag ${index + 1} key`}
+                  {...register(`tags.${index}.key`)}
+                  autoComplete="off"
+                />
+                <InputTag
+                  className="tags-input-value"
+                  aria-label={`Tag ${index + 1} value`}
+                  {...register(`tags.${index}.value`)}
+                  autoComplete="off"
+                />
+              </Inputs>
+              <Buttons>
+                <SubButton
+                  index={index}
+                  items={tagsFormValues}
+                  deleteEntry={() =>
+                    tagsFormValues.length === 1 ? deleteEntry() : remove(index)
+                  }
+                />
+                <AddButton
+                  index={index}
+                  items={tagsFormValues}
+                  insertEntry={() => append({ key: '', value: '' })}
+                />
+              </Buttons>
+            </Item>
+          );
+        })}
+      </Items>
+      </div>
+    </Form>
   );
 }
 

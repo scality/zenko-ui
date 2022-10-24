@@ -10,7 +10,7 @@ import { EmptyStateContainer } from '../../ui-elements/Container';
 import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import MultiBucketsLogo from '../../../../public/assets/logo-multi-buckets.svg';
+import {MultiBucketsIcon} from './MutliBucketsIcon';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { Icon } from '@scality/core-ui';
 
@@ -73,7 +73,7 @@ export default function Buckets() {
   return (
     <L.ContentContainer>
       <Header
-        icon={<img src={MultiBucketsLogo} alt="Multi Buckets Logo" />}
+        icon={<MultiBucketsIcon />}
         headTitle={'All Buckets'}
         numInstance={buckets ? buckets.size : 0}
       />

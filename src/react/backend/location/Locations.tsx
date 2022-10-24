@@ -162,7 +162,7 @@ function Locations() {
       {
         Header: (
           <>
-            Target Bucket
+            Target Bucket{' '}
             <HelpLocationTargetBucket />
           </>
         ),

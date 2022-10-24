@@ -118,16 +118,16 @@ describe('Metadata', () => {
       ).toHaveValue(metadataValue);
       expect(screen.getByRole('button', { name: 'Remove' })).not.toBeDisabled();
       expect(screen.getByRole('button', { name: 'Add' })).not.toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Save.*/i })).toBeDisabled();
 
       //E - change metadata value
       userEvent.type(
         screen.getByRole('textbox', { name: `${metadataKey} value` }),
         metadataNewValue,
       );
-      expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: /Save.*/i })).not.toBeDisabled();
       //Submit the form
-      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await userEvent.click(screen.getByRole('button', { name: /Save.*/i }));
       await waitFor(() =>
         expect(mockedRequestHeadersInterceptor).toHaveBeenCalled(),
       );
@@ -203,7 +203,7 @@ describe('Metadata', () => {
       ).toHaveValue(metadataValue);
       expect(screen.getByRole('button', { name: 'Remove' })).not.toBeDisabled();
       expect(screen.getByRole('button', { name: 'Add' })).not.toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Save.*/i })).toBeDisabled();
 
       //E - add a metadata
       await fireEvent.click(screen.getByRole('button', { name: 'Add' }));
@@ -216,7 +216,7 @@ describe('Metadata', () => {
         customMetadataValue,
       );
       //Submit the form
-      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await userEvent.click(screen.getByRole('button', { name: /Save.*/i }));
       await waitFor(() =>
         expect(mockedRequestHeadersInterceptor).toHaveBeenCalled(),
       );
@@ -257,7 +257,7 @@ describe('Metadata', () => {
     ).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Save.*/i })).toBeDisabled();
   });
   it('should delete key/value if remove button is pressed', async () => {
     try {
