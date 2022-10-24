@@ -29,6 +29,7 @@ import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { useQuery } from 'react-query';
 import { getClients } from './utils/actions';
+import { AppContainer, Layout2 } from '@scality/core-ui';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -198,13 +199,20 @@ function PrivateRoutes() {
 function Routes() {
   return (
     <RouteContainer>
-      <NavbarContainer>
-        <Navbar />
-      </NavbarContainer>
-      <RemoveTrailingSlash />
-      <ManagementProvider>
-        <PrivateRoutes />
-      </ManagementProvider>
+      <Layout2
+        headerNavigation={
+          <NavbarContainer>
+            <Navbar />
+          </NavbarContainer>
+        }
+      >
+        <AppContainer hasPadding>
+          <RemoveTrailingSlash />
+          <ManagementProvider>
+            <PrivateRoutes />
+          </ManagementProvider>
+        </AppContainer>
+      </Layout2>
     </RouteContainer>
   );
 }

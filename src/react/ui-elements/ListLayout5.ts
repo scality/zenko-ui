@@ -27,8 +27,6 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: ${spacing.sp16};
-  padding-bottom: ${spacing.sp16};
 `;
 export const Content = styled.div`
   flex: 1;

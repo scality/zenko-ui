@@ -45,7 +45,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
   }
 
   const renderRowSubComponent = useCallback(
-    ({ row }: {row: Row<Workflow>}) => <RowAsync row={row} />,
+    ({ row }: { row: Row<Workflow> }) => <RowAsync row={row} />,
     [],
   );
 
@@ -95,8 +95,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
     <div
       style={{
         backgroundColor: theme.brand.backgroundLevel3,
-        height: '100%',
-        width: '50%',
+        flex: 1,
       }}
     >
       <Table

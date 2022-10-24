@@ -3,14 +3,19 @@ import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
-import { Icon, PrettyBytes, SecondaryText, Toggle } from '@scality/core-ui';
+import {
+  Icon,
+  PrettyBytes,
+  SecondaryText,
+  spacing,
+  Toggle,
+} from '@scality/core-ui';
 import { useEffect } from 'react';
 import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
 import { usePrefixWithSlash, useQueryParams } from '../../../utils/hooks';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { AppState } from '../../../../types/state';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
@@ -82,7 +87,7 @@ function Properties({ objectMetadata }: Props) {
                       tooltipWidth="16rem"
                     />
                   </TruncatedValue>
-                  <T.ExtraCell>
+                  <T.ExtraCell marginLeft={spacing.f8}>
                     <Clipboard text={objectMetadata.versionId} />
                   </T.ExtraCell>
                 </T.GroupValues>
@@ -116,7 +121,9 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> ETag </T.Key>
                 <T.GroupValues>
                   <div copiable>{objectMetadata.eTag}</div>
-                  <Clipboard text={objectMetadata.eTag} />{' '}
+                  <T.ExtraCell marginLeft={spacing.f8}>
+                    <Clipboard text={objectMetadata.eTag} />
+                  </T.ExtraCell>
                 </T.GroupValues>
               </T.Row>
               <T.Row>
