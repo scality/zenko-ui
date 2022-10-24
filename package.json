@@ -72,7 +72,7 @@
     "@hapi/joi-date": "^2.0.1",
     "@hookform/resolvers": "^2.8.8",
     "@monaco-editor/react": "^4.4.5",
-    "@scality/core-ui": "github:scality/core-ui#179e3faf6a87a4aec7a5ea2e6249a82286551004",
+    "@scality/core-ui": "github:scality/core-ui#v0.60.0",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",
     "@types/react-window": "^1.8.5",
