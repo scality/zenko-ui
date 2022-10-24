@@ -459,6 +459,7 @@ const RenderDestination = ({
                               newValues.splice(index, 1);
                               onChange(newValues);
                             }
+                            trigger();
                           }}
                         />
                         <AddButton
@@ -471,6 +472,7 @@ const RenderDestination = ({
                           insertEntry={() => {
                             if (destinationLocations.includes('')) return;
                             onChange([...destinationLocations, '']);
+                            trigger();
                           }}
                         />
                       </Box>
