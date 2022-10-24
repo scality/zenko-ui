@@ -89,7 +89,9 @@ function AccountList({ accounts }: Props) {
     <div
       style={{
         padding: `${spacing.sp16}`,
-        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
       }}
     >
       <Table

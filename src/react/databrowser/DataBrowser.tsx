@@ -15,7 +15,7 @@ import { clearError } from '../actions';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
-import { Icon } from '@scality/core-ui';
+import { AppContainer, Icon } from '@scality/core-ui';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -67,16 +67,19 @@ export default function DataBrowser() {
 
   return (
     <L.Container>
-      <L.BreadcrumbContainer>
-        <Breadcrumb
-          breadcrumbPaths={breadcrumbPathsBuckets(
-            pathname,
-            prefixPath,
-            accountName,
-          )}
-        />
-        <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
-      </L.BreadcrumbContainer>
+      <AppContainer.ContextContainer>
+        <L.BreadcrumbContainer>
+          <Breadcrumb
+            breadcrumbPaths={breadcrumbPathsBuckets(
+              pathname,
+              prefixPath,
+              accountName,
+            )}
+          />
+          <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
+        </L.BreadcrumbContainer>
+      </AppContainer.ContextContainer>
+
       <Switch>
         <Route
           exact

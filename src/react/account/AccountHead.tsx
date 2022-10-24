@@ -9,13 +9,7 @@ function AccountHead() {
   const theme = useTheme();
   const { accountName: accountNameParam } = useParams();
   return (
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      padding={spacing.sp16}
-      gap={spacing.sp16}
-      backgroundColor={theme.brand.backgroundLevel2}
-    >
+    <Box display="flex" justifyContent="space-between" gap={spacing.sp16}>
       <Box
         display="flex"
         alignItems="center"

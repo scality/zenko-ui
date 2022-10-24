@@ -22,6 +22,7 @@ import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
+import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
 export default function Objects() {
   const dispatch = useDispatch();
   const [loaded, setLoaded] = useState(false);
@@ -108,7 +109,11 @@ export default function Objects() {
   }, [dispatch, bucketNameParam, toggled, loaded]);
 
   if (!loaded || !bucketInfo) {
-    return <ObjectHead />;
+    return (
+      <AppContainer.OverallSummary>
+        <ObjectHead />
+      </AppContainer.OverallSummary>
+    );
   }
 
   if (!bucketNameParam) {
@@ -127,6 +132,10 @@ export default function Objects() {
   // }
   return (
     <L.ContentContainer>
+      <AppContainer.OverallSummary>
+        <ObjectHead bucketName={bucketNameParam} />
+      </AppContainer.OverallSummary>
+      {/* MODALS */}
       <ObjectDelete
         bucketInfo={bucketInfo}
         bucketName={bucketNameParam}
@@ -138,19 +147,33 @@ export default function Objects() {
         bucketName={bucketNameParam}
         prefixWithSlash={prefixWithSlash}
       />
-      <ObjectHead bucketName={bucketNameParam} />
-
-      <L.Body>
-        <ObjectList
-          bucketInfo={bucketInfo}
-          toggled={toggled}
-          objects={objects}
-          bucketName={bucketNameParam}
-          prefixWithSlash={prefixWithSlash}
-          listType={listType}
+      {/* <L.Body> */}
+      <AppContainer.MainContent
+        background="backgroundLevel1"
+        style={{ overflowY: 'auto' }}
+      >
+        <TwoPanelLayout
+          panelsRatio="70-30"
+          style={{ paddingTop: '2px' }}
+          leftPanel={{
+            children: (
+              <ObjectList
+                bucketInfo={bucketInfo}
+                toggled={toggled}
+                objects={objects}
+                bucketName={bucketNameParam}
+                prefixWithSlash={prefixWithSlash}
+                listType={listType}
+              />
+            ),
+          }}
+          rightPanel={{
+            children: <ObjectDetails toggled={toggled} listType={listType} />,
+          }}
         />
-        <ObjectDetails toggled={toggled} listType={listType} />
-      </L.Body>
+      </AppContainer.MainContent>
+
+      {/* </L.Body> */}
     </L.ContentContainer>
   );
 }

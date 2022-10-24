@@ -12,6 +12,7 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import UpdateAccountPolicy from './UpdateAccountPolicy';
 import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
+import { AppContainer } from '@scality/core-ui';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -55,13 +56,19 @@ function AccountContent() {
           <Workflows />
         </Route>
         <Route>
-          <L.BreadcrumbContainer>
+          {/* <L.BreadcrumbContainer> */}
+          <AppContainer.ContextContainer>
             <BreadcrumbAccount pathname={pathname} />
-          </L.BreadcrumbContainer>
-          <AccountHead />
-          <L.Content>
-            <AccountDetails account={account} />
-          </L.Content>
+          </AppContainer.ContextContainer>
+          {/* </L.BreadcrumbContainer> */}
+          <AppContainer.OverallSummary>
+            <AccountHead />
+          </AppContainer.OverallSummary>
+          <AppContainer.MainContent background="backgroundLevel1">
+            <L.Content>
+              <AccountDetails account={account} />
+            </L.Content>
+          </AppContainer.MainContent>
         </Route>
       </Switch>
     </L.Container>

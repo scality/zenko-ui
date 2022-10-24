@@ -94,9 +94,10 @@ const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
     `
       : ''}
 `;
-export const Key = styled(RawKey)<{ size?: number }>`
+export const Key = styled(RawKey)<{ size?: string }>`
   && {
-    flex: 1 1 ${(props) => props.size || 35}%;
+    flex: ${(props) => props.size || '0.35'};
+    min-width: 0;
   }
 `;
 const KeyContainer = styled.div<{ size?: number }>`
@@ -128,18 +129,20 @@ export const KeyTooltip = ({
     )}
   </KeyContainer>
 );
-export const Value = styled.div`
-  flex: 1 1 65%;
+export const Value = styled.div<{ size?: string }>`
+  flex: ${(props) => props.size || '0.65'};
   flex-direction: column;
   i {
     margin-right: ${spacing.sp8};
   }
+  min-width: 0;
 `;
-export const GroupValues = styled.div`
+export const GroupValues = styled.div<{ size?: string }>`
   display: flex;
-  flex: 1 1 65%;
+  flex: ${(props) => props.size || '0.65'};
   justify-content: space-between;
   align-items: center;
+  min-width: 0;
 `;
 export const ErrorContainer = styled.div`
   position: absolute;
@@ -162,7 +165,7 @@ export const Footer = styled.div`
   justify-content: flex-end;
   margin-bottom: ${spacing.sp8};
 `;
-export const ExtraCell = styled.div`
-  margin-left: ${spacing.sp20};
+export const ExtraCell = styled.div<{ marginLeft?: string }>`
+  margin-left: ${(props) => props.marginLeft || spacing.sp20};
 `;
 export default Table;

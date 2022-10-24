@@ -27,7 +27,7 @@ import {
   BucketWorkflowTransitionV2,
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
-import { Icon } from '@scality/core-ui';
+import { AppContainer, Icon, TwoPanelLayout } from '@scality/core-ui';
 
 type Filter = string[];
 
@@ -171,21 +171,30 @@ export default function Workflows() {
     }
 
     return (
-      <L.Body style={{ overflow: 'hidden' }}>
-        <WorkflowList workflowId={workflowId} workflows={workflows} />
-        <WorkflowContent
-          bucketList={bucketList}
-          wfSelected={workflows.find((w) => w.id === workflowId)}
-        />
-      </L.Body>
+      <TwoPanelLayout
+        panelsRatio="50-50"
+        leftPanel={{
+          children: (
+            <WorkflowList workflowId={workflowId} workflows={workflows} />
+          ),
+        }}
+        rightPanel={{
+          children: (
+            <WorkflowContent
+              bucketList={bucketList}
+              wfSelected={workflows.find((w) => w.id === workflowId)}
+            />
+          ),
+        }}
+      />
     );
   };
 
   return (
     <L.Container style={{ overflow: 'hidden' }}>
-      <L.BreadcrumbContainer>
+      <AppContainer.ContextContainer background="backgroundLevel1">
         <Breadcrumb />
-      </L.BreadcrumbContainer>
+      </AppContainer.ContextContainer>
       {content()}
     </L.Container>
   );

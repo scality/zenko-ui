@@ -10,11 +10,9 @@ export const Container = styled.div`
   overflow: auto;
 `;
 export const BreadcrumbContainer = styled.div`
-  margin: 0px ${spacing.sp8};
   height: ${spacing.sp24};
   display: flex;
   min-height: ${spacing.sp24};
-  padding: ${spacing.sp4} 0px;
   justify-content: space-between;
 
   .sc-breadcrumb_item {
@@ -26,14 +24,9 @@ export const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  margin: 0px ${spacing.sp8} ${spacing.sp8} ${spacing.sp8};
 `;
 export const Head = styled.div`
   display: flex;
-  min-height: 80px;
-  padding: ${spacing.sp16};
-  padding-left: ${spacing.sp32};
-  background-color: ${(props) => props.theme.brand.backgroundLevel2};
 `;
 export const HeadContainer = styled.div`
   display: flex;
@@ -54,9 +47,7 @@ export const HeadSlice = styled.div`
   display: flex;
   justify-content: center;
   align-self: center;
-
   text-align: center;
-  margin-right: ${spacing.sp20};
 `;
 export const HeadBody = styled.div``;
 export const HeadIcon = styled.i`
@@ -85,20 +76,17 @@ export const Body = styled.div`
   overflow-y: auto;
 `;
 export const ListSection = styled.div`
+  flex: 1;
   display: flex;
-  flex: 1 1 65%;
   flex-direction: column;
 
   background-color: ${(props) => props.theme.brand.backgroundLevel2};
   padding-top: ${spacing.sp16};
-  padding-bottom: ${spacing.sp16};
 `;
 export const ContentSection = styled.div`
-  flex: 0 0 35%;
-  min-width: 400px;
+  flex: 1;
   flex-direction: column;
 
   background-color: ${(props) => props.theme.brand.backgroundLevel3};
-  margin-left: ${spacing.sp1};
   overflow: hidden;
 `;

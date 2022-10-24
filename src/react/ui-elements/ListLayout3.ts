@@ -8,10 +8,7 @@ export const Container = styled.div`
   flex: 1;
 `;
 export const BreadcrumbContainer = styled.div`
-  height: ${spacing.sp24};
   display: flex;
-  min-height: ${spacing.sp24};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
 
   .sc-breadcrumb_item {
     font-size: ${fontSize.large};
@@ -44,11 +41,9 @@ export const ListSection = styled.div`
 `;
 export const ContentSection = styled.div`
   display: flex;
-  flex: 0 0 50%;
+  flex: 1;
   flex-direction: column;
-
   background-color: ${(props) => props.theme.brand.backgroundLevel4};
-  margin: 0px ${spacing.sp1};
 `;
 export const CreationSection = styled.div`
   flex: 1;
