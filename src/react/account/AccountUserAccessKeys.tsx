@@ -7,9 +7,9 @@ import {
   useParams,
   useRouteMatch,
 } from 'react-router-dom';
-import { Tooltip, Toggle, Banner } from '@scality/core-ui';
+import { Tooltip, Toggle, Banner, AppContainer } from '@scality/core-ui';
 import { useMutation } from 'react-query';
-import { Table, Button } from '@scality/core-ui/dist/next';
+import { Table, Button, Box } from '@scality/core-ui/dist/next';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
@@ -171,7 +171,6 @@ const AccountUserAccessKeys = () => {
   const history = useHistory();
   const IAMClient = useIAMClient();
   const { url } = useRouteMatch();
-  const theme = useTheme();
   const { data: accessKeysResult, status: accessKeysStatus } =
     useAwsPaginatedEntities(
       getUserAccessKeysQuery(IAMUserName, IAMClient),
@@ -281,79 +280,79 @@ const AccountUserAccessKeys = () => {
         flexDirection: 'column',
       }}
     >
-      <L.BreadcrumbContainer>
-        <BreadcrumbAccount pathname={pathname} />
-      </L.BreadcrumbContainer>
-      <Head
-        style={{
-          justifyContent: 'flex-start',
-        }}
-      >
-        <HeadSection>
-          <CustomIcon
-            color="white"
-            className="fas fa-arrow-left"
+      <AppContainer.ContextContainer>
+        <L.BreadcrumbContainer>
+          <BreadcrumbAccount pathname={pathname} />
+        </L.BreadcrumbContainer>
+      </AppContainer.ContextContainer>
+      <AppContainer.OverallSummary>
+        <Box display="flex">
+          <Head
             style={{
-              cursor: 'pointer',
+              justifyContent: 'flex-start',
             }}
-            onClick={() => {
-              history.push('../');
-            }}
-          />
-        </HeadSection>
-        <HeadSection>
-          <CustomIcon className="fas fa-key" />
-        </HeadSection>
-        <HeadSection>
-          <HeadTitle>{`Access Keys for: ${IAMUserName}`}</HeadTitle>
-        </HeadSection>
-        <HeadSectionSeparator />
-        <HeadSection>{accessKeysCountComponent}</HeadSection>
-      </Head>
+          >
+            <HeadSection>
+              <CustomIcon
+                color="white"
+                className="fas fa-arrow-left"
+                style={{
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  history.push('../');
+                }}
+              />
+            </HeadSection>
+            <HeadSection>
+              <CustomIcon className="fas fa-key" />
+            </HeadSection>
+            <HeadSection>
+              <HeadTitle>{`Access Keys for: ${IAMUserName}`}</HeadTitle>
+            </HeadSection>
+            <HeadSectionSeparator />
+            <HeadSection>{accessKeysCountComponent}</HeadSection>
+          </Head>
+        </Box>
+      </AppContainer.OverallSummary>
 
-      <SpacedBox
-        pl={16}
-        pr={16}
-        style={{
-          flex: 1,
-          backgroundColor: theme.brand.backgroundLevel3,
-        }}
-      >
-        <Table columns={columns} data={data} defaultSortingKey={'health'}>
-          <TableHeader
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              paddingTop: spacing.sp16,
-            }}
-          >
-            <Button
-              icon={<Icon name="Create-add" />}
-              label="Create Access Keys"
-              variant="primary"
-              onClick={() => history.push('access-keys/create')}
-              type="submit"
-            />
-          </TableHeader>
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel3"
-          >
-            {(Rows) => (
-              <>
-                {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
-                  ? 'Loading access keys...'
-                  : ''}
-                {accessKeysStatus === 'error'
-                  ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
-                  : ''}
-                {accessKeysStatus === 'success' ? Rows : ''}
-              </>
-            )}
-          </Table.SingleSelectableContent>
-        </Table>
-      </SpacedBox>
+      <AppContainer.MainContent hasPadding background="backgroundLevel3">
+        <Box style={{ flex: 1 }}>
+          <Table columns={columns} data={data} defaultSortingKey={'health'}>
+            <TableHeader
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Access Keys"
+                variant="primary"
+                onClick={() => history.push('access-keys/create')}
+                type="submit"
+              />
+            </TableHeader>
+            <Table.SingleSelectableContent
+              rowHeight="h40"
+              separationLineVariant="backgroundLevel1"
+              backgroundVariant="backgroundLevel3"
+            >
+              {(Rows) => (
+                <>
+                  {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
+                    ? 'Loading access keys...'
+                    : ''}
+                  {accessKeysStatus === 'error'
+                    ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
+                    : ''}
+                  {accessKeysStatus === 'success' ? Rows : ''}
+                </>
+              )}
+            </Table.SingleSelectableContent>
+          </Table>
+        </Box>
+      </AppContainer.MainContent>
       <Route path={`${url}/create`}>
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />
       </Route>

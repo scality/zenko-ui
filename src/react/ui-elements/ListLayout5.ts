@@ -13,11 +13,7 @@ import styled from 'styled-components';
 //  </L.Content>
 //</L.Container>;
 export const BreadcrumbContainer = styled.div`
-  height: ${spacing.sp24};
   display: flex;
-  min-height: ${spacing.sp24};
-  padding: ${spacing.sp4} 0px;
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
 
   .sc-breadcrumb_item {
     font-size: ${fontSize.large};

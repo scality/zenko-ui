@@ -45,12 +45,6 @@ export const ContentSection = styled.div`
 `;
 export const Head = styled.div`
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  min-height: 80px;
-  padding: ${spacing.sp16};
-  background-color: ${(props) => props.theme.brand.backgroundLevel2};
 `;
 export const HeadLeft = styled.div`
   flex: 0 0 auto;

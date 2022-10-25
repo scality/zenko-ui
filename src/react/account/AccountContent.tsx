@@ -56,11 +56,11 @@ function AccountContent() {
           <Workflows />
         </Route>
         <Route>
-          {/* <L.BreadcrumbContainer> */}
           <AppContainer.ContextContainer>
-            <BreadcrumbAccount pathname={pathname} />
+            <L.BreadcrumbContainer>
+              <BreadcrumbAccount pathname={pathname} />
+            </L.BreadcrumbContainer>
           </AppContainer.ContextContainer>
-          {/* </L.BreadcrumbContainer> */}
           <AppContainer.OverallSummary>
             <AccountHead />
           </AppContainer.OverallSummary>
