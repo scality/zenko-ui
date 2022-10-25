@@ -3,11 +3,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
-  background: ${(props) => props.theme.brand.backgroundLevel1};
-  flex: 1;
   height: 100%;
-  overflow: auto;
 `;
 export const BreadcrumbContainer = styled.div`
   height: ${spacing.sp24};
