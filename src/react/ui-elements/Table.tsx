@@ -187,7 +187,6 @@ export const SearchMetadataInput = styled(Input)`
   box-sizing: border-box;
 `;
 export const ContainerWithSubHeader = styled(Container)`
-  overflow-y: auto;
   height: 100%;
   margin-top: 0px;
 `;
