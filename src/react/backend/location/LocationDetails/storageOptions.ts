@@ -159,7 +159,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     checkCapability: 'locationTypeCephRadosGW',
     ingestCapability: 'cephIngestLocation',
-    hidden: true,
+    hidden: false,
   },
   'location-do-spaces-v1': {
     name: 'DigitalOcean Spaces',
