@@ -1,4 +1,3 @@
-import React, { useMemo } from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@scality/core-ui/dist/next';
 import { ButtonsContainer } from '../ui-elements/Container';
@@ -6,14 +5,15 @@ import { listBuckets } from '../actions/s3bucket';
 import { listObjects } from '../actions/s3object';
 import { useDispatch } from 'react-redux';
 import { usePrefixWithSlash } from '../utils/hooks';
+
 export function RefreshButton() {
-  const { bucketName } = useParams();
+  const { bucketName } = useParams<{ bucketName: string }>();
   const { pathname } = useLocation();
   const prefixWithSlash = usePrefixWithSlash();
   const dispatch = useDispatch();
   const isBrowsingObjects = !!matchPath(
     pathname,
-    '/buckets/:bucketName/objects',
+    '/accounts/:accountName/buckets/:bucketName/objects',
   );
 
   const handleRefreshClick = () => {
