@@ -1,17 +1,17 @@
-import * as L from '../ui-elements/ListLayout2';
 import { Route, Switch, useLocation } from 'react-router-dom';
 import { useParams, useRouteMatch } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
+
+import * as L from '../ui-elements/ListLayout2';
 import type { AppState } from '../../types/state';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import ListLayoutButtons from './HeaderButtons';
 import Objects from './objects/Objects';
-import React from 'react';
 import { Warning } from '../ui-elements/Warning';
 import { clearError } from '../actions';
-import { push } from 'connected-react-router';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
@@ -74,10 +74,7 @@ export default function DataBrowser() {
             accountName,
           )}
         />
-        <Switch>
-          <Route exact path={`${path}/:bucketName/retention-setting`} />
-          <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
-        </Switch>
+        <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
       </L.BreadcrumbContainer>
       <Switch>
         <Route
