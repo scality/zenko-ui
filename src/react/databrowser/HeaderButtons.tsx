@@ -14,7 +14,7 @@ export function RefreshButton() {
   const dispatch = useDispatch();
   const isBrowsingObjects = !!matchPath(
     pathname,
-    '/buckets/:bucketName/objects',
+    '/accounts/:accountName/buckets/:bucketName/objects',
   );
 
   const handleRefreshClick = () => {
