@@ -1,13 +1,17 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const {version} = require('./package.json');
+
+const revision = require('child_process')
+  .execSync('git rev-parse HEAD')
+  .toString()
+  .trim();
 
 module.exports = {
   entry: {
     zenko_ui: './src/react/App',
   },
   output: {
-    filename: `js/[name].${version}.js`,
+    filename: `js/[name].${revision}.js`,
     path: path.resolve(__dirname, 'public/assets'),
     publicPath: '/',
   },
