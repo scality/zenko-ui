@@ -206,9 +206,17 @@ export const useAccounts = () => {
         if (!error) {
           dispatch(networkEnd());
           if (accountsWithRoles?.entries) {
-            accountsWithRoles.forEach((accountWithRoles) => {
-              redirectDataConsumers(accountWithRoles.Roles);
-            });
+            /**
+             * When a OIDC user has at least one account that has the right
+             * access right to Account page, it will display the page.
+             * Otherwise the user will be redirected to `/buckets`
+             * However, it does not means that all accounts can perform all
+             * tasks in Account page.
+             */
+            const allRoles = accountsWithRoles.flatMap(
+              (accWithRoles) => accWithRoles.Roles,
+            );
+            redirectDataConsumers(allRoles);
           }
         } else {
           if (error?.message === 'Unmounted') {
