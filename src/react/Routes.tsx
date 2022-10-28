@@ -62,11 +62,10 @@ const RedirectToAccount = () => {
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname } = useLocation();
   const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
-  const roleArnStored = getRoleArnStored();
-  const isStorageManager =
-    regexArn
-      .exec(roleArnStored)
-      ?.find((item) => item === STORAGE_MANAGER_ROLE) ?? false;
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
+  const isStorageManager = userGroups.includes('StorageManager');
   if (selectedAccount) {
     return <Redirect to={`/accounts/${selectedAccount.Name}${pathname}`} />;
   } else if (loaded && isStorageManager) {
