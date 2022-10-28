@@ -1,5 +1,9 @@
-import { NavbarContainer, RouteContainer } from './ui-elements/Container';
-import React, { PropsWithChildren, useEffect, useMemo } from 'react';
+import {
+  EmptyStateContainer,
+  NavbarContainer,
+  RouteContainer,
+} from './ui-elements/Container';
+import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import {
   assumeRoleWithWebIdentity,
@@ -29,6 +33,11 @@ import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { useQuery } from 'react-query';
 import { getClients } from './utils/actions';
+import { regexArn, STORAGE_MANAGER_ROLE } from './utils/hooks';
+import { ErrorPage401, Icon } from '@scality/core-ui';
+import { getRoleArnStored } from './utils/localStorage';
+import { Warning } from './ui-elements/Warning';
+import { push } from 'connected-react-router';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -49,11 +58,31 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
 
 const RedirectToAccount = () => {
   // To be replace later by react-query or context
+  const dispatch = useDispatch();
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname } = useLocation();
-
+  const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
+  const isStorageManager = userGroups.includes('StorageManager');
   if (selectedAccount) {
     return <Redirect to={`/accounts/${selectedAccount.Name}${pathname}`} />;
+  } else if (loaded && isStorageManager) {
+    const description = pathname === '/workflows' ? 'workflows' : 'data';
+    return (
+      <EmptyStateContainer>
+        <Warning
+          centered={true}
+          icon={<Icon name="Account" size="5x" />}
+          title={`Before browsing your ${description}, create your first account.`}
+          btnTitle="Create Account"
+          btnAction={() => dispatch(push('/create-account'))}
+        />
+      </EmptyStateContainer>
+    );
+  } else if (loaded) {
+    return <ErrorPage401 />;
   } else {
     return (
       <Loader>
