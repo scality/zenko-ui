@@ -1,4 +1,3 @@
-import * as L from '../../ui-elements/ListLayout2';
 import React, { useMemo } from 'react';
 import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
@@ -82,7 +81,6 @@ export default function Buckets() {
       <AppContainer.MainContent background="backgroundLevel1">
         <TwoPanelLayout
           panelsRatio="70-30"
-          style={{ paddingTop: '2px' }}
           leftPanel={{
             children: (
               <BucketList
@@ -103,7 +101,6 @@ export default function Buckets() {
           }}
         />
       </AppContainer.MainContent>
-      {/* <L.Body></L.Body> */}
     </>
   );
 }

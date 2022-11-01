@@ -1,16 +1,8 @@
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 const MainContainer = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-
   color: ${(props) => props.theme.brand.textPrimary};
   font-size: ${fontSize.base};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
-  flex-direction: column;
-  align-items: stretch;
 `;
 const Container = styled.div`
   display: flex;

@@ -198,22 +198,20 @@ function PrivateRoutes() {
 
 function Routes() {
   return (
-    <RouteContainer>
-      <Layout2
-        headerNavigation={
-          <NavbarContainer>
-            <Navbar />
-          </NavbarContainer>
-        }
-      >
-        <AppContainer hasPadding>
-          <RemoveTrailingSlash />
-          <ManagementProvider>
-            <PrivateRoutes />
-          </ManagementProvider>
-        </AppContainer>
-      </Layout2>
-    </RouteContainer>
+    <Layout2
+      headerNavigation={
+        <NavbarContainer>
+          <Navbar />
+        </NavbarContainer>
+      }
+    >
+      <AppContainer hasPadding>
+        <RemoveTrailingSlash />
+        <ManagementProvider>
+          <PrivateRoutes />
+        </ManagementProvider>
+      </AppContainer>
+    </Layout2>
   );
 }
 
