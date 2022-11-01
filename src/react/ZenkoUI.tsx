@@ -48,11 +48,11 @@ function ZenkoUI() {
 
     if (isConfigLoaded) {
       return (
-        <ZenkoUIContainer>
+        <>
           <Routes />
           <Activity />
           <ErrorHandlerModal />
-        </ZenkoUIContainer>
+        </>
       );
     }
 

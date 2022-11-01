@@ -20,11 +20,7 @@ function AccountContent() {
   const { account } = useCurrentAccount();
 
   return (
-    <L.Container
-      style={{
-        overflow: pathname.includes('workflows') ? 'hidden' : undefined,
-      }}
-    >
+    <>
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />
@@ -65,13 +61,11 @@ function AccountContent() {
             <AccountHead />
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel1">
-            <L.Content>
-              <AccountDetails account={account} />
-            </L.Content>
+            <AccountDetails account={account} />
           </AppContainer.MainContent>
         </Route>
       </Switch>
-    </L.Container>
+    </>
   );
 }
 

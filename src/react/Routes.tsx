@@ -1,8 +1,4 @@
-import {
-  EmptyStateContainer,
-  NavbarContainer,
-  RouteContainer,
-} from './ui-elements/Container';
+import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
 import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import {
@@ -33,9 +29,7 @@ import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { useQuery } from 'react-query';
 import { getClients } from './utils/actions';
-import { regexArn, STORAGE_MANAGER_ROLE } from './utils/hooks';
 import { ErrorPage401, Icon } from '@scality/core-ui';
-import { getRoleArnStored } from './utils/localStorage';
 import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
@@ -227,22 +221,20 @@ function PrivateRoutes() {
 
 function Routes() {
   return (
-    <RouteContainer>
-      <Layout2
-        headerNavigation={
-          <NavbarContainer>
-            <Navbar />
-          </NavbarContainer>
-        }
-      >
-        <AppContainer hasPadding>
-          <RemoveTrailingSlash />
-          <ManagementProvider>
-            <PrivateRoutes />
-          </ManagementProvider>
-        </AppContainer>
-      </Layout2>
-    </RouteContainer>
+    <Layout2
+      headerNavigation={
+        <NavbarContainer>
+          <Navbar />
+        </NavbarContainer>
+      }
+    >
+      <AppContainer hasPadding>
+        <RemoveTrailingSlash />
+        <ManagementProvider>
+          <PrivateRoutes />
+        </ManagementProvider>
+      </AppContainer>
+    </Layout2>
   );
 }
 

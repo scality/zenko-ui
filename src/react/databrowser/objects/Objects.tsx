@@ -1,4 +1,3 @@
-import * as L from '../../ui-elements/ListLayout2';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import {
@@ -131,7 +130,7 @@ export default function Objects() {
   //     </EmptyStateContainer>;
   // }
   return (
-    <L.ContentContainer>
+    <>
       <AppContainer.OverallSummary>
         <ObjectHead bucketName={bucketNameParam} />
       </AppContainer.OverallSummary>
@@ -147,14 +146,9 @@ export default function Objects() {
         bucketName={bucketNameParam}
         prefixWithSlash={prefixWithSlash}
       />
-      {/* <L.Body> */}
-      <AppContainer.MainContent
-        background="backgroundLevel1"
-        style={{ overflowY: 'auto' }}
-      >
+      <AppContainer.MainContent background="backgroundLevel1">
         <TwoPanelLayout
           panelsRatio="70-30"
-          style={{ paddingTop: '2px' }}
           leftPanel={{
             children: (
               <ObjectList
@@ -172,8 +166,6 @@ export default function Objects() {
           }}
         />
       </AppContainer.MainContent>
-
-      {/* </L.Body> */}
-    </L.ContentContainer>
+    </>
   );
 }

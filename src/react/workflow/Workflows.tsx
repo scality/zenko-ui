@@ -171,31 +171,33 @@ export default function Workflows() {
     }
 
     return (
-      <TwoPanelLayout
-        panelsRatio="50-50"
-        leftPanel={{
-          children: (
-            <WorkflowList workflowId={workflowId} workflows={workflows} />
-          ),
-        }}
-        rightPanel={{
-          children: (
-            <WorkflowContent
-              bucketList={bucketList}
-              wfSelected={workflows.find((w) => w.id === workflowId)}
-            />
-          ),
-        }}
-      />
+      <AppContainer.MainContent background="backgroundLevel1">
+        <TwoPanelLayout
+          panelsRatio="50-50"
+          leftPanel={{
+            children: (
+              <WorkflowList workflowId={workflowId} workflows={workflows} />
+            ),
+          }}
+          rightPanel={{
+            children: (
+              <WorkflowContent
+                bucketList={bucketList}
+                wfSelected={workflows.find((w) => w.id === workflowId)}
+              />
+            ),
+          }}
+        />
+      </AppContainer.MainContent>
     );
   };
 
   return (
-    <L.Container style={{ overflow: 'hidden' }}>
+    <>
       <AppContainer.ContextContainer background="backgroundLevel1">
         <Breadcrumb />
       </AppContainer.ContextContainer>
       {content()}
-    </L.Container>
+    </>
   );
 }
