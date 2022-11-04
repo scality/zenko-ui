@@ -32,7 +32,7 @@ const Endpoints = () => {
   }
 
   return (
-    <AppContainer.MainContent background="backgroundLevel1">
+    <AppContainer.MainContent background="backgroundLevel1" hasTopMargin>
       <EndpointList endpoints={endpoints} locations={locations} />
     </AppContainer.MainContent>
   );
