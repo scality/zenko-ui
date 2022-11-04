@@ -20,5 +20,5 @@ jobs:
       - name: Retag the docker image
         run: |
           docker pull registry.scality.com/zenko-ui-dev/zenko-ui:$GITHUB_SHA
-          docker tag registry.scality.com/zenko-ui-dev/zenko-ui:$GITHUB_SHA registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF
-          docker push registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF
+          docker tag registry.scality.com/zenko-ui-dev/zenko-ui:$GITHUB_SHA registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF_NAME
+          docker push registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF_NAME
