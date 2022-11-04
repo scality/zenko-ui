@@ -10,6 +10,6 @@ export type ReplicationForm = {
   readonly enabled: boolean;
   readonly sourceBucket: string;
   readonly sourcePrefix: string;
-  // todo: allow multiple locations?
   readonly destinationLocation: string[];
+  readonly preferredReadLocation: string | null;
 };

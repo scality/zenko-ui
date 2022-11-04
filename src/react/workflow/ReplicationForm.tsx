@@ -4,6 +4,7 @@ import {
   Controller,
   useFormContext,
   FieldError,
+  ControllerRenderProps,
 } from 'react-hook-form';
 import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
 import type { Locations, Replication } from '../../types/config';
@@ -49,6 +50,8 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useRolePathName } from '../utils/hooks';
 import { useManagementClient } from '../ManagementProvider';
 import { Account } from '../../types/iam';
+import { SelectOption } from '../../types/ui';
+import { useEffect } from 'react';
 
 type Props = {
   bucketList: S3BucketList;
@@ -77,6 +80,7 @@ export const replicationSchema = (
   unallowedBucketName: string[],
   sourcesPrefix: string[],
   prefixMandatory: boolean,
+  isTransient: boolean,
 ) => {
   const disallowedPrefixes = Joi.string()
     .label('Prefix')
@@ -84,6 +88,9 @@ export const replicationSchema = (
   const sourcePrefix = prefixMandatory
     ? disallowedPrefixes.disallow('').required()
     : disallowedPrefixes.allow('');
+  const preferredReadLocation = Joi.string()
+    .valid(Joi.in('destinationLocation'))
+    .required();
   return {
     streamId: Joi.string().label('Id').allow(''),
     streamVersion: Joi.number().label('Version').optional(),
@@ -103,6 +110,9 @@ export const replicationSchema = (
       .items(Joi.string().label('Destination Location Name'))
       .min(1)
       .required(),
+    preferredReadLocation: isTransient
+      ? preferredReadLocation
+      : preferredReadLocation.allow(null),
   };
 };
 
@@ -192,7 +202,7 @@ function ReplicationForm({
   ) {
     return <NoLocationWarning />;
   }
-  const sourceBucket = methods.watch(`${prefix}sourceBucket`);
+  const sourceBucket: string = methods.watch(`${prefix}sourceBucket`);
   const replicationsSameBucketName = replicationStreams.filter(
     (s) => s.source.bucketName === sourceBucket,
   );
@@ -365,6 +375,7 @@ function ReplicationForm({
           isCreateMode={isCreateMode}
           locations={locations}
           errors={errors}
+          isTransient={locations[sourceBucket]?.isTransient ?? false}
         />
       </Stack>
     </>
@@ -378,6 +389,7 @@ const RenderDestination = ({
   locations,
   errors,
   touchedFields,
+  isTransient,
 }: {
   prefix: string;
   control: Control<FieldValues, string>;
@@ -386,102 +398,177 @@ const RenderDestination = ({
   locations: Locations;
   errors: Record<string, FieldError>;
   touchedFields: { [key: string]: boolean };
+  isTransient: boolean;
 }) => {
   const forceLabelWidth = convertRemToPixels(10);
   const { trigger } = useFormContext();
+  const options = destinationOptions(locations);
+  return (
+    <FormSection
+      title={{ name: 'Destination' }}
+      forceLabelWidth={forceLabelWidth}
+    >
+      <Controller
+        control={control}
+        name={name}
+        render={({
+          field: { onChange, onBlur, value: destinationLocations },
+        }) => (
+          <>
+            {!Array.isArray(destinationLocations)
+              ? []
+              : destinationLocations.map((destLoc: string, index) => {
+                  const fieldName = `${prefix}destinationLocation.${index}`;
+                  const err = errors[fieldName];
+                  const touched = touchedFields[fieldName];
+                  return (
+                    <FormGroup
+                      required={index === 0}
+                      label={index === 0 ? 'Location Name' : ''}
+                      id={`select-location-${index}`}
+                      error={touched ? err?.message : undefined}
+                      helpErrorPosition="right"
+                      content={
+                        <Box
+                          gap={spacing.r8}
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          data-testid={`select-location-name-replication-${index}`}
+                        >
+                          <Select
+                            onBlur={onBlur}
+                            id="destinationLocation"
+                            onChange={(value) => {
+                              const newValues = [...destinationLocations];
+                              newValues[index] = value;
+                              onChange(newValues);
+                              trigger();
+                            }}
+                            value={destLoc}
+                          >
+                            {options &&
+                              options.map((o, i) => {
+                                const disabled =
+                                  destLoc !== o.value &&
+                                  destinationLocations.includes(o.value);
+                                return (
+                                  <Option
+                                    key={i}
+                                    value={o.value}
+                                    disabled={disabled}
+                                  >
+                                    {renderDestination(locations)(o)}
+                                  </Option>
+                                );
+                              })}
+                          </Select>
+                          <SubButton
+                            disabled={destinationLocations[0] === ''}
+                            index={index}
+                            items={destinationLocations}
+                            deleteEntry={() => {
+                              if (destinationLocations.length === 1) {
+                                onChange(['']);
+                              } else {
+                                const newValues = [...destinationLocations];
+                                newValues.splice(index, 1);
+                                onChange(newValues);
+                              }
+                              trigger();
+                            }}
+                          />
+                          <AddButton
+                            disabled={
+                              destinationLocations.length === options.length ||
+                              destinationLocations.includes('')
+                            }
+                            index={index}
+                            items={destinationLocations}
+                            insertEntry={() => {
+                              if (destinationLocations.includes('')) return;
+                              onChange([...destinationLocations, '']);
+                              trigger();
+                            }}
+                          />
+                        </Box>
+                      }
+                    />
+                  );
+                })}
+            <PreferredReadLocationSelector
+              isTransient={isTransient}
+              control={control}
+              options={options}
+              destinationLocations={destinationLocations}
+              locations={locations}
+            />
+          </>
+        )}
+      />
+    </FormSection>
+  );
+};
+
+type PreferredReadLocationSelectorProps = {
+  isTransient: boolean;
+  control: Control<FieldValues, string>;
+  options: SelectOption[];
+  destinationLocations: string[];
+  locations: Locations;
+};
+const PreferredReadLocationSelector = (
+  props: PreferredReadLocationSelectorProps,
+) => {
+  if (!props.isTransient) return <></>;
   return (
     <Controller
-      control={control}
-      name={name}
-      render={({
-        field: { onChange, onBlur, value: destinationLocations },
-      }) => (
-        <FormSection
-          title={{ name: 'Destination' }}
-          forceLabelWidth={forceLabelWidth}
-        >
-          {!Array.isArray(destinationLocations)
-            ? []
-            : destinationLocations.map((destLoc: string, index) => {
-                const options = destinationOptions(locations);
-                const fieldName = `${prefix}destinationLocation.${index}`;
-                const err = errors[fieldName];
-                const touched = touchedFields[fieldName];
-                return (
-                  <FormGroup
-                    required={index === 0}
-                    label={index === 0 ? 'Location Name' : ''}
-                    id={`select-location-${index}`}
-                    error={touched ? err?.message : undefined}
-                    helpErrorPosition="right"
-                    content={
-                      <Box
-                        gap={spacing.r8}
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                        data-testid={`select-location-name-replication-${index}`}
-                      >
-                        <Select
-                          onBlur={onBlur}
-                          id="destinationLocation"
-                          onChange={(value) => {
-                            const newValues = [...destinationLocations];
-                            newValues[index] = value;
-                            onChange(newValues);
-                            trigger();
-                          }}
-                          value={destLoc}
-                        >
-                          {options &&
-                            options.map((o, i) => (
-                              <Option
-                                key={i}
-                                value={o.value}
-                                disabled={
-                                  destLoc !== o.value &&
-                                  destinationLocations.includes(o.value)
-                                }
-                              >
-                                {renderDestination(locations)(o)}
-                              </Option>
-                            ))}
-                        </Select>
-                        <SubButton
-                          disabled={destinationLocations[0] === ''}
-                          index={index}
-                          items={destinationLocations}
-                          deleteEntry={() => {
-                            if (destinationLocations.length === 1) {
-                              onChange(['']);
-                            } else {
-                              const newValues = [...destinationLocations];
-                              newValues.splice(index, 1);
-                              onChange(newValues);
-                            }
-                            trigger();
-                          }}
-                        />
-                        <AddButton
-                          disabled={
-                            destinationLocations.length === options.length ||
-                            destinationLocations.includes('')
-                          }
-                          index={index}
-                          items={destinationLocations}
-                          insertEntry={() => {
-                            if (destinationLocations.includes('')) return;
-                            onChange([...destinationLocations, '']);
-                            trigger();
-                          }}
-                        />
-                      </Box>
-                    }
-                  />
-                );
-              })}
-        </FormSection>
+      control={props.control}
+      name="preferredReadLocation"
+      render={({ field }) => (
+        <RenderPreferredReadLocation field={field} {...props} />
       )}
+    />
+  );
+};
+
+const RenderPreferredReadLocation = (
+  props: PreferredReadLocationSelectorProps & {
+    field: ControllerRenderProps<FieldValues, 'preferredReadLocation'>;
+  },
+) => {
+  const { options, destinationLocations } = props;
+  const { onChange, onBlur, value: preferredReadLocation } = props.field;
+  const opts = options.filter((opt) =>
+    destinationLocations.includes(opt.value),
+  );
+  useEffect(() => {
+    const isIncluded = destinationLocations.includes(preferredReadLocation);
+    if (preferredReadLocation && !isIncluded) {
+      const nextDestination = destinationLocations[0] ?? null;
+      onChange(nextDestination);
+    }
+  }, [preferredReadLocation, destinationLocations]);
+  return (
+    <FormGroup
+      required
+      label="Preferred Read Location"
+      id={`preferredReadLocation`}
+      content={
+        <Select
+          id="preferredReadLocationSelect"
+          value={preferredReadLocation ?? ''}
+          onBlur={onBlur}
+          onChange={onChange}
+        >
+          {opts &&
+            opts.map((o, i) => (
+              <Option key={i} value={o.value}>
+                {renderDestination(props.locations)(o)}
+              </Option>
+            ))}
+        </Select>
+      }
     />
   );
 };

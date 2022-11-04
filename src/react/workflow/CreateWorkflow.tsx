@@ -135,6 +135,7 @@ const CreateWorkflow = () => {
               unallowedBucketName,
               disPrefixes,
               prefixMandatory,
+              locations[bucketName]?.isTransient ?? false,
             ),
           ),
           otherwise: Joi.valid(),
