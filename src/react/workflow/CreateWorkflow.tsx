@@ -12,6 +12,7 @@ import { useHistory } from 'react-router';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
+  isTransientLocation,
   replicationSchema,
 } from './ReplicationForm';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -135,7 +136,7 @@ const CreateWorkflow = () => {
               unallowedBucketName,
               disPrefixes,
               prefixMandatory,
-              locations[bucketName]?.isTransient ?? false,
+              isTransientLocation(bucketList, locations, bucketName),
             ),
           ),
           otherwise: Joi.valid(),

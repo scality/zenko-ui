@@ -39,8 +39,9 @@ function LocationOptions(props: Props) {
               <Checkbox
                 id="isTransientCheckbox"
                 checked={isTransient}
-                label='Delete objects after successful replication when checked'
+                label="Delete objects after successful replication when checked"
                 onChange={props.onChange}
+                name="isTransient"
               />
             }
           />

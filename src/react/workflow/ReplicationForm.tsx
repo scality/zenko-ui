@@ -88,9 +88,7 @@ export const replicationSchema = (
   const sourcePrefix = prefixMandatory
     ? disallowedPrefixes.disallow('').required()
     : disallowedPrefixes.allow('');
-  const preferredReadLocation = Joi.string()
-    .valid(Joi.in('destinationLocation'))
-    .required();
+  const preferredReadLocation = Joi.string().required();
   return {
     streamId: Joi.string().label('Id').allow(''),
     streamVersion: Joi.number().label('Version').optional(),
@@ -175,6 +173,19 @@ const useReplicationStreams = (account?: Account) => {
   return replicationsQuery.data ?? [];
 };
 
+export const isTransientLocation = (
+  bucketList: S3BucketList,
+  locations: Locations,
+  sourceBucket: string,
+) => {
+  const selectedBucket = bucketList.find(
+    (bucket) => bucket.Name === sourceBucket,
+  );
+  const isTransient =
+    locations[selectedBucket?.LocationConstraint ?? '']?.isTransient ?? false;
+  return isTransient;
+};
+
 function ReplicationForm({
   prefix = '',
   bucketList,
@@ -210,6 +221,7 @@ function ReplicationForm({
     const { prefix } = stream.source;
     return prefix === '' || !prefix;
   });
+  const isTransient = isTransientLocation(bucketList, locations, sourceBucket);
   const existingReplicationStream = replicationsSameBucketName.find(
     (stream) => {
       const { prefix } = stream.source;
@@ -375,7 +387,7 @@ function ReplicationForm({
           isCreateMode={isCreateMode}
           locations={locations}
           errors={errors}
-          isTransient={locations[sourceBucket]?.isTransient ?? false}
+          isTransient={isTransient}
         />
       </Stack>
     </>
@@ -502,6 +514,7 @@ const RenderDestination = ({
               options={options}
               destinationLocations={destinationLocations}
               locations={locations}
+              name={`${prefix}preferredReadLocation`}
             />
           </>
         )}
@@ -516,6 +529,7 @@ type PreferredReadLocationSelectorProps = {
   options: SelectOption[];
   destinationLocations: string[];
   locations: Locations;
+  name: string;
 };
 const PreferredReadLocationSelector = (
   props: PreferredReadLocationSelectorProps,
@@ -524,7 +538,7 @@ const PreferredReadLocationSelector = (
   return (
     <Controller
       control={props.control}
-      name="preferredReadLocation"
+      name={props.name}
       render={({ field }) => (
         <RenderPreferredReadLocation field={field} {...props} />
       )}
