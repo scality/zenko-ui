@@ -16,7 +16,8 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import UpdateAccountPolicy from './UpdateAccountPolicy';
 import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
-import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
+import { AppContainer } from '@scality/core-ui';
+import { AccountHead } from './AccountHead';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -63,10 +64,7 @@ function AccountContent() {
             <BreadcrumbAccount pathname={pathname} />
           </AppContainer.ContextContainer>
           <AppContainer.OverallSummary>
-            <Stack gap="r16">
-              <Icon name="Account" color="infoPrimary" size="2x" withWrapper />
-              <Text variant="Larger">{accountNameParam}</Text>
-            </Stack>
+            <AccountHead accountName={accountNameParam} />
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel1">
             <AccountDetails account={account} />
