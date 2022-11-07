@@ -17,11 +17,11 @@ import {
 } from '../../utils/s3';
 import ObjectDelete from './ObjectDelete';
 import ObjectDetails from './ObjectDetails';
-import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
 import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
+import ObjectHead from './ObjectHead';
 export default function Objects() {
   const dispatch = useDispatch();
   const [loaded, setLoaded] = useState(false);

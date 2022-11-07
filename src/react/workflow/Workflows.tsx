@@ -1,4 +1,3 @@
-import * as L from '../ui-elements/ListLayout3';
 import { useParams, useHistory, Redirect } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';

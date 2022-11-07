@@ -1,8 +1,7 @@
 import React from 'react';
-import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import Overview from './details/Overview';
-import Workflow from './details/Workflow.tsx';
+import Workflow from './details/Workflow';
 import type { S3Bucket } from '../../../types/s3';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
@@ -28,7 +27,7 @@ function BucketDetails({ bucket, ingestionStates }: Props) {
   const queryObject = Object.fromEntries(query.entries());
 
   return (
-    <ContentSection>
+    <>
       {bucket && (
         <CustomTabs>
           <CustomTabs.Tab
@@ -48,7 +47,7 @@ function BucketDetails({ bucket, ingestionStates }: Props) {
         </CustomTabs>
       )}
       {!bucket && <NotFound />}
-    </ContentSection>
+    </>
   );
 }
 

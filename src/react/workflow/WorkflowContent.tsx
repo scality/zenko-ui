@@ -1,4 +1,3 @@
-import { ContentSection } from '../ui-elements/ListLayout3';
 import type { AppState } from '../../types/state';
 import ConfigurationTab from './ConfigurationTab';
 import { CustomTabs } from '../ui-elements/Tabs';
@@ -44,13 +43,11 @@ function Details({ wfSelected, bucketList }: Props) {
 function WorkflowContent(props: Props) {
   const { pathname } = useLocation();
   return (
-    <ContentSection>
-      <CustomTabs>
-        <CustomTabs.Tab label="Configuration" path={pathname}>
-          <Details {...props} />
-        </CustomTabs.Tab>
-      </CustomTabs>
-    </ContentSection>
+    <CustomTabs>
+      <CustomTabs.Tab label="Configuration" path={pathname}>
+        <Details {...props} />
+      </CustomTabs.Tab>
+    </CustomTabs>
   );
 }
 

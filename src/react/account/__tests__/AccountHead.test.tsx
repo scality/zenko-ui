@@ -1,5 +1,3 @@
-import { HeadCenter, HeadTitle } from '../../ui-elements/ListLayout';
-import AccountHead from '../AccountHead';
 import React from 'react';
 import { reduxMount } from '../../utils/test';
 import router from 'react-router';

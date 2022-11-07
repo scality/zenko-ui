@@ -1,4 +1,3 @@
-import * as L from '../../ui-elements/ListLayout2';
 import type { LocationName, Locations } from '../../../types/config';
 import React, { useMemo, useState } from 'react';
 import * as T from '../../ui-elements/Table';
@@ -10,14 +9,13 @@ import {
   getLocationIngestionState,
 } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import type { AppState } from '../../../types/state';
 import { XDM_FEATURE } from '../../../js/config';
 import { useParams } from 'react-router';
-import { Icon } from '@scality/core-ui';
-import { Table } from '@scality/core-ui/dist/next';
+import { Icon, spacing } from '@scality/core-ui';
+import { Box, Table } from '@scality/core-ui/dist/next';
 import { useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 
@@ -97,7 +95,7 @@ export default function BucketList({
       accessor: 'CreationDate',
       cellStyle: {
         flex: '1',
-        paddingRight: spacing.sp32,
+        paddingRight: spacing.r32,
         textAlign: 'right',
       },
 
@@ -124,7 +122,13 @@ export default function BucketList({
   }, [selectedBucketName, buckets]);
 
   return (
-    <L.ListSection id="bucket-list">
+    <Box
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      id="bucket-list"
+      paddingTop={spacing.r16}
+    >
       <T.SearchContainer>
         <T.Search>
           {' '}
@@ -172,6 +176,6 @@ export default function BucketList({
           />
         </Table>
       </T.Container>
-    </L.ListSection>
+    </Box>
   );
 }

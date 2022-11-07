@@ -1,5 +1,4 @@
 import type { AppState } from '../../../types/state';
-import { ContentSection } from '../../ui-elements/ListLayout2';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import { List } from 'immutable';
 import type { ListObjectsType } from '../../../types/s3';
@@ -85,31 +84,29 @@ function ObjectDetails({ toggled, listType }: Props) {
   };
 
   return (
-    <ContentSection>
-      <CustomTabs>
-        <CustomTabs.Tab
-          label="Summary"
-          path={pathname}
-          query={{ ...queryObject, tab: null }}
-        >
-          {details()}
-        </CustomTabs.Tab>
-        <CustomTabs.Tab
-          label="Metadata"
-          path={pathname}
-          query={{ ...queryObject, tab: 'metadata' }}
-        >
-          {details()}
-        </CustomTabs.Tab>
-        <CustomTabs.Tab
-          label="Tags"
-          path={pathname}
-          query={{ ...queryObject, tab: 'tags' }}
-        >
-          {details()}
-        </CustomTabs.Tab>
-      </CustomTabs>
-    </ContentSection>
+    <CustomTabs>
+      <CustomTabs.Tab
+        label="Summary"
+        path={pathname}
+        query={{ ...queryObject, tab: null }}
+      >
+        {details()}
+      </CustomTabs.Tab>
+      <CustomTabs.Tab
+        label="Metadata"
+        path={pathname}
+        query={{ ...queryObject, tab: 'metadata' }}
+      >
+        {details()}
+      </CustomTabs.Tab>
+      <CustomTabs.Tab
+        label="Tags"
+        path={pathname}
+        query={{ ...queryObject, tab: 'tags' }}
+      >
+        {details()}
+      </CustomTabs.Tab>
+    </CustomTabs>
   );
 }
 

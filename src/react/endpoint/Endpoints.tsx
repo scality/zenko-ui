@@ -1,4 +1,3 @@
-import * as L from '../ui-elements/ListLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { EmptyStateContainer } from '../ui-elements/Container';
@@ -32,7 +31,7 @@ const Endpoints = () => {
   }
 
   return (
-    <AppContainer.MainContent background="backgroundLevel1" hasTopMargin>
+    <AppContainer.MainContent background="backgroundLevel2" hasTopMargin>
       <EndpointList endpoints={endpoints} locations={locations} />
     </AppContainer.MainContent>
   );

@@ -3,7 +3,6 @@ import { useParams, useRouteMatch } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import * as L from '../ui-elements/ListLayout2';
 import type { AppState } from '../../types/state';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import Buckets from './buckets/Buckets';
@@ -16,6 +15,7 @@ import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
 import { AppContainer, Icon } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -66,9 +66,9 @@ export default function DataBrowser() {
   }
 
   return (
-    <L.Container>
+    <Box display="flex" flexDirection="column" height="100%">
       <AppContainer.ContextContainer>
-        <>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
           <Breadcrumb
             breadcrumbPaths={breadcrumbPathsBuckets(
               pathname,
@@ -77,7 +77,7 @@ export default function DataBrowser() {
             )}
           />
           <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
-        </>
+        </Box>
       </AppContainer.ContextContainer>
 
       <Switch>
@@ -100,6 +100,6 @@ export default function DataBrowser() {
         <Route path={`${path}/:bucketName/objects/*`} component={Objects} />
         <Route path={`${path}/:bucketName?`} component={Buckets} />
       </Switch>
-    </L.Container>
+    </Box>
   );
 }
