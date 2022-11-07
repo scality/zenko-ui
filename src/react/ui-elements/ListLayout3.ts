@@ -1,4 +1,4 @@
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled, { css } from 'styled-components';
 export const Container = styled.div`
   display: flex;
@@ -7,13 +7,7 @@ export const Container = styled.div`
   background: ${(props) => props.theme.brand.backgroundLevel1};
   flex: 1;
 `;
-export const BreadcrumbContainer = styled.div`
-  display: flex;
 
-  .sc-breadcrumb_item {
-    font-size: ${fontSize.large};
-  }
-`;
 export const Body = styled.div`
   display: flex;
   flex: 1;

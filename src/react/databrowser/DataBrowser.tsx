@@ -68,7 +68,7 @@ export default function DataBrowser() {
   return (
     <L.Container>
       <AppContainer.ContextContainer>
-        <L.BreadcrumbContainer>
+        <>
           <Breadcrumb
             breadcrumbPaths={breadcrumbPathsBuckets(
               pathname,
@@ -77,7 +77,7 @@ export default function DataBrowser() {
             )}
           />
           <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
-        </L.BreadcrumbContainer>
+        </>
       </AppContainer.ContextContainer>
 
       <Switch>

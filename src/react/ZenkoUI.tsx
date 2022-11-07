@@ -1,8 +1,4 @@
-import {
-  Container,
-  MainContainer,
-  ZenkoUIContainer,
-} from './ui-elements/Container';
+import { Container, MainContainer } from './ui-elements/Container';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';

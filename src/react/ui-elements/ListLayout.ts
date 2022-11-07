@@ -1,4 +1,4 @@
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 // TEMPLATE
 //
@@ -49,15 +49,7 @@ export const Head = styled.div`
 export const HeadLeft = styled.div`
   flex: 0 0 auto;
 `;
-export const HeadCenter = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
-`;
-export const HeadTitle = styled.div`
-  font-size: ${fontSize.larger};
-  margin-left: ${spacing.sp8};
-`;
+
 export const HeadRight = styled.div`
   display: flex;
   flex: 0 1 auto;

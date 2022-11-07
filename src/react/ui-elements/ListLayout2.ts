@@ -5,16 +5,7 @@ export const Container = styled.div`
   flex-direction: column;
   height: 100%;
 `;
-export const BreadcrumbContainer = styled.div`
-  height: ${spacing.sp24};
-  display: flex;
-  min-height: ${spacing.sp24};
-  justify-content: space-between;
 
-  .sc-breadcrumb_item {
-    font-size: ${fontSize.large};
-  }
-`;
 export const ContentContainer = styled.div`
   flex: 1;
   display: flex;

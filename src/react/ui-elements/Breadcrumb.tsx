@@ -3,11 +3,13 @@ import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
 import styled from 'styled-components';
 import { ellipsis } from 'polished';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
 
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
-  align-items: baseline;
+  align-items: center;
   .sc-breadcrumb_item {
     display: flex;
+    font-size: ${fontSize.base};
     align-items: center;
 
     &:first-of-type {
@@ -217,5 +219,5 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
     );
   }
 
-  return [];
+  return <></>;
 }

@@ -1,7 +1,11 @@
-import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
-import * as L from '../ui-elements/ListLayout5';
+import {
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from 'react-router-dom';
 import AccountDetails from './AccountDetails';
-import AccountHead from './AccountHead';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
 import AccountUpdateUser from './AccountUpdateUser';
@@ -12,12 +16,15 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import UpdateAccountPolicy from './UpdateAccountPolicy';
 import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
-import { AppContainer } from '@scality/core-ui';
+import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
 
 function AccountContent() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
   const { account } = useCurrentAccount();
+  const { accountName: accountNameParam } = useParams<{
+    accountName: string;
+  }>();
 
   return (
     <>
@@ -53,12 +60,13 @@ function AccountContent() {
         </Route>
         <Route>
           <AppContainer.ContextContainer>
-            <L.BreadcrumbContainer>
-              <BreadcrumbAccount pathname={pathname} />
-            </L.BreadcrumbContainer>
+            <BreadcrumbAccount pathname={pathname} />
           </AppContainer.ContextContainer>
           <AppContainer.OverallSummary>
-            <AccountHead />
+            <Stack gap="r16">
+              <Icon name="Account" color="infoPrimary" size="2x" withWrapper />
+              <Text variant="Larger">{accountNameParam}</Text>
+            </Stack>
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel1">
             <AccountDetails account={account} />
