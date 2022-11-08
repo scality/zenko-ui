@@ -1,13 +1,12 @@
 const merge = require('webpack-merge');
 const common = require('./webpack.common.js');
 const path = require('path');
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+const zenkoDNS = 'zenko.local';
 
 module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
-  plugins: [new BundleAnalyzerPlugin()],
   devServer: {
     contentBase: path.join(__dirname, 'public/assets'),
     host: '127.0.0.1',
@@ -17,25 +16,28 @@ module.exports = merge(common, {
     hot: true,
     proxy: {
       '/s3': {
-        target: 'http://s3.zenko.local',
+        target: `https://s3.${zenkoDNS}`,
         pathRewrite: { '^/s3': '' },
-        bypass: function (req) {
-          req.headers.proxypath = req.path;
-          req.headers.proxyhost = '127.0.0.1:8383';
-        },
+        secure: false,
         changeOrigin: true,
       },
       '/iam': {
-        target: 'http://iam.zenko.local',
-        bypass: function (req) {
-          req.headers.proxypath = req.path;
-          req.headers.proxyhost = '127.0.0.1:8383';
-        },
+        target: `https://iam.${zenkoDNS}`,
+        pathRewrite: { '^/iam': '' },
+        secure: false,
         changeOrigin: true,
       },
       '/sts': {
-        target: 'http://sts.zenko.local',
+        target: `https://sts.${zenkoDNS}`,
         pathRewrite: { '^/sts': '' },
+        secure: false,
+        changeOrigin: true,
+      },
+      '/management': {
+        target: `https://management.${zenkoDNS}`,
+        pathRewrite: { '^/management': '' },
+        secure: false,
+        logLevel: 'info',
         changeOrigin: true,
       },
     },
