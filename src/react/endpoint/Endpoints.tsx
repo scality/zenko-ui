@@ -1,11 +1,10 @@
-import * as L from '../ui-elements/ListLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import EndpointList from './EndpointList';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { Icon } from '@scality/core-ui';
+import { AppContainer, Icon } from '@scality/core-ui';
 
 const Endpoints = () => {
   const dispatch = useDispatch();
@@ -32,9 +31,9 @@ const Endpoints = () => {
   }
 
   return (
-    <L.Container>
+    <AppContainer.MainContent background="backgroundLevel2" hasTopMargin>
       <EndpointList endpoints={endpoints} locations={locations} />
-    </L.Container>
+    </AppContainer.MainContent>
   );
 };
 

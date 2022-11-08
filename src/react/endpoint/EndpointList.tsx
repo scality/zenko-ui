@@ -5,7 +5,7 @@ import type {
   Locations,
 } from '../../types/config';
 import { useMemo, useState } from 'react';
-import { Button, Table } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import * as T from '../ui-elements/Table';
 import {
   closeEndpointDeleteDialog,
@@ -15,7 +15,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { ListSection } from '../ui-elements/ListLayout4';
 import { getLocationType } from '../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -135,7 +134,13 @@ function EndpointList({ endpoints, locations }: Props) {
   };
 
   return (
-    <ListSection id="endpoint-list">
+    <Box
+      display="flex"
+      flexDirection="column"
+      padding={`${spacing.sp16} 0`}
+      flex="1"
+      id="endpoint-list"
+    >
       <DeleteConfirmation
         show={!!showDelete}
         cancel={handleDeleteCancel}
@@ -170,12 +175,12 @@ function EndpointList({ endpoints, locations }: Props) {
         >
           <Table.SingleSelectableContent
             rowHeight="h40"
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            separationLineVariant="backgroundLevel1"
+            backgroundVariant="backgroundLevel2"
           />
         </Table>
       </T.Container>
-    </ListSection>
+    </Box>
   );
 }
 

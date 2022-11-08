@@ -1,7 +1,11 @@
-import { Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
-import * as L from '../ui-elements/ListLayout5';
+import {
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from 'react-router-dom';
 import AccountDetails from './AccountDetails';
-import AccountHead from './AccountHead';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import AccountCreateUser from './AccountCreateUser';
 import AccountUpdateUser from './AccountUpdateUser';
@@ -12,18 +16,19 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import UpdateAccountPolicy from './UpdateAccountPolicy';
 import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
+import { AppContainer } from '@scality/core-ui';
+import { AccountHead } from './AccountHead';
 
 function AccountContent() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
   const { account } = useCurrentAccount();
+  const { accountName: accountNameParam } = useParams<{
+    accountName: string;
+  }>();
 
   return (
-    <L.Container
-      style={{
-        overflow: pathname.includes('workflows') ? 'hidden' : undefined,
-      }}
-    >
+    <>
       <Switch>
         <Route path={`${path}/create-user`}>
           <AccountCreateUser />
@@ -55,16 +60,18 @@ function AccountContent() {
           <Workflows />
         </Route>
         <Route>
-          <L.BreadcrumbContainer>
+          <AppContainer.ContextContainer>
             <BreadcrumbAccount pathname={pathname} />
-          </L.BreadcrumbContainer>
-          <AccountHead />
-          <L.Content>
+          </AppContainer.ContextContainer>
+          <AppContainer.OverallSummary>
+            <AccountHead accountName={accountNameParam} />
+          </AppContainer.OverallSummary>
+          <AppContainer.MainContent background="backgroundLevel1">
             <AccountDetails account={account} />
-          </L.Content>
+          </AppContainer.MainContent>
         </Route>
       </Switch>
-    </L.Container>
+    </>
   );
 }
 

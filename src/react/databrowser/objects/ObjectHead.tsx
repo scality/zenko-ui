@@ -1,20 +1,13 @@
-// @noflow
-import * as L from '../../ui-elements/ListLayout2';
+import { Icon, Stack, Text } from '@scality/core-ui';
 import React from 'react';
 type Props = {
   bucketName?: string;
 };
 export default function ObjectHead({ bucketName }: Props) {
   return (
-    <L.Head>
-      <L.HeadSlice>
-        <L.HeadIcon className="fa fa-glass-whiskey" />
-      </L.HeadSlice>
-      <L.HeadBody>
-        <L.HeadTitleContainer>
-          <L.HeadTitle>{bucketName}</L.HeadTitle>
-        </L.HeadTitleContainer>
-      </L.HeadBody>
-    </L.Head>
+    <Stack gap="r16">
+      <Icon name="Bucket" color="infoPrimary" size="2x" withWrapper />
+      <Text variant="Large">{bucketName}</Text>
+    </Stack>
   );
 }

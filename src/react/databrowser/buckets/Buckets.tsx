@@ -1,4 +1,3 @@
-import * as L from '../../ui-elements/ListLayout2';
 import React, { useMemo } from 'react';
 import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
@@ -10,9 +9,9 @@ import { EmptyStateContainer } from '../../ui-elements/Container';
 import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import {MultiBucketsIcon} from './MutliBucketsIcon';
+import { MultiBucketsIcon } from './MutliBucketsIcon';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { Icon } from '@scality/core-ui';
+import { AppContainer, Icon, TwoPanelLayout } from '@scality/core-ui';
 
 export default function Buckets() {
   const dispatch = useDispatch();
@@ -71,21 +70,37 @@ export default function Buckets() {
   }
 
   return (
-    <L.ContentContainer>
-      <Header
-        icon={<MultiBucketsIcon />}
-        headTitle={'All Buckets'}
-        numInstance={buckets ? buckets.size : 0}
-      />
-      <L.Body>
-        <BucketList
-          selectedBucketName={bucketNameParam}
-          buckets={buckets}
-          locations={locations}
-          ingestionStates={ingestionStates}
+    <>
+      <AppContainer.OverallSummary>
+        <Header
+          icon={<MultiBucketsIcon />}
+          headTitle={'All Buckets'}
+          numInstance={buckets ? buckets.size : 0}
         />
-        <BucketDetails bucket={bucket} ingestionStates={ingestionStates} />
-      </L.Body>
-    </L.ContentContainer>
+      </AppContainer.OverallSummary>
+      <AppContainer.MainContent background="backgroundLevel1">
+        <TwoPanelLayout
+          panelsRatio="70-30"
+          leftPanel={{
+            children: (
+              <BucketList
+                selectedBucketName={bucketNameParam}
+                buckets={buckets}
+                locations={locations}
+                ingestionStates={ingestionStates}
+              />
+            ),
+          }}
+          rightPanel={{
+            children: (
+              <BucketDetails
+                bucket={bucket}
+                ingestionStates={ingestionStates}
+              />
+            ),
+          }}
+        />
+      </AppContainer.MainContent>
+    </>
   );
 }

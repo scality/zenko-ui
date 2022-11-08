@@ -41,7 +41,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       Header: 'Workflow Description',
       accessor: 'name',
       cellStyle: {
-        minWidth: '19rem',
+        flex: 2,
       },
       Cell: (value) => nameCell(value),
     },
@@ -50,12 +50,15 @@ function Workflow({ bucketName }: { bucketName: string }) {
       accessor: 'type',
       Cell: WorkflowTypeIcon,
       cellStyle: {
-        minWidth: '8rem',
+        flex: 1,
       },
     },
     {
       Header: 'Status',
       accessor: 'state',
+      cellStyle: {
+        flex: 1,
+      },
       Cell: ({ value }) => {
         return value ? 'Active' : 'Inactive';
       },
@@ -64,7 +67,6 @@ function Workflow({ bucketName }: { bucketName: string }) {
   return (
     <div
       style={{
-        padding: `${spacing.sp16}`,
         height: '100%',
       }}
     >

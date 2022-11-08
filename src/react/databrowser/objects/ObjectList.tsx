@@ -1,13 +1,10 @@
-import * as L from '../../ui-elements/ListLayout2';
 import * as T from '../../ui-elements/Table';
 import type {
   BucketInfo,
   ListObjectsType,
   ObjectEntity,
 } from '../../../types/s3';
-import {
-  LIST_OBJECT_VERSIONS_S3_TYPE,
-} from '../../utils/s3';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
 import {
   openFolderCreateModal,
@@ -19,11 +16,12 @@ import type { AppState } from '../../../types/state';
 import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';
-import { Icon, Toggle } from '@scality/core-ui';
+import { Icon, spacing, Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { useQueryParams } from '../../utils/hooks';
 import { useLocation } from 'react-router';
+import { Box } from '@scality/core-ui/dist/next';
 type Props = {
   objects: List<ObjectEntity>;
   bucketName: string;
@@ -73,7 +71,13 @@ export default function ObjectList({
   };
 
   return (
-    <L.ListSection id="object-list">
+    <Box
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      id="object-list"
+      paddingTop={spacing.r16}
+    >
       <T.HeaderContainer>
         <MetadataSearch
           errorZenkoMsg={errorZenkoMsg}
@@ -124,6 +128,6 @@ export default function ObjectList({
         {maybePluralize(objects.size, 'metadata search result')}{' '}
       </T.SubHeaderContainer>
       {maybeListTable()}
-    </L.ListSection>
+    </Box>
   );
 }
