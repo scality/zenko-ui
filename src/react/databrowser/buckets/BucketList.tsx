@@ -171,8 +171,8 @@ export default function BucketList({
                 );
               }
             }}
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            separationLineVariant="backgroundLevel1"
+            backgroundVariant="backgroundLevel3"
           />
         </Table>
       </T.Container>

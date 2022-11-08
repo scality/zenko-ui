@@ -175,8 +175,8 @@ function EndpointList({ endpoints, locations }: Props) {
         >
           <Table.SingleSelectableContent
             rowHeight="h40"
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            separationLineVariant="backgroundLevel1"
+            backgroundVariant="backgroundLevel2"
           />
         </Table>
       </T.Container>
