@@ -24,7 +24,7 @@ import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
 import { InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
 import styled from 'styled-components';
-import { SpacedBox } from '@scality/core-ui';
+import { Icon, SpacedBox } from '@scality/core-ui';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
 type RowProps = {
   original: Location;
