@@ -344,7 +344,7 @@ const CreateWorkflow = () => {
       >
         <FormSection
           title={{ name: 'General' }}
-          forceLabelWidth={convertRemToPixels(10)}
+          forceLabelWidth={convertRemToPixels(12)}
         >
           <FormGroup
             required

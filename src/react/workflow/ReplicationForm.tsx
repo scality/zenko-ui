@@ -193,7 +193,7 @@ function ReplicationForm({
   isCreateMode,
   ...props
 }: Props) {
-  const forceLabelWidth = convertRemToPixels(10);
+  const forceLabelWidth = convertRemToPixels(12);
   const methods = useFormContext();
   const {
     register,
@@ -412,7 +412,7 @@ const RenderDestination = ({
   touchedFields: { [key: string]: boolean };
   isTransient: boolean;
 }) => {
-  const forceLabelWidth = convertRemToPixels(10);
+  const forceLabelWidth = convertRemToPixels(12);
   const { trigger } = useFormContext();
   const options = destinationOptions(locations);
   return (
@@ -421,6 +421,11 @@ const RenderDestination = ({
       forceLabelWidth={forceLabelWidth}
     >
       <Controller
+        // This required hack is there to indicates to FormSection to remove the
+        // (optional) text.
+        // eslint-disable-next-line
+        // @ts-ignore
+        required
         control={control}
         name={name}
         render={({
