@@ -193,7 +193,6 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeSproxyd',
-    hidden: true,
   },
   'location-wasabi-v1': {
     name: 'Wasabi',
