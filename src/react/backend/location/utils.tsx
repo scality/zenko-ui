@@ -66,6 +66,7 @@ function convertToLocation(locationState: LocationForm): Location {
     objectId: locationState.objectId,
     isTransient: options.isTransient,
     isBuiltin: options.isBuiltin,
+    isCold: !!options.isCold,
     sizeLimitGB:
       options.isSizeLimitChecked && options.sizeLimitGB
         ? parseInt(options.sizeLimitGB, 10)
@@ -85,6 +86,7 @@ function convertToForm(locationProps: Location): LocationForm {
       isTransient: locationProps.isTransient,
       isBuiltin: locationProps.isBuiltin,
       isSizeLimitChecked: !!locationProps.sizeLimitGB,
+      isCold: !!locationProps.isCold,
       sizeLimitGB: locationProps.sizeLimitGB
         ? `${locationProps.sizeLimitGB}`
         : '',
