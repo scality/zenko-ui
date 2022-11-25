@@ -12,6 +12,7 @@ import { useHistory } from 'react-router';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
+  isTransientLocation,
   replicationSchema,
 } from './ReplicationForm';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -135,6 +136,7 @@ const CreateWorkflow = () => {
               unallowedBucketName,
               disPrefixes,
               prefixMandatory,
+              isTransientLocation(bucketList, locations, bucketName),
             ),
           ),
           otherwise: Joi.valid(),
@@ -342,7 +344,7 @@ const CreateWorkflow = () => {
       >
         <FormSection
           title={{ name: 'General' }}
-          forceLabelWidth={convertRemToPixels(10)}
+          forceLabelWidth={convertRemToPixels(12)}
         >
           <FormGroup
             required

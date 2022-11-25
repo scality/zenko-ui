@@ -106,7 +106,7 @@ export const TransitionForm = ({
   locations,
   prefix = '',
 }: Props) => {
-  const forceLabelWidth = convertRemToPixels(10);
+  const forceLabelWidth = convertRemToPixels(12);
   const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
   const theme = useTheme();

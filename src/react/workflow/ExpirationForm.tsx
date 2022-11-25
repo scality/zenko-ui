@@ -124,7 +124,7 @@ export function GeneralExpirationGroup({
 }
 
 export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
-  const forceLabelWidth = convertRemToPixels(10);
+  const forceLabelWidth = convertRemToPixels(12);
   const methods = useFormContext();
   const { register, control, watch, getValues, setValue, trigger } = methods;
   const { errors: formErrors } = methods.formState;

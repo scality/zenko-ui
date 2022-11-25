@@ -655,7 +655,7 @@ function EditForm({
             </Stack>
           }
         >
-          <FormSection forceLabelWidth={convertRemToPixels(10)}>
+          <FormSection forceLabelWidth={convertRemToPixels(12)}>
             <FormGroup
               required
               label="Rule Type"
@@ -681,7 +681,7 @@ function EditForm({
             />
           </FormSection>
           <FormSection
-            forceLabelWidth={convertRemToPixels(10)}
+            forceLabelWidth={convertRemToPixels(12)}
             title={{ name: 'General' }}
           >
             {/* The required prop is a little hacky to remove the "optional" label of FormSection */}
