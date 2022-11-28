@@ -12,7 +12,6 @@ import {
 import {
   FormGroup,
   FormSection,
-  IconHelp,
   spacing,
   Stack,
   Toggle,
@@ -39,7 +38,7 @@ export const transitionSchema = {
   applyToVersion: Joi.string().valid('current', 'previous').required(),
   locationName: Joi.string().label('Location Name').required(),
   triggerDelayDate: Joi.string().optional().allow(null, ''),
-  triggerDelayDays: Joi.string().label('Trigger delay days').required(),
+  triggerDelayDays: Joi.number().min(1).label('Trigger delay days').required(),
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
     objectTags: Joi.array()
@@ -113,12 +112,8 @@ export const TransitionForm = ({
   const { errors: formErrors } = formState;
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
-  const locationName = watch(`${prefix}locationName`);
-  const triggerDelayDays = watch(`${prefix}triggerDelayDays`);
   const bucketName = watch(`${prefix}bucketName`);
   const applyToVersion = watch(`${prefix}applyToVersion`);
-  const objectKeyPrefix = watch(`${prefix}filter.objectKeyPrefix`);
-  const objectTags = watch(`${prefix}filter.objectTags`);
 
   const sourceBucket = bucketList.find((bucket) => bucket.Name === bucketName);
   const isSourceBucketVersionned = sourceBucket
@@ -342,13 +337,14 @@ export const TransitionForm = ({
               id="triggerDelayDays"
               required
               direction="horizontal"
+              error={errors[`${prefix}triggerDelayDays`]?.message}
+              helpErrorPosition="bottom"
               content={
                 <Input
                   id="triggerDelayDays"
                   aria-labelledby="triggerDelayDays-prefix"
                   type="number"
                   autoComplete="off"
-                  min={0}
                   {...register(`${prefix}triggerDelayDays`)}
                 />
               }

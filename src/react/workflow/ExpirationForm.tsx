@@ -71,16 +71,16 @@ const commonSchema = {
 //At least one of currentVersion, previousVersion, expireDeleteMarkers and incompleteMutlipart are required
 export const expirationSchema = Joi.object({
   ...commonSchema,
-  currentVersionTriggerDelayDays: Joi.number().label(
-    'Expire Current version Days',
-  ),
-  previousVersionTriggerDelayDays: Joi.number().label(
-    'Expire Previous version Days',
-  ),
+  currentVersionTriggerDelayDays: Joi.number()
+    .min(1)
+    .label('Expire Current version Days'),
+  previousVersionTriggerDelayDays: Joi.number()
+    .min(1)
+    .label('Expire Previous version Days'),
   expireDeleteMarkersTrigger: Joi.boolean().invalid(false),
-  incompleteMultipartUploadTriggerDelayDays: Joi.number().label(
-    'Expire Previous version Days',
-  ),
+  incompleteMultipartUploadTriggerDelayDays: Joi.number()
+    .min(1)
+    .label('Expire Previous version Days'),
 }).or(
   'currentVersionTriggerDelayDays',
   'previousVersionTriggerDelayDays',
@@ -365,7 +365,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
-                        min={1}
                         aria-invalid={
                           !!errors[`${prefix}currentVersionTriggerDelayDays`]
                         }
@@ -475,7 +474,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
-                        min={1}
                         aria-invalid={
                           !!errors[`${prefix}previousVersionTriggerDelayDays`]
                         }
@@ -667,7 +665,6 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                         onChange={(e) => onChange(e.target.value)}
                         type="number"
                         style={{ width: '3rem', textAlign: 'right' }}
-                        min={1}
                         aria-invalid={
                           !!errors[
                             `${prefix}incompleteMultipartUploadTriggerDelayDays`

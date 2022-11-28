@@ -225,8 +225,6 @@ export default function ObjectLockRetentionSettings({
                           onChange(e.target.value)
                         }
                         type="number"
-                        min={1}
-                        
                         size="2/3"
                       />
                     );
