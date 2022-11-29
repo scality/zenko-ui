@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import router from 'react-router';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
 import {
   ACCOUNT_ID,
@@ -61,7 +62,11 @@ describe('Transition Table', () => {
       Name: BUCKET_NAME,
     },
   ];
-
+  beforeEach(() => {
+    jest.spyOn(router, 'useRouteMatch').mockReturnValue({
+      params: { workflowId: '' },
+    });
+  });
   it('should render the existing transitions', async () => {
     reduxRender(
       <TransitionTable

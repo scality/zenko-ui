@@ -25,10 +25,15 @@ const TransitionTable = ({
   triggerDelayDays,
   locationName,
 }: Props) => {
-  const theme = useTheme();
-  const isWorkflowCreationPage = useRouteMatch(
-    '/accounts/:accountName/workflows/create-workflow',
+  type MatchParams = {
+    accountName: string;
+    workflowId: string;
+  };
+  const match = useRouteMatch<MatchParams>(
+    '/accounts/:accountName/workflows/:workflowId',
   );
+  const theme = useTheme();
+  const transitionId = match?.params.workflowId.split('transition-')[1] ?? '';
   const { data: transitions, status } = useWorkflowsWithSelect(
     (workflows: APIWorkflows) => {
       return workflows
@@ -37,7 +42,8 @@ const TransitionTable = ({
         .filter(
           (ts: BucketWorkflowTransitionV2) =>
             ts.applyToVersion === applyToVersion &&
-            ts.bucketName === bucketName,
+            ts.bucketName === bucketName &&
+            ts.workflowId !== transitionId,
         );
     },
   );
@@ -121,7 +127,7 @@ const TransitionTable = ({
       Header: 'Description',
       accessor: 'description',
       cellStyle: {
-        minWidth: isWorkflowCreationPage ? '36rem' : '28rem',
+        minWidth: transitionId ? '22rem' : '36rem',
       },
       Cell: ({ value, row: { original: row } }) => {
         return row.triggerDelayDays === triggerDelayDays ? (
