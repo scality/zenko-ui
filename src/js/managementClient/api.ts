@@ -101,16 +101,16 @@ export interface AllStatsSeriesV1 {
   startTime?: string;
   /**
    *
-   * @type {any}
-   * @memberof AllStatsSeriesV1
-   */
-  stats?: any;
-  /**
-   *
    * @type {Array<string>}
    * @memberof AllStatsSeriesV1
    */
   timestamps?: Array<string>;
+  /**
+   *
+   * @type {Allstatsseriesv1Stats}
+   * @memberof AllStatsSeriesV1
+   */
+  stats?: Allstatsseriesv1Stats;
 }
 
 /**
@@ -121,10 +121,22 @@ export interface AllStatsSeriesV1 {
 export interface AllStatsUnitV1 {
   /**
    *
-   * @type {InstanceCapabilitiesV1}
+   * @type {MdDiskUsageUnitV1}
    * @memberof AllStatsUnitV1
    */
-  capabilities?: InstanceCapabilitiesV1;
+  mdDiskUsage?: MdDiskUsageUnitV1;
+  /**
+   *
+   * @type {DataDiskUsageUnitV1}
+   * @memberof AllStatsUnitV1
+   */
+  dataDiskUsage?: DataDiskUsageUnitV1;
+  /**
+   *
+   * @type {MemoryStatUnitV1}
+   * @memberof AllStatsUnitV1
+   */
+  memory?: MemoryStatUnitV1;
   /**
    *
    * @type {CpuStatTimesUnitV1}
@@ -133,10 +145,16 @@ export interface AllStatsUnitV1 {
   cpu?: CpuStatTimesUnitV1;
   /**
    *
-   * @type {CrrScheduleV1}
+   * @type {ItemCountsUnitV1}
    * @memberof AllStatsUnitV1
    */
-  crrSchedule?: CrrScheduleV1;
+  itemCounts?: ItemCountsUnitV1;
+  /**
+   *
+   * @type {InstanceCapabilitiesV1}
+   * @memberof AllStatsUnitV1
+   */
+  capabilities?: InstanceCapabilitiesV1;
   /**
    *
    * @type {CrrStatsUnitV1}
@@ -145,10 +163,10 @@ export interface AllStatsUnitV1 {
   crrStats?: CrrStatsUnitV1;
   /**
    *
-   * @type {DataDiskUsageUnitV1}
+   * @type {CrrScheduleV1}
    * @memberof AllStatsUnitV1
    */
-  dataDiskUsage?: DataDiskUsageUnitV1;
+  crrSchedule?: CrrScheduleV1;
   /**
    *
    * @type {IngestionScheduleV1}
@@ -172,43 +190,69 @@ export interface AllStatsUnitV1 {
    * @type {string}
    * @memberof AllStatsUnitV1
    */
-  ipAddress?: string;
-  /**
-   *
-   * @type {ItemCountsUnitV1}
-   * @memberof AllStatsUnitV1
-   */
-  itemCounts?: ItemCountsUnitV1;
-  /**
-   *
-   * @type {MdDiskUsageUnitV1}
-   * @memberof AllStatsUnitV1
-   */
-  mdDiskUsage?: MdDiskUsageUnitV1;
-  /**
-   *
-   * @type {MemoryStatUnitV1}
-   * @memberof AllStatsUnitV1
-   */
-  memory?: MemoryStatUnitV1;
-  /**
-   *
-   * @type {string}
-   * @memberof AllStatsUnitV1
-   */
-  serverVersion?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof AllStatsUnitV1
-   */
   time?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof AllStatsUnitV1
+   */
+  ipAddress?: string;
   /**
    *
    * @type {number}
    * @memberof AllStatsUnitV1
    */
   ttl?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof AllStatsUnitV1
+   */
+  serverVersion?: string;
+}
+
+/**
+ *
+ * @export
+ * @interface Allstatsseriesv1Stats
+ */
+export interface Allstatsseriesv1Stats {
+  /**
+   *
+   * @type {DiskusageStatSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  mdDiskUsage?: DiskusageStatSeriesV1;
+  /**
+   *
+   * @type {DiskusageStatSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  dataDiskUsage?: DiskusageStatSeriesV1;
+  /**
+   *
+   * @type {MemoryStatSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  memory?: MemoryStatSeriesV1;
+  /**
+   *
+   * @type {CpuStatSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  cpu?: CpuStatSeriesV1;
+  /**
+   *
+   * @type {ItemCountsSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  itemCounts?: ItemCountsSeriesV1;
+  /**
+   *
+   * @type {CrrStatSeriesV1}
+   * @memberof Allstatsseriesv1Stats
+   */
+  crrStats?: CrrStatSeriesV1;
 }
 
 /**
@@ -233,10 +277,16 @@ export interface BrowserAccessConfigurationV1 {
 export interface BucketInfoUnitV1 {
   /**
    *
-   * @type {boolean}
+   * @type {string}
    * @memberof BucketInfoUnitV1
    */
-  ingestion?: boolean;
+  name?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof BucketInfoUnitV1
+   */
+  location?: string;
   /**
    *
    * @type {boolean}
@@ -248,19 +298,13 @@ export interface BucketInfoUnitV1 {
    * @type {string}
    * @memberof BucketInfoUnitV1
    */
-  location?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof BucketInfoUnitV1
-   */
-  name?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof BucketInfoUnitV1
-   */
   ownerCanonicalId?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof BucketInfoUnitV1
+   */
+  ingestion?: boolean;
 }
 
 /**
@@ -269,6 +313,12 @@ export interface BucketInfoUnitV1 {
  * @interface BucketWorkflowExpirationV1
  */
 export interface BucketWorkflowExpirationV1 extends BucketWorkflowV1 {
+  /**
+   *
+   * @type {number}
+   * @memberof BucketWorkflowExpirationV1
+   */
+  currentVersionTriggerDelayDays?: number;
   /**
    *
    * @type {string}
@@ -280,7 +330,7 @@ export interface BucketWorkflowExpirationV1 extends BucketWorkflowV1 {
    * @type {number}
    * @memberof BucketWorkflowExpirationV1
    */
-  currentVersionTriggerDelayDays?: number;
+  previousVersionTriggerDelayDays?: number;
   /**
    *
    * @type {boolean}
@@ -293,12 +343,6 @@ export interface BucketWorkflowExpirationV1 extends BucketWorkflowV1 {
    * @memberof BucketWorkflowExpirationV1
    */
   incompleteMultipartUploadTriggerDelayDays?: number;
-  /**
-   *
-   * @type {number}
-   * @memberof BucketWorkflowExpirationV1
-   */
-  previousVersionTriggerDelayDays?: number;
 }
 
 /**
@@ -315,10 +359,10 @@ export namespace BucketWorkflowExpirationV1 {}
 export interface BucketWorkflowTransitionV1 extends BucketWorkflowV1 {
   /**
    *
-   * @type {Array<any>}
+   * @type {number}
    * @memberof BucketWorkflowTransitionV1
    */
-  currentVersionLocations?: Array<any>;
+  currentVersionTriggerDelayDays?: number;
   /**
    *
    * @type {string}
@@ -330,19 +374,19 @@ export interface BucketWorkflowTransitionV1 extends BucketWorkflowV1 {
    * @type {number}
    * @memberof BucketWorkflowTransitionV1
    */
-  currentVersionTriggerDelayDays?: number;
-  /**
-   *
-   * @type {Array<any>}
-   * @memberof BucketWorkflowTransitionV1
-   */
-  previousVersionLocations?: Array<any>;
-  /**
-   *
-   * @type {number}
-   * @memberof BucketWorkflowTransitionV1
-   */
   previousVersionTriggerDelayDays?: number;
+  /**
+   *
+   * @type {Array<Replicationstreaminternalv1DestinationLocations>}
+   * @memberof BucketWorkflowTransitionV1
+   */
+  currentVersionLocations?: Array<Replicationstreaminternalv1DestinationLocations>;
+  /**
+   *
+   * @type {Array<Replicationstreaminternalv1DestinationLocations>}
+   * @memberof BucketWorkflowTransitionV1
+   */
+  previousVersionLocations?: Array<Replicationstreaminternalv1DestinationLocations>;
 }
 
 /**
@@ -359,10 +403,16 @@ export namespace BucketWorkflowTransitionV1 {}
 export interface BucketWorkflowTransitionV2 extends BucketWorkflowV1 {
   /**
    *
+   * @type {number}
+   * @memberof BucketWorkflowTransitionV2
+   */
+  triggerDelayDays?: number;
+  /**
+   *
    * @type {string}
    * @memberof BucketWorkflowTransitionV2
    */
-  applyToVersion: BucketWorkflowTransitionV2.ApplyToVersionEnum;
+  triggerDelayDate?: string;
   /**
    *
    * @type {string}
@@ -374,13 +424,7 @@ export interface BucketWorkflowTransitionV2 extends BucketWorkflowV1 {
    * @type {string}
    * @memberof BucketWorkflowTransitionV2
    */
-  triggerDelayDate?: string;
-  /**
-   *
-   * @type {number}
-   * @memberof BucketWorkflowTransitionV2
-   */
-  triggerDelayDays?: number;
+  applyToVersion: BucketWorkflowTransitionV2.ApplyToVersionEnum;
 }
 
 /**
@@ -409,19 +453,7 @@ export interface BucketWorkflowV1 {
    * @type {string}
    * @memberof BucketWorkflowV1
    */
-  bucketName: string;
-  /**
-   *
-   * @type {boolean}
-   * @memberof BucketWorkflowV1
-   */
-  enabled: boolean;
-  /**
-   *
-   * @type {any}
-   * @memberof BucketWorkflowV1
-   */
-  filter?: any;
+  workflowId?: string;
   /**
    *
    * @type {string}
@@ -430,16 +462,28 @@ export interface BucketWorkflowV1 {
   name?: string;
   /**
    *
+   * @type {boolean}
+   * @memberof BucketWorkflowV1
+   */
+  enabled: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof BucketWorkflowV1
+   */
+  bucketName: string;
+  /**
+   *
    * @type {string}
    * @memberof BucketWorkflowV1
    */
   type: BucketWorkflowV1.TypeEnum;
   /**
    *
-   * @type {string}
+   * @type {Bucketworkflowv1Filter}
    * @memberof BucketWorkflowV1
    */
-  workflowId?: string;
+  filter?: Bucketworkflowv1Filter;
 }
 
 /**
@@ -462,15 +506,49 @@ export namespace BucketWorkflowV1 {
 /**
  *
  * @export
+ * @interface Bucketworkflowv1Filter
+ */
+export interface Bucketworkflowv1Filter {
+  /**
+   *
+   * @type {string}
+   * @memberof Bucketworkflowv1Filter
+   */
+  objectKeyPrefix?: string;
+  /**
+   *
+   * @type {Array<Bucketworkflowv1FilterObjectTags>}
+   * @memberof Bucketworkflowv1Filter
+   */
+  objectTags?: Array<Bucketworkflowv1FilterObjectTags>;
+}
+
+/**
+ *
+ * @export
+ * @interface Bucketworkflowv1FilterObjectTags
+ */
+export interface Bucketworkflowv1FilterObjectTags {
+  /**
+   *
+   * @type {string}
+   * @memberof Bucketworkflowv1FilterObjectTags
+   */
+  key?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Bucketworkflowv1FilterObjectTags
+   */
+  value?: string;
+}
+
+/**
+ *
+ * @export
  * @interface ConfigOverlayV1
  */
 export interface ConfigOverlayV1 {
-  /**
-   *
-   * @type {BrowserAccessConfigurationV1}
-   * @memberof ConfigOverlayV1
-   */
-  browserAccess: BrowserAccessConfigurationV1;
   /**
    *
    * @type {string}
@@ -479,28 +557,16 @@ export interface ConfigOverlayV1 {
   creator?: string;
   /**
    *
-   * @type {Array<EndpointV1>}
-   * @memberof ConfigOverlayV1
-   */
-  endpoints?: Array<EndpointV1>;
-  /**
-   *
    * @type {string}
    * @memberof ConfigOverlayV1
    */
   instanceId?: string;
   /**
    *
-   * @type {{ [key: string]: LocationV1; }}
+   * @type {number}
    * @memberof ConfigOverlayV1
    */
-  locations?: { [key: string]: LocationV1 };
-  /**
-   *
-   * @type {Array<ReplicationStreamInternalV1>}
-   * @memberof ConfigOverlayV1
-   */
-  replicationStreams?: Array<ReplicationStreamInternalV1>;
+  version?: number;
   /**
    *
    * @type {string}
@@ -515,16 +581,60 @@ export interface ConfigOverlayV1 {
   users?: Array<UserV1>;
   /**
    *
-   * @type {number}
+   * @type {{ [key: string]: LocationV1; }}
    * @memberof ConfigOverlayV1
    */
-  version?: number;
+  locations?: { [key: string]: LocationV1 };
   /**
    *
-   * @type {any}
+   * @type {Array<ReplicationStreamInternalV1>}
    * @memberof ConfigOverlayV1
    */
-  workflows?: any;
+  replicationStreams?: Array<ReplicationStreamInternalV1>;
+  /**
+   *
+   * @type {Configoverlayv1Workflows}
+   * @memberof ConfigOverlayV1
+   */
+  workflows?: Configoverlayv1Workflows;
+  /**
+   *
+   * @type {Array<EndpointV1>}
+   * @memberof ConfigOverlayV1
+   */
+  endpoints?: Array<EndpointV1>;
+  /**
+   *
+   * @type {BrowserAccessConfigurationV1}
+   * @memberof ConfigOverlayV1
+   */
+  browserAccess: BrowserAccessConfigurationV1;
+}
+
+/**
+ *
+ * @export
+ * @interface Configoverlayv1Workflows
+ */
+export interface Configoverlayv1Workflows {
+  /**
+   *
+   * @type {{ [key: string]: Array<ReplicationStreamInternalV1>; }}
+   * @memberof Configoverlayv1Workflows
+   */
+  replication?: { [key: string]: Array<ReplicationStreamInternalV1> };
+  /**
+   *
+   * @type {{ [key: string]: Array<BucketWorkflowExpirationV1>; }}
+   * @memberof Configoverlayv1Workflows
+   */
+  lifecycle?: { [key: string]: Array<BucketWorkflowExpirationV1> };
+  /**
+   *
+   * @type {{ [key: string]: Array<BucketWorkflowTransitionV1>; }}
+   * @memberof Configoverlayv1Workflows
+   */
+  transition?: { [key: string]: Array<BucketWorkflowTransitionV1> };
 }
 
 /**
@@ -565,7 +675,7 @@ export interface CpuStatTimesUnitV1 {
    * @type {number}
    * @memberof CpuStatTimesUnitV1
    */
-  idle: number;
+  user: number;
   /**
    *
    * @type {number}
@@ -583,7 +693,7 @@ export interface CpuStatTimesUnitV1 {
    * @type {number}
    * @memberof CpuStatTimesUnitV1
    */
-  user: number;
+  idle: number;
 }
 
 /**
@@ -604,13 +714,13 @@ export interface CrrStatSeriesV1 {
    * @type {Array<CounterUnitV1>}
    * @memberof CrrStatSeriesV1
    */
-  backlog?: Array<CounterUnitV1>;
+  completions?: Array<CounterUnitV1>;
   /**
    *
    * @type {Array<CounterUnitV1>}
    * @memberof CrrStatSeriesV1
    */
-  completions?: Array<CounterUnitV1>;
+  backlog?: Array<CounterUnitV1>;
   /**
    *
    * @type {Array<CounterUnitV1>}
@@ -622,13 +732,13 @@ export interface CrrStatSeriesV1 {
    * @type {Array<CounterUnitV1>}
    * @memberof CrrStatSeriesV1
    */
-  stalled?: Array<CounterUnitV1>;
+  throughput?: Array<CounterUnitV1>;
   /**
    *
    * @type {Array<CounterUnitV1>}
    * @memberof CrrStatSeriesV1
    */
-  throughput?: Array<CounterUnitV1>;
+  stalled?: Array<CounterUnitV1>;
 }
 
 /**
@@ -653,16 +763,16 @@ export interface DataDiskUsageUnitV1 extends DiskUsageUnitV1 {}
 export interface DataManagedGroupedV1 {
   /**
    *
-   * @type {{ [key: string]: DataManagedUnitV1; }}
-   * @memberof DataManagedGroupedV1
-   */
-  byLocation?: { [key: string]: DataManagedUnitV1 };
-  /**
-   *
    * @type {DataManagedUnitV1}
    * @memberof DataManagedGroupedV1
    */
   total?: DataManagedUnitV1;
+  /**
+   *
+   * @type {{ [key: string]: DataManagedUnitV1; }}
+   * @memberof DataManagedGroupedV1
+   */
+  byLocation?: { [key: string]: DataManagedUnitV1 };
 }
 
 /**
@@ -722,7 +832,7 @@ export interface DiskusageStatSeriesV1 {
    * @type {Array<number>}
    * @memberof DiskusageStatSeriesV1
    */
-  available?: Array<number>;
+  total?: Array<number>;
   /**
    *
    * @type {Array<number>}
@@ -734,7 +844,7 @@ export interface DiskusageStatSeriesV1 {
    * @type {Array<number>}
    * @memberof DiskusageStatSeriesV1
    */
-  total?: Array<number>;
+  available?: Array<number>;
 }
 
 /**
@@ -751,16 +861,16 @@ export interface EndpointV1 {
   hostname: string;
   /**
    *
-   * @type {boolean}
-   * @memberof EndpointV1
-   */
-  isBuiltin?: boolean;
-  /**
-   *
    * @type {string}
    * @memberof EndpointV1
    */
   locationName: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof EndpointV1
+   */
+  isBuiltin?: boolean;
 }
 
 /**
@@ -780,7 +890,7 @@ export interface Error {
    * @type {string}
    * @memberof Error
    */
-  errorType?: Error.ErrorTypeEnum;
+  message?: string;
   /**
    *
    * @type {string}
@@ -792,7 +902,7 @@ export interface Error {
    * @type {string}
    * @memberof Error
    */
-  message?: string;
+  errorType?: Error.ErrorTypeEnum;
 }
 
 /**
@@ -815,7 +925,30 @@ export namespace Error {
     InvalidEndpoint = <any>'InvalidEndpoint',
     InvalidBucketName = <any>'InvalidBucketName',
     InvalidEntityUpdate = <any>'InvalidEntityUpdate',
+    InvalidAccountName = <any>'InvalidAccountName',
+    InvalidAccountKey = <any>'InvalidAccountKey',
+    InvalidTenantId = <any>'InvalidTenantId',
+    InvalidClientId = <any>'InvalidClientId',
+    InvalidClientKey = <any>'InvalidClientKey',
+    InvalidStorageSASToken = <any>'InvalidStorageSASToken',
+    InvalidServiceBusSASToken = <any>'InvalidServiceBusSASToken',
+    MissingSASToken = <any>'MissingSASToken',
+    DuplicateSASToken = <any>'DuplicateSASToken',
   }
+}
+
+/**
+ *
+ * @export
+ * @interface Filters
+ */
+export interface Filters {
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof Filters
+   */
+  bucketList?: Array<string>;
 }
 
 /**
@@ -835,6 +968,26 @@ export interface IngestionScheduleV1 {}
 /**
  *
  * @export
+ * @interface InlineResponse200
+ */
+export interface InlineResponse200 {
+  /**
+   *
+   * @type {InstanceMetricsUnitV1}
+   * @memberof InlineResponse200
+   */
+  metrics?: InstanceMetricsUnitV1;
+  /**
+   *
+   * @type {InstanceStatusDataV1}
+   * @memberof InlineResponse200
+   */
+  state?: InstanceStatusDataV1;
+}
+
+/**
+ *
+ * @export
  * @interface InstanceAclsV1
  */
 export interface InstanceAclsV1 {
@@ -849,13 +1002,13 @@ export interface InstanceAclsV1 {
    * @type {string}
    * @memberof InstanceAclsV1
    */
-  principalID?: string;
+  principalType?: InstanceAclsV1.PrincipalTypeEnum;
   /**
    *
    * @type {string}
    * @memberof InstanceAclsV1
    */
-  principalType?: InstanceAclsV1.PrincipalTypeEnum;
+  principalID?: string;
   /**
    *
    * @type {string}
@@ -917,43 +1070,19 @@ export interface InstanceCapabilitiesV1 {
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
-  awsIngestLocation?: boolean;
+  secureChannel?: boolean;
   /**
    *
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
-  cephIngestLocation?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
-  locationTypeCephRadosGW?: boolean;
+  secureChannelOptimizedPath?: boolean;
   /**
    *
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
   locationTypeDigitalOcean?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
-  locationTypeHyperdriveV2?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
-  locationTypeLocal?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
-  locationTypeNFS?: boolean;
   /**
    *
    * @type {boolean}
@@ -971,6 +1100,18 @@ export interface InstanceCapabilitiesV1 {
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
+  locationTypeNFS?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
+  preferredReadLocation?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
   managedLifecycle?: boolean;
   /**
    *
@@ -983,31 +1124,43 @@ export interface InstanceCapabilitiesV1 {
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
-  nfsIngestLocation?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
-  preferredReadLocation?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof InstanceCapabilitiesV1
-   */
   s3cIngestLocation?: boolean;
   /**
    *
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
-  secureChannel?: boolean;
+  nfsIngestLocation?: boolean;
   /**
    *
    * @type {boolean}
    * @memberof InstanceCapabilitiesV1
    */
-  secureChannelOptimizedPath?: boolean;
+  cephIngestLocation?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
+  awsIngestLocation?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
+  locationTypeCephRadosGW?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
+  locationTypeHyperdriveV2?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof InstanceCapabilitiesV1
+   */
+  locationTypeLocal?: boolean;
 }
 
 /**
@@ -1018,16 +1171,16 @@ export interface InstanceCapabilitiesV1 {
 export interface InstanceConfirmationDataV1 {
   /**
    *
-   * @type {string}
-   * @memberof InstanceConfirmationDataV1
-   */
-  publicKey: string;
-  /**
-   *
    * @type {number}
    * @memberof InstanceConfirmationDataV1
    */
   serial: number;
+  /**
+   *
+   * @type {string}
+   * @memberof InstanceConfirmationDataV1
+   */
+  publicKey: string;
 }
 
 /**
@@ -1041,7 +1194,7 @@ export interface InstanceCredentialsV1 {
    * @type {string}
    * @memberof InstanceCredentialsV1
    */
-  instanceId?: string;
+  token?: string;
   /**
    *
    * @type {string}
@@ -1053,7 +1206,7 @@ export interface InstanceCredentialsV1 {
    * @type {string}
    * @memberof InstanceCredentialsV1
    */
-  publicKey?: string;
+  instanceId?: string;
   /**
    *
    * @type {number}
@@ -1065,7 +1218,7 @@ export interface InstanceCredentialsV1 {
    * @type {string}
    * @memberof InstanceCredentialsV1
    */
-  token?: string;
+  publicKey?: string;
 }
 
 /**
@@ -1076,22 +1229,10 @@ export interface InstanceCredentialsV1 {
 export interface InstanceMetricsUnitV1 {
   /**
    *
-   * @type {CpuStatTimesUnitV1}
+   * @type {MdDiskUsageUnitV1}
    * @memberof InstanceMetricsUnitV1
    */
-  cpu?: CpuStatTimesUnitV1;
-  /**
-   *
-   * @type {CrrScheduleV1}
-   * @memberof InstanceMetricsUnitV1
-   */
-  crrSchedule?: CrrScheduleV1;
-  /**
-   *
-   * @type {CrrStatsUnitV1}
-   * @memberof InstanceMetricsUnitV1
-   */
-  crrStats?: CrrStatsUnitV1;
+  mdDiskUsage?: MdDiskUsageUnitV1;
   /**
    *
    * @type {DataDiskUsageUnitV1}
@@ -1100,16 +1241,16 @@ export interface InstanceMetricsUnitV1 {
   dataDiskUsage?: DataDiskUsageUnitV1;
   /**
    *
-   * @type {IngestionScheduleV1}
+   * @type {MemoryStatUnitV1}
    * @memberof InstanceMetricsUnitV1
    */
-  ingestSchedule?: IngestionScheduleV1;
+  memory?: MemoryStatUnitV1;
   /**
    *
-   * @type {IngestStatsUnitV1}
+   * @type {CpuStatTimesUnitV1}
    * @memberof InstanceMetricsUnitV1
    */
-  ingestStats?: IngestStatsUnitV1;
+  cpu?: CpuStatTimesUnitV1;
   /**
    *
    * @type {ItemCountsUnitV1}
@@ -1118,16 +1259,28 @@ export interface InstanceMetricsUnitV1 {
   itemCounts?: ItemCountsUnitV1;
   /**
    *
-   * @type {MdDiskUsageUnitV1}
+   * @type {CrrStatsUnitV1}
    * @memberof InstanceMetricsUnitV1
    */
-  mdDiskUsage?: MdDiskUsageUnitV1;
+  crrStats?: CrrStatsUnitV1;
   /**
    *
-   * @type {MemoryStatUnitV1}
+   * @type {CrrScheduleV1}
    * @memberof InstanceMetricsUnitV1
    */
-  memory?: MemoryStatUnitV1;
+  crrSchedule?: CrrScheduleV1;
+  /**
+   *
+   * @type {IngestStatsUnitV1}
+   * @memberof InstanceMetricsUnitV1
+   */
+  ingestStats?: IngestStatsUnitV1;
+  /**
+   *
+   * @type {IngestionScheduleV1}
+   * @memberof InstanceMetricsUnitV1
+   */
+  ingestSchedule?: IngestionScheduleV1;
 }
 
 /**
@@ -1187,13 +1340,13 @@ export interface InstanceStatusDataV1 {
    * @type {string}
    * @memberof InstanceStatusDataV1
    */
-  lastSeen?: string;
+  serverVersion?: string;
   /**
    *
-   * @type {ConfigOverlayV1}
+   * @type {string}
    * @memberof InstanceStatusDataV1
    */
-  latestConfigurationOverlay?: ConfigOverlayV1;
+  lastSeen?: string;
   /**
    *
    * @type {number}
@@ -1202,10 +1355,10 @@ export interface InstanceStatusDataV1 {
   runningConfigurationVersion?: number;
   /**
    *
-   * @type {string}
+   * @type {ConfigOverlayV1}
    * @memberof InstanceStatusDataV1
    */
-  serverVersion?: string;
+  latestConfigurationOverlay?: ConfigOverlayV1;
 }
 
 /**
@@ -1219,49 +1372,13 @@ export interface InstanceV1 {
    * @type {string}
    * @memberof InstanceV1
    */
-  createdAt?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof InstanceV1
-   */
-  friendlyName?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof InstanceV1
-   */
   instanceId?: string;
   /**
    *
-   * @type {OrganizationV1}
-   * @memberof InstanceV1
-   */
-  organization?: OrganizationV1;
-  /**
-   *
    * @type {string}
    * @memberof InstanceV1
    */
-  organizationID?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof InstanceV1
-   */
-  owner?: string;
-  /**
-   *
-   * @type {any}
-   * @memberof InstanceV1
-   */
-  provisioning?: any;
-  /**
-   *
-   * @type {string}
-   * @memberof InstanceV1
-   */
-  publicKey?: string;
+  state?: InstanceV1.StateEnum;
   /**
    *
    * @type {number}
@@ -1273,7 +1390,43 @@ export interface InstanceV1 {
    * @type {string}
    * @memberof InstanceV1
    */
-  state?: InstanceV1.StateEnum;
+  publicKey?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstanceV1
+   */
+  friendlyName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstanceV1
+   */
+  createdAt?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof InstanceV1
+   */
+  organizationID?: string;
+  /**
+   *
+   * @type {OrganizationV1}
+   * @memberof InstanceV1
+   */
+  organization?: OrganizationV1;
+  /**
+   *
+   * @type {string}
+   * @memberof InstanceV1
+   */
+  owner?: string;
+  /**
+   *
+   * @type {Instancev1Provisioning}
+   * @memberof InstanceV1
+   */
+  provisioning?: Instancev1Provisioning;
 }
 
 /**
@@ -1295,27 +1448,85 @@ export namespace InstanceV1 {
 /**
  *
  * @export
+ * @interface Instancev1Provisioning
+ */
+export interface Instancev1Provisioning {
+  /**
+   *
+   * @type {string}
+   * @memberof Instancev1Provisioning
+   */
+  domain?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Instancev1Provisioning
+   */
+  stackVersion?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Instancev1Provisioning
+   */
+  managementEndpoint?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Instancev1Provisioning
+   */
+  pushEndpoint?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Instancev1Provisioning
+   */
+  active?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Instancev1Provisioning
+   */
+  noExpire?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof Instancev1Provisioning
+   */
+  expirationDate?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Instancev1Provisioning
+   */
+  isSandbox?: boolean;
+}
+
+/**
+ *
+ * @export
+ * @interface Invites
+ */
+export interface Invites {
+  /**
+   *
+   * @type {string}
+   * @memberof Invites
+   */
+  email?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Invites
+   */
+  name?: string;
+}
+
+/**
+ *
+ * @export
  * @interface ItemCountsSeriesV1
  */
 export interface ItemCountsSeriesV1 {
-  /**
-   *
-   * @type {Array<BucketInfoUnitV1>}
-   * @memberof ItemCountsSeriesV1
-   */
-  bucketList?: Array<BucketInfoUnitV1>;
-  /**
-   *
-   * @type {Array<number>}
-   * @memberof ItemCountsSeriesV1
-   */
-  buckets?: Array<number>;
-  /**
-   *
-   * @type {Array<DataManagedGroupedV1>}
-   * @memberof ItemCountsSeriesV1
-   */
-  dataManaged?: Array<DataManagedGroupedV1>;
   /**
    *
    * @type {Array<number>}
@@ -1328,6 +1539,24 @@ export interface ItemCountsSeriesV1 {
    * @memberof ItemCountsSeriesV1
    */
   versions?: Array<number>;
+  /**
+   *
+   * @type {Array<number>}
+   * @memberof ItemCountsSeriesV1
+   */
+  buckets?: Array<number>;
+  /**
+   *
+   * @type {Array<BucketInfoUnitV1>}
+   * @memberof ItemCountsSeriesV1
+   */
+  bucketList?: Array<BucketInfoUnitV1>;
+  /**
+   *
+   * @type {Array<DataManagedGroupedV1>}
+   * @memberof ItemCountsSeriesV1
+   */
+  dataManaged?: Array<DataManagedGroupedV1>;
 }
 
 /**
@@ -1338,22 +1567,16 @@ export interface ItemCountsSeriesV1 {
 export interface ItemCountsUnitV1 {
   /**
    *
-   * @type {Array<BucketInfoUnitV1>}
-   * @memberof ItemCountsUnitV1
-   */
-  bucketList?: Array<BucketInfoUnitV1>;
-  /**
-   *
    * @type {number}
    * @memberof ItemCountsUnitV1
    */
   buckets: number;
   /**
    *
-   * @type {DataManagedGroupedV1}
+   * @type {number}
    * @memberof ItemCountsUnitV1
    */
-  dataManaged?: DataManagedGroupedV1;
+  versions: number;
   /**
    *
    * @type {number}
@@ -1362,76 +1585,195 @@ export interface ItemCountsUnitV1 {
   objects: number;
   /**
    *
-   * @type {number}
+   * @type {Array<BucketInfoUnitV1>}
    * @memberof ItemCountsUnitV1
    */
-  versions: number;
+  bucketList?: Array<BucketInfoUnitV1>;
+  /**
+   *
+   * @type {DataManagedGroupedV1}
+   * @memberof ItemCountsUnitV1
+   */
+  dataManaged?: DataManagedGroupedV1;
 }
+
+/**
+ *
+ * @export
+ * @interface LocationAwsS3Custom
+ */
+export interface LocationAwsS3Custom {}
 
 /**
  *
  * @export
  * @interface LocationAwsS3V1
  */
-export interface LocationAwsS3V1 extends LocationV1 {}
+export interface LocationAwsS3V1 {}
 
 /**
+ * Azure authentication method and parameters. If this field is not specified, shared-key authentication is performed using the values from the deprecated `accessKey` and `secretKey` fields.
  * @export
- * @namespace LocationAwsS3V1
+ * @interface LocationAzureAuth
  */
-export namespace LocationAwsS3V1 {}
+export interface LocationAzureAuth {
+  /**
+   *
+   * @type {any}
+   * @memberof LocationAzureAuth
+   */
+  type: any;
+}
+
+/**
+ * Authenticate using service principal.
+ * @export
+ * @interface LocationAzureClientSecret
+ */
+export interface LocationAzureClientSecret extends LocationAzureAuth {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureClientSecret
+   */
+  tenantId: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureClientSecret
+   */
+  clientId: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureClientSecret
+   */
+  clientKey: string;
+}
+
+/**
+ * Authenticate using SAS tokens. The token can be added in the dedicated fields or as query parameter in the Endpoint.
+ * @export
+ * @interface LocationAzureSharedAccessSignature
+ */
+export interface LocationAzureSharedAccessSignature extends LocationAzureAuth {
+  /**
+   * Token used for authenticating to Azure storage services (blob, queue)
+   * @type {string}
+   * @memberof LocationAzureSharedAccessSignature
+   */
+  storageSasToken?: string;
+  /**
+   * Token used for authenticating to Azure ServiceBus
+   * @type {string}
+   * @memberof LocationAzureSharedAccessSignature
+   */
+  serviceBusSasToken?: string;
+}
+
+/**
+ * Authenticate using account and secret key.
+ * @export
+ * @interface LocationAzureSharedKey
+ */
+export interface LocationAzureSharedKey extends LocationAzureAuth {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureSharedKey
+   */
+  accountName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureSharedKey
+   */
+  accountKey: string;
+}
 
 /**
  *
  * @export
  * @interface LocationAzureV1
  */
-export interface LocationAzureV1 extends LocationV1 {}
+export interface LocationAzureV1 {}
 
 /**
+ *
  * @export
- * @namespace LocationAzureV1
+ * @interface LocationCephRadosgwS3V1
  */
-export namespace LocationAzureV1 {}
+export interface LocationCephRadosgwS3V1 {}
 
 /**
  *
  * @export
  * @interface LocationDmfV1
  */
-export interface LocationDmfV1 extends LocationV1 {}
+export interface LocationDmfV1 {}
 
 /**
+ *
  * @export
- * @namespace LocationDmfV1
+ * @interface LocationDoSpacesV1
  */
-export namespace LocationDmfV1 {}
+export interface LocationDoSpacesV1 {}
 
 /**
  *
  * @export
  * @interface LocationFileV1
  */
-export interface LocationFileV1 extends LocationV1 {}
+export interface LocationFileV1 {}
 
 /**
+ *
  * @export
- * @namespace LocationFileV1
+ * @interface LocationGcpV1
  */
-export namespace LocationFileV1 {}
+export interface LocationGcpV1 {}
 
 /**
  *
  * @export
  * @interface LocationMemV1
  */
-export interface LocationMemV1 extends LocationV1 {}
+export interface LocationMemV1 {}
 
 /**
+ *
  * @export
- * @namespace LocationMemV1
+ * @interface LocationNfsMountV1
  */
-export namespace LocationMemV1 {}
+export interface LocationNfsMountV1 {}
+
+/**
+ *
+ * @export
+ * @interface LocationScalityArtescaS3V1
+ */
+export interface LocationScalityArtescaS3V1 {}
+
+/**
+ *
+ * @export
+ * @interface LocationScalityHdclientV2
+ */
+export interface LocationScalityHdclientV2 {}
+
+/**
+ *
+ * @export
+ * @interface LocationScalityRingS3V1
+ */
+export interface LocationScalityRingS3V1 {}
+
+/**
+ *
+ * @export
+ * @interface LocationScalitySproxydV1
+ */
+export interface LocationScalitySproxydV1 {}
 
 /**
  *
@@ -1441,40 +1783,10 @@ export namespace LocationMemV1 {}
 export interface LocationV1 {
   /**
    *
-   * @type {any}
+   * @type {string}
    * @memberof LocationV1
    */
-  details?: any;
-  /**
-   *
-   * @type {number}
-   * @memberof LocationV1
-   */
-  encryptionKeyVersion?: number;
-  /**
-   *
-   * @type {boolean}
-   * @memberof LocationV1
-   */
-  isBuiltin?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof LocationV1
-   */
-  isCold?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof LocationV1
-   */
-  isTransient?: boolean;
-  /**
-   *
-   * @type {boolean}
-   * @memberof LocationV1
-   */
-  legacyAwsBehavior?: boolean;
+  objectId?: string;
   /**
    *
    * @type {string}
@@ -1489,16 +1801,46 @@ export interface LocationV1 {
   name: string;
   /**
    *
-   * @type {string}
+   * @type {boolean}
    * @memberof LocationV1
    */
-  objectId?: string;
+  isBuiltin?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof LocationV1
+   */
+  legacyAwsBehavior?: boolean;
+  /**
+   *
+   * @type {number}
+   * @memberof LocationV1
+   */
+  encryptionKeyVersion?: number;
   /**
    *
    * @type {number}
    * @memberof LocationV1
    */
   sizeLimitGB?: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof LocationV1
+   */
+  isTransient?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof LocationV1
+   */
+  isCold?: boolean;
+  /**
+   *
+   * @type {Locationv1Details}
+   * @memberof LocationV1
+   */
+  details?: Locationv1Details;
 }
 
 /**
@@ -1533,6 +1875,129 @@ export namespace LocationV1 {
 /**
  *
  * @export
+ * @interface LocationWasabiV1
+ */
+export interface LocationWasabiV1 {}
+
+/**
+ *
+ * @export
+ * @interface Locationv1Details
+ */
+export interface Locationv1Details {
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  endpoint?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  accessKey?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  secretKey?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Locationv1Details
+   */
+  serverSideEncryption?: boolean;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  bucketName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  region?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  mpuBucketName?: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Locationv1Details
+   */
+  bucketMatch?: boolean;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof Locationv1Details
+   */
+  bootstrapList?: Array<string>;
+  /**
+   *
+   * @type {number}
+   * @memberof Locationv1Details
+   */
+  chordCos?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof Locationv1Details
+   */
+  dataParts?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof Locationv1Details
+   */
+  codingParts?: number;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  proxyPath?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  username?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  password?: string;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof Locationv1Details
+   */
+  repoId?: Array<string>;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  nsId?: string;
+  /**
+   *
+   * @type {LocationAzureAuth}
+   * @memberof Locationv1Details
+   */
+  auth?: LocationAzureAuth;
+}
+
+/**
+ *
+ * @export
  * @interface MdDiskUsageUnitV1
  */
 export interface MdDiskUsageUnitV1 extends DiskUsageUnitV1 {}
@@ -1548,13 +2013,13 @@ export interface MemoryStatSeriesV1 {
    * @type {Array<number>}
    * @memberof MemoryStatSeriesV1
    */
-  free?: Array<number>;
+  total?: Array<number>;
   /**
    *
    * @type {Array<number>}
    * @memberof MemoryStatSeriesV1
    */
-  total?: Array<number>;
+  free?: Array<number>;
 }
 
 /**
@@ -1568,13 +2033,13 @@ export interface MemoryStatUnitV1 {
    * @type {number}
    * @memberof MemoryStatUnitV1
    */
-  free: number;
+  total: number;
   /**
    *
    * @type {number}
    * @memberof MemoryStatUnitV1
    */
-  total: number;
+  free: number;
 }
 
 /**
@@ -1585,28 +2050,28 @@ export interface MemoryStatUnitV1 {
 export interface OrbitUserInviteStatusV1 {
   /**
    *
-   * @type {boolean}
-   * @memberof OrbitUserInviteStatusV1
-   */
-  closed?: boolean;
-  /**
-   *
    * @type {string}
    * @memberof OrbitUserInviteStatusV1
    */
-  code?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof OrbitUserInviteStatusV1
-   */
-  date?: string;
+  userId?: string;
   /**
    *
    * @type {boolean}
    * @memberof OrbitUserInviteStatusV1
    */
   invited?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof OrbitUserInviteStatusV1
+   */
+  responded?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof OrbitUserInviteStatusV1
+   */
+  closed?: boolean;
   /**
    *
    * @type {string}
@@ -1633,16 +2098,16 @@ export interface OrbitUserInviteStatusV1 {
   inviterName?: string;
   /**
    *
-   * @type {boolean}
+   * @type {string}
    * @memberof OrbitUserInviteStatusV1
    */
-  responded?: boolean;
+  code?: string;
   /**
    *
    * @type {string}
    * @memberof OrbitUserInviteStatusV1
    */
-  userId?: string;
+  date?: string;
 }
 
 /**
@@ -1676,13 +2141,13 @@ export interface OrganizationV1 {
    * @type {string}
    * @memberof OrganizationV1
    */
-  name?: string;
+  organizationID?: string;
   /**
    *
    * @type {string}
    * @memberof OrganizationV1
    */
-  organizationID?: string;
+  name?: string;
   /**
    *
    * @type {string}
@@ -1691,10 +2156,104 @@ export interface OrganizationV1 {
   owner?: string;
   /**
    *
-   * @type {any}
+   * @type {Organizationv1Settings}
    * @memberof OrganizationV1
    */
-  settings?: any;
+  settings?: Organizationv1Settings;
+}
+
+/**
+ *
+ * @export
+ * @interface Organizationv1Settings
+ */
+export interface Organizationv1Settings {
+  /**
+   *
+   * @type {Organizationv1SettingsPush}
+   * @memberof Organizationv1Settings
+   */
+  push?: Organizationv1SettingsPush;
+  /**
+   *
+   * @type {Organizationv1SettingsUi}
+   * @memberof Organizationv1Settings
+   */
+  ui?: Organizationv1SettingsUi;
+  /**
+   *
+   * @type {Organizationv1SettingsSecurity}
+   * @memberof Organizationv1Settings
+   */
+  security?: Organizationv1SettingsSecurity;
+}
+
+/**
+ *
+ * @export
+ * @interface Organizationv1SettingsPush
+ */
+export interface Organizationv1SettingsPush {
+  /**
+   *
+   * @type {number}
+   * @memberof Organizationv1SettingsPush
+   */
+  pollReportIntervalSec?: number;
+}
+
+/**
+ *
+ * @export
+ * @interface Organizationv1SettingsSecurity
+ */
+export interface Organizationv1SettingsSecurity {
+  /**
+   *
+   * @type {Array<Organizationv1SettingsSecurityAllowedSourceCIDRs>}
+   * @memberof Organizationv1SettingsSecurity
+   */
+  allowedSourceCIDRs?: Array<Organizationv1SettingsSecurityAllowedSourceCIDRs>;
+  /**
+   *
+   * @type {number}
+   * @memberof Organizationv1SettingsSecurity
+   */
+  webSessionDurationSec?: number;
+}
+
+/**
+ *
+ * @export
+ * @interface Organizationv1SettingsSecurityAllowedSourceCIDRs
+ */
+export interface Organizationv1SettingsSecurityAllowedSourceCIDRs {
+  /**
+   *
+   * @type {string}
+   * @memberof Organizationv1SettingsSecurityAllowedSourceCIDRs
+   */
+  description?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Organizationv1SettingsSecurityAllowedSourceCIDRs
+   */
+  cidr?: string;
+}
+
+/**
+ *
+ * @export
+ * @interface Organizationv1SettingsUi
+ */
+export interface Organizationv1SettingsUi {
+  /**
+   *
+   * @type {number}
+   * @memberof Organizationv1SettingsUi
+   */
+  unresponsiveInstanceGuardDelaySec?: number;
 }
 
 /**
@@ -1717,10 +2276,10 @@ export interface OutCpuStatsV1 {
   startTime?: string;
   /**
    *
-   * @type {any}
+   * @type {Outcpustatsv1Values}
    * @memberof OutCpuStatsV1
    */
-  values?: any;
+  values?: Outcpustatsv1Values;
 }
 
 /**
@@ -1743,10 +2302,10 @@ export interface OutDataDiskStatsV1 {
   startTime?: string;
   /**
    *
-   * @type {any}
+   * @type {Outdatadiskstatsv1Values}
    * @memberof OutDataDiskStatsV1
    */
-  values?: any;
+  values?: Outdatadiskstatsv1Values;
 }
 
 /**
@@ -1769,10 +2328,10 @@ export interface OutMdDiskStatsV1 {
   startTime?: string;
   /**
    *
-   * @type {any}
+   * @type {Outmddiskstatsv1Values}
    * @memberof OutMdDiskStatsV1
    */
-  values?: any;
+  values?: Outmddiskstatsv1Values;
 }
 
 /**
@@ -1795,10 +2354,66 @@ export interface OutMemoryStatsV1 {
   startTime?: string;
   /**
    *
-   * @type {any}
+   * @type {Outmemorystatsv1Values}
    * @memberof OutMemoryStatsV1
    */
-  values?: any;
+  values?: Outmemorystatsv1Values;
+}
+
+/**
+ *
+ * @export
+ * @interface Outcpustatsv1Values
+ */
+export interface Outcpustatsv1Values {
+  /**
+   *
+   * @type {CpuStatSeriesV1}
+   * @memberof Outcpustatsv1Values
+   */
+  cpu?: CpuStatSeriesV1;
+}
+
+/**
+ *
+ * @export
+ * @interface Outdatadiskstatsv1Values
+ */
+export interface Outdatadiskstatsv1Values {
+  /**
+   *
+   * @type {DiskusageStatSeriesV1}
+   * @memberof Outdatadiskstatsv1Values
+   */
+  dataDiskusage?: DiskusageStatSeriesV1;
+}
+
+/**
+ *
+ * @export
+ * @interface Outmddiskstatsv1Values
+ */
+export interface Outmddiskstatsv1Values {
+  /**
+   *
+   * @type {DiskusageStatSeriesV1}
+   * @memberof Outmddiskstatsv1Values
+   */
+  mdDiskusage?: DiskusageStatSeriesV1;
+}
+
+/**
+ *
+ * @export
+ * @interface Outmemorystatsv1Values
+ */
+export interface Outmemorystatsv1Values {
+  /**
+   *
+   * @type {MemoryStatSeriesV1}
+   * @memberof Outmemorystatsv1Values
+   */
+  memory?: MemoryStatSeriesV1;
 }
 
 /**
@@ -1809,10 +2424,10 @@ export interface OutMemoryStatsV1 {
 export interface PortalUserPreferencesV1 {
   /**
    *
-   * @type {any}
+   * @type {Portaluserpreferencesv1Consent}
    * @memberof PortalUserPreferencesV1
    */
-  consent?: any;
+  consent?: Portaluserpreferencesv1Consent;
 }
 
 /**
@@ -1826,7 +2441,13 @@ export interface PortalUserV1 {
    * @type {string}
    * @memberof PortalUserV1
    */
-  createdAt?: string;
+  userId?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof PortalUserV1
+   */
+  email: string;
   /**
    *
    * @type {string}
@@ -1838,13 +2459,7 @@ export interface PortalUserV1 {
    * @type {string}
    * @memberof PortalUserV1
    */
-  email: string;
-  /**
-   *
-   * @type {Array<any>}
-   * @memberof PortalUserV1
-   */
-  identities?: Array<any>;
+  imageUrl: string;
   /**
    *
    * @type {string}
@@ -1856,7 +2471,7 @@ export interface PortalUserV1 {
    * @type {string}
    * @memberof PortalUserV1
    */
-  imageUrl: string;
+  inviteCode?: string;
   /**
    *
    * @type {Array<string>}
@@ -1871,22 +2486,16 @@ export interface PortalUserV1 {
   instances?: Array<InstanceV1>;
   /**
    *
-   * @type {string}
-   * @memberof PortalUserV1
-   */
-  inviteCode?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof PortalUserV1
-   */
-  oidcSubject?: string;
-  /**
-   *
    * @type {PortalUserPreferencesV1}
    * @memberof PortalUserV1
    */
   preferences?: PortalUserPreferencesV1;
+  /**
+   *
+   * @type {string}
+   * @memberof PortalUserV1
+   */
+  createdAt?: string;
   /**
    *
    * @type {string}
@@ -1898,7 +2507,13 @@ export interface PortalUserV1 {
    * @type {string}
    * @memberof PortalUserV1
    */
-  userId?: string;
+  oidcSubject?: string;
+  /**
+   *
+   * @type {Array<Portaluserv1Identities>}
+   * @memberof PortalUserV1
+   */
+  identities?: Array<Portaluserv1Identities>;
 }
 
 /**
@@ -1917,35 +2532,57 @@ export namespace PortalUserV1 {
 }
 
 /**
+ *
+ * @export
+ * @interface Portaluserpreferencesv1Consent
+ */
+export interface Portaluserpreferencesv1Consent {
+  /**
+   *
+   * @type {number}
+   * @memberof Portaluserpreferencesv1Consent
+   */
+  version: number;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Portaluserpreferencesv1Consent
+   */
+  marketingNewsletter?: boolean;
+  /**
+   *
+   * @type {boolean}
+   * @memberof Portaluserpreferencesv1Consent
+   */
+  privacyPolicyVersion1?: boolean;
+}
+
+/**
+ *
+ * @export
+ * @interface Portaluserv1Identities
+ */
+export interface Portaluserv1Identities {
+  /**
+   *
+   * @type {string}
+   * @memberof Portaluserv1Identities
+   */
+  name?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Portaluserv1Identities
+   */
+  id?: string;
+}
+
+/**
  * Replication between two buckets of the same Zenko instance
  * @export
  * @interface ReplicationStreamInternalV1
  */
 export interface ReplicationStreamInternalV1 {
-  /**
-   *
-   * @type {any}
-   * @memberof ReplicationStreamInternalV1
-   */
-  destination?: any;
-  /**
-   *
-   * @type {boolean}
-   * @memberof ReplicationStreamInternalV1
-   */
-  enabled: boolean;
-  /**
-   *
-   * @type {string}
-   * @memberof ReplicationStreamInternalV1
-   */
-  name: string;
-  /**
-   *
-   * @type {any}
-   * @memberof ReplicationStreamInternalV1
-   */
-  source?: any;
   /**
    *
    * @type {string}
@@ -1958,6 +2595,108 @@ export interface ReplicationStreamInternalV1 {
    * @memberof ReplicationStreamInternalV1
    */
   version: number;
+  /**
+   *
+   * @type {string}
+   * @memberof ReplicationStreamInternalV1
+   */
+  name: string;
+  /**
+   *
+   * @type {boolean}
+   * @memberof ReplicationStreamInternalV1
+   */
+  enabled: boolean;
+  /**
+   *
+   * @type {Replicationstreaminternalv1Source}
+   * @memberof ReplicationStreamInternalV1
+   */
+  source?: Replicationstreaminternalv1Source;
+  /**
+   *
+   * @type {Replicationstreaminternalv1Destination}
+   * @memberof ReplicationStreamInternalV1
+   */
+  destination?: Replicationstreaminternalv1Destination;
+}
+
+/**
+ *
+ * @export
+ * @interface Replicationstreaminternalv1Destination
+ */
+export interface Replicationstreaminternalv1Destination {
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Destination
+   */
+  bucketName?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Destination
+   */
+  location?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Destination
+   */
+  preferredReadLocation?: string;
+  /**
+   *
+   * @type {Array<Replicationstreaminternalv1DestinationLocations>}
+   * @memberof Replicationstreaminternalv1Destination
+   */
+  locations?: Array<Replicationstreaminternalv1DestinationLocations>;
+}
+
+/**
+ *
+ * @export
+ * @interface Replicationstreaminternalv1DestinationLocations
+ */
+export interface Replicationstreaminternalv1DestinationLocations {
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1DestinationLocations
+   */
+  name?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1DestinationLocations
+   */
+  storageClass?: string;
+}
+
+/**
+ *
+ * @export
+ * @interface Replicationstreaminternalv1Source
+ */
+export interface Replicationstreaminternalv1Source {
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Source
+   */
+  bucketName: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Source
+   */
+  prefix: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Replicationstreaminternalv1Source
+   */
+  location?: string;
 }
 
 /**
@@ -1968,40 +2707,16 @@ export interface ReplicationStreamInternalV1 {
 export interface ReportV1 {
   /**
    *
-   * @type {InstanceCapabilitiesV1}
+   * @type {string}
    * @memberof ReportV1
    */
-  capabilities?: InstanceCapabilitiesV1;
+  utcTime: string;
   /**
    *
-   * @type {StoredConfigurationV1}
+   * @type {string}
    * @memberof ReportV1
    */
-  config: StoredConfigurationV1;
-  /**
-   *
-   * @type {CrrStatsUnitV1}
-   * @memberof ReportV1
-   */
-  crrStats?: CrrStatsUnitV1;
-  /**
-   *
-   * @type {DataDiskUsageUnitV1}
-   * @memberof ReportV1
-   */
-  dataDiskUsage: DataDiskUsageUnitV1;
-  /**
-   *
-   * @type {IngestStatsUnitV1}
-   * @memberof ReportV1
-   */
-  ingestStats?: IngestStatsUnitV1;
-  /**
-   *
-   * @type {IngestionScheduleV1}
-   * @memberof ReportV1
-   */
-  ingestStatus?: IngestionScheduleV1;
+  uuid: string;
   /**
    *
    * @type {string}
@@ -2010,10 +2725,16 @@ export interface ReportV1 {
   ipAddress?: string;
   /**
    *
-   * @type {ItemCountsUnitV1}
+   * @type {number}
    * @memberof ReportV1
    */
-  itemCounts: ItemCountsUnitV1;
+  reportModelVersion: number;
+  /**
+   *
+   * @type {StoredConfigurationV1}
+   * @memberof ReportV1
+   */
+  config: StoredConfigurationV1;
   /**
    *
    * @type {MdDiskUsageUnitV1}
@@ -2022,16 +2743,16 @@ export interface ReportV1 {
   mdDiskUsage: MdDiskUsageUnitV1;
   /**
    *
-   * @type {CrrScheduleV1}
+   * @type {DataDiskUsageUnitV1}
    * @memberof ReportV1
    */
-  repStatus?: CrrScheduleV1;
+  dataDiskUsage: DataDiskUsageUnitV1;
   /**
    *
-   * @type {number}
+   * @type {ItemCountsUnitV1}
    * @memberof ReportV1
    */
-  reportModelVersion: number;
+  itemCounts: ItemCountsUnitV1;
   /**
    *
    * @type {string}
@@ -2046,16 +2767,34 @@ export interface ReportV1 {
   systemStats: SystemStatsUnitV1;
   /**
    *
-   * @type {string}
+   * @type {CrrStatsUnitV1}
    * @memberof ReportV1
    */
-  utcTime: string;
+  crrStats?: CrrStatsUnitV1;
   /**
    *
-   * @type {string}
+   * @type {InstanceCapabilitiesV1}
    * @memberof ReportV1
    */
-  uuid: string;
+  capabilities?: InstanceCapabilitiesV1;
+  /**
+   *
+   * @type {CrrScheduleV1}
+   * @memberof ReportV1
+   */
+  repStatus?: CrrScheduleV1;
+  /**
+   *
+   * @type {IngestionScheduleV1}
+   * @memberof ReportV1
+   */
+  ingestStatus?: IngestionScheduleV1;
+  /**
+   *
+   * @type {IngestStatsUnitV1}
+   * @memberof ReportV1
+   */
+  ingestStats?: IngestStatsUnitV1;
 }
 
 /**
@@ -2069,13 +2808,13 @@ export interface ScheduleV1 {
    * @type {{ [key: string]: string; }}
    * @memberof ScheduleV1
    */
-  schedules?: { [key: string]: string };
+  states?: { [key: string]: string };
   /**
    *
    * @type {{ [key: string]: string; }}
    * @memberof ScheduleV1
    */
-  states?: { [key: string]: string };
+  schedules?: { [key: string]: string };
 }
 
 /**
@@ -2098,7 +2837,34 @@ export namespace ScheduleV1 {
  * @export
  * @interface SearchWorkflowsListV1
  */
-export interface SearchWorkflowsListV1 extends Array<any> {}
+export interface SearchWorkflowsListV1
+  extends Array<Searchworkflowslistv1Inner> {}
+
+/**
+ *
+ * @export
+ * @interface Searchworkflowslistv1Inner
+ */
+export interface Searchworkflowslistv1Inner {
+  /**
+   *
+   * @type {ReplicationStreamInternalV1}
+   * @memberof Searchworkflowslistv1Inner
+   */
+  replication?: ReplicationStreamInternalV1;
+  /**
+   *
+   * @type {BucketWorkflowExpirationV1}
+   * @memberof Searchworkflowslistv1Inner
+   */
+  expiration?: BucketWorkflowExpirationV1;
+  /**
+   *
+   * @type {BucketWorkflowTransitionV2}
+   * @memberof Searchworkflowslistv1Inner
+   */
+  transition?: BucketWorkflowTransitionV2;
+}
 
 /**
  *
@@ -2114,12 +2880,6 @@ export interface StoredConfigurationV1 {
   instanceId?: string;
   /**
    *
-   * @type {number}
-   * @memberof StoredConfigurationV1
-   */
-  overlayVersion?: number;
-  /**
-   *
    * @type {string}
    * @memberof StoredConfigurationV1
    */
@@ -2130,6 +2890,12 @@ export interface StoredConfigurationV1 {
    * @memberof StoredConfigurationV1
    */
   ttl?: number;
+  /**
+   *
+   * @type {number}
+   * @memberof StoredConfigurationV1
+   */
+  overlayVersion?: number;
 }
 
 /**
@@ -2140,28 +2906,22 @@ export interface StoredConfigurationV1 {
 export interface SystemStatsUnitV1 {
   /**
    *
-   * @type {string}
-   * @memberof SystemStatsUnitV1
-   */
-  arch: string;
-  /**
-   *
-   * @type {any}
-   * @memberof SystemStatsUnitV1
-   */
-  cpu: any;
-  /**
-   *
-   * @type {string}
-   * @memberof SystemStatsUnitV1
-   */
-  hostname: string;
-  /**
-   *
    * @type {MemoryStatUnitV1}
    * @memberof SystemStatsUnitV1
    */
   memory: MemoryStatUnitV1;
+  /**
+   *
+   * @type {Systemstatsunitv1Cpu}
+   * @memberof SystemStatsUnitV1
+   */
+  cpu: Systemstatsunitv1Cpu;
+  /**
+   *
+   * @type {string}
+   * @memberof SystemStatsUnitV1
+   */
+  arch: string;
   /**
    *
    * @type {string}
@@ -2174,6 +2934,50 @@ export interface SystemStatsUnitV1 {
    * @memberof SystemStatsUnitV1
    */
   release: string;
+  /**
+   *
+   * @type {string}
+   * @memberof SystemStatsUnitV1
+   */
+  hostname: string;
+}
+
+/**
+ *
+ * @export
+ * @interface Systemstatsunitv1Cpu
+ */
+export interface Systemstatsunitv1Cpu {
+  /**
+   *
+   * @type {number}
+   * @memberof Systemstatsunitv1Cpu
+   */
+  count: number;
+  /**
+   *
+   * @type {string}
+   * @memberof Systemstatsunitv1Cpu
+   */
+  model: string;
+  /**
+   *
+   * @type {number}
+   * @memberof Systemstatsunitv1Cpu
+   */
+  speed: number;
+  /**
+   *
+   * @type {Array<any>}
+   * @memberof Systemstatsunitv1Cpu
+   */
+  loadavg: Array<any>;
+  /**
+   *
+   * @type {CpuStatTimesUnitV1}
+   * @memberof Systemstatsunitv1Cpu
+   */
+  times: CpuStatTimesUnitV1;
 }
 
 /**
@@ -2187,13 +2991,19 @@ export interface UserV1 {
    * @type {string}
    * @memberof UserV1
    */
-  accessKey?: string;
+  userName: string;
   /**
    *
    * @type {string}
    * @memberof UserV1
    */
-  accountType?: UserV1.AccountTypeEnum;
+  email?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof UserV1
+   */
+  quotaMax?: number;
   /**
    *
    * @type {string}
@@ -2205,7 +3015,7 @@ export interface UserV1 {
    * @type {string}
    * @memberof UserV1
    */
-  canonicalId?: string;
+  id?: string;
   /**
    *
    * @type {Date}
@@ -2217,25 +3027,13 @@ export interface UserV1 {
    * @type {string}
    * @memberof UserV1
    */
-  email?: string;
+  canonicalId?: string;
   /**
    *
    * @type {string}
    * @memberof UserV1
    */
-  id?: string;
-  /**
-   *
-   * @type {boolean}
-   * @memberof UserV1
-   */
-  isBuiltin?: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof UserV1
-   */
-  quotaMax?: number;
+  accessKey?: string;
   /**
    *
    * @type {string}
@@ -2250,10 +3048,16 @@ export interface UserV1 {
   secretKeyEncryptionKeyVersion?: number;
   /**
    *
+   * @type {boolean}
+   * @memberof UserV1
+   */
+  isBuiltin?: boolean;
+  /**
+   *
    * @type {string}
    * @memberof UserV1
    */
-  userName: string;
+  accountType?: UserV1.AccountTypeEnum;
 }
 
 /**
@@ -2287,19 +3091,13 @@ export interface WorkflowCounterSetV1 {
    * @type {CounterUnitV1}
    * @memberof WorkflowCounterSetV1
    */
-  backlog?: CounterUnitV1;
-  /**
-   *
-   * @type {CounterUnitV1}
-   * @memberof WorkflowCounterSetV1
-   */
   completions?: CounterUnitV1;
   /**
    *
    * @type {CounterUnitV1}
    * @memberof WorkflowCounterSetV1
    */
-  failures?: CounterUnitV1;
+  backlog?: CounterUnitV1;
   /**
    *
    * @type {CounterUnitV1}
@@ -2311,13 +3109,19 @@ export interface WorkflowCounterSetV1 {
    * @type {CounterUnitV1}
    * @memberof WorkflowCounterSetV1
    */
-  stalled?: CounterUnitV1;
+  throughput?: CounterUnitV1;
   /**
    *
    * @type {CounterUnitV1}
    * @memberof WorkflowCounterSetV1
    */
-  throughput?: CounterUnitV1;
+  failures?: CounterUnitV1;
+  /**
+   *
+   * @type {CounterUnitV1}
+   * @memberof WorkflowCounterSetV1
+   */
+  stalled?: CounterUnitV1;
 }
 
 /**
@@ -5401,13 +6205,13 @@ export const UiFacingApiFetchParamCreator = function (
     /**
      * Invite users by email
      * @param {string} userId
-     * @param {Array<any>} invites
+     * @param {Array<Invites>} invites
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     inviteOrbitUsersByEmail(
       userId: string,
-      invites: Array<any>,
+      invites: Array<Invites>,
       options: any = {},
     ): FetchArgs {
       // verify required parameter 'userId' is not null or undefined
@@ -5458,7 +6262,7 @@ export const UiFacingApiFetchParamCreator = function (
         options.headers,
       );
       const needsSerialization =
-        <any>'Array&lt;any&gt;' !== 'string' ||
+        <any>'Array&lt;Invites&gt;' !== 'string' ||
         localVarRequestOptions.headers['Content-Type'] === 'application/json';
       localVarRequestOptions.body = needsSerialization
         ? JSON.stringify(invites || {})
@@ -7284,7 +8088,7 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
     getLatestInstanceStatus(
       uuid: string,
       options?: any,
-    ): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+    ): (fetch?: FetchAPI, basePath?: string) => Promise<InlineResponse200> {
       const localVarFetchArgs = UiFacingApiFetchParamCreator(
         configuration,
       ).getLatestInstanceStatus(uuid, options);
@@ -7307,13 +8111,13 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
     /**
      * Invite users by email
      * @param {string} userId
-     * @param {Array<any>} invites
+     * @param {Array<Invites>} invites
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     inviteOrbitUsersByEmail(
       userId: string,
-      invites: Array<any>,
+      invites: Array<Invites>,
       options?: any,
     ): (fetch?: FetchAPI, basePath?: string) => Promise<Response> {
       const localVarFetchArgs = UiFacingApiFetchParamCreator(
@@ -8306,13 +9110,13 @@ export const UiFacingApiFactory = function (
     /**
      * Invite users by email
      * @param {string} userId
-     * @param {Array<any>} invites
+     * @param {Array<Invites>} invites
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     inviteOrbitUsersByEmail(
       userId: string,
-      invites: Array<any>,
+      invites: Array<Invites>,
       options?: any,
     ) {
       return UiFacingApiFp(configuration).inviteOrbitUsersByEmail(
@@ -9156,14 +9960,14 @@ export class UiFacingApi extends BaseAPI {
   /**
    * Invite users by email
    * @param {string} userId
-   * @param {Array<any>} invites
+   * @param {Array<Invites>} invites
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof UiFacingApi
    */
   public inviteOrbitUsersByEmail(
     userId: string,
-    invites: Array<any>,
+    invites: Array<Invites>,
     options?: any,
   ) {
     return UiFacingApiFp(this.configuration).inviteOrbitUsersByEmail(
