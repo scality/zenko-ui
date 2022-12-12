@@ -45,11 +45,11 @@ describe('TagsFilter', () => {
 
     const sampleKeyName = 'secretdoor';
     userEvent.type(firstKeyField, sampleKeyName);
-    expect(firstKeyField).toHaveValue(reverseString(sampleKeyName));
+    expect(firstKeyField).toHaveValue(sampleKeyName);
 
     const sampleValue = 'secretwindow';
     userEvent.type(firstValueField, sampleValue);
-    expect(firstValueField).toHaveValue(reverseString(sampleValue));
+    expect(firstValueField).toHaveValue(sampleValue);
 
     const addButon = screen.getByRole('button', { name: 'Add' });
     expect(addButon).toBeInTheDocument();
@@ -69,7 +69,3 @@ describe('TagsFilter', () => {
     expect(secondValueField).not.toBeInTheDocument();
   });
 });
-
-function reverseString(str: string) {
-  return str.split('').reverse().join('');
-}
