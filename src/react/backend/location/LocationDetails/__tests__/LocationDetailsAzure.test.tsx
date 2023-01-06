@@ -19,7 +19,7 @@ describe('class <LocationDetailsAzure />', () => {
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
       auth: {
-        type: 'azure-shared-key',
+        type: 'location-azure-shared-key',
         accountName: '',
         accountKey: '',
       },
@@ -105,14 +105,14 @@ describe('class <LocationDetailsAzure />', () => {
     // for now we just set it as empty since it's encrypted
     expect(screen.getByLabelText(/Azure Account Key/i)).toHaveValue('');
   });
-  it('should show azure details when editing an existing location with auth type azure-shared-key', () => {
+  it('should show azure details when editing an existing location with auth type location-azure-shared-key', () => {
     //S
     const locationDetails = {
       bucketName: 'bn',
       bucketMatch: true,
       endpoint: 'https://ep',
       auth: {
-        type: 'azure-shared-key',
+        type: 'location-azure-shared-key',
         accountName: 'name',
         accountKey: 'key',
       },
@@ -144,14 +144,14 @@ describe('class <LocationDetailsAzure />', () => {
     expect(screen.getByLabelText(/Azure Account Key/i)).toHaveValue('');
   });
 
-  it('should show azure details when editing an existing location with auth type azure-client-secret', () => {
+  it('should show azure details when editing an existing location with auth type location-azure-client-secret', () => {
     //S
     const locationDetails = {
       bucketName: 'bn',
       bucketMatch: true,
       endpoint: 'https://ep',
       auth: {
-        type: 'azure-client-secret',
+        type: 'location-azure-client-secret',
         clientId: 'id',
         clientKey: 'key',
       },
@@ -183,14 +183,14 @@ describe('class <LocationDetailsAzure />', () => {
     expect(screen.getByLabelText(/Azure Client Key/i)).toHaveValue('');
   });
 
-  it('should show azure details when editing an existing location with auth type azure-shared-access-signature', () => {
+  it('should show azure details when editing an existing location with auth type location-azure-shared-access-signature', () => {
     //S
     const locationDetails = {
       bucketName: 'bn',
       bucketMatch: true,
       endpoint: 'https://ep',
       auth: {
-        type: 'azure-shared-access-signature',
+        type: 'location-azure-shared-access-signature',
         storageSasToken: 'token',
       },
     };
@@ -260,7 +260,7 @@ describe('class <LocationDetailsAzure />', () => {
     return { selector };
   };
 
-  it('should call onChange with expected location when seting auth type to azure-shared-key', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-shared-key', () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
@@ -280,7 +280,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketMatch: false,
       endpoint,
       auth: {
-        type: 'azure-shared-key',
+        type: 'location-azure-shared-key',
         accountName,
         accountKey,
       },
@@ -288,7 +288,7 @@ describe('class <LocationDetailsAzure />', () => {
     });
   });
 
-  it('should call onChange with expected location when seting auth type to azure-client-secret', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-client-secret', () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
@@ -308,7 +308,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketMatch: false,
       endpoint,
       auth: {
-        type: 'azure-client-secret',
+        type: 'location-azure-client-secret',
         clientId,
         clientKey,
       },
@@ -316,7 +316,7 @@ describe('class <LocationDetailsAzure />', () => {
     });
   });
 
-  it('should call onChange with expected location when seting auth type to azure-shared-access-signature', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-shared-access-signature', () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
@@ -335,7 +335,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketMatch: false,
       endpoint,
       auth: {
-        type: 'azure-shared-access-signature',
+        type: 'location-azure-shared-access-signature',
         storageSasToken: sasToken,
       },
       bucketName: targetBucket,

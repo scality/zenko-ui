@@ -35,7 +35,7 @@ export default class LocationDetailsAzure extends React.Component<
       | LocationAzureClientSecret
       | LocationAzureSharedAccessSignature
       | LocationAzureSharedKey = this.props.details.auth || {
-      type: 'azure-shared-key',
+      type: 'location-azure-shared-key',
       accountKey: '',
       accountName: this.props.details.accessKey || '',
     };
@@ -80,28 +80,28 @@ export default class LocationDetailsAzure extends React.Component<
 
   onAuthTypeChange = (newType: string) => {
     switch (newType) {
-      case 'azure-shared-key':
+      case 'location-azure-shared-key':
         this.setState({
           auth: {
-            type: 'azure-shared-key',
+            type: 'location-azure-shared-key',
             accountName: '',
             accountKey: '',
           },
         });
         return;
-      case 'azure-client-secret':
+      case 'location-azure-client-secret':
         this.setState({
           auth: {
-            type: 'azure-client-secret',
+            type: 'location-azure-client-secret',
             clientId: '',
             clientKey: '',
           },
         });
         return;
-      case 'azure-shared-access-signature':
+      case 'location-azure-shared-access-signature':
         this.setState({
           auth: {
-            type: 'azure-shared-access-signature',
+            type: 'location-azure-shared-access-signature',
             storageSasToken: '',
           },
         });
@@ -184,13 +184,13 @@ export default class LocationDetailsAzure extends React.Component<
               onChange={this.onAuthTypeChange}
               value={this.state.auth.type}
             >
-              <Select.Option value={'azure-shared-key'}>
+              <Select.Option value={'location-azure-shared-key'}>
                 Azure Shared Key
               </Select.Option>
-              <Select.Option value={'azure-client-secret'}>
+              <Select.Option value={'location-azure-client-secret'}>
                 Azure Client Secret
               </Select.Option>
-              <Select.Option value={'azure-shared-access-signature'}>
+              <Select.Option value={'location-azure-shared-access-signature'}>
                 Azure Shared Access Signature
               </Select.Option>
             </Select>
@@ -198,7 +198,7 @@ export default class LocationDetailsAzure extends React.Component<
         />
 
         {'accountName' in this.state.auth &&
-        this.state.auth.type === 'azure-shared-key' ? (
+        this.state.auth.type === 'location-azure-shared-key' ? (
           <>
             <FormGroup
               label="Azure Account Name"
@@ -242,7 +242,7 @@ export default class LocationDetailsAzure extends React.Component<
         )}
 
         {'clientId' in this.state.auth &&
-        this.state.auth.type === 'azure-client-secret' ? (
+        this.state.auth.type === 'location-azure-client-secret' ? (
           <>
             <FormGroup
               label="Azure Client Id"
@@ -286,7 +286,7 @@ export default class LocationDetailsAzure extends React.Component<
         )}
 
         {'storageSasToken' in this.state.auth &&
-        this.state.auth.type === 'azure-shared-access-signature' ? (
+        this.state.auth.type === 'location-azure-shared-access-signature' ? (
           <>
             <FormGroup
               label="Azure Storage Sas Token"
