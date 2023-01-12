@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { addOIDCUser, setOIDCLogout, setTheme } from './actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../types/state';
@@ -125,16 +125,15 @@ function InternalNavbar() {
   const navbarRef = useRef(null);
   useLoginEffect(navbarRef);
   useThemeEffect(navbarRef);
+
   return (
     <solutions-navbar
       config-url={navbarConfigUrl} // Set font-size to be consitent with other UIs.
       style={{
         width: '100%',
-        fontSize: 'max(14px,calc(.2em + .8vw))',
+        fontSize: 'max(14px, 0.972vw);',
       }}
-      ref={
-        navbarRef
-      }
+      ref={navbarRef}
     />
   );
 }

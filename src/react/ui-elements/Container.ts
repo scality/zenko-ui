@@ -35,8 +35,42 @@ export const EmptyStateContainer = styled.div`
 const NavbarContainer = styled.div`
   display: flex;
   width: 100%;
+  font-size: 1rem;
+
+  solutions-navbar {
+    img[alt='logo'] {
+      height: 2.143rem;
+    }
+
+    .sc-dropdown .trigger {
+      background-color: rgb(18, 18, 25);
+      height: 3rem;
+      font-size: 1rem;
+    }
+  }
+
   .sc-navbar {
     width: 100%;
+    height: 3rem;
+    border-bottom: 0.071rem solid rgb(18, 18, 25);
+    color: rgb(234, 234, 234);
+    a {
+      color: #dfdfdf;
+    }
+
+    div[aria-selected='true'] {
+      a {
+        color: rgb(234, 234, 234);
+      }
+    }
+
+    span > i {
+      color: rgb(223, 223, 223);
+    }
+
+    .sc-trigger-text {
+      color: #eaeaea;
+    }
   }
 `;
 

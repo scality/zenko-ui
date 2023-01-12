@@ -4,11 +4,16 @@
     sans-serif;
 }
 
+html {
+  font-size: max(14px, calc(0.2em + 0.8vw));
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 
 @font-face {
   font-family: 'Lato';
