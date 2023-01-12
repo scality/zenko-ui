@@ -1,16 +1,18 @@
 import { default as BasicInput } from '../../ui-elements/Input';
 import type { LocationFormOptions } from '../../../types/location';
 import type { LocationName } from '../../../types/config';
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 
 const isTransientEnabled = (locationType: LocationName) => {
-  return (
-    locationType === 'location-scality-sproxyd-v1' ||
-    locationType === 'location-file-v1'
-  );
+  const transientLocationsType = [
+    'location-scality-sproxyd-v1',
+    'location-file-v1',
+    'location-scality-hdclient-v2',
+  ];
+  return transientLocationsType.includes(locationType);
 };
 
 export const Input = styled(BasicInput)`
