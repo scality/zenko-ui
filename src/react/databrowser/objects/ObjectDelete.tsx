@@ -130,6 +130,24 @@ function ConfirmationInput({ toggledFiles }: { toggledFiles: unknown[] }) {
   );
 }
 
+export const getMessagesAndRequiredActions = ({
+  numberOfObjects,
+  selectedObjectsAreSpecificVersions,
+  isBucketVersioned,
+  objectsLockedInComplianceModeLength,
+  objectsLockedInGovernanceModeLength,
+}) => {
+  if (isBucketVersionned && selectedObjectsAreSpecificVersions) {
+  }
+
+  return {
+    info: '',
+    warnings: ['', ''],
+    checkboxRequired: false,
+    confirmationRequired: false,
+  };
+};
+
 const ObjectDelete = ({
   bucketName,
   toggled,
@@ -161,7 +179,7 @@ const ObjectDelete = ({
   const versionsStr = maybePluralize(toggled.size, 'version', 's', false);
   const notificationText = !isCurrentSelectionPermanentlyDeleted
     ? `Delete ${markersStr} will be added to the selected ${objectsStr}.`
-    : `The selected ${versionsStr} will be permanently removed from the Bucket.`;
+    : `The selected ${versionsStr} will be permanently deleted from the Bucket.`;
   useEffect(() => {
     setToggledFiles([...toggled]);
   }, [toggled]);
