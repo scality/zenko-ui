@@ -1,5 +1,8 @@
 import { Link, matchPath } from 'react-router-dom';
-import { Breadcrumb as CoreUIBreadcrumb } from '@scality/core-ui';
+import {
+  Breadcrumb as CoreUIBreadcrumb,
+  ConstrainedText,
+} from '@scality/core-ui';
 import styled from 'styled-components';
 import { ellipsis } from 'polished';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
@@ -20,6 +23,7 @@ export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
         color: ${(props) => props.theme.brand.textPrimary};
       }
       border-bottom: 0 !important;
+      min-width: auto;
     }
     ${ellipsis('16rem')}
   }
@@ -71,7 +75,11 @@ export const breadcrumbPathsBuckets = (
       .map((s, i, arr) => {
         // NOTE: last label does not need a link
         if (i === arr.length - 1) {
-          return <label key={s}>{s}</label>;
+          return (
+            <label key={s}>
+              <ConstrainedText text={s} />
+            </label>
+          );
         }
 
         prefix = prefix ? `${prefix}/${s}` : s;
@@ -84,7 +92,7 @@ export const breadcrumbPathsBuckets = (
               }}
             >
               {' '}
-              {s}{' '}
+              <ConstrainedText text={s} />{' '}
             </Link>
           </label>
         );
@@ -98,7 +106,7 @@ export const breadcrumbPathsBuckets = (
           }}
         >
           {' '}
-          All Buckets{' '}
+          <ConstrainedText text={'All Buckets'} />{' '}
         </Link>{' '}
       </label>,
       <label key="objects">
@@ -109,7 +117,7 @@ export const breadcrumbPathsBuckets = (
           }}
         >
           {' '}
-          {bucketName}{' '}
+          <ConstrainedText text={bucketName} />{' '}
         </Link>
       </label>,
       ...splitLabels,
@@ -129,10 +137,12 @@ export const breadcrumbPathsBuckets = (
           }}
         >
           {' '}
-          All Buckets{' '}
+          <ConstrainedText text={'All Buckets'} />{' '}
         </Link>
       </label>,
-      <label key="bucket-name">{matchObjectsRoute.params.bucketName}</label>,
+      <label key="bucket-name">
+        <ConstrainedText text={matchObjectsRoute.params.bucketName} />
+      </label>,
     ];
   }
 
@@ -148,10 +158,14 @@ export const breadcrumbPathsBuckets = (
             pathname: '/buckets',
           }}
         >
-          {matchBucketRetensionSettingRoute.params.bucketName}
+          <ConstrainedText
+            text={matchBucketRetensionSettingRoute.params.bucketName}
+          />
         </Link>
       </label>,
-      <label key="bucket-name">Object-lock settings</label>,
+      <label key="bucket-name">
+        <ConstrainedText text={'Object-lock settings'} />
+      </label>,
     ];
   }
 
@@ -160,7 +174,11 @@ export const breadcrumbPathsBuckets = (
   });
 
   if (matchBucketsRoute) {
-    return [<label key="buckets">All Buckets</label>];
+    return [
+      <label key="buckets">
+        <ConstrainedText text={'All Buckets'} />
+      </label>,
+    ];
   }
 
   return [];
