@@ -1,4 +1,10 @@
-import { getByRole, getByText, screen, waitFor } from '@testing-library/react';
+import {
+  getAllByRole,
+  getByRole,
+  getByText,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
@@ -106,13 +112,14 @@ describe('TransitionForm', () => {
     //V
     //State to be in the document
     const general = screen.getByText(/General/i);
-    const stateContainer = general.parentElement!.parentElement!;
-    const stateToggle = getByRole(stateContainer, 'checkbox', hidden);
+    const stateContainer = general.parentElement!.parentElement!.parentElement!;
+    const stateToggle = getAllByRole(stateContainer, 'checkbox', hidden)[0];
     expect(stateToggle).toBeInTheDocument();
 
     //Source bucket name to be in the document
     const source = screen.getAllByText(/Source/i)[0]!;
-    const sourceBucketContainer = source.parentElement!.parentElement!;
+    const sourceBucketContainer =
+      source.parentElement!.parentElement!.parentElement!;
     const sourceInput = getByRole(sourceBucketContainer, 'textbox', hidden);
     expect(sourceInput).toBeInTheDocument();
 
