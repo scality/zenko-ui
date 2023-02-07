@@ -1,5 +1,6 @@
 import React from 'react';
-import MonacoEditor, { EditorProps } from '@monaco-editor/react';
+import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
+loader.config({ paths: { vs: '/vs' } });
 
 type Props = {
   width?: string;
@@ -29,7 +30,7 @@ const Editor = ({
     onChange={onChange}
     keepCurrentModel={true}
     saveViewState={false}
-    options={{readOnly}}
+    options={{ readOnly }}
     {...rest}
   />
 );

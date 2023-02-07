@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const revision = require('child_process')
   .execSync('git rev-parse HEAD')
@@ -23,7 +24,7 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
-        exclude: /node_modules/,
+        exclude: /node_modules(?!\/monaco-editor)/,
         use: {
           loader: 'babel-loader',
         },
@@ -68,6 +69,9 @@ module.exports = {
     ],
   },
   plugins: [
+    new MonacoWebpackPlugin({
+      languages: ['json'],
+    }),
     new HtmlWebPackPlugin({
       template: './src/index-template.html',
       filename: './index.html',
