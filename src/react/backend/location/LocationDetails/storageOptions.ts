@@ -202,6 +202,5 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: true,
     hasIcon: false,
-    hidden: true,
   },
 };
