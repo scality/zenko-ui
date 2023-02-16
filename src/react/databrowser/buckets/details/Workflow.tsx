@@ -44,6 +44,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
         flex: 2,
       },
       Cell: (value) => nameCell(value),
+      width: 0,
     },
     {
       Header: 'Action',
@@ -52,16 +53,19 @@ function Workflow({ bucketName }: { bucketName: string }) {
       cellStyle: {
         flex: 1,
       },
+      width: 0,
     },
     {
       Header: 'Status',
       accessor: 'state',
       cellStyle: {
         flex: 1,
+        textAlign: 'right',
       },
       Cell: ({ value }) => {
         return value ? 'Active' : 'Inactive';
       },
+      width: 0,
     },
   ];
   return (
