@@ -35,7 +35,7 @@ export const transitionSchema = {
   type: Joi.string().required(),
   enabled: Joi.boolean().label('State').required(),
   bucketName: Joi.string().label('Bucket Name').required(),
-  applyToVersion: Joi.string().valid('current', 'previous').required(),
+  applyToVersion: Joi.string().valid('current', 'noncurrent').required(),
   locationName: Joi.string().label('Location Name').required(),
   triggerDelayDate: Joi.string().optional().allow(null, ''),
   triggerDelayDays: Joi.number().min(1).label('Trigger delay days').required(),
@@ -276,7 +276,7 @@ export const TransitionForm = ({
                   <F.Input
                     type="radio"
                     id="previous"
-                    value="previous"
+                    value="noncurrent"
                     {...register(`${prefix}applyToVersion`)}
                     disabled={isPreviousVersionDisabled}
                   />
