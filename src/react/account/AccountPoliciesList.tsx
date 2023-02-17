@@ -203,7 +203,21 @@ const DeletePolicyAction = ({
   const [showModal, setShowModal] = useState(false);
   const isInternalPolicy = path.includes('scality-internal');
   const deletePolicyMutation = useMutation(
-    (arn: string) => {
+    async (arn: string) => {
+      const policyVersions = await IAMClient.listPolicyVersions(arn);
+
+      if (policyVersions.Versions && policyVersions.Versions.length > 1) {
+        const nonDefaultPolicyVersions = policyVersions.Versions.filter(
+          (policyVersion) => !policyVersion.IsDefaultVersion,
+        );
+        for (let iter = 0; iter < nonDefaultPolicyVersions.length; iter++) {
+          await IAMClient.deletePolicyVersion(
+            arn,
+            notFalsyTypeGuard(nonDefaultPolicyVersions[iter].VersionId),
+          );
+        }
+      }
+
       return IAMClient.deletePolicy(arn);
     },
     {
