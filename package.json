@@ -11,7 +11,8 @@
     "start:dev": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack -p --progress --config webpack.prod.js",
     "cypress:run": "cypress run",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "jest-preview": "jest-preview"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,7 @@
     "html-webpack-plugin": "^4.0.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^25.3.0",
+    "jest-preview": "^0.3.1",
     "monaco-editor": "^0.34.1",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "msw": "0.36.8",

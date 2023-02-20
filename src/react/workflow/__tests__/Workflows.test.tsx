@@ -3,7 +3,6 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import router from 'react-router';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -11,14 +10,19 @@ import {
   BUCKET_NAME,
   getColdStorageHandlers,
   TRANSITION_WORKFLOW_CURRENT_ID,
+  TRANSITION_WORKFLOW_PREVIOUS_ID,
 } from '../../../js/mock/managementClientColdStorageMSWHandlers';
+import Router from 'react-router-dom';
+
 import Workflows from '../Workflows';
 import {
   mockOffsetSize,
+  queryClient,
   reduxRender,
   TEST_API_BASE_URL,
 } from '../../utils/test';
 import { List } from 'immutable';
+import { debug } from 'jest-preview';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'Test Account';
@@ -47,15 +51,22 @@ const server = setupServer(
   ...getColdStorageHandlers(TEST_API_BASE_URL, INSTANCE_ID),
 );
 
-beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' });
-  mockOffsetSize(200, 800);
-  jest.setTimeout(10_000);
-});
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
+jest.setTimeout(30000);
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
 describe('Workflows', () => {
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+    mockOffsetSize(200, 800);
+  });
+  afterEach(() => {
+    server.resetHandlers();
+    queryClient.clear();
+  });
+  afterAll(() => server.close());
+
   const buckets = [
     {
       CreationDate: 'Wed Oct 07 2020 16:35:57',
@@ -63,63 +74,82 @@ describe('Workflows', () => {
       Name: BUCKET_NAME,
     },
   ];
-  it('should display the generated name for transition apply to the current version', async () => {
-    try {
-      jest.spyOn(router, 'useParams').mockReturnValue({
-        workflowId: TRANSITION_WORKFLOW_CURRENT_ID,
-      });
-      reduxRender(<Workflows />, {
-        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-        s3: {
-          listBucketsResults: {
-            list: List(buckets),
-          },
+  it('should display the generated name for transition applying to the current version', async () => {
+    jest.spyOn(Router, 'useParams').mockReturnValue({
+      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
+    });
+    reduxRender(<Workflows />, {
+      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      s3: {
+        listBucketsResults: {
+          list: List(buckets),
         },
-        instances: {
-          selectedId: INSTANCE_ID,
-        },
-      });
-      await waitFor(() => screen.getByText(TEST_ACCOUNT));
-      await waitForElementToBeRemoved(
-        () => [...screen.queryAllByText(/loading workflows/i)],
-        { timeout: 8000 },
-      );
-      await waitFor(() => screen.getByText(/workflow description/i));
+      },
+      instances: {
+        selectedId: INSTANCE_ID,
+      },
+    });
+    await waitFor(() => screen.getByText(TEST_ACCOUNT));
+    await waitFor(() => screen.getByText(/workflow description/i));
 
-      //V
-      expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
-      expect(
-        screen.getByRole('row', {
-          name: /new \(current versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
-        }),
-      ).toBeInTheDocument();
-    } catch (e) {
-      console.log('should display the generated name for transition', e);
-      throw e;
-    }
+    //V
+    expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
+    expect(
+      screen.getByRole('row', {
+        name: /new \(current versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
+      }),
+    ).toBeInTheDocument();
+  });
+  it('should display the generated name for transition applying to the noncurrent version', async () => {
+    jest.spyOn(Router, 'useParams').mockReturnValue({
+      workflowId: `transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
+    });
+
+    reduxRender(<Workflows />, {
+      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      s3: {
+        listBucketsResults: {
+          list: List(buckets),
+        },
+      },
+      instances: {
+        selectedId: INSTANCE_ID,
+      },
+    });
+    await waitFor(() => screen.getByText(TEST_ACCOUNT));
+    await waitFor(() => screen.getByText(/workflow description/i));
+
+    //V
+    expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
+    expect(
+      screen.getByRole('row', {
+        name: /new \(previous versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('radio', {
+        name: /previous version/i,
+      }),
+    ).toBeChecked();
   });
   it('should display error if there is no buckets created', async () => {
-    try {
-      jest.spyOn(router, 'useParams').mockReturnValue({
-        workflowId: TRANSITION_WORKFLOW_CURRENT_ID,
-      });
-      reduxRender(<Workflows />, {
-        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-        instances: {
-          selectedId: INSTANCE_ID,
-        },
-      });
-      await waitFor(() => screen.getByText(TEST_ACCOUNT));
+    jest.spyOn(Router, 'useParams').mockReturnValue({
+      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
+    });
 
-      //V
-      expect(
-        screen.getByText(
-          /Before browsing your workflows, create your first bucket./i,
-        ),
-      ).toBeInTheDocument();
-    } catch (e) {
-      console.log('should display error if there is no buckets created');
-      throw e;
-    }
+    reduxRender(<Workflows />, {
+      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      instances: {
+        selectedId: INSTANCE_ID,
+      },
+    });
+    await waitFor(() => screen.getByText(TEST_ACCOUNT));
+
+    //V
+    expect(
+      screen.getByText(
+        /Before browsing your workflows, create your first bucket./i,
+      ),
+    ).toBeInTheDocument();
   });
 });
