@@ -199,6 +199,7 @@ describe('TransitionForm', () => {
     ).not.toBeDisabled();
   });
 
+  //Skipped because we don't display the helper text anymore as the transition table as been removed
   it.skip('should display an helper text when number of days is singular and target location are selected', () => {
     //E
     //Set target location and triggerDelayDays to 1
@@ -229,6 +230,7 @@ describe('TransitionForm', () => {
     );
   });
 
+  //Skipped because we don't display the helper text anymore as the transition table as been removed
   it.skip('should display an helper text when number of days is plural and target location are selected', () => {
     //E
     //Set target location and triggerDelayDays to more than 1
@@ -302,6 +304,44 @@ describe('TransitionForm', () => {
     expect(screen.getByText(/Form is valid/i)).toBeInTheDocument();
   });
 
+  it('should be valid when all required fileds are filled and using 0 as the trigger days', async () => {
+    //E
+    //Fill in all required fields
+    const sourceBucketContainer =
+      screen.getByText(/Bucket Name/i).parentElement!.parentElement!
+        .parentElement!.parentElement!;
+    userEvent.click(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
+    userEvent.click(
+      screen.getByRole('option', {
+        name: new RegExp(`${notVersionedBucket} \\(us-east-1 / \\)`, 'i'),
+      }),
+    );
+    const storageLocationContainer =
+      screen.getByText(/Storage location/i).parentElement!.parentElement!
+        .parentElement!.parentElement!;
+    userEvent.click(
+      notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
+    );
+    userEvent.click(
+      screen.getByRole('option', {
+        name: new RegExp(`${locationName} \\(${locationType}\\)`, 'i'),
+      }),
+    );
+    userEvent.type(
+      screen.getByRole('spinbutton', { name: /Days after object creation/i }),
+      '0',
+    );
+    //V
+    //Check that the form is now valid
+    await waitFor(() =>
+      expect(screen.getByText(/Form is valid/i)).toBeInTheDocument(),
+    );
+    expect(screen.getByText(/Form is valid/i)).toBeInTheDocument();
+  });
+
+  //Skipped because we don't display the transition table anymore
   it.skip('should display the transition table', async () => {
     //E
     const sourceBucketContainer =

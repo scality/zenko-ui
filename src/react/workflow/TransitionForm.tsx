@@ -38,7 +38,7 @@ export const transitionSchema = {
   applyToVersion: Joi.string().valid('current', 'noncurrent').required(),
   locationName: Joi.string().label('Location Name').required(),
   triggerDelayDate: Joi.string().optional().allow(null, ''),
-  triggerDelayDays: Joi.number().min(1).label('Trigger delay days').required(),
+  triggerDelayDays: Joi.number().min(0).label('Trigger delay days').required(),
   filter: Joi.object({
     objectKeyPrefix: Joi.string().label('Prefix').optional().allow(null, ''),
     objectTags: Joi.array()
