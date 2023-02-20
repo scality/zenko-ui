@@ -86,7 +86,7 @@
     "file-loader": "^5.0.2",
     "history": "^4.10.1",
     "immutable": "^4.0.0-rc.12",
-    "luxon": "^2.3.0",
+    "luxon": "^2.5.2",
     "memoize-one": "^5.1.1",
     "oidc-client": "^1.10.1",
     "polished": "3.4.1",
