@@ -210,12 +210,14 @@ const DeletePolicyAction = ({
         const nonDefaultPolicyVersions = policyVersions.Versions.filter(
           (policyVersion) => !policyVersion.IsDefaultVersion,
         );
-        for (let iter = 0; iter < nonDefaultPolicyVersions.length; iter++) {
-          await IAMClient.deletePolicyVersion(
-            arn,
-            notFalsyTypeGuard(nonDefaultPolicyVersions[iter].VersionId),
-          );
-        }
+        await Promise.all(
+          nonDefaultPolicyVersions.map(async (policyVersion) =>
+            IAMClient.deletePolicyVersion(
+              arn,
+              notFalsyTypeGuard(policyVersion.VersionId),
+            ),
+          ),
+        );
       }
 
       return IAMClient.deletePolicy(arn);
