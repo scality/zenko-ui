@@ -118,22 +118,19 @@ export const TEST_MANAGEMENT_CLIENT = new UiFacingApi(
   `${TEST_API_BASE_URL}/api/v1`,
   fetch,
 );
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 export const Wrapper = ({ children }: { children: ReactNode }) => {
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
   return (
-    <QueryClientProvider
-      client={
-        new QueryClient({
-          defaultOptions: {
-            queries: {
-              retry: false,
-            },
-          },
-        })
-      }
-    >
+    <QueryClientProvider client={queryClient}>
       <Router history={history}>
         <_DataServiceRoleContext.Provider value={{ role }}>
           <_IAMContext.Provider
