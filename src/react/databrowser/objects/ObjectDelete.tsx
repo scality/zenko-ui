@@ -136,15 +136,129 @@ export const getMessagesAndRequiredActions = ({
   isBucketVersioned,
   objectsLockedInComplianceModeLength,
   objectsLockedInGovernanceModeLength,
+  objectsLockedInLegalHoldLength,
 }) => {
-  if (isBucketVersionned && selectedObjectsAreSpecificVersions) {
+  if (isBucketVersioned) {
+    // default version handling
+    if (!selectedObjectsAreSpecificVersions) {
+      // it would seem that the checks for governance and compliance mode are unnecessary, as both return the same object (at least according to the excel sheet)
+      if (objectsLockedInGovernanceModeLength > 0) {
+        return {
+          info: `Delete ${maybePluralize(
+            numberOfObjects,
+            'marker',
+            's',
+            false,
+          )} will be added to the ${maybePluralize(
+            numberOfObjects,
+            'object',
+            's',
+            false,
+          )}.`,
+          warnings: [],
+          checkboxRequired: false,
+          confirmationRequired: false,
+          isDeletionPossible: true,
+        };
+      }
+
+      if (objectsLockedInComplianceModeLength > 0) {
+        return {
+          info: `Delete ${maybePluralize(
+            numberOfObjects,
+            'marker',
+            's',
+            false,
+          )} will be added to the ${maybePluralize(
+            numberOfObjects,
+            'object',
+            's',
+            false,
+          )}.`,
+          warnings: [],
+          checkboxRequired: false,
+          confirmationRequired: false,
+          isDeletionPossible: true,
+        };
+      }
+
+      return {
+        info: `Delete ${maybePluralize(
+          numberOfObjects,
+          'marker',
+          's',
+          false,
+        )} will be added to the ${maybePluralize(
+          numberOfObjects,
+          'object',
+          's',
+          false,
+        )}.`,
+        warnings: [],
+        checkboxRequired: false,
+        confirmationRequired: false,
+        isDeletionPossible: true,
+      };
+    }
+    // specific version handling
+    else {
+      if (objectsLockedInGovernanceModeLength > 0) {
+        return {
+          info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
+          warnings: ['Protected (governance), will be deleted'],
+          checkboxRequired: false,
+          confirmationRequired: true,
+          isDeletionPossible: true,
+        };
+      }
+
+      if (objectsLockedInComplianceModeLength > 0) {
+        return {
+          info: 'Warning: Objects under compliance retention cannot be deleted.',
+          warnings: ["Protected (compliance), won't be deleted"],
+          checkboxRequired: false,
+          confirmationRequired: false,
+          isDeletionPossible: false,
+        };
+      }
+
+      if (objectsLockedInLegalHoldLength > 0) {
+        return {
+          info: 'Warning: Object versions with Legal Hold cannot be deleted.',
+          warnings: ["Protected (legal hold), won't be deleted"],
+          checkboxRequired: false,
+          confirmationRequired: false,
+          isDeletionPossible: false,
+        };
+      }
+
+      return {
+        info: `The selected ${maybePluralize(
+          numberOfObjects,
+          'version',
+          's',
+          false,
+        )} will be permanently deleted.`,
+        warnings: [],
+        checkboxRequired: true,
+        confirmationRequired: false,
+        isDeletionPossible: true,
+      };
+    }
   }
 
+  // non-versioned-bucket
   return {
-    info: '',
-    warnings: ['', ''],
-    checkboxRequired: false,
+    info: `The selected ${maybePluralize(
+      numberOfObjects,
+      'object',
+      's',
+      false,
+    )} will be permanently deleted.`,
+    warnings: [],
+    checkboxRequired: true,
     confirmationRequired: false,
+    isDeletionPossible: true,
   };
 };
 

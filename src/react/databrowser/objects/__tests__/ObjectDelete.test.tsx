@@ -95,44 +95,50 @@ describe('ObjectDelete', () => {
 
 describe.only('getMessagesAndRequiredActions', () => {
   //Singular messages tests
-  it('should display permanently removal info banner when removing an object on a non versioned bucket', () => {
-    const result = getMessagesAndRequiredActions({
+  it.only('should display permanently removal info banner when removing an object on a non versioned bucket', () => {
+    const resultOneObject = getMessagesAndRequiredActions({
       isBucketVersioned: false,
       numberOfObjects: 1,
       objectsLockedInComplianceModeLength: 0,
       objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
       selectedObjectsAreSpecificVersions: false,
     });
-    expect(result).toStrictEqual({
+
+    expect(resultOneObject).toStrictEqual({
       info: 'The selected object will be permanently deleted.',
       warnings: [],
       checkboxRequired: true,
       confirmationRequired: false,
+      isDeletionPossible: true,
     });
   });
 
-  it('should display delete marker info banner when removing the default version of a versioned object', () => {
+  it.only('should display delete marker info banner when removing the default version of a versioned object', () => {
     const result = getMessagesAndRequiredActions({
       isBucketVersioned: true,
       numberOfObjects: 1,
       objectsLockedInComplianceModeLength: 0,
       objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
       selectedObjectsAreSpecificVersions: false,
     });
     expect(result).toStrictEqual({
-      info: 'A delete marker will be added to the object.',
+      info: 'Delete marker will be added to the object.',
       warnings: [],
       checkboxRequired: false,
       confirmationRequired: false,
+      isDeletionPossible: true,
     });
   });
 
-  it('should display permanently removal info banner when removing a specific version of a versioned object', () => {
+  it.only('should display permanently removal info banner when removing a specific version of a versioned object', () => {
     const result = getMessagesAndRequiredActions({
       isBucketVersioned: true,
       numberOfObjects: 1,
       objectsLockedInComplianceModeLength: 0,
       objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
       selectedObjectsAreSpecificVersions: true,
     });
     expect(result).toStrictEqual({
@@ -140,65 +146,251 @@ describe.only('getMessagesAndRequiredActions', () => {
       warnings: [],
       checkboxRequired: true,
       confirmationRequired: false,
+      isDeletionPossible: true,
     });
   });
 
-  it('should display delete marker info banner when removing the default version of a versioned locked object in Governance Mode', () => {
+  it.only('should display delete marker info banner when removing the default version of a versioned locked object in Governance Mode', () => {
     const result = getMessagesAndRequiredActions({
       isBucketVersioned: true,
       numberOfObjects: 1,
       objectsLockedInComplianceModeLength: 0,
       objectsLockedInGovernanceModeLength: 1,
-      selectedObjectsAreSpecificVersions: true,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
     });
     expect(result).toStrictEqual({
-      info: 'A delete marker will be added to the object.',
+      info: 'Delete marker will be added to the object.',
       warnings: [],
-      checkboxRequired: true,
+      checkboxRequired: false,
       confirmationRequired: false,
+      isDeletionPossible: true,
     });
   });
 
-  it('should display delete marker info banner when removing the default version of a versioned locked object in Compliance Mode', () => {
+  it.only('should display delete marker info banner when removing the default version of a versioned locked object in Compliance Mode', () => {
     const result = getMessagesAndRequiredActions({
       isBucketVersioned: true,
       numberOfObjects: 1,
       objectsLockedInComplianceModeLength: 1,
       objectsLockedInGovernanceModeLength: 0,
-      selectedObjectsAreSpecificVersions: true,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
     });
     expect(result).toStrictEqual({
-      info: 'The selected version will be permanently deleted.',
-      warnings: [
-        'By confirming, you indicate that you want to bypass the governance retention protecting objects.',
-      ],
-      checkboxRequired: true,
+      info: 'Delete marker will be added to the object.',
+      warnings: [],
+      checkboxRequired: false,
       confirmationRequired: false,
+      isDeletionPossible: true,
     });
   });
 
-  it('should display permanently removal warning banner when removing a specific version of a versioned locked object in Governance Mode', () => {});
+  it.only('should display permanently removal warning banner when removing a specific version of a versioned locked object in Governance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 1,
+      objectsLockedInGovernanceModeLength: 1,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: true,
+    });
 
-  it('should display impossible removal warning banner when removing a specific version of a versioned locked object in Compliance Mode', () => {});
+    expect(result).toStrictEqual({
+      info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
+      warnings: ['Protected (governance), will be deleted'],
+      checkboxRequired: false,
+      confirmationRequired: true,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display impossible removal warning banner when removing a specific version of a versioned locked object with legal hold', () => {});
+  it.only('should display impossible removal warning banner when removing a specific version of a versioned locked object in Compliance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 1,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInComplianceModeLength: 1,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: true,
+    });
+
+    expect(result).toStrictEqual({
+      info: 'Warning: Objects under compliance retention cannot be deleted.',
+      warnings: ["Protected (compliance), won't be deleted"],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: false,
+    });
+  });
+
+  it.only('should display impossible removal warning banner when removing a specific version of a versioned locked object with legal hold', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 1,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInLegalHoldLength: 1,
+      selectedObjectsAreSpecificVersions: true,
+    });
+
+    expect(result).toStrictEqual({
+      info: 'Warning: Object versions with Legal Hold cannot be deleted.',
+      warnings: ["Protected (legal hold), won't be deleted"],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: false,
+    });
+  });
 
   //Plural messages tests
-  it('should display permanently removal plural info banner when removing some object on a non versioned bucket', () => {});
+  it.only('should display permanently removal plural info banner when removing some object on a non versioned bucket', () => {
+    const resultManyObjects = getMessagesAndRequiredActions({
+      isBucketVersioned: false,
+      numberOfObjects: 3,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
+    });
 
-  it('should display delete marker plural info banner when removing the default version of some versioned object', () => {});
+    expect(resultManyObjects).toStrictEqual({
+      info: 'The selected objects will be permanently deleted.',
+      warnings: [],
+      checkboxRequired: true,
+      confirmationRequired: false,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display permanently removal plural info banner when removing a specific version of some versioned object', () => {});
+  it.only('should display delete marker plural info banner when removing the default version of some versioned object', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
+    });
+    expect(result).toStrictEqual({
+      info: 'Delete markers will be added to the objects.',
+      warnings: [],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display delete marker plural info banner when removing the default version of some versioned locked object in Governance Mode', () => {});
+  it.only('should display permanently removal plural info banner when removing a specific version of some versioned object', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: true,
+    });
+    expect(result).toStrictEqual({
+      info: 'The selected versions will be permanently deleted.',
+      warnings: [],
+      checkboxRequired: true,
+      confirmationRequired: false,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display delete marker plural info banner when removing the default version of some versioned locked object in Compliance Mode', () => {});
+  it.only('should display delete marker plural info banner when removing the default version of some versioned locked object in Governance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInGovernanceModeLength: 3,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
+    });
+    expect(result).toStrictEqual({
+      info: 'Delete markers will be added to the objects.',
+      warnings: [],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display permanently removal plural warning banner when removing a specific version of some versioned locked object in Governance Mode', () => {});
+  it.only('should display delete marker plural info banner when removing the default version of some versioned locked object in Compliance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInComplianceModeLength: 3,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: false,
+    });
+    expect(result).toStrictEqual({
+      info: 'Delete markers will be added to the objects.',
+      warnings: [],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: true,
+    });
+  });
 
-  it('should display impossible removal plural warning banner when removing a specific version of some versioned locked object in Compliance Mode', () => {});
+  it.only('should display permanently removal plural warning banner when removing a specific version of some versioned locked object in Governance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInGovernanceModeLength: 3,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: true,
+    });
 
-  it('should display impossible removal plural warning banner when removing a specific version of some versioned locked object with legal hold', () => {});
+    expect(result).toStrictEqual({
+      info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
+      warnings: ['Protected (governance), will be deleted'],
+      checkboxRequired: false,
+      confirmationRequired: true,
+      isDeletionPossible: true,
+    });
+  });
+
+  it.only('should display impossible removal plural warning banner when removing a specific version of some versioned locked object in Compliance Mode', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInComplianceModeLength: 3,
+      objectsLockedInLegalHoldLength: 0,
+      selectedObjectsAreSpecificVersions: true,
+    });
+
+    expect(result).toStrictEqual({
+      info: 'Warning: Objects under compliance retention cannot be deleted.',
+      warnings: ["Protected (compliance), won't be deleted"],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: false,
+    });
+  });
+
+  it('should display impossible removal plural warning banner when removing a specific version of some versioned locked object with legal hold', () => {
+    const result = getMessagesAndRequiredActions({
+      isBucketVersioned: true,
+      numberOfObjects: 3,
+      objectsLockedInGovernanceModeLength: 0,
+      objectsLockedInComplianceModeLength: 0,
+      objectsLockedInLegalHoldLength: 3,
+      selectedObjectsAreSpecificVersions: true,
+    });
+
+    expect(result).toStrictEqual({
+      info: 'Warning: Object versions with Legal Hold cannot be deleted.',
+      warnings: ["Protected (legal hold), won't be deleted"],
+      checkboxRequired: false,
+      confirmationRequired: false,
+      isDeletionPossible: false,
+    });
+  });
 
   it('should display all warning messages when deleting locked object in several mode and non locked objects', () => {});
 });
