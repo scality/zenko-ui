@@ -137,50 +137,57 @@ export const getMessagesAndRequiredActions = ({
   objectsLockedInComplianceModeLength,
   objectsLockedInGovernanceModeLength,
   objectsLockedInLegalHoldLength,
+}: {
+  numberOfObjects: number;
+  selectedObjectsAreSpecificVersions: boolean;
+  isBucketVersioned: boolean;
+  objectsLockedInComplianceModeLength: number;
+  objectsLockedInGovernanceModeLength: number;
+  objectsLockedInLegalHoldLength: number;
 }) => {
   if (isBucketVersioned) {
     // default version handling
     if (!selectedObjectsAreSpecificVersions) {
       // it would seem that the checks for governance and compliance mode are unnecessary, as both return the same object (at least according to the excel sheet)
-      if (objectsLockedInGovernanceModeLength > 0) {
-        return {
-          info: `Delete ${maybePluralize(
-            numberOfObjects,
-            'marker',
-            's',
-            false,
-          )} will be added to the ${maybePluralize(
-            numberOfObjects,
-            'object',
-            's',
-            false,
-          )}.`,
-          warnings: [],
-          checkboxRequired: false,
-          confirmationRequired: false,
-          isDeletionPossible: true,
-        };
-      }
+      // if (objectsLockedInGovernanceModeLength > 0) {
+      //   return {
+      //     info: `Delete ${maybePluralize(
+      //       numberOfObjects,
+      //       'marker',
+      //       's',
+      //       false,
+      //     )} will be added to the ${maybePluralize(
+      //       numberOfObjects,
+      //       'object',
+      //       's',
+      //       false,
+      //     )}.`,
+      //     warnings: [],
+      //     checkboxRequired: false,
+      //     confirmationRequired: false,
+      //     isDeletionPossible: true,
+      //   };
+      // }
 
-      if (objectsLockedInComplianceModeLength > 0) {
-        return {
-          info: `Delete ${maybePluralize(
-            numberOfObjects,
-            'marker',
-            's',
-            false,
-          )} will be added to the ${maybePluralize(
-            numberOfObjects,
-            'object',
-            's',
-            false,
-          )}.`,
-          warnings: [],
-          checkboxRequired: false,
-          confirmationRequired: false,
-          isDeletionPossible: true,
-        };
-      }
+      // if (objectsLockedInComplianceModeLength > 0) {
+      //   return {
+      //     info: `Delete ${maybePluralize(
+      //       numberOfObjects,
+      //       'marker',
+      //       's',
+      //       false,
+      //     )} will be added to the ${maybePluralize(
+      //       numberOfObjects,
+      //       'object',
+      //       's',
+      //       false,
+      //     )}.`,
+      //     warnings: [],
+      //     checkboxRequired: false,
+      //     confirmationRequired: false,
+      //     isDeletionPossible: true,
+      //   };
+      // }
 
       return {
         info: `Delete ${maybePluralize(
@@ -202,6 +209,30 @@ export const getMessagesAndRequiredActions = ({
     }
     // specific version handling
     else {
+      // can't delete, return early
+      if (
+        objectsLockedInComplianceModeLength > 0 ||
+        objectsLockedInLegalHoldLength > 0
+      ) {
+        const warnings = [];
+
+        if (objectsLockedInComplianceModeLength > 0) {
+          warnings.push("Protected (compliance), won't be deleted");
+        }
+        if (objectsLockedInLegalHoldLength > 0) {
+          warnings.push("Protected (legal hold), won't be deleted");
+        }
+
+        return {
+          info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
+          warnings,
+          checkboxRequired: false,
+          confirmationRequired: false,
+          isDeletionPossible: false,
+        };
+      }
+
+      // can delete with proper access
       if (objectsLockedInGovernanceModeLength > 0) {
         return {
           info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
@@ -212,26 +243,7 @@ export const getMessagesAndRequiredActions = ({
         };
       }
 
-      if (objectsLockedInComplianceModeLength > 0) {
-        return {
-          info: 'Warning: Objects under compliance retention cannot be deleted.',
-          warnings: ["Protected (compliance), won't be deleted"],
-          checkboxRequired: false,
-          confirmationRequired: false,
-          isDeletionPossible: false,
-        };
-      }
-
-      if (objectsLockedInLegalHoldLength > 0) {
-        return {
-          info: 'Warning: Object versions with Legal Hold cannot be deleted.',
-          warnings: ["Protected (legal hold), won't be deleted"],
-          checkboxRequired: false,
-          confirmationRequired: false,
-          isDeletionPossible: false,
-        };
-      }
-
+      // can delete with checkbox
       return {
         info: `The selected ${maybePluralize(
           numberOfObjects,
