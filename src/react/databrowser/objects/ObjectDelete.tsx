@@ -148,47 +148,6 @@ export const getMessagesAndRequiredActions = ({
   if (isBucketVersioned) {
     // default version handling
     if (!selectedObjectsAreSpecificVersions) {
-      // it would seem that the checks for governance and compliance mode are unnecessary, as both return the same object (at least according to the excel sheet)
-      // if (objectsLockedInGovernanceModeLength > 0) {
-      //   return {
-      //     info: `Delete ${maybePluralize(
-      //       numberOfObjects,
-      //       'marker',
-      //       's',
-      //       false,
-      //     )} will be added to the ${maybePluralize(
-      //       numberOfObjects,
-      //       'object',
-      //       's',
-      //       false,
-      //     )}.`,
-      //     warnings: [],
-      //     checkboxRequired: false,
-      //     confirmationRequired: false,
-      //     isDeletionPossible: true,
-      //   };
-      // }
-
-      // if (objectsLockedInComplianceModeLength > 0) {
-      //   return {
-      //     info: `Delete ${maybePluralize(
-      //       numberOfObjects,
-      //       'marker',
-      //       's',
-      //       false,
-      //     )} will be added to the ${maybePluralize(
-      //       numberOfObjects,
-      //       'object',
-      //       's',
-      //       false,
-      //     )}.`,
-      //     warnings: [],
-      //     checkboxRequired: false,
-      //     confirmationRequired: false,
-      //     isDeletionPossible: true,
-      //   };
-      // }
-
       return {
         info: `Delete ${maybePluralize(
           numberOfObjects,
@@ -286,6 +245,7 @@ const ObjectDelete = ({
   const dispatch: DispatchAPI<Action> = useDispatch();
 
   const [toggledFiles, setToggledFiles] = useState([...toggled]);
+
   const hasLockedFiles = toggledFiles.some(
     (file) => file.lockStatus === 'LOCKED',
   );
@@ -300,12 +260,64 @@ const ObjectDelete = ({
     toggledFiles,
     bucketInfo.isVersioning,
   );
-  const markersStr = maybePluralize(toggled.size, 'marker', 's', false);
-  const objectsStr = maybePluralize(toggled.size, 'object', 's', false);
-  const versionsStr = maybePluralize(toggled.size, 'version', 's', false);
-  const notificationText = !isCurrentSelectionPermanentlyDeleted
-    ? `Delete ${markersStr} will be added to the selected ${objectsStr}.`
-    : `The selected ${versionsStr} will be permanently deleted from the Bucket.`;
+
+  // figure out how to obtain the the input parameters for the function
+  /*
+  numberOfObjects, - toggled.size
+  selectedObjectsAreSpecificVersions - isCurrentSelectionPermanentlyDeleted,
+  isBucketVersioned - bucketInfo.isVersioning,
+  objectsLockedInComplianceModeLength ,
+  objectsLockedInGovernanceModeLength,
+  objectsLockedInLegalHoldLength,
+  */
+
+  const objectsLockedInComplianceModeLength = toggledFiles.filter(
+    (file) =>
+      file.lockStatus === 'LOCKED' &&
+      file.objectRetention.mode === 'COMPLIANCE',
+  ).length;
+
+  const objectsLockedInGovernanceModeLength = toggledFiles.filter(
+    (file) =>
+      file.lockStatus === 'LOCKED' &&
+      file.objectRetention.mode === 'GOVERNANCE',
+  ).length;
+
+  const objectsLockedInLegalHoldLength = toggledFiles.filter(
+    (file) => file.isLegalHoldEnabled,
+  ).length;
+
+  console.log(
+    'getMessagesAndRequiredActions',
+    getMessagesAndRequiredActions({
+      numberOfObjects: toggledFiles.length,
+      selectedObjectsAreSpecificVersions: isCurrentSelectionPermanentlyDeleted,
+      isBucketVersioned: bucketInfo.isVersioning,
+      objectsLockedInComplianceModeLength,
+      objectsLockedInGovernanceModeLength,
+      objectsLockedInLegalHoldLength,
+    }),
+  );
+
+  const {
+    info: notificationText,
+    confirmationRequired,
+    checkboxRequired,
+  } = getMessagesAndRequiredActions({
+    numberOfObjects: toggledFiles.length,
+    selectedObjectsAreSpecificVersions: isCurrentSelectionPermanentlyDeleted,
+    isBucketVersioned: bucketInfo.isVersioning,
+    objectsLockedInComplianceModeLength,
+    objectsLockedInGovernanceModeLength,
+    objectsLockedInLegalHoldLength,
+  });
+
+  // const markersStr = maybePluralize(toggled.size, 'marker', 's', false);
+  // const objectsStr = maybePluralize(toggled.size, 'object', 's', false);
+  // const versionsStr = maybePluralize(toggled.size, 'version', 's', false);
+  // const notificationText = !isCurrentSelectionPermanentlyDeleted
+  //   ? `Delete ${markersStr} will be added to the selected ${objectsStr}.`
+  //   : `The selected ${versionsStr} will be permanently deleted from the Bucket.`;
   useEffect(() => {
     setToggledFiles([...toggled]);
   }, [toggled]);
@@ -439,21 +451,19 @@ const ObjectDelete = ({
           <span>{notificationText}</span>
         </Banner>
       )}
-      {isCurrentSelectionPermanentlyDeleted &&
-        !hasLockedFiles &&
-        toggledFiles.length > 0 && (
-          <CheckboxContainer>
-            <Checkbox
-              name="confirmingPemanentDeletion"
-              id="confirmingPemanentDeletionCheckbox"
-              checked={isVersionDeletionConfirmed}
-              label="Confirm the deletion"
-              onChange={() =>
-                setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
-              }
-            />
-          </CheckboxContainer>
-        )}
+      {checkboxRequired && toggledFiles.length > 0 && (
+        <CheckboxContainer>
+          <Checkbox
+            name="confirmingPemanentDeletion"
+            id="confirmingPemanentDeletionCheckbox"
+            checked={isVersionDeletionConfirmed}
+            label="Confirm the deletion"
+            onChange={() =>
+              setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
+            }
+          />
+        </CheckboxContainer>
+      )}
       {hasLockedFiles && (
         <Fragment>
           <SpacedBox mt={12} mb={12}>
@@ -472,14 +482,16 @@ const ObjectDelete = ({
             </div>
             the governance retention.
           </SpacedBox>
-          <SpacedBox mb={8}>
-            <span style={{ marginRight: '0.85rem' }}>
-              Type "confirm" to bypass governance retention:
-            </span>
-            <ConfirmationContext.Provider value={provided}>
-              <ConfirmationInput toggledFiles={toggledFiles} />
-            </ConfirmationContext.Provider>
-          </SpacedBox>
+          {confirmationRequired && (
+            <SpacedBox mb={8}>
+              <span style={{ marginRight: '0.85rem' }}>
+                Type "confirm" to bypass governance retention:
+              </span>
+              <ConfirmationContext.Provider value={provided}>
+                <ConfirmationInput toggledFiles={toggledFiles} />
+              </ConfirmationContext.Provider>
+            </SpacedBox>
+          )}
         </Fragment>
       )}
     </Modal>
