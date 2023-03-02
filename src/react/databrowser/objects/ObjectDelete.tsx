@@ -130,6 +130,64 @@ function ConfirmationInput({ toggledFiles }: { toggledFiles: unknown[] }) {
   );
 }
 
+export const enum WarningTypes {
+  LEGAL_HOLD,
+  COMPLIANCE,
+  GOVERNANCE,
+}
+
+function getWarningBanner(warningType: WarningTypes) {
+  if (warningType === WarningTypes.GOVERNANCE) {
+    return (
+      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+        <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+          At least one object you want to delete is under <br />
+          Object-Lock retention <Icon
+            name="Lock"
+            color="buttonSecondary"
+          />{' '}
+          with governance mode.
+        </Banner>
+        <Box marginTop={spacing.sp8}>
+          <div>
+            Protected versions won't be deleted unless you choose to bypass
+          </div>
+          the governance retention.
+        </Box>
+      </Box>
+    );
+  }
+  if (warningType === WarningTypes.COMPLIANCE) {
+    return (
+      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+        <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+          At least one object you want to delete is under <br />
+          Object-Lock retention <Icon
+            name="Lock"
+            color="buttonSecondary"
+          />{' '}
+          with compliance mode. <br />
+          Object versions under compliance retention cannot be deleted.
+        </Banner>
+      </Box>
+    );
+  }
+
+  if (warningType === WarningTypes.LEGAL_HOLD) {
+    return (
+      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+        <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+          At least one object you want to delete is under <br />
+          Legal Hold <Icon name="Lock" color="buttonSecondary" /> <br /> <br />
+          Object versions with Legal Hold cannot be deleted.
+        </Banner>
+      </Box>
+    );
+  }
+
+  return <></>;
+}
+
 export const getMessagesAndRequiredActions = ({
   numberOfObjects,
   selectedObjectsAreSpecificVersions,
@@ -176,14 +234,14 @@ export const getMessagesAndRequiredActions = ({
         const warnings = [];
 
         if (objectsLockedInComplianceModeLength > 0) {
-          warnings.push("Protected (compliance), won't be deleted");
+          warnings.push(WarningTypes.COMPLIANCE);
         }
         if (objectsLockedInLegalHoldLength > 0) {
-          warnings.push("Protected (legal hold), won't be deleted");
+          warnings.push(WarningTypes.LEGAL_HOLD);
         }
 
         return {
-          info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
+          info: '',
           warnings,
           checkboxRequired: false,
           confirmationRequired: false,
@@ -194,8 +252,18 @@ export const getMessagesAndRequiredActions = ({
       // can delete with proper access
       if (objectsLockedInGovernanceModeLength > 0) {
         return {
-          info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
-          warnings: ['Protected (governance), will be deleted'],
+          info: `Delete ${maybePluralize(
+            numberOfObjects,
+            'marker',
+            's',
+            false,
+          )} will be added to the ${maybePluralize(
+            numberOfObjects,
+            'object',
+            's',
+            false,
+          )}.`,
+          warnings: [WarningTypes.GOVERNANCE],
           checkboxRequired: false,
           confirmationRequired: true,
           isDeletionPossible: true,
@@ -246,9 +314,6 @@ const ObjectDelete = ({
 
   const [toggledFiles, setToggledFiles] = useState([...toggled]);
 
-  const hasLockedFiles = toggledFiles.some(
-    (file) => file.lockStatus === 'LOCKED',
-  );
   const totalSize = useMemo(() => fileSizer(toggledFiles), [toggledFiles]);
 
   const [confirmed, setConfirmed] = useState(false);
@@ -260,16 +325,6 @@ const ObjectDelete = ({
     toggledFiles,
     bucketInfo.isVersioning,
   );
-
-  // figure out how to obtain the the input parameters for the function
-  /*
-  numberOfObjects, - toggled.size
-  selectedObjectsAreSpecificVersions - isCurrentSelectionPermanentlyDeleted,
-  isBucketVersioned - bucketInfo.isVersioning,
-  objectsLockedInComplianceModeLength ,
-  objectsLockedInGovernanceModeLength,
-  objectsLockedInLegalHoldLength,
-  */
 
   const objectsLockedInComplianceModeLength = toggledFiles.filter(
     (file) =>
@@ -303,8 +358,10 @@ const ObjectDelete = ({
     info: notificationText,
     confirmationRequired,
     checkboxRequired,
+    warnings,
+    isDeletionPossible,
   } = getMessagesAndRequiredActions({
-    numberOfObjects: toggledFiles.length,
+    numberOfObjects: toggled.size,
     selectedObjectsAreSpecificVersions: isCurrentSelectionPermanentlyDeleted,
     isBucketVersioned: bucketInfo.isVersioning,
     objectsLockedInComplianceModeLength,
@@ -312,12 +369,6 @@ const ObjectDelete = ({
     objectsLockedInLegalHoldLength,
   });
 
-  // const markersStr = maybePluralize(toggled.size, 'marker', 's', false);
-  // const objectsStr = maybePluralize(toggled.size, 'object', 's', false);
-  // const versionsStr = maybePluralize(toggled.size, 'version', 's', false);
-  // const notificationText = !isCurrentSelectionPermanentlyDeleted
-  //   ? `Delete ${markersStr} will be added to the selected ${objectsStr}.`
-  //   : `The selected ${versionsStr} will be permanently deleted from the Bucket.`;
   useEffect(() => {
     setToggledFiles([...toggled]);
   }, [toggled]);
@@ -385,11 +436,9 @@ const ObjectDelete = ({
             <Button
               id="object-delete-delete-button"
               disabled={
-                toggledFiles.length === 0 ||
-                (hasLockedFiles && !confirmed) ||
-                (isCurrentSelectionPermanentlyDeleted &&
-                  !isVersionDeletionConfirmed &&
-                  !hasLockedFiles)
+                !isDeletionPossible ||
+                (confirmationRequired && !confirmed) ||
+                (checkboxRequired && !isVersionDeletionConfirmed)
               }
               variant="danger"
               onClick={deleteSelectedFiles}
@@ -412,7 +461,7 @@ const ObjectDelete = ({
                   {s.key}
                   <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
                   <Box marginTop={spacing.sp4}>
-                    {s.size && <PrettyBytes bytes={s.size} />}
+                    {s.size && PrettyBytes({ bytes: s.size })}
                     {s.lockStatus === 'LOCKED' && (
                       <Box
                         display="flex"
@@ -439,10 +488,8 @@ const ObjectDelete = ({
           </T.Body>
         </Table>
       </Files>
-      <SpacedBox mb={12}>
-        Total: <PrettyBytes bytes={totalSize} />
-      </SpacedBox>
-      {toggledFiles.length > 0 && (
+      <Box mb={spacing.sp12}>Total: {PrettyBytes({ bytes: totalSize })}</Box>
+      {toggledFiles.length > 0 && notificationText && (
         <Banner
           variant="base"
           id="notification"
@@ -464,36 +511,20 @@ const ObjectDelete = ({
           />
         </CheckboxContainer>
       )}
-      {hasLockedFiles && (
-        <Fragment>
-          <SpacedBox mt={12} mb={12}>
-            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-              At least one object you want to delete is under <br />
-              Object-Lock retention <Icon
-                name="Lock"
-                color="buttonSecondary"
-              />{' '}
-              with governance mode.
-            </Banner>
-          </SpacedBox>
-          <SpacedBox mb={12}>
-            <div>
-              Protected objects won't be deleted unless you choose to bypass
-            </div>
-            the governance retention.
-          </SpacedBox>
-          {confirmationRequired && (
-            <SpacedBox mb={8}>
-              <span style={{ marginRight: '0.85rem' }}>
-                Type "confirm" to bypass governance retention:
-              </span>
-              <ConfirmationContext.Provider value={provided}>
-                <ConfirmationInput toggledFiles={toggledFiles} />
-              </ConfirmationContext.Provider>
-            </SpacedBox>
-          )}
-        </Fragment>
-      )}
+      <Fragment>
+        {warnings.length > 0 &&
+          warnings.map((warning) => getWarningBanner(warning))}
+        {confirmationRequired && (
+          <Box marginBottom={spacing.sp8}>
+            <span style={{ marginRight: '0.85rem' }}>
+              Type "confirm" to bypass governance retention:
+            </span>
+            <ConfirmationContext.Provider value={provided}>
+              <ConfirmationInput toggledFiles={toggledFiles} />
+            </ConfirmationContext.Provider>
+          </Box>
+        )}
+      </Fragment>
     </Modal>
   );
 };

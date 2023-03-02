@@ -5,7 +5,10 @@ import {
 } from '../../../actions/__tests__/utils/testUtil';
 import { BUCKET_INFO } from './utils/testUtil';
 import { List } from 'immutable';
-import ObjectDelete, { getMessagesAndRequiredActions } from '../ObjectDelete';
+import ObjectDelete, {
+  getMessagesAndRequiredActions,
+  WarningTypes,
+} from '../ObjectDelete';
 import React from 'react';
 import { reduxMount } from '../../../utils/test';
 import { act } from 'react-dom/test-utils';
@@ -197,8 +200,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
-      warnings: ['Protected (governance), will be deleted'],
+      info: 'Delete marker will be added to the object.',
+      warnings: [WarningTypes.GOVERNANCE],
       checkboxRequired: false,
       confirmationRequired: true,
       isDeletionPossible: true,
@@ -216,8 +219,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (compliance), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.COMPLIANCE],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -235,8 +238,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (legal hold), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.LEGAL_HOLD],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -346,8 +349,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: "Warning: Protected versions won't be deleted unless you choose to bypass the governance retention.",
-      warnings: ['Protected (governance), will be deleted'],
+      info: 'Delete markers will be added to the objects.',
+      warnings: [WarningTypes.GOVERNANCE],
       checkboxRequired: false,
       confirmationRequired: true,
       isDeletionPossible: true,
@@ -365,8 +368,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (compliance), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.COMPLIANCE],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -384,8 +387,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (legal hold), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.LEGAL_HOLD],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -422,8 +425,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (compliance), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.COMPLIANCE],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -441,8 +444,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: ["Protected (legal hold), won't be deleted"],
+      info: '',
+      warnings: [WarningTypes.LEGAL_HOLD],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
@@ -460,11 +463,8 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Warning: Object versions under compliance retention or legal hold cannot be deleted.',
-      warnings: [
-        "Protected (compliance), won't be deleted",
-        "Protected (legal hold), won't be deleted",
-      ],
+      info: '',
+      warnings: [WarningTypes.COMPLIANCE, WarningTypes.LEGAL_HOLD],
       checkboxRequired: false,
       confirmationRequired: false,
       isDeletionPossible: false,
