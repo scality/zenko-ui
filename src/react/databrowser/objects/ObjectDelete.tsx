@@ -27,7 +27,6 @@ import { maybePluralize } from '../../utils';
 import { useTheme } from 'styled-components';
 import styled from 'styled-components';
 import Input from '../../ui-elements/Input';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
 
 const Files = styled.div`
@@ -141,12 +140,8 @@ function getWarningBanner(warningType: WarningTypes) {
     return (
       <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
         <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-          At least one object you want to delete is under <br />
-          Object-Lock retention <Icon
-            name="Lock"
-            color="buttonSecondary"
-          />{' '}
-          with governance mode.
+          At least one object you want to delete is under Object-Lock retention{' '}
+          <Icon name="Lock" color="buttonSecondary" /> with governance mode.
         </Banner>
         <Box marginTop={spacing.sp8}>
           <div>
@@ -161,12 +156,9 @@ function getWarningBanner(warningType: WarningTypes) {
     return (
       <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
         <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
-          At least one object you want to delete is under <br />
-          Object-Lock retention <Icon
-            name="Lock"
-            color="buttonSecondary"
-          />{' '}
-          with compliance mode. <br />
+          At least one object you want to delete is under Object-Lock retention{' '}
+          <Icon name="Lock" color="buttonSecondary" /> with compliance mode.{' '}
+          <br />
           Object versions under compliance retention cannot be deleted.
         </Banner>
       </Box>
@@ -177,8 +169,8 @@ function getWarningBanner(warningType: WarningTypes) {
     return (
       <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
         <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
-          At least one object you want to delete is under <br />
-          Legal Hold <Icon name="Lock" color="buttonSecondary" /> <br /> <br />
+          At least one object you want to delete is under Legal Hold{' '}
+          <Icon name="Lock" color="buttonSecondary" /> <br />
           Object versions with Legal Hold cannot be deleted.
         </Banner>
       </Box>
@@ -319,12 +311,50 @@ const ObjectDelete = ({
   const [confirmed, setConfirmed] = useState(false);
   const provided = useMemo(() => ({ confirmed, setConfirmed }), [confirmed]);
   const theme = useTheme();
-  const [isVersionDeletionConfirmed, setIsVersionDeletionConfirmed] =
-    useState(false);
+  const [isCheckboxToggled, setIsCheckboxToggled] = useState(false);
   const isCurrentSelectionPermanentlyDeleted = isPermanentDelete(
     toggledFiles,
     bucketInfo.isVersioning,
   );
+
+  const getProtectedDeletionMessage = (file: Record<string, any>) => {
+    if (file.lockStatus === 'LOCKED' && file.versionId) {
+      if (file.objectRetention.mode === 'COMPLIANCE') {
+        return (
+          <Box
+            display="flex"
+            color={theme.brand?.textTertiary}
+            gap={spacing.sp4}
+          >
+            <Icon color="buttonSecondary" name="Lock" />
+            <span>Protected (compliance), won't be deleted</span>
+          </Box>
+        );
+      }
+      if (file.objectRetention.mode === 'GOVERNANCE') {
+        return (
+          <Box
+            display="flex"
+            color={theme.brand?.textTertiary}
+            gap={spacing.sp4}
+          >
+            <Icon color="buttonSecondary" name="Lock" />
+            <span>Protected (governance), will be deleted</span>
+          </Box>
+        );
+      }
+    }
+    if (file.isLegalHoldEnabled && file.versionId) {
+      return (
+        <Box display="flex" color={theme.brand?.textTertiary} gap={spacing.sp4}>
+          <Icon color="buttonSecondary" name="Lock" />
+          <span>Protected (legal hold), won't be deleted</span>
+        </Box>
+      );
+    }
+
+    return <></>;
+  };
 
   const objectsLockedInComplianceModeLength = toggledFiles.filter(
     (file) =>
@@ -341,18 +371,6 @@ const ObjectDelete = ({
   const objectsLockedInLegalHoldLength = toggledFiles.filter(
     (file) => file.isLegalHoldEnabled,
   ).length;
-
-  console.log(
-    'getMessagesAndRequiredActions',
-    getMessagesAndRequiredActions({
-      numberOfObjects: toggledFiles.length,
-      selectedObjectsAreSpecificVersions: isCurrentSelectionPermanentlyDeleted,
-      isBucketVersioned: bucketInfo.isVersioning,
-      objectsLockedInComplianceModeLength,
-      objectsLockedInGovernanceModeLength,
-      objectsLockedInLegalHoldLength,
-    }),
-  );
 
   const {
     info: notificationText,
@@ -377,6 +395,8 @@ const ObjectDelete = ({
     return null;
   }
 
+  console.log(toggledFiles);
+
   const cleanFiles = () => {
     setToggledFiles([]);
     setConfirmed(false);
@@ -384,7 +404,7 @@ const ObjectDelete = ({
 
   const cancel = () => {
     cleanFiles();
-    setIsVersionDeletionConfirmed(false);
+    setIsCheckboxToggled(false);
     dispatch(toggleAllObjects(false));
     dispatch(closeObjectDeleteModal());
   };
@@ -416,7 +436,7 @@ const ObjectDelete = ({
     dispatch(
       deleteFiles(bucketName, prefixWithSlash, [...objects], [...folders]),
     );
-    setIsVersionDeletionConfirmed(false);
+    setIsCheckboxToggled(false);
   };
 
   return (
@@ -438,7 +458,7 @@ const ObjectDelete = ({
               disabled={
                 !isDeletionPossible ||
                 (confirmationRequired && !confirmed) ||
-                (checkboxRequired && !isVersionDeletionConfirmed)
+                (checkboxRequired && !isCheckboxToggled)
               }
               variant="danger"
               onClick={deleteSelectedFiles}
@@ -454,32 +474,22 @@ const ObjectDelete = ({
       <Files>
         <Table>
           <T.Body>
-            {toggledFiles.map((s) => (
-              <T.Row key={s.key}>
+            {toggledFiles.map((toggledFile) => (
+              <T.Row key={toggledFile.key}>
                 <T.Cell>
                   {' '}
-                  {s.key}
-                  <VersionId hidden={!s.versionId}> {s.versionId} </VersionId>
+                  {toggledFile.key}
+                  <VersionId hidden={!toggledFile.versionId}>
+                    {toggledFile.versionId}
+                  </VersionId>
                   <Box marginTop={spacing.sp4}>
-                    {s.size && PrettyBytes({ bytes: s.size })}
-                    {s.lockStatus === 'LOCKED' && (
-                      <Box
-                        display="flex"
-                        color={theme.brand?.textTertiary}
-                        gap={spacing.sp4}
-                      >
-                        <Icon color="buttonSecondary" name="Lock" />
-                        <span>
-                          {confirmed
-                            ? 'Protected, will be deleted'
-                            : 'Protected, will not be deleted'}
-                        </span>
-                      </Box>
-                    )}
+                    {toggledFile.size &&
+                      PrettyBytes({ bytes: toggledFile.size })}
+                    {getProtectedDeletionMessage(toggledFile)}
                   </Box>
                 </T.Cell>
                 <RemoveCell>
-                  <div onClick={() => removeFile(s.key)}>
+                  <div onClick={() => removeFile(toggledFile.key)}>
                     <Icon name="Close" color="buttonSecondary" />
                   </div>
                 </RemoveCell>
@@ -503,11 +513,9 @@ const ObjectDelete = ({
           <Checkbox
             name="confirmingPemanentDeletion"
             id="confirmingPemanentDeletionCheckbox"
-            checked={isVersionDeletionConfirmed}
+            checked={isCheckboxToggled}
             label="Confirm the deletion"
-            onChange={() =>
-              setIsVersionDeletionConfirmed(!isVersionDeletionConfirmed)
-            }
+            onChange={() => setIsCheckboxToggled(!isCheckboxToggled)}
           />
         </CheckboxContainer>
       )}
