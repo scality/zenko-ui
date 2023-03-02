@@ -563,4 +563,20 @@ export default class S3Client {
     };
     return this.client.putObjectLegalHold(params).promise();
   }
+
+  restoreObject(
+    bucketName: string,
+    objectKey: string,
+    restorationDays: number,
+    versionId?: string,
+  ) {
+    return this.client
+      .restoreObject({
+        Bucket: bucketName,
+        Key: objectKey,
+        RestoreRequest: { Days: restorationDays },
+        VersionId: versionId,
+      })
+      .promise();
+  }
 }
