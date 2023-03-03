@@ -4,15 +4,11 @@ import {
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
-import {
-  LIST_OBJECTS_METADATA_TYPE,
-  LIST_OBJECTS_S3_TYPE,
-} from '../../../utils/s3';
+import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
 import { checkBox, reduxMount } from '../../../utils/test';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import { List } from 'immutable';
 import ObjectList from '../ObjectList';
-import React from 'react';
 import router from 'react-router';
 describe('ObjectList', () => {
   beforeAll(() => {
