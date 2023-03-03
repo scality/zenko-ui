@@ -154,17 +154,7 @@ function Properties({ objectMetadata }: Props) {
                     )}
                     <ObjectRestorationButtonAndModal
                       bucketName={bucketInfo?.name || ''}
-                      objectKey={objectMetadata.objectKey}
-                      objectLastModifiesOn={objectMetadata.lastModified}
-                      objectSize={objectMetadata.contentLength}
-                      objectStorageClass={
-                        objectMetadata.storageClass || 'default'
-                      }
-                      objectVersionId={objectMetadata.versionId}
-                      isObjectRestoredOrOnGoing={
-                        objectMetadata.restore?.ongoingRequest ||
-                        !!objectMetadata.restore?.expiryDate
-                      }
+                      objectMetadata={objectMetadata}
                     />
                   </T.GroupValues>
                 </T.Row>

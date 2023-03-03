@@ -46,6 +46,7 @@ export const objectMetadata = {
   versionId: '',
   tags: [],
   lockStatus: 'NONE',
+  storageClass: 'Microsoft Azure Archive',
 };
 export const tags = [
   {

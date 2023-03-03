@@ -15,24 +15,16 @@ import { AWSError } from 'aws-sdk';
 import { getClients } from '../../../utils/actions';
 import { AppState } from '../../../../types/state';
 import { formatShortDate } from '../../../utils';
+import { useTheme } from 'styled-components';
+import { ObjectMetadata } from '../../../../types/s3';
 
 type RestoreObjectType = {
   bucketName: string;
-  objectKey: string;
-  objectLastModifiesOn: string;
-  objectSize: number;
-  objectStorageClass: string;
-  isObjectRestoredOrOnGoing: boolean;
-  objectVersionId?: string;
+  objectMetadata: ObjectMetadata;
 };
 const ObjectRestorationButtonAndModal = ({
   bucketName,
-  objectKey,
-  objectLastModifiesOn,
-  objectSize,
-  objectStorageClass,
-  isObjectRestoredOrOnGoing,
-  objectVersionId,
+  objectMetadata,
 }: RestoreObjectType) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [restorationDays, setRestorationDays] = useState(1);
@@ -43,10 +35,11 @@ const ObjectRestorationButtonAndModal = ({
   };
 
   const ObjectTable = () => {
+    const theme = useTheme();
     return (
       <table style={{ borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid #323245' }}>
+          <tr style={{ borderBottom: `1px solid ${theme.brand.border}` }}>
             <th align="left">Name</th>
             <th align="left">Modification On</th>
             <th align="left">Size</th>
@@ -54,15 +47,15 @@ const ObjectRestorationButtonAndModal = ({
           </tr>
         </thead>
         <tbody>
-          <tr style={{ borderBottom: '1px solid #323245' }}>
-            <td align="left">{objectKey}</td>
+          <tr style={{ borderBottom: `1px solid ${theme.brand.border}` }}>
+            <td align="left">{objectMetadata.objectKey}</td>
             <td align="left">
-              {formatShortDate(new Date(objectLastModifiesOn))}
+              {formatShortDate(new Date(objectMetadata.lastModified))}
             </td>
             <td align="left">
-              <PrettyBytes bytes={objectSize} decimals={1} />
+              <PrettyBytes bytes={objectMetadata.contentLength} decimals={2} />
             </td>
-            <td align="left">{objectStorageClass || 'default'}</td>
+            <td align="left">{objectMetadata.storageClass || 'default'}</td>
           </tr>
         </tbody>
       </table>
@@ -97,8 +90,9 @@ const ObjectRestorationButtonAndModal = ({
                 setRestorationDays(parseInt(e.target.value))
               }
               size="1/3"
+              min={1}
             ></Input>{' '}
-            day(s)
+            day{restorationDays >= 2 ? '(s)' : ''}
           </Stack>
           <Text>
             A temporary copy of your object will be available during a limited
@@ -114,9 +108,9 @@ const ObjectRestorationButtonAndModal = ({
     async () => {
       await zenkoClient.restoreObject(
         bucketName,
-        objectKey,
+        objectMetadata.objectKey,
         restorationDays,
-        objectVersionId,
+        objectMetadata.versionId,
       );
     },
     {
@@ -129,6 +123,10 @@ const ObjectRestorationButtonAndModal = ({
     },
   );
 
+  const isObjectRestoredOrOnGoing =
+    objectMetadata.restore?.ongoingRequest ||
+    !!objectMetadata.restore?.expiryDate;
+
   return (
     <>
       <Button
@@ -138,6 +136,19 @@ const ObjectRestorationButtonAndModal = ({
         disabled={isObjectRestoredOrOnGoing || restore.isLoading}
         label="Restore"
         onClick={() => setIsModalOpen(true)}
+        tooltip={
+          isObjectRestoredOrOnGoing
+            ? {
+                overlay:
+                  'The object is already restored or the restoration is ongoing, hence disable the button.',
+              }
+            : restore.isLoading
+            ? {
+                overlay:
+                  'Disable the button because the restoration is just triggered.',
+              }
+            : undefined
+        }
       ></Button>
       <Modal
         close={handleClose}
@@ -151,6 +162,14 @@ const ObjectRestorationButtonAndModal = ({
                 onClick={() => restore.mutate()}
                 label="Start Restoration"
                 disabled={restore.isLoading}
+                tooltip={
+                  restore.isLoading
+                    ? {
+                        overlay:
+                          'Disable the button because the restoration is just triggered.',
+                      }
+                    : undefined
+                }
               />
             </Stack>
           </Wrap>

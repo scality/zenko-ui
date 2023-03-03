@@ -8,20 +8,18 @@ import {
   TEST_API_BASE_URL,
   Wrapper as wrapper,
 } from '../../../../utils/test';
+import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import ObjectRestorationButtonAndModal from '../ObjectRestorationButtonAndModal';
+import { act } from 'react-dom/test-utils';
 
 const bucketName = 'bucket';
-const objectKey = 'objectKey';
-const versionId = 'VersionId';
-const storageClass = 'Azure archive';
-const lastModified = '2020-07-06 16:22:00';
 
 const server = setupServer(
   rest.post(
-    `${TEST_API_BASE_URL}/${bucketName}/${objectKey}`,
+    `${TEST_API_BASE_URL}/${bucketName}/${OBJECT_METADATA.objectKey}`,
     (req, res, ctx) => {
       if (
-        req.url.searchParams.get('versionId') === versionId &&
+        req.url.searchParams.get('versionId') === OBJECT_METADATA.versionId &&
         req.url.searchParams.has('restore')
       ) {
         return res(ctx.status(202));
@@ -38,17 +36,60 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
+const errorMessage =
+  'The operation is not valid for the current state of the object.';
+const selectors = {
+  restoreButtonSelector: () => screen.getByRole('button', { name: /restore/i }),
+  startRestorationButtonSelector: () =>
+    screen.getByRole('button', {
+      name: /start restoration/i,
+    }),
+  objectTableRowSeletor: () =>
+    screen.getByRole('row', {
+      name: new RegExp(
+        `${OBJECT_METADATA.objectKey} 2020-10-16 10:06:54 4.32 MiB ${OBJECT_METADATA.storageClass}`,
+      ),
+    }),
+  errorBannerSelector: () => screen.getByText(errorMessage),
+  restorationModalSelector: () => screen.queryByText('Restore Object?'),
+};
+
 describe('Object Restoration Button And Modal', () => {
+  it('should close the modal after the restore action is successfully triggered', async () => {
+    //E
+    reduxRender(
+      <ObjectRestorationButtonAndModal
+        bucketName={bucketName}
+        objectMetadata={OBJECT_METADATA}
+      />,
+      { wrapper },
+    );
+    act(() => {
+      userEvent.click(selectors.restoreButtonSelector());
+    });
+    //V
+    expect(selectors.objectTableRowSeletor());
+    //E
+    act(() => {
+      userEvent.click(selectors.startRestorationButtonSelector());
+    });
+    await waitFor(() => {
+      expect(selectors.startRestorationButtonSelector()).toBeDisabled();
+    });
+    //V
+    await waitFor(() => {
+      expect(selectors.restorationModalSelector()).toBeNull();
+    });
+  });
   it('should display error within a banner in case of failure', async () => {
     //S
-    const errorMessage =
-      'The operation is not valid for the current state of the object.';
     server.use(
       rest.post(
-        `${TEST_API_BASE_URL}/${bucketName}/${objectKey}`,
+        `${TEST_API_BASE_URL}/${bucketName}/${OBJECT_METADATA.objectKey}`,
         (req, res, ctx) => {
           if (
-            req.url.searchParams.get('versionId') === versionId &&
+            req.url.searchParams.get('versionId') ===
+              OBJECT_METADATA.versionId &&
             req.url.searchParams.has('restore')
           ) {
             return res(
@@ -71,39 +112,25 @@ describe('Object Restoration Button And Modal', () => {
     reduxRender(
       <ObjectRestorationButtonAndModal
         bucketName={bucketName}
-        objectKey={objectKey}
-        objectStorageClass={storageClass}
-        objectLastModifiesOn={lastModified}
-        objectSize={11114905.6}
-        objectVersionId={versionId}
-        isObjectRestoredOrOnGoing={false}
+        objectMetadata={OBJECT_METADATA}
       />,
       { wrapper },
     );
-    userEvent.click(screen.getByRole('button', { name: /restore/i }));
+    userEvent.click(selectors.restoreButtonSelector());
     //V
-    expect(screen.getByText(objectKey));
-    expect(screen.getByText(lastModified));
-    expect(screen.getByText(lastModified));
-    expect(screen.getByText('10.6 MiB'));
-    expect(screen.getByText(storageClass));
+    expect(selectors.objectTableRowSeletor());
     //E
-    userEvent.click(screen.getByRole('button', { name: /start restoration/i }));
+    userEvent.click(selectors.startRestorationButtonSelector());
     await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /start restoration/i }),
-      ).toBeDisabled();
+      expect(selectors.startRestorationButtonSelector()).toBeDisabled();
     });
     await waitFor(
       () => {
-        expect(
-          screen.getByRole('button', { name: /start restoration/i }),
-        ).toBeEnabled();
+        expect(selectors.startRestorationButtonSelector()).toBeEnabled();
       },
       { timeout: 8_000 },
     );
-
     //V
-    expect(screen.getByText(errorMessage));
+    expect(selectors.errorBannerSelector());
   });
 });
