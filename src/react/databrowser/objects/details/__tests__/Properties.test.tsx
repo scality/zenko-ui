@@ -12,7 +12,7 @@ describe('Properties', () => {
       pathname: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
     });
   });
-  it('Properties should render', () => {
+  it('should render', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
       '0': undefined,
     });
@@ -21,7 +21,7 @@ describe('Properties', () => {
     );
     expect(component.find(Properties).isEmptyRender()).toBe(false);
   });
-  it('Properties should render expected values', () => {
+  it('should render expected values', () => {
     const { component } = reduxMount(
       <Properties objectMetadata={OBJECT_METADATA} />,
     );
@@ -63,7 +63,7 @@ describe('Properties', () => {
       OBJECT_METADATA.eTag,
     );
   });
-  it('Properties should render expected values when object is locked', () => {
+  it('should render expected values when object is locked', () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -96,7 +96,7 @@ describe('Properties', () => {
       seventh.find('button#edit-object-retention-setting-btn').prop('label'),
     ).toBe('Edit');
   });
-  it('Properties should render expected values when lock is released', () => {
+  it('should render expected values when lock is released', () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -129,7 +129,7 @@ describe('Properties', () => {
       seventh.find('button#edit-object-retention-setting-btn').prop('label'),
     ).toBe('Edit');
   });
-  it('Properties should render expected legal hold value when the object lock is set', () => {
+  it('should render expected legal hold value when the object lock is set', () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -160,7 +160,7 @@ describe('Properties', () => {
     expect(eighth.find(T.Value).text()).toContain('Active');
   });
 
-  it('Properties should render expected location and temperature field if the location is cold location', async () => {
+  it('should render expected location and temperature field if the location is cold location', async () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -210,10 +210,10 @@ describe('Properties', () => {
     expect(sixth.find(T.Value).text()).toContain('europe25-myroom-cold');
     const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.Value).text()).toContain('Cold');
+    expect(seventh.find(T.GroupValues).text()).toContain('Cold');
   });
 
-  it('Properties should render restore in progress status when the object is restoring from the cold location', async () => {
+  it('should render restore in progress status and disable the restore button when the object is restoring from the cold location', async () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -261,13 +261,16 @@ describe('Properties', () => {
     const tableItems = component.find(T.Row);
     const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.Value).text()).toContain(
+    expect(seventh.find(T.GroupValues).text()).toContain(
       'Restoration in progress...',
     );
+    expect(seventh.find('button#restore-button').prop('label')).toBe('Restore');
+    expect(seventh.find('button#restore-button').prop('disabled')).toBe(true);
   });
 
-  it('Properties should render restored status when the object is already restored from cold location', async () => {
+  it('should render restored status and disable the restore button when the object is already restored from cold location', async () => {
     //mock the DateTime now
+    //S
     jest
       .spyOn(DateTime, 'now')
       .mockImplementationOnce(() => DateTime.fromISO('2022-12-20'));
@@ -322,8 +325,10 @@ describe('Properties', () => {
     const tableItems = component.find(T.Row);
     const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.Value).text()).toContain(
+    expect(seventh.find(T.GroupValues).text()).toContain(
       'Restored (1 day remaining)',
     );
+    expect(seventh.find('button#restore-button').prop('label')).toBe('Restore');
+    expect(seventh.find('button#restore-button').prop('disabled')).toBe(true);
   });
 });

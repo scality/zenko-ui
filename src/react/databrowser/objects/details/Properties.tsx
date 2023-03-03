@@ -22,6 +22,7 @@ import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
 import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
 import { DateTime } from 'luxon';
+import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -133,7 +134,7 @@ function Properties({ objectMetadata }: Props) {
               {location?.isCold && (
                 <T.Row>
                   <T.Key> Temperature </T.Key>
-                  <T.Value>
+                  <T.GroupValues>
                     <ColdStorageIcon /> Cold{' '}
                     {objectMetadata.restore?.ongoingRequest && (
                       <span>
@@ -151,7 +152,21 @@ function Properties({ objectMetadata }: Props) {
                         </SecondaryText>
                       </span>
                     )}
-                  </T.Value>
+                    <ObjectRestorationButtonAndModal
+                      bucketName={bucketInfo?.name || ''}
+                      objectKey={objectMetadata.objectKey}
+                      objectLastModifiesOn={objectMetadata.lastModified}
+                      objectSize={objectMetadata.contentLength}
+                      objectStorageClass={
+                        objectMetadata.storageClass || 'default'
+                      }
+                      objectVersionId={objectMetadata.versionId}
+                      isObjectRestoredOrOnGoing={
+                        objectMetadata.restore?.ongoingRequest ||
+                        !!objectMetadata.restore?.expiryDate
+                      }
+                    />
+                  </T.GroupValues>
                 </T.Row>
               )}
             </T.GroupContent>
