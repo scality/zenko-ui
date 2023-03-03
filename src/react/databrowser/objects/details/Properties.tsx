@@ -8,6 +8,7 @@ import {
   PrettyBytes,
   SecondaryText,
   spacing,
+  Stack,
   Toggle,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
@@ -135,7 +136,9 @@ function Properties({ objectMetadata }: Props) {
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.GroupValues>
-                    <ColdStorageIcon /> Cold{' '}
+                    <Stack>
+                      <ColdStorageIcon /> Cold{' '}
+                    </Stack>
                     {objectMetadata.restore?.ongoingRequest && (
                       <span>
                         <Icon name="Arrow-alt-circle-up" />

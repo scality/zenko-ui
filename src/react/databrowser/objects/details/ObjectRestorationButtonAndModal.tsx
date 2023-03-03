@@ -41,7 +41,7 @@ const ObjectRestorationButtonAndModal = ({
         <thead>
           <tr style={{ borderBottom: `1px solid ${theme.brand.border}` }}>
             <th align="left">Name</th>
-            <th align="left">Modification On</th>
+            <th align="left">Last Modified On</th>
             <th align="left">Size</th>
             <th align="left">Storage Class</th>
           </tr>
@@ -92,7 +92,7 @@ const ObjectRestorationButtonAndModal = ({
               size="1/3"
               min={1}
             ></Input>{' '}
-            day{restorationDays >= 2 ? '(s)' : ''}
+            day{restorationDays >= 2 ? 's' : ''}
           </Stack>
           <Text>
             A temporary copy of your object will be available during a limited
@@ -135,17 +135,18 @@ const ObjectRestorationButtonAndModal = ({
         variant="outline"
         disabled={isObjectRestoredOrOnGoing || restore.isLoading}
         label="Restore"
+        icon={<Icon name="Redo" />}
         onClick={() => setIsModalOpen(true)}
         tooltip={
           isObjectRestoredOrOnGoing
             ? {
                 overlay:
-                  'The object is already restored or the restoration is ongoing, hence disable the button.',
+                  'The button is disabled because the object is already restored or the restoration is ongoing',
               }
             : restore.isLoading
             ? {
                 overlay:
-                  'Disable the button because the restoration is just triggered.',
+                  'The button is disabled because the restoration request has just been triggered',
               }
             : undefined
         }
@@ -166,7 +167,7 @@ const ObjectRestorationButtonAndModal = ({
                   restore.isLoading
                     ? {
                         overlay:
-                          'Disable the button because the restoration is just triggered.',
+                          'The button is disabled because the restoration request has just been triggered',
                       }
                     : undefined
                 }
