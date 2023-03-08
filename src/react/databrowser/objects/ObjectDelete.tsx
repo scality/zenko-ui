@@ -17,7 +17,7 @@ import { Banner, Stack, Wrap } from '@scality/core-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
-import type { BucketInfo } from '../../../types/s3';
+import type { BucketInfo, ObjectEntity } from '../../../types/s3';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import { List } from 'immutable';
@@ -91,7 +91,7 @@ const fileSizer = (files) => {
 };
 
 type Props = {
-  toggled: List<Record<string, any>>;
+  toggled: List<ObjectEntity>;
   prefixWithSlash: string;
   bucketName: string;
   bucketInfo: BucketInfo;
@@ -194,7 +194,13 @@ export const getMessagesAndRequiredActions = ({
   objectsLockedInComplianceModeLength: number;
   objectsLockedInGovernanceModeLength: number;
   objectsLockedInLegalHoldLength: number;
-}) => {
+}): {
+  info: string;
+  warnings: WarningTypes[];
+  checkboxRequired: boolean;
+  confirmationRequired: boolean;
+  isDeletionPossible: boolean;
+} => {
   if (isBucketVersioned) {
     // default version handling
     if (!selectedObjectsAreSpecificVersions) {
@@ -244,17 +250,12 @@ export const getMessagesAndRequiredActions = ({
       // can delete with proper access
       if (objectsLockedInGovernanceModeLength > 0) {
         return {
-          info: `Delete ${maybePluralize(
+          info: `The selected ${maybePluralize(
             numberOfObjects,
-            'marker',
+            'version',
             's',
             false,
-          )} will be added to the ${maybePluralize(
-            numberOfObjects,
-            'object',
-            's',
-            false,
-          )}.`,
+          )} will be permanently deleted.`,
           warnings: [WarningTypes.GOVERNANCE],
           checkboxRequired: false,
           confirmationRequired: true,
@@ -317,9 +318,9 @@ const ObjectDelete = ({
     bucketInfo.isVersioning,
   );
 
-  const getProtectedDeletionMessage = (file: Record<string, any>) => {
-    if (file.lockStatus === 'LOCKED' && file.versionId) {
-      if (file.objectRetention.mode === 'COMPLIANCE') {
+  const getProtectedDeletionMessage = (s3Object: ObjectEntity) => {
+    if (s3Object.lockStatus === 'LOCKED' && s3Object.versionId) {
+      if (s3Object.objectRetention?.mode === 'COMPLIANCE') {
         return (
           <Box
             display="flex"
@@ -331,7 +332,7 @@ const ObjectDelete = ({
           </Box>
         );
       }
-      if (file.objectRetention.mode === 'GOVERNANCE') {
+      if (s3Object.objectRetention?.mode === 'GOVERNANCE') {
         return (
           <Box
             display="flex"
@@ -344,7 +345,7 @@ const ObjectDelete = ({
         );
       }
     }
-    if (file.isLegalHoldEnabled && file.versionId) {
+    if (s3Object.isLegalHoldEnabled && s3Object.versionId) {
       return (
         <Box display="flex" color={theme.brand?.textTertiary} gap={spacing.sp4}>
           <Icon color="buttonSecondary" name="Lock" />
@@ -359,13 +360,13 @@ const ObjectDelete = ({
   const objectsLockedInComplianceModeLength = toggledFiles.filter(
     (file) =>
       file.lockStatus === 'LOCKED' &&
-      file.objectRetention.mode === 'COMPLIANCE',
+      file.objectRetention?.mode === 'COMPLIANCE',
   ).length;
 
   const objectsLockedInGovernanceModeLength = toggledFiles.filter(
     (file) =>
       file.lockStatus === 'LOCKED' &&
-      file.objectRetention.mode === 'GOVERNANCE',
+      file.objectRetention?.mode === 'GOVERNANCE',
   ).length;
 
   const objectsLockedInLegalHoldLength = toggledFiles.filter(
@@ -394,8 +395,6 @@ const ObjectDelete = ({
   if (!show) {
     return null;
   }
-
-  console.log(toggledFiles);
 
   const cleanFiles = () => {
     setToggledFiles([]);

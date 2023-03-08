@@ -96,7 +96,7 @@ describe('ObjectDelete', () => {
   });
 });
 
-describe.only('getMessagesAndRequiredActions', () => {
+describe('getMessagesAndRequiredActions', () => {
   //Singular messages tests
   it('should display permanently removal info banner when removing an object on a non versioned bucket', () => {
     const resultOneObject = getMessagesAndRequiredActions({
@@ -200,7 +200,7 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Delete marker will be added to the object.',
+      info: 'The selected version will be permanently deleted.',
       warnings: [WarningTypes.GOVERNANCE],
       checkboxRequired: false,
       confirmationRequired: true,
@@ -349,7 +349,7 @@ describe.only('getMessagesAndRequiredActions', () => {
     });
 
     expect(result).toStrictEqual({
-      info: 'Delete markers will be added to the objects.',
+      info: 'The selected versions will be permanently deleted.',
       warnings: [WarningTypes.GOVERNANCE],
       checkboxRequired: false,
       confirmationRequired: true,
