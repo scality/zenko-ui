@@ -124,6 +124,12 @@ function Locations() {
     (state: AppState) =>
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
+
+  const replicationStates = useSelector(
+    (state: AppState) =>
+      state.instanceStatus.latest.metrics?.['crr-schedule']?.states,
+  );
+
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
@@ -162,8 +168,7 @@ function Locations() {
       {
         Header: (
           <>
-            Target Bucket{' '}
-            <HelpLocationTargetBucket />
+            Target Bucket <HelpLocationTargetBucket />
           </>
         ),
         accessor: 'details.bucketName',
@@ -174,18 +179,21 @@ function Locations() {
       },
     ];
 
-    if (features.includes(XDM_FEATURE)) {
-      columns.push({
-        Header: 'Async Metadata updates',
-        accessor: '_asyncMetadataUpdatesColumn',
-        disableSortBy: true,
-        cellStyle: {
-          textAlign: 'left',
-          minWidth: '12rem',
-        },
-        Cell: IngestionCell(ingestionStates, capabilities, loading, dispatch),
-      });
-    }
+    columns.push({
+      Header: 'Workflow status',
+      accessor: '_asyncMetadataUpdatesColumn',
+      disableSortBy: true,
+      cellStyle: {
+        textAlign: 'left',
+        minWidth: '12rem',
+      },
+      Cell: IngestionCell(
+        ingestionStates,
+        replicationStates,
+        loading,
+        dispatch,
+      ),
+    });
 
     columns.push({
       Header: '',

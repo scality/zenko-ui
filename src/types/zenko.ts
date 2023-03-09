@@ -60,4 +60,6 @@ export interface ZenkoClient extends S3Client {
     VersionIdMarker: string | undefined;
   }): Promise<SearchBucketVersionsResp>;
   getIsLogin(): boolean;
+  pauseCrrSite(site: Site): Promise<ZenkoMapResp>;
+  resumeCrrSite(site: Site): Promise<ZenkoMapResp>;
 }

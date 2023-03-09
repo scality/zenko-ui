@@ -126,11 +126,26 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       .promise();
   }
 
+  pauseCrrSite(site: Site): Promise<ZenkoMapResp> {
+    const params = {
+      Site: site,
+    };
+
+    return this._jsonClient.pauseSite(params).promise();
+  }
+
   pauseIngestionSite(site: Site): Promise<ZenkoMapResp> {
     const params = {
       Site: site,
     };
     return this._jsonClient.pauseIngestionSite(params).promise();
+  }
+
+  resumeCrrSite(site: Site): Promise<ZenkoMapResp> {
+    const params = {
+      Site: site,
+    };
+    return this._jsonClient.resumeSite(params).promise();
   }
 
   resumeIngestionSite(site: Site): Promise<ZenkoMapResp> {

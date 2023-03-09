@@ -20,12 +20,18 @@ import type {
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
 import { getLocationType, isIngestLocation } from '../../utils/storageOptions';
-import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
+import {
+  pauseIngestionSite,
+  pauseReplicationSite,
+  resumeIngestionSite,
+  resumeReplicationSite,
+} from '../../actions/zenko';
 import { InlineButton } from '../../ui-elements/Table';
 import type { BucketInfo } from '../../../types/s3';
 import styled from 'styled-components';
-import { Icon, SpacedBox } from '@scality/core-ui';
+import { Icon, spacing } from '@scality/core-ui';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
+import { Box } from '@scality/core-ui/dist/next';
 type RowProps = {
   original: Location;
 };
@@ -175,10 +181,10 @@ const Flex = styled.div`
   align-items: center;
 `;
 
-const IngestionCell =
+const WorkflowCell =
   (
     ingestionStates: WorkflowScheduleUnitState | null | undefined,
-    capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
+    replicationStates: WorkflowScheduleUnitState | null | undefined,
     loading: boolean,
     dispatch: any,
   ) =>
@@ -188,62 +194,76 @@ const IngestionCell =
       ingestionStates &&
       ingestionStates[locationName] &&
       ingestionStates[locationName];
-    const isIngestionPending = isIngestLocation(original, capabilities);
 
-    if (isIngestionPending) {
-      if (ingestion) {
-        if (ingestion === 'enabled') {
-          return (
-            <Flex>
-              Active
-              <InlineButton
-                disabled={loading}
-                icon={<Icon name="Pause-circle" />}
-                tooltip={{
-                  overlay: (
-                    <SpacedBox pl={12}>
-                      Async Metadata updates is active, pause it.
-                    </SpacedBox>
-                  ),
-                  placement: 'top',
-                  overlayStyle: { width: '18rem' },
-                }}
-                onClick={() => dispatch(pauseIngestionSite(locationName))}
-                variant="secondary"
-              />
-            </Flex>
-          );
-        }
+    const replication =
+      replicationStates && replicationStates[locationName]
+        ? replicationStates[locationName]
+        : null;
 
-        if (ingestion === 'disabled') {
-          return (
-            <Flex>
-              Paused
-              <InlineButton
-                disabled={loading}
-                icon={<Icon name="Play-circle" />}
-                tooltip={{
-                  overlay: (
-                    <SpacedBox pl={12}>
-                      Async Metadata updates is paused, resume it.
-                    </SpacedBox>
-                  ),
-                  placement: 'top',
-                  overlayStyle: { width: '18rem' },
-                }}
-                onClick={() => dispatch(resumeIngestionSite(locationName))}
-                variant="secondary"
-              />
-            </Flex>
-          );
-        }
+    if (replication || ingestion) {
+      if (replication === 'enabled' || ingestion === 'enabled') {
+        return (
+          <Flex>
+            <InlineButton
+              disabled={loading}
+              icon={<Icon name="Pause-circle" />}
+              tooltip={{
+                overlay: (
+                  <Box>
+                    {replication === 'enabled' &&
+                      'Replication workflow is active.'}
+                    {ingestion === 'enabled' &&
+                      'Async Metadata updates is active.'}
+                  </Box>
+                ),
+                placement: 'top',
+              }}
+              label="Pause"
+              onClick={() => {
+                if (replication === 'enabled') {
+                  dispatch(pauseReplicationSite(locationName));
+                }
+                if (ingestion === 'enabled') {
+                  dispatch(pauseIngestionSite(locationName));
+                }
+              }}
+              variant="secondary"
+            />
+          </Flex>
+        );
       }
 
-      return (
-        <Flex>
-          Pending <HelpAsyncNotifPending />
-        </Flex>
-      );
+      if (replication === 'disabled' || ingestion === 'disabled') {
+        return (
+          <Flex>
+            <InlineButton
+              disabled={loading}
+              icon={<Icon name="Play-circle" />}
+              tooltip={{
+                overlay: (
+                  <Box>
+                    {replication === 'disabled' &&
+                      'Replication workflow is paused.'}
+                    {ingestion === 'disabled' &&
+                      'Async Metadata updates is paused.'}
+                  </Box>
+                ),
+                placement: 'top',
+              }}
+              label="Resume"
+              onClick={() => {
+                if (replication === 'disabled') {
+                  dispatch(resumeReplicationSite(locationName));
+                }
+                if (ingestion === 'disabled') {
+                  dispatch(resumeIngestionSite(locationName));
+                }
+              }}
+              variant="secondary"
+            />
+          </Flex>
+        );
+      }
     }
 
     return '-';
@@ -302,7 +322,7 @@ export {
   canEditLocation,
   canDeleteLocation,
   isLocationExists,
-  IngestionCell,
+  WorkflowCell as IngestionCell,
   convertToBucketInfo,
   renderLocation,
 };
