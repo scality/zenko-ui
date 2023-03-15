@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import {
   getBucketInfo,
@@ -60,7 +60,7 @@ export default function Objects() {
       ),
     [objects, isShowVersions, objectKey, versionId],
   );
-  const { bucketName: bucketNameParam } = useParams();
+  const { bucketName: bucketNameParam } = useParams<{ bucketName: string }>();
   const prefixWithSlash = usePrefixWithSlash();
   useEffect(() => {
     if (searchInput) {

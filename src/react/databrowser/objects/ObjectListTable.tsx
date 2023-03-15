@@ -1,5 +1,5 @@
 import MemoRow, { createItemData } from './ObjectRow';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import {
   continueListObjects,
@@ -18,7 +18,7 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
 import type { ObjectEntity } from '../../../types/s3';
-import { PrettyBytes } from '@scality/core-ui';
+import { PrettyBytes, Text } from '@scality/core-ui';
 import { TextAligner } from '../../ui-elements/Utility';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { push } from 'connected-react-router';
@@ -155,8 +155,9 @@ export default function ObjectListTable({
       {
         Header: 'Name',
         accessor: 'name',
-
         Cell({ row: { original } }: CellProps) {
+          const storageClass = original.storageClass;
+          const isObjectInColdStorage = !!locations[storageClass]?.isCold;
           if (original.isFolder) {
             return (
               <span>
@@ -198,12 +199,16 @@ export default function ObjectListTable({
               {original.isLegalHoldEnabled && (
                 <Icon className="fas fa-balance-scale"></Icon>
               )}
-              <T.CellA
-                href={original.signedUrl}
-                download={`${bucketName}-${original.key}`}
-              >
-                {original.name}
-              </T.CellA>
+              {isObjectInColdStorage ? (
+                <Text>{original.name}</Text>
+              ) : (
+                <T.CellA
+                  href={original.signedUrl}
+                  download={`${bucketName}-${original.key}`}
+                >
+                  {original.name}
+                </T.CellA>
+              )}
             </span>
           );
         },
