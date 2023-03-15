@@ -206,8 +206,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
@@ -249,8 +253,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
@@ -292,8 +300,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
