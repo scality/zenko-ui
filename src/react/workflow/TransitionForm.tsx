@@ -119,7 +119,7 @@ export const TransitionForm = ({
   const isSourceBucketVersionned = sourceBucket
     ? isVersioning(sourceBucket.VersionStatus)
     : false;
-  // Disable the previous version if the bucket is not versionned and the default value is `Current version`
+  // Disable the previous version if the bucket is not versioned and the default value is `Current version`
   const isPreviousVersionDisabled =
     !isSourceBucketVersionned && applyToVersion === 'current';
   useMemo(() => {
@@ -251,7 +251,7 @@ export const TransitionForm = ({
             direction="vertical"
             help={
               isPreviousVersionDisabled
-                ? 'This action is disabled when source bucket is not versionned'
+                ? 'This action is disabled when source bucket is not versioned'
                 : undefined
             }
             helpErrorPosition="bottom"
