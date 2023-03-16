@@ -8,14 +8,23 @@ import {
 } from '../../utils/test';
 import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import { S3Bucket } from '../../../types/s3';
+import * as hooks from '../../utils/hooks';
 
 const instanceId = 'instanceId';
 const accountId = 'accountId';
 const accountName = 'pat';
-
+const BUCKET_NAME = 'bucket';
+const buckets: S3Bucket[] = [
+  {
+    CreationDate: 'Wed Oct 07 2020 16:35:57',
+    LocationConstraint: 'us-east-1',
+    Name: BUCKET_NAME,
+    VersionStatus: 'Enabled',
+  },
+];
 const server = setupServer(
   rest.post(
     `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/create-workflow`,
@@ -24,6 +33,9 @@ const server = setupServer(
 );
 
 beforeAll(() => {
+  jest
+    .spyOn(hooks, 'useQueryParams')
+    .mockReturnValue(new URLSearchParams(`?bucket=${BUCKET_NAME}`));
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
   jest.setTimeout(10_000);
@@ -56,6 +68,11 @@ describe('CreateWorkflow', () => {
         configuration: {
           latest: {
             endpoints: [],
+          },
+        },
+        s3: {
+          listBucketsResults: {
+            list: List(buckets),
           },
         },
       });
