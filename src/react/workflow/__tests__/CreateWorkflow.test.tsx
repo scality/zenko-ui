@@ -9,122 +9,235 @@ import {
 import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import userEvent from '@testing-library/user-event';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { S3Bucket } from '../../../types/s3';
 import * as hooks from '../../utils/hooks';
+import { act } from 'react-dom/test-utils';
 
 const instanceId = 'instanceId';
-const accountId = 'accountId';
 const accountName = 'pat';
 const BUCKET_NAME = 'bucket';
+const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
+const BUCKET_LOCATION = 'us-east-1';
+const ACCOUNT_ID = '064609833007';
 const buckets: S3Bucket[] = [
   {
     CreationDate: 'Wed Oct 07 2020 16:35:57',
-    LocationConstraint: 'us-east-1',
+    LocationConstraint: BUCKET_LOCATION,
     Name: BUCKET_NAME,
     VersionStatus: 'Enabled',
   },
+  {
+    CreationDate: 'Wed Oct 07 2020 16:35:57',
+    LocationConstraint: BUCKET_LOCATION,
+    Name: BUCKET_NAME_NON_VERSIONED,
+    VersionStatus: 'Disabled',
+  },
 ];
+const locationAwsS3 = {
+  details: {
+    accessKey: 'accessKey1',
+    bootstrapList: [],
+    bucketMatch: true,
+    bucketName: 'bucketName1',
+    endpoint: 'http://aws.com',
+    secretKey: 'secret',
+  },
+  locationType: 'location-aws-s3-v1',
+  name: BUCKET_LOCATION,
+  objectId: '1',
+  sizeLimitGB: 123,
+};
+
 const server = setupServer(
   rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/create-workflow`,
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+    (req, res, ctx) => {
+      return res(ctx.json([]));
+    },
+  ),
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/workflow/search`,
     (req, res, ctx) => res(ctx.json([])),
+  ),
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
+    res(
+      ctx.json({
+        IsTruncated: false,
+        Accounts: [
+          {
+            Name: accountName,
+            CreationDate: '2022-03-18T12:51:44Z',
+            Roles: [
+              {
+                Name: 'another-role',
+                Arn: `arn:aws:iam::${ACCOUNT_ID}:role/another-role`,
+              },
+            ],
+          },
+        ],
+      }),
+    ),
   ),
 );
 
+const selectors = {
+  replicationOption: () =>
+    screen.getByRole('option', {
+      name: 'Replication Replication',
+    }),
+  expirationOption: () =>
+    screen.getByRole('option', {
+      name: 'Expiration Expiration',
+    }),
+  transitionOption: () =>
+    screen.getByRole('option', {
+      name: 'Transition Transition',
+    }),
+  createButton: () => screen.getByRole('button', { name: /create/i }),
+  cancelButton: () => screen.getByRole('button', { name: /cancel/i }),
+  workflowTypeSelect: () => screen.getByLabelText(/rule type \*/i),
+  locationSelect: () => screen.getByLabelText(/location name \*/i),
+  bucketSelect: () => screen.getByLabelText(/bucket name \*/i),
+  bucketVersionedOption: () =>
+    screen.getByRole('option', {
+      name: new RegExp(BUCKET_NAME),
+    }),
+  bucketNonVersionedOption: () =>
+    screen.getByRole('option', { name: new RegExp(BUCKET_NAME_NON_VERSIONED) }),
+  locationAWSS3: () =>
+    screen.getByRole('option', { name: new RegExp(BUCKET_LOCATION) }),
+};
+
 beforeAll(() => {
-  jest
-    .spyOn(hooks, 'useQueryParams')
-    .mockReturnValue(new URLSearchParams(`?bucket=${BUCKET_NAME}`));
-  server.listen({ onUnhandledRequest: 'error' });
+  server.listen({ onUnhandledRequest: 'warn' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(10_000);
+  jest.setTimeout(20_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('CreateWorkflow', () => {
-  it('should render a form for create workflow', async () => {
-    try {
-      const {
-        component: { container },
-      } = reduxRender(<CreateWorkflow />, {
-        networkActivity: {
-          counter: 0,
-          messages: List.of(),
+  it('should render the form to create a new replication', async () => {
+    //S
+    reduxRender(<CreateWorkflow />, {
+      s3: {
+        listBucketsResults: {
+          list: List(buckets),
         },
-        instances: {
-          selectedId: instanceId,
-        },
-        auth: {
-          config: { features: [] },
-          selectedAccount: { id: accountId },
-        },
-        oidc: {
-          user: {
-            access_token: '',
+      },
+      configuration: {
+        latest: {
+          locations: {
+            [BUCKET_LOCATION]: locationAwsS3,
           },
         },
-        configuration: {
-          latest: {
-            endpoints: [],
+      },
+    });
+    //E
+    await waitFor(() => screen.getByText(/create new workflow/i));
+
+    // Select Workflow Type
+    userEvent.click(selectors.workflowTypeSelect());
+
+    expect(selectors.replicationOption()).toBeInTheDocument();
+    expect(selectors.expirationOption()).toBeInTheDocument();
+    expect(selectors.transitionOption()).toBeInTheDocument();
+
+    userEvent.click(selectors.replicationOption());
+
+    // Select Bucket Name
+    userEvent.click(selectors.bucketSelect());
+    userEvent.click(selectors.bucketVersionedOption());
+
+    // Select Destination
+    userEvent.click(selectors.locationSelect());
+    userEvent.click(selectors.locationAWSS3());
+
+    //V
+    await waitFor(() => {
+      expect(selectors.createButton()).toBeEnabled();
+    });
+  });
+  it('should display an error modal when workflow creation failed', async () => {
+    //S
+    server.use(
+      rest.post(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+        (req, res, ctx) => {
+          return res(ctx.status(500));
+        },
+      ),
+    );
+    //E
+    reduxRender(<CreateWorkflow />, {
+      s3: {
+        listBucketsResults: {
+          list: List(buckets),
+        },
+      },
+      instances: {
+        selectedId: instanceId,
+      },
+      configuration: {
+        latest: {
+          locations: {
+            [BUCKET_LOCATION]: locationAwsS3,
           },
         },
-        s3: {
-          listBucketsResults: {
-            list: List(buckets),
-          },
+      },
+      auth: {
+        config: { iamEndpoint: TEST_API_BASE_URL },
+        selectedAccount: { id: ACCOUNT_ID },
+      },
+    });
+
+    await waitFor(() => screen.getByText(/create new workflow/i));
+
+    // Select Workflow Type
+    userEvent.click(selectors.workflowTypeSelect());
+
+    expect(selectors.replicationOption()).toBeInTheDocument();
+    expect(selectors.expirationOption()).toBeInTheDocument();
+    expect(selectors.transitionOption()).toBeInTheDocument();
+
+    userEvent.click(selectors.replicationOption());
+
+    // Select Bucket Name
+    userEvent.click(selectors.bucketSelect());
+    userEvent.click(selectors.bucketVersionedOption());
+
+    // Select Destination
+    userEvent.click(selectors.locationSelect());
+    userEvent.click(selectors.locationAWSS3());
+
+    // Click on Create Button
+    await waitFor(() => {
+      expect(selectors.createButton()).toBeEnabled();
+    });
+    act(() => userEvent.click(selectors.createButton()));
+    //V
+    await waitFor(() => expect(screen.getByText('Error')));
+  });
+  it('should disable the replication option for the bucket which is not version enabled', () => {
+    //S
+    jest
+      .spyOn(hooks, 'useQueryParams')
+      .mockReturnValue(
+        new URLSearchParams(`?bucket=${BUCKET_NAME_NON_VERSIONED}`),
+      );
+    //E
+    reduxRender(<CreateWorkflow />, {
+      s3: {
+        listBucketsResults: {
+          list: List(buckets),
         },
-      });
-
-      await waitFor(() => screen.getByText(/Create New Workflow/i));
-
-      expect(screen.getByText(/Rule Type/i)).toBeInTheDocument();
-
-      const createButton = screen.getByText('Create');
-      expect(createButton).toBeInTheDocument();
-
-      const cancelButton = screen.getByText('Cancel');
-      expect(cancelButton).toBeInTheDocument();
-
-      expect(container.getElementsByClassName('sc-select__option').length).toBe(
-        0,
-      );
-      const form = notFalsyTypeGuard(container.querySelector('form'));
-
-      userEvent.click(
-        notFalsyTypeGuard(form.querySelector('.sc-select__control')),
-      );
-
-      expect(container.getElementsByClassName('sc-select__option').length).toBe(
-        3,
-      );
-      const replicationOption = screen.getByRole('option', {
+      },
+    });
+    //V
+    expect(
+      screen.queryByRole('option', {
         name: 'Replication Replication',
-      });
-      const ExpirationOption = screen.getByRole('option', {
-        name: 'Expiration Expiration',
-      });
-      const TransitionOption = screen.getByRole('option', {
-        name: 'Transition Transition',
-      });
-
-      expect(replicationOption).toBeInTheDocument();
-      expect(ExpirationOption).toBeInTheDocument();
-      expect(TransitionOption).toBeInTheDocument();
-
-      userEvent.click(notFalsyTypeGuard(ExpirationOption));
-      expect(screen.getByText('Expiration')).toBeInTheDocument();
-
-      userEvent.click(
-        notFalsyTypeGuard(form.querySelector('.sc-select__control')),
-      );
-      expect(screen.getByText('Replication')).toBeInTheDocument();
-
-      expect(createButton).not.toBeDisabled();
-    } catch (e) {
-      console.log('should render a form for create workflow: ', e);
-      throw e;
-    }
+      }),
+    ).toBe(null);
   });
 });
