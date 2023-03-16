@@ -95,6 +95,9 @@ const CreateWorkflow = () => {
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
 
+  const bucket = bucketList.find((bucket) => bucket.Name === bucketName);
+  const isBucketVersioningEnabled = bucket?.VersionStatus === 'Enabled';
+
   const defaultFormValues = {
     type: 'select',
     replication: newReplicationForm(bucketName),
@@ -377,6 +380,7 @@ const CreateWorkflow = () => {
                     <Select.Option
                       value="replication"
                       icon={<OptionIcon icon="Replication" />}
+                      disabled={!!(bucketName && !isBucketVersioningEnabled)}
                     >
                       Replication
                     </Select.Option>
