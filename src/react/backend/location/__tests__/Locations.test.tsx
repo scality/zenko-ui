@@ -128,6 +128,19 @@ const server = setupServer(
     `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${accountId}/workflow/search`,
     (req, res, ctx) => res(ctx.json([])),
   ),
+  rest.get(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+    (req, res, ctx) =>
+      res(
+        ctx.json({
+          metrics: {
+            ['crr-schedule']: { states: { ['location-dmf']: 'enabled' } },
+            ['ingest-schedule']: { states: { ['location-dmf']: 'enabled' } },
+          },
+          state: null,
+        }),
+      ),
+  ),
 );
 
 beforeAll(() => {
@@ -677,6 +690,10 @@ describe.skip('Locations', () => {
           },
         },
       },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
+      timeout: 8000,
     });
 
     await waitForElementToBeRemoved(

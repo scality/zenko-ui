@@ -1,5 +1,3 @@
-import { $PropertyType } from 'utility-types';
-import { HelpAsyncNotifPending } from '../../ui-elements/Help';
 import {
   Endpoint,
   JAGUAR_S3_LOCATION_KEY,
@@ -12,29 +10,13 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
   Replication,
 } from '../../../types/config';
-import type {
-  BucketList,
-  WorkflowScheduleUnitState,
-  InstanceStateSnapshot,
-} from '../../../types/stats';
+import type { BucketList } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
-import { getLocationType, isIngestLocation } from '../../utils/storageOptions';
-import {
-  pauseIngestionSite,
-  pauseReplicationSite,
-  resumeIngestionSite,
-  resumeReplicationSite,
-} from '../../actions/zenko';
-import { InlineButton } from '../../ui-elements/Table';
+import { getLocationType } from '../../utils/storageOptions';
+
 import type { BucketInfo } from '../../../types/s3';
-import styled from 'styled-components';
-import { Icon, spacing } from '@scality/core-ui';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-import { Box } from '@scality/core-ui/dist/next';
-type RowProps = {
-  original: Location;
-};
 
 function newLocationDetails(): Location {
   return {
@@ -176,99 +158,6 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some((opt) => opt === location);
 }
 
-const Flex = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const WorkflowCell =
-  (
-    ingestionStates: WorkflowScheduleUnitState | null | undefined,
-    replicationStates: WorkflowScheduleUnitState | null | undefined,
-    loading: boolean,
-    dispatch: any,
-  ) =>
-  ({ row: { original } }: { row: RowProps }) => {
-    const locationName = original.name;
-    const ingestion =
-      ingestionStates &&
-      ingestionStates[locationName] &&
-      ingestionStates[locationName];
-
-    const replication =
-      replicationStates && replicationStates[locationName]
-        ? replicationStates[locationName]
-        : null;
-
-    if (replication || ingestion) {
-      if (replication === 'enabled' || ingestion === 'enabled') {
-        return (
-          <Flex>
-            <InlineButton
-              disabled={loading}
-              icon={<Icon name="Pause-circle" />}
-              tooltip={{
-                overlay: (
-                  <Box>
-                    {replication === 'enabled' &&
-                      'Replication workflow is active.'}
-                    {ingestion === 'enabled' &&
-                      'Async Metadata updates is active.'}
-                  </Box>
-                ),
-                placement: 'top',
-              }}
-              label="Pause"
-              onClick={() => {
-                if (replication === 'enabled') {
-                  dispatch(pauseReplicationSite(locationName));
-                }
-                if (ingestion === 'enabled') {
-                  dispatch(pauseIngestionSite(locationName));
-                }
-              }}
-              variant="secondary"
-            />
-          </Flex>
-        );
-      }
-
-      if (replication === 'disabled' || ingestion === 'disabled') {
-        return (
-          <Flex>
-            <InlineButton
-              disabled={loading}
-              icon={<Icon name="Play-circle" />}
-              tooltip={{
-                overlay: (
-                  <Box>
-                    {replication === 'disabled' &&
-                      'Replication workflow is paused.'}
-                    {ingestion === 'disabled' &&
-                      'Async Metadata updates is paused.'}
-                  </Box>
-                ),
-                placement: 'top',
-              }}
-              label="Resume"
-              onClick={() => {
-                if (replication === 'disabled') {
-                  dispatch(resumeReplicationSite(locationName));
-                }
-                if (ingestion === 'disabled') {
-                  dispatch(resumeIngestionSite(locationName));
-                }
-              }}
-              variant="secondary"
-            />
-          </Flex>
-        );
-      }
-    }
-
-    return '-';
-  };
-
 function convertToBucketInfo(bucketInfo: BucketInfo | null) {
   const objectLockEnabled =
     bucketInfo?.objectLockConfiguration.ObjectLockEnabled;
@@ -322,7 +211,6 @@ export {
   canEditLocation,
   canDeleteLocation,
   isLocationExists,
-  WorkflowCell as IngestionCell,
   convertToBucketInfo,
   renderLocation,
 };
