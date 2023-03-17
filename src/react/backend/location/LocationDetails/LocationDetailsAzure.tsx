@@ -136,7 +136,7 @@ export default class LocationDetailsAzure extends React.Component<
 
   render() {
     return (
-      <FormSection>
+      <FormSection forceLabelWidth={220}>
         <FormGroup
           label="Azure Storage Endpoint"
           id="endpoint"

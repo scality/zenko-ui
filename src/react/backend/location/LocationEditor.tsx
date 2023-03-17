@@ -200,6 +200,7 @@ function LocationEditor() {
       rightActions={
         <Stack gap="r16">
           <Button
+            type="button"
             variant="outline"
             disabled={loading}
             onClick={cancel}
@@ -207,6 +208,7 @@ function LocationEditor() {
           />
 
           <Button
+            type="button"
             variant="primary"
             icon={locationEditing && <Icon name="Save" />}
             disabled={

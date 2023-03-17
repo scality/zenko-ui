@@ -32,6 +32,7 @@ type LocationFSType =
   | 'location-aws-s3-v1'
   | 'location-gcp-v1'
   | 'location-azure-v1'
+  | 'location-azure-archive-v1'
   | 'location-file-v1'
   | 'location-ceph-radosgw-s3-v1'
   | 'location-do-spaces-v1'
@@ -136,4 +137,3 @@ export type LocationFSDetails = {
 };
 
 export type PerLocationMap<T> = Record<LocationName, T>;
-export const toLocationType = (s: string): LocationType => s;

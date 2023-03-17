@@ -36,6 +36,7 @@ describe('LocationEditor', () => {
       'Amazon S3',
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
+      'Microsoft Azure Archive',
       'Atlas Object Storage',
       '3DS Outscale OOS Public',
       '3DS Outscale OOS SNC',

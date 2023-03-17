@@ -8,6 +8,7 @@ import {
 import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
+import LocationDetailsAzureArchive from './LocationDetailsAzureArchive';
 import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
@@ -84,6 +85,15 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     name: 'Microsoft Azure Blob Storage',
     short: 'Azure',
     formDetails: LocationDetailsAzure,
+    supportsVersioning: false,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: false,
+    hasIcon: false,
+  },
+  'location-azure-archive-v1': {
+    name: 'Microsoft Azure Archive',
+    short: 'Azure Archive',
+    formDetails: LocationDetailsAzureArchive,
     supportsVersioning: false,
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
