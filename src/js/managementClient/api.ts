@@ -925,6 +925,8 @@ export namespace Error {
     InvalidEndpoint = <any>'InvalidEndpoint',
     InvalidBucketName = <any>'InvalidBucketName',
     InvalidEntityUpdate = <any>'InvalidEntityUpdate',
+    InvalidQueueName = <any>'InvalidQueueName',
+    InvalidTopicSubscriptionId = <any>'InvalidTopicSubscriptionId',
     InvalidAccountName = <any>'InvalidAccountName',
     InvalidAccountKey = <any>'InvalidAccountKey',
     InvalidTenantId = <any>'InvalidTenantId',
@@ -934,6 +936,7 @@ export namespace Error {
     InvalidServiceBusSASToken = <any>'InvalidServiceBusSASToken',
     MissingSASToken = <any>'MissingSASToken',
     DuplicateSASToken = <any>'DuplicateSASToken',
+    MissingQueue = <any>'MissingQueue',
   }
 }
 
@@ -1612,6 +1615,13 @@ export interface LocationAwsS3Custom {}
 export interface LocationAwsS3V1 {}
 
 /**
+ *
+ * @export
+ * @interface LocationAzureArchiveV1
+ */
+export interface LocationAzureArchiveV1 {}
+
+/**
  * Azure authentication method and parameters. If this field is not specified, shared-key authentication is performed using the values from the deprecated `accessKey` and `secretKey` fields.
  * @export
  * @interface LocationAzureAuth
@@ -1619,10 +1629,26 @@ export interface LocationAwsS3V1 {}
 export interface LocationAzureAuth {
   /**
    *
-   * @type {any}
+   * @type {string}
    * @memberof LocationAzureAuth
    */
-  type: any;
+  type: LocationAzureAuth.TypeEnum;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureAuth
+ */
+export namespace LocationAzureAuth {
+  /**
+   * @export
+   * @enum {string}
+   */
+  export enum TypeEnum {
+    SharedKey = <any>'location-azure-shared-key',
+    ClientSecret = <any>'location-azure-client-secret',
+    SharedAccessSignature = <any>'location-azure-shared-access-signature',
+  }
 }
 
 /**
@@ -1652,6 +1678,100 @@ export interface LocationAzureClientSecret extends LocationAzureAuth {
 }
 
 /**
+ * @export
+ * @namespace LocationAzureClientSecret
+ */
+export namespace LocationAzureClientSecret {}
+
+/**
+ * Azure archive notification queue. - `location-azure-servicebus-topic-v1` and `location-azure-servicebus-queue-v1` are only supported with   `location-azure-client-secret` or `location-azure-shared-access-signature` authentication types. - `location-azure-storage-queue-v1` may be used with all authentication types.
+ * @export
+ * @interface LocationAzureQueue
+ */
+export interface LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureQueue
+   */
+  type: LocationAzureQueue.TypeEnum;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureQueue
+ */
+export namespace LocationAzureQueue {
+  /**
+   * @export
+   * @enum {string}
+   */
+  export enum TypeEnum {
+    ServicebusTopicV1 = <any>'location-azure-servicebus-topic-v1',
+    ServicebusQueueV1 = <any>'location-azure-servicebus-queue-v1',
+    StorageQueueV1 = <any>'location-azure-storage-queue-v1',
+  }
+}
+
+/**
+ * Use a servicebus queue to receive rehydration events.
+ * @export
+ * @interface LocationAzureServicebusQueueV1
+ */
+export interface LocationAzureServicebusQueueV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusQueueV1
+   */
+  queueName: string;
+  /**
+   * Servicebus namespace to use, typically `<ACCOUNT>.servicebus.windows.net` It will be derived from the endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureServicebusQueueV1
+   */
+  namespace?: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureServicebusQueueV1
+ */
+export namespace LocationAzureServicebusQueueV1 {}
+
+/**
+ * Use a servicebus topic to receive rehydration events.
+ * @export
+ * @interface LocationAzureServicebusTopicV1
+ */
+export interface LocationAzureServicebusTopicV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  topicName: string;
+  /**
+   * Servicebus namespace to use, typically `<ACCOUNT>.servicebus.windows.net` It will be derived from the endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  namespace?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  topicSubscriptionId: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureServicebusTopicV1
+ */
+export namespace LocationAzureServicebusTopicV1 {}
+
+/**
  * Authenticate using SAS tokens. The token can be added in the dedicated fields or as query parameter in the Endpoint.
  * @export
  * @interface LocationAzureSharedAccessSignature
@@ -1670,6 +1790,12 @@ export interface LocationAzureSharedAccessSignature extends LocationAzureAuth {
    */
   serviceBusSasToken?: string;
 }
+
+/**
+ * @export
+ * @namespace LocationAzureSharedAccessSignature
+ */
+export namespace LocationAzureSharedAccessSignature {}
 
 /**
  * Authenticate using account and secret key.
@@ -1692,6 +1818,38 @@ export interface LocationAzureSharedKey extends LocationAzureAuth {
 }
 
 /**
+ * @export
+ * @namespace LocationAzureSharedKey
+ */
+export namespace LocationAzureSharedKey {}
+
+/**
+ * Use a storage queue to receive rehydration events.
+ * @export
+ * @interface LocationAzureStorageQueueV1
+ */
+export interface LocationAzureStorageQueueV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureStorageQueueV1
+   */
+  queueName: string;
+  /**
+   * StorageQueue endoint to use, typically `<ACCOUNT>.storage.windows.net` It will be derived from the storage endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureStorageQueueV1
+   */
+  endpoint?: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureStorageQueueV1
+ */
+export namespace LocationAzureStorageQueueV1 {}
+
+/**
  *
  * @export
  * @interface LocationAzureV1
@@ -1703,7 +1861,7 @@ export interface LocationAzureV1 {}
  * @export
  * @interface LocationCephRadosgwS3V1
  */
-export interface LocationCephRadosgwS3V1 {}
+export interface LocationCephRadosgwS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1717,14 +1875,20 @@ export interface LocationDmfV1 {}
  * @export
  * @interface LocationDoSpacesV1
  */
-export interface LocationDoSpacesV1 {}
+export interface LocationDoSpacesV1 extends LocationAwsS3Custom {}
 
 /**
  *
  * @export
  * @interface LocationFileV1
  */
-export interface LocationFileV1 {}
+export interface LocationFileV1 extends LocationV1 {}
+
+/**
+ * @export
+ * @namespace LocationFileV1
+ */
+export namespace LocationFileV1 {}
 
 /**
  *
@@ -1738,7 +1902,13 @@ export interface LocationGcpV1 {}
  * @export
  * @interface LocationMemV1
  */
-export interface LocationMemV1 {}
+export interface LocationMemV1 extends LocationV1 {}
+
+/**
+ * @export
+ * @namespace LocationMemV1
+ */
+export namespace LocationMemV1 {}
 
 /**
  *
@@ -1752,7 +1922,7 @@ export interface LocationNfsMountV1 {}
  * @export
  * @interface LocationScalityArtescaS3V1
  */
-export interface LocationScalityArtescaS3V1 {}
+export interface LocationScalityArtescaS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1766,7 +1936,7 @@ export interface LocationScalityHdclientV2 {}
  * @export
  * @interface LocationScalityRingS3V1
  */
-export interface LocationScalityRingS3V1 {}
+export interface LocationScalityRingS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1869,6 +2039,7 @@ export namespace LocationV1 {
     CephRadosgwS3V1 = <any>'location-ceph-radosgw-s3-v1',
     NfsMountV1 = <any>'location-nfs-mount-v1',
     DmfV1 = <any>'location-dmf-v1',
+    AzureArchiveV1 = <any>'location-azure-archive-v1',
   }
 }
 
@@ -1877,7 +2048,7 @@ export namespace LocationV1 {
  * @export
  * @interface LocationWasabiV1
  */
-export interface LocationWasabiV1 {}
+export interface LocationWasabiV1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1993,6 +2164,12 @@ export interface Locationv1Details {
    * @memberof Locationv1Details
    */
   auth?: LocationAzureAuth;
+  /**
+   *
+   * @type {LocationAzureQueue}
+   * @memberof Locationv1Details
+   */
+  queue?: LocationAzureQueue;
 }
 
 /**

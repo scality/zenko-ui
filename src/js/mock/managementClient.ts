@@ -14,10 +14,9 @@ import type {
 import type { APIWorkflows } from '../../types/workflow';
 import { ApiErrorObject } from './error';
 import type { InstanceStatus } from '../../types/stats';
-import { toLocationType } from '../../types/config';
 export const location: Location = {
   name: 'location1',
-  locationType: toLocationType('location-file-v1'),
+  locationType: 'location-file-v1',
   details: {},
   objectId: 'object-id',
   isBuiltin: false,
