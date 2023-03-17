@@ -21,7 +21,7 @@ import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-import { Icon, Loader } from '@scality/core-ui';
+import { Icon, IconHelp, Loader, Tooltip } from '@scality/core-ui';
 import { useQuery, useQueryClient } from 'react-query';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { useManagementClient } from '../../ManagementProvider';
@@ -205,7 +205,28 @@ function Locations() {
     ];
 
     columns.push({
-      Header: 'Workflow status',
+      Header: (
+        <>
+          Workflow status{' '}
+          <IconHelp
+            placement="top"
+            overlayStyle={{ width: '24rem' }}
+            tooltipMessage={
+              <>
+                Pausing the Workflow statuses will halt any workflow processes,
+                including asynchronous metadata updates and replication, that
+                are targeting this location.
+                <br /> <br />
+                Any new object added to the source location will be queued and
+                processed only once the Workflow processes are resumed.Name of
+                the bucket/container created in the specific location (e.g.
+                RING, Azure, AWS S3, GCP...), and where buckets attached to that
+                location will store data.
+              </>
+            }
+          />
+        </>
+      ),
       accessor: '_asyncMetadataUpdatesColumn',
       disableSortBy: true,
       cellStyle: {

@@ -43,7 +43,7 @@ export const HelpLocationCreationAsyncNotification = () => (
 );
 export const HelpLocationTargetBucket = () => (
   <IconHelp
-    placement="bottom"
+    placement="top"
     overlayStyle={{ width: '16rem' }}
     tooltipMessage="Name of the bucket/container created in the specific location (e.g.
           RING, Azure, AWS S3, GCP...), and where buckets attached to that
