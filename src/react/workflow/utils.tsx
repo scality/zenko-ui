@@ -28,8 +28,8 @@ export const sourceBucketOptions = (
     const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
     const locationType = locations[constraint]?.locationType;
     const { supportsReplicationSource } = storageOptions[locationType] || false;
-    const isVersioned = !isVersioning(b.VersionStatus);
-    const disabled = isVersioned || !supportsReplicationSource;
+    const isNonVersioned = !isVersioning(b.VersionStatus);
+    const disabled = isNonVersioned || !supportsReplicationSource;
     return {
       label: b.Name,
       value: b.Name,
