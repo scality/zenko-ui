@@ -136,7 +136,7 @@ function InternalNavbar() {
       config-url={navbarConfigUrl} // Set font-size to be consitent with other UIs.
       style={{
         width: '100%',
-        fontSize: 'max(14px, 0.972vw);',
+        fontSize: 'max(14px, 0.972vw)',
       }}
       ref={navbarRef}
     />
