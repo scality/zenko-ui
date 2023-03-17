@@ -1,19 +1,16 @@
-import type {
-  EnabledState,
-  InstanceStateSnapshot,
-} from '../../../../types/stats';
-import type {
-  LocationDetails as LocationFormDetails,
-  LocationType,
-} from '../../../../types/config';
 import React from 'react';
 import { Tooltip } from '@scality/core-ui';
-// import { TextWithTooltip } from '../../../ui-elements/TooltipComponents';
-// import { calculateTimeDiffInHours } from '../../../utils';
+
 import { storageOptions } from './storageOptions';
+import { EnabledState, InstanceStateSnapshot } from '../../../../types/stats';
+import {
+  LocationDetails as LocationFormDetails,
+  LocationTypeKey,
+} from '../../../../types/config';
+
 type Props = {
   edit: boolean;
-  locationType: LocationType;
+  locationType: LocationTypeKey;
   details: LocationFormDetails;
   editingExisting: boolean;
   repStatus?: EnabledState;
@@ -49,12 +46,11 @@ export default class LocationDetails extends React.Component<Props> {
       return null;
     }
 
-    let msg =
+    let msg: JSX.Element | string =
       'Replication to this location is paused. All changes queued ' +
       'for replication to this location will be processed on resume.';
 
     if (this.props.repSchedule) {
-      // const diff = calculateTimeDiffInHours(this.props.repSchedule);
       const diff = 'TODO';
 
       if (diff && this.props.repSchedule) {
@@ -85,9 +81,7 @@ export default class LocationDetails extends React.Component<Props> {
       <div className="p-2">
         <div>
           Location Type:&nbsp;
-          <span
-            className="px-2"
-          >
+          <span className="px-2">
             {storageOptions[this.props.locationType].name}
           </span>
           <br />
