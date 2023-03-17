@@ -632,7 +632,7 @@ describe.skip('Locations', () => {
     }
   });
 
-  it.only('should disable delete location button if transition workflow is created on it', async () => {
+  it('should disable delete location button if transition workflow is created on it', async () => {
     const TEST_ACCOUNT = 'Test Account';
     const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 

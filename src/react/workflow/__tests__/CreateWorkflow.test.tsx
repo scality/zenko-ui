@@ -83,15 +83,15 @@ const server = setupServer(
 const selectors = {
   replicationOption: () =>
     screen.getByRole('option', {
-      name: 'Replication Replication',
+      name: /Replication/i,
     }),
   expirationOption: () =>
     screen.getByRole('option', {
-      name: 'Expiration Expiration',
+      name: /Expiration/i,
     }),
   transitionOption: () =>
     screen.getByRole('option', {
-      name: 'Transition Transition',
+      name: /Transition/i,
     }),
   createButton: () => screen.getByRole('button', { name: /create/i }),
   cancelButton: () => screen.getByRole('button', { name: /cancel/i }),
@@ -109,9 +109,9 @@ const selectors = {
 };
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'warn' });
+  server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(20_000);
+  jest.setTimeout(10_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -233,11 +233,12 @@ describe('CreateWorkflow', () => {
         },
       },
     });
+    // Select Workflow Type
+    userEvent.click(selectors.workflowTypeSelect());
     //V
-    expect(
-      screen.queryByRole('option', {
-        name: 'Replication Replication',
-      }),
-    ).toBe(null);
+    expect(selectors.replicationOption()).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
   });
 });

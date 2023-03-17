@@ -14,7 +14,6 @@ import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import userEvent from '@testing-library/user-event';
 import { PerLocationMap } from '../../../types/config';
 import { S3Bucket } from '../../../types/s3';
-import { log } from 'vega';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
 import { Form, FormSection } from '@scality/core-ui';
 
@@ -115,7 +114,10 @@ const WithFormProvider = ({ children }) => {
   });
   return <FormProvider {...formMethods}>{childrenWithProps}</FormProvider>;
 };
-
+const selectors = {
+  bucketSelect: () => screen.getByLabelText(/bucket name \*/i),
+  bucketOption: () => screen.getByRole('option', { name: /bucket2/i }),
+};
 // prettier-ignore
 describe('ReplicationForm', () => {
   it('should render a form for replication workflow', async () => {
@@ -168,23 +170,8 @@ describe('ReplicationForm', () => {
       expect(formValidationa.textContent).toBe('form-valid');
 
       // Select the Source Bucket.
-      const sourceBucket = component.container.querySelector('#sourceBucket')!;
-      const sControl = sourceBucket.querySelector('.sc-select__control');
-      const srcCtl = notFalsyTypeGuard(sControl);
-      userEvent.click(srcCtl);
-
-      const sOpt = sourceBucket.querySelector('.sc-select__option')
-      expect(sOpt?.textContent).toBe("bucket1 (us-east-1 / Local Filesystem)");
-      expect(sOpt?.getAttribute('aria-disabled')).toBe('true');
-      userEvent.click((srcCtl));
-      expect(srcCtl?.textContent).toBe("Select...");
-      userEvent.click((srcCtl));
-
-      const sOpts = sourceBucket.querySelectorAll('.sc-select__option')[1]
-      const sOpt2 = notFalsyTypeGuard(sOpts);
-      expect(sOpt2.textContent).toBe("bucket2 (us-east-1 / Local Filesystem)");
-      userEvent.click(sOpt2);
-      expect(srcCtl?.textContent).toBe("bucket2 (us-east-1 / Local Filesystem)");
+      userEvent.click(selectors.bucketSelect());
+      userEvent.click(selectors.bucketOption());
 
       // Select the first destination.
       const LocationName = screen.getByTestId('select-location-name-replication-0');

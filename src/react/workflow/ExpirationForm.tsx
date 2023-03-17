@@ -195,7 +195,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   return (
                     <Select
                       onBlur={onBlur}
-                      id="sourceBucket"
+                      id="bucketName"
                       value={sourceBucket}
                       onChange={(newBucket: string) => {
                         onChange(newBucket);
