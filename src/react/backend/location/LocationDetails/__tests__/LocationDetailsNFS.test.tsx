@@ -1,8 +1,8 @@
 /* eslint-disable */
 import { themeMount as mount, updateInputText } from '../../../../utils/test';
 import LocationDetailsNFS from '../LocationDetailsNFS';
-import React from 'react';
 import { shallow } from 'enzyme';
+
 const props = {
   details: {},
   onChange: () => {},
@@ -153,10 +153,10 @@ describe('class <LocationDetailsNFS />', () => {
     const component = mount(
       <LocationDetailsNFS {...props} onChange={(l) => (location = l)} />,
     );
-    component.find('Select#nfs-protocol').props().onChange({
+    component.find('Select.nfs-protocol').props().onChange({
       value: 'udp',
     });
-    component.find('Select#nfs-version').props().onChange({
+    component.find('Select.nfs-version').props().onChange({
       value: 'v4',
     });
     updateInputText(component, 'server', 'ep');

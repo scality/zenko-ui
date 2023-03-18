@@ -95,6 +95,9 @@ const CreateWorkflow = () => {
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
 
+  const bucket = bucketList.find((bucket) => bucket.Name === bucketName);
+  const isBucketVersioningEnabled = bucket?.VersionStatus === 'Enabled';
+
   const defaultFormValues = {
     type: 'select',
     replication: newReplicationForm(bucketName),
@@ -206,8 +209,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
@@ -249,8 +256,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
@@ -292,8 +303,12 @@ const CreateWorkflow = () => {
         }
       },
       onError: (error) => {
-        dispatch(handleClientError(error));
-        dispatch(handleApiError(error, 'byModal'));
+        try {
+          dispatch(handleClientError(error));
+          dispatch(handleApiError(error, 'byModal'));
+        } catch (e) {
+          dispatch(handleApiError(e as ApiError, 'byModal'));
+        }
       },
     },
   );
@@ -365,6 +380,7 @@ const CreateWorkflow = () => {
                     <Select.Option
                       value="replication"
                       icon={<OptionIcon icon="Replication" />}
+                      disabled={!!(bucketName && !isBucketVersioningEnabled)}
                     >
                       Replication
                     </Select.Option>

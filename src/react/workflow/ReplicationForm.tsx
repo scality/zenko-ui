@@ -442,7 +442,7 @@ const RenderDestination = ({
                     <FormGroup
                       required={index === 0}
                       label={index === 0 ? 'Location Name' : ''}
-                      id={`select-location-${index}`}
+                      id={`select-location-${destinationLocations.length - 1}`}
                       error={touched ? err?.message : undefined}
                       helpErrorPosition="right"
                       content={
@@ -455,7 +455,7 @@ const RenderDestination = ({
                         >
                           <Select
                             onBlur={onBlur}
-                            id="destinationLocation"
+                            id={`select-location-${index}`}
                             onChange={(value) => {
                               const newValues = [...destinationLocations];
                               newValues[index] = value;

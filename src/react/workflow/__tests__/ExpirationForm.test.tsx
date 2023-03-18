@@ -20,17 +20,18 @@ import { Form, FormSection } from '@scality/core-ui';
 const instanceId = 'instanceId';
 const accountName = 'pat';
 const expirationId = 'expirationId';
-
+const VERSIONED_BUCKET_NAME = 'bucket1';
+const SUSPENDED_BUCKET_NAME = 'bucket2';
 const S3BucketList: List<S3Bucket> = List.of(
   {
     CreationDate: '2020-01-01T00:00:00.000Z',
-    Name: 'bucket1',
+    Name: VERSIONED_BUCKET_NAME,
     LocationConstraint: 'us-east-1',
     VersionStatus: 'Enabled',
   },
   {
     CreationDate: '2021-01-01T00:00:00.000Z',
-    Name: 'bucket2',
+    Name: SUSPENDED_BUCKET_NAME,
     LocationConstraint: 'us-east-1',
     VersionStatus: 'Suspended',
   },
@@ -91,7 +92,13 @@ const WithFormProvider = ({ children }) => {
   });
   return <FormProvider {...formMethods}>{childrenWithProps}</FormProvider>;
 };
-
+const selectors = {
+  bucketSelect: () => screen.getByLabelText(/bucket name \*/i),
+  versionedBucketOption: () =>
+    screen.getByRole('option', { name: new RegExp(VERSIONED_BUCKET_NAME) }),
+  suspendedBucketOption: () =>
+    screen.getByRole('option', { name: new RegExp(SUSPENDED_BUCKET_NAME) }),
+};
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
     try {
@@ -131,14 +138,9 @@ describe('ExpirationForm', () => {
       expect(spinButton[1].getAttribute('type')).toBe('number');
       expect(spinButton[2].getAttribute('type')).toBe('number');
 
-      const sourceBucket = result.container.querySelector('#sourceBucket')!;
-      userEvent.click(
-        notFalsyTypeGuard(sourceBucket.querySelector('.sc-select__control')),
-      );
-      userEvent.click(screen.getAllByRole('option')[0]);
-      expect(sourceBucket.children[1]?.textContent).toBe(
-        'bucket1 (us-east-1 / Local Filesystem)',
-      );
+      // Select the Source Bucket.
+      userEvent.click(selectors.bucketSelect());
+      userEvent.click(selectors.versionedBucketOption());
 
       const expireCurrentToggleState = result.container.querySelector(
         '[for="expireCurrentVersions"]',
@@ -173,13 +175,9 @@ describe('ExpirationForm', () => {
       expect(removeExpired).toBeDisabled();
       expect(expireIncompleteMultipart).not.toBeDisabled();
 
-      userEvent.click(
-        notFalsyTypeGuard(sourceBucket.querySelector('.sc-select__control')),
-      );
-      userEvent.click(screen.getAllByRole('option')[1]);
-      expect(sourceBucket.children[1]?.textContent).toBe(
-        'bucket2 (us-east-1 / Local Filesystem)',
-      );
+      // Select the Source Bucket.
+      userEvent.click(selectors.bucketSelect());
+      userEvent.click(selectors.suspendedBucketOption());
 
       expect(expireCurrent).not.toBeDisabled();
       expect(expirePrevious).toBeDisabled();

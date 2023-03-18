@@ -195,7 +195,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   return (
                     <Select
                       onBlur={onBlur}
-                      id="sourceBucket"
+                      id="bucketName"
                       value={sourceBucket}
                       onChange={(newBucket: string) => {
                         onChange(newBucket);
@@ -435,7 +435,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   />
                   {!isSourceBucketVersionned ? (
                     <IconHelp
-                      tooltipMessage="This action is disabled when source bucket is not versionned"
+                      tooltipMessage="This action is disabled when source bucket is not versioned"
                       variant="outline"
                       overlayStyle={{ width: '13rem' }}
                     />
@@ -560,7 +560,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                               currentVersionTriggerDelayDays !== undefined
                                 ? '\n'
                                 : '') +
-                              'This action is disabled when source bucket is not versionned'
+                              'This action is disabled when source bucket is not versioned'
                             : ''
                         }`}
                         overlayStyle={{ width: '13rem' }}
@@ -626,7 +626,7 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                   />
                   {!isSourceBucketVersionned ? (
                     <IconHelp
-                      tooltipMessage="This action is disabled when source bucket is not versionned"
+                      tooltipMessage="This action is disabled when source bucket is not versioned"
                       variant="outline"
                       overlayStyle={{ width: '13rem' }}
                     />
