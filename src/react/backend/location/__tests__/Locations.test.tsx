@@ -692,10 +692,6 @@ describe.skip('Locations', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
-      timeout: 8000,
-    });
-
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Checking if linked to workflows.../i)],
       { timeout: 8000 },

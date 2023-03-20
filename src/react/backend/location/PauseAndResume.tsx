@@ -1,13 +1,13 @@
-import { Icon, Loader } from '@scality/core-ui';
+import { Icon, Loader, spacing } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../../types/state';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { handleClientError, networkEnd, networkStart } from '../../actions';
+import { networkEnd, networkStart } from '../../actions';
 import { useManagementClient } from '../../ManagementProvider';
 import { InlineButton } from '../../ui-elements/Table';
-import type { InstanceStatus } from '../../../types/stats';
+import { getInstanceStatusQuery } from './queries';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const dispatch = useDispatch();
@@ -16,9 +16,13 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   );
   const managementClient = useManagementClient();
   const queryClient = useQueryClient();
+  const instanceStatusQuery = getInstanceStatusQuery(
+    dispatch,
+    notFalsyTypeGuard(managementClient),
+    instanceId,
+  );
   const invalidateInstanceStatusQueryCache = async () => {
-    await queryClient.invalidateQueries(['instanceStatus', instanceId]);
-    await queryClient.refetchQueries(['instanceStatus', instanceId]);
+    await queryClient.refetchQueries(instanceStatusQuery.queryKey);
     dispatch(networkEnd());
   };
 
@@ -76,22 +80,14 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     data: instanceStatus,
     status,
     isFetching: loading,
-  } = useQuery({
-    queryKey: ['instanceStatus', instanceId],
-    queryFn: () => {
-      return managementClient?.getLatestInstanceStatus(
-        instanceId,
-      ) as InstanceStatus;
-    },
-    onError: (error) => {
-      dispatch(handleClientError(error));
-    },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
+  } = useQuery(instanceStatusQuery);
 
   if (status === 'loading' || status === 'idle') {
-    return <Loader data-testid="loader" />;
+    return (
+      <Box display="flex">
+        <Loader style={{ paddingRight: spacing.r8 }} /> Loading
+      </Box>
+    );
   }
 
   const ingestionStates = instanceStatus?.metrics?.['ingest-schedule']?.states;

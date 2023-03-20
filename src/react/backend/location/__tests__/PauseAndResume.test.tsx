@@ -36,7 +36,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -65,7 +65,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -98,7 +98,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -130,7 +130,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -159,7 +159,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -192,7 +192,7 @@ describe('PauseAndResume', () => {
       },
     });
 
-    await waitForElementToBeRemoved(() => screen.queryByTestId('loader'), {
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
     });
 
@@ -206,6 +206,6 @@ describe('PauseAndResume', () => {
       },
     });
 
-    expect(screen.getByTestId('loader')).toBeInTheDocument();
+    expect(screen.getByText('Loading')).toBeInTheDocument();
   });
 });
