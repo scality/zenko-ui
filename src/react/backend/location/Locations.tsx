@@ -8,7 +8,7 @@ import {
 import { deleteLocation, handleClientError, networkEnd } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
-import type { InstanceStatus } from '../../../types/stats';
+
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
@@ -21,10 +21,7 @@ import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-import { Icon, IconHelp, Loader, Tooltip } from '@scality/core-ui';
-import { useQuery, useQueryClient } from 'react-query';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { useManagementClient } from '../../ManagementProvider';
+import { Icon, IconHelp } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
 
 type LocationRowProps = {
@@ -128,36 +125,6 @@ function Locations() {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const instanceId = notFalsyTypeGuard(
-    useSelector((state: AppState) => state.instances.selectedId),
-  );
-
-  const managementClient = useManagementClient();
-
-  const queryClient = useQueryClient();
-  const invalidateInstanceStatusQueryCache = async () => {
-    await queryClient.invalidateQueries(['instanceStatus', instanceId]);
-    await queryClient.refetchQueries(['instanceStatus', instanceId]);
-    dispatch(networkEnd());
-  };
-  const {
-    data: instanceStatus,
-    status,
-    isFetching,
-  } = useQuery({
-    queryKey: ['instanceStatus', instanceId],
-    queryFn: () => {
-      return managementClient.getLatestInstanceStatus(
-        instanceId,
-      ) as InstanceStatus;
-    },
-    onError: (error) => {
-      dispatch(handleClientError(error));
-    },
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-  });
-
   const features = useSelector((state: AppState) => state.auth.config.features);
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
@@ -234,16 +201,7 @@ function Locations() {
         minWidth: '12rem',
       },
       Cell: ({ row: { original } }: { row: LocationRowProps }) => (
-        <PauseAndResume
-          locationName={original.name}
-          ingestionStates={instanceStatus?.metrics?.['ingest-schedule']?.states}
-          replicationStates={instanceStatus?.metrics?.['crr-schedule']?.states}
-          loading={isFetching}
-          dispatch={dispatch}
-          invalidateInstanceStatusQueryCache={
-            invalidateInstanceStatusQueryCache
-          }
-        />
+        <PauseAndResume locationName={original.name} />
       ),
     });
 
@@ -279,7 +237,6 @@ function Locations() {
     buckets,
     endpoints,
     workflowsQuery.data?.replications,
-    isFetching,
     loading,
     features,
   ]);
@@ -291,21 +248,6 @@ function Locations() {
         btnTitle="Create Location"
         btnAction={() => dispatch(push('/create-location'))}
       />
-    );
-  }
-
-  if (status === 'loading' || status === 'idle') {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        height="100%"
-      >
-        <Loader>
-          <div>Loading</div>
-        </Loader>
-      </Box>
     );
   }
 

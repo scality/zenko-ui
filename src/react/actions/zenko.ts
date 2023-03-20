@@ -307,22 +307,6 @@ export function waitForIngestionUpdate(
     );
 }
 
-export function waitForReplicationUpdate(
-  locationName: string,
-  expectedState: string,
-): ThunkStatePromisedAction {
-  return (dispatch, getState) =>
-    until(
-      (cb) => {
-        const { instanceStatus } = getState();
-        const actualState =
-          instanceStatus.latest.metrics?.['crr-schedule']?.states[locationName];
-        setTimeout(cb, 500, null, actualState === expectedState);
-      },
-      (next) => dispatch(loadInstanceLatestStatus()).then(next),
-    );
-}
-
 export function pauseIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());
@@ -342,32 +326,6 @@ export function resumeIngestionSite(site: Site): ThunkStatePromisedAction {
     return zenkoClient
       .resumeIngestionSite(site)
       .then(() => dispatch(waitForIngestionUpdate(site, 'enabled')))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
-  };
-}
-
-export function pauseReplicationSite(site: Site): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { zenkoClient } = getClients(getState());
-    dispatch(networkStart('Pausing Replication workflow'));
-    return zenkoClient
-      .pauseCrrSite(site)
-      .then(() => dispatch(waitForReplicationUpdate(site, 'disabled')))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
-  };
-}
-
-export function resumeReplicationSite(site: Site): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { zenkoClient } = getClients(getState());
-    dispatch(networkStart('Resuming Replication workflow'));
-    return zenkoClient
-      .resumeCrrSite(site)
-      .then(() => dispatch(waitForReplicationUpdate(site, 'enabled')))
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));

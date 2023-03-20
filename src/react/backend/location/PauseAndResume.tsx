@@ -1,53 +1,55 @@
-import { Icon } from '@scality/core-ui';
+import { Icon, Loader } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
-import { useMutation } from 'react-query';
-import { useSelector } from 'react-redux';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../../types/state';
-import { WorkflowScheduleUnitState } from '../../../types/stats';
-import { networkStart } from '../../actions';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import { handleClientError, networkEnd, networkStart } from '../../actions';
+import { useManagementClient } from '../../ManagementProvider';
 import { InlineButton } from '../../ui-elements/Table';
+import type { InstanceStatus } from '../../../types/stats';
 
-export const PauseAndResume = ({
-  locationName,
-  ingestionStates,
-  replicationStates,
-  loading,
-  dispatch,
-  invalidateInstanceStatusQueryCache,
-}: {
-  locationName: string;
-  ingestionStates: WorkflowScheduleUnitState | null | undefined;
-  replicationStates: WorkflowScheduleUnitState | null | undefined;
-  loading: boolean;
-  dispatch: any;
-  invalidateInstanceStatusQueryCache: () => void;
-}) => {
-  const ingestion =
-    ingestionStates &&
-    ingestionStates[locationName] &&
-    ingestionStates[locationName];
-
-  const replication =
-    replicationStates && replicationStates[locationName]
-      ? replicationStates[locationName]
-      : null;
+export const PauseAndResume = ({ locationName }: { locationName: string }) => {
+  const dispatch = useDispatch();
+  const instanceId = notFalsyTypeGuard(
+    useSelector((state: AppState) => state.instances.selectedId),
+  );
+  const managementClient = useManagementClient();
+  const queryClient = useQueryClient();
+  const invalidateInstanceStatusQueryCache = async () => {
+    await queryClient.invalidateQueries(['instanceStatus', instanceId]);
+    await queryClient.refetchQueries(['instanceStatus', instanceId]);
+    dispatch(networkEnd());
+  };
 
   const zenkoClient = useSelector((state: AppState) => state.zenko.zenkoClient);
 
   const pauseReplicationSiteMutation = useMutation(
-    (locationName: string) => zenkoClient.pauseCrrSite(locationName),
+    (locationName: string) => {
+      dispatch(networkStart('Pausing Async Metadata updates'));
+      return zenkoClient.pauseCrrSite(locationName);
+    },
     {
       onSuccess: () => {
         invalidateInstanceStatusQueryCache();
+      },
+      onError: () => {
+        dispatch(networkEnd());
       },
     },
   );
 
   const resumeReplicationSiteMutation = useMutation(
-    (locationName: string) => zenkoClient.resumeCrrSite(locationName),
+    (locationName: string) => {
+      dispatch(networkStart('Resuming Replication workflow'));
+      return zenkoClient.resumeCrrSite(locationName);
+    },
     {
       onSuccess: () => {
         invalidateInstanceStatusQueryCache();
+      },
+      onError: () => {
+        dispatch(networkEnd());
       },
     },
   );
@@ -70,6 +72,40 @@ export const PauseAndResume = ({
     },
   );
 
+  const {
+    data: instanceStatus,
+    status,
+    isFetching: loading,
+  } = useQuery({
+    queryKey: ['instanceStatus', instanceId],
+    queryFn: () => {
+      return managementClient?.getLatestInstanceStatus(
+        instanceId,
+      ) as InstanceStatus;
+    },
+    onError: (error) => {
+      dispatch(handleClientError(error));
+    },
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return <Loader data-testid="loader" />;
+  }
+
+  const ingestionStates = instanceStatus?.metrics?.['ingest-schedule']?.states;
+  const replicationStates = instanceStatus?.metrics?.['crr-schedule']?.states;
+  const ingestion =
+    ingestionStates &&
+    ingestionStates[locationName] &&
+    ingestionStates[locationName];
+
+  const replication =
+    replicationStates && replicationStates[locationName]
+      ? replicationStates[locationName]
+      : null;
+
   if (replication || ingestion) {
     if (replication === 'enabled' || ingestion === 'enabled') {
       return (
@@ -91,11 +127,9 @@ export const PauseAndResume = ({
             label="Pause"
             onClick={() => {
               if (replication === 'enabled') {
-                dispatch(networkStart('Pausing Replication workflow'));
                 pauseReplicationSiteMutation.mutate(locationName);
               }
               if (ingestion === 'enabled') {
-                dispatch(networkStart('Pausing Async Metadata updates'));
                 pauseIngestionSiteMutation.mutate(locationName);
               }
             }}
@@ -127,11 +161,9 @@ export const PauseAndResume = ({
             label="Resume"
             onClick={() => {
               if (replication === 'disabled') {
-                dispatch(networkStart('Resuming Replication workflow'));
                 resumeReplicationSiteMutation.mutate(locationName);
               }
               if (ingestion === 'disabled') {
-                dispatch(networkStart('Resuming Async Metadata updates'));
                 resumeIngestionSiteMutation.mutate(locationName);
               }
             }}
