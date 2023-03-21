@@ -222,7 +222,7 @@ const LocationDetailsAzureArchive = ({
         />
         <FormGroup
           id="endpoint"
-          label="Endpoint"
+          label="Blob Endpoint"
           required
           helpErrorPosition="bottom"
           content={
@@ -257,16 +257,16 @@ const LocationDetailsAzureArchive = ({
       </FormSection>
       <FormSection title={{ name: 'Queue' }} forceLabelWidth={210}>
         <FormGroup
-          id="tutu"
+          id="queue.type"
           label="Queue type"
           helpErrorPosition="bottom"
           required
           content={
             <Select
+              id="queue.type"
               placeholder="Select an option..."
               onChange={onChangeQueueType}
               value={formState.queue.type}
-              inputId="tutu"
             >
               <Select.Option value={'location-azure-servicebus-topic-v1'}>
                 Azure Service Bus Topic
@@ -284,8 +284,8 @@ const LocationDetailsAzureArchive = ({
         'topicName' in formState.queue ? (
           <>
             <FormGroup
-              label="Topic Name"
               id="queue.topicName"
+              label="Topic Name"
               helpErrorPosition="bottom"
               required
               content={
@@ -301,8 +301,8 @@ const LocationDetailsAzureArchive = ({
               }
             />
             <FormGroup
-              label="Topic Subscription ID"
               id="queue.topicSubscriptionId"
+              label="Topic Subscription ID"
               helpErrorPosition="bottom"
               required
               content={
@@ -318,10 +318,11 @@ const LocationDetailsAzureArchive = ({
               }
             />
             <FormGroup
-              label="Namespace"
               id="queue.namespace"
+              label="Service Bus Endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="`<ACCOUNT>.servicebus.windows.net` is usually used as Namespace. It will be derived from the endpoint if not explicitely provided."
+              labelHelpTooltip="`https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint. It will be derived from the Service Bus namespace if not explicitely provided."
+              required
               content={
                 <Input
                   name="queue.namespace"
@@ -361,9 +362,10 @@ const LocationDetailsAzureArchive = ({
               }
             />
             <FormGroup
-              label="Queue Endpoint"
+              label="Service Bus Endpoint"
               id="queue.endpoint"
               helpErrorPosition="bottom"
+              labelHelpTooltip="https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint. It will be derived from the Service Bus namespace if not explicitely provided."
               required
               content={
                 <Input
@@ -406,7 +408,7 @@ const LocationDetailsAzureArchive = ({
               label="Queue Endpoint"
               id="queue.endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="`<ACCOUNT>.storage.windows.net` is usually used as Storage Queue endpoint. It will be derived from the storage endpoint if not explicitely provided."
+              labelHelpTooltip="`https://<<StorageaccountName>>.queue.core.windows.net is usually used as the Storage queue endpoint. It will be derived from the storage account name if not explicitely provided."
               content={
                 <Input
                   name="queue.endpoint"

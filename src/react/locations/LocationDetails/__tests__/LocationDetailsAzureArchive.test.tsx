@@ -1,6 +1,5 @@
 import { fireEvent, getByLabelText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 import { Locationv1Details } from '../../../../../js/managementClient/api';
 import { reduxRender } from '../../../../utils/test';
 import LocationDetailsAzureArchive from '../LocationDetailsAzureArchive';
@@ -94,7 +93,7 @@ const azureArchiveCommonHelper = (
   endpoint: string,
   targetBucket: string,
 ) => {
-  userEvent.type(getByLabelText(container, 'Endpoint *'), endpoint);
+  userEvent.type(getByLabelText(container, 'Blob Endpoint *'), endpoint);
   userEvent.type(
     getByLabelText(container, /Target Azure Container Name \*/i),
     targetBucket,
@@ -115,7 +114,7 @@ const serviceBusTopicHelper = (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Topic Name \*/, 'mock-topic-name'],
     [/Topic Subscription ID \*/, 'mock-subscription-id'],
-    [/Namespace/, 'mock-namespace'],
+    [/Service Bus Endpoint \*/, 'mock-namespace'],
   ];
   prefilledHelper(container, preDefinedAzureServiceBusTopic);
 };
@@ -123,7 +122,7 @@ const serviceBusTopicHelper = (container: HTMLElement) => {
 const serviceBusQueueHelper = (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Queue Name \*/, 'mock-queue-name'],
-    [/Queue Endpoint \*/, 'mock-endpoint'],
+    [/Service Bus Endpoint \*/, 'mock-endpoint'],
   ];
   prefilledHelper(container, preDefinedAzureServiceBusTopic);
 };
@@ -177,27 +176,23 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     //V
     const textGrep = [
-      'Endpoint *',
+      /Service Bus Endpoint \*/i,
       /target azure container name \*/i,
       /Queue type \*/i,
       /Topic Name \*/i,
       /topic subscription id \*/i,
-      /namespace/i,
-      //   /Authentication type \*/i,
+      /Service Bus Endpoint */i,
+      /Authentication type \*/i,
       /Tenant ID \*/i,
       /Azure Client ID \*/i,
       /Azure Client Key \*/i,
     ];
-
-    // Test more stuff
 
     textGrep.forEach((text) => {
       expect(screen.getByLabelText(text)).toBeInTheDocument();
       expect(screen.getByLabelText(text)).toHaveValue('');
     });
   });
-
-  // usefull for later
 
   test('Azure Service Bus Topic + Client Secret', async () => {
     // S
