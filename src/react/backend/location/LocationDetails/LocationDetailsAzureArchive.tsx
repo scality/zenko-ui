@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import lodashSet from 'lodash.set';
-import styled from 'styled-components';
-import { FormGroup, FormSection, Stack } from '@scality/core-ui';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { FormGroup, FormSection } from '@scality/core-ui';
 import { Select, Input } from '@scality/core-ui/dist/next';
 
 import { LocationDetailsFormProps } from '.';
@@ -16,12 +14,10 @@ import {
   LocationAzureSharedKey,
   LocationAzureAuth,
 } from '../../../../js/managementClient/api';
-import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
-
-const TertiaryText = styled.span`
-  color: ${(props) => props.theme.brand.textTertiary};
-  margin-left: ${spacing.sp4};
-`;
+import {
+  ColdLocationIcon,
+  ColdLocationTemperatureTooltip,
+} from './ColdStorageFormComponent';
 
 type State = {
   endpoint: string;
@@ -205,20 +201,8 @@ const LocationDetailsAzureArchive = ({
           id="temperature"
           label="Temperature"
           helpErrorPosition="bottom"
-          labelHelpTooltip={
-            <>
-              The Temperature of this Location is Cold. <br /> <br /> You can
-              move your data in this Location through a Transition Workflow.
-              <br /> <br />
-              Once your data are in this Location, you can only trigger a
-              request for restoration to get a temporary access to the object.
-            </>
-          }
-          content={
-            <Stack>
-              <ColdStorageIcon /> <TertiaryText>Cold</TertiaryText>
-            </Stack>
-          }
+          labelHelpTooltip={<ColdLocationTemperatureTooltip />}
+          content={<ColdLocationIcon />}
         />
         <FormGroup
           id="endpoint"
@@ -374,7 +358,7 @@ const LocationDetailsAzureArchive = ({
                   name="queue.endpoint"
                   id="queue.endpoint"
                   type="text"
-                  placeholder="sb://toto"
+                  placeholder="https://mybus.servicebus.windows.net"
                   value={formState.queue.endpoint}
                   autoComplete="off"
                   onChange={onFormItemChange}

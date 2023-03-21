@@ -194,6 +194,40 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
+  test('Azure Service Buc Topic should not be able to select Azure Shared Key', async () => {
+    // S
+    const { container } = setupAndRenderLocationDetails();
+    selectQueueTypeHelper('location-azure-servicebus-topic-v1', container);
+
+    // E
+    const selector = getByLabelText(container, /Authentication type \*/i);
+    userEvent.click(selector);
+
+    // V
+    expect(
+      screen.getByRole('option', {
+        name: /Azure Shared Key/i,
+      }),
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('Azure Service Bus Queue should not be able to select Azure Shared Key', () => {
+    // S
+    const { container } = setupAndRenderLocationDetails();
+    selectQueueTypeHelper('location-azure-servicebus-queue-v1', container);
+
+    // E
+    const selector = getByLabelText(container, /Authentication type \*/i);
+    userEvent.click(selector);
+
+    // V
+    expect(
+      screen.getByRole('option', {
+        name: /Azure Shared Key/i,
+      }),
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
   test('Azure Service Bus Topic + Client Secret', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
