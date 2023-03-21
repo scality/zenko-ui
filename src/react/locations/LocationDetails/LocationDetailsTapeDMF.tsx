@@ -1,11 +1,13 @@
-import { FormGroup, FormSection, Stack } from '@scality/core-ui';
+import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { LocationDetailsFormProps } from '.';
-import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
-import InputList from '../../ui-elements/InputList';
+import InputList from '../../../ui-elements/InputList';
+import {
+  ColdLocationIcon,
+  ColdLocationTemperatureTooltip,
+} from './ColdStorageFormComponent';
+
 type State = {
   endpoint: string;
   repoId: string[];
@@ -20,11 +22,6 @@ const INIT_STATE: State = {
   username: '',
   password: '',
 };
-
-const TertiaryText = styled.span`
-  color: ${(props) => props.theme.brand.textTertiary};
-  margin-left: ${spacing.sp4};
-`;
 
 export default function LocationDetailsTapeDMF({
   details,
@@ -55,20 +52,8 @@ export default function LocationDetailsTapeDMF({
           id="temperature"
           label="Temperature"
           helpErrorPosition="bottom"
-          labelHelpTooltip={
-            <>
-              The Temperature of this Location is Cold. <br /> <br /> You can
-              move your data in this Location through a Transition Workflow.
-              <br /> <br />
-              Once your data are in this Location, you can only trigger a
-              request for restoration to get a temporary access to the object.
-            </>
-          }
-          content={
-            <Stack>
-              <ColdStorageIcon /> <TertiaryText>Cold</TertiaryText>
-            </Stack>
-          }
+          labelHelpTooltip={<ColdLocationTemperatureTooltip />}
+          content={<ColdLocationIcon />}
         />
 
         <FormGroup
