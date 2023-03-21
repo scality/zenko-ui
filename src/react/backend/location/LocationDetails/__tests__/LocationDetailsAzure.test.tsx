@@ -1,12 +1,8 @@
 /* eslint-disable */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../../types/typeGuards';
-import {
-  reduxRender,
-  themeMount as mount,
-  updateInputText,
-} from '../../../../utils/test';
+import { reduxRender, themeMount as mount } from '../../../../utils/test';
 import LocationDetailsAzure from '../LocationDetailsAzure';
 const props = {
   details: {},
@@ -51,24 +47,18 @@ describe('class <LocationDetailsAzure />', () => {
     setupAndRenderLocationDetails();
 
     //V
-    expect(
-      screen.getByLabelText(/Azure Storage Endpoint/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Storage Endpoint/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toHaveValue('');
 
-    expect(
-      screen.getByLabelText(/Target Azure Container Name/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Target Azure Container Name/i)).toHaveValue(
-      '',
-    );
+    expect(screen.getByLabelText(/Target Container Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Target Container Name/i)).toHaveValue('');
 
-    expect(screen.getByLabelText(/Azure Account Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Account Name/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Storage Account Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Name/i)).toHaveValue('');
 
-    expect(screen.getByLabelText(/Azure Account Key/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Key/i)).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
-    expect(screen.getByLabelText(/Azure Account Key/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Storage Account Key/i)).toHaveValue('');
   });
   it('should show azure details when editing an existing location', () => {
     //S
@@ -82,28 +72,24 @@ describe('class <LocationDetailsAzure />', () => {
     setupAndRenderLocationDetails(locationDetails);
 
     //V
-    expect(
-      screen.getByLabelText(/Azure Storage Endpoint/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Storage Endpoint/i)).toHaveValue(
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toHaveValue(
       locationDetails.endpoint,
     );
 
-    expect(
-      screen.getByLabelText(/Target Azure Container Name/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Target Azure Container Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Target Container Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Target Container Name/i)).toHaveValue(
       locationDetails.bucketName,
     );
 
-    expect(screen.getByLabelText(/Azure Account Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Account Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Storage Account Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Name/i)).toHaveValue(
       locationDetails.accessKey,
     );
 
-    expect(screen.getByLabelText(/Azure Account Key/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Key/i)).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
-    expect(screen.getByLabelText(/Azure Account Key/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Storage Account Key/i)).toHaveValue('');
   });
   it('should show azure details when editing an existing location with auth type location-azure-shared-key', () => {
     //S
@@ -120,28 +106,24 @@ describe('class <LocationDetailsAzure />', () => {
     setupAndRenderLocationDetails(locationDetails);
 
     //V
-    expect(
-      screen.getByLabelText(/Azure Storage Endpoint/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Storage Endpoint/i)).toHaveValue(
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toHaveValue(
       locationDetails.endpoint,
     );
 
-    expect(
-      screen.getByLabelText(/Target Azure Container Name/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Target Azure Container Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Target Container Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Target Container Name/i)).toHaveValue(
       locationDetails.bucketName,
     );
 
-    expect(screen.getByLabelText(/Azure Account Name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Account Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Storage Account Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Name/i)).toHaveValue(
       locationDetails.auth.accountName,
     );
 
-    expect(screen.getByLabelText(/Azure Account Key/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Storage Account Key/i)).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
-    expect(screen.getByLabelText(/Azure Account Key/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Storage Account Key/i)).toHaveValue('');
   });
 
   it('should show azure details when editing an existing location with auth type location-azure-client-secret', () => {
@@ -159,28 +141,24 @@ describe('class <LocationDetailsAzure />', () => {
     setupAndRenderLocationDetails(locationDetails);
 
     //V
-    expect(
-      screen.getByLabelText(/Azure Storage Endpoint/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Storage Endpoint/i)).toHaveValue(
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toHaveValue(
       locationDetails.endpoint,
     );
 
-    expect(
-      screen.getByLabelText(/Target Azure Container Name/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Target Azure Container Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Target Container Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Target Container Name/i)).toHaveValue(
       locationDetails.bucketName,
     );
 
-    expect(screen.getByLabelText(/Azure Client Id/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Client Id/i)).toHaveValue(
+    expect(screen.getByLabelText(/Client ID/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Client ID/i)).toHaveValue(
       locationDetails.auth.clientId,
     );
 
-    expect(screen.getByLabelText(/Azure Client Key/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Client Secret/i)).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
-    expect(screen.getByLabelText(/Azure Client Key/i)).toHaveValue('');
+    expect(screen.getByLabelText(/Client Secret/i)).toHaveValue('');
   });
 
   it('should show azure details when editing an existing location with auth type location-azure-shared-access-signature', () => {
@@ -197,25 +175,19 @@ describe('class <LocationDetailsAzure />', () => {
     setupAndRenderLocationDetails(locationDetails);
 
     //V
-    expect(
-      screen.getByLabelText(/Azure Storage Endpoint/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Azure Storage Endpoint/i)).toHaveValue(
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Blob Endpoint/i)).toHaveValue(
       locationDetails.endpoint,
     );
 
-    expect(
-      screen.getByLabelText(/Target Azure Container Name/i),
-    ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Target Azure Container Name/i)).toHaveValue(
+    expect(screen.getByLabelText(/Target Container Name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Target Container Name/i)).toHaveValue(
       locationDetails.bucketName,
     );
 
-    expect(
-      screen.getByLabelText(/Azure Storage Sas Token/i),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/SAS token/i)).toBeInTheDocument();
     // for now we just set it as empty since it's encrypted
-    expect(screen.getByLabelText(/Azure Storage Sas Token/i)).toHaveValue('');
+    expect(screen.getByLabelText(/SAS token/i)).toHaveValue('');
   });
 
   const setCommonValuesAndPerformCommonChecksOnAuthType = ({
@@ -227,9 +199,9 @@ describe('class <LocationDetailsAzure />', () => {
     targetBucket: string;
     container: HTMLElement;
   }) => {
-    userEvent.type(screen.getByLabelText(/Azure Storage Endpoint/i), endpoint);
+    userEvent.type(screen.getByLabelText(/Blob Endpoint/i), endpoint);
     userEvent.type(
-      screen.getByLabelText(/Target Azure Container Name/i),
+      screen.getByLabelText(/Target Container Name/i),
       targetBucket,
     );
 
@@ -273,8 +245,8 @@ describe('class <LocationDetailsAzure />', () => {
       targetBucket,
     });
 
-    userEvent.type(screen.getByLabelText(/Azure Account Name/i), accountName);
-    userEvent.type(screen.getByLabelText(/Azure Account Key/i), accountKey);
+    userEvent.type(screen.getByLabelText(/Storage Account Name/i), accountName);
+    userEvent.type(screen.getByLabelText(/Storage Account Key/i), accountKey);
     //V
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -301,8 +273,8 @@ describe('class <LocationDetailsAzure />', () => {
       targetBucket,
     });
     userEvent.click(screen.getByText(/Azure Client Secret/i));
-    userEvent.type(screen.getByLabelText(/Azure Client Id/i), clientId);
-    userEvent.type(screen.getByLabelText(/Azure Client Key/i), clientKey);
+    userEvent.type(screen.getByLabelText(/Client ID/i), clientId);
+    userEvent.type(screen.getByLabelText(/Client Secret/i), clientKey);
     //V
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -329,7 +301,7 @@ describe('class <LocationDetailsAzure />', () => {
     });
     fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
     userEvent.click(screen.getByText(/Azure Shared Access Signature/i));
-    userEvent.type(screen.getByLabelText(/Azure Storage Sas Token/i), sasToken);
+    userEvent.type(screen.getByLabelText(/SAS token/i), sasToken);
     //V
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,

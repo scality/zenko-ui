@@ -138,7 +138,7 @@ export default class LocationDetailsAzure extends React.Component<
     return (
       <FormSection forceLabelWidth={220}>
         <FormGroup
-          label="Azure Storage Endpoint"
+          label="Blob endpoint"
           id="endpoint"
           helpErrorPosition="bottom"
           required
@@ -157,7 +157,7 @@ export default class LocationDetailsAzure extends React.Component<
 
         <FormGroup
           id="bucketName"
-          label="Target Azure Container Name"
+          label="Target Container Name"
           required
           helpErrorPosition="bottom"
           content={
@@ -201,7 +201,7 @@ export default class LocationDetailsAzure extends React.Component<
         this.state.auth.type === 'location-azure-shared-key' ? (
           <>
             <FormGroup
-              label="Azure Account Name"
+              label="Storage Account Name"
               id="accountName"
               helpErrorPosition="bottom"
               required
@@ -219,7 +219,7 @@ export default class LocationDetailsAzure extends React.Component<
             />
             <FormGroup
               id="accountKey"
-              label="Azure Account Key"
+              label="Storage Account Key"
               labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
             instance's RSA key pair so that we're unable to see them."
               helpErrorPosition="bottom"
@@ -245,7 +245,7 @@ export default class LocationDetailsAzure extends React.Component<
         this.state.auth.type === 'location-azure-client-secret' ? (
           <>
             <FormGroup
-              label="Azure Client Id"
+              label="Client ID"
               id="clientId"
               helpErrorPosition="bottom"
               required
@@ -263,9 +263,9 @@ export default class LocationDetailsAzure extends React.Component<
             />
             <FormGroup
               id="clientKey"
-              label="Azure Client Key"
-              labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
-            instance's RSA key pair so that we're unable to see them."
+              label="Client Secret"
+              labelHelpTooltip="A secret string that the application uses to prove its identity when requesting a token. 
+              Also can be referred to as application password."
               helpErrorPosition="bottom"
               required
               content={
@@ -289,9 +289,9 @@ export default class LocationDetailsAzure extends React.Component<
         this.state.auth.type === 'location-azure-shared-access-signature' ? (
           <>
             <FormGroup
-              label="Azure Storage Sas Token"
-              labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
-            instance's RSA key pair so that we're unable to see them."
+              label="SAS Token"
+              labelHelpTooltip="The query string that includes all of the information required to authenticate the SAS, 
+              as well as to specify the service, resource, and permissions available for access, and the time interval over which the signature is valid."
               id="storageSasToken"
               helpErrorPosition="bottom"
               required
