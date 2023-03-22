@@ -52,6 +52,7 @@ import { useManagementClient } from '../ManagementProvider';
 import { Account } from '../../types/iam';
 import { SelectOption } from '../../types/ui';
 import { useEffect } from 'react';
+import { WorkflowState } from './WorkflowState';
 
 type Props = {
   bucketList: S3BucketList;
@@ -508,6 +509,7 @@ const RenderDestination = ({
                               trigger();
                             }}
                           />
+                          <WorkflowState locationName={destLoc} />
                         </Box>
                       }
                     />

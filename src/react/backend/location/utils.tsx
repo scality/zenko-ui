@@ -1,5 +1,3 @@
-import { $PropertyType } from 'utility-types';
-import { HelpAsyncNotifPending } from '../../ui-elements/Help';
 import {
   Endpoint,
   JAGUAR_S3_LOCATION_KEY,
@@ -12,23 +10,13 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
   Replication,
 } from '../../../types/config';
-import type {
-  BucketList,
-  WorkflowScheduleUnitState,
-  InstanceStateSnapshot,
-} from '../../../types/stats';
+import type { BucketList } from '../../../types/stats';
 import type { LocationForm } from '../../../types/location';
 import { storageOptions } from './LocationDetails';
-import { getLocationType, isIngestLocation } from '../../utils/storageOptions';
-import { pauseIngestionSite, resumeIngestionSite } from '../../actions/zenko';
-import { InlineButton } from '../../ui-elements/Table';
+import { getLocationType } from '../../utils/storageOptions';
+
 import type { BucketInfo } from '../../../types/s3';
-import styled from 'styled-components';
-import { Icon, SpacedBox } from '@scality/core-ui';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-type RowProps = {
-  original: Location;
-};
 
 function newLocationDetails(): Location {
   return {
@@ -170,85 +158,6 @@ function isLocationExists(location: string): boolean {
   return Object.keys(storageOptions).some((opt) => opt === location);
 }
 
-const Flex = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const IngestionCell =
-  (
-    ingestionStates: WorkflowScheduleUnitState | null | undefined,
-    capabilities: $PropertyType<InstanceStateSnapshot, 'capabilities'>,
-    loading: boolean,
-    dispatch: any,
-  ) =>
-  ({ row: { original } }: { row: RowProps }) => {
-    const locationName = original.name;
-    const ingestion =
-      ingestionStates &&
-      ingestionStates[locationName] &&
-      ingestionStates[locationName];
-    const isIngestionPending = isIngestLocation(original, capabilities);
-
-    if (isIngestionPending) {
-      if (ingestion) {
-        if (ingestion === 'enabled') {
-          return (
-            <Flex>
-              Active
-              <InlineButton
-                disabled={loading}
-                icon={<Icon name="Pause-circle" />}
-                tooltip={{
-                  overlay: (
-                    <SpacedBox pl={12}>
-                      Async Metadata updates is active, pause it.
-                    </SpacedBox>
-                  ),
-                  placement: 'top',
-                  overlayStyle: { width: '18rem' },
-                }}
-                onClick={() => dispatch(pauseIngestionSite(locationName))}
-                variant="secondary"
-              />
-            </Flex>
-          );
-        }
-
-        if (ingestion === 'disabled') {
-          return (
-            <Flex>
-              Paused
-              <InlineButton
-                disabled={loading}
-                icon={<Icon name="Play-circle" />}
-                tooltip={{
-                  overlay: (
-                    <SpacedBox pl={12}>
-                      Async Metadata updates is paused, resume it.
-                    </SpacedBox>
-                  ),
-                  placement: 'top',
-                  overlayStyle: { width: '18rem' },
-                }}
-                onClick={() => dispatch(resumeIngestionSite(locationName))}
-                variant="secondary"
-              />
-            </Flex>
-          );
-        }
-      }
-
-      return (
-        <Flex>
-          Pending <HelpAsyncNotifPending />
-        </Flex>
-      );
-    }
-
-    return '-';
-  };
-
 function convertToBucketInfo(bucketInfo: BucketInfo | null) {
   const objectLockEnabled =
     bucketInfo?.objectLockConfiguration.ObjectLockEnabled;
@@ -302,7 +211,6 @@ export {
   canEditLocation,
   canDeleteLocation,
   isLocationExists,
-  IngestionCell,
   convertToBucketInfo,
   renderLocation,
 };

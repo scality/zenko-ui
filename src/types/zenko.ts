@@ -1,12 +1,7 @@
 /* eslint-disable */
 import { S3 } from 'aws-sdk';
 import S3Client from '../js/S3Client';
-import type {
-  CommonPrefix,
-  RetentionMode,
-  S3DeleteMarker,
-  S3Version,
-} from './s3';
+import type { RetentionMode } from './s3';
 
 export type Site = string;
 export type Marker = null | string;
@@ -60,4 +55,6 @@ export interface ZenkoClient extends S3Client {
     VersionIdMarker: string | undefined;
   }): Promise<SearchBucketVersionsResp>;
   getIsLogin(): boolean;
+  pauseCrrSite(site: Site): Promise<ZenkoMapResp>;
+  resumeCrrSite(site: Site): Promise<ZenkoMapResp>;
 }

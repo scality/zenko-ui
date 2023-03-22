@@ -31,7 +31,8 @@ import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import { ListObjectsType } from '../../types/s3';
 export const NETWORK_START_ACTION_STARTING_SEARCH = 'Starting search';
 export const NETWORK_START_ACTION_SEARCHING_OBJECTS = 'Searching objects';
-export const NETWORK_START_ACTION_SEARCHING_NEXT_OBJECTS = 'Loading next page of objects matching your search';
+export const NETWORK_START_ACTION_SEARCHING_NEXT_OBJECTS =
+  'Loading next page of objects matching your search';
 export const NETWORK_START_ACTION_SEARCHING_VERSIONS = 'Searching versions';
 export const NETWORK_START_ACTION_CONTINUE_SEARCH = 'Continue search';
 
@@ -106,38 +107,42 @@ function _getSearchObjects(
     }
     return zenkoClient
       .searchBucket(params)
-      .then(async ({ IsTruncated, NextContinuationToken, Contents }: SearchBucketResp) => {
-        const nextMarker = (IsTruncated && NextContinuationToken) || null;
+      .then(
+        async ({
+          IsTruncated,
+          NextContinuationToken,
+          Contents,
+        }: SearchBucketResp) => {
+          const nextMarker = (IsTruncated && NextContinuationToken) || null;
 
-        const list = await Promise.all(
-          (Contents || []).map(async (object) => {
-            object.IsFolder = _isFolder(object.Key);
+          const list = await Promise.all(
+            (Contents || []).map(async (object) => {
+              object.IsFolder = _isFolder(object.Key);
 
-            if (!object.IsFolder) {
-              object.SignedUrl = zenkoClient.getObjectSignedUrl(
-                bucketName,
-                object.Key,
-              );
-              object.ObjectRetention = await zenkoClient.getObjectRetention(
-                bucketName,
-                object.Key,
-              );
-              object.IsLegalHoldEnabled = await zenkoClient.getObjectLegalHold(
-                bucketName,
-                object.Key,
-              );
-            }
+              if (!object.IsFolder) {
+                object.SignedUrl = zenkoClient.getObjectSignedUrl(
+                  bucketName,
+                  object.Key,
+                );
+                object.ObjectRetention = await zenkoClient.getObjectRetention(
+                  bucketName,
+                  object.Key,
+                );
+                object.IsLegalHoldEnabled =
+                  await zenkoClient.getObjectLegalHold(bucketName, object.Key);
+              }
 
-            return object;
-          }),
-        );
+              return object;
+            }),
+          );
 
-        if (marker) {
-          dispatch(appendSearchListing(nextMarker, list));
-        } else {
-          dispatch(writeSearchListing(nextMarker, list));
-        }
-      })
+          if (marker) {
+            dispatch(appendSearchListing(nextMarker, list));
+          } else {
+            dispatch(writeSearchListing(nextMarker, list));
+          }
+        },
+      )
       .catch((err) => dispatch(zenkoHandleError(err, null, null)))
       .finally(() => dispatch(networkEnd()));
   };
@@ -301,6 +306,7 @@ export function waitForIngestionUpdate(
       (next) => dispatch(loadInstanceLatestStatus()).then(next),
     );
 }
+
 export function pauseIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());

@@ -4,17 +4,16 @@ import { HelpLocationTargetBucket } from '../../ui-elements/Help';
 import {
   canDeleteLocation,
   canEditLocation,
-  IngestionCell,
 } from '../../backend/location/utils';
-import { deleteLocation } from '../../actions';
+import { deleteLocation, handleClientError, networkEnd } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
+
 import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { XDM_FEATURE } from '../../../js/config';
 import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
-import { Table, Button } from '@scality/core-ui/dist/next';
+import { Table, Button, Box } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
 import { CellProps } from 'react-table';
 import { useWorkflows } from '../../workflow/Workflows';
@@ -22,7 +21,12 @@ import { InlineButton } from '../../ui-elements/Table';
 import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-import { Icon } from '@scality/core-ui';
+import { Icon, IconHelp } from '@scality/core-ui';
+import { PauseAndResume } from './PauseAndResume';
+
+type LocationRowProps = {
+  original: Location;
+};
 
 const ActionButtons = ({
   rowValues,
@@ -120,13 +124,7 @@ function Locations() {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const ingestionStates = useSelector(
-    (state: AppState) =>
-      state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
-  );
-  const capabilities = useSelector(
-    (state: AppState) => state.instanceStatus.latest.state.capabilities,
-  );
+
   const features = useSelector((state: AppState) => state.auth.config.features);
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
@@ -162,8 +160,7 @@ function Locations() {
       {
         Header: (
           <>
-            Target Bucket{' '}
-            <HelpLocationTargetBucket />
+            Target Bucket <HelpLocationTargetBucket />
           </>
         ),
         accessor: 'details.bucketName',
@@ -174,18 +171,36 @@ function Locations() {
       },
     ];
 
-    if (features.includes(XDM_FEATURE)) {
-      columns.push({
-        Header: 'Async Metadata updates',
-        accessor: '_asyncMetadataUpdatesColumn',
-        disableSortBy: true,
-        cellStyle: {
-          textAlign: 'left',
-          minWidth: '12rem',
-        },
-        Cell: IngestionCell(ingestionStates, capabilities, loading, dispatch),
-      });
-    }
+    columns.push({
+      Header: (
+        <>
+          Workflow status{' '}
+          <IconHelp
+            placement="top"
+            overlayStyle={{ width: '24rem' }}
+            tooltipMessage={
+              <>
+                Pausing the Workflow statuses will halt any workflow processes,
+                including asynchronous metadata updates and replication, that
+                are targeting this location.
+                <br /> <br />
+                Any new object added to the source location will be queued and
+                processed only once the Workflow processes are resumed.
+              </>
+            }
+          />
+        </>
+      ),
+      accessor: '_asyncMetadataUpdatesColumn',
+      disableSortBy: true,
+      cellStyle: {
+        textAlign: 'left',
+        minWidth: '14rem',
+      },
+      Cell: ({ row: { original } }: { row: LocationRowProps }) => (
+        <PauseAndResume locationName={original.name} />
+      ),
+    });
 
     columns.push({
       Header: '',
@@ -219,9 +234,7 @@ function Locations() {
     buckets,
     endpoints,
     workflowsQuery.data?.replications,
-    ingestionStates,
     loading,
-    capabilities,
     features,
   ]);
   if (Object.keys(locations).length === 0) {

@@ -360,9 +360,11 @@ const CreateWorkflow = () => {
         <FormSection
           title={{ name: 'General' }}
           forceLabelWidth={convertRemToPixels(12)}
+          style={{ width: '50rem' }}
         >
           <FormGroup
             required
+            style={{ width: '50rem' }}
             direction="horizontal"
             id="type"
             label="Rule Type"
