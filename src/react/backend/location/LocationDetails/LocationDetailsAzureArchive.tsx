@@ -14,10 +14,7 @@ import {
   LocationAzureSharedKey,
   LocationAzureAuth,
 } from '../../../../js/managementClient/api';
-import {
-  ColdLocationIcon,
-  ColdLocationTemperatureTooltip,
-} from './ColdStorageFormComponent';
+import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 
 type State = {
   endpoint: string;
@@ -201,8 +198,7 @@ const LocationDetailsAzureArchive = ({
           id="temperature"
           label="Temperature"
           helpErrorPosition="bottom"
-          labelHelpTooltip={<ColdLocationTemperatureTooltip />}
-          content={<ColdLocationIcon />}
+          content={<ColdStorageIconLabel />}
         />
         <FormGroup
           id="endpoint"
@@ -305,8 +301,17 @@ const LocationDetailsAzureArchive = ({
               id="queue.namespace"
               label="Service Bus Endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="`https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint. 
-              It will be derived from the Service Bus namespace if not explicitely provided."
+              labelHelpTooltip={
+                <>
+                  {
+                    'https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint.'
+                  }
+                  <br />
+                  <br />
+                  It will be derived from the Service Bus namespace if not
+                  explicitely provided.
+                </>
+              }
               required
               content={
                 <Input
@@ -350,8 +355,17 @@ const LocationDetailsAzureArchive = ({
               label="Service Bus Endpoint"
               id="queue.endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint. 
-              It will be derived from the Service Bus namespace if not explicitely provided."
+              labelHelpTooltip={
+                <>
+                  {
+                    'https://<<ServiceBusNamespace>>.servicebus.windows.net is usually used as the Storage queue endpoint.'
+                  }
+                  <br />
+                  <br />
+                  It will be derived from the Service Bus namespace if not
+                  explicitely provided.
+                </>
+              }
               required
               content={
                 <Input
@@ -394,8 +408,17 @@ const LocationDetailsAzureArchive = ({
               label="Queue Endpoint"
               id="queue.endpoint"
               helpErrorPosition="bottom"
-              labelHelpTooltip="`https://<<StorageaccountName>>.queue.core.windows.net is usually used as the Storage queue endpoint. 
-              It will be derived from the storage account name if not explicitely provided."
+              labelHelpTooltip={
+                <>
+                  {
+                    'https://<<StorageaccountName>>.queue.core.windows.net is usually used as the Storage queue endpoint.'
+                  }
+                  <br />
+                  <br />
+                  It will be derived from the storage account name if not
+                  explicitely provided.
+                </>
+              }
               content={
                 <Input
                   name="queue.endpoint"
@@ -525,8 +548,7 @@ const LocationDetailsAzureArchive = ({
             <FormGroup
               id="auth.clientKey"
               label="Azure Client Key"
-              labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your
-            instance's RSA key pair so that we're unable to see them."
+              labelHelpTooltip="Your credentials are encrypted in transit, then at rest using your instance's RSA key pair so that we're unable to see them."
               helpErrorPosition="bottom"
               required
               content={

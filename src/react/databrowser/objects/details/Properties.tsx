@@ -8,7 +8,6 @@ import {
   PrettyBytes,
   SecondaryText,
   spacing,
-  Stack,
   Toggle,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
@@ -21,7 +20,7 @@ import { AppState } from '../../../../types/state';
 import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
-import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
+import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import { DateTime } from 'luxon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 
@@ -136,9 +135,7 @@ function Properties({ objectMetadata }: Props) {
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.GroupValues>
-                    <Stack>
-                      <ColdStorageIcon /> Cold{' '}
-                    </Stack>
+                    <ColdStorageIconLabel />
                     {objectMetadata.restore?.ongoingRequest && (
                       <span>
                         <Icon name="Arrow-alt-circle-up" />

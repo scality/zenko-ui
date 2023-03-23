@@ -2,11 +2,8 @@ import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
+import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import InputList from '../../../ui-elements/InputList';
-import {
-  ColdLocationIcon,
-  ColdLocationTemperatureTooltip,
-} from './ColdStorageFormComponent';
 
 type State = {
   endpoint: string;
@@ -52,8 +49,7 @@ export default function LocationDetailsTapeDMF({
           id="temperature"
           label="Temperature"
           helpErrorPosition="bottom"
-          labelHelpTooltip={<ColdLocationTemperatureTooltip />}
-          content={<ColdLocationIcon />}
+          content={<ColdStorageIconLabel />}
         />
 
         <FormGroup

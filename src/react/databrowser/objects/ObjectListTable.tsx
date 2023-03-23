@@ -12,7 +12,7 @@ import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
 import type { AppState } from '../../../types/state';
 import { AutoSizer } from 'react-virtualized';
 import { Checkbox } from '../../ui-elements/FormLayout';
-import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
+import { ColdStorageIcon } from '../../ui-elements/ColdStorageIcon';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
