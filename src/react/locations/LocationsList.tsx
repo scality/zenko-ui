@@ -1,23 +1,27 @@
 import { Replication } from '../../types/config';
 import { useCallback, useMemo, useState, ComponentType } from 'react';
-import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { canDeleteLocation, canEditLocation } from './utils';
-import { deleteLocation } from '../actions';
+import { HelpLocationTargetBucket } from '../../ui-elements/Help';
+import {
+  canDeleteLocation,
+  canEditLocation,
+} from '../../backend/location/utils';
+import { deleteLocation } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { Table, Button, Box } from '@scality/core-ui/dist/next';
+import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
+import { Table, Button } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
-import { CellProps, CoreUIColumn } from 'react-table';
-import { useWorkflows } from '../workflow/Workflows';
-import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
-import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
-import { getLocationType } from '../utils/storageOptions';
-import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
-import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
+import { CellProps } from 'react-table';
+import { useWorkflows } from '../../workflow/Workflows';
+import { InlineButton } from '../../ui-elements/Table';
+import { ColdStorageIcon } from '../../ui-elements/ColdStorageIcon';
+import { getLocationType } from '../../utils/storageOptions';
+import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
+import { Icon, IconHelp, Stack } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
 import {
   queries,
@@ -179,9 +183,9 @@ export function LocationsList() {
           const locationType = getLocationType(rowValues);
           if (rowValues.isCold) {
             return (
-              <span>
+              <Stack>
                 <ColdStorageIcon /> {locationType}
-              </span>
+              </Stack>
             );
           }
           return locationType;

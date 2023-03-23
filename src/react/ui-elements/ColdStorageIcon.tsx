@@ -1,32 +1,41 @@
-import { Icon, Tooltip } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/next';
+import { Icon, IconHelp, Stack, Text } from '@scality/core-ui';
 
-const ColdStorageIcon = () => {
-  const tooltipMessages = [
-    'The Temperature of this location is Cold.',
-    'You can put your data in this Location through a "Transition" Workflow',
-    'Once your data are in this Location, you can only trigger a request for restoration to get a temporary access to the object.',
-  ];
+const ColdStorageTemperatureToolTip = () => {
   return (
-    <Tooltip
-      overlay={
-        tooltipMessages.length > 1 ? (
-          <Box pl={12}>
-            {tooltipMessages.map((message, i) => (
-              <li key={i}> {message} </li>
-            ))}
-          </Box>
-        ) : (
-          tooltipMessages[0]
-        )
+    <IconHelp
+      placement="top"
+      overlayStyle={{ width: '24rem' }}
+      tooltipMessage={
+        <>
+          The Temperature of this Location is Cold.
+          <br /> <br />
+          You can move your data in this Location through a Transition Workflow.
+          <br /> <br />
+          Once your data are in this Location, you can only trigger a request
+          for restoration to get a temporary access to the object.
+        </>
       }
-      overlayStyle={{
-        width: '30rem',
-      }}
-    >
-      <Icon name="Snowflake" />
-    </Tooltip>
+    />
   );
 };
 
-export default ColdStorageIcon;
+export const ColdStorageIconLabel = ({ label = 'Cold' }) => {
+  return (
+    <Stack>
+      <Icon name="Snowflake" />
+      <Text color="textSecondary" isEmphazed>
+        {label}
+      </Text>
+      <ColdStorageTemperatureToolTip />
+    </Stack>
+  );
+};
+
+export const ColdStorageIcon = () => {
+  return (
+    <Stack>
+      <Icon name="Snowflake" />
+      <ColdStorageTemperatureToolTip />
+    </Stack>
+  );
+};
