@@ -37,7 +37,7 @@ describe('LocationEditor', () => {
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
       'Microsoft Azure Archive',
-      'Atlas Object Storage',
+      'Atlas Object Storage (Free Pro)',
       '3DS Outscale OOS Public',
       '3DS Outscale OOS SNC',
       'Flexible Datastore',
