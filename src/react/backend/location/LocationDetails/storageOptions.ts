@@ -90,7 +90,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
   },
   [JAGUAR_S3_LOCATION_KEY]: {
-    name: 'Atlas Object Storage',
+    name: 'Atlas Object Storage (Free Pro)',
     short: 'Atlas S3',
     formDetails: LocationDetailsAwsCustom,
     supportsVersioning: true,
