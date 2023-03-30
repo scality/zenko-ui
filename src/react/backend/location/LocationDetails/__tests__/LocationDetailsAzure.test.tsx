@@ -136,6 +136,7 @@ describe('class <LocationDetailsAzure />', () => {
         type: 'location-azure-client-secret',
         clientId: 'id',
         clientKey: 'key',
+        tenantId: 'tenantId',
       },
     };
     setupAndRenderLocationDetails(locationDetails);
@@ -266,6 +267,7 @@ describe('class <LocationDetailsAzure />', () => {
       setupAndRenderLocationDetails();
     const clientId = 'id';
     const clientKey = 'key';
+    const tenantId = 'tenanid';
     //E
     setCommonValuesAndPerformCommonChecksOnAuthType({
       container,
@@ -273,6 +275,7 @@ describe('class <LocationDetailsAzure />', () => {
       targetBucket,
     });
     userEvent.click(screen.getByText(/Azure Client Secret/i));
+    userEvent.type(screen.getByLabelText(/Tenant ID/i), tenantId);
     userEvent.type(screen.getByLabelText(/Client ID/i), clientId);
     userEvent.type(screen.getByLabelText(/Client Secret/i), clientKey);
     //V
@@ -283,6 +286,7 @@ describe('class <LocationDetailsAzure />', () => {
         type: 'location-azure-client-secret',
         clientId,
         clientKey,
+        tenantId,
       },
       bucketName: targetBucket,
     });

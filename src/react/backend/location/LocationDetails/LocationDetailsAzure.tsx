@@ -243,8 +243,25 @@ export default class LocationDetailsAzure extends React.Component<
         )}
 
         {'clientId' in this.state.auth &&
-        this.state.auth.type === 'location-azure-client-secret' ? (
+        this.state.auth.type === LocationAzureAuth.TypeEnum['ClientSecret'] ? (
           <>
+            <FormGroup
+              label="Tenant ID"
+              id="tenantId"
+              helpErrorPosition="bottom"
+              required
+              content={
+                <Input
+                  name="tenantId"
+                  id="tenantId"
+                  type="text"
+                  placeholder="tenant-id"
+                  value={this.state.auth.tenantId}
+                  autoComplete="off"
+                  onChange={this.onAuthChange}
+                />
+              }
+            />
             <FormGroup
               label="Client ID"
               id="clientId"
