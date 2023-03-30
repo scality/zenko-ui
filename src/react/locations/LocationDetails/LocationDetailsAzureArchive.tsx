@@ -188,8 +188,8 @@ const LocationDetailsAzureArchive = ({
   };
 
   const isServiceBus =
-    formState.queue.type === 'location-azure-servicebus-topic-v1' ||
-    formState.queue.type === 'location-azure-servicebus-queue-v1';
+    formState.queue.type === LocationAzureQueue.TypeEnum['ServicebusTopicV1'] ||
+    formState.queue.type === LocationAzureQueue.TypeEnum['ServicebusQueueV1'];
 
   return (
     <>
@@ -246,7 +246,7 @@ const LocationDetailsAzureArchive = ({
               id="queue.type"
               placeholder="Select an option..."
               onChange={onChangeQueueType}
-              value={formState.queue.type}
+              value={formState.queue.type.toString()}
             >
               <Select.Option value={'location-azure-servicebus-topic-v1'}>
                 Azure Service Bus Topic
@@ -260,7 +260,8 @@ const LocationDetailsAzureArchive = ({
             </Select>
           }
         />
-        {formState.queue.type === 'location-azure-servicebus-topic-v1' &&
+        {formState.queue.type ===
+          LocationAzureQueue.TypeEnum['ServicebusTopicV1'] &&
         'topicName' in formState.queue ? (
           <>
             <FormGroup
@@ -330,7 +331,8 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
 
-        {formState.queue.type === 'location-azure-servicebus-queue-v1' &&
+        {formState.queue.type ===
+          LocationAzureQueue.TypeEnum['ServicebusQueueV1'] &&
         'queueName' in formState.queue &&
         'endpoint' in formState.queue ? (
           <>
@@ -384,7 +386,8 @@ const LocationDetailsAzureArchive = ({
           <></>
         )}
 
-        {formState.queue.type === 'location-azure-storage-queue-v1' &&
+        {formState.queue.type ===
+          LocationAzureQueue.TypeEnum['StorageQueueV1'] &&
         'endpoint' in formState.queue ? (
           <>
             <FormGroup
@@ -447,7 +450,7 @@ const LocationDetailsAzureArchive = ({
               id="auth"
               placeholder="Select an option..."
               onChange={onAuthTypeChange}
-              value={formState.auth.type}
+              value={formState.auth.type.toString()}
             >
               <Select.Option value={'location-azure-client-secret'}>
                 Azure Client Secret
@@ -465,7 +468,7 @@ const LocationDetailsAzureArchive = ({
           }
         />
         {'accountName' in formState.auth &&
-        formState.auth.type === 'location-azure-shared-key' ? (
+        formState.auth.type === LocationAzureAuth.TypeEnum['SharedKey'] ? (
           <>
             <FormGroup
               label="Azure Account Name"
@@ -509,7 +512,7 @@ const LocationDetailsAzureArchive = ({
         )}
 
         {'clientId' in formState.auth &&
-        formState.auth.type === 'location-azure-client-secret' ? (
+        formState.auth.type === LocationAzureAuth.TypeEnum['ClientSecret'] ? (
           <>
             <FormGroup
               label="Tenant ID"
@@ -569,7 +572,8 @@ const LocationDetailsAzureArchive = ({
         )}
 
         {'storageSasToken' in formState.auth &&
-        formState.auth.type === 'location-azure-shared-access-signature' ? (
+        formState.auth.type ===
+          LocationAzureAuth.TypeEnum['SharedAccessSignature'] ? (
           <>
             <FormGroup
               label="SAS token for Storage"

@@ -3,6 +3,7 @@ import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import {
+  LocationAzureAuth,
   LocationAzureClientSecret,
   LocationAzureSharedAccessSignature,
   LocationAzureSharedKey,
@@ -35,7 +36,7 @@ export default class LocationDetailsAzure extends React.Component<
       | LocationAzureClientSecret
       | LocationAzureSharedAccessSignature
       | LocationAzureSharedKey = this.props.details.auth || {
-      type: 'location-azure-shared-key',
+      type: LocationAzureAuth.TypeEnum['SharedKey'],
       accountKey: '',
       accountName: this.props.details.accessKey || '',
     };
@@ -83,7 +84,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-shared-key':
         this.setState({
           auth: {
-            type: 'location-azure-shared-key',
+            type: LocationAzureAuth.TypeEnum['SharedKey'],
             accountName: '',
             accountKey: '',
           },
@@ -92,7 +93,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-client-secret':
         this.setState({
           auth: {
-            type: 'location-azure-client-secret',
+            type: LocationAzureAuth.TypeEnum['ClientSecret'],
             clientId: '',
             clientKey: '',
           },
@@ -101,7 +102,7 @@ export default class LocationDetailsAzure extends React.Component<
       case 'location-azure-shared-access-signature':
         this.setState({
           auth: {
-            type: 'location-azure-shared-access-signature',
+            type: LocationAzureAuth.TypeEnum['SharedAccessSignature'],
             storageSasToken: '',
           },
         });
@@ -182,7 +183,7 @@ export default class LocationDetailsAzure extends React.Component<
               id="locationType"
               placeholder="Select an option..."
               onChange={this.onAuthTypeChange}
-              value={this.state.auth.type}
+              value={this.state.auth.type.toString()}
             >
               <Select.Option value={'location-azure-shared-key'}>
                 Azure Shared Key
@@ -198,7 +199,7 @@ export default class LocationDetailsAzure extends React.Component<
         />
 
         {'accountName' in this.state.auth &&
-        this.state.auth.type === 'location-azure-shared-key' ? (
+        this.state.auth.type === LocationAzureAuth.TypeEnum['SharedKey'] ? (
           <>
             <FormGroup
               label="Storage Account Name"
@@ -286,7 +287,8 @@ export default class LocationDetailsAzure extends React.Component<
         )}
 
         {'storageSasToken' in this.state.auth &&
-        this.state.auth.type === 'location-azure-shared-access-signature' ? (
+        this.state.auth.type ===
+          LocationAzureAuth.TypeEnum['SharedAccessSignature'] ? (
           <>
             <FormGroup
               label="SAS Token"
