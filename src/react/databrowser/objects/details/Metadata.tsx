@@ -27,10 +27,11 @@ import type {
 } from '../../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Form, Icon } from '@scality/core-ui';
+import { AppState } from '../../../../types/state';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -75,6 +76,7 @@ type Props = {
   bucketName: string;
   objectKey: string;
   metadata: MetadataItems;
+  storageClass?: string;
 };
 
 type FormValues = {
@@ -89,10 +91,23 @@ const prepareFormData = (metadata: MetadataItems) => ({
   })),
 });
 
-function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
+function Metadata({
+  bucketName,
+  objectKey,
+  metadata,
+  listType,
+  storageClass,
+}: Props) {
   const dispatch = useDispatch();
+  const locations = useSelector(
+    (state: AppState) => state.configuration.latest?.locations,
+  );
+  const isObjectStoredColdStorage = storageClass
+    ? locations?.[storageClass]?.isCold
+    : false;
+  const isMetadataEditionDisabled =
+    listType === LIST_OBJECT_VERSIONS_S3_TYPE || isObjectStoredColdStorage;
 
-  const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
   const EMPTY_ITEM = {
     key: '',
     value: '',
@@ -157,7 +172,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
           id="metadata-button-save"
           variant="secondary"
           label="Save"
-          disabled={isVersioningType || !isDirty}
+          disabled={isMetadataEditionDisabled || !isDirty}
           icon={<Icon name="Save" />}
           type="submit"
         />
@@ -211,7 +226,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                         <Select
                           onChange={onChange}
                           value={key}
-                          disabled={isVersioningType}
+                          disabled={isMetadataEditionDisabled}
                           id={`select-${index}`}
                         >
                           {remainingOptions.map((opt, i) => (
@@ -229,7 +244,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                       className="metadata-input-extra-key"
                       {...register(`metadata.${index}.mdKey`)}
                       aria-label={`Custom metadata key`}
-                      disabled={isVersioningType}
+                      disabled={isMetadataEditionDisabled}
                     />
                   )}
                   <Char>:</Char>
@@ -241,13 +256,13 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                     } value`}
                     className="metadata-input-value"
                     isShrink={isUserMD}
-                    disabled={isVersioningType}
+                    disabled={isMetadataEditionDisabled}
                     autoComplete="off"
                   />
                 </Inputs>
                 <Buttons>
                   <SubButton
-                    disabled={isVersioningType}
+                    disabled={isMetadataEditionDisabled}
                     index={index}
                     items={metadataFormValues}
                     deleteEntry={() =>
@@ -257,7 +272,7 @@ function Metadata({ bucketName, objectKey, metadata, listType }: Props) {
                     }
                   />
                   <AddButton
-                    disabled={isVersioningType}
+                    disabled={isMetadataEditionDisabled}
                     index={index}
                     items={metadataFormValues}
                     insertEntry={() =>
