@@ -65,6 +65,7 @@ function ObjectDetails({ toggled, listType }: Props) {
           objectKey={objectMetadata.objectKey}
           metadata={objectMetadata.metadata}
           listType={listType}
+          storageClass={objectMetadata.storageClass}
         />
       );
     }

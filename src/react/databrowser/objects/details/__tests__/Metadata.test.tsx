@@ -22,7 +22,7 @@ afterAll(() => server.close());
 describe('Metadata', () => {
   const instanceId = 'instanceId';
   const accountId = 'accountId';
-
+  const COLD_LOCATION = 'europe25-myroom-cold';
   const metadataConfig = {
     instances: {
       selectedId: instanceId,
@@ -39,6 +39,11 @@ describe('Metadata', () => {
     configuration: {
       latest: {
         endpoints: [],
+        locations: {
+          [COLD_LOCATION]: {
+            isCold: true,
+          },
+        },
       },
     },
   };
@@ -125,7 +130,9 @@ describe('Metadata', () => {
         screen.getByRole('textbox', { name: `${metadataKey} value` }),
         metadataNewValue,
       );
-      expect(screen.getByRole('button', { name: /Save.*/i })).not.toBeDisabled();
+      expect(
+        screen.getByRole('button', { name: /Save.*/i }),
+      ).not.toBeDisabled();
       //Submit the form
       await userEvent.click(screen.getByRole('button', { name: /Save.*/i }));
       await waitFor(() =>
@@ -249,6 +256,35 @@ describe('Metadata', () => {
       metadataConfig,
     );
 
+    expect(
+      screen.getByRole('textbox', { name: 'CacheControl value' }),
+    ).toHaveValue('no-cache');
+    expect(
+      screen.getByRole('textbox', { name: 'CacheControl value' }),
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Remove' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Save.*/i })).toBeDisabled();
+  });
+  it('should disable inputs and buttons if the object is stored in cold location', () => {
+    //S+E
+    reduxRender(
+      <Metadata
+        listType="ver"
+        bucketName={OBJECT_METADATA.bucketName}
+        objectKey={OBJECT_METADATA.objectKey}
+        metadata={[
+          {
+            key: 'CacheControl',
+            value: 'no-cache',
+            type: METADATA_SYSTEM_TYPE,
+          },
+        ]}
+        storageClass={COLD_LOCATION}
+      />,
+      metadataConfig,
+    );
+    //V
     expect(
       screen.getByRole('textbox', { name: 'CacheControl value' }),
     ).toHaveValue('no-cache');
