@@ -14,7 +14,7 @@ const publicAclIndicator = 'http://acs.amazonaws.com/groups/global/AllUsers';
 //@ts-expect-error - Signers is not typed
 AWS.Signers.V4 = function V4(request, serviceName, options) {
   const originalRequest = JSON.parse(JSON.stringify(request));
-  const kubeDNS = '.zenko.svc.cluster.local';
+  const kubeDNS = 'zenko.svc.cluster.local';
   const s3Prefix = 'artesca-data-connector-s3api';
   const iamPrefix = 'artesca-data-management-vault-iam-admin-api';
   const s3Endpoint = `${s3Prefix}.${kubeDNS}`;
