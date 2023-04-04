@@ -14,29 +14,33 @@ const publicAclIndicator = 'http://acs.amazonaws.com/groups/global/AllUsers';
 //@ts-expect-error - Signers is not typed
 AWS.Signers.V4 = function V4(request, serviceName, options) {
   const originalRequest = JSON.parse(JSON.stringify(request));
-  const zenkoDNS = window.location.hostname.replace(/^ui\./, '');
+  const kubeDNS = '.zenko.svc.cluster.local';
+  const s3Prefix = 'artesca-data-connector-s3api';
+  const iamPrefix = 'artesca-data-management-vault-iam-admin-api';
+  const s3Endpoint = `${s3Prefix}.${kubeDNS}`;
+  const iamEndpoint = `${iamPrefix}.${kubeDNS}`;
   if (request.path.startsWith('/s3')) {
     request.path = request.path.replace('/s3', '');
     request.endpoint.path = request.path.replace('/s3', '');
     request.endpoint.pathname = request.path.replace('/s3', '');
     request.endpoint.port = 80;
 
-    request.headers.Host = `s3.${zenkoDNS}`;
+    request.headers.Host = s3Endpoint;
 
-    request.endpoint.host = `s3.${zenkoDNS}`;
-    request.endpoint.hostname = `s3.${zenkoDNS}`;
-    request.endpoint.href = `https://s3.${zenkoDNS}`;
+    request.endpoint.host = s3Endpoint;
+    request.endpoint.hostname = s3Endpoint;
+    request.endpoint.href = `https://${s3Endpoint}`;
   } else if (request.path.startsWith('/iam')) {
     request.path = request.path.replace('/iam', '/');
     request.endpoint.path = request.path.replace('/iam', '/');
     request.endpoint.pathname = request.path.replace('/iam', '/');
     request.endpoint.port = 80;
 
-    request.headers.Host = `iam.${zenkoDNS}`;
+    request.headers.Host = iamEndpoint;
 
-    request.endpoint.host = `iam.${zenkoDNS}`;
-    request.endpoint.hostname = `iam.${zenkoDNS}`;
-    request.endpoint.href = `https://iam.${zenkoDNS}`;
+    request.endpoint.host = iamEndpoint;
+    request.endpoint.hostname = iamEndpoint;
+    request.endpoint.href = `https://${iamEndpoint}`;
   }
 
   const originalV4Signer = new OriginalV4Signer(request, serviceName, options);
