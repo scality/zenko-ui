@@ -113,7 +113,7 @@ const prefilledHelper = (container: HTMLElement, values: prefilledValues) => {
 const serviceBusTopicHelper = (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Topic Name \*/, 'mock-topic-name'],
-    [/Topic Subscription ID \*/, 'mock-subscription-id'],
+    [/Topic Subscription Name \*/, 'mock-subscription-name'],
     [/Service Bus Endpoint \*/, 'mock-namespace'],
   ];
   prefilledHelper(container, preDefinedAzureServiceBusTopic);
@@ -180,7 +180,7 @@ describe('<LocationDetailsAzureArchive />', () => {
       /target azure container name \*/i,
       /Queue type \*/i,
       /Topic Name \*/i,
-      /topic subscription id \*/i,
+      /topic subscription name \*/i,
       /Service Bus Endpoint */i,
       /Authentication type \*/i,
       /Tenant ID \*/i,
@@ -247,7 +247,7 @@ describe('<LocationDetailsAzureArchive />', () => {
       queue: {
         type: 'location-azure-servicebus-topic-v1',
         topicName: 'mock-topic-name',
-        topicSubscriptionId: 'mock-subscription-id',
+        topicSubscriptionId: 'mock-subscription-name',
         namespace: 'mock-namespace',
       },
       auth: {
@@ -282,7 +282,7 @@ describe('<LocationDetailsAzureArchive />', () => {
       queue: {
         type: 'location-azure-servicebus-topic-v1',
         topicName: 'mock-topic-name',
-        topicSubscriptionId: 'mock-subscription-id',
+        topicSubscriptionId: 'mock-subscription-name',
         namespace: 'mock-namespace',
       },
       auth: {
