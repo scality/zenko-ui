@@ -18,8 +18,12 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
   _isLogin: boolean;
   _jsonClient: ZenkoClientBase;
 
-  constructor(endpoint: string) {
-    super(endpoint);
+  constructor(
+    endpoint: string,
+    iamInternalFQDN: string,
+    s3InternalFQDN: string,
+  ) {
+    super(endpoint, iamInternalFQDN, s3InternalFQDN);
     this.endpoint = endpoint;
 
     this._init();

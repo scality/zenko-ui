@@ -7,6 +7,8 @@ export type AppConfig = {
   readonly stsEndpoint: string;
   readonly zenkoEndpoint: string;
   readonly iamEndpoint: string;
+  readonly iamInternalFQDN: string;
+  readonly s3InternalFQDN: string;
   readonly navbarEndpoint: string;
   readonly navbarConfigUrl: string;
   readonly features: string[];
