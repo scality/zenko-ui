@@ -925,6 +925,8 @@ export namespace Error {
     InvalidEndpoint = <any>'InvalidEndpoint',
     InvalidBucketName = <any>'InvalidBucketName',
     InvalidEntityUpdate = <any>'InvalidEntityUpdate',
+    InvalidQueueName = <any>'InvalidQueueName',
+    InvalidTopicSubscriptionId = <any>'InvalidTopicSubscriptionId',
     InvalidAccountName = <any>'InvalidAccountName',
     InvalidAccountKey = <any>'InvalidAccountKey',
     InvalidTenantId = <any>'InvalidTenantId',
@@ -934,6 +936,7 @@ export namespace Error {
     InvalidServiceBusSASToken = <any>'InvalidServiceBusSASToken',
     MissingSASToken = <any>'MissingSASToken',
     DuplicateSASToken = <any>'DuplicateSASToken',
+    MissingQueue = <any>'MissingQueue',
   }
 }
 
@@ -1612,6 +1615,13 @@ export interface LocationAwsS3Custom {}
 export interface LocationAwsS3V1 {}
 
 /**
+ *
+ * @export
+ * @interface LocationAzureArchiveV1
+ */
+export interface LocationAzureArchiveV1 {}
+
+/**
  * Azure authentication method and parameters. If this field is not specified, shared-key authentication is performed using the values from the deprecated `accessKey` and `secretKey` fields.
  * @export
  * @interface LocationAzureAuth
@@ -1619,10 +1629,26 @@ export interface LocationAwsS3V1 {}
 export interface LocationAzureAuth {
   /**
    *
-   * @type {any}
+   * @type {string}
    * @memberof LocationAzureAuth
    */
-  type: any;
+  type: LocationAzureAuth.TypeEnum;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureAuth
+ */
+export namespace LocationAzureAuth {
+  /**
+   * @export
+   * @enum {string}
+   */
+  export enum TypeEnum {
+    SharedKey = <any>'location-azure-shared-key',
+    ClientSecret = <any>'location-azure-client-secret',
+    SharedAccessSignature = <any>'location-azure-shared-access-signature',
+  }
 }
 
 /**
@@ -1652,6 +1678,100 @@ export interface LocationAzureClientSecret extends LocationAzureAuth {
 }
 
 /**
+ * @export
+ * @namespace LocationAzureClientSecret
+ */
+export namespace LocationAzureClientSecret {}
+
+/**
+ * Azure archive notification queue. - `location-azure-servicebus-topic-v1` and `location-azure-servicebus-queue-v1` are only supported with   `location-azure-client-secret` or `location-azure-shared-access-signature` authentication types. - `location-azure-storage-queue-v1` may be used with all authentication types.
+ * @export
+ * @interface LocationAzureQueue
+ */
+export interface LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureQueue
+   */
+  type: LocationAzureQueue.TypeEnum;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureQueue
+ */
+export namespace LocationAzureQueue {
+  /**
+   * @export
+   * @enum {string}
+   */
+  export enum TypeEnum {
+    ServicebusTopicV1 = <any>'location-azure-servicebus-topic-v1',
+    ServicebusQueueV1 = <any>'location-azure-servicebus-queue-v1',
+    StorageQueueV1 = <any>'location-azure-storage-queue-v1',
+  }
+}
+
+/**
+ * Use a servicebus queue to receive rehydration events.
+ * @export
+ * @interface LocationAzureServicebusQueueV1
+ */
+export interface LocationAzureServicebusQueueV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusQueueV1
+   */
+  queueName: string;
+  /**
+   * Servicebus namespace to use, typically `<ACCOUNT>.servicebus.windows.net` It will be derived from the endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureServicebusQueueV1
+   */
+  namespace?: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureServicebusQueueV1
+ */
+export namespace LocationAzureServicebusQueueV1 {}
+
+/**
+ * Use a servicebus topic to receive rehydration events.
+ * @export
+ * @interface LocationAzureServicebusTopicV1
+ */
+export interface LocationAzureServicebusTopicV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  topicName: string;
+  /**
+   * Servicebus namespace to use, typically `<ACCOUNT>.servicebus.windows.net` It will be derived from the endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  namespace?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureServicebusTopicV1
+   */
+  topicSubscriptionId: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureServicebusTopicV1
+ */
+export namespace LocationAzureServicebusTopicV1 {}
+
+/**
  * Authenticate using SAS tokens. The token can be added in the dedicated fields or as query parameter in the Endpoint.
  * @export
  * @interface LocationAzureSharedAccessSignature
@@ -1670,6 +1790,12 @@ export interface LocationAzureSharedAccessSignature extends LocationAzureAuth {
    */
   serviceBusSasToken?: string;
 }
+
+/**
+ * @export
+ * @namespace LocationAzureSharedAccessSignature
+ */
+export namespace LocationAzureSharedAccessSignature {}
 
 /**
  * Authenticate using account and secret key.
@@ -1692,6 +1818,38 @@ export interface LocationAzureSharedKey extends LocationAzureAuth {
 }
 
 /**
+ * @export
+ * @namespace LocationAzureSharedKey
+ */
+export namespace LocationAzureSharedKey {}
+
+/**
+ * Use a storage queue to receive rehydration events.
+ * @export
+ * @interface LocationAzureStorageQueueV1
+ */
+export interface LocationAzureStorageQueueV1 extends LocationAzureQueue {
+  /**
+   *
+   * @type {string}
+   * @memberof LocationAzureStorageQueueV1
+   */
+  queueName: string;
+  /**
+   * StorageQueue endoint to use, typically `<ACCOUNT>.storage.windows.net` It will be derived from the storage endpoint if not explicitely provided.
+   * @type {string}
+   * @memberof LocationAzureStorageQueueV1
+   */
+  endpoint?: string;
+}
+
+/**
+ * @export
+ * @namespace LocationAzureStorageQueueV1
+ */
+export namespace LocationAzureStorageQueueV1 {}
+
+/**
  *
  * @export
  * @interface LocationAzureV1
@@ -1703,7 +1861,7 @@ export interface LocationAzureV1 {}
  * @export
  * @interface LocationCephRadosgwS3V1
  */
-export interface LocationCephRadosgwS3V1 {}
+export interface LocationCephRadosgwS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1717,14 +1875,20 @@ export interface LocationDmfV1 {}
  * @export
  * @interface LocationDoSpacesV1
  */
-export interface LocationDoSpacesV1 {}
+export interface LocationDoSpacesV1 extends LocationAwsS3Custom {}
 
 /**
  *
  * @export
  * @interface LocationFileV1
  */
-export interface LocationFileV1 {}
+export interface LocationFileV1 extends LocationV1 {}
+
+/**
+ * @export
+ * @namespace LocationFileV1
+ */
+export namespace LocationFileV1 {}
 
 /**
  *
@@ -1738,7 +1902,13 @@ export interface LocationGcpV1 {}
  * @export
  * @interface LocationMemV1
  */
-export interface LocationMemV1 {}
+export interface LocationMemV1 extends LocationV1 {}
+
+/**
+ * @export
+ * @namespace LocationMemV1
+ */
+export namespace LocationMemV1 {}
 
 /**
  *
@@ -1752,7 +1922,7 @@ export interface LocationNfsMountV1 {}
  * @export
  * @interface LocationScalityArtescaS3V1
  */
-export interface LocationScalityArtescaS3V1 {}
+export interface LocationScalityArtescaS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1766,7 +1936,7 @@ export interface LocationScalityHdclientV2 {}
  * @export
  * @interface LocationScalityRingS3V1
  */
-export interface LocationScalityRingS3V1 {}
+export interface LocationScalityRingS3V1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1869,6 +2039,7 @@ export namespace LocationV1 {
     CephRadosgwS3V1 = <any>'location-ceph-radosgw-s3-v1',
     NfsMountV1 = <any>'location-nfs-mount-v1',
     DmfV1 = <any>'location-dmf-v1',
+    AzureArchiveV1 = <any>'location-azure-archive-v1',
   }
 }
 
@@ -1877,7 +2048,7 @@ export namespace LocationV1 {
  * @export
  * @interface LocationWasabiV1
  */
-export interface LocationWasabiV1 {}
+export interface LocationWasabiV1 extends LocationAwsS3Custom {}
 
 /**
  *
@@ -1993,6 +2164,12 @@ export interface Locationv1Details {
    * @memberof Locationv1Details
    */
   auth?: LocationAzureAuth;
+  /**
+   *
+   * @type {LocationAzureQueue}
+   * @memberof Locationv1Details
+   */
+  queue?: LocationAzureQueue;
 }
 
 /**
@@ -2040,6 +2217,32 @@ export interface MemoryStatUnitV1 {
    * @memberof MemoryStatUnitV1
    */
   free: number;
+}
+
+/**
+ *
+ * @export
+ * @interface ObjectCountMetricV1
+ */
+export interface ObjectCountMetricV1 {
+  /**
+   *
+   * @type {number}
+   * @memberof ObjectCountMetricV1
+   */
+  current: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ObjectCountMetricV1
+   */
+  nonCurrent: number;
+  /**
+   *
+   * @type {number}
+   * @memberof ObjectCountMetricV1
+   */
+  deleteMarker: number;
 }
 
 /**
@@ -2869,6 +3072,80 @@ export interface Searchworkflowslistv1Inner {
 /**
  *
  * @export
+ * @interface StorageConsumptionMetricEntityIdsV1
+ */
+export interface StorageConsumptionMetricEntityIdsV1 extends Array<string> {}
+
+/**
+ *
+ * @export
+ * @interface StorageConsumptionMetricItemV1
+ */
+export interface StorageConsumptionMetricItemV1 {
+  /**
+   *
+   * @type {string}
+   * @memberof StorageConsumptionMetricItemV1
+   */
+  type?: string;
+  /**
+   *
+   * @type {UsedCapacityMetricV1}
+   * @memberof StorageConsumptionMetricItemV1
+   */
+  usedCapacity?: UsedCapacityMetricV1;
+  /**
+   *
+   * @type {ObjectCountMetricV1}
+   * @memberof StorageConsumptionMetricItemV1
+   */
+  objectCount?: ObjectCountMetricV1;
+  /**
+   *
+   * @type {string}
+   * @memberof StorageConsumptionMetricItemV1
+   */
+  measuredOn?: string;
+  /**
+   *
+   * @type {{ [key: string]: Storageconsumptionmetricitemv1Locations; }}
+   * @memberof StorageConsumptionMetricItemV1
+   */
+  locations?: { [key: string]: Storageconsumptionmetricitemv1Locations };
+}
+
+/**
+ *
+ * @export
+ * @interface StorageConsumptionMetricsV1
+ */
+export interface StorageConsumptionMetricsV1 {
+  [key: string]: StorageConsumptionMetricItemV1;
+}
+
+/**
+ *
+ * @export
+ * @interface Storageconsumptionmetricitemv1Locations
+ */
+export interface Storageconsumptionmetricitemv1Locations {
+  /**
+   *
+   * @type {UsedCapacityMetricV1}
+   * @memberof Storageconsumptionmetricitemv1Locations
+   */
+  usedCapacity?: UsedCapacityMetricV1;
+  /**
+   *
+   * @type {ObjectCountMetricV1}
+   * @memberof Storageconsumptionmetricitemv1Locations
+   */
+  objectCount?: ObjectCountMetricV1;
+}
+
+/**
+ *
+ * @export
  * @interface StoredConfigurationV1
  */
 export interface StoredConfigurationV1 {
@@ -2978,6 +3255,26 @@ export interface Systemstatsunitv1Cpu {
    * @memberof Systemstatsunitv1Cpu
    */
   times: CpuStatTimesUnitV1;
+}
+
+/**
+ *
+ * @export
+ * @interface UsedCapacityMetricV1
+ */
+export interface UsedCapacityMetricV1 {
+  /**
+   *
+   * @type {number}
+   * @memberof UsedCapacityMetricV1
+   */
+  current: number;
+  /**
+   *
+   * @type {number}
+   * @memberof UsedCapacityMetricV1
+   */
+  nonCurrent: number;
 }
 
 /**
@@ -6203,6 +6500,285 @@ export const UiFacingApiFetchParamCreator = function (
       };
     },
     /**
+     * Get storage consumption metrics for an account
+     * @param {string} uuid
+     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccount(
+      uuid: string,
+      accountCanonicalId: string,
+      options: any = {},
+    ): FetchArgs {
+      // verify required parameter 'uuid' is not null or undefined
+      if (uuid === null || uuid === undefined) {
+        throw new RequiredError(
+          'uuid',
+          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccount.',
+        );
+      }
+      // verify required parameter 'accountCanonicalId' is not null or undefined
+      if (accountCanonicalId === null || accountCanonicalId === undefined) {
+        throw new RequiredError(
+          'accountCanonicalId',
+          'Required parameter accountCanonicalId was null or undefined when calling getStorageConsumptionMetricsForAccount.',
+        );
+      }
+      const localVarPath =
+        `/instance/{uuid}/account/{accountCanonicalId}/metrics`
+          .replace(`{${'uuid'}}`, encodeURIComponent(String(uuid)))
+          .replace(
+            `{${'accountCanonicalId'}}`,
+            encodeURIComponent(String(accountCanonicalId)),
+          );
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: 'GET' }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication public-api required
+      if (configuration && configuration.apiKey) {
+        const localVarApiKeyValue =
+          typeof configuration.apiKey === 'function'
+            ? configuration.apiKey('X-Authentication-Token')
+            : configuration.apiKey;
+        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query,
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers,
+      );
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     * Get storage consumption metrics for accounts
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccounts(
+      uuid: string,
+      accounts: StorageConsumptionMetricEntityIdsV1,
+      options: any = {},
+    ): FetchArgs {
+      // verify required parameter 'uuid' is not null or undefined
+      if (uuid === null || uuid === undefined) {
+        throw new RequiredError(
+          'uuid',
+          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
+        );
+      }
+      // verify required parameter 'accounts' is not null or undefined
+      if (accounts === null || accounts === undefined) {
+        throw new RequiredError(
+          'accounts',
+          'Required parameter accounts was null or undefined when calling getStorageConsumptionMetricsForAccounts.',
+        );
+      }
+      const localVarPath = `/instance/{uuid}/account/metrics`.replace(
+        `{${'uuid'}}`,
+        encodeURIComponent(String(uuid)),
+      );
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication public-api required
+      if (configuration && configuration.apiKey) {
+        const localVarApiKeyValue =
+          typeof configuration.apiKey === 'function'
+            ? configuration.apiKey('X-Authentication-Token')
+            : configuration.apiKey;
+        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query,
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers,
+      );
+      const needsSerialization =
+        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+        localVarRequestOptions.headers['Content-Type'] === 'application/json';
+      localVarRequestOptions.body = needsSerialization
+        ? JSON.stringify(accounts || {})
+        : accounts || '';
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     * Get storage consumption metrics for buckets
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForBuckets(
+      uuid: string,
+      buckets: StorageConsumptionMetricEntityIdsV1,
+      options: any = {},
+    ): FetchArgs {
+      // verify required parameter 'uuid' is not null or undefined
+      if (uuid === null || uuid === undefined) {
+        throw new RequiredError(
+          'uuid',
+          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
+        );
+      }
+      // verify required parameter 'buckets' is not null or undefined
+      if (buckets === null || buckets === undefined) {
+        throw new RequiredError(
+          'buckets',
+          'Required parameter buckets was null or undefined when calling getStorageConsumptionMetricsForBuckets.',
+        );
+      }
+      const localVarPath = `/instance/{uuid}/bucket/metrics`.replace(
+        `{${'uuid'}}`,
+        encodeURIComponent(String(uuid)),
+      );
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication public-api required
+      if (configuration && configuration.apiKey) {
+        const localVarApiKeyValue =
+          typeof configuration.apiKey === 'function'
+            ? configuration.apiKey('X-Authentication-Token')
+            : configuration.apiKey;
+        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query,
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers,
+      );
+      const needsSerialization =
+        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+        localVarRequestOptions.headers['Content-Type'] === 'application/json';
+      localVarRequestOptions.body = needsSerialization
+        ? JSON.stringify(buckets || {})
+        : buckets || '';
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
+     * Get storage consumption metrics for locations
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForLocations(
+      uuid: string,
+      locations: StorageConsumptionMetricEntityIdsV1,
+      options: any = {},
+    ): FetchArgs {
+      // verify required parameter 'uuid' is not null or undefined
+      if (uuid === null || uuid === undefined) {
+        throw new RequiredError(
+          'uuid',
+          'Required parameter uuid was null or undefined when calling getStorageConsumptionMetricsForLocations.',
+        );
+      }
+      // verify required parameter 'locations' is not null or undefined
+      if (locations === null || locations === undefined) {
+        throw new RequiredError(
+          'locations',
+          'Required parameter locations was null or undefined when calling getStorageConsumptionMetricsForLocations.',
+        );
+      }
+      const localVarPath = `/instance/{uuid}/location/metrics`.replace(
+        `{${'uuid'}}`,
+        encodeURIComponent(String(uuid)),
+      );
+      const localVarUrlObj = url.parse(localVarPath, true);
+      const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+      const localVarHeaderParameter = {} as any;
+      const localVarQueryParameter = {} as any;
+
+      // authentication public-api required
+      if (configuration && configuration.apiKey) {
+        const localVarApiKeyValue =
+          typeof configuration.apiKey === 'function'
+            ? configuration.apiKey('X-Authentication-Token')
+            : configuration.apiKey;
+        localVarHeaderParameter['X-Authentication-Token'] = localVarApiKeyValue;
+      }
+
+      localVarHeaderParameter['Content-Type'] = 'application/json';
+
+      localVarUrlObj.query = Object.assign(
+        {},
+        localVarUrlObj.query,
+        localVarQueryParameter,
+        options.query,
+      );
+      // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+      delete localVarUrlObj.search;
+      localVarRequestOptions.headers = Object.assign(
+        {},
+        localVarHeaderParameter,
+        options.headers,
+      );
+      const needsSerialization =
+        <any>'StorageConsumptionMetricEntityIdsV1' !== 'string' ||
+        localVarRequestOptions.headers['Content-Type'] === 'application/json';
+      localVarRequestOptions.body = needsSerialization
+        ? JSON.stringify(locations || {})
+        : locations || '';
+
+      return {
+        url: url.format(localVarUrlObj),
+        options: localVarRequestOptions,
+      };
+    },
+    /**
      * Invite users by email
      * @param {string} userId
      * @param {Array<Invites>} invites
@@ -8109,6 +8685,146 @@ export const UiFacingApiFp = function (configuration?: Configuration) {
       };
     },
     /**
+     * Get storage consumption metrics for an account
+     * @param {string} uuid
+     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccount(
+      uuid: string,
+      accountCanonicalId: string,
+      options?: any,
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string,
+    ) => Promise<StorageConsumptionMetricItemV1> {
+      const localVarFetchArgs = UiFacingApiFetchParamCreator(
+        configuration,
+      ).getStorageConsumptionMetricsForAccount(
+        uuid,
+        accountCanonicalId,
+        options,
+      );
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH,
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options,
+        ).then((response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
+     * Get storage consumption metrics for accounts
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccounts(
+      uuid: string,
+      accounts: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string,
+    ) => Promise<StorageConsumptionMetricsV1> {
+      const localVarFetchArgs = UiFacingApiFetchParamCreator(
+        configuration,
+      ).getStorageConsumptionMetricsForAccounts(uuid, accounts, options);
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH,
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options,
+        ).then((response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
+     * Get storage consumption metrics for buckets
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForBuckets(
+      uuid: string,
+      buckets: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string,
+    ) => Promise<StorageConsumptionMetricsV1> {
+      const localVarFetchArgs = UiFacingApiFetchParamCreator(
+        configuration,
+      ).getStorageConsumptionMetricsForBuckets(uuid, buckets, options);
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH,
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options,
+        ).then((response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
+     * Get storage consumption metrics for locations
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForLocations(
+      uuid: string,
+      locations: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ): (
+      fetch?: FetchAPI,
+      basePath?: string,
+    ) => Promise<StorageConsumptionMetricsV1> {
+      const localVarFetchArgs = UiFacingApiFetchParamCreator(
+        configuration,
+      ).getStorageConsumptionMetricsForLocations(uuid, locations, options);
+      return (
+        fetch: FetchAPI = portableFetch,
+        basePath: string = BASE_PATH,
+      ) => {
+        return fetch(
+          basePath + localVarFetchArgs.url,
+          localVarFetchArgs.options,
+        ).then((response) => {
+          if (response.status >= 200 && response.status < 300) {
+            return response.json();
+          } else {
+            throw response;
+          }
+        });
+      };
+    },
+    /**
      * Invite users by email
      * @param {string} userId
      * @param {Array<Invites>} invites
@@ -9108,6 +9824,86 @@ export const UiFacingApiFactory = function (
       )(fetch, basePath);
     },
     /**
+     * Get storage consumption metrics for an account
+     * @param {string} uuid
+     * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccount(
+      uuid: string,
+      accountCanonicalId: string,
+      options?: any,
+    ) {
+      return UiFacingApiFp(
+        configuration,
+      ).getStorageConsumptionMetricsForAccount(
+        uuid,
+        accountCanonicalId,
+        options,
+      )(fetch, basePath);
+    },
+    /**
+     * Get storage consumption metrics for accounts
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForAccounts(
+      uuid: string,
+      accounts: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ) {
+      return UiFacingApiFp(
+        configuration,
+      ).getStorageConsumptionMetricsForAccounts(
+        uuid,
+        accounts,
+        options,
+      )(fetch, basePath);
+    },
+    /**
+     * Get storage consumption metrics for buckets
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForBuckets(
+      uuid: string,
+      buckets: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ) {
+      return UiFacingApiFp(
+        configuration,
+      ).getStorageConsumptionMetricsForBuckets(
+        uuid,
+        buckets,
+        options,
+      )(fetch, basePath);
+    },
+    /**
+     * Get storage consumption metrics for locations
+     * @param {string} uuid
+     * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    getStorageConsumptionMetricsForLocations(
+      uuid: string,
+      locations: StorageConsumptionMetricEntityIdsV1,
+      options?: any,
+    ) {
+      return UiFacingApiFp(
+        configuration,
+      ).getStorageConsumptionMetricsForLocations(
+        uuid,
+        locations,
+        options,
+      )(fetch, basePath);
+    },
+    /**
      * Invite users by email
      * @param {string} userId
      * @param {Array<Invites>} invites
@@ -9953,6 +10749,94 @@ export class UiFacingApi extends BaseAPI {
   public getLatestInstanceStatus(uuid: string, options?: any) {
     return UiFacingApiFp(this.configuration).getLatestInstanceStatus(
       uuid,
+      options,
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   * Get storage consumption metrics for an account
+   * @param {string} uuid
+   * @param {string} accountCanonicalId the requested account canonical id to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UiFacingApi
+   */
+  public getStorageConsumptionMetricsForAccount(
+    uuid: string,
+    accountCanonicalId: string,
+    options?: any,
+  ) {
+    return UiFacingApiFp(
+      this.configuration,
+    ).getStorageConsumptionMetricsForAccount(
+      uuid,
+      accountCanonicalId,
+      options,
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   * Get storage consumption metrics for accounts
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} accounts Account canonicalId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UiFacingApi
+   */
+  public getStorageConsumptionMetricsForAccounts(
+    uuid: string,
+    accounts: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ) {
+    return UiFacingApiFp(
+      this.configuration,
+    ).getStorageConsumptionMetricsForAccounts(
+      uuid,
+      accounts,
+      options,
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   * Get storage consumption metrics for buckets
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} buckets bucket list to get storage consumption metrics, every bucket is in the format of &#39;bucketName_timestamp&#39;
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UiFacingApi
+   */
+  public getStorageConsumptionMetricsForBuckets(
+    uuid: string,
+    buckets: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ) {
+    return UiFacingApiFp(
+      this.configuration,
+    ).getStorageConsumptionMetricsForBuckets(
+      uuid,
+      buckets,
+      options,
+    )(this.fetch, this.basePath);
+  }
+
+  /**
+   * Get storage consumption metrics for locations
+   * @param {string} uuid
+   * @param {StorageConsumptionMetricEntityIdsV1} locations locationId list to get storage consumption metrics
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof UiFacingApi
+   */
+  public getStorageConsumptionMetricsForLocations(
+    uuid: string,
+    locations: StorageConsumptionMetricEntityIdsV1,
+    options?: any,
+  ) {
+    return UiFacingApiFp(
+      this.configuration,
+    ).getStorageConsumptionMetricsForLocations(
+      uuid,
+      locations,
       options,
     )(this.fetch, this.basePath);
   }
