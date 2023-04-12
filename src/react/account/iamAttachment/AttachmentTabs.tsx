@@ -299,10 +299,9 @@ const AttachmentTabs = ({
             getAttachedEntitesFromResult={(response) => {
               return (
                 response.PolicyRoles?.map((role) => {
-                  const disableDetach =
-                    !!policyRolePair.find(
-                      (pair) => pair.role.roleName === role.RoleName,
-                    ) !== undefined;
+                  const disableDetach = !!policyRolePair.find(
+                    (pair) => pair.role.roleName === role.RoleName,
+                  );
                   return {
                     name: role.RoleName || '',
                     id: role.RoleName || '',
