@@ -1,10 +1,4 @@
-import {
-  getByRole,
-  prettyDOM,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { getByRole, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -18,10 +12,10 @@ import {
 import Attachments from '../Attachments';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
 
-const accountName = 'account1';
+const defaultAccountName = 'account1';
 const userName = 'user1';
-const policyName = 'data-consumer-policy';
-const policyArn = `arn:aws:iam::718643629313:policy/scality-internal/${policyName}`;
+const policyName = 'backbeat-lifecycle-bp-1';
+const defaultPolicyArn = `arn:aws:iam::718643629313:policy/scality-internal/${policyName}`;
 const attachedUserName = 'attached-user';
 const attachedRoleName = 'attached-role';
 const attachedGroupName = 'attached-group';
@@ -161,22 +155,28 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-describe('Policy Attachments', () => {
-  beforeEach(() => {
-    jest
-      .spyOn(router, 'useRouteMatch')
-      .mockReturnValue(
-        `/accounts/${accountName}/policies/${policyArn}/attachments`,
-      );
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      policyArn,
-    });
-    reduxRender(<Attachments />, {
-      wrapper,
-    });
+const setupPolicyRender = (
+  accountName = defaultAccountName,
+  policyArn = defaultPolicyArn,
+) => {
+  jest
+    .spyOn(router, 'useRouteMatch')
+    .mockReturnValue(
+      `/accounts/${accountName}/policies/${policyArn}/attachments`,
+    );
+  jest.spyOn(router, 'useParams').mockReturnValue({
+    policyArn,
   });
+  reduxRender(<Attachments />, {
+    wrapper,
+  });
+};
+
+describe('Policy Attachments', () => {
   it('should render Users, Groups and Roles for Policy Attachments Tabs', () => {
-    //V
+    //S
+    setupPolicyRender(defaultAccountName, defaultPolicyArn);
+
     expect(screen.getByText(`${policyName}`));
     expect(screen.getByRole('tab', { name: /users/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /groups/i })).toBeInTheDocument();
@@ -184,6 +184,8 @@ describe('Policy Attachments', () => {
   });
 
   it('should render the attached Users in Users Tab', async () => {
+    // S
+    setupPolicyRender();
     //E
     await waitFor(() => screen.getByText('Attachment status'));
     //V
@@ -201,6 +203,8 @@ describe('Policy Attachments', () => {
   });
 
   it('should render the attached Groups in Groups Tab', async () => {
+    // S
+    setupPolicyRender();
     userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     //E
     await waitFor(() => screen.getByText('Attachment status'));
@@ -218,23 +222,10 @@ describe('Policy Attachments', () => {
     ).not.toBeDisabled();
   });
 
-  it('should render the attached role in Roles Tab with disabled Removed button for the seeded account', async () => {
-    userEvent.click(screen.getByRole('tab', { name: /roles/i }));
-    //E
-    await waitFor(() => screen.getByText('Attachment status'));
-    //V
-    const firstRow = screen.getAllByRole('row')[1];
-    expect(
-      screen.getByRole('row', { name: /attached-role attached remove/i }),
-    ).toBeInTheDocument();
-    expect(
-      getByRole(firstRow, 'button', {
-        name: /Remove/i,
-      }),
-    ).toBeDisabled();
-  });
-
   it('should render the selected User and clear it after clicking on the Remove button', async () => {
+    // S
+    setupPolicyRender();
+
     await waitFor(() =>
       expect(
         screen.getByPlaceholderText('Search by entity name'),
@@ -284,6 +275,9 @@ describe('Policy Attachments', () => {
   });
 
   it('should render confirmation modal and success status once confirm', async () => {
+    // S
+    setupPolicyRender();
+
     await waitFor(() =>
       expect(
         screen.getByPlaceholderText('Search by entity name'),
@@ -324,6 +318,8 @@ describe('Policy Attachments', () => {
   });
 
   it('should render Retry button if attachment failed', async () => {
+    // S
+    setupPolicyRender();
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -357,8 +353,10 @@ describe('Policy Attachments', () => {
     expect(screen.getByRole('button', { name: /retry/i })).not.toBeDisabled();
   });
 
-  it('should disable the search if list users failed', () => {
-    //S
+  it('should disable the search if list users failed', async () => {
+    // S
+    setupPolicyRender();
+
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
         const params = new URLSearchParams(req.body);
@@ -370,14 +368,14 @@ describe('Policy Attachments', () => {
     );
 
     //V
-    waitFor(() =>
+    await waitFor(() =>
       expect(
         screen.getByPlaceholderText('Search by entity name'),
       ).toBeDisabled(),
     );
   });
 
-  it('should display error message if list attached entities failed', () => {
+  it('should display error message if list attached entities failed', async () => {
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -388,9 +386,12 @@ describe('Policy Attachments', () => {
         return initialMock(req, res, ctx);
       }),
     );
+    const policyArn = `arn:aws:iam::718643629313:policy/scality-internal/attached-role`;
+    setupPolicyRender(defaultAccountName, policyArn);
 
     //V
-    waitFor(() =>
+
+    await waitFor(() =>
       expect(
         screen.getByText(
           'An error occured while loading entities, please retry later and if the error persists, contact your support.',
@@ -398,10 +399,58 @@ describe('Policy Attachments', () => {
       ).toBeInTheDocument(),
     );
   });
+
+  it('should render the attached role in Roles Tab with disabled Removed button for the seeded account', async () => {
+    // S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, initialMock),
+      rest.get('http://localhost/account-seeds.json', (req, res, ctx) => {
+        return res(
+          ctx.json([
+            {
+              permissionPolicy: {
+                policyDocument: {
+                  Statement: [],
+                  Version: '2012-10-17',
+                },
+                policyName: 'attached-role',
+              },
+              role: {
+                roleName: 'attached-role',
+                trustPolicy: {
+                  Statement: [],
+                  Version: '2012-10-17',
+                },
+              },
+            },
+          ]),
+        );
+      }),
+    );
+
+    const policyArn = `arn:aws:iam::718643629313:policy/scality-internal/attached-role`;
+    setupPolicyRender(defaultAccountName, policyArn);
+
+    userEvent.click(screen.getByRole('tab', { name: /roles/i }));
+    //E
+    await waitFor(() => screen.getByText('Attachment status'));
+
+    //V
+    const firstRow = screen.getAllByRole('row')[1];
+
+    expect(
+      screen.getByRole('row', { name: /attached-role attached remove/i }),
+    ).toBeInTheDocument();
+    expect(
+      getByRole(firstRow, 'button', {
+        name: /Remove/i,
+      }),
+    ).toBeDisabled();
+  });
 });
 
 describe('User Attachments', () => {
-  beforeEach(() => {
+  const setupRender = () => {
     jest.spyOn(router, 'useRouteMatch').mockReturnValue(null);
     jest.spyOn(router, 'useParams').mockReturnValue({
       IAMUserName: userName,
@@ -409,9 +458,11 @@ describe('User Attachments', () => {
     reduxRender(<Attachments />, {
       wrapper,
     });
-  });
+  };
 
   it('should render Groups and Policies for User Attachments Tabs', () => {
+    //S
+    setupRender();
     //V
     expect(screen.getByText(`${userName}`));
     expect(screen.getByRole('tab', { name: /groups/i })).toBeInTheDocument();
@@ -419,15 +470,18 @@ describe('User Attachments', () => {
   });
 
   it('should remove the user from group after confirmation', async () => {
+    //S
+    setupRender();
     await waitFor(() => screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() => screen.getByText('Attachment status'));
+
     //V
     expect(
-      screen.getByRole('row', { name: /devs attached close remove/i }),
+      screen.getByRole('row', { name: /devs attached remove/i }),
     ).toBeInTheDocument();
 
     const pendingGroup = screen.getByRole('row', {
-      name: /devs attached close remove/i,
+      name: /devs attached remove/i,
     });
     expect(
       getByRole(pendingGroup, 'button', {
