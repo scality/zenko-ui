@@ -1,155 +1,5 @@
 [
   {
-    "role": {
-      "roleName": "storage-manager-role",
-      "trustPolicy": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Principal": { "Federated": "keycloak.zenko.local" },
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-              "StringEquals": {
-                "keycloak:roles": "StorageManager"
-              }
-            }
-          }
-        ]
-      }
-    },
-    "permissionPolicy": {
-      "policyName": "storage-manager-policy",
-      "policyDocument": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Sid": "FullAccess",
-            "Effect": "Allow",
-            "Action": ["*"],
-            "Resource": "*"
-          }
-        ]
-      }
-    }
-  },
-  {
-    "role": {
-      "roleName": "storage-account-owner-role",
-      "trustPolicy": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Principal": { "Federated": "keycloak.zenko.local" },
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-              "StringEquals": { "keycloak:groups": "StorageAccountOwner" }
-            }
-          }
-        ]
-      }
-    },
-    "permissionPolicy": {
-      "policyName": "storage-account-owner-policy",
-      "policyDocument": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Sid": "FullAccess",
-            "Effect": "Allow",
-            "Action": ["s3:*", "iam:*"],
-            "Resource": ["*"]
-          }
-        ]
-      }
-    }
-  },
-  {
-    "role": {
-      "roleName": "data-consumer-role",
-      "trustPolicy": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Principal": { "Federated": "keycloak.zenko.local" },
-            "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-              "StringEquals": { "keycloak:groups": "DataConsumer" }
-            }
-          }
-        ]
-      }
-    },
-    "permissionPolicy": {
-      "policyName": "data-consumer-policy",
-      "policyDocument": {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Effect": "Allow",
-            "Action": "s3:ListAllMyBuckets",
-            "Resource": "*"
-          },
-          {
-            "Effect": "Allow",
-            "Action": ["s3:ListBucket", "s3:GetBucketLocation"],
-            "Resource": "*"
-          },
-          {
-            "Effect": "Allow",
-            "Action": [
-              "s3:MetadataSearch",
-              "s3:PutObject",
-              "s3:PutObjectAcl",
-              "s3:GetObject",
-              "s3:GetObjectAcl",
-              "s3:DeleteObject",
-              "s3:RestoreObject",
-              "s3:GetBucketVersioning",
-              "s3:GetBucketCors",
-              "s3:GetBucketAcl",
-              "s3:GetBucketObjectLockConfiguration",
-              "s3:ListObjectsV2",
-              "s3:ListObjectVersions",
-              "s3:PutObjectLockConfiguration",
-              "s3:DeleteObjects",
-              "s3:GetObjectRetention",
-              "s3:GetObjectLegalHold",
-              "s3:PutObjectRetention",
-              "s3:PutObjectLegalHold",
-              "s3:HeadObject",
-              "s3:CopyObject",
-              "s3:GetObjectTagging",
-              "s3:PutObjectTagging",
-              "s3:GetReplicationConfiguration",
-              "s3:GetLifecycleConfiguration",
-              "s3:DeleteObjectVersion",
-              "s3:PutLifecycleConfiguration",
-              "s3:PutReplicationConfiguration",
-              "s3:ListObjectVersion",
-              "s3:GetObjectVersion",
-              "s3:GetObjectVersionRetention",
-              "s3:GetObjectVersionLegalHold",
-              "s3:PutObjectVersionRetention",
-              "s3:PutObjectVersionLegalHold",
-              "s3:GetObjectVersionTagging",
-              "s3:DeleteObjectVersionTagging",
-              "s3:PutObjectVersionTagging",
-              "s3:GetObjectVersionAcl",
-              "s3:PutObjectVersionAcl",
-              "s3:GetBucketTagging",
-              "s3:PutBucketTagging",
-              "s3:DeleteBucketTagging"
-            ],
-            "Resource": "*"
-          }
-        ]
-      }
-    }
-  },
-  {
     "permissionPolicy": {
       "policyDocument": {
         "Statement": [
@@ -200,7 +50,8 @@
               "s3:GetObjectVersion",
               "s3:DeleteObject",
               "s3:DeleteObjectVersion",
-              "s3:AbortMultipartUpload"
+              "s3:AbortMultipartUpload",
+              "s3:ReplicateObject"
             ],
             "Effect": "Allow",
             "Resource": ["*"],
@@ -220,6 +71,134 @@
             "Effect": "Allow",
             "Principal": {
               "AWS": "arn:aws:iam::000000000000:user/scality-internal/backbeat-lifecycle-op-1"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      }
+    }
+  },
+  {
+    "permissionPolicy": {
+      "policyDocument": {
+        "Statement": [
+          {
+            "Action": ["s3:ReplicateObject"],
+            "Effect": "Allow",
+            "Resource": ["*"],
+            "Sid": "LifecycleObjectTransitionProcessor"
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "policyName": "backbeat-lifecycle-tp-1"
+    },
+    "role": {
+      "roleName": "backbeat-lifecycle-tp-1",
+      "trustPolicy": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "arn:aws:iam::000000000000:user/scality-internal/backbeat-lifecycle-tp-1"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      }
+    }
+  },
+  {
+    "permissionPolicy": {
+      "policyDocument": {
+        "Statement": [
+          {
+            "Action": ["s3:ReplicateObject"],
+            "Effect": "Allow",
+            "Resource": ["*"],
+            "Sid": "GarbageCollector"
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "policyName": "backbeat-gc-1"
+    },
+    "role": {
+      "roleName": "backbeat-gc-1",
+      "trustPolicy": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "arn:aws:iam::000000000000:user/scality-internal/backbeat-gc-1"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      }
+    }
+  },
+  {
+    "permissionPolicy": {
+      "policyDocument": {
+        "Statement": [
+          {
+            "Action": ["s3:GetObject", "s3:GetObjectVersion"],
+            "Effect": "Allow",
+            "Resource": ["*"],
+            "Sid": "SorbetArchivePermissions"
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "policyName": "cold-storage-archive-role-2"
+    },
+    "role": {
+      "roleName": "cold-storage-archive-role-2",
+      "trustPolicy": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "arn:aws:iam::000000000000:user/scality-internal/sorbet-fwd-2"
+            }
+          }
+        ],
+        "Version": "2012-10-17"
+      }
+    }
+  },
+  {
+    "permissionPolicy": {
+      "policyDocument": {
+        "Statement": [
+          {
+            "Action": [
+              "s3:PutObjectVersion",
+              "s3:GetObject",
+              "s3:GetObjectVersion"
+            ],
+            "Effect": "Allow",
+            "Resource": ["*"],
+            "Sid": "SorbetRestorePermissions"
+          }
+        ],
+        "Version": "2012-10-17"
+      },
+      "policyName": "cold-storage-restore-role-2"
+    },
+    "role": {
+      "roleName": "cold-storage-restore-role-2",
+      "trustPolicy": {
+        "Statement": [
+          {
+            "Action": "sts:AssumeRole",
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "arn:aws:iam::000000000000:user/scality-internal/sorbet-fwd-2"
             }
           }
         ],
