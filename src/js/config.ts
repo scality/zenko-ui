@@ -14,6 +14,8 @@ export function getAppConfig() {
         stsEndpoint,
         zenkoEndpoint,
         iamEndpoint,
+        iamInternalFQDN,
+        s3InternalFQDN,
       } = config;
 
       if (
@@ -21,10 +23,12 @@ export function getAppConfig() {
         !managementEndpoint ||
         !stsEndpoint ||
         !zenkoEndpoint ||
-        !iamEndpoint
+        !iamEndpoint ||
+        !iamInternalFQDN ||
+        !s3InternalFQDN
       ) {
         throw new Error(
-          'incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, navbarEndpoint, stsEndpoint, iamEndpoint and zenkoEndpoint)',
+          'incorrect or missing mandatory configuration information(s). (i.e. managementEndpoint, navbarEndpoint, stsEndpoint, iamEndpoint, iamInternalFQDN, s3InternalFQDN and zenkoEndpoint)',
         );
       }
 
@@ -35,6 +39,8 @@ export function getAppConfig() {
         stsEndpoint,
         zenkoEndpoint,
         iamEndpoint,
+        iamInternalFQDN,
+        s3InternalFQDN,
         features: config.features || [],
       };
     });

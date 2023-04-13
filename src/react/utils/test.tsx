@@ -80,7 +80,11 @@ export const newTestStore = (state) => {
 
 export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
-  const zenkoClient = new ZenkoClient(TEST_API_BASE_URL);
+  const zenkoClient = new ZenkoClient(
+    TEST_API_BASE_URL,
+    'iam.internal',
+    's3.internal',
+  );
   zenkoClient.login({
     accessKey: 'accessKey',
     secretKey: 'secretKey',

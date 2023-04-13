@@ -5,5 +5,7 @@
   "stsEndpoint": "http://127.0.0.1:8383/sts",
   "zenkoEndpoint": "http://127.0.0.1:8383/s3",
   "iamEndpoint": "http://127.0.0.1:8383/iam",
+  "iamInternalFQDN": "artesca-data-management-vault-iam-admin-api.zenko.svc.cluster.local",
+  "s3InternalFQDN": "artesca-data-connector-s3api.zenko.svc.cluster.local",
   "features": ["XDM"]
 }
