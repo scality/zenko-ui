@@ -1,14 +1,16 @@
 import { LatestUsedCapacity } from './metrics';
 import { PromiseResult } from './promise';
+import { LocationTypeKey } from '../../../../types/config';
+import { Locationv1Details } from '../../../../js/managementClient/api';
 
-type Location = {
+export type Location = {
   id: string;
   name: string;
-  type: string;
+  type: LocationTypeKey;
+  details: Locationv1Details;
   usedCapacity: PromiseResult<LatestUsedCapacity>;
-  targetBucket?: string;
 };
 
 export type LocationsPromiseResult = {
-  locations: PromiseResult<Location[]>;
+  locations: PromiseResult<Record<string, Location>>;
 };
