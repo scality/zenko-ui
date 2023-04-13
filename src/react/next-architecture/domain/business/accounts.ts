@@ -1,29 +1,38 @@
-import { IMetricsAdaptor } from '../../adaptors/metrics/IMetricsAdaptor';
-import { AccountsPromiseResult } from '../entities/account';
+import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
+import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
+import {
+  AccountLatestUsedCapacityPromiseResult,
+  AccountsPromiseResult,
+} from '../entities/account';
 
 /**
- * The hook returns all the accounts and the storage metric for the first 20 accounts.
- * @param metricsAdaptor
+ * The hook returns the entire account list and the storage metric for the first one thousand of accounts.
+ * @param metricsAdapter
+ * @param accountsAdapter
  */
 export const useListAccounts = ({
-  metricsAdaptor,
+  accountsAdapter,
+  metricsAdapter,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
+  accountsAdapter: IAccountsAdapter;
+  metricsAdapter: IMetricsAdapter;
 }): AccountsPromiseResult => {
   throw new Error('Method not implemented.');
 };
 
 /**
- * The hook returns the latest used capacity for a specific account.
- * @param metricsAdaptor
- * @param accountId
+ * The hook returns the latest used capacity for a specific account, calling it in the Account Table Data Used Cell.
+ * It will be enabled after retrieving the accounts and will update the cache of account-metrics.
+ * @param metricsAdapter
+ * @param accountCanonicalId
  */
 export const useAccountLatestUsedCapacity = ({
-  metricsAdaptor,
-  accountId,
+  metricsAdapter,
+  accountCanonicalId,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
-  accountId: string;
-}): AccountsPromiseResult => {
+  metricsAdapter: IMetricsAdapter;
+  accountCanonicalId: string;
+}): AccountLatestUsedCapacityPromiseResult => {
+  // check if the account metric has already exist in the cache
   throw new Error('Method not implemented.');
 };
