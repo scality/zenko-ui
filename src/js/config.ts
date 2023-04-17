@@ -1,5 +1,7 @@
+import { AppConfig } from '../types/entities';
+
 export const XDM_FEATURE = 'XDM';
-export function getAppConfig() {
+export function getAppConfig(): Promise<AppConfig> {
   return fetch('/config.json', {
     credentials: 'same-origin',
   })

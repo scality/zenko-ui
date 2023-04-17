@@ -5,7 +5,7 @@ export type InstanceId = string;
 export type AppConfig = {
   readonly managementEndpoint: string;
   readonly stsEndpoint: string;
-  readonly s3Endpoint: string;
+  readonly zenkoEndpoint: string;
   readonly iamEndpoint: string;
   readonly navbarEndpoint: string;
   readonly navbarConfigUrl: string;
