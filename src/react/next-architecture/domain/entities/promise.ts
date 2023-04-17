@@ -6,18 +6,18 @@ type Error = 'error';
 
 export type PromiseStatus = NotResolved | Success | Error;
 
-interface PromiseSucceedResult<T> {
+export interface PromiseSucceedResult<T> {
   status: Success;
   value: T;
 }
 
-interface PromiseRejectedResult {
+export interface PromiseRejectedResult {
   status: Error;
   title: string;
   reason: string;
 }
 
-interface PromiseNotResolved {
+export interface PromiseNotResolved {
   status: NotResolved;
 }
 
