@@ -4,7 +4,7 @@ import {
   mockOffsetSize,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import { prettyDOM, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';

@@ -3,7 +3,7 @@ import {
   checkBox,
   themeMount as mount,
   updateInputText,
-} from '../../../../utils/test';
+} from '../../../../utils/testUtil';
 import LocationDetailsGcp from '../LocationDetailsGcp';
 
 const props = {

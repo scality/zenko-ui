@@ -7,7 +7,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../../../utils/test';
+} from '../../../../utils/testUtil';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import ObjectRestorationButtonAndModal from '../ObjectRestorationButtonAndModal';
 import { act } from 'react-dom/test-utils';

@@ -20,7 +20,7 @@ import {
   queryClient,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import { List } from 'immutable';
 import { debug } from 'jest-preview';
 

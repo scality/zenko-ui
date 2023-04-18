@@ -1,6 +1,5 @@
-import React from 'react';
 import { MemoryRouter, Route, Switch } from 'react-router';
-import { reduxMountAct } from '../../../utils/test';
+import { reduxMountAct } from '../../../utils/testUtil';
 import ObjectLockSetting from '../ObjectLockSetting';
 describe('ObjectLockSetting', () => {
   const errorMessage = 'This is an error test message';

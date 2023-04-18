@@ -1,6 +1,6 @@
 import router from 'react-router';
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
-import { reduxMountAct, reduxRender } from '../../../utils/test';
+import { reduxMountAct, reduxRender } from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
 import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

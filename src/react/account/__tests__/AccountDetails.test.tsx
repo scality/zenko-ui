@@ -1,7 +1,7 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
 import React from 'react';
-import { reduxRender } from '../../utils/test';
+import { reduxRender } from '../../utils/testUtil';
 import { screen } from '@testing-library/react';
 
 const account1 = {

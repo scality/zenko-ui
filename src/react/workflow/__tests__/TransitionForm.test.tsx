@@ -11,7 +11,7 @@ import {
   mockOffsetSize,
   reduxRender,
   Wrapper as wrapper,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import { List } from 'immutable';
 import { S3Bucket } from '../../../types/s3';
 import {

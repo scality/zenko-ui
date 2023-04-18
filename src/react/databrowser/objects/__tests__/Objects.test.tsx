@@ -4,7 +4,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../../utils/test';
+} from '../../../utils/testUtil';
 import Objects from '../Objects';
 import { screen, waitFor } from '@testing-library/react';
 import router from 'react-router';

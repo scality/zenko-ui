@@ -5,7 +5,7 @@ import {
   reduxMount,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../../../utils/test';
+} from '../../../../utils/testUtil';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';

@@ -13,7 +13,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { OBJECT_METADATA } from '../../../actions/__tests__/utils/testUtil';
 import Properties from '../details/Properties';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 import router from 'react-router';
 describe('ObjectDetails', () => {
   beforeAll(() => {

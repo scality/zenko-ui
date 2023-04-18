@@ -1,7 +1,7 @@
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { reduxRender, TEST_API_BASE_URL } from '../../../utils/test';
+import { reduxRender, TEST_API_BASE_URL } from '../../../utils/testUtil';
 import { PauseAndResume } from '../PauseAndResume';
 
 describe('PauseAndResume', () => {

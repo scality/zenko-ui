@@ -6,7 +6,7 @@ import {
   TEST_API_BASE_URL,
   TEST_MANAGEMENT_CLIENT,
   TEST_ROLE_PATH_NAME,
-} from '../../../../utils/test';
+} from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../../utils';

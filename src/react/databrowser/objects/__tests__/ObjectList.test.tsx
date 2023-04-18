@@ -5,7 +5,7 @@ import {
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
 import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
-import { checkBox, reduxMount } from '../../../utils/test';
+import { checkBox, reduxMount } from '../../../utils/testUtil';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import { List } from 'immutable';
 import ObjectList from '../ObjectList';

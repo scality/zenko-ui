@@ -6,7 +6,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import CreateAccountPolicy from '../CreateAccountPolicy';
 import userEvent from '@testing-library/user-event';
 

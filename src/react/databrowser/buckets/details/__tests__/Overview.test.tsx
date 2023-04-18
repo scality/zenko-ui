@@ -9,7 +9,7 @@ import {
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
 import { Toggle } from '@scality/core-ui';
-import { reduxMount } from '../../../../utils/test';
+import { reduxMount } from '../../../../utils/testUtil';
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
   LocationConstraint: '',
