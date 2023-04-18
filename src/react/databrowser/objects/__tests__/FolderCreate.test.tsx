@@ -5,7 +5,7 @@ import {
 } from '../../../actions/__tests__/utils/testUtil';
 import FolderCreate from '../FolderCreate';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 describe('FolderCreate', () => {
   it('should render FolderCreate component', () => {
     const { component } = reduxMount(

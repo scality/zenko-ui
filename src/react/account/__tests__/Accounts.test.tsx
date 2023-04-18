@@ -9,7 +9,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import Accounts from '../Accounts';
 import { createMemoryHistory } from 'history';
 
@@ -230,7 +230,12 @@ describe('Accounts', () => {
           counter: 0,
           messages: List.of(),
         },
-        oidc: { user: { access_token: 'token', profile: {groups: 'StorageManager'} } },
+        oidc: {
+          user: {
+            access_token: 'token',
+            profile: { groups: 'StorageManager' },
+          },
+        },
         auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
       });
       //V

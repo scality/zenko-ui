@@ -1,6 +1,6 @@
 import ErrorHandlerModal from '../ErrorHandlerModal';
 import React from 'react';
-import { reduxMount } from '../../utils/test';
+import { reduxMount } from '../../utils/testUtil';
 describe('ErrorHandlerModal', () => {
   const errorMessage = 'test error message';
   it('ErrorHandlerModal should render', () => {

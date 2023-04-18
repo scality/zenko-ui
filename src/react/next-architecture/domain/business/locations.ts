@@ -1,22 +1,22 @@
-import { IMetricsAdaptor } from '../../adaptors/metrics/IMetricsAdaptor';
+import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { LocationsPromiseResult } from '../entities/location';
 
 /**
  * The hook returns all the locations and it's metrics
- * @param metricsAdaptor
+ * @param metricsAdapter
  */
 export const useListLocations = ({
-  metricsAdaptor,
+  metricsAdapter,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
+  metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
   throw new Error('Method not implemented.');
 };
 
 export const useListLocationsForCurrentAccount = ({
-  metricsAdaptor,
+  metricsAdapter,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
+  metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
   throw new Error('Method not implemented.');
 };

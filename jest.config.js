@@ -1,5 +1,5 @@
 module.exports = {
-  testMatch: ['**/__tests__/?(*.)+(test).ts?(x)'],
+  testMatch: ['**/?(*.)+(test).ts?(x)'],
   transformIgnorePatterns: [
     '/node_modules/(?!(vega-lite|@scality|pretty-bytes)/)',
   ],

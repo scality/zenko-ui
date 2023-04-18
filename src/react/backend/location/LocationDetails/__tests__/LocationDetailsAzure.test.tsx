@@ -6,7 +6,7 @@ import {
   reduxRender,
   themeMount as mount,
   updateInputText,
-} from '../../../../utils/test';
+} from '../../../../utils/testUtil';
 import LocationDetailsAzure from '../LocationDetailsAzure';
 const props = {
   details: {},

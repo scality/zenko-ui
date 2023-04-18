@@ -8,7 +8,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../../utils/test';
+} from '../../../utils/testUtil';
 import Attachments from '../Attachments';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
 

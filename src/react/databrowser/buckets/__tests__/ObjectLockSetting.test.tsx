@@ -1,7 +1,7 @@
 import React from 'react';
 import { MemoryRouter, Route, Switch } from 'react-router';
-import { reduxMountAct, reduxRender } from '../../../utils/test';
-import { screen } from "@testing-library/react";
+import { reduxMountAct, reduxRender } from '../../../utils/testUtil';
+import { screen } from '@testing-library/react';
 import ObjectLockSetting from '../ObjectLockSetting';
 describe('ObjectLockSetting', () => {
   const errorMessage = 'This is an error test message';
@@ -63,14 +63,12 @@ describe('ObjectLockSetting', () => {
         },
       },
     );
-    
+
     expect(screen.getByText(/Enabled/i)).toBeInTheDocument();
     expect(
-      screen.getByRole('radio', {  name: /governance/i, checked: true }),
+      screen.getByRole('radio', { name: /governance/i, checked: true }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('spinbutton'),
-    ).toHaveValue(1);
+    expect(screen.getByRole('spinbutton')).toHaveValue(1);
     expect(screen.getByDisplayValue(/days/i)).toBeInTheDocument();
   });
 });

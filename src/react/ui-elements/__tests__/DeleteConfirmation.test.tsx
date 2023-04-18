@@ -1,6 +1,6 @@
 import DeleteConfirmation from '../DeleteConfirmation';
 import React from 'react';
-import { reduxMount } from '../../utils/test';
+import { reduxMount } from '../../utils/testUtil';
 describe('DeleteConfirmation', () => {
   const TITLE_TEXT = 'Are you sure you want to delete bucket: test ?';
   const approveFn = jest.fn();

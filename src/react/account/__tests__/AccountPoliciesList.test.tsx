@@ -6,7 +6,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import AccountPoliciesList from '../AccountPoliciesList';
 
 const SCALITY_INTERNAL_POLICY_ID = 'LRDTTFT5ZKN6VIZCICXFSAD8I1960RBB';

@@ -4,7 +4,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import React from 'react';

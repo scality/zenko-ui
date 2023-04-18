@@ -1,6 +1,6 @@
 import React from 'react';
 import { AccountHead } from '../AccountHead';
-import { reduxRender } from '../../utils/test';
+import { reduxRender } from '../../utils/testUtil';
 const accountNameTest = 'bart';
 
 describe('AccountHead', () => {

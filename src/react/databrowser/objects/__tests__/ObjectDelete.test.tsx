@@ -10,7 +10,7 @@ import ObjectDelete, {
   WarningTypes,
 } from '../ObjectDelete';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 import { act } from 'react-dom/test-utils';
 describe('ObjectDelete', () => {
   afterEach(() => {

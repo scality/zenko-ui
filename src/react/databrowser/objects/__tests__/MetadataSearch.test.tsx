@@ -3,7 +3,7 @@ import MetadataSearch, { METADATA_SEARCH_HINT_ITEMS } from '../MetadataSearch';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
 import { SearchButton } from '../../../ui-elements/Table';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 import router from 'react-router';
 import * as redux from 'react-redux';
 describe('Metadata Search', () => {

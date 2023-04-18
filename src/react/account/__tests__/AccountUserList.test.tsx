@@ -13,7 +13,7 @@ import {
   reduxRender,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
 const SAMPLE_USER_NAME = 'test';
