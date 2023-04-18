@@ -298,7 +298,7 @@ export function waitForIngestionUpdate(
       (cb) => {
         const { instanceStatus } = getState();
         const actualState =
-          instanceStatus.latest.metrics?.['ingest-schedule']?.states[
+          instanceStatus.latest.metrics?.['ingest-schedule']?.states?.[
             locationName
           ];
         setTimeout(cb, 500, null, actualState === expectedState);

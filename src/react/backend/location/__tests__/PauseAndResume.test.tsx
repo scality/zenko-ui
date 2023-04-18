@@ -44,6 +44,38 @@ describe('PauseAndResume', () => {
     expect(screen.getByRole('button', { name: /Pause/i })).not.toBeDisabled();
   });
 
+  it('should render the component with pause label when ingestion is an empty object', async () => {
+    server.use(
+      rest.get(
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        (req, res, ctx) =>
+          res(
+            ctx.json({
+              metrics: {
+                ['crr-schedule']: {
+                  states: { [locationName]: 'enabled' },
+                },
+                ['ingest-schedule']: {},
+              },
+              state: null,
+            }),
+          ),
+      ),
+    );
+    reduxRender(<PauseAndResume locationName={locationName} />, {
+      instances: {
+        selectedId: instanceId,
+      },
+    });
+
+    await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
+      timeout: 8000,
+    });
+
+    expect(screen.getByRole('button', { name: /Pause/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pause/i })).not.toBeDisabled();
+  });
+
   it('should render the component with pause label when replication is enabled', async () => {
     server.use(
       rest.get(

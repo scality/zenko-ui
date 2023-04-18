@@ -141,10 +141,7 @@ export const initialInstanceStatus: InstanceStatusState = {
         states: {},
         schedules: {},
       },
-      'ingest-schedule': {
-        states: {},
-        schedules: {},
-      },
+      'ingest-schedule': {},
     },
   },
 };

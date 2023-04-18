@@ -9,7 +9,7 @@ export function WorkflowState({ locationName }: { locationName: string }) {
   );
 
   const ingestionState =
-    instanceMetrics?.['ingest-schedule']?.states[locationName];
+    instanceMetrics?.['ingest-schedule']?.states?.[locationName];
 
   const replicationState =
     instanceMetrics?.['crr-schedule']?.states[locationName];
