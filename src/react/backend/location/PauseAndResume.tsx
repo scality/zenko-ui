@@ -102,72 +102,65 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
       ? replicationStates[locationName]
       : null;
 
-  if (replication || ingestion) {
-    if (replication === 'enabled' || ingestion === 'enabled') {
-      return (
-        <Box display="flex" alignItems="center">
-          <InlineButton
-            disabled={loading}
-            icon={<Icon name="Pause-circle" />}
-            tooltip={{
-              overlay: (
-                <Box>
-                  {replication === 'enabled' &&
-                    'Replication workflow is active.'}
-                  {ingestion === 'enabled' &&
-                    'Async Metadata updates is active.'}
-                </Box>
-              ),
-              placement: 'top',
-            }}
-            label="Pause"
-            onClick={() => {
-              if (replication === 'enabled') {
-                pauseReplicationSiteMutation.mutate(locationName);
-              }
-              if (ingestion === 'enabled') {
-                pauseIngestionSiteMutation.mutate(locationName);
-              }
-            }}
-            variant="secondary"
-            type="button"
-          />
-        </Box>
-      );
-    }
+  const tooltip = (
+    <Box>
+      {replication === 'enabled' && 'Replication workflow is active.'}
+      {ingestion === 'enabled' && 'Async Metadata updates is active.'}
+      {replication === 'disabled' && 'Replication workflow is paused.'}
+      {ingestion === 'disabled' && 'Async Metadata updates is paused.'}
+    </Box>
+  );
 
-    if (replication === 'disabled' || ingestion === 'disabled') {
-      return (
-        <Box display="flex" alignItems="center">
-          <InlineButton
-            disabled={loading}
-            icon={<Icon name="Play-circle" />}
-            tooltip={{
-              overlay: (
-                <Box>
-                  {replication === 'disabled' &&
-                    'Replication workflow is paused.'}
-                  {ingestion === 'disabled' &&
-                    'Async Metadata updates is paused.'}
-                </Box>
-              ),
-              placement: 'top',
-            }}
-            type="button"
-            label="Resume"
-            onClick={() => {
-              if (replication === 'disabled') {
-                resumeReplicationSiteMutation.mutate(locationName);
-              }
-              if (ingestion === 'disabled') {
-                resumeIngestionSiteMutation.mutate(locationName);
-              }
-            }}
-            variant="secondary"
-          />
-        </Box>
-      );
-    }
+  if (replication === 'enabled' || ingestion === 'enabled') {
+    return (
+      <Box display="flex" alignItems="center">
+        <InlineButton
+          disabled={loading}
+          icon={<Icon name="Pause-circle" />}
+          tooltip={{
+            overlay: tooltip,
+            placement: 'top',
+          }}
+          label="Pause"
+          onClick={() => {
+            if (replication === 'enabled') {
+              pauseReplicationSiteMutation.mutate(locationName);
+            }
+            if (ingestion === 'enabled') {
+              pauseIngestionSiteMutation.mutate(locationName);
+            }
+          }}
+          variant="secondary"
+          type="button"
+        />
+      </Box>
+    );
+  }
+
+  if (replication === 'disabled' || ingestion === 'disabled') {
+    return (
+      <Box display="flex" alignItems="center">
+        <InlineButton
+          disabled={loading}
+          icon={<Icon name="Play-circle" />}
+          tooltip={{
+            overlay: tooltip,
+            placement: 'top',
+          }}
+          type="button"
+          label="Resume"
+          onClick={() => {
+            if (replication === 'disabled') {
+              resumeReplicationSiteMutation.mutate(locationName);
+            }
+            if (ingestion === 'disabled') {
+              resumeIngestionSiteMutation.mutate(locationName);
+            }
+          }}
+          variant="secondary"
+        />
+      </Box>
+    );
   }
 
   return <>-</>;
