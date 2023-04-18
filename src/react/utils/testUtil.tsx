@@ -25,6 +25,10 @@ import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import ZenkoClient from '../../js/ZenkoClient';
+import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
+import { S3AssumeRoleClientProvider } from '../next-architecture/ui/S3ClientProvider';
+import { _AuthContext } from '../next-architecture/ui/AuthProvider';
+import { XDM_FEATURE } from '../../js/config';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -132,21 +136,41 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Router history={history}>
-        <_DataServiceRoleContext.Provider value={{ role }}>
-          <_IAMContext.Provider
+        <_ConfigContext.Provider
+          value={{
+            iamEndpoint: TEST_API_BASE_URL,
+            managementEndpoint: TEST_API_BASE_URL,
+            zenkoEndpoint: TEST_API_BASE_URL,
+            navbarConfigUrl: TEST_API_BASE_URL,
+            features: [XDM_FEATURE],
+            navbarEndpoint: TEST_API_BASE_URL,
+            stsEndpoint: TEST_API_BASE_URL,
+          }}
+        >
+          <_AuthContext.Provider
             value={{
-              iamClient,
+              user: { access_token: 'token', profile: { sub: 'test' } },
             }}
           >
-            <_ManagementContext.Provider
-              value={{
-                managementClient: TEST_MANAGEMENT_CLIENT,
-              }}
-            >
-              {children}
-            </_ManagementContext.Provider>
-          </_IAMContext.Provider>
-        </_DataServiceRoleContext.Provider>
+            <_DataServiceRoleContext.Provider value={{ role }}>
+              <_IAMContext.Provider
+                value={{
+                  iamClient,
+                }}
+              >
+                <_ManagementContext.Provider
+                  value={{
+                    managementClient: TEST_MANAGEMENT_CLIENT,
+                  }}
+                >
+                  <S3AssumeRoleClientProvider>
+                    {children}
+                  </S3AssumeRoleClientProvider>
+                </_ManagementContext.Provider>
+              </_IAMContext.Provider>
+            </_DataServiceRoleContext.Provider>
+          </_AuthContext.Provider>
+        </_ConfigContext.Provider>
       </Router>
     </QueryClientProvider>
   );

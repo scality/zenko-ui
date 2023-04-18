@@ -1,4 +1,5 @@
 import { MemoryRouter, Route, Switch } from 'react-router';
+import { _AuthContext } from '../../../next-architecture/ui/AuthProvider';
 import { reduxMountAct } from '../../../utils/testUtil';
 import ObjectLockSetting from '../ObjectLockSetting';
 describe('ObjectLockSetting', () => {
@@ -6,7 +7,13 @@ describe('ObjectLockSetting', () => {
   it('should render ObjectLockSetting component with no error banner', async () => {
     const component = await reduxMountAct(
       <MemoryRouter>
-        <ObjectLockSetting />
+        <_AuthContext.Provider
+          value={{
+            user: { access_token: 'token', profile: { sub: 'test' } },
+          }}
+        >
+          <ObjectLockSetting />
+        </_AuthContext.Provider>
       </MemoryRouter>,
     );
     expect(component.find('#zk-error-banner')).toHaveLength(0);
@@ -22,7 +29,13 @@ describe('ObjectLockSetting', () => {
   it('should render ObjectLockSetting component with an error banner', async () => {
     const component = await reduxMountAct(
       <MemoryRouter>
-        <ObjectLockSetting />
+        <_AuthContext.Provider
+          value={{
+            user: { access_token: 'token', profile: { sub: 'test' } },
+          }}
+        >
+          <ObjectLockSetting />
+        </_AuthContext.Provider>
       </MemoryRouter>,
       {
         uiErrors: {
@@ -48,7 +61,13 @@ describe('ObjectLockSetting', () => {
       >
         <Switch>
           <Route path="/:bucketName">
-            <ObjectLockSetting />
+            <_AuthContext.Provider
+              value={{
+                user: { access_token: 'token', profile: { sub: 'test' } },
+              }}
+            >
+              <ObjectLockSetting />
+            </_AuthContext.Provider>
           </Route>
         </Switch>
       </MemoryRouter>,
@@ -91,7 +110,13 @@ describe('ObjectLockSetting', () => {
       >
         <Switch>
           <Route path="/:bucketName">
-            <ObjectLockSetting />
+            <_AuthContext.Provider
+              value={{
+                user: { access_token: 'token', profile: { sub: 'test' } },
+              }}
+            >
+              <ObjectLockSetting />
+            </_AuthContext.Provider>
           </Route>
         </Switch>
       </MemoryRouter>,

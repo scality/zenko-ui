@@ -1,6 +1,10 @@
 import { useListBucketsForCurrentAccount } from './buckets';
 import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  renderHook,
+  RenderResult,
+  WaitFor,
+} from '@testing-library/react-hooks';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -10,8 +14,13 @@ import { ConfigProvider } from '../../ui/ConfigProvider';
 import { S3AssumeRoleClientProvider } from '../../ui/S3ClientProvider';
 import DataServiceRoleProvider from '../../../DataServiceRoleProvider';
 import { MemoryRouter } from 'react-router';
-import { PromiseSucceedResult } from '../entities/promise';
-import { Bucket } from '../entities/bucket';
+import {
+  PromiseResult,
+  PromiseStatus,
+  PromiseSucceedResult,
+} from '../entities/promise';
+import { Bucket, BucketsPromiseResult } from '../entities/bucket';
+import { LatestUsedCapacity } from '../entities/metrics';
 
 const queryClient = new QueryClient();
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
@@ -136,33 +145,61 @@ describe('Buckets domain', () => {
     };
   };
 
+  const waitForBucketsToBeLoaded = async (
+    result: RenderResult<BucketsPromiseResult>,
+    waitFor: WaitFor,
+    expectedStatus: PromiseStatus = 'success',
+  ) => {
+    const { buckets } = result.current;
+
+    //Verify
+    expect(buckets.status).toEqual('loading');
+
+    //Exercise
+    await waitFor(() => buckets.status === expectedStatus);
+  };
+
+  const verifyBuckets = (
+    result: RenderResult<BucketsPromiseResult>,
+    expectedBuckets: { Name: string; CreationDate: Date }[],
+    expectedLocation?: string,
+    checkLocation = false,
+    expectedMetrics?: Record<string, PromiseResult<LatestUsedCapacity>>,
+  ) => {
+    const { buckets: resolvedBuckets } = result.current as {
+      buckets: PromiseSucceedResult<Bucket[]>;
+    };
+    expect(resolvedBuckets.value.length).toEqual(defaultMockedBuckets.length);
+    for (let i = 0; i < defaultMockedBuckets.length; i++) {
+      expect(resolvedBuckets.value[i].name).toEqual(
+        defaultMockedBuckets[i].Name,
+      );
+      expect(resolvedBuckets.value[i].creationDate).toEqual(
+        defaultMockedBuckets[i].CreationDate,
+      );
+      if (checkLocation) {
+        expect(resolvedBuckets.value[i].locationConstraint).toEqual(
+          expectedLocation,
+        );
+      }
+      if (expectedMetrics) {
+        expect(resolvedBuckets.value[i].usedCapacity).toEqual(
+          expectedMetrics[expectedBuckets[i].Name],
+        );
+      }
+    }
+  };
+
   describe('useListBucketsForCurrentAccount', () => {
     it('should first list all buckets', async () => {
       //Setup
       const { result, waitFor } = setupAndRenderHook();
 
       //Exercise
-      const { buckets } = result.current;
+      await waitForBucketsToBeLoaded(result, waitFor);
 
       //Verify
-      expect(buckets.status).toEqual('loading');
-
-      //Exercise
-      await waitFor(() => buckets.status === 'success');
-
-      //Verify
-      const { buckets: resolvedBuckets } = result.current as {
-        buckets: PromiseSucceedResult<Bucket[]>;
-      };
-      expect(resolvedBuckets.value.length).toEqual(defaultMockedBuckets.length);
-      for (let i = 0; i < defaultMockedBuckets.length; i++) {
-        expect(resolvedBuckets.value[i].name).toEqual(
-          defaultMockedBuckets[i].Name,
-        );
-        expect(resolvedBuckets.value[i].creationDate).toEqual(
-          defaultMockedBuckets[i].CreationDate,
-        );
-      }
+      verifyBuckets(result, defaultMockedBuckets);
     });
 
     it('should return an error if the list buckets fails', async () => {
@@ -170,18 +207,32 @@ describe('Buckets domain', () => {
       server.use(mockBucketListing([], true));
       const { result, waitFor } = setupAndRenderHook();
 
-      //Exercise
-      const { buckets } = result.current;
-
-      //Verify
-      expect(buckets.status).toEqual('loading');
-
       //Exercise + Verify
-      await waitFor(() => buckets.status === 'error');
+      await waitForBucketsToBeLoaded(result, waitFor, 'error');
     });
 
-    it('should return the location constraint for the first 20 buckets', () => {
-      // TODO
+    it('should return the location constraint for the first 20 buckets when location constraint is defined', async () => {
+      //Setup
+      server.use(
+        mockBucketListing(tenThousandsBuckets),
+        mockBucketLocationConstraint('us-east-1'),
+      );
+      const { result, waitFor } = setupAndRenderHook();
+
+      //Exercise
+      await waitForBucketsToBeLoaded(result, waitFor);
+
+      //Verify
+      verifyBuckets(result, tenThousandsBuckets, 'us-east-1', true);
+    });
+
+    it('should return the location constraint for the first 20 buckets when location constraint is not defined', () => {
+      //Setup
+      server.use(
+        mockBucketListing(tenThousandsBuckets),
+        mockBucketLocationConstraint(''),
+      );
+      const { result, waitFor } = setupAndRenderHook();
     });
 
     it('should return an error if the location constraint fetching failed', () => {

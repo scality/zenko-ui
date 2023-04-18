@@ -9,6 +9,7 @@ import ZenkoUI from './ZenkoUI';
 import { ConfigProvider } from './next-architecture/ui/ConfigProvider';
 import DataServiceRoleProvider from './DataServiceRoleProvider';
 import { S3AssumeRoleClientProvider } from './next-architecture/ui/S3ClientProvider';
+import { AuthProvider } from './next-architecture/ui/AuthProvider';
 
 export const queryClient = new QueryClient();
 
@@ -19,12 +20,14 @@ rootElement &&
       <ConnectedRouter history={history}>
         <QueryClientProvider client={queryClient}>
           <ConfigProvider>
-            <DataServiceRoleProvider>
-              <S3AssumeRoleClientProvider>
-                <ZenkoUI />
-                <ReactQueryDevtools initialIsOpen={false} />
-              </S3AssumeRoleClientProvider>
-            </DataServiceRoleProvider>
+            <AuthProvider>
+              <DataServiceRoleProvider>
+                <S3AssumeRoleClientProvider>
+                  <ZenkoUI />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </S3AssumeRoleClientProvider>
+              </DataServiceRoleProvider>
+            </AuthProvider>
           </ConfigProvider>
         </QueryClientProvider>
       </ConnectedRouter>

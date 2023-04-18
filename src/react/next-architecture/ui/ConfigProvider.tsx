@@ -4,7 +4,7 @@ import { useQuery } from 'react-query';
 import { getAppConfig } from '../../../js/config';
 import { AppConfig } from '../../../types/entities';
 
-const _ConfigContext = createContext<AppConfig | null>(null);
+export const _ConfigContext = createContext<AppConfig | null>(null);
 
 export const useConfig = (): AppConfig => {
   const context = useContext(_ConfigContext);

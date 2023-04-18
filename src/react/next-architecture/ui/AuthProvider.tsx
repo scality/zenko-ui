@@ -1,13 +1,14 @@
 import { createContext, useContext, useState } from 'react';
 import { AuthUser } from '../../../types/auth';
 
-const AuthContext = createContext<{
+//exported for testing purposes only
+export const _AuthContext = createContext<{
   user?: AuthUser;
   setUser: (user?: AuthUser) => void;
 } | null>(null);
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(_AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within a AuthProvider');
   }
@@ -17,8 +18,8 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authUser, setAuthUser] = useState<AuthUser | undefined>(undefined);
   return (
-    <AuthContext.Provider value={{ user: authUser, setUser: setAuthUser }}>
+    <_AuthContext.Provider value={{ user: authUser, setUser: setAuthUser }}>
       {children}
-    </AuthContext.Provider>
+    </_AuthContext.Provider>
   );
 }
