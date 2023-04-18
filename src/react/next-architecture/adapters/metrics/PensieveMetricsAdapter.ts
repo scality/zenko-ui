@@ -1,30 +1,26 @@
 import { Bucket } from 'aws-sdk/clients/s3';
-import {
-  AccountLatestUsedCapacity,
-  BucketLatestUsedCapacity,
-  LocationLatestUsedCapacity,
-  IMetricsAdapter,
-} from './IMetricsAdapter';
+import { LatestUsedCapacity } from '../../domain/entities/metrics';
+import { IMetricsAdapter } from './IMetricsAdapter';
 
 export class PensieveMetricsAdapter implements IMetricsAdapter {
   listBucketsLatestUsedCapacity(
     buckets: Bucket[],
-  ): Promise<BucketLatestUsedCapacity[]> {
+  ): Promise<Record<string, LatestUsedCapacity>> {
     throw new Error('Method not implemented.');
   }
   listLocationsLatestUsedCapacity(
     locationIds: string[],
-  ): Promise<LocationLatestUsedCapacity[]> {
+  ): Promise<Record<string, LatestUsedCapacity>> {
     throw new Error('Method not implemented.');
   }
   listAccountLocationsLatestUsedCapacity(
     accountCanonicalId: string,
-  ): Promise<LocationLatestUsedCapacity[]> {
+  ): Promise<Record<string, LatestUsedCapacity>> {
     throw new Error('Method not implemented.');
   }
   listAccountsLatestUsedCapacity(
     accountCanonicalIds: string[],
-  ): Promise<AccountLatestUsedCapacity[]> {
+  ): Promise<Record<string, LatestUsedCapacity>> {
     throw new Error('Method not implemented.');
   }
 }
