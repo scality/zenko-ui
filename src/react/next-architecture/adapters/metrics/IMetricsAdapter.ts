@@ -5,13 +5,13 @@ export type BucketLatestUsedCapacity = {
   bucketName: string;
 } & LatestUsedCapacity;
 export type AccountLatestUsedCapacity = {
-  accountId: string;
+  accountCanonicalId: string;
 } & LatestUsedCapacity;
 export type LocationLatestUsedCapacity = {
   locationId: string;
 } & LatestUsedCapacity;
 
-export interface IMetricsAdaptor {
+export interface IMetricsAdapter {
   listBucketsLatestUsedCapacity(
     buckets: Bucket[],
   ): Promise<BucketLatestUsedCapacity[]>;
@@ -19,9 +19,9 @@ export interface IMetricsAdaptor {
     locationIds: string[],
   ): Promise<LocationLatestUsedCapacity[]>;
   listAccountLocationsLatestUsedCapacity(
-    accountId: string,
+    accountCanonicalId: string,
   ): Promise<LocationLatestUsedCapacity[]>;
   listAccountsLatestUsedCapacity(
-    accountIds: string[],
+    accountCanonicalIds: string[],
   ): Promise<AccountLatestUsedCapacity[]>;
 }

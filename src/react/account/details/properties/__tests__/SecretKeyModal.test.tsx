@@ -1,5 +1,5 @@
 import Table, * as T from '../../../../ui-elements/TableKeyValue';
-import { reduxMount, testTableRow } from '../../../../utils/test';
+import { reduxMount, testTableRow } from '../../../../utils/testUtil';
 import React from 'react';
 import SecretKeyModal from '../SecretKeyModal';
 const account = {

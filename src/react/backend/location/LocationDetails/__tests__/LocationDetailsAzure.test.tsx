@@ -2,7 +2,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../../types/typeGuards';
-import { reduxRender, themeMount as mount } from '../../../../utils/test';
+import { reduxRender, themeMount as mount } from '../../../../utils/testUtil';
 import LocationDetailsAzure from '../LocationDetailsAzure';
 const props = {
   details: {},

@@ -3,7 +3,7 @@ import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import React from 'react';
 import { formatShortDate } from '../../../utils';
-import { mockOffsetSize, reduxRender } from '../../../utils/test';
+import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
 
 describe('BucketList', () => {

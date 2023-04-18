@@ -5,7 +5,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../../utils/test';
+} from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
 import {
   screen,

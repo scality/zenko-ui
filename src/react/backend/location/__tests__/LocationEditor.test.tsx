@@ -4,7 +4,7 @@ import LocationEditor from '../LocationEditor';
 import { fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
-import { mockOffsetSize, reduxRender } from '../../../utils/test';
+import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
 
 beforeAll(() => {
   mockOffsetSize(2000, 2000);

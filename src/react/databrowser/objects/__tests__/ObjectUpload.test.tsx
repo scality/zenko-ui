@@ -3,7 +3,7 @@ import ObjectUpload, { FileList, NoFile } from '../ObjectUpload';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 import router from 'react-router';
 describe('ObjectUpload', () => {
   beforeAll(() => {

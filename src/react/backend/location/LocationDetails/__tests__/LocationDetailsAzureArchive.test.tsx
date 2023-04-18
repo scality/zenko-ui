@@ -1,7 +1,7 @@
 import { fireEvent, getByLabelText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Locationv1Details } from '../../../../../js/managementClient/api';
-import { reduxRender } from '../../../../utils/test';
+import { reduxRender } from '../../../../utils/testUtil';
 import LocationDetailsAzureArchive from '../LocationDetailsAzureArchive';
 
 const setupAndRenderLocationDetails = (details?: Locationv1Details) => {

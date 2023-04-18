@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
-import { reduxRender } from '../../utils/test';
+import { reduxRender } from '../../utils/testUtil';
 import EndpointCreate from '../EndpointCreate';
 
 describe('EndpointCreate', async () => {

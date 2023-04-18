@@ -1,5 +1,8 @@
 /* eslint-disable */
-import { themeMount as mount, updateInputText } from '../../../../utils/test';
+import {
+  themeMount as mount,
+  updateInputText,
+} from '../../../../utils/testUtil';
 import LocationDetailsDOSpaces from '../LocationDetailsDOSpaces';
 const props = {
   details: {},

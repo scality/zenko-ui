@@ -4,12 +4,14 @@ import { PromiseResult } from './promise';
 export type AccountLatestUsedCapacityPromiseResult = {
   usedCapacity: PromiseResult<LatestUsedCapacity>;
 };
-
-type Account = {
+export type AccountInfo = {
   id: string;
-  accountName: string;
+  name: string;
+  canonicalId: string;
   creationDate: Date;
-} & AccountLatestUsedCapacityPromiseResult;
+};
+
+export type Account = AccountInfo & AccountLatestUsedCapacityPromiseResult;
 
 export type AccountsPromiseResult = {
   accounts: PromiseResult<Account[]>;

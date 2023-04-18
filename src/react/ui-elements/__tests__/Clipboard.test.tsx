@@ -2,7 +2,7 @@ import { Clipboard } from '../Clipboard';
 import { IconCopy, IconSuccess } from '../Icons';
 import { OWNER_NAME } from '../../actions/__tests__/utils/testUtil';
 import React from 'react';
-import { reduxMount } from '../../utils/test';
+import { reduxMount } from '../../utils/testUtil';
 describe('Clipboard', () => {
   const writeTextFn = jest.fn();
   global.navigator.clipboard = {

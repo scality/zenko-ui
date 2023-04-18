@@ -1,7 +1,7 @@
 import Activity, { DEFAULT_MESSAGE } from '../Activity';
 import { List } from 'immutable';
 import React from 'react';
-import { reduxMount } from '../../utils/test';
+import { reduxMount } from '../../utils/testUtil';
 describe('Activity', () => {
   const TEST_MESSAGE = 'This is a test message';
   it('Activity should render with a custom message', () => {

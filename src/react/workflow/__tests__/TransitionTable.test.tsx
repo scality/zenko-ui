@@ -15,7 +15,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../utils/test';
+} from '../../utils/testUtil';
 import TransitionTable from '../TransitionTable';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';

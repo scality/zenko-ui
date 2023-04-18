@@ -2,7 +2,7 @@ import AccountKeys from '../AccountKeys';
 import React from 'react';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
 import { formatShortDate } from '../../../../utils';
-import { mockOffsetSize, reduxRender } from '../../../../utils/test';
+import { mockOffsetSize, reduxRender } from '../../../../utils/testUtil';
 
 const account1 = {
   arn: 'arn1',

@@ -44,7 +44,7 @@ import thunk from 'redux-thunk';
 import zenkoUIReducer from '../../../reducers';
 import type { EnabledState } from '../../../../types/stats';
 import { XDM_FEATURE } from '../../../../js/config';
-import { configuration } from '../../../utils/test';
+import { configuration } from '../../../utils/testUtil';
 type ActionTestObject = {
   skip?: boolean;
   it: string;

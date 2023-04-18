@@ -1,5 +1,5 @@
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
-import { reduxMount } from '../../../../utils/test';
+import { reduxMount } from '../../../../utils/testUtil';
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import MiddleEllipsis from '../../../../ui-elements/MiddleEllipsis';
 import Properties from '../Properties';

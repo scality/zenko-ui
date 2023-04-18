@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { reduxRender } from '../../utils/test';
+import { reduxRender } from '../../utils/testUtil';
 import { AuthorizedAdvancedMetricsButton } from '../AdvancedMetricsButton';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -43,11 +43,13 @@ describe('AdvancedMetricsButton', () => {
       oidc: { user: { profile: { groups: [] } } },
     });
 
-    await expect((async () => {
-      //Wait for loading to complete
-      await waitFor(() =>
-        screen.getByRole('button', { name: /Advanced Metrics/i }),
-      );
-    })()).rejects.not.toBeNull();
+    await expect(
+      (async () => {
+        //Wait for loading to complete
+        await waitFor(() =>
+          screen.getByRole('button', { name: /Advanced Metrics/i }),
+        );
+      })(),
+    ).rejects.not.toBeNull();
   });
 });

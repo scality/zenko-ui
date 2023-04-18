@@ -7,7 +7,7 @@ import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import { ACCOUNT } from '../../../actions/__tests__/utils/testUtil';
 import React from 'react';
-import { reduxMount } from '../../../utils/test';
+import { reduxMount } from '../../../utils/testUtil';
 describe('Buckets', () => {
   const buckets = [
     {

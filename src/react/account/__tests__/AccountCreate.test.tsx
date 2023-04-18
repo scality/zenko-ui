@@ -1,7 +1,7 @@
 import AccountCreate from '../AccountCreate';
-import { reduxMountAct, reduxRender } from '../../utils/test';
-import { screen, act } from "@testing-library/react";
-import userEvent from '@testing-library/user-event'
+import { reduxMountAct, reduxRender } from '../../utils/testUtil';
+import { screen, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 describe('AccountCreate', () => {
   it('should render AccountCreate component with no error banner', async () => {
@@ -121,7 +121,7 @@ describe('AccountCreate', () => {
       // as async functions, so it's important to wrap async around your act.
       await act(async () => {
         userEvent.click(screen.getByRole('button', { name: /create/i }));
-      })
+      });
 
       if (t.expectedNameError) {
         expect(

@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 import thunk from 'redux-thunk';
 import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
@@ -212,26 +212,26 @@ export const reduxRender = (component, testState) => {
 
 export async function reduxMountAct(component, testState) {
   const store = newTestStore(testState);
-  let wrapper = null;
-  await act(async () => {
-    wrapper = mount(
-      <QueryClientProvider
-        client={
-          new QueryClient({
-            defaultOptions: {
-              queries: {
-                retry: false,
-              },
+  const wrapper: ReactWrapper<
+    Record<string, never>,
+    Record<string, never>
+  > = mount(
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: {
+            queries: {
+              retry: false,
             },
-          })
-        }
-      >
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>{component}</Provider>
-        </ThemeProvider>
-      </QueryClientProvider>,
-    );
-  });
+          },
+        })
+      }
+    >
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>{component}</Provider>
+      </ThemeProvider>
+    </QueryClientProvider>,
+  );
   return wrapper;
 }
 export const themeMount = (component: React.ReactNode) => {

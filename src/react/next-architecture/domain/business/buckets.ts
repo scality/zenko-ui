@@ -1,4 +1,4 @@
-import { IMetricsAdaptor } from '../../adaptors/metrics/IMetricsAdaptor';
+import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
   BucketLatestUsedCapacityPromiseResult,
   BucketLocationConstraintPromiseResult,
@@ -9,9 +9,9 @@ import {
  * The hook returns the full list of buckets plus the locations and metrcis of the first 20 buckets.
  */
 export const useListBucketsForCurrentAccount = ({
-  metricsAdaptor,
+  metricsAdapter,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
+  metricsAdapter: IMetricsAdapter;
 }): BucketsPromiseResult => {
   throw new Error('Method not implemented.');
 };
@@ -34,10 +34,10 @@ export const useBucketLocationConstraint = ({
  * @param bucketName name of the bucket
  */
 export const useBucketLatestUsedCapacity = ({
-  metricsAdaptor,
+  metricsAdapter,
   bucketName,
 }: {
-  metricsAdaptor: IMetricsAdaptor;
+  metricsAdapter: IMetricsAdapter;
   bucketName: string;
 }): BucketLatestUsedCapacityPromiseResult => {
   throw new Error('Method not implemented.');
