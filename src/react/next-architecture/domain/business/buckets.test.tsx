@@ -1,5 +1,6 @@
 import {
   DEFAULT_LOCATION,
+  useBucketLatestUsedCapacity,
   useBucketLocationConstraint,
   useListBucketsForCurrentAccount,
 } from './buckets';
@@ -161,6 +162,26 @@ describe.skip('Buckets domain', () => {
       ...renderHook(() => useBucketLocationConstraint({ bucketName }), {
         wrapper: Wrapper,
       }),
+    };
+  };
+
+  const setupAndRenderBucketCapacityHook = (
+    bucketName: string,
+    metricsAdapterInterceptor?: (
+      metricsAdapter: IMetricsAdapter,
+    ) => IMetricsAdapter,
+  ) => {
+    const metricsAdapter: IMetricsAdapter = metricsAdapterInterceptor
+      ? metricsAdapterInterceptor(new MockedMetricsAdapter())
+      : new MockedMetricsAdapter();
+    return {
+      ...renderHook(
+        () => useBucketLatestUsedCapacity({ bucketName, metricsAdapter }),
+        {
+          wrapper: Wrapper,
+        },
+      ),
+      metricsAdapter,
     };
   };
 
@@ -544,20 +565,167 @@ describe.skip('Buckets domain', () => {
   });
 
   describe('useBucketLatestUsedCapacity', () => {
-    it('should return the latest used capacity for a specific bucket', () => {
-      // TODO
+    it('should return the latest used capacity for a specific bucket', async () => {
+      //Setup
+      const BUCKET_NAME = 'bucket-name';
+      const EXPECTED_METRICS = {
+        [BUCKET_NAME]: {
+          type: 'hasMetrics',
+          usedCapacity: {
+            current: 12,
+            nonCurrent: 6,
+          },
+          measuredOn: new Date(),
+        },
+      };
+      const { result, waitFor } = setupAndRenderBucketCapacityHook(
+        BUCKET_NAME,
+        (metricsAdapter) => {
+          metricsAdapter.listBucketsLatestUsedCapacity = jest
+            .fn()
+            .mockImplementation(async (buckets) => {
+              if (buckets.length !== 1) {
+                throw new Error('Unexpected number of buckets');
+              }
+              return EXPECTED_METRICS;
+            });
+          return metricsAdapter;
+        },
+      );
+      //Exercise
+      await waitForPromiseResultToBeLoaded(
+        result.current.usedCapacity,
+        waitFor,
+      );
+      //Verify
+      expect(result.current.usedCapacity).toEqual({
+        status: 'success',
+        value: EXPECTED_METRICS[BUCKET_NAME],
+      });
     });
 
-    it('should return an error if the latest used capacity fetching failed', () => {
-      // TODO
+    it('should return an error if the latest used capacity fetching failed', async () => {
+      //Setup
+      const BUCKET_NAME = 'bucket-name';
+      const { result, waitFor } = setupAndRenderBucketCapacityHook(
+        BUCKET_NAME,
+        (metricsAdapter) => {
+          metricsAdapter.listBucketsLatestUsedCapacity = jest
+            .fn()
+            .mockImplementation(async () => {
+              throw new Error('Internal Server Error');
+            });
+          return metricsAdapter;
+        },
+      );
+      //Exercise
+      await waitForPromiseResultToBeLoaded(
+        result.current.usedCapacity,
+        waitFor,
+      );
+      //Verify
+      expect(result.current.usedCapacity).toEqual({
+        status: 'error',
+        title: 'An error occurred while fetching the latest used capacity',
+        reason: 'Internal Server Error',
+      });
     });
 
-    it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', () => {
-      // TODO
+    it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
+      //Setup
+      const { result, EXPECTED_METRICS_WRAPPED } =
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+
+      const EXPECTED_ADDITIONAL_METRICS = {
+        [tenThousandsBuckets[20].Name]: {
+          type: 'hasMetrics',
+          usedCapacity: {
+            current: 12,
+            nonCurrent: 6,
+          },
+          measuredOn: new Date(),
+        },
+      };
+
+      //Exercise
+      const { result: result2, waitFor: waitFor2 } =
+        setupAndRenderBucketCapacityHook(
+          tenThousandsBuckets[20].Name,
+          (metricsAdapter) => {
+            metricsAdapter.listBucketsLatestUsedCapacity = jest
+              .fn()
+              .mockImplementation(async (buckets) => {
+                if (buckets.length !== 1) {
+                  throw new Error('Unexpected number of buckets');
+                }
+                return EXPECTED_ADDITIONAL_METRICS;
+              });
+            return metricsAdapter;
+          },
+        );
+
+      await waitForPromiseResultToBeLoaded(
+        result2.current.usedCapacity,
+        waitFor2,
+      );
+
+      //Verify
+      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
+        (acc, bucket) => ({
+          ...acc,
+          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+        }),
+        {},
+      );
+      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
+        ...EXPECTED_METRICS_WRAPPED,
+        [tenThousandsBuckets[20].Name]: {
+          status: 'success',
+          value: EXPECTED_ADDITIONAL_METRICS[tenThousandsBuckets[20].Name],
+        },
+      });
     });
 
-    it('should update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', () => {
-      // TODO
+    it('should update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', async () => {
+      //Setup
+      const { result, EXPECTED_METRICS_WRAPPED } =
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+
+      //Exercise
+      const { result: result2, waitFor: waitFor2 } =
+        setupAndRenderBucketCapacityHook(
+          tenThousandsBuckets[20].Name,
+          (metricsAdapter) => {
+            metricsAdapter.listBucketsLatestUsedCapacity = jest
+              .fn()
+              .mockImplementation(async () => {
+                throw new Error('Internal Server Error');
+              });
+            return metricsAdapter;
+          },
+        );
+
+      await waitForPromiseResultToBeLoaded(
+        result2.current.usedCapacity,
+        waitFor2,
+      );
+
+      //Verify
+      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
+        (acc, bucket) => ({
+          ...acc,
+          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+        }),
+        {},
+      );
+      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
+        ...EXPECTED_METRICS_WRAPPED,
+        [tenThousandsBuckets[20].Name]: {
+          status: 'error',
+          title: 'An error occurred while fetching the latest used capacity',
+          reason: 'Internal Server Error',
+        },
+      });
     });
   });
 });
