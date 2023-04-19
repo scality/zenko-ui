@@ -5,6 +5,8 @@ import {
   BucketsPromiseResult,
 } from '../entities/bucket';
 
+export const DEFAULT_LOCATION = 'us-east-1';
+
 /**
  * The hook returns the full list of buckets plus the locations and metrics of the first 20 buckets.
  */
