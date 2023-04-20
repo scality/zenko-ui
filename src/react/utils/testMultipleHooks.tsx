@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react';
+import { WaitFor } from '@testing-library/react-hooks';
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -7,16 +8,18 @@ import {
 } from 'react';
 import { act } from 'react-dom/test-utils';
 
+export type RenderAdditionalHook = <THookResult>(
+  key: string,
+  callback: () => THookResult,
+) => {
+  result: { current: THookResult; all: THookResult[] };
+  waitFor: WaitFor;
+};
+
 export function prepareRenderMultipleHooks(options: {
   wrapper: FunctionComponent<PropsWithChildren<Record<string, never>>>;
 }): {
-  renderAdditionalHook: (
-    key: string,
-    callback: () => unknown,
-  ) => {
-    result: { current: unknown; all: unknown[] };
-    waitFor: (fn: () => Promise<unknown> | unknown) => Promise<unknown>;
-  };
+  renderAdditionalHook: RenderAdditionalHook;
 } {
   const RENDER_HOOK_EVENT = 'RENDER_HOOK_EVENT';
 
@@ -77,7 +80,11 @@ export function prepareRenderMultipleHooks(options: {
   return {
     //eslint-disable-next-line
     //@ts-ignore
-    renderAdditionalHook: (key: string, callback: () => void) => {
+    //eslint-disable-next-line
+    renderAdditionalHook: <THookResult extends unknown>(
+      key: string,
+      callback: () => THookResult,
+    ) => {
       const event = new CustomEvent(RENDER_HOOK_EVENT, {
         detail: { key, callback },
       });
