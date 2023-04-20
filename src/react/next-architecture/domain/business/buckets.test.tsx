@@ -26,6 +26,8 @@ import {
 } from '../entities/promise';
 import { Bucket, BucketsPromiseResult } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
+import { AppConfig } from '../../../../types/entities';
+import { XDM_FEATURE } from '../../../../js/config';
 
 const queryClient = new QueryClient();
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
@@ -42,9 +44,14 @@ const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   );
 };
 
-const config = {
+const config: AppConfig = {
   zenkoEndpoint: 'http://localhost:8000',
   stsEndpoint: 'http://localhost:9000',
+  iamEndpoint: 'http://localhost:8000',
+  managementEndpoint: 'http://localhost:8000',
+  navbarEndpoint: 'http://localhost:8000',
+  navbarConfigUrl: 'http://localhost:8000',
+  features: [XDM_FEATURE],
 };
 const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 
@@ -64,7 +71,6 @@ const tenThousandsBuckets = Array.from({ length: 10_000 }, (_, i) => ({
   CreationDate: frozenDate,
 }));
 
-//WORK IN PROGRESS HENCE THE SKIP
 describe.skip('Buckets domain', () => {
   function mockConfig() {
     return rest.get(`/config.json`, (req, res, ctx) => {
@@ -109,23 +115,24 @@ describe.skip('Buckets domain', () => {
     location?: string,
     forceFailure = false,
   ) {
-    return rest.get(
-      `${config.zenkoEndpoint}/:bucketName?location`,
-      (req, res, ctx) => {
-        if (forceFailure) {
-          return res(ctx.status(500));
-        }
+    return rest.get(`${config.zenkoEndpoint}/:bucketName`, (req, res, ctx) => {
+      if (!req.url.searchParams.has('location')) {
+        return res(ctx.status(404));
+      }
 
-        return res(
-          ctx.xml(`
+      if (forceFailure) {
+        return res(ctx.status(500));
+      }
+
+      return res(
+        ctx.xml(`
           <?xml version="1.0" encoding="UTF-8"?>
           <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
             ${location}
           </LocationConstraint>
         `),
-        );
-      },
-    );
+      );
+    });
   }
 
   const server = setupServer(
@@ -204,6 +211,7 @@ describe.skip('Buckets domain', () => {
     waitFor: WaitFor,
     expectedStatus: PromiseStatus = 'success',
   ) => {
+    await waitFor(() => result.current !== undefined);
     const { buckets } = result.current;
 
     //Exercise
