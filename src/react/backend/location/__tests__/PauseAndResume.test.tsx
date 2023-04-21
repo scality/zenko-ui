@@ -1,4 +1,9 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { reduxRender, TEST_API_BASE_URL } from '../../../utils/testUtil';
@@ -7,7 +12,16 @@ import { PauseAndResume } from '../PauseAndResume';
 describe('PauseAndResume', () => {
   const instanceId = 'instanceId';
   const locationName = 'someLocation';
-  const server = setupServer();
+  const server = setupServer(
+    rest.post(
+      `${TEST_API_BASE_URL}/_/backbeat/api/crr/pause/someLocation`,
+      (req, res, ctx) => res(ctx.status(200)),
+    ),
+    rest.post(
+      `${TEST_API_BASE_URL}/_/backbeat/api/ingestion/pause/someLocation`,
+      (req, res, ctx) => res(ctx.status(200)),
+    ),
+  );
 
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -136,6 +150,90 @@ describe('PauseAndResume', () => {
 
     expect(screen.getByRole('button', { name: /Pause/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Pause/i })).not.toBeDisabled();
+  });
+
+  [
+    { ingestionStatus: 'enabled', replicationStatus: 'enabled' },
+    { ingestionStatus: null, replicationStatus: 'enabled' },
+    { ingestionStatus: 'enabled', replicationStatus: null },
+  ].forEach((testCase) => {
+    it(`should disable the pause button while performing the action and then resolve with a resume button for {ingestionStatus: ${testCase.ingestionStatus}, replicationStatus: ${testCase.replicationStatus}}`, async () => {
+      //S
+      server.use(
+        rest.get(
+          `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+          (req, res, ctx) =>
+            res(
+              ctx.json({
+                metrics: {
+                  ['ingest-schedule']: testCase.ingestionStatus
+                    ? {
+                        states: { [locationName]: testCase.ingestionStatus },
+                      }
+                    : {},
+                  ['crr-schedule']: testCase.replicationStatus
+                    ? { states: { [locationName]: testCase.replicationStatus } }
+                    : {},
+                },
+                state: null,
+              }),
+            ),
+        ),
+      );
+
+      const pauseButtonSelector = () =>
+        screen.getByRole('button', { name: /Pause/i });
+      const resumeButtonSelector = () =>
+        screen.getByRole('button', { name: /resume/i });
+
+      reduxRender(<PauseAndResume locationName={locationName} />, {
+        instances: {
+          selectedId: instanceId,
+        },
+      });
+
+      await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
+        timeout: 8000,
+      });
+
+      expect(pauseButtonSelector()).toBeInTheDocument();
+      expect(pauseButtonSelector()).not.toBeDisabled();
+
+      //E
+      userEvent.click(pauseButtonSelector());
+
+      //V
+      expect(pauseButtonSelector()).toBeDisabled();
+
+      //S
+      server.use(
+        rest.get(
+          `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+          (req, res, ctx) => {
+            return res(
+              ctx.json({
+                metrics: {
+                  ['ingest-schedule']: testCase.ingestionStatus
+                    ? {
+                        states: { [locationName]: 'disabled' },
+                      }
+                    : {},
+                  ['crr-schedule']: testCase.replicationStatus
+                    ? { states: { [locationName]: 'disabled' } }
+                    : {},
+                },
+                state: null,
+              }),
+            );
+          },
+        ),
+      );
+
+      //E
+      await waitFor(() => resumeButtonSelector(), { timeout: 2000 });
+      //V
+      expect(resumeButtonSelector()).not.toBeDisabled();
+    });
   });
 
   it('should render the component with resume label when ingestion is disabled', async () => {
