@@ -5,19 +5,14 @@ import {
   useListBucketsForCurrentAccount,
 } from './buckets';
 import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
-import {
-  renderHook,
-  RenderResult,
-  WaitFor,
-} from '@testing-library/react-hooks';
+import { RenderResult, WaitFor } from '@testing-library/react-hooks';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { PropsWithChildren } from 'react';
 import { ConfigProvider } from '../../ui/ConfigProvider';
-import { S3AssumeRoleClientProvider } from '../../ui/S3ClientProvider';
-import DataServiceRoleProvider from '../../../DataServiceRoleProvider';
+import { S3ClientProvider } from '../../ui/S3ClientProvider';
 import { MemoryRouter } from 'react-router';
 import {
   PromiseResult,
@@ -28,31 +23,60 @@ import { Bucket, BucketsPromiseResult } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { AppConfig } from '../../../../types/entities';
 import { XDM_FEATURE } from '../../../../js/config';
+import {
+  prepareRenderMultipleHooks,
+  RenderAdditionalHook,
+} from '../../../utils/testMultipleHooks';
+import { _AuthContext } from '../../ui/AuthProvider';
+import { debug } from 'jest-preview';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+const ACCESS_TOKEN = 'token';
+const config: AppConfig = {
+  zenkoEndpoint: 'http://localhost:8000',
+  stsEndpoint: 'http://localhost:9000',
+  iamEndpoint: 'http://localhost:10000',
+  managementEndpoint: 'http://localhost:11000',
+  navbarEndpoint: 'http://localhost:12000',
+  navbarConfigUrl: 'http://localhost:13000',
+  features: [XDM_FEATURE],
+};
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <ConfigProvider>
-          <DataServiceRoleProvider>
-            <S3AssumeRoleClientProvider>{children}</S3AssumeRoleClientProvider>
-          </DataServiceRoleProvider>
-        </ConfigProvider>
+        <_AuthContext.Provider
+          value={{
+            //@ts-ignore
+            user: { access_token: ACCESS_TOKEN, profile: { sub: 'test' } },
+          }}
+        >
+          <ConfigProvider>
+            <S3ClientProvider
+              configuration={{
+                endpoint: config.zenkoEndpoint,
+                s3ForcePathStyle: true,
+                credentials: {
+                  accessKeyId: 'accessKey',
+                  secretAccessKey: 'secretKey',
+                },
+              }}
+            >
+              {children}
+            </S3ClientProvider>
+          </ConfigProvider>
+        </_AuthContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>
   );
 };
 
-const config: AppConfig = {
-  zenkoEndpoint: 'http://localhost:8000',
-  stsEndpoint: 'http://localhost:9000',
-  iamEndpoint: 'http://localhost:8000',
-  managementEndpoint: 'http://localhost:8000',
-  navbarEndpoint: 'http://localhost:8000',
-  navbarConfigUrl: 'http://localhost:8000',
-  features: [XDM_FEATURE],
-};
 const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 
 const defaultMockedBuckets = [
@@ -71,9 +95,9 @@ const tenThousandsBuckets = Array.from({ length: 10_000 }, (_, i) => ({
   CreationDate: frozenDate,
 }));
 
-describe.skip('Buckets domain', () => {
+describe('Buckets domain', () => {
   function mockConfig() {
-    return rest.get(`/config.json`, (req, res, ctx) => {
+    return rest.get(`http://localhost/config.json`, (req, res, ctx) => {
       return res(ctx.json(config));
     });
   }
@@ -112,33 +136,45 @@ describe.skip('Buckets domain', () => {
     });
   }
   function mockBucketLocationConstraint(
-    location?: string,
-    forceFailure = false,
+    {
+      location,
+      slowdown,
+      forceFailure,
+    }: { location?: string; slowdown?: boolean; forceFailure?: boolean } = {
+      slowdown: false,
+      forceFailure: false,
+    },
   ) {
-    return rest.get(`${config.zenkoEndpoint}/:bucketName`, (req, res, ctx) => {
-      if (!req.url.searchParams.has('location')) {
-        return res(ctx.status(404));
-      }
+    return rest.get(
+      `${config.zenkoEndpoint}/:bucketName`,
+      async (req, res, ctx) => {
+        if (!req.url.searchParams.has('location')) {
+          return res(ctx.status(404));
+        }
 
-      if (forceFailure) {
-        return res(ctx.status(500));
-      }
+        if (forceFailure) {
+          return res(ctx.status(500));
+        }
 
-      return res(
-        ctx.xml(`
+        if (slowdown) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+        return res(
+          ctx.xml(`
           <?xml version="1.0" encoding="UTF-8"?>
           <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-            ${location}
+            <LocationConstraint>${location}</LocationConstraint>
           </LocationConstraint>
         `),
-      );
-    });
+        );
+      },
+    );
   }
 
   const server = setupServer(
     mockConfig(),
     mockBucketListing(),
-    mockBucketLocationConstraint(),
+    mockBucketLocationConstraint({ slowdown: true }),
   );
 
   beforeEach(() => {
@@ -148,7 +184,7 @@ describe.skip('Buckets domain', () => {
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 
-  const setupAndRenderListBucketsHook = (
+  const setupAndRenderListBucketsHook = async (
     metricsAdapterInterceptor?: (
       metricsAdapter: IMetricsAdapter,
     ) => IMetricsAdapter,
@@ -156,66 +192,79 @@ describe.skip('Buckets domain', () => {
     const metricsAdapter: IMetricsAdapter = metricsAdapterInterceptor
       ? metricsAdapterInterceptor(new MockedMetricsAdapter())
       : new MockedMetricsAdapter();
-    return {
-      ...renderHook(() => useListBucketsForCurrentAccount({ metricsAdapter }), {
+
+    const { renderAdditionalHook, waitForWrapperToBeReady } =
+      prepareRenderMultipleHooks({
         wrapper: Wrapper,
-      }),
+      });
+    await waitForWrapperToBeReady();
+    return {
+      ...renderAdditionalHook('listBuckets', () =>
+        useListBucketsForCurrentAccount({ metricsAdapter }),
+      ),
+      renderAdditionalHook,
       metricsAdapter,
     };
   };
 
-  const setupAndRenderBucketLocationHook = (bucketName: string) => {
-    return {
-      ...renderHook(() => useBucketLocationConstraint({ bucketName }), {
+  const setupAndRenderBucketLocationHook = async (
+    bucketName: string,
+    renderAdditionalHook?: RenderAdditionalHook,
+  ) => {
+    if (!renderAdditionalHook) {
+      const prepared = prepareRenderMultipleHooks({
         wrapper: Wrapper,
-      }),
+      });
+
+      renderAdditionalHook = prepared.renderAdditionalHook;
+      await prepared.waitForWrapperToBeReady();
+    }
+    return {
+      ...renderAdditionalHook('bucketLocation', () =>
+        useBucketLocationConstraint({ bucketName }),
+      ),
+      renderAdditionalHook,
     };
   };
 
-  const setupAndRenderBucketCapacityHook = (
+  const setupAndRenderBucketCapacityHook = async (
     bucketName: string,
     metricsAdapterInterceptor?: (
       metricsAdapter: IMetricsAdapter,
     ) => IMetricsAdapter,
+    renderAdditionalHook?: RenderAdditionalHook,
   ) => {
     const metricsAdapter: IMetricsAdapter = metricsAdapterInterceptor
       ? metricsAdapterInterceptor(new MockedMetricsAdapter())
       : new MockedMetricsAdapter();
+    if (!renderAdditionalHook) {
+      const prepared = prepareRenderMultipleHooks({
+        wrapper: Wrapper,
+      });
+
+      renderAdditionalHook = prepared.renderAdditionalHook;
+      await prepared.waitForWrapperToBeReady();
+    }
     return {
-      ...renderHook(
-        () => useBucketLatestUsedCapacity({ bucketName, metricsAdapter }),
-        {
-          wrapper: Wrapper,
-        },
+      ...renderAdditionalHook('bucketCapacity', () =>
+        useBucketLatestUsedCapacity({ bucketName, metricsAdapter }),
       ),
+      renderAdditionalHook,
       metricsAdapter,
     };
   };
 
   const waitForPromiseResultToBeLoaded = async (
-    result: PromiseResult<unknown>,
+    resultFn: () => PromiseResult<unknown>,
     waitFor: WaitFor,
     expectedStatus: PromiseStatus = 'success',
   ) => {
-    const { status } = result;
-
-    //Verify
-    expect(status).toEqual('loading');
-
-    //Exercise
-    await waitFor(() => status === expectedStatus);
-  };
-
-  const waitForBucketsToBeLoaded = async (
-    result: RenderResult<BucketsPromiseResult>,
-    waitFor: WaitFor,
-    expectedStatus: PromiseStatus = 'success',
-  ) => {
-    await waitFor(() => result.current !== undefined);
-    const { buckets } = result.current;
+    await waitFor(() => {
+      return resultFn() !== undefined;
+    });
 
     //Exercise
-    await waitForPromiseResultToBeLoaded(buckets, waitFor, expectedStatus);
+    await waitFor(() => resultFn().status === expectedStatus);
   };
 
   const verifyBuckets = (
@@ -227,13 +276,12 @@ describe.skip('Buckets domain', () => {
     const { buckets: resolvedBuckets } = result.current as {
       buckets: PromiseSucceedResult<Bucket[]>;
     };
-    expect(resolvedBuckets.value.length).toEqual(defaultMockedBuckets.length);
-    for (let i = 0; i < defaultMockedBuckets.length; i++) {
-      expect(resolvedBuckets.value[i].name).toEqual(
-        defaultMockedBuckets[i].Name,
-      );
+    console.log(JSON.stringify(resolvedBuckets.value));
+    expect(resolvedBuckets.value.length).toEqual(expectedBuckets.length);
+    for (let i = 0; i < expectedBuckets.length; i++) {
+      expect(resolvedBuckets.value[i].name).toEqual(expectedBuckets[i].Name);
       expect(resolvedBuckets.value[i].creationDate).toEqual(
-        defaultMockedBuckets[i].CreationDate,
+        expectedBuckets[i].CreationDate,
       );
       if (expectedLocations[expectedBuckets[i].Name]) {
         expect(resolvedBuckets.value[i].locationConstraint).toEqual(
@@ -261,10 +309,10 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(tenThousandsBuckets),
-        mockBucketLocationConstraint(''),
+        mockBucketLocationConstraint({ location: '' }),
       );
       const EXPECTED_METRICS = tenThousandsBuckets
-        .slice(0, 20)
+        .slice(0, 1_000)
         .map((bucket) => ({
           bucketName: bucket.Name,
           type: 'hasMetrics',
@@ -292,13 +340,15 @@ describe.skip('Buckets domain', () => {
         }),
         {},
       );
-      const { result, waitFor } = setupAndRenderListBucketsHook(
+      const { result, waitFor } = await setupAndRenderListBucketsHook(
         (metricsAdapter) => {
           metricsAdapter.listBucketsLatestUsedCapacity = jest
             .fn()
             .mockImplementation(async (buckets) => {
-              if (buckets.length !== 20) {
-                throw new Error('Unexpected number of buckets');
+              if (buckets.length !== 1_000) {
+                throw new Error(
+                  `Unexpected number of buckets expected: 1_000, got: ${buckets.length}`,
+                );
               }
               return EXPECTED_METRICS;
             });
@@ -307,7 +357,20 @@ describe.skip('Buckets domain', () => {
       );
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
+
+      //Wait for the location constraint to be loaded
+      await waitFor(() => {
+        const { buckets } = result.current as {
+          buckets: PromiseSucceedResult<Bucket[]>;
+        };
+        return buckets.value
+          .slice(0, 20)
+          .every((bucket) => bucket.locationConstraint.status !== 'loading');
+      });
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -329,22 +392,33 @@ describe.skip('Buckets domain', () => {
   describe('useListBucketsForCurrentAccount', () => {
     it('should first list all buckets', async () => {
       //Setup
-      const { result, waitFor } = setupAndRenderListBucketsHook();
+      const { result, waitFor } = await setupAndRenderListBucketsHook();
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
 
       //Verify
-      verifyBuckets(result, defaultMockedBuckets, {});
+      const expectedLocations = defaultMockedBuckets.reduce(
+        (acc, bucket) => ({ ...acc, [bucket.Name]: { status: 'loading' } }),
+        {},
+      );
+      verifyBuckets(result, defaultMockedBuckets, expectedLocations);
     });
 
     it('should return an error if the list buckets fails', async () => {
       //Setup
       server.use(mockBucketListing([], true));
-      const { result, waitFor } = setupAndRenderListBucketsHook();
+      const { result, waitFor } = await setupAndRenderListBucketsHook();
 
       //Exercise + Verify
-      await waitForBucketsToBeLoaded(result, waitFor, 'error');
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+        'error',
+      );
     });
 
     it('should return the location constraint for the first 20 buckets when location constraint is defined', async () => {
@@ -352,12 +426,25 @@ describe.skip('Buckets domain', () => {
       const EXPECTED_LOCATION = 'us-east-2';
       server.use(
         mockBucketListing(tenThousandsBuckets),
-        mockBucketLocationConstraint(EXPECTED_LOCATION),
+        mockBucketLocationConstraint({ location: EXPECTED_LOCATION }),
       );
-      const { result, waitFor } = setupAndRenderListBucketsHook();
+      const { result, waitFor } = await setupAndRenderListBucketsHook();
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
+
+      //Wait for the location constraint to be loaded
+      await waitFor(() => {
+        const { buckets } = result.current as {
+          buckets: PromiseSucceedResult<Bucket[]>;
+        };
+        return buckets.value
+          .slice(0, 20)
+          .every((bucket) => bucket.locationConstraint.status === 'success');
+      });
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -374,12 +461,25 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(tenThousandsBuckets),
-        mockBucketLocationConstraint(''),
+        mockBucketLocationConstraint({ location: '' }),
       );
-      const { result, waitFor } = setupAndRenderListBucketsHook();
+      const { result, waitFor } = await setupAndRenderListBucketsHook();
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
+
+      //Wait for the location constraint to be loaded
+      await waitFor(() => {
+        const { buckets } = result.current as {
+          buckets: PromiseSucceedResult<Bucket[]>;
+        };
+        return buckets.value
+          .slice(0, 20)
+          .every((bucket) => bucket.locationConstraint.status === 'success');
+      });
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -396,12 +496,25 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(tenThousandsBuckets),
-        mockBucketLocationConstraint('', true),
+        mockBucketLocationConstraint({ location: '', forceFailure: true }),
       );
-      const { result, waitFor } = setupAndRenderListBucketsHook();
+      const { result, waitFor } = await setupAndRenderListBucketsHook();
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
+
+      //Wait for the location constraint to be loaded
+      await waitFor(() => {
+        const { buckets } = result.current as {
+          buckets: PromiseSucceedResult<Bucket[]>;
+        };
+        return buckets.value
+          .slice(0, 20)
+          .every((bucket) => bucket.locationConstraint.status !== 'loading');
+      });
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -422,13 +535,13 @@ describe.skip('Buckets domain', () => {
       await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
     });
 
-    it('should return an error if the latest used capacity fetching failed', async () => {
+    it.only('should return an error if the latest used capacity fetching failed', async () => {
       //Setup
       server.use(
         mockBucketListing(tenThousandsBuckets),
-        mockBucketLocationConstraint(''),
+        mockBucketLocationConstraint({ location: '' }),
       );
-      const { result, waitFor } = setupAndRenderListBucketsHook(
+      const { result, waitFor } = await setupAndRenderListBucketsHook(
         (metricsAdapter) => {
           metricsAdapter.listBucketsLatestUsedCapacity = jest
             .fn()
@@ -440,7 +553,10 @@ describe.skip('Buckets domain', () => {
       );
 
       //Exercise
-      await waitForBucketsToBeLoaded(result, waitFor);
+      await waitForPromiseResultToBeLoaded(
+        () => result.current.buckets,
+        waitFor,
+      );
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -454,7 +570,7 @@ describe.skip('Buckets domain', () => {
         result,
         tenThousandsBuckets,
         EXPECTED_LOCATIONS,
-        tenThousandsBuckets.slice(0, 20).reduce(
+        tenThousandsBuckets.slice(0, 1_000).reduce(
           (acc, bucket) => ({
             ...acc,
             [bucket.Name]: {
@@ -474,12 +590,14 @@ describe.skip('Buckets domain', () => {
     it('should return the location constraint for a specific bucket', async () => {
       //Setup
       const EXPECTED_LOCATION = 'us-east-2';
-      server.use(mockBucketLocationConstraint(EXPECTED_LOCATION));
+      server.use(mockBucketLocationConstraint({ location: EXPECTED_LOCATION }));
       const BUCKET_NAME = 'bucket-name';
-      const { result, waitFor } = setupAndRenderBucketLocationHook(BUCKET_NAME);
+      const { result, waitFor } = await setupAndRenderBucketLocationHook(
+        BUCKET_NAME,
+      );
       //Exercise
       await waitForPromiseResultToBeLoaded(
-        result.current.locationConstraint,
+        () => result.current.locationConstraint,
         waitFor,
       );
       //Verify
@@ -491,12 +609,16 @@ describe.skip('Buckets domain', () => {
 
     it('should return an error if the location constraint fetching failed', async () => {
       //Setup
-      server.use(mockBucketLocationConstraint('', true));
+      server.use(
+        mockBucketLocationConstraint({ location: '', forceFailure: true }),
+      );
       const BUCKET_NAME = 'bucket-name';
-      const { result, waitFor } = setupAndRenderBucketLocationHook(BUCKET_NAME);
+      const { result, waitFor } = await setupAndRenderBucketLocationHook(
+        BUCKET_NAME,
+      );
       //Exercise
       await waitForPromiseResultToBeLoaded(
-        result.current.locationConstraint,
+        () => result.current.locationConstraint,
         waitFor,
       );
       //Verify
@@ -513,9 +635,9 @@ describe.skip('Buckets domain', () => {
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
-        setupAndRenderBucketLocationHook(tenThousandsBuckets[20].Name);
+        await setupAndRenderBucketLocationHook(tenThousandsBuckets[20].Name);
       await waitForPromiseResultToBeLoaded(
-        result2.current.locationConstraint,
+        () => result2.current.locationConstraint,
         waitFor2,
       );
 
@@ -539,12 +661,14 @@ describe.skip('Buckets domain', () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED } =
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
-      server.use(mockBucketLocationConstraint('', true));
+      server.use(
+        mockBucketLocationConstraint({ location: '', forceFailure: true }),
+      );
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
-        setupAndRenderBucketLocationHook(tenThousandsBuckets[20].Name);
+        await setupAndRenderBucketLocationHook(tenThousandsBuckets[20].Name);
       await waitForPromiseResultToBeLoaded(
-        result2.current.locationConstraint,
+        () => result2.current.locationConstraint,
         waitFor2,
         'error',
       );
@@ -586,7 +710,7 @@ describe.skip('Buckets domain', () => {
           measuredOn: new Date(),
         },
       };
-      const { result, waitFor } = setupAndRenderBucketCapacityHook(
+      const { result, waitFor } = await setupAndRenderBucketCapacityHook(
         BUCKET_NAME,
         (metricsAdapter) => {
           metricsAdapter.listBucketsLatestUsedCapacity = jest
@@ -602,7 +726,7 @@ describe.skip('Buckets domain', () => {
       );
       //Exercise
       await waitForPromiseResultToBeLoaded(
-        result.current.usedCapacity,
+        () => result.current.usedCapacity,
         waitFor,
       );
       //Verify
@@ -615,7 +739,7 @@ describe.skip('Buckets domain', () => {
     it('should return an error if the latest used capacity fetching failed', async () => {
       //Setup
       const BUCKET_NAME = 'bucket-name';
-      const { result, waitFor } = setupAndRenderBucketCapacityHook(
+      const { result, waitFor } = await setupAndRenderBucketCapacityHook(
         BUCKET_NAME,
         (metricsAdapter) => {
           metricsAdapter.listBucketsLatestUsedCapacity = jest
@@ -628,7 +752,7 @@ describe.skip('Buckets domain', () => {
       );
       //Exercise
       await waitForPromiseResultToBeLoaded(
-        result.current.usedCapacity,
+        () => result.current.usedCapacity,
         waitFor,
       );
       //Verify
@@ -657,7 +781,7 @@ describe.skip('Buckets domain', () => {
 
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
-        setupAndRenderBucketCapacityHook(
+        await setupAndRenderBucketCapacityHook(
           tenThousandsBuckets[20].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
@@ -673,7 +797,7 @@ describe.skip('Buckets domain', () => {
         );
 
       await waitForPromiseResultToBeLoaded(
-        result2.current.usedCapacity,
+        () => result2.current.usedCapacity,
         waitFor2,
       );
 
@@ -701,7 +825,7 @@ describe.skip('Buckets domain', () => {
 
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
-        setupAndRenderBucketCapacityHook(
+        await setupAndRenderBucketCapacityHook(
           tenThousandsBuckets[20].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
@@ -714,7 +838,7 @@ describe.skip('Buckets domain', () => {
         );
 
       await waitForPromiseResultToBeLoaded(
-        result2.current.usedCapacity,
+        () => result2.current.usedCapacity,
         waitFor2,
       );
 

@@ -1,4 +1,5 @@
 import { AWSError, S3 } from 'aws-sdk';
+import { Bucket } from 'aws-sdk/clients/s3';
 import { useQueries, useQuery } from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
@@ -8,6 +9,7 @@ import {
   BucketLocationConstraintPromiseResult,
   BucketsPromiseResult,
 } from '../entities/bucket';
+import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
 
 export const DEFAULT_LOCATION = 'us-east-1';
@@ -18,7 +20,7 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
-const queries = {
+export const queries = {
   listBuckets: (s3Client: S3) => ({
     queryKey: ['buckets'],
     queryFn: () => s3Client.listBuckets().promise(),
@@ -31,6 +33,12 @@ const queries = {
         .getBucketLocation({ Bucket: notFalsyTypeGuard(bucketName) })
         .promise(),
     enabled: !!bucketName,
+    ...noRefetchOptions,
+  }),
+  getBucketMetrics: (metricsAdapter: IMetricsAdapter, buckets: Bucket[]) => ({
+    queryKey: ['bucketMetrics'],
+    queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
+    enabled: !!buckets.length,
     ...noRefetchOptions,
   }),
 };
@@ -54,6 +62,11 @@ export const useListBucketsForCurrentAccount = ({
     Array.from({ length: 20 }).map((_, index) =>
       queries.getBucketLocation(s3Client, buckets?.Buckets?.[index]?.Name),
     ),
+  );
+
+  const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 20) || [];
+  const metricsQueryResult = useQuery(
+    queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
   );
 
   if (bucketsStatus === 'loading' || bucketsStatus === 'idle') {
@@ -93,8 +106,37 @@ export const useListBucketsForCurrentAccount = ({
         locationConstraint = {
           status: 'success' as const,
           value:
-            bucketLocationQueriesResult[index].data?.LocationConstraint ??
+            bucketLocationQueriesResult[index].data?.LocationConstraint ||
             DEFAULT_LOCATION,
+        };
+      }
+
+      let usedCapacity: PromiseResult<LatestUsedCapacity> = {
+        status: 'idle' as const,
+      };
+      if (
+        metricsQueryResult.status === 'loading' &&
+        bucketsForWhichToFetchMetrics.find((b) => b.Name === bucket.Name)
+      ) {
+        usedCapacity = {
+          status: 'loading' as const,
+        };
+      } else if (
+        metricsQueryResult.status === 'error' &&
+        bucketsForWhichToFetchMetrics.find((b) => b.Name === bucket.Name)
+      ) {
+        usedCapacity = {
+          status: 'error' as const,
+          title: 'An error occurred while fetching the latest used capacity',
+          reason: 'Internal Server Error',
+        };
+      } else if (
+        metricsQueryResult.status === 'success' &&
+        metricsQueryResult.data?.[bucket.Name || '']
+      ) {
+        usedCapacity = {
+          status: 'success' as const,
+          value: metricsQueryResult.data?.[bucket.Name || ''],
         };
       }
 
@@ -102,9 +144,7 @@ export const useListBucketsForCurrentAccount = ({
         name: bucket.Name || '',
         creationDate: bucket.CreationDate || new Date(),
         locationConstraint,
-        usedCapacity: {
-          status: 'idle' as const,
-        },
+        usedCapacity,
       };
     }) || [];
   return {
