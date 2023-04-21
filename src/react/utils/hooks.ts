@@ -162,9 +162,8 @@ export const SCALITY_INTERNAL_ROLES = [
 export const useRedirectDataConsumers = () => {
   const history = useHistory();
   const location = useLocation();
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
+  const { user } = useAuth();
+  const userGroups = user?.profile?.groups || [];
 
   return React.useCallback((roles, callback = () => null) => {
     const canAssumeAdminAccountRolesOnAnyAccount = roles.find(
