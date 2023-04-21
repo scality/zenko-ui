@@ -1,4 +1,4 @@
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { WaitFor } from '@testing-library/react-hooks';
 import {
   FunctionComponent,
@@ -7,6 +7,7 @@ import {
   useEffect,
 } from 'react';
 import { act } from 'react-dom/test-utils';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export type RenderAdditionalHook = <THookResult>(
   key: string,
@@ -20,8 +21,10 @@ export function prepareRenderMultipleHooks(options: {
   wrapper: FunctionComponent<PropsWithChildren<Record<string, never>>>;
 }): {
   renderAdditionalHook: RenderAdditionalHook;
+  waitForWrapperToBeReady: () => Promise<void>;
 } {
   const RENDER_HOOK_EVENT = 'RENDER_HOOK_EVENT';
+  const READY_STRING = 'READY_STRING';
 
   function TestComponents({
     addValues,
@@ -58,6 +61,7 @@ export function prepareRenderMultipleHooks(options: {
 
     return (
       <>
+        {READY_STRING}
         {components.map((c, i) => {
           return <div key={i}>{c}</div>;
         })}
@@ -66,18 +70,23 @@ export function prepareRenderMultipleHooks(options: {
   }
   const values: { key: string; value: unknown }[] = [];
   render(
-    //eslint-disable-next-line
-    //@ts-ignore
-    <options.wrapper>
-      <TestComponents
-        addValues={(vals) => {
-          values.unshift(...vals);
-        }}
-      />
-    </options.wrapper>,
+    <ErrorBoundary onError={console.error} fallbackRender={() => <>error</>}>
+      <options.wrapper>
+        <TestComponents
+          addValues={(vals) => {
+            values.unshift(...vals);
+          }}
+        />
+      </options.wrapper>
+    </ErrorBoundary>,
   );
 
   return {
+    waitForWrapperToBeReady: async () => {
+      await waitFor(() => {
+        return expect(screen.getByText(READY_STRING)).toBeInTheDocument();
+      });
+    },
     //eslint-disable-next-line
     //@ts-ignore
     //eslint-disable-next-line
@@ -85,6 +94,14 @@ export function prepareRenderMultipleHooks(options: {
       key: string,
       callback: () => THookResult,
     ) => {
+      try {
+        screen.getByText(READY_STRING);
+      } catch (e) {
+        throw new Error(
+          'Wrapper is not ready yet, you might want to waitForWrapperToBeReady before rendering an additional hook',
+        );
+      }
+
       const event = new CustomEvent(RENDER_HOOK_EVENT, {
         detail: { key, callback },
       });
@@ -102,7 +119,12 @@ export function prepareRenderMultipleHooks(options: {
             }
           },
         }),
-        waitFor: waitFor,
+        waitFor: (fn) =>
+          waitFor(() => {
+            return new Promise((resolve, reject) => {
+              return fn() ? resolve() : reject();
+            });
+          }),
       };
     },
   };
