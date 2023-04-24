@@ -1,7 +1,21 @@
 import { MemoryRouter, Route, Switch } from 'react-router';
+import { XDM_FEATURE } from '../../../../js/config';
+import { AppConfig } from '../../../../types/entities';
 import { _AuthContext } from '../../../next-architecture/ui/AuthProvider';
+import { _ConfigContext } from '../../../next-architecture/ui/ConfigProvider';
 import { reduxMountAct } from '../../../utils/testUtil';
 import ObjectLockSetting from '../ObjectLockSetting';
+
+const config: AppConfig = {
+  zenkoEndpoint: 'http://localhost:8000',
+  stsEndpoint: 'http://localhost:9000',
+  iamEndpoint: 'http://localhost:10000',
+  managementEndpoint: 'http://localhost:11000',
+  navbarEndpoint: 'http://localhost:12000',
+  navbarConfigUrl: 'http://localhost:13000',
+  features: [XDM_FEATURE],
+};
+
 describe('ObjectLockSetting', () => {
   const errorMessage = 'This is an error test message';
   it('should render ObjectLockSetting component with no error banner', async () => {
@@ -12,7 +26,9 @@ describe('ObjectLockSetting', () => {
             user: { access_token: 'token', profile: { sub: 'test' } },
           }}
         >
-          <ObjectLockSetting />
+          <_ConfigContext.Provider value={config}>
+            <ObjectLockSetting />
+          </_ConfigContext.Provider>
         </_AuthContext.Provider>
       </MemoryRouter>,
     );
@@ -34,7 +50,9 @@ describe('ObjectLockSetting', () => {
             user: { access_token: 'token', profile: { sub: 'test' } },
           }}
         >
-          <ObjectLockSetting />
+          <_ConfigContext.Provider value={config}>
+            <ObjectLockSetting />
+          </_ConfigContext.Provider>
         </_AuthContext.Provider>
       </MemoryRouter>,
       {
@@ -66,7 +84,9 @@ describe('ObjectLockSetting', () => {
                 user: { access_token: 'token', profile: { sub: 'test' } },
               }}
             >
-              <ObjectLockSetting />
+              <_ConfigContext.Provider value={config}>
+                <ObjectLockSetting />
+              </_ConfigContext.Provider>
             </_AuthContext.Provider>
           </Route>
         </Switch>
@@ -115,7 +135,9 @@ describe('ObjectLockSetting', () => {
                 user: { access_token: 'token', profile: { sub: 'test' } },
               }}
             >
-              <ObjectLockSetting />
+              <_ConfigContext.Provider value={config}>
+                <ObjectLockSetting />
+              </_ConfigContext.Provider>
             </_AuthContext.Provider>
           </Route>
         </Switch>
