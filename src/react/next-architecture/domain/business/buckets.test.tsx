@@ -288,7 +288,7 @@ describe('Buckets domain', () => {
         );
       } else {
         expect(resolvedBuckets.value[i].locationConstraint).toEqual({
-          status: 'idle',
+          status: 'loading',
         });
       }
       if (expectedMetrics && expectedMetrics[expectedBuckets[i].Name]) {
@@ -297,13 +297,13 @@ describe('Buckets domain', () => {
         );
       } else {
         expect(resolvedBuckets.value[i].usedCapacity).toEqual({
-          status: 'idle',
+          status: 'loading',
         });
       }
     }
   };
 
-  const useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets =
+  const useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets =
     async () => {
       //Setup
       server.use(
@@ -530,13 +530,11 @@ describe('Buckets domain', () => {
       verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS);
     });
 
-    //TODO
-    it.skip('should return the latest used capacity for the first 20 buckets', async () => {
-      await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+    it('should return the latest used capacity for the first 1000 buckets', async () => {
+      await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
     });
 
-    //TODO
-    it.skip('should return an error if the latest used capacity fetching failed', async () => {
+    it('should return an error if the latest used capacity fetching failed', async () => {
       //Setup
       server.use(
         mockBucketListing(tenThousandsBuckets),
@@ -634,7 +632,7 @@ describe('Buckets domain', () => {
     it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED } =
-        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(tenThousandsBuckets[20].Name);
@@ -662,7 +660,7 @@ describe('Buckets domain', () => {
     it('should update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', async () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED } =
-        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
       server.use(
         mockBucketLocationConstraint({ location: '', forceFailure: true }),
       );
@@ -769,7 +767,7 @@ describe('Buckets domain', () => {
     it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED } =
-        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       const EXPECTED_ADDITIONAL_METRICS = {
         [tenThousandsBuckets[20].Name]: {
@@ -824,7 +822,7 @@ describe('Buckets domain', () => {
     it('should update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', async () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED } =
-        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_20_buckets();
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       //Exercise
       const { result: result2, waitFor: waitFor2 } =

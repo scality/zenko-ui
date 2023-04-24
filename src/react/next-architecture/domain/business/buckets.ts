@@ -64,7 +64,7 @@ export const useListBucketsForCurrentAccount = ({
     ),
   );
 
-  const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 20) || [];
+  const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 1_000) || [];
   const metricsQueryResult = useQuery(
     queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
   );
@@ -72,7 +72,7 @@ export const useListBucketsForCurrentAccount = ({
   if (bucketsStatus === 'loading' || bucketsStatus === 'idle') {
     return {
       buckets: {
-        status: bucketsStatus,
+        status: 'loading',
       },
     };
   }
@@ -90,13 +90,9 @@ export const useListBucketsForCurrentAccount = ({
   const bucketsWithLocation =
     buckets?.Buckets?.map((bucket, index) => {
       let locationConstraint: PromiseResult<string> = {
-        status: 'idle' as const,
+        status: 'loading' as const,
       };
-      if (bucketLocationQueriesResult[index]?.status === 'loading') {
-        locationConstraint = {
-          status: 'loading' as const,
-        };
-      } else if (bucketLocationQueriesResult[index]?.status === 'error') {
+      if (bucketLocationQueriesResult[index]?.status === 'error') {
         locationConstraint = {
           status: 'error' as const,
           title: 'An error occurred while fetching the location',
@@ -112,16 +108,9 @@ export const useListBucketsForCurrentAccount = ({
       }
 
       let usedCapacity: PromiseResult<LatestUsedCapacity> = {
-        status: 'idle' as const,
+        status: 'loading' as const,
       };
       if (
-        metricsQueryResult.status === 'loading' &&
-        bucketsForWhichToFetchMetrics.find((b) => b.Name === bucket.Name)
-      ) {
-        usedCapacity = {
-          status: 'loading' as const,
-        };
-      } else if (
         metricsQueryResult.status === 'error' &&
         bucketsForWhichToFetchMetrics.find((b) => b.Name === bucket.Name)
       ) {
