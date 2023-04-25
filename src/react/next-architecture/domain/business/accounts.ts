@@ -5,22 +5,11 @@ import {
   AccountLatestUsedCapacityPromiseResult,
   AccountsPromiseResult,
   Account,
-  AccountInfo,
 } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 
-const getFirst1000AccountCanonicalIds = (
-  accountInfos: AccountInfo[],
-): string[] => {
-  const accountsCanonicalIds = accountInfos.map(
-    (accountInfo) => accountInfo.canonicalId,
-  );
-  if (accountsCanonicalIds.length <= 1000) {
-    return accountsCanonicalIds;
-  } else {
-    return accountsCanonicalIds.slice(0, 999);
-  }
-};
+// Pensieve API return an error with 400 if the number of requested accounts exceed 1000.
+const MAX_NUM_ACCOUNT_REQUEST = 1000;
 
 const noRefetchOptions = {
   refetchOnWindowFocus: false,
@@ -36,13 +25,11 @@ const queries = {
   }),
   listAccountsMetrics: (
     metricsAdapter: IMetricsAdapter,
-    accountInfos: AccountInfo[],
+    accountsCanonicalIds: string[],
   ) => ({
     queryKey: ['accountsMetrics'],
     queryFn: () =>
-      metricsAdapter.listAccountsLatestUsedCapacity(
-        getFirst1000AccountCanonicalIds(accountInfos),
-      ),
+      metricsAdapter.listAccountsLatestUsedCapacity(accountsCanonicalIds),
     ...noRefetchOptions,
   }),
   getMetricsForAnAccount: (
@@ -57,7 +44,7 @@ const queries = {
 };
 
 /**
- * The hook returns the entire account list and the storage metric for the first one thousand of accounts.
+ * The hook returns the entire account list and the Storage Metrics ONLY for the first 1000 accounts.
  * @param metricsAdapter
  * @param accountsAdapter
  */
@@ -72,9 +59,13 @@ export const useListAccounts = ({
     queries.listAccounts(accountsAdapter),
   );
   const { data: metrics, status: metricsStatus } = useQuery({
-    //@ts-expect-error once the query is triggered the accontInfos can't be undefined
-    ...queries.listAccountsMetrics(metricsAdapter, accountInfos),
-    ...{ enabled: accountStatus === 'success' },
+    ...queries.listAccountsMetrics(
+      metricsAdapter,
+      accountInfos
+        ?.map((ai) => ai.canonicalId)
+        .slice(0, MAX_NUM_ACCOUNT_REQUEST) || [],
+    ),
+    enabled: !!(accountStatus === 'success' && accountInfos),
   });
   if (
     accountStatus === 'success' &&
@@ -83,7 +74,7 @@ export const useListAccounts = ({
     const accounts: Account[] = accountInfos.map((accountInfo) => {
       return {
         ...accountInfo,
-        usedCapacity: { status: 'idle' },
+        usedCapacity: { status: 'loading' },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
@@ -97,19 +88,24 @@ export const useListAccounts = ({
               status: 'success',
               value: metrics[accountCanonicalId],
             }
-          : { status: 'idle' },
+          : {
+              status: 'unknown',
+            },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountStatus === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfos.map((accountInfo) => {
+    const accounts: Account[] = accountInfos.map((accountInfo, i) => {
       return {
         ...accountInfo,
-        usedCapacity: {
-          status: 'error',
-          title: 'Account metrics error',
-          reason: 'An error occurred when fetching metrics',
-        },
+        usedCapacity:
+          i < MAX_NUM_ACCOUNT_REQUEST
+            ? {
+                status: 'error',
+                title: 'Account metrics error',
+                reason: 'An error occurred when fetching metrics',
+              }
+            : { status: 'unknown' },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
@@ -182,7 +178,6 @@ export const useAccountLatestUsedCapacity = ({
     accountMetricsQueryState?.status === 'loading'
   ) {
     return { usedCapacity: { status: 'loading' } };
-  } else {
-    return { usedCapacity: { status: 'idle' } };
   }
+  return { usedCapacity: { status: 'loading' } };
 };

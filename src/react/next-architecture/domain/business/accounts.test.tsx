@@ -18,18 +18,8 @@ import { AccountInfo } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-  },
-});
-afterEach(() => queryClient.clear());
-const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
-  return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
+
 const setupListAccountAdaptersForThousandAccounts = () => {
   const accountsAdapter = new MockedAccountsAdapter();
   const metricsAdapter = new MockedMetricsAdapter();
@@ -65,6 +55,62 @@ const setupListAccountAdaptersForThousandAccounts = () => {
       },
     );
   return { accountsAdapter, metricsAdapter };
+};
+const MOCK_SUCCESS_USED_CAPACITY = {
+  status: 'success',
+  value: {
+    type: 'hasMetrics',
+    usedCapacity: {
+      current: 1024,
+      nonCurrent: 0,
+    },
+    measuredOn: new Date(MEASURED_ON),
+  },
+};
+const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
+  return {
+    id: `id-${i}`,
+    name: `name-${i}`,
+    canonicalId: `canonicalId-${i}`,
+    creationDate: new Date(CREATION_DATE),
+    usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
+  };
+});
+
+const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
+  .fill(null)
+  .map((_, i) => {
+    return {
+      id: `id-${i}`,
+      name: `name-${i}`,
+      canonicalId: `canonicalId-${i}`,
+      creationDate: new Date(CREATION_DATE),
+      usedCapacity: {
+        status: 'error',
+        title: 'Account metrics error',
+        reason: 'An error occurred when fetching metrics',
+      },
+    };
+  });
+
+const ONE_THOUSAND_AND_ONE_ACCOUNT = {
+  id: 'id-1000',
+  name: 'name-1000',
+  canonicalId: `canonicalId-1000`,
+  creationDate: new Date(CREATION_DATE),
+  usedCapacity: { status: 'unknown' },
+};
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+  },
+});
+afterEach(() => queryClient.clear());
+const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 };
 
 describe('useListAccounts', () => {
@@ -138,39 +184,11 @@ describe('useListAccounts', () => {
       () => useListAccounts({ accountsAdapter, metricsAdapter }),
       { wrapper: Wrapper },
     );
-    await waitFor(() => result.current.accounts.status === 'success', {
-      timeout: 3000,
-    });
-    //V
-    const oneThousandAccounts = new Array(1000).fill(null).map((_, i) => {
-      return {
-        id: `id-${i}`,
-        name: `name-${i}`,
-        canonicalId: `canonicalId-${i}`,
-        creationDate: new Date(CREATION_DATE),
-        usedCapacity: {
-          status: 'success',
-          value: {
-            type: 'hasMetrics',
-            usedCapacity: {
-              current: 1024,
-              nonCurrent: 0,
-            },
-            measuredOn: new Date(MEASURED_ON),
-          },
-        },
-      };
-    });
-    const account1001 = {
-      id: 'id-1000',
-      name: 'name-1000',
-      canonicalId: `canonicalId-1000`,
-      creationDate: new Date(CREATION_DATE),
-      usedCapacity: { status: 'loading' },
-    };
+    await waitFor(() => result.current.accounts.status === 'success');
+    //Verify the status of usedCapacity after a thousand account should be unknown.
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
-      value: [...oneThousandAccounts, account1001],
+      value: [...MOCK_ONE_THOUSAND_ACCOUNTS, ONE_THOUSAND_AND_ONE_ACCOUNT],
     });
   });
   it('should return an error in case of fetching accounts failed', async () => {
@@ -195,8 +213,8 @@ describe('useListAccounts', () => {
   });
   it('should return accounts with an error in case of fetching metrics failed', async () => {
     //S
-    const accountsAdapter = new MockedAccountsAdapter();
-    const metricsAdapter = new MockedMetricsAdapter();
+    const { accountsAdapter, metricsAdapter } =
+      setupListAccountAdaptersForThousandAccounts();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
       .mockImplementation(async () => {
@@ -208,26 +226,12 @@ describe('useListAccounts', () => {
       { wrapper: Wrapper },
     );
     await waitFor(() => result.current.accounts.status === 'success');
-    //V
+    //Verify the status of usedCapacity after a thousand account should be unknown.
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
       value: [
-        {
-          ...ACCOUNT,
-          usedCapacity: {
-            status: 'error',
-            title: 'Account metrics error',
-            reason: 'An error occurred when fetching metrics',
-          },
-        },
-        {
-          ...NEWLY_CREATED_ACCOUNT,
-          usedCapacity: {
-            status: 'error',
-            title: 'Account metrics error',
-            reason: 'An error occurred when fetching metrics',
-          },
-        },
+        ...MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY,
+        ONE_THOUSAND_AND_ONE_ACCOUNT,
       ],
     });
   });
