@@ -91,8 +91,11 @@ describe('useListAccounts', () => {
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
       value: [
-        { ...ACCOUNT, ...{ usedCapacity: { status: 'idle' } } },
-        { ...NEWLY_CREATED_ACCOUNT, ...{ usedCapacity: { status: 'idle' } } },
+        { ...ACCOUNT, ...{ usedCapacity: { status: 'loading' } } },
+        {
+          ...NEWLY_CREATED_ACCOUNT,
+          ...{ usedCapacity: { status: 'loading' } },
+        },
       ],
     });
   });
@@ -163,7 +166,7 @@ describe('useListAccounts', () => {
       name: 'name-1000',
       canonicalId: `canonicalId-1000`,
       creationDate: new Date(CREATION_DATE),
-      usedCapacity: { status: 'idle' },
+      usedCapacity: { status: 'loading' },
     };
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
@@ -376,6 +379,6 @@ describe('useAccountLatestUsedCapacity', () => {
       }),
     );
     //V
-    expect(result.current.usedCapacity.status).toBe('idle');
+    expect(result.current.usedCapacity.status).toBe('loading');
   });
 });
