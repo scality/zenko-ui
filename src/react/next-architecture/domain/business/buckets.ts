@@ -1,6 +1,7 @@
 import { AWSError, S3 } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
-import { useQueries, useQuery } from 'react-query';
+import { useMemo } from 'react';
+import { useQueries, useQuery, useQueryClient } from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { useS3Client } from '../../ui/S3ClientProvider';
@@ -52,13 +53,14 @@ export const useListBucketsForCurrentAccount = ({
   metricsAdapter: IMetricsAdapter;
 }): BucketsPromiseResult => {
   const s3Client = useS3Client();
+  const queryClient = useQueryClient();
   const {
     data: buckets,
     status: bucketsStatus,
     error,
   } = useQuery(queries.listBuckets(s3Client));
 
-  const bucketLocationQueriesResult = useQueries(
+  useQueries(
     Array.from({ length: 20 }).map((_, index) =>
       queries.getBucketLocation(s3Client, buckets?.Buckets?.[index]?.Name),
     ),
@@ -88,22 +90,26 @@ export const useListBucketsForCurrentAccount = ({
   }
 
   const bucketsWithLocation =
-    buckets?.Buckets?.map((bucket, index) => {
+    buckets?.Buckets?.map((bucket) => {
       let locationConstraint: PromiseResult<string> = {
         status: 'loading' as const,
       };
-      if (bucketLocationQueriesResult[index]?.status === 'error') {
+      const bucketLocationQueryState =
+        queryClient.getQueryState<S3.GetBucketLocationOutput>(
+          queries.getBucketLocation(s3Client, bucket.Name).queryKey,
+        );
+      if (bucketLocationQueryState?.status === 'success') {
+        locationConstraint = {
+          status: 'success' as const,
+          value:
+            bucketLocationQueryState.data?.LocationConstraint ||
+            DEFAULT_LOCATION,
+        };
+      } else if (bucketLocationQueryState?.status === 'error') {
         locationConstraint = {
           status: 'error' as const,
           title: 'An error occurred while fetching the location',
           reason: 'Internal Server Error',
-        };
-      } else if (bucketLocationQueriesResult[index]?.status === 'success') {
-        locationConstraint = {
-          status: 'success' as const,
-          value:
-            bucketLocationQueriesResult[index].data?.LocationConstraint ||
-            DEFAULT_LOCATION,
         };
       }
 
@@ -154,7 +160,35 @@ export const useBucketLocationConstraint = ({
 }: {
   bucketName: string;
 }): BucketLocationConstraintPromiseResult => {
-  throw new Error('Method not implemented.');
+  const s3Client = useS3Client();
+  const { data, status } = useQuery({
+    ...queries.getBucketLocation(s3Client, bucketName),
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      locationConstraint: {
+        status: 'loading' as const,
+      },
+    };
+  }
+
+  if (status === 'error') {
+    return {
+      locationConstraint: {
+        status: 'error' as const,
+        title: 'An error occurred while fetching the location',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+
+  return {
+    locationConstraint: {
+      status: 'success' as const,
+      value: data?.LocationConstraint || DEFAULT_LOCATION,
+    },
+  };
 };
 
 /**
