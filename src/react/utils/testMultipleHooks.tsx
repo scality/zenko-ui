@@ -1,4 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  waitForOptions,
+} from '@testing-library/react';
 import { WaitFor } from '@testing-library/react-hooks';
 import {
   FunctionComponent,
@@ -119,12 +124,12 @@ export function prepareRenderMultipleHooks(options: {
             }
           },
         }),
-        waitFor: (fn) =>
+        waitFor: (fn, options?: waitForOptions) =>
           waitFor(() => {
             return new Promise((resolve, reject) => {
               return fn() ? resolve() : reject();
             });
-          }),
+          }, options),
       };
     },
   };
