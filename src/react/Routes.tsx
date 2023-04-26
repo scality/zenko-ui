@@ -128,16 +128,15 @@ function PrivateRoutes() {
     (state: AppState) => state.configuration?.latest,
   );
 
-  useQuery({
-    queryKey: ['managementClient', user?.access_token || ''],
-    queryFn: () => {
-      return makeMgtClient(managementEndpoint, user.access_token);
-    },
-    onSuccess: (managementClient) => {
+  useMemo(() => {
+    if (!!managementEndpoint && !!user?.access_token) {
+      const managementClient = makeMgtClient(
+        managementEndpoint,
+        user.access_token,
+      );
       dispatch(setManagementClient(managementClient));
-    },
-    enabled: !!managementEndpoint && !!user?.access_token,
-  });
+    }
+  }, [managementEndpoint, user.access_token]);
 
   const isAuthenticated = !!user && !user.expired && user?.access_token;
   useEffect(() => {

@@ -126,14 +126,16 @@ export function loadClients(): ThunkStatePromisedAction {
 
     // TODO: Give the user the ability to select an instance.
     dispatch(selectInstance(instanceIds[0]));
-    return makeMgtClient(config.managementEndpoint, oidc.user.id_token)
-      .then((managementClient) => {
-        dispatch(setManagementClient(managementClient));
-        return Promise.all([
-          dispatch(updateConfiguration()),
-          dispatch(loadInstanceLatestStatus()),
-        ]);
-      })
+    const managementClient = makeMgtClient(
+      config.managementEndpoint,
+      oidc.user.id_token,
+    );
+
+    dispatch(setManagementClient(managementClient));
+    return Promise.all([
+      dispatch(updateConfiguration()),
+      dispatch(loadInstanceLatestStatus()),
+    ])
       .then(() => dispatch(loadClientsSuccess()))
       .catch((error) => {
         if (error.message) {
