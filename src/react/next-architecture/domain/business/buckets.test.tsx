@@ -91,10 +91,15 @@ const defaultMockedBuckets = [
   },
 ];
 
-const thousandAnd2Buckets = Array.from({ length: 1_002 }, (_, i) => ({
-  Name: `bucket${i}`,
-  CreationDate: frozenDate,
-}));
+const metricsPageSize = 1_000;
+const locationPageSize = 20;
+const thousandAnd2Buckets = Array.from(
+  { length: metricsPageSize + 2 },
+  (_, i) => ({
+    Name: `bucket${i}`,
+    CreationDate: frozenDate,
+  }),
+);
 
 describe('Buckets domain', () => {
   function mockConfig() {
@@ -321,7 +326,7 @@ describe('Buckets domain', () => {
         mockBucketLocationConstraint({ location: '' }),
       );
       const EXPECTED_METRICS = thousandAnd2Buckets
-        .slice(0, 1_000)
+        .slice(0, metricsPageSize)
         .map((bucket) => ({
           bucketName: bucket.Name,
           type: 'hasMetrics',
@@ -358,9 +363,9 @@ describe('Buckets domain', () => {
         metricsAdapter.listBucketsLatestUsedCapacity = jest
           .fn()
           .mockImplementation(async (buckets) => {
-            if (buckets.length !== 1_000) {
+            if (buckets.length !== metricsPageSize) {
               throw new Error(
-                `Unexpected number of buckets expected: 1_000, got: ${buckets.length}`,
+                `Unexpected number of buckets expected: ${metricsPageSize}, got: ${buckets.length}`,
               );
             }
             return EXPECTED_METRICS;
@@ -380,18 +385,20 @@ describe('Buckets domain', () => {
           buckets: PromiseSucceedResult<Bucket[]>;
         };
         return buckets.value
-          .slice(0, 20)
+          .slice(0, locationPageSize)
           .every((bucket) => bucket.locationConstraint.status !== 'loading');
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(
         result,
         thousandAnd2Buckets,
@@ -460,18 +467,20 @@ describe('Buckets domain', () => {
           buckets: PromiseSucceedResult<Bucket[]>;
         };
         return buckets.value
-          .slice(0, 20)
+          .slice(0, locationPageSize)
           .every((bucket) => bucket.locationConstraint.status === 'success');
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: EXPECTED_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: EXPECTED_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
@@ -495,18 +504,20 @@ describe('Buckets domain', () => {
           buckets: PromiseSucceedResult<Bucket[]>;
         };
         return buckets.value
-          .slice(0, 20)
+          .slice(0, locationPageSize)
           .every((bucket) => bucket.locationConstraint.status === 'success');
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
@@ -531,24 +542,26 @@ describe('Buckets domain', () => {
             buckets: PromiseSucceedResult<Bucket[]>;
           };
           return buckets.value
-            .slice(0, 20)
+            .slice(0, locationPageSize)
             .every((bucket) => bucket.locationConstraint.status !== 'loading');
         },
         { timeout: 10_000 },
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: {
-            status: 'error',
-            title: 'An error occurred while fetching the location',
-            reason: 'Internal Server Error',
-          },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: {
+              status: 'error',
+              title: 'An error occurred while fetching the location',
+              reason: 'Internal Server Error',
+            },
+          }),
+          {},
+        );
       verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
@@ -586,25 +599,27 @@ describe('Buckets domain', () => {
             buckets: PromiseSucceedResult<Bucket[]>;
           };
           return buckets.value
-            .slice(0, 20)
+            .slice(0, locationPageSize)
             .every((bucket) => bucket.usedCapacity.status !== 'loading');
         },
         { timeout: 10_000 },
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(
         result,
         thousandAnd2Buckets,
         EXPECTED_LOCATIONS,
-        thousandAnd2Buckets.slice(0, 1_000).reduce(
+        thousandAnd2Buckets.slice(0, metricsPageSize).reduce(
           (acc, bucket) => ({
             ...acc,
             [bucket.Name]: {
@@ -671,13 +686,12 @@ describe('Buckets domain', () => {
         EXPECTED_METRICS_WRAPPED,
         renderAdditionalHook,
         waitFor,
-        waitForListBucketsHookValueToChange,
       } =
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(
-          thousandAnd2Buckets[20].Name,
+          thousandAnd2Buckets[locationPageSize].Name,
           renderAdditionalHook,
         );
       await waitForPromiseResultToBeLoaded(
@@ -691,20 +705,22 @@ describe('Buckets domain', () => {
             buckets: PromiseSucceedResult<Bucket[]>;
           };
           return buckets.value
-            .slice(0, 21)
+            .slice(0, locationPageSize + 1)
             .every((bucket) => bucket.locationConstraint.status !== 'loading');
         },
         { timeout: 10_000 },
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 21).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize + 1)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(
         result,
         thousandAnd2Buckets,
@@ -723,7 +739,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(
-          thousandAnd2Buckets[20].Name,
+          thousandAnd2Buckets[locationPageSize].Name,
           renderAdditionalHook,
         );
       await waitForPromiseResultToBeLoaded(
@@ -733,15 +749,17 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       //@ts-ignore
-      EXPECTED_LOCATIONS[thousandAnd2Buckets[20].Name] = {
+      EXPECTED_LOCATIONS[thousandAnd2Buckets[locationPageSize].Name] = {
         status: 'error',
         title: 'An error occurred while fetching the location',
         reason: 'Internal Server Error',
@@ -834,7 +852,7 @@ describe('Buckets domain', () => {
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       const EXPECTED_ADDITIONAL_METRICS = {
-        [thousandAnd2Buckets[1000].Name]: {
+        [thousandAnd2Buckets[metricsPageSize].Name]: {
           type: 'hasMetrics',
           usedCapacity: {
             current: 12,
@@ -847,7 +865,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          thousandAnd2Buckets[1000].Name,
+          thousandAnd2Buckets[metricsPageSize].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -871,23 +889,29 @@ describe('Buckets domain', () => {
       await waitFor(() => {
         return (
           result.current.buckets.status === 'success' &&
-          result.current.buckets.value[1000].usedCapacity.status === 'success'
+          result.current.buckets.value[metricsPageSize].usedCapacity.status ===
+            'success'
         );
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [thousandAnd2Buckets[1000].Name]: {
+        [thousandAnd2Buckets[metricsPageSize].Name]: {
           status: 'success',
-          value: EXPECTED_ADDITIONAL_METRICS[thousandAnd2Buckets[1000].Name],
+          value:
+            EXPECTED_ADDITIONAL_METRICS[
+              thousandAnd2Buckets[metricsPageSize].Name
+            ],
         },
       });
     });
@@ -900,7 +924,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          thousandAnd2Buckets[1000].Name,
+          thousandAnd2Buckets[metricsPageSize].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -919,16 +943,18 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
-        (acc, bucket) => ({
-          ...acc,
-          [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
-        }),
-        {},
-      );
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets
+        .slice(0, locationPageSize)
+        .reduce(
+          (acc, bucket) => ({
+            ...acc,
+            [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
+          }),
+          {},
+        );
       verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [thousandAnd2Buckets[1000].Name]: {
+        [thousandAnd2Buckets[metricsPageSize].Name]: {
           status: 'loading',
         },
       });
