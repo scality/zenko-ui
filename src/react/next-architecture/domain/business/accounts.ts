@@ -1,10 +1,12 @@
 import { useQuery, useQueryClient } from 'react-query';
+import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
   AccountLatestUsedCapacityPromiseResult,
   AccountsPromiseResult,
   Account,
+  AccountInfo,
 } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 
@@ -17,7 +19,7 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
-const queries = {
+export const queries = {
   listAccounts: (accountsAdapter: IAccountsAdapter) => ({
     queryKey: ['accounts'],
     queryFn: accountsAdapter.listAccounts,
@@ -49,37 +51,39 @@ const queries = {
  * @param accountsAdapter
  */
 export const useListAccounts = ({
-  accountsAdapter,
+  accessibleAccountsAdapter,
   metricsAdapter,
 }: {
-  accountsAdapter: IAccountsAdapter;
+  accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
 }): AccountsPromiseResult => {
-  const { data: accountInfos, status: accountStatus } = useQuery(
-    queries.listAccounts(accountsAdapter),
-  );
+  const { accountInfos } =
+    accessibleAccountsAdapter.useListAccessibleAccounts();
+
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
-      accountInfos
-        ?.map((ai) => ai.canonicalId)
-        .slice(0, MAX_NUM_ACCOUNT_REQUEST) || [],
+      accountInfos.status === 'success'
+        ? accountInfos.value
+            ?.map((ai: AccountInfo) => ai.canonicalId)
+            .slice(0, MAX_NUM_ACCOUNT_REQUEST)
+        : [],
     ),
-    enabled: !!(accountStatus === 'success' && accountInfos),
+    enabled: !!(accountInfos.status === 'success' && accountInfos),
   });
   if (
-    accountStatus === 'success' &&
+    accountInfos.status === 'success' &&
     (metricsStatus === 'idle' || metricsStatus === 'loading')
   ) {
-    const accounts: Account[] = accountInfos.map((accountInfo) => {
+    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
       return {
         ...accountInfo,
         usedCapacity: { status: 'loading' },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'success' && metricsStatus === 'success') {
-    const accounts: Account[] = accountInfos.map((accountInfo) => {
+  } else if (accountInfos.status === 'success' && metricsStatus === 'success') {
+    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
       const accountCanonicalId = accountInfo.canonicalId;
       return {
         ...accountInfo,
@@ -94,8 +98,8 @@ export const useListAccounts = ({
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfos.map((accountInfo, i) => {
+  } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
+    const accounts: Account[] = accountInfos.value.map((accountInfo, i) => {
       return {
         ...accountInfo,
         usedCapacity:
@@ -109,7 +113,7 @@ export const useListAccounts = ({
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'error') {
+  } else if (accountInfos.status === 'error') {
     return {
       accounts: {
         status: 'error',
