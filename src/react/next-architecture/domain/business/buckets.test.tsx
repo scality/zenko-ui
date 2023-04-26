@@ -91,7 +91,7 @@ const defaultMockedBuckets = [
   },
 ];
 
-const tenThousandsBuckets = Array.from({ length: 10_000 }, (_, i) => ({
+const thousandAnd2Buckets = Array.from({ length: 1_002 }, (_, i) => ({
   Name: `bucket${i}`,
   CreationDate: frozenDate,
 }));
@@ -317,10 +317,10 @@ describe('Buckets domain', () => {
     async () => {
       //Setup
       server.use(
-        mockBucketListing(tenThousandsBuckets),
+        mockBucketListing(thousandAnd2Buckets),
         mockBucketLocationConstraint({ location: '' }),
       );
-      const EXPECTED_METRICS = tenThousandsBuckets
+      const EXPECTED_METRICS = thousandAnd2Buckets
         .slice(0, 1_000)
         .map((bucket) => ({
           bucketName: bucket.Name,
@@ -385,7 +385,7 @@ describe('Buckets domain', () => {
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -394,7 +394,7 @@ describe('Buckets domain', () => {
       );
       verifyBuckets(
         result,
-        tenThousandsBuckets,
+        thousandAnd2Buckets,
         EXPECTED_LOCATIONS,
         EXPECTED_METRICS_WRAPPED,
       );
@@ -443,7 +443,7 @@ describe('Buckets domain', () => {
       //Setup
       const EXPECTED_LOCATION = 'us-east-2';
       server.use(
-        mockBucketListing(tenThousandsBuckets),
+        mockBucketListing(thousandAnd2Buckets),
         mockBucketLocationConstraint({ location: EXPECTED_LOCATION }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
@@ -465,20 +465,20 @@ describe('Buckets domain', () => {
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: EXPECTED_LOCATION },
         }),
         {},
       );
-      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS);
+      verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
     it('should return the location constraint for the first 20 buckets when location constraint is not defined', async () => {
       //Setup
       server.use(
-        mockBucketListing(tenThousandsBuckets),
+        mockBucketListing(thousandAnd2Buckets),
         mockBucketLocationConstraint({ location: '' }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
@@ -500,20 +500,20 @@ describe('Buckets domain', () => {
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
         }),
         {},
       );
-      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS);
+      verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
     it('should return an error if the location constraint fetching failed', async () => {
       //Setup
       server.use(
-        mockBucketListing(tenThousandsBuckets),
+        mockBucketListing(thousandAnd2Buckets),
         mockBucketLocationConstraint({ location: '', forceFailure: true }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
@@ -538,7 +538,7 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: {
@@ -549,7 +549,7 @@ describe('Buckets domain', () => {
         }),
         {},
       );
-      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS);
+      verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS);
     });
 
     it('should return the latest used capacity for the first 1000 buckets', async () => {
@@ -559,7 +559,7 @@ describe('Buckets domain', () => {
     it('should return an error if the latest used capacity fetching failed', async () => {
       //Setup
       server.use(
-        mockBucketListing(tenThousandsBuckets),
+        mockBucketListing(thousandAnd2Buckets),
         mockBucketLocationConstraint({ location: '' }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook(
@@ -593,7 +593,7 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -602,9 +602,9 @@ describe('Buckets domain', () => {
       );
       verifyBuckets(
         result,
-        tenThousandsBuckets,
+        thousandAnd2Buckets,
         EXPECTED_LOCATIONS,
-        tenThousandsBuckets.slice(0, 1_000).reduce(
+        thousandAnd2Buckets.slice(0, 1_000).reduce(
           (acc, bucket) => ({
             ...acc,
             [bucket.Name]: {
@@ -677,7 +677,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(
-          tenThousandsBuckets[20].Name,
+          thousandAnd2Buckets[20].Name,
           renderAdditionalHook,
         );
       await waitForPromiseResultToBeLoaded(
@@ -698,7 +698,7 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 21).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -707,7 +707,7 @@ describe('Buckets domain', () => {
       );
       verifyBuckets(
         result,
-        tenThousandsBuckets,
+        thousandAnd2Buckets,
         EXPECTED_LOCATIONS,
         EXPECTED_METRICS_WRAPPED,
       );
@@ -723,7 +723,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(
-          tenThousandsBuckets[20].Name,
+          thousandAnd2Buckets[20].Name,
           renderAdditionalHook,
         );
       await waitForPromiseResultToBeLoaded(
@@ -733,7 +733,7 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -741,14 +741,14 @@ describe('Buckets domain', () => {
         {},
       );
       //@ts-ignore
-      EXPECTED_LOCATIONS[tenThousandsBuckets[20].Name] = {
+      EXPECTED_LOCATIONS[thousandAnd2Buckets[20].Name] = {
         status: 'error',
         title: 'An error occurred while fetching the location',
         reason: 'Internal Server Error',
       };
       verifyBuckets(
         result,
-        tenThousandsBuckets,
+        thousandAnd2Buckets,
         EXPECTED_LOCATIONS,
         EXPECTED_METRICS_WRAPPED,
       );
@@ -834,7 +834,7 @@ describe('Buckets domain', () => {
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       const EXPECTED_ADDITIONAL_METRICS = {
-        [tenThousandsBuckets[1000].Name]: {
+        [thousandAnd2Buckets[1000].Name]: {
           type: 'hasMetrics',
           usedCapacity: {
             current: 12,
@@ -847,7 +847,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          tenThousandsBuckets[1000].Name,
+          thousandAnd2Buckets[1000].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -876,18 +876,18 @@ describe('Buckets domain', () => {
       });
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
         }),
         {},
       );
-      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
+      verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [tenThousandsBuckets[1000].Name]: {
+        [thousandAnd2Buckets[1000].Name]: {
           status: 'success',
-          value: EXPECTED_ADDITIONAL_METRICS[tenThousandsBuckets[1000].Name],
+          value: EXPECTED_ADDITIONAL_METRICS[thousandAnd2Buckets[1000].Name],
         },
       });
     });
@@ -900,7 +900,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          tenThousandsBuckets[1000].Name,
+          thousandAnd2Buckets[1000].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -919,16 +919,16 @@ describe('Buckets domain', () => {
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
+      const EXPECTED_LOCATIONS = thousandAnd2Buckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
         }),
         {},
       );
-      verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
+      verifyBuckets(result, thousandAnd2Buckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [tenThousandsBuckets[1000].Name]: {
+        [thousandAnd2Buckets[1000].Name]: {
           status: 'loading',
         },
       });
