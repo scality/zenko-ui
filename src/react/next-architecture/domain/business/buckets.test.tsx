@@ -293,19 +293,6 @@ describe('Buckets domain', () => {
         expectedBuckets[i].CreationDate,
       );
       if (expectedLocations[expectedBuckets[i].Name]) {
-        console.log(
-          `Checking location for ${
-            expectedBuckets[i].Name
-          }, index ${i}, expected location ${JSON.stringify(
-            expectedLocations[expectedBuckets[i].Name],
-            null,
-            2,
-          )}, got ${JSON.stringify(
-            resolvedBuckets.value[i].locationConstraint,
-            null,
-            2,
-          )}`,
-        );
         expect(resolvedBuckets.value[i].locationConstraint).toEqual(
           expectedLocations[expectedBuckets[i].Name],
         );
@@ -538,14 +525,17 @@ describe('Buckets domain', () => {
       );
 
       //Wait for the location constraint to be loaded
-      await waitFor(() => {
-        const { buckets } = result.current as {
-          buckets: PromiseSucceedResult<Bucket[]>;
-        };
-        return buckets.value
-          .slice(0, 20)
-          .every((bucket) => bucket.locationConstraint.status !== 'loading');
-      });
+      await waitFor(
+        () => {
+          const { buckets } = result.current as {
+            buckets: PromiseSucceedResult<Bucket[]>;
+          };
+          return buckets.value
+            .slice(0, 20)
+            .every((bucket) => bucket.locationConstraint.status !== 'loading');
+        },
+        { timeout: 10_000 },
+      );
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
@@ -589,6 +579,19 @@ describe('Buckets domain', () => {
         waitFor,
       );
 
+      //Wait for the metrics to be loaded
+      await waitFor(
+        () => {
+          const { buckets } = result.current as {
+            buckets: PromiseSucceedResult<Bucket[]>;
+          };
+          return buckets.value
+            .slice(0, 20)
+            .every((bucket) => bucket.usedCapacity.status !== 'loading');
+        },
+        { timeout: 10_000 },
+      );
+
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
         (acc, bucket) => ({
@@ -617,7 +620,7 @@ describe('Buckets domain', () => {
     });
   });
 
-  describe.skip('useBucketLocationConstraint', () => {
+  describe('useBucketLocationConstraint', () => {
     it('should return the location constraint for a specific bucket', async () => {
       //Setup
       const EXPECTED_LOCATION = 'us-east-2';
@@ -682,16 +685,17 @@ describe('Buckets domain', () => {
         waitFor2,
       );
 
-      // await waitFor(() => {
-      //   const { buckets } = result.current as {
-      //     buckets: PromiseSucceedResult<Bucket[]>;
-      //   };
-      //   return buckets.value
-      //     .slice(0, 21)
-      //     .every((bucket) => bucket.locationConstraint.status !== 'loading');
-      // });
-
-      // await waitForListBucketsHookValueToChange();
+      await waitFor(
+        () => {
+          const { buckets } = result.current as {
+            buckets: PromiseSucceedResult<Bucket[]>;
+          };
+          return buckets.value
+            .slice(0, 21)
+            .every((bucket) => bucket.locationConstraint.status !== 'loading');
+        },
+        { timeout: 10_000 },
+      );
 
       //Verify
       const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
@@ -751,8 +755,7 @@ describe('Buckets domain', () => {
     });
   });
 
-  //TODO
-  describe.skip('useBucketLatestUsedCapacity', () => {
+  describe('useBucketLatestUsedCapacity', () => {
     it('should return the latest used capacity for a specific bucket', async () => {
       //Setup
       const BUCKET_NAME = 'bucket-name';
@@ -810,6 +813,7 @@ describe('Buckets domain', () => {
       await waitForPromiseResultToBeLoaded(
         () => result.current.usedCapacity,
         waitFor,
+        'error',
       );
       //Verify
       expect(result.current.usedCapacity).toEqual({
@@ -821,11 +825,16 @@ describe('Buckets domain', () => {
 
     it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
       //Setup
-      const { result, EXPECTED_METRICS_WRAPPED } =
+      const {
+        result,
+        EXPECTED_METRICS_WRAPPED,
+        renderAdditionalHook,
+        waitFor,
+      } =
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       const EXPECTED_ADDITIONAL_METRICS = {
-        [tenThousandsBuckets[20].Name]: {
+        [tenThousandsBuckets[1000].Name]: {
           type: 'hasMetrics',
           usedCapacity: {
             current: 12,
@@ -838,7 +847,7 @@ describe('Buckets domain', () => {
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          tenThousandsBuckets[20].Name,
+          tenThousandsBuckets[1000].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -850,6 +859,7 @@ describe('Buckets domain', () => {
               });
             return metricsAdapter;
           },
+          renderAdditionalHook,
         );
 
       await waitForPromiseResultToBeLoaded(
@@ -857,8 +867,16 @@ describe('Buckets domain', () => {
         waitFor2,
       );
 
+      //wait for the useListBucketsForCurrentAccount to be updated
+      await waitFor(() => {
+        return (
+          result.current.buckets.status === 'success' &&
+          result.current.buckets.value[1000].usedCapacity.status === 'success'
+        );
+      });
+
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
+      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -867,22 +885,22 @@ describe('Buckets domain', () => {
       );
       verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [tenThousandsBuckets[20].Name]: {
+        [tenThousandsBuckets[1000].Name]: {
           status: 'success',
-          value: EXPECTED_ADDITIONAL_METRICS[tenThousandsBuckets[20].Name],
+          value: EXPECTED_ADDITIONAL_METRICS[tenThousandsBuckets[1000].Name],
         },
       });
     });
 
-    it('should update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', async () => {
+    it('should not update the data returned by useListBucketsForCurrentAccount with the error status and message in case of failure', async () => {
       //Setup
-      const { result, EXPECTED_METRICS_WRAPPED } =
+      const { result, EXPECTED_METRICS_WRAPPED, renderAdditionalHook } =
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
 
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketCapacityHook(
-          tenThousandsBuckets[20].Name,
+          tenThousandsBuckets[1000].Name,
           (metricsAdapter) => {
             metricsAdapter.listBucketsLatestUsedCapacity = jest
               .fn()
@@ -891,15 +909,17 @@ describe('Buckets domain', () => {
               });
             return metricsAdapter;
           },
+          renderAdditionalHook,
         );
 
       await waitForPromiseResultToBeLoaded(
         () => result2.current.usedCapacity,
         waitFor2,
+        'error',
       );
 
       //Verify
-      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 21).reduce(
+      const EXPECTED_LOCATIONS = tenThousandsBuckets.slice(0, 20).reduce(
         (acc, bucket) => ({
           ...acc,
           [bucket.Name]: { status: 'success', value: DEFAULT_LOCATION },
@@ -908,10 +928,8 @@ describe('Buckets domain', () => {
       );
       verifyBuckets(result, tenThousandsBuckets, EXPECTED_LOCATIONS, {
         ...EXPECTED_METRICS_WRAPPED,
-        [tenThousandsBuckets[20].Name]: {
-          status: 'error',
-          title: 'An error occurred while fetching the latest used capacity',
-          reason: 'Internal Server Error',
+        [tenThousandsBuckets[1000].Name]: {
+          status: 'loading',
         },
       });
     });

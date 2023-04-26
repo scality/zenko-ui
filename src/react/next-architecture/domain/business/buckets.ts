@@ -1,7 +1,12 @@
 import { AWSError, S3 } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
 import { useMemo } from 'react';
-import { useQueries, useQuery, useQueryClient } from 'react-query';
+import {
+  useQueries,
+  useQuery,
+  useQueryClient,
+  useIsFetching,
+} from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { useS3Client } from '../../ui/S3ClientProvider';
@@ -36,8 +41,15 @@ export const queries = {
     enabled: !!bucketName,
     ...noRefetchOptions,
   }),
-  getBucketMetrics: (metricsAdapter: IMetricsAdapter, buckets: Bucket[]) => ({
-    queryKey: ['bucketMetrics'],
+  getBucketMetrics: (
+    metricsAdapter: IMetricsAdapter,
+    buckets: Bucket[],
+    useSpecificCacheKey?: boolean,
+  ) => ({
+    queryKey: [
+      'bucketMetrics',
+      useSpecificCacheKey ? buckets.map((bucket) => bucket.Name).join(',') : '',
+    ],
     queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
     enabled: !!buckets.length,
     ...noRefetchOptions,
@@ -66,6 +78,10 @@ export const useListBucketsForCurrentAccount = ({
     ),
   );
 
+  //This hooks forces watching the individual bucket location queries
+  //triggered by useBucketLocationConstraint
+  useIsFetching([queries.getBucketLocation(s3Client, '').queryKey[0]]);
+
   const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 1_000) || [];
   const metricsQueryResult = useQuery(
     queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
@@ -92,7 +108,7 @@ export const useListBucketsForCurrentAccount = ({
   const bucketsWithLocation =
     buckets?.Buckets?.map((bucket) => {
       let locationConstraint: PromiseResult<string> = {
-        status: 'loading' as const,
+        status: 'loading',
       };
       const bucketLocationQueryState =
         queryClient.getQueryState<S3.GetBucketLocationOutput>(
@@ -100,28 +116,28 @@ export const useListBucketsForCurrentAccount = ({
         );
       if (bucketLocationQueryState?.status === 'success') {
         locationConstraint = {
-          status: 'success' as const,
+          status: 'success',
           value:
             bucketLocationQueryState.data?.LocationConstraint ||
             DEFAULT_LOCATION,
         };
       } else if (bucketLocationQueryState?.status === 'error') {
         locationConstraint = {
-          status: 'error' as const,
+          status: 'error',
           title: 'An error occurred while fetching the location',
           reason: 'Internal Server Error',
         };
       }
 
       let usedCapacity: PromiseResult<LatestUsedCapacity> = {
-        status: 'loading' as const,
+        status: 'loading',
       };
       if (
         metricsQueryResult.status === 'error' &&
         bucketsForWhichToFetchMetrics.find((b) => b.Name === bucket.Name)
       ) {
         usedCapacity = {
-          status: 'error' as const,
+          status: 'error',
           title: 'An error occurred while fetching the latest used capacity',
           reason: 'Internal Server Error',
         };
@@ -130,7 +146,7 @@ export const useListBucketsForCurrentAccount = ({
         metricsQueryResult.data?.[bucket.Name || '']
       ) {
         usedCapacity = {
-          status: 'success' as const,
+          status: 'success',
           value: metricsQueryResult.data?.[bucket.Name || ''],
         };
       }
@@ -144,7 +160,7 @@ export const useListBucketsForCurrentAccount = ({
     }) || [];
   return {
     buckets: {
-      status: 'success' as const,
+      status: 'success',
       value: bucketsWithLocation,
     },
   };
@@ -168,7 +184,7 @@ export const useBucketLocationConstraint = ({
   if (status === 'loading' || status === 'idle') {
     return {
       locationConstraint: {
-        status: 'loading' as const,
+        status: 'loading',
       },
     };
   }
@@ -176,7 +192,7 @@ export const useBucketLocationConstraint = ({
   if (status === 'error') {
     return {
       locationConstraint: {
-        status: 'error' as const,
+        status: 'error',
         title: 'An error occurred while fetching the location',
         reason: 'Internal Server Error',
       },
@@ -185,7 +201,7 @@ export const useBucketLocationConstraint = ({
 
   return {
     locationConstraint: {
-      status: 'success' as const,
+      status: 'success',
       value: data?.LocationConstraint || DEFAULT_LOCATION,
     },
   };
@@ -202,5 +218,48 @@ export const useBucketLatestUsedCapacity = ({
   metricsAdapter: IMetricsAdapter;
   bucketName: string;
 }): BucketLatestUsedCapacityPromiseResult => {
-  throw new Error('Method not implemented.');
+  const { data, status } = useQuery({
+    ...queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }], true),
+  });
+  const queryClient = useQueryClient();
+  const allBucketsMetricsQuery = queryClient.getQueryState<
+    Record<string, LatestUsedCapacity>
+  >(queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }]).queryKey);
+  useMemo(() => {
+    if (status === 'success' && allBucketsMetricsQuery?.status === 'success') {
+      queryClient.setQueryData<Record<string, LatestUsedCapacity>>(
+        queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }])
+          .queryKey,
+        {
+          ...allBucketsMetricsQuery.data,
+          ...data,
+        },
+      );
+    }
+  }, [status, allBucketsMetricsQuery?.status]);
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      usedCapacity: {
+        status: 'loading',
+      },
+    };
+  }
+
+  if (status === 'error') {
+    return {
+      usedCapacity: {
+        status: 'error',
+        title: 'An error occurred while fetching the latest used capacity',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+
+  return {
+    usedCapacity: {
+      status: 'success',
+      value: data?.[bucketName],
+    },
+  };
 };
