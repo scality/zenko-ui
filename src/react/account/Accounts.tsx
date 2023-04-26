@@ -8,7 +8,7 @@ import { AppContainer } from '@scality/core-ui';
 
 const Accounts = () => {
   const { pathname } = useLocation();
-  const accounts = useAccounts();
+  const { accounts } = useAccounts();
   return (
     <>
       <AppContainer.ContextContainer>

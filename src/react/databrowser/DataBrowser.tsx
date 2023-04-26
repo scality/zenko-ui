@@ -20,7 +20,7 @@ import { Box } from '@scality/core-ui/dist/next';
 export default function DataBrowser() {
   const dispatch = useDispatch();
   const { accountName } = useParams<{ accountName: string }>();
-  const accounts = useAccounts();
+  const { accounts } = useAccounts();
   const hasError = useSelector(
     (state: AppState) =>
       !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
