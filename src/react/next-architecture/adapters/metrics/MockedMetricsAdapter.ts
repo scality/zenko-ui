@@ -1,4 +1,3 @@
-import { Bucket } from 'aws-sdk/clients/s3';
 import {
   ACCOUNT_CANONICAL_ID,
   ACCOUNT_METRICS,
@@ -10,16 +9,67 @@ import { IMetricsAdapter } from './IMetricsAdapter';
 
 export class MockedMetricsAdapter implements IMetricsAdapter {
   listBucketsLatestUsedCapacity = jest.fn();
-  listLocationsLatestUsedCapacity(
+
+  async listLocationsLatestUsedCapacity(
     locationIds: string[],
   ): Promise<Record<string, LatestUsedCapacity>> {
-    throw new Error('Method not implemented.');
+    const locationLastestUsedCapacity: Record<string, LatestUsedCapacity> = {};
+
+    locationIds.forEach((id) => {
+      locationLastestUsedCapacity[id] = {
+        type: 'hasMetrics',
+        usedCapacity: {
+          current: 1024,
+          nonCurrent: 10,
+        },
+        measuredOn: new Date('2022-03-18'),
+      };
+    });
+    return locationLastestUsedCapacity;
   }
-  listAccountLocationsLatestUsedCapacity(
+  async listAccountLocationsLatestUsedCapacity(
     accountCanonicalId: string,
   ): Promise<Record<string, LatestUsedCapacity>> {
-    throw new Error('Method not implemented.');
+    if (accountCanonicalId === 'account-id-renard') {
+      return {
+        'artesca-s3-location': {
+          type: 'hasMetrics',
+          usedCapacity: {
+            current: 1024,
+            nonCurrent: 10,
+          },
+          measuredOn: new Date('2022-03-18'),
+        },
+      };
+    }
+
+    if (accountCanonicalId === 'account-id-jaguar') {
+      return {
+        'artesca-jaguar-location': {
+          type: 'hasMetrics',
+          usedCapacity: {
+            current: 1024,
+            nonCurrent: 10,
+          },
+          measuredOn: new Date('2022-03-18'),
+        },
+      };
+    }
+    if (accountCanonicalId === 'account-id-with-orphan-metrics') {
+      return {
+        'orphan-location': {
+          type: 'hasMetrics',
+          usedCapacity: {
+            current: 1024,
+            nonCurrent: 10,
+          },
+          measuredOn: new Date('2022-03-18'),
+        },
+      };
+    }
+    return {};
   }
+
   listAccountsLatestUsedCapacity = jest
     .fn()
     .mockImplementation(

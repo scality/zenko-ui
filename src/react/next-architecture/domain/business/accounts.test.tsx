@@ -11,7 +11,7 @@ import {
 } from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
 import { prepareRenderMultipleHooks } from '../../../utils/testMultipleHooks';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
-import { MockedAccountsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
+import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { AccountInfo } from '../entities/account';
@@ -21,7 +21,7 @@ import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
 const setupListAccountAdaptersForThousandAccounts = () => {
-  const accountsAdapter = new MockedAccountsAdapter();
+  const accountsAdapter = new MockedAccountsLocationsAdapter();
   const metricsAdapter = new MockedMetricsAdapter();
   accountsAdapter.listAccounts = jest
     .fn()
@@ -116,7 +116,7 @@ const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
 describe('useListAccounts', () => {
   it('should return accounts as soon as it is resolved', async () => {
     //S
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
@@ -148,7 +148,7 @@ describe('useListAccounts', () => {
   it('should return accounts and metrics', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accountsAdapter, metricsAdapter }),
@@ -193,7 +193,7 @@ describe('useListAccounts', () => {
   });
   it('should return an error in case of fetching accounts failed', async () => {
     //S
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
     accountsAdapter.listAccounts = jest.fn().mockImplementation(async () => {
       return Promise.reject('List accounts error');
@@ -259,7 +259,7 @@ const setUpTest = async ({
 describe('useAccountLatestUsedCapacity', () => {
   it('should return metrics direcly from cache if listAccountMetrics has done', async () => {
     //S
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
     const { renderAdditionalHook } = await setUpTest({
       metricsAdapter,
@@ -331,7 +331,7 @@ describe('useAccountLatestUsedCapacity', () => {
   it('should return error in cause of fetching metrics failed', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
 
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
@@ -357,7 +357,7 @@ describe('useAccountLatestUsedCapacity', () => {
   });
   it('should return idle status while listAccounts query has not be success', async () => {
     //S
-    const accountsAdapter = new MockedAccountsAdapter();
+    const accountsAdapter = new MockedAccountsLocationsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
     accountsAdapter.listAccounts = jest.fn().mockImplementation(async () => {
       return new Promise((resolve) =>
