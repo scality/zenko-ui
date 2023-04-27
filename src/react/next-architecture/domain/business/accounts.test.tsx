@@ -1,4 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
+import { PropsWithChildren } from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import {
   ACCOUNT,
   ACCOUNT_CANONICAL_ID,
@@ -7,48 +9,154 @@ import {
   NEWLY_CREATED_ACCOUNT,
   NEWLY_CREATED_ACCOUNT_METRICS,
 } from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
+import { prepareRenderMultipleHooks } from '../../../utils/testMultipleHooks';
+import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 import { MockedAccountsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
-import { AccountLatestUsedCapacity } from '../../adapters/metrics/IMetricsAdapter';
+import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
-import { Account, AccountInfo } from '../entities/account';
+import { AccountInfo } from '../entities/account';
+import { LatestUsedCapacity } from '../entities/metrics';
 import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 
-const wrapper = () => {
-  return <></>;
+const CREATION_DATE = '2023-03-27T12:58:13.000Z';
+
+const setupListAccountAdaptersForThousandAccounts = () => {
+  const accountsAdapter = new MockedAccountsAdapter();
+  const metricsAdapter = new MockedMetricsAdapter();
+  accountsAdapter.listAccounts = jest
+    .fn()
+    .mockImplementation(async (): Promise<AccountInfo[]> => {
+      return new Array(1001).fill(null).map((_, i) => {
+        return {
+          id: `id-${i}`,
+          name: `name-${i}`,
+          canonicalId: `canonicalId-${i}`,
+          creationDate: new Date(CREATION_DATE),
+        };
+      });
+    });
+  metricsAdapter.listAccountsLatestUsedCapacity = jest
+    .fn()
+    .mockImplementation(
+      async (): Promise<Record<string, LatestUsedCapacity>> => {
+        const accountsMetrics: Record<string, LatestUsedCapacity> = {};
+        for (let i = 0; i < 1000; i++) {
+          const accountCanonicalId = `canonicalId-${i}`;
+          accountsMetrics[accountCanonicalId] = {
+            type: 'hasMetrics',
+            usedCapacity: {
+              current: 1024,
+              nonCurrent: 0,
+            },
+            measuredOn: new Date(MEASURED_ON),
+          };
+        }
+        return accountsMetrics;
+      },
+    );
+  return { accountsAdapter, metricsAdapter };
 };
-describe.skip('useListAccounts', () => {
-  it('should return accounts as soon as it is resolved', () => {
+const MOCK_SUCCESS_USED_CAPACITY = {
+  status: 'success',
+  value: {
+    type: 'hasMetrics',
+    usedCapacity: {
+      current: 1024,
+      nonCurrent: 0,
+    },
+    measuredOn: new Date(MEASURED_ON),
+  },
+};
+const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
+  return {
+    id: `id-${i}`,
+    name: `name-${i}`,
+    canonicalId: `canonicalId-${i}`,
+    creationDate: new Date(CREATION_DATE),
+    usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
+  };
+});
+
+const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
+  .fill(null)
+  .map((_, i) => {
+    return {
+      id: `id-${i}`,
+      name: `name-${i}`,
+      canonicalId: `canonicalId-${i}`,
+      creationDate: new Date(CREATION_DATE),
+      usedCapacity: {
+        status: 'error',
+        title: 'Account metrics error',
+        reason: 'An error occurred when fetching metrics',
+      },
+    };
+  });
+
+const ONE_THOUSAND_AND_ONE_ACCOUNT = {
+  id: 'id-1000',
+  name: 'name-1000',
+  canonicalId: `canonicalId-1000`,
+  creationDate: new Date(CREATION_DATE),
+  usedCapacity: { status: 'unknown' },
+};
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false },
+  },
+});
+afterEach(() => queryClient.clear());
+const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
+
+describe('useListAccounts', () => {
+  it('should return accounts as soon as it is resolved', async () => {
     //S
     const accountsAdapter = new MockedAccountsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
       .mockImplementation(async () => {
-        setTimeout(() => {
-          return [];
-        }, 5000);
+        return new Promise((resolve) =>
+          setTimeout(() => {
+            resolve([]);
+          }, 5000),
+        );
       });
     //E
-    const { result } = renderHook(
+    const { result, waitFor } = renderHook(
       () => useListAccounts({ accountsAdapter, metricsAdapter }),
-      { wrapper },
+      { wrapper: Wrapper },
     );
+    await waitFor(() => result.current.accounts.status === 'success');
     //V
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
-      value: [ACCOUNT, NEWLY_CREATED_ACCOUNT],
+      value: [
+        { ...ACCOUNT, ...{ usedCapacity: { status: 'loading' } } },
+        {
+          ...NEWLY_CREATED_ACCOUNT,
+          ...{ usedCapacity: { status: 'loading' } },
+        },
+      ],
     });
   });
-
-  it('should return accounts and metrics', () => {
+  it('should return accounts and metrics', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
     const accountsAdapter = new MockedAccountsAdapter();
     //E
-    const { result } = renderHook(
+    const { result, waitFor } = renderHook(
       () => useListAccounts({ accountsAdapter, metricsAdapter }),
-      { wrapper },
+      { wrapper: Wrapper },
     );
+    await waitFor(() => result.current.accounts.status === 'success', {
+      timeout: 3000,
+    });
     //V
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
@@ -67,29 +175,135 @@ describe.skip('useListAccounts', () => {
       ],
     });
   });
-  it('should return accounts and metrics of the first 1000 accounts if there is more than 1000 accounts', () => {
+  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts', async () => {
     //S
-    const CREATION_DATE = '2023-03-27T12:58:13.000Z';
+    const { accountsAdapter, metricsAdapter } =
+      setupListAccountAdaptersForThousandAccounts();
+    //E
+    const { result, waitFor } = renderHook(
+      () => useListAccounts({ accountsAdapter, metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await waitFor(() => result.current.accounts.status === 'success');
+    //Verify the status of usedCapacity after a thousand account should be unknown.
+    expect(result.current.accounts).toStrictEqual({
+      status: 'success',
+      value: [...MOCK_ONE_THOUSAND_ACCOUNTS, ONE_THOUSAND_AND_ONE_ACCOUNT],
+    });
+  });
+  it('should return an error in case of fetching accounts failed', async () => {
+    //S
     const accountsAdapter = new MockedAccountsAdapter();
     const metricsAdapter = new MockedMetricsAdapter();
-    accountsAdapter.listAccounts = jest
-      .fn()
-      .mockImplementation(async (): Promise<AccountInfo[]> => {
-        return new Array(1001).map((_, i) => {
-          return {
-            id: `id-${i}`,
-            name: `name-${i}`,
-            canonicalId: `canonicalId-${i}`,
-            creationDate: new Date(CREATION_DATE),
-          };
-        });
-      });
+    accountsAdapter.listAccounts = jest.fn().mockImplementation(async () => {
+      return Promise.reject('List accounts error');
+    });
+    //E
+    const { result, waitFor } = renderHook(
+      () => useListAccounts({ accountsAdapter, metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    //V
+    await waitFor(() => result.current.accounts.status === 'error');
+    expect(result.current.accounts).toStrictEqual({
+      status: 'error',
+      title: 'List accounts error',
+      reason: 'An error occurred when fetching accounts',
+    });
+  });
+  it('should return accounts with an error in case of fetching metrics failed', async () => {
+    //S
+    const { accountsAdapter, metricsAdapter } =
+      setupListAccountAdaptersForThousandAccounts();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
-      .mockImplementation(async (): Promise<AccountLatestUsedCapacity[]> => {
-        return new Array(1000).map((_, i) => {
-          return {
-            accountCanonicalId: `canonicalId-${i}`,
+      .mockImplementation(async () => {
+        return Promise.reject('error');
+      });
+    //E
+    const { result, waitFor } = renderHook(
+      () => useListAccounts({ accountsAdapter, metricsAdapter }),
+      { wrapper: Wrapper },
+    );
+    await waitFor(() => result.current.accounts.status === 'success');
+    //Verify the status of usedCapacity after a thousand account should be unknown.
+    expect(result.current.accounts).toStrictEqual({
+      status: 'success',
+      value: [
+        ...MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY,
+        ONE_THOUSAND_AND_ONE_ACCOUNT,
+      ],
+    });
+  });
+});
+
+// In order to retrieve metrics, the listAccounts should be success
+const setUpTest = async ({
+  metricsAdapter,
+  accountsAdapter,
+}: {
+  metricsAdapter: IMetricsAdapter;
+  accountsAdapter: IAccountsAdapter;
+}) => {
+  const { renderAdditionalHook } = prepareRenderMultipleHooks({
+    wrapper: Wrapper,
+  });
+  const { waitFor, result: resultAccounts } = renderAdditionalHook(
+    'listAccounts',
+    () => useListAccounts({ accountsAdapter, metricsAdapter }),
+  );
+  await waitFor(() => resultAccounts.current.accounts.status === 'success');
+  return { renderAdditionalHook, waitFor, resultAccounts };
+};
+
+describe('useAccountLatestUsedCapacity', () => {
+  it('should return metrics direcly from cache if listAccountMetrics has done', async () => {
+    //S
+    const accountsAdapter = new MockedAccountsAdapter();
+    const metricsAdapter = new MockedMetricsAdapter();
+    const { renderAdditionalHook } = await setUpTest({
+      metricsAdapter,
+      accountsAdapter,
+    });
+    //E
+    const { result, waitFor } = renderAdditionalHook('accountMetrics', () =>
+      useAccountLatestUsedCapacity({
+        metricsAdapter,
+        accountCanonicalId: ACCOUNT_CANONICAL_ID,
+      }),
+    );
+    await waitFor(() => result.current.usedCapacity.status === 'success');
+    //V
+    expect(result.current.usedCapacity).toStrictEqual({
+      status: 'success',
+      value: ACCOUNT_METRICS,
+    });
+  });
+  it('should return metrics from react query for the account that has not retrieved metrics', async () => {
+    //S
+    const CANONICALID_ACCOUNT_MILLE = 'canonicalId-1000';
+    const { accountsAdapter, metricsAdapter } =
+      setupListAccountAdaptersForThousandAccounts();
+
+    const { renderAdditionalHook, waitFor, resultAccounts } = await setUpTest({
+      metricsAdapter,
+      accountsAdapter,
+    });
+
+    //E
+    //Wait for the first 1000 to be ready
+    await waitFor(
+      () =>
+        resultAccounts.current.accounts.value[0].usedCapacity.status ===
+        'success',
+    );
+    //S
+    metricsAdapter.listAccountsLatestUsedCapacity = jest
+      .fn()
+      .mockImplementation(
+        async (): Promise<Record<string, LatestUsedCapacity>> => {
+          const accountsMetrics: Record<string, LatestUsedCapacity> = {};
+          accountsMetrics[CANONICALID_ACCOUNT_MILLE] = {
             type: 'hasMetrics',
             usedCapacity: {
               current: 1024,
@@ -97,198 +311,78 @@ describe.skip('useListAccounts', () => {
             },
             measuredOn: new Date(MEASURED_ON),
           };
-        });
-      });
+          return accountsMetrics;
+        },
+      );
     //E
-    const { result } = renderHook(
-      () => useListAccounts({ accountsAdapter, metricsAdapter }),
-      { wrapper },
-    );
-    //V
-    expect(result.current.accounts).toStrictEqual({
-      status: 'success',
-      value: new Array(1000).map((_, i) => {
-        return {
-          id: `id-${i}`,
-          name: `name-${i}`,
-          canonicalId: `canonicalId-${i}`,
-          creationDate: new Date(CREATION_DATE),
-          usedCapacity: {
-            status: 'success',
-            value: {
-              type: 'hasMetrics',
-              usedCapacity: {
-                current: 1024,
-                nonCurrent: 0,
-              },
-              measuredOn: new Date(MEASURED_ON),
-            },
-          },
-        };
+    const { result } = renderAdditionalHook('metrics', () =>
+      useAccountLatestUsedCapacity({
+        metricsAdapter,
+        accountCanonicalId: CANONICALID_ACCOUNT_MILLE,
       }),
-    });
-  });
-  it('should return an error in case of fetching accounts failed', () => {
-    //S
-    const accountsAdapter = new MockedAccountsAdapter();
-    const metricsAdapter = new MockedMetricsAdapter();
-    accountsAdapter.listAccounts = jest.fn().mockImplementation(async () => {
-      return Promise.reject('error');
-    });
-    //E
-    const { result } = renderHook(
-      () => useListAccounts({ accountsAdapter, metricsAdapter }),
-      { wrapper },
     );
-    //V
-    expect(result.current.accounts).toStrictEqual({
-      status: 'error',
-      title: 'An error occurred when fetching accounts',
-      reason: 'error',
-    });
-  });
-  it('should return accounts with an error in case of fetching metrics failed', () => {
-    //S
-    const accountsAdapter = new MockedAccountsAdapter();
-    const metricsAdapter = new MockedMetricsAdapter();
-    metricsAdapter.listAccountsLatestUsedCapacity = jest
-      .fn()
-      .mockImplementation(async () => {
-        return Promise.reject('error');
-      });
-    //E
-    const { result } = renderHook(
-      () => useListAccounts({ accountsAdapter, metricsAdapter }),
-      { wrapper },
-    );
-    //V
-    expect(result.current.accounts).toStrictEqual({
-      status: 'success',
-      value: [
-        {
-          ...ACCOUNT,
-          usedCapacity: {
-            status: 'error',
-            title: 'An error occurred when fetching metrics',
-            reason: 'error',
-          },
-        },
-        {
-          ...NEWLY_CREATED_ACCOUNT,
-          usedCapacity: {
-            status: 'error',
-            title: 'An error occurred when fetching metrics',
-            reason: 'error',
-          },
-        },
-      ],
-    });
-  });
-});
-
-describe.skip('useAccountLatestUsedCapacity', () => {
-  it('should return the metrics for an account', () => {
-    //S
-    const metricsAdapter = new MockedMetricsAdapter();
-    //E
-    const { result } = renderHook(
-      () =>
-        useAccountLatestUsedCapacity({
-          metricsAdapter,
-          accountCanonicalId: ACCOUNT_CANONICAL_ID,
-        }),
-      {
-        wrapper,
-      },
-    );
+    await waitFor(() => result.current.usedCapacity.status === 'success');
     //V
     expect(result.current.usedCapacity).toStrictEqual({
       status: 'success',
       value: ACCOUNT_METRICS,
     });
   });
-  it('should return error in cause of fetching metrics failed', () => {
+  it('should return error in cause of fetching metrics failed', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
+    const accountsAdapter = new MockedAccountsAdapter();
+
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
       .mockImplementation(async () => Promise.reject('error'));
+    const { renderAdditionalHook } = await setUpTest({
+      metricsAdapter,
+      accountsAdapter,
+    });
     //E
-    const { result } = renderHook(
-      () =>
-        useAccountLatestUsedCapacity({
-          metricsAdapter,
-          accountCanonicalId: ACCOUNT_CANONICAL_ID,
-        }),
-      {
-        wrapper,
-      },
+    const { result, waitFor } = renderAdditionalHook('metrics', () =>
+      useAccountLatestUsedCapacity({
+        metricsAdapter,
+        accountCanonicalId: ACCOUNT_CANONICAL_ID,
+      }),
     );
+    await waitFor(() => result.current.usedCapacity.status === 'error');
     //V
     expect(result.current.usedCapacity).toStrictEqual({
       status: 'error',
-      title: 'An error occurred when fetching the metrics',
-      reason: 'error',
+      title: 'Account metrics error',
+      reason: 'An error occurred when fetching the metrics',
     });
   });
-  it('should not be executed if the account metrics has been retrieved', async () => {
+  it('should return idle status while listAccounts query has not be success', async () => {
     //S
-    const metricsAdapter = new MockedMetricsAdapter();
     const accountsAdapter = new MockedAccountsAdapter();
+    const metricsAdapter = new MockedMetricsAdapter();
+    accountsAdapter.listAccounts = jest.fn().mockImplementation(async () => {
+      return new Promise((resolve) =>
+        setTimeout(() => {
+          resolve([]);
+        }, 20000),
+      );
+    });
     //E
-    const { result: resultAccounts, waitFor } = renderHook(
-      () =>
-        useListAccounts({
-          metricsAdapter,
-          accountsAdapter,
-        }),
-      {
-        wrapper,
-      },
+    const { renderAdditionalHook } = prepareRenderMultipleHooks({
+      wrapper: Wrapper,
+    });
+    renderAdditionalHook('listAccounts', () =>
+      useListAccounts({
+        metricsAdapter,
+        accountsAdapter,
+      }),
     );
-    await waitFor(() => resultAccounts.current.accounts.status === 'success');
-    const { result } = renderHook(
-      () =>
-        useAccountLatestUsedCapacity({
-          metricsAdapter,
-          accountCanonicalId: ACCOUNT_CANONICAL_ID,
-        }),
-      {
-        wrapper,
-      },
+    const { result } = renderAdditionalHook('accountMetrics', () =>
+      useAccountLatestUsedCapacity({
+        metricsAdapter,
+        accountCanonicalId: ACCOUNT_CANONICAL_ID,
+      }),
     );
     //V
-    expect(result.current.usedCapacity.status).toBe('idle');
-  });
-  it('should update the account `usedcapacity` after retrieving the account metrics', async () => {
-    //S
-    const metricsAdapter = new MockedMetricsAdapter();
-    const accountsAdapter = new MockedAccountsAdapter();
-    //E
-    const { result: resultMetrics, waitFor } = renderHook(
-      () =>
-        useAccountLatestUsedCapacity({
-          metricsAdapter,
-          accountCanonicalId: ACCOUNT_CANONICAL_ID,
-        }),
-      {
-        wrapper,
-      },
-    );
-    await waitFor(
-      () => resultMetrics.current.usedCapacity.status === 'success',
-    );
-    const { result, waitFor: waitForMetrics } = renderHook(() =>
-      useListAccounts({ accountsAdapter, metricsAdapter }),
-    );
-    //V
-    await waitForMetrics(() => result.current.accounts.status === 'success');
-
-    expect(
-      //@ts-ignore
-      result.current.accounts.value(
-        (account: Account) => account.canonicalId === ACCOUNT_CANONICAL_ID,
-      ).usedCapacity.status,
-    ).toBe('idle');
+    expect(result.current.usedCapacity.status).toBe('loading');
   });
 });

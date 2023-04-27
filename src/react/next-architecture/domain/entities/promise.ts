@@ -1,8 +1,9 @@
 type Loading = 'loading';
 type Success = 'success';
 type Error = 'error';
+type Unknown = 'unknown';
 
-export type PromiseStatus = Loading | Success | Error;
+export type PromiseStatus = Loading | Success | Error | Unknown;
 
 export interface PromiseSucceedResult<T> {
   status: Success;
@@ -15,11 +16,16 @@ export interface PromiseRejectedResult {
   reason: string;
 }
 
-export interface PromiseLoading {
+export interface PromiseLoadingResult {
   status: Loading;
 }
 
+export interface PromiseUnknownResult {
+  status: Unknown;
+}
+
 export type PromiseResult<T> =
-  | PromiseLoading
+  | PromiseLoadingResult
   | PromiseSucceedResult<T>
-  | PromiseRejectedResult;
+  | PromiseRejectedResult
+  | PromiseUnknownResult;
