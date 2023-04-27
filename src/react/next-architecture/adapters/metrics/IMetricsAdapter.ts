@@ -1,9 +1,6 @@
 import { Bucket } from 'aws-sdk/clients/s3';
 import { LatestUsedCapacity } from '../../domain/entities/metrics';
 
-export type BucketLatestUsedCapacity = {
-  bucketName: string;
-} & LatestUsedCapacity;
 export type AccountLatestUsedCapacity = {
   accountCanonicalId: string;
 } & LatestUsedCapacity;
@@ -14,7 +11,7 @@ export type LocationLatestUsedCapacity = {
 export interface IMetricsAdapter {
   listBucketsLatestUsedCapacity(
     buckets: Bucket[],
-  ): Promise<BucketLatestUsedCapacity[]>;
+  ): Promise<Record<string, LatestUsedCapacity>>;
   listLocationsLatestUsedCapacity(
     locationIds: string[],
   ): Promise<LocationLatestUsedCapacity[]>;

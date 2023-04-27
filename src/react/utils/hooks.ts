@@ -21,6 +21,9 @@ import {
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
+import { useAuth } from '../next-architecture/ui/AuthProvider';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -159,9 +162,8 @@ export const SCALITY_INTERNAL_ROLES = [
 export const useRedirectDataConsumers = () => {
   const history = useHistory();
   const location = useLocation();
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
+  const { user } = useAuth();
+  const userGroups = user?.profile?.groups || [];
 
   return React.useCallback((roles, callback = () => null) => {
     const canAssumeAdminAccountRolesOnAnyAccount = roles.find(
@@ -182,12 +184,45 @@ export const useRedirectDataConsumers = () => {
   }, []);
 };
 
-export const useAccounts = () => {
-  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  const IAMEndpoint = useSelector(
-    (state: AppState) => state.auth.config.iamEndpoint,
-  );
+const reduxBasedEventDispatcher = () => {
   const dispatch = useDispatch();
+  return {
+    notifyLoadingAccounts: () => dispatch(networkStart('Loading accounts...')),
+    notifyEnd: () => dispatch(networkEnd()),
+    notifyError: (error: ApiError) => {
+      try {
+        dispatch(handleClientError(error));
+      } catch (err) {
+        dispatch(handleApiError(err as ApiError, 'byModal'));
+      }
+    },
+  };
+};
+
+export const noopBasedEventDispatcher = () => ({
+  notifyLoadingAccounts: () => {
+    console.log('Loading accounts...');
+  },
+  notifyEnd: () => {
+    console.log('Loading accounts finished');
+  },
+  notifyError: (err: ApiError) => {
+    console.log('Loading accounts failed', err);
+  },
+});
+
+export const useAccounts = (
+  eventDispatcher: () => {
+    notifyLoadingAccounts: () => void;
+    notifyEnd: () => void;
+    notifyError: (error: ApiError) => void;
+  } = reduxBasedEventDispatcher,
+) => {
+  const { user } = useAuth();
+  const token = user?.access_token;
+  const { iamEndpoint } = useConfig();
+
+  const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
 
   const redirectDataConsumers = useRedirectDataConsumers();
 
@@ -195,16 +230,16 @@ export const useAccounts = () => {
     {
       queryKey: ['WebIdentityRoles', token],
       queryFn: () => {
-        dispatch(networkStart('Loading accounts...'));
-        return getRolesForWebIdentity(IAMEndpoint, token);
+        notifyLoadingAccounts();
+        return getRolesForWebIdentity(iamEndpoint, notFalsyTypeGuard(token));
       },
-      enabled: !!token && !!IAMEndpoint,
+      enabled: !!token && !!iamEndpoint,
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       onUnmountOrSettled: (accountsWithRoles, error) => {
         if (!error) {
-          dispatch(networkEnd());
+          notifyEnd();
           if (accountsWithRoles?.entries) {
             /**
              * When a OIDC user has at least one account that has the right
@@ -220,14 +255,10 @@ export const useAccounts = () => {
           }
         } else {
           if (error?.message === 'Unmounted') {
-            dispatch(networkEnd());
+            notifyEnd();
             return;
           }
-          try {
-            dispatch(handleClientError(error as ApiError));
-          } catch (err) {
-            dispatch(handleApiError(err as ApiError, 'byModal'));
-          }
+          notifyError(error as ApiError);
         }
       },
     },

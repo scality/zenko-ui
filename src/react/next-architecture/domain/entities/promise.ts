@@ -1,27 +1,25 @@
-type Idle = 'idle';
 type Loading = 'loading';
-type NotResolved = Idle | Loading;
 type Success = 'success';
 type Error = 'error';
 
-export type PromiseStatus = NotResolved | Success | Error;
+export type PromiseStatus = Loading | Success | Error;
 
-interface PromiseSucceedResult<T> {
+export interface PromiseSucceedResult<T> {
   status: Success;
   value: T;
 }
 
-interface PromiseRejectedResult {
+export interface PromiseRejectedResult {
   status: Error;
   title: string;
   reason: string;
 }
 
-interface PromiseNotResolved {
-  status: NotResolved;
+export interface PromiseLoading {
+  status: Loading;
 }
 
 export type PromiseResult<T> =
-  | PromiseNotResolved
+  | PromiseLoading
   | PromiseSucceedResult<T>
   | PromiseRejectedResult;

@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { generatePath, useHistory } from 'react-router';
-import { regexArn, useAccounts } from './utils/hooks';
+import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import {
   getRoleArnStored,
   removeRoleArnStored,
@@ -30,7 +30,7 @@ export const useCurrentAccount = () => {
   const accountId = storedRoleArn
     ? regexArn.exec(storedRoleArn).groups['account_id']
     : '';
-  const accountsWithRoles = useAccounts();
+  const accountsWithRoles = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
 
   // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {

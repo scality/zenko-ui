@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../types/state';
 import { ErrorBoundary } from 'react-error-boundary';
 import type { OidcLogoutFunction } from '../types/auth';
+import { useAuth } from './next-architecture/ui/AuthProvider';
 
 function useWebComponent(src?: string, customElementName: string) {
   const [hasFailed, setHasFailed] = useState(false);
@@ -42,6 +43,7 @@ type NavbarWebComponent = HTMLElement & {
 
 function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
   const dispatch = useDispatch();
+  const { setUser } = useAuth();
   useEffect(() => {
     if (!navbarRef.current) {
       return;
@@ -51,6 +53,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
 
     const onAuthenticated = (evt: Event) => {
       if (evt.detail && evt.detail.profile) {
+        setUser(evt.detail);
         dispatch(addOIDCUser(evt.detail));
         dispatch(setOIDCLogout(navbarElement.logOut || null));
       }

@@ -9,8 +9,8 @@ export type BucketLatestUsedCapacityPromiseResult = {
   usedCapacity: PromiseResult<LatestUsedCapacity>;
 };
 
-type Bucket = BucketLocationConstraintPromiseResult & {
-  bucketName: string;
+export type Bucket = BucketLocationConstraintPromiseResult & {
+  name: string;
   creationDate: Date;
   usedCapacity: PromiseResult<LatestUsedCapacity>;
 };

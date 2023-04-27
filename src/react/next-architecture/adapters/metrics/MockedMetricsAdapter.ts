@@ -13,11 +13,7 @@ import {
 } from './IMetricsAdapter';
 
 export class MockedMetricsAdapter implements IMetricsAdapter {
-  listBucketsLatestUsedCapacity(
-    buckets: Bucket[],
-  ): Promise<BucketLatestUsedCapacity[]> {
-    throw new Error('Method not implemented.');
-  }
+  listBucketsLatestUsedCapacity = jest.fn();
   listLocationsLatestUsedCapacity(
     locationIds: string[],
   ): Promise<LocationLatestUsedCapacity[]> {
