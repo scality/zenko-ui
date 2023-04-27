@@ -8,7 +8,7 @@ import {
   MEASURED_ON,
   NEWLY_CREATED_ACCOUNT,
   NEWLY_CREATED_ACCOUNT_METRICS,
-} from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
+} from '../../../../js/mock/managementClientMSWHandlers';
 import { prepareRenderMultipleHooks } from '../../../utils/testMultipleHooks';
 import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
 import { MockedAccessibleAcounts } from '../../adapters/accessible-accounts/MockedAccessibleAccounts';

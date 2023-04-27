@@ -4,7 +4,7 @@ import { IAccessibleAccounts } from './IAccessibleAccounts';
 import {
   ACCOUNT,
   NEWLY_CREATED_ACCOUNT,
-} from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
+} from '../../../../js/mock/managementClientMSWHandlers';
 
 export class MockedAccessibleAcounts implements IAccessibleAccounts {
   useListAccessibleAccounts = jest

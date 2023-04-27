@@ -1,7 +1,7 @@
 import {
   ACCOUNT,
   NEWLY_CREATED_ACCOUNT,
-} from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
+} from '../../../../js/mock/managementClientMSWHandlers';
 import { AccountInfo } from '../../domain/entities/account';
 import { IAccountsAdapter } from './IAccountsAdapter';
 import { ILocationsAdapter } from './ILocationsAdapter';

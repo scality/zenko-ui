@@ -17,7 +17,7 @@ import { List } from 'immutable';
 import {
   ACCOUNT_ID,
   getColdStorageHandlers,
-} from '../../../../js/mock/managementClientColdStorageMSWHandlers';
+} from '../../../../js/mock/managementClientMSWHandlers';
 const locationFile = {
   details: {
     bootstrapList: [],

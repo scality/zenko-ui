@@ -11,7 +11,7 @@ import {
   getColdStorageHandlers,
   TRANSITION_WORKFLOW_CURRENT_ID,
   TRANSITION_WORKFLOW_PREVIOUS_ID,
-} from '../../../js/mock/managementClientColdStorageMSWHandlers';
+} from '../../../js/mock/managementClientMSWHandlers';
 import Router from 'react-router-dom';
 
 import Workflows from '../Workflows';
