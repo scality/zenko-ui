@@ -352,7 +352,7 @@ describe('useAccountLatestUsedCapacity', () => {
     expect(result.current.usedCapacity).toStrictEqual({
       status: 'error',
       title: 'Account metrics error',
-      reason: `An error occurred when fetching the metrics for accountCanonicalId:${ACCOUNT_CANONICAL_ID}`,
+      reason: 'An error occurred when fetching the metrics',
     });
   });
   it('should return idle status while listAccounts query has not be success', async () => {

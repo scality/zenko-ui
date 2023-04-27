@@ -170,7 +170,7 @@ export const useAccountLatestUsedCapacity = ({
       usedCapacity: {
         status: 'error',
         title: 'Account metrics error',
-        reason: `An error occurred when fetching the metrics for accountCanonicalId:${accountCanonicalId}`,
+        reason: 'An error occurred when fetching the metrics',
       },
     };
   } else if (
