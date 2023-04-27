@@ -187,7 +187,7 @@ export const useRedirectDataConsumers = () => {
 const reduxBasedEventDispatcher = () => {
   const dispatch = useDispatch();
   return {
-    notifyLodingAccounts: () => dispatch(networkStart('Loading accounts...')),
+    notifyLoadingAccounts: () => dispatch(networkStart('Loading accounts...')),
     notifyEnd: () => dispatch(networkEnd()),
     notifyError: (error: ApiError) => {
       try {
@@ -200,7 +200,7 @@ const reduxBasedEventDispatcher = () => {
 };
 
 export const noopBasedEventDispatcher = () => ({
-  notifyLodingAccounts: () => {
+  notifyLoadingAccounts: () => {
     console.log('Loading accounts...');
   },
   notifyEnd: () => {
@@ -213,7 +213,7 @@ export const noopBasedEventDispatcher = () => ({
 
 export const useAccounts = (
   eventDispatcher: () => {
-    notifyLodingAccounts: () => void;
+    notifyLoadingAccounts: () => void;
     notifyEnd: () => void;
     notifyError: (error: ApiError) => void;
   } = reduxBasedEventDispatcher,
@@ -222,7 +222,7 @@ export const useAccounts = (
   const token = user?.access_token;
   const { iamEndpoint } = useConfig();
 
-  const { notifyLodingAccounts, notifyEnd, notifyError } = eventDispatcher();
+  const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
 
   const redirectDataConsumers = useRedirectDataConsumers();
 
@@ -230,7 +230,7 @@ export const useAccounts = (
     {
       queryKey: ['WebIdentityRoles', token],
       queryFn: () => {
-        notifyLodingAccounts();
+        notifyLoadingAccounts();
         return getRolesForWebIdentity(iamEndpoint, notFalsyTypeGuard(token));
       },
       enabled: !!token && !!iamEndpoint,
