@@ -218,13 +218,18 @@ export const useBucketLatestUsedCapacity = ({
   metricsAdapter: IMetricsAdapter;
   bucketName: string;
 }): BucketLatestUsedCapacityPromiseResult => {
-  const { data, status } = useQuery({
-    ...queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }], true),
-  });
   const queryClient = useQueryClient();
   const allBucketsMetricsQuery = queryClient.getQueryState<
     Record<string, LatestUsedCapacity>
   >(queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }]).queryKey);
+  const { data, status } = useQuery({
+    ...queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }], true),
+    enabled:
+      (allBucketsMetricsQuery?.status === 'success' &&
+        !allBucketsMetricsQuery?.data?.[bucketName]) ||
+      !allBucketsMetricsQuery?.status,
+  });
+
   useMemo(() => {
     if (status === 'success' && allBucketsMetricsQuery?.status === 'success') {
       queryClient.setQueryData<Record<string, LatestUsedCapacity>>(
@@ -237,6 +242,18 @@ export const useBucketLatestUsedCapacity = ({
       );
     }
   }, [status, allBucketsMetricsQuery?.status]);
+
+  if (
+    allBucketsMetricsQuery?.status === 'success' &&
+    allBucketsMetricsQuery?.data?.[bucketName]
+  ) {
+    return {
+      usedCapacity: {
+        status: 'success',
+        value: allBucketsMetricsQuery.data?.[bucketName],
+      },
+    };
+  }
 
   if (status === 'loading' || status === 'idle') {
     return {

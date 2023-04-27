@@ -679,6 +679,24 @@ describe('Buckets domain', () => {
       });
     });
 
+    it('should return the location directly when it has already been fetched by the useListBucketsForCurrentAccount hook', async () => {
+      //Setup
+      const { renderAdditionalHook } =
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
+      //Exercise
+
+      const { result: result2 } = await setupAndRenderBucketLocationHook(
+        thousandAnd2Buckets[locationPageSize - 1].Name,
+        renderAdditionalHook,
+      );
+
+      //Verify
+      expect(result2.current.locationConstraint).toEqual({
+        status: 'success',
+        value: DEFAULT_LOCATION,
+      });
+    });
+
     it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
       //Setup
       const {
@@ -839,6 +857,24 @@ describe('Buckets domain', () => {
         title: 'An error occurred while fetching the latest used capacity',
         reason: 'Internal Server Error',
       });
+    });
+
+    it('should return the metrics directly when it has already been fetched by the useListBucketsForCurrentAccount hook', async () => {
+      //Setup
+      const { renderAdditionalHook, EXPECTED_METRICS_WRAPPED } =
+        await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
+      //Exercise
+
+      const { result: result2 } = await setupAndRenderBucketCapacityHook(
+        thousandAnd2Buckets[metricsPageSize - 1].Name,
+        (metricsAdapter) => metricsAdapter,
+        renderAdditionalHook,
+      );
+
+      //Verify
+      expect(result2.current.usedCapacity).toEqual(
+        EXPECTED_METRICS_WRAPPED[thousandAnd2Buckets[metricsPageSize - 1].Name],
+      );
     });
 
     it('should update the data returned by useListBucketsForCurrentAccount with the additional fetched information in case of success', async () => {
