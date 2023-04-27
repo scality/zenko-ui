@@ -1,22 +1,173 @@
+import { useQuery } from 'react-query';
+import { ILocationsAdapter } from '../../adapters/accounts-locations/ILocationsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
-import { LocationsPromiseResult } from '../entities/location';
+import { Location, LocationsPromiseResult } from '../entities/location';
+import { PromiseResult } from '../entities/promise';
+import { LatestUsedCapacity } from '../entities/metrics';
+import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 
 /**
  * The hook returns all the locations and it's metrics
  * @param metricsAdapter
  */
 export const useListLocations = ({
+  locationsAdapter,
   metricsAdapter,
 }: {
+  locationsAdapter: ILocationsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  throw new Error('Method not implemented.');
+  const { data: locationData, status: locationStatus } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => {
+      return locationsAdapter.listLocations();
+    },
+  });
+
+  const ids = locationData?.map((l) => l.id) ?? [];
+  const { data: metricsData, status: metricsStatus } = useQuery({
+    queryKey: ['locationsMetrics', ids],
+    queryFn: () => {
+      return metricsAdapter.listLocationsLatestUsedCapacity(ids);
+    },
+    enabled: !!locationData,
+  });
+
+  if (locationStatus === 'loading' || locationStatus === 'idle') {
+    return {
+      locations: {
+        status: locationStatus,
+      },
+    };
+  }
+
+  if (locationStatus === 'error') {
+    return {
+      locations: {
+        status: locationStatus,
+        title: 'Location Error',
+        reason: `Unexpected error while fetching location`,
+      },
+    };
+  }
+
+  const locations: Record<string, Location> = {};
+
+  locationData.forEach((l) => {
+    let usedCapacity: PromiseResult<LatestUsedCapacity> = {
+      status: 'loading',
+    };
+    if (metricsStatus === 'loading') {
+      usedCapacity = { status: metricsStatus };
+    }
+
+    if (metricsStatus === 'error') {
+      usedCapacity = {
+        status: metricsStatus,
+        title: 'Location Metrics Error',
+        reason: `Unexpected error while fetching location's metrics`,
+      };
+    }
+    if (metricsStatus === 'success') {
+      usedCapacity = { status: metricsStatus, value: metricsData?.[l.name] };
+    }
+
+    locations[l.name] = {
+      ...l,
+      usedCapacity: usedCapacity,
+    };
+  });
+  return {
+    locations: {
+      status: 'success',
+      value: locations,
+    },
+  };
 };
 
 export const useListLocationsForCurrentAccount = ({
+  locationsAdapter,
   metricsAdapter,
 }: {
+  locationsAdapter: ILocationsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  throw new Error('Method not implemented.');
+  const { account } = useCurrentAccount();
+  const allLocations = useListLocations({
+    locationsAdapter,
+    metricsAdapter,
+  });
+
+  const accountId = account === undefined ? '' : account.id;
+  const { data: accountLocationData, status: accountLocationStatus } = useQuery(
+    {
+      queryKey: ['accountLocations', accountId],
+      queryFn: () =>
+        metricsAdapter.listAccountLocationsLatestUsedCapacity(accountId),
+      enabled: account !== undefined,
+    },
+  );
+
+  if (account === undefined) {
+    return {
+      locations: {
+        status: 'error',
+        title: 'Current Account Error',
+        reason: `Unexpected error while fetching account`,
+      },
+    };
+  }
+
+  if (accountLocationStatus === 'loading' || accountLocationStatus === 'idle') {
+    return {
+      locations: {
+        status: 'loading',
+      },
+    };
+  }
+
+  if (accountLocationStatus === 'error') {
+    return {
+      locations: {
+        status: 'error',
+        title: 'Account Location Metrics Error',
+        reason: `Unexpected error while fetching account location's metrics`,
+      },
+    };
+  }
+
+  const accountLocationsKey = Object.keys(accountLocationData);
+  // The account has 0 locations
+  if (accountLocationsKey.length === 0) {
+    return {
+      locations: {
+        status: 'success',
+        value: {},
+      },
+    };
+  }
+
+  if (allLocations.locations.status !== 'success') {
+    return allLocations;
+  }
+
+  const allLocationsValue = allLocations.locations.value;
+  const locations: Record<string, Location> = {};
+  accountLocationsKey.forEach((locationId) => {
+    const accountLocation = allLocationsValue[locationId];
+    if (accountLocation) {
+      locations[locationId] = accountLocation;
+    } else {
+      console.warn(
+        `The locations "${locationId}" has metrics but the location does not exist. Please check if this locations really exist.`,
+      );
+    }
+  });
+
+  return {
+    locations: {
+      status: 'success',
+      value: locations,
+    },
+  };
 };
