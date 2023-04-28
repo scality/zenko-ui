@@ -1,8 +1,4 @@
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -22,7 +18,6 @@ import {
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import { List } from 'immutable';
-import { debug } from 'jest-preview';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'Test Account';
@@ -96,7 +91,10 @@ describe('Workflows', () => {
     expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: /new \(current versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
+        name: new RegExp(
+          `${BUCKET_NAME} \\(current versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          'i',
+        ),
       }),
     ).toBeInTheDocument();
   });
@@ -123,7 +121,10 @@ describe('Workflows', () => {
     expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
     expect(
       screen.getByRole('row', {
-        name: /new \(previous versions\) ➜ europe25-myroom-cold - 15 days transition active/i,
+        name: new RegExp(
+          `${BUCKET_NAME} \\(previous versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          'i',
+        ),
       }),
     ).toBeInTheDocument();
     expect(
