@@ -2,7 +2,7 @@ import { UiFacingApi, UserV1 } from '../../../../js/managementClient/api';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { AccountInfo } from '../../domain/entities/account';
 import { IAccountsAdapter } from './IAccountsAdapter';
-import { ILocationsAdapter } from './ILocationsAdapter';
+import { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 import makeMgtClient from '../../../../js/managementClient';
 export class PensieveAccountsAdapter
   implements IAccountsAdapter, ILocationsAdapter
@@ -13,10 +13,21 @@ export class PensieveAccountsAdapter
     private instanceId: string,
     private token: string,
   ) {
-    this.managementClient = makeMgtClient(this.baseUrl, this.token);
+    this.managementClient = makeMgtClient(baseUrl, token);
   }
-  async listLocations(): Promise<void> {
-    throw new Error('Method not implemented.');
+  listLocations(): Promise<LocationInfo[]> {
+    return (
+      this.managementClient
+        .getConfigurationOverlayView(this.instanceId)
+        .then((config) => {
+          return Object.values(config.locations || {}).map((location) => ({
+            id: location.objectId || '',
+            name: location.name,
+            type: location.locationType,
+            details: location.details || {},
+          }));
+        }) || []
+    );
   }
   async listAccounts(): Promise<AccountInfo[]> {
     return this.managementClient
