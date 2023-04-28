@@ -27,7 +27,6 @@ import DataServiceRoleProvider, {
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
-import { useQuery } from 'react-query';
 import { getClients } from './utils/actions';
 import { ErrorPage401, Icon } from '@scality/core-ui';
 import { Warning } from './ui-elements/Warning';
