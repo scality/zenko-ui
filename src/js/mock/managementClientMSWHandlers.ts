@@ -360,6 +360,18 @@ export const NEWLY_CREATED_ACCOUNT_METRICS: LatestUsedCapacity = {
   type: TYPE_NO_METRICS,
 };
 
+export const LOCATIONS_METRICS_RESPONSE = {
+  [LOCATION_ID]: {
+    type: TYPE_HAS_METRICS,
+    usedCapacity: {
+      current: USED_CAPACITY_CURRENT,
+      nonCurrent: USED_CAPACITY_NON_CURRENT,
+    },
+    measuredOn: new Date(MEASURED_ON),
+  },
+  [NEWLY_CREATED_LOCATION_ID]: { type: TYPE_NO_METRICS },
+};
+
 export const getStorageConsumptionMetricsHandlers = (
   baseUrl: string,
   instanceId: string,
@@ -369,6 +381,7 @@ export const getStorageConsumptionMetricsHandlers = (
     `${baseUrl}/api/v1/instance/${instanceId}/account/metrics`,
     (req, res, ctx) => {
       const { accounts } = req.body as { accounts: string[] };
+
       if (
         accounts.includes(ACCOUNT_CANONICAL_ID) &&
         accounts.includes(NEWLY_CREATED_ACCOUNT_CANONICAL_ID)
@@ -442,7 +455,7 @@ export const getStorageConsumptionMetricsHandlers = (
   rest.post(
     `${baseUrl}/api/v1/instance/${instanceId}/location/metrics`,
     (req, res, ctx) => {
-      const { locations } = req.body as { locations: string[] };
+      const locations = req.body as string[];
       if (
         locations.includes(LOCATION_ID) &&
         locations.includes(NEWLY_CREATED_LOCATION_ID)
