@@ -7,6 +7,16 @@ import {
 import { LatestUsedCapacity } from '../../domain/entities/metrics';
 import { IMetricsAdapter } from './IMetricsAdapter';
 
+export const DEFAULT_METRICS_MESURED_ON = new Date('2022-03-18');
+export const DEFAULT_METRICS: LatestUsedCapacity = {
+  type: 'hasMetrics',
+  usedCapacity: {
+    current: 1024,
+    nonCurrent: 10,
+  },
+  measuredOn: DEFAULT_METRICS_MESURED_ON,
+};
+
 export class MockedMetricsAdapter implements IMetricsAdapter {
   listBucketsLatestUsedCapacity = jest.fn();
 
@@ -16,14 +26,7 @@ export class MockedMetricsAdapter implements IMetricsAdapter {
     const locationLastestUsedCapacity: Record<string, LatestUsedCapacity> = {};
 
     locationIds.forEach((id) => {
-      locationLastestUsedCapacity[id] = {
-        type: 'hasMetrics',
-        usedCapacity: {
-          current: 1024,
-          nonCurrent: 10,
-        },
-        measuredOn: new Date('2022-03-18'),
-      };
+      locationLastestUsedCapacity[id] = DEFAULT_METRICS;
     });
     return locationLastestUsedCapacity;
   }
@@ -32,39 +35,18 @@ export class MockedMetricsAdapter implements IMetricsAdapter {
   ): Promise<Record<string, LatestUsedCapacity>> {
     if (accountCanonicalId === 'account-id-renard') {
       return {
-        'artesca-s3-location': {
-          type: 'hasMetrics',
-          usedCapacity: {
-            current: 1024,
-            nonCurrent: 10,
-          },
-          measuredOn: new Date('2022-03-18'),
-        },
+        'artesca-s3-location': DEFAULT_METRICS,
       };
     }
 
     if (accountCanonicalId === 'account-id-jaguar') {
       return {
-        'artesca-jaguar-location': {
-          type: 'hasMetrics',
-          usedCapacity: {
-            current: 1024,
-            nonCurrent: 10,
-          },
-          measuredOn: new Date('2022-03-18'),
-        },
+        'artesca-jaguar-location': DEFAULT_METRICS,
       };
     }
     if (accountCanonicalId === 'account-id-with-orphan-metrics') {
       return {
-        'orphan-location': {
-          type: 'hasMetrics',
-          usedCapacity: {
-            current: 1024,
-            nonCurrent: 10,
-          },
-          measuredOn: new Date('2022-03-18'),
-        },
+        'orphan-location': DEFAULT_METRICS,
       };
     }
     return {};

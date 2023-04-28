@@ -1,6 +1,10 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
-import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
+import {
+  DEFAULT_METRICS,
+  DEFAULT_METRICS_MESURED_ON,
+  MockedMetricsAdapter,
+} from '../../adapters/metrics/MockedMetricsAdapter';
 import { Location, LocationsPromiseResult } from '../entities/location';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
@@ -16,14 +20,7 @@ import { LocationTypeKey } from '../../../../types/config';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
-  value: {
-    type: 'hasMetrics' as const,
-    usedCapacity: {
-      current: 1024,
-      nonCurrent: 10,
-    },
-    measuredOn: new Date('2022-03-18'),
-  },
+  value: DEFAULT_METRICS,
 };
 
 const genLocation = (
@@ -239,7 +236,7 @@ describe('useListLocationsForCurrentAccount', () => {
         id: 'account-id-renard',
         Name: 'Renard',
         Roles: [],
-        CreationDate: new Date('2022-03-18'),
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
       selectAccountAndRoleRedirectTo: () => {},
     });
@@ -248,15 +245,6 @@ describe('useListLocationsForCurrentAccount', () => {
 
   it('should return only location for current account', async () => {
     // S
-    jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
-      account: {
-        id: 'account-id-renard',
-        Name: 'Renard',
-        Roles: [],
-        CreationDate: new Date('2022-03-18'),
-      },
-      selectAccountAndRoleRedirectTo: () => {},
-    });
     const { result, waitFor } = setupAndRenderHook();
 
     // E
@@ -294,7 +282,7 @@ describe('useListLocationsForCurrentAccount', () => {
         id: 'account-without-location',
         Name: 'Renard',
         Roles: [],
-        CreationDate: new Date('2022-03-18'),
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
       selectAccountAndRoleRedirectTo: () => {},
     });
@@ -422,7 +410,7 @@ describe('useListLocationsForCurrentAccount', () => {
         id: 'account-id-with-orphan-metrics',
         Name: 'Chat',
         Roles: [],
-        CreationDate: new Date('2022-03-18'),
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
       selectAccountAndRoleRedirectTo: () => {},
     });
