@@ -1,10 +1,12 @@
 import { useQuery, useQueryClient } from 'react-query';
+import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
   AccountLatestUsedCapacityPromiseResult,
   AccountsPromiseResult,
   Account,
+  AccountInfo,
 } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 
@@ -17,7 +19,7 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
-const queries = {
+export const queries = {
   listAccounts: (accountsAdapter: IAccountsAdapter) => ({
     queryKey: ['accounts'],
     queryFn: accountsAdapter.listAccounts,
@@ -46,40 +48,41 @@ const queries = {
 /**
  * The hook returns the entire account list and the Storage Metrics ONLY for the first 1000 accounts.
  * @param metricsAdapter
- * @param accountsAdapter
+ * @param accessibleAccountsAdapter
  */
 export const useListAccounts = ({
-  accountsAdapter,
+  accessibleAccountsAdapter,
   metricsAdapter,
 }: {
-  accountsAdapter: IAccountsAdapter;
+  accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
 }): AccountsPromiseResult => {
-  const { data: accountInfos, status: accountStatus } = useQuery(
-    queries.listAccounts(accountsAdapter),
-  );
+  const { accountInfos } =
+    accessibleAccountsAdapter.useListAccessibleAccounts();
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
-      accountInfos
-        ?.map((ai) => ai.canonicalId)
-        .slice(0, MAX_NUM_ACCOUNT_REQUEST) || [],
+      accountInfos.status === 'success'
+        ? accountInfos.value
+            ?.map((ai: AccountInfo) => ai.canonicalId)
+            .slice(0, MAX_NUM_ACCOUNT_REQUEST)
+        : [],
     ),
-    enabled: !!(accountStatus === 'success' && accountInfos),
+    enabled: !!(accountInfos.status === 'success' && accountInfos),
   });
   if (
-    accountStatus === 'success' &&
+    accountInfos.status === 'success' &&
     (metricsStatus === 'idle' || metricsStatus === 'loading')
   ) {
-    const accounts: Account[] = accountInfos.map((accountInfo) => {
+    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
       return {
         ...accountInfo,
         usedCapacity: { status: 'loading' },
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'success' && metricsStatus === 'success') {
-    const accounts: Account[] = accountInfos.map((accountInfo) => {
+  } else if (accountInfos.status === 'success' && metricsStatus === 'success') {
+    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
       const accountCanonicalId = accountInfo.canonicalId;
       return {
         ...accountInfo,
@@ -94,8 +97,8 @@ export const useListAccounts = ({
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfos.map((accountInfo, i) => {
+  } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
+    const accounts: Account[] = accountInfos.value.map((accountInfo, i) => {
       return {
         ...accountInfo,
         usedCapacity:
@@ -109,7 +112,7 @@ export const useListAccounts = ({
       };
     });
     return { accounts: { status: 'success', value: accounts } };
-  } else if (accountStatus === 'error') {
+  } else if (accountInfos.status === 'error') {
     return {
       accounts: {
         status: 'error',
@@ -128,9 +131,11 @@ export const useListAccounts = ({
  * @param accountCanonicalId
  */
 export const useAccountLatestUsedCapacity = ({
+  accessibleAccountsAdapter,
   metricsAdapter,
   accountCanonicalId,
 }: {
+  accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
   accountCanonicalId: string;
 }): AccountLatestUsedCapacityPromiseResult => {
@@ -143,12 +148,14 @@ export const useAccountLatestUsedCapacity = ({
   const accountMetricsQueryState = queryClient.getQueryState([
     'accountsMetrics',
   ]);
-  const queryAccountsStatus = queryClient.getQueryState(['accounts']);
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
     enabled:
-      queryAccountsStatus?.status === 'success' &&
-      !isAccountCanonicalIdMetricsCacheExist,
+      accounts?.status === 'success' && !isAccountCanonicalIdMetricsCacheExist,
   });
   // if the metrics cache for a specific account exist, directly return the value.
   if (isAccountCanonicalIdMetricsCacheExist) {

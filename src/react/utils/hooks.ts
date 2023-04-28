@@ -226,7 +226,11 @@ export const useAccounts = (
 
   const redirectDataConsumers = useRedirectDataConsumers();
 
-  const { data } = useAwsPaginatedEntities<WebIdentityRoles, Account, ApiError>(
+  const { data, status } = useAwsPaginatedEntities<
+    WebIdentityRoles,
+    Account,
+    ApiError
+  >(
     {
       queryKey: ['WebIdentityRoles', token],
       queryFn: () => {
@@ -278,9 +282,12 @@ export const useAccounts = (
       {} as Record<string, Account>,
     ) || {},
   );
-  return uniqueAccountsWithRoles.filter(
-    (account) => account.Name !== 'scality-internal-services',
-  );
+  return {
+    accounts: uniqueAccountsWithRoles.filter(
+      (account) => account.Name !== 'scality-internal-services',
+    ),
+    status,
+  };
 };
 
 export const useRolePathName = () => {

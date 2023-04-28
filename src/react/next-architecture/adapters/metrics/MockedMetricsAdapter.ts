@@ -3,7 +3,7 @@ import {
   ACCOUNT_METRICS,
   NEWLY_CREATED_ACCOUNT_CANONICAL_ID,
   NEWLY_CREATED_ACCOUNT_METRICS,
-} from '../../../../js/mock/managementClientStorageConsumptionMetricsHandlers';
+} from '../../../../js/mock/managementClientMSWHandlers';
 import { LatestUsedCapacity } from '../../domain/entities/metrics';
 import { IMetricsAdapter } from './IMetricsAdapter';
 

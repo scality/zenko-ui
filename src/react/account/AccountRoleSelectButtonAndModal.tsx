@@ -27,7 +27,7 @@ export function AccountRoleSelectButtonAndModal({
   bigButton?: boolean;
   buttonLabel?: string;
 }) {
-  const accounts = useAccounts();
+  const { accounts } = useAccounts();
   const { path } = useRouteMatch();
   const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
   const { roleArn } = useDataServiceRole();

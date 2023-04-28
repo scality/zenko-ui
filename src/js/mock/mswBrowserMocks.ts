@@ -1,6 +1,6 @@
 // src/mocks/browser.js
 import { setupWorker } from 'msw';
-import { getColdStorageHandlers } from './managementClientColdStorageMSWHandlers';
+import { getColdStorageHandlers } from './managementClientMSWHandlers';
 
 // This configures a Service Worker with the given request handlers.
 export const worker = setupWorker(

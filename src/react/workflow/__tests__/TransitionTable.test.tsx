@@ -10,7 +10,7 @@ import {
   getColdStorageHandlers,
   TRANSITION_WORKFLOW_CURRENT_ID,
   TRIGGER_DELAY_DAYS,
-} from '../../../js/mock/managementClientColdStorageMSWHandlers';
+} from '../../../js/mock/managementClientMSWHandlers';
 import {
   mockOffsetSize,
   reduxRender,

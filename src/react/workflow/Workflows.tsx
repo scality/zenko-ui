@@ -98,7 +98,7 @@ export default function Workflows() {
   const { workflowId } = useParams<{ workflowId?: string }>();
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
-  const accounts = useAccounts();
+  const { accounts } = useAccounts();
   const bucketList = useSelector(
     (state: AppState) => state.s3.listBucketsResults.list,
   );

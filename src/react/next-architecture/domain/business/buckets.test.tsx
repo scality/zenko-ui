@@ -4,7 +4,7 @@ import {
   useBucketLocationConstraint,
   useListBucketsForCurrentAccount,
 } from './buckets';
-import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
+import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { RenderResult, WaitFor } from '@testing-library/react-hooks';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { rest } from 'msw';

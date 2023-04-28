@@ -30,28 +30,28 @@ export const useCurrentAccount = () => {
   const accountId = storedRoleArn
     ? regexArn.exec(storedRoleArn).groups['account_id']
     : '';
-  const accountsWithRoles = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
+  const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
 
   // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {
-    const isStoredArnValide = accountsWithRoles.find((account) => {
+    const isStoredArnValide = accounts.find((account) => {
       return account.Roles.find((role) => {
         return role.Arn === storedRoleArn;
       });
     });
-    if (!isStoredArnValide && storedRoleArn && accountsWithRoles.length) {
+    if (!isStoredArnValide && storedRoleArn && accounts.length) {
       removeRoleArnStored();
     }
-  }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
+  }, [storedRoleArn, JSON.stringify(accounts)]);
 
   const history = useHistory();
   const account = useMemo(() => {
-    return accountsWithRoles.find((account) => {
+    return accounts.find((account) => {
       if (accountName) return account.Name === accountName;
       else if (accountId) return account.id === accountId;
       else return true;
     });
-  }, [storedRoleArn, JSON.stringify(accountsWithRoles)]);
+  }, [storedRoleArn, JSON.stringify(accounts)]);
   const selectAccountAndRoleRedirectTo = (
     path: string,
     accountName: string,
