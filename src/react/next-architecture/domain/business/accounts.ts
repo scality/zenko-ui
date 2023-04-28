@@ -48,7 +48,7 @@ export const queries = {
 /**
  * The hook returns the entire account list and the Storage Metrics ONLY for the first 1000 accounts.
  * @param metricsAdapter
- * @param accountsAdapter
+ * @param accessibleAccountsAdapter
  */
 export const useListAccounts = ({
   accessibleAccountsAdapter,
@@ -59,7 +59,6 @@ export const useListAccounts = ({
 }): AccountsPromiseResult => {
   const { accountInfos } =
     accessibleAccountsAdapter.useListAccessibleAccounts();
-
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
@@ -132,9 +131,11 @@ export const useListAccounts = ({
  * @param accountCanonicalId
  */
 export const useAccountLatestUsedCapacity = ({
+  accessibleAccountsAdapter,
   metricsAdapter,
   accountCanonicalId,
 }: {
+  accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
   accountCanonicalId: string;
 }): AccountLatestUsedCapacityPromiseResult => {
@@ -147,12 +148,14 @@ export const useAccountLatestUsedCapacity = ({
   const accountMetricsQueryState = queryClient.getQueryState([
     'accountsMetrics',
   ]);
-  const queryAccountsStatus = queryClient.getQueryState(['accounts']);
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
     enabled:
-      queryAccountsStatus?.status === 'success' &&
-      !isAccountCanonicalIdMetricsCacheExist,
+      accounts?.status === 'success' && !isAccountCanonicalIdMetricsCacheExist,
   });
   // if the metrics cache for a specific account exist, directly return the value.
   if (isAccountCanonicalIdMetricsCacheExist) {

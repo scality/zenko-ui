@@ -7,9 +7,16 @@ import {
 } from '../../../../js/mock/managementClientMSWHandlers';
 
 export class MockedAccessibleAcounts implements IAccessibleAccounts {
-  useListAccessibleAccounts = jest
-    .fn()
-    .mockImplementation((): PromiseResult<AccountInfo[]> => {
-      return { status: 'success', value: [ACCOUNT, NEWLY_CREATED_ACCOUNT] };
-    });
+  useListAccessibleAccounts = jest.fn().mockImplementation(
+    (): {
+      accountInfos: PromiseResult<AccountInfo[]>;
+    } => {
+      return {
+        accountInfos: {
+          status: 'success',
+          value: [ACCOUNT, NEWLY_CREATED_ACCOUNT],
+        },
+      };
+    },
+  );
 }
