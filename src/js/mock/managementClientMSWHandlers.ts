@@ -101,6 +101,54 @@ export const USERS = [
     userName: 'pat',
   },
 ];
+export const LOCATIONS = {
+  'europe25-myroom-cold': {
+    locationType: 'location-dmf-v1',
+    name: 'europe25-myroom-cold',
+    isCold: true,
+    details: {
+      endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+      repoId: ['repoId'],
+      nsId: 'nsId',
+      username: 'username',
+      password: 'password',
+    },
+    objectId: '5bb68d3f-9eec-11ec-ae58-6e38b828d159',
+  },
+  'chapter-ux': {
+    details: {
+      accessKey: 'AMFFHQC1TTUIQ9K6B7LO',
+      bootstrapList: [],
+      bucketName: 'replication-for-chapter-ux',
+      endpoint: 'http://s3.workloadplane.scality.local',
+      region: 'us-east-1',
+      secretKey: '*****',
+    },
+    locationType: 'location-scality-artesca-s3-v1',
+    name: 'chapter-ux',
+    objectId: '4ab68d3f-9eec-11ec-ae58-6e38b828d159',
+  },
+  'ring-nick': {
+    details: {
+      accessKey: 'CO558N0OWLDBUULGAAUU',
+      bootstrapList: [],
+      bucketMatch: true,
+      bucketName: 'xdm-chapter-ux-test',
+      endpoint: 'http://10.200.3.166',
+      region: 'us-east-1',
+      secretKey: '*****',
+    },
+    locationType: 'location-scality-ring-s3-v1',
+    name: 'ring-nick',
+    objectId: '99a06f79-c62c-11ec-b993-7e8a0ab79998',
+  },
+  'us-east-1': {
+    isBuiltin: true,
+    locationType: 'location-file-v1',
+    name: 'us-east-1',
+    objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+  },
+};
 
 export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
   return rest.get(
@@ -119,54 +167,7 @@ export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
             { hostname: 'test.local', locationName: 'us-east-1' },
           ],
           instanceId,
-          locations: {
-            'europe25-myroom-cold': {
-              locationType: 'location-dmf-v1',
-              name: 'europe25-myroom-cold',
-              isCold: true,
-              details: {
-                endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                repoId: ['repoId'],
-                nsId: 'nsId',
-                username: 'username',
-                password: 'password',
-              },
-              objectId: '5bb68d3f-9eec-11ec-ae58-6e38b828d159',
-            },
-            'chapter-ux': {
-              details: {
-                accessKey: 'AMFFHQC1TTUIQ9K6B7LO',
-                bootstrapList: [],
-                bucketName: 'replication-for-chapter-ux',
-                endpoint: 'http://s3.workloadplane.scality.local',
-                region: 'us-east-1',
-                secretKey: '*****',
-              },
-              locationType: 'location-scality-artesca-s3-v1',
-              name: 'chapter-ux',
-              objectId: '4ab68d3f-9eec-11ec-ae58-6e38b828d159',
-            },
-            'ring-nick': {
-              details: {
-                accessKey: 'CO558N0OWLDBUULGAAUU',
-                bootstrapList: [],
-                bucketMatch: true,
-                bucketName: 'xdm-chapter-ux-test',
-                endpoint: 'http://10.200.3.166',
-                region: 'us-east-1',
-                secretKey: '*****',
-              },
-              locationType: 'location-scality-ring-s3-v1',
-              name: 'ring-nick',
-              objectId: '99a06f79-c62c-11ec-b993-7e8a0ab79998',
-            },
-            'us-east-1': {
-              isBuiltin: true,
-              locationType: 'location-file-v1',
-              name: 'us-east-1',
-              objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
-            },
-          },
+          locations: LOCATIONS,
           replicationStreams: [],
           updatedAt: '2022-04-27T13:18:58Z',
           users: USERS,

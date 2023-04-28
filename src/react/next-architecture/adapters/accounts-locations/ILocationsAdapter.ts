@@ -1,10 +1,12 @@
-import { Locationv1Details } from '../../../../js/managementClient/api';
-import { LocationTypeKey } from '../../../../types/config';
+import {
+  LocationV1,
+  Locationv1Details,
+} from '../../../../js/managementClient/api';
 
 export type LocationInfo = {
   id: string;
   name: string;
-  type: LocationTypeKey;
+  type: LocationV1.LocationTypeEnum;
   // This looks terrible
   // `type` should be link to `Locationv1Details`
   details: Locationv1Details;
