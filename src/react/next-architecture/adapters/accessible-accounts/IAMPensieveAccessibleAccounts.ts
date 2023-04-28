@@ -20,8 +20,8 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       return {
         accountInfos: {
           status: 'error',
-          title: 'TODO',
-          reason: 'TODO',
+          title: 'An error occurred while fetching the accounts',
+          reason: 'Interal error',
         },
       };
     }
