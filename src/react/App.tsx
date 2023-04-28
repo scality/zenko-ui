@@ -10,6 +10,9 @@ import { ConfigProvider } from './next-architecture/ui/ConfigProvider';
 import DataServiceRoleProvider from './DataServiceRoleProvider';
 import { S3AssumeRoleClientProvider } from './next-architecture/ui/S3ClientProvider';
 import { AuthProvider } from './next-architecture/ui/AuthProvider';
+import { AccountsAdapterProvider } from './next-architecture/ui/AccountAdapterProvider';
+import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
+import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 
 export const queryClient = new QueryClient();
 
@@ -21,12 +24,18 @@ rootElement &&
         <QueryClientProvider client={queryClient}>
           <ConfigProvider>
             <AuthProvider>
-              <DataServiceRoleProvider>
-                <S3AssumeRoleClientProvider>
-                  <ZenkoUI />
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </S3AssumeRoleClientProvider>
-              </DataServiceRoleProvider>
+              <AccountsAdapterProvider>
+                <AccessibleAccountsAdapterProvider>
+                  <MetricsAdapterProvider>
+                    <DataServiceRoleProvider>
+                      <S3AssumeRoleClientProvider>
+                        <ZenkoUI />
+                        <ReactQueryDevtools initialIsOpen={false} />
+                      </S3AssumeRoleClientProvider>
+                    </DataServiceRoleProvider>
+                  </MetricsAdapterProvider>
+                </AccessibleAccountsAdapterProvider>
+              </AccountsAdapterProvider>
             </AuthProvider>
           </ConfigProvider>
         </QueryClientProvider>

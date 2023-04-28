@@ -15,6 +15,23 @@ export function useAuth() {
   return context;
 }
 
+export function useAccessToken() {
+  const { user } = useAuth();
+  return (user && user.access_token) || '';
+}
+
+export function useInstanceId() {
+  const { user } = useAuth();
+
+  const instanceIds = user && user.profile && user.profile.instanceIds;
+
+  if (!instanceIds || instanceIds.length === 0) {
+    throw new Error('No instanceIds found');
+  }
+
+  return instanceIds[0];
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authUser, setAuthUser] = useState<AuthUser | undefined>(undefined);
   return (

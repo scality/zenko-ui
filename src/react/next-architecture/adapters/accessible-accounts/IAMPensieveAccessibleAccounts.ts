@@ -39,8 +39,19 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       };
     }
 
-    const value = accountInfos.filter((account) => {
-      return accessibleAccounts.find((ac) => ac.id === account.id);
+    const value = accountInfos.flatMap((account) => {
+      const accessibleAccount = accessibleAccounts.find(
+        (ac) => ac.id === account.id,
+      );
+      if (accessibleAccount) {
+        return [
+          {
+            ...account,
+            assumableRoles: accessibleAccount.Roles,
+          },
+        ];
+      }
+      return [];
     });
     return {
       accountInfos: {

@@ -1,4 +1,9 @@
+import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import {
+  STORAGE_ACCOUNT_OWNER_ROLE,
+  STORAGE_MANAGER_ROLE,
+} from '../../../utils/hooks';
 import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
@@ -70,6 +75,31 @@ export const useListAccounts = ({
     ),
     enabled: !!(accountInfos.status === 'success' && accountInfos),
   });
+
+  const accountInfosWithPerferredAssumableRole = useMemo(() => {
+    if (accountInfos.status === 'success') {
+      const accounts: AccountInfo[] = accountInfos.value.map((accountInfo) => {
+        const roleStorageAccountOwner = accountInfo.assumableRoles.find(
+          (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
+        );
+        const roleStorageManager = accountInfo.assumableRoles.find(
+          (role) => role.Name === STORAGE_MANAGER_ROLE,
+        );
+        let preferredAssumableRole = accountInfo.assumableRoles[0].Arn;
+        if (roleStorageAccountOwner) {
+          preferredAssumableRole = roleStorageAccountOwner.Arn;
+        } else if (roleStorageManager) {
+          preferredAssumableRole = roleStorageManager.Arn;
+        }
+        return {
+          ...accountInfo,
+          preferredAssumableRole,
+        };
+      });
+      return { accounts: { status: 'success', value: accounts } };
+    }
+  }, [accountInfos.status]);
+
   if (
     accountInfos.status === 'success' &&
     (metricsStatus === 'idle' || metricsStatus === 'loading')

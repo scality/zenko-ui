@@ -1,57 +1,45 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import type { Account } from '../../types/account';
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
-import {
-  STORAGE_ACCOUNT_OWNER_ROLE,
-  STORAGE_MANAGER_ROLE,
-} from '../utils/hooks';
 import { setRoleArnStored } from '../utils/localStorage';
-import { Icon } from '@scality/core-ui';
+import { ErrorPage500, Icon } from '@scality/core-ui';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useListAccounts } from '../next-architecture/domain/business/accounts';
+import { Account } from '../next-architecture/domain/entities/account';
+import { CellProps, Column } from 'react-table';
 
 const TableAction = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: ${spacing.sp16};
 `;
-type Props = {
-  accounts: Array<Account>;
-};
 
-function AccountList({ accounts }: Props) {
+function AccountList() {
+  const metricsAdapter = useMetricsAdapter();
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const { accounts } = useListAccounts({
+    metricsAdapter,
+    accessibleAccountsAdapter,
+  });
+
   const dispatch = useDispatch();
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
 
-  const nameCell = ({ value }) => {
-    const selectedAccount = accounts.find((account) => account.Name === value);
-    // preferable to assume the `Storage Account Owner` Role then `Storage Manager` Role
-    const assumeRoleArn = useMemo(() => {
-      const roleStorageAccountOwner = selectedAccount?.Roles.find(
-        (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
-      );
-      const roleStorageManager = selectedAccount?.Roles.find(
-        (role) => role.Name === STORAGE_MANAGER_ROLE,
-      );
-      if (roleStorageAccountOwner) {
-        return roleStorageAccountOwner.Arn;
-      } else if (roleStorageManager) {
-        return roleStorageManager.Arn;
-      }
-      return selectedAccount?.Roles[0].Arn;
-    }, []);
+  const nameCell = ({ value, row }: CellProps<Account, string>) => {
     return (
       <NameLinkContaner
         onClick={() => {
-          setRoleArnStored(assumeRoleArn);
+          setRoleArnStored(row.original.preferredAssumableRole);
           dispatch(push(`/accounts/${value}`));
         }}
       >
@@ -60,31 +48,36 @@ function AccountList({ accounts }: Props) {
     );
   };
 
-  const createDateCell = ({ value }) => {
+  const createDateCell = ({ value }: CellProps<Account, string>) => {
     return <div>{formatSimpleDate(new Date(value))}</div>;
   };
 
-  const columns = React.useMemo(() => {
+  const columns: Column<Account>[] = React.useMemo(() => {
     return [
       {
         Header: 'Account Name',
-        accessor: 'Name',
+        accessor: 'name',
         cellStyle: {
           minWidth: '20rem',
         },
-        Cell: (value) => nameCell(value),
+        Cell: (value: CellProps<Account, string>) => nameCell(value),
       },
       {
         Header: 'Created on',
-        accessor: 'CreationDate',
+        accessor: 'creationDate',
         cellStyle: {
           textAlign: 'right',
           minWidth: '7rem',
         },
-        Cell: (value) => createDateCell(value),
+        Cell: (value: CellProps<Account, string>) => createDateCell(value),
       },
     ];
   }, [nameCell]);
+
+  if (accounts.status === 'loading') return <div>Loading accounts...</div>;
+  if (accounts.status === 'unknown') return <div>Loading accounts...</div>;
+  if (accounts.status === 'error') return <ErrorPage500 locale="en" />;
+
   return (
     <div
       style={{
@@ -96,8 +89,8 @@ function AccountList({ accounts }: Props) {
     >
       <Table
         columns={columns}
-        data={accounts}
-        defaultSortingKey={'CreationDate'}
+        data={accounts.value}
+        defaultSortingKey={'creationDate'}
       >
         <TableAction>
           <Table.SearchWithQueryParams

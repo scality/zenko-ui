@@ -3,27 +3,40 @@ import AccountList from './AccountList';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import Header from '../ui-elements/EntityHeader';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
-import { useAccounts } from '../utils/hooks';
-import { AppContainer } from '@scality/core-ui';
+import { AppContainer, ErrorPage500 } from '@scality/core-ui';
+import { useListAccounts } from '../next-architecture/domain/business/accounts';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 
 const Accounts = () => {
   const { pathname } = useLocation();
-  const { accounts } = useAccounts();
+  const metricsAdapter = useMetricsAdapter();
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const { accounts } = useListAccounts({
+    metricsAdapter,
+    accessibleAccountsAdapter,
+  });
   return (
     <>
       <AppContainer.ContextContainer>
         <BreadcrumbAccount pathname={pathname} />
       </AppContainer.ContextContainer>
-      <AppContainer.OverallSummary>
-        <Header
-          icon={<MultiAccountsIcon />}
-          headTitle={'All Accounts'}
-          numInstance={accounts ? accounts.length : 0}
-        ></Header>
-      </AppContainer.OverallSummary>
-      <AppContainer.MainContent background="backgroundLevel3">
-        <AccountList accounts={accounts} />
-      </AppContainer.MainContent>
+      {accounts.status === 'loading' && <div>Loading accounts...</div>}
+      {accounts.status === 'error' && <ErrorPage500 locale="en" />}
+      {accounts.status === 'success' && (
+        <>
+          <AppContainer.OverallSummary>
+            <Header
+              icon={<MultiAccountsIcon />}
+              headTitle={'All Accounts'}
+              numInstance={accounts.value.length}
+            ></Header>
+          </AppContainer.OverallSummary>
+          <AppContainer.MainContent background="backgroundLevel3">
+            <AccountList />
+          </AppContainer.MainContent>
+        </>
+      )}
     </>
   );
 };
