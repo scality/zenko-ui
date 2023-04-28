@@ -136,7 +136,7 @@ function PrivateRoutes() {
       );
       dispatch(setManagementClient(managementClient));
     }
-  }, [managementEndpoint, user.access_token]);
+  }, [managementEndpoint, user?.access_token]);
 
   const isAuthenticated = !!user && !user.expired && user?.access_token;
   useEffect(() => {
