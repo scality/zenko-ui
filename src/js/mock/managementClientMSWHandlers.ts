@@ -18,6 +18,90 @@ export const TRANSITION_WORKFLOW_PREVIOUS_ID =
 export const TRIGGER_DELAY_DAYS = 15;
 export const COLD_LOCATION_NAME = 'europe25-myroom-cold';
 
+export const USERS = [
+  {
+    arn: 'arn:aws:iam::000000000000:/scality-internal-services/',
+    canonicalId:
+      '04c6c688782f2b395faac05295cf05e41e05929b7992a20b5d680d36efea577c',
+    createDate: '2022-02-28T11:21:07.000Z',
+    email: 'scality@internal',
+    id: '000000000000',
+    userName: 'scality-internal-services',
+  },
+  {
+    arn: 'arn:aws:iam::064609833007:/no-bucket/',
+    canonicalId:
+      '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+    createDate: '2022-03-18T12:51:44.000Z',
+    email: 'no-bucket@test.com',
+    id: '064609833007',
+    userName: 'no-bucket',
+  },
+  {
+    arn: 'arn:aws:iam::152883654752:/created-by-storage-account-owner/',
+    canonicalId:
+      'ec0d7198d88e327d3dea039682b619f13b84915e52f826b806b4ef9dab3d8c14',
+    createDate: '2022-05-10T11:40:48.000Z',
+    email: 'cheng@scality.com',
+    id: '152883654752',
+    userName: 'created-by-storage-account-owner',
+  },
+  {
+    arn: 'arn:aws:iam::377232323695:/yanjin/',
+    canonicalId:
+      '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
+    createDate: '2022-04-29T09:35:35.000Z',
+    email: 'yanjin.cheng@scality.com',
+    id: '377232323695',
+    userName: 'yanjin',
+  },
+  {
+    arn: 'arn:aws:iam::621762876784:/Asmaa/',
+    canonicalId:
+      '268ba54d07bb0c538dc76ddcac41164346b9e40726ac49642cb9ab54200639cd',
+    createDate: '2022-03-02T09:08:41.000Z',
+    email: 'asmaa.el.mokhtari@scality.com',
+    id: '621762876784',
+    userName: 'Asmaa',
+  },
+  {
+    arn: 'arn:aws:iam::650126396693:/replication/',
+    canonicalId:
+      '3386f3d3b01cd125379943c25aea17149011b64479a5d01eb74dfcfe9129ee97',
+    createDate: '2022-03-07T11:08:28.000Z',
+    email: 'invalid@invalid',
+    id: '650126396693',
+    userName: 'replication',
+  },
+  {
+    arn: 'arn:aws:iam::904321757948:/account-1/',
+    canonicalId:
+      'b9f93485ea8d62f2e6f780fa93c0da76849ee0c317c3fc892902b9179390efee',
+    createDate: '2022-03-31T14:16:58.000Z',
+    email: 'test@test.com',
+    id: '904321757948',
+    userName: 'account-1',
+  },
+  {
+    arn: 'arn:aws:iam::970343539682:/test/',
+    canonicalId:
+      '47e1f39353f2c3b0579a544e12491057e1fec175895b75467463cffdd004897d',
+    createDate: '2022-03-02T08:06:05.000Z',
+    email: 'test@invalid',
+    id: '970343539682',
+    userName: 'test',
+  },
+  {
+    arn: 'arn:aws:iam::998935415244:/pat/',
+    canonicalId:
+      'b41319703eadc6d8aecfd996eea678f10ab2f32c0d730403afdd5f8775c7a44e',
+    createDate: '2022-03-07T16:29:54.000Z',
+    email: 'invalid@pat.com',
+    id: '998935415244',
+    userName: 'pat',
+  },
+];
+
 export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
   return rest.get(
     `${baseUrl}/api/v1/config/overlay/view/${instanceId}`,
@@ -85,89 +169,7 @@ export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
           },
           replicationStreams: [],
           updatedAt: '2022-04-27T13:18:58Z',
-          users: [
-            {
-              arn: 'arn:aws:iam::000000000000:/scality-internal-services/',
-              canonicalId:
-                '04c6c688782f2b395faac05295cf05e41e05929b7992a20b5d680d36efea577c',
-              createDate: '2022-02-28T11:21:07.000Z',
-              email: 'scality@internal',
-              id: '000000000000',
-              userName: 'scality-internal-services',
-            },
-            {
-              arn: 'arn:aws:iam::064609833007:/no-bucket/',
-              canonicalId:
-                '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
-              createDate: '2022-03-18T12:51:44.000Z',
-              email: 'no-bucket@test.com',
-              id: '064609833007',
-              userName: 'no-bucket',
-            },
-            {
-              arn: 'arn:aws:iam::152883654752:/created-by-storage-account-owner/',
-              canonicalId:
-                'ec0d7198d88e327d3dea039682b619f13b84915e52f826b806b4ef9dab3d8c14',
-              createDate: '2022-05-10T11:40:48.000Z',
-              email: 'cheng@scality.com',
-              id: '152883654752',
-              userName: 'created-by-storage-account-owner',
-            },
-            {
-              arn: 'arn:aws:iam::377232323695:/yanjin/',
-              canonicalId:
-                '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
-              createDate: '2022-04-29T09:35:35.000Z',
-              email: 'yanjin.cheng@scality.com',
-              id: '377232323695',
-              userName: 'yanjin',
-            },
-            {
-              arn: 'arn:aws:iam::621762876784:/Asmaa/',
-              canonicalId:
-                '268ba54d07bb0c538dc76ddcac41164346b9e40726ac49642cb9ab54200639cd',
-              createDate: '2022-03-02T09:08:41.000Z',
-              email: 'asmaa.el.mokhtari@scality.com',
-              id: '621762876784',
-              userName: 'Asmaa',
-            },
-            {
-              arn: 'arn:aws:iam::650126396693:/replication/',
-              canonicalId:
-                '3386f3d3b01cd125379943c25aea17149011b64479a5d01eb74dfcfe9129ee97',
-              createDate: '2022-03-07T11:08:28.000Z',
-              email: 'invalid@invalid',
-              id: '650126396693',
-              userName: 'replication',
-            },
-            {
-              arn: 'arn:aws:iam::904321757948:/account-1/',
-              canonicalId:
-                'b9f93485ea8d62f2e6f780fa93c0da76849ee0c317c3fc892902b9179390efee',
-              createDate: '2022-03-31T14:16:58.000Z',
-              email: 'test@test.com',
-              id: '904321757948',
-              userName: 'account-1',
-            },
-            {
-              arn: 'arn:aws:iam::970343539682:/test/',
-              canonicalId:
-                '47e1f39353f2c3b0579a544e12491057e1fec175895b75467463cffdd004897d',
-              createDate: '2022-03-02T08:06:05.000Z',
-              email: 'test@invalid',
-              id: '970343539682',
-              userName: 'test',
-            },
-            {
-              arn: 'arn:aws:iam::998935415244:/pat/',
-              canonicalId:
-                'b41319703eadc6d8aecfd996eea678f10ab2f32c0d730403afdd5f8775c7a44e',
-              createDate: '2022-03-07T16:29:54.000Z',
-              email: 'invalid@pat.com',
-              id: '998935415244',
-              userName: 'pat',
-            },
-          ],
+          users: USERS,
           version: 12,
         }),
       ),
