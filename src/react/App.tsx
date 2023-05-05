@@ -13,6 +13,7 @@ import { AuthProvider } from './next-architecture/ui/AuthProvider';
 import { AccountsAdapterProvider } from './next-architecture/ui/AccountAdapterProvider';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
+import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
 
 export const queryClient = new QueryClient();
 
@@ -25,16 +26,18 @@ rootElement &&
           <ConfigProvider>
             <AuthProvider>
               <AccountsAdapterProvider>
-                <AccessibleAccountsAdapterProvider>
-                  <MetricsAdapterProvider>
-                    <DataServiceRoleProvider>
-                      <S3AssumeRoleClientProvider>
-                        <ZenkoUI />
-                        <ReactQueryDevtools initialIsOpen={false} />
-                      </S3AssumeRoleClientProvider>
-                    </DataServiceRoleProvider>
-                  </MetricsAdapterProvider>
-                </AccessibleAccountsAdapterProvider>
+                <LocationAdapterProvider>
+                  <AccessibleAccountsAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <DataServiceRoleProvider>
+                        <S3AssumeRoleClientProvider>
+                          <ZenkoUI />
+                          <ReactQueryDevtools initialIsOpen={false} />
+                        </S3AssumeRoleClientProvider>
+                      </DataServiceRoleProvider>
+                    </MetricsAdapterProvider>
+                  </AccessibleAccountsAdapterProvider>
+                </LocationAdapterProvider>
               </AccountsAdapterProvider>
             </AuthProvider>
           </ConfigProvider>
