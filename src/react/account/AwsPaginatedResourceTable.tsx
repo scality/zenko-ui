@@ -11,7 +11,7 @@ import { ChangeEvent } from 'react';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
-import { Tooltip } from '@scality/core-ui';
+import { EmptyState, Tooltip } from '@scality/core-ui';
 import IAMClient from '../../js/IAMClient';
 
 const WithTooltipWhileLoading = ({
@@ -175,7 +175,15 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
               {queryResult.firstPageStatus === 'error'
                 ? errorInTableContent
                 : ''}
-              {queryResult.firstPageStatus === 'success' ? Rows : ''}
+              {queryResult.firstPageStatus === 'success' ? (
+                queryResult.data?.length === 0 ? (
+                  <EmptyState icon="Dot-circle" label={singularResourceName} />
+                ) : (
+                  Rows
+                )
+              ) : (
+                ''
+              )}
             </>
           )}
         </Table.SingleSelectableContent>

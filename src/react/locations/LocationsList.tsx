@@ -9,7 +9,6 @@ import type { AppState } from '../../types/state';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { Table, Button, Box } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
@@ -18,16 +17,13 @@ import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
 import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
-import { Icon, IconHelp, spacing } from '@scality/core-ui';
+import { Icon, IconHelp } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
 import { useListLocations } from '../next-architecture/domain/business/locations';
 import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { Location } from '../next-architecture/domain/entities/location';
-import {
-  UsedCapacity,
-  UsedCapacityInlinePromiseResult,
-} from '../next-architecture/ui/metrics/LatestUsedCapacity';
+import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 
 const ActionButtons = ({
   rowValues,
@@ -122,7 +118,6 @@ export function LocationsList() {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const features = useSelector((state: AppState) => state.auth.config.features);
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
     const columns: CoreUIColumn<Location>[] = [
@@ -246,9 +241,8 @@ export function LocationsList() {
     endpoints,
     workflowsQuery.data?.replications,
     loading,
-    features,
   ]);
-  if (Object.keys(locations).length === 0) {
+  if (data.length === 0) {
     return (
       <Warning
         icon={<Icon name="Map-marker" size="5x" />}

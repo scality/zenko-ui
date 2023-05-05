@@ -1,13 +1,12 @@
 import { DefaultTheme, useTheme } from 'styled-components';
-import React from 'react';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
-import { LocationsList } from '../locations/LocationsList';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import AccountPoliciesList from './AccountPoliciesList';
+import { AccountLocations } from './AccountLocations';
 type Props = {
   account: Account | null | undefined;
 };
@@ -45,7 +44,7 @@ function AccountDetails({ account }: Props) {
         <Properties account={account} />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
-        <LocationsList />
+        <AccountLocations />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Users" path={`${url}/users`}>
         <AccountUserList accountName={accountName} />

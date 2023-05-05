@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
