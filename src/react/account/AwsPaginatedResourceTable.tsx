@@ -13,6 +13,7 @@ import { Box, Table } from '@scality/core-ui/dist/next';
 import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 import { EmptyState, Tooltip } from '@scality/core-ui';
 import IAMClient from '../../js/IAMClient';
+import { Warning } from '../ui-elements/Warning';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -177,7 +178,16 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
                 : ''}
               {queryResult.firstPageStatus === 'success' ? (
                 queryResult.data?.length === 0 ? (
-                  <EmptyState icon="Dot-circle" label={singularResourceName} />
+                  <Warning
+                    title={
+                      <>
+                        A list of {pluralResourceName} will appear here.
+                        <br />
+                        There are no {pluralResourceName} yet.
+                      </>
+                    }
+                    centered
+                  />
                 ) : (
                   Rows
                 )

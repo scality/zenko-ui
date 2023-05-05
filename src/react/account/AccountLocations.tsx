@@ -9,7 +9,7 @@ import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { Warning } from '../ui-elements/Warning';
-import { Icon } from '@scality/core-ui';
+import { Icon, Loader, Stack } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { Search, SearchContainer } from '../ui-elements/Table';
 
@@ -84,6 +84,23 @@ export function AccountLocations() {
 
     return columns;
   }, [locations]);
+
+  if (locations.status === 'loading' || locations.status === 'unknown') {
+    return (
+      <Stack>
+        <Loader size="huge" />
+        <div>Loading locations...</div>
+      </Stack>
+    );
+  }
+  if (locations.status === 'error') {
+    return (
+      <Warning
+        icon={<Icon name="Times-circle" size="2x" />}
+        title="Unable to load locations."
+      />
+    );
+  }
   if (data.length === 0) {
     return (
       <Warning
