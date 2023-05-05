@@ -11,8 +11,8 @@ import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import { XDM_FEATURE } from '../../../js/config';
-import { useParams } from 'react-router';
-import { Icon, spacing } from '@scality/core-ui';
+import { useHistory, useParams } from 'react-router';
+import { Icon, Link, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
@@ -53,13 +53,17 @@ export default function BucketList({
         accessor: 'name',
 
         Cell({ value: name }: { value: string }) {
+          const history = useHistory();
           return (
-            <T.CellLink
-              onClick={(event) => event.stopPropagation()}
-              to={`/accounts/${accountName}/buckets/${name}/objects`}
+            <Link
+              onClick={() => {
+                history.push(
+                  `/accounts/${accountName}/buckets/${name}/objects`,
+                );
+              }}
             >
               {name}
-            </T.CellLink>
+            </Link>
           );
         },
         cellStyle: {
