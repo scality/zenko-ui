@@ -1,7 +1,7 @@
 {
   "docUrl": "/docs",
   "oidc": {
-    "providerUrl": "https://ui.pod-choco.local/auth/realms/artesca",
+    "providerUrl": "http://keycloak.zenko.local/auth/realms/zenko",
     "redirectUrl": "http://127.0.0.1:8383",
     "clientId": "zenko-ui",
     "responseType": "code",
