@@ -6,6 +6,7 @@ import { listObjects } from '../actions/s3object';
 import { useDispatch } from 'react-redux';
 import { usePrefixWithSlash } from '../utils/hooks';
 import { Icon } from '@scality/core-ui';
+import { useQueryClient } from 'react-query';
 
 export function RefreshButton() {
   const params = useParams<{ bucketName?: string }>();
@@ -16,13 +17,13 @@ export function RefreshButton() {
     pathname,
     '/accounts/:accountName/buckets/:bucketName/objects',
   );
+  const queryClient = useQueryClient();
 
   const handleRefreshClick = () => {
     if (isBrowsingObjects && params.bucketName) {
       dispatch(listObjects(params.bucketName, prefixWithSlash));
-    } else {
-      dispatch(listBuckets());
     }
+    queryClient.invalidateQueries();
   };
 
   return <Button icon={<Icon name="Sync" />} onClick={handleRefreshClick} />;

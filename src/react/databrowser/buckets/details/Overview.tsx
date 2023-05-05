@@ -29,6 +29,7 @@ import { XDM_FEATURE } from '../../../../js/config';
 import { useWorkflows } from '../../../workflow/Workflows';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
+import { Bucket } from '../../../next-architecture/domain/entities/bucket';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -65,7 +66,7 @@ function canDeleteBucket(loading: boolean) {
 }
 
 type Props = {
-  bucket: S3Bucket;
+  bucket: Bucket;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
 };
 
@@ -97,13 +98,13 @@ function Overview({ bucket, ingestionStates }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const workflowsQuery = useWorkflows([bucket.Name]);
+  const workflowsQuery = useWorkflows([bucket.name]);
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   useEffect(() => {
-    dispatch(getBucketInfo(bucket.Name));
-  }, [dispatch, bucket.Name]);
+    dispatch(getBucketInfo(bucket.name));
+  }, [dispatch, bucket.name]);
 
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
@@ -121,7 +122,7 @@ function Overview({ bucket, ingestionStates }: Props) {
       return;
     }
 
-    dispatch(openBucketDeleteDialog(bucket.Name));
+    dispatch(openBucketDeleteDialog(bucket.name));
   };
 
   const handleDeleteApprove = () => {
@@ -129,7 +130,7 @@ function Overview({ bucket, ingestionStates }: Props) {
       return;
     }
 
-    dispatch(deleteBucket(bucket.Name));
+    dispatch(deleteBucket(bucket.name));
   };
 
   const handleDeleteCancel = () => {
@@ -148,10 +149,10 @@ function Overview({ bucket, ingestionStates }: Props) {
   return (
     <TableContainer>
       <DeleteConfirmation
-        show={showDelete === bucket.Name}
+        show={showDelete === bucket.name}
         cancel={handleDeleteCancel}
         approve={handleDeleteApprove}
-        titleText={`Are you sure you want to delete bucket: ${bucket.Name} ?`}
+        titleText={`Are you sure you want to delete bucket: ${bucket.name} ?`}
       />
       <DumbErrorModal
         isOpen={isErrorModalOpen}
@@ -200,7 +201,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                       onChange={() =>
                         dispatch(
                           toggleBucketVersioning(
-                            bucket.Name,
+                            bucket.name,
                             !bucketInfo.isVersioning,
                           ),
                         )
@@ -238,7 +239,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                       onClick={() =>
                         dispatch(
                           push(
-                            `/accounts/${account?.Name}/buckets/${bucket.Name}/retention-setting`,
+                            `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
                           ),
                         )
                       }

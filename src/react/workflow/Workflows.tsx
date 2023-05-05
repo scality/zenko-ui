@@ -26,7 +26,15 @@ import {
   BucketWorkflowTransitionV2,
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
-import { AppContainer, Icon, TwoPanelLayout } from '@scality/core-ui';
+import {
+  AppContainer,
+  Icon,
+  Stack,
+  Text,
+  TwoPanelLayout,
+} from '@scality/core-ui';
+import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 
 type Filter = string[];
 
@@ -99,9 +107,8 @@ export default function Workflows() {
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const { accounts } = useAccounts();
-  const bucketList = useSelector(
-    (state: AppState) => state.s3.listBucketsResults.list,
-  );
+  const metricsAdapter = useMetricsAdapter();
+  const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
 
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
@@ -124,7 +131,7 @@ export default function Workflows() {
   }
 
   const content = () => {
-    if (bucketList.size === 0) {
+    if (buckets.status === 'success' && buckets.value.length === 0) {
       return (
         <EmptyStateContainer>
           <Warning
@@ -170,24 +177,31 @@ export default function Workflows() {
     }
 
     return (
-      <AppContainer.MainContent background="backgroundLevel1">
-        <TwoPanelLayout
-          panelsRatio="50-50"
-          leftPanel={{
-            children: (
-              <WorkflowList workflowId={workflowId} workflows={workflows} />
-            ),
-          }}
-          rightPanel={{
-            children: (
-              <WorkflowContent
-                bucketList={bucketList}
-                wfSelected={workflows.find((w) => w.id === workflowId)}
-              />
-            ),
-          }}
-        />
-      </AppContainer.MainContent>
+      <>
+        <AppContainer.OverallSummary>
+          <Stack gap="r16">
+            <Icon name="Workflow" color="infoPrimary" size="2x" withWrapper />
+            <Text variant="Larger">Workflows</Text>
+          </Stack>
+        </AppContainer.OverallSummary>
+        <AppContainer.MainContent background="backgroundLevel3">
+          <TwoPanelLayout
+            panelsRatio="50-50"
+            leftPanel={{
+              children: (
+                <WorkflowList workflowId={workflowId} workflows={workflows} />
+              ),
+            }}
+            rightPanel={{
+              children: (
+                <WorkflowContent
+                  wfSelected={workflows.find((w) => w.id === workflowId)}
+                />
+              ),
+            }}
+          />
+        </AppContainer.MainContent>
+      </>
     );
   };
 
@@ -196,6 +210,7 @@ export default function Workflows() {
       <AppContainer.ContextContainer background="backgroundLevel1">
         <Breadcrumb />
       </AppContainer.ContextContainer>
+
       {content()}
     </>
   );

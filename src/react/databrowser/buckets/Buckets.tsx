@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { useLocation } from 'react-router';
 import { Redirect, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,14 +11,15 @@ import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { AppContainer, Icon, TwoPanelLayout } from '@scality/core-ui';
+import { AppContainer, Icon, Loader, TwoPanelLayout } from '@scality/core-ui';
+import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/business/buckets';
+import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 
 export default function Buckets() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const buckets = useSelector(
-    (state: AppState) => state.s3.listBucketsResults.list,
-  );
+  const metricsAdapter = useMetricsAdapter();
+  const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
 
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
@@ -27,16 +28,36 @@ export default function Buckets() {
     (state: AppState) =>
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
-  const { bucketName: bucketNameParam } = useParams();
+  const { bucketName: bucketNameParam } = useParams<{ bucketName: string }>();
   const { account } = useCurrentAccount();
   const bucketIndex = useMemo(
-    () => buckets.findIndex((b) => b.Name === bucketNameParam),
-    [buckets, bucketNameParam],
+    () =>
+      buckets.status === 'success'
+        ? buckets.value.findIndex((b) => b.name === bucketNameParam)
+        : -1,
+    [buckets.status, bucketNameParam],
   );
-  const bucket = bucketIndex >= 0 ? buckets.get(bucketIndex) : null;
+
+  if (buckets.status === 'error') {
+    return (
+      <EmptyStateContainer>
+        <Warning title="Error" icon={<Icon name="Times-circle" size="5x" />} />
+      </EmptyStateContainer>
+    );
+  }
+
+  if (buckets.status === 'loading' || buckets.status === 'unknown') {
+    return (
+      <EmptyStateContainer>
+        <Loader size="massive" centered />
+      </EmptyStateContainer>
+    );
+  }
+
+  const bucket = bucketIndex >= 0 ? buckets.value[bucketIndex] : null;
 
   // empty state.
-  if (buckets.size === 0) {
+  if (buckets.value.length === 0) {
     return (
       <EmptyStateContainer>
         <Warning
@@ -54,17 +75,17 @@ export default function Buckets() {
 
   // redirect to the first bucket.
   if (!bucketNameParam) {
-    return <Redirect to={`${pathname}/${buckets.first().Name}`} />;
+    return <Redirect to={`${pathname}/${buckets.value[0].name}`} />;
   }
 
   // replace the old <bucket-name> by the new one when we switch account
   if (
     bucketNameParam &&
-    !buckets.filter((bucket) => bucket.Name === bucketNameParam).size
+    !buckets.value.filter((bucket) => bucket.name === bucketNameParam).length
   ) {
     return (
       <Redirect
-        to={`/accounts/${account.Name}/buckets/${buckets.first().Name}`}
+        to={`/accounts/${account?.Name}/buckets/${buckets.value[0].name}`}
       />
     );
   }
@@ -75,17 +96,17 @@ export default function Buckets() {
         <Header
           icon={<MultiBucketsIcon />}
           headTitle={'All Buckets'}
-          numInstance={buckets ? buckets.size : 0}
+          numInstance={buckets.value.length}
         />
       </AppContainer.OverallSummary>
       <AppContainer.MainContent background="backgroundLevel1">
         <TwoPanelLayout
-          panelsRatio="70-30"
+          panelsRatio="65-35"
           leftPanel={{
             children: (
               <BucketList
                 selectedBucketName={bucketNameParam}
-                buckets={buckets}
+                buckets={buckets.value}
                 locations={locations}
                 ingestionStates={ingestionStates}
               />

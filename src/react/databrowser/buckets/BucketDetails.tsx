@@ -2,15 +2,15 @@ import React from 'react';
 import { CustomTabs } from '../../ui-elements/Tabs';
 import Overview from './details/Overview';
 import Workflow from './details/Workflow';
-import type { S3Bucket } from '../../../types/s3';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useQueryParams } from '../../utils/hooks';
 import { Icon } from '@scality/core-ui';
+import { Bucket } from '../../next-architecture/domain/entities/bucket';
 
 type Props = {
-  bucket: S3Bucket | null | undefined;
+  bucket: Bucket | null;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
 };
 
@@ -42,7 +42,7 @@ function BucketDetails({ bucket, ingestionStates }: Props) {
             path={pathname}
             query={{ ...queryObject, tab: 'workflow' }}
           >
-            <Workflow bucketName={bucket.Name}></Workflow>
+            <Workflow bucketName={bucket.name}></Workflow>
           </CustomTabs.Tab>
         </CustomTabs>
       )}

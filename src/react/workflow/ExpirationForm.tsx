@@ -9,26 +9,17 @@ import {
   Text,
   spacing,
 } from '@scality/core-ui';
-import {
-  Select,
-  Option,
-} from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
-import {
-  flattenFormErrors,
-  hasUniqueKeys,
-  renderSource,
-  sourceBucketOptions,
-} from './utils';
+import { flattenFormErrors, hasUniqueKeys } from './utils';
 import Joi from '@hapi/joi';
-import type { S3BucketList } from '../../types/s3';
 
-import { isVersioning } from '../utils';
 import TagsFilter from './TagsFilter';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { Box, Input } from '@scality/core-ui/dist/next';
+import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
+import { useMemo } from 'react';
+import { SourceBucketSelect } from './SourceBucketOption';
 
 type Props = {
-  bucketList: S3BucketList;
   locations: Locations;
   prefix?: string;
 };
@@ -123,7 +114,7 @@ export function GeneralExpirationGroup({
   );
 }
 
-export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
+export function ExpirationForm({ prefix = '' }: Props) {
   const forceLabelWidth = convertRemToPixels(12);
   const methods = useFormContext();
   const { register, control, watch, getValues, setValue, trigger } = methods;
@@ -138,12 +129,17 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
     `${prefix}incompleteMultipartUploadTriggerDelayDays`,
   );
   const sourceBucketName = watch(`${prefix}bucketName`);
-  const sourceBucket = bucketList.find(
-    (bucket) => bucket.Name === sourceBucketName,
-  );
-  const isSourceBucketVersionned = sourceBucket
-    ? isVersioning(sourceBucket.VersionStatus)
-    : false;
+  const { versionning } = useBucketVersionning(sourceBucketName);
+
+  const isSourceBucketVersionned =
+    versionning.status === 'success' ? versionning.value === 'Enabled' : false;
+
+  useMemo(() => {
+    if (!isSourceBucketVersionned) {
+      setValue(`${prefix}expireDeleteMarkersTrigger`, false);
+      setValue(`${prefix}previousVersionTriggerDelayDays`, null);
+    }
+  }, [isSourceBucketVersionned]);
 
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
@@ -187,43 +183,16 @@ export function ExpirationForm({ bucketList, locations, prefix = '' }: Props) {
                 render={({
                   field: { onChange, value: sourceBucket, onBlur },
                 }) => {
-                  const options = sourceBucketOptions(bucketList, locations);
-                  const result = options.find((l) => l.value === sourceBucket);
-                  if (isEditing && result) {
-                    return renderSource(locations)(result);
-                  }
                   return (
-                    <Select
+                    <SourceBucketSelect
                       onBlur={onBlur}
                       id="bucketName"
                       value={sourceBucket}
+                      readonly={isEditing}
                       onChange={(newBucket: string) => {
                         onChange(newBucket);
-                        const sourceBucket = bucketList.find(
-                          (bucket) => bucket.Name === newBucket,
-                        );
-                        const isSourceBucketVersionned = sourceBucket
-                          ? isVersioning(sourceBucket.VersionStatus)
-                          : false;
-                        if (!isSourceBucketVersionned) {
-                          setValue(
-                            `${prefix}expireDeleteMarkersTrigger`,
-                            false,
-                          );
-                          setValue(
-                            `${prefix}previousVersionTriggerDelayDays`,
-                            null,
-                          );
-                        }
                       }}
-                    >
-                      {options &&
-                        options.map((o, i) => (
-                          <Option key={i} value={o.value}>
-                            {renderSource(locations)(o)}
-                          </Option>
-                        ))}
-                    </Select>
+                    />
                   );
                 }}
               />

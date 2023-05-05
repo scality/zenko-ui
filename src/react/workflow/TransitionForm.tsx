@@ -1,14 +1,8 @@
 import * as T from '../ui-elements/TableKeyValue2';
 import Joi from '@hapi/joi';
-import type { S3BucketList } from '../../types/s3';
 import type { Locations } from '../../types/config';
 import { Controller, useFormContext } from 'react-hook-form';
-import {
-  hasUniqueKeys,
-  renderDestination,
-  renderSource,
-  sourceBucketOptions,
-} from './utils';
+import { hasUniqueKeys, renderDestination } from './utils';
 import {
   FormGroup,
   FormSection,
@@ -16,7 +10,6 @@ import {
   Stack,
   Toggle,
 } from '@scality/core-ui';
-import { isVersioning } from '../utils';
 import { flattenFormErrors } from './utils';
 import {
   Select,
@@ -28,6 +21,8 @@ import { useMemo } from 'react';
 import TagsFilter from './TagsFilter';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useTheme } from 'styled-components';
+import { SourceBucketSelect } from './SourceBucketOption';
+import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
 
 export const transitionSchema = {
   workflowId: Joi.string().optional().allow(null, ''),
@@ -54,7 +49,6 @@ export const transitionSchema = {
 };
 
 type Props = {
-  bucketList: S3BucketList;
   locations: Locations;
   prefix?: string;
 };
@@ -100,11 +94,7 @@ const locationsToOptions = (locations: Locations) => {
   return Object.keys(locations).map((value) => ({ value, label: value }));
 };
 
-export const TransitionForm = ({
-  bucketList,
-  locations,
-  prefix = '',
-}: Props) => {
+export const TransitionForm = ({ locations, prefix = '' }: Props) => {
   const forceLabelWidth = convertRemToPixels(12);
   const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
@@ -115,10 +105,9 @@ export const TransitionForm = ({
   const bucketName = watch(`${prefix}bucketName`);
   const applyToVersion = watch(`${prefix}applyToVersion`);
 
-  const sourceBucket = bucketList.find((bucket) => bucket.Name === bucketName);
-  const isSourceBucketVersionned = sourceBucket
-    ? isVersioning(sourceBucket.VersionStatus)
-    : false;
+  const { versionning } = useBucketVersionning({ bucketName });
+  const isSourceBucketVersionned =
+    versionning.status === 'success' && versionning.value === 'Enabled';
   // Disable the previous version if the bucket is not versioned and the default value is `Current version`
   const isPreviousVersionDisabled =
     !isSourceBucketVersionned && applyToVersion === 'current';
@@ -167,25 +156,14 @@ export const TransitionForm = ({
                 render={({
                   field: { onChange, onBlur, value: sourceBucket },
                 }) => {
-                  const options = sourceBucketOptions(bucketList, locations);
-                  const result = options.find((l) => l.value === sourceBucket);
-                  if (isEditing && result) {
-                    return renderSource(locations)(result);
-                  }
                   return (
-                    <Select
+                    <SourceBucketSelect
                       id="sourceBucket"
                       value={sourceBucket}
                       onBlur={onBlur}
+                      readonly={isEditing}
                       onChange={(newBucket: string) => onChange(newBucket)}
-                    >
-                      {options &&
-                        options.map((o, i) => (
-                          <Option key={i} value={o.value}>
-                            {renderSource(locations)(o)}
-                          </Option>
-                        ))}
-                    </Select>
+                    />
                   );
                 }}
               />

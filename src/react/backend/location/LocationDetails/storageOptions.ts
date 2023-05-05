@@ -16,7 +16,7 @@ import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
 
-type StorageOptionValues = {
+export type StorageOptionValues = {
   name: string;
   short: string;
   formDetails: JSX.Element | any;

@@ -11,13 +11,12 @@ import { Icon } from '@scality/core-ui';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 type Props = {
   wfSelected: Workflow | null | undefined;
-  bucketList: S3BucketList;
 };
 export const InfoWarning = ({ title }: { title: string }) => (
   <Warning icon={<Icon name="Info-circle" size="2x" />} title={title} />
 );
 
-function Details({ wfSelected, bucketList }: Props) {
+function Details({ wfSelected }: Props) {
   const query = useQueryParams();
   const locations = useSelector(
     (state: AppState) => state.configuration.latest?.locations ?? {},
@@ -28,13 +27,7 @@ function Details({ wfSelected, bucketList }: Props) {
   }
 
   if (!tabName) {
-    return (
-      <ConfigurationTab
-        bucketList={bucketList}
-        locations={locations}
-        wfSelected={wfSelected}
-      />
-    );
+    return <ConfigurationTab locations={locations} wfSelected={wfSelected} />;
   }
 
   return null;

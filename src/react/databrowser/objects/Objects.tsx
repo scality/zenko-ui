@@ -148,7 +148,7 @@ export default function Objects() {
       />
       <AppContainer.MainContent background="backgroundLevel1">
         <TwoPanelLayout
-          panelsRatio="70-30"
+          panelsRatio="65-35"
           leftPanel={{
             children: (
               <ObjectList

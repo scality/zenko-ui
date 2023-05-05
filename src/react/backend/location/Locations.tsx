@@ -5,7 +5,7 @@ import {
   canDeleteLocation,
   canEditLocation,
 } from '../../backend/location/utils';
-import { deleteLocation, handleClientError, networkEnd } from '../../actions';
+import { deleteLocation } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 
@@ -13,7 +13,7 @@ import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
 import { Warning } from '../../ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
-import { Table, Button, Box } from '@scality/core-ui/dist/next';
+import { Table, Button } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
 import { CellProps } from 'react-table';
 import { useWorkflows } from '../../workflow/Workflows';

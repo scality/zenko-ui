@@ -12,7 +12,6 @@ import { useHistory } from 'react-router';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
-  isTransientLocation,
   replicationSchema,
 } from './ReplicationForm';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -63,6 +62,12 @@ import {
   IconName,
 } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
+import {
+  useBucketLocationConstraint,
+  useBucketVersionning,
+} from '../next-architecture/domain/business/buckets';
+import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -81,9 +86,6 @@ const CreateWorkflow = () => {
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
-  const bucketList = useSelector(
-    (state: AppState) => state.s3.listBucketsResults.list,
-  );
   const BUCKETNAME_QUERY_PARAM = 'bucket';
   const queryParams = useQueryParams();
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
@@ -95,8 +97,9 @@ const CreateWorkflow = () => {
   const queryClient = useQueryClient();
   const { instanceId } = getClients(state);
 
-  const bucket = bucketList.find((bucket) => bucket.Name === bucketName);
-  const isBucketVersioningEnabled = bucket?.VersionStatus === 'Enabled';
+  const { versionning } = useBucketVersionning({ bucketName });
+  const isBucketVersioningEnabled =
+    versionning.status === 'success' && versionning.value === 'Enabled';
 
   const defaultFormValues = {
     type: 'select',
@@ -114,6 +117,19 @@ const CreateWorkflow = () => {
     select: (workflows) =>
       workflows.filter((w) => w.replication).map((w) => w.replication),
   });
+
+  const locationsAdapter = useLocationAdapter();
+  const { locationConstraint } = useBucketLocationConstraint({
+    bucketName,
+  });
+  const locationInfos = useLocationAndStorageInfos({
+    locationName:
+      locationConstraint.status === 'success' ? locationConstraint.value : '',
+    locationsAdapter,
+  });
+  const isTransient =
+    locationInfos.status === 'success' &&
+    locationInfos.value.location?.isTransient;
 
   const useFormMethods = useForm({
     mode: 'onTouched',
@@ -139,7 +155,7 @@ const CreateWorkflow = () => {
               unallowedBucketName,
               disPrefixes,
               prefixMandatory,
-              isTransientLocation(bucketList, locations, bucketName),
+              !!isTransient,
             ),
           ),
           otherwise: Joi.valid(),
@@ -415,25 +431,16 @@ const CreateWorkflow = () => {
         </FormSection>
         {type === 'replication' && (
           <ReplicationForm
-            bucketList={bucketList}
             locations={locations}
             prefix="replication."
             isCreateMode={true}
           />
         )}
         {type === 'expiration' && (
-          <ExpirationForm
-            bucketList={bucketList}
-            locations={locations}
-            prefix="expiration."
-          />
+          <ExpirationForm locations={locations} prefix="expiration." />
         )}
         {type === 'transition' && (
-          <TransitionForm
-            bucketList={bucketList}
-            locations={locations}
-            prefix="transition."
-          />
+          <TransitionForm locations={locations} prefix="transition." />
         )}
       </Form>
     </FormProvider>

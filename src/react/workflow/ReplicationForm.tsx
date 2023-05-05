@@ -32,8 +32,6 @@ import {
   flattenFormErrors,
   flattenFormTouchedFields,
   renderDestination,
-  renderSource,
-  sourceBucketOptions,
 } from './utils';
 import Joi from '@hapi/joi';
 import { NoLocationWarning } from '../ui-elements/Warning';
@@ -53,9 +51,12 @@ import { Account } from '../../types/iam';
 import { SelectOption } from '../../types/ui';
 import { useEffect } from 'react';
 import { WorkflowState } from './WorkflowState';
+import { SourceBucketSelect } from './SourceBucketOption';
+import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
+import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
+import { useBucketLocationConstraint } from '../next-architecture/domain/business/buckets';
 
 type Props = {
-  bucketList: S3BucketList;
   locations: Locations;
   isCreateMode?: boolean;
   prefix?: string;
@@ -174,22 +175,8 @@ const useReplicationStreams = (account?: Account) => {
   return replicationsQuery.data ?? [];
 };
 
-export const isTransientLocation = (
-  bucketList: S3BucketList,
-  locations: Locations,
-  sourceBucket: string,
-) => {
-  const selectedBucket = bucketList.find(
-    (bucket) => bucket.Name === sourceBucket,
-  );
-  const isTransient =
-    locations[selectedBucket?.LocationConstraint ?? '']?.isTransient ?? false;
-  return isTransient;
-};
-
 function ReplicationForm({
   prefix = '',
-  bucketList,
   locations,
   isCreateMode,
   ...props
@@ -222,7 +209,18 @@ function ReplicationForm({
     const { prefix } = stream.source;
     return prefix === '' || !prefix;
   });
-  const isTransient = isTransientLocation(bucketList, locations, sourceBucket);
+  const locationsAdapter = useLocationAdapter();
+  const { locationConstraint } = useBucketLocationConstraint({
+    bucketName: sourceBucket,
+  });
+  const locationInfos = useLocationAndStorageInfos({
+    locationName:
+      locationConstraint.status === 'success' ? locationConstraint.value : '',
+    locationsAdapter,
+  });
+  const isTransient =
+    locationInfos.status === 'success' &&
+    locationInfos.value.location?.isTransient;
   const existingReplicationStream = replicationsSameBucketName.find(
     (stream) => {
       const { prefix } = stream.source;
@@ -268,28 +266,10 @@ function ReplicationForm({
                   render={({
                     field: { onChange, onBlur, value: sourceBucket },
                   }) => {
-                    const options = sourceBucketOptions(bucketList, locations);
                     const isEditing = !!getValues(`${prefix}streamId`);
-                    const result = options.find(
-                      (l) => l.value === sourceBucket,
-                    );
-                    if (isEditing) {
-                      // TODO: To be removed once retrieving workflows per account:
-                      if (!result) {
-                        return (
-                          <span>
-                            {' '}
-                            {sourceBucket}{' '}
-                            <small>
-                              (depreciated because entity does not exist){' '}
-                            </small>{' '}
-                          </span>
-                        );
-                      }
-                      return renderSource(locations)(result);
-                    }
+
                     return (
-                      <Select
+                      <SourceBucketSelect
                         onBlur={onBlur}
                         id="sourceBucket"
                         value={sourceBucket}
@@ -297,20 +277,15 @@ function ReplicationForm({
                           onChange(...values);
                           trigger();
                         }}
-                        disabled={isEditing}
-                      >
-                        {options &&
-                          options.map((o, i) => (
-                            <Option
-                              title={o.disabled ? 'Versioning is disabled' : ''}
-                              key={i}
-                              value={o.value}
-                              disabled={o.disabled}
-                            >
-                              {renderSource(locations)(o)}
-                            </Option>
-                          ))}
-                      </Select>
+                        readonly={isEditing}
+                        disableOption={({
+                          isBucketVersionned,
+                          locationInfos,
+                        }) =>
+                          !locationInfos?.storageOption
+                            ?.supportsReplicationSource || !isBucketVersionned
+                        }
+                      />
                     );
                   }}
                 />
