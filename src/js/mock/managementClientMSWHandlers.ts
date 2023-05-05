@@ -372,6 +372,18 @@ export const LOCATIONS_METRICS_RESPONSE = {
   [NEWLY_CREATED_LOCATION_ID]: { type: TYPE_NO_METRICS },
 };
 
+export const BUCKET_METRICS_RESPONSE = {
+  [BUCKET_NAME]: {
+    type: TYPE_HAS_METRICS,
+    usedCapacity: {
+      current: USED_CAPACITY_CURRENT,
+      nonCurrent: USED_CAPACITY_NON_CURRENT,
+    },
+    measuredOn: new Date(MEASURED_ON),
+  },
+  [NEWLY_CREATED_BUCKET_NAME]: { type: TYPE_NO_METRICS },
+};
+
 export const getStorageConsumptionMetricsHandlers = (
   baseUrl: string,
   instanceId: string,
@@ -380,7 +392,7 @@ export const getStorageConsumptionMetricsHandlers = (
   rest.post(
     `${baseUrl}/api/v1/instance/${instanceId}/account/metrics`,
     (req, res, ctx) => {
-      const { accounts } = req.body as { accounts: string[] };
+      const accounts = req.body as string[];
 
       if (
         accounts.includes(ACCOUNT_CANONICAL_ID) &&
@@ -430,7 +442,7 @@ export const getStorageConsumptionMetricsHandlers = (
   rest.post(
     `${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`,
     (req, res, ctx) => {
-      const { buckets } = req.body as { buckets: string[] };
+      const buckets = req.body as string[];
       if (
         buckets.includes(BUCKET_ID) &&
         buckets.includes(NEWLY_CREATED_BUCKET_ID)
