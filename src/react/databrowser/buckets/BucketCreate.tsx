@@ -22,7 +22,7 @@ import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';
 import { XDM_FEATURE } from '../../../js/config';
-import { renderLocation } from '../../backend/location/utils';
+import { renderLocation } from '../../locations/utils';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useParams } from 'react-router';
 

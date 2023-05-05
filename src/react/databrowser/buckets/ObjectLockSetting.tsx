@@ -12,7 +12,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import type { AppState } from '../../../types/state';
 import { Banner, Icon, Form, Stack } from '@scality/core-ui';
-import { convertToBucketInfo } from '../../backend/location/utils';
+import { convertToBucketInfo } from '../../locations/utils';
 const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 export default function ObjectLockSetting() {
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);

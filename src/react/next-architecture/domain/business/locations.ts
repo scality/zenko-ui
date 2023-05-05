@@ -9,7 +9,7 @@ import {
 import { PromiseResult } from '../entities/promise';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
-import { storageOptions } from '../../../backend/location/LocationDetails';
+import { storageOptions } from '../../../locations/LocationDetails';
 
 const noRefetchOptions = {
   refetchOnWindowFocus: false,

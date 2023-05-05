@@ -1,8 +1,8 @@
 import { Dispatch } from 'redux';
-import { UiFacingApi } from '../../../js/managementClient/api';
-import { ApiError } from '../../../types/actions';
-import type { InstanceStatus } from '../../../types/stats';
-import { handleClientError } from '../../actions';
+import { UiFacingApi } from '../../js/managementClient/api';
+import { ApiError } from '../../types/actions';
+import type { InstanceStatus } from '../../types/stats';
+import { handleClientError } from '../actions';
 
 export const getInstanceStatusQuery = (
   dispatch: Dispatch<any>,

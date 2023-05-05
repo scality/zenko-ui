@@ -2,7 +2,7 @@ import { DefaultTheme, useTheme } from 'styled-components';
 import React from 'react';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
-import Locations from '../backend/location/Locations';
+import { LocationsList } from '../locations/LocationsList';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch, useParams } from 'react-router-dom';
@@ -45,7 +45,7 @@ function AccountDetails({ account }: Props) {
         <Properties account={account} />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
-        <Locations />
+        <LocationsList />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Users" path={`${url}/users`}>
         <AccountUserList accountName={accountName} />

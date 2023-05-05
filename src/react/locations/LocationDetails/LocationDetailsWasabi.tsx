@@ -1,4 +1,4 @@
-import type { LocationDetails } from '../../../../types/config';
+import type { LocationDetails } from '../../../types/config';
 import React from 'react';
 import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/next';

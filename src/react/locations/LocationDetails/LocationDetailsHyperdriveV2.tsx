@@ -1,6 +1,6 @@
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
-import InputList from '../../../ui-elements/InputList';
+import InputList from '../../ui-elements/InputList';
 import { FormSection } from '@scality/core-ui';
 
 type State = {

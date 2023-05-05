@@ -1,7 +1,6 @@
 import { Provider } from 'react-redux';
 import { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
-import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount, ReactWrapper } from 'enzyme';

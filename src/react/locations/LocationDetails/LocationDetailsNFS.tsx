@@ -1,4 +1,4 @@
-import type { LocationDetails } from '../../../../types/config';
+import type { LocationDetails } from '../../../types/config';
 import React from 'react';
 import urlParse from 'url-parse';
 import { LocationDetailsFormProps } from '.';

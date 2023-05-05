@@ -5,7 +5,7 @@ import type {
 import type { ReplicationForm } from '../../types/replication';
 import type { SelectOption } from '../../types/ui';
 import { getLocationTypeShort } from '../utils/storageOptions';
-import { storageOptions } from '../backend/location/LocationDetails';
+import { storageOptions } from '../locations/LocationDetails';
 import {
   BucketWorkflowTransitionV2,
   BucketWorkflowExpirationV1,

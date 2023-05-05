@@ -13,14 +13,14 @@ import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { LocationName } from '../../../types/config';
-import type { AppState } from '../../../types/state';
-import { clearError, saveLocation } from '../../actions';
-import { useOutsideClick } from '../../utils/hooks';
+import { LocationName } from '../../types/config';
+import type { AppState } from '../../types/state';
+import { clearError, saveLocation } from '../actions';
+import { useOutsideClick } from '../utils/hooks';
 import {
   getLocationTypeKey,
   selectStorageOptions,
-} from '../../utils/storageOptions';
+} from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import locationFormCheck from './locationFormCheck';
 import LocationOptions from './LocationOptions';

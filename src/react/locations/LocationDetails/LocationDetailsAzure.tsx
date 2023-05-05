@@ -6,7 +6,7 @@ import {
   LocationAzureClientSecret,
   LocationAzureSharedAccessSignature,
   LocationAzureSharedKey,
-} from '../../../../js/managementClient/api';
+} from '../../../js/managementClient/api';
 type State = {
   bucketMatch: boolean;
   accessKey?: string;

@@ -1,11 +1,8 @@
-import type {
-  EnabledState,
-  InstanceStateSnapshot,
-} from '../../../../types/stats';
+import type { EnabledState, InstanceStateSnapshot } from '../../../types/stats';
 import type {
   LocationDetails as LocationFormDetails,
   LocationType,
-} from '../../../../types/config';
+} from '../../../types/config';
 import React from 'react';
 import { Tooltip } from '@scality/core-ui';
 // import { TextWithTooltip } from '../../../ui-elements/TooltipComponents';
@@ -85,9 +82,7 @@ export default class LocationDetails extends React.Component<Props> {
       <div className="p-2">
         <div>
           Location Type:&nbsp;
-          <span
-            className="px-2"
-          >
+          <span className="px-2">
             {storageOptions[this.props.locationType].name}
           </span>
           <br />

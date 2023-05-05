@@ -128,7 +128,7 @@ export const SearchContainer = styled.div`
 `;
 export const Search = styled.div`
   display: flex;
-  flex: 0 0 220px;
+  flex: 0 0 auto;
 `;
 export const SearchInput = styled(SearchInputCore)`
   width: 100%;

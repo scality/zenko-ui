@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Box, Input } from '@scality/core-ui/dist/next';
-import { HelpLocationCreationAsyncNotification } from '../../../ui-elements/Help';
-import { isIngestSource } from '../../../utils/storageOptions';
+import { Input } from '@scality/core-ui/dist/next';
+import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
+import { isIngestSource } from '../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
-import type { AppState } from '../../../../types/state';
-import { XDM_FEATURE } from '../../../../js/config';
+import type { AppState } from '../../../types/state';
+import { XDM_FEATURE } from '../../../js/config';
 import { LocationDetailsFormProps } from '.';
 
 import {
@@ -18,7 +18,7 @@ import {
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_ENDPOINT,
   OUTSCALE_SNC_S3_LOCATION_KEY,
-} from '../../../../types/config';
+} from '../../../types/config';
 import { checkIsRingS3Reseller } from '../utils';
 import {
   Checkbox,

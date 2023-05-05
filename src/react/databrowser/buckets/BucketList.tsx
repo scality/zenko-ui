@@ -56,7 +56,8 @@ export default function BucketList({
           const history = useHistory();
           return (
             <Link
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 history.push(
                   `/accounts/${accountName}/buckets/${name}/objects`,
                 );
@@ -104,7 +105,6 @@ export default function BucketList({
       Header: 'Data Used',
       accessor: 'usedCapacity',
       cellStyle: {
-        flex: '1',
         paddingRight: spacing.r32,
         textAlign: 'right',
       },

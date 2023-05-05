@@ -16,7 +16,6 @@ import {
   useLocation,
 } from 'react-router-dom';
 import {
-  assumeRoleWithWebIdentity,
   loadClients,
   loadInstanceLatestStatus,
   setManagementClient,
@@ -30,23 +29,22 @@ import DataBrowser from './databrowser/DataBrowser';
 import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import Loader from './ui-elements/Loader';
-import LocationEditor from './backend/location/LocationEditor';
+import LocationEditor from './locations/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
-  useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
-import { getClients } from './utils/actions';
 import { ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
 import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
-import { MultiAccountsIcon } from './account/MultiAccountsIcon';
+import { Locations } from './locations/Locations';
+import { useZenkoClient } from './next-architecture/ui/S3ClientProvider';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -105,28 +103,16 @@ function WithAssumeRole({
   children,
 }: PropsWithChildren<Record<string, unknown>>) {
   const dispatch = useDispatch();
-  const user = useSelector((state: AppState) => state.oidc.user);
-  const { zenkoClient } = getClients(useSelector((state: AppState) => state));
-  const isZenkoClientLogin = zenkoClient.getIsLogin();
-  const { roleArn } = useDataServiceRole();
+  const zenkoClient = useZenkoClient();
 
   useEffect(() => {
-    const isAuthenticated = !!user && !user.expired;
+    dispatch({
+      type: 'SET_ZENKO_CLIENT',
+      zenkoClient,
+    });
+  }, [dispatch]);
 
-    if (isAuthenticated && roleArn) {
-      dispatch(assumeRoleWithWebIdentity(roleArn));
-    }
-  }, [dispatch, user, roleArn]);
-
-  if (isZenkoClientLogin) {
-    return <>{children}</>;
-  } else {
-    return (
-      <Loader>
-        <div>Loading</div>
-      </Loader>
-    );
-  }
+  return <>{children}</>;
 }
 
 function PrivateRoutes() {
@@ -226,6 +212,7 @@ function PrivateRoutes() {
 
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
+      <Route exact path="/locations" component={Locations} />
 
       <Route path="*" component={NoMatch} />
     </Switch>
@@ -307,6 +294,16 @@ function Routes() {
           doesRouteMatch({
             path: '/accounts/:accountName/workflows',
           }),
+      },
+      {
+        label: 'Locations',
+        icon: <Icon name="Location" />,
+        onClick: () => {
+          history.push('/locations');
+        },
+        active: doesRouteMatch({
+          path: '/locations',
+        }),
       },
       {
         label: 'Data Services',

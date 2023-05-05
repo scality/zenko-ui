@@ -3,10 +3,10 @@ import { Box } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../../types/state';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { useManagementClient } from '../../ManagementProvider';
-import { InlineButton } from '../../ui-elements/Table';
+import { AppState } from '../../types/state';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useManagementClient } from '../ManagementProvider';
+import { InlineButton } from '../ui-elements/Table';
 import { getInstanceStatusQuery } from './queries';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {

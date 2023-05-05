@@ -1,12 +1,12 @@
-import Locations from '../Locations';
+import LocationsList from '../LocationsList';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-} from '../../../utils/testUtil';
-import { XDM_FEATURE } from '../../../../js/config';
+} from '../../utils/testUtil';
+import { XDM_FEATURE } from '../../../js/config';
 import {
   screen,
   getAllByRole,
@@ -17,7 +17,7 @@ import { List } from 'immutable';
 import {
   ACCOUNT_ID,
   getColdStorageHandlers,
-} from '../../../../js/mock/managementClientMSWHandlers';
+} from '../../../js/mock/managementClientMSWHandlers';
 const locationFile = {
   details: {
     bootstrapList: [],
@@ -155,7 +155,7 @@ afterAll(() => server.close());
 describe.skip('Locations', () => {
   it('should render Locations component alphabetically sorted', async () => {
     try {
-      reduxRender(<Locations />, {
+      reduxRender(<LocationsList />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -360,7 +360,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<Locations />, {
+      reduxRender(<LocationsList />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -447,7 +447,7 @@ describe.skip('Locations', () => {
         ),
       );
 
-      reduxRender(<Locations />, {
+      reduxRender(<LocationsList />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -513,7 +513,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is attached to a bucket', async () => {
     try {
-      reduxRender(<Locations />, {
+      reduxRender(<LocationsList />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -581,7 +581,7 @@ describe.skip('Locations', () => {
   });
   it('should disable delete location button if location is being used for endpoint', async () => {
     try {
-      reduxRender(<Locations />, {
+      reduxRender(<LocationsList />, {
         networkActivity: {
           counter: 0,
           messages: List.of(),
@@ -671,7 +671,7 @@ describe.skip('Locations', () => {
       }),
       ...getColdStorageHandlers(TEST_API_BASE_URL, instanceId),
     );
-    reduxRender(<Locations />, {
+    reduxRender(<LocationsList />, {
       networkActivity: {
         counter: 0,
         messages: List.of(),

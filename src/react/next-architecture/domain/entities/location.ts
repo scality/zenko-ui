@@ -3,7 +3,7 @@ import { PromiseResult } from './promise';
 import { LocationTypeKey } from '../../../../types/config';
 import { Locationv1Details } from '../../../../js/managementClient/api';
 import { LocationInfo } from '../../adapters/accounts-locations/ILocationsAdapter';
-import { StorageOptionValues } from '../../../backend/location/LocationDetails';
+import { StorageOptionValues } from '../../../locations/LocationDetails';
 
 export type Location = {
   id: string;

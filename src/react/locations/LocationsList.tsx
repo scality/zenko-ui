@@ -1,32 +1,33 @@
-import { Location, Replication } from '../../../types/config';
+import { Replication } from '../../types/config';
 import { useCallback, useMemo, useState, ComponentType } from 'react';
-import { HelpLocationTargetBucket } from '../../ui-elements/Help';
-import {
-  canDeleteLocation,
-  canEditLocation,
-} from '../../backend/location/utils';
-import { deleteLocation } from '../../actions';
+import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { canDeleteLocation, canEditLocation } from './utils';
+import { deleteLocation } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import type { AppState } from '../../types/state';
 
-import DeleteConfirmation from '../../ui-elements/DeleteConfirmation';
-import { Warning } from '../../ui-elements/Warning';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { TitleRow as TableHeader } from '../../ui-elements/TableKeyValue';
-import { Table, Button } from '@scality/core-ui/dist/next';
+import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
+import { Table, Button, Box } from '@scality/core-ui/dist/next';
 import { useHistory } from 'react-router-dom';
-import { CellProps } from 'react-table';
-import { useWorkflows } from '../../workflow/Workflows';
-import { InlineButton } from '../../ui-elements/Table';
-import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
-import { getLocationType } from '../../utils/storageOptions';
-import { BucketWorkflowTransitionV2 } from '../../../js/managementClient/api';
-import { Icon, IconHelp } from '@scality/core-ui';
+import { CellProps, CoreUIColumn } from 'react-table';
+import { useWorkflows } from '../workflow/Workflows';
+import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
+import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
+import { getLocationType } from '../utils/storageOptions';
+import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
+import { Icon, IconHelp, spacing } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
-
-type LocationRowProps = {
-  original: Location;
-};
+import { useListLocations } from '../next-architecture/domain/business/locations';
+import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { Location } from '../next-architecture/domain/entities/location';
+import {
+  UsedCapacity,
+  UsedCapacityInlinePromiseResult,
+} from '../next-architecture/ui/metrics/LatestUsedCapacity';
 
 const ActionButtons = ({
   rowValues,
@@ -100,27 +101,23 @@ const ActionButtons = ({
   );
 };
 
-function Locations() {
+export function LocationsList() {
   const dispatch = useDispatch();
   const history = useHistory();
   const workflowsQuery = useWorkflows();
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
-  );
+  const locationsAdapter = useLocationAdapter();
+  const metricsAdapter = useMetricsAdapter();
+  const { locations } = useListLocations({ locationsAdapter, metricsAdapter });
 
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
   );
-  const data = useMemo(
-    () =>
-      Object.values(locations).map((location) => ({
-        ...location,
-        _asyncMetadataUpdatesColumn: true,
-        _actionsColumn: true,
-      })),
-    [locations],
-  );
+
+  const data = useMemo(() => {
+    if (locations.status === 'success') return Object.values(locations.value);
+    else return [];
+  }, [locations]);
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
@@ -128,18 +125,19 @@ function Locations() {
   const features = useSelector((state: AppState) => state.auth.config.features);
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
-    const columns = [
+    const columns: CoreUIColumn<Location>[] = [
       {
         Header: 'Location Name',
         accessor: 'name',
         cellStyle: {
           textAlign: 'left',
           minWidth: '20rem',
+          paddingLeft: '18px',
         },
       },
       {
         Header: 'Location Type',
-        accessor: 'locationType',
+        accessor: 'type',
         cellStyle: {
           textAlign: 'left',
           minWidth: '24rem',
@@ -166,7 +164,18 @@ function Locations() {
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '24rem',
+          flex: '0.3',
+        },
+      },
+      {
+        Header: <>Data Used</>,
+        accessor: 'usedCapacity',
+        cellStyle: {
+          textAlign: 'left',
+          flex: '0.2',
+        },
+        Cell: ({ value }) => {
+          return <UsedCapacityInlinePromiseResult result={value} />;
         },
       },
     ];
@@ -191,24 +200,26 @@ function Locations() {
           />
         </>
       ),
-      accessor: '_asyncMetadataUpdatesColumn',
+      accessor: 'id',
       disableSortBy: true,
       cellStyle: {
         textAlign: 'left',
-        minWidth: '14rem',
+        flex: '0.3',
       },
-      Cell: ({ row: { original } }: { row: LocationRowProps }) => (
+      Cell: ({ row: { original } }) => (
         <PauseAndResume locationName={original.name} />
       ),
     });
 
     columns.push({
       Header: '',
-      accessor: '_actionsColumn',
+      accessor: 'details',
       cellStyle: {
         textAlign: 'right',
         minWidth: '10rem',
         marginLeft: 'auto',
+        flex: '0.1',
+        paddingRight: '18px',
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {
@@ -249,22 +260,16 @@ function Locations() {
   }
 
   return (
-    <div
-      style={{
-        height: '100%',
-      }}
+    <Box
+      display="flex"
+      flexDirection="column"
+      flex="1"
+      style={{ paddingTop: '1rem' }}
+      id="endpoint-list"
     >
       <Table columns={columns} data={data} defaultSortingKey={'name'}>
-        <TableHeader>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              textAlign: 'left',
-              minWidth: '10rem',
-              marginRight: 'auto',
-            }}
-          >
+        <SearchContainer>
+          <Search>
             <Table.SearchWithQueryParams
               displayedName={{
                 singular: 'location',
@@ -272,7 +277,7 @@ function Locations() {
               }}
               queryParams={SEARCH_QUERY_PARAM}
             />
-          </div>
+          </Search>
           <Button
             icon={<Icon name="Create-add" />}
             label="Create Location"
@@ -280,7 +285,7 @@ function Locations() {
             onClick={() => history.push('/create-location')}
             type="submit"
           />
-        </TableHeader>
+        </SearchContainer>
         <Table.SingleSelectableContent
           id="singleTable"
           rowHeight="h40"
@@ -294,8 +299,6 @@ function Locations() {
           {(Rows: ComponentType) => <>{Rows}</>}
         </Table.SingleSelectableContent>
       </Table>
-    </div>
+    </Box>
   );
 }
-
-export default Locations;

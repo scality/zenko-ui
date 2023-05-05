@@ -4,8 +4,8 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { LocationDetailsFormProps } from '.';
-import ColdStorageIcon from '../../../ui-elements/ColdStorageIcon';
-import InputList from '../../../ui-elements/InputList';
+import ColdStorageIcon from '../../ui-elements/ColdStorageIcon';
+import InputList from '../../ui-elements/InputList';
 type State = {
   endpoint: string;
   repoId: string[];

@@ -6,7 +6,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { reduxRender, TEST_API_BASE_URL } from '../../../utils/testUtil';
+import { reduxRender, TEST_API_BASE_URL } from '../../utils/testUtil';
 import { PauseAndResume } from '../PauseAndResume';
 
 describe('PauseAndResume', () => {

@@ -16,7 +16,7 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { push } from 'connected-react-router';
 import { useOutsideClick } from '../utils/hooks';
-import { renderLocation } from '../backend/location/utils';
+import { renderLocation } from '../locations/utils';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),

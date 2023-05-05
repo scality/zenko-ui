@@ -4,7 +4,7 @@ import {
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
-} from '../../../../types/config';
+} from '../../../types/config';
 import LocationDetailsAws from './LocationDetailsAws';
 import LocationDetailsAwsCustom from './LocationDetailsAwsCustom';
 import LocationDetailsAzure from './LocationDetailsAzure';
