@@ -4,7 +4,7 @@ import { EmptyStateContainer } from '../ui-elements/Container';
 import EndpointList from './EndpointList';
 import { Warning } from '../ui-elements/Warning';
 import { push } from 'connected-react-router';
-import { AppContainer, Icon } from '@scality/core-ui';
+import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
 
 const Endpoints = () => {
   const dispatch = useDispatch();
@@ -31,9 +31,17 @@ const Endpoints = () => {
   }
 
   return (
-    <AppContainer.MainContent background="backgroundLevel2" hasTopMargin>
-      <EndpointList endpoints={endpoints} locations={locations} />
-    </AppContainer.MainContent>
+    <>
+      <AppContainer.OverallSummary>
+        <Stack gap="r16">
+          <Icon name="Cubes" color="infoPrimary" size="2x" withWrapper />
+          <Text variant="Larger">Data Services</Text>
+        </Stack>
+      </AppContainer.OverallSummary>
+      <AppContainer.MainContent background="backgroundLevel3">
+        <EndpointList endpoints={endpoints} locations={locations} />
+      </AppContainer.MainContent>
+    </>
   );
 };
 
