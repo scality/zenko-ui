@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import { IAccessibleAccounts } from '../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAMPensieveAccessibleAccounts } from '../adapters/accessible-accounts/IAMPensieveAccessibleAccounts';
+import { useAccountsAdapter } from './AccountAdapterProvider';
 
 const _AccessibleAccountsAdapterContext = createContext<null | {
   accessibleAccountsAdapter: IAccessibleAccounts;
@@ -23,8 +24,10 @@ export const AccessibleAccountsAdapterProvider = ({
 }: {
   children: JSX.Element;
 }) => {
-  // We only need to change to SCUBA Adaptor later on.
-  const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts();
+  const accountAdapter = useAccountsAdapter();
+  const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts(
+    accountAdapter,
+  );
   return (
     <_AccessibleAccountsAdapterContext.Provider
       value={{ accessibleAccountsAdapter }}

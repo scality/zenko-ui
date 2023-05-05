@@ -27,7 +27,7 @@ const noRefetchOptions = {
 export const queries = {
   listAccounts: (accountsAdapter: IAccountsAdapter) => ({
     queryKey: ['accounts'],
-    queryFn: accountsAdapter.listAccounts,
+    queryFn: () => accountsAdapter.listAccounts(),
     ...noRefetchOptions,
   }),
   listAccountsMetrics: (
@@ -78,69 +78,76 @@ export const useListAccounts = ({
 
   const accountInfosWithPerferredAssumableRole = useMemo(() => {
     if (accountInfos.status === 'success') {
-      const accounts: AccountInfo[] = accountInfos.value.map((accountInfo) => {
+      const accounts = accountInfos.value.map((accountInfo) => {
         const roleStorageAccountOwner = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
         );
         const roleStorageManager = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_MANAGER_ROLE,
         );
-        let preferredAssumableRole = accountInfo.assumableRoles[0].Arn;
+        let preferredAssumableRoleArn = accountInfo.assumableRoles[0].Arn;
         if (roleStorageAccountOwner) {
-          preferredAssumableRole = roleStorageAccountOwner.Arn;
+          preferredAssumableRoleArn = roleStorageAccountOwner.Arn;
         } else if (roleStorageManager) {
-          preferredAssumableRole = roleStorageManager.Arn;
+          preferredAssumableRoleArn = roleStorageManager.Arn;
         }
         return {
           ...accountInfo,
-          preferredAssumableRole,
+          preferredAssumableRoleArn,
         };
       });
-      return { accounts: { status: 'success', value: accounts } };
+      return accounts;
     }
+    return [];
   }, [accountInfos.status]);
 
   if (
     accountInfos.status === 'success' &&
     (metricsStatus === 'idle' || metricsStatus === 'loading')
   ) {
-    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
-      return {
-        ...accountInfo,
-        usedCapacity: { status: 'loading' },
-      };
-    });
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
+      (accountInfo) => {
+        return {
+          ...accountInfo,
+          usedCapacity: { status: 'loading' },
+        };
+      },
+    );
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'success' && metricsStatus === 'success') {
-    const accounts: Account[] = accountInfos.value.map((accountInfo) => {
-      const accountCanonicalId = accountInfo.canonicalId;
-      return {
-        ...accountInfo,
-        usedCapacity: metrics[accountCanonicalId]
-          ? {
-              status: 'success',
-              value: metrics[accountCanonicalId],
-            }
-          : {
-              status: 'unknown',
-            },
-      };
-    });
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
+      (accountInfo) => {
+        const accountCanonicalId = accountInfo.canonicalId;
+        return {
+          ...accountInfo,
+          usedCapacity: metrics[accountCanonicalId]
+            ? {
+                status: 'success',
+                value: metrics[accountCanonicalId],
+              }
+            : {
+                status: 'unknown',
+              },
+        };
+      },
+    );
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'success' && metricsStatus === 'error') {
-    const accounts: Account[] = accountInfos.value.map((accountInfo, i) => {
-      return {
-        ...accountInfo,
-        usedCapacity:
-          i < MAX_NUM_ACCOUNT_REQUEST
-            ? {
-                status: 'error',
-                title: 'Account metrics error',
-                reason: 'An error occurred when fetching metrics',
-              }
-            : { status: 'unknown' },
-      };
-    });
+    const accounts: Account[] = accountInfosWithPerferredAssumableRole.map(
+      (accountInfo, i) => {
+        return {
+          ...accountInfo,
+          usedCapacity:
+            i < MAX_NUM_ACCOUNT_REQUEST
+              ? {
+                  status: 'error',
+                  title: 'Account metrics error',
+                  reason: 'An error occurred when fetching metrics',
+                }
+              : { status: 'unknown' },
+        };
+      },
+    );
     return { accounts: { status: 'success', value: accounts } };
   } else if (accountInfos.status === 'error') {
     return {

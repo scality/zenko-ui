@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { IAccountsAdapter } from '../adapters/accounts-locations/IAccountsAdapter';
-import { PensieveAccountsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
+import { PensieveAccountsLocationsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
 import { useAccessToken, useInstanceId } from './AuthProvider';
 import { useConfig } from './ConfigProvider';
 
@@ -28,7 +28,7 @@ export const AccountsAdapterProvider = ({
   const token = useAccessToken();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();
-  const accountsAdapter = new PensieveAccountsAdapter(
+  const accountsAdapter = new PensieveAccountsLocationsAdapter(
     managementEndpoint,
     instanceId,
     token,

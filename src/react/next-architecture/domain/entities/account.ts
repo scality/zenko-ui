@@ -11,7 +11,7 @@ export type Role = {
 
 export type AccountAssumableRole = {
   assumableRoles: Role[];
-  preferredAssumableRole: string;
+  preferredAssumableRoleArn: string;
 };
 
 export type AccountInfo = {

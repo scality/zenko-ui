@@ -13,6 +13,7 @@ import { useS3Client } from '../../ui/S3ClientProvider';
 import {
   BucketLatestUsedCapacityPromiseResult,
   BucketLocationConstraintPromiseResult,
+  BucketVersionningPromiseResult,
   BucketsPromiseResult,
 } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
@@ -30,6 +31,15 @@ export const queries = {
   listBuckets: (s3Client: S3) => ({
     queryKey: ['buckets'],
     queryFn: () => s3Client.listBuckets().promise(),
+    ...noRefetchOptions,
+  }),
+  getBucketVersioning: (s3Client: S3, bucketName?: string) => ({
+    queryKey: ['bucketVersioning', bucketName],
+    queryFn: () =>
+      s3Client
+        .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
+        .promise(),
+    enabled: !!bucketName,
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
@@ -162,6 +172,42 @@ export const useListBucketsForCurrentAccount = ({
     buckets: {
       status: 'success',
       value: bucketsWithLocation,
+    },
+  };
+};
+
+export const useBucketVersionning = ({
+  bucketName,
+}: {
+  bucketName: string;
+}): BucketVersionningPromiseResult => {
+  const s3Client = useS3Client();
+  const { data, status } = useQuery({
+    ...queries.getBucketVersioning(s3Client, bucketName),
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      versionning: {
+        status: 'loading',
+      },
+    };
+  }
+
+  if (status === 'error') {
+    return {
+      versionning: {
+        status: 'error',
+        title: 'An error occurred while fetching the versionning',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+
+  return {
+    versionning: {
+      status: 'success',
+      value: (data?.Status as 'Enabled' | 'Suspended') || 'Disabled',
     },
   };
 };

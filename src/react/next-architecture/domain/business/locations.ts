@@ -1,10 +1,78 @@
 import { useQuery } from 'react-query';
 import { ILocationsAdapter } from '../../adapters/accounts-locations/ILocationsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
-import { Location, LocationsPromiseResult } from '../entities/location';
+import {
+  Location,
+  LocationStorageInfos,
+  LocationsPromiseResult,
+} from '../entities/location';
 import { PromiseResult } from '../entities/promise';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
+import { storageOptions } from '../../../backend/location/LocationDetails';
+
+const noRefetchOptions = {
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+  refetchOnReconnect: false,
+};
+
+export const queries = {
+  listLocations: (locationsAdapter: ILocationsAdapter) => ({
+    queryKey: ['locations'],
+    queryFn: () => locationsAdapter.listLocations(),
+    ...noRefetchOptions,
+  }),
+};
+
+export const useLocationAndStorageInfos = ({
+  locationName,
+  locationsAdapter,
+}: {
+  locationName: string;
+  locationsAdapter: ILocationsAdapter;
+}): PromiseResult<LocationStorageInfos> => {
+  const { data: locationData, status: locationStatus } = useQuery(
+    queries.listLocations(locationsAdapter),
+  );
+
+  if (locationStatus === 'loading' || locationStatus === 'idle') {
+    return {
+      status: 'loading',
+    };
+  }
+
+  if (locationStatus === 'error') {
+    return {
+      status: locationStatus,
+      title: 'Location Error',
+      reason: `Unexpected error while fetching location`,
+    };
+  }
+
+  const location = locationData?.find((l) => l.name === locationName);
+  const locationStorageOption = location
+    ? storageOptions[location.type as unknown as keyof typeof storageOptions]
+    : undefined;
+  if (!location || !locationStorageOption) {
+    return {
+      status: 'success',
+      value: {
+        location,
+        storageOption: locationStorageOption,
+        nameAndShortType: locationName,
+      },
+    };
+  }
+  return {
+    status: 'success',
+    value: {
+      location,
+      storageOption: locationStorageOption,
+      nameAndShortType: `${location.name} / ${locationStorageOption.short}`,
+    },
+  };
+};
 
 /**
  * The hook returns all the locations and it's metrics
@@ -17,12 +85,9 @@ export const useListLocations = ({
   locationsAdapter: ILocationsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  const { data: locationData, status: locationStatus } = useQuery({
-    queryKey: ['locations'],
-    queryFn: () => {
-      return locationsAdapter.listLocations();
-    },
-  });
+  const { data: locationData, status: locationStatus } = useQuery(
+    queries.listLocations(locationsAdapter),
+  );
 
   const ids = locationData?.map((l) => l.id) ?? [];
   const { data: metricsData, status: metricsStatus } = useQuery({
@@ -36,7 +101,7 @@ export const useListLocations = ({
   if (locationStatus === 'loading' || locationStatus === 'idle') {
     return {
       locations: {
-        status: locationStatus,
+        status: 'loading',
       },
     };
   }

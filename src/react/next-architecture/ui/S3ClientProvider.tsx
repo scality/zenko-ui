@@ -70,6 +70,7 @@ export const S3AssumeRoleClientProvider = ({
 
   const s3Config: S3.Types.ClientConfiguration = {
     endpoint: zenkoEndpoint,
+    s3ForcePathStyle: true,
     ...configuration,
     credentials: {
       accessKeyId: assumeRoleResult?.Credentials?.AccessKeyId || '',

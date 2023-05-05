@@ -4,7 +4,7 @@ import { AccountInfo } from '../../domain/entities/account';
 import { IAccountsAdapter } from './IAccountsAdapter';
 import { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 import makeMgtClient from '../../../../js/managementClient';
-export class PensieveAccountsAdapter
+export class PensieveAccountsLocationsAdapter
   implements IAccountsAdapter, ILocationsAdapter
 {
   managementClient: UiFacingApi;
@@ -25,6 +25,8 @@ export class PensieveAccountsAdapter
             name: location.name,
             type: location.locationType,
             details: location.details || {},
+            isTransient: location.isTransient,
+            isCold: location.isCold,
           }));
         }) || []
     );

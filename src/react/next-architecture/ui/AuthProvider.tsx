@@ -26,7 +26,7 @@ export function useInstanceId() {
   const instanceIds = user && user.profile && user.profile.instanceIds;
 
   if (!instanceIds || instanceIds.length === 0) {
-    throw new Error('No instanceIds found');
+    return '';
   }
 
   return instanceIds[0];

@@ -1,6 +1,10 @@
 import { LatestUsedCapacity } from './metrics';
 import { PromiseResult } from './promise';
 
+export type BucketVersionningPromiseResult = {
+  versionning: PromiseResult<'Enabled' | 'Disabled' | 'Suspended'>;
+};
+
 export type BucketLocationConstraintPromiseResult = {
   locationConstraint: PromiseResult<string>;
 };

@@ -4,7 +4,7 @@ import {
   getConfigOverlay,
   LOCATIONS,
 } from '../../../../js/mock/managementClientMSWHandlers';
-import { PensieveAccountsAdapter } from './PensieveAccountsLocationsAdapter';
+import { PensieveAccountsLocationsAdapter } from './PensieveAccountsLocationsAdapter';
 
 const baseUrl = 'http://localhost:8080';
 const instanceId = 'test-instance-id';
@@ -22,7 +22,11 @@ describe('PensieveAccountsAdapter - listLocations', () => {
   it('should rejects when pensieve api returns an error', async () => {
     //S
     const token = 'test-token';
-    const SUT = new PensieveAccountsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveAccountsLocationsAdapter(
+      baseUrl,
+      instanceId,
+      token,
+    );
     server.use(
       rest.get(
         `${baseUrl}/api/v1/config/overlay/view/${instanceId}`,
@@ -37,7 +41,11 @@ describe('PensieveAccountsAdapter - listLocations', () => {
   it('should return expected locations', async () => {
     //S
     const token = 'test-token';
-    const SUT = new PensieveAccountsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveAccountsLocationsAdapter(
+      baseUrl,
+      instanceId,
+      token,
+    );
 
     //E
     const result = await SUT.listLocations();
