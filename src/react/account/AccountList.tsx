@@ -12,9 +12,13 @@ import { setRoleArnStored } from '../utils/localStorage';
 import { ErrorPage500, Icon } from '@scality/core-ui';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { useListAccounts } from '../next-architecture/domain/business/accounts';
+import {
+  useAccountLatestUsedCapacity,
+  useListAccounts,
+} from '../next-architecture/domain/business/accounts';
 import { Account } from '../next-architecture/domain/entities/account';
-import { CellProps, Column } from 'react-table';
+import { CellProps, CoreUIColumn } from 'react-table';
+import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 
 const TableAction = styled.div`
   display: flex;
@@ -39,7 +43,7 @@ function AccountList() {
     return (
       <NameLinkContaner
         onClick={() => {
-          setRoleArnStored(row.original.preferredAssumableRole);
+          setRoleArnStored(row.original.preferredAssumableRoleArn);
           dispatch(push(`/accounts/${value}`));
         }}
       >
@@ -52,7 +56,7 @@ function AccountList() {
     return <div>{formatSimpleDate(new Date(value))}</div>;
   };
 
-  const columns: Column<Account>[] = React.useMemo(() => {
+  const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
     return [
       {
         Header: 'Account Name',
@@ -63,13 +67,32 @@ function AccountList() {
         Cell: (value: CellProps<Account, string>) => nameCell(value),
       },
       {
-        Header: 'Created on',
+        Header: 'Created On',
         accessor: 'creationDate',
         cellStyle: {
           textAlign: 'right',
           minWidth: '7rem',
         },
         Cell: (value: CellProps<Account, string>) => createDateCell(value),
+      },
+      {
+        Header: 'Data Used',
+        accessor: 'usedCapacity',
+        cellStyle: {
+          textAlign: 'right',
+          minWidth: '7rem',
+        },
+        Cell: ({ row }) => {
+          const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+          const metricsAdapter = useMetricsAdapter();
+          const { usedCapacity } = useAccountLatestUsedCapacity({
+            accessibleAccountsAdapter: accessibleAccountsAdapter,
+            accountCanonicalId: row.original.canonicalId,
+            metricsAdapter: metricsAdapter,
+          });
+
+          return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
+        },
       },
     ];
   }, [nameCell]);
