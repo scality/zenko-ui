@@ -1,6 +1,20 @@
 import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
-import { PropsWithChildren, useEffect, useMemo } from 'react';
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  Redirect,
+  Route,
+  RouteProps,
+  Switch,
+  matchPath,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
 import {
   assumeRoleWithWebIdentity,
   loadClients,
@@ -28,10 +42,11 @@ import DataServiceRoleProvider, {
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { getClients } from './utils/actions';
-import { ErrorPage401, Icon } from '@scality/core-ui';
+import { ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
 import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
+import { MultiAccountsIcon } from './account/MultiAccountsIcon';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -218,6 +233,94 @@ function PrivateRoutes() {
 }
 
 function Routes() {
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === 'true',
+  );
+  const history = useHistory();
+  const location = useLocation();
+
+  const doesRouteMatch = useCallback(
+    (path: RouteProps) => {
+      const location = history.location;
+      return !!matchPath(location.pathname, path);
+    },
+    [location],
+  );
+
+  const sidebarConfig = {
+    onToggleClick: () => {
+      localStorage.setItem('isSideBarOpen', (!isSideBarOpen).toString());
+      setIsSideBarOpen(!isSideBarOpen);
+    },
+    hoverable: true,
+    expanded: isSideBarOpen,
+    actions: [
+      {
+        label: 'Accounts',
+        icon: <Icon name="Account" />,
+        onClick: () => {
+          history.push('/accounts');
+        },
+        active:
+          doesRouteMatch({
+            path: '/accounts',
+            exact: true,
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName',
+            exact: true,
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/locations',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/users',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/policies',
+          }),
+      },
+      {
+        label: 'Data Browser',
+        icon: <Icon name="Bucket" />,
+        onClick: () => {
+          history.push('/buckets');
+        },
+        active:
+          doesRouteMatch({
+            path: '/buckets',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/buckets',
+          }),
+      },
+      {
+        label: 'Workflows',
+        icon: <i className="fas fa-route" />,
+        onClick: () => {
+          history.push('/workflows');
+        },
+        active:
+          doesRouteMatch({
+            path: '/workflows',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/workflows',
+          }),
+      },
+      {
+        label: 'Data Services',
+        icon: <Icon name="Cubes" />,
+        onClick: () => {
+          history.push('/dataservices');
+        },
+        active: doesRouteMatch({
+          path: '/dataservices',
+        }),
+      },
+    ],
+  };
+
   return (
     <Layout2
       headerNavigation={
@@ -226,7 +329,10 @@ function Routes() {
         </NavbarContainer>
       }
     >
-      <AppContainer hasPadding>
+      <AppContainer
+        hasPadding
+        sidebarNavigation={<Sidebar {...sidebarConfig} />}
+      >
         <RemoveTrailingSlash />
         <ManagementProvider>
           <PrivateRoutes />
