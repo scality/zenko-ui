@@ -166,8 +166,9 @@ export function LocationsList() {
         Header: <>Data Used</>,
         accessor: 'usedCapacity',
         cellStyle: {
-          textAlign: 'left',
+          textAlign: 'right',
           flex: '0.2',
+          marginRight: '1rem',
         },
         Cell: ({ value }) => {
           return <UsedCapacityInlinePromiseResult result={value} />;

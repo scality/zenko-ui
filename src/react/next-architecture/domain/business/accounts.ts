@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   STORAGE_ACCOUNT_OWNER_ROLE,
@@ -14,6 +14,7 @@ import {
   AccountInfo,
 } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
+import { PromiseResult } from '../entities/promise';
 
 // Pensieve API return an error with 400 if the number of requested accounts exceed 1000.
 const MAX_NUM_ACCOUNT_REQUEST = 1000;
@@ -50,6 +51,46 @@ export const queries = {
   }),
 };
 
+export const useAccountCannonicalId = ({
+  accountsAdapter,
+  accountId,
+}: {
+  accountsAdapter: IAccountsAdapter;
+  accountId: string;
+}): PromiseResult<string> => {
+  const { data: accountInfos, status: accountStatus } = useQuery(
+    queries.listAccounts(accountsAdapter),
+  );
+
+  if (accountStatus === 'loading' || accountStatus === 'idle') {
+    return {
+      status: 'loading',
+    };
+  }
+
+  if (accountStatus === 'error') {
+    return {
+      status: accountStatus,
+      title: 'Account Error',
+      reason: `Unexpected error while fetching account`,
+    };
+  }
+
+  const account = accountInfos?.find((a) => a.id === accountId);
+  if (!account) {
+    return {
+      status: 'error',
+      title: 'Account Not Found Error',
+      reason: `Account ${accountId} not found`,
+    };
+  }
+
+  return {
+    status: 'success',
+    value: account.canonicalId,
+  };
+};
+
 /**
  * The hook returns the entire account list and the Storage Metrics ONLY for the first 1000 accounts.
  * @param metricsAdapter
@@ -64,6 +105,11 @@ export const useListAccounts = ({
 }): AccountsPromiseResult => {
   const { accountInfos } =
     accessibleAccountsAdapter.useListAccessibleAccounts();
+  console.log('rendering useListAccounts');
+  useEffect(() => {
+    console.log('mounted');
+    return () => console.log('unmounted');
+  }, []);
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
@@ -73,7 +119,7 @@ export const useListAccounts = ({
             .slice(0, MAX_NUM_ACCOUNT_REQUEST)
         : [],
     ),
-    enabled: !!(accountInfos.status === 'success' && accountInfos),
+    enabled: !!(accountInfos.status === 'success'),
   });
 
   const accountInfosWithPerferredAssumableRole = useMemo(() => {
@@ -177,29 +223,27 @@ export const useAccountLatestUsedCapacity = ({
   accountCanonicalId: string;
 }): AccountLatestUsedCapacityPromiseResult => {
   const queryClient = useQueryClient();
-  const queryCache = queryClient.getQueryData<
+  const queryCache = queryClient.getQueryState<
     Record<string, LatestUsedCapacity>
   >(['accountsMetrics']);
   const isAccountCanonicalIdMetricsCacheExist =
-    queryCache && queryCache[accountCanonicalId];
+    queryCache?.data && queryCache?.data[accountCanonicalId];
   const accountMetricsQueryState = queryClient.getQueryState([
     'accountsMetrics',
   ]);
-  const { accounts } = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
     enabled:
-      accounts?.status === 'success' && !isAccountCanonicalIdMetricsCacheExist,
+      queryCache?.status === 'success' &&
+      !isAccountCanonicalIdMetricsCacheExist,
   });
   // if the metrics cache for a specific account exist, directly return the value.
   if (isAccountCanonicalIdMetricsCacheExist) {
     return {
       usedCapacity: {
         status: 'success',
-        value: queryCache[accountCanonicalId],
+        //@ts-expect-error queryCache.data can't be undefined here
+        value: queryCache.data[accountCanonicalId],
       },
     };
   } else if (status === 'success') {

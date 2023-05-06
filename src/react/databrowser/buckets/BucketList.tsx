@@ -25,6 +25,7 @@ import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useLocationAndStorageInfos } from '../../next-architecture/domain/business/locations';
 import { useLocationAdapter } from '../../next-architecture/ui/LocationAdapterProvider';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
+import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 
 type Props = {
   locations: Locations;
@@ -93,7 +94,14 @@ export default function BucketList({
         disableSortBy: true,
 
         Cell({ value: locationName }: { value: LocationName }) {
-          return getLocationIngestionState(ingestionStates, locationName).value;
+          const value = getLocationIngestionState(
+            ingestionStates,
+            locationName,
+          ).value;
+          if (value === '-') {
+            return <EmptyCell />;
+          }
+          return value;
         },
         cellStyle: {
           flex: '1',

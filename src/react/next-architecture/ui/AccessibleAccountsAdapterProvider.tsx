@@ -28,6 +28,7 @@ export const AccessibleAccountsAdapterProvider = ({
   const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts(
     accountAdapter,
   );
+
   return (
     <_AccessibleAccountsAdapterContext.Provider
       value={{ accessibleAccountsAdapter }}

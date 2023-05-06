@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -9,13 +9,10 @@ import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
 import { setRoleArnStored } from '../utils/localStorage';
-import { ErrorPage500, Icon } from '@scality/core-ui';
+import { Icon } from '@scality/core-ui';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import {
-  useAccountLatestUsedCapacity,
-  useListAccounts,
-} from '../next-architecture/domain/business/accounts';
+import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
@@ -26,14 +23,7 @@ const TableAction = styled.div`
   margin-bottom: ${spacing.sp16};
 `;
 
-function AccountList() {
-  const metricsAdapter = useMetricsAdapter();
-  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const { accounts } = useListAccounts({
-    metricsAdapter,
-    accessibleAccountsAdapter,
-  });
-
+function AccountList({ accounts }: { accounts: Account[] }) {
   const dispatch = useDispatch();
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
@@ -85,6 +75,7 @@ function AccountList() {
         Cell: ({ row }) => {
           const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
           const metricsAdapter = useMetricsAdapter();
+
           const { usedCapacity } = useAccountLatestUsedCapacity({
             accessibleAccountsAdapter: accessibleAccountsAdapter,
             accountCanonicalId: row.original.canonicalId,
@@ -97,10 +88,6 @@ function AccountList() {
     ];
   }, [nameCell]);
 
-  if (accounts.status === 'loading') return <div>Loading accounts...</div>;
-  if (accounts.status === 'unknown') return <div>Loading accounts...</div>;
-  if (accounts.status === 'error') return <ErrorPage500 locale="en" />;
-
   return (
     <div
       style={{
@@ -112,7 +99,7 @@ function AccountList() {
     >
       <Table
         columns={columns}
-        data={accounts.value}
+        data={accounts}
         defaultSortingKey={'creationDate'}
       >
         <TableAction>

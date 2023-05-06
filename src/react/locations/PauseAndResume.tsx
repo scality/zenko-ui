@@ -1,4 +1,4 @@
-import { Icon, Loader, spacing } from '@scality/core-ui';
+import { Icon, Loader, Text, spacing } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -8,6 +8,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { InlineButton } from '../ui-elements/Table';
 import { getInstanceStatusQuery } from './queries';
+import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
@@ -170,5 +171,5 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     );
   }
 
-  return <>-</>;
+  return <EmptyCell />;
 };

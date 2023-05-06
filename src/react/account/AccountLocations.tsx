@@ -10,15 +10,18 @@ import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { Warning } from '../ui-elements/Warning';
 import { Icon, Loader, Stack } from '@scality/core-ui';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { Box, Table } from '@scality/core-ui/dist/next';
 import { Search, SearchContainer } from '../ui-elements/Table';
+import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
 
 export function AccountLocations() {
   const locationsAdapter = useLocationAdapter();
   const metricsAdapter = useMetricsAdapter();
+  const accountsAdapter = useAccountsAdapter();
   const { locations } = useListLocationsForCurrentAccount({
     locationsAdapter,
     metricsAdapter,
+    accountsAdapter,
   });
 
   const data = useMemo(() => {
@@ -73,7 +76,7 @@ export function AccountLocations() {
         Header: <>Data Used</>,
         accessor: 'usedCapacity',
         cellStyle: {
-          textAlign: 'left',
+          textAlign: 'right',
           flex: '0.2',
         },
         Cell: ({ value }) => {
@@ -111,32 +114,28 @@ export function AccountLocations() {
   }
 
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
-      <Table columns={columns} data={data} defaultSortingKey={'name'}>
-        <SearchContainer>
-          <Search>
-            <Table.SearchWithQueryParams
-              displayedName={{
-                singular: 'location',
-                plural: 'locations',
-              }}
-              queryParams={SEARCH_QUERY_PARAM}
-            />
-          </Search>
-        </SearchContainer>
-        <Table.SingleSelectableContent
-          id="singleTable"
-          rowHeight="h40"
-          separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
-          customItemKey={(index: number, data: Array<Location>) =>
-            data[index].name
-          }
-          key={(index: number, data: Array<Location>) => data[index].name}
-        >
-          {(Rows: ComponentType) => <>{Rows}</>}
-        </Table.SingleSelectableContent>
-      </Table>
-    </Box>
+    <Table columns={columns} data={data} defaultSortingKey={'name'}>
+      <Search>
+        <Table.SearchWithQueryParams
+          displayedName={{
+            singular: 'location',
+            plural: 'locations',
+          }}
+          queryParams={SEARCH_QUERY_PARAM}
+        />
+      </Search>
+      <Table.SingleSelectableContent
+        id="singleTable"
+        rowHeight="h40"
+        separationLineVariant="backgroundLevel1"
+        backgroundVariant="backgroundLevel3"
+        customItemKey={(index: number, data: Array<Location>) =>
+          data[index].name
+        }
+        key={(index: number, data: Array<Location>) => data[index].name}
+      >
+        {(Rows: ComponentType) => <>{Rows}</>}
+      </Table.SingleSelectableContent>
+    </Table>
   );
 }

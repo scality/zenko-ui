@@ -10,6 +10,8 @@ import { PromiseResult } from '../entities/promise';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
+import { useAccountCannonicalId, useListAccounts } from './accounts';
+import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 
 const noRefetchOptions = {
   refetchOnWindowFocus: false,
@@ -134,7 +136,7 @@ export const useListLocations = ({
       };
     }
     if (metricsStatus === 'success') {
-      usedCapacity = { status: metricsStatus, value: metricsData?.[l.name] };
+      usedCapacity = { status: metricsStatus, value: metricsData?.[l.id] };
     }
 
     locations[l.name] = {
@@ -153,9 +155,11 @@ export const useListLocations = ({
 export const useListLocationsForCurrentAccount = ({
   locationsAdapter,
   metricsAdapter,
+  accountsAdapter,
 }: {
   locationsAdapter: ILocationsAdapter;
   metricsAdapter: IMetricsAdapter;
+  accountsAdapter: IAccountsAdapter;
 }): LocationsPromiseResult => {
   const { account } = useCurrentAccount();
   const allLocations = useListLocations({
@@ -163,13 +167,23 @@ export const useListLocationsForCurrentAccount = ({
     metricsAdapter,
   });
 
-  const accountId = account === undefined ? '' : account.id;
+  const accountCannonicalIdResult = useAccountCannonicalId({
+    accountId: account?.id || '',
+    accountsAdapter,
+  });
+
+  const accountCannonicalId =
+    account === undefined || accountCannonicalIdResult.status !== 'success'
+      ? ''
+      : accountCannonicalIdResult.value;
   const { data: accountLocationData, status: accountLocationStatus } = useQuery(
     {
-      queryKey: ['accountLocations', accountId],
+      queryKey: ['accountLocations', accountCannonicalId],
       queryFn: () =>
-        metricsAdapter.listAccountLocationsLatestUsedCapacity(accountId),
-      enabled: account !== undefined,
+        metricsAdapter.listAccountLocationsLatestUsedCapacity(
+          accountCannonicalId,
+        ),
+      enabled: !!accountCannonicalId,
     },
   );
 
@@ -216,10 +230,10 @@ export const useListLocationsForCurrentAccount = ({
     return allLocations;
   }
 
-  const allLocationsValue = allLocations.locations.value;
+  const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
   accountLocationsKey.forEach((locationId) => {
-    const accountLocation = allLocationsValue[locationId];
+    const accountLocation = allLocationsValue.find((l) => l.id === locationId);
     if (accountLocation) {
       locations[locationId] = accountLocation;
     } else {

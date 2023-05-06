@@ -7,6 +7,8 @@ import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import AccountPoliciesList from './AccountPoliciesList';
 import { AccountLocations } from './AccountLocations';
+import { spacing } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
 type Props = {
   account: Account | null | undefined;
 };

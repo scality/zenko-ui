@@ -116,7 +116,7 @@ const StyledTable = styled.div`
   height: 100%;
 `;
 
-const CenterredSecondaryText = styled(SecondaryText)`
+export const CenterredSecondaryText = styled(SecondaryText)`
   display: block;
   text-align: center;
 `;

@@ -16,6 +16,7 @@ const Accounts = () => {
     metricsAdapter,
     accessibleAccountsAdapter,
   });
+
   return (
     <>
       <AppContainer.ContextContainer>
@@ -33,7 +34,7 @@ const Accounts = () => {
             ></Header>
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel3">
-            <AccountList />
+            <AccountList accounts={accounts.value} />
           </AppContainer.MainContent>
         </>
       )}
