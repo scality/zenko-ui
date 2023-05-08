@@ -8,6 +8,7 @@ import {
   FormGroup,
   FormSection,
   Icon,
+  spacing,
   Stack,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
@@ -617,7 +618,7 @@ function EditForm({
           layout={{ kind: 'tab' }}
           onSubmit={handleSubmit(onSubmit)}
           rightActions={
-            <Stack gap="r16">
+            <Stack gap="r16" style={{ paddingRight: spacing.r16 }}>
               <Button
                 disabled={!formState.isDirty || !formState.isValid}
                 icon={<Icon name="Save" />}

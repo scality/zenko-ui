@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import {
   closeBucketDeleteDialog,
-  deleteBucket,
   getBucketInfo,
   openBucketDeleteDialog,
   toggleBucketVersioning,
@@ -12,7 +11,7 @@ import type { AppState } from '../../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import type { BucketInfo, S3Bucket } from '../../../../types/s3';
+import type { BucketInfo } from '../../../../types/s3';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import { Icon, Toggle } from '@scality/core-ui';
 import {
@@ -30,6 +29,7 @@ import { useWorkflows } from '../../../workflow/Workflows';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
+import { useDeleteBucket } from '../../../next-architecture/domain/business/buckets';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -106,6 +106,8 @@ function Overview({ bucket, ingestionStates }: Props) {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
 
+  const { mutate: deleteBucket } = useDeleteBucket();
+
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
     (workflows?.expirations?.length || 0) +
@@ -130,7 +132,8 @@ function Overview({ bucket, ingestionStates }: Props) {
       return;
     }
 
-    dispatch(deleteBucket(bucket.name));
+    deleteBucket({ Bucket: bucket.name });
+    dispatch(closeBucketDeleteDialog());
   };
 
   const handleDeleteCancel = () => {

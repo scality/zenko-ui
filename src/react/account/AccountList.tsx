@@ -73,11 +73,9 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           minWidth: '7rem',
         },
         Cell: ({ row }) => {
-          const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
           const metricsAdapter = useMetricsAdapter();
 
           const { usedCapacity } = useAccountLatestUsedCapacity({
-            accessibleAccountsAdapter: accessibleAccountsAdapter,
             accountCanonicalId: row.original.canonicalId,
             metricsAdapter: metricsAdapter,
           });

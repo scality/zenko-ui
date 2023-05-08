@@ -9,7 +9,7 @@ import {
 } from '@scality/core-ui';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ChangeEvent, useMemo, useRef } from 'react';
-import { clearError, createBucket } from '../../actions';
+import { clearError } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
@@ -25,6 +25,11 @@ import { XDM_FEATURE } from '../../../js/config';
 import { renderLocation } from '../../locations/utils';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useParams } from 'react-router';
+import {
+  useChangeBucketDefaultRetention,
+  useChangeBucketVersionning,
+  useCreateBucket,
+} from '../../next-architecture/domain/business/buckets';
 
 const helpNonAsyncLocation =
   'Selected Storage Location does not support Async Metadata updates.';
@@ -108,6 +113,11 @@ function BucketCreate() {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
 
+  const { mutate: createBucket, error } = useCreateBucket();
+  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
+  const { mutate: changeBucketDefaultRetention } =
+    useChangeBucketDefaultRetention();
+
   const onSubmit = ({
     name,
     locationName,
@@ -130,14 +140,6 @@ function BucketCreate() {
     isAsyncNotification: boolean;
   }) => {
     clearServerError();
-    const retentionPeriodToSubmit =
-      retentionPeriodFrequencyChoice === 'DAYS'
-        ? {
-            days: retentionPeriod,
-          }
-        : {
-            years: retentionPeriod,
-          };
     let lName = locationName;
 
     if (
@@ -148,22 +150,50 @@ function BucketCreate() {
       lName = `${locationName}:ingest`;
     }
 
-    dispatch(
-      createBucket(
-        {
-          name,
-          locationConstraint: lName,
-          isObjectLockEnabled,
+    createBucket(
+      {
+        Bucket: name,
+        CreateBucketConfiguration: {
+          LocationConstraint: lName,
         },
-        {
-          isVersioning,
+        ObjectLockEnabledForBucket: isObjectLockEnabled,
+      },
+      {
+        onSuccess: () => {
+          if (isVersioning) {
+            changeBucketVersionning({
+              Bucket: name,
+              VersioningConfiguration: {
+                Status: 'Enabled',
+              },
+            });
+          }
+
+          if (isDefaultRetentionEnabled) {
+            const retentionPeriodToSubmit =
+              retentionPeriodFrequencyChoice === 'DAYS'
+                ? {
+                    Days: retentionPeriod,
+                  }
+                : {
+                    Years: retentionPeriod,
+                  };
+            changeBucketDefaultRetention({
+              Bucket: name,
+              ObjectLockConfiguration: {
+                ObjectLockEnabled: 'Enabled',
+                Rule: {
+                  DefaultRetention: {
+                    Mode: retentionMode,
+                    ...retentionPeriodToSubmit,
+                  },
+                },
+              },
+            });
+          }
+          dispatch(push(`/accounts/${accountName}/buckets/${name}`));
         },
-        {
-          isDefaultRetentionEnabled,
-          retentionMode,
-          retentionPeriod: retentionPeriodToSubmit,
-        },
-      ),
+      },
     );
   };
 
@@ -209,14 +239,19 @@ function BucketCreate() {
           </Stack>
         }
         banner={
-          errorMessage && (
+          (errorMessage || error) && (
             <Banner
               id="zk-error-banner"
               variant="danger"
               icon={<Icon name="Exclamation-triangle" />}
               title={'Error'}
             >
-              {errorMessage}
+              {errorMessage ||
+                (error &&
+                  typeof error === 'object' &&
+                  'message' in error &&
+                  error?.message) ||
+                'An unexpected error occurred.'}
             </Banner>
           )
         }

@@ -322,7 +322,6 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { result, waitFor } = renderAdditionalHook('accountMetrics', () =>
       useAccountLatestUsedCapacity({
-        accessibleAccountsAdapter,
         metricsAdapter,
         accountCanonicalId: ACCOUNT_CANONICAL_ID,
       }),
@@ -372,7 +371,6 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { result } = renderAdditionalHook('metrics', () =>
       useAccountLatestUsedCapacity({
-        accessibleAccountsAdapter,
         metricsAdapter,
         accountCanonicalId: CANONICALID_ACCOUNT_MILLE,
       }),
@@ -384,7 +382,7 @@ describe('useAccountLatestUsedCapacity', () => {
       value: ACCOUNT_METRICS,
     });
   });
-  it('should return error in cause of fetching metrics failed', async () => {
+  it.only('should return error in case of fetching metrics failed', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
     const accessibleAccountsAdapter = new MockedAccessibleAcounts();
@@ -399,7 +397,6 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { result, waitFor } = renderAdditionalHook('metrics', () =>
       useAccountLatestUsedCapacity({
-        accessibleAccountsAdapter,
         metricsAdapter,
         accountCanonicalId: ACCOUNT_CANONICAL_ID,
       }),
@@ -433,7 +430,6 @@ describe('useAccountLatestUsedCapacity', () => {
     await waitForWrapperToBeReady();
     const { result } = renderAdditionalHook('accountMetrics', () =>
       useAccountLatestUsedCapacity({
-        accessibleAccountsAdapter,
         metricsAdapter,
         accountCanonicalId: ACCOUNT_CANONICAL_ID,
       }),

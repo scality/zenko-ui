@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import {
   STORAGE_ACCOUNT_OWNER_ROLE,
@@ -105,11 +105,7 @@ export const useListAccounts = ({
 }): AccountsPromiseResult => {
   const { accountInfos } =
     accessibleAccountsAdapter.useListAccessibleAccounts();
-  console.log('rendering useListAccounts');
-  useEffect(() => {
-    console.log('mounted');
-    return () => console.log('unmounted');
-  }, []);
+
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
@@ -214,11 +210,9 @@ export const useListAccounts = ({
  * @param accountCanonicalId
  */
 export const useAccountLatestUsedCapacity = ({
-  accessibleAccountsAdapter,
   metricsAdapter,
   accountCanonicalId,
 }: {
-  accessibleAccountsAdapter: IAccessibleAccounts;
   metricsAdapter: IMetricsAdapter;
   accountCanonicalId: string;
 }): AccountLatestUsedCapacityPromiseResult => {
@@ -234,7 +228,7 @@ export const useAccountLatestUsedCapacity = ({
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
     enabled:
-      queryCache?.status === 'success' &&
+      (queryCache?.status === 'success' || queryCache?.status === 'error') &&
       !isAccountCanonicalIdMetricsCacheExist,
   });
   // if the metrics cache for a specific account exist, directly return the value.
