@@ -11,21 +11,17 @@ import {
   testDispatchAWSErrorTestFn,
   testDispatchFunction,
 } from './utils/testUtil';
-const createBucketNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Creating bucket',
-);
-const listBucketsNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Listing buckets',
-);
-const deleteBucketNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Deleting bucket',
-);
+const createBucketNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Creating bucket');
+const listBucketsNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Listing buckets');
+const deleteBucketNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Deleting bucket');
 const getBucketInfoNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Getting bucket information',
 );
-const toggleBucketVersioningNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Versioning bucket',
-);
+const toggleBucketVersioningNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Versioning bucket');
 const editDefaultRetentionNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Editing bucket default retention',
 );
@@ -80,7 +76,6 @@ describe('s3bucket actions', () => {
       storeState: initState,
       expectedActions: [
         createBucketNetworkAction,
-        ...listBucketsActions,
         dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
         dispatchAction.NETWORK_END_ACTION,
       ],
@@ -161,7 +156,6 @@ describe('s3bucket actions', () => {
       storeState: initState,
       expectedActions: [
         toggleBucketVersioningNetworkAction,
-        ...listBucketsActions,
         getBucketInfoNetworkAction,
         dispatchAction.GET_BUCKET_INFO_SUCCESS_ACTION,
         dispatchAction.NETWORK_END_ACTION,
@@ -186,7 +180,6 @@ describe('s3bucket actions', () => {
       storeState: initState,
       expectedActions: [
         editDefaultRetentionNetworkAction,
-        ...listBucketsActions,
         dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
         dispatchAction.NETWORK_END_ACTION,
       ],

@@ -53,6 +53,10 @@ describe('PensieveAccountsAdapter - listLocations', () => {
     //V
     const EXPECTED_LOCATIONS = Object.values(LOCATIONS).map((location) => ({
       id: location.objectId || '',
+      //@ts-ignore - isCold does not xist on builtin locations
+      isCold: location.isCold,
+      //@ts-ignore - isTransient does not xist on builtin locations
+      isTransient: location.isTransient,
       name: location.name,
       type: location.locationType,
       //@ts-ignore - details does not xist on builtin locations

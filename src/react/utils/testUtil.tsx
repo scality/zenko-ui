@@ -28,6 +28,8 @@ import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { S3AssumeRoleClientProvider } from '../next-architecture/ui/S3ClientProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { XDM_FEATURE } from '../../js/config';
+import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
+import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -162,9 +164,13 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                     managementClient: TEST_MANAGEMENT_CLIENT,
                   }}
                 >
-                  <S3AssumeRoleClientProvider>
-                    {children}
-                  </S3AssumeRoleClientProvider>
+                  <LocationAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <S3AssumeRoleClientProvider>
+                        {children}
+                      </S3AssumeRoleClientProvider>
+                    </MetricsAdapterProvider>
+                  </LocationAdapterProvider>
                 </_ManagementContext.Provider>
               </_IAMContext.Provider>
             </_DataServiceRoleContext.Provider>
