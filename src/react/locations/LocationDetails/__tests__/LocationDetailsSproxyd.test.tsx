@@ -5,7 +5,7 @@ import {
   editListEntry,
   themeMount as mount,
   updateInputText,
-} from '../../../../utils/testUtil';
+} from '../../../utils/testUtil';
 import LocationDetailsSproxyd from '../LocationDetailsSproxyd';
 import React from 'react';
 const props = {

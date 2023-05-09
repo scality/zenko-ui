@@ -1,9 +1,5 @@
 /* eslint-disable */
-import {
-  checkBox,
-  themeMount as mount,
-  updateInputText,
-} from '../../../../utils/testUtil';
+import { themeMount as mount, updateInputText } from '../../../utils/testUtil';
 import LocationDetailsGcp from '../LocationDetailsGcp';
 
 const props = {

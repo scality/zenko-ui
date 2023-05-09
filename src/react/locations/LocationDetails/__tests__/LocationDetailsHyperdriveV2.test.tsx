@@ -4,7 +4,7 @@ import {
   delListEntry,
   editListEntry,
   themeMount as mount,
-} from '../../../../utils/testUtil';
+} from '../../../utils/testUtil';
 import LocationDetailsHyperdriveV2 from '../LocationDetailsHyperdriveV2';
 import React from 'react';
 const props = {

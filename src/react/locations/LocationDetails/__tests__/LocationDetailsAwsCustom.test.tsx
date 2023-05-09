@@ -3,7 +3,7 @@ import {
   checkBox,
   reduxMountAct,
   updateInputText,
-} from '../../../../utils/testUtil';
+} from '../../../utils/testUtil';
 import LocationDetailsAwsCustom from '../LocationDetailsAwsCustom';
 
 const props = {

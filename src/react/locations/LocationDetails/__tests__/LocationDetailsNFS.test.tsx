@@ -1,8 +1,5 @@
 /* eslint-disable */
-import {
-  themeMount as mount,
-  updateInputText,
-} from '../../../../utils/testUtil';
+import { themeMount as mount, updateInputText } from '../../../utils/testUtil';
 import LocationDetailsNFS from '../LocationDetailsNFS';
 import { shallow } from 'enzyme';
 

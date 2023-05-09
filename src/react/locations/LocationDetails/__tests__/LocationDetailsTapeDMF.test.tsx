@@ -1,6 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { reduxRender } from '../../../../utils/testUtil';
+import { reduxRender } from '../../../utils/testUtil';
 import LocationDetailsTapeDMF from '../LocationDetailsTapeDMF';
 
 describe('LocationDetailsTapeDMF', () => {
