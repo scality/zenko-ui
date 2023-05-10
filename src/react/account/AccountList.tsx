@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -8,14 +8,13 @@ import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.componen
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
-import { setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '@scality/core-ui';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
-import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
+import { useSetAssumedRole } from '../DataServiceRoleProvider';
 
 const TableAction = styled.div`
   display: flex;
@@ -30,10 +29,11 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   );
 
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
+    const setRole = useSetAssumedRole();
     return (
       <NameLinkContaner
         onClick={() => {
-          setRoleArnStored(row.original.preferredAssumableRoleArn);
+          setRole({ roleArn: row.original.preferredAssumableRoleArn });
           dispatch(push(`/accounts/${value}`));
         }}
       >
