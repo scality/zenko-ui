@@ -46,10 +46,16 @@ export const S3ClientProvider = ({
       sessionToken: configuration.credentials?.sessionToken || '',
     });
 
-    dispatch({
-      type: 'SET_ZENKO_CLIENT',
-      zenkoClient,
-    });
+    if (
+      configuration.credentials?.accessKeyId &&
+      configuration.credentials?.secretAccessKey &&
+      configuration.credentials?.sessionToken
+    ) {
+      dispatch({
+        type: 'SET_ZENKO_CLIENT',
+        zenkoClient,
+      });
+    }
 
     return { s3Client, zenkoClient };
   }, [configuration, dispatch]);
