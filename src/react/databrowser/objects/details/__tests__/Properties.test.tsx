@@ -213,7 +213,7 @@ describe('Properties', () => {
     expect(seventh.find(T.GroupValues).text()).toContain('Cold');
   });
 
-  it('should render restore in progress status and disable the restore button when the object is restoring from the cold location', async () => {
+  it('should render restore in progress status and remove the restore button when the object is restoring from the cold location', async () => {
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -264,8 +264,7 @@ describe('Properties', () => {
     expect(seventh.find(T.GroupValues).text()).toContain(
       'Restoration in progress...',
     );
-    expect(seventh.find('button#restore-button').prop('label')).toBe('Restore');
-    expect(seventh.find('button#restore-button').prop('disabled')).toBe(true);
+    expect(seventh.find('button#restore-button').exists()).toBeFalsy();
   });
 
   it('should render restored status and disable the restore button when the object is already restored from cold location', async () => {
