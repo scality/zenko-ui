@@ -1,4 +1,4 @@
-import { useParams, useHistory, Redirect } from 'react-router-dom';
+import { useParams, useHistory, Redirect, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
@@ -109,6 +109,7 @@ export default function Workflows() {
   const { accounts } = useAccounts();
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
+  const { search } = useLocation();
 
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
@@ -157,7 +158,18 @@ export default function Workflows() {
 
     // redirect to the first workflow.
     if (!noWorkflows && !workflowId) {
-      return <Redirect to={`./workflows/${workflows[0].id}`} />;
+      const searchParams = new URLSearchParams(search);
+      let firstWorkflowId = workflows[0].id;
+      if (searchParams.has('search')) {
+        const searchString = (searchParams.get('search') || '').toLowerCase();
+        firstWorkflowId =
+          workflows.find(
+            (w) =>
+              w.name.toLowerCase().includes(searchString) ||
+              w.type.toLowerCase().includes(searchString),
+          )?.id ?? firstWorkflowId;
+      }
+      return <Redirect to={`./workflows/${firstWorkflowId}${search}`} />;
     }
 
     if (workflows.length === 0) {

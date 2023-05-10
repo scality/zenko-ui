@@ -1,4 +1,4 @@
-import { handleErrorMessage, listBuckets, networkAuthFailure } from './index';
+import { handleErrorMessage, networkAuthFailure } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 

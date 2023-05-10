@@ -10,8 +10,8 @@ import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { Warning } from '../ui-elements/Warning';
 import { Icon, Loader, Stack } from '@scality/core-ui';
-import { Box, Table } from '@scality/core-ui/dist/next';
-import { Search, SearchContainer } from '../ui-elements/Table';
+import { Table } from '@scality/core-ui/dist/next';
+import { Search } from '../ui-elements/Table';
 import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
 
 export function AccountLocations() {

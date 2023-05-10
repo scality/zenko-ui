@@ -70,13 +70,14 @@ type Props = {
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
 };
 
-const workflowAttachedError = (count: number) => (
+const workflowAttachedError = (count: number, bucketName: string) => (
   <div>
     The bucket you tried to delete has{' '}
     {maybePluralize(count, 'workflow', 's', true)} attached to it, you should{' '}
     <CellLink
       to={{
-        pathname: '/workflows',
+        pathname: `/workflows`,
+        search: `?search=${bucketName}`,
       }}
     >
       delete
@@ -164,7 +165,7 @@ function Overview({ bucket, ingestionStates }: Props) {
         }}
         errorMessage={
           isErrorModalOpen
-            ? workflowAttachedError(attachedWorkflowsCount)
+            ? workflowAttachedError(attachedWorkflowsCount, bucket.name)
             : null
         }
       />
