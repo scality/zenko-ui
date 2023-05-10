@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { S3 } from 'aws-sdk';
 import { useQuery } from 'react-query';
 import STSClient from '../../../js/STSClient';
@@ -7,6 +7,7 @@ import { useDataServiceRole } from '../../DataServiceRoleProvider';
 import { useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import ZenkoClient from '../../../js/ZenkoClient';
+import { useDispatch } from 'react-redux';
 
 const S3ClientContext = createContext<S3 | null>(null);
 const ZenkoClientContext = createContext<ZenkoClient | null>(null);
@@ -35,13 +36,24 @@ export const S3ClientProvider = ({
 }: PropsWithChildren<{
   configuration: S3.Types.ClientConfiguration;
 }>) => {
-  const s3Client = new S3(configuration);
-  const zenkoClient = new ZenkoClient(configuration.endpoint as string);
-  zenkoClient.login({
-    accessKey: configuration.credentials?.accessKeyId || '',
-    secretKey: configuration.credentials?.secretAccessKey || '',
-    sessionToken: configuration.credentials?.sessionToken || '',
-  });
+  const dispatch = useDispatch();
+  const { s3Client, zenkoClient } = useMemo(() => {
+    const s3Client = new S3(configuration);
+    const zenkoClient = new ZenkoClient(configuration.endpoint as string);
+    zenkoClient.login({
+      accessKey: configuration.credentials?.accessKeyId || '',
+      secretKey: configuration.credentials?.secretAccessKey || '',
+      sessionToken: configuration.credentials?.sessionToken || '',
+    });
+
+    dispatch({
+      type: 'SET_ZENKO_CLIENT',
+      zenkoClient,
+    });
+
+    return { s3Client, zenkoClient };
+  }, [configuration, dispatch]);
+
   return (
     <S3ClientContext.Provider value={s3Client}>
       <ZenkoClientContext.Provider value={zenkoClient}>

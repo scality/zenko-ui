@@ -67,14 +67,16 @@ const RedirectToAccount = () => {
   // To be replace later by react-query or context
   const dispatch = useDispatch();
   const { account: selectedAccount } = useCurrentAccount();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
   const isStorageManager = userGroups.includes('StorageManager');
   if (selectedAccount) {
-    return <Redirect to={`/accounts/${selectedAccount.Name}${pathname}`} />;
+    return (
+      <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
+    );
   } else if (loaded && isStorageManager) {
     const description = pathname === '/workflows' ? 'workflows' : 'data';
     return (
@@ -98,22 +100,6 @@ const RedirectToAccount = () => {
     );
   }
 };
-
-function WithAssumeRole({
-  children,
-}: PropsWithChildren<Record<string, unknown>>) {
-  const dispatch = useDispatch();
-  const zenkoClient = useZenkoClient();
-
-  useEffect(() => {
-    dispatch({
-      type: 'SET_ZENKO_CLIENT',
-      zenkoClient,
-    });
-  }, [dispatch]);
-
-  return <>{children}</>;
-}
 
 function PrivateRoutes() {
   const dispatch = useDispatch();
@@ -190,20 +176,18 @@ function PrivateRoutes() {
       <Route path="/accounts/:accountName">
         <DataServiceRoleProvider>
           <IAMProvider>
-            <WithAssumeRole>
-              <Switch>
-                <Route path="/accounts/:accountName/buckets">
-                  <DataBrowser />
-                </Route>
-                <Route
-                  path={'/accounts/:accountName/create-bucket'}
-                  component={BucketCreate}
-                />
-                <Route path="/accounts/:accountName">
-                  <AccountContent />
-                </Route>
-              </Switch>
-            </WithAssumeRole>
+            <Switch>
+              <Route path="/accounts/:accountName/buckets">
+                <DataBrowser />
+              </Route>
+              <Route
+                path={'/accounts/:accountName/create-bucket'}
+                component={BucketCreate}
+              />
+              <Route path="/accounts/:accountName">
+                <AccountContent />
+              </Route>
+            </Switch>
           </IAMProvider>
         </DataServiceRoleProvider>
       </Route>
