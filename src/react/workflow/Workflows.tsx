@@ -35,6 +35,7 @@ import {
 } from '@scality/core-ui';
 import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { useEffect } from 'react';
 
 type Filter = string[];
 
@@ -73,6 +74,15 @@ export function useWorkflowsWithSelect<T>(
       }
     },
   });
+
+  //In order to avoid races when we unmount before the promise
+  //is resolved we force cleanup of network operation status in
+  //redux on un-mount
+  useEffect(() => {
+    return () => {
+      dispatch(networkEnd());
+    };
+  }, []);
 
   return workflowsQuery;
 }
