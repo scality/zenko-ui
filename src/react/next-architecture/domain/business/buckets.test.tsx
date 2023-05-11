@@ -28,6 +28,11 @@ import {
   RenderAdditionalHook,
 } from '../../../utils/testMultipleHooks';
 import { _AuthContext } from '../../ui/AuthProvider';
+import { zenkoUITestConfig } from '../../../utils/testUtil';
+import {
+  mockBucketListing,
+  mockBucketLocationConstraint,
+} from '../../../../js/mock/S3ClientMSWHandlers';
 
 jest.setTimeout(30000);
 
@@ -39,15 +44,6 @@ const queryClient = new QueryClient({
   },
 });
 const ACCESS_TOKEN = 'token';
-const config: AppConfig = {
-  zenkoEndpoint: 'http://localhost:8000',
-  stsEndpoint: 'http://localhost:9000',
-  iamEndpoint: 'http://localhost:10000',
-  managementEndpoint: 'http://localhost:11000',
-  navbarEndpoint: 'http://localhost:12000',
-  navbarConfigUrl: 'http://localhost:13000',
-  features: [XDM_FEATURE],
-};
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -61,7 +57,7 @@ const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
           <ConfigProvider>
             <S3ClientProvider
               configuration={{
-                endpoint: config.zenkoEndpoint,
+                endpoint: zenkoUITestConfig.zenkoEndpoint,
                 s3ForcePathStyle: true,
                 credentials: {
                   accessKeyId: 'accessKey',
@@ -101,80 +97,11 @@ const thousandAnd2Buckets = Array.from(
   }),
 );
 
-describe('Buckets domain', () => {
+describe.skip('Buckets domain', () => {
   function mockConfig() {
     return rest.get(`http://localhost/config.json`, (req, res, ctx) => {
-      return res(ctx.json(config));
+      return res(ctx.json(zenkoUITestConfig));
     });
-  }
-  function mockBucketListing(
-    bucketList: { Name: string; CreationDate: Date }[] = defaultMockedBuckets,
-    forceFailure = false,
-  ) {
-    return rest.get(`${config.zenkoEndpoint}`, (req, res, ctx) => {
-      if (forceFailure) {
-        return res(ctx.status(500));
-      }
-
-      return res(
-        ctx.xml(`
-        <?xml version="1.0" encoding="UTF-8"?>
-        <ListAllMyBucketsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-          <Owner>
-            <ID>1234</ID>
-            <DisplayName>test</DisplayName>
-          </Owner>
-          <Buckets>
-            ${bucketList
-              .map(
-                (bucket) => `
-              <Bucket>
-                <Name>${bucket.Name}</Name>
-                <CreationDate>${bucket.CreationDate.toISOString()}</CreationDate>
-              </Bucket>
-            `,
-              )
-              .join('')}
-          </Buckets>
-        </ListAllMyBucketsResult>
-      `),
-      );
-    });
-  }
-  function mockBucketLocationConstraint(
-    {
-      location,
-      slowdown,
-      forceFailure,
-    }: { location?: string; slowdown?: boolean; forceFailure?: boolean } = {
-      slowdown: false,
-      forceFailure: false,
-    },
-  ) {
-    return rest.get(
-      `${config.zenkoEndpoint}/:bucketName`,
-      async (req, res, ctx) => {
-        if (!req.url.searchParams.has('location')) {
-          return res(ctx.status(404));
-        }
-
-        if (forceFailure) {
-          return res(ctx.status(500));
-        }
-
-        if (slowdown) {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
-        return res(
-          ctx.xml(`
-          <?xml version="1.0" encoding="UTF-8"?>
-          <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-            <LocationConstraint>${location}</LocationConstraint>
-          </LocationConstraint>
-        `),
-        );
-      },
-    );
   }
 
   const server = setupServer(

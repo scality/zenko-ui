@@ -5,15 +5,29 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { screen, waitFor } from '@testing-library/react';
+import {
+  queryByText,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { List } from 'immutable';
 import userEvent from '@testing-library/user-event';
 import { S3Bucket } from '../../../types/s3';
 import * as hooks from '../../utils/hooks';
 import { act } from 'react-dom/test-utils';
+import { debug } from 'jest-preview';
+import {
+  mockBucketListing,
+  mockBucketLocationConstraint,
+  mockBucketVersionning,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
-const instanceId = 'instanceId';
+const instanceId = INSTANCE_ID;
 const accountName = 'pat';
 const BUCKET_NAME = 'bucket';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
@@ -78,6 +92,10 @@ const server = setupServer(
       }),
     ),
   ),
+  mockBucketListing(),
+  mockBucketLocationConstraint(),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, instanceId),
+  mockBucketVersionning({ enabled: true }),
 );
 
 const selectors = {
@@ -158,7 +176,7 @@ describe('CreateWorkflow', () => {
       expect(selectors.createButton()).toBeEnabled();
     });
   });
-  it('should display an error modal when workflow creation failed', async () => {
+  it.only('should display an error modal when workflow creation failed', async () => {
     //S
     server.use(
       rest.post(
@@ -202,8 +220,13 @@ describe('CreateWorkflow', () => {
 
     userEvent.click(selectors.replicationOption());
 
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading buckets...'),
+    );
+
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
+    debug();
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination

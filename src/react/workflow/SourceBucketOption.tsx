@@ -98,12 +98,16 @@ export const SourceBucketOption = ({
 }: { bucketName: string } & DisableOptionProps) => {
   const { locationConstraint } = useBucketLocationConstraint({ bucketName });
   const { versionning } = useBucketVersionning({ bucketName });
+  // TODO
   const locationsAdapter = useLocationAdapter();
   const locationInfos = useLocationAndStorageInfos({
     locationsAdapter,
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
+  console.log('SourceBucketOption ===>');
+  console.log('locationConstraint', locationConstraint);
+  console.log('versionning', versionning);
   const isOptionDisabled = disableOption
     ? disableOption({
         isBucketVersionned:

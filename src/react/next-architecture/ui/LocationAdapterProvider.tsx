@@ -28,6 +28,9 @@ export const LocationAdapterProvider = ({
   const token = useAccessToken();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();
+  console.log('==================================');
+  console.log('instanceId', instanceId);
+  console.log('==================================');
   const locationAdapter = new PensieveAccountsLocationsAdapter(
     managementEndpoint,
     instanceId,
