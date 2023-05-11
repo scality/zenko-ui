@@ -10,7 +10,7 @@ import { PromiseResult } from '../entities/promise';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
-import { useAccountCannonicalId, useListAccounts } from './accounts';
+import { useAccountCannonicalId } from './accounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 
 const noRefetchOptions = {
@@ -176,6 +176,7 @@ export const useListLocationsForCurrentAccount = ({
     account === undefined || accountCannonicalIdResult.status !== 'success'
       ? ''
       : accountCannonicalIdResult.value;
+
   const { data: accountLocationData, status: accountLocationStatus } = useQuery(
     {
       queryKey: ['accountLocations', accountCannonicalId],
@@ -194,6 +195,12 @@ export const useListLocationsForCurrentAccount = ({
         title: 'Current Account Error',
         reason: `Unexpected error while fetching account`,
       },
+    };
+  }
+
+  if (accountCannonicalIdResult.status === 'error') {
+    return {
+      locations: accountCannonicalIdResult,
     };
   }
 
@@ -236,10 +243,6 @@ export const useListLocationsForCurrentAccount = ({
     const accountLocation = allLocationsValue.find((l) => l.id === locationId);
     if (accountLocation) {
       locations[locationId] = accountLocation;
-    } else {
-      console.warn(
-        `The locations "${locationId}" has metrics but the location does not exist. Please check if this locations really exist.`,
-      );
     }
   });
 
