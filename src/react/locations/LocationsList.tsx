@@ -17,7 +17,7 @@ import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
 import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
-import { Icon, IconHelp } from '@scality/core-ui';
+import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
 import { useListLocations } from '../next-architecture/domain/business/locations';
 import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
@@ -68,31 +68,36 @@ const ActionButtons = ({
         titleText={`Delete location? \n
                     Permanently remove the following location ${locationName} ?`}
       />
-      <InlineButton
-        icon={<Icon name="Edit" />}
-        variant="secondary"
-        onClick={() => history.push(`/locations/${locationName}/edit`)}
-        type="button"
-        aria-label="Edit Location"
-        tooltip={{
-          overlay: 'Edit Location',
-          placement: 'top',
-        }}
-        disabled={!canEditLocation(locationName, locations)}
-      />
-      <InlineButton
-        icon={<Icon name="Delete" />}
-        variant="danger"
-        onClick={() => setShowModal(true)}
-        type="button"
-        tooltip={{
-          overlay: isDeletionEnable
-            ? 'Delete Location'
-            : `You can't delete this location`,
-          overlayStyle: { width: '8rem' },
-        }}
-        disabled={!isDeletionEnable}
-      />
+      <Wrap>
+        <div></div>
+        <Stack gap={'r8'}>
+          <InlineButton
+            icon={<Icon name="Edit" />}
+            variant="secondary"
+            onClick={() => history.push(`/locations/${locationName}/edit`)}
+            type="button"
+            aria-label="Edit Location"
+            tooltip={{
+              overlay: 'Edit Location',
+              placement: 'top',
+            }}
+            disabled={!canEditLocation(locationName, locations)}
+          />
+          <InlineButton
+            icon={<Icon name="Delete" />}
+            variant="danger"
+            onClick={() => setShowModal(true)}
+            type="button"
+            tooltip={{
+              overlay: isDeletionEnable
+                ? 'Delete Location'
+                : `You can't delete this location`,
+              overlayStyle: { width: '8rem' },
+            }}
+            disabled={!isDeletionEnable}
+          />
+        </Stack>
+      </Wrap>
     </div>
   );
 };

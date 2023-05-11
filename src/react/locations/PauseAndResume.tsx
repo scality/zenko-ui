@@ -111,7 +111,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
 
   if (replicationStatus === 'enabled' || ingestionStatus === 'enabled') {
     return (
-      <Box display="flex" alignItems="center">
+      <Box display="flex">
         <InlineButton
           disabled={isLoadingButton}
           icon={isLoadingButton ? <Loader /> : <Icon name="Pause-circle" />}
@@ -142,7 +142,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
 
   if (replicationStatus === 'disabled' || ingestionStatus === 'disabled') {
     return (
-      <Box display="flex" alignItems="center">
+      <Box display="flex">
         <InlineButton
           disabled={isLoadingButton}
           icon={isLoadingButton ? <Loader /> : <Icon name="Play-circle" />}
