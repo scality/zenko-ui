@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent } from 'react';
+import { FormEvent, MouseEvent, useRef, useState } from 'react';
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';
@@ -34,8 +34,24 @@ export const CommonPolicyLayout = ({
 }) => {
   const isCreateMode = !policyArn;
 
+  const [editorYPosition, setEditorYPosition] = useState<number>(0);
+  const [formBodyHeight, setFormBodyHeight] = useState<number>(0);
+  const [formBodyYPosition, setFormBodyYPosition] = useState<number>(0);
+
+  const editorContainerRef = (element: HTMLDivElement) => {
+    setEditorYPosition(element?.getBoundingClientRect().y);
+  };
+  const formRef = (element: HTMLFormElement) => {
+    setFormBodyYPosition(element?.children[1].getBoundingClientRect().y);
+    setFormBodyHeight(element?.children[1].getBoundingClientRect().height);
+  };
+
+  const editorHeight =
+    formBodyHeight - (editorYPosition - formBodyYPosition) - 46;
+
   return (
     <Form
+      ref={formRef}
       onSubmit={onSubmit}
       layout={{
         kind: 'page',
@@ -106,44 +122,48 @@ export const CommonPolicyLayout = ({
           help="We are supporting AWS IAM standards."
           helpErrorPosition="bottom"
           content={
-            <Stack>
-              <Controller
-                control={control}
-                name="policyDocument"
-                rules={{
-                  required: 'The policy document is required',
-                }}
-                render={({ field: { onChange, value } }) => (
-                  <Editor
-                    language="application/json"
-                    width="33rem"
-                    height="20rem"
-                    onChange={onChange}
-                    value={value}
-                    readOnly={isReadOnly}
-                    beforeMount={(monaco: Monaco) => {
-                      monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-                        validate: true,
-                        schemas: [
+            <div ref={editorContainerRef}>
+              <Stack>
+                <Controller
+                  control={control}
+                  name="policyDocument"
+                  rules={{
+                    required: 'The policy document is required',
+                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <Editor
+                      language="application/json"
+                      width="33rem"
+                      height={`${editorHeight}px`}
+                      onChange={onChange}
+                      value={value}
+                      readOnly={isReadOnly}
+                      beforeMount={(monaco: Monaco) => {
+                        monaco.languages.json.jsonDefaults.setDiagnosticsOptions(
                           {
-                            uri: 'http://myserver/foo-schema.json', // id of the first schema
-                            fileMatch: ['*'],
-                            schema: policySchema,
+                            validate: true,
+                            schemas: [
+                              {
+                                uri: 'http://myserver/foo-schema.json', // id of the first schema
+                                fileMatch: ['*'],
+                                schema: policySchema,
+                              },
+                            ],
                           },
-                        ],
-                      });
-                    }}
-                  />
-                )}
-              />
-              <Box alignSelf="baseline">
-                <CopyButton
-                  textToCopy={policyDocument}
-                  label="Policy"
-                  variant="outline"
+                        );
+                      }}
+                    />
+                  )}
                 />
-              </Box>
-            </Stack>
+                <Box alignSelf="baseline">
+                  <CopyButton
+                    textToCopy={policyDocument}
+                    label="Policy"
+                    variant="outline"
+                  />
+                </Box>
+              </Stack>
+            </div>
           }
         />
       </FormSection>

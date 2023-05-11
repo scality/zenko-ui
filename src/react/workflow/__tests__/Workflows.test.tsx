@@ -92,7 +92,7 @@ describe('Workflows', () => {
     expect(
       screen.getByRole('row', {
         name: new RegExp(
-          `${BUCKET_NAME} \\(current versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          `${BUCKET_NAME} \\(current versions\\) ➜ europe25-myroom-cold - 15d transition active`,
           'i',
         ),
       }),
@@ -122,7 +122,7 @@ describe('Workflows', () => {
     expect(
       screen.getByRole('row', {
         name: new RegExp(
-          `${BUCKET_NAME} \\(previous versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          `${BUCKET_NAME} \\(previous versions\\) ➜ europe25-myroom-cold - 15d transition active`,
           'i',
         ),
       }),

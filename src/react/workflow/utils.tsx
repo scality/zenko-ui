@@ -229,7 +229,7 @@ export function generateTransitionName(t: BucketWorkflowTransitionV2) {
     t.applyToVersion === BucketWorkflowTransitionV2.ApplyToVersionEnum.Current
       ? 'current'
       : 'previous'
-  } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays} days`;
+  } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays}d`;
 }
 
 export function flattenFormErrors<T = unknown>(

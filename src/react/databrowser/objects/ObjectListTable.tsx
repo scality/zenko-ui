@@ -26,6 +26,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useQueryParams } from '../../utils/hooks';
 import { useParams } from 'react-router';
+import { CenterredSecondaryText } from '../../account/iamAttachment/AttachmentTable';
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
   margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
@@ -361,24 +362,32 @@ export default function ObjectListTable({
                   }
                 }}
               >
-                {({ onItemsRendered, ref }) => (
-                  <FixedSizeList
-                    height={height || 300}
-                    itemCount={rows.length}
-                    itemSize={
-                      convertRemToPixels(parseFloat(spacing.sp40)) || 45
-                    }
-                    width={width || '100%'}
-                    itemData={createItemData(rows, prepareRow, dispatch)}
-                    onItemsRendered={onItemsRendered}
-                    ref={(list) => {
-                      refList(list);
-                      ref(list);
-                    }}
-                  >
-                    {MemoRow}
-                  </FixedSizeList>
-                )}
+                {({ onItemsRendered, ref }) =>
+                  rows.length > 0 ? (
+                    <FixedSizeList
+                      height={height || 300}
+                      itemCount={rows.length}
+                      itemSize={
+                        convertRemToPixels(parseFloat(spacing.sp40)) || 45
+                      }
+                      width={width || '100%'}
+                      itemData={createItemData(rows, prepareRow, dispatch)}
+                      onItemsRendered={onItemsRendered}
+                      ref={(list) => {
+                        refList(list);
+                        ref(list);
+                      }}
+                    >
+                      {MemoRow}
+                    </FixedSizeList>
+                  ) : (
+                    <div style={{ width: width || '100%' }}>
+                      <CenterredSecondaryText>
+                        No Objects
+                      </CenterredSecondaryText>
+                    </div>
+                  )
+                }
               </InfiniteLoader>
             )}
           </AutoSizer>

@@ -486,7 +486,7 @@ export const AttachmentTable = <
               Header: 'Attachment status',
               accessor: 'isPending',
               cellStyle: {
-                minWidth: '20rem',
+                flex: 1,
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return value ? 'Pending' : 'Attached';

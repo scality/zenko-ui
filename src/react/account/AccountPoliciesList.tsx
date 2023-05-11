@@ -17,6 +17,7 @@ import { handleApiError, handleClientError } from '../actions';
 import { ApiError } from '../../types/actions';
 import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
+import { CoreUIColumn } from 'react-table';
 
 const EditButton = ({
   policyName,
@@ -337,7 +338,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
     return [];
   };
 
-  const columns = [
+  const columns: CoreUIColumn<InternalPolicy>[] = [
     {
       Header: 'Policy Name',
       accessor: 'policyName',
@@ -358,8 +359,9 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'modifiedOn',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10%',
+        minWidth: '20%',
       },
+      Cell: ({ value }) => <>{value}</>,
     },
     {
       Header: 'Attachments',
@@ -373,7 +375,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        minWidth: '50%',
+        minWidth: '40%',
       },
       disableSortBy: true,
       Cell: (value) => (

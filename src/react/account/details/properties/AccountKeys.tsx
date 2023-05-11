@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   deleteAccountAccessKey,
   listAccountAccessKeys,
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Row } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
-import { Banner, Icon } from '@scality/core-ui';
+import { Banner, Icon, Wrap } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { formatShortDate } from '../../../utils';
@@ -16,6 +16,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import { Warning } from '../../../ui-elements/Warning';
+import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 
 const AccessKeysDetails = styled.div`
   display: block;
@@ -46,6 +47,34 @@ type AccessKey = {
   accessKey: string;
   created_at: string;
 };
+
+function DeleteKey({ accessKey }: { accessKey: string }) {
+  const dispatch = useDispatch();
+  const { roleArn } = useDataServiceRole();
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] =
+    useState(false);
+
+  return (
+    <>
+      <Button
+        disabled={false}
+        icon={<Icon name="Delete" />}
+        onClick={() => setShowDeleteConfirmationModal(true)}
+        variant="danger"
+        tooltip={{
+          overlay: 'Remove Key',
+          placement: 'right',
+        }}
+      />
+      <DeleteConfirmation
+        show={showDeleteConfirmationModal}
+        cancel={() => setShowDeleteConfirmationModal(false)}
+        approve={() => dispatch(deleteAccountAccessKey(roleArn, accessKey))}
+        titleText={`Permanently remove the following access key ${accessKey} ?`}
+      />
+    </>
+  );
+}
 
 function AccountKeys({ account }: Props) {
   const dispatch = useDispatch();
@@ -125,23 +154,15 @@ function AccountKeys({ account }: Props) {
         accessor: 'access_key',
         disableSortBy: true,
         cellStyle: {
-          flex: '0.5',
+          flex: '1',
         },
 
-        Cell({ value: access_key }: { value: string }) {
+        Cell({ value: accessKey }: { value: string }) {
           return (
-            <Button
-              disabled={false}
-              icon={<Icon name="Delete" />}
-              onClick={() =>
-                dispatch(deleteAccountAccessKey(roleArn, access_key))
-              }
-              variant="danger"
-              tooltip={{
-                overlay: 'Remove Key',
-                placement: 'right',
-              }}
-            />
+            <Wrap marginRight={spacing.sp8}>
+              <div></div>
+              <DeleteKey accessKey={accessKey} />
+            </Wrap>
           );
         },
       },
