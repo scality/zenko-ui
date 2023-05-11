@@ -223,18 +223,18 @@ export const reduxRender = (component, testState) => {
   const store = realStoreWithInitState(testState);
   return {
     component: render(
-      <Wrapper>
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <Wrapper>
             <>
               {component}
               <Activity />
               <ErrorHandlerModal />
               <ReauthDialog />
             </>
-          </Provider>
-        </ThemeProvider>
-      </Wrapper>,
+          </Wrapper>
+        </Provider>
+      </ThemeProvider>,
     ),
   };
 };
