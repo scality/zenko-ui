@@ -153,13 +153,7 @@ export default function BucketList({
   }, [selectedBucketName, buckets]);
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      flex="1"
-      id="bucket-list"
-      paddingTop={spacing.r16}
-    >
+    <Box display="flex" flexDirection="column" flex="1" id="bucket-list">
       <T.Container>
         <Table
           columns={columns}
