@@ -129,7 +129,9 @@ export function ExpirationForm({ prefix = '' }: Props) {
     `${prefix}incompleteMultipartUploadTriggerDelayDays`,
   );
   const sourceBucketName = watch(`${prefix}bucketName`);
-  const { versionning } = useBucketVersionning(sourceBucketName);
+  const { versionning } = useBucketVersionning({
+    bucketName: sourceBucketName,
+  });
 
   const isSourceBucketVersionned =
     versionning.status === 'success' ? versionning.value === 'Enabled' : false;

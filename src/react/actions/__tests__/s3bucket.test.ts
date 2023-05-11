@@ -113,7 +113,6 @@ describe('s3bucket actions', () => {
       storeState: initState,
       expectedActions: [
         deleteBucketNetworkAction,
-        ...listBucketsActions,
         dispatchAction.LOCATION_PUSH_ACTION('/buckets'),
         dispatchAction.NETWORK_END_ACTION,
         dispatchAction.CLOSE_BUCKET_DELETE_DIALOG_ACTION,

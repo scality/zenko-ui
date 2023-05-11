@@ -154,7 +154,7 @@ describe('Overview', () => {
       'Default Object-lock Retention',
     );
     expect(thirdItemFirstGroup.find(T.GroupValues).text()).toContain(
-      'Governance - 5d',
+      'Governance - 5 days',
     );
   });
   it('should trigger deleteBucket function when approving clicking on delete button when modal popup', () => {

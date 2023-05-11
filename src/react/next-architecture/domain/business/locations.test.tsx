@@ -77,6 +77,13 @@ const genExpectedLocation = (
           details,
           usedCapacity,
         ),
+        'us-east-1': {
+          isBuiltin: true,
+          locationType: 'location-file-v1',
+          name: 'us-east-1',
+          objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+          usedCapacity,
+        },
       },
     },
   };

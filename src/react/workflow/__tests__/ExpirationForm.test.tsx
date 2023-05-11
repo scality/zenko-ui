@@ -2,6 +2,7 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
+  reduxMount,
   TEST_API_BASE_URL,
   Wrapper as wrapper,
 } from '../../utils/testUtil';
@@ -16,6 +17,7 @@ import { S3Bucket } from '../../../types/s3';
 import { PerLocationMap } from '../../../types/config';
 import { GeneralExpirationGroup } from '../ExpirationForm';
 import { Form, FormSection } from '@scality/core-ui';
+import { debug } from 'jest-preview';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -101,94 +103,87 @@ const selectors = {
 };
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
-    try {
-      const result = render(
-        <WithFormProvider>
-          <Form layout={{ kind: 'tab' }}>
-            <FormSection title={{ name: 'General' }}>
-              <GeneralExpirationGroup />
-            </FormSection>
-            <ExpirationForm bucketList={S3BucketList} locations={locations} />
-          </Form>
-        </WithFormProvider>,
-        {
-          wrapper,
-        },
+    const result = reduxMount(
+      <WithFormProvider>
+        <Form layout={{ kind: 'tab' }}>
+          <FormSection title={{ name: 'General' }}>
+            <GeneralExpirationGroup />
+          </FormSection>
+          <ExpirationForm bucketList={S3BucketList} locations={locations} />
+        </Form>
+      </WithFormProvider>,
+    );
+
+    debug();
+    await waitFor(() => screen.getByText(/General/i));
+    expect(screen.getByText(/State/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Source/i)[0]).toBeInTheDocument();
+    expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
+    expect(screen.getByText(/Filters/i)).toBeInTheDocument();
+    expect(screen.getByText(/Prefix/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tags/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Action/i)[0]).toBeInTheDocument();
+    expect(screen.getByText(/Current/i)).toBeInTheDocument();
+    expect(screen.getByText(/Previous/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Remove expired Delete markers/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Expire incomplete Multipart uploads/i),
+    ).toBeInTheDocument();
+
+    const spinButton = screen.getAllByRole('spinbutton');
+    expect(spinButton[0].getAttribute('type')).toBe('number');
+    expect(spinButton[1].getAttribute('type')).toBe('number');
+    expect(spinButton[2].getAttribute('type')).toBe('number');
+
+    // Select the Source Bucket.
+    userEvent.click(selectors.bucketSelect());
+    userEvent.click(selectors.versionedBucketOption());
+
+    const expireCurrentToggleState = result.container.querySelector(
+      '[for="expireCurrentVersions"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireCurrent = expireCurrentToggleState.querySelector(
+      'input[placeholder="currentVersionDelayDaysToggle"]',
+    );
+    userEvent.click(notFalsyTypeGuard(expireCurrent));
+
+    const expirePreviousToggleState = result.container.querySelector(
+      '[for="expirePreviousVersions"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expirePrevious = expirePreviousToggleState.querySelector(
+      'input[placeholder="previousVersionDelayDaysToggle"]',
+    );
+
+    const removeExpiredToggleState = result.container.querySelector(
+      '[for="deleteMarkers"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const removeExpired = removeExpiredToggleState.querySelector(
+      'input[placeholder="expireDeleteMarkersTrigger"]',
+    );
+
+    const expireIncompleteMultipartToggleState = result.container.querySelector(
+      '[for="expireIncompleteMultipart"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireIncompleteMultipart =
+      expireIncompleteMultipartToggleState.querySelector(
+        'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
       );
+    expect(expirePrevious).not.toBeDisabled();
+    expect(removeExpired).toBeDisabled();
+    expect(expireIncompleteMultipart).not.toBeDisabled();
 
-      await waitFor(() => screen.getByText(/General/i));
-      expect(screen.getByText(/State/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/Source/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
-      expect(screen.getByText(/Filters/i)).toBeInTheDocument();
-      expect(screen.getByText(/Prefix/i)).toBeInTheDocument();
-      expect(screen.getByText(/Tags/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/Action/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/Current/i)).toBeInTheDocument();
-      expect(screen.getByText(/Previous/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/Remove expired Delete markers/i),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Expire incomplete Multipart uploads/i),
-      ).toBeInTheDocument();
+    // Select the Source Bucket.
+    userEvent.click(selectors.bucketSelect());
+    userEvent.click(selectors.suspendedBucketOption());
 
-      const spinButton = screen.getAllByRole('spinbutton');
-      expect(spinButton[0].getAttribute('type')).toBe('number');
-      expect(spinButton[1].getAttribute('type')).toBe('number');
-      expect(spinButton[2].getAttribute('type')).toBe('number');
+    expect(expireCurrent).not.toBeDisabled();
+    expect(expirePrevious).toBeDisabled();
+    expect(removeExpired).toBeDisabled();
+    expect(expireIncompleteMultipart).not.toBeDisabled();
 
-      // Select the Source Bucket.
-      userEvent.click(selectors.bucketSelect());
-      userEvent.click(selectors.versionedBucketOption());
-
-      const expireCurrentToggleState = result.container.querySelector(
-        '[for="expireCurrentVersions"]',
-      )!.parentElement!.parentElement!.parentElement!;
-      const expireCurrent = expireCurrentToggleState.querySelector(
-        'input[placeholder="currentVersionDelayDaysToggle"]',
-      );
-      userEvent.click(notFalsyTypeGuard(expireCurrent));
-
-      const expirePreviousToggleState = result.container.querySelector(
-        '[for="expirePreviousVersions"]',
-      )!.parentElement!.parentElement!.parentElement!;
-      const expirePrevious = expirePreviousToggleState.querySelector(
-        'input[placeholder="previousVersionDelayDaysToggle"]',
-      );
-
-      const removeExpiredToggleState = result.container.querySelector(
-        '[for="deleteMarkers"]',
-      )!.parentElement!.parentElement!.parentElement!;
-      const removeExpired = removeExpiredToggleState.querySelector(
-        'input[placeholder="expireDeleteMarkersTrigger"]',
-      );
-
-      const expireIncompleteMultipartToggleState =
-        result.container.querySelector('[for="expireIncompleteMultipart"]')!
-          .parentElement!.parentElement!.parentElement!;
-      const expireIncompleteMultipart =
-        expireIncompleteMultipartToggleState.querySelector(
-          'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
-        );
-      expect(expirePrevious).not.toBeDisabled();
-      expect(removeExpired).toBeDisabled();
-      expect(expireIncompleteMultipart).not.toBeDisabled();
-
-      // Select the Source Bucket.
-      userEvent.click(selectors.bucketSelect());
-      userEvent.click(selectors.suspendedBucketOption());
-
-      expect(expireCurrent).not.toBeDisabled();
-      expect(expirePrevious).toBeDisabled();
-      expect(removeExpired).toBeDisabled();
-      expect(expireIncompleteMultipart).not.toBeDisabled();
-
-      const formValidation = screen.getByTestId('form-expiration');
-      expect(formValidation.textContent).toBe('form-valid');
-    } catch (e) {
-      console.log('should render a form for expiration workflow: ', e);
-      throw e;
-    }
+    const formValidation = screen.getByTestId('form-expiration');
+    expect(formValidation.textContent).toBe('form-valid');
   });
 });

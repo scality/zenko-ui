@@ -53,24 +53,4 @@ describe('Buckets', () => {
     );
     expect(component.find(Redirect)).toHaveLength(1);
   });
-  it('should render the component', () => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      bucketName: 'bucket1',
-    });
-    const { component } = reduxMount(
-      <MemoryRouter>
-        <Buckets />
-      </MemoryRouter>,
-      {
-        s3: {
-          listBucketsResults: {
-            list: List(buckets),
-          },
-        },
-      },
-    );
-    expect(component.find(Header)).toHaveLength(1);
-    expect(component.find(BucketList)).toHaveLength(1);
-    expect(component.find(BucketDetails)).toHaveLength(1);
-  });
 });

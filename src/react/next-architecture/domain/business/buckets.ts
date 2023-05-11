@@ -104,8 +104,6 @@ export const useListBucketsForCurrentAccount = ({
     error,
   } = useQuery(queries.listBuckets(s3Client));
 
-  console.log('DEBUGGU', bucketsStatus, buckets);
-
   useQueries(
     Array.from({ length: 20 }).map((_, index) =>
       queries.getBucketLocation(s3Client, buckets?.Buckets?.[index]?.Name),
@@ -206,10 +204,9 @@ export const useBucketVersionning = ({
   bucketName: string;
 }): BucketVersionningPromiseResult => {
   const s3Client = useS3Client();
-  const { data, status, error } = useQuery({
+  const { data, status } = useQuery({
     ...queries.getBucketVersioning(s3Client, bucketName),
   });
-  console.log('error', error);
 
   if (status === 'loading' || status === 'idle') {
     return {
@@ -375,11 +372,9 @@ export const useBucketLocationConstraint = ({
   bucketName: string;
 }): BucketLocationConstraintPromiseResult => {
   const s3Client = useS3Client();
-  const { data, status, error } = useQuery({
+  const { data, status } = useQuery({
     ...queries.getBucketLocation(s3Client, bucketName),
   });
-
-  console.log('debug error ', error, status, data);
 
   if (status === 'loading' || status === 'idle') {
     return {

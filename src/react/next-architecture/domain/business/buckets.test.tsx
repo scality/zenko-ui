@@ -31,7 +31,7 @@ import { _AuthContext } from '../../ui/AuthProvider';
 import { zenkoUITestConfig } from '../../../utils/testUtil';
 import {
   mockBucketListing,
-  mockBucketLocationConstraint,
+  mockBucketOperations,
 } from '../../../../js/mock/S3ClientMSWHandlers';
 
 jest.setTimeout(30000);
@@ -107,7 +107,7 @@ describe.skip('Buckets domain', () => {
   const server = setupServer(
     mockConfig(),
     mockBucketListing(),
-    mockBucketLocationConstraint({ slowdown: true }),
+    mockBucketOperations({ slowdown: true }),
   );
 
   beforeEach(() => {
@@ -250,7 +250,7 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(thousandAnd2Buckets),
-        mockBucketLocationConstraint({ location: '' }),
+        mockBucketOperations({ location: '' }),
       );
       const EXPECTED_METRICS = thousandAnd2Buckets
         .slice(0, metricsPageSize)
@@ -378,7 +378,7 @@ describe.skip('Buckets domain', () => {
       const EXPECTED_LOCATION = 'us-east-2';
       server.use(
         mockBucketListing(thousandAnd2Buckets),
-        mockBucketLocationConstraint({ location: EXPECTED_LOCATION }),
+        mockBucketOperations({ location: EXPECTED_LOCATION }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
 
@@ -415,7 +415,7 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(thousandAnd2Buckets),
-        mockBucketLocationConstraint({ location: '' }),
+        mockBucketOperations({ location: '' }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
 
@@ -452,7 +452,7 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(thousandAnd2Buckets),
-        mockBucketLocationConstraint({ location: '', forceFailure: true }),
+        mockBucketOperations({ location: '', forceFailure: true }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook();
 
@@ -500,7 +500,7 @@ describe.skip('Buckets domain', () => {
       //Setup
       server.use(
         mockBucketListing(thousandAnd2Buckets),
-        mockBucketLocationConstraint({ location: '' }),
+        mockBucketOperations({ location: '' }),
       );
       const { result, waitFor } = await setupAndRenderListBucketsHook(
         (metricsAdapter) => {
@@ -566,7 +566,7 @@ describe.skip('Buckets domain', () => {
     it('should return the location constraint for a specific bucket', async () => {
       //Setup
       const EXPECTED_LOCATION = 'us-east-2';
-      server.use(mockBucketLocationConstraint({ location: EXPECTED_LOCATION }));
+      server.use(mockBucketOperations({ location: EXPECTED_LOCATION }));
       const BUCKET_NAME = 'bucket-name';
       const { result, waitFor } = await setupAndRenderBucketLocationHook(
         BUCKET_NAME,
@@ -585,9 +585,7 @@ describe.skip('Buckets domain', () => {
 
     it('should return an error if the location constraint fetching failed', async () => {
       //Setup
-      server.use(
-        mockBucketLocationConstraint({ location: '', forceFailure: true }),
-      );
+      server.use(mockBucketOperations({ location: '', forceFailure: true }));
       const BUCKET_NAME = 'bucket-name';
       const { result, waitFor } = await setupAndRenderBucketLocationHook(
         BUCKET_NAME,
@@ -678,9 +676,7 @@ describe.skip('Buckets domain', () => {
       //Setup
       const { result, EXPECTED_METRICS_WRAPPED, renderAdditionalHook } =
         await useListBucketsForCurrentAccount_should_return_the_latest_used_capacity_for_the_first_1000_buckets();
-      server.use(
-        mockBucketLocationConstraint({ location: '', forceFailure: true }),
-      );
+      server.use(mockBucketOperations({ location: '', forceFailure: true }));
       //Exercise
       const { result: result2, waitFor: waitFor2 } =
         await setupAndRenderBucketLocationHook(

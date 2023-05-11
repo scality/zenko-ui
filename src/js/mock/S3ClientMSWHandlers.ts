@@ -48,13 +48,20 @@ export function mockBucketListing(
   });
 }
 
-export function mockBucketLocationConstraint(
+export function mockBucketOperations(
   {
-    location,
-    slowdown,
-    forceFailure,
-  }: { location?: string; slowdown?: boolean; forceFailure?: boolean } = {
+    location = '',
+    isVersioningEnabled = false,
+    slowdown = false,
+    forceFailure = false,
+  }: {
+    location?: string;
+    isVersioningEnabled?: boolean;
+    slowdown?: boolean;
+    forceFailure?: boolean;
+  } = {
     location: '',
+    isVersioningEnabled: false,
     slowdown: false,
     forceFailure: false,
   },
@@ -62,10 +69,6 @@ export function mockBucketLocationConstraint(
   return rest.get(
     `${zenkoUITestConfig.zenkoEndpoint}/:bucketName`,
     async (req, res, ctx) => {
-      if (!req.url.searchParams.has('location')) {
-        return res(ctx.status(404));
-      }
-
       if (forceFailure) {
         return res(ctx.status(500));
       }
@@ -73,52 +76,30 @@ export function mockBucketLocationConstraint(
       if (slowdown) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      console.log(location);
-      return res(
-        ctx.xml(`
+
+      if (req.url.searchParams.has('location')) {
+        return res(
+          ctx.xml(`
           <?xml version="1.0" encoding="UTF-8"?>
           <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
             <LocationConstraint>${location}</LocationConstraint>
           </LocationConstraint>
         `),
-      );
-    },
-  );
-}
-
-export function mockBucketVersionning(
-  {
-    enabled,
-    slowdown,
-    forceFailure,
-  }: { enabled?: boolean; slowdown?: boolean; forceFailure?: boolean } = {
-    enabled: false,
-    slowdown: false,
-    forceFailure: false,
-  },
-) {
-  return rest.get(
-    `${zenkoUITestConfig.zenkoEndpoint}/:bucketName`,
-    async (req, res, ctx) => {
-      if (!req.url.searchParams.has('versioning')) {
-        return res(ctx.status(404));
+        );
       }
 
-      if (forceFailure) {
-        return res(ctx.status(500));
-      }
-
-      if (slowdown) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-      return res(
-        ctx.xml(`
+      if (req.url.searchParams.has('versioning')) {
+        return res(
+          ctx.xml(`
         <?xml version="1.0" encoding="UTF-8"?>
         <VersioningConfiguration>
-           <Status>${enabled ? 'Enabled' : 'Disabled'}</Status>
+           <Status>${isVersioningEnabled ? 'Enabled' : 'Disabled'}</Status>
         </VersioningConfiguration>
           `),
-      );
+        );
+      }
+
+      return res(ctx.status(404));
     },
   );
 }

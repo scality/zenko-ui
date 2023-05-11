@@ -212,13 +212,6 @@ function ReplicationForm({
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName: sourceBucket,
   });
-  console.log('sourceBucket', sourceBucket);
-  const hey = {
-    locationName:
-      locationConstraint.status === 'success' ? locationConstraint.value : '',
-    locationsAdapter,
-  };
-  console.log('HEHEHEHEHEHHEE', hey);
   const locationInfos = useLocationAndStorageInfos({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
@@ -274,7 +267,6 @@ function ReplicationForm({
                   }) => {
                     const isEditing = !!getValues(`${prefix}streamId`);
 
-                    console.log('HAHAHAHAHHAHAHAHHAHA', locationInfos);
                     return (
                       <SourceBucketSelect
                         onBlur={onBlur}

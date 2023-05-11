@@ -25,15 +25,14 @@ import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import ZenkoClient from '../../js/ZenkoClient';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
-import {
-  S3AssumeRoleClientProvider,
-  S3ClientProvider,
-} from '../next-architecture/ui/S3ClientProvider';
+import { S3ClientProvider } from '../next-architecture/ui/S3ClientProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { XDM_FEATURE } from '../../js/config';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
 import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
+import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { AccountsAdapterProvider } from '../next-architecture/ui/AccountAdapterProvider';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -174,18 +173,22 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                 >
                   <LocationAdapterProvider>
                     <MetricsAdapterProvider>
-                      <S3ClientProvider
-                        configuration={{
-                          endpoint: zenkoUITestConfig.zenkoEndpoint,
-                          s3ForcePathStyle: true,
-                          credentials: {
-                            accessKeyId: 'accessKey',
-                            secretAccessKey: 'secretKey',
-                          },
-                        }}
-                      >
-                        {children}
-                      </S3ClientProvider>
+                      <AccountsAdapterProvider>
+                        <AccessibleAccountsAdapterProvider>
+                          <S3ClientProvider
+                            configuration={{
+                              endpoint: zenkoUITestConfig.zenkoEndpoint,
+                              s3ForcePathStyle: true,
+                              credentials: {
+                                accessKeyId: 'accessKey',
+                                secretAccessKey: 'secretKey',
+                              },
+                            }}
+                          >
+                            {children}
+                          </S3ClientProvider>
+                        </AccessibleAccountsAdapterProvider>
+                      </AccountsAdapterProvider>
                     </MetricsAdapterProvider>
                   </LocationAdapterProvider>
                 </_ManagementContext.Provider>

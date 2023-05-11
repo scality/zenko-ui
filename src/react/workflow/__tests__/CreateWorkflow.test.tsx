@@ -8,7 +8,6 @@ import {
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import {
-  queryByText,
   screen,
   waitFor,
   waitForElementToBeRemoved,
@@ -21,8 +20,7 @@ import { act } from 'react-dom/test-utils';
 import { debug } from 'jest-preview';
 import {
   mockBucketListing,
-  mockBucketLocationConstraint,
-  mockBucketVersionning,
+  mockBucketOperations,
 } from '../../../js/mock/S3ClientMSWHandlers';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
@@ -93,9 +91,8 @@ const server = setupServer(
     ),
   ),
   mockBucketListing(),
-  mockBucketLocationConstraint(),
+  mockBucketOperations({ isVersioningEnabled: true }),
   getConfigOverlay(zenkoUITestConfig.managementEndpoint, instanceId),
-  mockBucketVersionning({ enabled: true }),
 );
 
 const selectors = {
@@ -176,7 +173,7 @@ describe('CreateWorkflow', () => {
       expect(selectors.createButton()).toBeEnabled();
     });
   });
-  it.only('should display an error modal when workflow creation failed', async () => {
+  it('should display an error modal when workflow creation failed', async () => {
     //S
     server.use(
       rest.post(
@@ -226,7 +223,6 @@ describe('CreateWorkflow', () => {
 
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
-    debug();
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination

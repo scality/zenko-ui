@@ -105,9 +105,7 @@ export const SourceBucketOption = ({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
-  console.log('SourceBucketOption ===>');
-  console.log('locationConstraint', locationConstraint);
-  console.log('versionning', versionning);
+
   const isOptionDisabled = disableOption
     ? disableOption({
         isBucketVersionned:
