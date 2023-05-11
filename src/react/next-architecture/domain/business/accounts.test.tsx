@@ -6,17 +6,20 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { XDM_FEATURE } from '../../../../js/config';
 import {
-  ACCOUNT,
   ACCOUNT_CANONICAL_ID,
   ACCOUNT_METRICS,
   MEASURED_ON,
-  NEWLY_CREATED_ACCOUNT,
   NEWLY_CREATED_ACCOUNT_METRICS,
 } from '../../../../js/mock/managementClientMSWHandlers';
 import { AppConfig } from '../../../../types/entities';
 import { prepareRenderMultipleHooks } from '../../../utils/testMultipleHooks';
 import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
-import { MockedAccessibleAcounts } from '../../adapters/accessible-accounts/MockedAccessibleAccounts';
+import {
+  MockedAccessibleAccounts,
+  ACCESSIBLE_ACCOUNTS_EXAMPLE,
+  DEFAULT_ASSUMABLE_ROLES,
+  DEFAULT_ASSUMABLE_ROLES_ARN,
+} from '../../adapters/accessible-accounts/MockedAccessibleAccounts';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { AccountInfo } from '../entities/account';
@@ -29,7 +32,7 @@ import { PromiseResult } from '../entities/promise';
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
 const setupListAccountAdaptersForThousandAccounts = () => {
-  const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+  const accessibleAccountsAdapter = new MockedAccessibleAccounts();
   const metricsAdapter = new MockedMetricsAdapter();
   accessibleAccountsAdapter.useListAccessibleAccounts = jest
     .fn()
@@ -46,6 +49,12 @@ const setupListAccountAdaptersForThousandAccounts = () => {
                 name: `name-${i}`,
                 canonicalId: `canonicalId-${i}`,
                 creationDate: new Date(CREATION_DATE),
+                assumableRoles: [
+                  {
+                    Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
+                    Name: 'StorageAccountOwner',
+                  },
+                ],
               };
             }),
           },
@@ -68,6 +77,7 @@ const setupListAccountAdaptersForThousandAccounts = () => {
             measuredOn: new Date(MEASURED_ON),
           };
         }
+
         return accountsMetrics;
       },
     );
@@ -91,6 +101,8 @@ const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
     canonicalId: `canonicalId-${i}`,
     creationDate: new Date(CREATION_DATE),
     usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
+    assumableRoles: DEFAULT_ASSUMABLE_ROLES,
+    preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
   };
 });
 
@@ -107,6 +119,8 @@ const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
         title: 'Account metrics error',
         reason: 'An error occurred when fetching metrics',
       },
+      assumableRoles: DEFAULT_ASSUMABLE_ROLES,
+      preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
     };
   });
 
@@ -116,7 +130,22 @@ const ONE_THOUSAND_AND_ONE_ACCOUNT = {
   canonicalId: `canonicalId-1000`,
   creationDate: new Date(CREATION_DATE),
   usedCapacity: { status: 'unknown' },
+  assumableRoles: DEFAULT_ASSUMABLE_ROLES,
+  preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
 };
+
+const MOCK_ACCESSIBLE_ACCOUNTS = [
+  {
+    ...ACCESSIBLE_ACCOUNTS_EXAMPLE[0],
+    preferredAssumableRoleArn:
+      ACCESSIBLE_ACCOUNTS_EXAMPLE[0].assumableRoles[0].Arn,
+  },
+  {
+    ...ACCESSIBLE_ACCOUNTS_EXAMPLE[1],
+    preferredAssumableRoleArn:
+      ACCESSIBLE_ACCOUNTS_EXAMPLE[1].assumableRoles[0].Arn,
+  },
+];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -166,7 +195,7 @@ afterAll(() => server.close());
 describe('useListAccounts', () => {
   it('should return accounts as soon as it is resolved', async () => {
     //S
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
@@ -187,18 +216,22 @@ describe('useListAccounts', () => {
     expect(result.current.accounts).toStrictEqual({
       status: 'success',
       value: [
-        { ...ACCOUNT, ...{ usedCapacity: { status: 'loading' } } },
         {
-          ...NEWLY_CREATED_ACCOUNT,
-          ...{ usedCapacity: { status: 'loading' } },
+          ...MOCK_ACCESSIBLE_ACCOUNTS[0],
+          usedCapacity: { status: 'loading' },
+        },
+        {
+          ...MOCK_ACCESSIBLE_ACCOUNTS[1],
+          usedCapacity: { status: 'loading' },
         },
       ],
     });
   });
+
   it('should return accounts and metrics', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
@@ -212,11 +245,11 @@ describe('useListAccounts', () => {
       status: 'success',
       value: [
         {
-          ...ACCOUNT,
+          ...MOCK_ACCESSIBLE_ACCOUNTS[0],
           usedCapacity: { status: 'success', value: ACCOUNT_METRICS },
         },
         {
-          ...NEWLY_CREATED_ACCOUNT,
+          ...MOCK_ACCESSIBLE_ACCOUNTS[1],
           usedCapacity: {
             status: 'success',
             value: NEWLY_CREATED_ACCOUNT_METRICS,
@@ -241,9 +274,10 @@ describe('useListAccounts', () => {
       value: [...MOCK_ONE_THOUSAND_ACCOUNTS, ONE_THOUSAND_AND_ONE_ACCOUNT],
     });
   });
+
   it('should return an error in case of fetching accounts failed', async () => {
     //S
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     accessibleAccountsAdapter.useListAccessibleAccounts = jest
       .fn()
@@ -313,7 +347,7 @@ const setUpTest = async ({
 describe('useAccountLatestUsedCapacity', () => {
   it('should return metrics direcly from cache if listAccountMetrics has done', async () => {
     //S
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     const { renderAdditionalHook } = await setUpTest({
       metricsAdapter,
@@ -365,6 +399,7 @@ describe('useAccountLatestUsedCapacity', () => {
             },
             measuredOn: new Date(MEASURED_ON),
           };
+
           return accountsMetrics;
         },
       );
@@ -375,17 +410,20 @@ describe('useAccountLatestUsedCapacity', () => {
         accountCanonicalId: CANONICALID_ACCOUNT_MILLE,
       }),
     );
-    await waitFor(() => result.current.usedCapacity.status === 'success');
+    await waitFor(() => {
+      return result.current.usedCapacity.status === 'success';
+    });
     //V
     expect(result.current.usedCapacity).toStrictEqual({
       status: 'success',
       value: ACCOUNT_METRICS,
     });
   });
-  it.only('should return error in case of fetching metrics failed', async () => {
+
+  it('should return error in case of fetching metrics failed', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
 
     metricsAdapter.listAccountsLatestUsedCapacity = jest
       .fn()
@@ -411,7 +449,7 @@ describe('useAccountLatestUsedCapacity', () => {
   });
   it('should return loading status while listAccounts query has not be success', async () => {
     //S
-    const accessibleAccountsAdapter = new MockedAccessibleAcounts();
+    const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     accessibleAccountsAdapter.useListAccessibleAccounts = jest
       .fn()
