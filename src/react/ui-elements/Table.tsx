@@ -1,6 +1,7 @@
 // @noflow
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
+import { spacing as nextSpacing } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
@@ -32,7 +33,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
   display: flex;
   flex: 1;
-  margin-top: ${spacing.sp20};
+  margin-top: ${nextSpacing.r16};
   width: 100%;
   height: 100%;
   flex-direction: column;

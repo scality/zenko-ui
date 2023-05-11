@@ -1,12 +1,9 @@
 import type { LocationName, Locations } from '../../../types/config';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import * as T from '../../ui-elements/Table';
 import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
-import {
-  getLocationType,
-  getLocationIngestionState,
-} from '../../utils/storageOptions';
+import { getLocationIngestionState } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
@@ -22,10 +19,10 @@ import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/busi
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useLocationAndStorageInfos } from '../../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../../next-architecture/ui/LocationAdapterProvider';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+
+const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
   locations: Locations;
@@ -45,7 +42,6 @@ export default function BucketList({
   const query = useQueryParams();
   const { account } = useCurrentAccount();
   const tabName = query.get('tab');
-  const [bucketNameFilter, setBucketNameFilter] = useState<string>('');
 
   const columns = useMemo(() => {
     const columns: CoreUIColumn<Bucket>[] = [
@@ -164,33 +160,32 @@ export default function BucketList({
       id="bucket-list"
       paddingTop={spacing.r16}
     >
-      <T.SearchContainer>
-        <T.Search>
-          {' '}
-          <T.SearchInput
-            disableToggle={true}
-            placeholder="Search by Bucket Name"
-            value={bucketNameFilter}
-            onChange={(e) => setBucketNameFilter(e.target.value)}
-          />{' '}
-        </T.Search>
-        <T.ExtraButton
-          icon={<Icon name="Create-add" />}
-          label="Create Bucket"
-          variant="primary"
-          onClick={() =>
-            dispatch(push(`/accounts/${accountName}/create-bucket`))
-          }
-          type="submit"
-        />
-      </T.SearchContainer>
       <T.Container>
         <Table
           columns={columns}
           data={buckets}
           defaultSortingKey="creationDate"
-          allFilters={[{ id: 'name', value: bucketNameFilter }]}
         >
+          <T.SearchContainer>
+            <T.Search>
+              <Table.SearchWithQueryParams
+                displayedName={{
+                  singular: 'bucket',
+                  plural: 'buckets',
+                }}
+                queryParams={SEARCH_QUERY_PARAM}
+              />
+            </T.Search>
+            <T.ExtraButton
+              icon={<Icon name="Create-add" />}
+              label="Create Bucket"
+              variant="primary"
+              onClick={() =>
+                dispatch(push(`/accounts/${accountName}/create-bucket`))
+              }
+              type="submit"
+            />
+          </T.SearchContainer>
           <Table.SingleSelectableContent
             rowHeight="h40"
             selectedId={selectedId?.toString()}

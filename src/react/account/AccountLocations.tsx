@@ -13,6 +13,7 @@ import { Icon, Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { Search } from '../ui-elements/Table';
 import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
+import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
 
 export function AccountLocations() {
   const locationsAdapter = useLocationAdapter();
@@ -104,14 +105,6 @@ export function AccountLocations() {
       />
     );
   }
-  if (data.length === 0) {
-    return (
-      <Warning
-        icon={<Icon name="Map-marker" size="5x" />}
-        title="No locations attached to this account yet."
-      />
-    );
-  }
 
   return (
     <Table columns={columns} data={data} defaultSortingKey={'name'}>
@@ -134,7 +127,13 @@ export function AccountLocations() {
         }
         key={(index: number, data: Array<Location>) => data[index].name}
       >
-        {(Rows: ComponentType) => <>{Rows}</>}
+        {(Rows: ComponentType) =>
+          data.length === 0 ? (
+            <CenterredSecondaryText>No Locations</CenterredSecondaryText>
+          ) : (
+            <>{Rows}</>
+          )
+        }
       </Table.SingleSelectableContent>
     </Table>
   );

@@ -35,7 +35,6 @@ import {
 } from './utils';
 import Joi from '@hapi/joi';
 import { NoLocationWarning } from '../ui-elements/Warning';
-import type { S3BucketList } from '../../types/s3';
 import { Box, Input } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useQuery } from 'react-query';
