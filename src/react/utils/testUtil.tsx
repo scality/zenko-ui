@@ -257,7 +257,9 @@ export async function reduxMountAct(component, testState) {
       }
     >
       <ThemeProvider theme={theme}>
-        <Provider store={store}>{component}</Provider>
+        <Provider store={store}>
+          <Wrapper>{component}</Wrapper>
+        </Provider>
       </ThemeProvider>
     </QueryClientProvider>,
   );
