@@ -180,6 +180,7 @@ describe('TransitionForm', () => {
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
     userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
@@ -340,6 +341,7 @@ describe('TransitionForm', () => {
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
     userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
