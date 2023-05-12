@@ -3,8 +3,9 @@ import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
   reduxMount,
+  reduxRender,
   TEST_API_BASE_URL,
-  Wrapper as wrapper,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
 import { prettyDOM, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
@@ -17,27 +18,21 @@ import { S3Bucket } from '../../../types/s3';
 import { PerLocationMap } from '../../../types/config';
 import { GeneralExpirationGroup } from '../ExpirationForm';
 import { Form, FormSection } from '@scality/core-ui';
-import { debug } from 'jest-preview';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import {
+  getConfigOverlay,
+  getStorageConsumptionMetricsHandlers,
+} from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
 const expirationId = 'expirationId';
 const VERSIONED_BUCKET_NAME = 'bucket1';
 const SUSPENDED_BUCKET_NAME = 'bucket2';
-const S3BucketList: List<S3Bucket> = List.of(
-  {
-    CreationDate: '2020-01-01T00:00:00.000Z',
-    Name: VERSIONED_BUCKET_NAME,
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Enabled',
-  },
-  {
-    CreationDate: '2021-01-01T00:00:00.000Z',
-    Name: SUSPENDED_BUCKET_NAME,
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Suspended',
-  },
-);
 
 const locations: PerLocationMap<any> = {
   'chapter-ux': {
@@ -66,6 +61,16 @@ const server = setupServer(
   rest.post(
     `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/${expirationId}`,
     (req, res, ctx) => res(ctx.json([])),
+  ),
+  mockBucketListing(),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  mockBucketOperations({
+    isVersioningEnabled: (bucketName) =>
+      bucketName === VERSIONED_BUCKET_NAME ? true : false,
+  }),
+  ...getStorageConsumptionMetricsHandlers(
+    zenkoUITestConfig.managementEndpoint,
+    INSTANCE_ID,
   ),
 );
 
@@ -103,18 +108,17 @@ const selectors = {
 };
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
-    const result = reduxMount(
+    const { component: result } = reduxRender(
       <WithFormProvider>
         <Form layout={{ kind: 'tab' }}>
           <FormSection title={{ name: 'General' }}>
             <GeneralExpirationGroup />
           </FormSection>
-          <ExpirationForm bucketList={S3BucketList} locations={locations} />
+          <ExpirationForm locations={locations} />
         </Form>
       </WithFormProvider>,
     );
 
-    debug();
     await waitFor(() => screen.getByText(/General/i));
     expect(screen.getByText(/State/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Source/i)[0]).toBeInTheDocument();
