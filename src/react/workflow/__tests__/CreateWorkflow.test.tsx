@@ -27,7 +27,7 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
 const instanceId = INSTANCE_ID;
 const accountName = 'pat';
-const BUCKET_NAME = 'bucket';
+const BUCKET_NAME = 'bucket1';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
 const BUCKET_LOCATION = 'us-east-1';
 const ACCOUNT_ID = '064609833007';
