@@ -35,9 +35,7 @@ const server = setupServer(
         Accounts: [
           {
             Name: TEST_ACCOUNT,
-            CreationDate: (
-              <TEST_ACCOUNT_CREATION_DATE></TEST_ACCOUNT_CREATION_DATE>
-            ),
+            CreationDate: TEST_ACCOUNT_CREATION_DATE,
             Roles: [
               {
                 Name: 'storage-manager-role',
