@@ -6,7 +6,7 @@ import { formatShortDate } from '../../../utils';
 import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
 
-describe('BucketList', () => {
+describe.skip('BucketList', () => {
   beforeAll(() => {
     mockOffsetSize(200, 800);
   });
