@@ -18,6 +18,7 @@ import {
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import { List } from 'immutable';
+import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'Test Account';
@@ -92,7 +93,7 @@ describe('Workflows', () => {
     expect(
       screen.getByRole('row', {
         name: new RegExp(
-          `${BUCKET_NAME} \\(current versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          `${BUCKET_NAME} \\(current versions\\) ➜ europe25-myroom-cold - 15d transition active`,
           'i',
         ),
       }),
@@ -122,7 +123,7 @@ describe('Workflows', () => {
     expect(
       screen.getByRole('row', {
         name: new RegExp(
-          `${BUCKET_NAME} \\(previous versions\\) ➜ europe25-myroom-cold - 15 days transition active`,
+          `${BUCKET_NAME} \\(previous versions\\) ➜ europe25-myroom-cold - 15d transition active`,
           'i',
         ),
       }),
@@ -137,6 +138,7 @@ describe('Workflows', () => {
     jest.spyOn(Router, 'useParams').mockReturnValue({
       workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
     });
+    server.use(mockBucketListing([]));
 
     reduxRender(<Workflows />, {
       auth: { config: { iamEndpoint: TEST_API_BASE_URL } },

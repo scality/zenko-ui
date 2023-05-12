@@ -9,14 +9,17 @@
   },
   "options": {
     "main": {
-        "http://127.0.0.1:8383/dataservices":{ "en": "Data Services", "fr": "Data Services" },
-        "http://127.0.0.1:8383/accounts":{ "en": "Accounts", "fr": "Accounts" },
-        "http://127.0.0.1:8383/buckets":{ "en": "Data Browser", "fr": "Data Browser" },
-        "http://127.0.0.1:8383/workflows":{ "en": "Workflows", "fr": "Workflows" }
+      "http://127.0.0.1:8383/accounts": {
+        "en": "Data Management",
+        "fr": "Gestion des Données"
+      }
     },
     "subLogin": {}
   },
-  "logo" : { "dark": "/logos/logo-dark.svg", "darkRebrand": "/logos/logo-darkRebrand.svg" },
+  "logo": {
+    "dark": "/logos/logo-dark.svg",
+    "darkRebrand": "/logos/logo-darkRebrand.svg"
+  },
   "favicon": "",
   "providerLogout": true,
   "canChangeTheme": true

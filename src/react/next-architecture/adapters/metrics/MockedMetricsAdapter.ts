@@ -33,7 +33,7 @@ export class MockedMetricsAdapter implements IMetricsAdapter {
   async listAccountLocationsLatestUsedCapacity(
     accountCanonicalId: string,
   ): Promise<Record<string, LatestUsedCapacity>> {
-    if (accountCanonicalId === 'account-id-renard') {
+    if (accountCanonicalId === 'canonical-id-renard') {
       return {
         'artesca-s3-location': DEFAULT_METRICS,
       };

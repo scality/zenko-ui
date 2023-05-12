@@ -116,7 +116,7 @@ const StyledTable = styled.div`
   height: 100%;
 `;
 
-const CenterredSecondaryText = styled(SecondaryText)`
+export const CenterredSecondaryText = styled(SecondaryText)`
   display: block;
   text-align: center;
 `;
@@ -486,7 +486,7 @@ export const AttachmentTable = <
               Header: 'Attachment status',
               accessor: 'isPending',
               cellStyle: {
-                minWidth: '20rem',
+                flex: 1,
               },
               Cell: ({ value }: { value?: boolean }) => {
                 return value ? 'Pending' : 'Attached';

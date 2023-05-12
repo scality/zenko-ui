@@ -372,6 +372,18 @@ export const LOCATIONS_METRICS_RESPONSE = {
   [NEWLY_CREATED_LOCATION_ID]: { type: TYPE_NO_METRICS },
 };
 
+export const BUCKET_METRICS_RESPONSE = {
+  [BUCKET_NAME]: {
+    type: TYPE_HAS_METRICS,
+    usedCapacity: {
+      current: USED_CAPACITY_CURRENT,
+      nonCurrent: USED_CAPACITY_NON_CURRENT,
+    },
+    measuredOn: new Date(MEASURED_ON),
+  },
+  [NEWLY_CREATED_BUCKET_NAME]: { type: TYPE_NO_METRICS },
+};
+
 export const getStorageConsumptionMetricsHandlers = (
   baseUrl: string,
   instanceId: string,
@@ -380,12 +392,12 @@ export const getStorageConsumptionMetricsHandlers = (
   rest.post(
     `${baseUrl}/api/v1/instance/${instanceId}/account/metrics`,
     (req, res, ctx) => {
-      const { accounts } = req.body as { accounts: string[] };
+      const accounts = req.body as string[];
 
       if (
         accounts.includes(ACCOUNT_CANONICAL_ID) &&
         accounts.includes(NEWLY_CREATED_ACCOUNT_CANONICAL_ID)
-      )
+      ) {
         return res(
           ctx.json({
             [ACCOUNT_CANONICAL_ID]: {
@@ -399,6 +411,21 @@ export const getStorageConsumptionMetricsHandlers = (
             [NEWLY_CREATED_ACCOUNT_CANONICAL_ID]: { type: TYPE_NO_METRICS },
           }),
         );
+      } else {
+        const storageConsumptionMetrics = {};
+        accounts.forEach((account) => {
+          storageConsumptionMetrics[account] = {
+            type: TYPE_HAS_METRICS,
+            usedCapacity: {
+              current: USED_CAPACITY_CURRENT,
+              nonCurrent: USED_CAPACITY_NON_CURRENT,
+            },
+            measuredOn: MEASURED_ON,
+          };
+        });
+
+        return res(ctx.json(storageConsumptionMetrics));
+      }
     },
   ),
 
@@ -430,11 +457,11 @@ export const getStorageConsumptionMetricsHandlers = (
   rest.post(
     `${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`,
     (req, res, ctx) => {
-      const { buckets } = req.body as { buckets: string[] };
+      const buckets = req.body as string[];
       if (
         buckets.includes(BUCKET_ID) &&
         buckets.includes(NEWLY_CREATED_BUCKET_ID)
-      )
+      ) {
         return res(
           ctx.json({
             [BUCKET_NAME]: {
@@ -448,6 +475,20 @@ export const getStorageConsumptionMetricsHandlers = (
             [NEWLY_CREATED_BUCKET_NAME]: { type: TYPE_NO_METRICS },
           }),
         );
+      } else {
+        const bucketMetrics = {};
+        buckets.forEach((b) => {
+          bucketMetrics[b] = {
+            type: TYPE_HAS_METRICS,
+            usedCapacity: {
+              current: USED_CAPACITY_CURRENT,
+              nonCurrent: USED_CAPACITY_NON_CURRENT,
+            },
+            measuredOn: MEASURED_ON,
+          };
+        });
+        return res(ctx.json(bucketMetrics));
+      }
     },
   ),
 

@@ -1,58 +1,67 @@
 import type { LocationName, Locations } from '../../../types/config';
-import React, { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import * as T from '../../ui-elements/Table';
-import type { S3Bucket, S3BucketList } from '../../../types/s3';
 import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
-import {
-  getLocationType,
-  getLocationIngestionState,
-} from '../../utils/storageOptions';
+import { getLocationIngestionState } from '../../utils/storageOptions';
 import { push } from 'connected-react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
-import type { AppState } from '../../../types/state';
 import { XDM_FEATURE } from '../../../js/config';
-import { useParams } from 'react-router';
-import { Icon, spacing } from '@scality/core-ui';
+import { useHistory, useParams } from 'react-router';
+import { Icon, Link, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { Bucket } from '../../next-architecture/domain/entities/bucket';
+import { CoreUIColumn } from 'react-table';
+import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
+import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
+import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metrics/LatestUsedCapacity';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
+import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+
+const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
   locations: Locations;
-  buckets: S3BucketList;
+  buckets: Bucket[];
   selectedBucketName: string | null | undefined;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
 };
 export default function BucketList({
   selectedBucketName,
-  buckets: bucketsImmutableList,
+  buckets,
   locations,
   ingestionStates,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
   const dispatch = useDispatch();
-  const features = useSelector((state: AppState) => state.auth.config.features);
+  const { features } = useConfig();
   const query = useQueryParams();
   const { account } = useCurrentAccount();
   const tabName = query.get('tab');
-  const [bucketNameFilter, setBucketNameFilter] = useState<string>('');
 
   const columns = useMemo(() => {
-    const columns = [
+    const columns: CoreUIColumn<Bucket>[] = [
       {
         Header: 'Bucket Name',
-        accessor: 'Name',
+        accessor: 'name',
 
         Cell({ value: name }: { value: string }) {
+          const history = useHistory();
           return (
-            <T.CellLink
-              onClick={(event) => event.stopPropagation()}
-              to={`/accounts/${accountName}/buckets/${name}/objects`}
+            <Link
+              onClick={(e) => {
+                e.stopPropagation();
+                history.push(
+                  `/accounts/${accountName}/buckets/${name}/objects`,
+                );
+              }}
             >
               {name}
-            </T.CellLink>
+            </Link>
           );
         },
         cellStyle: {
@@ -62,11 +71,10 @@ export default function BucketList({
       },
       {
         Header: 'Storage Location',
-        accessor: 'LocationConstraint',
+        accessor: 'locationConstraint',
 
-        Cell({ value: locationName }: { value: LocationName }) {
-          const locationType = getLocationType(locations[locationName]);
-          return `${locationName || 'us-east-1'} / ${locationType}`;
+        Cell({ row }) {
+          return BucketLocationNameAndType({ bucketName: row.original.name });
         },
         cellStyle: {
           flex: '1',
@@ -77,12 +85,19 @@ export default function BucketList({
     if (features.includes(XDM_FEATURE)) {
       columns.push({
         Header: 'Async Metadata updates',
-        accessor: 'LocationConstraint',
+        accessor: 'locationConstraint',
         id: 'ingestion',
         disableSortBy: true,
 
         Cell({ value: locationName }: { value: LocationName }) {
-          return getLocationIngestionState(ingestionStates, locationName).value;
+          const value = getLocationIngestionState(
+            ingestionStates,
+            locationName,
+          ).value;
+          if (value === '-') {
+            return <EmptyCell />;
+          }
+          return value;
         },
         cellStyle: {
           flex: '1',
@@ -91,8 +106,28 @@ export default function BucketList({
     }
 
     columns.push({
+      Header: 'Data Used',
+      accessor: 'usedCapacity',
+      cellStyle: {
+        paddingRight: spacing.r32,
+        textAlign: 'right',
+      },
+
+      Cell({ row }) {
+        const metricsAdapter = useMetricsAdapter();
+        const bucketName = row.original.name;
+        const { usedCapacity } = useBucketLatestUsedCapacity({
+          bucketName,
+          metricsAdapter,
+        });
+
+        return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
+      },
+    });
+
+    columns.push({
       Header: 'Created on',
-      accessor: 'CreationDate',
+      accessor: 'creationDate',
       cellStyle: {
         flex: '1',
         paddingRight: spacing.r32,
@@ -110,63 +145,53 @@ export default function BucketList({
     return columns;
   }, [locations, ingestionStates, features]);
 
-  const buckets = useMemo(
-    () => bucketsImmutableList.toJS(),
-    [bucketsImmutableList.size],
-  ) as S3Bucket[];
   const selectedId = useMemo(() => {
     if (buckets) {
-      return buckets.findIndex((bucket) => bucket.Name === selectedBucketName);
+      return buckets.findIndex((bucket) => bucket.name === selectedBucketName);
     }
     return null;
   }, [selectedBucketName, buckets]);
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      flex="1"
-      id="bucket-list"
-      paddingTop={spacing.r16}
-    >
-      <T.SearchContainer>
-        <T.Search>
-          {' '}
-          <T.SearchInput
-            disableToggle={true}
-            placeholder="Search by Bucket Name"
-            onChange={(e) => setBucketNameFilter(e.target.value)}
-          />{' '}
-        </T.Search>
-        <T.ExtraButton
-          icon={<Icon name="Create-add" />}
-          label="Create Bucket"
-          variant="primary"
-          onClick={() =>
-            dispatch(push(`/accounts/${accountName}/create-bucket`))
-          }
-          type="submit"
-        />
-      </T.SearchContainer>
+    <Box display="flex" flexDirection="column" flex="1" id="bucket-list">
       <T.Container>
         <Table
           columns={columns}
           data={buckets}
-          defaultSortingKey="CreationDate"
-          allFilters={[{ id: 'Name', value: bucketNameFilter }]}
+          defaultSortingKey="creationDate"
         >
+          <T.SearchContainer>
+            <T.Search>
+              <Table.SearchWithQueryParams
+                displayedName={{
+                  singular: 'bucket',
+                  plural: 'buckets',
+                }}
+                queryParams={SEARCH_QUERY_PARAM}
+              />
+            </T.Search>
+            <T.ExtraButton
+              icon={<Icon name="Create-add" />}
+              label="Create Bucket"
+              variant="primary"
+              onClick={() =>
+                dispatch(push(`/accounts/${accountName}/create-bucket`))
+              }
+              type="submit"
+            />
+          </T.SearchContainer>
           <Table.SingleSelectableContent
             rowHeight="h40"
             selectedId={selectedId?.toString()}
             onRowSelected={(row) => {
-              const isSelected = selectedBucketName === row.original.Name;
+              const isSelected = selectedBucketName === row.original.name;
 
               if (!isSelected) {
                 dispatch(
                   push(
                     tabName
-                      ? `/accounts/${account?.Name}/buckets/${row.original.Name}?tab=${tabName}`
-                      : `/accounts/${account?.Name}/buckets/${row.original.Name}`,
+                      ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
+                      : `/accounts/${account?.Name}/buckets/${row.original.name}`,
                   ),
                 );
               }

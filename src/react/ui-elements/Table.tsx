@@ -1,6 +1,7 @@
 // @noflow
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
+import { spacing as nextSpacing } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';
 import React from 'react';
@@ -32,7 +33,7 @@ import styled from 'styled-components';
 export const Container = styled.div`
   display: flex;
   flex: 1;
-  margin-top: ${spacing.sp20};
+  margin-top: ${nextSpacing.r16};
   width: 100%;
   height: 100%;
   flex-direction: column;
@@ -128,7 +129,7 @@ export const SearchContainer = styled.div`
 `;
 export const Search = styled.div`
   display: flex;
-  flex: 0 0 220px;
+  flex: 0 0 auto;
 `;
 export const SearchInput = styled(SearchInputCore)`
   width: 100%;
@@ -162,7 +163,6 @@ export const ActionButton = styled(Button)`
 `;
 export const InlineButton = styled(Button)`
   height: ${spacing.sp24};
-  margin-left: ${spacing.sp16};
 `;
 export const AccountSelectorButton = styled(Button)<{ bigButton?: boolean }>`
   height: ${(props) => (props.bigButton ? spacing.sp32 : spacing.sp24)};

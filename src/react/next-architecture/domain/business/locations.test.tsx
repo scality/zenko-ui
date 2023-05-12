@@ -77,6 +77,13 @@ const genExpectedLocation = (
           details,
           usedCapacity,
         ),
+        'us-east-1': {
+          isBuiltin: true,
+          locationType: 'location-file-v1',
+          name: 'us-east-1',
+          objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+          usedCapacity,
+        },
       },
     },
   };
@@ -213,6 +220,7 @@ describe('useListLocationsForCurrentAccount', () => {
   const setupAndRenderHook = (
     locationsAdapter = new MockedAccountsLocationsAdapter(),
     metricsAdapter = new MockedMetricsAdapter(),
+    accountsAdapter = new MockedAccountsLocationsAdapter(),
   ) => {
     return {
       ...renderHook(
@@ -220,6 +228,7 @@ describe('useListLocationsForCurrentAccount', () => {
           useListLocationsForCurrentAccount({
             locationsAdapter: locationsAdapter,
             metricsAdapter: metricsAdapter,
+            accountsAdapter: accountsAdapter,
           }),
         {
           wrapper: Wrapper,
@@ -414,22 +423,19 @@ describe('useListLocationsForCurrentAccount', () => {
       },
       selectAccountAndRoleRedirectTo: () => {},
     });
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const { result, waitFor } = setupAndRenderHook();
 
-    // E
+    // V
     await waitFor(() => {
-      return result.current.locations.status === 'success';
+      return result.current.locations.status === 'error';
     });
 
     // V
-    expect(warn).toBeCalledWith(
-      'The locations "orphan-location" has metrics but the location does not exist. Please check if this locations really exist.',
-    );
     const expectedRes = {
       locations: {
-        status: 'success',
-        value: {},
+        status: 'error',
+        title: 'Account Not Found Error',
+        reason: 'Account account-id-with-orphan-metrics not found',
       },
     };
     expect(result.current).toStrictEqual(expectedRes);

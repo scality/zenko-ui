@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { generatePath, useHistory } from 'react-router';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
@@ -7,9 +7,11 @@ import {
   removeRoleArnStored,
   setRoleArnStored,
 } from './utils/localStorage';
+import { useQueryClient } from 'react-query';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
+  setRole: (role: { roleArn: string }) => void;
 }>(null);
 
 export const useDataServiceRole = () => {
@@ -24,11 +26,23 @@ export const useDataServiceRole = () => {
   return DataServiceCtxt.role;
 };
 
+export const useSetAssumedRole = () => {
+  const DataServiceCtxt = useContext(_DataServiceRoleContext);
+
+  if (!DataServiceCtxt) {
+    throw new Error(
+      'The useSetAssumedRole hook can only be used within DataServiceRoleProvider.',
+    );
+  }
+
+  return DataServiceCtxt.setRole;
+};
+
 export const useCurrentAccount = () => {
   const { accountName } = useParams<{ accountName: string }>();
   const storedRoleArn = getRoleArnStored();
   const accountId = storedRoleArn
-    ? regexArn.exec(storedRoleArn).groups['account_id']
+    ? regexArn.exec(storedRoleArn)?.groups?.['account_id']
     : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
 
@@ -71,25 +85,38 @@ export const useCurrentAccount = () => {
 };
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
-  const storedRoleArn = getRoleArnStored();
+  const [role, setRoleState] = useState<{ roleArn: string }>({
+    roleArn: getRoleArnStored(),
+  });
+
+  const queryClient = useQueryClient();
   const { account } = useCurrentAccount();
-  const storedAccountID = regexArn.exec(storedRoleArn)?.groups['account_id'];
+  const storedAccountID = regexArn.exec(role.roleArn)?.groups?.['account_id'];
 
   const roleArn = useMemo(() => {
-    if (!storedRoleArn || account?.id !== storedAccountID) {
+    if (!role.roleArn || account?.id !== storedAccountID) {
       // If the account is not the same as the one stored in the localstorage or it's empty, asssume the first Role in the list.
       const defaultAssumedRoleArn = account?.Roles[0].Arn;
       if (defaultAssumedRoleArn) setRoleArnStored(defaultAssumedRoleArn);
-      return defaultAssumedRoleArn;
+      return defaultAssumedRoleArn || '';
     } else {
-      return storedRoleArn;
+      return role.roleArn;
     }
-  }, [storedRoleArn, JSON.stringify(account)]);
+  }, [role.roleArn, JSON.stringify(account)]);
+
+  const setRole = (role: { roleArn: string }) => {
+    setRoleArnStored(role.roleArn);
+    queryClient.resetQueries({
+      predicate: (query) => query.queryKey !== 'config',
+    });
+    setRoleState(role);
+  };
 
   return (
     <_DataServiceRoleContext.Provider
       value={{
         role: { roleArn },
+        setRole,
       }}
     >
       {children}

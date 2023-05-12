@@ -4,7 +4,7 @@ import type {
   Hostname,
   Locations,
 } from '../../types/config';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import * as T from '../ui-elements/Table';
 import {
@@ -30,6 +30,7 @@ type Props = {
   endpoints: Array<Endpoint>;
   locations: Locations;
 };
+const SEARCH_QUERY_PARAM = 'search';
 
 function EndpointList({ endpoints, locations }: Props) {
   const dispatch = useDispatch();
@@ -37,7 +38,6 @@ function EndpointList({ endpoints, locations }: Props) {
     (state: AppState) => state.uiEndpoints.showDelete,
   );
 
-  const [hostnameFilter, setHostnameFilter] = useState<string>('');
   /*
    *   Enforcing a strict schema because the table interprets `undefined` values
    *   as empty and shows a minus sign instead (which makes total sense), disregarding what is
@@ -134,45 +134,41 @@ function EndpointList({ endpoints, locations }: Props) {
   };
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      padding={`${spacing.sp16} 0`}
-      flex="1"
-      id="endpoint-list"
-    >
+    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
       <DeleteConfirmation
         show={!!showDelete}
         cancel={handleDeleteCancel}
         approve={handleDeleteApprove}
         titleText={`Are you sure you want to delete Data Service: ${showDelete} ?`}
       />
-      <T.SearchContainer>
-        <T.Search>
-          <T.SearchInput
-            disableToggle={true}
-            placeholder="Search by Hostname"
-            onChange={(e) => setHostnameFilter(e.target.value)}
-          />
-        </T.Search>
-        <div style={{ marginLeft: 'auto' }}>
-          <Button
-            icon={<Icon name="Create-add" />}
-            label="Create Data Service"
-            variant="primary"
-            onClick={() => dispatch(push('/create-dataservice'))}
-            type="submit"
-          />
-          <AuthorizedAdvancedMetricsButton />
-        </div>
-      </T.SearchContainer>
       <T.Container>
         <Table
           columns={columns}
           data={strictSchemaEndpoints}
           defaultSortingKey="isBuiltin"
-          allFilters={[{ id: 'hostname', value: hostnameFilter }]}
         >
+          <T.SearchContainer>
+            <T.Search>
+              <Table.SearchWithQueryParams
+                displayedName={{
+                  singular: 'endpoint',
+                  plural: 'endpoints',
+                }}
+                queryParams={SEARCH_QUERY_PARAM}
+              />
+            </T.Search>
+            <div style={{ marginLeft: 'auto' }}>
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Data Service"
+                variant="primary"
+                onClick={() => dispatch(push('/create-dataservice'))}
+                type="submit"
+              />
+              <AuthorizedAdvancedMetricsButton />
+            </div>
+          </T.SearchContainer>
+
           <Table.SingleSelectableContent
             rowHeight="h40"
             separationLineVariant="backgroundLevel1"

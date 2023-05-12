@@ -2,15 +2,10 @@ import type {
   Locations,
   Replication as ReplicationStream,
 } from '../../types/config';
-import type {
-  ReplicationBucketOption,
-  ReplicationForm,
-} from '../../types/replication';
-import type { S3BucketList } from '../../types/s3';
+import type { ReplicationForm } from '../../types/replication';
 import type { SelectOption } from '../../types/ui';
 import { getLocationTypeShort } from '../utils/storageOptions';
-import { isVersioning } from '../utils';
-import { storageOptions } from '../backend/location/LocationDetails';
+import { storageOptions } from '../locations/LocationDetails';
 import {
   BucketWorkflowTransitionV2,
   BucketWorkflowExpirationV1,
@@ -19,26 +14,6 @@ import {
 import { CustomHelpers } from '@hapi/joi';
 import type { Tag } from '../../types/s3';
 import { FieldError, FieldErrors } from 'react-hook-form';
-
-export const sourceBucketOptions = (
-  bucketList: S3BucketList,
-  locations: Locations,
-): Array<ReplicationBucketOption> => {
-  const buckets = bucketList.map((b) => {
-    const constraint = b.LocationConstraint || 'us-east-1'; // defaults to empty
-    const locationType = locations[constraint]?.locationType;
-    const { supportsReplicationSource } = storageOptions[locationType] || false;
-    const isNonVersioned = !isVersioning(b.VersionStatus);
-    const disabled = isNonVersioned || !supportsReplicationSource;
-    return {
-      label: b.Name,
-      value: b.Name,
-      location: constraint,
-      disabled,
-    };
-  });
-  return [...buckets];
-};
 
 export const destinationOptions = (
   locations: Locations,
@@ -54,14 +29,6 @@ export const destinationOptions = (
         label: n,
       };
     });
-};
-
-export const renderSource = (locations: Locations) => {
-  return function does(option: ReplicationBucketOption) {
-    return `${option.label} (${option.location} / ${getLocationTypeShort(
-      locations[option.location],
-    )})`;
-  };
 };
 
 export const renderDestination = (locations: Locations) => {
@@ -262,7 +229,7 @@ export function generateTransitionName(t: BucketWorkflowTransitionV2) {
     t.applyToVersion === BucketWorkflowTransitionV2.ApplyToVersionEnum.Current
       ? 'current'
       : 'previous'
-  } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays} days`;
+  } versions)  ➜ ${t.locationName} - ${t.triggerDelayDays}d`;
 }
 
 export function flattenFormErrors<T = unknown>(

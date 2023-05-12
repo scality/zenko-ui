@@ -11,8 +11,11 @@ import { ChangeEvent } from 'react';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
-import { Tooltip } from '@scality/core-ui';
+import { EmptyState, Tooltip } from '@scality/core-ui';
 import IAMClient from '../../js/IAMClient';
+import { Warning } from '../ui-elements/Warning';
+import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
+import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -114,12 +117,14 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
             queryResult.firstPageStatus !== 'error'
               ? data &&
                 filterData && (
-                  <SpacedBox mr={12}>
-                    Total {data.length}{' '}
-                    {data.length > 1
-                      ? pluralResourceName
-                      : singularResourceName}
-                  </SpacedBox>
+                  <TableItemCount
+                    locale="en"
+                    count={data.length}
+                    entity={{
+                      singular: singularResourceName,
+                      plural: pluralResourceName,
+                    }}
+                  />
                 )
               : ''}
             <WithTooltipWhileLoading
@@ -175,7 +180,17 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
               {queryResult.firstPageStatus === 'error'
                 ? errorInTableContent
                 : ''}
-              {queryResult.firstPageStatus === 'success' ? Rows : ''}
+              {queryResult.firstPageStatus === 'success' ? (
+                queryResult.data?.length === 0 ? (
+                  <CenterredSecondaryText>
+                    No {pluralResourceName}
+                  </CenterredSecondaryText>
+                ) : (
+                  Rows
+                )
+              ) : (
+                ''
+              )}
             </>
           )}
         </Table.SingleSelectableContent>

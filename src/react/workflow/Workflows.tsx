@@ -1,4 +1,4 @@
-import { useParams, useHistory, Redirect } from 'react-router-dom';
+import { useParams, useHistory, Redirect, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
@@ -26,7 +26,16 @@ import {
   BucketWorkflowTransitionV2,
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
-import { AppContainer, Icon, TwoPanelLayout } from '@scality/core-ui';
+import {
+  AppContainer,
+  Icon,
+  Stack,
+  Text,
+  TwoPanelLayout,
+} from '@scality/core-ui';
+import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { useEffect } from 'react';
 
 type Filter = string[];
 
@@ -66,6 +75,15 @@ export function useWorkflowsWithSelect<T>(
     },
   });
 
+  //In order to avoid races when we unmount before the promise
+  //is resolved we force cleanup of network operation status in
+  //redux on un-mount
+  useEffect(() => {
+    return () => {
+      dispatch(networkEnd());
+    };
+  }, []);
+
   return workflowsQuery;
 }
 
@@ -99,9 +117,9 @@ export default function Workflows() {
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const { accounts } = useAccounts();
-  const bucketList = useSelector(
-    (state: AppState) => state.s3.listBucketsResults.list,
-  );
+  const metricsAdapter = useMetricsAdapter();
+  const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
+  const { search } = useLocation();
 
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
@@ -124,7 +142,7 @@ export default function Workflows() {
   }
 
   const content = () => {
-    if (bucketList.size === 0) {
+    if (buckets.status === 'success' && buckets.value.length === 0) {
       return (
         <EmptyStateContainer>
           <Warning
@@ -150,7 +168,18 @@ export default function Workflows() {
 
     // redirect to the first workflow.
     if (!noWorkflows && !workflowId) {
-      return <Redirect to={`./workflows/${workflows[0].id}`} />;
+      const searchParams = new URLSearchParams(search);
+      let firstWorkflowId = workflows[0].id;
+      if (searchParams.has('search')) {
+        const searchString = (searchParams.get('search') || '').toLowerCase();
+        firstWorkflowId =
+          workflows.find(
+            (w) =>
+              w.name.toLowerCase().includes(searchString) ||
+              w.type.toLowerCase().includes(searchString),
+          )?.id ?? firstWorkflowId;
+      }
+      return <Redirect to={`./workflows/${firstWorkflowId}${search}`} />;
     }
 
     if (workflows.length === 0) {
@@ -170,24 +199,31 @@ export default function Workflows() {
     }
 
     return (
-      <AppContainer.MainContent background="backgroundLevel1">
-        <TwoPanelLayout
-          panelsRatio="50-50"
-          leftPanel={{
-            children: (
-              <WorkflowList workflowId={workflowId} workflows={workflows} />
-            ),
-          }}
-          rightPanel={{
-            children: (
-              <WorkflowContent
-                bucketList={bucketList}
-                wfSelected={workflows.find((w) => w.id === workflowId)}
-              />
-            ),
-          }}
-        />
-      </AppContainer.MainContent>
+      <>
+        <AppContainer.OverallSummary>
+          <Stack gap="r16">
+            <Icon name="Workflow" color="infoPrimary" size="2x" withWrapper />
+            <Text variant="Larger">Workflows</Text>
+          </Stack>
+        </AppContainer.OverallSummary>
+        <AppContainer.MainContent background="backgroundLevel3">
+          <TwoPanelLayout
+            panelsRatio="50-50"
+            leftPanel={{
+              children: (
+                <WorkflowList workflowId={workflowId} workflows={workflows} />
+              ),
+            }}
+            rightPanel={{
+              children: (
+                <WorkflowContent
+                  wfSelected={workflows.find((w) => w.id === workflowId)}
+                />
+              ),
+            }}
+          />
+        </AppContainer.MainContent>
+      </>
     );
   };
 
@@ -196,6 +232,7 @@ export default function Workflows() {
       <AppContainer.ContextContainer background="backgroundLevel1">
         <Breadcrumb />
       </AppContainer.ContextContainer>
+
       {content()}
     </>
   );

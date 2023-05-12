@@ -6,17 +6,21 @@ import {
   useQuery,
   useQueryClient,
   useIsFetching,
+  useMutation,
 } from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { useS3Client } from '../../ui/S3ClientProvider';
 import {
+  BucketDefaultRetentionPromiseResult,
   BucketLatestUsedCapacityPromiseResult,
   BucketLocationConstraintPromiseResult,
+  BucketVersionningPromiseResult,
   BucketsPromiseResult,
 } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
+import { ListBucketsOutput } from 'aws-sdk/clients/s3';
 
 export const DEFAULT_LOCATION = 'us-east-1';
 
@@ -30,6 +34,34 @@ export const queries = {
   listBuckets: (s3Client: S3) => ({
     queryKey: ['buckets'],
     queryFn: () => s3Client.listBuckets().promise(),
+    ...noRefetchOptions,
+  }),
+  getBucketVersioning: (s3Client: S3, bucketName?: string) => ({
+    queryKey: ['bucketVersioning', bucketName],
+    queryFn: () =>
+      s3Client
+        .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
+        .promise(),
+    enabled: !!bucketName,
+    ...noRefetchOptions,
+  }),
+  getBucketDefaultRetention: (s3Client: S3, bucketName?: string) => ({
+    queryKey: ['bucketDefaultRetention', bucketName],
+    queryFn: () =>
+      s3Client
+        .getObjectLockConfiguration({
+          Bucket: notFalsyTypeGuard(bucketName),
+        })
+        .promise()
+        .catch((err: AWSError) => {
+          if (err.code === 'ObjectLockConfigurationNotFoundError') {
+            return {
+              ObjectLockConfiguration: { ObjectLockEnabled: 'Disabled' },
+            };
+          }
+          throw err;
+        }),
+    enabled: !!bucketName,
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
@@ -164,6 +196,169 @@ export const useListBucketsForCurrentAccount = ({
       value: bucketsWithLocation,
     },
   };
+};
+
+export const useBucketVersionning = ({
+  bucketName,
+}: {
+  bucketName: string;
+}): BucketVersionningPromiseResult => {
+  const s3Client = useS3Client();
+  const { data, status } = useQuery({
+    ...queries.getBucketVersioning(s3Client, bucketName),
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      versionning: {
+        status: 'loading',
+      },
+    };
+  }
+
+  if (status === 'error') {
+    return {
+      versionning: {
+        status: 'error',
+        title: 'An error occurred while fetching the versionning',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+
+  return {
+    versionning: {
+      status: 'success',
+      value: (data?.Status as 'Enabled' | 'Suspended') || 'Disabled',
+    },
+  };
+};
+
+export const useBucketDefaultRetention = ({
+  bucketName,
+}: {
+  bucketName: string;
+}): BucketDefaultRetentionPromiseResult => {
+  const s3Client = useS3Client();
+  const { data, status } = useQuery({
+    ...queries.getBucketDefaultRetention(s3Client, bucketName),
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      defaultRetention: {
+        status: 'loading',
+      },
+    };
+  }
+
+  if (status === 'error') {
+    return {
+      defaultRetention: {
+        status: 'error',
+        title: 'An error occurred while fetching the default retention',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+
+  return {
+    defaultRetention: {
+      status: 'success',
+      value: data?.ObjectLockConfiguration || {},
+    },
+  };
+};
+
+export const useCreateBucket = () => {
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
+  const createMutation = useMutation({
+    mutationFn: (request: S3.Types.CreateBucketRequest) => {
+      return s3Client.createBucket(request).promise();
+    },
+    onSuccess: () => {
+      queryClient.resetQueries(queries.listBuckets(s3Client).queryKey);
+    },
+  });
+  return createMutation;
+};
+
+export const useDeleteBucket = () => {
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: (request: S3.Types.DeleteBucketRequest) => {
+      return s3Client.deleteBucket(request).promise();
+    },
+    onSuccess: (_, request) => {
+      const listingQueryState = queryClient.getQueryState<ListBucketsOutput>(
+        queries.listBuckets(s3Client).queryKey,
+      );
+      if (listingQueryState?.status === 'success') {
+        const newBuckets = listingQueryState.data?.Buckets?.filter(
+          (bucket) => bucket.Name !== request.Bucket,
+        );
+        queryClient.setQueryData(queries.listBuckets(s3Client).queryKey, {
+          ...listingQueryState.data,
+          Buckets: newBuckets,
+        });
+      }
+    },
+  });
+  return deleteMutation;
+};
+
+export const useChangeBucketVersionning = () => {
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
+  const changeMutation = useMutation({
+    mutationFn: (request: S3.Types.PutBucketVersioningRequest) => {
+      return s3Client.putBucketVersioning(request).promise();
+    },
+    onSuccess: (_, request) => {
+      const versionningQueryState =
+        queryClient.getQueryState<S3.GetBucketVersioningOutput>(
+          queries.getBucketVersioning(s3Client, request.Bucket).queryKey,
+        );
+      if (versionningQueryState?.status === 'success') {
+        queryClient.setQueryData(
+          queries.getBucketVersioning(s3Client, request.Bucket).queryKey,
+          {
+            ...versionningQueryState.data,
+            Status: request.VersioningConfiguration?.Status,
+          },
+        );
+      }
+    },
+  });
+  return changeMutation;
+};
+
+export const useChangeBucketDefaultRetention = () => {
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
+  const changeMutation = useMutation({
+    mutationFn: (request: S3.Types.PutObjectLockConfigurationRequest) => {
+      return s3Client.putObjectLockConfiguration(request).promise();
+    },
+    onSuccess: (_, request) => {
+      const defaultRetentionQueryState =
+        queryClient.getQueryState<S3.GetObjectLockConfigurationOutput>(
+          queries.getBucketDefaultRetention(s3Client, request.Bucket).queryKey,
+        );
+      if (defaultRetentionQueryState?.status === 'success') {
+        queryClient.setQueryData<S3.GetObjectLockConfigurationOutput>(
+          queries.getBucketDefaultRetention(s3Client, request.Bucket).queryKey,
+          {
+            ...defaultRetentionQueryState.data,
+            ObjectLockConfiguration: request.ObjectLockConfiguration,
+          },
+        );
+      }
+    },
+  });
+  return changeMutation;
 };
 
 /**

@@ -118,19 +118,6 @@ export function createBucket(
       }
     }
 
-    try {
-      await dispatch(listBuckets());
-    } catch (maybeAuthError) {
-      try {
-        dispatch(handleAWSClientError(maybeAuthError));
-      } catch (originalError) {
-        dispatch(handleAWSError(originalError, 'byComponent'));
-      }
-
-      dispatch(networkEnd());
-      return;
-    }
-
     await dispatch(push('/buckets'));
     await dispatch(networkEnd());
   };
@@ -141,7 +128,6 @@ export function deleteBucket(bucketName: string): ThunkStatePromisedAction {
     dispatch(networkStart('Deleting bucket'));
     return zenkoClient
       .deleteBucket(bucketName)
-      .then(() => dispatch(listBuckets()))
       .then(() => dispatch(push('/buckets')))
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
@@ -172,7 +158,6 @@ export function toggleBucketVersioning(
     dispatch(networkStart('Versioning bucket'));
     return zenkoClient
       .toggleVersioning(bucketName, isVersioning)
-      .then(() => dispatch(listBuckets()))
       .then(() => dispatch(getBucketInfo(bucketName)))
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
@@ -193,19 +178,6 @@ export function editDefaultRetention(
         ...objectLockRetentionSettings,
         bucketName,
       });
-    } catch (maybeAuthError) {
-      try {
-        dispatch(handleAWSClientError(maybeAuthError));
-      } catch (originalError) {
-        dispatch(handleAWSError(originalError, 'byComponent'));
-      }
-
-      dispatch(networkEnd());
-      return;
-    }
-
-    try {
-      await dispatch(listBuckets());
     } catch (maybeAuthError) {
       try {
         dispatch(handleAWSClientError(maybeAuthError));

@@ -14,53 +14,135 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   ) {
     this.managementClient = makeMgtClient(this.baseUrl, this.token);
   }
-  listBucketsLatestUsedCapacity(
+  async listBucketsLatestUsedCapacity(
     buckets: Bucket[],
   ): Promise<Record<string, LatestUsedCapacity>> {
-    throw new Error('Method not implemented.');
+    const bucketsMetrics =
+      await this.managementClient.getStorageConsumptionMetricsForBuckets(
+        this.instanceId,
+        buckets.map(
+          (bucket) => `${bucket.Name}_${bucket.CreationDate?.getTime()}`,
+        ),
+      );
+    return Object.keys(bucketsMetrics).reduce((acc, bucketId) => {
+      if (bucketsMetrics[bucketId].type === 'hasMetrics') {
+        acc[bucketId] = {
+          type: 'hasMetrics',
+          usedCapacity: notFalsyTypeGuard(
+            bucketsMetrics[bucketId].usedCapacity,
+          ),
+          measuredOn: new Date(
+            notFalsyTypeGuard(bucketsMetrics[bucketId].measuredOn),
+          ),
+        };
+      } else {
+        acc[bucketId] = {
+          type: 'noMetrics',
+        };
+      }
+      return acc;
+    }, {} as Record<string, LatestUsedCapacity>);
   }
   async listLocationsLatestUsedCapacity(
     locationIds: string[],
   ): Promise<Record<string, LatestUsedCapacity>> {
-    return this.managementClient
-      .getStorageConsumptionMetricsForLocations(this.instanceId, locationIds)
-      .then((locationsMetrics) => {
-        const locationIds = Object.keys(locationsMetrics);
+    const locationsMetrics =
+      await this.managementClient.getStorageConsumptionMetricsForLocations(
+        this.instanceId,
+        locationIds,
+      );
 
-        const locationsLatestUsedCapacityList: Record<
-          string,
-          LatestUsedCapacity
-        > = {};
+    const resultingLocationIds = Object.keys(locationsMetrics);
 
-        locationIds.forEach((id) => {
-          if (locationsMetrics[id].type === 'hasMetrics') {
-            locationsLatestUsedCapacityList[id] = {
-              type: 'hasMetrics',
-              usedCapacity: notFalsyTypeGuard(
-                locationsMetrics[id].usedCapacity,
-              ),
-              measuredOn: new Date(
-                notFalsyTypeGuard(locationsMetrics[id].measuredOn),
-              ),
-            };
-          } else {
-            locationsLatestUsedCapacityList[id] = {
-              type: 'noMetrics',
-            };
-          }
-        });
+    const locationsLatestUsedCapacityList: Record<string, LatestUsedCapacity> =
+      {};
 
-        return locationsLatestUsedCapacityList;
-      });
+    resultingLocationIds.forEach((id) => {
+      if (locationsMetrics[id].type === 'hasMetrics') {
+        locationsLatestUsedCapacityList[id] = {
+          type: 'hasMetrics',
+          usedCapacity: notFalsyTypeGuard(locationsMetrics[id].usedCapacity),
+          measuredOn: new Date(
+            notFalsyTypeGuard(locationsMetrics[id].measuredOn),
+          ),
+        };
+      } else {
+        locationsLatestUsedCapacityList[id] = {
+          type: 'noMetrics',
+        };
+      }
+    });
+
+    return locationsLatestUsedCapacityList;
   }
-  listAccountLocationsLatestUsedCapacity(
+  async listAccountLocationsLatestUsedCapacity(
     accountCanonicalId: string,
   ): Promise<Record<string, LatestUsedCapacity>> {
-    throw new Error('Method not implemented.');
+    const accountLocationsMetrics =
+      await this.managementClient.getStorageConsumptionMetricsForAccount(
+        this.instanceId,
+        accountCanonicalId,
+      );
+
+    const resultingLocationIds = Object.keys(
+      accountLocationsMetrics.locations || {},
+    ) as (keyof typeof accountLocationsMetrics.locations)[];
+
+    const accountLocationsLatestUsedCapacityList: Record<
+      string,
+      LatestUsedCapacity
+    > = {};
+
+    resultingLocationIds.forEach((id) => {
+      if (accountLocationsMetrics.locations?.[id]) {
+        accountLocationsLatestUsedCapacityList[id] = {
+          type: 'hasMetrics',
+          usedCapacity: notFalsyTypeGuard(
+            accountLocationsMetrics.locations[id].usedCapacity,
+          ),
+          measuredOn: new Date(
+            notFalsyTypeGuard(accountLocationsMetrics.measuredOn),
+          ),
+        };
+      } else {
+        accountLocationsLatestUsedCapacityList[id] = {
+          type: 'noMetrics',
+        };
+      }
+    });
+
+    return accountLocationsLatestUsedCapacityList;
   }
-  listAccountsLatestUsedCapacity(
+  async listAccountsLatestUsedCapacity(
     accountCanonicalIds: string[],
   ): Promise<Record<string, LatestUsedCapacity>> {
-    throw new Error('Method not implemented.');
+    const accountsMetrics =
+      await this.managementClient.getStorageConsumptionMetricsForAccounts(
+        this.instanceId,
+        accountCanonicalIds,
+      );
+
+    const resultingAccountIds = Object.keys(accountsMetrics);
+
+    const accountsLatestUsedCapacityList: Record<string, LatestUsedCapacity> =
+      {};
+
+    resultingAccountIds.forEach((id) => {
+      if (accountsMetrics[id].type === 'hasMetrics') {
+        accountsLatestUsedCapacityList[id] = {
+          type: 'hasMetrics',
+          usedCapacity: notFalsyTypeGuard(accountsMetrics[id].usedCapacity),
+          measuredOn: new Date(
+            notFalsyTypeGuard(accountsMetrics[id].measuredOn),
+          ),
+        };
+      } else {
+        accountsLatestUsedCapacityList[id] = {
+          type: 'noMetrics',
+        };
+      }
+    });
+
+    return accountsLatestUsedCapacityList;
   }
 }

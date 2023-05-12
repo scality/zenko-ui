@@ -1,7 +1,6 @@
 import { Provider } from 'react-redux';
 import { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
-import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
 import { mount, ReactWrapper } from 'enzyme';
@@ -26,9 +25,14 @@ import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import ZenkoClient from '../../js/ZenkoClient';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
-import { S3AssumeRoleClientProvider } from '../next-architecture/ui/S3ClientProvider';
+import { S3ClientProvider } from '../next-architecture/ui/S3ClientProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { XDM_FEATURE } from '../../js/config';
+import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
+import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
+import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
+import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { AccountsAdapterProvider } from '../next-architecture/ui/AccountAdapterProvider';
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -129,27 +133,31 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+export const zenkoUITestConfig = {
+  iamEndpoint: TEST_API_BASE_URL,
+  managementEndpoint: TEST_API_BASE_URL,
+  zenkoEndpoint: TEST_API_BASE_URL,
+  navbarConfigUrl: TEST_API_BASE_URL,
+  features: [XDM_FEATURE],
+  navbarEndpoint: TEST_API_BASE_URL,
+  stsEndpoint: TEST_API_BASE_URL,
+};
 export const Wrapper = ({ children }: { children: ReactNode }) => {
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router history={history}>
-        <_ConfigContext.Provider
-          value={{
-            iamEndpoint: TEST_API_BASE_URL,
-            managementEndpoint: TEST_API_BASE_URL,
-            zenkoEndpoint: TEST_API_BASE_URL,
-            navbarConfigUrl: TEST_API_BASE_URL,
-            features: [XDM_FEATURE],
-            navbarEndpoint: TEST_API_BASE_URL,
-            stsEndpoint: TEST_API_BASE_URL,
-          }}
-        >
+        <_ConfigContext.Provider value={zenkoUITestConfig}>
           <_AuthContext.Provider
             value={{
-              user: { access_token: 'token', profile: { sub: 'test' } },
+              user: {
+                access_token: 'token',
+                profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
+              },
             }}
           >
             <_DataServiceRoleContext.Provider value={{ role }}>
@@ -163,9 +171,26 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                     managementClient: TEST_MANAGEMENT_CLIENT,
                   }}
                 >
-                  <S3AssumeRoleClientProvider>
-                    {children}
-                  </S3AssumeRoleClientProvider>
+                  <LocationAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <AccountsAdapterProvider>
+                        <AccessibleAccountsAdapterProvider>
+                          <S3ClientProvider
+                            configuration={{
+                              endpoint: zenkoUITestConfig.zenkoEndpoint,
+                              s3ForcePathStyle: true,
+                              credentials: {
+                                accessKeyId: 'accessKey',
+                                secretAccessKey: 'secretKey',
+                              },
+                            }}
+                          >
+                            {children}
+                          </S3ClientProvider>
+                        </AccessibleAccountsAdapterProvider>
+                      </AccountsAdapterProvider>
+                    </MetricsAdapterProvider>
+                  </LocationAdapterProvider>
                 </_ManagementContext.Provider>
               </_IAMContext.Provider>
             </_DataServiceRoleContext.Provider>
@@ -214,22 +239,22 @@ export function mockOffsetSize(width: number, height: number) {
   });
 }
 
-export const reduxRender = (component, testState) => {
+export const reduxRender = (component: JSX.Element, testState?: unknown) => {
   const store = realStoreWithInitState(testState);
   return {
     component: render(
-      <Wrapper>
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <Provider store={store}>
+          <Wrapper>
             <>
               {component}
               <Activity />
               <ErrorHandlerModal />
               <ReauthDialog />
             </>
-          </Provider>
-        </ThemeProvider>
-      </Wrapper>,
+          </Wrapper>
+        </Provider>
+      </ThemeProvider>,
     ),
   };
 };
@@ -252,7 +277,9 @@ export async function reduxMountAct(component, testState) {
       }
     >
       <ThemeProvider theme={theme}>
-        <Provider store={store}>{component}</Provider>
+        <Provider store={store}>
+          <Wrapper>{component}</Wrapper>
+        </Provider>
       </ThemeProvider>
     </QueryClientProvider>,
   );

@@ -1,13 +1,14 @@
 import { DefaultTheme, useTheme } from 'styled-components';
-import React from 'react';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
-import Locations from '../backend/location/Locations';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
 import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import AccountPoliciesList from './AccountPoliciesList';
+import { AccountLocations } from './AccountLocations';
+import { spacing } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
 type Props = {
   account: Account | null | undefined;
 };
@@ -45,7 +46,7 @@ function AccountDetails({ account }: Props) {
         <Properties account={account} />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
-        <Locations />
+        <AccountLocations />
       </CustomTabs.Tab>
       <CustomTabs.Tab label="Users" path={`${url}/users`}>
         <AccountUserList accountName={accountName} />

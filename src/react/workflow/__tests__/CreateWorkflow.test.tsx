@@ -5,17 +5,29 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { screen, waitFor } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { List } from 'immutable';
 import userEvent from '@testing-library/user-event';
 import { S3Bucket } from '../../../types/s3';
 import * as hooks from '../../utils/hooks';
 import { act } from 'react-dom/test-utils';
+import { debug } from 'jest-preview';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
-const instanceId = 'instanceId';
+const instanceId = INSTANCE_ID;
 const accountName = 'pat';
-const BUCKET_NAME = 'bucket';
+const BUCKET_NAME = 'bucket1';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
 const BUCKET_LOCATION = 'us-east-1';
 const ACCOUNT_ID = '064609833007';
@@ -78,6 +90,9 @@ const server = setupServer(
       }),
     ),
   ),
+  mockBucketListing(),
+  mockBucketOperations({ isVersioningEnabled: true }),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, instanceId),
 );
 
 const selectors = {
@@ -145,6 +160,10 @@ describe('CreateWorkflow', () => {
 
     userEvent.click(selectors.replicationOption());
 
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading buckets...'),
+    );
+
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
     userEvent.click(selectors.bucketVersionedOption());
@@ -158,6 +177,7 @@ describe('CreateWorkflow', () => {
       expect(selectors.createButton()).toBeEnabled();
     });
   });
+
   it('should display an error modal when workflow creation failed', async () => {
     //S
     server.use(
@@ -170,11 +190,6 @@ describe('CreateWorkflow', () => {
     );
     //E
     reduxRender(<CreateWorkflow />, {
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
-        },
-      },
       instances: {
         selectedId: instanceId,
       },
@@ -184,10 +199,6 @@ describe('CreateWorkflow', () => {
             [BUCKET_LOCATION]: locationAwsS3,
           },
         },
-      },
-      auth: {
-        config: { iamEndpoint: TEST_API_BASE_URL },
-        selectedAccount: { id: ACCOUNT_ID },
       },
     });
 
@@ -201,6 +212,10 @@ describe('CreateWorkflow', () => {
     expect(selectors.transitionOption()).toBeInTheDocument();
 
     userEvent.click(selectors.replicationOption());
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading buckets...'),
+    );
 
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());

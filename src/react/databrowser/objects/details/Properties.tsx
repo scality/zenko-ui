@@ -152,10 +152,12 @@ function Properties({ objectMetadata }: Props) {
                         </SecondaryText>
                       </span>
                     )}
-                    <ObjectRestorationButtonAndModal
-                      bucketName={bucketInfo?.name || ''}
-                      objectMetadata={objectMetadata}
-                    />
+                    {!objectMetadata.restore?.ongoingRequest && (
+                      <ObjectRestorationButtonAndModal
+                        bucketName={bucketInfo?.name || ''}
+                        objectMetadata={objectMetadata}
+                      />
+                    )}
                   </T.GroupValues>
                 </T.Row>
               )}

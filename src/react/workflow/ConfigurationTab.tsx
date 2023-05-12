@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
@@ -9,6 +8,7 @@ import {
   FormGroup,
   FormSection,
   Icon,
+  spacing,
   Stack,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
@@ -28,7 +28,6 @@ import ReplicationForm, {
   GeneralReplicationGroup,
   replicationSchema,
 } from './ReplicationForm';
-import type { S3BucketList } from '../../types/s3';
 import type { Workflow } from '../../types/workflow';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
@@ -75,15 +74,8 @@ import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 
 type Props = {
   wfSelected: Workflow;
-  bucketList: S3BucketList;
   locations: Locations;
 };
-
-const ConfigurationHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
 
 function useReplicationMutations({
   onEditSuccess,
@@ -474,12 +466,10 @@ function initTransitionDefaultValue(
 
 function EditForm({
   workflow,
-  bucketList,
   locations,
   workflows,
 }: {
   workflow: Replication | Expiration | BucketWorkflowTransitionV2;
-  bucketList: S3BucketList;
   locations: Locations;
   workflows: {
     replications: Replication[];
@@ -628,7 +618,7 @@ function EditForm({
           layout={{ kind: 'tab' }}
           onSubmit={handleSubmit(onSubmit)}
           rightActions={
-            <Stack gap="r16">
+            <Stack gap="r16" style={{ paddingRight: spacing.r16 }}>
               <Button
                 disabled={!formState.isDirty || !formState.isValid}
                 icon={<Icon name="Save" />}
@@ -694,12 +684,11 @@ function EditForm({
             )}
           </FormSection>
           {isExpirationWorkflow(workflow) ? (
-            <ExpirationForm bucketList={bucketList} locations={locations} />
+            <ExpirationForm locations={locations} />
           ) : isTransitionWorkflow(workflow) ? (
-            <TransitionForm bucketList={bucketList} locations={locations} />
+            <TransitionForm locations={locations} />
           ) : (
             <ReplicationForm
-              bucketList={bucketList}
               locations={locations}
               isPrefixMandatory={isPrefixMandatory}
             />
@@ -710,7 +699,7 @@ function EditForm({
   );
 }
 
-function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
+function ConfigurationTab({ wfSelected, locations }: Props) {
   const { workflowId } = wfSelected;
   const workflowsQuery = useWorkflows();
 
@@ -736,7 +725,6 @@ function ConfigurationTab({ wfSelected, bucketList, locations }: Props) {
     <EditForm
       key={workflowId}
       workflow={workflow}
-      bucketList={bucketList}
       locations={locations}
       workflows={{
         replications: workflowsQuery.data?.replications ?? [],

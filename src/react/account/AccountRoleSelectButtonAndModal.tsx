@@ -15,6 +15,7 @@ import {
 import {
   useCurrentAccount,
   useDataServiceRole,
+  useSetAssumedRole,
 } from '../DataServiceRoleProvider';
 import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '@scality/core-ui';
@@ -36,6 +37,7 @@ export function AccountRoleSelectButtonAndModal({
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
   const redirectDataConsummers = useRedirectDataConsumers();
+  const setRole = useSetAssumedRole();
 
   const accountsWithRoles: {
     accountName: string;
@@ -74,14 +76,13 @@ export function AccountRoleSelectButtonAndModal({
             onClick={() => {
               const parsedArn = regexArn.exec(assumedRoleArn);
               const roleName = parsedArn?.groups?.name || '';
-              setRoleArnStored(assumedRoleArn);
+              setRole({ roleArn: assumedRoleArn });
               selectAccountAndRoleRedirectTo(
                 path,
                 assumedAccount,
                 assumedRoleArn,
               );
               redirectDataConsummers([{ Name: roleName }], handleClose);
-              window.location.reload();
             }}
             label="Continue"
             disabled={assumedRoleArn === getRoleArnStored()}

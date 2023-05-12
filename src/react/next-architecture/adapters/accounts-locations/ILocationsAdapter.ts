@@ -7,6 +7,8 @@ export type LocationInfo = {
   id: string;
   name: string;
   type: LocationV1.LocationTypeEnum;
+  isTransient?: boolean;
+  isCold?: boolean;
   // This looks terrible
   // `type` should be link to `Locationv1Details`
   details: Locationv1Details;

@@ -23,7 +23,14 @@ import {
   getUserListGroupsQuery,
 } from '../../queries';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { Icon, LargerText, SecondaryText, Stack, Wrap } from '@scality/core-ui';
+import {
+  Icon,
+  LargerText,
+  SecondaryText,
+  Stack,
+  Wrap,
+  spacing,
+} from '@scality/core-ui';
 
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
 
@@ -337,7 +344,12 @@ function AttachmentConfirmationModal({
 
   return (
     <>
-      <Box display="flex" justifyContent="flex-end" gap={8}>
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        gap={8}
+        marginBottom={spacing.r16}
+      >
         <Button
           label="Cancel"
           variant="outline"

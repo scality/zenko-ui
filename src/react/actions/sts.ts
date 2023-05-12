@@ -1,4 +1,4 @@
-import { handleErrorMessage, listBuckets, networkAuthFailure } from './index';
+import { handleErrorMessage, networkAuthFailure } from './index';
 import type { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 
@@ -23,7 +23,6 @@ export function assumeRoleWithWebIdentity(
           sessionToken: creds.Credentials.SessionToken,
         };
         zenkoClient.login(params);
-        return Promise.all([dispatch(listBuckets())]);
       })
       .catch((error) => {
         let message = `Failed to return a valid set of temporary security credentials: ${

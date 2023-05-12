@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { S3 } from 'aws-sdk';
 import { useQuery } from 'react-query';
 import STSClient from '../../../js/STSClient';
@@ -6,8 +6,11 @@ import { useConfig } from './ConfigProvider';
 import { useDataServiceRole } from '../../DataServiceRoleProvider';
 import { useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import ZenkoClient from '../../../js/ZenkoClient';
+import { useDispatch } from 'react-redux';
 
 const S3ClientContext = createContext<S3 | null>(null);
+const ZenkoClientContext = createContext<ZenkoClient | null>(null);
 
 export const useS3Client = () => {
   const s3client = useContext(S3ClientContext);
@@ -18,16 +21,50 @@ export const useS3Client = () => {
   return s3client;
 };
 
+export const useZenkoClient = () => {
+  const zenkoClient = useContext(ZenkoClientContext);
+  if (!zenkoClient) {
+    throw new Error('Cannot use useZenkoClient outside of S3ClientProvider');
+  }
+
+  return zenkoClient;
+};
+
 export const S3ClientProvider = ({
   configuration,
   children,
 }: PropsWithChildren<{
   configuration: S3.Types.ClientConfiguration;
 }>) => {
-  const s3Client = new S3(configuration);
+  const dispatch = useDispatch();
+  const { s3Client, zenkoClient } = useMemo(() => {
+    const s3Client = new S3(configuration);
+    const zenkoClient = new ZenkoClient(configuration.endpoint as string);
+    zenkoClient.login({
+      accessKey: configuration.credentials?.accessKeyId || '',
+      secretKey: configuration.credentials?.secretAccessKey || '',
+      sessionToken: configuration.credentials?.sessionToken || '',
+    });
+
+    if (
+      configuration.credentials?.accessKeyId &&
+      configuration.credentials?.secretAccessKey &&
+      configuration.credentials?.sessionToken
+    ) {
+      dispatch({
+        type: 'SET_ZENKO_CLIENT',
+        zenkoClient,
+      });
+    }
+
+    return { s3Client, zenkoClient };
+  }, [configuration, dispatch]);
+
   return (
     <S3ClientContext.Provider value={s3Client}>
-      {children}
+      <ZenkoClientContext.Provider value={zenkoClient}>
+        {children}
+      </ZenkoClientContext.Provider>
     </S3ClientContext.Provider>
   );
 };
@@ -70,6 +107,7 @@ export const S3AssumeRoleClientProvider = ({
 
   const s3Config: S3.Types.ClientConfiguration = {
     endpoint: zenkoEndpoint,
+    s3ForcePathStyle: true,
     ...configuration,
     credentials: {
       accessKeyId: assumeRoleResult?.Credentials?.AccessKeyId || '',

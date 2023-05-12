@@ -1,9 +1,11 @@
+import { setupServer } from 'msw/node';
 import {
   getAllByRole,
   getByRole,
   getByText,
   screen,
   waitFor,
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -11,9 +13,8 @@ import {
   mockOffsetSize,
   reduxRender,
   Wrapper as wrapper,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { List } from 'immutable';
-import { S3Bucket } from '../../../types/s3';
 import {
   GeneralTransitionGroup,
   TransitionForm,
@@ -26,24 +27,18 @@ import { newTransition } from '../utils';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { Form, FormSection } from '@scality/core-ui';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import {
+  getConfigOverlay,
+  getStorageConsumptionMetricsHandlers,
+} from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
 const versionedBucket = 'bucket1';
 const notVersionedBucket = 'bucket2';
-
-const S3BucketList: List<S3Bucket> = List.of(
-  {
-    CreationDate: '2020-01-01T00:00:00.000Z',
-    Name: versionedBucket,
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Enabled',
-  },
-  {
-    CreationDate: '2021-01-01T00:00:00.000Z',
-    Name: notVersionedBucket,
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Suspended',
-  },
-);
 
 const locationName = 'chapter-ux';
 const locationType = 'ARTESCA';
@@ -86,9 +81,25 @@ const WithFormProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+const server = setupServer(
+  mockBucketListing(),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  mockBucketOperations({
+    isVersioningEnabled: (bucketName) =>
+      bucketName === versionedBucket ? true : false,
+  }),
+  ...getStorageConsumptionMetricsHandlers(
+    zenkoUITestConfig.managementEndpoint,
+    INSTANCE_ID,
+  ),
+);
+
 beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
 });
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('TransitionForm', () => {
   beforeEach(() => {
@@ -98,17 +109,17 @@ describe('TransitionForm', () => {
           <FormSection title={{ name: 'General' }}>
             <GeneralTransitionGroup />
           </FormSection>
-          <TransitionForm bucketList={S3BucketList} locations={locations} />
+          <TransitionForm locations={locations} />
         </Form>
       </WithFormProvider>,
-      {
-        wrapper,
-      },
     );
   });
 
-  it('should render all the expected fields', () => {
+  it('should render all the expected fields', async () => {
     const hidden = { hidden: true };
+    await waitForElementToBeRemoved(() =>
+      screen.getByText(/Loading buckets.../i),
+    );
     //V
     //State to be in the document
     const general = screen.getByText(/General/i);
@@ -157,18 +168,32 @@ describe('TransitionForm', () => {
     ).toBeInTheDocument();
   });
 
-  it('should disable previous version when the source bucket is not versioned', () => {
+  it('should disable previous version when the source bucket is not versioned', async () => {
     //E
     //change source butcket to not versioned one
+    await waitForElementToBeRemoved(() =>
+      screen.getByText(/Loading buckets.../i),
+    );
     const sourceBucketContainer =
-      screen.getByText(/Bucket Name/i).parentElement!.parentElement!
+      screen.getByText(/bucket name \*/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitFor(() =>
+      screen.getByRole('option', {
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
+      }),
+    );
     userEvent.click(
       screen.getByRole('option', {
-        name: new RegExp(`${notVersionedBucket} \\(us-east-1 / \\)`, 'i'),
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
       }),
     );
     //V
@@ -178,18 +203,30 @@ describe('TransitionForm', () => {
     ).toBeDisabled();
   });
 
-  it('should enable previous version when the source bucket is versioned', () => {
+  it('should enable previous version when the source bucket is versioned', async () => {
     //E
     //change source butcket to versioned one
     const sourceBucketContainer =
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
+    await waitFor(() => getByText(sourceBucketContainer, /select/i));
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitFor(() =>
+      screen.getByRole('option', {
+        name: new RegExp(
+          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
+      }),
+    );
     userEvent.click(
       screen.getByRole('option', {
-        name: new RegExp(`${versionedBucket} \\(us-east-1 / \\)`, 'i'),
+        name: new RegExp(
+          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
       }),
     );
     //V
@@ -273,12 +310,24 @@ describe('TransitionForm', () => {
     const sourceBucketContainer =
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
+    await waitFor(() => getByText(sourceBucketContainer, /select/i));
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitFor(() =>
+      screen.getByRole('option', {
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
+      }),
+    );
     userEvent.click(
       screen.getByRole('option', {
-        name: new RegExp(`${notVersionedBucket} \\(us-east-1 / \\)`, 'i'),
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
       }),
     );
     const storageLocationContainer =
@@ -310,12 +359,25 @@ describe('TransitionForm', () => {
     const sourceBucketContainer =
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
+
+    await waitFor(() => getByText(sourceBucketContainer, /select/i));
     userEvent.click(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
+    await waitFor(() =>
+      screen.getByRole('option', {
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
+      }),
+    );
     userEvent.click(
       screen.getByRole('option', {
-        name: new RegExp(`${notVersionedBucket} \\(us-east-1 / \\)`, 'i'),
+        name: new RegExp(
+          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
       }),
     );
     const storageLocationContainer =
@@ -352,7 +414,10 @@ describe('TransitionForm', () => {
     );
     userEvent.click(
       screen.getByRole('option', {
-        name: new RegExp(`${versionedBucket} \\(us-east-1 / \\)`, 'i'),
+        name: new RegExp(
+          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          'i',
+        ),
       }),
     );
     const storageLocationContainer =

@@ -1,8 +1,21 @@
 import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
-import { PropsWithChildren, useEffect, useMemo } from 'react';
-import { Redirect, Route, Switch, useLocation } from 'react-router-dom';
 import {
-  assumeRoleWithWebIdentity,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import {
+  Redirect,
+  Route,
+  RouteProps,
+  Switch,
+  matchPath,
+  useHistory,
+  useLocation,
+} from 'react-router-dom';
+import {
   loadClients,
   loadInstanceLatestStatus,
   setManagementClient,
@@ -16,22 +29,22 @@ import DataBrowser from './databrowser/DataBrowser';
 import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import Loader from './ui-elements/Loader';
-import LocationEditor from './backend/location/LocationEditor';
+import LocationEditor from './locations/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
-  useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
-import { getClients } from './utils/actions';
-import { ErrorPage401, Icon } from '@scality/core-ui';
+import { ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
 import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
+import { Locations } from './locations/Locations';
+import { useZenkoClient } from './next-architecture/ui/S3ClientProvider';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -54,14 +67,16 @@ const RedirectToAccount = () => {
   // To be replace later by react-query or context
   const dispatch = useDispatch();
   const { account: selectedAccount } = useCurrentAccount();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
   const isStorageManager = userGroups.includes('StorageManager');
   if (selectedAccount) {
-    return <Redirect to={`/accounts/${selectedAccount.Name}${pathname}`} />;
+    return (
+      <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
+    );
   } else if (loaded && isStorageManager) {
     const description = pathname === '/workflows' ? 'workflows' : 'data';
     return (
@@ -85,34 +100,6 @@ const RedirectToAccount = () => {
     );
   }
 };
-
-function WithAssumeRole({
-  children,
-}: PropsWithChildren<Record<string, unknown>>) {
-  const dispatch = useDispatch();
-  const user = useSelector((state: AppState) => state.oidc.user);
-  const { zenkoClient } = getClients(useSelector((state: AppState) => state));
-  const isZenkoClientLogin = zenkoClient.getIsLogin();
-  const { roleArn } = useDataServiceRole();
-
-  useEffect(() => {
-    const isAuthenticated = !!user && !user.expired;
-
-    if (isAuthenticated && roleArn) {
-      dispatch(assumeRoleWithWebIdentity(roleArn));
-    }
-  }, [dispatch, user, roleArn]);
-
-  if (isZenkoClientLogin) {
-    return <>{children}</>;
-  } else {
-    return (
-      <Loader>
-        <div>Loading</div>
-      </Loader>
-    );
-  }
-}
 
 function PrivateRoutes() {
   const dispatch = useDispatch();
@@ -189,20 +176,18 @@ function PrivateRoutes() {
       <Route path="/accounts/:accountName">
         <DataServiceRoleProvider>
           <IAMProvider>
-            <WithAssumeRole>
-              <Switch>
-                <Route path="/accounts/:accountName/buckets">
-                  <DataBrowser />
-                </Route>
-                <Route
-                  path={'/accounts/:accountName/create-bucket'}
-                  component={BucketCreate}
-                />
-                <Route path="/accounts/:accountName">
-                  <AccountContent />
-                </Route>
-              </Switch>
-            </WithAssumeRole>
+            <Switch>
+              <Route path="/accounts/:accountName/buckets">
+                <DataBrowser />
+              </Route>
+              <Route
+                path={'/accounts/:accountName/create-bucket'}
+                component={BucketCreate}
+              />
+              <Route path="/accounts/:accountName">
+                <AccountContent />
+              </Route>
+            </Switch>
           </IAMProvider>
         </DataServiceRoleProvider>
       </Route>
@@ -211,6 +196,7 @@ function PrivateRoutes() {
 
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
+      <Route exact path="/locations" component={Locations} />
 
       <Route path="*" component={NoMatch} />
     </Switch>
@@ -218,6 +204,105 @@ function PrivateRoutes() {
 }
 
 function Routes() {
+  const [isSideBarOpen, setIsSideBarOpen] = useState(
+    localStorage.getItem('isSideBarOpen') === null ||
+      localStorage.getItem('isSideBarOpen') === 'true',
+  );
+  const history = useHistory();
+  const location = useLocation();
+
+  const doesRouteMatch = useCallback(
+    (path: RouteProps) => {
+      const location = history.location;
+      return !!matchPath(location.pathname, path);
+    },
+    [location],
+  );
+
+  const sidebarConfig = {
+    onToggleClick: () => {
+      localStorage.setItem('isSideBarOpen', (!isSideBarOpen).toString());
+      setIsSideBarOpen(!isSideBarOpen);
+    },
+    hoverable: true,
+    expanded: isSideBarOpen,
+    actions: [
+      {
+        label: 'Accounts',
+        icon: <Icon name="Account" />,
+        onClick: () => {
+          history.push('/accounts');
+        },
+        active:
+          doesRouteMatch({
+            path: '/accounts',
+            exact: true,
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName',
+            exact: true,
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/locations',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/users',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/policies',
+          }),
+      },
+      {
+        label: 'Data Browser',
+        icon: <Icon name="Bucket" />,
+        onClick: () => {
+          history.push('/buckets');
+        },
+        active:
+          doesRouteMatch({
+            path: '/buckets',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/buckets',
+          }),
+      },
+      {
+        label: 'Workflows',
+        icon: <i className="fas fa-route" />,
+        onClick: () => {
+          history.push('/workflows');
+        },
+        active:
+          doesRouteMatch({
+            path: '/workflows',
+          }) ||
+          doesRouteMatch({
+            path: '/accounts/:accountName/workflows',
+          }),
+      },
+      {
+        label: 'Locations',
+        icon: <Icon name="Location" />,
+        onClick: () => {
+          history.push('/locations');
+        },
+        active: doesRouteMatch({
+          path: '/locations',
+        }),
+      },
+      {
+        label: 'Data Services',
+        icon: <Icon name="Cubes" />,
+        onClick: () => {
+          history.push('/dataservices');
+        },
+        active: doesRouteMatch({
+          path: '/dataservices',
+        }),
+      },
+    ],
+  };
+
   return (
     <Layout2
       headerNavigation={
@@ -226,7 +311,10 @@ function Routes() {
         </NavbarContainer>
       }
     >
-      <AppContainer hasPadding>
+      <AppContainer
+        hasPadding
+        sidebarNavigation={<Sidebar {...sidebarConfig} />}
+      >
         <RemoveTrailingSlash />
         <ManagementProvider>
           <PrivateRoutes />

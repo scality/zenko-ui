@@ -3,6 +3,7 @@ import {
   NEWLY_CREATED_ACCOUNT,
 } from '../../../../js/mock/managementClientMSWHandlers';
 import { AccountInfo } from '../../domain/entities/account';
+import { DEFAULT_METRICS_MESURED_ON } from '../metrics/MockedMetricsAdapter';
 import { IAccountsAdapter } from './IAccountsAdapter';
 import { ILocationsAdapter } from './ILocationsAdapter';
 export class MockedAccountsLocationsAdapter
@@ -34,12 +35,33 @@ export class MockedAccountsLocationsAdapter
           region: 'us-east-1',
         },
       },
+      {
+        isBuiltin: true,
+        locationType: 'location-file-v1',
+        name: 'us-east-1',
+        objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+      },
     ];
   });
 
   listAccounts = jest
     .fn()
     .mockImplementation(async (): Promise<AccountInfo[]> => {
-      return [ACCOUNT, NEWLY_CREATED_ACCOUNT];
+      return [
+        ACCOUNT,
+        NEWLY_CREATED_ACCOUNT,
+        {
+          id: 'account-id-renard',
+          name: 'Renard',
+          canonicalId: 'canonical-id-renard',
+          creationDate: DEFAULT_METRICS_MESURED_ON,
+        },
+        {
+          id: 'account-without-location',
+          name: 'Chat',
+          canonicalId: 'canonical-id-renard-with-out-location',
+          creationDate: DEFAULT_METRICS_MESURED_ON,
+        },
+      ];
     });
 }

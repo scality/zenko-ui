@@ -3,11 +3,11 @@ import type {
   LabelFunction,
   StorageOptionSelect,
 } from '../../types/storageOptionsHelper';
-import { storageOptions } from '../backend/location/LocationDetails';
+import { storageOptions } from '../locations/LocationDetails';
 import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
-  Location,
+  Location as LegacyLocation,
   Locations,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
@@ -17,6 +17,7 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../types/config';
 import { LocationForm } from '../../types/location';
+import { Location } from '../next-architecture/domain/entities/location';
 export function checkSupportsReplicationTarget(locations: Locations): boolean {
   return Object.keys(locations).some(
     (l) =>
@@ -43,9 +44,15 @@ export function checkIfExternalLocation(locations: Locations): boolean {
  * @param location
  * @returns a string which represent a locationType
  */
-export const getLocationTypeKey = (location: LocationForm | Location) => {
+export const getLocationTypeKey = (
+  location: LocationForm | LegacyLocation | Location,
+) => {
   if (location) {
-    if (location.locationType === 'location-scality-ring-s3-v1') {
+    if (
+      ('locationType' in location &&
+        location.locationType === 'location-scality-ring-s3-v1') ||
+      ('type' in location && location.type === 'location-scality-ring-s3-v1')
+    ) {
       if (location.details.endpoint === JAGUAR_S3_ENDPOINT) {
         return JAGUAR_S3_LOCATION_KEY;
       } else if (location.details.endpoint === ORANGE_S3_ENDPOINT) {
@@ -55,17 +62,21 @@ export const getLocationTypeKey = (location: LocationForm | Location) => {
       } else if (location.details.endpoint === OUTSCALE_SNC_S3_ENDPOINT) {
         return OUTSCALE_SNC_S3_LOCATION_KEY;
       } else {
-        return location.locationType;
+        return 'locationType' in location
+          ? location.locationType
+          : location.type;
       }
     } else {
-      return location.locationType;
+      return 'locationType' in location ? location.locationType : location.type;
     }
   } else {
     return '';
   }
 };
 
-const selectStorageLocationFromLocationType = (location: Location) => {
+const selectStorageLocationFromLocationType = (
+  location: LegacyLocation | Location,
+) => {
   const locationTypeKey = getLocationTypeKey(location);
   if (locationTypeKey !== '') {
     return storageOptions[locationTypeKey];
@@ -74,12 +85,12 @@ const selectStorageLocationFromLocationType = (location: Location) => {
   }
 };
 
-export const getLocationType = (location: Location) => {
+export const getLocationType = (location: LegacyLocation | Location) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.name ?? '';
 };
 
-export const getLocationTypeShort = (location: Location) => {
+export const getLocationTypeShort = (location: LegacyLocation | Location) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.short ?? '';
 };

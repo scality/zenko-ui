@@ -4,6 +4,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
+  zenkoUITestConfig,
 } from '../../utils/testUtil';
 import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
@@ -16,26 +17,16 @@ import { PerLocationMap } from '../../../types/config';
 import { S3Bucket } from '../../../types/s3';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
 import { Form, FormSection } from '@scality/core-ui';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
-const instanceId = 'instanceId';
 const accountId = 'accountId';
 const accountName = 'pat';
 const replicationId = 'expirationId';
-
-const S3BucketList: List<S3Bucket> = [
-  {
-    CreationDate: '2020-01-01T00:00:00.000Z',
-    Name: 'bucket1',
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Disabled',
-  },
-  {
-    CreationDate: '2021-01-01T00:00:00.000Z',
-    Name: 'bucket2',
-    LocationConstraint: 'us-east-1',
-    VersionStatus: 'Enabled',
-  },
-];
 
 const bucketName = 'replication-for-chapter-ux';
 const locations: PerLocationMap<any> = {
@@ -77,9 +68,12 @@ const locations: PerLocationMap<any> = {
 
 const server = setupServer(
   rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/accounts/${accountName}/workflows/${replicationId}`,
+    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/accounts/${accountName}/workflows/${replicationId}`,
     (req, res, ctx) => res(ctx.json([])),
   ),
+  mockBucketListing(),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  mockBucketOperations(),
 );
 
 beforeAll(() => {
@@ -121,7 +115,7 @@ const selectors = {
 // prettier-ignore
 describe('ReplicationForm', () => {
   it('should render a form for replication workflow', async () => {
-    try {
+    
       const { component } =
         reduxRender(
           <WithFormProvider>
@@ -131,7 +125,6 @@ describe('ReplicationForm', () => {
               </FormSection>
               <ReplicationForm
                 prefix="replication."
-                bucketList={S3BucketList}
                 locations={locations}
               />
             </Form>
@@ -142,7 +135,7 @@ describe('ReplicationForm', () => {
               messages: List.of(),
             },
             instances: {
-              selectedId: instanceId,
+              selectedId: INSTANCE_ID,
             },
             auth: {
               config: { features: [] },
@@ -204,9 +197,6 @@ describe('ReplicationForm', () => {
 
       const formValidation = screen.getByTestId('form-replication');
       expect(formValidation.textContent).toBe('form-valid');
-    } catch (e) {
-      console.log('should render a form for replication workflow: ', e);
-      throw e;
-    }
+   
   });
 });

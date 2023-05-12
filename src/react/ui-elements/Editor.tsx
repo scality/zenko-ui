@@ -30,7 +30,7 @@ const Editor = ({
     onChange={onChange}
     keepCurrentModel={true}
     saveViewState={false}
-    options={{ readOnly }}
+    options={{ readOnly, scrollBeyondLastLine: false }}
     {...rest}
   />
 );
