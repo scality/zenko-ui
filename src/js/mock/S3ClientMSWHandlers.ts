@@ -4,11 +4,11 @@ import { zenkoUITestConfig } from '../../react/utils/testUtil';
 export const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 export const defaultMockedBuckets = [
   {
-    Name: 'toto',
+    Name: 'bucket1',
     CreationDate: frozenDate,
   },
   {
-    Name: 'bucket',
+    Name: 'bucket2',
     CreationDate: frozenDate,
   },
 ];
@@ -55,8 +55,8 @@ export function mockBucketOperations(
     slowdown = false,
     forceFailure = false,
   }: {
-    location?: string;
-    isVersioningEnabled?: boolean;
+    location?: string | ((bucketName: string) => string);
+    isVersioningEnabled?: boolean | ((bucketName: string) => boolean);
     slowdown?: boolean;
     forceFailure?: boolean;
   } = {
@@ -77,12 +77,16 @@ export function mockBucketOperations(
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
+      const bucketName = req.params.bucketName as string;
+
       if (req.url.searchParams.has('location')) {
         return res(
           ctx.xml(`
           <?xml version="1.0" encoding="UTF-8"?>
           <LocationConstraint xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
-            <LocationConstraint>${location}</LocationConstraint>
+            <LocationConstraint>${
+              typeof location === 'function' ? location(bucketName) : location
+            }</LocationConstraint>
           </LocationConstraint>
         `),
         );
@@ -93,7 +97,15 @@ export function mockBucketOperations(
           ctx.xml(`
         <?xml version="1.0" encoding="UTF-8"?>
         <VersioningConfiguration>
-           <Status>${isVersioningEnabled ? 'Enabled' : 'Disabled'}</Status>
+           <Status>${
+             (
+               typeof isVersioningEnabled === 'function'
+                 ? isVersioningEnabled(bucketName)
+                 : isVersioningEnabled
+             )
+               ? 'Enabled'
+               : 'Disabled'
+           }</Status>
         </VersioningConfiguration>
           `),
         );

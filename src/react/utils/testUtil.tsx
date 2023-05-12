@@ -239,7 +239,7 @@ export function mockOffsetSize(width: number, height: number) {
   });
 }
 
-export const reduxRender = (component, testState) => {
+export const reduxRender = (component: JSX.Element, testState?: unknown) => {
   const store = realStoreWithInitState(testState);
   return {
     component: render(
