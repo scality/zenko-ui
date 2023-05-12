@@ -160,6 +160,10 @@ describe('CreateWorkflow', () => {
 
     userEvent.click(selectors.replicationOption());
 
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading buckets...'),
+    );
+
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
     userEvent.click(selectors.bucketVersionedOption());
@@ -173,6 +177,7 @@ describe('CreateWorkflow', () => {
       expect(selectors.createButton()).toBeEnabled();
     });
   });
+
   it('should display an error modal when workflow creation failed', async () => {
     //S
     server.use(
@@ -185,11 +190,6 @@ describe('CreateWorkflow', () => {
     );
     //E
     reduxRender(<CreateWorkflow />, {
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
-        },
-      },
       instances: {
         selectedId: instanceId,
       },
@@ -199,10 +199,6 @@ describe('CreateWorkflow', () => {
             [BUCKET_LOCATION]: locationAwsS3,
           },
         },
-      },
-      auth: {
-        config: { iamEndpoint: TEST_API_BASE_URL },
-        selectedAccount: { id: ACCOUNT_ID },
       },
     });
 
