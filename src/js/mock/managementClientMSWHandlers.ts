@@ -397,7 +397,7 @@ export const getStorageConsumptionMetricsHandlers = (
       if (
         accounts.includes(ACCOUNT_CANONICAL_ID) &&
         accounts.includes(NEWLY_CREATED_ACCOUNT_CANONICAL_ID)
-      )
+      ) {
         return res(
           ctx.json({
             [ACCOUNT_CANONICAL_ID]: {
@@ -411,6 +411,21 @@ export const getStorageConsumptionMetricsHandlers = (
             [NEWLY_CREATED_ACCOUNT_CANONICAL_ID]: { type: TYPE_NO_METRICS },
           }),
         );
+      } else {
+        const storageConsumptionMetrics = {};
+        accounts.forEach((account) => {
+          storageConsumptionMetrics[account] = {
+            type: TYPE_HAS_METRICS,
+            usedCapacity: {
+              current: USED_CAPACITY_CURRENT,
+              nonCurrent: USED_CAPACITY_NON_CURRENT,
+            },
+            measuredOn: MEASURED_ON,
+          };
+        });
+
+        return res(ctx.json(storageConsumptionMetrics));
+      }
     },
   ),
 
