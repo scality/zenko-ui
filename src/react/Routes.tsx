@@ -205,7 +205,8 @@ function PrivateRoutes() {
 
 function Routes() {
   const [isSideBarOpen, setIsSideBarOpen] = useState(
-    localStorage.getItem('isSideBarOpen') === 'true',
+    localStorage.getItem('isSideBarOpen') === null ||
+      localStorage.getItem('isSideBarOpen') === 'true',
   );
   const history = useHistory();
   const location = useLocation();
