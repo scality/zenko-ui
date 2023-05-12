@@ -174,6 +174,7 @@ describe('ExpirationForm', () => {
       expireIncompleteMultipartToggleState.querySelector(
         'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
       );
+    await waitFor(() => expect(expirePrevious).not.toBeDisabled());
     expect(expirePrevious).not.toBeDisabled();
     expect(removeExpired).toBeDisabled();
     expect(expireIncompleteMultipart).not.toBeDisabled();
