@@ -17,7 +17,6 @@ import {
   useDataServiceRole,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
-import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '@scality/core-ui';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
@@ -85,7 +84,7 @@ export function AccountRoleSelectButtonAndModal({
               redirectDataConsummers([{ Name: roleName }], handleClose);
             }}
             label="Continue"
-            disabled={assumedRoleArn === getRoleArnStored()}
+            disabled={assumedRoleArn === roleArn}
           />
         </Stack>
       </Wrap>

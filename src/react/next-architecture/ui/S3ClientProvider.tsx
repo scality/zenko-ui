@@ -40,17 +40,18 @@ export const S3ClientProvider = ({
   const { s3Client, zenkoClient } = useMemo(() => {
     const s3Client = new S3(configuration);
     const zenkoClient = new ZenkoClient(configuration.endpoint as string);
-    zenkoClient.login({
-      accessKey: configuration.credentials?.accessKeyId || '',
-      secretKey: configuration.credentials?.secretAccessKey || '',
-      sessionToken: configuration.credentials?.sessionToken || '',
-    });
 
     if (
       configuration.credentials?.accessKeyId &&
       configuration.credentials?.secretAccessKey &&
       configuration.credentials?.sessionToken
     ) {
+      zenkoClient.login({
+        accessKey: configuration.credentials?.accessKeyId || '',
+        secretKey: configuration.credentials?.secretAccessKey || '',
+        sessionToken: configuration.credentials?.sessionToken || '',
+      });
+
       dispatch({
         type: 'SET_ZENKO_CLIENT',
         zenkoClient,
