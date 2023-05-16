@@ -1,8 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { AppState } from '../types/state';
 import makeMgtClient from '../js/managementClient';
 import { UiFacingApi } from '../js/managementClient/api';
+import { useAccessToken } from './next-architecture/ui/AuthProvider';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 
 // Only exported to ease testing
 export const _ManagementContext = createContext<null | {
@@ -22,28 +24,21 @@ export const useManagementClient = () => {
 };
 
 const ManagementProvider = ({ children }: { children: JSX.Element }) => {
-  const user = useSelector((state: AppState) => state.oidc.user);
-  const {
-    auth: { config },
-  } = useSelector((state: AppState) => state);
-  const [mgtClient, setMgtClient] = useState<UiFacingApi | null>(null);
+  const token = useAccessToken();
+  const { managementEndpoint } = useConfig();
 
-  useEffect(() => {
-    const isAuthenticated = !!user && !user.expired;
-
-    if (isAuthenticated) {
-      const managementClient = makeMgtClient(
-        config.managementEndpoint,
-        user.access_token,
-      );
-      setMgtClient(managementClient);
+  const managementClient = useMemo(() => {
+    if (token) {
+      const managementClient = makeMgtClient(managementEndpoint, token);
+      return managementClient;
     }
-  }, [user]);
+    return null;
+  }, [token]);
 
   return (
     <_ManagementContext.Provider
       value={{
-        managementClient: mgtClient || null,
+        managementClient,
       }}
     >
       {children}

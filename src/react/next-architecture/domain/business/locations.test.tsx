@@ -247,7 +247,6 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     new MockedAccountsLocationsAdapter();
   });
@@ -293,7 +292,6 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     const { result, waitFor } = setupAndRenderHook();
 
@@ -316,7 +314,6 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
       account: undefined,
-      selectAccountAndRoleRedirectTo: () => {},
     });
 
     const { result, waitFor } = setupAndRenderHook();
@@ -421,7 +418,6 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     const { result, waitFor } = setupAndRenderHook();
 

@@ -1,13 +1,18 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { generatePath, useHistory } from 'react-router';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import {
   getRoleArnStored,
   removeRoleArnStored,
   setRoleArnStored,
 } from './utils/localStorage';
-import { useQueryClient } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
+import {
+  S3ClientProvider,
+  useAssumeRoleQuery,
+  useS3ConfigFromAssumeRoleResult,
+} from './next-architecture/ui/S3ClientProvider';
+import { Loader } from '@scality/core-ui';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -58,7 +63,6 @@ export const useCurrentAccount = () => {
     }
   }, [storedRoleArn, JSON.stringify(accounts)]);
 
-  const history = useHistory();
   const account = useMemo(() => {
     return accounts.find((account) => {
       if (accountName) return account.Name === accountName;
@@ -66,21 +70,9 @@ export const useCurrentAccount = () => {
       else return true;
     });
   }, [storedRoleArn, JSON.stringify(accounts)]);
-  const selectAccountAndRoleRedirectTo = (
-    path: string,
-    accountName: string,
-    roleArn: string,
-  ) => {
-    setRoleArnStored(roleArn);
-    history.push(
-      generatePath(path, {
-        accountName: accountName,
-      }),
-    );
-  };
+
   return {
     account,
-    selectAccountAndRoleRedirectTo,
   };
 };
 
@@ -89,7 +81,6 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     roleArn: getRoleArnStored(),
   });
 
-  const queryClient = useQueryClient();
   const { account } = useCurrentAccount();
   const storedAccountID = regexArn.exec(role.roleArn)?.groups?.['account_id'];
 
@@ -104,23 +95,42 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     }
   }, [role.roleArn, JSON.stringify(account)]);
 
+  const { getQuery } = useAssumeRoleQuery();
+  const assumeRoleMutation = useMutation({
+    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
+  });
+
+  const { getS3Config } = useS3ConfigFromAssumeRoleResult();
+
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
-    queryClient.resetQueries({
-      predicate: (query) => query.queryKey !== 'config',
-    });
     setRoleState(role);
+    assumeRoleMutation.mutate(role.roleArn);
   };
 
+  const { data: assumeRoleResult } = useQuery(getQuery(roleArn));
+
+  if (!assumeRoleResult?.Credentials?.SecretAccessKey) {
+    return <Loader size="massive" centered={true} />;
+  }
+
   return (
-    <_DataServiceRoleContext.Provider
-      value={{
-        role: { roleArn },
-        setRole,
-      }}
+    <S3ClientProvider
+      configuration={
+        assumeRoleMutation.data
+          ? getS3Config(assumeRoleMutation.data)
+          : getS3Config(assumeRoleResult)
+      }
     >
-      {children}
-    </_DataServiceRoleContext.Provider>
+      <_DataServiceRoleContext.Provider
+        value={{
+          role: { roleArn },
+          setRole,
+        }}
+      >
+        {children}
+      </_DataServiceRoleContext.Provider>
+    </S3ClientProvider>
   );
 };
 

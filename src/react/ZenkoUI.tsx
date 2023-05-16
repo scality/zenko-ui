@@ -58,10 +58,7 @@ function ZenkoUI() {
   return (
     <ThemeProvider theme={theme}>
       <ScrollbarWrapper>
-        <MainContainer>
-          <ReauthDialog />
-          {content()}
-        </MainContainer>
+        <MainContainer>{content()}</MainContainer>
       </ScrollbarWrapper>
     </ThemeProvider>
   );

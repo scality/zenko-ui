@@ -29,12 +29,8 @@ rootElement &&
                 <LocationAdapterProvider>
                   <AccessibleAccountsAdapterProvider>
                     <MetricsAdapterProvider>
-                      <DataServiceRoleProvider>
-                        <S3AssumeRoleClientProvider>
-                          <ZenkoUI />
-                          <ReactQueryDevtools initialIsOpen={false} />
-                        </S3AssumeRoleClientProvider>
-                      </DataServiceRoleProvider>
+                      <ZenkoUI />
+                      <ReactQueryDevtools initialIsOpen={false} />
                     </MetricsAdapterProvider>
                   </AccessibleAccountsAdapterProvider>
                 </LocationAdapterProvider>
