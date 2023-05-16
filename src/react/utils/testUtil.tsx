@@ -9,7 +9,6 @@ import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Router } from 'react-router-dom';
-import { _IAMContext, useIAMClient } from '../IAMProvider';
 
 import { render } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';

@@ -12,7 +12,6 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-  Wrapper as wrapper,
 } from '../../utils/testUtil';
 
 const SAMPLE_USER_ID = 'GENERATED_ID';
@@ -57,9 +56,7 @@ afterAll(() => server.close());
 describe('AccountUserList', () => {
   it('should render a table with users', async () => {
     //E
-    reduxRender(<AccountUserList accountName="account" />, {
-      wrapper,
-    });
+    reduxRender(<AccountUserList accountName="account" />);
     //V
     //Loading state
     expect(screen.getAllByText('Loading users...')).toHaveLength(2);
@@ -92,9 +89,7 @@ describe('AccountUserList', () => {
     ).toBeInTheDocument();
   });
   it('should render header buttons and column names', async () => {
-    reduxRender(<AccountUserList accountName="account" />, {
-      wrapper,
-    });
+    reduxRender(<AccountUserList accountName="account" />);
 
     /**********           Number of columns :         ************/
 
@@ -122,9 +117,7 @@ describe('AccountUserList', () => {
       ),
     );
 
-    reduxRender(<AccountUserList accountName="account" />, {
-      wrapper,
-    });
+    reduxRender(<AccountUserList accountName="account" />);
 
     await waitFor(() =>
       screen.getByText(
