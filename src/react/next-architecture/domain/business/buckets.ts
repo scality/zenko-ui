@@ -30,14 +30,17 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
+const getS3ClientHash = (s3Client: S3) =>
+  `${s3Client.config.credentials?.accessKeyId}${s3Client.config.credentials?.secretAccessKey}${s3Client.config.credentials?.sessionToken}`;
+
 export const queries = {
   listBuckets: (s3Client: S3) => ({
-    queryKey: ['buckets'],
+    queryKey: ['buckets', getS3ClientHash(s3Client)],
     queryFn: () => s3Client.listBuckets().promise(),
     ...noRefetchOptions,
   }),
   getBucketVersioning: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketVersioning', bucketName],
+    queryKey: ['bucketVersioning', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
@@ -46,7 +49,7 @@ export const queries = {
     ...noRefetchOptions,
   }),
   getBucketDefaultRetention: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketDefaultRetention', bucketName],
+    queryKey: ['bucketDefaultRetention', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getObjectLockConfiguration({
@@ -65,7 +68,7 @@ export const queries = {
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketLocation', bucketName],
+    queryKey: ['bucketLocation', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getBucketLocation({ Bucket: notFalsyTypeGuard(bucketName) })
@@ -80,6 +83,7 @@ export const queries = {
   ) => ({
     queryKey: [
       'bucketMetrics',
+      metricsAdapter,
       useSpecificCacheKey ? buckets.map((bucket) => bucket.Name).join(',') : '',
     ],
     queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),

@@ -9,7 +9,6 @@ import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Router } from 'react-router-dom';
-import { _IAMContext } from '../IAMProvider';
 
 import { render } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
@@ -161,38 +160,33 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
             }}
           >
             <_DataServiceRoleContext.Provider value={{ role }}>
-              <_IAMContext.Provider
+              <_ManagementContext.Provider
                 value={{
-                  iamClient,
+                  managementClient: TEST_MANAGEMENT_CLIENT,
                 }}
               >
-                <_ManagementContext.Provider
-                  value={{
-                    managementClient: TEST_MANAGEMENT_CLIENT,
-                  }}
-                >
-                  <LocationAdapterProvider>
-                    <MetricsAdapterProvider>
-                      <AccountsAdapterProvider>
-                        <AccessibleAccountsAdapterProvider>
-                          <S3ClientProvider
-                            configuration={{
-                              endpoint: zenkoUITestConfig.zenkoEndpoint,
-                              s3ForcePathStyle: true,
-                              credentials: {
-                                accessKeyId: 'accessKey',
-                                secretAccessKey: 'secretKey',
-                              },
-                            }}
-                          >
-                            {children}
-                          </S3ClientProvider>
-                        </AccessibleAccountsAdapterProvider>
-                      </AccountsAdapterProvider>
-                    </MetricsAdapterProvider>
-                  </LocationAdapterProvider>
-                </_ManagementContext.Provider>
-              </_IAMContext.Provider>
+                <LocationAdapterProvider>
+                  <MetricsAdapterProvider>
+                    <AccountsAdapterProvider>
+                      <AccessibleAccountsAdapterProvider>
+                        <S3ClientProvider
+                          configuration={{
+                            endpoint: zenkoUITestConfig.zenkoEndpoint,
+                            s3ForcePathStyle: true,
+                            credentials: {
+                              accessKeyId: 'accessKey',
+                              secretAccessKey: 'secretKey',
+                              sessionToken: 'sessionToken',
+                            },
+                          }}
+                        >
+                          {children}
+                        </S3ClientProvider>
+                      </AccessibleAccountsAdapterProvider>
+                    </AccountsAdapterProvider>
+                  </MetricsAdapterProvider>
+                </LocationAdapterProvider>
+              </_ManagementContext.Provider>
             </_DataServiceRoleContext.Provider>
           </_AuthContext.Provider>
         </_ConfigContext.Provider>

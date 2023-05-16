@@ -62,6 +62,7 @@ const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
                 credentials: {
                   accessKeyId: 'accessKey',
                   secretAccessKey: 'secretKey',
+                  sessionToken: 'sessionToken',
                 },
               }}
             >

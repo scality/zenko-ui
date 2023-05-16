@@ -2,11 +2,7 @@ import React from 'react';
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import {
-  reduxRender,
-  TEST_API_BASE_URL,
-  Wrapper as wrapper,
-} from '../../utils/testUtil';
+import { reduxRender, TEST_API_BASE_URL } from '../../utils/testUtil';
 import UpdateAccountPolicy from '../UpdateAccountPolicy';
 import router from 'react-router';
 
@@ -87,9 +83,7 @@ describe('UpdateAccountPolicy', () => {
   afterAll(() => server.close());
 
   it('should render readonly form when the policy is internal', async () => {
-    reduxRender(<UpdateAccountPolicy />, {
-      wrapper,
-    });
+    reduxRender(<UpdateAccountPolicy />);
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -114,9 +108,7 @@ describe('UpdateAccountPolicy', () => {
       policyArn: 'arn:aws:iam::137489910101:policy/custom-policy',
       defaultVersionId: 'v1',
     });
-    reduxRender(<UpdateAccountPolicy />, {
-      wrapper,
-    });
+    reduxRender(<UpdateAccountPolicy />);
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -137,9 +129,7 @@ describe('UpdateAccountPolicy', () => {
     expect(cancelButton).toBeInTheDocument();
   });
   it('should display fields policy name and ARN not empty', async () => {
-    reduxRender(<UpdateAccountPolicy />, {
-      wrapper,
-    });
+    reduxRender(<UpdateAccountPolicy />);
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -156,9 +146,7 @@ describe('UpdateAccountPolicy', () => {
       policyArn: 'arn:aws:iam::137489910101:policy/custom-policy',
       defaultVersionId: 'v1',
     });
-    reduxRender(<UpdateAccountPolicy />, {
-      wrapper,
-    });
+    reduxRender(<UpdateAccountPolicy />);
 
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],

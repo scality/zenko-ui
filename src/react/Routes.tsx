@@ -32,7 +32,6 @@ import Loader from './ui-elements/Loader';
 import LocationEditor from './locations/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
-import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
@@ -44,7 +43,7 @@ import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
 import { Locations } from './locations/Locations';
-import { useZenkoClient } from './next-architecture/ui/S3ClientProvider';
+import ReauthDialog from './ui-elements/ReauthDialog';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -174,22 +173,18 @@ function PrivateRoutes() {
         <RedirectToAccount />
       </Route>
       <Route path="/accounts/:accountName">
-        <DataServiceRoleProvider>
-          <IAMProvider>
-            <Switch>
-              <Route path="/accounts/:accountName/buckets">
-                <DataBrowser />
-              </Route>
-              <Route
-                path={'/accounts/:accountName/create-bucket'}
-                component={BucketCreate}
-              />
-              <Route path="/accounts/:accountName">
-                <AccountContent />
-              </Route>
-            </Switch>
-          </IAMProvider>
-        </DataServiceRoleProvider>
+        <Switch>
+          <Route path="/accounts/:accountName/buckets">
+            <DataBrowser />
+          </Route>
+          <Route
+            path={'/accounts/:accountName/create-bucket'}
+            component={BucketCreate}
+          />
+          <Route path="/accounts/:accountName">
+            <AccountContent />
+          </Route>
+        </Switch>
       </Route>
 
       <Route path="/create-account" component={AccountCreate} />
@@ -311,15 +306,20 @@ function Routes() {
         </NavbarContainer>
       }
     >
-      <AppContainer
-        hasPadding
-        sidebarNavigation={<Sidebar {...sidebarConfig} />}
-      >
-        <RemoveTrailingSlash />
-        <ManagementProvider>
-          <PrivateRoutes />
-        </ManagementProvider>
-      </AppContainer>
+      <DataServiceRoleProvider>
+        <>
+          <ReauthDialog />
+          <AppContainer
+            hasPadding
+            sidebarNavigation={<Sidebar {...sidebarConfig} />}
+          >
+            <RemoveTrailingSlash />
+            <ManagementProvider>
+              <PrivateRoutes />
+            </ManagementProvider>
+          </AppContainer>
+        </>
+      </DataServiceRoleProvider>
     </Layout2>
   );
 }

@@ -69,7 +69,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
         onAuthenticated,
       );
     };
-  }, [navbarRef, dispatch]);
+  }, [navbarRef]);
 }
 
 function useThemeEffect(navbarRef: { current: NavbarWebComponent | null }) {
