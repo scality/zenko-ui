@@ -335,3 +335,11 @@ export function testTableRow(
     expect(rowWrapper.find(T.ExtraCell)).toHaveLength(0);
   }
 }
+
+export const simpleRender = (component: React.ReactNode) => {
+  return render(
+    <QueryClientProvider client={new QueryClient()}>
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+    </QueryClientProvider>,
+  );
+};

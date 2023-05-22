@@ -46,7 +46,7 @@ describe('Properties', () => {
     );
     const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
     expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Size');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('4 MiB');
+    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('4.32 MiB');
     const fourthItemFirstGroup = firstGroupInfosContentItems.at(3);
     expect(fourthItemFirstGroup.find(T.Key).text()).toContain('Modified On');
     expect(fourthItemFirstGroup.find(T.Value).text()).toContain(
