@@ -96,14 +96,15 @@ function Properties({ objectMetadata }: Props) {
               <T.Row>
                 <T.Key> Size </T.Key>
                 <T.Value>
-                  {' '}
-                  <PrettyBytes bytes={objectMetadata.contentLength} />{' '}
+                  <PrettyBytes
+                    bytes={objectMetadata.contentLength}
+                    decimals={2}
+                  />
                 </T.Value>
               </T.Row>
               <T.Row>
                 <T.Key> Modified On </T.Key>
                 <T.Value>
-                  {' '}
                   {formatShortDate(new Date(objectMetadata.lastModified))}{' '}
                 </T.Value>
               </T.Row>
@@ -111,7 +112,6 @@ function Properties({ objectMetadata }: Props) {
                 <T.Row>
                   <T.Key> Expires On </T.Key>
                   <T.Value>
-                    {' '}
                     {formatShortDate(objectMetadata.expiration)}{' '}
                   </T.Value>
                 </T.Row>
