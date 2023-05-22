@@ -88,19 +88,19 @@ export default function BucketList({
         accessor: 'locationConstraint',
         id: 'ingestion',
         disableSortBy: true,
-
+        cellStyle: {
+          flex: '1',
+          textAlign: 'right',
+        },
         Cell({ value: locationName }: { value: LocationName }) {
           const value = getLocationIngestionState(
             ingestionStates,
             locationName,
           ).value;
           if (value === '-') {
-            return <EmptyCell />;
+            return <EmptyCell mr={0} />;
           }
           return value;
-        },
-        cellStyle: {
-          flex: '1',
         },
       });
     }
@@ -109,7 +109,6 @@ export default function BucketList({
       Header: 'Data Used',
       accessor: 'usedCapacity',
       cellStyle: {
-        paddingRight: spacing.r32,
         textAlign: 'right',
       },
 
