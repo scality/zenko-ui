@@ -1,8 +1,6 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
-import { WrapperAsStorageManager, reduxRender } from '../../utils/testUtil';
-import { _AuthContext } from '../../next-architecture/ui/AuthProvider';
-import { PropsWithChildren } from 'react';
+import { reduxRender } from '../../utils/testUtil';
 
 const account1 = {
   arn: 'arn1',
