@@ -19,8 +19,6 @@ export function UsedCapacityInlinePromiseResult({
   if (result.status === 'unknown') return <>Loading...</>;
   if (result.status === 'error') return <>Error</>;
 
-  if (!result.value) return <EmptyCell mr={0} />;
-
   return <UsedCapacity value={result.value} />;
 }
 
