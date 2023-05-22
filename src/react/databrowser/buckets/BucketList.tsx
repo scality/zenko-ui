@@ -117,9 +117,24 @@ export default function BucketList({
       });
     }
 
-    if (isStorageManager) {
-      columns.push(dataUsedColumn);
-    }
+    columns.push({
+      Header: 'Data Used',
+      accessor: 'usedCapacity',
+      cellStyle: {
+        textAlign: 'right',
+      },
+
+      Cell({ row }) {
+        const metricsAdapter = useMetricsAdapter();
+        const bucketName = row.original.name;
+        const { usedCapacity } = useBucketLatestUsedCapacity({
+          bucketName,
+          metricsAdapter,
+        });
+
+        return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
+      },
+    });
 
     columns.push({
       Header: 'Created on',
