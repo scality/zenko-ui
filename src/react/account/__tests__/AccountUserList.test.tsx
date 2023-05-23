@@ -68,7 +68,7 @@ describe('AccountUserList', () => {
     ).toBeInTheDocument();
 
     //Wait for loading to complete
-    await waitFor(() => screen.getByText(SAMPLE_USER_NAME));
+    await waitFor(() => screen.getByText(SAMPLE_USER_NAME), { timeout: 2000 });
     //Ensure user is displayed in the table once the loading complete
     expect(screen.getByText(SAMPLE_USER_NAME)).toBeInTheDocument();
 

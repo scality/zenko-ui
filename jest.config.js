@@ -11,4 +11,5 @@ module.exports = {
   },
   setupFiles: ['<rootDir>/.jest-setup.js'],
   setupFilesAfterEnv: ['<rootDir>/.jest-setup-after-env.js'],
+  globalSetup: './global-setup.js',
 };
