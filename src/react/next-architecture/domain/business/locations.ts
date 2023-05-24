@@ -97,7 +97,7 @@ export const useListLocations = ({
     queryFn: () => {
       return metricsAdapter.listLocationsLatestUsedCapacity(ids);
     },
-    enabled: !!locationData,
+    enabled: !!locationData && ids.length > 0,
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {

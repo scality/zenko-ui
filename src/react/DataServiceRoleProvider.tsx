@@ -12,7 +12,6 @@ import {
   useAssumeRoleQuery,
   useS3ConfigFromAssumeRoleResult,
 } from './next-architecture/ui/S3ClientProvider';
-import { Loader } from '@scality/core-ui';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -109,10 +108,6 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   };
 
   const { data: assumeRoleResult } = useQuery(getQuery(roleArn));
-
-  if (!assumeRoleResult?.Credentials?.SecretAccessKey) {
-    return <Loader size="massive" centered={true} />;
-  }
 
   return (
     <S3ClientProvider

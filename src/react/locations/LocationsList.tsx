@@ -24,6 +24,8 @@ import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvi
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { Location } from '../next-architecture/domain/entities/location';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
+import { useListAccounts } from '../next-architecture/domain/business/accounts';
+import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 
 const ActionButtons = ({
   rowValues,
@@ -109,6 +111,13 @@ export function LocationsList() {
   const locationsAdapter = useLocationAdapter();
   const metricsAdapter = useMetricsAdapter();
   const { locations } = useListLocations({ locationsAdapter, metricsAdapter });
+
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
 
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const endpoints = useSelector(
@@ -224,9 +233,15 @@ export function LocationsList() {
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {
+        if (accounts.status === 'loading' || accounts.status === 'unknown') {
+          return <>Checking if linked to workflows...</>;
+        }
+
         if (
-          workflowsQuery.status === 'idle' ||
-          workflowsQuery.status === 'loading'
+          (workflowsQuery.status === 'idle' ||
+            workflowsQuery.status === 'loading') &&
+          accounts.status === 'success' &&
+          accounts.value.length > 0
         ) {
           return <>Checking if linked to workflows...</>;
         }

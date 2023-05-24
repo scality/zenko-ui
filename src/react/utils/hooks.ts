@@ -255,7 +255,9 @@ export const useAccounts = (
             const allRoles = accountsWithRoles.flatMap(
               (accWithRoles) => accWithRoles.Roles,
             );
-            redirectDataConsumers(allRoles);
+            if (allRoles.length > 0) {
+              redirectDataConsumers(allRoles);
+            }
           }
         } else {
           if (error?.message === 'Unmounted') {
