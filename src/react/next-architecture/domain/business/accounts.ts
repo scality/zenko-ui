@@ -115,7 +115,8 @@ export const useListAccounts = ({
             .slice(0, MAX_NUM_ACCOUNT_REQUEST)
         : [],
     ),
-    enabled: !!(accountInfos.status === 'success'),
+    enabled:
+      !!(accountInfos.status === 'success') && accountInfos.value.length > 0,
   });
 
   const accountInfosWithPerferredAssumableRole = useMemo(() => {

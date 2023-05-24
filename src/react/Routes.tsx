@@ -1,11 +1,5 @@
 import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Redirect,
   Route,
@@ -67,7 +61,7 @@ const RedirectToAccount = () => {
   const dispatch = useDispatch();
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
-  const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
+
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
@@ -76,7 +70,7 @@ const RedirectToAccount = () => {
     return (
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
     );
-  } else if (loaded && isStorageManager) {
+  } else if (isStorageManager) {
     const description = pathname === '/workflows' ? 'workflows' : 'data';
     return (
       <EmptyStateContainer>
@@ -89,8 +83,6 @@ const RedirectToAccount = () => {
         />
       </EmptyStateContainer>
     );
-  } else if (loaded) {
-    return <ErrorPage401 />;
   } else {
     return (
       <Loader>
@@ -207,12 +199,34 @@ function Routes() {
   const location = useLocation();
 
   const doesRouteMatch = useCallback(
-    (path: RouteProps) => {
+    (paths: RouteProps | RouteProps[]) => {
       const location = history.location;
-      return !!matchPath(location.pathname, path);
+      if (Array.isArray(paths)) {
+        const foundMatchingRoute = paths.find((path) => {
+          const demo = matchPath(location.pathname, path);
+          return demo;
+        });
+        return !!foundMatchingRoute;
+      } else {
+        return !!matchPath(location.pathname, paths);
+      }
     },
     [location],
   );
+
+  const routeWithoutSideBars = [
+    { path: '/create-account' },
+    { path: '/create-dataservice' },
+    { path: '/create-location' },
+    { path: '/locations/:locations/edit' },
+    { path: '/accounts/:accountName/create-user' },
+    { path: '/accounts/:accountName/users/:user/update-user' },
+    { path: '/accounts/:accountName/create-bucket' },
+    { path: '/accounts/:accountName/workflows/create-workflow' },
+    { path: '/accounts/:accountName/create-policy' },
+  ];
+
+  const hideSideBar = doesRouteMatch(routeWithoutSideBars);
 
   const sidebarConfig = {
     onToggleClick: () => {
@@ -311,7 +325,9 @@ function Routes() {
           <ReauthDialog />
           <AppContainer
             hasPadding
-            sidebarNavigation={<Sidebar {...sidebarConfig} />}
+            sidebarNavigation={
+              hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
+            }
           >
             <RemoveTrailingSlash />
             <ManagementProvider>
