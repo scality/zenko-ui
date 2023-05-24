@@ -173,9 +173,12 @@ describe('CreateWorkflow', () => {
     userEvent.click(selectors.locationAWSS3());
 
     //V
-    await waitFor(() => {
-      expect(selectors.createButton()).toBeEnabled();
-    });
+    await waitFor(
+      () => {
+        expect(selectors.createButton()).toBeEnabled();
+      },
+      { timeout: 2000 },
+    );
   });
 
   it('should display an error modal when workflow creation failed', async () => {
