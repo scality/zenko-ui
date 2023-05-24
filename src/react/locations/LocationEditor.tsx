@@ -32,6 +32,9 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
+import { useQueryClient } from 'react-query';
+import { queries } from '../next-architecture/domain/business/locations';
+import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
@@ -46,6 +49,8 @@ const makeLabel = (locationType) => {
 function LocationEditor() {
   const dispatch = useDispatch();
   const { locationName } = useParams<{ locationName: string }>();
+  const queryClient = useQueryClient();
+  const locationsAdapter = useLocationAdapter();
   const locationEditing = useSelector(
     (state: AppState) =>
       state.configuration.latest.locations[locationName || ''],
@@ -106,6 +111,7 @@ function LocationEditor() {
       };
     }
     dispatch(saveLocation(convertToLocation(submitLocation)));
+    queryClient.resetQueries(queries.listLocations(locationsAdapter).queryKey);
   };
 
   const cancel = (e) => {
