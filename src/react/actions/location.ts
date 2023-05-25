@@ -6,12 +6,11 @@ import type {
 import type { Location, LocationName } from '../../types/config';
 import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
-import {
-  updateConfiguration,
-  waitForRunningConfigurationVersionUpdate,
-} from './configuration';
+import { updateConfiguration } from './configuration';
 import { getClients } from '../utils/actions';
 import { goBack } from 'connected-react-router';
+import { until } from 'async';
+import { loadInstanceLatestStatus } from './stats';
 export function openLocationDeleteDialog(
   locationName: LocationName,
 ): OpenLocationDeleteDialogAction {
@@ -25,6 +24,39 @@ export function closeLocationDeleteDialog(): CloseLocationDeleteDialogAction {
     type: 'CLOSE_LOCATION_DELETE_DIALOG',
   };
 }
+
+export function waitForNewLocationToAppear(
+  locationName: string,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) =>
+    until(
+      (cb) => {
+        const { instanceStatus } = getState();
+        const includesLocation = Object.keys(
+          instanceStatus.latest.state.latestConfigurationOverlay.locations,
+        ).includes(locationName);
+        setTimeout(cb, 500, null, includesLocation);
+      },
+      (next) => dispatch(loadInstanceLatestStatus()).then(next),
+    );
+}
+
+export function waitForLocationToBeRemoved(
+  locationName: string,
+): ThunkStatePromisedAction {
+  return (dispatch, getState) =>
+    until(
+      (cb) => {
+        const { instanceStatus } = getState();
+        const includesLocation = Object.keys(
+          instanceStatus.latest.state.latestConfigurationOverlay.locations,
+        ).includes(locationName);
+        setTimeout(cb, 500, null, !includesLocation);
+      },
+      (next) => dispatch(loadInstanceLatestStatus()).then(next),
+    );
+}
+
 export function saveLocation(location: Location): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -46,16 +78,18 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
         );
     return op
       .then(() => dispatch(updateConfiguration()))
-      .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
+      .then(() => dispatch(waitForNewLocationToAppear(params.locationName)))
       .then(() => dispatch(goBack()))
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => {
         if (error instanceof Response) {
-          return error
-            .json()
-            .then((e) => dispatch(handleApiError(e, 'byComponent')))
-            //@ts-expect-error intentionnaly ignore error/apierror type mismatch
-            .catch(() => dispatch(handleApiError(error, 'byComponent')));
+          return (
+            error
+              .json()
+              .then((e) => dispatch(handleApiError(e, 'byComponent')))
+              //@ts-expect-error intentionnaly ignore error/apierror type mismatch
+              .catch(() => dispatch(handleApiError(error, 'byComponent')))
+          );
         }
         return dispatch(handleApiError(error, 'byComponent'));
       })
@@ -75,7 +109,7 @@ export function deleteLocation(
     return managementClient
       .deleteConfigurationOverlayLocation(params.locationName, params.uuid)
       .then(() => dispatch(updateConfiguration()))
-      .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
+      .then(() => dispatch(waitForLocationToBeRemoved(params.locationName)))
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byModal')))
       .finally(() => {

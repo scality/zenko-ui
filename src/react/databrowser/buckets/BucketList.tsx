@@ -53,6 +53,7 @@ export default function BucketList({
           const history = useHistory();
           return (
             <Link
+              href="#"
               onClick={(e) => {
                 e.stopPropagation();
                 history.push(

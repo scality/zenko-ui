@@ -19,13 +19,17 @@ import { getLocationType } from '../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
-import { useListLocations } from '../next-architecture/domain/business/locations';
+import {
+  queries,
+  useListLocations,
+} from '../next-architecture/domain/business/locations';
 import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { Location } from '../next-architecture/domain/entities/location';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useMutation, useQueryClient } from 'react-query';
 
 const ActionButtons = ({
   rowValues,
@@ -47,8 +51,20 @@ const ActionButtons = ({
     (state: AppState) => state.configuration.latest.endpoints,
   );
   const [showModal, setShowModal] = useState(false);
+  const queryClient = useQueryClient();
+  const locationsAdapter = useLocationAdapter();
+
+  const deleteMutation = useMutation({
+    mutationFn: (locationName: string) =>
+      dispatch(deleteLocation(locationName)),
+    onSuccess: () => {
+      queryClient.refetchQueries(
+        queries.listLocations(locationsAdapter).queryKey,
+      );
+    },
+  });
   const handleDeleteClick = useCallback(
-    (locationName) => dispatch(deleteLocation(locationName)),
+    (locationName) => deleteMutation.mutate(locationName),
     [dispatch],
   );
 
