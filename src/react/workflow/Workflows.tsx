@@ -51,6 +51,7 @@ export function useWorkflowsWithSelect<T>(
   const rolePathName = useRolePathName();
   const dispatch = useDispatch();
 
+  console.log('acccount', account);
   const workflowsQuery = useQuery({
     ...workflowListQuery(
       notFalsyTypeGuard(mgnt),
@@ -113,7 +114,10 @@ export function useWorkflows(filters?: Filter): UseQueryResult<
 
 export default function Workflows() {
   const history = useHistory();
-  const { workflowId } = useParams<{ workflowId?: string }>();
+  const params = useParams<{
+    workflowId?: string;
+  }>();
+  const workflowId = params?.workflowId;
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const { accounts } = useAccounts();

@@ -8,20 +8,18 @@ import {
   TRANSITION_WORKFLOW_CURRENT_ID,
   TRANSITION_WORKFLOW_PREVIOUS_ID,
 } from '../../../js/mock/managementClientMSWHandlers';
-import Router from 'react-router-dom';
 
 import Workflows from '../Workflows';
 import {
   mockOffsetSize,
   queryClient,
-  reduxRender,
+  renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
-import { List } from 'immutable';
 import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
-const TEST_ACCOUNT = 'Test Account';
+const TEST_ACCOUNT = 'test-account';
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 
 const server = setupServer(
@@ -48,10 +46,7 @@ const server = setupServer(
 );
 
 jest.setTimeout(30000);
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
+
 describe('Workflows', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -63,28 +58,19 @@ describe('Workflows', () => {
   });
   afterAll(() => server.close());
 
-  const buckets = [
-    {
-      CreationDate: 'Wed Oct 07 2020 16:35:57',
-      LocationConstraint: 'us-east-1',
-      Name: BUCKET_NAME,
-    },
-  ];
   it('should display the generated name for transition applying to the current version', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
-    });
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
+    renderWithRouterMatch(
+      <Workflows />,
+      {
+        path: '/accounts/:accountName/workflows/:workflowId?',
+        route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
+      },
+      {
+        instances: {
+          selectedId: INSTANCE_ID,
         },
       },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
-    });
+    );
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
@@ -100,21 +86,19 @@ describe('Workflows', () => {
     ).toBeInTheDocument();
   });
   it('should display the generated name for transition applying to the noncurrent version', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
-    });
-
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
+    renderWithRouterMatch(
+      <Workflows />,
+      {
+        path: '/accounts/:accountName/workflows/:workflowId?',
+        route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
+      },
+      {
+        instances: {
+          selectedId: INSTANCE_ID,
         },
       },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
-    });
+    );
+
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
@@ -134,18 +118,15 @@ describe('Workflows', () => {
       }),
     ).toBeChecked();
   });
+
   it('should display error if there is no buckets created', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
-    });
     server.use(mockBucketListing([]));
 
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
+    renderWithRouterMatch(<Workflows />, {
+      path: '/accounts/:accountName/workflows',
+      route: `/accounts/${TEST_ACCOUNT}/workflows`,
     });
+
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
     //V

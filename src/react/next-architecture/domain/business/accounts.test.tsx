@@ -28,6 +28,7 @@ import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 import { _AuthContext } from '../../ui/AuthProvider';
 import { ConfigProvider } from '../../ui/ConfigProvider';
 import { PromiseResult } from '../entities/promise';
+import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
@@ -51,8 +52,10 @@ const setupListAccountAdaptersForThousandAccounts = () => {
                 creationDate: new Date(CREATION_DATE),
                 assumableRoles: [
                   {
-                    Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-                    Name: 'StorageAccountOwner',
+                    Arn:
+                      'arn:aws:iam::123456789012:role/' +
+                      STORAGE_ACCOUNT_OWNER_ROLE,
+                    Name: STORAGE_ACCOUNT_OWNER_ROLE,
                   },
                 ],
               };
@@ -103,6 +106,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
     usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
     assumableRoles: DEFAULT_ASSUMABLE_ROLES,
     preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+    canManageAccount: true,
   };
 });
 
@@ -121,6 +125,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
       },
       assumableRoles: DEFAULT_ASSUMABLE_ROLES,
       preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+      canManageAccount: true,
     };
   });
 
@@ -132,6 +137,7 @@ const ONE_THOUSAND_AND_ONE_ACCOUNT = {
   usedCapacity: { status: 'unknown' },
   assumableRoles: DEFAULT_ASSUMABLE_ROLES,
   preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+  canManageAccount: true,
 };
 
 const MOCK_ACCESSIBLE_ACCOUNTS = [
@@ -139,11 +145,13 @@ const MOCK_ACCESSIBLE_ACCOUNTS = [
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[0],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[0].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
   {
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[1],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[1].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
 ];
 

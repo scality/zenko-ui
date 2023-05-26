@@ -6,12 +6,7 @@ import { Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
-import {
-  regexArn,
-  SCALITY_INTERNAL_ROLES,
-  useAccounts,
-  useRedirectDataConsumers,
-} from '../utils/hooks';
+import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {
   useCurrentAccount,
   useDataServiceRole,
@@ -35,7 +30,6 @@ export function AccountRoleSelectButtonAndModal({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
-  const redirectDataConsummers = useRedirectDataConsumers();
   const setRole = useSetAssumedRole();
   const history = useHistory();
 
@@ -74,15 +68,13 @@ export function AccountRoleSelectButtonAndModal({
             icon={<Icon name="Arrow-right" />}
             variant="primary"
             onClick={() => {
-              const parsedArn = regexArn.exec(assumedRoleArn);
-              const roleName = parsedArn?.groups?.name || '';
               setRole({ roleArn: assumedRoleArn });
               history.push(
                 generatePath(path, {
                   accountName: assumedAccount,
                 }),
               );
-              redirectDataConsummers([{ Name: roleName }], handleClose);
+              handleClose();
             }}
             label="Continue"
             disabled={assumedRoleArn === roleArn}
