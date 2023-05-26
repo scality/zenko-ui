@@ -150,8 +150,8 @@ export function useQueryWithUnmountSupport<
 export const regexArn =
   /arn:aws:iam::(?<account_id>\d{12}):(?<resource_type>role|policy)\/(?<path>(?:[^/]*\/)*)(?<name>[^/]+)$/;
 
-export const STORAGE_MANAGER_ROLE = 'StorageManager';
-export const STORAGE_ACCOUNT_OWNER_ROLE = 'StorageAccountOwner';
+export const STORAGE_MANAGER_ROLE = 'storage-manager-role';
+export const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
 const DATA_CONSUMER_ROLE = 'data-consumer-role';
 export const SCALITY_INTERNAL_ROLES = [
   STORAGE_MANAGER_ROLE,
