@@ -103,6 +103,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
     usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
     assumableRoles: DEFAULT_ASSUMABLE_ROLES,
     preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+    canManageAccount: true,
   };
 });
 
@@ -121,6 +122,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
       },
       assumableRoles: DEFAULT_ASSUMABLE_ROLES,
       preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+      canManageAccount: true,
     };
   });
 
@@ -132,6 +134,7 @@ const ONE_THOUSAND_AND_ONE_ACCOUNT = {
   usedCapacity: { status: 'unknown' },
   assumableRoles: DEFAULT_ASSUMABLE_ROLES,
   preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+  canManageAccount: true,
 };
 
 const MOCK_ACCESSIBLE_ACCOUNTS = [
@@ -139,11 +142,13 @@ const MOCK_ACCESSIBLE_ACCOUNTS = [
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[0],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[0].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
   {
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[1],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[1].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
 ];
 

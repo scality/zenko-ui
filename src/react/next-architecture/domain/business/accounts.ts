@@ -137,6 +137,7 @@ export const useListAccounts = ({
         return {
           ...accountInfo,
           preferredAssumableRoleArn,
+          canManageAccount: !!roleStorageAccountOwner || !!roleStorageManager,
         };
       });
       return accounts;
