@@ -8,7 +8,7 @@ import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.componen
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
-import { Icon } from '@scality/core-ui';
+import { Icon, Link } from '@scality/core-ui';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import { Account } from '../next-architecture/domain/entities/account';
@@ -38,14 +38,15 @@ function AccountList({ accounts }: { accounts: Account[] }) {
     }
 
     return (
-      <NameLinkContaner
+      <Link
+        href="#"
         onClick={() => {
           setRole({ roleArn: row.original.preferredAssumableRoleArn });
           dispatch(push(`/accounts/${value}`));
         }}
       >
         {value}
-      </NameLinkContaner>
+      </Link>
     );
   };
 

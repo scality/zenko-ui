@@ -193,10 +193,11 @@ describe('Accounts', () => {
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
-
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
+    expect(
+      screen.queryAllByRole('link', {
+        name: new RegExp(TEST_ACCOUNT, 'i'),
+      }),
+    ).toHaveLength(0);
   });
 
   it('should not redirect the user to buckets when storage manager and no roles can be assumed', async () => {

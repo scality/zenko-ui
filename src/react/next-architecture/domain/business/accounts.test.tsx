@@ -28,6 +28,7 @@ import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 import { _AuthContext } from '../../ui/AuthProvider';
 import { ConfigProvider } from '../../ui/ConfigProvider';
 import { PromiseResult } from '../entities/promise';
+import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
@@ -51,8 +52,10 @@ const setupListAccountAdaptersForThousandAccounts = () => {
                 creationDate: new Date(CREATION_DATE),
                 assumableRoles: [
                   {
-                    Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-                    Name: 'StorageAccountOwner',
+                    Arn:
+                      'arn:aws:iam::123456789012:role/' +
+                      STORAGE_ACCOUNT_OWNER_ROLE,
+                    Name: STORAGE_ACCOUNT_OWNER_ROLE,
                   },
                 ],
               };

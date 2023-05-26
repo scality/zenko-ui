@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -7,7 +7,6 @@ import {
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useHistory } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';

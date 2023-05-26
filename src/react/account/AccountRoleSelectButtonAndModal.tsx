@@ -29,6 +29,7 @@ export function AccountRoleSelectButtonAndModal({
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
+  console.log('account', account);
   const [assumedAccount, setAssumedAccount] = useState(accountName);
   const setRole = useSetAssumedRole();
   const history = useHistory();
