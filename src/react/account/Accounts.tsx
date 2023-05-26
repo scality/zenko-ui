@@ -4,12 +4,18 @@ import AccountList from './AccountList';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import Header from '../ui-elements/EntityHeader';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
-import { AppContainer, ErrorPage500, Icon } from '@scality/core-ui';
+import {
+  AppContainer,
+  ErrorPage401,
+  ErrorPage500,
+  Icon,
+} from '@scality/core-ui';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
+import { useAuthGroups } from '../utils/hooks';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -20,6 +26,16 @@ const Accounts = () => {
     accessibleAccountsAdapter,
   });
   const history = useHistory();
+
+  const { isStorageManager } = useAuthGroups();
+
+  if (
+    accounts.status == 'success' &&
+    accounts.value.length === 0 &&
+    !isStorageManager
+  ) {
+    return <ErrorPage401 />;
+  }
 
   return (
     <>

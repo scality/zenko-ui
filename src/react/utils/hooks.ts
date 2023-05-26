@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -7,7 +7,6 @@ import {
 } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useHistory } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
@@ -159,31 +158,6 @@ export const SCALITY_INTERNAL_ROLES = [
   DATA_CONSUMER_ROLE,
 ];
 
-export const useRedirectDataConsumers = () => {
-  const history = useHistory();
-  const location = useLocation();
-  const { user } = useAuth();
-  const userGroups = user?.profile?.groups || [];
-
-  return React.useCallback((roles, callback = () => null) => {
-    const canAssumeAdminAccountRolesOnAnyAccount = roles.find(
-      (role: { Name: string }) =>
-        role.Name === STORAGE_MANAGER_ROLE ||
-        role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
-    );
-    if (
-      !canAssumeAdminAccountRolesOnAnyAccount &&
-      !location.pathname.includes('bucket') &&
-      !location.pathname.includes('workflows') &&
-      !userGroups.includes('StorageManager')
-    ) {
-      history.replace('/buckets');
-    } else {
-      callback();
-    }
-  }, []);
-};
-
 const reduxBasedEventDispatcher = () => {
   const dispatch = useDispatch();
   return {
@@ -224,8 +198,6 @@ export const useAccounts = (
 
   const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
 
-  const redirectDataConsumers = useRedirectDataConsumers();
-
   const { data, status } = useAwsPaginatedEntities<
     WebIdentityRoles,
     Account,
@@ -241,24 +213,9 @@ export const useAccounts = (
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
-      onUnmountOrSettled: (accountsWithRoles, error) => {
+      onUnmountOrSettled: (_, error) => {
         if (!error) {
           notifyEnd();
-          if (accountsWithRoles?.entries) {
-            /**
-             * When a OIDC user has at least one account that has the right
-             * access right to Account page, it will display the page.
-             * Otherwise the user will be redirected to `/buckets`
-             * However, it does not means that all accounts can perform all
-             * tasks in Account page.
-             */
-            const allRoles = accountsWithRoles.flatMap(
-              (accWithRoles) => accWithRoles.Roles,
-            );
-            if (allRoles.length > 0) {
-              redirectDataConsumers(allRoles);
-            }
-          }
         } else {
           if (error?.message === 'Unmounted') {
             notifyEnd();
@@ -299,4 +256,14 @@ export const useRolePathName = () => {
   const roleName = parsedArn?.groups['name'] || '';
   const rolePathName = rolePath + roleName;
   return rolePathName;
+};
+
+export const useAuthGroups = () => {
+  const userGroups = useSelector(
+    (state: AppState) => state.oidc.user?.profile?.groups || [],
+  );
+
+  const isStorageManager = userGroups.includes('StorageManager');
+
+  return { isStorageManager };
 };

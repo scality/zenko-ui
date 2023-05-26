@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { Router } from 'react-router-dom';
+import { Route, Router } from 'react-router-dom';
 
 import { render } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
@@ -32,6 +32,11 @@ import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvid
 import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsAdapterProvider } from '../next-architecture/ui/AccountAdapterProvider';
+
+// jest.mock('react-router-dom', () => ({
+//   ...jest.requireActual('react-router-dom'),
+//   useParams: jest.fn(),
+// }));
 //LocationTestOK
 const theme = {
   name: 'Dark Rebrand Theme',
@@ -235,6 +240,7 @@ export function mockOffsetSize(width: number, height: number) {
 
 export const reduxRender = (component: JSX.Element, testState?: unknown) => {
   const store = realStoreWithInitState(testState);
+
   return {
     component: render(
       <ThemeProvider theme={theme}>
@@ -343,3 +349,72 @@ export const simpleRender = (component: React.ReactNode) => {
     </QueryClientProvider>,
   );
 };
+
+export function renderWithRouterMatch(
+  component: React.ReactNode,
+  // path /workflow/:workflowid
+  // route /workflow/0d55a1d7-349c-4e79-932b-b502bcc45a8f
+  { path = '/', route = '/' } = {},
+  testState?: unknown,
+) {
+  const history = createMemoryHistory({ initialEntries: [route] });
+  const store = realStoreWithInitState(testState);
+  const role = {
+    roleArn: TEST_ROLE_ARN,
+  };
+
+  return {
+    ...render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <Router history={history}>
+              <Route path={path}>
+                <_ConfigContext.Provider value={zenkoUITestConfig}>
+                  <_AuthContext.Provider
+                    value={{
+                      user: {
+                        access_token: 'token',
+                        profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
+                      },
+                    }}
+                  >
+                    <_DataServiceRoleContext.Provider value={{ role }}>
+                      <_ManagementContext.Provider
+                        value={{
+                          managementClient: TEST_MANAGEMENT_CLIENT,
+                        }}
+                      >
+                        <LocationAdapterProvider>
+                          <MetricsAdapterProvider>
+                            <AccountsAdapterProvider>
+                              <AccessibleAccountsAdapterProvider>
+                                <S3ClientProvider
+                                  configuration={{
+                                    endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                    s3ForcePathStyle: true,
+                                    credentials: {
+                                      accessKeyId: 'accessKey',
+                                      secretAccessKey: 'secretKey',
+                                      sessionToken: 'sessionToken',
+                                    },
+                                  }}
+                                >
+                                  {component}
+                                </S3ClientProvider>
+                              </AccessibleAccountsAdapterProvider>
+                            </AccountsAdapterProvider>
+                          </MetricsAdapterProvider>
+                        </LocationAdapterProvider>
+                      </_ManagementContext.Provider>
+                    </_DataServiceRoleContext.Provider>
+                  </_AuthContext.Provider>
+                </_ConfigContext.Provider>
+              </Route>
+            </Router>
+          </Provider>
+        </ThemeProvider>
+      </QueryClientProvider>,
+    ),
+  };
+}

@@ -11,7 +11,7 @@ import { XDM_FEATURE } from '../../../js/config';
 import { useHistory, useParams } from 'react-router';
 import { Icon, Link, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import { useQueryParams } from '../../utils/hooks';
+import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { Bucket } from '../../next-architecture/domain/entities/bucket';
 import { CoreUIColumn } from 'react-table';
@@ -42,6 +42,8 @@ export default function BucketList({
   const query = useQueryParams();
   const { account } = useCurrentAccount();
   const tabName = query.get('tab');
+
+  const { isStorageManager } = useAuthGroups();
 
   const columns = useMemo(() => {
     const columns: CoreUIColumn<Bucket>[] = [
@@ -106,24 +108,26 @@ export default function BucketList({
       });
     }
 
-    columns.push({
-      Header: 'Data Used',
-      accessor: 'usedCapacity',
-      cellStyle: {
-        textAlign: 'right',
-      },
+    if (isStorageManager) {
+      columns.push({
+        Header: 'Data Used',
+        accessor: 'usedCapacity',
+        cellStyle: {
+          textAlign: 'right',
+        },
 
-      Cell({ row }) {
-        const metricsAdapter = useMetricsAdapter();
-        const bucketName = row.original.name;
-        const { usedCapacity } = useBucketLatestUsedCapacity({
-          bucketName,
-          metricsAdapter,
-        });
+        Cell({ row }) {
+          const metricsAdapter = useMetricsAdapter();
+          const bucketName = row.original.name;
+          const { usedCapacity } = useBucketLatestUsedCapacity({
+            bucketName,
+            metricsAdapter,
+          });
 
-        return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
-      },
-    });
+          return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
+        },
+      });
+    }
 
     columns.push({
       Header: 'Created on',

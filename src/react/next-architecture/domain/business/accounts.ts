@@ -125,6 +125,7 @@ export const useListAccounts = ({
         const roleStorageAccountOwner = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
         );
+
         const roleStorageManager = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_MANAGER_ROLE,
         );
@@ -134,9 +135,11 @@ export const useListAccounts = ({
         } else if (roleStorageManager) {
           preferredAssumableRoleArn = roleStorageManager.Arn;
         }
+
         return {
           ...accountInfo,
           preferredAssumableRoleArn,
+          canManageAccount: !!roleStorageAccountOwner || !!roleStorageManager,
         };
       });
       return accounts;
