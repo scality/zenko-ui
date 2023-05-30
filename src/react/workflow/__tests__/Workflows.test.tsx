@@ -8,17 +8,14 @@ import {
   TRANSITION_WORKFLOW_CURRENT_ID,
   TRANSITION_WORKFLOW_PREVIOUS_ID,
 } from '../../../js/mock/managementClientMSWHandlers';
-import Router from 'react-router-dom';
 
 import Workflows from '../Workflows';
 import {
   mockOffsetSize,
   queryClient,
-  reduxRender,
   renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
-import { List } from 'immutable';
 import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
 import { debug } from 'jest-preview';
 
@@ -62,28 +59,19 @@ describe('Workflows', () => {
   });
   afterAll(() => server.close());
 
-  const buckets = [
-    {
-      CreationDate: 'Wed Oct 07 2020 16:35:57',
-      LocationConstraint: 'us-east-1',
-      Name: BUCKET_NAME,
-    },
-  ];
   it('should display the generated name for transition applying to the current version', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
-    });
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
+    renderWithRouterMatch(
+      <Workflows />,
+      {
+        path: '/accounts/:accountName/workflows/:workflowId?',
+        route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
+      },
+      {
+        instances: {
+          selectedId: INSTANCE_ID,
         },
       },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
-    });
+    );
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
