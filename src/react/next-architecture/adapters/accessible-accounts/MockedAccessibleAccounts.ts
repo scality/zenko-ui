@@ -5,11 +5,12 @@ import {
   ACCOUNT,
   NEWLY_CREATED_ACCOUNT,
 } from '../../../../js/mock/managementClientMSWHandlers';
+import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 
 export const DEFAULT_ASSUMABLE_ROLES = [
   {
-    Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-    Name: 'StorageAccountOwner',
+    Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+    Name: STORAGE_ACCOUNT_OWNER_ROLE,
   },
 ];
 
@@ -19,8 +20,8 @@ export const ACCESSIBLE_ACCOUNTS_EXAMPLE = [
     ...ACCOUNT,
     assumableRoles: [
       {
-        Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-        Name: 'StorageAccountOwner',
+        Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+        Name: STORAGE_ACCOUNT_OWNER_ROLE,
       },
     ],
   },
@@ -28,8 +29,8 @@ export const ACCESSIBLE_ACCOUNTS_EXAMPLE = [
     ...NEWLY_CREATED_ACCOUNT,
     assumableRoles: [
       {
-        Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-        Name: 'StorageAccountOwner',
+        Arn: 'arn:aws:iam::123456789012:role/' + STORAGE_ACCOUNT_OWNER_ROLE,
+        Name: STORAGE_ACCOUNT_OWNER_ROLE,
       },
     ],
   },

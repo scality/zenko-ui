@@ -29,6 +29,7 @@ import NoMatch from './NoMatch';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
+  useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
@@ -38,6 +39,7 @@ import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
 import { Locations } from './locations/Locations';
 import ReauthDialog from './ui-elements/ReauthDialog';
+import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -84,11 +86,7 @@ const RedirectToAccount = () => {
       </EmptyStateContainer>
     );
   } else {
-    return (
-      <Loader>
-        <div>Loading</div>
-      </Loader>
-    );
+    return <ErrorPage401 />;
   }
 };
 
@@ -197,6 +195,7 @@ function Routes() {
   );
   const history = useHistory();
   const location = useLocation();
+  const { isStorageManager } = useAuthGroups();
 
   const doesRouteMatch = useCallback(
     (paths: RouteProps | RouteProps[]) => {
@@ -289,26 +288,30 @@ function Routes() {
             path: '/accounts/:accountName/workflows',
           }),
       },
-      {
-        label: 'Locations',
-        icon: <Icon name="Location" />,
-        onClick: () => {
-          history.push('/locations');
-        },
-        active: doesRouteMatch({
-          path: '/locations',
-        }),
-      },
-      {
-        label: 'Data Services',
-        icon: <Icon name="Cubes" />,
-        onClick: () => {
-          history.push('/dataservices');
-        },
-        active: doesRouteMatch({
-          path: '/dataservices',
-        }),
-      },
+      ...(isStorageManager
+        ? [
+            {
+              label: 'Locations',
+              icon: <Icon name="Location" />,
+              onClick: () => {
+                history.push('/locations');
+              },
+              active: doesRouteMatch({
+                path: '/locations',
+              }),
+            },
+            {
+              label: 'Data Services',
+              icon: <Icon name="Cubes" />,
+              onClick: () => {
+                history.push('/dataservices');
+              },
+              active: doesRouteMatch({
+                path: '/dataservices',
+              }),
+            },
+          ]
+        : []),
     ],
   };
 

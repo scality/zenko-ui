@@ -8,13 +8,14 @@ import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.componen
 import { formatSimpleDate } from '../utils';
 import { NameLinkContaner } from '../ui-elements/NameLink';
 import { AppState } from '../../types/state';
-import { Icon } from '@scality/core-ui';
+import { Icon, Link } from '@scality/core-ui';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
+import { useAuthGroups } from '../utils/hooks';
 
 const TableAction = styled.div`
   display: flex;
@@ -28,17 +29,24 @@ function AccountList({ accounts }: { accounts: Account[] }) {
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
 
+  const { isStorageManager } = useAuthGroups();
+
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const setRole = useSetAssumedRole();
+    if (!row.original.canManageAccount) {
+      return value;
+    }
+
     return (
-      <NameLinkContaner
+      <Link
+        href="#"
         onClick={() => {
           setRole({ roleArn: row.original.preferredAssumableRoleArn });
           dispatch(push(`/accounts/${value}`));
         }}
       >
         {value}
-      </NameLinkContaner>
+      </Link>
     );
   };
 
@@ -65,25 +73,27 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         },
         Cell: (value: CellProps<Account, string>) => createDateCell(value),
       },
-      {
-        Header: 'Data Used',
-        accessor: 'usedCapacity',
-        cellStyle: {
-          textAlign: 'right',
-          minWidth: '7rem',
-        },
-        Cell: ({ row }) => {
-          const metricsAdapter = useMetricsAdapter();
+      isStorageManager
+        ? {
+            Header: 'Data Used',
+            accessor: 'usedCapacity',
+            cellStyle: {
+              textAlign: 'right',
+              minWidth: '7rem',
+            },
+            Cell: ({ row }) => {
+              const metricsAdapter = useMetricsAdapter();
 
-          const { usedCapacity } = useAccountLatestUsedCapacity({
-            accountCanonicalId: row.original.canonicalId,
-            metricsAdapter: metricsAdapter,
-          });
+              const { usedCapacity } = useAccountLatestUsedCapacity({
+                accountCanonicalId: row.original.canonicalId,
+                metricsAdapter: metricsAdapter,
+              });
 
-          return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
-        },
-      },
-    ];
+              return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
+            },
+          }
+        : undefined,
+    ].filter((e) => e);
   }, [nameCell]);
 
   return (
