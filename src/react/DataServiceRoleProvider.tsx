@@ -44,13 +44,18 @@ export const useSetAssumedRole = () => {
 };
 
 export const useCurrentAccount = () => {
-  const { accountName } = useParams<{ accountName: string }>();
+  const { accountName, workflowId } = useParams<{
+    accountName: string;
+    workflowId: string;
+  }>();
   const { roleArn } = useDataServiceRole();
   const accountId = roleArn
     ? regexArn.exec(roleArn)?.groups?.['account_id']
     : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
 
+  console.log('useCurrentAccount accounts', accounts);
+  console.log('useCurrentAccount useParams', accountName, workflowId);
   const account = useMemo(() => {
     return accounts.find((account) => {
       if (accountName) return account.Name === accountName;

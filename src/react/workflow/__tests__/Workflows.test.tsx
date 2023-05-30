@@ -1,3 +1,8 @@
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useParams: jest.fn(),
+}));
+
 import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -19,6 +24,8 @@ import {
 } from '../../utils/testUtil';
 import { List } from 'immutable';
 import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
+import { debug } from 'jest-preview';
+import { createMemoryHistory } from 'history';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'Test Account';
@@ -48,10 +55,7 @@ const server = setupServer(
 );
 
 jest.setTimeout(30000);
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
+
 describe('Workflows', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -115,6 +119,7 @@ describe('Workflows', () => {
         selectedId: INSTANCE_ID,
       },
     });
+
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
@@ -134,18 +139,32 @@ describe('Workflows', () => {
       }),
     ).toBeChecked();
   });
-  it('should display error if there is no buckets created', async () => {
+  it.only('should display error if there is no buckets created', async () => {
     jest.spyOn(Router, 'useParams').mockReturnValue({
       workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
+      accountName: 'Test',
     });
+
+    createMemoryHistory({ initialEntries: [''] });
+
+    // jest.spyOn(Router, 'useParams').mockReturnValue({
+    //   workflowId: `transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
+    // });
+
     server.use(mockBucketListing([]));
 
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      instances: {
-        selectedId: INSTANCE_ID,
+    reduxRender(
+      <Workflows />,
+      {
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+        instances: {
+          selectedId: INSTANCE_ID,
+        },
       },
-    });
+      '/accounts/test/workflows',
+    );
+
+    debug();
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
     //V
