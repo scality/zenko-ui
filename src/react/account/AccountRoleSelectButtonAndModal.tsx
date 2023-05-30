@@ -29,8 +29,6 @@ export function AccountRoleSelectButtonAndModal({
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
-  console.log('AccountRoleSelectButtonAndModal', accounts);
-  console.log('AccountRoleSelectButtonAndModal current account', account);
   const [assumedAccount, setAssumedAccount] = useState(accountName);
   const setRole = useSetAssumedRole();
   const history = useHistory();
@@ -163,7 +161,6 @@ export function AccountRoleSelectButtonAndModal({
     );
   }
 
-  console.log('buttonLabel', buttonLabel);
   return (
     <>
       <AccountSelectorButton

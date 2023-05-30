@@ -20,6 +20,7 @@ import {
   mockOffsetSize,
   queryClient,
   reduxRender,
+  renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import { List } from 'immutable';
@@ -28,7 +29,7 @@ import { debug } from 'jest-preview';
 import { createMemoryHistory } from 'history';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
-const TEST_ACCOUNT = 'Test Account';
+const TEST_ACCOUNT = 'test-account';
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 
 const server = setupServer(
@@ -103,21 +104,10 @@ describe('Workflows', () => {
       }),
     ).toBeInTheDocument();
   });
-  it('should display the generated name for transition applying to the noncurrent version', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
-    });
-
-    reduxRender(<Workflows />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-      s3: {
-        listBucketsResults: {
-          list: List(buckets),
-        },
-      },
-      instances: {
-        selectedId: INSTANCE_ID,
-      },
+  it.only('should display the generated name for transition applying to the noncurrent version', async () => {
+    renderWithRouterMatch(<Workflows />, {
+      path: '/accounts/:accountName/workflows/:workflowId?',
+      route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
     });
 
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
@@ -139,32 +129,14 @@ describe('Workflows', () => {
       }),
     ).toBeChecked();
   });
-  it.only('should display error if there is no buckets created', async () => {
-    jest.spyOn(Router, 'useParams').mockReturnValue({
-      workflowId: `transition-${TRANSITION_WORKFLOW_CURRENT_ID}`,
-      accountName: 'Test',
-    });
-
-    createMemoryHistory({ initialEntries: [''] });
-
-    // jest.spyOn(Router, 'useParams').mockReturnValue({
-    //   workflowId: `transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
-    // });
-
+  it('should display error if there is no buckets created', async () => {
     server.use(mockBucketListing([]));
 
-    reduxRender(
-      <Workflows />,
-      {
-        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-        instances: {
-          selectedId: INSTANCE_ID,
-        },
-      },
-      '/accounts/test/workflows',
-    );
+    renderWithRouterMatch(<Workflows />, {
+      path: '/accounts/:accountName/workflows',
+      route: `/accounts/${TEST_ACCOUNT}/workflows`,
+    });
 
-    debug();
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
     //V

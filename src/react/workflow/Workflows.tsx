@@ -113,10 +113,11 @@ export function useWorkflows(filters?: Filter): UseQueryResult<
 
 export default function Workflows() {
   const history = useHistory();
-  const { workflowId, accountName: an } = useParams<{
+  const params = useParams<{
     workflowId?: string;
-    accountName: string;
   }>();
+  const workflowId = params?.workflowId;
+  console.log('workflowId', workflowId, params);
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const { accounts } = useAccounts();
@@ -124,10 +125,9 @@ export default function Workflows() {
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
   const { search } = useLocation();
 
-  console.log('workflowId', workflowId);
-  console.log('an', an);
-
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
+
+  console.log('workflowListDataQuery', workflowListDataQuery);
 
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;

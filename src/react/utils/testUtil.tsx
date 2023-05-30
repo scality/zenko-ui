@@ -355,8 +355,10 @@ export function renderWithRouterMatch(
   // path /workflow/:workflowid
   // route /workflow/0d55a1d7-349c-4e79-932b-b502bcc45a8f
   { path = '/', route = '/' } = {},
+  testState?: unknown,
 ) {
   const history = createMemoryHistory({ initialEntries: [route] });
+  const store = realStoreWithInitState(testState);
   const role = {
     roleArn: TEST_ROLE_ARN,
   };
@@ -365,10 +367,9 @@ export function renderWithRouterMatch(
     ...render(
       <QueryClientProvider client={new QueryClient()}>
         <ThemeProvider theme={theme}>
-          <Router history={history}>
-            <Route
-              path={path}
-              component={
+          <Provider store={store}>
+            <Router history={history}>
+              <Route path={path}>
                 <_ConfigContext.Provider value={zenkoUITestConfig}>
                   <_AuthContext.Provider
                     value={{
@@ -409,9 +410,9 @@ export function renderWithRouterMatch(
                     </_DataServiceRoleContext.Provider>
                   </_AuthContext.Provider>
                 </_ConfigContext.Provider>
-              }
-            />
-          </Router>
+              </Route>
+            </Router>
+          </Provider>
         </ThemeProvider>
       </QueryClientProvider>,
     ),
