@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import {
   getRoleArnStored,

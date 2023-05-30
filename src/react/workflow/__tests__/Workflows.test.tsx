@@ -1,8 +1,3 @@
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-}));
-
 import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -26,7 +21,6 @@ import {
 import { List } from 'immutable';
 import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
 import { debug } from 'jest-preview';
-import { createMemoryHistory } from 'history';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'test-account';
@@ -104,15 +98,24 @@ describe('Workflows', () => {
       }),
     ).toBeInTheDocument();
   });
-  it.only('should display the generated name for transition applying to the noncurrent version', async () => {
-    renderWithRouterMatch(<Workflows />, {
-      path: '/accounts/:accountName/workflows/:workflowId?',
-      route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
-    });
+  it('should display the generated name for transition applying to the noncurrent version', async () => {
+    renderWithRouterMatch(
+      <Workflows />,
+      {
+        path: '/accounts/:accountName/workflows/:workflowId?',
+        route: `/accounts/${TEST_ACCOUNT}/workflows/transition-${TRANSITION_WORKFLOW_PREVIOUS_ID}`,
+      },
+      {
+        instances: {
+          selectedId: INSTANCE_ID,
+        },
+      },
+    );
 
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
+    debug();
     //V
     expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
     expect(
@@ -129,6 +132,7 @@ describe('Workflows', () => {
       }),
     ).toBeChecked();
   });
+
   it('should display error if there is no buckets created', async () => {
     server.use(mockBucketListing([]));
 

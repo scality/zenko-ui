@@ -117,7 +117,6 @@ export default function Workflows() {
     workflowId?: string;
   }>();
   const workflowId = params?.workflowId;
-  console.log('workflowId', workflowId, params);
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const { accounts } = useAccounts();
@@ -126,8 +125,6 @@ export default function Workflows() {
   const { search } = useLocation();
 
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
-
-  console.log('workflowListDataQuery', workflowListDataQuery);
 
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;
