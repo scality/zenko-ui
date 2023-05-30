@@ -17,7 +17,6 @@ import {
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
-import { debug } from 'jest-preview';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'test-account';
@@ -103,7 +102,6 @@ describe('Workflows', () => {
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.getByText(/workflow description/i));
 
-    debug();
     //V
     expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
     expect(
