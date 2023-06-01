@@ -160,6 +160,12 @@ export function listAccountAccessKeys(
       .then((resp) =>
         dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)),
       )
+      .catch((error) => {
+        if (error.statusCode === 404) {
+          return dispatch(listAccountAccessKeySuccess([]));
+        }
+        throw error;
+      })
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));
