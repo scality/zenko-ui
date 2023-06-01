@@ -107,7 +107,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
 
   const { data: assumeRoleResult, status } = useQuery(getQuery(role.roleArn));
 
-  if (status === 'idle') {
+  if (status === 'idle' && role.roleArn) {
     return <Loader>Loading...</Loader>;
   }
 
