@@ -17,9 +17,11 @@ import SecretKeyModal from './SecretKeyModal';
 import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
-import { useQueryClient } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { useRolePathName } from '../../../utils/hooks';
 import { Icon } from '@scality/core-ui';
+import { queries } from '../../../next-architecture/domain/business/accounts';
+import { useAccountsAdapter } from '../../../next-architecture/ui/AccountAdapterProvider';
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,12 +43,24 @@ function AccountInfo({ account }: Props) {
     dispatch(openAccountDeleteDialog());
   };
 
+  const accountsAdapter = useAccountsAdapter();
+  const deleteMutation = useMutation({
+    mutationFn: () => {
+      return dispatch(
+        deleteAccount(account.Name, queryClient, token, rolePathName),
+      );
+    },
+    onSuccess: () => {
+      queryClient.resetQueries(queries.listAccounts(accountsAdapter).queryKey);
+    },
+  });
+
   const handleDeleteApprove = () => {
     if (!account) {
       return;
     }
 
-    dispatch(deleteAccount(account.Name, queryClient, token, rolePathName));
+    deleteMutation.mutate();
   };
 
   const handleDeleteCancel = () => {
