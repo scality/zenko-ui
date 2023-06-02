@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import {
-  getBucketInfo,
   getObjectMetadata,
   listObjects,
   resetObjectMetadata,
@@ -29,7 +28,6 @@ export default function Objects() {
     (state: AppState) => state.s3.listObjectsResults.list,
   );
   const listType = useSelector((state: AppState) => state.s3.listObjectsType);
-  const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const isUploading = useSelector((state: AppState) =>
     state.networkActivity.messages.includes(UPLOADING_OBJECT),
   );
@@ -77,9 +75,7 @@ export default function Objects() {
       ).finally(() => setLoaded(true));
     }
   }, [bucketNameParam, prefixWithSlash, dispatch, isShowVersions, searchInput]);
-  useEffect(() => {
-    dispatch(getBucketInfo(bucketNameParam));
-  }, [dispatch, bucketNameParam]);
+
   // NOTE: If only one unique object (not folder) is selected, we show its metadata.
   //       Otherwise, we clear object metadata.
   useEffect(() => {
@@ -107,7 +103,7 @@ export default function Objects() {
     }
   }, [dispatch, bucketNameParam, toggled, loaded]);
 
-  if (!loaded || !bucketInfo) {
+  if (!loaded) {
     return (
       <AppContainer.OverallSummary>
         <ObjectHead />
@@ -136,7 +132,6 @@ export default function Objects() {
       </AppContainer.OverallSummary>
       {/* MODALS */}
       <ObjectDelete
-        bucketInfo={bucketInfo}
         bucketName={bucketNameParam}
         toggled={toggled}
         prefixWithSlash={prefixWithSlash}
@@ -152,7 +147,6 @@ export default function Objects() {
           leftPanel={{
             children: (
               <ObjectList
-                bucketInfo={bucketInfo}
                 toggled={toggled}
                 objects={objects}
                 bucketName={bucketNameParam}

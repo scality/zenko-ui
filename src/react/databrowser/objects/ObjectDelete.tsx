@@ -17,7 +17,7 @@ import { Banner, Stack, Wrap } from '@scality/core-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
-import type { BucketInfo, ObjectEntity } from '../../../types/s3';
+import type { ObjectEntity } from '../../../types/s3';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import type { DispatchAPI } from 'redux';
 import { List } from 'immutable';
@@ -28,6 +28,7 @@ import { useTheme } from 'styled-components';
 import styled from 'styled-components';
 import Input from '../../ui-elements/Input';
 import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
+import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
 
 const Files = styled.div`
   height: 15.63rem;
@@ -94,7 +95,6 @@ type Props = {
   toggled: List<ObjectEntity>;
   prefixWithSlash: string;
   bucketName: string;
-  bucketInfo: BucketInfo;
 };
 
 const ConfirmationContext = createContext<{
@@ -294,12 +294,7 @@ export const getMessagesAndRequiredActions = ({
   };
 };
 
-const ObjectDelete = ({
-  bucketName,
-  toggled,
-  prefixWithSlash,
-  bucketInfo,
-}: Props) => {
+const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showObjectDelete,
   );
@@ -312,10 +307,16 @@ const ObjectDelete = ({
   const [confirmed, setConfirmed] = useState(false);
   const provided = useMemo(() => ({ confirmed, setConfirmed }), [confirmed]);
   const theme = useTheme();
+
+  const { versionning } = useBucketVersionning({ bucketName });
+
+  const isBucketVersioned =
+    versionning.status === 'success' && versionning.value === 'Enabled';
+
   const [isCheckboxToggled, setIsCheckboxToggled] = useState(false);
   const isCurrentSelectionPermanentlyDeleted = isPermanentDelete(
     toggledFiles,
-    bucketInfo.isVersioning,
+    isBucketVersioned,
   );
 
   const getProtectedDeletionMessage = (s3Object: ObjectEntity) => {
@@ -382,7 +383,7 @@ const ObjectDelete = ({
   } = getMessagesAndRequiredActions({
     numberOfObjects: toggled.size,
     selectedObjectsAreSpecificVersions: isCurrentSelectionPermanentlyDeleted,
-    isBucketVersioned: bucketInfo.isVersioning,
+    isBucketVersioned: isBucketVersioned,
     objectsLockedInComplianceModeLength,
     objectsLockedInGovernanceModeLength,
     objectsLockedInLegalHoldLength,
@@ -469,7 +470,7 @@ const ObjectDelete = ({
       isOpen={true}
       title="Confirmation"
     >
-      <div> {title(toggledFiles, bucketInfo.isVersioning)} </div>
+      <div> {title(toggledFiles, isBucketVersioned)} </div>
       <Files>
         <Table>
           <T.Body>

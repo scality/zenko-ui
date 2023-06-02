@@ -1,9 +1,5 @@
 import * as T from '../../ui-elements/Table';
-import type {
-  BucketInfo,
-  ListObjectsType,
-  ObjectEntity,
-} from '../../../types/s3';
+import type { ListObjectsType, ObjectEntity } from '../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import { isVersioningDisabled, maybePluralize } from '../../utils';
 import {
@@ -22,13 +18,13 @@ import { push } from 'connected-react-router';
 import { useQueryParams } from '../../utils/hooks';
 import { useLocation } from 'react-router';
 import { Box } from '@scality/core-ui/dist/next';
+import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
 type Props = {
   objects: List<ObjectEntity>;
   bucketName: string;
   prefixWithSlash: string;
   toggled: List<ObjectEntity>;
   listType: ListObjectsType;
-  bucketInfo: BucketInfo;
 };
 export default function ObjectList({
   objects,
@@ -36,19 +32,21 @@ export default function ObjectList({
   prefixWithSlash,
   toggled,
   listType,
-  bucketInfo,
 }: Props) {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const query = useQueryParams();
   const searchInput = query.get('metadatasearch');
 
+  const { versionning } = useBucketVersionning({ bucketName });
+
+  const isBucketVersioned =
+    versionning.status === 'success' && versionning.value === 'Enabled';
+
   const errorZenkoMsg = useSelector(
     (state: AppState) => state.zenko.error.message,
   );
-  const isBucketVersioningDisabled = isVersioningDisabled(
-    bucketInfo.versioning,
-  );
+  const isBucketVersioningDisabled = isVersioningDisabled(isBucketVersioned);
 
   const isMetadataType = !!searchInput;
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
