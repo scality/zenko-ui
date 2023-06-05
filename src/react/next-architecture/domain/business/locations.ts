@@ -240,9 +240,18 @@ export const useListLocationsForCurrentAccount = ({
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
   accountLocationsKey.forEach((locationId) => {
-    const accountLocation = allLocationsValue.find((l) => l.id === locationId);
-    if (accountLocation) {
-      locations[locationId] = accountLocation;
+    const locationDefinition = allLocationsValue.find(
+      (l) => l.id === locationId,
+    );
+
+    if (locationDefinition) {
+      locations[locationId] = {
+        ...locationDefinition,
+        usedCapacity: {
+          status: 'success',
+          value: accountLocationData[locationId],
+        },
+      };
     }
   });
 
