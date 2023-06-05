@@ -1,11 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react';
-import { useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
-import {
-  getRoleArnStored,
-  removeRoleArnStored,
-  setRoleArnStored,
-} from './utils/localStorage';
+import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 import { useMutation, useQuery } from 'react-query';
 import {
   S3ClientProvider,
@@ -44,9 +40,10 @@ export const useSetAssumedRole = () => {
 };
 
 export const useCurrentAccount = () => {
-  const { accountName } = useParams<{
+  const match = useRouteMatch<{
     accountName: string;
-  }>();
+  }>('/accounts/:accountName');
+  const accountName = match?.params.accountName;
   const { roleArn } = useDataServiceRole();
   const accountId = roleArn
     ? regexArn.exec(roleArn)?.groups?.['account_id']
@@ -70,13 +67,21 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
     roleArn: '',
   });
-
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
+  const match = useRouteMatch<{
+    accountName: string;
+  }>('/accounts/:accountName');
+  const accountName = match?.params.accountName;
 
   // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {
     const storedRole = getRoleArnStored();
-    if (!role.roleArn && storedRole && accounts.length) {
+    if (accountName) {
+      const account = accounts.find((account) => account.Name === accountName);
+      if (account) {
+        setRoleState({ roleArn: account?.Roles[0].Arn });
+      }
+    } else if (!role.roleArn && storedRole && accounts.length) {
       const isStoredArnValide = accounts.find((account) => {
         return account.Roles.find((r) => {
           return r.Arn === storedRole;
