@@ -1,15 +1,7 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { AWSError, S3, STS } from 'aws-sdk';
-import { useQuery } from 'react-query';
 import STSClient from '../../../js/STSClient';
 import { useConfig } from './ConfigProvider';
-import { useDataServiceRole } from '../../DataServiceRoleProvider';
 import { useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import ZenkoClient from '../../../js/ZenkoClient';

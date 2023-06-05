@@ -43,7 +43,7 @@ export const useCurrentAccount = () => {
   const match = useRouteMatch<{
     accountName: string;
   }>('/accounts/:accountName');
-  const accountName = match?.params.accountName;
+  const accountName = match?.params?.accountName;
   const { roleArn } = useDataServiceRole();
   const accountId = roleArn
     ? regexArn.exec(roleArn)?.groups?.['account_id']

@@ -1,7 +1,7 @@
 import * as T from '../../ui-elements/Table';
 import type { ListObjectsType, ObjectEntity } from '../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
-import { isVersioningDisabled, maybePluralize } from '../../utils';
+import { maybePluralize } from '../../utils';
 import {
   openFolderCreateModal,
   openObjectDeleteModal,
@@ -41,12 +41,12 @@ export default function ObjectList({
   const { versionning } = useBucketVersionning({ bucketName });
 
   const isBucketVersioned =
-    versionning.status === 'success' && versionning.value === 'Enabled';
+    versionning.status === 'success' &&
+    (versionning.value === 'Enabled' || versionning.value === 'Suspended');
 
   const errorZenkoMsg = useSelector(
     (state: AppState) => state.zenko.error.message,
   );
-  const isBucketVersioningDisabled = isVersioningDisabled(isBucketVersioned);
 
   const isMetadataType = !!searchInput;
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
@@ -106,7 +106,7 @@ export default function ObjectList({
           />
           <Toggle
             id="list-versions-toggle"
-            disabled={isMetadataType || isBucketVersioningDisabled}
+            disabled={isMetadataType || !isBucketVersioned}
             toggle={isVersioningType}
             label="List Versions"
             onChange={() => {

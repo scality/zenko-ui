@@ -1,6 +1,6 @@
+import * as hooks from '../../../next-architecture/domain/business/buckets';
 import * as s3object from '../../../actions/s3object';
 import {
-  BUCKET_INFO,
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
@@ -10,6 +10,7 @@ import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import { List } from 'immutable';
 import ObjectList from '../ObjectList';
 import router from 'react-router';
+import { waitFor } from '@testing-library/react';
 describe('ObjectList', () => {
   beforeAll(() => {
     jest.spyOn(router, 'useLocation').mockReturnValue({
@@ -26,7 +27,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     expect(component.find('Row')).toHaveLength(0);
@@ -38,7 +38,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     const rows = component.find('Row');
@@ -60,7 +59,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     component.find('button#object-list-upload-button').simulate('click');
@@ -77,7 +75,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     component.find('button#object-list-create-folder-button').simulate('click');
@@ -90,7 +87,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     expect(
@@ -108,7 +104,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List([FIRST_FORMATTED_OBJECT])}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     const deleteButton = component.find('button#object-list-delete-button');
@@ -124,7 +119,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     checkBox(component, 'objectsHeaderCheckbox', true);
@@ -137,7 +131,6 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         toggled={List()}
-        bucketInfo={BUCKET_INFO}
       />,
     );
     const rows = component.find('Row');
@@ -156,12 +149,10 @@ describe('ObjectList', () => {
       );
     });
   });
-  it('should enable versioning toggle if versioning enabled', () => {
-    const bucketInfo = {
-      ...BUCKET_INFO,
-      isVersioning: true,
-      versioning: 'Enabled',
-    };
+  it('should enable versioning toggle if versioning enabled', async () => {
+    jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
+      versionning: { status: 'success', value: 'Enabled' },
+    });
     const { component } = reduxMount(
       <ObjectList
         objects={List([FIRST_FORMATTED_OBJECT])}
@@ -169,18 +160,17 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         listType={LIST_OBJECTS_S3_TYPE}
-        bucketInfo={bucketInfo}
       />,
     );
-    const toggle = component.find('ToggleSwitch#list-versions-toggle');
-    expect(toggle.prop('disabled')).toBe(false);
+    await waitFor(() => {
+      const toggle = component.find('ToggleSwitch#list-versions-toggle');
+      expect(toggle.prop('disabled')).toBe(false);
+    });
   });
-  it('should enable versioning toggle if versioning suspended', () => {
-    const bucketInfo = {
-      ...BUCKET_INFO,
-      isVersioning: false,
-      versioning: 'Suspended',
-    };
+  it('should enable versioning toggle if versioning suspended', async () => {
+    jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
+      versionning: { status: 'success', value: 'Suspended' },
+    });
     const { component } = reduxMount(
       <ObjectList
         objects={List([FIRST_FORMATTED_OBJECT])}
@@ -188,13 +178,17 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         listType={LIST_OBJECTS_S3_TYPE}
-        bucketInfo={bucketInfo}
       />,
     );
-    const toggle = component.find('ToggleSwitch#list-versions-toggle');
-    expect(toggle.prop('disabled')).toBe(false);
+    await waitFor(() => {
+      const toggle = component.find('ToggleSwitch#list-versions-toggle');
+      expect(toggle.prop('disabled')).toBe(false);
+    });
   });
-  it('should disable versioning toggle if bucket versioning disabled', () => {
+  it('should disable versioning toggle if bucket versioning disabled', async () => {
+    jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
+      versionning: { status: 'success', value: 'Disabled' },
+    });
     const { component } = reduxMount(
       <ObjectList
         objects={List([FIRST_FORMATTED_OBJECT])}
@@ -202,10 +196,12 @@ describe('ObjectList', () => {
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
         listType={LIST_OBJECTS_S3_TYPE}
-        bucketInfo={BUCKET_INFO}
       />,
     );
-    const toggle = component.find('ToggleSwitch#list-versions-toggle');
-    expect(toggle.prop('disabled')).toBe(true);
+    await waitFor(() => {
+      component.update();
+      const toggle = component.find('ToggleSwitch#list-versions-toggle');
+      expect(toggle.prop('disabled')).toBe(true);
+    });
   });
 });
