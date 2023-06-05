@@ -16,6 +16,8 @@ import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
 import { AppContainer, Icon } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
+import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
+import Loader from '../ui-elements/Loader';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
@@ -32,6 +34,12 @@ export default function DataBrowser() {
   const query = useQueryParams();
   const prefixPath = query.get('prefix');
   const { path } = useRouteMatch();
+
+  const s3Client = useS3Client();
+
+  if (!s3Client.config.credentials?.accessKeyId) {
+    return <Loader>Authenticating...</Loader>;
+  }
 
   // NOTE: create-bucket page has its own way to manage "byComponent" errors.
   if (hasError) {

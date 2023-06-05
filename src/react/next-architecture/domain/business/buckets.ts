@@ -45,7 +45,7 @@ export const queries = {
       s3Client
         .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
         .promise(),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketDefaultRetention: (s3Client: S3, bucketName?: string) => ({
@@ -64,7 +64,7 @@ export const queries = {
           }
           throw err;
         }),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
@@ -73,7 +73,7 @@ export const queries = {
       s3Client
         .getBucketLocation({ Bucket: notFalsyTypeGuard(bucketName) })
         .promise(),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketMetrics: (

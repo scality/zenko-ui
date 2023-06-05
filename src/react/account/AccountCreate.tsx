@@ -137,8 +137,7 @@ function AccountCreate() {
             <Input
               type="text"
               id="name"
-              {...register('name')}
-              onChange={clearServerError}
+              {...register('name', { onChange: clearServerError })}
               autoFocus
               autoComplete="off"
             />
@@ -155,8 +154,7 @@ function AccountCreate() {
             <Input
               type="email"
               id="email"
-              {...register('email')}
-              onChange={clearServerError}
+              {...register('email', { onChange: clearServerError })}
             />
           }
         />
