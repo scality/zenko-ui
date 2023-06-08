@@ -132,7 +132,7 @@ const CreateWorkflow = () => {
     locationInfos.value.location?.isTransient;
 
   const useFormMethods = useForm({
-    mode: 'onTouched',
+    mode: 'onChange',
     resolver: async (values, context, options) => {
       const bucketName = values.replication.sourceBucket;
       const streams = replicationsQuery.data ?? [];
