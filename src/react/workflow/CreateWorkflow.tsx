@@ -348,8 +348,6 @@ const CreateWorkflow = () => {
     }
   };
 
-  console.log(' state', useFormMethods.formState);
-
   return (
     <FormProvider {...useFormMethods}>
       <Form
