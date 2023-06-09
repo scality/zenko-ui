@@ -1,14 +1,31 @@
+import { AWSError, S3 } from 'aws-sdk';
+import {
+  AccessKeyMetadata,
+  Group,
+  ListAccessKeysResponse,
+  ListEntitiesForPolicyResponse,
+  ListGroupsForUserResponse,
+  ListGroupsResponse,
+  ListPoliciesResponse,
+  ListRolesResponse,
+  ListUsersResponse,
+  Policy,
+  Role,
+  User,
+} from 'aws-sdk/clients/iam';
+import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
+import { InfiniteData } from 'react-query';
+import IAMClient from '../js/IAMClient';
 import { UiFacingApi } from '../js/managementClient/api';
+import { getAccountSeeds } from '../js/vault';
 import { notFalsyTypeGuard } from '../types/typeGuards';
-import { APIWorkflows, Workflows, Workflow } from '../types/workflow';
+import { APIWorkflows, Workflow, Workflows } from '../types/workflow';
+import { AWS_PAGINATED_QUERY } from './utils/IAMhooks';
 import {
   generateExpirationName,
   generateStreamName,
   generateTransitionName,
 } from './workflow/utils';
-import IAMClient from '../js/IAMClient';
-import { QueryFunctionContext } from 'react-query';
-import { getAccountSeeds } from '../js/vault';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -19,7 +36,7 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
         const r = w.replication;
         return {
           id: `replication-${r.streamId}`,
-          type: 'replication',
+          type: 'replication' as const,
           name: generateStreamName(r),
           // Until name get saved on the backend side.
           state: r.enabled,
@@ -29,7 +46,7 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
         const r = w.expiration;
         return {
           id: `expiration-${r.workflowId}`,
-          type: 'expiration',
+          type: 'expiration' as const,
           name: generateExpirationName(r),
           state: r.enabled,
           workflowId: r.workflowId,
@@ -38,10 +55,10 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
         const r = w.transition;
         return {
           id: `transition-${r.workflowId}`,
-          type: 'transition',
+          type: 'transition' as const,
           name: generateTransitionName(r),
           state: r.enabled,
-          workflowId: r.workflowId,
+          workflowId: r.workflowId || '',
         };
       }
     });
@@ -78,11 +95,14 @@ export const workflowListQuery = (
 
 export const getUserAccessKeysQuery = (
   userName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<
+  ListAccessKeysResponse,
+  AccessKeyMetadata,
+  AWSError
+> => ({
   queryKey: ['listIAMUserAccessKey', userName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listAccessKeys(userName, marker),
+  queryFn: (_ctx, marker) => IAMClient.listAccessKeys(userName, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -90,11 +110,11 @@ export const getUserAccessKeysQuery = (
 
 export const getUserListGroupsQuery = (
   userName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListGroupsForUserResponse, Group, AWSError> => ({
   queryKey: ['listIAMUserGroups', userName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) => {
-    return IAMClient.listGroupsForUser(userName, 1000, marker);
+  queryFn: (_ctx, marker) => {
+    return IAMClient.listGroupsForUser(userName, 1000, marker?.Marker);
   },
   staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
@@ -104,11 +124,10 @@ export const getUserListGroupsQuery = (
 
 export const getListUsersQuery = (
   accountName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListUsersResponse, User, AWSError> => ({
   queryKey: ['listIAMUsers', accountName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listUsers(1000, marker),
+  queryFn: (_ctx, marker) => IAMClient.listUsers(1000, marker?.Marker),
   staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
@@ -117,11 +136,10 @@ export const getListUsersQuery = (
 
 export const getListPoliciesQuery = (
   accountName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListPoliciesResponse, Policy, AWSError> => ({
   queryKey: ['listPolicies', accountName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listPolicies(1000, marker),
+  queryFn: (_ctx, marker) => IAMClient.listPolicies(1000, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -129,11 +147,11 @@ export const getListPoliciesQuery = (
 
 export const getListEntitiesForPolicyQuery = (
   policyArn: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListEntitiesForPolicyResponse, unknown, AWSError> => ({
   queryKey: ['listEntitiesForPolicy', policyArn],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listEntitiesForPolicy(policyArn, 1000, marker),
+  queryFn: (_ctx, marker) =>
+    IAMClient.listEntitiesForPolicy(policyArn, 1000, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
@@ -141,11 +159,10 @@ export const getListEntitiesForPolicyQuery = (
 
 export const getListGroupsQuery = (
   accountName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListGroupsResponse, Group, AWSError> => ({
   queryKey: ['listGroups', accountName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listGroups(1000, marker),
+  queryFn: (_ctx, marker) => IAMClient.listGroups(1000, marker?.Marker),
   staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
@@ -154,11 +171,10 @@ export const getListGroupsQuery = (
 
 export const getListRolesQuery = (
   accountName: string,
-  IAMClient?: IAMClient | null,
-) => ({
+  IAMClient: IAMClient,
+): AWS_PAGINATED_QUERY<ListRolesResponse, Role, AWSError> => ({
   queryKey: ['listRoles', accountName],
-  queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
-    IAMClient.listRoles(1000, marker),
+  queryFn: (_ctx, marker) => IAMClient.listRoles(1000, marker?.Marker),
   staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
@@ -168,7 +184,7 @@ export const getListRolesQuery = (
 export const getListAttachedUserPoliciesQuery = (
   userName: string,
   accountName: string,
-  IAMClient?: IAMClient | null,
+  IAMClient: IAMClient,
 ) => ({
   queryKey: ['listAttachedUserPolicies', userName, accountName],
   queryFn: () => IAMClient.listAttachedUserPolicies(userName),
@@ -191,7 +207,7 @@ export const getPolicyQuery = (
 
 export const getListPolicyVersionsQuery = (
   policyArn: string,
-  IAMClient?: IAMClient | null,
+  IAMClient: IAMClient,
 ) => {
   return {
     queryKey: ['listPolicyVersions', policyArn],
@@ -205,4 +221,58 @@ export const getListPolicyVersionsQuery = (
 export const getAccountSeedsQuery = () => ({
   queryKey: ['AccountSeeds'],
   queryFn: getAccountSeeds,
+});
+
+interface GetObjectVersionProps {
+  bucketName: string;
+  s3Client: S3;
+  enabled?: boolean;
+  isInfinite?: boolean;
+  maxKeys?: number;
+  queryKey?: unknown[];
+}
+
+export const getObjectsVersions = ({
+  bucketName,
+  s3Client,
+  enabled = true,
+  isInfinite = false,
+  maxKeys = 1000,
+  queryKey = ['objectVersions', bucketName],
+}: GetObjectVersionProps): AWS_PAGINATED_QUERY<
+  ListObjectVersionsOutput,
+  S3.ObjectIdentifier,
+  AWSError,
+  ListObjectVersionsOutput
+> => ({
+  queryKey,
+  queryFn: (_, marker) =>
+    s3Client
+      .listObjectVersions({
+        Bucket: bucketName,
+        KeyMarker: marker?.NextKeyMarker,
+        VersionIdMarker: marker?.NextVersionIdMarker,
+        MaxKeys: maxKeys,
+      })
+      .promise(),
+  enabled,
+  select: (data) => {
+    if (isInfinite) {
+      const infiniteData = data as InfiniteData<ListObjectVersionsOutput>;
+      const pages = infiniteData.pages?.flatMap((d) => d);
+
+      return {
+        pages,
+        pageParams: infiniteData.pageParams,
+      } as ListObjectVersionsOutput;
+    }
+    return data;
+  },
+  getNextPageParam: ({ IsTruncated, NextKeyMarker, NextVersionIdMarker }) =>
+    IsTruncated
+      ? {
+          NextKeyMarker,
+          NextVersionIdMarker,
+        }
+      : undefined,
 });

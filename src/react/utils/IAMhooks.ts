@@ -1,14 +1,15 @@
-import { useState, useMemo, useEffect } from 'react';
-import { useInfiniteQuery } from 'react-query';
+import { DateTime } from 'luxon';
+import { useEffect, useMemo, useState } from 'react';
 import type {
-  QueryObserverOptions,
   QueryFunctionContext,
   QueryObserverIdleResult,
   QueryObserverLoadingErrorResult,
   QueryObserverLoadingResult,
+  QueryObserverOptions,
   QueryObserverSuccessResult,
+  UseInfiniteQueryOptions,
 } from 'react-query';
-import { DateTime } from 'luxon';
+import { useInfiniteQuery } from 'react-query';
 
 export type AWS_PAGINATED_ENTITIES<ENTITY> =
   | (QueryObserverIdleResult<ENTITY[]> & { firstPageStatus: 'idle' }) //idle
@@ -21,35 +22,47 @@ export type AWS_PAGINATED_ENTITIES<ENTITY> =
       firstPageStatus: 'success';
     }) //loading, data
   | (QueryObserverSuccessResult<ENTITY[]> & { firstPageStatus: 'success' }); // success, data
+
 export type AWS_PAGINATED_QUERY<
-  API_RESPONSE extends {
-    Marker?: string;
-  },
+  API_RESPONSE extends MARKER_TYPE,
   ENTITY,
   TError = unknown,
+  MARKER_TYPE = { Marker?: string } | undefined,
 > = {
   queryFn: (
     context: QueryFunctionContext,
-    marker?: string,
+    marker?: MARKER_TYPE,
   ) => Promise<API_RESPONSE>;
   onUnmountOrSettled?: (
     data: ENTITY[] | undefined,
-    error: TError | null | { message: 'Unmounted' },
+    error: TError | null | { message: string } | unknown,
   ) => void;
   onPageSuccess?: (data: ENTITY[]) => void;
+  getNextPageParam?: (lastPage: API_RESPONSE) => MARKER_TYPE | undefined;
 } & Omit<QueryObserverOptions<API_RESPONSE, TError>, 'queryFn'>;
 
 export const useAwsPaginatedEntities = <
-  API_RESPONSE extends {
-    Marker?: string;
-  },
+  API_RESPONSE extends MARKER_TYPE,
   ENTITY,
   TError = unknown,
+  MARKER_TYPE = { Marker?: string } | undefined,
 >(
-  reactQueryOptions: AWS_PAGINATED_QUERY<API_RESPONSE, ENTITY, TError>,
+  reactQueryOptions: AWS_PAGINATED_QUERY<
+    API_RESPONSE,
+    ENTITY,
+    TError,
+    MARKER_TYPE
+  >,
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
   preventNextPagesRetrieval = false,
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
+  if (!reactQueryOptions.getNextPageParam) {
+    reactQueryOptions.getNextPageParam = (lastPage: MARKER_TYPE) =>
+      ((lastPage as { Marker?: string }).Marker
+        ? { Marker: (lastPage as { Marker?: string }).Marker }
+        : undefined) as MARKER_TYPE;
+  }
+
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle');
@@ -75,12 +88,14 @@ export const useAwsPaginatedEntities = <
     fetchNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    ...reactQueryOptions,
-    queryKey: [...reactQueryOptions.queryKey],
+    ...(reactQueryOptions as UseInfiniteQueryOptions<
+      API_RESPONSE,
+      TError,
+      API_RESPONSE
+    >),
     queryFn: (ctx) => {
-      return reactQueryOptions.queryFn(ctx, ctx.pageParam);
+      return reactQueryOptions?.queryFn(ctx, ctx.pageParam);
     },
-    getNextPageParam: (lastPage) => lastPage.Marker,
   });
   const pageIndex = data?.pageParams?.length || 0;
   const entities =
@@ -115,7 +130,7 @@ export const useAwsPaginatedEntities = <
         reactQueryOptions.onUnmountOrSettled(entities, null);
       }
       setFirstPageStatus('success'); //ensure firstPageStatus is success when loading data from the cache
-    } else {
+    } else if (!isFetchingNextPage) {
       if (reactQueryOptions.onPageSuccess) {
         reactQueryOptions.onPageSuccess(entities || []);
       }
@@ -147,7 +162,7 @@ export const useAccessKeyOutdatedStatus = (
   const createdDate = DateTime.fromISO(accessKeyObject.createdOn);
   const currentDate = DateTime.now();
   const diffInDays = currentDate.diff(createdDate, 'days');
-  const days = Math.floor(diffInDays.toObject().days);
+  const days = Math.floor(diffInDays.toObject().days || 0);
 
   if (days > OUTDATED_DAYS) {
     return outDatedAccessMsg;
