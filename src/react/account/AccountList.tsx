@@ -6,7 +6,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { formatSimpleDate } from '../utils';
-import { Icon, Link } from '@scality/core-ui';
+import { ConstrainedText, Icon, Link } from '@scality/core-ui';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
@@ -33,15 +33,20 @@ function AccountList({ accounts }: { accounts: Account[] }) {
     }
 
     return (
-      <Link
-        href="#"
-        onClick={() => {
-          setRole({ roleArn: row.original.preferredAssumableRoleArn });
-          dispatch(push(`/accounts/${value}`));
-        }}
-      >
-        {value}
-      </Link>
+      <ConstrainedText
+        text={
+          <Link
+            href="#"
+            onClick={() => {
+              setRole({ roleArn: row.original.preferredAssumableRoleArn });
+              dispatch(push(`/accounts/${value}`));
+            }}
+          >
+            {value}
+          </Link>
+        }
+        lineClamp={2}
+      />
     );
   };
 

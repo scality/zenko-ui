@@ -4,7 +4,7 @@ import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
-import { Icon, Tooltip } from '@scality/core-ui';
+import { ConstrainedText, Icon, Tooltip } from '@scality/core-ui';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery } from 'react-query';
 import { queryClient } from '../App';
@@ -276,23 +276,33 @@ const DeletePolicyAction = ({
 const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
   const { policyPath, policyName } = rowValues;
   const isInternalPolicy = policyPath.includes('scality-internal');
+  const styleProps = { style: { marginLeft: spacing.sp16 } };
   return (
     <>
       {isInternalPolicy && (
-        <Tooltip
-          overlay={'This is a predefined Scality Policy'}
-          overlayStyle={{ width: '13rem' }}
-        >
-          {policyName}
-          <Icon
-            name="Info"
-            size="xs"
-            color="buttonSecondary"
-            style={{ marginLeft: spacing.sp16 }}
-          />
-        </Tooltip>
+        <ConstrainedText
+          text={
+            <Tooltip
+              overlay={'This is a predefined Scality Policy'}
+              overlayStyle={{ width: '13rem' }}
+            >
+              {policyName}{' '}
+              <Icon
+                name="Info"
+                size="xs"
+                color="buttonSecondary"
+                {...styleProps}
+              />
+            </Tooltip>
+          }
+          lineClamp={2}
+        />
       )}
-      {!isInternalPolicy && <>{policyName} </>}
+      {!isInternalPolicy && (
+        <>
+          <ConstrainedText text={policyName} lineClamp={2} />
+        </>
+      )}
     </>
   );
 };

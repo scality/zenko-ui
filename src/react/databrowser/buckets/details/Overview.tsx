@@ -1,4 +1,4 @@
-import { Icon, Toggle } from '@scality/core-ui';
+import { ConstrainedText, Icon, Toggle } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { push } from 'connected-react-router';
@@ -129,7 +129,9 @@ function Overview({ bucket, ingestionStates }: Props) {
             <T.GroupContent>
               <T.Row>
                 <T.Key> Name </T.Key>
-                <T.Value>{bucketInfo.name}</T.Value>
+                <T.Value width="15rem">
+                  <ConstrainedText text={bucketInfo.name} lineClamp={2} />
+                </T.Value>
               </T.Row>
               <T.Row>
                 <T.Key> Versioning </T.Key>

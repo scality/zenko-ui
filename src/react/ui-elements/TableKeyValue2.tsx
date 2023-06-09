@@ -129,13 +129,14 @@ export const KeyTooltip = ({
     )}
   </KeyContainer>
 );
-export const Value = styled.div<{ size?: string }>`
+export const Value = styled.div<{ size?: string; width?: string }>`
   flex: ${(props) => props.size || '0.65'};
   flex-direction: column;
   i {
     margin-right: ${spacing.sp8};
   }
   min-width: 0;
+  width: ${(props) => props.width};
 `;
 export const GroupValues = styled.div<{ size?: string }>`
   display: flex;
