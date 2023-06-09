@@ -1,16 +1,21 @@
-import { useHistory } from 'react-router';
-import styled from 'styled-components';
+import { ConstrainedText } from '@scality/core-ui';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { TextTransformer } from '../../../ui-elements/Utility';
-import { useWorkflowsWithSelect } from '../../../workflow/Workflows';
-import { makeWorkflows } from '../../../queries';
-import { APIWorkflows } from '../../../../types/workflow';
-import { NameLinkContaner } from '../../../ui-elements/NameLink';
+import { useHistory } from 'react-router';
+import { CellProps, CoreUIColumn } from 'react-table';
+import styled from 'styled-components';
+import {
+  APIWorkflows,
+  Workflow as WorflowType,
+} from '../../../../types/workflow';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
+import { makeWorkflows } from '../../../queries';
+import { NameLinkContaner } from '../../../ui-elements/NameLink';
 import { WorkflowTypeIcon } from '../../../workflow/WorkflowList';
+import { useWorkflowsWithSelect } from '../../../workflow/Workflows';
+import { PropsWithChildren } from 'react';
 
 const TableAction = styled.div`
   display: flex;
@@ -25,25 +30,35 @@ function Workflow({ bucketName }: { bucketName: string }) {
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
   const { data, status } = useWorkflowsWithSelect(select, [bucketName]);
 
-  const nameCell = (value) => {
+  const nameCell = (
+    value: PropsWithChildren<CellProps<WorflowType, string>>,
+  ) => {
     const id = value.row.original.id;
     const workflowName = value.value;
     return (
-      <NameLinkContaner
-        onClick={() => history.push(`/accounts/${accountName}/workflows/${id}`)}
-      >
-        {workflowName}
-      </NameLinkContaner>
+      <ConstrainedText
+        text={
+          <NameLinkContaner
+            onClick={() =>
+              history.push(`/accounts/${accountName}/workflows/${id}`)
+            }
+          >
+            {workflowName}
+          </NameLinkContaner>
+        }
+        lineClamp={2}
+      />
     );
   };
-  const columns = [
+  const columns: CoreUIColumn<WorflowType>[] = [
     {
       Header: 'Workflow Description',
       accessor: 'name',
       cellStyle: {
         flex: 2,
       },
-      Cell: (value) => nameCell(value),
+      Cell: (value: PropsWithChildren<CellProps<WorflowType, string>>) =>
+        nameCell(value),
       width: 0,
     },
     {
@@ -62,9 +77,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
         flex: 1,
         textAlign: 'right',
       },
-      Cell: ({ value }) => {
-        return value ? 'Active' : 'Inactive';
-      },
+      Cell: ({ value }: { value: boolean }) => (value ? 'Active' : 'Inactive'),
       width: 0,
     },
   ];

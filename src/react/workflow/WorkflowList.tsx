@@ -8,7 +8,8 @@ import { Button } from '@scality/core-ui/dist/next';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { useTheme } from 'styled-components';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { Row } from 'react-table';
+import { CoreUIColumn, Row } from 'react-table';
+import { ConstrainedText } from '@scality/core-ui';
 
 const SEARCH_QUERY_PARAM = 'search';
 export function WorkflowTypeIcon({ value: type }: { value: string }) {
@@ -37,7 +38,12 @@ function WorkflowList({ workflows, workflowId }: Props) {
   const theme = useTheme();
 
   function DataComponent({ row }: { row: Row<Workflow> }) {
-    return <span> {`${row.values.name}`} </span>;
+    return (
+      <ConstrainedText
+        text={<span> {`${row.values.name}`} </span>}
+        lineClamp={2}
+      />
+    );
   }
 
   function RowAsync({ row }: { row: Row<Workflow> }) {
@@ -53,7 +59,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
     return row.id;
   };
 
-  const columns = [
+  const columns: CoreUIColumn<Workflow>[] = [
     {
       Header: 'Workflow Description',
       accessor: 'name',

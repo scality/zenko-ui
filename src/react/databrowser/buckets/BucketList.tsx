@@ -1,27 +1,26 @@
-import type { LocationName, Locations } from '../../../types/config';
+import { ConstrainedText, Icon, Link, spacing } from '@scality/core-ui';
+import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Box, Table } from '@scality/core-ui/dist/next';
+import { push } from 'connected-react-router';
 import { useMemo } from 'react';
+import { useDispatch } from 'react-redux';
+import { useHistory, useParams } from 'react-router';
+import { CoreUIColumn } from 'react-table';
+import { XDM_FEATURE } from '../../../js/config';
+import type { LocationName, Locations } from '../../../types/config';
+import type { WorkflowScheduleUnitState } from '../../../types/stats';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
+import { Bucket } from '../../next-architecture/domain/entities/bucket';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
+import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
 import * as T from '../../ui-elements/Table';
 import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
-import { getLocationIngestionState } from '../../utils/storageOptions';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
-import type { WorkflowScheduleUnitState } from '../../../types/stats';
-import { XDM_FEATURE } from '../../../js/config';
-import { useHistory, useParams } from 'react-router';
-import { Icon, Link, spacing } from '@scality/core-ui';
-import { Box, Table } from '@scality/core-ui/dist/next';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
-import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { Bucket } from '../../next-architecture/domain/entities/bucket';
-import { CoreUIColumn } from 'react-table';
-import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
-import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
-import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metrics/LatestUsedCapacity';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
-import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -63,17 +62,22 @@ export default function BucketList({
         Cell({ value: name }: { value: string }) {
           const history = useHistory();
           return (
-            <Link
-              href="#"
-              onClick={(e) => {
-                e.stopPropagation();
-                history.push(
-                  `/accounts/${accountName}/buckets/${name}/objects`,
-                );
-              }}
-            >
-              {name}
-            </Link>
+            <ConstrainedText
+              text={
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    history.push(
+                      `/accounts/${accountName}/buckets/${name}/objects`,
+                    );
+                  }}
+                >
+                  {name}
+                </Link>
+              }
+              lineClamp={2}
+            />
           );
         },
         cellStyle: {

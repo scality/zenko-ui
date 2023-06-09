@@ -20,7 +20,7 @@ import { push } from 'connected-react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
-import { Icon } from '@scality/core-ui';
+import { ConstrainedText, Icon, Stack, Wrap } from '@scality/core-ui';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -64,10 +64,15 @@ function EndpointList({ endpoints, locations }: Props) {
         },
         Cell({ value: hostName }: { value: Hostname }) {
           return (
-            <div style={{ display: 'flex' }}>
-              <span style={{ paddingRight: spacing.sp14 }}>{hostName}</span>
+            <Wrap paddingRight="2rem">
+              <ConstrainedText
+                text={
+                  <span style={{ paddingRight: spacing.sp14 }}>{hostName}</span>
+                }
+                lineClamp={2}
+              />
               <Clipboard text={hostName} />
-            </div>
+            </Wrap>
           );
         },
       },
