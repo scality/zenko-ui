@@ -1,35 +1,29 @@
-import { useEffect, useState } from 'react';
-import Table, * as T from '../../../ui-elements/TableKeyValue2';
-import {
-  closeBucketDeleteDialog,
-  getBucketInfo,
-  openBucketDeleteDialog,
-  toggleBucketVersioning,
-} from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../../types/state';
-import { Button } from '@scality/core-ui/dist/next';
-import { ButtonContainer } from '../../../ui-elements/Container';
-import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import type { BucketInfo } from '../../../../types/s3';
-import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import { Icon, Toggle, Tooltip } from '@scality/core-ui';
-import {
-  getLocationType,
-  getLocationIngestionState,
-} from '../../../utils/storageOptions';
-import { maybePluralize } from '../../../utils';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { useTheme } from 'styled-components';
-import type { WorkflowScheduleUnitState } from '../../../../types/stats';
-import { HelpAsyncNotification } from '../../../ui-elements/Help';
+import { Button } from '@scality/core-ui/dist/next';
 import { push } from 'connected-react-router';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { XDM_FEATURE } from '../../../../js/config';
-import { useWorkflows } from '../../../workflow/Workflows';
+import type { BucketInfo } from '../../../../types/s3';
+import type { AppState } from '../../../../types/state';
+import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
-import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
+import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
-import { useDeleteBucket } from '../../../next-architecture/domain/business/buckets';
+import { ButtonContainer } from '../../../ui-elements/Container';
+import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
+import { EmptyBucket } from '../../../ui-elements/EmptyBucket';
+import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
+import { HelpAsyncNotification } from '../../../ui-elements/Help';
+import { CellLink, TableContainer } from '../../../ui-elements/Table';
+import Table, * as T from '../../../ui-elements/TableKeyValue2';
+import { maybePluralize } from '../../../utils';
+import {
+  getLocationIngestionState,
+  getLocationType,
+} from '../../../utils/storageOptions';
+import { useWorkflows } from '../../../workflow/Workflows';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -57,14 +51,6 @@ function getDefaultBucketRetention(bucketInfo: BucketInfo): string {
   return 'Inactive';
 }
 
-function canDeleteBucket(loading: boolean) {
-  if (loading) {
-    return false;
-  }
-
-  return true;
-}
-
 type Props = {
   bucket: Bucket;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
@@ -87,11 +73,7 @@ const workflowAttachedError = (count: number, bucketName: string) => (
 );
 
 function Overview({ bucket, ingestionStates }: Props) {
-  const theme = useTheme();
   const dispatch = useDispatch();
-  const showDelete = useSelector(
-    (state: AppState) => state.uiBuckets.showDelete,
-  );
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const locations = useSelector(
     (state: AppState) => state.configuration.latest?.locations,
@@ -103,43 +85,16 @@ function Overview({ bucket, ingestionStates }: Props) {
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
-
-  const { mutate: deleteBucket } = useDeleteBucket();
 
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
     (workflows?.expirations?.length || 0) +
     (workflows?.replications.length || 0) +
     (workflows?.transitions.length || 0);
-
-  const handleDeleteClick = () => {
-    if (!bucket) {
-      return;
-    }
-
-    if (attachedWorkflowsCount > 0) {
-      setIsErrorModalOpen(true);
-      return;
-    }
-
-    dispatch(openBucketDeleteDialog(bucket.name));
-  };
-
-  const handleDeleteApprove = () => {
-    if (!bucket) {
-      return;
-    }
-
-    deleteBucket({ Bucket: bucket.name });
-    dispatch(closeBucketDeleteDialog());
-  };
-
-  const handleDeleteCancel = () => {
-    dispatch(closeBucketDeleteDialog());
-  };
 
   if (!bucketInfo) {
     return null;
@@ -155,12 +110,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
   return (
     <TableContainer>
-      <DeleteConfirmation
-        show={showDelete === bucket.name}
-        cancel={handleDeleteCancel}
-        approve={handleDeleteApprove}
-        titleText={`Are you sure you want to delete bucket: ${bucket.name} ?`}
-      />
       <DumbErrorModal
         isOpen={isErrorModalOpen}
         close={() => {
@@ -173,13 +122,8 @@ function Overview({ bucket, ingestionStates }: Props) {
         }
       />
       <ButtonContainer>
-        <Button
-          icon={<Icon name="Delete" />}
-          disabled={!canDeleteBucket(loading)}
-          variant="danger"
-          onClick={handleDeleteClick}
-          label="Delete Bucket"
-        />
+        <EmptyBucket bucketName={bucket.name} />
+        <DeleteBucket bucketName={bucket.name} />
       </ButtonContainer>
       <Table>
         <T.Body>
@@ -238,11 +182,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                     <>
                       Enabled
                       <br />
-                      <SmallerText
-                        style={{
-                          color: theme.brand.textSecondary,
-                        }}
-                      >
+                      <SmallerText>
                         Versioning cannot be suspended because Object-lock is
                         enabled for this bucket.
                       </SmallerText>
@@ -285,7 +225,8 @@ function Overview({ bucket, ingestionStates }: Props) {
                   {bucketInfo.locationConstraint || 'us-east-1'}
                   {' / '}
                   <small>
-                    {getLocationType(locations[bucketInfo.locationConstraint])}
+                    {locations &&
+                      getLocationType(locations[bucketInfo.locationConstraint])}
                   </small>
                 </T.Value>
               </T.Row>

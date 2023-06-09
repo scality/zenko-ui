@@ -1,14 +1,16 @@
 import { AWSError, S3 } from 'aws-sdk';
-import { Bucket } from 'aws-sdk/clients/s3';
+import { Bucket, ListBucketsOutput } from 'aws-sdk/clients/s3';
+import { PromiseResult as AWSPromiseResult } from 'aws-sdk/lib/request';
 import { useMemo } from 'react';
 import {
+  useIsFetching,
+  useMutation,
   useQueries,
   useQuery,
   useQueryClient,
-  useIsFetching,
-  useMutation,
 } from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import { useAuthGroups } from '../../../utils/hooks';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { useS3Client } from '../../ui/S3ClientProvider';
 import {
@@ -20,9 +22,6 @@ import {
 } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
-import { ListBucketsOutput } from 'aws-sdk/clients/s3';
-import { useAuthGroups } from '../../../utils/hooks';
-import { is } from 'immutable';
 
 export const DEFAULT_LOCATION = 'us-east-1';
 
@@ -33,7 +32,7 @@ const noRefetchOptions = {
 };
 
 const getS3ClientHash = (s3Client: S3) =>
-  `${s3Client.config.credentials?.accessKeyId}${s3Client.config.credentials?.secretAccessKey}${s3Client.config.credentials?.sessionToken}`;
+  `${s3Client?.config?.credentials?.accessKeyId}${s3Client?.config?.credentials?.secretAccessKey}${s3Client?.config?.credentials?.sessionToken}`;
 
 export const queries = {
   listBuckets: (s3Client: S3) => ({
@@ -66,7 +65,7 @@ export const queries = {
           }
           throw err;
         }),
-    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
+    enabled: !!bucketName && !!s3Client?.config?.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
@@ -317,6 +316,27 @@ export const useDeleteBucket = () => {
       }
     },
   });
+  return deleteMutation;
+};
+
+export const useDeleteObjects = (
+  bucketName: string,
+  onSuccessFn?: (data: S3.DeleteObjectsOutput) => void,
+) => {
+  const s3Client = useS3Client();
+  const deleteMutation = useMutation<
+    AWSPromiseResult<S3.Types.DeleteObjectsOutput, AWSError>,
+    AWSError,
+    S3.Types.DeleteObjectsRequest
+  >({
+    mutationFn: (request: S3.Types.DeleteObjectsRequest) => {
+      return s3Client.deleteObjects(request).promise();
+    },
+    onSuccess: (data) => {
+      onSuccessFn?.(data);
+    },
+  });
+
   return deleteMutation;
 };
 

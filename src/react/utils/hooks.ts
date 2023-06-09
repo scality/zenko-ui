@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -22,6 +22,8 @@ import { useDataServiceRole } from '../DataServiceRoleProvider';
 import { useAuth } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
+import { getObjectsVersions } from '../queries';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
@@ -204,9 +206,13 @@ export const useAccounts = (
   >(
     {
       queryKey: ['WebIdentityRoles', token],
-      queryFn: () => {
+      queryFn: (_, marker) => {
         notifyLoadingAccounts();
-        return getRolesForWebIdentity(iamEndpoint, notFalsyTypeGuard(token));
+        return getRolesForWebIdentity(
+          iamEndpoint,
+          notFalsyTypeGuard(token),
+          marker?.Marker,
+        );
       },
       enabled: !!token && !!iamEndpoint,
       staleTime: Infinity,
@@ -264,4 +270,37 @@ export const useAuthGroups = () => {
   const isStorageManager = userGroups.includes('StorageManager');
 
   return { isStorageManager };
+};
+
+export const usePrevious = <T>(value: T): T | undefined => {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
+export const useCheckIfBucketEmpty = (bucketName: string) => {
+  const s3Client = useS3Client();
+  const { data: object, status: objectStatus } = useQuery(
+    getObjectsVersions({
+      bucketName,
+      s3Client,
+      queryKey: ['checkIfBucketEmpty', bucketName],
+    }),
+  );
+
+  const isBucketEmpty = object
+    ? Boolean(
+        [
+          ...(object.Versions ? object.Versions : []),
+          ...(object.DeleteMarkers ? object.DeleteMarkers : []),
+        ].length,
+      )
+    : true;
+
+  return {
+    isBucketEmpty,
+    objectStatus,
+  };
 };

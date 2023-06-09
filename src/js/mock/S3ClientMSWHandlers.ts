@@ -13,6 +13,13 @@ export const defaultMockedBuckets = [
   },
 ];
 
+const defaultMockedObjects = [
+  {
+    Key: '123',
+    VersionId: '123',
+  },
+];
+
 export function mockBucketListing(
   bucketList: { Name: string; CreationDate: Date }[] = defaultMockedBuckets,
   forceFailure = false,
@@ -115,3 +122,59 @@ export function mockBucketOperations(
     },
   );
 }
+
+export const mockObjectListing = (
+  bucketName: string,
+  objects = defaultMockedObjects,
+) => {
+  return rest.get(
+    `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+    (req, res, ctx) => {
+      return res(
+        ctx.xml(`
+      <?xml version="1.0" encoding="UTF-8"?>
+      <ListVersionsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+        <Name>${bucketName}</Name>
+        <MaxKeys>1000</MaxKeys>
+        <IsTruncated>false</IsTruncated>
+        <Version>
+          ${objects
+            .map(
+              (object) => `
+            <Key>${object.Key}</Key>
+            <VersionId>${object.VersionId}</VersionId>
+            <IsLatest>true</IsLatest>
+            <LastModified>2023-06-23T13:00:53.495Z</LastModified>
+            <ETag>"799479f36fb1bd94ade2e7f5ef82b08e"</ETag>
+            <Size>43028</Size>`,
+            )
+            .join('')}
+        </Version>
+        <Owner>
+          <ID>1234567890</ID>
+          <DisplayName>qwertyu</DisplayName>
+        </Owner>
+        <StorageClass>STANDARD</StorageClass>
+      </ListVersionsResult>
+      `),
+      );
+    },
+  );
+};
+
+export const mockObjectEmpty = (bucketName: string) => {
+  return rest.get(
+    `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+    (req, res, ctx) => {
+      return res(
+        ctx.xml(`
+      <?xml version="1.0" encoding="UTF-8"?>
+      <ListVersionsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+        <Name>${bucketName}</Name>
+        <MaxKeys>1000</MaxKeys>
+      </ListVersionsResult>
+      `),
+      );
+    },
+  );
+};
