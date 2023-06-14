@@ -23,6 +23,7 @@ import { Button } from '@scality/core-ui/dist/next';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import { DateTime } from 'luxon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
+import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -37,7 +38,6 @@ function Properties({ objectMetadata }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -46,9 +46,13 @@ function Properties({ objectMetadata }: Props) {
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   //Display Legal Hold when the Bucket is versioned and object-lock enabled.
-  const isLegalHoldSettingVisible =
-    bucketInfo?.versioning === 'Enabled' &&
-    bucketInfo?.objectLockConfiguration.ObjectLockEnabled === 'Enabled';
+  const { defaultRetention } = useBucketDefaultRetention({
+    bucketName: objectMetadata.bucketName,
+  });
+
+  const isObjectLockEnabled =
+    defaultRetention.status === 'success' &&
+    defaultRetention.value.ObjectLockEnabled === 'Enabled';
 
   const query = useQueryParams();
   const metadataSearch = query.get('metadatasearch');
@@ -154,7 +158,7 @@ function Properties({ objectMetadata }: Props) {
                     )}
                     {!objectMetadata.restore?.ongoingRequest && (
                       <ObjectRestorationButtonAndModal
-                        bucketName={bucketInfo?.name || ''}
+                        bucketName={objectMetadata.bucketName}
                         objectMetadata={objectMetadata}
                       />
                     )}
@@ -187,8 +191,7 @@ function Properties({ objectMetadata }: Props) {
                     )}
                     {objectMetadata.lockStatus === 'NONE' && 'No retention'}
                   </div>
-                  {bucketInfo?.objectLockConfiguration.ObjectLockEnabled ===
-                    'Enabled' && (
+                  {isObjectLockEnabled && (
                     <Button
                       id="edit-object-retention-setting-btn"
                       variant="outline"
@@ -205,7 +208,7 @@ function Properties({ objectMetadata }: Props) {
                   )}
                 </T.GroupValues>
               </T.Row>
-              {isLegalHoldSettingVisible && (
+              {isObjectLockEnabled && (
                 <T.Row>
                   <T.Key>Legal Hold</T.Key>
                   <T.Value>
