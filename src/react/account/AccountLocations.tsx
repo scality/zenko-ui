@@ -5,7 +5,7 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { CellProps, CoreUIColumn } from 'react-table';
 import { Location } from '../next-architecture/domain/entities/location';
 import { getLocationType } from '../utils/storageOptions';
-import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
+import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { Warning } from '../ui-elements/Warning';
