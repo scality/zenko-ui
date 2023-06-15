@@ -53,9 +53,9 @@ export function AccountLocations() {
           const locationType = getLocationType(rowValues);
           if (rowValues.isCold) {
             return (
-              <span>
+              <Stack>
                 <ColdStorageIcon /> {locationType}
-              </span>
+              </Stack>
             );
           }
           return locationType;
