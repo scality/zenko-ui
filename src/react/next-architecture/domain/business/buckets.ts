@@ -21,6 +21,8 @@ import {
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
 import { ListBucketsOutput } from 'aws-sdk/clients/s3';
+import { useAuthGroups } from '../../../utils/hooks';
+import { is } from 'immutable';
 
 export const DEFAULT_LOCATION = 'us-east-1';
 
@@ -118,10 +120,15 @@ export const useListBucketsForCurrentAccount = ({
   //triggered by useBucketLocationConstraint
   useIsFetching([queries.getBucketLocation(s3Client, '').queryKey[0]]);
 
+  const { isStorageManager } = useAuthGroups();
+
   const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 1_000) || [];
-  const metricsQueryResult = useQuery(
-    queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
-  );
+  const metricsQueryResult = useQuery({
+    ...queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
+    enabled:
+      queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics)
+        .enabled && isStorageManager,
+  });
 
   if (bucketsStatus === 'loading' || bucketsStatus === 'idle') {
     return {
@@ -421,12 +428,14 @@ export const useBucketLatestUsedCapacity = ({
   const allBucketsMetricsQuery = queryClient.getQueryState<
     Record<string, LatestUsedCapacity>
   >(queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }]).queryKey);
+  const { isStorageManager } = useAuthGroups();
   const { data, status } = useQuery({
     ...queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }], true),
     enabled:
-      (allBucketsMetricsQuery?.status === 'success' &&
+      ((allBucketsMetricsQuery?.status === 'success' &&
         !allBucketsMetricsQuery?.data?.[bucketName]) ||
-      !allBucketsMetricsQuery?.status,
+        !allBucketsMetricsQuery?.status) &&
+      isStorageManager,
   });
 
   useMemo(() => {

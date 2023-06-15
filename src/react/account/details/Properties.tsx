@@ -1,4 +1,5 @@
 import type { Account } from '../../../types/account';
+import { useAuthGroups } from '../../utils/hooks';
 import AccountInfo from './properties/AccountInfo';
 import AccountKeys from './properties/AccountKeys';
 import { AutoSizer } from 'react-virtualized';
@@ -14,12 +15,13 @@ const Container = styled.div`
 `;
 
 function Properties({ account }: Props) {
+  const { isStorageManager } = useAuthGroups();
   return (
     <AutoSizer>
       {({ height, width }) => (
         <Container height={height} width={width}>
           <AccountInfo account={account} />
-          <AccountKeys account={account} />
+          {isStorageManager && <AccountKeys account={account} />}
         </Container>
       )}
     </AutoSizer>
