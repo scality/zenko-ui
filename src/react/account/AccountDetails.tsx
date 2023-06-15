@@ -7,8 +7,7 @@ import { useRouteMatch, useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import AccountPoliciesList from './AccountPoliciesList';
 import { AccountLocations } from './AccountLocations';
-import { spacing } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/next';
+import { useAuthGroups } from '../utils/hooks';
 type Props = {
   account: Account | null | undefined;
 };
@@ -25,6 +24,7 @@ function AccountDetails({ account }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
 
   const { url } = useRouteMatch();
+  const { isStorageManager } = useAuthGroups();
 
   if (!account) {
     return <NotFound />;
@@ -45,9 +45,11 @@ function AccountDetails({ account }: Props) {
       <CustomTabs.Tab exact label="Properties" path={url}>
         <Properties account={account} />
       </CustomTabs.Tab>
-      <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
-        <AccountLocations />
-      </CustomTabs.Tab>
+      {isStorageManager && (
+        <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
+          <AccountLocations />
+        </CustomTabs.Tab>
+      )}
       <CustomTabs.Tab label="Users" path={`${url}/users`}>
         <AccountUserList accountName={accountName} />
       </CustomTabs.Tab>
