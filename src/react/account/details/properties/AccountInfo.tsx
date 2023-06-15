@@ -18,7 +18,7 @@ import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from 'react-query';
-import { useRolePathName } from '../../../utils/hooks';
+import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { Icon } from '@scality/core-ui';
 import { queries } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsAdapter } from '../../../next-architecture/ui/AccountAdapterProvider';
