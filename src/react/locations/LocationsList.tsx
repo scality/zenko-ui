@@ -26,10 +26,10 @@ import {
 import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { Location } from '../next-architecture/domain/entities/location';
-import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useMutation, useQueryClient } from 'react-query';
+import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 
 const ActionButtons = ({
   rowValues,
@@ -150,6 +150,13 @@ export function LocationsList() {
 
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
+    const dataUsedColumn = getDataUsedColumn(
+      (location: Location) => {
+        return location;
+      },
+      { flex: '0.2', marginRight: '1rem' },
+    );
+
     const columns: CoreUIColumn<Location>[] = [
       {
         Header: 'Location Name',
@@ -192,18 +199,7 @@ export function LocationsList() {
           flex: '0.3',
         },
       },
-      {
-        Header: <>Data Used</>,
-        accessor: 'usedCapacity',
-        cellStyle: {
-          textAlign: 'right',
-          flex: '0.2',
-          marginRight: '1rem',
-        },
-        Cell: ({ value }) => {
-          return <UsedCapacityInlinePromiseResult result={value} />;
-        },
-      },
+      dataUsedColumn,
     ];
 
     columns.push({
