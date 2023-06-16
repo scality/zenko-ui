@@ -21,6 +21,7 @@ import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metr
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -46,6 +47,14 @@ export default function BucketList({
   const { isStorageManager } = useAuthGroups();
 
   const columns = useMemo(() => {
+    const dataUsedColumn = getDataUsedColumn((bucket: Bucket) => {
+      const metricsAdapter = useMetricsAdapter();
+      return useBucketLatestUsedCapacity({
+        bucketName: bucket.name,
+        metricsAdapter,
+      });
+    }, {});
+
     const columns: CoreUIColumn<Bucket>[] = [
       {
         Header: 'Bucket Name',
@@ -109,24 +118,7 @@ export default function BucketList({
     }
 
     if (isStorageManager) {
-      columns.push({
-        Header: 'Data Used',
-        accessor: 'usedCapacity',
-        cellStyle: {
-          textAlign: 'right',
-        },
-
-        Cell({ row }) {
-          const metricsAdapter = useMetricsAdapter();
-          const bucketName = row.original.name;
-          const { usedCapacity } = useBucketLatestUsedCapacity({
-            bucketName,
-            metricsAdapter,
-          });
-
-          return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
-        },
-      });
+      columns.push(dataUsedColumn);
     }
 
     columns.push({
@@ -147,7 +139,7 @@ export default function BucketList({
       },
     });
     return columns;
-  }, [locations, ingestionStates, features]);
+  }, [locations, ingestionStates, features, isStorageManager]);
 
   const selectedId = useMemo(() => {
     if (buckets) {
