@@ -137,6 +137,7 @@ export default function LocationDetailsAwsCustom({
         <FormGroup
           id="bucketName"
           label="Target Bucket Name"
+          help="The Target Bucket on your location needs to have Versioning enabled."
           required
           content={
             <Input
