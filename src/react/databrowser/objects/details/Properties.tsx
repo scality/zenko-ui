@@ -144,10 +144,10 @@ function Properties({ objectMetadata }: Props) {
                       <ColdStorageIcon /> Cold{' '}
                     </Stack>
                     {objectMetadata.restore?.ongoingRequest && (
-                      <span>
+                      <Stack>
                         <Icon name="Arrow-alt-circle-up" />
                         Restoration in progress...
-                      </span>
+                      </Stack>
                     )}
                     {objectMetadata.restore?.expiryDate && (
                       <span>
