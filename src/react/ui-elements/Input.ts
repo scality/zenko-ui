@@ -4,7 +4,6 @@ export const Hints = styled.div`
   position: absolute;
   z-index: 1;
   background-color: ${(props) => props.theme.brand?.backgroundLevel1};
-  left: 20px;
   margin-top: ${spacing.sp40};
   padding: ${spacing.sp8};
 `;
