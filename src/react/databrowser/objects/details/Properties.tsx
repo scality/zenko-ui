@@ -141,10 +141,10 @@ function Properties({ objectMetadata }: Props) {
                   <T.GroupValues>
                     <ColdStorageIconLabel />
                     {objectMetadata.restore?.ongoingRequest && (
-                      <span>
+                      <Stack>
                         <Icon name="Arrow-alt-circle-up" />
                         Restoration in progress...
-                      </span>
+                      </Stack>
                     )}
                     {objectMetadata.restore?.expiryDate && (
                       <span>
