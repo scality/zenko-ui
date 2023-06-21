@@ -4,6 +4,7 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import {
+  FormattedDateTime,
   Icon,
   PrettyBytes,
   SecondaryText,
@@ -21,7 +22,6 @@ import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
-import { DateTime } from 'luxon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
 
@@ -63,14 +63,6 @@ function Properties({ objectMetadata }: Props) {
       dispatch(push(`${pathname}?${query.toString()}`));
     }
   }, [objectMetadata.versionId]);
-  // Display the remaining days for the restored object from a cold location
-  const restoreExpiryDays: number = objectMetadata.restore?.expiryDate
-    ? Math.floor(
-        DateTime.fromISO(objectMetadata.restore.expiryDate.toISOString())
-          .diff(DateTime.now(), 'days')
-          .toObject().days,
-      )
-    : -1;
   return (
     <div>
       <Table id="object-details-table">
@@ -135,7 +127,7 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Location </T.Key>
                 <T.Value>{objectMetadata.storageClass || 'default'}</T.Value>
               </T.Row>
-              {location?.isCold && (
+              {(location?.isCold || objectMetadata.restore?.expiryDate) && (
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.GroupValues>
@@ -147,21 +139,26 @@ function Properties({ objectMetadata }: Props) {
                       </Stack>
                     )}
                     {objectMetadata.restore?.expiryDate && (
-                      <span>
+                      <Stack>
                         <Icon name="Expiration" />
                         Restored{' '}
                         <SecondaryText>
-                          ({restoreExpiryDays}{' '}
-                          {restoreExpiryDays > 1 ? 'days' : 'day'} remaining)
+                          (Expiring{' '}
+                          <FormattedDateTime
+                            value={objectMetadata.restore?.expiryDate}
+                            format="relative"
+                          />
+                          )
                         </SecondaryText>
-                      </span>
+                      </Stack>
                     )}
-                    {!objectMetadata.restore?.ongoingRequest && (
-                      <ObjectRestorationButtonAndModal
-                        bucketName={objectMetadata.bucketName}
-                        objectMetadata={objectMetadata}
-                      />
-                    )}
+                    {!objectMetadata.restore?.ongoingRequest &&
+                      !objectMetadata.restore?.expiryDate && (
+                        <ObjectRestorationButtonAndModal
+                          bucketName={objectMetadata.bucketName}
+                          objectMetadata={objectMetadata}
+                        />
+                      )}
                   </T.GroupValues>
                 </T.Row>
               )}
@@ -176,7 +173,7 @@ function Properties({ objectMetadata }: Props) {
                   <div>
                     {objectMetadata.lockStatus === 'LOCKED' && (
                       <>
-                        Locked <Icon name="Lock" />(
+                        Locked <Icon name="Lock" /> (
                         {objectMetadata.objectRetention.mode.toLowerCase()})
                         <br />
                         until {objectMetadata.objectRetention.retainUntilDate}

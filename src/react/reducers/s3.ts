@@ -193,6 +193,15 @@ const parseRestoreOngoingRequest = (restore: string | undefined): boolean => {
   return false;
 };
 
+export const parseRestore = (
+  restore: string | undefined,
+): { ongoingRequest: boolean; expiryDate: Date | null } => {
+  return {
+    ongoingRequest: parseRestoreOngoingRequest(restore),
+    expiryDate: parseExpirationDate(restore),
+  };
+};
+
 export default function s3(state: S3State = initialS3State, action: S3Action) {
   switch (action.type) {
     case 'LIST_BUCKETS_SUCCESS':
@@ -325,10 +334,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
           ..._getObjectLockInformation(action),
           isLegalHoldEnabled: action.isLegalHoldEnabled,
           storageClass: action.info.StorageClass,
-          restore: {
-            ongoingRequest: parseRestoreOngoingRequest(action.info.Restore),
-            expiryDate: parseExpirationDate(action.info.Restore),
-          },
+          restore: parseRestore(action.info.Restore),
         },
       };
 
