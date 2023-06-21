@@ -18,7 +18,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { PropsWithChildren } from 'react';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
 import { LocationTypeKey } from '../../../../types/config';
-import { UsedCapacity } from '../../ui/metrics/LatestUsedCapacity';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
@@ -92,6 +91,13 @@ const genExpectedLocation = (
 };
 
 describe('useListLocations', () => {
+  //Only storage manager can see the metrics and the locations
+  jest.mock('../../../utils/hooks', () => ({
+    useAuthGroups: jest.fn(() => ({
+      isStorageManager: true,
+    })),
+  }));
+
   beforeEach(() => queryClient.clear());
 
   const setupAndRenderHook = (
