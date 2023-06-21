@@ -9,6 +9,7 @@ import {
   PrettyBytes,
   SecondaryText,
   spacing,
+  Stack,
   Toggle,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
