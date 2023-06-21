@@ -45,9 +45,6 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 describe('AccountInfo', () => {
   it('should render AccountInfo component', () => {
     const { component } = reduxMount(<AccountInfo account={account1} />);
-    const button = component.find('button#delete-account-btn');
-    expect(button).toHaveLength(1);
-    expect(button.text()).toContain('Delete Account');
     expect(component.find(Table)).toHaveLength(1);
     const rows = component.find(T.Row);
     // TODO: switched from 5 -> 3 because we hide the root user email and arn
@@ -83,8 +80,25 @@ describe('AccountInfo', () => {
     // });
   });
 
-  it('should delete account', async () => {
+  it('should not be able to delete an account when not a storage manager', () => {
+    //S+E
+    reduxRender(<AccountInfo account={account1} />, {
+      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+      instances: { selectedId: INSTANCE_ID },
+    });
+    //V
+    expect(
+      screen.queryByRole('button', { name: /Delete Account/i }),
+    ).toBeNull();
+  });
+
+  it('should be able to delete an account when user is a storage manager', async () => {
     //S
+    jest.mock('../../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: true,
+      })),
+    }));
     const mockedRequestSearchParamsInterceptor = jest.fn();
     server.use(
       rest.delete(

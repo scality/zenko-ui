@@ -203,6 +203,11 @@ afterAll(() => server.close());
 describe('useListAccounts', () => {
   it('should return accounts as soon as it is resolved', async () => {
     //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: false,
+      })),
+    }));
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
@@ -236,8 +241,13 @@ describe('useListAccounts', () => {
     });
   });
 
-  it('should return accounts and metrics', async () => {
+  it('should return accounts and metrics when user is storage manager', async () => {
     //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: true,
+      })),
+    }));
     const metricsAdapter = new MockedMetricsAdapter();
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     //E
@@ -266,8 +276,13 @@ describe('useListAccounts', () => {
       ],
     });
   });
-  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts', async () => {
+  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts when user is storage manager', async () => {
     //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: true,
+      })),
+    }));
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
     //E
@@ -285,6 +300,11 @@ describe('useListAccounts', () => {
 
   it('should return an error in case of fetching accounts failed', async () => {
     //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: false,
+      })),
+    }));
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     const metricsAdapter = new MockedMetricsAdapter();
     accessibleAccountsAdapter.useListAccessibleAccounts = jest
@@ -305,8 +325,13 @@ describe('useListAccounts', () => {
       reason: 'An error occurred when fetching accounts',
     });
   });
-  it('should return accounts with an error in case of fetching metrics failed', async () => {
+  it('should return accounts with an error in case of fetching metrics failed when user is storage manager', async () => {
     //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: true,
+      })),
+    }));
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
     metricsAdapter.listAccountsLatestUsedCapacity = jest
@@ -353,6 +378,11 @@ const setUpTest = async ({
 };
 
 describe('useAccountLatestUsedCapacity', () => {
+  jest.mock('../../../utils/hooks', () => ({
+    useAuthGroups: jest.fn(() => ({
+      isStorageManager: true,
+    })),
+  }));
   it('should return metrics direcly from cache if listAccountMetrics has done', async () => {
     //S
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();

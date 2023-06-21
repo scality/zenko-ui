@@ -35,7 +35,7 @@ describe('AccountDetails', () => {
     expect(component.queryByRole('tablist')).toBeFalsy();
     expect(component.getByText('Account not found.')).toBeInTheDocument();
   });
-  it('should render AccountDetails component', () => {
+  it('should render AccountDetails component without access keys for non storage manager users', () => {
     const { component } = reduxRender(
       <MemoryRouter>
         <AccountDetails account={account1} />
@@ -49,6 +49,31 @@ describe('AccountDetails', () => {
       },
     );
 
+    expect(component.getByRole('tablist')).toBeInTheDocument();
+    // warning of account access key table
+    expect(component.queryAllByText('No key created')).toHaveLength(0);
+  });
+  it('should render AccountDetails component without access keys for storage manager users', () => {
+    //S
+    jest.mock('../../../utils/hooks', () => ({
+      useAuthGroups: jest.fn(() => ({
+        isStorageManager: false,
+      })),
+    }));
+    const { component } = reduxRender(
+      <MemoryRouter>
+        <AccountDetails account={account1} />
+      </MemoryRouter>,
+      {
+        router: {
+          location: {
+            pathname: '/accounts/bart',
+          },
+        },
+      },
+    );
+
+    //E+V
     expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
     expect(component.getByText('No key created')).toBeInTheDocument();
