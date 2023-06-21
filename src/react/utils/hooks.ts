@@ -5,13 +5,12 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from 'react-query';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
 import { Account, WebIdentityRoles } from '../../types/iam';
-import { AppState } from '../../types/state';
 import {
   handleApiError,
   handleClientError,
@@ -259,9 +258,8 @@ export const useRolePathName = () => {
 };
 
 export const useAuthGroups = () => {
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
+  const { user } = useAuth();
+  const userGroups = user?.profile?.groups || [];
 
   const isStorageManager = userGroups.includes('StorageManager');
 
