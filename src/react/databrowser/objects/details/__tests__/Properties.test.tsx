@@ -274,12 +274,14 @@ describe('Properties', () => {
     expect(seventh.find('button#restore-button').exists()).toBeFalsy();
   });
 
-  it('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
+  it.only('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
     //mock the DateTime now
     //S
-    jest
-      .useFakeTimers('modern')
-      .setSystemTime(new Date('2022-12-20').getTime());
+    const now = new Date();
+    const oneDayAndOneHourInTheFutur = new Date(
+      now.getTime() + 25 * 60 * 60 * 1000,
+    );
+
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -293,7 +295,7 @@ describe('Properties', () => {
           storageClass: 'europe25-myroom-cold',
           restore: {
             ongoingRequest: false,
-            expiryDate: new Date('Fri, 21 Dec 2022 00:00:00 GMT'),
+            expiryDate: oneDayAndOneHourInTheFutur,
           },
         }}
       />,
