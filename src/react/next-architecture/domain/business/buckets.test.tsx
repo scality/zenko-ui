@@ -23,16 +23,22 @@ import { Bucket, BucketsPromiseResult } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { AppConfig } from '../../../../types/entities';
 import { XDM_FEATURE } from '../../../../js/config';
+import { Provider } from 'react-redux';
 import {
   prepareRenderMultipleHooks,
   RenderAdditionalHook,
 } from '../../../utils/testMultipleHooks';
 import { _AuthContext } from '../../ui/AuthProvider';
-import { zenkoUITestConfig } from '../../../utils/testUtil';
+import {
+  WrapperAsStorageManager,
+  realStoreWithInitState,
+  zenkoUITestConfig,
+} from '../../../utils/testUtil';
 import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../../js/mock/S3ClientMSWHandlers';
+import { ReactReduxContext } from 'react-redux';
 
 jest.setTimeout(30000);
 
@@ -45,32 +51,30 @@ const queryClient = new QueryClient({
 });
 const ACCESS_TOKEN = 'token';
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
+  const store = realStoreWithInitState({});
   return (
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <_AuthContext.Provider
-          value={{
-            //@ts-ignore
-            user: { access_token: ACCESS_TOKEN, profile: { sub: 'test' } },
-          }}
-        >
-          <ConfigProvider>
-            <S3ClientProvider
-              configuration={{
-                endpoint: zenkoUITestConfig.zenkoEndpoint,
-                s3ForcePathStyle: true,
-                credentials: {
-                  accessKeyId: 'accessKey',
-                  secretAccessKey: 'secretKey',
-                  sessionToken: 'sessionToken',
-                },
-              }}
-            >
-              {children}
-            </S3ClientProvider>
-          </ConfigProvider>
-        </_AuthContext.Provider>
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <WrapperAsStorageManager isStorageManager={true}>
+            <ConfigProvider>
+              <S3ClientProvider
+                configuration={{
+                  endpoint: zenkoUITestConfig.zenkoEndpoint,
+                  s3ForcePathStyle: true,
+                  credentials: {
+                    accessKeyId: 'accessKey',
+                    secretAccessKey: 'secretKey',
+                    sessionToken: 'sessionToken',
+                  },
+                }}
+              >
+                {children}
+              </S3ClientProvider>
+            </ConfigProvider>
+          </WrapperAsStorageManager>
+        </MemoryRouter>
+      </Provider>
     </QueryClientProvider>
   );
 };
@@ -98,7 +102,7 @@ const thousandAnd2Buckets = Array.from(
   }),
 );
 
-describe.skip('Buckets domain', () => {
+describe('Buckets domain', () => {
   function mockConfig() {
     return rest.get(`http://localhost/config.json`, (req, res, ctx) => {
       return res(ctx.json(zenkoUITestConfig));
