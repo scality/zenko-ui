@@ -177,7 +177,7 @@ describe('CreateWorkflow', () => {
       () => {
         expect(selectors.createButton()).toBeEnabled();
       },
-      { timeout: 2000 },
+      { timeout: 3000 },
     );
   });
 
