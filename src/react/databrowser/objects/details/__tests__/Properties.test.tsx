@@ -274,7 +274,7 @@ describe('Properties', () => {
     expect(seventh.find('button#restore-button').exists()).toBeFalsy();
   });
 
-  it.only('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
+  it('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
     //mock the DateTime now
     //S
     const now = new Date();
