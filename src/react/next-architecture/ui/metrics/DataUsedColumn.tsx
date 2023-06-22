@@ -38,14 +38,14 @@ export function getDataUsedColumn<
         b.status === 'success' &&
         b.value.type === 'noMetrics'
       ) {
-        return -1;
+        return 1;
       } else if (
         a.status === 'success' &&
         a.value.type === 'noMetrics' &&
         b.status === 'success' &&
         b.value.type === 'hasMetrics'
       ) {
-        return 1;
+        return -1;
       } else {
         return 0;
       }
