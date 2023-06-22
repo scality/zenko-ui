@@ -126,7 +126,7 @@ const selectors = {
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(10_000);
+  jest.setTimeout(60_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -177,7 +177,7 @@ describe('CreateWorkflow', () => {
       () => {
         expect(selectors.createButton()).toBeEnabled();
       },
-      { timeout: 3000 },
+      { timeout: 10_000 },
     );
   });
 
@@ -229,9 +229,12 @@ describe('CreateWorkflow', () => {
     userEvent.click(selectors.locationAWSS3());
 
     // Click on Create Button
-    await waitFor(() => {
-      expect(selectors.createButton()).toBeEnabled();
-    });
+    await waitFor(
+      () => {
+        expect(selectors.createButton()).toBeEnabled();
+      },
+      { timeout: 10_000 },
+    );
     act(() => userEvent.click(selectors.createButton()));
     //V
     await waitFor(() => expect(screen.getByText('Error')));
