@@ -55,7 +55,7 @@ describe('AccountDetails', () => {
   });
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
-    jest.mock('../../../utils/hooks', () => ({
+    jest.mock('../../utils/hooks', () => ({
       useAuthGroups: jest.fn(() => ({
         isStorageManager: false,
       })),
