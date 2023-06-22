@@ -1,5 +1,5 @@
 import { Provider } from 'react-redux';
-import { ReactNode } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
 import configureStore from 'redux-mock-store';
 import { initialFullState } from '../reducers/initialConstants';
@@ -233,6 +233,28 @@ export function mockOffsetSize(width: number, height: number) {
     },
   });
 }
+
+export const WrapperAsStorageManager = ({
+  children,
+  isStorageManager,
+}: PropsWithChildren<{ isStorageManager: boolean }>) => {
+  return (
+    <_AuthContext.Provider
+      value={{
+        //@ts-expect-error we are mocking the user
+        user: {
+          access_token: 'token',
+          profile: {
+            sub: 'test',
+            groups: isStorageManager ? ['StorageManager'] : [],
+          },
+        },
+      }}
+    >
+      {children}
+    </_AuthContext.Provider>
+  );
+};
 
 export const reduxRender = (component: JSX.Element, testState?: unknown) => {
   const store = realStoreWithInitState(testState);

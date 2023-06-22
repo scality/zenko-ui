@@ -6,6 +6,7 @@ import {
   TEST_API_BASE_URL,
   TEST_MANAGEMENT_CLIENT,
   TEST_ROLE_PATH_NAME,
+  WrapperAsStorageManager,
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
@@ -94,11 +95,6 @@ describe('AccountInfo', () => {
 
   it('should be able to delete an account when user is a storage manager', async () => {
     //S
-    jest.mock('../../../../utils/hooks', () => ({
-      useAuthGroups: jest.fn(() => ({
-        isStorageManager: true,
-      })),
-    }));
     const mockedRequestSearchParamsInterceptor = jest.fn();
     server.use(
       rest.delete(
@@ -109,10 +105,15 @@ describe('AccountInfo', () => {
         },
       ),
     );
-    reduxRender(<AccountInfo account={account1} />, {
-      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
-      instances: { selectedId: INSTANCE_ID },
-    });
+    reduxRender(
+      <WrapperAsStorageManager isStorageManager={true}>
+        <AccountInfo account={account1} />
+      </WrapperAsStorageManager>,
+      {
+        auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+        instances: { selectedId: INSTANCE_ID },
+      },
+    );
     //E
     fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));

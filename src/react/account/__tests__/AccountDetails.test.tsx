@@ -1,6 +1,10 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
 import { reduxRender } from '../../utils/testUtil';
+import { _AuthContext } from '../../next-architecture/ui/AuthProvider';
+import { PropsWithChildren } from 'react';
+
+const ACCESS_TOKEN = 'token';
 
 const account1 = {
   arn: 'arn1',
@@ -12,6 +16,30 @@ const account1 = {
   Name: 'bart',
 };
 
+const WrapperAsStorageManager = ({
+  children,
+  isStorageManager,
+}: PropsWithChildren<{ isStorageManager: boolean }>) => {
+  return (
+    <MemoryRouter>
+      <_AuthContext.Provider
+        value={{
+          //@ts-ignore
+          user: {
+            access_token: ACCESS_TOKEN,
+            profile: {
+              sub: 'test',
+              groups: isStorageManager ? ['StorageManager'] : [],
+            },
+          },
+        }}
+      >
+        {children}
+      </_AuthContext.Provider>
+    </MemoryRouter>
+  );
+};
+
 describe('AccountDetails', () => {
   beforeEach(() => {
     jest.spyOn(router, 'useParams').mockReturnValue({});
@@ -21,9 +49,9 @@ describe('AccountDetails', () => {
   });
   it('should render empty AccountDetails component if no account props', () => {
     const { component } = reduxRender(
-      <MemoryRouter>
+      <WrapperAsStorageManager isStorageManager={false}>
         <AccountDetails />
-      </MemoryRouter>,
+      </WrapperAsStorageManager>,
       {
         router: {
           location: {
@@ -37,9 +65,9 @@ describe('AccountDetails', () => {
   });
   it('should render AccountDetails component without access keys for non storage manager users', () => {
     const { component } = reduxRender(
-      <MemoryRouter>
+      <WrapperAsStorageManager isStorageManager={false}>
         <AccountDetails account={account1} />
-      </MemoryRouter>,
+      </WrapperAsStorageManager>,
       {
         router: {
           location: {
@@ -55,15 +83,10 @@ describe('AccountDetails', () => {
   });
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
-    jest.mock('../../utils/hooks', () => ({
-      useAuthGroups: jest.fn(() => ({
-        isStorageManager: false,
-      })),
-    }));
     const { component } = reduxRender(
-      <MemoryRouter>
+      <WrapperAsStorageManager isStorageManager={true}>
         <AccountDetails account={account1} />
-      </MemoryRouter>,
+      </WrapperAsStorageManager>,
       {
         router: {
           location: {

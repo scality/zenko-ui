@@ -9,6 +9,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
+  WrapperAsStorageManager,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import Accounts from '../Accounts';
@@ -202,11 +203,6 @@ describe('Accounts', () => {
 
   it('should not redirect the user to buckets when storage manager and no roles can be assumed', async () => {
     //S
-    jest.mock('../../utils/hooks', () => ({
-      useAuthGroups: jest.fn(() => ({
-        isStorageManager: false,
-      })),
-    }));
     const mockedHistory = createMemoryHistory();
     mockedHistory.replace = jest.fn();
     jest.spyOn(router, 'useHistory').mockReturnValue(mockedHistory);
@@ -235,16 +231,15 @@ describe('Accounts', () => {
   });
 
   it('should display Create Account Button for Storage Manager', async () => {
-    //S
-    jest.mock('../../utils/hooks', () => ({
-      useAuthGroups: jest.fn(() => ({
-        isStorageManager: false,
-      })),
-    }));
     //E
-    reduxRender(<Accounts />, {
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    reduxRender(
+      <WrapperAsStorageManager isStorageManager={true}>
+        <Accounts />
+      </WrapperAsStorageManager>,
+      {
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      },
+    );
     //V
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
