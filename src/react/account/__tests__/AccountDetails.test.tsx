@@ -1,10 +1,8 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
-import { reduxRender } from '../../utils/testUtil';
+import { WrapperAsStorageManager, reduxRender } from '../../utils/testUtil';
 import { _AuthContext } from '../../next-architecture/ui/AuthProvider';
 import { PropsWithChildren } from 'react';
-
-const ACCESS_TOKEN = 'token';
 
 const account1 = {
   arn: 'arn1',
@@ -16,26 +14,15 @@ const account1 = {
   Name: 'bart',
 };
 
-const WrapperAsStorageManager = ({
+const Wrapper = ({
   children,
   isStorageManager,
 }: PropsWithChildren<{ isStorageManager: boolean }>) => {
   return (
     <MemoryRouter>
-      <_AuthContext.Provider
-        value={{
-          //@ts-ignore
-          user: {
-            access_token: ACCESS_TOKEN,
-            profile: {
-              sub: 'test',
-              groups: isStorageManager ? ['StorageManager'] : [],
-            },
-          },
-        }}
-      >
+      <WrapperAsStorageManager isStorageManager={isStorageManager}>
         {children}
-      </_AuthContext.Provider>
+      </WrapperAsStorageManager>
     </MemoryRouter>
   );
 };
@@ -49,9 +36,9 @@ describe('AccountDetails', () => {
   });
   it('should render empty AccountDetails component if no account props', () => {
     const { component } = reduxRender(
-      <WrapperAsStorageManager isStorageManager={false}>
+      <Wrapper isStorageManager={false}>
         <AccountDetails />
-      </WrapperAsStorageManager>,
+      </Wrapper>,
       {
         router: {
           location: {
@@ -65,9 +52,9 @@ describe('AccountDetails', () => {
   });
   it('should render AccountDetails component without access keys for non storage manager users', () => {
     const { component } = reduxRender(
-      <WrapperAsStorageManager isStorageManager={false}>
+      <Wrapper isStorageManager={false}>
         <AccountDetails account={account1} />
-      </WrapperAsStorageManager>,
+      </Wrapper>,
       {
         router: {
           location: {
@@ -84,9 +71,9 @@ describe('AccountDetails', () => {
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
     const { component } = reduxRender(
-      <WrapperAsStorageManager isStorageManager={true}>
+      <Wrapper isStorageManager={true}>
         <AccountDetails account={account1} />
-      </WrapperAsStorageManager>,
+      </Wrapper>,
       {
         router: {
           location: {
