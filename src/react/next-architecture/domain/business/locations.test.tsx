@@ -18,6 +18,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { PropsWithChildren } from 'react';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
 import { LocationTypeKey } from '../../../../types/config';
+import { WrapperAsStorageManager } from '../../../utils/testUtil';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
@@ -48,7 +49,9 @@ const queryClient = new QueryClient({
 });
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <WrapperAsStorageManager isStorageManager={true}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </WrapperAsStorageManager>
   );
 };
 
@@ -91,13 +94,6 @@ const genExpectedLocation = (
 };
 
 describe('useListLocations', () => {
-  //Only storage manager can see the metrics and the locations
-  jest.mock('../../../utils/hooks', () => ({
-    useAuthGroups: jest.fn(() => ({
-      isStorageManager: true,
-    })),
-  }));
-
   beforeEach(() => queryClient.clear());
 
   const setupAndRenderHook = (

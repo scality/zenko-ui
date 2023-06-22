@@ -1,12 +1,11 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { formatSimpleDate } from '../utils';
-import { AppState } from '../../types/state';
 import { Icon, Link } from '@scality/core-ui';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
@@ -24,9 +23,6 @@ const TableAction = styled.div`
 
 function AccountList({ accounts }: { accounts: Account[] }) {
   const dispatch = useDispatch();
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
 
   const { isStorageManager } = useAuthGroups();
 
@@ -109,7 +105,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
               plural: 'accounts',
             }}
           />
-          {userGroups.includes('StorageManager') ? (
+          {isStorageManager ? (
             <Button
               icon={<Icon name="Create-add" />}
               label="Create Account"
