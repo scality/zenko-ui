@@ -24,6 +24,8 @@ import {
 } from '../../../js/mock/S3ClientMSWHandlers';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import * as DSRProvider from '../../DataServiceRoleProvider';
+import { DEFAULT_METRICS_MESURED_ON } from '../../next-architecture/adapters/metrics/MockedMetricsAdapter';
 
 const instanceId = INSTANCE_ID;
 const accountName = 'pat';
@@ -127,6 +129,14 @@ beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
   jest.setTimeout(60_000);
+  jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
+    account: {
+      id: 'account-id-renard',
+      Name: 'Renard',
+      Roles: [],
+      CreationDate: DEFAULT_METRICS_MESURED_ON,
+    },
+  });
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -166,6 +176,9 @@ describe('CreateWorkflow', () => {
 
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
+    await waitFor(() =>
+      expect(selectors.bucketVersionedOption()).toBeEnabled(),
+    );
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
@@ -222,6 +235,9 @@ describe('CreateWorkflow', () => {
 
     // Select Bucket Name
     userEvent.click(selectors.bucketSelect());
+    await waitFor(() =>
+      expect(selectors.bucketVersionedOption()).toBeEnabled(),
+    );
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
