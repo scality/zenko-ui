@@ -1,11 +1,5 @@
 import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Redirect,
   Route,
@@ -32,10 +26,10 @@ import Loader from './ui-elements/Loader';
 import LocationEditor from './locations/LocationEditor';
 import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
-import IAMProvider from './IAMProvider';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
+  useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
@@ -44,7 +38,8 @@ import { Warning } from './ui-elements/Warning';
 import { push } from 'connected-react-router';
 import { AppContainer, Layout2 } from '@scality/core-ui';
 import { Locations } from './locations/Locations';
-import { useZenkoClient } from './next-architecture/ui/S3ClientProvider';
+import ReauthDialog from './ui-elements/ReauthDialog';
+import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -68,7 +63,7 @@ const RedirectToAccount = () => {
   const dispatch = useDispatch();
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
-  const loaded = useSelector((s: AppState) => s.networkActivity.counter === 0);
+
   const userGroups = useSelector(
     (state: AppState) => state.oidc.user?.profile?.groups || [],
   );
@@ -77,7 +72,7 @@ const RedirectToAccount = () => {
     return (
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
     );
-  } else if (loaded && isStorageManager) {
+  } else if (isStorageManager) {
     const description = pathname === '/workflows' ? 'workflows' : 'data';
     return (
       <EmptyStateContainer>
@@ -90,14 +85,8 @@ const RedirectToAccount = () => {
         />
       </EmptyStateContainer>
     );
-  } else if (loaded) {
-    return <ErrorPage401 />;
   } else {
-    return (
-      <Loader>
-        <div>Loading</div>
-      </Loader>
-    );
+    return <ErrorPage401 />;
   }
 };
 
@@ -174,22 +163,18 @@ function PrivateRoutes() {
         <RedirectToAccount />
       </Route>
       <Route path="/accounts/:accountName">
-        <DataServiceRoleProvider>
-          <IAMProvider>
-            <Switch>
-              <Route path="/accounts/:accountName/buckets">
-                <DataBrowser />
-              </Route>
-              <Route
-                path={'/accounts/:accountName/create-bucket'}
-                component={BucketCreate}
-              />
-              <Route path="/accounts/:accountName">
-                <AccountContent />
-              </Route>
-            </Switch>
-          </IAMProvider>
-        </DataServiceRoleProvider>
+        <Switch>
+          <Route path="/accounts/:accountName/buckets">
+            <DataBrowser />
+          </Route>
+          <Route
+            path={'/accounts/:accountName/create-bucket'}
+            component={BucketCreate}
+          />
+          <Route path="/accounts/:accountName">
+            <AccountContent />
+          </Route>
+        </Switch>
       </Route>
 
       <Route path="/create-account" component={AccountCreate} />
@@ -210,14 +195,37 @@ function Routes() {
   );
   const history = useHistory();
   const location = useLocation();
+  const { isStorageManager } = useAuthGroups();
 
   const doesRouteMatch = useCallback(
-    (path: RouteProps) => {
+    (paths: RouteProps | RouteProps[]) => {
       const location = history.location;
-      return !!matchPath(location.pathname, path);
+      if (Array.isArray(paths)) {
+        const foundMatchingRoute = paths.find((path) => {
+          const demo = matchPath(location.pathname, path);
+          return demo;
+        });
+        return !!foundMatchingRoute;
+      } else {
+        return !!matchPath(location.pathname, paths);
+      }
     },
     [location],
   );
+
+  const routeWithoutSideBars = [
+    { path: '/create-account' },
+    { path: '/create-dataservice' },
+    { path: '/create-location' },
+    { path: '/locations/:locations/edit' },
+    { path: '/accounts/:accountName/create-user' },
+    { path: '/accounts/:accountName/users/:user/update-user' },
+    { path: '/accounts/:accountName/create-bucket' },
+    { path: '/accounts/:accountName/workflows/create-workflow' },
+    { path: '/accounts/:accountName/create-policy' },
+  ];
+
+  const hideSideBar = doesRouteMatch(routeWithoutSideBars);
 
   const sidebarConfig = {
     onToggleClick: () => {
@@ -280,26 +288,30 @@ function Routes() {
             path: '/accounts/:accountName/workflows',
           }),
       },
-      {
-        label: 'Locations',
-        icon: <Icon name="Location" />,
-        onClick: () => {
-          history.push('/locations');
-        },
-        active: doesRouteMatch({
-          path: '/locations',
-        }),
-      },
-      {
-        label: 'Data Services',
-        icon: <Icon name="Cubes" />,
-        onClick: () => {
-          history.push('/dataservices');
-        },
-        active: doesRouteMatch({
-          path: '/dataservices',
-        }),
-      },
+      ...(isStorageManager
+        ? [
+            {
+              label: 'Locations',
+              icon: <Icon name="Location" />,
+              onClick: () => {
+                history.push('/locations');
+              },
+              active: doesRouteMatch({
+                path: '/locations',
+              }),
+            },
+            {
+              label: 'Data Services',
+              icon: <Icon name="Cubes" />,
+              onClick: () => {
+                history.push('/dataservices');
+              },
+              active: doesRouteMatch({
+                path: '/dataservices',
+              }),
+            },
+          ]
+        : []),
     ],
   };
 
@@ -311,15 +323,22 @@ function Routes() {
         </NavbarContainer>
       }
     >
-      <AppContainer
-        hasPadding
-        sidebarNavigation={<Sidebar {...sidebarConfig} />}
-      >
-        <RemoveTrailingSlash />
-        <ManagementProvider>
-          <PrivateRoutes />
-        </ManagementProvider>
-      </AppContainer>
+      <DataServiceRoleProvider>
+        <>
+          <ReauthDialog />
+          <AppContainer
+            hasPadding
+            sidebarNavigation={
+              hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
+            }
+          >
+            <RemoveTrailingSlash />
+            <ManagementProvider>
+              <PrivateRoutes />
+            </ManagementProvider>
+          </AppContainer>
+        </>
+      </DataServiceRoleProvider>
     </Layout2>
   );
 }

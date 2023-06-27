@@ -21,6 +21,8 @@ import {
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
 import { ListBucketsOutput } from 'aws-sdk/clients/s3';
+import { useAuthGroups } from '../../../utils/hooks';
+import { is } from 'immutable';
 
 export const DEFAULT_LOCATION = 'us-east-1';
 
@@ -30,23 +32,26 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
+const getS3ClientHash = (s3Client: S3) =>
+  `${s3Client.config.credentials?.accessKeyId}${s3Client.config.credentials?.secretAccessKey}${s3Client.config.credentials?.sessionToken}`;
+
 export const queries = {
   listBuckets: (s3Client: S3) => ({
-    queryKey: ['buckets'],
+    queryKey: ['buckets', getS3ClientHash(s3Client)],
     queryFn: () => s3Client.listBuckets().promise(),
     ...noRefetchOptions,
   }),
   getBucketVersioning: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketVersioning', bucketName],
+    queryKey: ['bucketVersioning', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
         .promise(),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketDefaultRetention: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketDefaultRetention', bucketName],
+    queryKey: ['bucketDefaultRetention', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getObjectLockConfiguration({
@@ -61,16 +66,16 @@ export const queries = {
           }
           throw err;
         }),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketLocation', bucketName],
+    queryKey: ['bucketLocation', getS3ClientHash(s3Client), bucketName],
     queryFn: () =>
       s3Client
         .getBucketLocation({ Bucket: notFalsyTypeGuard(bucketName) })
         .promise(),
-    enabled: !!bucketName,
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
   getBucketMetrics: (
@@ -80,6 +85,7 @@ export const queries = {
   ) => ({
     queryKey: [
       'bucketMetrics',
+      metricsAdapter,
       useSpecificCacheKey ? buckets.map((bucket) => bucket.Name).join(',') : '',
     ],
     queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
@@ -114,10 +120,15 @@ export const useListBucketsForCurrentAccount = ({
   //triggered by useBucketLocationConstraint
   useIsFetching([queries.getBucketLocation(s3Client, '').queryKey[0]]);
 
+  const { isStorageManager } = useAuthGroups();
+
   const bucketsForWhichToFetchMetrics = buckets?.Buckets?.slice(0, 1_000) || [];
-  const metricsQueryResult = useQuery(
-    queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
-  );
+  const metricsQueryResult = useQuery({
+    ...queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics),
+    enabled:
+      queries.getBucketMetrics(metricsAdapter, bucketsForWhichToFetchMetrics)
+        .enabled && isStorageManager,
+  });
 
   if (bucketsStatus === 'loading' || bucketsStatus === 'idle') {
     return {
@@ -417,12 +428,14 @@ export const useBucketLatestUsedCapacity = ({
   const allBucketsMetricsQuery = queryClient.getQueryState<
     Record<string, LatestUsedCapacity>
   >(queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }]).queryKey);
+  const { isStorageManager } = useAuthGroups();
   const { data, status } = useQuery({
     ...queries.getBucketMetrics(metricsAdapter, [{ Name: bucketName }], true),
     enabled:
-      (allBucketsMetricsQuery?.status === 'success' &&
+      ((allBucketsMetricsQuery?.status === 'success' &&
         !allBucketsMetricsQuery?.data?.[bucketName]) ||
-      !allBucketsMetricsQuery?.status,
+        !allBucketsMetricsQuery?.status) &&
+      isStorageManager,
   });
 
   useMemo(() => {

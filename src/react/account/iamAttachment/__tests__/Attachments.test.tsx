@@ -7,7 +7,6 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-  Wrapper as wrapper,
 } from '../../../utils/testUtil';
 import Attachments from '../Attachments';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
@@ -167,9 +166,7 @@ const setupPolicyRender = (
   jest.spyOn(router, 'useParams').mockReturnValue({
     policyArn,
   });
-  reduxRender(<Attachments />, {
-    wrapper,
-  });
+  reduxRender(<Attachments />);
 };
 
 describe('Policy Attachments', () => {
@@ -455,9 +452,7 @@ describe('User Attachments', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
       IAMUserName: userName,
     });
-    reduxRender(<Attachments />, {
-      wrapper,
-    });
+    reduxRender(<Attachments />);
   };
 
   it('should render Groups and Policies for User Attachments Tabs', () => {

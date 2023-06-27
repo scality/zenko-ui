@@ -28,6 +28,7 @@ import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 import { _AuthContext } from '../../ui/AuthProvider';
 import { ConfigProvider } from '../../ui/ConfigProvider';
 import { PromiseResult } from '../entities/promise';
+import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
@@ -51,8 +52,10 @@ const setupListAccountAdaptersForThousandAccounts = () => {
                 creationDate: new Date(CREATION_DATE),
                 assumableRoles: [
                   {
-                    Arn: 'arn:aws:iam::123456789012:role/StorageAccountOwner',
-                    Name: 'StorageAccountOwner',
+                    Arn:
+                      'arn:aws:iam::123456789012:role/' +
+                      STORAGE_ACCOUNT_OWNER_ROLE,
+                    Name: STORAGE_ACCOUNT_OWNER_ROLE,
                   },
                 ],
               };
@@ -103,6 +106,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS = new Array(1000).fill(null).map((_, i) => {
     usedCapacity: MOCK_SUCCESS_USED_CAPACITY,
     assumableRoles: DEFAULT_ASSUMABLE_ROLES,
     preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+    canManageAccount: true,
   };
 });
 
@@ -121,6 +125,7 @@ const MOCK_ONE_THOUSAND_ACCOUNTS_ERROR_USED_CAPACITY = new Array(1000)
       },
       assumableRoles: DEFAULT_ASSUMABLE_ROLES,
       preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+      canManageAccount: true,
     };
   });
 
@@ -132,6 +137,7 @@ const ONE_THOUSAND_AND_ONE_ACCOUNT = {
   usedCapacity: { status: 'unknown' },
   assumableRoles: DEFAULT_ASSUMABLE_ROLES,
   preferredAssumableRoleArn: DEFAULT_ASSUMABLE_ROLES_ARN,
+  canManageAccount: true,
 };
 
 const MOCK_ACCESSIBLE_ACCOUNTS = [
@@ -139,11 +145,13 @@ const MOCK_ACCESSIBLE_ACCOUNTS = [
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[0],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[0].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
   {
     ...ACCESSIBLE_ACCOUNTS_EXAMPLE[1],
     preferredAssumableRoleArn:
       ACCESSIBLE_ACCOUNTS_EXAMPLE[1].assumableRoles[0].Arn,
+    canManageAccount: true,
   },
 ];
 
@@ -163,22 +171,30 @@ const config: AppConfig = {
   navbarConfigUrl: 'http://localhost:13000',
   features: [XDM_FEATURE],
 };
-const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <_AuthContext.Provider
-          value={{
-            //@ts-ignore
-            user: { access_token: ACCESS_TOKEN, profile: { sub: 'test' } },
-          }}
-        >
-          <ConfigProvider>{children}</ConfigProvider>
-        </_AuthContext.Provider>
-      </MemoryRouter>
-    </QueryClientProvider>
-  );
-};
+const WrapperAsStorageManager =
+  (isStorageManager: boolean) =>
+  ({ children }: PropsWithChildren<Record<string, never>>) => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <_AuthContext.Provider
+            value={{
+              //@ts-ignore
+              user: {
+                access_token: ACCESS_TOKEN,
+                profile: {
+                  sub: 'test',
+                  groups: isStorageManager ? ['StorageManager'] : [],
+                },
+              },
+            }}
+          >
+            <ConfigProvider>{children}</ConfigProvider>
+          </_AuthContext.Provider>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+  };
 function mockConfig() {
   return rest.get(`http://localhost/config.json`, (req, res, ctx) => {
     return res(ctx.json(config));
@@ -209,7 +225,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(false) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //V
@@ -228,14 +244,14 @@ describe('useListAccounts', () => {
     });
   });
 
-  it('should return accounts and metrics', async () => {
+  it('should return accounts and metrics when user is storage manager', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success', {
       timeout: 3000,
@@ -258,14 +274,14 @@ describe('useListAccounts', () => {
       ],
     });
   });
-  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts', async () => {
+  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts when user is storage manager', async () => {
     //S
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //Verify the status of usedCapacity after a thousand account should be unknown.
@@ -287,7 +303,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(false) },
     );
     //V
     await waitFor(() => result.current.accounts.status === 'error');
@@ -297,7 +313,7 @@ describe('useListAccounts', () => {
       reason: 'An error occurred when fetching accounts',
     });
   });
-  it('should return accounts with an error in case of fetching metrics failed', async () => {
+  it('should return accounts with an error in case of fetching metrics failed when user is storage manager', async () => {
     //S
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
@@ -309,7 +325,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //Verify the status of usedCapacity after a thousand account should be unknown.
@@ -333,7 +349,7 @@ const setUpTest = async ({
 }) => {
   const { renderAdditionalHook, waitForWrapperToBeReady } =
     prepareRenderMultipleHooks({
-      wrapper: Wrapper,
+      wrapper: WrapperAsStorageManager(true),
     });
   await waitForWrapperToBeReady();
   const { waitFor, result: resultAccounts } = renderAdditionalHook(
@@ -463,7 +479,7 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { renderAdditionalHook, waitForWrapperToBeReady } =
       prepareRenderMultipleHooks({
-        wrapper: Wrapper,
+        wrapper: WrapperAsStorageManager(true),
       });
     await waitForWrapperToBeReady();
     const { result } = renderAdditionalHook('accountMetrics', () =>

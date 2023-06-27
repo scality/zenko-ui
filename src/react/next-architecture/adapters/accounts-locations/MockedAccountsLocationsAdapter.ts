@@ -62,6 +62,12 @@ export class MockedAccountsLocationsAdapter
           canonicalId: 'canonical-id-renard-with-out-location',
           creationDate: DEFAULT_METRICS_MESURED_ON,
         },
+        {
+          id: 'account-with-own-metrics',
+          name: 'Souris',
+          canonicalId: 'canonical-id-souris-diff-metrics',
+          creationDate: DEFAULT_METRICS_MESURED_ON,
+        },
       ];
     });
 }

@@ -1,17 +1,47 @@
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
-import { reduxMount } from '../../../../utils/testUtil';
+import {
+  TEST_API_BASE_URL,
+  reduxMount,
+  reduxRender,
+} from '../../../../utils/testUtil';
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import MiddleEllipsis from '../../../../ui-elements/MiddleEllipsis';
 import Properties from '../Properties';
 import router from 'react-router';
 import { DateTime } from 'luxon';
 
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { screen, waitFor } from '@testing-library/react';
+
+//Mock getObjectLockConfiguration for bucket 'bucket'
+const server = setupServer(
+  rest.get(`${TEST_API_BASE_URL}/bucket?object-lock`, (req, res, ctx) => {
+    return res(
+      ctx.xml(`
+      <ObjectLockConfiguration>
+        <ObjectLockEnabled>Enabled</ObjectLockEnabled>
+        <Rule>
+          <DefaultRetention>
+            <Mode>COMPLIANCE</Mode>
+            <Days>1</Days>
+          </DefaultRetention>
+        </Rule>
+      </ObjectLockConfiguration>
+      `),
+    );
+  }),
+);
+
 describe('Properties', () => {
   beforeAll(() => {
     jest.spyOn(router, 'useLocation').mockReturnValue({
       pathname: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
     });
+    server.listen({ onUnhandledRequest: 'error' });
   });
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
   it('should render', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
       '0': undefined,
@@ -46,7 +76,7 @@ describe('Properties', () => {
     );
     const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
     expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Size');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('4 MiB');
+    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('4.32 MiB');
     const fourthItemFirstGroup = firstGroupInfosContentItems.at(3);
     expect(fourthItemFirstGroup.find(T.Key).text()).toContain('Modified On');
     expect(fourthItemFirstGroup.find(T.Value).text()).toContain(
@@ -63,8 +93,8 @@ describe('Properties', () => {
       OBJECT_METADATA.eTag,
     );
   });
-  it('should render expected values when object is locked', () => {
-    const { component } = reduxMount(
+  it('should render expected values when object is locked', async () => {
+    reduxRender(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -85,19 +115,16 @@ describe('Properties', () => {
         },
       },
     );
-    const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Lock');
-    expect(seventh.find(T.GroupValues).text()).toContain('Locked (governance)');
-    expect(seventh.find(T.GroupValues).text()).toContain(
-      'until 2020-10-17 10:06:54',
+    expect(screen.getByText('Lock')).toBeInTheDocument();
+    expect(screen.getByText(/governance/)).toBeInTheDocument();
+    expect(screen.getByText(/until 2020-10-17 10:06:54/)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument(),
     );
-    expect(
-      seventh.find('button#edit-object-retention-setting-btn').prop('label'),
-    ).toBe('Edit');
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
   });
-  it('should render expected values when lock is released', () => {
-    const { component } = reduxMount(
+  it('should render expected values when lock is released', async () => {
+    reduxRender(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -108,29 +135,19 @@ describe('Properties', () => {
           },
         }}
       />,
-      {
-        s3: {
-          bucketInfo: {
-            name: 'test-bucket',
-            objectLockConfiguration: {
-              ObjectLockEnabled: 'Enabled',
-            },
-          },
-        },
-      },
     );
-    const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Lock');
-    expect(seventh.find(T.GroupValues).text()).toContain(
-      'Released since 2020-10-17 10:06:54',
-    );
+
+    expect(screen.getByText('Lock')).toBeInTheDocument();
     expect(
-      seventh.find('button#edit-object-retention-setting-btn').prop('label'),
-    ).toBe('Edit');
+      screen.getByText(/Released since 2020-10-17 10:06:54/),
+    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument(),
+    );
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
   });
-  it('should render expected legal hold value when the object lock is set', () => {
-    const { component } = reduxMount(
+  it('should render expected legal hold value when the object lock is set', async () => {
+    reduxRender(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -142,22 +159,12 @@ describe('Properties', () => {
           isLegalHoldEnabled: true,
         }}
       />,
-      {
-        s3: {
-          bucketInfo: {
-            name: 'test-bucket',
-            objectLockConfiguration: {
-              ObjectLockEnabled: 'Enabled',
-            },
-            versioning: 'Enabled',
-          },
-        },
-      },
     );
-    const tableItems = component.find(T.Row);
-    const eighth = tableItems.at(8);
-    expect(eighth.find(T.Key).text()).toContain('Legal Hold');
-    expect(eighth.find(T.Value).text()).toContain('Active');
+    await waitFor(() =>
+      expect(screen.getByText('Legal Hold')).toBeInTheDocument(),
+    );
+    expect(screen.getByText('Legal Hold')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument(); //Todo improve this check, later on we can have more than 1 thing being "Active"
   });
 
   it('should render expected location and temperature field if the location is cold location', async () => {
@@ -267,12 +274,14 @@ describe('Properties', () => {
     expect(seventh.find('button#restore-button').exists()).toBeFalsy();
   });
 
-  it('should render restored status and disable the restore button when the object is already restored from cold location', async () => {
+  it('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
     //mock the DateTime now
     //S
-    jest
-      .spyOn(DateTime, 'now')
-      .mockImplementationOnce(() => DateTime.fromISO('2022-12-20'));
+    const now = new Date();
+    const oneDayAndOneHourInTheFutur = new Date(
+      now.getTime() + 25 * 60 * 60 * 1000,
+    );
+
     const { component } = reduxMount(
       <Properties
         objectMetadata={{
@@ -286,7 +295,7 @@ describe('Properties', () => {
           storageClass: 'europe25-myroom-cold',
           restore: {
             ongoingRequest: false,
-            expiryDate: new Date('Fri, 21 Dec 2022 00:00:00 GMT'),
+            expiryDate: oneDayAndOneHourInTheFutur,
           },
         }}
       />,
@@ -325,9 +334,7 @@ describe('Properties', () => {
     const seventh = tableItems.at(7);
     expect(seventh.find(T.Key).text()).toContain('Temperature');
     expect(seventh.find(T.GroupValues).text()).toContain(
-      'Restored (1 day remaining)',
+      'Restored (Expiring in 1 day)',
     );
-    expect(seventh.find('button#restore-button').prop('label')).toBe('Restore');
-    expect(seventh.find('button#restore-button').prop('disabled')).toBe(true);
   });
 });

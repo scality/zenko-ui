@@ -11,7 +11,7 @@ import { XDM_FEATURE } from '../../../js/config';
 import { useHistory, useParams } from 'react-router';
 import { Icon, Link, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import { useQueryParams } from '../../utils/hooks';
+import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { Bucket } from '../../next-architecture/domain/entities/bucket';
 import { CoreUIColumn } from 'react-table';
@@ -21,6 +21,7 @@ import { UsedCapacityInlinePromiseResult } from '../../next-architecture/ui/metr
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -43,7 +44,17 @@ export default function BucketList({
   const { account } = useCurrentAccount();
   const tabName = query.get('tab');
 
+  const { isStorageManager } = useAuthGroups();
+
   const columns = useMemo(() => {
+    const dataUsedColumn = getDataUsedColumn((bucket: Bucket) => {
+      const metricsAdapter = useMetricsAdapter();
+      return useBucketLatestUsedCapacity({
+        bucketName: bucket.name,
+        metricsAdapter,
+      });
+    }, {});
+
     const columns: CoreUIColumn<Bucket>[] = [
       {
         Header: 'Bucket Name',
@@ -53,6 +64,7 @@ export default function BucketList({
           const history = useHistory();
           return (
             <Link
+              href="#"
               onClick={(e) => {
                 e.stopPropagation();
                 history.push(
@@ -88,42 +100,26 @@ export default function BucketList({
         accessor: 'locationConstraint',
         id: 'ingestion',
         disableSortBy: true,
-
+        cellStyle: {
+          flex: '1',
+          textAlign: 'right',
+        },
         Cell({ value: locationName }: { value: LocationName }) {
           const value = getLocationIngestionState(
             ingestionStates,
             locationName,
           ).value;
           if (value === '-') {
-            return <EmptyCell />;
+            return <EmptyCell mr={0} />;
           }
           return value;
-        },
-        cellStyle: {
-          flex: '1',
         },
       });
     }
 
-    columns.push({
-      Header: 'Data Used',
-      accessor: 'usedCapacity',
-      cellStyle: {
-        paddingRight: spacing.r32,
-        textAlign: 'right',
-      },
-
-      Cell({ row }) {
-        const metricsAdapter = useMetricsAdapter();
-        const bucketName = row.original.name;
-        const { usedCapacity } = useBucketLatestUsedCapacity({
-          bucketName,
-          metricsAdapter,
-        });
-
-        return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
-      },
-    });
+    if (isStorageManager) {
+      columns.push(dataUsedColumn);
+    }
 
     columns.push({
       Header: 'Created on',
@@ -143,7 +139,7 @@ export default function BucketList({
       },
     });
     return columns;
-  }, [locations, ingestionStates, features]);
+  }, [locations, ingestionStates, features, isStorageManager]);
 
   const selectedId = useMemo(() => {
     if (buckets) {

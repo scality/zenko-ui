@@ -6,7 +6,6 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
-  Wrapper as wrapper,
 } from '../../../../utils/testUtil';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import ObjectRestorationButtonAndModal from '../ObjectRestorationButtonAndModal';
@@ -62,7 +61,6 @@ describe('Object Restoration Button And Modal', () => {
         bucketName={bucketName}
         objectMetadata={OBJECT_METADATA}
       />,
-      { wrapper },
     );
     act(() => {
       userEvent.click(selectors.restoreButtonSelector());
@@ -114,7 +112,6 @@ describe('Object Restoration Button And Modal', () => {
         bucketName={bucketName}
         objectMetadata={OBJECT_METADATA}
       />,
-      { wrapper },
     );
     userEvent.click(selectors.restoreButtonSelector());
     //V

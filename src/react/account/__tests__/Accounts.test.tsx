@@ -9,6 +9,7 @@ import {
   mockOffsetSize,
   reduxRender,
   TEST_API_BASE_URL,
+  WrapperAsStorageManager,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import Accounts from '../Accounts';
@@ -193,10 +194,11 @@ describe('Accounts', () => {
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
-
-    expect(mockedHistory.replace).toHaveBeenCalledWith('/buckets');
+    expect(
+      screen.queryAllByRole('link', {
+        name: new RegExp(TEST_ACCOUNT, 'i'),
+      }),
+    ).toHaveLength(0);
   });
 
   it('should not redirect the user to buckets when storage manager and no roles can be assumed', async () => {
@@ -222,12 +224,6 @@ describe('Accounts', () => {
         counter: 0,
         messages: List.of(),
       },
-      oidc: {
-        user: {
-          access_token: 'token',
-          profile: { groups: 'StorageManager' },
-        },
-      },
       auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
     });
     //V
@@ -236,15 +232,14 @@ describe('Accounts', () => {
 
   it('should display Create Account Button for Storage Manager', async () => {
     //E
-    reduxRender(<Accounts />, {
-      oidc: {
-        user: {
-          access_token: 'token',
-          profile: { groups: ['StorageManager'] },
-        },
+    reduxRender(
+      <WrapperAsStorageManager isStorageManager={true}>
+        <Accounts />
+      </WrapperAsStorageManager>,
+      {
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
       },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    );
     //V
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));

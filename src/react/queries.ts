@@ -83,7 +83,7 @@ export const getUserAccessKeysQuery = (
   queryKey: ['listIAMUserAccessKey', userName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listAccessKeys(userName, marker),
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -97,7 +97,7 @@ export const getUserListGroupsQuery = (
     return IAMClient.listGroupsForUser(userName, 1000, marker);
   },
   staleTime: Infinity,
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -110,7 +110,7 @@ export const getListUsersQuery = (
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listUsers(1000, marker),
   staleTime: Infinity,
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -122,7 +122,7 @@ export const getListPoliciesQuery = (
   queryKey: ['listPolicies', accountName],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listPolicies(1000, marker),
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -134,7 +134,7 @@ export const getListEntitiesForPolicyQuery = (
   queryKey: ['listEntitiesForPolicy', policyArn],
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listEntitiesForPolicy(policyArn, 1000, marker),
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -147,7 +147,7 @@ export const getListGroupsQuery = (
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listGroups(1000, marker),
   staleTime: Infinity,
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -160,7 +160,7 @@ export const getListRolesQuery = (
   queryFn: (_ctx: QueryFunctionContext, marker?: string) =>
     IAMClient.listRoles(1000, marker),
   staleTime: Infinity,
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -173,7 +173,7 @@ export const getListAttachedUserPoliciesQuery = (
   queryKey: ['listAttachedUserPolicies', userName, accountName],
   queryFn: () => IAMClient.listAttachedUserPolicies(userName),
   staleTime: Infinity,
-  enabled: IAMClient !== null && IAMClient !== undefined,
+  enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
@@ -196,7 +196,7 @@ export const getListPolicyVersionsQuery = (
   return {
     queryKey: ['listPolicyVersions', policyArn],
     queryFn: () => IAMClient.listPolicyVersions(policyArn),
-    enabled: IAMClient !== null && IAMClient !== undefined,
+    enabled: !!IAMClient && !!IAMClient.client,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   };

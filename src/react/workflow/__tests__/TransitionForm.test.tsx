@@ -12,7 +12,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import {
   mockOffsetSize,
   reduxRender,
-  Wrapper as wrapper,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import {

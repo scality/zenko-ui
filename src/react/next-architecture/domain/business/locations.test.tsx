@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
+  ACCOUNT_OWN_METRICS,
   DEFAULT_METRICS,
   DEFAULT_METRICS_MESURED_ON,
   MockedMetricsAdapter,
@@ -17,6 +18,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { PropsWithChildren } from 'react';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
 import { LocationTypeKey } from '../../../../types/config';
+import { WrapperAsStorageManager } from '../../../utils/testUtil';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
@@ -47,7 +49,9 @@ const queryClient = new QueryClient({
 });
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <WrapperAsStorageManager isStorageManager={true}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </WrapperAsStorageManager>
   );
 };
 
@@ -247,12 +251,20 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     new MockedAccountsLocationsAdapter();
   });
 
   it('should return only location for current account', async () => {
+    jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
+      account: {
+        id: 'account-with-own-metrics',
+        Name: 'Souris',
+        Roles: [],
+        CreationDate: DEFAULT_METRICS_MESURED_ON,
+      },
+    });
+
     // S
     const { result, waitFor } = setupAndRenderHook();
 
@@ -276,7 +288,10 @@ describe('useListLocationsForCurrentAccount', () => {
               endpoint: 'https://s3.scality.com',
               region: 'us-east-1',
             },
-            defaultUsedCapacity,
+            {
+              status: 'success',
+              value: ACCOUNT_OWN_METRICS,
+            },
           ),
         },
       },
@@ -293,7 +308,6 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     const { result, waitFor } = setupAndRenderHook();
 
@@ -316,7 +330,6 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
       account: undefined,
-      selectAccountAndRoleRedirectTo: () => {},
     });
 
     const { result, waitFor } = setupAndRenderHook();
@@ -421,7 +434,6 @@ describe('useListLocationsForCurrentAccount', () => {
         Roles: [],
         CreationDate: DEFAULT_METRICS_MESURED_ON,
       },
-      selectAccountAndRoleRedirectTo: () => {},
     });
     const { result, waitFor } = setupAndRenderHook();
 

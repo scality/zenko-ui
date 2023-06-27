@@ -17,6 +17,15 @@ export const DEFAULT_METRICS: LatestUsedCapacity = {
   measuredOn: DEFAULT_METRICS_MESURED_ON,
 };
 
+export const ACCOUNT_OWN_METRICS: LatestUsedCapacity = {
+  measuredOn: DEFAULT_METRICS_MESURED_ON,
+  type: 'hasMetrics',
+  usedCapacity: {
+    current: 135000,
+    nonCurrent: 0,
+  },
+};
+
 export class MockedMetricsAdapter implements IMetricsAdapter {
   listBucketsLatestUsedCapacity = jest.fn();
 
@@ -49,6 +58,13 @@ export class MockedMetricsAdapter implements IMetricsAdapter {
         'orphan-location': DEFAULT_METRICS,
       };
     }
+
+    if (accountCanonicalId === 'canonical-id-souris-diff-metrics') {
+      return {
+        'artesca-s3-location': ACCOUNT_OWN_METRICS,
+      };
+    }
+
     return {};
   }
 

@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { PensieveMetricsAdapter } from '../adapters/metrics/PensieveMetricsAdapter';
 import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
 import { useAccessToken, useInstanceId } from './AuthProvider';
@@ -20,7 +20,7 @@ export const useMetricsAdapter = (): IMetricsAdapter => {
   return context.metricsAdapter;
 };
 
-const MetricsAdapterProvider = ({ children }: { children: JSX.Element }) => {
+const MetricsAdapterProvider = ({ children }: { children: ReactNode }) => {
   const token = useAccessToken();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();

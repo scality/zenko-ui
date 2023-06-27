@@ -1,8 +1,8 @@
 import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
-import React from 'react';
-import { reduxRender } from '../../utils/testUtil';
-import { screen } from '@testing-library/react';
+import { WrapperAsStorageManager, reduxRender } from '../../utils/testUtil';
+import { _AuthContext } from '../../next-architecture/ui/AuthProvider';
+import { PropsWithChildren } from 'react';
 
 const account1 = {
   arn: 'arn1',
@@ -14,6 +14,19 @@ const account1 = {
   Name: 'bart',
 };
 
+const Wrapper = ({
+  children,
+  isStorageManager,
+}: PropsWithChildren<{ isStorageManager: boolean }>) => {
+  return (
+    <MemoryRouter>
+      <WrapperAsStorageManager isStorageManager={isStorageManager}>
+        {children}
+      </WrapperAsStorageManager>
+    </MemoryRouter>
+  );
+};
+
 describe('AccountDetails', () => {
   beforeEach(() => {
     jest.spyOn(router, 'useParams').mockReturnValue({});
@@ -23,9 +36,9 @@ describe('AccountDetails', () => {
   });
   it('should render empty AccountDetails component if no account props', () => {
     const { component } = reduxRender(
-      <MemoryRouter>
+      <Wrapper isStorageManager={false}>
         <AccountDetails />
-      </MemoryRouter>,
+      </Wrapper>,
       {
         router: {
           location: {
@@ -37,11 +50,11 @@ describe('AccountDetails', () => {
     expect(component.queryByRole('tablist')).toBeFalsy();
     expect(component.getByText('Account not found.')).toBeInTheDocument();
   });
-  it('should render AccountDetails component', () => {
+  it('should render AccountDetails component without access keys for non storage manager users', () => {
     const { component } = reduxRender(
-      <MemoryRouter>
+      <Wrapper isStorageManager={false}>
         <AccountDetails account={account1} />
-      </MemoryRouter>,
+      </Wrapper>,
       {
         router: {
           location: {
@@ -51,6 +64,26 @@ describe('AccountDetails', () => {
       },
     );
 
+    expect(component.getByRole('tablist')).toBeInTheDocument();
+    // warning of account access key table
+    expect(component.queryAllByText('No key created')).toHaveLength(0);
+  });
+  it('should render AccountDetails component without access keys for storage manager users', () => {
+    //S
+    const { component } = reduxRender(
+      <Wrapper isStorageManager={true}>
+        <AccountDetails account={account1} />
+      </Wrapper>,
+      {
+        router: {
+          location: {
+            pathname: '/accounts/bart',
+          },
+        },
+      },
+    );
+
+    //E+V
     expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
     expect(component.getByText('No key created')).toBeInTheDocument();

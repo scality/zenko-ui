@@ -52,10 +52,12 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
     const navbarElement = navbarRef.current;
 
     const onAuthenticated = (evt: Event) => {
-      if (evt.detail && evt.detail.profile) {
+      if (evt.detail && evt.detail.profile && evt.detail.access_token) {
         setUser(evt.detail);
         dispatch(addOIDCUser(evt.detail));
         dispatch(setOIDCLogout(navbarElement.logOut || null));
+      } else if (evt.detail && evt.detail.profile && !evt.detail.access_token) {
+        navbarElement.logOut(true);
       }
     };
 
@@ -69,7 +71,7 @@ function useLoginEffect(navbarRef: { current: NavbarWebComponent | null }) {
         onAuthenticated,
       );
     };
-  }, [navbarRef, dispatch]);
+  }, [navbarRef]);
 }
 
 function useThemeEffect(navbarRef: { current: NavbarWebComponent | null }) {

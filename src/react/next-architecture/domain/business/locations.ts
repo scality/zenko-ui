@@ -12,6 +12,7 @@ import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
 import { useAccountCannonicalId } from './accounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
+import { useAuthGroups } from '../../../utils/hooks';
 
 const noRefetchOptions = {
   refetchOnWindowFocus: false,
@@ -91,13 +92,15 @@ export const useListLocations = ({
     queries.listLocations(locationsAdapter),
   );
 
+  const { isStorageManager } = useAuthGroups();
+
   const ids = locationData?.map((l) => l.id) ?? [];
   const { data: metricsData, status: metricsStatus } = useQuery({
     queryKey: ['locationsMetrics', ids],
     queryFn: () => {
       return metricsAdapter.listLocationsLatestUsedCapacity(ids);
     },
-    enabled: !!locationData,
+    enabled: !!locationData && ids.length > 0 && isStorageManager,
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -240,9 +243,18 @@ export const useListLocationsForCurrentAccount = ({
   const allLocationsValue = Object.values(allLocations.locations.value);
   const locations: Record<string, Location> = {};
   accountLocationsKey.forEach((locationId) => {
-    const accountLocation = allLocationsValue.find((l) => l.id === locationId);
-    if (accountLocation) {
-      locations[locationId] = accountLocation;
+    const locationDefinition = allLocationsValue.find(
+      (l) => l.id === locationId,
+    );
+
+    if (locationDefinition) {
+      locations[locationId] = {
+        ...locationDefinition,
+        usedCapacity: {
+          status: 'success',
+          value: accountLocationData[locationId],
+        },
+      };
     }
   });
 

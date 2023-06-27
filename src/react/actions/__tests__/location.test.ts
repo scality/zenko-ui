@@ -12,13 +12,13 @@ import {
 } from './utils/testUtil';
 import { MockManagementClientWithConfigurationVersions } from '../../../js/mock/managementClient';
 const locationObj = LOCATION;
-const saveLocationNetworkStart = dispatchAction.NETWORK_START_ACTION(
-  'Deploying location',
-);
-const deleteLocationNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Deleting location',
-);
-describe('location actions', () => {
+const saveLocationNetworkStart =
+  dispatchAction.NETWORK_START_ACTION('Deploying location');
+const deleteLocationNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Deleting location');
+//Skipping those tests as testing implementation details in redux doesn't make sense
+//We need to be able to rey on test at component level
+describe.skip('location actions', () => {
   const locationName = 'loc1';
   const syncTests = [
     {

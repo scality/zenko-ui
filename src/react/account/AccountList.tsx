@@ -1,20 +1,19 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { formatSimpleDate } from '../utils';
-import { NameLinkContaner } from '../ui-elements/NameLink';
-import { AppState } from '../../types/state';
-import { Icon } from '@scality/core-ui';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
-import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
+import { Icon, Link } from '@scality/core-ui';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
-import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
+import { useAuthGroups } from '../utils/hooks';
+import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 
 const TableAction = styled.div`
   display: flex;
@@ -24,21 +23,25 @@ const TableAction = styled.div`
 
 function AccountList({ accounts }: { accounts: Account[] }) {
   const dispatch = useDispatch();
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
+
+  const { isStorageManager } = useAuthGroups();
 
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const setRole = useSetAssumedRole();
+    if (!row.original.canManageAccount) {
+      return value;
+    }
+
     return (
-      <NameLinkContaner
+      <Link
+        href="#"
         onClick={() => {
           setRole({ roleArn: row.original.preferredAssumableRoleArn });
           dispatch(push(`/accounts/${value}`));
         }}
       >
         {value}
-      </NameLinkContaner>
+      </Link>
     );
   };
 
@@ -47,6 +50,18 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   };
 
   const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
+    const dataUsedColumn = getDataUsedColumn(
+      (account: Account) => {
+        const metricsAdapter = useMetricsAdapter();
+        return useAccountLatestUsedCapacity({
+          metricsAdapter,
+          accountCanonicalId: account.canonicalId,
+        });
+      },
+      { minWidth: '7rem' },
+    );
+    const additionalStorageManagerColumns = [dataUsedColumn];
+
     return [
       {
         Header: 'Account Name',
@@ -65,24 +80,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         },
         Cell: (value: CellProps<Account, string>) => createDateCell(value),
       },
-      {
-        Header: 'Data Used',
-        accessor: 'usedCapacity',
-        cellStyle: {
-          textAlign: 'right',
-          minWidth: '7rem',
-        },
-        Cell: ({ row }) => {
-          const metricsAdapter = useMetricsAdapter();
-
-          const { usedCapacity } = useAccountLatestUsedCapacity({
-            accountCanonicalId: row.original.canonicalId,
-            metricsAdapter: metricsAdapter,
-          });
-
-          return <UsedCapacityInlinePromiseResult result={usedCapacity} />;
-        },
-      },
+      ...(isStorageManager ? additionalStorageManagerColumns : []),
     ];
   }, [nameCell]);
 
@@ -107,7 +105,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
               plural: 'accounts',
             }}
           />
-          {userGroups.includes('StorageManager') ? (
+          {isStorageManager ? (
             <Button
               icon={<Icon name="Create-add" />}
               label="Create Account"

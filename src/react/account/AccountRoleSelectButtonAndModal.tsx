@@ -1,23 +1,17 @@
 import { useState } from 'react';
-import { useRouteMatch } from 'react-router';
+import { generatePath, useHistory, useRouteMatch } from 'react-router';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
-import {
-  regexArn,
-  SCALITY_INTERNAL_ROLES,
-  useAccounts,
-  useRedirectDataConsumers,
-} from '../utils/hooks';
+import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {
   useCurrentAccount,
   useDataServiceRole,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
-import { getRoleArnStored, setRoleArnStored } from '../utils/localStorage';
 import { Icon } from '@scality/core-ui';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
@@ -30,14 +24,14 @@ export function AccountRoleSelectButtonAndModal({
 }) {
   const { accounts } = useAccounts();
   const { path } = useRouteMatch();
-  const { account, selectAccountAndRoleRedirectTo } = useCurrentAccount();
+  const { account } = useCurrentAccount();
   const { roleArn } = useDataServiceRole();
   const [assumedRoleArn, setAssumedRoleArn] = useState(roleArn);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
-  const redirectDataConsummers = useRedirectDataConsumers();
   const setRole = useSetAssumedRole();
+  const history = useHistory();
 
   const accountsWithRoles: {
     accountName: string;
@@ -74,18 +68,16 @@ export function AccountRoleSelectButtonAndModal({
             icon={<Icon name="Arrow-right" />}
             variant="primary"
             onClick={() => {
-              const parsedArn = regexArn.exec(assumedRoleArn);
-              const roleName = parsedArn?.groups?.name || '';
               setRole({ roleArn: assumedRoleArn });
-              selectAccountAndRoleRedirectTo(
-                path,
-                assumedAccount,
-                assumedRoleArn,
+              history.push(
+                generatePath(path, {
+                  accountName: assumedAccount,
+                }),
               );
-              redirectDataConsummers([{ Name: roleName }], handleClose);
+              handleClose();
             }}
             label="Continue"
-            disabled={assumedRoleArn === getRoleArnStored()}
+            disabled={assumedRoleArn === roleArn}
           />
         </Stack>
       </Wrap>

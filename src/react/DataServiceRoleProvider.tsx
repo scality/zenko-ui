@@ -1,13 +1,14 @@
 import { createContext, useContext, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { generatePath, useHistory } from 'react-router';
+import { useRouteMatch } from 'react-router-dom';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
+import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
+import { useMutation, useQuery } from 'react-query';
 import {
-  getRoleArnStored,
-  removeRoleArnStored,
-  setRoleArnStored,
-} from './utils/localStorage';
-import { useQueryClient } from 'react-query';
+  S3ClientProvider,
+  useAssumeRoleQuery,
+  useS3ConfigFromAssumeRoleResult,
+} from './next-architecture/ui/S3ClientProvider';
+import Loader from './ui-elements/Loader';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -39,88 +40,99 @@ export const useSetAssumedRole = () => {
 };
 
 export const useCurrentAccount = () => {
-  const { accountName } = useParams<{ accountName: string }>();
-  const storedRoleArn = getRoleArnStored();
-  const accountId = storedRoleArn
-    ? regexArn.exec(storedRoleArn)?.groups?.['account_id']
+  const match = useRouteMatch<{
+    accountName: string;
+  }>('/accounts/:accountName');
+  const accountName = match?.params?.accountName;
+  const { roleArn } = useDataServiceRole();
+  const accountId = roleArn
+    ? regexArn.exec(roleArn)?.groups?.['account_id']
     : '';
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
 
-  // invalide the stored ARN if it's not in the list accountsWithRoles
-  useMemo(() => {
-    const isStoredArnValide = accounts.find((account) => {
-      return account.Roles.find((role) => {
-        return role.Arn === storedRoleArn;
-      });
-    });
-    if (!isStoredArnValide && storedRoleArn && accounts.length) {
-      removeRoleArnStored();
-    }
-  }, [storedRoleArn, JSON.stringify(accounts)]);
-
-  const history = useHistory();
   const account = useMemo(() => {
     return accounts.find((account) => {
       if (accountName) return account.Name === accountName;
       else if (accountId) return account.id === accountId;
       else return true;
     });
-  }, [storedRoleArn, JSON.stringify(accounts)]);
-  const selectAccountAndRoleRedirectTo = (
-    path: string,
-    accountName: string,
-    roleArn: string,
-  ) => {
-    setRoleArnStored(roleArn);
-    history.push(
-      generatePath(path, {
-        accountName: accountName,
-      }),
-    );
-  };
+  }, [accountId, JSON.stringify(accounts)]);
+
   return {
     account,
-    selectAccountAndRoleRedirectTo,
   };
 };
 
 const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
-    roleArn: getRoleArnStored(),
+    roleArn: '',
+  });
+  const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
+  const match = useRouteMatch<{
+    accountName: string;
+  }>('/accounts/:accountName');
+  const accountName = match?.params.accountName;
+
+  // invalide the stored ARN if it's not in the list accountsWithRoles
+  useMemo(() => {
+    const storedRole = getRoleArnStored();
+    if (accountName) {
+      const account = accounts.find((account) => account.Name === accountName);
+      if (account) {
+        setRoleState({ roleArn: account?.Roles[0].Arn });
+      }
+    } else if (!role.roleArn && storedRole && accounts.length) {
+      const isStoredArnValide = accounts.find((account) => {
+        return account.Roles.find((r) => {
+          return r.Arn === storedRole;
+        });
+      });
+      if (isStoredArnValide) {
+        setRoleState({ roleArn: storedRole });
+      } else {
+        setRoleState({ roleArn: accounts[0].Roles[0].Arn });
+      }
+    } else if (!storedRole && !role.roleArn && accounts.length) {
+      setRoleState({ roleArn: accounts[0].Roles[0].Arn });
+    }
+  }, [role.roleArn, JSON.stringify(accounts)]);
+
+  const { getQuery } = useAssumeRoleQuery();
+  const assumeRoleMutation = useMutation({
+    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
   });
 
-  const queryClient = useQueryClient();
-  const { account } = useCurrentAccount();
-  const storedAccountID = regexArn.exec(role.roleArn)?.groups?.['account_id'];
-
-  const roleArn = useMemo(() => {
-    if (!role.roleArn || account?.id !== storedAccountID) {
-      // If the account is not the same as the one stored in the localstorage or it's empty, asssume the first Role in the list.
-      const defaultAssumedRoleArn = account?.Roles[0].Arn;
-      if (defaultAssumedRoleArn) setRoleArnStored(defaultAssumedRoleArn);
-      return defaultAssumedRoleArn || '';
-    } else {
-      return role.roleArn;
-    }
-  }, [role.roleArn, JSON.stringify(account)]);
+  const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
-    queryClient.resetQueries({
-      predicate: (query) => query.queryKey !== 'config',
-    });
     setRoleState(role);
+    assumeRoleMutation.mutate(role.roleArn);
   };
 
+  const { data: assumeRoleResult, status } = useQuery(getQuery(role.roleArn));
+
+  if (status === 'idle' && role.roleArn) {
+    return <Loader>Loading...</Loader>;
+  }
+
   return (
-    <_DataServiceRoleContext.Provider
-      value={{
-        role: { roleArn },
-        setRole,
-      }}
+    <S3ClientProvider
+      configuration={
+        assumeRoleMutation.data
+          ? getS3Config(assumeRoleMutation.data)
+          : getS3Config(assumeRoleResult)
+      }
     >
-      {children}
-    </_DataServiceRoleContext.Provider>
+      <_DataServiceRoleContext.Provider
+        value={{
+          role,
+          setRole,
+        }}
+      >
+        {children}
+      </_DataServiceRoleContext.Provider>
+    </S3ClientProvider>
   );
 };
 

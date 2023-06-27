@@ -4,10 +4,12 @@ import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
 import type { ObjectMetadata } from '../../../../types/s3';
 import {
+  FormattedDateTime,
   Icon,
   PrettyBytes,
   SecondaryText,
   spacing,
+  Stack,
   Toggle,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
@@ -21,8 +23,8 @@ import { push } from 'connected-react-router';
 import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/next';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
-import { DateTime } from 'luxon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
+import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -37,7 +39,6 @@ function Properties({ objectMetadata }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const locations = useSelector(
     (state: AppState) => state.configuration.latest.locations,
   );
@@ -46,9 +47,13 @@ function Properties({ objectMetadata }: Props) {
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   //Display Legal Hold when the Bucket is versioned and object-lock enabled.
-  const isLegalHoldSettingVisible =
-    bucketInfo?.versioning === 'Enabled' &&
-    bucketInfo?.objectLockConfiguration.ObjectLockEnabled === 'Enabled';
+  const { defaultRetention } = useBucketDefaultRetention({
+    bucketName: objectMetadata.bucketName,
+  });
+
+  const isObjectLockEnabled =
+    defaultRetention.status === 'success' &&
+    defaultRetention.value.ObjectLockEnabled === 'Enabled';
 
   const query = useQueryParams();
   const metadataSearch = query.get('metadatasearch');
@@ -59,14 +64,6 @@ function Properties({ objectMetadata }: Props) {
       dispatch(push(`${pathname}?${query.toString()}`));
     }
   }, [objectMetadata.versionId]);
-  // Display the remaining days for the restored object from a cold location
-  const restoreExpiryDays: number = objectMetadata.restore?.expiryDate
-    ? Math.floor(
-        DateTime.fromISO(objectMetadata.restore.expiryDate.toISOString())
-          .diff(DateTime.now(), 'days')
-          .toObject().days,
-      )
-    : -1;
   return (
     <div>
       <Table id="object-details-table">
@@ -96,14 +93,15 @@ function Properties({ objectMetadata }: Props) {
               <T.Row>
                 <T.Key> Size </T.Key>
                 <T.Value>
-                  {' '}
-                  <PrettyBytes bytes={objectMetadata.contentLength} />{' '}
+                  <PrettyBytes
+                    bytes={objectMetadata.contentLength}
+                    decimals={2}
+                  />
                 </T.Value>
               </T.Row>
               <T.Row>
                 <T.Key> Modified On </T.Key>
                 <T.Value>
-                  {' '}
                   {formatShortDate(new Date(objectMetadata.lastModified))}{' '}
                 </T.Value>
               </T.Row>
@@ -111,7 +109,6 @@ function Properties({ objectMetadata }: Props) {
                 <T.Row>
                   <T.Key> Expires On </T.Key>
                   <T.Value>
-                    {' '}
                     {formatShortDate(objectMetadata.expiration)}{' '}
                   </T.Value>
                 </T.Row>
@@ -131,33 +128,38 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Location </T.Key>
                 <T.Value>{objectMetadata.storageClass || 'default'}</T.Value>
               </T.Row>
-              {location?.isCold && (
+              {(location?.isCold || objectMetadata.restore?.expiryDate) && (
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.GroupValues>
                     <ColdStorageIconLabel />
                     {objectMetadata.restore?.ongoingRequest && (
-                      <span>
+                      <Stack>
                         <Icon name="Arrow-alt-circle-up" />
                         Restoration in progress...
-                      </span>
+                      </Stack>
                     )}
                     {objectMetadata.restore?.expiryDate && (
-                      <span>
+                      <Stack>
                         <Icon name="Expiration" />
                         Restored{' '}
                         <SecondaryText>
-                          ({restoreExpiryDays}{' '}
-                          {restoreExpiryDays > 1 ? 'days' : 'day'} remaining)
+                          (Expiring{' '}
+                          <FormattedDateTime
+                            value={objectMetadata.restore?.expiryDate}
+                            format="relative"
+                          />
+                          )
                         </SecondaryText>
-                      </span>
+                      </Stack>
                     )}
-                    {!objectMetadata.restore?.ongoingRequest && (
-                      <ObjectRestorationButtonAndModal
-                        bucketName={bucketInfo?.name || ''}
-                        objectMetadata={objectMetadata}
-                      />
-                    )}
+                    {!objectMetadata.restore?.ongoingRequest &&
+                      !objectMetadata.restore?.expiryDate && (
+                        <ObjectRestorationButtonAndModal
+                          bucketName={objectMetadata.bucketName}
+                          objectMetadata={objectMetadata}
+                        />
+                      )}
                   </T.GroupValues>
                 </T.Row>
               )}
@@ -172,7 +174,7 @@ function Properties({ objectMetadata }: Props) {
                   <div>
                     {objectMetadata.lockStatus === 'LOCKED' && (
                       <>
-                        Locked <Icon name="Lock" />(
+                        Locked <Icon name="Lock" /> (
                         {objectMetadata.objectRetention.mode.toLowerCase()})
                         <br />
                         until {objectMetadata.objectRetention.retainUntilDate}
@@ -187,8 +189,7 @@ function Properties({ objectMetadata }: Props) {
                     )}
                     {objectMetadata.lockStatus === 'NONE' && 'No retention'}
                   </div>
-                  {bucketInfo?.objectLockConfiguration.ObjectLockEnabled ===
-                    'Enabled' && (
+                  {isObjectLockEnabled && (
                     <Button
                       id="edit-object-retention-setting-btn"
                       variant="outline"
@@ -205,7 +206,7 @@ function Properties({ objectMetadata }: Props) {
                   )}
                 </T.GroupValues>
               </T.Row>
-              {isLegalHoldSettingVisible && (
+              {isObjectLockEnabled && (
                 <T.Row>
                   <T.Key>Legal Hold</T.Key>
                   <T.Value>

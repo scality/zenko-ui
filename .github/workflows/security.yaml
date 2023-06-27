@@ -1,0 +1,30 @@
+---
+name: security
+
+on:
+  push:
+    branches: [development/*, stabilization/*, hotfix/*]
+  release:
+    types: [published]
+  pull_request:
+    branches: [development/*, stabilization/*, hotfix/*]
+  schedule:
+    - cron: '0 8 * * 1' # Monday - 8am - UTC
+  workflow_dispatch:
+
+
+jobs:
+  build-zenko-ui:
+    permissions:
+      contents: read
+      packages: write
+    uses: scality/workflows/.github/workflows/docker-build.yaml@v1
+    with:
+      name: zenko-ui
+
+  trivy-zenko-ui:
+    needs: build-zenko-ui
+    name: Trivy Vulnerability Scan for Code for Zenko-ui
+    uses: scality/workflows/.github/workflows/trivy.yaml@v1
+    with:
+      name: zenko-ui

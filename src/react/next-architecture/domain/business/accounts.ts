@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import {
   STORAGE_ACCOUNT_OWNER_ROLE,
   STORAGE_MANAGER_ROLE,
+  useAuthGroups,
 } from '../../../utils/hooks';
 import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
@@ -106,6 +107,8 @@ export const useListAccounts = ({
   const { accountInfos } =
     accessibleAccountsAdapter.useListAccessibleAccounts();
 
+  const { isStorageManager } = useAuthGroups();
+
   const { data: metrics, status: metricsStatus } = useQuery({
     ...queries.listAccountsMetrics(
       metricsAdapter,
@@ -115,7 +118,10 @@ export const useListAccounts = ({
             .slice(0, MAX_NUM_ACCOUNT_REQUEST)
         : [],
     ),
-    enabled: !!(accountInfos.status === 'success'),
+    enabled:
+      !!(accountInfos.status === 'success') &&
+      accountInfos.value.length > 0 &&
+      isStorageManager,
   });
 
   const accountInfosWithPerferredAssumableRole = useMemo(() => {
@@ -124,6 +130,7 @@ export const useListAccounts = ({
         const roleStorageAccountOwner = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_ACCOUNT_OWNER_ROLE,
         );
+
         const roleStorageManager = accountInfo.assumableRoles.find(
           (role) => role.Name === STORAGE_MANAGER_ROLE,
         );
@@ -133,9 +140,11 @@ export const useListAccounts = ({
         } else if (roleStorageManager) {
           preferredAssumableRoleArn = roleStorageManager.Arn;
         }
+
         return {
           ...accountInfo,
           preferredAssumableRoleArn,
+          canManageAccount: !!roleStorageAccountOwner || !!roleStorageManager,
         };
       });
       return accounts;
@@ -225,11 +234,13 @@ export const useAccountLatestUsedCapacity = ({
   const accountMetricsQueryState = queryClient.getQueryState([
     'accountsMetrics',
   ]);
+  const { isStorageManager } = useAuthGroups();
   const { data, status } = useQuery({
     ...queries.getMetricsForAnAccount(metricsAdapter, accountCanonicalId),
     enabled:
       (queryCache?.status === 'success' || queryCache?.status === 'error') &&
-      !isAccountCanonicalIdMetricsCacheExist,
+      !isAccountCanonicalIdMetricsCacheExist &&
+      isStorageManager,
   });
   // if the metrics cache for a specific account exist, directly return the value.
   if (isAccountCanonicalIdMetricsCacheExist) {

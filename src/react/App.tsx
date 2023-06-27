@@ -7,8 +7,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import ZenkoUI from './ZenkoUI';
 import { ConfigProvider } from './next-architecture/ui/ConfigProvider';
-import DataServiceRoleProvider from './DataServiceRoleProvider';
-import { S3AssumeRoleClientProvider } from './next-architecture/ui/S3ClientProvider';
 import { AuthProvider } from './next-architecture/ui/AuthProvider';
 import { AccountsAdapterProvider } from './next-architecture/ui/AccountAdapterProvider';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
@@ -29,12 +27,8 @@ rootElement &&
                 <LocationAdapterProvider>
                   <AccessibleAccountsAdapterProvider>
                     <MetricsAdapterProvider>
-                      <DataServiceRoleProvider>
-                        <S3AssumeRoleClientProvider>
-                          <ZenkoUI />
-                          <ReactQueryDevtools initialIsOpen={false} />
-                        </S3AssumeRoleClientProvider>
-                      </DataServiceRoleProvider>
+                      <ZenkoUI />
+                      <ReactQueryDevtools initialIsOpen={false} />
                     </MetricsAdapterProvider>
                   </AccessibleAccountsAdapterProvider>
                 </LocationAdapterProvider>
