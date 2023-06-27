@@ -524,7 +524,7 @@ describe('Buckets domain', () => {
         waitFor,
       );
 
-      //Wait for the metrics to be loaded
+      //Wait for the metrics and locations to be loaded
       await waitFor(
         () => {
           const { buckets } = result.current as {
@@ -532,7 +532,11 @@ describe('Buckets domain', () => {
           };
           return buckets.value
             .slice(0, locationPageSize)
-            .every((bucket) => bucket.usedCapacity.status !== 'loading');
+            .every(
+              (bucket) =>
+                bucket.usedCapacity.status !== 'loading' &&
+                bucket.locationConstraint.status !== 'loading',
+            );
         },
         { timeout: 10_000 },
       );
