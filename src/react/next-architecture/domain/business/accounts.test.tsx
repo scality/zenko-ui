@@ -171,22 +171,30 @@ const config: AppConfig = {
   navbarConfigUrl: 'http://localhost:13000',
   features: [XDM_FEATURE],
 };
-const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <_AuthContext.Provider
-          value={{
-            //@ts-ignore
-            user: { access_token: ACCESS_TOKEN, profile: { sub: 'test' } },
-          }}
-        >
-          <ConfigProvider>{children}</ConfigProvider>
-        </_AuthContext.Provider>
-      </MemoryRouter>
-    </QueryClientProvider>
-  );
-};
+const WrapperAsStorageManager =
+  (isStorageManager: boolean) =>
+  ({ children }: PropsWithChildren<Record<string, never>>) => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <_AuthContext.Provider
+            value={{
+              //@ts-ignore
+              user: {
+                access_token: ACCESS_TOKEN,
+                profile: {
+                  sub: 'test',
+                  groups: isStorageManager ? ['StorageManager'] : [],
+                },
+              },
+            }}
+          >
+            <ConfigProvider>{children}</ConfigProvider>
+          </_AuthContext.Provider>
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+  };
 function mockConfig() {
   return rest.get(`http://localhost/config.json`, (req, res, ctx) => {
     return res(ctx.json(config));
@@ -217,7 +225,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(false) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //V
@@ -236,14 +244,14 @@ describe('useListAccounts', () => {
     });
   });
 
-  it('should return accounts and metrics', async () => {
+  it('should return accounts and metrics when user is storage manager', async () => {
     //S
     const metricsAdapter = new MockedMetricsAdapter();
     const accessibleAccountsAdapter = new MockedAccessibleAccounts();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success', {
       timeout: 3000,
@@ -266,14 +274,14 @@ describe('useListAccounts', () => {
       ],
     });
   });
-  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts', async () => {
+  it('should return accounts and metrics of the first thousand accounts if there is more than one thousand of accounts when user is storage manager', async () => {
     //S
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //Verify the status of usedCapacity after a thousand account should be unknown.
@@ -295,7 +303,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(false) },
     );
     //V
     await waitFor(() => result.current.accounts.status === 'error');
@@ -305,7 +313,7 @@ describe('useListAccounts', () => {
       reason: 'An error occurred when fetching accounts',
     });
   });
-  it('should return accounts with an error in case of fetching metrics failed', async () => {
+  it('should return accounts with an error in case of fetching metrics failed when user is storage manager', async () => {
     //S
     const { accessibleAccountsAdapter, metricsAdapter } =
       setupListAccountAdaptersForThousandAccounts();
@@ -317,7 +325,7 @@ describe('useListAccounts', () => {
     //E
     const { result, waitFor } = renderHook(
       () => useListAccounts({ accessibleAccountsAdapter, metricsAdapter }),
-      { wrapper: Wrapper },
+      { wrapper: WrapperAsStorageManager(true) },
     );
     await waitFor(() => result.current.accounts.status === 'success');
     //Verify the status of usedCapacity after a thousand account should be unknown.
@@ -341,7 +349,7 @@ const setUpTest = async ({
 }) => {
   const { renderAdditionalHook, waitForWrapperToBeReady } =
     prepareRenderMultipleHooks({
-      wrapper: Wrapper,
+      wrapper: WrapperAsStorageManager(true),
     });
   await waitForWrapperToBeReady();
   const { waitFor, result: resultAccounts } = renderAdditionalHook(
@@ -471,7 +479,7 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { renderAdditionalHook, waitForWrapperToBeReady } =
       prepareRenderMultipleHooks({
-        wrapper: Wrapper,
+        wrapper: WrapperAsStorageManager(true),
       });
     await waitForWrapperToBeReady();
     const { result } = renderAdditionalHook('accountMetrics', () =>

@@ -18,7 +18,7 @@ import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import styled from 'styled-components';
 import { useMutation, useQueryClient } from 'react-query';
-import { useRolePathName } from '../../../utils/hooks';
+import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { Icon } from '@scality/core-ui';
 import { queries } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsAdapter } from '../../../next-architecture/ui/AccountAdapterProvider';
@@ -38,6 +38,7 @@ function AccountInfo({ account }: Props) {
     (state: AppState) => state.uiAccounts.showDelete,
   );
   const rolePathName = useRolePathName();
+  const { isStorageManager } = useAuthGroups();
 
   const handleDeleteClick = () => {
     dispatch(openAccountDeleteDialog());
@@ -79,15 +80,17 @@ function AccountInfo({ account }: Props) {
       <SecretKeyModal account={account} />
       <TitleRow>
         <h3>Account details</h3>
-        <ButtonContainer>
-          <Button
-            id="delete-account-btn"
-            icon={<Icon name="Delete" />}
-            onClick={handleDeleteClick}
-            variant="danger"
-            label="Delete Account"
-          />
-        </ButtonContainer>
+        {isStorageManager && (
+          <ButtonContainer>
+            <Button
+              id="delete-account-btn"
+              icon={<Icon name="Delete" />}
+              onClick={handleDeleteClick}
+              variant="danger"
+              label="Delete Account"
+            />
+          </ButtonContainer>
+        )}
       </TitleRow>
       <Table id="account-details-table">
         <T.Body>

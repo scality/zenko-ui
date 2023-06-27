@@ -27,6 +27,9 @@ import styled from 'styled-components';
 import { useQueryParams } from '../../utils/hooks';
 import { useParams } from 'react-router';
 import { CenterredSecondaryText } from '../../account/iamAttachment/AttachmentTable';
+import { useQuery } from 'react-query';
+import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
+import { parseRestore } from '../../reducers/s3';
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
   margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
@@ -157,6 +160,26 @@ export default function ObjectListTable({
         Header: 'Name',
         accessor: 'name',
         Cell({ row: { original } }: CellProps) {
+          const s3Client = useS3Client();
+          const { data: headObject, status: headObjectStatus } = useQuery({
+            queryKey: [
+              'headObject',
+              bucketName,
+              original.key,
+              original.versionId,
+            ],
+            queryFn: () =>
+              s3Client
+                .headObject({
+                  Bucket: bucketName,
+                  Key: original.key,
+                  VersionId: original.versionId,
+                })
+                .promise(),
+          });
+
+          const restore = parseRestore(headObject?.Restore);
+
           const storageClass = original.storageClass;
           const isObjectInColdStorage = !!locations[storageClass]?.isCold;
           if (original.isFolder) {
@@ -200,7 +223,11 @@ export default function ObjectListTable({
               {original.isLegalHoldEnabled && (
                 <Icon className="fas fa-balance-scale"></Icon>
               )}
-              {isObjectInColdStorage ? (
+              {isObjectInColdStorage &&
+              (headObjectStatus === 'idle' ||
+                headObjectStatus === 'loading' ||
+                headObjectStatus === 'error' ||
+                !restore.expiryDate) ? (
                 <Text>{original.name}</Text>
               ) : (
                 <T.CellA

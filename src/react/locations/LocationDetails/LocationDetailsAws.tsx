@@ -100,6 +100,7 @@ export default class LocationDetailsAws extends React.Component<
             id="bucketName"
             required
             helpErrorPosition="bottom"
+            help="The Target Bucket on your location needs to have Versioning enabled."
             content={
               <Input
                 name="bucketName"

@@ -7,13 +7,13 @@ import { Location } from '../next-architecture/domain/entities/location';
 import { getLocationType } from '../utils/storageOptions';
 import ColdStorageIcon from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { UsedCapacityInlinePromiseResult } from '../next-architecture/ui/metrics/LatestUsedCapacity';
 import { Warning } from '../ui-elements/Warning';
 import { Icon, Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { Search } from '../ui-elements/Table';
 import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
 import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
+import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 
 export function AccountLocations() {
   const locationsAdapter = useLocationAdapter();
@@ -32,6 +32,12 @@ export function AccountLocations() {
 
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
+    const dataUsedColumn = getDataUsedColumn(
+      (location: Location) => {
+        return location;
+      },
+      { flex: '0.2' },
+    );
     const columns: CoreUIColumn<Location>[] = [
       {
         Header: 'Location Name',
@@ -73,17 +79,7 @@ export function AccountLocations() {
           flex: '0.3',
         },
       },
-      {
-        Header: <>Data Used</>,
-        accessor: 'usedCapacity',
-        cellStyle: {
-          textAlign: 'right',
-          flex: '0.2',
-        },
-        Cell: ({ value }) => {
-          return <UsedCapacityInlinePromiseResult result={value} />;
-        },
-      },
+      dataUsedColumn,
     ];
 
     return columns;

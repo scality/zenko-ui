@@ -6,6 +6,7 @@ import {
   TEST_API_BASE_URL,
   TEST_MANAGEMENT_CLIENT,
   TEST_ROLE_PATH_NAME,
+  WrapperAsStorageManager,
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
@@ -45,9 +46,6 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 describe('AccountInfo', () => {
   it('should render AccountInfo component', () => {
     const { component } = reduxMount(<AccountInfo account={account1} />);
-    const button = component.find('button#delete-account-btn');
-    expect(button).toHaveLength(1);
-    expect(button.text()).toContain('Delete Account');
     expect(component.find(Table)).toHaveLength(1);
     const rows = component.find(T.Row);
     // TODO: switched from 5 -> 3 because we hide the root user email and arn
@@ -83,7 +81,19 @@ describe('AccountInfo', () => {
     // });
   });
 
-  it('should delete account', async () => {
+  it('should not be able to delete an account when not a storage manager', () => {
+    //S+E
+    reduxRender(<AccountInfo account={account1} />, {
+      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+      instances: { selectedId: INSTANCE_ID },
+    });
+    //V
+    expect(
+      screen.queryByRole('button', { name: /Delete Account/i }),
+    ).toBeNull();
+  });
+
+  it('should be able to delete an account when user is a storage manager', async () => {
     //S
     const mockedRequestSearchParamsInterceptor = jest.fn();
     server.use(
@@ -95,10 +105,15 @@ describe('AccountInfo', () => {
         },
       ),
     );
-    reduxRender(<AccountInfo account={account1} />, {
-      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
-      instances: { selectedId: INSTANCE_ID },
-    });
+    reduxRender(
+      <WrapperAsStorageManager isStorageManager={true}>
+        <AccountInfo account={account1} />
+      </WrapperAsStorageManager>,
+      {
+        auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+        instances: { selectedId: INSTANCE_ID },
+      },
+    );
     //E
     fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
     fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
