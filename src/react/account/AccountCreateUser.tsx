@@ -17,13 +17,11 @@ import {
 } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
-import { queryClient } from '../App';
-import { useMutation, InfiniteData } from 'react-query';
+import { useMutation, InfiniteData, useQueryClient } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import { getListUsersQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -53,6 +51,7 @@ const AccountCreateUser = () => {
     resolver: joiResolver(schema),
     defaultValues: { name: '' },
   });
+  const queryClient = useQueryClient();
 
   const { accountName } = useParams<{ accountName: string }>();
 
@@ -117,7 +116,7 @@ const AccountCreateUser = () => {
     }
 
     clearServerError();
-    dispatch(goBack());
+    history.goBack();
   };
 
   const clearServerError = () => {

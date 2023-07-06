@@ -4,6 +4,8 @@ import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
   reduxRender,
+  renderWithRouterMatch,
+  selectClick,
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
@@ -32,7 +34,6 @@ const accountName = 'pat';
 const BUCKET_NAME = 'bucket1';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
 const BUCKET_LOCATION = 'us-east-1';
-const ACCOUNT_ID = '064609833007';
 const buckets: S3Bucket[] = [
   {
     CreationDate: 'Wed Oct 07 2020 16:35:57',
@@ -62,15 +63,22 @@ const locationAwsS3 = {
   sizeLimitGB: 123,
 };
 
+const defaultCurrentAccount = {
+  id: 'account-id-renard',
+  Name: 'Renard',
+  Roles: [],
+  CreationDate: DEFAULT_METRICS_MESURED_ON,
+};
+
 const server = setupServer(
   rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${defaultCurrentAccount.id}/bucket/bucket/workflow/replication`,
     (req, res, ctx) => {
       return res(ctx.json([]));
     },
   ),
   rest.post(
-    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/workflow/search`,
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${defaultCurrentAccount.id}/workflow/search`,
     (req, res, ctx) => res(ctx.json([])),
   ),
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
@@ -84,7 +92,7 @@ const server = setupServer(
             Roles: [
               {
                 Name: 'another-role',
-                Arn: `arn:aws:iam::${ACCOUNT_ID}:role/another-role`,
+                Arn: `arn:aws:iam::${defaultCurrentAccount.id}:role/another-role`,
               },
             ],
           },
@@ -130,12 +138,7 @@ beforeAll(() => {
   mockOffsetSize(200, 800);
   jest.setTimeout(60_000);
   jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
-    account: {
-      id: 'account-id-renard',
-      Name: 'Renard',
-      Roles: [],
-      CreationDate: DEFAULT_METRICS_MESURED_ON,
-    },
+    account: defaultCurrentAccount,
   });
 });
 afterEach(() => server.resetHandlers());
@@ -144,7 +147,7 @@ afterAll(() => server.close());
 describe('CreateWorkflow', () => {
   it('should render the form to create a new replication', async () => {
     //S
-    reduxRender(<CreateWorkflow />, {
+    renderWithRouterMatch(<CreateWorkflow />, undefined, {
       s3: {
         listBucketsResults: {
           list: List(buckets),
@@ -162,7 +165,7 @@ describe('CreateWorkflow', () => {
     await waitFor(() => screen.getByText(/create new workflow/i));
 
     // Select Workflow Type
-    userEvent.click(selectors.workflowTypeSelect());
+    selectClick(selectors.workflowTypeSelect());
 
     expect(selectors.replicationOption()).toBeInTheDocument();
     expect(selectors.expirationOption()).toBeInTheDocument();
@@ -175,16 +178,16 @@ describe('CreateWorkflow', () => {
     );
 
     // Select Bucket Name
-    userEvent.click(selectors.bucketSelect());
+    selectClick(selectors.bucketSelect());
     await waitFor(() =>
       expect(selectors.bucketVersionedOption()).toBeEnabled(),
     );
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
-    userEvent.click(selectors.locationSelect());
-    userEvent.click(selectors.locationAWSS3());
+    selectClick(selectors.locationSelect());
 
+    userEvent.click(selectors.locationAWSS3());
     //V
     await waitFor(
       () => {
@@ -194,18 +197,20 @@ describe('CreateWorkflow', () => {
     );
   });
 
+  // FIXME We should remove this test. Testing the modal is not necessary.
   it('should display an error modal when workflow creation failed', async () => {
     //S
     server.use(
       rest.post(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${defaultCurrentAccount.id}/bucket/bucket/workflow/replication`,
         (req, res, ctx) => {
           return res(ctx.status(500));
         },
       ),
     );
     //E
-    reduxRender(<CreateWorkflow />, {
+
+    renderWithRouterMatch(<CreateWorkflow />, undefined, {
       instances: {
         selectedId: instanceId,
       },
@@ -221,7 +226,7 @@ describe('CreateWorkflow', () => {
     await waitFor(() => screen.getByText(/create new workflow/i));
 
     // Select Workflow Type
-    userEvent.click(selectors.workflowTypeSelect());
+    selectClick(selectors.workflowTypeSelect());
 
     expect(selectors.replicationOption()).toBeInTheDocument();
     expect(selectors.expirationOption()).toBeInTheDocument();
@@ -234,14 +239,14 @@ describe('CreateWorkflow', () => {
     );
 
     // Select Bucket Name
-    userEvent.click(selectors.bucketSelect());
+    selectClick(selectors.bucketSelect());
     await waitFor(() =>
       expect(selectors.bucketVersionedOption()).toBeEnabled(),
     );
     userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
-    userEvent.click(selectors.locationSelect());
+    selectClick(selectors.locationSelect());
     userEvent.click(selectors.locationAWSS3());
 
     // Click on Create Button
@@ -271,7 +276,7 @@ describe('CreateWorkflow', () => {
       },
     });
     // Select Workflow Type
-    userEvent.click(selectors.workflowTypeSelect());
+    selectClick(selectors.workflowTypeSelect());
     //V
     expect(selectors.replicationOption()).toHaveAttribute(
       'aria-disabled',

@@ -6,8 +6,7 @@ import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
 import { ConstrainedText, Icon, Tooltip } from '@scality/core-ui';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useMutation, useQuery } from 'react-query';
-import { queryClient } from '../App';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getListPoliciesQuery, getListPolicyVersionsQuery } from '../queries';
 import AwsPaginatedResourceTable from './AwsPaginatedResourceTable';
@@ -201,6 +200,7 @@ const DeletePolicyAction = ({
 }) => {
   const dispatch = useDispatch();
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const isInternalPolicy = path.includes('scality-internal');
   const deletePolicyMutation = useMutation(

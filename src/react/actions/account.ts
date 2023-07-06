@@ -1,3 +1,5 @@
+import { QueryClient } from 'react-query';
+import { History } from 'history';
 import type {
   AccessKey,
   Account,
@@ -27,9 +29,7 @@ import {
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
 import { getClients } from '../utils/actions';
-import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
-import { QueryClient } from 'react-query';
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
@@ -88,10 +88,12 @@ export function createAccount(
   user: CreateAccountRequest,
   queryClient: QueryClient,
   token: string,
+  history: History,
+  instanceId: string,
   setRole: (role: { roleArn: string }) => void,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { managementClient, instanceId } = getClients(getState());
+    const { managementClient } = getClients(getState());
     const params = {
       uuid: instanceId,
       user: { ...user, userName: user.Name },
@@ -104,15 +106,13 @@ export function createAccount(
         return resp;
       })
       .then((resp) => {
-        dispatch(push(`/accounts/${user.Name}`));
-        return resp;
-      })
-      .then((resp) => {
         queryClient.clear();
         const accountId = resp.id;
         setRole({
           roleArn: `arn:aws:iam::${accountId}:role/storage-manager-role`,
         });
+
+        history.push(`/accounts/${user.Name}`);
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
@@ -124,9 +124,11 @@ export function deleteAccount(
   queryClient: QueryClient,
   token: string,
   rolePathName: string,
+  history: History,
+  instanceId: string,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { managementClient, instanceId } = getClients(getState());
+    const { managementClient } = getClients(getState());
     const params = {
       uuid: instanceId,
       accountName,
@@ -140,13 +142,11 @@ export function deleteAccount(
         params.accountName,
         params.rolePathName,
       )
-      .then(() => dispatch(updateConfiguration()))
-      .then(() => dispatch(push('/accounts')))
-      .then(() => dispatch(closeAccountDeleteDialog()))
       .then(() => {
+        dispatch(updateConfiguration());
+        history.push('/accounts');
+        dispatch(closeAccountDeleteDialog());
         removeRoleArnStored();
-      })
-      .then(() => {
         queryClient.refetchQueries(['accounts']);
         queryClient.invalidateQueries(['WebIdentityRoles', token]);
       })

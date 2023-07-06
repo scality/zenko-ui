@@ -1,10 +1,9 @@
 import type { AppState } from '../../types/state';
 import ConfigurationTab from './ConfigurationTab';
 import { CustomTabs } from '../ui-elements/Tabs';
-import type { S3BucketList } from '../../types/s3';
 import { Warning } from '../ui-elements/Warning';
 import type { Workflow } from '../../types/workflow';
-import { useLocation, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import { useQueryParams } from '../utils/hooks';
 import { useSelector } from 'react-redux';
 import { Icon } from '@scality/core-ui';

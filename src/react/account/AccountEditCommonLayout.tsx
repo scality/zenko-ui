@@ -1,4 +1,4 @@
-import { FormEvent, MouseEvent, useRef, useState } from 'react';
+import { FormEvent, MouseEvent, useState } from 'react';
 import { Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Controller, Control } from 'react-hook-form';

@@ -1,9 +1,6 @@
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-const MainContainer = styled.div`
-  color: ${(props) => props.theme.brand.textPrimary};
-  font-size: ${fontSize.base};
-`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -92,7 +89,6 @@ const ButtonsContainer = styled.div`
 export {
   Container,
   LoaderContainer,
-  MainContainer,
   ContainerFooter,
   NavbarContainer,
   ZenkoUIContainer,

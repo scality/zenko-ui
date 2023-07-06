@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Table, * as T from '../../ui-elements/Table';
 import { closeObjectUploadModal, uploadFiles } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -54,11 +54,7 @@ type FileListProps = {
 };
 // NOTE: If accept, multiple, minSize or maxSize are added to useDropzone parameters,
 // files might be rejected (fileRejections) and we will have to show them in <FileList/>.
-export const FileList = ({
-  acceptedFiles,
-  open,
-  removeFile,
-}: FileListProps) => (
+const FileList = ({ acceptedFiles, open, removeFile }: FileListProps) => (
   <div>
     <Button
       icon={<Icon name="Create-add" />}
@@ -97,7 +93,7 @@ export const FileList = ({
 type NoFileProps = {
   open: () => void;
 };
-export const NoFile = ({ open }: NoFileProps) => (
+const NoFile = ({ open }: NoFileProps) => (
   <EmptyFile>
     <Icon name="Upload" size="3x" />
     <div> Drag and drop files and folders here </div>

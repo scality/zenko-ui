@@ -1,4 +1,9 @@
-// @noflow
+import styled from 'styled-components';
+import { Button } from '@scality/core-ui/dist/next';
+import { useHistory } from 'react-router-dom';
+import { useMutation, useQueryClient } from 'react-query';
+import { Icon } from '@scality/core-ui';
+
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import {
   closeAccountDeleteDialog,
@@ -8,20 +13,17 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
-import { Button } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import React from 'react';
 import SecretKeyModal from './SecretKeyModal';
 import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
-import styled from 'styled-components';
-import { useMutation, useQueryClient } from 'react-query';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
-import { Icon } from '@scality/core-ui';
 import { queries } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsAdapter } from '../../../next-architecture/ui/AccountAdapterProvider';
+import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
+
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -32,6 +34,7 @@ type Props = {
 
 function AccountInfo({ account }: Props) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const queryClient = useQueryClient();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const showDelete = useSelector(
@@ -45,10 +48,18 @@ function AccountInfo({ account }: Props) {
   };
 
   const accountsAdapter = useAccountsAdapter();
+  const instanceId = useInstanceId();
   const deleteMutation = useMutation({
     mutationFn: () => {
       return dispatch(
-        deleteAccount(account.Name, queryClient, token, rolePathName),
+        deleteAccount(
+          account.Name,
+          queryClient,
+          token,
+          rolePathName,
+          history,
+          instanceId,
+        ),
       );
     },
     onSuccess: () => {

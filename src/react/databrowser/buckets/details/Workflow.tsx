@@ -3,7 +3,7 @@ import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 import styled from 'styled-components';
 import {

@@ -1,9 +1,10 @@
 import STS from 'aws-sdk/clients/sts';
+import { genClientEndpoint } from '../react/utils';
 export default class STSClient {
   client: STS;
   constructor(conf: { endpoint: string }) {
     this.client = new STS({
-      endpoint: conf.endpoint,
+      endpoint: genClientEndpoint(conf.endpoint),
       region: 'us-east-1',
     });
   }

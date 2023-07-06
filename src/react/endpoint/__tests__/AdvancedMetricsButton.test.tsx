@@ -1,8 +1,9 @@
 import { screen, waitFor } from '@testing-library/react';
-import { reduxRender } from '../../utils/testUtil';
+import { renderWithRouterMatch } from '../../utils/testUtil';
 import { AuthorizedAdvancedMetricsButton } from '../AdvancedMetricsButton';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { useAuth } from '../../next-architecture/ui/AuthProvider';
 
 const expectedBasePath = 'http://testurl';
 
@@ -24,9 +25,18 @@ afterAll(() => server.close());
 
 describe('AdvancedMetricsButton', () => {
   it('should display the button when groups contains StorageManager', async () => {
-    reduxRender(<AuthorizedAdvancedMetricsButton />, {
-      oidc: { user: { profile: { groups: ['StorageManager'] } } },
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['StorageManager', 'user', 'PlatformAdmin'],
+        },
+      };
     });
+    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
 
     //Wait for loading to complete
     await waitFor(() =>
@@ -39,9 +49,18 @@ describe('AdvancedMetricsButton', () => {
   });
 
   it("should not display the button when groups doesn't contains StorageManager", async () => {
-    reduxRender(<AuthorizedAdvancedMetricsButton />, {
-      oidc: { user: { profile: { groups: [] } } },
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: [],
+        },
+      };
     });
+    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
 
     await expect(
       (async () => {

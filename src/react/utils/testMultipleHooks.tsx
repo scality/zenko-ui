@@ -5,12 +5,7 @@ import {
   waitForOptions,
 } from '@testing-library/react';
 import { WaitFor } from '@testing-library/react-hooks';
-import {
-  FunctionComponent,
-  PropsWithChildren,
-  useState,
-  useEffect,
-} from 'react';
+import { useState, useEffect } from 'react';
 import { act } from 'react-dom/test-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 
@@ -23,7 +18,7 @@ export type RenderAdditionalHook = <THookResult>(
 };
 
 export function prepareRenderMultipleHooks(options: {
-  wrapper: FunctionComponent<PropsWithChildren<Record<string, never>>>;
+  wrapper: React.ReactNode;
 }): {
   renderAdditionalHook: RenderAdditionalHook;
   waitForWrapperToBeReady: () => Promise<void>;

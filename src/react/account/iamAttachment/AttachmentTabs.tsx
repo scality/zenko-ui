@@ -1,6 +1,6 @@
 import { Icon, Loader } from '@scality/core-ui';
 import { useReducer } from 'react';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
@@ -71,7 +71,7 @@ const AttachmentTableProxy = <
   if (status === 'idle' || status === 'loading') {
     return (
       <Loader>
-        <div>Loading</div>
+        <div>Loading...</div>
       </Loader>
     );
   }

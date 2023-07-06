@@ -8,6 +8,7 @@ import type {
 import { getClients } from '../react/utils/actions';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { policyDocumentType } from 'aws-sdk/clients/iam';
+import { genClientEndpoint } from '../react/utils';
 
 export function getAssumeRoleWithWebIdentityIAM(
   state: AppState,
@@ -100,7 +101,7 @@ export default class IAMClient implements IAMClientInterface {
   endpoint: string;
 
   constructor(endpoint: string) {
-    this.endpoint = endpoint;
+    this.endpoint = genClientEndpoint(endpoint);
   }
 
   login(creds: Credentials) {

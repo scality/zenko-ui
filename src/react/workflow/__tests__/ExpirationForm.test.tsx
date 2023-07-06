@@ -2,19 +2,17 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
-  reduxMount,
   reduxRender,
+  selectClick,
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { prettyDOM, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';
 import { FormProvider, useForm } from 'react-hook-form';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { List } from 'immutable';
-import { S3Bucket } from '../../../types/s3';
 import { PerLocationMap } from '../../../types/config';
 import { GeneralExpirationGroup } from '../ExpirationForm';
 import { Form, FormSection } from '@scality/core-ui';
@@ -27,6 +25,7 @@ import {
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { debug } from 'jest-preview';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -142,9 +141,9 @@ describe('ExpirationForm', () => {
     expect(spinButton[2].getAttribute('type')).toBe('number');
 
     // Select the Source Bucket.
-    userEvent.click(selectors.bucketSelect());
-    userEvent.click(selectors.versionedBucketOption());
+    selectClick(selectors.bucketSelect());
 
+    userEvent.click(selectors.versionedBucketOption());
     const expireCurrentToggleState = result.container.querySelector(
       '[for="expireCurrentVersions"]',
     )!.parentElement!.parentElement!.parentElement!;
@@ -180,7 +179,11 @@ describe('ExpirationForm', () => {
     expect(expireIncompleteMultipart).not.toBeDisabled();
 
     // Select the Source Bucket.
-    userEvent.click(selectors.bucketSelect());
+    fireEvent.keyDown(selectors.bucketSelect(), {
+      key: 'ArrowDown',
+      which: 40,
+      keyCode: 40,
+    });
     userEvent.click(selectors.suspendedBucketOption());
 
     expect(expireCurrent).not.toBeDisabled();

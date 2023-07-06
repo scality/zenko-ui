@@ -4,3 +4,4 @@
 # But not the conf and public directories
 !public
 !conf
+!build

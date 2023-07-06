@@ -1,4 +1,4 @@
-import router, { Redirect } from 'react-router';
+import router, { Redirect } from 'react-router-dom';
 import BucketDetails from '../BucketDetails';
 import Header from '../../../ui-elements/EntityHeader';
 import BucketList from '../BucketList';

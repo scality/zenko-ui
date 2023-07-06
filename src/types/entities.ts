@@ -7,8 +7,9 @@ export type AppConfig = {
   readonly stsEndpoint: string;
   readonly zenkoEndpoint: string;
   readonly iamEndpoint: string;
-  readonly navbarEndpoint: string;
-  readonly navbarConfigUrl: string;
+  readonly iamInternalFQDN: string;
+  readonly s3InternalFQDN: string;
+  readonly basePath: string;
   readonly features: string[];
 };
 export type Brand = {

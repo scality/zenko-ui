@@ -9,11 +9,7 @@ import { RenderResult, WaitFor } from '@testing-library/react-hooks';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { PropsWithChildren } from 'react';
-import { ConfigProvider } from '../../ui/ConfigProvider';
-import { S3ClientProvider } from '../../ui/S3ClientProvider';
-import { MemoryRouter } from 'react-router';
+import { QueryClient } from 'react-query';
 import {
   PromiseResult,
   PromiseStatus,
@@ -21,24 +17,16 @@ import {
 } from '../entities/promise';
 import { Bucket, BucketsPromiseResult } from '../entities/bucket';
 import { LatestUsedCapacity } from '../entities/metrics';
-import { AppConfig } from '../../../../types/entities';
-import { XDM_FEATURE } from '../../../../js/config';
-import { Provider } from 'react-redux';
 import {
   prepareRenderMultipleHooks,
   RenderAdditionalHook,
 } from '../../../utils/testMultipleHooks';
 import { _AuthContext } from '../../ui/AuthProvider';
-import {
-  WrapperAsStorageManager,
-  realStoreWithInitState,
-  zenkoUITestConfig,
-} from '../../../utils/testUtil';
+import { Wrapper, zenkoUITestConfig } from '../../../utils/testUtil';
 import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../../js/mock/S3ClientMSWHandlers';
-import { ReactReduxContext } from 'react-redux';
 
 jest.setTimeout(30000);
 
@@ -49,35 +37,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-const ACCESS_TOKEN = 'token';
-const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
-  const store = realStoreWithInitState({});
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <MemoryRouter>
-          <WrapperAsStorageManager isStorageManager={true}>
-            <ConfigProvider>
-              <S3ClientProvider
-                configuration={{
-                  endpoint: zenkoUITestConfig.zenkoEndpoint,
-                  s3ForcePathStyle: true,
-                  credentials: {
-                    accessKeyId: 'accessKey',
-                    secretAccessKey: 'secretKey',
-                    sessionToken: 'sessionToken',
-                  },
-                }}
-              >
-                {children}
-              </S3ClientProvider>
-            </ConfigProvider>
-          </WrapperAsStorageManager>
-        </MemoryRouter>
-      </Provider>
-    </QueryClientProvider>
-  );
-};
 
 const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 

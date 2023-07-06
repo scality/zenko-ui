@@ -1,13 +1,14 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
+
 import type { AppState } from '../../types/state';
 import { EmptyStateContainer } from '../ui-elements/Container';
 import EndpointList from './EndpointList';
 import { Warning } from '../ui-elements/Warning';
-import { push } from 'connected-react-router';
-import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
 
 const Endpoints = () => {
-  const dispatch = useDispatch();
+  const history = useHistory();
   const endpoints = useSelector(
     (state: AppState) => state.configuration.latest.endpoints,
   );
@@ -24,7 +25,7 @@ const Endpoints = () => {
           icon={<Icon name="Wallet" size="5x" />}
           title="Create your first Data Service."
           btnTitle="Create Data Service"
-          btnAction={() => dispatch(push('/create-dataservice'))}
+          btnAction={() => history.push('/create-dataservice')}
         />
       </EmptyStateContainer>
     );

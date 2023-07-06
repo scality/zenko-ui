@@ -2,7 +2,11 @@
 import { fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
-import { reduxRender, themeMount as mount } from '../../../utils/testUtil';
+import {
+  reduxRender,
+  themeMount as mount,
+  selectClick,
+} from '../../../utils/testUtil';
 
 import LocationDetailsAzure from '../LocationDetailsAzure';
 const props = {
@@ -210,7 +214,7 @@ describe('class <LocationDetailsAzure />', () => {
     const selector = notFalsyTypeGuard(
       container.querySelector('.sc-select__control'),
     );
-    userEvent.click(selector);
+    selectClick(selector);
 
     fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
     fireEvent.keyDown(selector, { key: 'ArrowUp', which: 38, keyCode: 38 });

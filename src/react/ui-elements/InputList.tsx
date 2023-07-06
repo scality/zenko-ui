@@ -1,7 +1,7 @@
 import { HTMLProps } from 'react';
 import { Box } from '@scality/core-ui/dist/next';
 import { AddButton, SubButton } from './EditableKeyValue';
-import { Input, Label } from './FormLayout';
+import { Input } from './FormLayout';
 import { FormGroup } from '@scality/core-ui';
 
 function InputList({

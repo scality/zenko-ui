@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { closeFolderCreateModal, createFolder } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';

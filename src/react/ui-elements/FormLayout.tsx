@@ -1,9 +1,4 @@
-import {
-  Checkbox as BasicCheckbox,
-  Icon,
-  TextArea,
-  Tooltip,
-} from '@scality/core-ui';
+import { Checkbox as BasicCheckbox, TextArea, Tooltip } from '@scality/core-ui';
 import {
   LargerText,
   SmallerText,

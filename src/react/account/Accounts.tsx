@@ -1,15 +1,15 @@
 import { useHistory, useLocation } from 'react-router-dom';
-
-import AccountList from './AccountList';
-import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
-import Header from '../ui-elements/EntityHeader';
-import { MultiAccountsIcon } from './MultiAccountsIcon';
 import {
   AppContainer,
   ErrorPage401,
   ErrorPage500,
   Icon,
 } from '@scality/core-ui';
+
+import AccountList from './AccountList';
+import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
+import Header from '../ui-elements/EntityHeader';
+import { MultiAccountsIcon } from './MultiAccountsIcon';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';

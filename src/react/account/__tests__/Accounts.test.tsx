@@ -1,4 +1,3 @@
-import router from 'react-router';
 import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import { rest } from 'msw';
@@ -8,12 +7,12 @@ import { formatSimpleDate } from '../../utils';
 import {
   mockOffsetSize,
   reduxRender,
+  renderWithRouterMatch,
   TEST_API_BASE_URL,
   WrapperAsStorageManager,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import Accounts from '../Accounts';
-import { createMemoryHistory } from 'history';
 import { debug } from 'jest-preview';
 import {
   ACCOUNT_ID,
@@ -22,6 +21,7 @@ import {
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { useAuth } from '../../next-architecture/ui/AuthProvider';
 
 const TEST_ACCOUNT =
   USERS.find((user) => user.id === '064609833007')?.userName ?? '';
@@ -54,7 +54,7 @@ const server = setupServer(
       return res(ctx.json([]));
     },
   ),
-  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   ...getStorageConsumptionMetricsHandlers(
     zenkoUITestConfig.managementEndpoint,
     INSTANCE_ID,
@@ -71,10 +71,7 @@ afterAll(() => server.close());
 describe('Accounts', () => {
   it('should list accounts on which user can assume a role', async () => {
     //E
-    reduxRender(<Accounts />, {
-      oidc: { user: { access_token: 'token' } },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    renderWithRouterMatch(<Accounts />);
 
     //V
     //Wait for account to be loaded
@@ -94,16 +91,9 @@ describe('Accounts', () => {
         res(ctx.status(500, 'error')),
       ),
     );
+    // FIXME Move reduxRender to the new render later
     //E
-    reduxRender(<Accounts />, {
-      uiErrors: initialErrorsUIState,
-      networkActivity: {
-        counter: 0,
-        messages: List.of(),
-      },
-      oidc: { user: { access_token: 'token' } },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    reduxRender(<Accounts />);
     //V
 
     //Wait for error
@@ -133,16 +123,9 @@ describe('Accounts', () => {
         ),
       ),
     );
+    // FIXME Move reduxRender to the new render later
     //E
-    reduxRender(<Accounts />, {
-      uiErrors: initialErrorsUIState,
-      networkActivity: {
-        counter: 0,
-        messages: List.of(),
-      },
-      oidc: { user: { access_token: 'token' } },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    reduxRender(<Accounts />);
     //V
 
     //Wait for error
@@ -153,11 +136,8 @@ describe('Accounts', () => {
     ).toBeInTheDocument();
   });
 
-  it('should redirect the user to buckets when no storage manager or storage account owner role can be assumed', async () => {
+  it('should not let the user click on account when no storage manager or storage account owner role can be assumed', async () => {
     //S
-    const mockedHistory = createMemoryHistory();
-    mockedHistory.replace = jest.fn();
-    jest.spyOn(router, 'useHistory').mockReturnValue(mockedHistory);
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
         res(
@@ -178,18 +158,11 @@ describe('Accounts', () => {
           }),
         ),
       ),
+      getConfigOverlay(TEST_API_BASE_URL, 'xyz-instance-id'),
     );
 
     //E
-    reduxRender(<Accounts />, {
-      uiErrors: initialErrorsUIState,
-      networkActivity: {
-        counter: 0,
-        messages: List.of(),
-      },
-      oidc: { user: { access_token: 'token' } },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
-    });
+    renderWithRouterMatch(<Accounts />);
     //V
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
@@ -201,24 +174,33 @@ describe('Accounts', () => {
     ).toHaveLength(0);
   });
 
-  it('should not redirect the user to buckets when storage manager and no roles can be assumed', async () => {
+  it('should be able to click on the account have is StorageAccountOwner or StorageManager', async () => {
     //S
-    const mockedHistory = createMemoryHistory();
-    mockedHistory.replace = jest.fn();
-    jest.spyOn(router, 'useHistory').mockReturnValue(mockedHistory);
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
         res(
           ctx.json({
             IsTruncated: false,
-            Accounts: [],
+            Accounts: [
+              {
+                Name: TEST_ACCOUNT,
+                CreationDate: TEST_ACCOUNT_CREATION_DATE,
+                Roles: [
+                  {
+                    Name: 'storage-manager-role',
+                    Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+                  },
+                ],
+              },
+            ],
           }),
         ),
       ),
+      getConfigOverlay(TEST_API_BASE_URL, 'xyz-instance-id'),
     );
 
     //E
-    reduxRender(<Accounts />, {
+    renderWithRouterMatch(<Accounts />, undefined, {
       uiErrors: initialErrorsUIState,
       networkActivity: {
         counter: 0,
@@ -226,8 +208,15 @@ describe('Accounts', () => {
       },
       auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
     });
+
+    await waitFor(() => screen.getByText(TEST_ACCOUNT));
+
     //V
-    expect(mockedHistory.replace).not.toHaveBeenCalled();
+    expect(
+      screen.queryAllByRole('link', {
+        name: new RegExp(TEST_ACCOUNT, 'i'),
+      }),
+    ).toHaveLength(1);
   });
 
   it('should display Create Account Button for Storage Manager', async () => {
@@ -251,16 +240,40 @@ describe('Accounts', () => {
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {
-    //E
-    reduxRender(<Accounts />, {
-      oidc: {
-        user: {
-          access_token: 'token',
-          profile: { groups: ['StorageAccountOwner'] },
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['user', 'PlatformAdmin'],
         },
-      },
-      auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      };
     });
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [
+              {
+                Name: TEST_ACCOUNT,
+                CreationDate: TEST_ACCOUNT_CREATION_DATE,
+                Roles: [
+                  {
+                    Name: 'storage-account-owner-role',
+                    Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-account-owner-role',
+                  },
+                ],
+              },
+            ],
+          }),
+        );
+      }),
+    );
+
+    renderWithRouterMatch(<Accounts />);
     //V
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));

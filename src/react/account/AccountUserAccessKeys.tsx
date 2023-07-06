@@ -8,7 +8,7 @@ import {
   useRouteMatch,
 } from 'react-router-dom';
 import { Tooltip, Toggle, Banner, AppContainer, Stack } from '@scality/core-ui';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { Table, Button, Box } from '@scality/core-ui/dist/next';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
@@ -23,7 +23,6 @@ import {
   useAccessKeyOutdatedStatus,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import { queryClient } from '../App';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getUserAccessKeysQuery } from '../queries';
 
@@ -54,6 +53,7 @@ const CreatedOnCell = (rowValue) => {
 const ToggleAccessKeyStatus = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const { IAMUserName } = useParams<{
     IAMUserName: string;
   }>();
@@ -103,6 +103,7 @@ const AccessKeysCell = (rowValue) => {
 const DeleteAccessKeyAction = (rowValue) => {
   const { accessKey, status: accessKeyStatus } = rowValue;
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const { IAMUserName } = useParams<{
     IAMUserName: string;
   }>();

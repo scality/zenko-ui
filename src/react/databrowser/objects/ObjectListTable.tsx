@@ -1,5 +1,24 @@
-import MemoRow, { createItemData } from './ObjectRow';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
+import { AutoSizer } from 'react-virtualized';
+import { FixedSizeList } from 'react-window';
+import InfiniteLoader from 'react-window-infinite-loader';
+import { List } from 'immutable';
+import { PrettyBytes, Text } from '@scality/core-ui';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import styled from 'styled-components';
+import { useHistory, useParams } from 'react-router-dom';
+import { useQuery } from 'react-query';
+
+import type { AppState } from '../../../types/state';
+import { Checkbox } from '../../ui-elements/FormLayout';
+import { ColdStorageIcon } from '../../ui-elements/ColdStorageIcon';
+import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
+import type { ObjectEntity } from '../../../types/s3';
+import { TextAligner } from '../../ui-elements/Utility';
+import { useQueryParams } from '../../utils/hooks';
 import Table, * as T from '../../ui-elements/Table';
 import {
   continueListObjects,
@@ -7,29 +26,11 @@ import {
   toggleAllObjects,
   toggleObject,
 } from '../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { useFilters, useFlexLayout, useSortBy, useTable } from 'react-table';
-import type { AppState } from '../../../types/state';
-import { AutoSizer } from 'react-virtualized';
-import { Checkbox } from '../../ui-elements/FormLayout';
-import { ColdStorageIcon } from '../../ui-elements/ColdStorageIcon';
-import { FixedSizeList } from 'react-window';
-import InfiniteLoader from 'react-window-infinite-loader';
-import { List } from 'immutable';
-import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
-import type { ObjectEntity } from '../../../types/s3';
-import { PrettyBytes, Text } from '@scality/core-ui';
-import { TextAligner } from '../../ui-elements/Utility';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { useQueryParams } from '../../utils/hooks';
-import { useParams } from 'react-router';
+import MemoRow, { createItemData } from './ObjectRow';
 import { CenterredSecondaryText } from '../../account/iamAttachment/AttachmentTable';
-import { useQuery } from 'react-query';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { parseRestore } from '../../reducers/s3';
+
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
   margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
@@ -53,6 +54,7 @@ export default function ObjectListTable({
   isVersioningType,
   prefixWithSlash,
 }: Props) {
+  const history = useHistory();
   const { accountName } = useParams<{ accountName: string }>();
 
   const [isTableScrollbarVisible, setIsTableScrollbarVisible] = useState(false);
@@ -81,10 +83,8 @@ export default function ObjectListTable({
     (bucketName, key) => (e) => {
       e.stopPropagation();
       query.set('prefix', key);
-      dispatch(
-        push(
-          `/accounts/${accountName}/buckets/${bucketName}/objects?${query.toString()}`,
-        ),
+      history.push(
+        `/accounts/${accountName}/buckets/${bucketName}/objects?${query.toString()}`,
       );
     },
     [dispatch],

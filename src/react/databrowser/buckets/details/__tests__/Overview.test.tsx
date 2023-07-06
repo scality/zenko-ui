@@ -18,6 +18,8 @@ import {
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import Immutable from 'immutable';
 import userEvent from '@testing-library/user-event';
+import { renderWithRouterMatch } from '../../../../utils/testUtil';
+import { debug } from 'jest-preview';
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
   LocationConstraint: '',
@@ -55,124 +57,84 @@ const TEST_STATE = {
 };
 //TODO: Those tests are testing implementation details based on child component names. We should refactor them.
 describe('Overview', () => {
-  it('should render Overview component', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
-      ...TEST_STATE,
-      s3: {
-        bucketInfo: bucketInfoResponseNoVersioning,
-      },
-    });
-    expect(component.find(Overview).isEmptyRender()).toBe(false);
-  });
   it('should render Overview component with given infos', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       s3: {
         bucketInfo: bucketInfoResponseNoVersioning,
       },
     });
-    const groupInfos = component.find(T.Group);
-    expect(groupInfos).toHaveLength(2);
-    // FIRST GROUP ITEMS TITLE
-    const firstGroupInfos = groupInfos.first();
-    expect(firstGroupInfos.find(T.GroupName).text()).toContain('General');
-    // FIRST GROUP ITEMS
-    const firstGroupInfosContentItems = firstGroupInfos
-      .find(T.GroupContent)
-      .find(T.Row);
-    const firstItemFirstGroup = firstGroupInfosContentItems.first();
-    expect(firstItemFirstGroup.find(T.Key).text()).toContain('Name');
-    expect(firstItemFirstGroup.find(T.Value).text()).toContain('bucket');
-    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
-    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Versioning');
-    expect(secondItemFirstGroup.find(Toggle).text()).toContain('Suspended');
-    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Object-lock');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('Disabled');
-    const fourthItemFirstGroup = firstGroupInfosContentItems.at(3);
-    expect(fourthItemFirstGroup.find(T.Key).text()).toContain('Location');
-    expect(fourthItemFirstGroup.find(T.Value).text()).toContain('us-east-1');
-    // SECOND GROUP ITEMS TITLE
-    const secondGroupInfos = groupInfos.at(1);
-    expect(secondGroupInfos.find(T.GroupName).text()).toContain('Permissions');
-    // SECOND GROUP ITEMS
-    const secondGroupInfosContentItems = secondGroupInfos
-      .find(T.GroupContent)
-      .find(T.Row);
-    const firstItemSecondGroup = secondGroupInfosContentItems.first();
-    expect(firstItemSecondGroup.find(T.Key).text()).toContain('Owner');
-    expect(firstItemSecondGroup.find(T.Value).text()).toContain('bart');
-    const secondItemSecondGroup = secondGroupInfosContentItems.at(1);
-    expect(secondItemSecondGroup.find(T.Key).text()).toContain('ACL');
-    expect(secondItemSecondGroup.find(T.Value).text()).toContain('0 Grantee');
-    const thirdItemSecondGroup = secondGroupInfosContentItems.at(2);
-    expect(thirdItemSecondGroup.find(T.Key).text()).toContain('CORS');
-    expect(thirdItemSecondGroup.find(T.Value).text()).toContain('No');
-    const fourthItemSecondGroup = secondGroupInfosContentItems.at(3);
-    expect(fourthItemSecondGroup.find(T.Key).text()).toContain('Public');
-    expect(fourthItemSecondGroup.find(T.Value).text()).toContain('No');
+
+    const labelAndValues = [
+      { label: 'Name', value: bucketName },
+      { label: 'Versioning', value: 'Suspended' },
+
+      { label: 'Object-lock', value: 'Disabled' },
+      { label: 'Location', value: /us-east-1/i },
+      { label: 'Owner', value: 'bart' },
+      { label: 'ACL', value: '0 Grantee' },
+      { label: 'CORS', value: 'No' },
+      { label: 'Public', value: 'No' },
+    ];
+
+    labelAndValues.forEach(({ label, value }) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+    });
   });
   it('should render toggle versioning in Enable mode', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       s3: {
         bucketInfo: bucketInfoResponseVersioning,
       },
     });
-    const groupInfos = component.find(T.Group);
-    const firstGroupInfos = groupInfos.first();
-    const versioningToggleItem = firstGroupInfos.find(Toggle);
-    expect(versioningToggleItem.text()).toContain('Active');
+
+    expect(screen.getByText(/Versioning/i).parentElement).toHaveTextContent(
+      'Active',
+    );
   });
   it('should render object lock information in Enabled mode without default retention', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       s3: {
         bucketInfo: bucketInfoResponseObjectLockNoDefaultRetention,
       },
     });
-    const groupInfos = component.find(T.Group);
-    const firstGroupInfos = groupInfos.first();
-    const firstGroupInfosContentItems = firstGroupInfos
-      .find(T.GroupContent)
-      .find(T.Row);
-    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
-    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Versioning');
-    expect(secondItemFirstGroup.find(T.Value).text()).toContain('Enabled');
-    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain(
-      'Default Object-lock Retention',
-    );
-    expect(thirdItemFirstGroup.find(T.GroupValues).text()).toContain(
-      'Inactive',
-    );
+
+    const labelAndValues = [
+      { label: 'Name', value: bucketName },
+      { label: 'Versioning', value: 'Enabled' },
+      { label: 'Default Object-lock Retention', value: 'Inactive' },
+    ];
+
+    labelAndValues.forEach(({ label, value }) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+    });
   });
   it('should render object lock information in Enabled mode with default retention', () => {
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       s3: {
         bucketInfo: bucketInfoResponseObjectLockDefaultRetention,
       },
     });
-    const groupInfos = component.find(T.Group);
-    const firstGroupInfos = groupInfos.first();
-    const firstGroupInfosContentItems = firstGroupInfos
-      .find(T.GroupContent)
-      .find(T.Row);
-    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
-    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Versioning');
-    expect(secondItemFirstGroup.find(T.Value).text()).toContain('Enabled');
-    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain(
-      'Default Object-lock Retention',
-    );
-    expect(thirdItemFirstGroup.find(T.GroupValues).text()).toContain(
-      'Governance - 5 days',
-    );
+
+    const labelAndValues = [
+      { label: 'Name', value: bucketName },
+      { label: 'Versioning', value: 'Enabled' },
+      { label: 'Default Object-lock Retention', value: 'Governance - 5 days' },
+    ];
+
+    labelAndValues.forEach(({ label, value }) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+    });
   });
   it.skip('should trigger deleteBucket function when approving clicking on delete button when modal popup', async () => {
     const deleteBucketMock = jest.spyOn(actions, 'deleteBucket');
-    reduxRender(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       ...{
         s3: {
@@ -198,7 +160,7 @@ describe('Overview', () => {
   });
   it('should disable the versioning toogle for Azure Blob Storage', async () => {
     //S
-    reduxRender(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
     });
@@ -290,7 +252,7 @@ describe('Overview', () => {
       }),
     );
 
-    reduxRender(<Overview bucket={BUCKET} />, {
+    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
       ...TEST_STATE,
       ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
     });

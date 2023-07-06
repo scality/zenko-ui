@@ -1,17 +1,19 @@
+import { screen } from '@testing-library/react';
 import ErrorHandlerModal from '../ErrorHandlerModal';
-import React from 'react';
-import { reduxMount } from '../../utils/testUtil';
+import { reduxMount, renderWithRouterMatch } from '../../utils/testUtil';
+
 describe('ErrorHandlerModal', () => {
   const errorMessage = 'test error message';
   it('ErrorHandlerModal should render', () => {
-    const { component } = reduxMount(<ErrorHandlerModal />, {
+    // I put <></> because  ErrorHandlerModal is already in `renderWithRouterMatch`
+    // We will remove/change this component anyway
+    renderWithRouterMatch(<></>, undefined, {
       uiErrors: {
         errorMsg: errorMessage,
         errorType: 'byModal',
       },
     });
-    expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(false);
-    expect(component.find('div.sc-modal-body').text()).toBe(errorMessage);
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
   it('ErrorHandlerModal should not render if errorType is set to "byAuth"', () => {
     const { component } = reduxMount(<ErrorHandlerModal />, {

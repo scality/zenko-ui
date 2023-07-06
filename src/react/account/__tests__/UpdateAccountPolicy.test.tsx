@@ -1,10 +1,8 @@
-import React from 'react';
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { reduxRender, TEST_API_BASE_URL } from '../../utils/testUtil';
+import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
 import UpdateAccountPolicy from '../UpdateAccountPolicy';
-import router from 'react-router';
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -68,22 +66,21 @@ const server = setupServer(
 
 const policyName = 'data-consumer-policy';
 const policyArn = `arn:aws:iam::137489910101:policy/scality-internal/${policyName}`;
-
+const defaultVersionId = 'v1';
 describe('UpdateAccountPolicy', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
-  });
-  beforeEach(() => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      policyArn,
-      defaultVersionId: 'v1',
-    });
   });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 
   it('should render readonly form when the policy is internal', async () => {
-    reduxRender(<UpdateAccountPolicy />);
+    renderWithRouterMatch(<UpdateAccountPolicy />, {
+      path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
+      route: `/accounts/scality}/policies/${encodeURIComponent(
+        policyArn,
+      )}/${defaultVersionId}/update-policy`,
+    });
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -104,11 +101,14 @@ describe('UpdateAccountPolicy', () => {
     expect(createButton).toBeInTheDocument();
   });
   it('should render edit form when the policy is not internal', async () => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      policyArn: 'arn:aws:iam::137489910101:policy/custom-policy',
-      defaultVersionId: 'v1',
+    const policyArn = 'arn:aws:iam::137489910101:policy/custom-policy';
+    renderWithRouterMatch(<UpdateAccountPolicy />, {
+      path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
+      route: `/accounts/scality}/policies/${encodeURIComponent(
+        policyArn,
+      )}/${defaultVersionId}/update-policy`,
     });
-    reduxRender(<UpdateAccountPolicy />);
+
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -129,7 +129,12 @@ describe('UpdateAccountPolicy', () => {
     expect(cancelButton).toBeInTheDocument();
   });
   it('should display fields policy name and ARN not empty', async () => {
-    reduxRender(<UpdateAccountPolicy />);
+    renderWithRouterMatch(<UpdateAccountPolicy />, {
+      path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
+      route: `/accounts/scality}/policies/${encodeURIComponent(
+        policyArn,
+      )}/${defaultVersionId}/update-policy`,
+    });
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],
       { timeout: 8000 },
@@ -142,11 +147,13 @@ describe('UpdateAccountPolicy', () => {
     expect(policyARNElement).not.toBeEmptyDOMElement();
   });
   it('should have save button disabled and cancel button enabled at first', async () => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      policyArn: 'arn:aws:iam::137489910101:policy/custom-policy',
-      defaultVersionId: 'v1',
+    const policyArn = 'arn:aws:iam::137489910101:policy/custom-policy';
+    renderWithRouterMatch(<UpdateAccountPolicy />, {
+      path: '/accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy',
+      route: `/accounts/scality}/policies/${encodeURIComponent(
+        policyArn,
+      )}/${defaultVersionId}/update-policy`,
     });
-    reduxRender(<UpdateAccountPolicy />);
 
     await waitForElementToBeRemoved(
       () => [...screen.queryAllByText(/Loading/i)],

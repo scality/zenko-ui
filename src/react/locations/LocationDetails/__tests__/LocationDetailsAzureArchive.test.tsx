@@ -1,20 +1,18 @@
 import { fireEvent, getByLabelText, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Locationv1Details } from '../../../../js/managementClient/api';
-import { reduxRender } from '../../../utils/testUtil';
+import { renderWithCustomRoute } from '../../../utils/testUtil';
 import LocationDetailsAzureArchive from '../LocationDetailsAzureArchive';
 
 const setupAndRenderLocationDetails = (details?: Locationv1Details) => {
   const onChange = jest.fn();
-  const {
-    component: { container },
-  } = reduxRender(
+  const { container } = renderWithCustomRoute(
     <LocationDetailsAzureArchive
       locationType="location-azure-archive-v1"
       details={details || {}}
       onChange={onChange}
     />,
-    {},
+    '/',
   );
   const endpoint = 'https://ep';
   const targetBucket = 'targetBucket';
@@ -27,7 +25,11 @@ type queueType =
   | 'location-azure-storage-queue-v1';
 const selectQueueTypeHelper = (queue: queueType, container: HTMLElement) => {
   const selector = getByLabelText(container, /Queue type \*/i);
-  userEvent.click(selector);
+  fireEvent.keyDown(selector, {
+    key: 'ArrowDown',
+    which: 40,
+    keyCode: 40,
+  });
   if (queue === 'location-azure-servicebus-queue-v1') {
     fireEvent.keyDown(selector, {
       key: 'ArrowDown',
@@ -61,7 +63,11 @@ type authType =
   | 'location-azure-shared-key';
 const selectAuthenticationHelper = (auth: authType, container: HTMLElement) => {
   const selector = getByLabelText(container, /Authentication type \*/i);
-  userEvent.click(selector);
+  fireEvent.keyDown(selector, {
+    key: 'ArrowDown',
+    which: 40,
+    keyCode: 40,
+  });
 
   if (auth === 'location-azure-shared-access-signature') {
     fireEvent.keyDown(selector, {
@@ -194,14 +200,19 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Service Buc Topic should not be able to select Azure Shared Key', async () => {
+  test('Azure Service Bus Topic should not be able to select Azure Shared Key', async () => {
     // S
     const { container } = setupAndRenderLocationDetails();
     selectQueueTypeHelper('location-azure-servicebus-topic-v1', container);
 
     // E
     const selector = getByLabelText(container, /Authentication type \*/i);
-    userEvent.click(selector);
+
+    fireEvent.keyDown(selector, {
+      key: 'ArrowDown',
+      which: 40,
+      keyCode: 40,
+    });
 
     // V
     expect(
@@ -218,7 +229,11 @@ describe('<LocationDetailsAzureArchive />', () => {
 
     // E
     const selector = getByLabelText(container, /Authentication type \*/i);
-    userEvent.click(selector);
+    fireEvent.keyDown(selector, {
+      key: 'ArrowDown',
+      which: 40,
+      keyCode: 40,
+    });
 
     // V
     expect(

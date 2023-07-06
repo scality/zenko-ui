@@ -1,13 +1,13 @@
 import { ConstrainedText, Icon, Toggle, Tooltip } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { Button } from '@scality/core-ui/dist/next';
-import { push } from 'connected-react-router';
-import { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+
+import type { WorkflowScheduleUnitState } from '../../../../types/stats';
+import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { XDM_FEATURE } from '../../../../js/config';
 import type { BucketInfo } from '../../../../types/s3';
 import type { AppState } from '../../../../types/state';
-import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
 import { useChangeBucketVersionning } from '../../../next-architecture/domain/business/buckets';
@@ -16,7 +16,6 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
 import { EmptyBucket } from '../../../ui-elements/EmptyBucket';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
-import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { maybePluralize } from '../../../utils';
@@ -25,6 +24,8 @@ import {
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
+import { useEffect, useState } from 'react';
+import { Button } from '@scality/core-ui/dist/next';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -74,6 +75,7 @@ const workflowAttachedError = (count: number, bucketName: string) => (
 );
 
 function Overview({ bucket, ingestionStates }: Props) {
+  const history = useHistory();
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const locations = useSelector(
@@ -217,13 +219,11 @@ function Overview({ bucket, ingestionStates }: Props) {
                       variant="outline"
                       label="Edit"
                       icon={<Icon name="Pencil" />}
-                      onClick={() =>
-                        dispatch(
-                          push(
-                            `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
-                          ),
-                        )
-                      }
+                      onClick={() => {
+                        history.push(
+                          `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
+                        );
+                      }}
                     />
                   </T.GroupValues>
                 </T.Row>

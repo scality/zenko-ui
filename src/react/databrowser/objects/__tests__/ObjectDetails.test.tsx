@@ -1,158 +1,113 @@
-import * as hooks from '../../../utils/hooks';
 import {
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
 import ObjectDetails, {
-  InfoWarning,
   MULTIPLE_ITEMS_SELECTED_MESSAGE,
   SELECT_AN_OBJECT_MESSAGE,
 } from '../ObjectDetails';
 import { List } from 'immutable';
-import { MemoryRouter } from 'react-router-dom';
 import { OBJECT_METADATA } from '../../../actions/__tests__/utils/testUtil';
-import Properties from '../details/Properties';
-import React from 'react';
-import { reduxMount } from '../../../utils/testUtil';
-import router from 'react-router';
+import { renderWithRouterMatch } from '../../../utils/testUtil';
+import { screen } from '@testing-library/react';
+
+const renderObjectDetails = (
+  route = '/buckets/test/objects',
+  list = List([FIRST_FORMATTED_OBJECT]),
+  initialState = {},
+) => {
+  renderWithRouterMatch(
+    <ObjectDetails toggled={list} />,
+    {
+      route: route,
+      path: '/buckets/:bucketName/objects',
+    },
+    initialState,
+  );
+};
+
 describe('ObjectDetails', () => {
-  beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue({
-      pathname: '/buckets/test/objects',
-    });
-  });
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
   it('should display "Summary" tab when there is one toggled object', async () => {
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])} />
-      </MemoryRouter>,
-      {
-        s3: {
-          objectMetadata: OBJECT_METADATA,
-        },
+    renderObjectDetails(undefined, undefined, {
+      s3: {
+        objectMetadata: OBJECT_METADATA,
       },
-    );
-    expect(component.find(Properties)).toHaveLength(1);
+    });
+    const labels = [
+      'Name',
+      'Version ID',
+      'Size',
+      'Modified On',
+      'ETag',
+      'Lock',
+    ];
+    labels.forEach((label) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(OBJECT_METADATA.objectName)).toBeInTheDocument();
   });
   it('should display nothing in "Tags" tab when there is one toggled object', () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=tags'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])} />
-      </MemoryRouter>,
-      {
-        s3: {
-          objectMetadata: OBJECT_METADATA,
-        },
+    renderObjectDetails('/buckets/test/objects?tab=tags', undefined, {
+      s3: {
+        objectMetadata: OBJECT_METADATA,
       },
-    );
-    expect(component.find(Properties)).toHaveLength(0);
-    expect(component.find(InfoWarning)).toHaveLength(0);
+    });
+    expect(screen.getByText('Key')).toBeInTheDocument();
+    expect(screen.getByText('Value')).toBeInTheDocument();
   });
   it('should display nothing in "Metadata" tab when there is one toggled object', () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=metadata'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List([FIRST_FORMATTED_OBJECT])} />
-      </MemoryRouter>,
-      {
-        s3: {
-          objectMetadata: OBJECT_METADATA,
-        },
+    renderObjectDetails('/buckets/test/objects?tab=metadata', undefined, {
+      s3: {
+        objectMetadata: OBJECT_METADATA,
       },
-    );
-    expect(component.find(Properties)).toHaveLength(0);
-    expect(component.find(InfoWarning)).toHaveLength(0);
+    });
+
+    expect(screen.getByText('Key')).toBeInTheDocument();
+    expect(screen.getByText('Value')).toBeInTheDocument();
   });
   it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Summary" tab when there are more than one toggled object`, async () => {
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails
-          toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}
-        />
-      </MemoryRouter>,
+    renderObjectDetails(
+      undefined,
+      List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT]),
     );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      MULTIPLE_ITEMS_SELECTED_MESSAGE,
-    );
+
+    expect(
+      screen.getByText(MULTIPLE_ITEMS_SELECTED_MESSAGE),
+    ).toBeInTheDocument();
   });
   it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Tabs" tab when there are more than one toggled object`, () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=tags'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails
-          toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}
-        />
-      </MemoryRouter>,
+    renderObjectDetails(
+      '/buckets/test/objects?tab=tags',
+      List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT]),
     );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      MULTIPLE_ITEMS_SELECTED_MESSAGE,
-    );
+
+    expect(
+      screen.getByText(MULTIPLE_ITEMS_SELECTED_MESSAGE),
+    ).toBeInTheDocument();
   });
   it(`should display "${MULTIPLE_ITEMS_SELECTED_MESSAGE}" message in "Metadata" tab when there are more than one toggled object`, () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=metadata'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails
-          toggled={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}
-        />
-      </MemoryRouter>,
+    renderObjectDetails(
+      '/buckets/test/objects?tab=metadata',
+      List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT]),
     );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      MULTIPLE_ITEMS_SELECTED_MESSAGE,
-    );
+
+    expect(
+      screen.getByText(MULTIPLE_ITEMS_SELECTED_MESSAGE),
+    ).toBeInTheDocument();
   });
   it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Summary" tab if no object has been toggled`, async () => {
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List()} />
-      </MemoryRouter>,
-    );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      SELECT_AN_OBJECT_MESSAGE,
-    );
+    renderObjectDetails('/buckets/test/objects', List());
+    expect(screen.getByText(SELECT_AN_OBJECT_MESSAGE)).toBeInTheDocument();
   });
+
   it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Tabs" tab if no object has been toggled`, () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=tags'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List()} />
-      </MemoryRouter>,
-    );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      SELECT_AN_OBJECT_MESSAGE,
-    );
+    renderObjectDetails('/buckets/test/objects?tab=tags', List());
+    expect(screen.getByText(SELECT_AN_OBJECT_MESSAGE)).toBeInTheDocument();
   });
+
   it(`should display "${SELECT_AN_OBJECT_MESSAGE}" message in "Metadata" tab if no object has been toggled`, () => {
-    jest
-      .spyOn(hooks, 'useQueryParams')
-      .mockReturnValue(new URLSearchParams('?tab=metadata'));
-    const { component } = reduxMount(
-      <MemoryRouter initialEntries={['/buckets/test/objects']}>
-        <ObjectDetails toggled={List()} />
-      </MemoryRouter>,
-    );
-    expect(component.find(InfoWarning)).toHaveLength(1);
-    expect(component.find(InfoWarning).prop('title')).toBe(
-      SELECT_AN_OBJECT_MESSAGE,
-    );
+    renderObjectDetails('/buckets/test/objects?tab=metadata', List());
+    expect(screen.getByText(SELECT_AN_OBJECT_MESSAGE)).toBeInTheDocument();
   });
 });

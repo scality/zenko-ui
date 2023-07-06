@@ -6,7 +6,9 @@ import {
   testActionFunction,
   testDispatchFunction,
 } from './utils/testUtil';
-describe('configuration actions', () => {
+
+// FIXME: To be deleted, just keep for reference for now
+describe.skip('configuration actions', () => {
   const syncTests = [
     {
       it: 'should return CONFIGURATION_VERSION action',

@@ -1,0 +1,21 @@
+{
+  "kind": "MicroAppConfiguration",
+  "apiVersion": "ui.scality.com/v1alpha1",
+  "metadata": {
+    "kind": "zenko-ui"
+  },
+  "spec": {
+    "remoteEntryPath": "/js/remoteEntry.js",
+    "views": {
+      "dataManagement": {
+        "path": "/",
+        "label": {
+          "en": "Data Management",
+          "fr": "Gestion de données"
+        },
+        "module": "./FederableApp",
+        "scope": "zenko"
+      }
+    }
+  }
+}

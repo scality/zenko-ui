@@ -1,6 +1,6 @@
 import { BasicText, EmphaseText, LargerText } from '@scality/core-ui';
 import { useState } from 'react';
-import { useParams, useRouteMatch } from 'react-router';
+import { useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { regexArn } from '../../utils/hooks';

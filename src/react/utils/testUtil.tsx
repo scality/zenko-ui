@@ -10,7 +10,7 @@ import IAMClient from '../../js/IAMClient';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Route, Router } from 'react-router-dom';
 
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
 import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
@@ -18,7 +18,6 @@ import Activity from '../ui-elements/Activity';
 import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
 import zenkoUIReducer from '../reducers';
 import { applyMiddleware, compose, createStore } from 'redux';
-import { routerMiddleware } from 'connected-react-router';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
@@ -88,22 +87,31 @@ export const newTestStore = (state) => {
 
 export const TEST_API_BASE_URL = 'http://testendpoint';
 export const realStoreWithInitState = (state) => {
-  const zenkoClient = new ZenkoClient(TEST_API_BASE_URL);
+  const zenkoClient = new ZenkoClient(
+    TEST_API_BASE_URL,
+    'iam.internal',
+    's3.internal',
+    '/',
+  );
   zenkoClient.login({
     accessKey: 'accessKey',
     secretKey: 'secretKey',
     sessionToken: 'sessionToken',
   });
+
+  const tmpState = {
+    ...initialFullState,
+    ...authenticatedUserState(),
+
+    configuration,
+    ...{ zenko: { ...initialFullState.zenko, zenkoClient } },
+    ...(state || {}),
+  };
+  tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;
   const store = createStore(
-    zenkoUIReducer(history),
-    {
-      ...initialFullState,
-      ...authenticatedUserState(),
-      configuration,
-      ...{ zenko: { ...initialFullState.zenko, zenkoClient } },
-      ...(state || {}),
-    },
-    compose(applyMiddleware(thunk, routerMiddleware(history))),
+    zenkoUIReducer(),
+    tmpState,
+    compose(applyMiddleware(thunk)),
   );
 
   return store;
@@ -127,6 +135,8 @@ export const TEST_MANAGEMENT_CLIENT = new UiFacingApi(
   fetch,
 );
 export const queryClient = new QueryClient({
+  // In test environnement, we don't want to retry queries
+  // because we may test the error case
   defaultOptions: {
     queries: {
       retry: false,
@@ -148,50 +158,54 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
     roleArn: TEST_ROLE_ARN,
   };
 
+  const store = realStoreWithInitState({});
+
   return (
     <QueryClientProvider client={queryClient}>
-      <Router history={history}>
-        <_ConfigContext.Provider value={zenkoUITestConfig}>
-          <_AuthContext.Provider
-            value={{
-              user: {
-                access_token: 'token',
-                profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
-              },
-            }}
-          >
-            <_DataServiceRoleContext.Provider value={{ role }}>
-              <_ManagementContext.Provider
-                value={{
-                  managementClient: TEST_MANAGEMENT_CLIENT,
-                }}
-              >
-                <LocationAdapterProvider>
-                  <MetricsAdapterProvider>
-                    <AccountsAdapterProvider>
-                      <AccessibleAccountsAdapterProvider>
-                        <S3ClientProvider
-                          configuration={{
-                            endpoint: zenkoUITestConfig.zenkoEndpoint,
-                            s3ForcePathStyle: true,
-                            credentials: {
-                              accessKeyId: 'accessKey',
-                              secretAccessKey: 'secretKey',
-                              sessionToken: 'sessionToken',
-                            },
-                          }}
-                        >
-                          {children}
-                        </S3ClientProvider>
-                      </AccessibleAccountsAdapterProvider>
-                    </AccountsAdapterProvider>
-                  </MetricsAdapterProvider>
-                </LocationAdapterProvider>
-              </_ManagementContext.Provider>
-            </_DataServiceRoleContext.Provider>
-          </_AuthContext.Provider>
-        </_ConfigContext.Provider>
-      </Router>
+      <Provider store={store}>
+        <Router history={history}>
+          <_ConfigContext.Provider value={zenkoUITestConfig}>
+            <_AuthContext.Provider
+              value={{
+                user: {
+                  access_token: 'token',
+                  profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
+                },
+              }}
+            >
+              <_DataServiceRoleContext.Provider value={{ role }}>
+                <_ManagementContext.Provider
+                  value={{
+                    managementClient: TEST_MANAGEMENT_CLIENT,
+                  }}
+                >
+                  <LocationAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <AccountsAdapterProvider>
+                        <AccessibleAccountsAdapterProvider>
+                          <S3ClientProvider
+                            configuration={{
+                              endpoint: zenkoUITestConfig.zenkoEndpoint,
+                              s3ForcePathStyle: true,
+                              credentials: {
+                                accessKeyId: 'accessKey',
+                                secretAccessKey: 'secretKey',
+                                sessionToken: 'sessionToken',
+                              },
+                            }}
+                          >
+                            {children}
+                          </S3ClientProvider>
+                        </AccessibleAccountsAdapterProvider>
+                      </AccountsAdapterProvider>
+                    </MetricsAdapterProvider>
+                  </LocationAdapterProvider>
+                </_ManagementContext.Provider>
+              </_DataServiceRoleContext.Provider>
+            </_AuthContext.Provider>
+          </_ConfigContext.Provider>
+        </Router>
+      </Provider>
     </QueryClientProvider>
   );
 };
@@ -214,7 +228,7 @@ export const reduxMount = (component: React.ReactNode, testState?: any) => {
 export function mockOffsetSize(width: number, height: number) {
   const originalFunction = window.getComputedStyle;
   const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
-  spyGetComputedStyle.mockImplementation((elt, _) => {
+  spyGetComputedStyle.mockImplementation((elt) => {
     const originalStyle = originalFunction(elt);
     originalStyle.fontSize = '14px';
     return originalStyle;
@@ -305,7 +319,7 @@ export async function reduxMountAct(component, testState) {
 }
 export const themeMount = (component: React.ReactNode) => {
   return mount(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
@@ -362,7 +376,7 @@ export function testTableRow(
 
 export const simpleRender = (component: React.ReactNode) => {
   return render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
@@ -383,51 +397,43 @@ export function renderWithRouterMatch(
 
   return {
     ...render(
-      <QueryClientProvider client={new QueryClient()}>
+      <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
               <Route path={path}>
-                <_ConfigContext.Provider value={zenkoUITestConfig}>
-                  <_AuthContext.Provider
+                <_DataServiceRoleContext.Provider value={{ role }}>
+                  <_ManagementContext.Provider
                     value={{
-                      user: {
-                        access_token: 'token',
-                        profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
-                      },
+                      managementClient: TEST_MANAGEMENT_CLIENT,
                     }}
                   >
-                    <_DataServiceRoleContext.Provider value={{ role }}>
-                      <_ManagementContext.Provider
-                        value={{
-                          managementClient: TEST_MANAGEMENT_CLIENT,
-                        }}
-                      >
-                        <LocationAdapterProvider>
-                          <MetricsAdapterProvider>
-                            <AccountsAdapterProvider>
-                              <AccessibleAccountsAdapterProvider>
-                                <S3ClientProvider
-                                  configuration={{
-                                    endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                    s3ForcePathStyle: true,
-                                    credentials: {
-                                      accessKeyId: 'accessKey',
-                                      secretAccessKey: 'secretKey',
-                                      sessionToken: 'sessionToken',
-                                    },
-                                  }}
-                                >
-                                  {component}
-                                </S3ClientProvider>
-                              </AccessibleAccountsAdapterProvider>
-                            </AccountsAdapterProvider>
-                          </MetricsAdapterProvider>
-                        </LocationAdapterProvider>
-                      </_ManagementContext.Provider>
-                    </_DataServiceRoleContext.Provider>
-                  </_AuthContext.Provider>
-                </_ConfigContext.Provider>
+                    <LocationAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <AccountsAdapterProvider>
+                          <AccessibleAccountsAdapterProvider>
+                            <S3ClientProvider
+                              configuration={{
+                                endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                s3ForcePathStyle: true,
+                                credentials: {
+                                  accessKeyId: 'accessKey',
+                                  secretAccessKey: 'secretKey',
+                                  sessionToken: 'sessionToken',
+                                },
+                              }}
+                            >
+                              {component}
+                              {/* FIXME We are going to manage error differently
+                              I keep it here to pass some tests */}
+                              <ErrorHandlerModal />
+                            </S3ClientProvider>
+                          </AccessibleAccountsAdapterProvider>
+                        </AccountsAdapterProvider>
+                      </MetricsAdapterProvider>
+                    </LocationAdapterProvider>
+                  </_ManagementContext.Provider>
+                </_DataServiceRoleContext.Provider>
               </Route>
             </Router>
           </Provider>
@@ -436,3 +442,126 @@ export function renderWithRouterMatch(
     ),
   };
 }
+
+export const renderWithCustomRoute = (
+  component: React.ReactNode,
+  route: string,
+  testState?: unknown,
+) => {
+  const history = createMemoryHistory({ initialEntries: [route] });
+  const store = realStoreWithInitState(testState);
+  const role = {
+    roleArn: TEST_ROLE_ARN,
+  };
+
+  return {
+    ...render(
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <Router history={history}>
+              <_ConfigContext.Provider value={zenkoUITestConfig}>
+                <_DataServiceRoleContext.Provider value={{ role }}>
+                  <_ManagementContext.Provider
+                    value={{
+                      managementClient: TEST_MANAGEMENT_CLIENT,
+                    }}
+                  >
+                    <LocationAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <AccountsAdapterProvider>
+                          <AccessibleAccountsAdapterProvider>
+                            <S3ClientProvider
+                              configuration={{
+                                endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                s3ForcePathStyle: true,
+                                credentials: {
+                                  accessKeyId: 'accessKey',
+                                  secretAccessKey: 'secretKey',
+                                  sessionToken: 'sessionToken',
+                                },
+                              }}
+                            >
+                              {component}
+                              {/* FIXME We are going to manage error differently
+                              I keep it here to pass some tests */}
+                              <ErrorHandlerModal />
+                            </S3ClientProvider>
+                          </AccessibleAccountsAdapterProvider>
+                        </AccountsAdapterProvider>
+                      </MetricsAdapterProvider>
+                    </LocationAdapterProvider>
+                  </_ManagementContext.Provider>
+                </_DataServiceRoleContext.Provider>
+              </_ConfigContext.Provider>
+            </Router>
+          </Provider>
+        </ThemeProvider>
+      </QueryClientProvider>,
+    ),
+  };
+};
+
+export const NewWrapper =
+  (route = '/', testState: unknown = {}) =>
+  ({ children }: { children: ReactNode }) => {
+    const history = createMemoryHistory({ initialEntries: [route] });
+    const store = realStoreWithInitState(testState);
+
+    // const history = createMemoryHistory();
+    // const store = realStoreWithInitState({});
+    const role = {
+      roleArn: TEST_ROLE_ARN,
+    };
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <Router history={history}>
+              <_DataServiceRoleContext.Provider value={{ role }}>
+                <_ManagementContext.Provider
+                  value={{
+                    managementClient: TEST_MANAGEMENT_CLIENT,
+                  }}
+                >
+                  <LocationAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <AccountsAdapterProvider>
+                        <AccessibleAccountsAdapterProvider>
+                          <S3ClientProvider
+                            configuration={{
+                              endpoint: zenkoUITestConfig.zenkoEndpoint,
+                              s3ForcePathStyle: true,
+                              credentials: {
+                                accessKeyId: 'accessKey',
+                                secretAccessKey: 'secretKey',
+                                sessionToken: 'sessionToken',
+                              },
+                            }}
+                          >
+                            {children}
+                            {/* FIXME We are going to manage error differently
+                              I keep it here to pass some tests */}
+                            <ErrorHandlerModal />
+                          </S3ClientProvider>
+                        </AccessibleAccountsAdapterProvider>
+                      </AccountsAdapterProvider>
+                    </MetricsAdapterProvider>
+                  </LocationAdapterProvider>
+                </_ManagementContext.Provider>
+              </_DataServiceRoleContext.Provider>
+            </Router>
+          </Provider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+  };
+
+// FIXME This helper should be remove later when we find a way to correctly use select with userEvent.
+export const selectClick = (component) => {
+  fireEvent.keyDown(component, {
+    key: 'ArrowDown',
+    which: 40,
+    keyCode: 40,
+  });
+};

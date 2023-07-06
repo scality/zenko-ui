@@ -5,7 +5,6 @@ import {
   NFS_V4_CONFLICTS,
   NFS_V4_OPTIONS,
 } from './constants';
-import urlParse from 'url-parse';
 const v3ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V3_CONFLICTS);
 const v4ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V4_CONFLICTS);
 
@@ -36,8 +35,8 @@ function _checkNFSDetails(details) {
     protocol: scheme,
     host,
     pathname: path,
-    query,
-  } = urlParse(details.endpoint);
+    search: query,
+  } = new URL(details.endpoint);
   const [protocol, version] = scheme.slice(0, -1).split('+');
 
   if (protocol !== 'udp' && protocol !== 'tcp') {

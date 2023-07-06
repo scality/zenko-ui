@@ -1,25 +1,28 @@
 import AccountCreate from '../AccountCreate';
-import { reduxMountAct, reduxRender } from '../../utils/testUtil';
+import {
+  reduxMountAct,
+  reduxRender,
+  renderWithRouterMatch,
+} from '../../utils/testUtil';
 import { screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 describe('AccountCreate', () => {
   it('should render AccountCreate component with no error banner', async () => {
-    const component = await reduxMountAct(<AccountCreate />);
-    expect(component.find('#zk-error-banner')).toHaveLength(0);
-    component.unmount();
+    renderWithRouterMatch(<AccountCreate />);
+
+    expect(screen.queryByText('Error')).toBeNull();
   });
   it('should render AccountCreate component with error banner', async () => {
     const errorMessage = 'error message test';
-    const component = await reduxMountAct(<AccountCreate />, {
+    await renderWithRouterMatch(<AccountCreate />, undefined, {
       uiErrors: {
         errorMsg: errorMessage,
         errorType: 'byComponent',
       },
     });
-    expect(component.find('#zk-error-banner')).toHaveLength(1);
-    expect(component.find('#zk-error-banner').text()).toContain(errorMessage);
-    component.unmount();
+
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
   // * error input
   //   * button click

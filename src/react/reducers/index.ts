@@ -3,7 +3,6 @@ import auth from './auth';
 import bucket from './bucket';
 import { combineReducers } from 'redux';
 import configuration from './configuration';
-import { connectRouter } from 'connected-react-router';
 import instanceStatus from './instanceStatus';
 import instances from './instances';
 import networkActivity from './networkActivity';
@@ -20,16 +19,14 @@ import uiLocations from './uiLocations';
 import uiObjects from './uiObjects';
 import uiUser from './uiUser';
 import uiWorkflows from './uiWorkflows';
-import user from './user';
 import zenko from './zenko';
 
-const zenkoUIReducer = (history) =>
+const zenkoUIReducer = () =>
   combineReducers({
     account,
     auth,
     bucket,
     configuration,
-    user,
     instanceStatus,
     instances,
     networkActivity,
@@ -46,7 +43,6 @@ const zenkoUIReducer = (history) =>
     secrets,
     stats,
     oidc,
-    router: connectRouter(history),
     zenko: zenko,
   });
 

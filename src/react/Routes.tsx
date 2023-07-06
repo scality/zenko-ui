@@ -1,4 +1,4 @@
-import { EmptyStateContainer, NavbarContainer } from './ui-elements/Container';
+import { EmptyStateContainer } from './ui-elements/Container';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Redirect,
@@ -24,22 +24,20 @@ import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import Loader from './ui-elements/Loader';
 import LocationEditor from './locations/LocationEditor';
-import { Navbar } from './Navbar';
 import NoMatch from './NoMatch';
 import ManagementProvider from './ManagementProvider';
 import DataServiceRoleProvider, {
   useCurrentAccount,
-  useDataServiceRole,
 } from './DataServiceRoleProvider';
 import BucketCreate from './databrowser/buckets/BucketCreate';
 import makeMgtClient from '../js/managementClient';
 import { ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
 import { Warning } from './ui-elements/Warning';
-import { push } from 'connected-react-router';
-import { AppContainer, Layout2 } from '@scality/core-ui';
+import { AppContainer } from '@scality/core-ui';
 import { Locations } from './locations/Locations';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import { useAuthGroups } from './utils/hooks';
+import { useTheme } from 'styled-components';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -60,7 +58,7 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
 
 const RedirectToAccount = () => {
   // To be replace later by react-query or context
-  const dispatch = useDispatch();
+  const history = useHistory();
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
 
@@ -81,7 +79,7 @@ const RedirectToAccount = () => {
           icon={<Icon name="Account" size="5x" />}
           title={`Before browsing your ${description}, create your first account.`}
           btnTitle="Create Account"
-          btnAction={() => dispatch(push('/create-account'))}
+          btnAction={() => history.push('/create-account')}
         />
       </EmptyStateContainer>
     );
@@ -155,7 +153,7 @@ function PrivateRoutes() {
       <Route exact path="/" render={() => <Redirect to="/accounts" />} />
       <Route exact path="/create-location" component={LocationEditor} />
       <Route path="/locations/:locationName/edit" component={LocationEditor} />
-      <Route path="/accounts" exact component={Accounts} />
+
       <Route path="/workflows" exact>
         <RedirectToAccount />
       </Route>
@@ -177,12 +175,12 @@ function PrivateRoutes() {
         </Switch>
       </Route>
 
+      <Route path="/accounts" component={Accounts} />
       <Route path="/create-account" component={AccountCreate} />
 
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
       <Route exact path="/locations" component={Locations} />
-
       <Route path="*" component={NoMatch} />
     </Switch>
   );
@@ -195,6 +193,7 @@ function Routes() {
   );
   const history = useHistory();
   const location = useLocation();
+  const theme = useTheme();
   const { isStorageManager } = useAuthGroups();
 
   const doesRouteMatch = useCallback(
@@ -316,30 +315,23 @@ function Routes() {
   };
 
   return (
-    <Layout2
-      headerNavigation={
-        <NavbarContainer>
-          <Navbar />
-        </NavbarContainer>
-      }
-    >
-      <DataServiceRoleProvider>
-        <>
-          <ReauthDialog />
-          <AppContainer
-            hasPadding
-            sidebarNavigation={
-              hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
-            }
-          >
-            <RemoveTrailingSlash />
-            <ManagementProvider>
-              <PrivateRoutes />
-            </ManagementProvider>
-          </AppContainer>
-        </>
-      </DataServiceRoleProvider>
-    </Layout2>
+    <DataServiceRoleProvider>
+      <>
+        <ReauthDialog />
+        <AppContainer
+          hasPadding
+          sidebarNavigation={
+            hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
+          }
+          style={{ color: theme.textPrimary }}
+        >
+          <RemoveTrailingSlash />
+          <ManagementProvider>
+            <PrivateRoutes />
+          </ManagementProvider>
+        </AppContainer>
+      </>
+    </DataServiceRoleProvider>
   );
 }
 

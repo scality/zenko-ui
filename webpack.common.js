@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const deps = require('./package.json').dependencies;
 
 const revision = require('child_process')
   .execSync('git rev-parse HEAD')
@@ -13,12 +15,15 @@ module.exports = {
   },
   output: {
     filename: `js/[name].${revision}.js`,
-    path: path.resolve(__dirname, 'public/assets'),
-    publicPath: '/',
+    publicPath: '/data/',
+    path: path.resolve(__dirname, 'build'),
   },
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    // This is needed because node_modules/aws-sdk/lib/event_listeners.js use require('util')
+    // and webpack doesn't know how to resolve it.
+    fallback: { util: require.resolve('util/') },
   },
   module: {
     rules: [
@@ -64,11 +69,41 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: 'style-loader!css-loader',
+        use: ['style-loader', 'css-loader'],
       },
     ],
   },
   plugins: [
+    new ModuleFederationPlugin({
+      name: 'zenko',
+      filename: 'js/remoteEntry.js',
+      exposes: {
+        './FederableApp': './src/react/FederableApp.tsx',
+      },
+      shared: {
+        ...Object.fromEntries(
+          Object.entries(deps).map(([key, version]) => [key, {}]),
+        ),
+        '@scality/core-ui': {
+          singleton: true,
+        },
+        '@scality/module-federation': {
+          singleton: true,
+        },
+        'styled-components': {
+          singleton: true,
+          requiredVersion: deps['styled-components'],
+        },
+        react: {
+          singleton: true,
+          requiredVersion: deps.react,
+        },
+        'react-dom': {
+          singleton: true,
+          requiredVersion: deps['react-dom'],
+        },
+      },
+    }),
     new MonacoWebpackPlugin({
       languages: ['json'],
     }),

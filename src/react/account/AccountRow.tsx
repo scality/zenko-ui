@@ -1,12 +1,14 @@
-import * as T from '../ui-elements/Table';
-import React, { memo } from 'react';
-import type { Account } from '../../types/account';
-import type { Action } from '../../types/actions';
+import { memo } from 'react';
 import type { DispatchAPI } from 'redux';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
-import { push } from 'connected-react-router';
+import { useHistory } from 'react-router-dom';
+
+import type { Account } from '../../types/account';
+import type { Action } from '../../types/actions';
+import * as T from '../ui-elements/Table';
+
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -46,10 +48,11 @@ export const createItemData = memoize(
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-  data: { rows, prepareRow, accountNameParam, dispatch },
+  data: { rows, prepareRow, accountNameParam },
   index,
   style,
 }: RowProps) => {
+  const history = useHistory();
   const row = rows[index];
   prepareRow(row);
   const accountName = row.original.Name;
@@ -59,7 +62,7 @@ const Row = ({
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(push(`/accounts/${accountName}`));
+          history.push(`/accounts/${accountName}`);
         }
       }}
       {...row.getRowProps({

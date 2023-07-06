@@ -21,7 +21,7 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
         accountInfos: {
           status: 'error',
           title: 'An error occurred while fetching the accounts',
-          reason: 'Interal error',
+          reason: 'Internal error',
         },
       };
     }

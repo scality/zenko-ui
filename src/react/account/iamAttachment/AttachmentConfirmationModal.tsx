@@ -14,7 +14,7 @@ import {
   EntityType,
 } from './AttachmentTypes';
 import { useTheme } from 'styled-components';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import { InlineButton } from '../../ui-elements/Table';
 import {
   getListAttachedUserPoliciesQuery,

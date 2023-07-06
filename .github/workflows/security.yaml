@@ -9,18 +9,35 @@ on:
   pull_request:
     branches: [development/*, stabilization/*, hotfix/*]
   schedule:
-    - cron: '0 8 * * 1' # Monday - 8am - UTC
+    - cron: "0 8 * * 1" # Monday - 8am - UTC
   workflow_dispatch:
 
-
 jobs:
-  build-zenko-ui:
+  build-ui:
+    runs-on: ubuntu-20.04
     permissions:
       contents: read
       packages: write
-    uses: scality/workflows/.github/workflows/docker-build.yaml@v1
-    with:
-      name: zenko-ui
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.5
+      - uses: actions/setup-node@v2.4.1
+        with:
+          node-version: "16"
+          cache: "npm"
+      - name: install dependencies
+        run: npm config set unsafe-perm true && npm ci
+      - name: build assets
+        run: npm run build
+      - name: Build and push zenko ui
+        uses: docker/build-push-action@v2.7.0
+        with:
+          push: true
+          context: .
+          tags: |
+            ghcr.io/${{ github.repository }}/zenko-ui:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   trivy-zenko-ui:
     needs: build-zenko-ui

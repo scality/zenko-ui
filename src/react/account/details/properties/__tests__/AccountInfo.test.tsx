@@ -1,12 +1,12 @@
 import * as T from '../../../../ui-elements/TableKeyValue';
 import {
   reduxMount,
-  reduxRender,
   testTableRow,
   TEST_API_BASE_URL,
-  TEST_MANAGEMENT_CLIENT,
   TEST_ROLE_PATH_NAME,
-  WrapperAsStorageManager,
+  renderWithRouterMatch,
+  renderWithCustomRoute,
+  zenkoUITestConfig,
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
@@ -14,9 +14,16 @@ import { formatDate } from '../../../../utils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { useAuth } from '../../../../next-architecture/ui/AuthProvider';
+import { debug } from 'jest-preview';
+import userEvent from '@testing-library/user-event';
+import { Route, Switch } from 'react-router-dom';
+import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
-const server = setupServer();
+const server = setupServer(
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -44,6 +51,20 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 }
 
 describe('AccountInfo', () => {
+  beforeEach(() => {
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['StorageManager', 'user', 'PlatformAdmin'],
+        },
+      };
+    });
+  });
+
   it('should render AccountInfo component', () => {
     const { component } = reduxMount(<AccountInfo account={account1} />);
     expect(component.find(Table)).toHaveLength(1);
@@ -67,24 +88,22 @@ describe('AccountInfo', () => {
       key: 'Creation Date',
       value: formatDate(new Date(account1.CreationDate)),
     });
-    // const fifthRow = rows.at(3);
-    // testRow(fifthRow, {
-    //   key: 'Root User Email',
-    //   value: account1.email,
-    //   extraCellComponent: 'Clipboard',
-    // });
-    // const sixthRow = rows.at(4);
-    // testRow(sixthRow, {
-    //   key: 'Root User ARN',
-    //   value: account1.arn,
-    //   extraCellComponent: 'Clipboard',
-    // });
   });
 
   it('should not be able to delete an account when not a storage manager', () => {
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['user', 'PlatformAdmin'],
+        },
+      };
+    });
     //S+E
-    reduxRender(<AccountInfo account={account1} />, {
-      auth: { managementClient: TEST_MANAGEMENT_CLIENT },
+    renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
       instances: { selectedId: INSTANCE_ID },
     });
     //V
@@ -105,27 +124,39 @@ describe('AccountInfo', () => {
         },
       ),
     );
-    reduxRender(
-      <WrapperAsStorageManager isStorageManager={true}>
-        <AccountInfo account={account1} />
-      </WrapperAsStorageManager>,
+
+    renderWithCustomRoute(
+      <Switch>
+        <Route exact path="/">
+          <AccountInfo account={account1} />
+        </Route>
+        <Route path="/accounts">
+          <div>Account Page</div>
+        </Route>
+      </Switch>,
+      '/',
       {
-        auth: { managementClient: TEST_MANAGEMENT_CLIENT },
         instances: { selectedId: INSTANCE_ID },
       },
     );
+
     //E
-    fireEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    await waitFor(() =>
-      expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalled(),
-    );
-    //V
-    expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(
-      new URLSearchParams({
+    userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+
+    userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => {
+      const params = new URLSearchParams({
         accountName: account1.Name,
         roleName: TEST_ROLE_PATH_NAME,
-      }).toString(),
-    );
+      }).toString();
+      return expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(
+        params,
+      );
+    });
+
+    await waitFor(() => {
+      return expect(screen.getByText('Account Page')).toBeInTheDocument();
+    });
   });
 });

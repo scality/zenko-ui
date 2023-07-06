@@ -1,23 +1,23 @@
-import { Replication } from '../../types/config';
 import { useCallback, useMemo, useState, ComponentType } from 'react';
+import { useHistory } from 'react-router-dom';
+import { CellProps, CoreUIColumn } from 'react-table';
+import { useDispatch, useSelector } from 'react-redux';
+import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
+import { useMutation, useQueryClient } from 'react-query';
+
+import { Replication } from '../../types/config';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 import { canDeleteLocation, canEditLocation } from './utils';
 import { deleteLocation } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { Warning } from '../ui-elements/Warning';
-import { push } from 'connected-react-router';
 import { Table, Button, Box } from '@scality/core-ui/dist/next';
-import { useHistory } from 'react-router-dom';
-import { CellProps, CoreUIColumn } from 'react-table';
 import { useWorkflows } from '../workflow/Workflows';
 import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { getLocationType } from '../utils/storageOptions';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
-import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
 import { PauseAndResume } from './PauseAndResume';
 import {
   queries,
@@ -28,7 +28,6 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { Location } from '../next-architecture/domain/entities/location';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { useMutation, useQueryClient } from 'react-query';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 
 const ActionButtons = ({
@@ -281,7 +280,7 @@ export function LocationsList() {
         icon={<Icon name="Map-marker" size="5x" />}
         title="Create your first storage location."
         btnTitle="Create Location"
-        btnAction={() => dispatch(push('/create-location'))}
+        btnAction={() => history.push('/create-location')}
       />
     );
   }

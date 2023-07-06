@@ -20,7 +20,6 @@ import type { ErrorViewType } from './ui';
 import type { IamAccessKey } from './user';
 import { List } from 'immutable';
 import type { ManagementClient as ManagementClientInterface } from './managementClient';
-import type { RouterState } from 'connected-react-router';
 import type { STSClient } from './sts';
 import type { Workflows } from './workflow';
 export type AuthState = {
@@ -129,7 +128,6 @@ export type AppState = {
   readonly instanceStatus: InstanceStatusState;
   readonly networkActivity: NetworkActivityState;
   readonly oidc: OIDCState;
-  readonly router: RouterState;
   readonly secrets: SecretsState;
   readonly uiErrors: ErrorsUIState;
   readonly uiLocations: LocationsUIState;

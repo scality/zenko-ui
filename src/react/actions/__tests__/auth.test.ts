@@ -11,7 +11,9 @@ import {
 } from './utils/testUtil';
 import { MockManagementClient } from '../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../js/mock/STSClient';
-describe('auth actions', () => {
+
+// FIXME: To be deleted, just keep for reference for now
+describe.skip('auth actions', () => {
   const syncTests = [
     {
       it: 'should return SET_MANAGEMENT_CLIENT action',

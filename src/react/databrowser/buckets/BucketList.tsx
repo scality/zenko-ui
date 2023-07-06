@@ -1,10 +1,8 @@
 import { ConstrainedText, Icon, Link, spacing } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import { push } from 'connected-react-router';
 import { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
-import { useHistory, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
 import type { LocationName, Locations } from '../../../types/config';
@@ -37,10 +35,10 @@ export default function BucketList({
   ingestionStates,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
-  const dispatch = useDispatch();
   const { features } = useConfig();
   const query = useQueryParams();
   const { account } = useCurrentAccount();
+  const history = useHistory();
   const tabName = query.get('tab');
 
   const { isStorageManager } = useAuthGroups();
@@ -175,7 +173,7 @@ export default function BucketList({
               label="Create Bucket"
               variant="primary"
               onClick={() =>
-                dispatch(push(`/accounts/${accountName}/create-bucket`))
+                history.push(`/accounts/${accountName}/create-bucket`)
               }
               type="submit"
             />
@@ -187,12 +185,10 @@ export default function BucketList({
               const isSelected = selectedBucketName === row.original.name;
 
               if (!isSelected) {
-                dispatch(
-                  push(
-                    tabName
-                      ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
-                      : `/accounts/${account?.Name}/buckets/${row.original.name}`,
-                  ),
+                history.push(
+                  tabName
+                    ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
+                    : `/accounts/${account?.Name}/buckets/${row.original.name}`,
                 );
               }
             }}

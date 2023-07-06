@@ -1,4 +1,4 @@
-import { Container, MainContainer } from './ui-elements/Container';
+import { Container } from './ui-elements/Container';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';
@@ -9,6 +9,8 @@ import Loader from './ui-elements/Loader';
 import Routes from './Routes';
 import { ThemeProvider } from 'styled-components';
 import { loadAppConfig } from './actions';
+import { useConfig } from './next-architecture/ui/ConfigProvider';
+import { useAuth } from './next-architecture/ui/AuthProvider';
 
 function ZenkoUI() {
   const isConfigLoaded = useSelector(
@@ -22,9 +24,11 @@ function ZenkoUI() {
   );
   const theme = useSelector((state: AppState) => state.uiConfig.theme);
   const dispatch = useDispatch();
+  const conf = useConfig();
+  const user = useAuth();
   useEffect(() => {
-    dispatch(loadAppConfig());
-  }, [dispatch]);
+    dispatch(loadAppConfig(conf, user.userData));
+  }, [dispatch, conf, user]);
 
   function content() {
     if (configFailure) {
@@ -56,9 +60,7 @@ function ZenkoUI() {
 
   return (
     <ThemeProvider theme={theme}>
-      <ScrollbarWrapper>
-        <MainContainer>{content()}</MainContainer>
-      </ScrollbarWrapper>
+      <ScrollbarWrapper>{content()}</ScrollbarWrapper>
     </ThemeProvider>
   );
 }

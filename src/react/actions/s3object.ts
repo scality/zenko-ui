@@ -1,3 +1,4 @@
+import { History } from 'history';
 import type {
   CloseFolderCreateModalAction,
   CloseObjectDeleteModalAction,
@@ -40,7 +41,7 @@ import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
-import { push } from 'connected-react-router';
+
 export const UPLOADING_OBJECT = 'Uploading object(s)';
 export function listObjectsSuccess(
   contents: Array<S3Object>,
@@ -447,8 +448,12 @@ export function uploadFiles(
     dispatch(networkStart(UPLOADING_OBJECT));
     return zenkoClient
       .uploadObject(bucketName, prefixWithSlash, files)
-      .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
-      .catch((error) => dispatch(handleAWSClientError(error)))
+      .then(() => {
+        dispatch(listObjects(bucketName, prefixWithSlash));
+      })
+      .catch((error) => {
+        dispatch(handleAWSClientError(error));
+      })
       .catch((error) => dispatch(handleAWSError(error, 'byComponent')))
       .finally(() => dispatch(networkEnd()));
   };
@@ -584,6 +589,7 @@ export function putObjectRetention(
   retentionMode: RetentionMode,
   retentionUntilDate: Date,
   accountName: string,
+  history: History,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
@@ -596,13 +602,11 @@ export function putObjectRetention(
         retentionMode,
         retentionUntilDate,
       )
-      .then(() =>
-        dispatch(
-          push(
-            `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
-          ),
-        ),
-      )
+      .then(() => {
+        history.push(
+          `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
+        );
+      })
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))
       .finally(() => dispatch(networkEnd()));

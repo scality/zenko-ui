@@ -3,7 +3,7 @@ import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
-import { useRouteMatch, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import AccountUserList from './AccountUserList';
 import AccountPoliciesList from './AccountPoliciesList';
 import { AccountLocations } from './AccountLocations';
@@ -22,8 +22,6 @@ const NotFound = () => (
 function AccountDetails({ account }: Props) {
   const theme: DefaultTheme = useTheme();
   const { accountName } = useParams<{ accountName: string }>();
-
-  const { url } = useRouteMatch();
   const { isStorageManager } = useAuthGroups();
 
   if (!account) {
@@ -35,6 +33,7 @@ function AccountDetails({ account }: Props) {
     activeTabColor: theme.brand.backgroundLevel3,
     tabContentColor: theme.brand.backgroundLevel3,
   };
+
   return (
     <CustomTabs
       {...customTabStyle}
@@ -42,18 +41,18 @@ function AccountDetails({ account }: Props) {
         backgroundColor: theme.brand.backgroundLevel2,
       }}
     >
-      <CustomTabs.Tab exact label="Properties" path={url}>
+      <CustomTabs.Tab exact label="Properties" path={``}>
         <Properties account={account} />
       </CustomTabs.Tab>
       {isStorageManager && (
-        <CustomTabs.Tab label="Locations" path={`${url}/locations`}>
+        <CustomTabs.Tab label="Locations" path={`locations`}>
           <AccountLocations />
         </CustomTabs.Tab>
       )}
-      <CustomTabs.Tab label="Users" path={`${url}/users`}>
+      <CustomTabs.Tab label="Users" path={`users`}>
         <AccountUserList accountName={accountName} />
       </CustomTabs.Tab>
-      <CustomTabs.Tab label="Policies" path={`${url}/policies`}>
+      <CustomTabs.Tab label="Policies" path={`policies`}>
         <AccountPoliciesList accountName={accountName} />
       </CustomTabs.Tab>
     </CustomTabs>

@@ -1,15 +1,24 @@
-import { getByRole, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  getByRole,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import router from 'react-router';
 import {
   mockOffsetSize,
-  reduxRender,
+  renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../../utils/testUtil';
 import Attachments from '../Attachments';
 import accountSeeds from '../../../../../public/assets/account-seeds.json';
+import { debug } from 'jest-preview';
+import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
+import set from 'lodash.set';
 
 const defaultAccountName = 'account1';
 const userName = 'user1';
@@ -118,8 +127,9 @@ const initialMock = (req, res, ctx) => {
       `),
     );
   }
-  return res(
-    ctx.xml(`
+  if (params.get('Action') === 'ListEntitiesForPolicy') {
+    return res(
+      ctx.xml(`
     <ListEntitiesForPolicyResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
         <ListEntitiesForPolicyResult>
             <PolicyRoles>
@@ -136,7 +146,29 @@ const initialMock = (req, res, ctx) => {
         <ResponseMetadata><RequestId>d5199fe5464489b0f507</RequestId></ResponseMetadata>
     </ListEntitiesForPolicyResponse>
     `),
-  );
+    );
+  }
+  if (params.get('Action') === 'GetRolesForWebIdentity') {
+    const TEST_ACCOUNT = 'Test Account';
+    const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
+    return res(
+      ctx.json({
+        IsTruncated: false,
+        Accounts: [
+          {
+            Name: TEST_ACCOUNT,
+            CreationDate: TEST_ACCOUNT_CREATION_DATE,
+            Roles: [
+              {
+                Name: 'storage-manager-role',
+                Arn: `arn:aws:iam::${ACCOUNT_ID}:role/scality-internal/storage-manager-role`,
+              },
+            ],
+          },
+        ],
+      }),
+    );
+  }
 };
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, initialMock),
@@ -148,7 +180,7 @@ const server = setupServer(
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
-  mockOffsetSize(200, 100);
+  mockOffsetSize(500, 100);
   jest.setTimeout(10_000);
 });
 afterEach(() => server.resetHandlers());
@@ -158,15 +190,12 @@ const setupPolicyRender = (
   accountName = defaultAccountName,
   policyArn = defaultPolicyArn,
 ) => {
-  jest
-    .spyOn(router, 'useRouteMatch')
-    .mockReturnValue(
-      `/accounts/${accountName}/policies/${policyArn}/attachments`,
-    );
-  jest.spyOn(router, 'useParams').mockReturnValue({
-    policyArn,
+  renderWithRouterMatch(<Attachments />, {
+    path: '/accounts/:accountName/policies/:policyArn/attachments',
+    route: `/accounts/${accountName}/policies/${encodeURIComponent(
+      policyArn,
+    )}/attachments`,
   });
-  reduxRender(<Attachments />);
 };
 
 describe('Policy Attachments', () => {
@@ -229,7 +258,7 @@ describe('Policy Attachments', () => {
       ).not.toBeDisabled(),
     );
     //E
-    userEvent.click(screen.getByPlaceholderText('Search by entity name'));
+    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -281,7 +310,8 @@ describe('Policy Attachments', () => {
       ).not.toBeDisabled(),
     );
     //E
-    userEvent.click(screen.getByPlaceholderText('Search by entity name'));
+    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
+
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(tobeAttachedUserName, 'i'),
@@ -327,6 +357,7 @@ describe('Policy Attachments', () => {
         return initialMock(req, res, ctx);
       }),
     );
+
     //E
     userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() =>
@@ -335,7 +366,13 @@ describe('Policy Attachments', () => {
       ).not.toBeDisabled(),
     );
 
-    userEvent.click(screen.getByPlaceholderText('Search by entity name'));
+    fireEvent.focus(
+      screen.getByRole('textbox', {
+        name: /search/i,
+      }),
+    );
+
+    debug();
     await waitFor(() =>
       screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
     );
@@ -387,6 +424,7 @@ describe('Policy Attachments', () => {
     setupPolicyRender(defaultAccountName, policyArn);
 
     //V
+    await waitForElementToBeRemoved(() => screen.getByText('Loading...'));
 
     await waitFor(() =>
       expect(
@@ -448,11 +486,10 @@ describe('Policy Attachments', () => {
 
 describe('User Attachments', () => {
   const setupRender = () => {
-    jest.spyOn(router, 'useRouteMatch').mockReturnValue(null);
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      IAMUserName: userName,
+    renderWithRouterMatch(<Attachments />, {
+      path: '/accounts/:accountName/users/:IAMUserName/attachments',
+      route: `/accounts/${defaultAccountName}/users/${userName}/attachments`,
     });
-    reduxRender(<Attachments />);
   };
 
   it('should render Groups and Policies for User Attachments Tabs', () => {
@@ -467,6 +504,7 @@ describe('User Attachments', () => {
   it('should remove the user from group after confirmation', async () => {
     //S
     setupRender();
+
     await waitFor(() => screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() => screen.getByText('Attachment status'));
 

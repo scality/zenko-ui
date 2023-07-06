@@ -1,12 +1,14 @@
-import * as T from '../ui-elements/Table';
-import React, { memo } from 'react';
-import type { Action } from '../../types/actions';
-import type { DispatchAPI } from 'redux';
-import type { Workflow } from '../../types/workflow';
+import { memo } from 'react';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
-import { push } from 'connected-react-router';
+import { useHistory } from 'react-router-dom';
+import type { DispatchAPI } from 'redux';
+
+import * as T from '../ui-elements/Table';
+import type { Action } from '../../types/actions';
+import type { Workflow } from '../../types/workflow';
+
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -46,10 +48,11 @@ export const createItemData = memoize(
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-  data: { rows, prepareRow, selectedWorkflowId, dispatch },
+  data: { rows, prepareRow, selectedWorkflowId },
   index,
   style,
 }: RowProps) => {
+  const history = useHistory();
   const row = rows[index];
   prepareRow(row);
   const workflowId = row.original.id;
@@ -59,7 +62,7 @@ const Row = ({
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(push(`./${workflowId}`));
+          history.push(`./${workflowId}`);
         }
       }}
       {...row.getRowProps({

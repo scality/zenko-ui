@@ -9,10 +9,8 @@ import {
   AWS_PAGINATED_ENTITIES,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useMutation } from 'react-query';
-import { queryClient } from '../App';
+import { useMutation, useQueryClient } from 'react-query';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import {
   getListAttachedUserPoliciesQuery,
@@ -60,17 +58,17 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
       }}
     >
       {userAccessKeyStatus === 'loading' && (
-        <SpacedBox
+        <Box
           mr={12}
           style={{
             marginLeft: 'auto',
           }}
         >
           loading...
-        </SpacedBox>
+        </Box>
       )}
       {userAccessKeyStatus === 'success' ? (
-        <SpacedBox
+        <Box
           mr={12}
           style={{
             marginLeft: 'auto',
@@ -81,7 +79,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           ) : (
             accessKeys
           )}
-        </SpacedBox>
+        </Box>
       ) : null}
       <Button
         size="inline"
@@ -172,6 +170,7 @@ const DeleteUserAction = ({
 }) => {
   const dispatch = useDispatch();
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const { data: accessKeysResult, status: accessKeyStatus } =
     useAwsPaginatedEntities(

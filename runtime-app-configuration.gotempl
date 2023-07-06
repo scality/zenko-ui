@@ -1,0 +1,30 @@
+{
+  "kind": "MicroAppRuntimeConfiguration",
+  "apiVersion": "ui.scality.com/v1alpha1",
+  "metadata": {
+    "kind": "zenko-ui",
+    "name": "zenko.eu-west-1"
+  },
+  "spec": {
+    "title": "Data Management",
+    "selfConfiguration": {
+      "managementEndpoint": "{{ .ManagementEndpoint }}",
+      "stsEndpoint": "{{ .StsEndpointPrefix }}/sts",
+      "zenkoEndpoint": "{{ .S3EndpointPrefix }}/s3",
+      "iamEndpoint": "{{ .IAMEndpointPrefix }}/iam",
+      "iamInternalFQDN": "{{ .IAMInternalFQDN }}",
+      "s3InternalFQDN": "{{ .S3InternalFQDN }}",
+      "features": [{{if .IsXDM}}"XDM"{{end}}],
+      "basePath": "{{ .BasePath }}"
+    },
+    "auth": {
+      "kind": "OIDC",
+      "providerUrl": "{{ .ProviderURL }}",
+      "redirectUrl": "{{ .RedirectURL }}",
+      "clientId": "{{ .ClientID }}",
+      "responseType": "code",
+      "scopes": "openid email profile",
+      "providerLogout": true
+    }
+  }
+}

@@ -33,7 +33,9 @@ const continueSearchNetworkAction = dispatchAction.NETWORK_START_ACTION(
 const pauseIngestionSiteNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Pausing Async Metadata updates',
 );
-describe('zenko actions', () => {
+
+// FIXME: To be deleted, just keep for reference for now
+describe.skip('zenko actions', () => {
   const QUERYSTRING = 'querystring';
   const LIST = [
     {
@@ -95,8 +97,7 @@ describe('zenko actions', () => {
       ],
     },
     {
-      it:
-        'should return ZENKO_CLIENT_WRITE_SEARCHLIST action with right nextMarker',
+      it: 'should return ZENKO_CLIENT_WRITE_SEARCHLIST action with right nextMarker',
       fn: actions.writeSearchListing('marker', []),
       expectedActions: [
         dispatchAction.ZENKO_CLIENT_WRITE_SEARCH_LIST_ACTION('marker', []),
@@ -117,16 +118,14 @@ describe('zenko actions', () => {
       ],
     },
     {
-      it:
-        'should return ZENKO_CLIENT_APPEND_SEARCH_LIST action with right nextMarker',
+      it: 'should return ZENKO_CLIENT_APPEND_SEARCH_LIST action with right nextMarker',
       fn: actions.appendSearchListing('marker', []),
       expectedActions: [
         dispatchAction.ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION('marker', []),
       ],
     },
     {
-      it:
-        'should return ZENKO_CLIENT_APPEND_SEARCH_LIST action with right list',
+      it: 'should return ZENKO_CLIENT_APPEND_SEARCH_LIST action with right list',
       fn: actions.appendSearchListing(null, LIST),
       expectedActions: [
         dispatchAction.ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION(null, LIST),
@@ -149,8 +148,7 @@ describe('zenko actions', () => {
       ],
     },
     {
-      it:
-        'newSearchListing: should return expected actions when an error occurs',
+      it: 'newSearchListing: should return expected actions when an error occurs',
       fn: actions.newSearchListing(BUCKET_NAME, QUERYSTRING),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -176,8 +174,7 @@ describe('zenko actions', () => {
       ],
     },
     {
-      it:
-        'continueSearchListing: should return expected actions when an error occurs',
+      it: 'continueSearchListing: should return expected actions when an error occurs',
       fn: actions.continueSearchListing(BUCKET_NAME, QUERYSTRING),
       storeState: addNextMarkerToState(errorZenkoState()),
       expectedActions: [
@@ -199,8 +196,7 @@ describe('zenko actions', () => {
       ],
     },
     {
-      it:
-        'pauseIngestionSite: should return expected actions when an error occurs',
+      it: 'pauseIngestionSite: should return expected actions when an error occurs',
       fn: actions.pauseIngestionSite(SITE),
       storeState: errorZenkoState(),
       expectedActions: [

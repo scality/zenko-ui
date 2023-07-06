@@ -1,9 +1,6 @@
 import {
   ACCOUNT,
-  ACCOUNT_ACCESS_KEY,
   ACCOUNT_ACCESS_KEYS,
-  ACCOUNT_NAME,
-  ACCOUNT_SECRET_KEY,
   APP_CONFIG,
   BUCKET_INFO_RESPONSE,
   INSTANCE_ID,
@@ -12,10 +9,8 @@ import {
   LATEST_OVERLAY,
   LOGOUT_MOCK,
   THEME,
-  WORKFLOWS,
 } from './testUtil';
 import type {
-  AddAccountSecretAction,
   CloseAccountDeleteDialogAction,
   CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
@@ -27,13 +22,11 @@ import type {
   CloseWorkflowEditNotificationAction,
   ConfigAuthFailureAction,
   ConfigurationVersionAction,
-  DeleteAccountSecretAction,
   GetBucketInfoSuccessAction,
   GetObjectMetadataSuccessAction,
   HandleErrorAction,
   InstanceStatusAction,
   ListAccountAccessKeySuccessAction,
-  ListBucketsSuccessAction,
   ListObjectsSuccessAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
@@ -50,7 +43,6 @@ import type {
   OpenWorkflowDeleteModalAction,
   OpenWorkflowEditNotificationAction,
   ResetObjectMetadataAction,
-  SearchWorkflowsSuccessAction,
   SelectAccountAction,
   SelectInstanceAction,
   SetAppConfigAction,
@@ -69,7 +61,6 @@ import type {
 import type {
   CommonPrefix,
   HeadObjectResponse,
-  S3Bucket,
   S3Object,
   TagSet,
   RetentionMode,
@@ -81,7 +72,6 @@ import type {
   ZenkoClientError,
   ZenkoClient as ZenkoClientInterface,
 } from '../../../../types/zenko';
-import { CALL_HISTORY_METHOD } from 'connected-react-router';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 // auth actions
@@ -169,20 +159,7 @@ export const ZENKO_HANDLE_ERROR_ACTION = (
   errorType: type,
   errorTarget: target,
 });
-export const LOCATION_PUSH_ACTION = (path: string) => ({
-  type: CALL_HISTORY_METHOD,
-  payload: {
-    args: [path],
-    method: 'push',
-  },
-});
-export const LOCATION_BACK_ACTION = {
-  type: CALL_HISTORY_METHOD,
-  payload: {
-    args: [],
-    method: 'goBack',
-  },
-};
+
 // * config actions
 export const CONFIGURATION_VERSION_ACTION: ConfigurationVersionAction = {
   type: 'CONFIGURATION_VERSION',
@@ -210,15 +187,7 @@ export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction 
   {
     type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
   };
-export const ADD_ACCOUNT_SECRET_ACTION: AddAccountSecretAction = {
-  type: 'ADD_ACCOUNT_SECRET',
-  userName: ACCOUNT_NAME,
-  accessKey: ACCOUNT_ACCESS_KEY,
-  secretKey: ACCOUNT_SECRET_KEY,
-};
-export const DELETE_ACCOUNT_SECRET_ACTION: DeleteAccountSecretAction = {
-  type: 'DELETE_ACCOUNT_SECRET',
-};
+
 // * location actions
 export const OPEN_LOCATION_DELETE_DIALOG_ACTION = (
   locationName: LocationName,
@@ -242,14 +211,7 @@ export const CLOSE_ENDPOINT_DELETE_DIALOG_ACTION: CloseEndpointDeleteDialogActio
     type: 'CLOSE_ENDPOINT_DELETE_DIALOG',
   };
 // * buckets actions
-export const LIST_BUCKETS_SUCCESS_ACTION = (
-  list: Array<S3Bucket>,
-  ownerName: string,
-): ListBucketsSuccessAction => ({
-  type: 'LIST_BUCKETS_SUCCESS',
-  list: [],
-  ownerName,
-});
+
 export const OPEN_BUCKET_DELETE_DIALOG_ACTION = (
   bucketName: string,
 ): OpenBucketDeleteDialogAction => ({

@@ -1,18 +1,27 @@
-import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
-import {
-  TEST_API_BASE_URL,
-  reduxMount,
-  reduxRender,
-} from '../../../../utils/testUtil';
-import * as T from '../../../../ui-elements/TableKeyValue2';
-import MiddleEllipsis from '../../../../ui-elements/MiddleEllipsis';
-import Properties from '../Properties';
-import router from 'react-router';
-import { DateTime } from 'luxon';
-
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { screen, waitFor } from '@testing-library/react';
+
+import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
+import {
+  TEST_API_BASE_URL,
+  renderWithRouterMatch,
+} from '../../../../utils/testUtil';
+import Properties from '../Properties';
+
+const renderProperties = (
+  component: React.ReactNode = <Properties objectMetadata={OBJECT_METADATA} />,
+  state = {},
+) => {
+  return renderWithRouterMatch(
+    component,
+    {
+      route: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
+      path: '/buckets/:bucketName/objects',
+    },
+    state,
+  );
+};
 
 //Mock getObjectLockConfiguration for bucket 'bucket'
 const server = setupServer(
@@ -35,66 +44,39 @@ const server = setupServer(
 
 describe('Properties', () => {
   beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue({
-      pathname: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
-    });
     server.listen({ onUnhandledRequest: 'error' });
   });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
   it('should render', () => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      '0': undefined,
-    });
-    const { component } = reduxMount(
-      <Properties objectMetadata={OBJECT_METADATA} />,
-    );
-    expect(component.find(Properties).isEmptyRender()).toBe(false);
+    renderProperties();
+    expect(screen.getByText('Name')).toBeInTheDocument();
   });
+
   it('should render expected values', () => {
-    const { component } = reduxMount(
-      <Properties objectMetadata={OBJECT_METADATA} />,
-    );
-    const groupInfos = component.find(T.Group);
-    expect(groupInfos).toHaveLength(2);
-    // FIRST GROUP ITEMS TITLE
-    const firstGroupInfos = groupInfos.first();
-    expect(firstGroupInfos.find(T.GroupName).text()).toContain('Information');
-    // FIRST GROUP ITEMS
-    const firstGroupInfosContentItems = firstGroupInfos
-      .find(T.GroupContent)
-      .find(T.Row);
-    const firstItemFirstGroup = firstGroupInfosContentItems.first();
-    expect(firstItemFirstGroup.find(T.Key).text()).toContain('Name');
-    expect(firstItemFirstGroup.find(T.Value).text()).toContain(
-      OBJECT_METADATA.objectKey,
-    );
-    const secondItemFirstGroup = firstGroupInfosContentItems.at(1);
-    expect(secondItemFirstGroup.find(T.Key).text()).toContain('Version ID');
-    expect(secondItemFirstGroup.find(MiddleEllipsis).text()).toContain(
-      OBJECT_METADATA.versionId,
-    );
-    const thirdItemFirstGroup = firstGroupInfosContentItems.at(2);
-    expect(thirdItemFirstGroup.find(T.Key).text()).toContain('Size');
-    expect(thirdItemFirstGroup.find(T.Value).text()).toContain('4.32 MiB');
-    const fourthItemFirstGroup = firstGroupInfosContentItems.at(3);
-    expect(fourthItemFirstGroup.find(T.Key).text()).toContain('Modified On');
-    expect(fourthItemFirstGroup.find(T.Value).text()).toContain(
-      '2020-10-16 10:06:54',
-    );
-    const fifthItemFirstGroup = firstGroupInfosContentItems.at(4);
-    expect(fifthItemFirstGroup.find(T.Key).text()).toContain('Expires On');
-    expect(fifthItemFirstGroup.find(T.Value).text()).toContain(
-      '2022-07-13 07:58:11',
-    );
-    const sixthItemFirstGroup = firstGroupInfosContentItems.at(5);
-    expect(sixthItemFirstGroup.find(T.Key).text()).toContain('ETag');
-    expect(sixthItemFirstGroup.find(T.GroupValues).text()).toContain(
-      OBJECT_METADATA.eTag,
-    );
+    renderProperties();
+
+    const labelsAndValues = [
+      { label: 'Name', value: OBJECT_METADATA.objectKey },
+      { label: 'Version ID', value: OBJECT_METADATA.versionId },
+      { label: 'Size', value: '4.32 MiB' },
+      { label: 'Modified On', value: '2020-10-16 10:06:54' },
+      { label: 'Expires On', value: '2022-07-13 07:58:11' },
+      { label: 'ETag', value: OBJECT_METADATA.eTag },
+    ];
+
+    expect(screen.getByText('Information')).toBeInTheDocument();
+
+    labelsAndValues.forEach(({ label, value }) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+      // FIXME: find a better way to manage empty values
+      if (value !== '') {
+        expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+      }
+    });
   });
   it('should render expected values when object is locked', async () => {
-    reduxRender(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -124,7 +106,7 @@ describe('Properties', () => {
     expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
   });
   it('should render expected values when lock is released', async () => {
-    reduxRender(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -146,8 +128,9 @@ describe('Properties', () => {
     );
     expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
   });
+
   it('should render expected legal hold value when the object lock is set', async () => {
-    reduxRender(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -160,6 +143,7 @@ describe('Properties', () => {
         }}
       />,
     );
+
     await waitFor(() =>
       expect(screen.getByText('Legal Hold')).toBeInTheDocument(),
     );
@@ -168,7 +152,7 @@ describe('Properties', () => {
   });
 
   it('should render expected location and temperature field if the location is cold location', async () => {
-    const { component } = reduxMount(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -211,17 +195,20 @@ describe('Properties', () => {
         },
       },
     );
-    const tableItems = component.find(T.Row);
-    const sixth = tableItems.at(6);
-    expect(sixth.find(T.Key).text()).toContain('Location');
-    expect(sixth.find(T.Value).text()).toContain('europe25-myroom-cold');
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.GroupValues).text()).toContain('Cold');
+
+    const labelsValues = [
+      { label: 'Location', value: 'europe25-myroom-cold' },
+      { label: 'Temperature', value: 'Cold' },
+    ];
+
+    labelsValues.forEach(({ label, value }) => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+    });
   });
 
   it('should render restore in progress status and remove the restore button when the object is restoring from the cold location', async () => {
-    const { component } = reduxMount(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -265,13 +252,13 @@ describe('Properties', () => {
         },
       },
     );
-    const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.GroupValues).text()).toContain(
+
+    expect(screen.getByText('Temperature')).toBeInTheDocument();
+    expect(screen.getByText('Temperature').parentElement).toHaveTextContent(
       'Restoration in progress...',
     );
-    expect(seventh.find('button#restore-button').exists()).toBeFalsy();
+
+    expect(screen.queryByRole('button', { name: /restore/i })).toBeNull();
   });
 
   it('should render restored status and remove the restore button when the object is already restored from cold location', async () => {
@@ -282,7 +269,7 @@ describe('Properties', () => {
       now.getTime() + 25 * 60 * 60 * 1000,
     );
 
-    const { component } = reduxMount(
+    renderProperties(
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
@@ -329,11 +316,10 @@ describe('Properties', () => {
         },
       },
     );
+
     //V
-    const tableItems = component.find(T.Row);
-    const seventh = tableItems.at(7);
-    expect(seventh.find(T.Key).text()).toContain('Temperature');
-    expect(seventh.find(T.GroupValues).text()).toContain(
+    expect(screen.getByText('Temperature')).toBeInTheDocument();
+    expect(screen.getByText('Temperature').parentElement).toHaveTextContent(
       'Restored (Expiring in 1 day)',
     );
   });

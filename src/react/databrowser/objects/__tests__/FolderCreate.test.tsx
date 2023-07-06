@@ -1,83 +1,82 @@
+import { debug } from 'jest-preview';
+import userEvent from '@testing-library/user-event';
+import { screen } from '@testing-library/react';
+
 import * as s3object from '../../../actions/s3object';
 import {
   BUCKET_NAME,
   FILE_NAME,
 } from '../../../actions/__tests__/utils/testUtil';
 import FolderCreate from '../FolderCreate';
-import React from 'react';
-import { reduxMount } from '../../../utils/testUtil';
+import { reduxMount, renderWithRouterMatch } from '../../../utils/testUtil';
+
 describe('FolderCreate', () => {
-  it('should render FolderCreate component', () => {
-    const { component } = reduxMount(
-      <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
-      {
-        uiObjects: {
-          showFolderCreate: true,
-        },
-      },
-    );
-    expect(component.find(FolderCreate).isEmptyRender()).toBe(false);
-  });
+  const modalTitle = 'Create a folder';
   it('should render an empty FolderCreate component if showFolderCreate equals to false', () => {
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      undefined,
       {
         uiObjects: {
           showFolderCreate: false,
         },
       },
     );
-    expect(component.find(FolderCreate).isEmptyRender()).toBe(true);
+
+    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
   it('should call closeFolderCreateModal if cancel button is pressed', async () => {
-    const closeFolderCreateModalMock = jest.spyOn(
-      s3object,
-      'closeFolderCreateModal',
-    );
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      undefined,
       {
         uiObjects: {
           showFolderCreate: true,
         },
       },
     );
-    expect(closeFolderCreateModalMock).toHaveBeenCalledTimes(0);
-    component.find('button#folder-create-cancel-button').simulate('click');
-    expect(closeFolderCreateModalMock).toHaveBeenCalledTimes(1);
+
+    expect(screen.queryByText(modalTitle)).toBeInTheDocument();
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /cancel/i,
+      }),
+    );
+    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
+
   it('should not createFolder if save button is pressed and folderName is empty', () => {
-    const createFolderMock = jest.spyOn(s3object, 'createFolder');
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      undefined,
       {
         uiObjects: {
           showFolderCreate: true,
         },
       },
     );
-    expect(createFolderMock).toHaveBeenCalledTimes(0);
-    component.find('button#folder-create-save-button').simulate('click');
-    expect(createFolderMock).toHaveBeenCalledTimes(0);
+
+    expect(screen.getByRole('button', { name: /save/i })).toBeDisabled();
   });
   it('should call createFolder if save button is pressed and folderName is not empty', () => {
     const createFolderMock = jest.spyOn(s3object, 'createFolder');
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      undefined,
       {
         uiObjects: {
           showFolderCreate: true,
         },
       },
     );
-    const elementInput = component.find('input.folder-create-input');
-    expect(createFolderMock).toHaveBeenCalledTimes(0);
-    elementInput.simulate('change', {
-      target: {
-        value: FILE_NAME,
-      },
-    });
-    component.find('button#folder-create-save-button').simulate('click');
+
+    userEvent.type(screen.getByRole('textbox'), FILE_NAME);
+
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /save/i,
+      }),
+    );
     expect(createFolderMock).toHaveBeenCalledTimes(1);
   });
 });

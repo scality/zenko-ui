@@ -14,7 +14,7 @@ import {
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { push } from 'connected-react-router';
+import { useHistory } from 'react-router-dom';
 import { useOutsideClick } from '../utils/hooks';
 import { renderLocation } from '../locations/utils';
 
@@ -33,6 +33,7 @@ function EndpointCreate() {
     mode: 'all',
     resolver: joiResolver(schema),
   });
+  const history = useHistory();
   const dispatch = useDispatch();
   const hasError = useSelector(
     (state: AppState) =>
@@ -66,12 +67,12 @@ function EndpointCreate() {
     locationName: string;
   }) => {
     clearServerError();
-    dispatch(createEndpoint(hostname, locationName));
+    dispatch(createEndpoint(hostname, locationName, history));
   };
 
   const handleCancel = () => {
     clearServerError();
-    dispatch(push('/dataservices'));
+    history.push('/dataservices');
   };
 
   return (

@@ -1,8 +1,6 @@
-import router, { MemoryRouter } from 'react-router';
 import AccountDetails from '../AccountDetails';
-import { WrapperAsStorageManager, reduxRender } from '../../utils/testUtil';
-import { _AuthContext } from '../../next-architecture/ui/AuthProvider';
-import { PropsWithChildren } from 'react';
+import { renderWithRouterMatch } from '../../utils/testUtil';
+import { _AuthContext, useAuth } from '../../next-architecture/ui/AuthProvider';
 
 const account1 = {
   arn: 'arn1',
@@ -14,53 +12,50 @@ const account1 = {
   Name: 'bart',
 };
 
-const Wrapper = ({
-  children,
-  isStorageManager,
-}: PropsWithChildren<{ isStorageManager: boolean }>) => {
-  return (
-    <MemoryRouter>
-      <WrapperAsStorageManager isStorageManager={isStorageManager}>
-        {children}
-      </WrapperAsStorageManager>
-    </MemoryRouter>
-  );
-};
-
 describe('AccountDetails', () => {
   beforeEach(() => {
-    jest.spyOn(router, 'useParams').mockReturnValue({});
-    jest.spyOn(router, 'useRouteMatch').mockReturnValue({
-      url: '/',
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['StorageManager', 'user', 'PlatformAdmin'],
+        },
+      };
     });
   });
+
   it('should render empty AccountDetails component if no account props', () => {
-    const { component } = reduxRender(
-      <Wrapper isStorageManager={false}>
-        <AccountDetails />
-      </Wrapper>,
+    const component = renderWithRouterMatch(
+      <AccountDetails account={undefined} />,
       {
-        router: {
-          location: {
-            pathname: '/accounts/bart',
-          },
-        },
+        route: '/accounts/bart',
+        path: '/accounts/:accountName',
       },
     );
     expect(component.queryByRole('tablist')).toBeFalsy();
     expect(component.getByText('Account not found.')).toBeInTheDocument();
   });
+
   it('should render AccountDetails component without access keys for non storage manager users', () => {
-    const { component } = reduxRender(
-      <Wrapper isStorageManager={false}>
-        <AccountDetails account={account1} />
-      </Wrapper>,
-      {
-        router: {
-          location: {
-            pathname: '/accounts/bart',
-          },
+    useAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          groups: ['user', 'PlatformAdmin'],
         },
+      };
+    });
+    const component = renderWithRouterMatch(
+      <AccountDetails account={account1} />,
+      {
+        route: '/accounts/bart',
+        path: '/accounts/:accountName',
       },
     );
 
@@ -68,18 +63,14 @@ describe('AccountDetails', () => {
     // warning of account access key table
     expect(component.queryAllByText('No key created')).toHaveLength(0);
   });
+
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
-    const { component } = reduxRender(
-      <Wrapper isStorageManager={true}>
-        <AccountDetails account={account1} />
-      </Wrapper>,
+    const component = renderWithRouterMatch(
+      <AccountDetails account={account1} />,
       {
-        router: {
-          location: {
-            pathname: '/accounts/bart',
-          },
-        },
+        route: '/accounts/bart',
+        path: '/accounts/:accountName',
       },
     );
 

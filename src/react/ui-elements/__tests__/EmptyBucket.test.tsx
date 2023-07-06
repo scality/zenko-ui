@@ -15,7 +15,7 @@ import {
 } from '../../../js/mock/S3ClientMSWHandlers';
 import {
   mockOffsetSize,
-  reduxRender,
+  renderWithRouterMatch,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import { EmptyBucket } from '../EmptyBucket';
@@ -63,17 +63,17 @@ describe('EmptyConfirmation', () => {
     successIcon: () => screen.getByLabelText('Check-circle'),
     errorIcon: () => screen.getByLabelText('Exclamation-circle'),
     error: () => screen.getByText('Error'),
-    closeButton: () => screen.getByRole('button', { name: /Close/i }),
+    closeButton: () => screen.getByRole('button', { name: 'Close' }),
   };
 
   it('should render empty button', () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
 
     expect(selectors.emptyBucket()).toBeInTheDocument();
   });
 
   it('should display modal', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
 
     await waitFor(() => {
@@ -82,7 +82,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('should enable button once typed confirm', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
     fireEvent.click(selectors.confirmButton());
@@ -94,7 +94,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('displays loading state during deletion', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
 
@@ -110,7 +110,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('fetch the data when user approve', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
 
@@ -131,7 +131,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('should display summary', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
 
@@ -185,7 +185,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('should display error banner', async () => {
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
 
@@ -225,7 +225,7 @@ describe('EmptyConfirmation', () => {
       server.use(mockObjectEmpty(bucketName));
     });
 
-    reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
 
     await waitFor(() => {
       expect(selectors.emptyButton()).toBeDisabled();
@@ -233,7 +233,7 @@ describe('EmptyConfirmation', () => {
   });
 
   it('button should be disabled after deletion', async () => {
-    const test = reduxRender(<EmptyBucket bucketName={bucketName} />);
+    renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
     fireEvent.click(selectors.emptyButton());
     userEvent.type(selectors.confirmInput(), 'confirm');
 
@@ -276,7 +276,7 @@ describe('EmptyConfirmation', () => {
       },
     );
 
-    fireEvent.click(selectors.closeButton());
+    userEvent.click(selectors.closeButton());
 
     await waitFor(() => {
       expect(selectors.emptyButton()).toBeDisabled();

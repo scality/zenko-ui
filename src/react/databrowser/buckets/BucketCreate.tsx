@@ -16,7 +16,6 @@ import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { isIngestLocation } from '../../utils/storageOptions';
-import { push } from 'connected-react-router';
 import { useOutsideClick } from '../../utils/hooks';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
@@ -24,7 +23,7 @@ import ObjectLockRetentionSettings, {
 import { XDM_FEATURE } from '../../../js/config';
 import { renderLocation } from '../../locations/utils';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import {
   useChangeBucketDefaultRetention,
   useChangeBucketVersionning,
@@ -53,6 +52,7 @@ const schema = Joi.object({
 
 function BucketCreate() {
   // TODO: redirect to list buckets if no account
+  const history = useHistory();
   const { accountName } = useParams<{ accountName: string }>();
 
   const useFormMethods = useForm({
@@ -199,7 +199,7 @@ function BucketCreate() {
               },
             });
           }
-          dispatch(push(`/accounts/${accountName}/buckets/${name}`));
+          history.push(`/accounts/${accountName}/buckets/${name}`);
         },
       },
     );
@@ -207,7 +207,7 @@ function BucketCreate() {
 
   const handleCancel = () => {
     clearServerError();
-    dispatch(push('/buckets'));
+    history.push('/buckets');
   };
 
   const matchVersioning = (checked: boolean) => {

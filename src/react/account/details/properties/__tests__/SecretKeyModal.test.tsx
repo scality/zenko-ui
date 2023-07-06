@@ -1,7 +1,10 @@
-import Table, * as T from '../../../../ui-elements/TableKeyValue';
-import { reduxMount, testTableRow } from '../../../../utils/testUtil';
-import React from 'react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { debug } from 'jest-preview';
+
+import { renderWithRouterMatch } from '../../../../utils/testUtil';
 import SecretKeyModal from '../SecretKeyModal';
+
 const account = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
@@ -18,29 +21,20 @@ const accountKey = {
 };
 const hiddenValue = '*********';
 
-function testRow(rowWrapper, { key, value, extraCellComponent }) {
-  testTableRow(T, rowWrapper, {
-    key,
-    value,
-    extraCellComponent,
-  });
-}
-
 describe('SecretKeyModal', () => {
-  it('should render SecretKeyModal', async () => {
-    const { component } = reduxMount(<SecretKeyModal account={account} />, {
-      uiAccounts: {
-        showKeyCreate: true,
-      },
-    });
-    expect(component.find(SecretKeyModal).isEmptyRender()).toBe(false);
-  });
+  const modalTitle = 'Create Root user Access keys';
   it('should not render SecretKeyModal if closed', async () => {
-    const { component } = reduxMount(<SecretKeyModal account={account} />);
-    expect(component.find(SecretKeyModal).isEmptyRender()).toBe(true);
+    renderWithRouterMatch(<SecretKeyModal account={account} />);
+    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
+
   it('should render SecretKeyModal component with key informations', () => {
-    const { component } = reduxMount(<SecretKeyModal account={account} />, {
+    const writeTextFn = jest.fn();
+    global.navigator.clipboard = {
+      writeText: writeTextFn,
+    };
+
+    renderWithRouterMatch(<SecretKeyModal account={account} />, undefined, {
       uiAccounts: {
         showKeyCreate: true,
       },
@@ -48,25 +42,22 @@ describe('SecretKeyModal', () => {
         accountKey,
       },
     });
-    expect(component.find(Table)).toHaveLength(1);
-    const rows = component.find(T.Row);
-    expect(rows).toHaveLength(3);
-    const firstRow = rows.first();
-    testRow(firstRow, {
-      key: 'Account name',
-      value: accountKey.userName,
-    });
-    const secondRow = rows.at(1);
-    testRow(secondRow, {
-      key: 'Access key ID',
-      value: accountKey.accessKey,
-      extraCellComponent: 'Clipboard',
-    });
-    const thirdRow = rows.at(2);
-    testRow(thirdRow, {
-      key: 'Secret Access key',
-      value: hiddenValue,
-      extraCellComponent: 'Clipboard',
-    });
+    expect(screen.queryByText(modalTitle)).toBeInTheDocument();
+
+    expect(screen.getByText('Account name')).toBeInTheDocument();
+    expect(screen.getByText('Access key ID')).toBeInTheDocument();
+    expect(screen.getByText('Secret Access key')).toBeInTheDocument();
+
+    expect(screen.getByText(accountKey.userName)).toBeInTheDocument();
+    expect(screen.getByText(accountKey.accessKey)).toBeInTheDocument();
+    expect(screen.getByText(hiddenValue)).toBeInTheDocument();
+
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /copy to clipboard/i,
+      }),
+    );
+
+    expect(writeTextFn).toHaveBeenCalledTimes(1);
   });
 });

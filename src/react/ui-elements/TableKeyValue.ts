@@ -28,9 +28,6 @@ export const Value = styled.td`
   width: 420px;
   min-width: 220px;
   word-break: break-word;
-
-  ${(props) =>
-    props.copiable ? `color: ${props.theme.brand.textSecondary};` : ''}
 `;
 export const Title = styled.div`
   font-size: ${fontSize.larger};

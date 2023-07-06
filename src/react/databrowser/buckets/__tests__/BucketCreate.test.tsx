@@ -1,18 +1,17 @@
-import router from 'react-router';
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
-import { reduxRender } from '../../../utils/testUtil';
+import {
+  reduxRender,
+  renderWithRouterMatch,
+  selectClick,
+} from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
-import { screen, act, waitFor } from '@testing-library/react';
+import { screen, act, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LOCATIONS } from '../../../../js/mock/managementClientMSWHandlers';
+import { debug } from 'jest-preview';
 
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
-  beforeAll(() => {
-    jest.spyOn(router, 'useParams').mockReturnValue({
-      accountName: 'accountName',
-    });
-  });
   const selectors = {
     objectlock: () => screen.getByLabelText(/object-lock/i),
     versioning: () => screen.getByLabelText(/versioning/i),
@@ -22,12 +21,19 @@ describe('BucketCreate', () => {
       screen.getByRole('option', { name: /ring-nick/i }),
   };
   it('should render BucketCreate component with an error banner', () => {
-    reduxRender(<BucketCreate />, {
-      uiErrors: {
-        errorMsg: errorMessage,
-        errorType: 'byComponent',
+    renderWithRouterMatch(
+      <BucketCreate />,
+      {
+        route: '/accounts/my-account/create-bucket',
+        path: '/accounts/:accountName/create-bucket',
       },
-    });
+      {
+        uiErrors: {
+          errorMsg: errorMessage,
+          errorType: 'byComponent',
+        },
+      },
+    );
     expect(screen.getByText('Error')).toBeInTheDocument();
   });
   // TESTING INPUT NAME:
@@ -90,7 +96,10 @@ describe('BucketCreate', () => {
   ];
   tests.forEach((t) => {
     it(t.description, async () => {
-      await reduxRender(<BucketCreate />);
+      renderWithRouterMatch(<BucketCreate />, {
+        route: '/accounts/my-account/create-bucket',
+        path: '/accounts/:accountName/create-bucket',
+      });
 
       // NOTE: All validation methods in React Hook Form are treated
       // as async functions, so it's important to wrap async around your act.
@@ -99,10 +108,21 @@ describe('BucketCreate', () => {
           screen.getByRole('textbox', { name: /bucket name */i }),
           `${t.testValue}`,
         );
-        userEvent.tab();
+        await userEvent.tab();
       });
 
       if (t.expectedEmptyNameError !== null) {
+        await act(async () => {
+          userEvent.type(
+            screen.getByRole('textbox', { name: /bucket name */i }),
+            `toberemoved`,
+          );
+          userEvent.clear(
+            screen.getByRole('textbox', { name: /bucket name */i }),
+          );
+        });
+
+        selectClick(screen.getByText('Location Name'));
         expect(
           screen.getByText(new RegExp(`.*${t.expectedEmptyNameError}.*`, 'i')),
         ).toBeInTheDocument();
@@ -129,7 +149,10 @@ describe('BucketCreate', () => {
   });
   it('should set versioning and disable it while enabling object lock', () => {
     //S
-    reduxRender(<BucketCreate />);
+    renderWithRouterMatch(<BucketCreate />, {
+      route: '/accounts/my-account/create-bucket',
+      path: '/accounts/:accountName/create-bucket',
+    });
     //E
     userEvent.click(selectors.objectlock());
     //V
@@ -138,15 +161,22 @@ describe('BucketCreate', () => {
   });
   it('should set versioning and disable it while enabling Async Metadata updates for RING', async () => {
     //S
-    reduxRender(<BucketCreate />, {
-      configuration: { latest: { locations: LOCATIONS } },
-      auth: { config: { features: [XDM_FEATURE] } },
-      instanceStatus: {
-        latest: { state: { capabilities: { s3cIngestLocation: true } } },
+    renderWithRouterMatch(
+      <BucketCreate />,
+      {
+        route: '/accounts/my-account/create-bucket',
+        path: '/accounts/:accountName/create-bucket',
       },
-    });
+      {
+        configuration: { latest: { locations: LOCATIONS } },
+        auth: { config: { features: [XDM_FEATURE] } },
+        instanceStatus: {
+          latest: { state: { capabilities: { s3cIngestLocation: true } } },
+        },
+      },
+    );
     //E
-    userEvent.click(selectors.locationSelect());
+    selectClick(selectors.locationSelect());
     userEvent.click(selectors.ringLocationOption());
     userEvent.click(selectors.asyncMetadata());
     //V
@@ -156,28 +186,35 @@ describe('BucketCreate', () => {
   it('should disable cold location as a source storage location while creating a bucket', () => {
     const coldLocation = 'europe25-myroom-cold';
     //S
-    reduxRender(<BucketCreate />, {
-      configuration: {
-        latest: {
-          locations: {
-            [coldLocation]: {
-              locationType: 'location-dmf-v1',
-              name: coldLocation,
-              isCold: true,
-              details: {
-                endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                repoId: ['repoId'],
-                nsId: 'nsId',
-                username: 'username',
-                password: 'password',
+    renderWithRouterMatch(
+      <BucketCreate />,
+      {
+        route: '/accounts/my-account/create-bucket',
+        path: '/accounts/:accountName/create-bucket',
+      },
+      {
+        configuration: {
+          latest: {
+            locations: {
+              [coldLocation]: {
+                locationType: 'location-dmf-v1',
+                name: coldLocation,
+                isCold: true,
+                details: {
+                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
+                  repoId: ['repoId'],
+                  nsId: 'nsId',
+                  username: 'username',
+                  password: 'password',
+                },
               },
             },
           },
         },
       },
-    });
+    );
     //E
-    userEvent.click(screen.getByText('Location Name'));
+    selectClick(screen.getByText('Location Name'));
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
@@ -186,21 +223,28 @@ describe('BucketCreate', () => {
   it('should disable versioning for Microsoft Azure Blob Storage', () => {
     //S
     const azureblobstorage = 'azureblobstorage';
-    reduxRender(<BucketCreate />, {
-      configuration: {
-        latest: {
-          locations: {
-            [azureblobstorage]: {
-              locationType: 'location-azure-v1',
-              name: azureblobstorage,
-              details: {},
+    renderWithRouterMatch(
+      <BucketCreate />,
+      {
+        route: '/accounts/my-account/create-bucket',
+        path: '/accounts/:accountName/create-bucket',
+      },
+      {
+        configuration: {
+          latest: {
+            locations: {
+              [azureblobstorage]: {
+                locationType: 'location-azure-v1',
+                name: azureblobstorage,
+                details: {},
+              },
             },
           },
         },
       },
-    });
+    );
     //E
-    userEvent.click(screen.getByText('Location Name'));
+    selectClick(screen.getByText('Location Name'));
     userEvent.click(
       screen.getByRole('option', { name: new RegExp(azureblobstorage, 'i') }),
     );
@@ -214,7 +258,10 @@ describe('BucketCreate', () => {
   });
   it('should be able to remove object-lock after setting it', () => {
     //S
-    reduxRender(<BucketCreate />);
+    renderWithRouterMatch(<BucketCreate />, {
+      route: '/accounts/my-account/create-bucket',
+      path: '/accounts/:accountName/create-bucket',
+    });
     //E
     userEvent.click(selectors.objectlock());
     //V

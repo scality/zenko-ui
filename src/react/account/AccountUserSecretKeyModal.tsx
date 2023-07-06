@@ -5,14 +5,12 @@ import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useHistory } from 'react-router-dom';
 import { useIAMClient } from '../IAMProvider';
-import { useMutation } from 'react-query';
-import { queryClient } from '../App';
+import { useMutation, useQueryClient } from 'react-query';
 import { getUserAccessKeysQuery } from '../queries';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 type Props = {
@@ -27,6 +25,7 @@ const StyledCopybutton = styled(CopyButton)({
 function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   const history = useHistory();
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const [newKey, setNewKey] = useState(null);
   const { account } = useCurrentAccount();
 

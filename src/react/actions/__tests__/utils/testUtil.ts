@@ -322,7 +322,7 @@ export const testDispatchFunctionWithFullStore = (test: DispatchTestObject) => {
     };
 
     const store = createStore(
-      zenkoUIReducer(createHistory()),
+      zenkoUIReducer(),
       test.storeState,
       compose(applyMiddleware(thunk, captureActionsMiddleware)),
     );
@@ -335,25 +335,7 @@ export const testDispatchFunctionWithFullStore = (test: DispatchTestObject) => {
       );
   });
 };
-export const testDispatchAWSErrorTestFn = (
-  error: ApiErrorObject,
-  test: DispatchTestObject,
-) => {
-  (test.skip ? it.skip : it)(test.it, async () => {
-    const store = mockStore()(test.storeState);
-    let testError = null;
 
-    try {
-      await store.dispatch(test.fn);
-    } catch (e) {
-      const { message } = e;
-      testError = message;
-    }
-
-    expect(store.getActions()).toEqual(test.expectedActions);
-    expect(testError).toEqual(error.message);
-  });
-};
 export const testDispatchErrorTestFn = (
   error: ApiErrorObject,
   test: DispatchTestObject,

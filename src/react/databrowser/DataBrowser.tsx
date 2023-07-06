@@ -1,7 +1,12 @@
-import { Route, Switch, useLocation } from 'react-router-dom';
-import { useParams, useRouteMatch } from 'react-router';
+import {
+  Route,
+  Switch,
+  useHistory,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
 
 import type { AppState } from '../../types/state';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
@@ -21,6 +26,7 @@ import Loader from '../ui-elements/Loader';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
+  const history = useHistory();
   const { accountName } = useParams<{ accountName: string }>();
   const { accounts } = useAccounts();
   const hasError = useSelector(
@@ -52,7 +58,7 @@ export default function DataBrowser() {
           btnTitle="Display buckets"
           btnAction={() => {
             dispatch(clearError());
-            dispatch(push('/buckets'));
+            history.push('/buckets');
           }}
         />
       </EmptyStateContainer>
@@ -67,7 +73,7 @@ export default function DataBrowser() {
           icon={<Icon name="Account" size="5x" />}
           title="Before browsing your data, create your first account."
           btnTitle="Create Account"
-          btnAction={() => dispatch(push('/create-account'))}
+          btnAction={() => history.push('/create-account')}
         />
       </EmptyStateContainer>
     );

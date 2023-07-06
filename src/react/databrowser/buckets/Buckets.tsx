@@ -1,14 +1,12 @@
 import { useMemo } from 'react';
-import { useLocation } from 'react-router';
-import { Redirect, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, Redirect, useParams, useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import BucketDetails from './BucketDetails';
 import BucketList from './BucketList';
 import { EmptyStateContainer } from '../../ui-elements/Container';
 import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
-import { push } from 'connected-react-router';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { AppContainer, Icon, Loader, TwoPanelLayout } from '@scality/core-ui';
@@ -16,7 +14,7 @@ import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 
 export default function Buckets() {
-  const dispatch = useDispatch();
+  const history = useHistory();
   const { pathname } = useLocation();
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
@@ -66,7 +64,7 @@ export default function Buckets() {
           title="Create your first bucket."
           btnTitle="Create Bucket"
           btnAction={() =>
-            dispatch(push(`/accounts/${account?.Name}/create-bucket`))
+            history.push(`/accounts/${account?.Name}/create-bucket`)
           }
         />
       </EmptyStateContainer>

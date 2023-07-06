@@ -2,13 +2,14 @@ import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { AWSError, S3, STS } from 'aws-sdk';
 import STSClient from '../../../js/STSClient';
 import { useConfig } from './ConfigProvider';
-import { useAuth } from './AuthProvider';
+import { useAccessToken, useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import ZenkoClient from '../../../js/ZenkoClient';
 import { useDispatch } from 'react-redux';
 import IAMClient from '../../../js/IAMClient';
 import { _IAMContext } from '../../IAMProvider';
 import { PromiseResult } from 'aws-sdk/lib/request';
+import { genClientEndpoint } from '../../utils';
 
 const S3ClientContext = createContext<S3 | null>(null);
 const ZenkoClientContext = createContext<ZenkoClient | null>(null);
@@ -38,10 +39,20 @@ export const S3ClientProvider = ({
   configuration: S3.Types.ClientConfiguration;
 }>) => {
   const dispatch = useDispatch();
-  const { iamEndpoint } = useConfig();
+  const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, basePath } =
+    useConfig();
   const { s3Client, zenkoClient, iamClient } = useMemo(() => {
-    const s3Client = new S3(configuration);
-    const zenkoClient = new ZenkoClient(configuration.endpoint as string);
+    const s3Config = {
+      ...configuration,
+      endpoint: genClientEndpoint(configuration.endpoint as string),
+    };
+    const s3Client = new S3(s3Config);
+    const zenkoClient = new ZenkoClient(
+      s3Config.endpoint,
+      iamInternalFQDN,
+      s3InternalFQDN,
+      basePath,
+    );
     const iamClient = new IAMClient(iamEndpoint);
 
     if (
@@ -83,9 +94,9 @@ export const S3ClientProvider = ({
 
 export const useAssumeRoleQuery = () => {
   const { stsEndpoint } = useConfig();
-  const { user } = useAuth();
-  const token = user?.access_token || '';
-  const roleSessionName = `ui-${user?.profile.sub}`;
+  const token = useAccessToken();
+  const user = useAuth();
+  const roleSessionName = `ui-${user.userData?.id}`;
   const stsClient = new STSClient({ endpoint: stsEndpoint });
   const queryKey = ['s3AssumeRoleClient', roleSessionName, token];
 

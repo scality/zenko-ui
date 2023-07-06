@@ -58,18 +58,8 @@ CSRF attacks. To make the local UI work, request it using a matched domain
 
 ## Test
 
-### Run Cypress tests
-
-#### Build and start UI
-```
-npm run build
-docker build -t zui .
-docker run -d -p 8383:8383 zui
-```
-
-#### Run tests
-```
-CYPRESS_KEYCLOAK_ROOT="http://keycloak.zenko.local" CYPRESS_KEYCLOAK_REALM="zenko" CYPRESS_KEYCLOAK_CLIENT_ID="zenko-ui" CYPRESS_KEYCLOAK_USERNAME="bartsimpson" CYPRESS_KEYCLOAK_PASSWORD="123" CYPRESS_KEYCLOAK_USER_FULLNAME="Simpson" CYPRESS_BASE_URL="http://127.0.0.1:8383" npm run cypress:run
+```bash
+npm run test
 ```
 
 ## Authentication

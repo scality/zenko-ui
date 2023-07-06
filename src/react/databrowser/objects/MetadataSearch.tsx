@@ -1,5 +1,7 @@
+import { useRef, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+
 import { Hint, Hints, HintsTitle } from '../../ui-elements/Input';
-import React, { useRef, useState } from 'react';
 import {
   SearchButton,
   SearchInputIcon,
@@ -8,16 +10,12 @@ import {
   SearchMetadataInputAndIcon,
   SearchValidationIcon,
 } from '../../ui-elements/Table';
-import type { Action } from '../../../types/actions';
-import type { DispatchAPI } from 'redux';
-import { useDispatch } from 'react-redux';
 import {
   useOutsideClick,
   useQueryParams,
   usePrefixWithSlash,
 } from '../../utils/hooks';
-import { useLocation } from 'react-router';
-import { push } from 'connected-react-router';
+
 export const METADATA_SEARCH_HINT_ITEMS = [
   {
     descr: 'files with extension ".pdf"',
@@ -59,7 +57,7 @@ type Props = {
 
 const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
   const [hintsShown, setHintsShown] = useState(false);
-  const dispatch: DispatchAPI<Action> = useDispatch();
+  const history = useHistory();
   const query = useQueryParams();
   const { pathname } = useLocation();
   const prefixWithSlash = usePrefixWithSlash();
@@ -83,7 +81,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
 
     // Add metadatasearch in the query params
     query.set('metadatasearch', inputText);
-    dispatch(push(`${pathname}?${query.toString()}`));
+    history.push(`${pathname}?${query.toString()}`);
   };
 
   const reset = (e) => {
@@ -92,7 +90,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
     setInputText('');
     // Remove the medatasearch from the query params
     query.delete('metadatasearch');
-    dispatch(push(`${pathname}?${query.toString()}`));
+    history.push(`${pathname}?${query.toString()}`);
   };
 
   const handleHintClicked = (q) => {

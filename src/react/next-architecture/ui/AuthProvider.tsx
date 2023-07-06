@@ -1,29 +1,26 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext } from 'react';
 import { AuthUser } from '../../../types/auth';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorPage500 } from '@scality/core-ui';
+import { ComponentWithFederatedImports } from '@scality/module-federation';
 
 //exported for testing purposes only
+// TO BE DELETED
 export const _AuthContext = createContext<{
   user?: AuthUser;
   setUser: (user?: AuthUser) => void;
 } | null>(null);
 
-export function useAuth() {
-  const context = useContext(_AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within a AuthProvider');
-  }
-  return context;
-}
-
 export function useAccessToken() {
-  const { user } = useAuth();
-  return (user && user.access_token) || '';
+  const user = useAuth();
+
+  return user?.userData?.token ?? '';
 }
 
 export function useInstanceId() {
-  const { user } = useAuth();
+  const user = useAuth();
 
-  const instanceIds = user && user.profile && user.profile.instanceIds;
+  const instanceIds = user?.userData?.original?.profile?.instanceIds;
 
   if (!instanceIds || instanceIds.length === 0) {
     return '';
@@ -32,11 +29,54 @@ export function useInstanceId() {
   return instanceIds[0];
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [authUser, setAuthUser] = useState<AuthUser | undefined>(undefined);
+export type UserData = {
+  token: string;
+  username: string;
+  groups: string[];
+  roles: RoleNames[];
+  email: string;
+  id: string;
+};
+type ContextType = {
+  userData?: UserData;
+};
+
+const authGlobal = {
+  hooks: {},
+};
+export type AuthProviderProps = {
+  children: Node;
+};
+export function useAuth(): ContextType {
+  return authGlobal.hooks.useAuth();
+}
+
+const InternalAuthProvider = ({ moduleExports, children }) => {
+  authGlobal.hooks = moduleExports['./auth/AuthProvider'];
+  return <>{children}</>;
+};
+
+function ErrorFallback() {
+  return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
+}
+
+export function AuthProvider({ children }: AuthProviderProps): Node {
   return (
-    <_AuthContext.Provider value={{ user: authUser, setUser: setAuthUser }}>
-      {children}
-    </_AuthContext.Provider>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <ComponentWithFederatedImports
+        componentWithInjectedImports={InternalAuthProvider}
+        renderOnError={<ErrorPage500 />}
+        componentProps={{
+          children,
+        }}
+        federatedImports={[
+          {
+            scope: 'shell',
+            module: './auth/AuthProvider',
+            remoteEntryUrl: window.shellUIRemoteEntryUrl,
+          },
+        ]}
+      />
+    </ErrorBoundary>
   );
 }

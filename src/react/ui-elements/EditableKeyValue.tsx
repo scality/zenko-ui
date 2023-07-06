@@ -1,10 +1,12 @@
-import { Button } from '@scality/core-ui/dist/next';
+import styled from 'styled-components';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { Icon } from '@scality/core-ui';
+
 import Input from './Input';
 import { CSSProperties, useCallback, useMemo } from 'react';
 import { isEmptyItem } from '../utils';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { Icon, SpacedBox } from '@scality/core-ui';
+
 export const Container = styled.div`
   flex: 1;
 `;
@@ -141,7 +143,7 @@ export const AddButton = ({
 
   return (
     <>
-      {!isVisible && <SpacedBox ml={16} />}
+      {!isVisible && <Box ml={16} />}
       <CustomButton
         isVisible={isVisible}
         type="button"

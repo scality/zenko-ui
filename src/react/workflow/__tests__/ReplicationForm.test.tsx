@@ -3,6 +3,7 @@ import { setupServer } from 'msw/node';
 import {
   mockOffsetSize,
   reduxRender,
+  selectClick,
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
@@ -14,7 +15,6 @@ import ReplicationForm, { GeneralReplicationGroup } from '../ReplicationForm';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import userEvent from '@testing-library/user-event';
 import { PerLocationMap } from '../../../types/config';
-import { S3Bucket } from '../../../types/s3';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
 import { Form, FormSection } from '@scality/core-ui';
 import {
@@ -23,6 +23,7 @@ import {
 } from '../../../js/mock/S3ClientMSWHandlers';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import { debug } from 'jest-preview';
 
 const accountId = 'accountId';
 const accountName = 'pat';
@@ -163,14 +164,14 @@ describe('ReplicationForm', () => {
       expect(formValidationa.textContent).toBe('form-valid');
 
       // Select the Source Bucket.
-      userEvent.click(selectors.bucketSelect());
+      selectClick(selectors.bucketSelect());
       userEvent.click(selectors.bucketOption());
 
       // Select the first destination.
       const LocationName = screen.getByTestId('select-location-name-replication-0');
       const lControl = LocationName.querySelector('.sc-select__control')
       const locCtl = notFalsyTypeGuard(lControl);
-      userEvent.click(locCtl);
+      selectClick(locCtl);
       expect(locCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const lOption = LocationName.querySelector('.sc-select__option');
       const lOpt = notFalsyTypeGuard(lOption)
@@ -185,7 +186,8 @@ describe('ReplicationForm', () => {
       const NewLocationName = screen.getByTestId('select-location-name-replication-1')
       const nlControl = NewLocationName.querySelector('.sc-select__control')
       const nlCtl = notFalsyTypeGuard(nlControl)
-      userEvent.click(nlCtl);
+      selectClick(nlCtl);
+
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const nlOption = NewLocationName.querySelectorAll('.sc-select__option')[1]
       const nlOpt = notFalsyTypeGuard(nlOption)

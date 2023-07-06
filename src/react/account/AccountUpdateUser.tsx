@@ -2,15 +2,21 @@ import { MouseEvent, useRef } from 'react';
 import { clearError, handleErrorMessage, networkEnd } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../types/state';
-import { Banner, Form, FormGroup, FormSection, Icon, Stack } from '@scality/core-ui';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+} from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
-import { queryClient } from '../App';
-import { InfiniteData, useMutation } from 'react-query';
+import { InfiniteData, useMutation, useQueryClient } from 'react-query';
 import { useHistory, useParams } from 'react-router-dom';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { ListUsersResponse } from 'aws-sdk/clients/iam';
@@ -31,6 +37,7 @@ const AccountUpdateUser = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
   const { IAMUserName, accountName } = useParams<{
     IAMUserName: string;
     accountName: string;

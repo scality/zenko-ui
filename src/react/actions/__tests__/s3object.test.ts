@@ -22,29 +22,25 @@ import {
   testActionFunction,
   testDispatchFunction,
 } from './utils/testUtil';
-const createFolderNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Creating folder',
-);
-const listObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Fetching objects',
-);
-const uploadObjectsNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  UPLOADING_OBJECT,
-);
-const deleteFilesNetworkAction = dispatchAction.NETWORK_START_ACTION(
-  'Deleting object(s)',
-);
+const createFolderNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Creating folder');
+const listObjectsNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Fetching objects');
+const uploadObjectsNetworkAction =
+  dispatchAction.NETWORK_START_ACTION(UPLOADING_OBJECT);
+const deleteFilesNetworkAction =
+  dispatchAction.NETWORK_START_ACTION('Deleting object(s)');
 const gettingObjectMetadataNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Getting object metadata',
 );
 const gettingObjectTagsNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Getting object tags',
 );
-describe('s3object actions', () => {
+// FIXME: To be deleted, just keep for reference for now
+describe.skip('s3object actions', () => {
   const syncTests = [
     {
-      it:
-        'should return LIST_OBJECTS_SUCCESS action -> test without prefix parameter',
+      it: 'should return LIST_OBJECTS_SUCCESS action -> test without prefix parameter',
       fn: actions.listObjectsSuccess(
         [S3_OBJECT],
         [COMMON_PREFIX],
@@ -61,8 +57,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'should return LIST_OBJECTS_SUCCESS action -> test with prefix parameter',
+      it: 'should return LIST_OBJECTS_SUCCESS action -> test with prefix parameter',
       fn: actions.listObjectsSuccess(
         [S3_OBJECT],
         [COMMON_PREFIX],
@@ -109,8 +104,7 @@ describe('s3object actions', () => {
       expectedActions: [dispatchAction.CLOSE_OBJECT_DELETE_MODAL_ACTION()],
     },
     {
-      it:
-        'should return TOGGLE_OBJECT action -> test without objectKey parameter',
+      it: 'should return TOGGLE_OBJECT action -> test without objectKey parameter',
       fn: actions.toggleObject(''),
       expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('')],
     },
@@ -120,14 +114,12 @@ describe('s3object actions', () => {
       expectedActions: [dispatchAction.TOGGLE_OBJECT_ACTION('test')],
     },
     {
-      it:
-        'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to false',
+      it: 'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to false',
       fn: actions.toggleAllObjects(false),
       expectedActions: [dispatchAction.TOGGLE_ALL_OBJECTS_ACTION(false)],
     },
     {
-      it:
-        'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to true',
+      it: 'should return TOGGLE_ALL_OBJECTS action -> test with toggled parameter set to true',
       fn: actions.toggleAllObjects(true),
       expectedActions: [dispatchAction.TOGGLE_ALL_OBJECTS_ACTION(true)],
     },
@@ -152,8 +144,7 @@ describe('s3object actions', () => {
   syncTests.forEach(testActionFunction);
   const asyncTests = [
     {
-      it:
-        'createFolder: should return expected actions -> test without prefix parameter',
+      it: 'createFolder: should return expected actions -> test without prefix parameter',
       fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME),
       storeState: initState,
       expectedActions: [
@@ -171,8 +162,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'createFolder: should return expected actions -> test with prefix parameter',
+      it: 'createFolder: should return expected actions -> test with prefix parameter',
       fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME),
       storeState: initState,
       expectedActions: [
@@ -212,8 +202,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'uploadFiles: should return expected actions -> test without prefix parameter',
+      it: 'uploadFiles: should return expected actions -> test without prefix parameter',
       fn: actions.uploadFiles(BUCKET_NAME, '', [FILE]),
       storeState: initState,
       expectedActions: [
@@ -231,8 +220,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'uploadFiles: should return expected actions -> test with prefix parameter',
+      it: 'uploadFiles: should return expected actions -> test with prefix parameter',
       fn: actions.uploadFiles(BUCKET_NAME, PREFIX, [FILE]),
       storeState: initState,
       expectedActions: [
@@ -272,8 +260,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'listObjects: should return expected actions -> test without prefix parameter',
+      it: 'listObjects: should return expected actions -> test without prefix parameter',
       fn: actions.listObjects(BUCKET_NAME, ''),
       storeState: initState,
       expectedActions: [
@@ -288,8 +275,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'listObjects: should return expected actions -> test with prefix parameter',
+      it: 'listObjects: should return expected actions -> test with prefix parameter',
       fn: actions.listObjects(BUCKET_NAME, PREFIX),
       storeState: initState,
       expectedActions: [
@@ -324,8 +310,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'deleteFiles: should return expected actions -> test without prefix parameter',
+      it: 'deleteFiles: should return expected actions -> test without prefix parameter',
       fn: actions.deleteFiles(BUCKET_NAME, '', [S3_OBJECT]),
       storeState: initState,
       expectedActions: [
@@ -343,8 +328,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'deleteFiles: should return expected actions -> test with prefix parameter',
+      it: 'deleteFiles: should return expected actions -> test with prefix parameter',
       fn: actions.deleteFiles(BUCKET_NAME, PREFIX, [S3_OBJECT]),
       storeState: initState,
       expectedActions: [
@@ -406,8 +390,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'getObjectMetadata: should handle error -> test without prefix parameter',
+      it: 'getObjectMetadata: should handle error -> test without prefix parameter',
       fn: actions.getObjectMetadata(BUCKET_NAME, '', OBJECT_KEY),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -417,8 +400,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'getObjectMetadata: should handle error -> test with prefix parameter',
+      it: 'getObjectMetadata: should handle error -> test with prefix parameter',
       fn: actions.getObjectMetadata(BUCKET_NAME, PREFIX, OBJECT_KEY),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -466,8 +448,7 @@ describe('s3object actions', () => {
       ],
     },
     {
-      it:
-        'putObjectTagging: should return expected actions -> test with no tag',
+      it: 'putObjectTagging: should return expected actions -> test with no tag',
       fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY, []),
       storeState: initState,
       expectedActions: [

@@ -1,13 +1,12 @@
 import { ChangeEvent, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
-import { push } from 'connected-react-router';
 import { DateTime } from 'luxon';
 import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Button, Input } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/next';
 import {
   Banner,
   Form,
@@ -51,6 +50,7 @@ const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 
 export default function ObjectLockSetting() {
   const dispatch = useDispatch();
+  const history = useHistory();
   const query = useQueryParams();
   const hasError = useSelector(
     (state: AppState) =>
@@ -97,10 +97,8 @@ export default function ObjectLockSetting() {
 
   const handleCancel = () => {
     clearServerError();
-    dispatch(
-      push(
-        `/accounts/${account?.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
-      ),
+    history.push(
+      `/accounts/${account?.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
     );
   };
 
@@ -130,6 +128,7 @@ export default function ObjectLockSetting() {
         retentionMode,
         DateTime.fromISO(retentionUntilDate).toSeconds(),
         account?.Name,
+        history,
       ),
     );
   };
@@ -195,7 +194,7 @@ export default function ObjectLockSetting() {
                 }) => {
                   return (
                     <Toggle
-                      id="edit-retention"
+                      id="isRetentionEnabled"
                       disabled={isDefaultRetentionEnabled}
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         onChange(e.target.checked)

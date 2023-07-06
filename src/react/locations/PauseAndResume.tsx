@@ -1,4 +1,4 @@
-import { Icon, Loader, Text, spacing } from '@scality/core-ui';
+import { Icon, Loader, spacing } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -9,6 +9,7 @@ import { useManagementClient } from '../ManagementProvider';
 import { InlineButton } from '../ui-elements/Table';
 import { getInstanceStatusQuery } from './queries';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
@@ -17,9 +18,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     ingestion: 'enabled' | 'disabled' | null;
   } | null>(null);
   const dispatch = useDispatch();
-  const instanceId = notFalsyTypeGuard(
-    useSelector((state: AppState) => state.instances.selectedId),
-  );
+  const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const instanceStatusQuery = getInstanceStatusQuery(
     dispatch,

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { generatePath, useHistory, useRouteMatch } from 'react-router';
+import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
+
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {
@@ -175,9 +175,9 @@ export function AccountRoleSelectButtonAndModal({
           ) : (
             <>
               {accountName}
-              <SpacedBox ml={12}>
+              <Box ml={12}>
                 <Icon name="Chevron-down" size="xs" />
-              </SpacedBox>
+              </Box>
             </>
           )
         }

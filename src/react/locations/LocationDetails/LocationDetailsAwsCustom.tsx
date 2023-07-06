@@ -20,13 +20,7 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../types/config';
 import { checkIsRingS3Reseller } from '../utils';
-import {
-  Checkbox,
-  FormGroup,
-  FormSection,
-  Stack,
-  Text,
-} from '@scality/core-ui';
+import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {

@@ -1,3 +1,6 @@
+import { History } from 'history';
+import { until } from 'async';
+
 import type {
   CloseLocationDeleteDialogAction,
   OpenLocationDeleteDialogAction,
@@ -8,9 +11,8 @@ import { handleApiError, handleClientError } from './error';
 import { networkEnd, networkStart } from './network';
 import { updateConfiguration } from './configuration';
 import { getClients } from '../utils/actions';
-import { goBack } from 'connected-react-router';
-import { until } from 'async';
 import { loadInstanceLatestStatus } from './stats';
+
 export function openLocationDeleteDialog(
   locationName: LocationName,
 ): OpenLocationDeleteDialogAction {
@@ -57,7 +59,10 @@ export function waitForLocationToBeRemoved(
     );
 }
 
-export function saveLocation(location: Location): ThunkStatePromisedAction {
+export function saveLocation(
+  location: Location,
+  history: History,
+): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
     const params = {
@@ -77,9 +82,11 @@ export function saveLocation(location: Location): ThunkStatePromisedAction {
           params.uuid,
         );
     return op
-      .then(() => dispatch(updateConfiguration()))
-      .then(() => dispatch(waitForNewLocationToAppear(params.locationName)))
-      .then(() => dispatch(goBack()))
+      .then(() => {
+        dispatch(updateConfiguration());
+        dispatch(waitForNewLocationToAppear(params.locationName));
+        history.goBack();
+      })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => {
         if (error instanceof Response) {

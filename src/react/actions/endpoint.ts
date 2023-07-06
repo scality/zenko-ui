@@ -1,3 +1,4 @@
+import { History } from 'history';
 import type {
   CloseEndpointDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
@@ -11,7 +12,7 @@ import {
   waitForRunningConfigurationVersionUpdate,
 } from './configuration';
 import { getClients } from '../utils/actions';
-import { push } from 'connected-react-router';
+
 export function openEndpointDeleteDialog(
   hostname: Hostname,
 ): OpenEndpointDeleteDialogAction {
@@ -28,6 +29,7 @@ export function closeEndpointDeleteDialog(): CloseEndpointDeleteDialogAction {
 export function createEndpoint(
   hostname: Hostname,
   locationName: LocationName,
+  history: History,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -42,9 +44,11 @@ export function createEndpoint(
     };
     return managementClient
       .createConfigurationOverlayEndpoint(params.endpoint, params.uuid)
-      .then(() => dispatch(updateConfiguration()))
-      .then(() => dispatch(waitForRunningConfigurationVersionUpdate()))
-      .then(() => dispatch(push('/dataservices')))
+      .then(() => {
+        dispatch(updateConfiguration());
+        dispatch(waitForRunningConfigurationVersionUpdate());
+        history.push('/dataservices');
+      })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
       .finally(() => dispatch(networkEnd()));

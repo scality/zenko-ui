@@ -1,35 +1,93 @@
-import { ErrorPage500, Loader } from '@scality/core-ui';
-import { createContext, useContext } from 'react';
-import { useQuery } from 'react-query';
-import { getAppConfig } from '../../../js/config';
+import { ErrorPage500 } from '@scality/core-ui';
+import { createContext } from 'react';
+import {
+  ComponentWithFederatedImports,
+  useCurrentApp,
+} from '@scality/module-federation';
 import { AppConfig } from '../../../types/entities';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export const _ConfigContext = createContext<AppConfig | null>(null);
 
-export const useConfig = (): AppConfig => {
-  const context = useContext(_ConfigContext);
-  if (!context) {
-    throw new Error('useConfig must be used within a ConfigProvider');
-  }
-  return context;
-};
+const configGlobal = {};
+const deployedInstancesGlobal = {};
+export function useConfig(): AppConfig {
+  const { name } = useCurrentApp();
+  return configGlobal.hooks.useConfig({
+    configType: 'run',
+    name,
+  }).spec.selfConfiguration;
+}
 
-export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data: config, status } = useQuery('config', getAppConfig, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+export function useDeployedMetalk8sInstances(): SolutionUI[] {
+  return deployedInstancesGlobal.hooks.useDeployedApps({
+    kind: 'metalk8s-ui',
   });
+}
 
-  if (status === 'idle' || status === 'loading') {
-    return <Loader />;
+export function useGrafanaURL() {
+  const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
+  const instances = useDeployedMetalk8sInstances();
+
+  if (instances.length) {
+    const baseUrl = instances[0].url;
+    const runTimeConfig = retrieveConfiguration({
+      configType: 'run',
+      name: instances[0].name,
+    });
+    return baseUrl + runTimeConfig.spec.selfConfiguration.url_grafana;
+  } else {
+    console.log('There is no Metalk8s instance deployed yet.');
+    return '';
   }
+}
 
-  if (status === 'error') {
-    return <ErrorPage500 locale="en" />;
-  }
-
-  return (
-    <_ConfigContext.Provider value={config}>{children}</_ConfigContext.Provider>
-  );
+const InternalConfigProvider = ({
+  moduleExports,
+  children,
+}: {
+  moduleExports: Record<string, unknown>;
+  children: React.ReactNode;
+}): React.ReactNode => {
+  configGlobal.hooks =
+    moduleExports['./moduleFederation/ConfigurationProvider'];
+  deployedInstancesGlobal.hooks =
+    moduleExports['./moduleFederation/UIListProvider'];
+  return <>{children}</>;
 };
+
+function ErrorFallback() {
+  // const intl = useIntl();
+  // const language = intl.locale;
+  return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
+}
+
+export function ConfigProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactNode {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <ComponentWithFederatedImports
+        componentWithInjectedImports={InternalConfigProvider}
+        renderOnError={<ErrorPage500 />}
+        componentProps={{
+          children,
+        }}
+        federatedImports={[
+          {
+            scope: 'shell',
+            module: './moduleFederation/ConfigurationProvider',
+            remoteEntryUrl: window.shellUIRemoteEntryUrl,
+          },
+          {
+            scope: 'shell',
+            module: './moduleFederation/UIListProvider',
+            remoteEntryUrl: window.shellUIRemoteEntryUrl,
+          },
+        ]}
+      />
+    </ErrorBoundary>
+  );
+}

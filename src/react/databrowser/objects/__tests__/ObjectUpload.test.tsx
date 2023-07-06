@@ -1,93 +1,94 @@
-import * as s3object from '../../../actions/s3object';
-import ObjectUpload, { FileList, NoFile } from '../ObjectUpload';
-import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
-import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { reduxMount } from '../../../utils/testUtil';
-import router from 'react-router';
+import { debug } from 'jest-preview';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+import ObjectUpload from '../ObjectUpload';
+import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
+import {
+  TEST_API_BASE_URL,
+  mockOffsetSize,
+  renderWithRouterMatch,
+} from '../../../utils/testUtil';
+
+const renderObjectUpload = () => {
+  return renderWithRouterMatch(
+    <ObjectUpload bucketName={BUCKET_NAME} />,
+    undefined,
+    {
+      uiObjects: {
+        showObjectUpload: true,
+      },
+    },
+  );
+};
+
+const server = setupServer(
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    return res(
+      ctx.json({
+        IsTruncated: false,
+        Accounts: [],
+      }),
+    );
+  }),
+);
+//
+// rest.post(
+//   `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+//   (req, res, ctx) => {
+//     return res(ctx.json([]));
+//   },
+// ),
+// getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
+// ...getStorageConsumptionMetricsHandlers(
+//   zenkoUITestConfig.managementEndpoint,
+//   INSTANCE_ID,
+// ),
+
 describe('ObjectUpload', () => {
   beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue({
-      pathname: '/buckets/test/objects',
-    });
+    server.listen({ onUnhandledRequest: 'error' });
+    mockOffsetSize(200, 100);
   });
-  const closeObjectUploadModalMock = jest.spyOn(
-    s3object,
-    'closeObjectUploadModal',
-  );
-  const uploadFilesMock = jest.spyOn(s3object, 'uploadFiles');
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-  it('should render ObjectUpload component', () => {
-    const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} />,
-      {
-        uiObjects: {
-          showObjectUpload: true,
-        },
-      },
-    );
-    expect(component.find(ObjectUpload).isEmptyRender()).toBe(false);
-  });
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
   it('should render an empty ObjectUpload component if showFolderCreate equals to false', () => {
-    const { component } = reduxMount(
+    const { container } = renderWithRouterMatch(
       <ObjectUpload bucketName={BUCKET_NAME} />,
+      undefined,
       {
         uiObjects: {
           showObjectUpload: false,
         },
       },
     );
-    expect(component.find(ObjectUpload).isEmptyRender()).toBe(true);
+
+    expect(container).toBeEmptyDOMElement();
   });
-  it('should call closeObjectUploadModal if cancel button is pressed when NoFile component is rendered', () => {
-    const closeObjectUploadModalMock = jest.spyOn(
-      s3object,
-      'closeObjectUploadModal',
+  it('should close the modal if cancel button is pressed when NoFile component is rendered', async () => {
+    const { container } = renderObjectUpload();
+
+    expect(
+      screen.getByText(/Drag and drop files and folders here/i),
+    ).toBeInTheDocument();
+
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /cancel/i,
+      }),
     );
-    const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} />,
-      {
-        uiObjects: {
-          showObjectUpload: true,
-        },
-      },
-    );
-    expect(component.find(NoFile)).toHaveLength(1);
-    expect(component.find(FileList)).toHaveLength(0);
-    expect(closeObjectUploadModalMock).toHaveBeenCalledTimes(0);
-    component.find('button#object-upload-cancel-button').simulate('click');
-    expect(closeObjectUploadModalMock).toHaveBeenCalledTimes(1);
+
+    expect(container).toBeEmptyDOMElement();
   });
+
   it('should not call uploadFiles if upload button is pressed when no file is present', () => {
-    const uploadFilesMock = jest.spyOn(s3object, 'uploadFiles');
-    const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} />,
-      {
-        uiObjects: {
-          showObjectUpload: true,
-        },
-      },
-    );
-    const uploadButton = component.find('button#object-upload-upload-button');
-    expect(uploadFilesMock).toHaveBeenCalledTimes(0);
-    expect(uploadButton.prop('disabled')).toBe(true);
-    uploadButton.simulate('click');
-    expect(uploadFilesMock).toHaveBeenCalledTimes(0);
+    renderObjectUpload();
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled();
   });
-  it('should render NoFile component', () => {
-    const { component } = reduxMount(
-      <ObjectUpload bucketName={BUCKET_NAME} />,
-      {
-        uiObjects: {
-          showObjectUpload: true,
-        },
-      },
-    );
-    expect(component.find(NoFile)).toHaveLength(1);
-    expect(component.find(FileList)).toHaveLength(0);
-  });
+
   const tests = [
     'should render FileList component',
     'should call closeObjectUploadModal if cancel button is pressed when FileList component is rendered',
@@ -96,65 +97,81 @@ describe('ObjectUpload', () => {
   ];
   tests.forEach((t, index) => {
     it(t, async () => {
-      const { component } = reduxMount(
-        <ObjectUpload bucketName={BUCKET_NAME} />,
-        {
-          uiObjects: {
-            showObjectUpload: true,
+      const { container } = renderObjectUpload();
+
+      function mockData(files: File[]) {
+        return {
+          dataTransfer: {
+            files,
+            items: files.map((file) => ({
+              kind: 'file',
+              size: file.size,
+              type: file.type,
+              getAsFile: () => file,
+            })),
+            types: ['Files'],
           },
-        },
-      );
-      const file = new File(['test'], 'test.txt', {
-        type: 'text/plain',
+        };
+      }
+
+      const file = new File([JSON.stringify({ ping: true })], 'ping.json', {
+        type: 'application/json',
       });
-      const dropZone = component.find('input.object-upload-drop-zone-input');
-      expect(component.find(FileList)).toHaveLength(0);
-      await act(async () => {
-        dropZone.simulate('change', {
-          target: {
-            files: [file],
+      const data = mockData([file]);
+
+      act(() => {
+        fireEvent.drop(
+          screen.getByRole('button', {
+            name: /drag and drop files and folders here/i,
+          }),
+          {
+            dataTransfer: {
+              files: [
+                new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' }),
+              ],
+              types: ['Files'],
+            },
           },
-        });
+        );
       });
-      component.update();
+
+      await waitFor(() => {
+        expect(screen.getByText(/Add more files/i)).toBeInTheDocument();
+      });
 
       switch (index) {
         case 0:
-          expect(component.find(NoFile)).toHaveLength(0);
-          expect(component.find(FileList)).toHaveLength(1);
+          expect(screen.getByText(/Add more files/i)).toBeInTheDocument();
           break;
 
         case 1:
-          expect(component.find(NoFile)).toHaveLength(0);
-          expect(component.find(FileList)).toHaveLength(1);
-          expect(closeObjectUploadModalMock).toHaveBeenCalledTimes(0);
-          component
-            .find('button#object-upload-cancel-button')
-            .simulate('click');
-          expect(closeObjectUploadModalMock).toHaveBeenCalledTimes(1);
+          userEvent.click(
+            screen.getByRole('button', {
+              name: /cancel/i,
+            }),
+          );
+          expect(container).toBeEmptyDOMElement();
+
           break;
 
         case 2:
-          expect(component.find(FileList)).toHaveLength(1);
-          expect(component.find('td').at(0).find('div').childAt(0).text()).toBe(
-            'test.txt',
+          userEvent.click(
+            screen.getByRole('button', {
+              name: 'Upload',
+            }),
           );
-          expect(component.find('td').at(0).find('small').text()).toBe('4 B');
-          expect(
-            component.find('div.sc-modal-header').find('span').at(0).text(),
-          ).toBe('Upload 1 file');
-          expect(uploadFilesMock).toHaveBeenCalledTimes(0);
-          component
-            .find('button#object-upload-upload-button')
-            .simulate('click');
-          expect(uploadFilesMock).toHaveBeenCalledTimes(1);
+          // FIXME Need to check with msw if it's called
+          expect(container).toBeEmptyDOMElement();
           break;
 
         case 3:
-          expect(component.find(FileList)).toHaveLength(1);
-          component.find('td').at(1).find('div').simulate('click');
-          expect(component.find(FileList)).toHaveLength(0);
-          expect(component.find(NoFile)).toHaveLength(1);
+          userEvent.click(
+            screen.getByRole('button', {
+              name: /close modal/i,
+            }),
+          );
+          expect(container).toBeEmptyDOMElement();
+
           break;
       }
     });

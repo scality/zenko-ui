@@ -1,16 +1,17 @@
-import * as T from '../../ui-elements/Table';
-import React, { memo } from 'react';
-import { toggleAllObjects } from '../../actions';
-import type { Action } from '../../../types/actions';
+import { memo } from 'react';
 import type { DispatchAPI } from 'redux';
-import type { ObjectEntity } from '../../../types/s3';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
-import { useLocation } from 'react-router';
+import { useHistory, useLocation } from 'react-router-dom';
+
+import * as T from '../../ui-elements/Table';
+import { toggleAllObjects } from '../../actions';
+import type { Action } from '../../../types/actions';
 import { useQueryParams } from '../../utils/hooks';
-import { push } from 'connected-react-router';
 import { removeTrailingSlash } from '../../../js/utils';
+import type { ObjectEntity } from '../../../types/s3';
+
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -53,6 +54,7 @@ const Row = ({
 }: RowProps) => {
   const row = rows[index];
   prepareRow(row);
+  const history = useHistory();
   const { pathname } = useLocation();
   const query = useQueryParams();
   const versionId = query.get('versionId');
@@ -75,7 +77,7 @@ const Row = ({
       query.delete('versionId');
     }
 
-    dispatch(push(`${pathname}?${query.toString()}`));
+    history.push(`${pathname}?${query.toString()}`);
   };
 
   const isRowSelected = isListVersions

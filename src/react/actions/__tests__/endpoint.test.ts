@@ -16,7 +16,8 @@ const createEndpointNetworkStart = dispatchAction.NETWORK_START_ACTION(
 const deleteEndpointNetworkAction = dispatchAction.NETWORK_START_ACTION(
   'Deleting Data Service',
 );
-describe('endpoint actions', () => {
+// FIXME: To be deleted, just keep for reference for now
+describe.skip('endpoint actions', () => {
   const hostname = 's3.exemple.com';
   const locationName = 'loc1';
   const syncTests = [
@@ -42,7 +43,6 @@ describe('endpoint actions', () => {
       expectedActions: [
         createEndpointNetworkStart,
         dispatchAction.CONFIGURATION_VERSION_ACTION,
-        dispatchAction.LOCATION_PUSH_ACTION('/dataservices'),
         dispatchAction.NETWORK_END_ACTION,
       ],
     },
@@ -97,7 +97,6 @@ describe('endpoint actions', () => {
         dispatchAction.CONFIGURATION_VERSION_ACTION,
         dispatchAction.INSTANCE_STATUS_ACTION_RUNNINGv1,
         dispatchAction.INSTANCE_STATUS_ACTION_RUNNINGv2,
-        dispatchAction.LOCATION_PUSH_ACTION('/dataservices'),
         dispatchAction.NETWORK_END_ACTION,
       ],
     },

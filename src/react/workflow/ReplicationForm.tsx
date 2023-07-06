@@ -415,6 +415,7 @@ const RenderDestination = ({
                   const touched = touchedFields[fieldName];
                   return (
                     <FormGroup
+                      key={index}
                       required={index === 0}
                       label={index === 0 ? 'Location Name' : ''}
                       id={`select-location-${destinationLocations.length - 1}`}

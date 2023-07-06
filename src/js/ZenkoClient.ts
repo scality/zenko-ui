@@ -1,3 +1,4 @@
+import { genClientEndpoint } from '../react/utils';
 import type {
   Credentials,
   SearchBucketResp,
@@ -18,9 +19,15 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
   _isLogin: boolean;
   _jsonClient: ZenkoClientBase;
 
-  constructor(endpoint: string) {
-    super(endpoint);
-    this.endpoint = endpoint;
+  constructor(
+    endpoint: string,
+    iamInternalFQDN: string,
+    s3InternalFQDN: string,
+    basePath: string,
+  ) {
+    super(endpoint, iamInternalFQDN, s3InternalFQDN, basePath);
+
+    this.endpoint = genClientEndpoint(endpoint);
 
     this._init();
     this._isLogin = false;

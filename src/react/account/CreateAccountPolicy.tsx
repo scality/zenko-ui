@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useIAMClient } from '../IAMProvider';
 
 import { useHistory, useParams } from 'react-router-dom';

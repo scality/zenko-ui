@@ -1,6 +1,5 @@
 import type { LocationDetails } from '../../../types/config';
 import React from 'react';
-import urlParse from 'url-parse';
 import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
@@ -36,8 +35,8 @@ function _convertToState(details: LocationDetails): State {
     protocol: scheme,
     host: server,
     pathname: path,
-    query: options,
-  } = urlParse(details.endpoint);
+    search: options,
+  } = new URL(details.endpoint);
   const [protocol, version] = scheme.slice(0, -1).split('+');
   return {
     protocol,

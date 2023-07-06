@@ -1,7 +1,6 @@
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@scality/core-ui/dist/next';
 import { ButtonsContainer } from '../ui-elements/Container';
-import { listBuckets } from '../actions/s3bucket';
 import { listObjects } from '../actions/s3object';
 import { useDispatch } from 'react-redux';
 import { usePrefixWithSlash } from '../utils/hooks';

@@ -12,12 +12,13 @@ import {
 } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
-import { goBack } from 'connected-react-router';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useQueryClient } from 'react-query';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
+import { useHistory } from 'react-router-dom';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
@@ -48,6 +49,7 @@ function AccountCreate() {
     mode: 'all',
     resolver: joiResolver(schema),
   });
+  const history = useHistory();
   const hasError = useSelector(
     (state: AppState) =>
       !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
@@ -62,13 +64,16 @@ function AccountCreate() {
   const queryClient = useQueryClient();
   const setRole = useSetAssumedRole();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
+  const instanceId = useInstanceId();
   const onSubmit = ({ name, email }: AccountFormField) => {
     clearServerError();
     const payload = {
       Name: name,
       email,
     };
-    dispatch(createAccount(payload, queryClient, token, setRole));
+    dispatch(
+      createAccount(payload, queryClient, token, history, instanceId, setRole),
+    );
   };
 
   const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -77,7 +82,7 @@ function AccountCreate() {
     }
 
     clearServerError();
-    dispatch(goBack());
+    history.goBack();
   };
 
   const clearServerError = () => {

@@ -12,6 +12,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import {
   mockOffsetSize,
   reduxRender,
+  selectClick,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import {
@@ -188,9 +189,7 @@ describe('TransitionForm', () => {
     const sourceBucketContainer =
       screen.getByText(/bucket name \*/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
-    userEvent.click(
-      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
-    );
+    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -221,9 +220,7 @@ describe('TransitionForm', () => {
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
-    userEvent.click(
-      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
-    );
+    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -322,9 +319,9 @@ describe('TransitionForm', () => {
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
-    userEvent.click(
-      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
-    );
+
+    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
+
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -344,7 +341,7 @@ describe('TransitionForm', () => {
     const storageLocationContainer =
       screen.getByText(/Storage location/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
-    userEvent.click(
+    selectClick(
       notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
     );
     userEvent.click(
@@ -372,9 +369,7 @@ describe('TransitionForm', () => {
         .parentElement!.parentElement!;
 
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
-    userEvent.click(
-      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
-    );
+    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -394,7 +389,7 @@ describe('TransitionForm', () => {
     const storageLocationContainer =
       screen.getByText(/Storage location/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
-    userEvent.click(
+    selectClick(
       notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
     );
     // expect the hyperdrive location is not in the list

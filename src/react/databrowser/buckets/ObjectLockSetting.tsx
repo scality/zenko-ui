@@ -1,20 +1,23 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Button } from '@scality/core-ui/dist/next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useParams } from 'react-router-dom';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
+import { Banner, Icon, Form, Stack } from '@scality/core-ui';
+
+import type { AppState } from '../../../types/state';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';
 import { clearError, editDefaultRetention, getBucketInfo } from '../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { push } from 'connected-react-router';
-import type { AppState } from '../../../types/state';
-import { Banner, Icon, Form, Stack } from '@scality/core-ui';
 import { convertToBucketInfo } from '../../locations/utils';
+
 const schema = Joi.object(objectLockRetentionSettingsValidationRules);
+
 export default function ObjectLockSetting() {
+  const history = useHistory();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const hasError = useSelector(
     (state: AppState) =>
@@ -50,7 +53,7 @@ export default function ObjectLockSetting() {
 
   const handleCancel = () => {
     clearServerError();
-    dispatch(push('/buckets'));
+    history.push('/buckets');
   };
 
   const { bucketName } = useParams<{ bucketName: string }>();
@@ -76,11 +79,15 @@ export default function ObjectLockSetting() {
             years: retentionPeriod,
           };
     dispatch(
-      editDefaultRetention(bucketName, {
-        isDefaultRetentionEnabled,
-        retentionMode,
-        retentionPeriod: retentionPeriodToSubmit,
-      }),
+      editDefaultRetention(
+        bucketName,
+        {
+          isDefaultRetentionEnabled,
+          retentionMode,
+          retentionPeriod: retentionPeriodToSubmit,
+        },
+        history,
+      ),
     );
   };
 

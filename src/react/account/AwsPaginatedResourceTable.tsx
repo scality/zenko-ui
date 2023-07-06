@@ -1,4 +1,10 @@
+import { ChangeEvent } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
+import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
+import { Tooltip } from '@scality/core-ui';
+import { Box, Table } from '@scality/core-ui/dist/next';
+import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
+
 import { useIAMClient } from '../IAMProvider';
 import { useQueryParams } from '../utils/hooks';
 import {
@@ -7,15 +13,8 @@ import {
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
-import { ChangeEvent } from 'react';
-import { SpacedBox } from '@scality/core-ui/dist/components/spacedbox/SpacedBox';
-import { Box, Table } from '@scality/core-ui/dist/next';
-import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
-import { EmptyState, Tooltip } from '@scality/core-ui';
 import IAMClient from '../../js/IAMClient';
-import { Warning } from '../ui-elements/Warning';
 import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
-import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -153,12 +152,12 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
               )}
             </WithTooltipWhileLoading>
             {queryResult.firstPageStatus === 'loading' ? (
-              <SpacedBox ml={12}>{loading}</SpacedBox>
+              <Box ml={12}>{loading}</Box>
             ) : (
               ''
             )}
             {queryResult.status === 'error' ? (
-              <SpacedBox ml={12}>{errorPreviousHeaders}</SpacedBox>
+              <Box ml={12}>{errorPreviousHeaders}</Box>
             ) : (
               ''
             )}

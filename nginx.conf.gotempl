@@ -1,0 +1,46 @@
+map $request_uri $proxy_uri {
+	"~^/s3/(?<path>.*)$" "/$path";
+}
+
+server {
+  listen       {{ .Port }};
+  server_name  _;
+
+  # send precompressed files with the “.gz” filename extension instead of regular files
+  gzip_static on;
+
+  client_max_body_size 0;
+
+  root  {{ .Root }};
+
+  location / {
+      try_files $uri $uri/ /index.html;
+  }
+
+  location = /swagger.json {
+	proxy_pass {{ .ManagementEndpoint }}/swagger.json;
+  }
+
+  location /api {
+	proxy_pass {{ .ManagementEndpoint }};
+  }
+
+  {{ .AdditionalLocations }}
+
+  location /s3 {
+    resolver {{ .DNSAddress }};
+	{{ .AdditionalS3LocationsRules }}
+    proxy_pass {{ .S3Endpoint }}$proxy_uri;
+    proxy_redirect off;
+  }
+
+  location /iam {
+    proxy_pass         {{ .IAMEndpoint }};
+  }
+
+  location /sts {
+    proxy_pass         {{ .STSEndpoint }};
+    proxy_set_header   host $host;
+    proxy_set_header   proxy_path /sts;
+  }
+}

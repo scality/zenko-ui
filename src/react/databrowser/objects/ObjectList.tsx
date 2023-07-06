@@ -14,9 +14,8 @@ import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';
 import { Icon, spacing, Toggle } from '@scality/core-ui';
 import { WarningMetadata } from '../../ui-elements/Warning';
-import { push } from 'connected-react-router';
 import { useQueryParams } from '../../utils/hooks';
-import { useLocation } from 'react-router';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Box } from '@scality/core-ui/dist/next';
 import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
 type Props = {
@@ -36,6 +35,7 @@ export default function ObjectList({
   toggled,
   listType,
 }: Props) {
+  const history = useHistory();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const query = useQueryParams();
@@ -121,7 +121,7 @@ export default function ObjectList({
                 query.delete('versionId');
               }
 
-              dispatch(push(`${pathname}?${query.toString()}`));
+              history.push(`${pathname}?${query.toString()}`);
             }}
           />
         </T.ButtonContainer>

@@ -16,6 +16,7 @@ const Container = styled.div`
 
 function Properties({ account }: Props) {
   const { isStorageManager } = useAuthGroups();
+
   return (
     <AutoSizer>
       {({ height, width }) => (

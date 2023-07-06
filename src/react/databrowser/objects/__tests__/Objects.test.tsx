@@ -2,12 +2,11 @@ import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import {
   mockOffsetSize,
-  reduxRender,
+  renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../../utils/testUtil';
 import Objects from '../Objects';
 import { screen, waitFor } from '@testing-library/react';
-import router from 'react-router';
 
 const BUCKET_NAME = 'bucket';
 const COLD_OBJECT_KEY = 'my-cold-image.jpg';
@@ -206,9 +205,6 @@ const server = setupServer(
 );
 
 beforeAll(() => {
-  jest.spyOn(router, 'useParams').mockReturnValue({
-    bucketName: BUCKET_NAME,
-  });
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
 });
@@ -218,18 +214,25 @@ afterAll(() => server.close());
 describe('Objects', () => {
   it('should remove the link to download for the object store in cold storage', async () => {
     //S
-    reduxRender(<Objects />, {
-      configuration: {
-        latest: {
-          locations: {
-            'europe25-myroom-cold': {
-              name: 'europe25-myroom-cold',
-              isCold: true,
+    renderWithRouterMatch(
+      <Objects />,
+      {
+        path: '/accounts/:accountName/buckets/:bucketName/objects',
+        route: `/accounts/renard/buckets/${BUCKET_NAME}/objects`,
+      },
+      {
+        configuration: {
+          latest: {
+            locations: {
+              'europe25-myroom-cold': {
+                name: 'europe25-myroom-cold',
+                isCold: true,
+              },
             },
           },
         },
       },
-    });
+    );
     //E
     await waitFor(() => {
       expect(screen.getByText(/storage location/i)).toBeInTheDocument();

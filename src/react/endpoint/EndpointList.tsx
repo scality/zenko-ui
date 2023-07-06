@@ -1,26 +1,27 @@
+import { useMemo } from 'react';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { ConstrainedText, Icon, Wrap } from '@scality/core-ui';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+
 import type {
   Endpoint,
   LocationName,
   Hostname,
   Locations,
 } from '../../types/config';
-import { useMemo } from 'react';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import type { AppState } from '../../types/state';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { getLocationType } from '../utils/storageOptions';
+import { Clipboard } from '../ui-elements/Clipboard';
+import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
 import * as T from '../ui-elements/Table';
 import {
   closeEndpointDeleteDialog,
   deleteEndpoint,
   openEndpointDeleteDialog,
 } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getLocationType } from '../utils/storageOptions';
-import { push } from 'connected-react-router';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import { Clipboard } from '../ui-elements/Clipboard';
-import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
-import { ConstrainedText, Icon, Stack, Wrap } from '@scality/core-ui';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -34,6 +35,7 @@ const SEARCH_QUERY_PARAM = 'search';
 
 function EndpointList({ endpoints, locations }: Props) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const showDelete = useSelector(
     (state: AppState) => state.uiEndpoints.showDelete,
   );
@@ -167,7 +169,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 icon={<Icon name="Create-add" />}
                 label="Create Data Service"
                 variant="primary"
-                onClick={() => dispatch(push('/create-dataservice'))}
+                onClick={() => history.push('/create-dataservice')}
                 type="submit"
               />
               <AuthorizedAdvancedMetricsButton />

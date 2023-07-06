@@ -8,7 +8,7 @@ import {
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { AppState } from '../../types/state';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,

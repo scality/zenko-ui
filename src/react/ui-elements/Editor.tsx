@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
-loader.config({ paths: { vs: '/vs' } });
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
 type Props = {
   width?: string;
@@ -19,20 +19,28 @@ const Editor = ({
   onChange,
   readOnly,
   ...rest
-}: Props) => (
-  <MonacoEditor
-    height={height}
-    width={width}
-    defaultLanguage={language}
-    value={value}
-    theme="vs-dark"
-    loading="Initializing..."
-    onChange={onChange}
-    keepCurrentModel={true}
-    saveViewState={false}
-    options={{ readOnly, scrollBeyondLastLine: false }}
-    {...rest}
-  />
-);
+}: Props) => {
+  const config = useConfig();
+  const { basePath } = config;
+  useMemo(() => {
+    loader.config({ paths: { vs: basePath + '/vs' } });
+  }, []);
+
+  return (
+    <MonacoEditor
+      height={height}
+      width={width}
+      defaultLanguage={language}
+      value={value}
+      theme="vs-dark"
+      loading="Initializing..."
+      onChange={onChange}
+      keepCurrentModel={true}
+      saveViewState={false}
+      options={{ readOnly, scrollBeyondLastLine: false }}
+      {...rest}
+    />
+  );
+};
 
 export default Editor;

@@ -1,4 +1,8 @@
 import S3 from 'aws-sdk/clients/s3';
+import AWS from 'aws-sdk/lib/core';
+//@ts-expect-error - Signers module is not typed
+import OriginalV4Signer from 'aws-sdk/lib/signers/v4';
+
 import { chunkArray } from './utils';
 import { isVersioning } from '../react/utils';
 const MULTIPART_UPLOAD = {
@@ -9,7 +13,67 @@ const publicAclIndicator = 'http://acs.amazonaws.com/groups/global/AllUsers';
 export default class S3Client {
   client: S3;
 
-  constructor(endpoint) {
+  constructor(
+    endpoint: string,
+    iamInternalFQDN: string,
+    s3InternalFQDN: string,
+    basePath: string,
+  ) {
+    //@ts-expect-error - Signers is not typed
+    AWS.Signers.V4 = function V4(request, serviceName, options) {
+      const originalRequest = JSON.parse(JSON.stringify(request));
+      const s3Path = `${basePath}/s3`;
+      const iamPath = `${basePath}/iam`;
+      if (request.path.startsWith(s3Path)) {
+        request.path = request.path.replace(s3Path, '');
+        request.endpoint.path = request.path.replace(s3Path, '');
+        request.endpoint.pathname = request.path.replace(s3Path, '');
+        request.endpoint.port = 80;
+
+        request.headers.Host = s3InternalFQDN;
+
+        request.endpoint.host = s3InternalFQDN;
+        request.endpoint.hostname = s3InternalFQDN;
+        request.endpoint.href = `https://${s3InternalFQDN}`;
+      } else if (request.path.startsWith(iamPath)) {
+        request.path = request.path.replace(iamPath, '/');
+        request.endpoint.path = request.path.replace(iamPath, '/');
+        request.endpoint.pathname = request.path.replace(iamPath, '/');
+        request.endpoint.port = 80;
+
+        request.headers.Host = iamInternalFQDN;
+
+        request.endpoint.host = iamInternalFQDN;
+        request.endpoint.hostname = iamInternalFQDN;
+        request.endpoint.href = `https://${iamInternalFQDN}`;
+      }
+
+      const originalV4Signer = new OriginalV4Signer(
+        request,
+        serviceName,
+        options,
+      );
+      originalV4Signer.originalAddAuthorization =
+        originalV4Signer.addAuthorization;
+      originalV4Signer.addAuthorization = function addAuthorization(
+        credentials: AWS.Credentials,
+        date: Date,
+      ) {
+        const result = this.originalAddAuthorization(credentials, date);
+
+        request.endpoint = originalRequest.endpoint;
+        request.headers = {
+          ...originalRequest.headers,
+          ...request.headers,
+          Host: originalRequest.headers.Host,
+        };
+        request.path = originalRequest.path;
+        return result;
+      };
+
+      return originalV4Signer;
+    };
+
     this.auth(endpoint, {});
   }
 

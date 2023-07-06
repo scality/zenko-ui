@@ -10,89 +10,134 @@ import ObjectDelete, {
   WarningTypes,
 } from '../ObjectDelete';
 import React from 'react';
-import { reduxMount } from '../../../utils/testUtil';
+import { reduxMount, renderWithRouterMatch } from '../../../utils/testUtil';
 import { act } from 'react-dom/test-utils';
+import { screen, waitFor } from '@testing-library/react';
+import { debug } from 'jest-preview';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
+const s3ObjectToDelete = {
+  key: S3_OBJECT.Key,
+  versionId: 'v1',
+};
+
+const server = setupServer();
+
 describe('ObjectDelete', () => {
+  beforeEach(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
   afterEach(() => {
     jest.clearAllMocks();
   });
   it('should render ObjectDelete component', () => {
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
-        toggled={[S3_OBJECT]}
+        toggled={[s3ObjectToDelete]}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
       />,
+      undefined,
       {
         uiObjects: {
           showObjectDelete: true,
         },
       },
     );
-    expect(component.find(ObjectDelete).isEmptyRender()).toBe(false);
+
+    expect(screen.getByText('Confirmation')).toBeInTheDocument();
   });
   it('should render an empty ObjectDelete component if showObjectDelete equals to false', () => {
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
-        toggled={List([S3_OBJECT])}
+        toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
       />,
+      undefined,
       {
         uiObjects: {
           showObjectDelete: false,
         },
       },
     );
-    expect(component.find(ObjectDelete).isEmptyRender()).toBe(true);
+    expect(screen.queryByText('Confirmation')).toBeNull();
   });
+
   it('should call closeObjectDeleteModal and toggleAllObjects if cancel button is pressed', () => {
-    const closeObjectDeleteModalSpy = jest.spyOn(
-      s3object,
-      'closeObjectDeleteModal',
-    );
-    const toggleAllObjectsSpy = jest.spyOn(s3object, 'toggleAllObjects');
-    const { component } = reduxMount(
+    renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
-        toggled={List([S3_OBJECT])}
+        toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
       />,
+      undefined,
       {
         uiObjects: {
           showObjectDelete: true,
         },
       },
     );
-    expect(closeObjectDeleteModalSpy).toHaveBeenCalledTimes(0);
-    expect(toggleAllObjectsSpy).toHaveBeenCalledTimes(0);
-    component.find('button#object-delete-cancel-button').simulate('click');
-    expect(closeObjectDeleteModalSpy).toHaveBeenCalledTimes(1);
-    expect(toggleAllObjectsSpy).toHaveBeenCalledTimes(1);
+
+    expect(screen.queryByText('Confirmation')).toBeInTheDocument();
+    userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    expect(screen.queryByText('Confirmation')).toBeNull();
   });
-  it('should call deleteFiles if delete button is pressed', () => {
-    const deleteFilesSpy = jest.spyOn(s3object, 'deleteFiles');
-    const { component } = reduxMount(
+  it('should call deleteFiles if delete button is pressed', async () => {
+    const deleteInterceptor = jest.fn();
+    server.use(
+      rest.post('http://testendpoint/bucket', (req, res, ctx) => {
+        if (req.url.searchParams.toString() === 'delete=') {
+          deleteInterceptor(req.body);
+          return res(ctx.status(200), ctx.json({}));
+        } else {
+          return res(ctx.status(500));
+        }
+      }),
+    );
+
+    renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
-        toggled={List([S3_OBJECT])}
+        toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
       />,
+      undefined,
       {
         uiObjects: {
           showObjectDelete: true,
         },
       },
     );
-    const checkbox = component.find('input#confirmingPemanentDeletionCheckbox');
-    act(() => checkbox.props().onChange());
-    expect(deleteFilesSpy).toHaveBeenCalledTimes(0);
-    component.find('button#object-delete-delete-button').simulate('click');
-    expect(deleteFilesSpy).toHaveBeenCalledTimes(1);
+
+    expect(screen.queryByText('Confirmation')).toBeInTheDocument();
+
+    userEvent.click(
+      screen.getByRole('checkbox', { name: /confirm the deletion/i }),
+    );
+
+    expect(
+      screen.getByRole('checkbox', { name: /confirm the deletion/i }),
+    ).toBeChecked();
+
+    userEvent.click(screen.getByRole('button', { name: /Delete/i }));
+
+    await waitFor(() => {
+      return expect(deleteInterceptor).toHaveBeenCalled();
+    });
+
+    expect(deleteInterceptor).toHaveBeenCalledWith(
+      `<Delete xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Object><Key>${s3ObjectToDelete.key}</Key><VersionId>${s3ObjectToDelete.versionId}</VersionId></Object></Delete>`,
+    );
+
+    // Close the modal
+    expect(screen.queryByText('Confirmation')).toBeNull();
   });
 });
 

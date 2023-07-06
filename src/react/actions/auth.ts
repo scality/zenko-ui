@@ -12,6 +12,7 @@ import type {
   ThunkStatePromisedAction,
 } from '../../types/actions';
 import {
+  addOIDCUser,
   handleErrorMessage,
   loadInstanceLatestStatus,
   networkAuthFailure,
@@ -23,7 +24,6 @@ import type { OidcLogoutFunction } from '../../types/auth';
 import STSClient from '../../js/STSClient';
 import type { STSClient as STSClientInterface } from '../../types/sts';
 import ZenkoClient from '../../js/ZenkoClient';
-import { getAppConfig } from '../../js/config';
 import makeMgtClient from '../../js/managementClient';
 export function setOIDCLogout(logout: OidcLogoutFunction): SetOIDCLogoutAction {
   return {
@@ -80,28 +80,30 @@ export function setTheme(theme: Theme): SetThemeAction {
     theme,
   };
 }
-export function loadAppConfig(): ThunkNonStateAction {
+export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
   return (dispatch) => {
-    return getAppConfig()
-      .then((config) => {
-        dispatch(setAppConfig(config));
-        dispatch(
-          setSTSClient(
-            new STSClient({
-              endpoint: config.stsEndpoint,
-            }),
-          ),
-        );
-        dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
-        dispatch(loadConfigSuccess());
-      })
-      .catch((error) => {
-        const message = `Invalid application configuration: ${
-          error.message || '(unknown reason)'
-        }`;
-        dispatch(handleErrorMessage(message, 'byComponent'));
-        dispatch(configAuthFailure());
-      });
+    dispatch(addOIDCUser(user.original));
+    dispatch(setAppConfig(config));
+    dispatch(
+      setSTSClient(
+        new STSClient({
+          endpoint: config.stsEndpoint,
+        }),
+      ),
+    );
+    dispatch(
+      setZenkoClient(
+        new ZenkoClient(
+          config.zenkoEndpoint,
+          config.iamInternalFQDN,
+          config.s3InternalFQDN,
+          config.basePath,
+        ),
+      ),
+    );
+    dispatch(loadConfigSuccess());
+    dispatch(loadClients());
+    return Promise.resolve();
   };
 }
 export function loadClients(): ThunkStatePromisedAction {

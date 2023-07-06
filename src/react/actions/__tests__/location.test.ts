@@ -43,7 +43,7 @@ describe.skip('location actions', () => {
       expectedActions: [
         saveLocationNetworkStart,
         dispatchAction.CONFIGURATION_VERSION_ACTION,
-        dispatchAction.LOCATION_BACK_ACTION,
+
         dispatchAction.NETWORK_END_ACTION,
       ],
     },
@@ -54,7 +54,7 @@ describe.skip('location actions', () => {
       expectedActions: [
         saveLocationNetworkStart,
         dispatchAction.CONFIGURATION_VERSION_ACTION,
-        dispatchAction.LOCATION_BACK_ACTION,
+
         dispatchAction.NETWORK_END_ACTION,
       ],
     },
@@ -109,7 +109,7 @@ describe.skip('location actions', () => {
         dispatchAction.CONFIGURATION_VERSION_ACTION,
         dispatchAction.INSTANCE_STATUS_ACTION_RUNNINGv1,
         dispatchAction.INSTANCE_STATUS_ACTION_RUNNINGv2,
-        dispatchAction.LOCATION_BACK_ACTION,
+
         dispatchAction.NETWORK_END_ACTION,
       ],
     },

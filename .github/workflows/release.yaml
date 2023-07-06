@@ -4,6 +4,12 @@ name: release
 on:
   release:
     types: [published]
+env:
+  DEV_NAMESPACE: 'zenko-ui-dev'
+  PROD_NAMESPACE: 'zenko-ui'
+  REGISTRY: 'registry.scality.com'
+  CONFIG_IMAGE: 'zenko-ui-config'
+  UI_IMAGE: 'zenko-ui'
 
 jobs:
   retag-docker-image:
@@ -14,11 +20,14 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry.scality.com
+          registry: ${{ env.REGISTRY }}
           username: ${{ secrets.REGISTRY_LOGIN }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Retag the docker image
         run: |
-          docker pull registry.scality.com/zenko-ui-dev/zenko-ui:$GITHUB_SHA
-          docker tag registry.scality.com/zenko-ui-dev/zenko-ui:$GITHUB_SHA registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF_NAME
-          docker push registry.scality.com/zenko-ui/zenko-ui:$GITHUB_REF_NAME
+          docker pull ${REGISTRY}/${DEV_NAMESPACE}/${UI_IMAGE}:$GITHUB_SHA
+          docker pull ${REGISTRY}/${DEV_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_SHA
+          docker tag ${REGISTRY}/${DEV_NAMESPACE}/${UI_IMAGE}:$GITHUB_SHA ${REGISTRY}/${PROD_NAMESPACE}/${UI_IMAGE}:$GITHUB_REF_NAME
+          docker tag ${REGISTRY}/${DEV_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_SHA ${REGISTRY}/${PROD_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_REF_NAME
+          docker push ${REGISTRY}/${PROD_NAMESPACE}/${UI_IMAGE}:$GITHUB_REF_NAME
+          docker push ${REGISTRY}/${PROD_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_REF_NAME

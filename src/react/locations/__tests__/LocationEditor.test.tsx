@@ -2,9 +2,8 @@ import { MemoryRouter } from 'react-router-dom';
 import LocationEditor from '../LocationEditor';
 
 import { fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { mockOffsetSize, reduxRender } from '../../utils/testUtil';
+import { mockOffsetSize, reduxRender, selectClick } from '../../utils/testUtil';
 
 beforeAll(() => {
   mockOffsetSize(2000, 2000);
@@ -22,7 +21,7 @@ describe('LocationEditor', () => {
     const selector = notFalsyTypeGuard(
       container.querySelector('.sc-select__control'),
     );
-    userEvent.click(selector);
+    selectClick(selector);
 
     fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
     fireEvent.keyDown(selector, { key: 'ArrowUp', which: 38, keyCode: 38 });

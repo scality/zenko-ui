@@ -6,11 +6,11 @@ import {
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { reduxRender, TEST_API_BASE_URL } from '../../utils/testUtil';
+import { renderWithRouterMatch, TEST_API_BASE_URL } from '../../utils/testUtil';
 import { PauseAndResume } from '../PauseAndResume';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
 describe('PauseAndResume', () => {
-  const instanceId = 'instanceId';
   const locationName = 'someLocation';
   const server = setupServer(
     rest.post(
@@ -30,7 +30,7 @@ describe('PauseAndResume', () => {
   it('should render the component with pause label when ingestion is enabled', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -44,11 +44,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -61,7 +57,7 @@ describe('PauseAndResume', () => {
   it('should render the component with pause label when ingestion is an empty object', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -76,11 +72,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -93,7 +85,7 @@ describe('PauseAndResume', () => {
   it('should render the component with pause label when replication is enabled', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -105,11 +97,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -122,7 +110,7 @@ describe('PauseAndResume', () => {
   it('should render the component with pause label when both replication and ingestion are enabled', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -138,11 +126,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -161,7 +145,7 @@ describe('PauseAndResume', () => {
       //S
       server.use(
         rest.get(
-          `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+          `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
           (req, res, ctx) =>
             res(
               ctx.json({
@@ -186,11 +170,7 @@ describe('PauseAndResume', () => {
       const resumeButtonSelector = () =>
         screen.getByRole('button', { name: /resume/i });
 
-      reduxRender(<PauseAndResume locationName={locationName} />, {
-        instances: {
-          selectedId: instanceId,
-        },
-      });
+      renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
       await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
         timeout: 8000,
@@ -208,7 +188,7 @@ describe('PauseAndResume', () => {
       //S
       server.use(
         rest.get(
-          `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+          `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
           (req, res, ctx) => {
             return res(
               ctx.json({
@@ -239,7 +219,7 @@ describe('PauseAndResume', () => {
   it('should render the component with resume label when ingestion is disabled', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -254,11 +234,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -271,7 +247,7 @@ describe('PauseAndResume', () => {
   it('should render the component with resume label when replication is disabled', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -283,11 +259,7 @@ describe('PauseAndResume', () => {
           ),
       ),
     );
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -300,7 +272,7 @@ describe('PauseAndResume', () => {
   it('should render the component with pause label when one of the two processes are enabled (while loading/processing an action)', async () => {
     server.use(
       rest.get(
-        `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+        `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
         (req, res, ctx) =>
           res(
             ctx.json({
@@ -316,11 +288,7 @@ describe('PauseAndResume', () => {
       ),
     );
 
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     await waitForElementToBeRemoved(() => screen.queryByText('Loading'), {
       timeout: 8000,
@@ -330,11 +298,7 @@ describe('PauseAndResume', () => {
   });
 
   it('should render the spinner component when loading', async () => {
-    reduxRender(<PauseAndResume locationName={locationName} />, {
-      instances: {
-        selectedId: instanceId,
-      },
-    });
+    renderWithRouterMatch(<PauseAndResume locationName={locationName} />);
 
     expect(screen.getByText('Loading')).toBeInTheDocument();
   });

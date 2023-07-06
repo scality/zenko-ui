@@ -1,6 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/next';
@@ -22,11 +21,12 @@ const TableAction = styled.div`
 `;
 
 function AccountList({ accounts }: { accounts: Account[] }) {
-  const dispatch = useDispatch();
+  const history = useHistory();
 
   const { isStorageManager } = useAuthGroups();
 
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
+    const history = useHistory();
     const setRole = useSetAssumedRole();
     if (!row.original.canManageAccount) {
       return value;
@@ -39,7 +39,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
             href="#"
             onClick={() => {
               setRole({ roleArn: row.original.preferredAssumableRoleArn });
-              dispatch(push(`/accounts/${value}`));
+              history.push(`/accounts/${value}`);
             }}
           >
             {value}
@@ -115,7 +115,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
               icon={<Icon name="Create-add" />}
               label="Create Account"
               variant="primary"
-              onClick={() => dispatch(push('/create-account'))}
+              onClick={() => history.push('/create-account')}
               type="submit"
             ></Button>
           ) : (

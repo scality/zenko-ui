@@ -433,6 +433,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
           Key: s.key,
         };
       });
+
     dispatch(
       deleteFiles(bucketName, prefixWithSlash, [...objects], [...folders]),
     );
@@ -511,7 +512,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
       {checkboxRequired && toggledFiles.length > 0 && (
         <CheckboxContainer>
           <Checkbox
-            name="confirmingPemanentDeletion"
+            name="Confirm the deletion"
             id="confirmingPemanentDeletionCheckbox"
             checked={isCheckboxToggled}
             label="Confirm the deletion"

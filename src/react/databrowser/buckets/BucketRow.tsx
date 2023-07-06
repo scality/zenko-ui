@@ -1,14 +1,17 @@
-import * as T from '../../ui-elements/Table';
-import React, { memo } from 'react';
-import type { Action } from '../../../types/actions';
-import type { DispatchAPI } from 'redux';
-import type { S3Bucket } from '../../../types/s3';
+import { memo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { areEqual } from 'react-window';
-import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
-import { push } from 'connected-react-router';
+import type { DispatchAPI } from 'redux';
+
+import type { Action } from '../../../types/actions';
+import type { S3Bucket } from '../../../types/s3';
+import isDeepEqual from 'lodash.isequal';
+
 import { useQueryParams } from '../../utils/hooks';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import * as T from '../../ui-elements/Table';
+
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
   id: number;
@@ -48,10 +51,11 @@ export const createItemData = memoize(
 
 // https://react-window.now.sh/#/examples/list/memoized-list-items
 const Row = ({
-  data: { rows, prepareRow, selectedBucketName, dispatch },
+  data: { rows, prepareRow, selectedBucketName },
   index,
   style,
 }: RowProps) => {
+  const history = useHistory();
   const row = rows[index];
   prepareRow(row);
   const bucketName = row.original.Name;
@@ -64,12 +68,10 @@ const Row = ({
       isSelected={isSelected}
       onClick={() => {
         if (!isSelected) {
-          dispatch(
-            push(
-              tabName
-                ? `/accounts/${account.Name}/buckets/${bucketName}?tab=${tabName}`
-                : `/accounts/${account.Name}/buckets/${bucketName}`,
-            ),
+          history.push(
+            tabName
+              ? `/accounts/${account.Name}/buckets/${bucketName}?tab=${tabName}`
+              : `/accounts/${account.Name}/buckets/${bucketName}`,
           );
         }
       }}

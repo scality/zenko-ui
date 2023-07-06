@@ -1,10 +1,13 @@
-import React from 'react';
 import ReauthDialog from '../ReauthDialog';
-import { reduxMount } from '../../utils/testUtil';
+import { reduxMount, renderWithRouterMatch } from '../../utils/testUtil';
+import { screen } from '@testing-library/react';
 const defaultMessage = 'We need to log you in.';
+
 describe('class <ReauthDialog />', () => {
+  const modalTitle = 'Authentication Error';
+
   it('should not render the ReauthDialog component if the network activity authFailure is false', () => {
-    const { component } = reduxMount(<ReauthDialog />, {
+    renderWithRouterMatch(<ReauthDialog />, undefined, {
       networkActivity: {
         authFailure: false,
       },
@@ -14,10 +17,10 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
-    expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(0);
+    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
   it('should not render the ReauthDialog component if the network activity authFailure is false even if error is of type byAuth', () => {
-    const { component } = reduxMount(<ReauthDialog />, {
+    renderWithRouterMatch(<ReauthDialog />, undefined, {
       networkActivity: {
         authFailure: false,
       },
@@ -31,10 +34,10 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
-    expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(0);
+    expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
   it('should render the ReauthDialog component with default message if the network activity authFailure is true', () => {
-    const { component } = reduxMount(<ReauthDialog />, {
+    renderWithRouterMatch(<ReauthDialog />, undefined, {
       networkActivity: {
         authFailure: true,
       },
@@ -44,14 +47,13 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
-    expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);
-    expect(component.find('div.sc-modal-body').text()).toContain(
-      defaultMessage,
-    );
+
+    expect(screen.getByText(modalTitle)).toBeInTheDocument();
+    expect(screen.getByText(defaultMessage)).toBeInTheDocument();
   });
   it('should render the ReauthDialog component with provided error message if the network activity authFailure is true and error is of type byAuth', () => {
     const errorMessage = 'test error message';
-    const { component } = reduxMount(<ReauthDialog />, {
+    renderWithRouterMatch(<ReauthDialog />, undefined, {
       networkActivity: {
         authFailure: true,
       },
@@ -65,12 +67,12 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
-    expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);
-    expect(component.find('div.sc-modal-body').text()).toContain(errorMessage);
+    expect(screen.getByText(modalTitle)).toBeInTheDocument();
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
   it('should render the ReauthDialog component with default message if the network activity authFailure is true and error is of type byModal', () => {
     const errorMessage = 'test error message';
-    const { component } = reduxMount(<ReauthDialog />, {
+    renderWithRouterMatch(<ReauthDialog />, undefined, {
       networkActivity: {
         authFailure: true,
       },
@@ -84,9 +86,7 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
-    expect(component.find('Modal#reauth-dialog-modal')).toHaveLength(1);
-    expect(component.find('div.sc-modal-body').text()).toContain(
-      defaultMessage,
-    );
+    expect(screen.getByText(modalTitle)).toBeInTheDocument();
+    expect(screen.getByText(defaultMessage)).toBeInTheDocument();
   });
 });

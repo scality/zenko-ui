@@ -8,10 +8,9 @@ import {
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 
-import { goBack } from 'connected-react-router';
 import React, { useMemo, useRef, useState } from 'react';
 import { batch, useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { LocationName } from '../../types/config';
 import type { AppState } from '../../types/state';
@@ -48,6 +47,7 @@ const makeLabel = (locationType) => {
 
 function LocationEditor() {
   const dispatch = useDispatch();
+  const history = useHistory();
   const { locationName } = useParams<{ locationName: string }>();
   const queryClient = useQueryClient();
   const locationsAdapter = useLocationAdapter();
@@ -110,7 +110,7 @@ function LocationEditor() {
         ...{ locationType: 'location-scality-ring-s3-v1' },
       };
     }
-    dispatch(saveLocation(convertToLocation(submitLocation)));
+    dispatch(saveLocation(convertToLocation(submitLocation), history));
     queryClient.resetQueries(queries.listLocations(locationsAdapter).queryKey);
   };
 
@@ -121,7 +121,7 @@ function LocationEditor() {
 
     batch(() => {
       clearServerError();
-      dispatch(goBack());
+      history.goBack();
     });
   };
 

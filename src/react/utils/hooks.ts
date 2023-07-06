@@ -19,7 +19,7 @@ import {
 } from '../actions';
 import { useAwsPaginatedEntities } from './IAMhooks';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
-import { useAuth } from '../next-architecture/ui/AuthProvider';
+import { useAccessToken, useAuth } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
@@ -193,8 +193,7 @@ export const useAccounts = (
     notifyError: (error: ApiError) => void;
   } = reduxBasedEventDispatcher,
 ) => {
-  const { user } = useAuth();
-  const token = user?.access_token;
+  const token = useAccessToken();
   const { iamEndpoint } = useConfig();
 
   const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
@@ -264,8 +263,8 @@ export const useRolePathName = () => {
 };
 
 export const useAuthGroups = () => {
-  const { user } = useAuth();
-  const userGroups = user?.profile?.groups || [];
+  const user = useAuth();
+  const userGroups = user.userData?.groups || [];
 
   const isStorageManager = userGroups.includes('StorageManager');
 

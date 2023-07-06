@@ -19,8 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
 import { usePrefixWithSlash, useQueryParams } from '../../../utils/hooks';
 import { AppState } from '../../../../types/state';
-import { push } from 'connected-react-router';
-import { useLocation } from 'react-router';
+import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from '@scality/core-ui/dist/next';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
@@ -35,6 +34,7 @@ const TruncatedValue = styled.div`
 
 function Properties({ objectMetadata }: Props) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const { pathname } = useLocation();
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -61,7 +61,7 @@ function Properties({ objectMetadata }: Props) {
   useEffect(() => {
     if (objectMetadata.versionId && objectMetadata.versionId !== 'null') {
       query.set('versionId', objectMetadata.versionId);
-      dispatch(push(`${pathname}?${query.toString()}`));
+      history.push(`${pathname}?${query.toString()}`);
     }
   }, [objectMetadata.versionId]);
   return (
@@ -78,7 +78,7 @@ function Properties({ objectMetadata }: Props) {
               <T.Row hidden={!objectMetadata.versionId}>
                 <T.Key> Version ID </T.Key>
                 <T.GroupValues>
-                  <TruncatedValue copiable>
+                  <TruncatedValue>
                     <MiddleEllipsis
                       text={objectMetadata.versionId}
                       trailingCharCount={7}
@@ -118,7 +118,7 @@ function Properties({ objectMetadata }: Props) {
               <T.Row>
                 <T.Key> ETag </T.Key>
                 <T.GroupValues>
-                  <div copiable>{objectMetadata.eTag}</div>
+                  <div>{objectMetadata.eTag}</div>
                   <T.ExtraCell marginLeft={spacing.f8}>
                     <Clipboard text={objectMetadata.eTag} />
                   </T.ExtraCell>
@@ -196,10 +196,8 @@ function Properties({ objectMetadata }: Props) {
                       label="Edit"
                       icon={<Icon name="Pencil" />}
                       onClick={() =>
-                        dispatch(
-                          push(
-                            `${pathname}/retention-setting?${query.toString()}`,
-                          ),
+                        history.push(
+                          `${pathname}/retention-setting?${query.toString()}`,
                         )
                       }
                     />
