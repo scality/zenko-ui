@@ -214,4 +214,31 @@ describe('BucketCreate', () => {
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
     ).toHaveAttribute('aria-disabled', 'true');
   });
+  it('should disable versioning for Microsoft Azure Blob Storage', () => {
+    const azureblobstorage = 'azureblobstorage';
+    reduxRender(<BucketCreate />, {
+      configuration: {
+        latest: {
+          locations: {
+            [azureblobstorage]: {
+              locationType: 'location-azure-v1',
+              name: azureblobstorage,
+              details: {},
+            },
+          },
+        },
+      },
+    });
+    userEvent.click(screen.getByText('Location Name'));
+    userEvent.click(
+      screen.getByRole('option', { name: new RegExp(azureblobstorage, 'i') }),
+    );
+    //V
+    expect(screen.getByLabelText('Versioning')).toBeDisabled();
+    //E
+    userEvent.click(screen.getByLabelText('Object-lock'));
+    //Verify the versioning is off even though set object-lock for Azure Blob Storage
+    expect(screen.getByLabelText('Versioning')).toBeDisabled();
+    expect(screen.getByLabelText('Versioning')).not.toBeChecked();
+  });
 });
