@@ -102,6 +102,9 @@ function BucketCreate() {
       isIngestLocation(locations[watchLocationName], capabilities),
     [watchLocationName, locations, capabilities],
   );
+  const isLocationAzureOrGcpSelected =
+    locations?.[watchLocationName]?.locationType === 'location-azure-v1' ||
+    locations?.[watchLocationName]?.locationType === 'location-gcp-v1';
 
   const clearServerError = () => {
     if (hasError) {
@@ -395,7 +398,12 @@ function BucketCreate() {
                 render={({ field: { onChange, value: isVersioning } }) => {
                   return (
                     <Toggle
-                      disabled={isObjectLockEnabled || isAsyncNotification}
+                      id="isVersioning"
+                      disabled={
+                        isObjectLockEnabled ||
+                        isAsyncNotification ||
+                        isLocationAzureOrGcpSelected
+                      }
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         onChange(e.target.checked)
                       }
@@ -407,10 +415,16 @@ function BucketCreate() {
                 }}
               />
             }
-            disabled={isObjectLockEnabled || isAsyncNotification}
+            disabled={
+              isObjectLockEnabled ||
+              isAsyncNotification ||
+              isLocationAzureOrGcpSelected
+            }
             helpErrorPosition="bottom"
             help={
-              isObjectLockEnabled || isAsyncNotification
+              isLocationAzureOrGcpSelected
+                ? 'Selected Storage Location does not support versioning.'
+                : isObjectLockEnabled || isAsyncNotification
                 ? `Automatically activated when
             ${isObjectLockEnabled ? 'Object-lock' : ''}
             ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''}
@@ -420,7 +434,9 @@ function BucketCreate() {
             }
           />
         </FormSection>
-        <ObjectLockRetentionSettings />
+        <ObjectLockRetentionSettings
+          isLocationAzureOrGcpSelected={isLocationAzureOrGcpSelected}
+        />
       </Form>
     </FormProvider>
   );
