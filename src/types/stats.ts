@@ -75,7 +75,19 @@ export type MetricsUnit = {
 };
 export type InstanceStateSnapshot = {
   readonly capabilities: {
+    readonly locationTypeCephRadosGW: boolean;
+    readonly locationTypeDigitalOcean: boolean;
+    readonly locationTypeHyperdriveV2: boolean;
+    readonly locationTypeLocal: boolean;
+    readonly locationTypeNFS: boolean;
+    readonly locationTypeS3Custom: boolean;
+    readonly locationTypeSproxyd: boolean;
+    readonly managedLifecycle: boolean;
+    readonly managedLifecycleTransition: boolean;
+    readonly preferredReadLocation: boolean;
+    readonly s3cIngestLocation: boolean;
     readonly secureChannel: boolean;
+    readonly secureChannelOptimizedPath: boolean;
   };
   readonly latestConfigurationOverlay: ConfigurationOverlay;
   readonly runningConfigurationVersion: number;
