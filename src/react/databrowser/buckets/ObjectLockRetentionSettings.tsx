@@ -32,10 +32,10 @@ export const objectLockRetentionSettingsValidationRules = {
 };
 
 export default function ObjectLockRetentionSettings({
-  isLocationAzureOrGcpSelected,
+  isLocationAzureOrGcpSelected = false,
   isEditRetentionSetting = false,
 }: {
-  isLocationAzureOrGcpSelected: boolean;
+  isLocationAzureOrGcpSelected?: boolean;
   isEditRetentionSetting?: boolean;
 }) {
   const {
@@ -63,8 +63,9 @@ export default function ObjectLockRetentionSettings({
         content={
           <Checkbox
             id="isObjectLockEnabled"
-            placeholder="isObjectLockEnabled"
             label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
+            disabled={isEditRetentionSetting && isObjectLockEnabled}
+            defaultChecked={isEditRetentionSetting}
             {...register('isObjectLockEnabled', {
               onChange(e: ChangeEvent<HTMLInputElement>) {
                 matchVersioning(e.target.checked);
@@ -138,7 +139,7 @@ export default function ObjectLockRetentionSettings({
             }
             content={
               <Checkbox
-                placeholder="isDefaultRetentionEnabled"
+                id="isDefaultRetentionEnabled"
                 label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
                 {...register('isDefaultRetentionEnabled')}
               />
