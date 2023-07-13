@@ -1,9 +1,10 @@
 import router from 'react-router';
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
-import { reduxMountAct, reduxRender } from '../../../utils/testUtil';
+import { reduxRender } from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
-import { screen, act } from '@testing-library/react';
+import { screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LOCATIONS } from '../../../../js/mock/managementClientMSWHandlers';
 
 describe('BucketCreate', () => {
   const errorMessage = 'This is an error test message';
@@ -12,29 +13,22 @@ describe('BucketCreate', () => {
       accountName: 'accountName',
     });
   });
-
-  it('should render BucketCreate component with no error banner', async () => {
-    const component = await reduxMountAct(<BucketCreate />);
-    expect(component.find('#zk-error-banner')).toHaveLength(0);
-    // react-hook-form is set to validate on change.
-    // UseForm hook will update state multiple time and component
-    // will re-render as state updates.
-    // This will cause state updates to occur even when we haven't fired an action.
-    // However my test is only interested in the earlier state.
-    // The errors were due to state that updated after the test finished.
-    // The hook will clean up properly if unmounted
-    component.unmount();
-  });
-  it('should render BucketCreate component with an error banner', async () => {
-    const component = await reduxMountAct(<BucketCreate />, {
+  const selectors = {
+    objectlock: () => screen.getByLabelText(/object-lock/i),
+    versioning: () => screen.getByLabelText(/versioning/i),
+    asyncMetadata: () => screen.getByLabelText(/async metadata updates/i),
+    locationSelect: () => screen.getByLabelText(/Storage Service Location/i),
+    ringLocationOption: () =>
+      screen.getByRole('option', { name: /ring-nick/i }),
+  };
+  it('should render BucketCreate component with an error banner', () => {
+    reduxRender(<BucketCreate />, {
       uiErrors: {
         errorMsg: errorMessage,
         errorType: 'byComponent',
       },
     });
-    expect(component.find('#zk-error-banner')).toHaveLength(1);
-    expect(component.find('#zk-error-banner').text()).toContain(errorMessage);
-    component.unmount();
+    expect(screen.getByText('Error')).toBeInTheDocument();
   });
   // TESTING INPUT NAME:
   // 1) empty name input
@@ -133,62 +127,36 @@ describe('BucketCreate', () => {
       }
     });
   });
-  it('should toggle versioning and disable it when enabling object lock', async () => {
-    const component = await reduxMountAct(<BucketCreate />);
-    await act(async () => {
-      const input = component.find('input#name');
-      input.getDOMNode().value = 'test';
-      input.getDOMNode().dispatchEvent(new Event('input'));
-      const objectLockEnabled = component.find(
-        'input[placeholder="isObjectLockEnabled"]',
-      );
-      objectLockEnabled.simulate('change', {
-        target: {
-          checked: true,
-        },
-      });
-    });
-    expect(
-      component.find('input[placeholder="Versioning"]').getDOMNode().checked,
-    ).toBe(true);
-    expect(
-      component.find('input[placeholder="Versioning"]').getDOMNode().disabled,
-    ).toBe(true);
-    component.unmount();
+  it('should set versioning and disable it while enabling object lock', () => {
+    //S
+    reduxRender(<BucketCreate />);
+    //E
+    userEvent.click(selectors.objectlock());
+    //V
+    expect(selectors.versioning()).toBeChecked();
+    expect(selectors.versioning()).toBeDisabled();
   });
-  it('should toggle versioning and disable it when enabling Async Metadata updates', async () => {
-    const component = await reduxMountAct(<BucketCreate />, {
-      auth: {
-        config: {
-          features: [XDM_FEATURE],
-        },
+  it('should set versioning and disable it while enabling Async Metadata updates for RING', async () => {
+    //S
+    reduxRender(<BucketCreate />, {
+      configuration: { latest: { locations: LOCATIONS } },
+      auth: { config: { features: [XDM_FEATURE] } },
+      instanceStatus: {
+        latest: { state: { capabilities: { s3cIngestLocation: true } } },
       },
     });
-    await act(async () => {
-      const input = component.find('input#name');
-      input.getDOMNode().value = 'test';
-      input.getDOMNode().dispatchEvent(new Event('input'));
-      const isAsyncNotification = component.find(
-        'input[placeholder="isAsyncNotification"]',
-      );
-      isAsyncNotification.simulate('change', {
-        target: {
-          checked: true,
-        },
-      });
-    });
-    expect(
-      component.find('input[placeholder="Versioning"]').getDOMNode().checked,
-    ).toBe(true);
-    expect(
-      component.find('input[placeholder="Versioning"]').getDOMNode().disabled,
-    ).toBe(true);
-    component.unmount();
-  });
-  it('should disable cold location as a source storage location when creating a bucket', async () => {
-    const coldLocation = 'europe25-myroom-cold';
     //E
-    await reduxRender(<BucketCreate />, {
+    userEvent.click(selectors.locationSelect());
+    userEvent.click(selectors.ringLocationOption());
+    userEvent.click(selectors.asyncMetadata());
+    //V
+    await waitFor(() => expect(selectors.versioning()).toBeChecked());
+    expect(selectors.versioning()).toBeDisabled();
+  });
+  it('should disable cold location as a source storage location while creating a bucket', () => {
+    const coldLocation = 'europe25-myroom-cold';
+    //S
+    reduxRender(<BucketCreate />, {
       configuration: {
         latest: {
           locations: {
@@ -208,10 +176,54 @@ describe('BucketCreate', () => {
         },
       },
     });
-    await userEvent.click(screen.getByText('Location Name'));
+    //E
+    userEvent.click(screen.getByText('Location Name'));
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
     ).toHaveAttribute('aria-disabled', 'true');
+  });
+  it('should disable versioning for Microsoft Azure Blob Storage', () => {
+    //S
+    const azureblobstorage = 'azureblobstorage';
+    reduxRender(<BucketCreate />, {
+      configuration: {
+        latest: {
+          locations: {
+            [azureblobstorage]: {
+              locationType: 'location-azure-v1',
+              name: azureblobstorage,
+              details: {},
+            },
+          },
+        },
+      },
+    });
+    //E
+    userEvent.click(screen.getByText('Location Name'));
+    userEvent.click(
+      screen.getByRole('option', { name: new RegExp(azureblobstorage, 'i') }),
+    );
+    //V
+    expect(screen.getByLabelText('Versioning')).toBeDisabled();
+    //E
+    userEvent.click(screen.getByLabelText('Object-lock'));
+    //Verify the versioning is off even though set object-lock for Azure Blob Storage
+    expect(screen.getByLabelText('Versioning')).toBeDisabled();
+    expect(screen.getByLabelText('Versioning')).not.toBeChecked();
+  });
+  it('should be able to remove object-lock after setting it', () => {
+    //S
+    reduxRender(<BucketCreate />);
+    //E
+    userEvent.click(selectors.objectlock());
+    //V
+    expect(selectors.objectlock()).toBeChecked();
+    expect(selectors.objectlock()).toBeEnabled();
+    //E
+    userEvent.click(selectors.objectlock());
+    //V
+    expect(selectors.objectlock()).not.toBeChecked();
+    expect(selectors.objectlock()).toBeEnabled();
   });
 });

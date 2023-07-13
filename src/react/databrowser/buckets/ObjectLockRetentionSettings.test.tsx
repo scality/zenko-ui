@@ -1,10 +1,25 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import ObjectLockRetentionSettings from './ObjectLockRetentionSettings';
-import { reduxMountAct } from '../../utils/testUtil';
-import { act } from 'react-dom/test-utils';
+import { reduxRender } from '../../utils/testUtil';
+import { fireEvent, screen } from '@testing-library/react';
 import { useEffect } from 'react';
+import userEvent from '@testing-library/user-event';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
+
 describe('ObjectLockRetentionSettings', () => {
-  it('should enable retention settings when default retention is checked', async () => {
+  const selectors = {
+    defaultRetention: () => screen.getByLabelText(/Default Retention/i),
+    governanceRetentionMode: () => screen.getByLabelText(/Governance/i),
+    complianceRetentionMode: () => screen.getByLabelText(/Compliance/i),
+    retentionPeriodInput: () => screen.getByLabelText(/retention period/i),
+    retentionPeriodDaysOption: () =>
+      screen.getByRole('option', { name: /days/i }),
+    retentionPeriodYearsOption: () =>
+      screen.getByRole('option', { name: /years/i }),
+    objectlock: () => screen.getByLabelText(/object-lock/i),
+  };
+  it('should enable retention settings when default retention is checked', () => {
+    //S
     const Form = () => {
       const methods = useForm({
         defaultValues: {
@@ -18,32 +33,50 @@ describe('ObjectLockRetentionSettings', () => {
       );
     };
 
-    const component = await reduxMountAct(<Form />);
+    const {
+      component: { container },
+    } = reduxRender(<Form />);
+    //E
+    userEvent.click(selectors.defaultRetention());
+    //V
+    expect(selectors.governanceRetentionMode()).toBeEnabled();
+    expect(selectors.complianceRetentionMode()).toBeEnabled();
+    expect(selectors.retentionPeriodInput()).toBeEnabled();
+    userEvent.click(selectors.retentionPeriodInput());
 
-    const objectLockDefaultRetentionEnabled = component.find(
-      'input[placeholder="isDefaultRetentionEnabled"]',
+    const selector = notFalsyTypeGuard(
+      container.querySelector('.sc-select__control'),
     );
-
-    await act(async () => {
-      objectLockDefaultRetentionEnabled.simulate('change', {
-        target: {
-          checked: true,
+    fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
+    expect(selectors.retentionPeriodYearsOption()).toBeInTheDocument();
+    expect(selectors.retentionPeriodDaysOption()).toBeInTheDocument();
+  });
+  it('should disable the object-lock while editing on bucket that was created with object-lock enabled and should disable retention setting since retention is not active', () => {
+    //S
+    const Form = () => {
+      const methods = useForm({
+        defaultValues: {
+          isObjectLockEnabled: true,
+          isDefaultRetentionEnabled: false,
         },
       });
-    });
-    expect(
-      component.find('input[value="GOVERNANCE"]').getDOMNode().disabled,
-    ).toBe(false);
-    expect(
-      component.find('input[value="COMPLIANCE"]').getDOMNode().disabled,
-    ).toBe(false);
-    expect(
-      component.find('input[name="retentionPeriod"]').getDOMNode().disabled,
-    ).toBe(false);
-    expect(
-      component.find('input[id="retentionPeriodFrequencyChoice"]').getDOMNode()
-        .disabled,
-    ).toBe(false);
+      return (
+        <FormProvider {...methods}>
+          <ObjectLockRetentionSettings isEditRetentionSetting />
+        </FormProvider>
+      );
+    };
+    reduxRender(<Form />);
+    //E+V
+    expect(selectors.objectlock()).toBeChecked();
+    expect(selectors.objectlock()).toBeDisabled();
+    expect(selectors.defaultRetention()).not.toBeChecked();
+    expect(selectors.defaultRetention()).toBeEnabled();
+    // The retention setting should be disabled since default retention is not enabled
+    expect(selectors.governanceRetentionMode()).not.toBeChecked();
+    expect(selectors.governanceRetentionMode()).toBeDisabled();
+    expect(selectors.complianceRetentionMode()).not.toBeChecked();
+    expect(selectors.complianceRetentionMode()).toBeDisabled();
   });
   it('should display retention period error message', async () => {
     const Form = () => {
@@ -60,32 +93,13 @@ describe('ObjectLockRetentionSettings', () => {
 
       return (
         <FormProvider {...methods}>
-          <ObjectLockRetentionSettings />
+          <ObjectLockRetentionSettings isLocationAzureOrGcpSelected={false} />
         </FormProvider>
       );
     };
 
-    const component = await reduxMountAct(<Form />);
-    await act(async () => {
-      const objectLockDefaultRetentionEnabled = component.find(
-        'input[placeholder="isDefaultRetentionEnabled"]',
-      );
-      objectLockDefaultRetentionEnabled.simulate('change', {
-        target: {
-          checked: true,
-        },
-      });
-    });
-    expect(
-      component
-        .find(
-          `#${component
-            .find('input[name="retentionPeriod"]')
-            .getDOMNode()
-            .getAttribute('aria-describedby')}`,
-        )
-        .first()
-        .text(),
-    ).toContain('Expected error');
+    reduxRender(<Form />);
+    userEvent.click(selectors.defaultRetention());
+    expect(screen.getByText(/expected error/i)).toBeInTheDocument();
   });
 });

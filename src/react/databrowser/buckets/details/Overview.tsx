@@ -1,4 +1,4 @@
-import { ConstrainedText, Icon, Toggle } from '@scality/core-ui';
+import { ConstrainedText, Icon, Toggle, Tooltip } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { push } from 'connected-react-router';
@@ -104,7 +104,10 @@ function Overview({ bucket, ingestionStates }: Props) {
     ingestionStates,
     bucketInfo.locationConstraint || 'us-east-1',
   );
-
+  const locationType =
+    locations && locations[bucketInfo.locationConstraint]?.locationType;
+  const isBucketHostedOnAzureOrGCP =
+    locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
   return (
     <TableContainer>
       <DumbErrorModal
@@ -138,25 +141,43 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Value>
                   {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                     'Disabled' && (
-                    <Toggle
-                      disabled={loading}
-                      toggle={bucketInfo.isVersioning}
-                      label={
-                        bucketInfo.versioning === 'Enabled'
-                          ? 'Active'
-                          : bucketInfo.versioning === 'Disabled'
-                          ? 'Inactive'
-                          : bucketInfo.versioning
-                      }
-                      onChange={() =>
-                        dispatch(
-                          toggleBucketVersioning(
-                            bucket.name,
-                            !bucketInfo.isVersioning,
-                          ),
+                    <Tooltip
+                      overlay={
+                        locationType === 'location-azure-v1' ? (
+                          <>
+                            Enabling versioning is not possible due to the
+                            bucket being hosted on Microsoft Azure.
+                          </>
+                        ) : locationType === 'location-gcp-v1' ? (
+                          <>
+                            Enabling versioning is not possible due to the
+                            bucket being hosted on Google Cloud.
+                          </>
+                        ) : (
+                          <></>
                         )
                       }
-                    />
+                    >
+                      <Toggle
+                        disabled={loading || isBucketHostedOnAzureOrGCP}
+                        toggle={bucketInfo.isVersioning}
+                        label={
+                          bucketInfo.versioning === 'Enabled'
+                            ? 'Active'
+                            : bucketInfo.versioning === 'Disabled'
+                            ? 'Inactive'
+                            : bucketInfo.versioning
+                        }
+                        onChange={() =>
+                          dispatch(
+                            toggleBucketVersioning(
+                              bucket.name,
+                              !bucketInfo.isVersioning,
+                            ),
+                          )
+                        }
+                      />
+                    </Tooltip>
                   )}
                   {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                     'Enabled' && (
