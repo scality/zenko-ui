@@ -13,7 +13,7 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import type { BucketInfo } from '../../../../types/s3';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
-import { Icon, Toggle } from '@scality/core-ui';
+import { Icon, Toggle, Tooltip } from '@scality/core-ui';
 import {
   getLocationType,
   getLocationIngestionState,
@@ -94,7 +94,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   );
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
+    (state: AppState) => state.configuration.latest?.locations,
   );
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -149,7 +149,10 @@ function Overview({ bucket, ingestionStates }: Props) {
     ingestionStates,
     bucketInfo.locationConstraint || 'us-east-1',
   );
-
+  const locationType =
+    locations && locations[bucketInfo.locationConstraint]?.locationType;
+  const isBucketHostedOnAzureOrGCP =
+    locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
   return (
     <TableContainer>
       <DeleteConfirmation
@@ -192,25 +195,43 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Value>
                   {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                     'Disabled' && (
-                    <Toggle
-                      disabled={loading}
-                      toggle={bucketInfo.isVersioning}
-                      label={
-                        bucketInfo.versioning === 'Enabled'
-                          ? 'Active'
-                          : bucketInfo.versioning === 'Disabled'
-                          ? 'Inactive'
-                          : bucketInfo.versioning
-                      }
-                      onChange={() =>
-                        dispatch(
-                          toggleBucketVersioning(
-                            bucket.name,
-                            !bucketInfo.isVersioning,
-                          ),
+                    <Tooltip
+                      overlay={
+                        locationType === 'location-azure-v1' ? (
+                          <>
+                            Enabling versioning is not possible due to the
+                            bucket being hosted on Microsoft Azure.
+                          </>
+                        ) : locationType === 'location-gcp-v1' ? (
+                          <>
+                            Enabling versioning is not possible due to the
+                            bucket being hosted on Google Cloud.
+                          </>
+                        ) : (
+                          <></>
                         )
                       }
-                    />
+                    >
+                      <Toggle
+                        disabled={loading || isBucketHostedOnAzureOrGCP}
+                        toggle={bucketInfo.isVersioning}
+                        label={
+                          bucketInfo.versioning === 'Enabled'
+                            ? 'Active'
+                            : bucketInfo.versioning === 'Disabled'
+                            ? 'Inactive'
+                            : bucketInfo.versioning
+                        }
+                        onChange={() =>
+                          dispatch(
+                            toggleBucketVersioning(
+                              bucket.name,
+                              !bucketInfo.isVersioning,
+                            ),
+                          )
+                        }
+                      />
+                    </Tooltip>
                   )}
                   {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                     'Enabled' && (

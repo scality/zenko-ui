@@ -1,11 +1,11 @@
 import {
   Banner,
+  Checkbox,
   Form,
   FormGroup,
   FormSection,
   Icon,
   Stack,
-  Toggle,
 } from '@scality/core-ui';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ChangeEvent, useMemo, useRef } from 'react';
@@ -75,6 +75,7 @@ function BucketCreate() {
   const { isValid, errors } = formState;
   const isObjectLockEnabled = watch('isObjectLockEnabled');
   const isAsyncNotification = watch('isAsyncNotification');
+  const isVersioning = watch('isVersioning');
   const watchLocationName = watch('locationName');
   const dispatch = useDispatch();
   const hasError = useSelector(
@@ -102,6 +103,13 @@ function BucketCreate() {
       isIngestLocation(locations[watchLocationName], capabilities),
     [watchLocationName, locations, capabilities],
   );
+
+  const isLocationAzureOrGcpSelected = (locationName: string) =>
+    locations?.[locationName]?.locationType === 'location-azure-v1' ||
+    locations?.[locationName]?.locationType === 'location-gcp-v1';
+
+  const isWatchedLocationAzureOrGCPSelected =
+    isLocationAzureOrGcpSelected(watchLocationName);
 
   const clearServerError = () => {
     if (hasError) {
@@ -305,6 +313,11 @@ function BucketCreate() {
                         // Note: when changing location we make sure
                         // to reset isAsyncNotification toggle to false.
                         setValue('isAsyncNotification', false);
+                        if (isLocationAzureOrGcpSelected(value)) {
+                          setValue('isVersioning', false);
+                        } else if (isObjectLockEnabled) {
+                          setValue('isVersioning', true);
+                        }
                       }}
                       placeholder="Location Name"
                       value={locationName}
@@ -345,27 +358,15 @@ function BucketCreate() {
                 'Enabling Async Metadata updates automatically activates Versioning for the bucket, and you won’t be able to suspend Versioning.'
               }
               content={
-                <Controller
-                  control={control}
-                  name="isAsyncNotification"
-                  render={({
-                    field: { onChange, value: isAsyncNotification },
-                  }) => {
-                    return (
-                      <>
-                        <Toggle
-                          disabled={!isAsyncNotificationReady}
-                          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                            onChange(e.target.checked);
-                            matchVersioning(e.target.checked);
-                          }}
-                          label={isAsyncNotification ? 'Enabled' : 'Disabled'}
-                          toggle={isAsyncNotification}
-                          placeholder="isAsyncNotification"
-                        />
-                      </>
-                    );
-                  }}
+                <Checkbox
+                  id="isAsyncNotification"
+                  disabled={!isAsyncNotificationReady}
+                  label={isAsyncNotification ? 'Enabled' : 'Disabled'}
+                  {...register('isAsyncNotification', {
+                    onChange(e: ChangeEvent<HTMLInputElement>) {
+                      matchVersioning(e.target.checked);
+                    },
+                  })}
                 />
               }
             />
@@ -389,38 +390,39 @@ function BucketCreate() {
               </ul>
             }
             content={
-              <Controller
-                control={control}
-                name="isVersioning"
-                render={({ field: { onChange, value: isVersioning } }) => {
-                  return (
-                    <Toggle
-                      disabled={isObjectLockEnabled || isAsyncNotification}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e.target.checked)
-                      }
-                      placeholder="Versioning"
-                      label={isVersioning ? 'Active' : 'Inactive'}
-                      toggle={isVersioning}
-                    />
-                  );
-                }}
+              <Checkbox
+                id="isVersioning"
+                disabled={
+                  isObjectLockEnabled ||
+                  isAsyncNotification ||
+                  isWatchedLocationAzureOrGCPSelected
+                }
+                label={isVersioning ? 'Active' : 'Inactive'}
+                {...register('isVersioning')}
               />
             }
-            disabled={isObjectLockEnabled || isAsyncNotification}
+            disabled={
+              isObjectLockEnabled ||
+              isAsyncNotification ||
+              isWatchedLocationAzureOrGCPSelected
+            }
             helpErrorPosition="bottom"
             help={
-              isObjectLockEnabled || isAsyncNotification
+              isWatchedLocationAzureOrGCPSelected
+                ? 'Selected Storage Location does not support versioning.'
+                : isObjectLockEnabled || isAsyncNotification
                 ? `Automatically activated when
             ${isObjectLockEnabled ? 'Object-lock' : ''}
             ${isObjectLockEnabled && isAsyncNotification ? 'or' : ''}
             ${isAsyncNotification ? 'Async Metadata updates' : ''}
             is Enabled`
-                : 'Automatically activated when Object-lock is Active.'
+                : ''
             }
           />
         </FormSection>
-        <ObjectLockRetentionSettings />
+        <ObjectLockRetentionSettings
+          isLocationAzureOrGcpSelected={isWatchedLocationAzureOrGCPSelected}
+        />
       </Form>
     </FormProvider>
   );

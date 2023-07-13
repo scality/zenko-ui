@@ -1,7 +1,13 @@
 import { ChangeEvent } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import Joi from '@hapi/joi';
-import { FormGroup, FormSection, Stack, Text, Toggle } from '@scality/core-ui';
+import {
+  Checkbox,
+  FormGroup,
+  FormSection,
+  Stack,
+  Text,
+} from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/components/tablev2/TableUtils';
 
@@ -26,8 +32,10 @@ export const objectLockRetentionSettingsValidationRules = {
 };
 
 export default function ObjectLockRetentionSettings({
+  isLocationAzureOrGcpSelected = false,
   isEditRetentionSetting = false,
 }: {
+  isLocationAzureOrGcpSelected?: boolean;
   isEditRetentionSetting?: boolean;
 }) {
   const {
@@ -40,7 +48,7 @@ export default function ObjectLockRetentionSettings({
   const isDefaultRetentionEnabled = watch('isDefaultRetentionEnabled');
   const isObjectLockEnabled = watch('isObjectLockEnabled');
   const matchVersioning = (checked: boolean) => {
-    if (checked) {
+    if (checked && !isLocationAzureOrGcpSelected) {
       setValue('isVersioning', true);
     }
   };
@@ -53,24 +61,16 @@ export default function ObjectLockRetentionSettings({
         id="isObjectLockEnabled"
         label="Object-lock"
         content={
-          <Controller
-            control={control}
-            name="isObjectLockEnabled"
-            defaultValue={isEditRetentionSetting}
-            render={({ field: { onChange, value: isObjectLockEnabled } }) => {
-              return (
-                <Toggle
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    onChange(e.target.checked);
-                    matchVersioning(e.target.checked);
-                  }}
-                  placeholder="isObjectLockEnabled"
-                  label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
-                  toggle={isObjectLockEnabled}
-                  disabled={isObjectLockEnabled}
-                />
-              );
-            }}
+          <Checkbox
+            id="isObjectLockEnabled"
+            label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
+            disabled={isEditRetentionSetting && isObjectLockEnabled}
+            defaultChecked={isEditRetentionSetting}
+            {...register('isObjectLockEnabled', {
+              onChange(e: ChangeEvent<HTMLInputElement>) {
+                matchVersioning(e.target.checked);
+              },
+            })}
           />
         }
         labelHelpTooltip={
@@ -138,23 +138,10 @@ export default function ObjectLockRetentionSettings({
               )
             }
             content={
-              <Controller
-                control={control}
-                name="isDefaultRetentionEnabled"
-                render={({
-                  field: { onChange, value: isDefaultRetentionEnabled },
-                }) => {
-                  return (
-                    <Toggle
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e.target.checked)
-                      }
-                      placeholder="isDefaultRetentionEnabled"
-                      label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
-                      toggle={isDefaultRetentionEnabled}
-                    />
-                  );
-                }}
+              <Checkbox
+                id="isDefaultRetentionEnabled"
+                label={isDefaultRetentionEnabled ? 'Active' : 'Inactive'}
+                {...register('isDefaultRetentionEnabled')}
               />
             }
           />

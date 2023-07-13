@@ -157,6 +157,21 @@ export const bucketInfoResponseObjectLockDefaultRetention: BucketInfo = {
     },
   },
 };
+
+export const bucketInfoResponseVersioningDisabled: BucketInfo = {
+  name: bucketName,
+  policy: false,
+  owner: ownerName,
+  aclGrantees: 0,
+  cors: false,
+  versioning: 'Disabled',
+  isVersioning: false,
+  public: false,
+  locationConstraint: 'azure-blob',
+  objectLockConfiguration: {
+    ObjectLockEnabled: 'Disabled',
+  },
+};
 export class MockS3Client implements S3ClientInterface {
   listBucketsWithLocation() {
     return Promise.resolve({

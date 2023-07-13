@@ -3,13 +3,17 @@ import * as actions from '../../../../actions/s3bucket';
 import {
   bucketInfoResponseNoVersioning,
   bucketInfoResponseVersioning,
+  bucketInfoResponseVersioningDisabled,
   bucketInfoResponseObjectLockNoDefaultRetention,
   bucketName,
   bucketInfoResponseObjectLockDefaultRetention,
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
 import { Toggle } from '@scality/core-ui';
-import { reduxMount } from '../../../../utils/testUtil';
+import { reduxMount, reduxRender } from '../../../../utils/testUtil';
+import { screen, waitFor, within } from '@testing-library/react';
+import Immutable from 'immutable';
+import userEvent from '@testing-library/user-event';
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
   LocationConstraint: '',
@@ -17,20 +21,24 @@ const BUCKET = {
 };
 const TEST_STATE = {
   uiBuckets: {
-    showDelete: '',
+    showDelete: false,
   },
   configuration: {
     latest: {
-      locations: [
-        {
-          'us-east-1': {
-            isBuiltin: true,
-            locationType: 'location-file-v1',
-            name: 'us-east-1',
-            objectId: '1060b13c-d805-11ea-a59c-a0999b105a5f',
-          },
+      locations: {
+        'us-east-1': {
+          isBuiltin: true,
+          locationType: 'location-file-v1',
+          name: 'us-east-1',
+          objectId: '1060b13c-d805-11ea-a59c-a0999b105a5f',
         },
-      ],
+
+        'azure-blob': {
+          locationType: 'location-azure-v1',
+          name: 'azure-blob',
+          objectId: '1060b13c-d806-11ea-a59c-a0999b105a5f',
+        },
+      },
     },
   },
   workflow: {
@@ -38,10 +46,11 @@ const TEST_STATE = {
   },
   networkActivity: {
     counter: 0,
+    messages: Immutable.List(),
   },
 };
 //TODO: Those tests are testing implementation details based on child component names. We should refactor them.
-describe.skip('Overview', () => {
+describe('Overview', () => {
   it('should render Overview component', () => {
     const { component } = reduxMount(<Overview bucket={BUCKET} />, {
       ...TEST_STATE,
@@ -157,23 +166,49 @@ describe.skip('Overview', () => {
       'Governance - 5 days',
     );
   });
-  it('should trigger deleteBucket function when approving clicking on delete button when modal popup', () => {
+  it.skip('should trigger deleteBucket function when approving clicking on delete button when modal popup', async () => {
     const deleteBucketMock = jest.spyOn(actions, 'deleteBucket');
-    const { component } = reduxMount(<Overview bucket={BUCKET} />, {
+    reduxRender(<Overview bucket={BUCKET} />, {
       ...TEST_STATE,
       ...{
-        uiBuckets: {
-          showDelete: bucketName,
-        },
         s3: {
           bucketInfo: bucketInfoResponseVersioning,
         },
       },
     });
-    const deleteButton = component.find(
-      'button.delete-confirmation-delete-button',
-    );
-    deleteButton.simulate('click');
-    expect(deleteBucketMock).toHaveBeenCalledTimes(1);
+    const deleteButton = screen.getByRole('button', { name: /delete bucket/i });
+    userEvent.click(deleteButton);
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: /confirmation/i }),
+      ).toBeVisible();
+    });
+    const confirmationDialog = screen.getByRole('dialog', {
+      name: /confirmation/i,
+    });
+    const confirmDeleteButton = within(confirmationDialog).getByRole('button', {
+      name: /delete/i,
+    });
+    userEvent.click(confirmDeleteButton);
+    expect(deleteBucketMock).toHaveBeenCalledWith(bucketName);
+  });
+  it('should disable the versioning toogle for Azure Blob Storage', async () => {
+    //S
+    reduxRender(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByRole('checkbox', {
+          name: /inactive/i,
+        }),
+      ).toBeInTheDocument();
+    });
+    const versioningToggleItem = screen.getByRole('checkbox', {
+      name: /inactive/i,
+    });
+    //V
+    expect(versioningToggleItem).toHaveAttribute('disabled');
   });
 });
