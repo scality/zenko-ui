@@ -54,7 +54,6 @@ describe('EmptyConfirmation', () => {
       getByRole(selectors.modal(), 'button', { name: /Empty/i }),
     confirmInput: () => screen.getByLabelText(/confirm-input/i),
     emptyBucket: () => screen.getByText(EMPTY_CONFIRMATION_MODAL_TITLE),
-
     deletionLoading: () => screen.getByText(/Deletion in progress/),
     deletionAttempts: (deletionNumber: number) =>
       screen.getByText(new RegExp(`${deletionNumber} deletion attempts`, 'i')),
@@ -64,6 +63,7 @@ describe('EmptyConfirmation', () => {
     successIcon: () => screen.getByLabelText('Check-circle'),
     errorIcon: () => screen.getByLabelText('Exclamation-circle'),
     error: () => screen.getByText('Error'),
+    closeButton: () => screen.getByRole('button', { name: /Close/i }),
   };
 
   it('should render empty button', () => {
@@ -226,6 +226,57 @@ describe('EmptyConfirmation', () => {
     });
 
     reduxRender(<EmptyBucket bucketName={bucketName} />);
+
+    await waitFor(() => {
+      expect(selectors.emptyButton()).toBeDisabled();
+    });
+  });
+
+  it('button should be disabled after deletion', async () => {
+    const test = reduxRender(<EmptyBucket bucketName={bucketName} />);
+    fireEvent.click(selectors.emptyButton());
+    userEvent.type(selectors.confirmInput(), 'confirm');
+
+    await waitFor(() => {
+      expect(selectors.confirmButton()).toBeEnabled();
+    });
+
+    userEvent.click(selectors.confirmButton());
+
+    await waitFor(() => {
+      expect(selectors.deletionLoading()).toBeInTheDocument();
+    });
+
+    await waitFor(() => {
+      server.use(
+        rest.post(
+          `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+          (req, res, ctx) => {
+            return res(
+              ctx.xml(`
+              <DeleteResult xmlns ="http://s3.amazonaws.com/doc/2006-03-01/">
+                <Error>
+                  <Key>276267</Key>
+                  <VersionId>aJf</VersionId>
+                </Error>
+            </DeleteResult>`),
+            );
+          },
+        ),
+        mockObjectEmpty(bucketName),
+      );
+    });
+
+    await waitFor(
+      () => {
+        expect(selectors.deletionAttempts(1)).toBeInTheDocument();
+      },
+      {
+        timeout: 10_000,
+      },
+    );
+
+    fireEvent.click(selectors.closeButton());
 
     await waitFor(() => {
       expect(selectors.emptyButton()).toBeDisabled();

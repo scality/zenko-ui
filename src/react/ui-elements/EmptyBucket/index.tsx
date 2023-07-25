@@ -199,6 +199,7 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
     if (hasCompletedDeletion) {
       setIsEnabled(false);
       queryClient.removeQueries(queryKey);
+      queryClient.invalidateQueries(['checkIfBucketEmpty', bucketName]);
     }
   }, [hasCompletedDeletion]);
 
