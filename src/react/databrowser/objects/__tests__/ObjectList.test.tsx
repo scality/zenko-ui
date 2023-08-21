@@ -1,16 +1,17 @@
-import * as hooks from '../../../next-architecture/domain/business/buckets';
+import { waitFor } from '@testing-library/react';
+import { List } from 'immutable';
+import router from 'react-router';
+import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import * as s3object from '../../../actions/s3object';
+import * as hooks from '../../../next-architecture/domain/business/buckets';
+import * as queryHooks from '../../../utils/hooks';
+import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
+import { checkBox, reduxMount } from '../../../utils/testUtil';
+import ObjectList, { VEEAM_XML_PREFIX } from '../ObjectList';
 import {
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
-import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
-import { checkBox, reduxMount } from '../../../utils/testUtil';
-import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
-import { List } from 'immutable';
-import ObjectList from '../ObjectList';
-import router from 'react-router';
-import { waitFor } from '@testing-library/react';
 describe('ObjectList', () => {
   beforeAll(() => {
     jest.spyOn(router, 'useLocation').mockReturnValue({
@@ -153,6 +154,10 @@ describe('ObjectList', () => {
     jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
       versionning: { status: 'success', value: 'Enabled' },
     });
+    jest
+      .spyOn(queryHooks, 'useQueryParams')
+      .mockReturnValueOnce(new URLSearchParams('?prefix=test'));
+
     const { component } = reduxMount(
       <ObjectList
         objects={List([FIRST_FORMATTED_OBJECT])}
@@ -162,6 +167,7 @@ describe('ObjectList', () => {
         listType={LIST_OBJECTS_S3_TYPE}
       />,
     );
+
     await waitFor(() => {
       const toggle = component.find('ToggleSwitch#list-versions-toggle');
       expect(toggle.prop('disabled')).toBe(false);
@@ -171,6 +177,10 @@ describe('ObjectList', () => {
     jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
       versionning: { status: 'success', value: 'Suspended' },
     });
+    jest
+      .spyOn(queryHooks, 'useQueryParams')
+      .mockReturnValueOnce(new URLSearchParams('?prefix=test'));
+
     const { component } = reduxMount(
       <ObjectList
         objects={List([FIRST_FORMATTED_OBJECT])}
@@ -200,6 +210,32 @@ describe('ObjectList', () => {
     );
     await waitFor(() => {
       component.update();
+      const toggle = component.find('ToggleSwitch#list-versions-toggle');
+      expect(toggle.prop('disabled')).toBe(true);
+    });
+  });
+
+  it('should disable versioning toggle if it is a veeam xml folder', async () => {
+    jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
+      versionning: { status: 'success', value: 'Enabled' },
+    });
+    jest
+      .spyOn(queryHooks, 'useQueryParams')
+      .mockReturnValueOnce(
+        new URLSearchParams(`?prefix=${VEEAM_XML_PREFIX}?showversions=true`),
+      );
+
+    const { component } = reduxMount(
+      <ObjectList
+        objects={List([FIRST_FORMATTED_OBJECT])}
+        toggled={List()}
+        bucketName={BUCKET_NAME}
+        prefixWithSlash=""
+        listType={LIST_OBJECTS_S3_TYPE}
+      />,
+    );
+
+    await waitFor(() => {
       const toggle = component.find('ToggleSwitch#list-versions-toggle');
       expect(toggle.prop('disabled')).toBe(true);
     });

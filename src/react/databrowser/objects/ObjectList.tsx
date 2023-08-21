@@ -26,6 +26,9 @@ type Props = {
   toggled: List<ObjectEntity>;
   listType: ListObjectsType;
 };
+
+export const VEEAM_XML_PREFIX = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c';
+
 export default function ObjectList({
   objects,
   bucketName,
@@ -37,6 +40,7 @@ export default function ObjectList({
   const { pathname } = useLocation();
   const query = useQueryParams();
   const searchInput = query.get('metadatasearch');
+  const prefixPath = query.get('prefix');
 
   const { versionning } = useBucketVersionning({ bucketName });
 
@@ -51,6 +55,7 @@ export default function ObjectList({
   const isMetadataType = !!searchInput;
   const isVersioningType = listType === LIST_OBJECT_VERSIONS_S3_TYPE;
   const isToggledEmpty = toggled.size === 0;
+  const isVeeamXML = prefixPath?.includes(VEEAM_XML_PREFIX);
 
   const maybeListTable = () => {
     if (errorZenkoMsg) {
@@ -106,7 +111,7 @@ export default function ObjectList({
           />
           <Toggle
             id="list-versions-toggle"
-            disabled={isMetadataType || !isBucketVersioned}
+            disabled={isMetadataType || !isBucketVersioned || isVeeamXML}
             toggle={isVersioningType}
             label="List Versions"
             onChange={() => {
