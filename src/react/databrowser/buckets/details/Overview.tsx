@@ -10,6 +10,7 @@ import type { AppState } from '../../../../types/state';
 import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
+import { useChangeBucketVersionning } from '../../../next-architecture/domain/business/buckets';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
@@ -85,6 +86,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -108,6 +110,16 @@ function Overview({ bucket, ingestionStates }: Props) {
     locations && locations[bucketInfo.locationConstraint]?.locationType;
   const isBucketHostedOnAzureOrGCP =
     locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
+
+  const updateBucketVersioning = (isVersioning: boolean) => {
+    changeBucketVersionning({
+      Bucket: bucketInfo.name,
+      VersioningConfiguration: {
+        Status: isVersioning ? 'Enabled' : 'Disabled',
+      },
+    });
+  };
+
   return (
     <TableContainer>
       <DumbErrorModal
@@ -168,14 +180,15 @@ function Overview({ bucket, ingestionStates }: Props) {
                             ? 'Inactive'
                             : bucketInfo.versioning
                         }
-                        onChange={() =>
+                        onChange={() => {
                           dispatch(
                             toggleBucketVersioning(
                               bucket.name,
                               !bucketInfo.isVersioning,
                             ),
-                          )
-                        }
+                          );
+                          updateBucketVersioning(!bucketInfo.isVersioning);
+                        }}
                       />
                     </Tooltip>
                   )}

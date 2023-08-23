@@ -1,26 +1,51 @@
-import { waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import router from 'react-router';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import * as s3object from '../../../actions/s3object';
 import * as hooks from '../../../next-architecture/domain/business/buckets';
 import * as queryHooks from '../../../utils/hooks';
 import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
-import { checkBox, reduxMount } from '../../../utils/testUtil';
+import {
+  TEST_API_BASE_URL,
+  checkBox,
+  reduxMount,
+  reduxRender,
+} from '../../../utils/testUtil';
 import ObjectList, { VEEAM_XML_PREFIX } from '../ObjectList';
 import {
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
+
+const server = setupServer(
+  rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
+    if (req.url.searchParams.has('versioning')) {
+      return res(
+        ctx.status(200),
+        ctx.xml(
+          `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+          <VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/" />`,
+        ),
+      );
+    }
+  }),
+);
+
 describe('ObjectList', () => {
   beforeAll(() => {
     jest.spyOn(router, 'useLocation').mockReturnValue({
       pathname: '/buckets/test/objects',
     });
+    server.listen({ onUnhandledRequest: 'error' });
   });
   afterEach(() => {
     jest.clearAllMocks();
+    server.resetHandlers();
   });
+  afterAll(() => server.close());
   it('should render ObjectList with no object', () => {
     const { component } = reduxMount(
       <ObjectList
@@ -238,6 +263,35 @@ describe('ObjectList', () => {
     await waitFor(() => {
       const toggle = component.find('ToggleSwitch#list-versions-toggle');
       expect(toggle.prop('disabled')).toBe(true);
+    });
+  });
+
+  it('should enable versioning toggle after updating bucket version', async () => {
+    server.use(
+      rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
+        return res(
+          ctx.status(200),
+          ctx.xml(
+            `<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+                <Status>Enabled</Status>
+              </VersioningConfiguration>`,
+          ),
+        );
+      }),
+    );
+
+    reduxRender(
+      <ObjectList
+        objects={List([FIRST_FORMATTED_OBJECT])}
+        toggled={List()}
+        bucketName={BUCKET_NAME}
+        prefixWithSlash=""
+        listType={LIST_OBJECTS_S3_TYPE}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('List Versions')).toBeEnabled();
     });
   });
 });
