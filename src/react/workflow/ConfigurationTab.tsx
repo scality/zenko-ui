@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
@@ -524,6 +524,15 @@ function EditForm({
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
+  useEffect(() => {
+    if (workflow && isExpirationWorkflow(workflow)) {
+      reset(initDefaultValues(workflow));
+    } else if (workflow && isTransitionWorkflow(workflow)) {
+      reset(initTransitionDefaultValue(workflow));
+    } else {
+      reset(convertToReplicationForm(workflow));
+    }
+  }, [workflow, reset]);
 
   const { deleteReplicationMutation, editReplicationWorkflowMutation } =
     useReplicationMutations({
