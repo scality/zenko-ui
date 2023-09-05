@@ -29,7 +29,10 @@ import { useWorkflows } from '../../../workflow/Workflows';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
-import { useDeleteBucket } from '../../../next-architecture/domain/business/buckets';
+import {
+  useChangeBucketVersionning,
+  useDeleteBucket,
+} from '../../../next-architecture/domain/business/buckets';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -108,6 +111,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   }, [dispatch, bucket.name]);
 
   const { mutate: deleteBucket } = useDeleteBucket();
+  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
 
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
@@ -153,6 +157,16 @@ function Overview({ bucket, ingestionStates }: Props) {
     locations && locations[bucketInfo.locationConstraint]?.locationType;
   const isBucketHostedOnAzureOrGCP =
     locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
+
+  const updateBucketVersioning = (isVersioning: boolean) => {
+    changeBucketVersionning({
+      Bucket: bucketInfo.name,
+      VersioningConfiguration: {
+        Status: isVersioning ? 'Enabled' : 'Disabled',
+      },
+    });
+  };
+
   return (
     <TableContainer>
       <DeleteConfirmation
@@ -222,14 +236,15 @@ function Overview({ bucket, ingestionStates }: Props) {
                             ? 'Inactive'
                             : bucketInfo.versioning
                         }
-                        onChange={() =>
+                        onChange={() => {
                           dispatch(
                             toggleBucketVersioning(
                               bucket.name,
                               !bucketInfo.isVersioning,
                             ),
-                          )
-                        }
+                          );
+                          updateBucketVersioning(!bucketInfo.isVersioning);
+                        }}
                       />
                     </Tooltip>
                   )}
