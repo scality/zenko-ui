@@ -103,6 +103,7 @@ export function createAccount(
       .then(() => {
         queryClient.refetchQueries(['accounts']);
         queryClient.invalidateQueries(['WebIdentityRoles', token]);
+        queryClient.invalidateQueries(['s3AssumeRoleClient']);
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))
