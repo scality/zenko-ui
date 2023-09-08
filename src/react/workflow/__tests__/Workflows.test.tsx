@@ -4,11 +4,11 @@ import { setupServer } from 'msw/node';
 import {
   ACCOUNT_ID,
   BUCKET_NAME,
+  EXPIRATION_WORKFLOW_ID,
   getColdStorageHandlers,
   TRANSITION_WORKFLOW_CURRENT_ID,
   TRANSITION_WORKFLOW_PREVIOUS_ID,
 } from '../../../js/mock/managementClientMSWHandlers';
-
 import Workflows from '../Workflows';
 import {
   mockOffsetSize,
@@ -16,7 +16,10 @@ import {
   renderWithRouterMatch,
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
-import { mockBucketListing } from '../../../js/mock/S3ClientMSWHandlers';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
 
 const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'test-account';
@@ -50,7 +53,7 @@ jest.setTimeout(30000);
 describe('Workflows', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
-    mockOffsetSize(200, 800);
+    mockOffsetSize(200, 1000);
   });
   afterEach(() => {
     server.resetHandlers();
@@ -135,5 +138,37 @@ describe('Workflows', () => {
         /Before browsing your workflows, create your first bucket./i,
       ),
     ).toBeInTheDocument();
+  });
+
+  it('should display the correct expiration form', async () => {
+    //S
+    server.use(
+      mockBucketListing([
+        {
+          Name: BUCKET_NAME,
+          CreationDate: new Date('2021-03-18T12:51:44Z'),
+        },
+      ]),
+      mockBucketOperations({
+        isVersioningEnabled: (bucketName) => bucketName === BUCKET_NAME,
+      }),
+    );
+    renderWithRouterMatch(
+      <Workflows />,
+      {
+        path: '/accounts/:accountName/workflows/:workflowId?',
+        route: `/accounts/${TEST_ACCOUNT}/workflows/expiration-${EXPIRATION_WORKFLOW_ID}`,
+      },
+      { instances: { selectedId: INSTANCE_ID } },
+    );
+    //E
+    await waitFor(() => screen.getByText(TEST_ACCOUNT));
+    await waitFor(() => screen.queryAllByText(/expiration/i));
+    //V
+    expect(
+      screen.getByRole('checkbox', {
+        name: /Expire Previous version of objects/i,
+      }),
+    ).toBeChecked();
   });
 });
