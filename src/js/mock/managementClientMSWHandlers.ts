@@ -15,6 +15,7 @@ export const TRANSITION_WORKFLOW_CURRENT_ID =
   '0d55a1d7-349c-4e79-932b-b502bcc45a8f';
 export const TRANSITION_WORKFLOW_PREVIOUS_ID =
   '1e55a1d7-349c-4e79-932b-b502bcc45a8f';
+export const EXPIRATION_WORKFLOW_ID = '330f2359-dc93-4abd-97c1-37c8483b1872';
 export const TRIGGER_DELAY_DAYS = 15;
 export const COLD_LOCATION_NAME = 'europe25-myroom-cold';
 
@@ -264,6 +265,18 @@ export const getColdStorageHandlers = (baseUrl: string, instanceId: string) => [
               triggerDelayDays: TRIGGER_DELAY_DAYS,
               locationName: COLD_LOCATION_NAME,
               enabled: true,
+            },
+          },
+          {
+            expiration: {
+              bucketName: BUCKET_NAME,
+              enabled: true,
+              filter: {
+                objectTags: null,
+              },
+              type: 'bucket-workflow-expiration-v1',
+              workflowId: EXPIRATION_WORKFLOW_ID,
+              previousVersionTriggerDelayDays: 7,
             },
           },
         ]),
