@@ -10,8 +10,12 @@ import {
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
 import { Toggle } from '@scality/core-ui';
-import { reduxMount, reduxRender } from '../../../../utils/testUtil';
-import { screen, waitFor, within } from '@testing-library/react';
+import {
+  reduxMount,
+  reduxRender,
+  zenkoUITestConfig,
+} from '../../../../utils/testUtil';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import Immutable from 'immutable';
 import userEvent from '@testing-library/user-event';
 const BUCKET = {
@@ -210,5 +214,101 @@ describe('Overview', () => {
     });
     //V
     expect(versioningToggleItem).toHaveAttribute('disabled');
+  });
+});
+
+//
+//
+//
+//
+//
+
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import {
+  BUCKET_NAME,
+  INSTANCE_ID,
+} from '../../../../actions/__tests__/utils/testUtil';
+import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
+import {
+  ACCOUNT_ID,
+  USERS,
+  getConfigOverlay,
+  getStorageConsumptionMetricsHandlers,
+} from '../../../../../js/mock/managementClientMSWHandlers';
+const mockResponse =
+  '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
+const TEST_ACCOUNT =
+  USERS.find((user) => user.id === '064609833007')?.userName ?? '';
+const TEST_ACCOUNT_CREATION_DATE =
+  USERS.find((user) => user.id === '064609833007')?.createDate ?? '';
+const server = setupServer(
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    return res(
+      ctx.json({
+        IsTruncated: false,
+        Accounts: [
+          {
+            Name: TEST_ACCOUNT,
+            CreationDate: TEST_ACCOUNT_CREATION_DATE,
+            Roles: [
+              {
+                Name: 'storage-manager-role',
+                Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+              },
+            ],
+          },
+        ],
+      }),
+    );
+  }),
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
+    (req, res, ctx) => {
+      return res(ctx.json([]));
+    },
+  ),
+  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  ...getStorageConsumptionMetricsHandlers(
+    zenkoUITestConfig.managementEndpoint,
+    INSTANCE_ID,
+  ),
+);
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+afterAll(() => server.close());
+afterEach(() => server.resetHandlers());
+
+describe('Overview', () => {
+  it('should call the updateBucketVersioning function when clicking on the toggle versioning button', async () => {
+    const useUpdateBucketVersioningMock = jest.fn();
+    server.use(
+      rest.put(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
+        useUpdateBucketVersioningMock(req.body);
+        return res(ctx.status(200));
+      }),
+    );
+
+    reduxRender(<Overview bucket={BUCKET} />, {
+      ...TEST_STATE,
+      ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
+    });
+
+    const versioningToggleItem = screen
+      .getByRole('checkbox', {
+        name: /inactive/i,
+      })
+      .querySelector('input');
+
+    await waitFor(() => {
+      expect(versioningToggleItem).toBeInTheDocument();
+    });
+
+    versioningToggleItem && fireEvent.click(versioningToggleItem);
+
+    await waitFor(() => {
+      expect(useUpdateBucketVersioningMock).toHaveBeenCalledWith(mockResponse);
+    });
   });
 });
