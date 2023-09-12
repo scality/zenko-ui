@@ -390,7 +390,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                     }) => (
                       <Toggle
                         disabled={!isSourceBucketVersionned}
-                        id="previousVersionTriggerDelayDaysToggle"
+                        id="expirePreviousVersions"
                         placeholder="previousVersionDelayDaysToggle"
                         toggle={
                           previousVersionTriggerDelayDays !== null &&
