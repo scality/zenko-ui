@@ -91,7 +91,12 @@ export function GeneralTransitionGroup({
 }
 
 const locationsToOptions = (locations: Locations) => {
-  return Object.keys(locations).map((value) => ({ value, label: value }));
+  return Object.entries(locations)
+    .filter(
+      ([name, location]) =>
+        location.locationType !== 'location-scality-hdclient-v2',
+    )
+    .map(([name]) => ({ value: name, label: name }));
 };
 
 export const TransitionForm = ({ locations, prefix = '' }: Props) => {
