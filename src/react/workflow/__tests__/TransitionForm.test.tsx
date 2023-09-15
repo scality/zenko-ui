@@ -43,6 +43,7 @@ const locationName = 'chapter-ux';
 const locationType = 'ARTESCA';
 const triggerDelayDays = '2';
 
+const hyperdriveLocationName = 'hd-location';
 const locations: Locations = {
   [locationName]: {
     details: {
@@ -57,6 +58,17 @@ const locations: Locations = {
     locationType: 'location-scality-artesca-s3-v1',
     name: locationName,
     objectId: '4ab68d3f-9eec-11ec-ae58-6e38b828d159',
+  },
+  [hyperdriveLocationName]: {
+    details: {
+      bootstrapList: [
+        'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+      ],
+      repoId: null,
+    },
+    locationType: 'location-scality-hdclient-v2',
+    name: hyperdriveLocationName,
+    objectId: '22f31240-4bd3-11ee-98b3-1e5b6f897bc7',
   },
 };
 
@@ -385,6 +397,13 @@ describe('TransitionForm', () => {
     userEvent.click(
       notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
     );
+    // expect the hyperdrive location is not in the list
+    expect(
+      screen.queryByRole('option', {
+        name: new RegExp(`${hyperdriveLocationName}`, 'i'),
+      }),
+    ).not.toBeInTheDocument();
+
     userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(`${locationName} \\(${locationType}\\)`, 'i'),
