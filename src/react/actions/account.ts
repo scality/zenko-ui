@@ -26,11 +26,11 @@ import {
 } from './error';
 import { networkEnd, networkStart } from './network';
 import type { IamAccessKey } from '../../types/user';
-import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 import { getClients } from '../utils/actions';
 import { push } from 'connected-react-router';
 import { updateConfiguration } from './configuration';
 import { QueryClient } from 'react-query';
+import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
   return {
@@ -88,6 +88,7 @@ export function createAccount(
   user: CreateAccountRequest,
   queryClient: QueryClient,
   token: string,
+  setRole: (role: { roleArn: string }) => void,
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { managementClient, instanceId } = getClients(getState());
@@ -98,11 +99,20 @@ export function createAccount(
     dispatch(networkStart('Creating account'));
     return managementClient
       .createConfigurationOverlayUser(params.user, params.uuid)
-      .then((resp) => Promise.all([resp.id, dispatch(updateConfiguration())]))
-      .then(() => dispatch(push(`/accounts/${user.Name}`)))
-      .then(() => {
-        queryClient.refetchQueries(['accounts']);
-        queryClient.invalidateQueries(['WebIdentityRoles', token]);
+      .then(async (resp) => {
+        await Promise.all([resp.id, dispatch(updateConfiguration())]);
+        return resp;
+      })
+      .then((resp) => {
+        dispatch(push(`/accounts/${user.Name}`));
+        return resp;
+      })
+      .then((resp) => {
+        queryClient.clear();
+        const accountId = resp.id;
+        setRole({
+          roleArn: `arn:aws:iam::${accountId}:role/storage-manager-role`,
+        });
       })
       .catch((error) => dispatch(handleClientError(error)))
       .catch((error) => dispatch(handleApiError(error, 'byComponent')))

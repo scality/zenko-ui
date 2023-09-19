@@ -203,7 +203,7 @@ export const useAccounts = (
     ApiError
   >(
     {
-      queryKey: ['WebIdentityRoles', token],
+      queryKey: ['WebIdentityRoles'],
       queryFn: () => {
         notifyLoadingAccounts();
         return getRolesForWebIdentity(iamEndpoint, notFalsyTypeGuard(token));
