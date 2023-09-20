@@ -17,6 +17,7 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useQueryClient } from 'react-query';
+import { useSetAssumedRole } from '../DataServiceRoleProvider';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
@@ -59,6 +60,7 @@ function AccountCreate() {
   );
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const setRole = useSetAssumedRole();
   const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const onSubmit = ({ name, email }: AccountFormField) => {
     clearServerError();
@@ -66,7 +68,7 @@ function AccountCreate() {
       Name: name,
       email,
     };
-    dispatch(createAccount(payload, queryClient, token));
+    dispatch(createAccount(payload, queryClient, token, setRole));
   };
 
   const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
