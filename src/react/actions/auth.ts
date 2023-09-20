@@ -92,7 +92,15 @@ export function loadAppConfig(): ThunkNonStateAction {
             }),
           ),
         );
-        dispatch(setZenkoClient(new ZenkoClient(config.zenkoEndpoint)));
+        dispatch(
+          setZenkoClient(
+            new ZenkoClient(
+              config.zenkoEndpoint,
+              config.iamInternalFQDN,
+              config.s3InternalFQDN,
+            ),
+          ),
+        );
         dispatch(loadConfigSuccess());
       })
       .catch((error) => {
