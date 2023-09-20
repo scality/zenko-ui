@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import {
   S3ClientProvider,
   useAssumeRoleQuery,
@@ -73,6 +73,11 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   }>('/accounts/:accountName');
   const accountName = match?.params.accountName;
 
+  const { getQuery } = useAssumeRoleQuery();
+  const assumeRoleMutation = useMutation({
+    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
+  });
+
   // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {
     const storedRole = getRoleArnStored();
@@ -95,12 +100,8 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
+    assumeRoleMutation.mutate(role.roleArn);
   }, [role.roleArn, JSON.stringify(accounts)]);
-
-  const { getQuery } = useAssumeRoleQuery();
-  const assumeRoleMutation = useMutation({
-    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
-  });
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
@@ -110,20 +111,12 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     assumeRoleMutation.mutate(role.roleArn);
   };
 
-  const { data: assumeRoleResult, status } = useQuery(getQuery(role.roleArn));
-
-  if (status === 'idle' && role.roleArn) {
+  if (role.roleArn && !assumeRoleMutation.data) {
     return <Loader>Loading...</Loader>;
   }
 
   return (
-    <S3ClientProvider
-      configuration={
-        assumeRoleMutation.data
-          ? getS3Config(assumeRoleMutation.data)
-          : getS3Config(assumeRoleResult)
-      }
-    >
+    <S3ClientProvider configuration={getS3Config(assumeRoleMutation.data)}>
       <_DataServiceRoleContext.Provider
         value={{
           role,
