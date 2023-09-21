@@ -83,7 +83,7 @@
     "@types/react-virtualized": "^9.21.20",
     "@types/react-window": "^1.8.5",
     "async": "^3.2.0",
-    "aws-sdk": "^2.616.0",
+    "aws-sdk": "^2.1354.0",
     "connected-react-router": "^6.7.0",
     "core-js": "^3.6.5",
     "downshift": "^6.1.7",
