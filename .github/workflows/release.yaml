@@ -23,11 +23,27 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.REGISTRY_LOGIN }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Install Oras
+        run: |
+          curl -LO https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz
+          mkdir -p oras-install/
+          sudo tar -zxf oras_${ORAS_VERSION}_*.tar.gz -C /usr/local/bin oras
+          rm -rf oras_${ORAS_VERSION}_*.tar.gz oras-install/
+        env:
+          ORAS_VERSION: '0.12.0'
+      - name: Oras login
+        run: oras login --username "${LOGIN}" --password "${PASSWORD}" ${REGISTRY}
+        env:
+          LOGIN: '${{ secrets.REGISTRY_LOGIN }}'
+          PASSWORD: '${{ secrets.REGISTRY_PASSWORD }}'
+
+      - name: push nginx and runtime-app-configuration
+        run: |
+          oras push ${REGISTRY}/${PROD_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_REF_NAME \
+          runtime-app-configuration.gotempl:application/zenko-ui-runtime-config-template+json \
+          nginx.conf.gotempl:text/nginx-conf-template
       - name: Retag the docker image
         run: |
           docker pull ${REGISTRY}/${DEV_NAMESPACE}/${UI_IMAGE}:$GITHUB_SHA
-          docker pull ${REGISTRY}/${DEV_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_SHA
           docker tag ${REGISTRY}/${DEV_NAMESPACE}/${UI_IMAGE}:$GITHUB_SHA ${REGISTRY}/${PROD_NAMESPACE}/${UI_IMAGE}:$GITHUB_REF_NAME
-          docker tag ${REGISTRY}/${DEV_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_SHA ${REGISTRY}/${PROD_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_REF_NAME
           docker push ${REGISTRY}/${PROD_NAMESPACE}/${UI_IMAGE}:$GITHUB_REF_NAME
-          docker push ${REGISTRY}/${PROD_NAMESPACE}/${CONFIG_IMAGE}:$GITHUB_REF_NAME
