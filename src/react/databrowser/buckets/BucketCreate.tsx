@@ -1,11 +1,10 @@
 import {
-  Banner,
   Checkbox,
   Form,
   FormGroup,
   FormSection,
-  Icon,
   Stack,
+  useMutationsHandler,
 } from '@scality/core-ui';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ChangeEvent, useMemo, useRef } from 'react';
@@ -24,11 +23,14 @@ import { XDM_FEATURE } from '../../../js/config';
 import { renderLocation } from '../../locations/utils';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useHistory, useParams } from 'react-router-dom';
+import { MutationConfig } from '../../ToastProvider';
 import {
   useChangeBucketDefaultRetention,
   useChangeBucketVersionning,
   useCreateBucket,
 } from '../../next-architecture/domain/business/buckets';
+import { PromiseResult } from 'aws-sdk/lib/request';
+import { AWSError, S3 } from 'aws-sdk';
 
 const helpNonAsyncLocation =
   'Selected Storage Location does not support Async Metadata updates.';
@@ -121,10 +123,15 @@ function BucketCreate() {
   const formRef = useRef(null);
   useOutsideClick(formRef, clearServerError);
 
-  const { mutate: createBucket, error } = useCreateBucket();
-  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
-  const { mutate: changeBucketDefaultRetention } =
+  const createBucketMutation = useCreateBucket();
+  const changeBucketVersionningMutation = useChangeBucketVersionning();
+  const changeBucketDefaultRetentionMutation =
     useChangeBucketDefaultRetention();
+
+  const { mutate: createBucket, error } = createBucketMutation;
+  const { mutate: changeBucketVersionning } = changeBucketVersionningMutation;
+  const { mutate: changeBucketDefaultRetention } =
+    changeBucketDefaultRetentionMutation;
 
   const onSubmit = ({
     name,
@@ -199,7 +206,6 @@ function BucketCreate() {
               },
             });
           }
-          history.push(`/accounts/${accountName}/buckets/${name}`);
         },
       },
     );
@@ -215,6 +221,88 @@ function BucketCreate() {
       setValue('isVersioning', true);
     }
   };
+
+  const mainMutation = {
+    mutation: createBucketMutation,
+    name: 'createBucket',
+  } as MutationConfig<PromiseResult<S3.CreateBucketOutput, AWSError>, unknown>;
+
+  const dependantMutations = [
+    {
+      mutation: changeBucketVersionningMutation,
+      name: 'changeBucketVersionning',
+    },
+    {
+      mutation: changeBucketDefaultRetentionMutation,
+      name: 'changeBucketDefaultRetention',
+    },
+  ] as MutationConfig<unknown, unknown>[];
+
+  const messageDescriptionBuilder = (
+    successMutations: {
+      data?: unknown;
+      error?: unknown;
+      name: string;
+    }[],
+    errorMutations: {
+      data?: unknown;
+      error?: unknown;
+      name: string;
+    }[],
+  ) => {
+    const bucketCreateMessage = 'Bucket successfully created.';
+    const bucketVersionningMessage = 'Bucket version enabled.';
+    const retentionMessage = 'Default retention enabled.';
+
+    if (errorMutations.length) {
+      return (
+        <>
+          {errorMessage ||
+            (error &&
+              typeof error === 'object' &&
+              'message' in error &&
+              error?.message) ||
+            'An unexpected error occurred.'}
+        </>
+      );
+    } else if (successMutations.length) {
+      const isBucketCreated = successMutations.find(
+        ({ name }) => name === 'createBucket',
+      );
+      const isBucketVersionning = successMutations.find(
+        ({ name }) => name === 'changeBucketVersionning',
+      );
+      const isBucketDefaultRetention = successMutations.find(
+        ({ name }) => name === 'changeBucketDefaultRetention',
+      );
+
+      return (
+        <>
+          {isBucketCreated && <>{bucketCreateMessage}</>}
+          {isBucketVersionning && (
+            <>
+              <br />
+              {bucketVersionningMessage}
+            </>
+          )}
+          {isBucketDefaultRetention && (
+            <>
+              <br />
+              {retentionMessage}
+            </>
+          )}
+        </>
+      );
+    }
+  };
+
+  useMutationsHandler({
+    mainMutation,
+    dependantMutations,
+    messageDescriptionBuilder,
+    onMainMutationSuccess: () =>
+      history.push(`/accounts/${accountName}/buckets/${name}`),
+  });
 
   return (
     <FormProvider {...useFormMethods}>
@@ -245,23 +333,6 @@ function BucketCreate() {
               label="Create"
             />
           </Stack>
-        }
-        banner={
-          (errorMessage || error) && (
-            <Banner
-              id="zk-error-banner"
-              variant="danger"
-              icon={<Icon name="Exclamation-triangle" />}
-              title={'Error'}
-            >
-              {errorMessage ||
-                (error &&
-                  typeof error === 'object' &&
-                  'message' in error &&
-                  error?.message) ||
-                'An unexpected error occurred.'}
-            </Banner>
-          )
         }
       >
         <FormSection forceLabelWidth={convertRemToPixels(17.5)}>

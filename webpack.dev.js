@@ -14,11 +14,17 @@ const accessControlAllowHeaders = [
   'x-amz-date',
   'if-none-match',
   'x-amz-bucket-object-lock-enabled',
+  'x-authentication-token',
+  'content-md5',
+  'x-amz-bypass-governance-retention',
 ];
 
 module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map',
+  output: {
+    publicPath: '/zenko/',
+  },
   devServer: {
     static: path.join(__dirname, 'public/assets'),
     host: '127.0.0.1',
