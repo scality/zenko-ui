@@ -61,13 +61,23 @@ export default class S3Client {
       ) {
         const result = this.originalAddAuthorization(credentials, date);
 
-        request.endpoint = originalRequest.endpoint;
-        request.headers = {
-          ...originalRequest.headers,
-          ...request.headers,
-          Host: originalRequest.headers.Host,
-        };
-        request.path = originalRequest.path;
+        if (!this.isPresigned()) {
+          request.endpoint = originalRequest.endpoint;
+          request.headers = {
+            ...originalRequest.headers,
+            ...request.headers,
+            Host: originalRequest.headers.Host,
+          };
+          request.path = originalRequest.path;
+        } else {
+          request.endpoint = originalRequest.endpoint;
+          request.headers = {
+            ...originalRequest.headers,
+            ...request.headers,
+            Host: originalRequest.headers.Host,
+          };
+          request.path = s3Path + request.path;
+        }
         return result;
       };
 
