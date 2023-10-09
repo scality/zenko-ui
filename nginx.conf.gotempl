@@ -2,6 +2,12 @@ map $request_uri $proxy_uri {
 	"~^/s3/(?<path>.*)$" "/$path";
 }
 
+map $proxy_uri $encoded_uri {
+        ~(.*)\+(.*) $1%2B$2;
+        default $proxy_uri;
+}
+
+
 server {
   listen       {{ .Port }};
   server_name  _;
@@ -30,7 +36,7 @@ server {
   location /s3 {
     resolver {{ .DNSAddress }};
 	{{ .AdditionalS3LocationsRules }}
-    proxy_pass {{ .S3Endpoint }}$proxy_uri;
+    proxy_pass {{ .S3Endpoint }}$encoded_uri;
     proxy_redirect off;
   }
 
