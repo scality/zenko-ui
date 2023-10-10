@@ -1,13 +1,3 @@
-map $request_uri $proxy_uri {
-	"~^/s3/(?<path>.*)$" "/$path";
-}
-
-map $proxy_uri $encoded_uri {
-        ~(.*)\+(.*) $1%2B$2;
-        default $proxy_uri;
-}
-
-
 server {
   listen       {{ .Port }};
   server_name  _;
@@ -36,7 +26,15 @@ server {
   location /s3 {
     resolver {{ .DNSAddress }};
 	{{ .AdditionalS3LocationsRules }}
-    proxy_pass {{ .S3Endpoint }}$encoded_uri;
+
+    set_by_lua_block $urlencore_proxy_uri {
+                local uri = ngx.var.request_uri
+                local proxy_uri = ngx.re.gsub(uri, "^/s3", "")
+                local encoded_uri = ngx.re.gsub(proxy_uri, "\\+", "%2B", "jo")
+                return encoded_uri
+    }
+
+    proxy_pass {{ .S3Endpoint }}$urlencore_proxy_uri;
     proxy_redirect off;
   }
 

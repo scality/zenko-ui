@@ -1,6 +1,6 @@
-ARG NGINX_IMAGE_VERSION=1.23.3-alpine
+ARG TAG=1.21.4.2-1-alpine-fat
 
-FROM nginx:${NGINX_IMAGE_VERSION}
+FROM openresty/openresty:${TAG}
 
 EXPOSE 8383
 
