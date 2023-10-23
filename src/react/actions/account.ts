@@ -13,6 +13,7 @@ import type {
   DeleteAccountSecretAction,
   DispatchFunction,
   GetStateFunction,
+  HandleErrorAction,
   ListAccountAccessKeySuccessAction,
   OpenAccountDeleteDialogAction,
   OpenAccountKeyCreateModalAction,
@@ -156,7 +157,20 @@ export function deleteAccount(
         dispatch(closeAccountDeleteDialog());
         return dispatch(handleClientError(error));
       })
-      .catch((error) => dispatch(handleApiError(error, 'byModal')))
+      .catch((error) => {
+        //We'd like to provide a better message to the user when there is buckets or policy attached to the account (409 Conflict with no error message from Pensieve API).
+        if (error.status === 409) {
+          const errorAction: HandleErrorAction = {
+            type: 'HANDLE_ERROR',
+            errorMsg:
+              'Unable to delete the account due to the presence of associated resources.',
+            errorType: 'byModal',
+          };
+          dispatch(errorAction);
+        } else {
+          dispatch(handleApiError(error, 'byModal'));
+        }
+      })
       .finally(() => {
         dispatch(networkEnd());
       });
