@@ -27,6 +27,7 @@ import {
   EntityType,
   ResourceType,
 } from './AttachmentTypes';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 
 type TableProxyProps<
   ENTITIES_API_RESPONSE extends {
@@ -112,6 +113,7 @@ const AttachmentTabs = ({
   const theme = useTheme();
   const queryObject = Object.fromEntries(query.entries());
   const IAMClient = useIAMClient();
+  const { basePath } = useConfig();
   const { accountName } = useParams<{ accountName: string }>();
   const [attachmentOperations, setAttachmentOperations] = useReducer(
     (
@@ -137,7 +139,7 @@ const AttachmentTabs = ({
     tabLineColor: backgroundLevel4,
   };
 
-  const { data: accountSeeds } = useQuery(getAccountSeedsQuery());
+  const { data: accountSeeds } = useQuery(getAccountSeedsQuery(basePath));
   const policyRolePair =
     accountSeeds?.filter(
       (seed) => seed.permissionPolicy.policyName === resourceName,
