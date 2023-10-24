@@ -6,6 +6,7 @@ import {
   FieldError,
   ControllerRenderProps,
 } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
 import type { Locations, Replication } from '../../types/config';
 import {
@@ -13,7 +14,7 @@ import {
   FormGroup,
   FormSection,
   Icon,
-  Link,
+  Link as LinkStyle,
   spacing,
   Stack,
   Text,
@@ -308,13 +309,14 @@ function ReplicationForm({
                   no Prefix filter), you need to edit the existing Workflow, you
                   cannot create the new one.
                 </Text>
-                <Link
-                  href={`/accounts/${account!.Name}/workflows/replication-${
+                <LinkStyle
+                  as={Link}
+                  to={`/accounts/${account!.Name}/workflows/replication-${
                     parentReplicationStream.streamId
                   }`}
                 >
                   Edit the workflow
-                </Link>
+                </LinkStyle>
               </Stack>
             </Banner>
           )}
