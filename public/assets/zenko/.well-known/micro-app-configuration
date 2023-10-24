@@ -16,6 +16,12 @@
         "module": "./FederableApp",
         "scope": "zenko"
       }
-    }
+    },
+    "navbarUpdaterComponents": [
+      {
+        "module": "./VeeamWelcomeModal",
+        "scope": "zenko"
+      }
+    ]
   }
 }

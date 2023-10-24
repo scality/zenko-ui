@@ -79,6 +79,8 @@ module.exports = {
       filename: 'js/remoteEntry.js',
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
+        './VeeamWelcomeModal':
+          './src/react/ui-elements/Veeam/VeeamWelcomeModal.tsx',
       },
       shared: {
         ...Object.fromEntries(
