@@ -16,8 +16,7 @@ export default class STSClient {
   }) {
     const { idToken, roleArn, RoleSessionName } = params;
     const p = {
-      DurationSeconds: 900,
-      // 15 minutes
+      DurationSeconds: 900, // 15 minutes
       RoleArn: roleArn,
       RoleSessionName,
       WebIdentityToken: idToken,

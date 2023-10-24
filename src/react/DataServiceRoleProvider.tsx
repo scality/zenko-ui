@@ -100,7 +100,9 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
-    assumeRoleMutation.mutate(role.roleArn);
+    if (role.roleArn) {
+      assumeRoleMutation.mutate(role.roleArn);
+    }
   }, [role.roleArn, JSON.stringify(accounts)]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
@@ -108,7 +110,9 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
     setRoleState(role);
-    assumeRoleMutation.mutate(role.roleArn);
+    if (role.roleArn) {
+      assumeRoleMutation.mutate(role.roleArn);
+    }
   };
 
   if (role.roleArn && !assumeRoleMutation.data) {
