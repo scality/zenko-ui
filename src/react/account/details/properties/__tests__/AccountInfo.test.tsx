@@ -14,9 +14,8 @@ import { formatDate } from '../../../../utils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { useAuth } from '../../../../next-architecture/ui/AuthProvider';
-import { debug } from 'jest-preview';
 import userEvent from '@testing-library/user-event';
 import { Route, Switch } from 'react-router-dom';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
@@ -157,6 +156,35 @@ describe('AccountInfo', () => {
 
     await waitFor(() => {
       return expect(screen.getByText('Account Page')).toBeInTheDocument();
+    });
+  });
+
+  it('should display an error message when attempting to delete if there is a bucket attached to the account', async () => {
+    //S
+    server.use(
+      rest.delete(
+        `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
+        (_, res, ctx) => res(ctx.status(409)),
+      ),
+    );
+    //E
+    renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
+      instances: { selectedId: INSTANCE_ID },
+    });
+    userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    userEvent.click(
+      within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
+        'button',
+        { name: /delete/i },
+      ),
+    );
+    //V
+    await waitFor(() => {
+      expect(
+        within(screen.getByRole('dialog', { name: /Error/i })).getByText(
+          /Unable to delete the account due to the presence of associated resources./i,
+        ),
+      ).toBeInTheDocument();
     });
   });
 });
