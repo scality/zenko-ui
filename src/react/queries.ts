@@ -218,9 +218,9 @@ export const getListPolicyVersionsQuery = (
   };
 };
 
-export const getAccountSeedsQuery = () => ({
+export const getAccountSeedsQuery = (basePath: string) => ({
   queryKey: ['AccountSeeds'],
-  queryFn: getAccountSeeds,
+  queryFn: () => getAccountSeeds(basePath),
 });
 
 interface GetObjectVersionProps {

@@ -44,6 +44,7 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
         navbarEndpoint: TEST_API_BASE_URL,
         navbarConfigUrl: TEST_API_BASE_URL,
         features: [],
+        basePath: '',
       };
     }),
     useGrafanaURL: jest.fn(() => TEST_API_BASE_URL + '/grafana'),
