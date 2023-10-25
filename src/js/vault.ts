@@ -1,6 +1,6 @@
 // TODO: AccountSeeds should be returned by Vault API
-export function getAccountSeeds() {
-  return fetch('/account-seeds.json', {
+export function getAccountSeeds(basePath: string) {
+  return fetch(`${basePath}/account-seeds.json`, {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
   }).then((res) => {
     if (!res.ok) {
