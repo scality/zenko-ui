@@ -97,7 +97,7 @@ export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
           config.zenkoEndpoint,
           config.iamInternalFQDN,
           config.s3InternalFQDN,
-          config.basePath,
+          process.env.NODE_ENV === 'development' ? '' : config.basePath,
         ),
       ),
     );

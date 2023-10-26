@@ -51,7 +51,7 @@ export const S3ClientProvider = ({
       s3Config.endpoint,
       iamInternalFQDN,
       s3InternalFQDN,
-      basePath,
+      process.env.NODE_ENV === 'development' ? '' : basePath,
     );
     const iamClient = new IAMClient(iamEndpoint);
 
