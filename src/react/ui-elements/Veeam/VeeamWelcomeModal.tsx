@@ -8,6 +8,7 @@ import {
 import { VeeamLogo } from './VeeamLogo';
 import { ArtescaLogo } from './ArtescaLogo';
 import styled from 'styled-components';
+import { useHistory } from 'react-router-dom';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -15,7 +16,8 @@ const CustomModal = styled(Modal)`
 
 export const VeeamWelcomeModalInternal = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const { features } = useConfig();
+  const { features, basePath } = useConfig();
+  const history = useHistory();
 
   if (!features.includes('Veeam')) {
     return <></>;
@@ -46,6 +48,7 @@ export const VeeamWelcomeModalInternal = () => {
               label={'Continue'}
               onClick={() => {
                 setIsOpen(false);
+                history.push(`${basePath}/veeam/configuration`);
               }}
             />
           </Stack>

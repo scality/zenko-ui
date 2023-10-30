@@ -38,6 +38,7 @@ import { Locations } from './locations/Locations';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import { useAuthGroups } from './utils/hooks';
 import { useTheme } from 'styled-components';
+import Configuration from './ui-elements/Veeam/VeeamConfiguration';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -181,6 +182,7 @@ function PrivateRoutes() {
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
       <Route exact path="/locations" component={Locations} />
+      <Route path="/veeam/configuration" component={Configuration} />
       <Route path="*" component={NoMatch} />
     </Switch>
   );
@@ -222,6 +224,7 @@ function Routes() {
     { path: '/accounts/:accountName/create-bucket' },
     { path: '/accounts/:accountName/workflows/create-workflow' },
     { path: '/accounts/:accountName/create-policy' },
+    { path: '/veeam/configuration' },
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);
