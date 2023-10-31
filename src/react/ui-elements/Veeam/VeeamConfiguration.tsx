@@ -2,8 +2,9 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Form, FormGroup, FormSection, Stack, Toggle } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import VeeamTable from './VeeamTable';
 
 const VEEAMVERSION11 = 'Veeam 11';
 const VEEAMVERSION12 = 'Veeam 12';
@@ -55,6 +56,12 @@ const Configuration = () => {
     //TODO: Create account
   };
   const formRef = useRef(null);
+  const [openVeeamTable, setOpenVeeamTable] = useState(false);
+
+  if (openVeeamTable) {
+    return <VeeamTable />;
+  }
+
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
@@ -78,6 +85,9 @@ const Configuration = () => {
             variant="primary"
             label="Continue"
             disabled={!isValid}
+            onClick={() => {
+              setOpenVeeamTable(true);
+            }}
           />
         </Stack>
       }

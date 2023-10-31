@@ -1,15 +1,15 @@
-import { useState } from 'react';
 import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
+import { useState } from 'react';
+import styled from 'styled-components';
 import {
   ConfigProvider,
   useConfig,
   useDeployedApps,
   useLinkOpener,
 } from '../../next-architecture/ui/ConfigProvider';
-import { VeeamLogo } from './VeeamLogo';
 import { ArtescaLogo } from './ArtescaLogo';
-import styled from 'styled-components';
+import { VeeamLogo } from './VeeamLogo';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -24,7 +24,9 @@ export const VeeamWelcomeModalInternal = () => {
 
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
-  const zenkoUI = deployedApps.find((app) => app.kind === 'zenko-ui');
+  const zenkoUI = deployedApps.find(
+    (app: { kind: string }) => app.kind === 'zenko-ui',
+  );
   const zenkoUIVeeamConfigurationView = {
     path: '/veeam/configuration',
     label: {
