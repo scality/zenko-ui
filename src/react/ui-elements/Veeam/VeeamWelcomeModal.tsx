@@ -4,11 +4,12 @@ import { Button } from '@scality/core-ui/dist/next';
 import {
   ConfigProvider,
   useConfig,
+  useDeployedApps,
+  useLinkOpener,
 } from '../../next-architecture/ui/ConfigProvider';
 import { VeeamLogo } from './VeeamLogo';
 import { ArtescaLogo } from './ArtescaLogo';
 import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -16,12 +17,28 @@ const CustomModal = styled(Modal)`
 
 export const VeeamWelcomeModalInternal = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const { features, basePath } = useConfig();
-  const history = useHistory();
-
+  const { features } = useConfig();
   if (!features.includes('Veeam')) {
     return <></>;
   }
+
+  const { openLink } = useLinkOpener();
+  const deployedApps = useDeployedApps();
+  const zenkoUI = deployedApps.find((app) => app.kind === 'zenko-ui');
+  const zenkoUIVeeamConfigurationView = {
+    path: '/veeam/configuration',
+    label: {
+      en: 'Veeam Configuration',
+      fr: 'Configuration Veeam',
+    },
+    module: './FederableApp',
+    scope: 'zenko',
+  };
+  const veeamConfigurationView = {
+    view: zenkoUIVeeamConfigurationView,
+    app: zenkoUI,
+    isFederated: true,
+  };
 
   return (
     <CustomModal
@@ -48,7 +65,7 @@ export const VeeamWelcomeModalInternal = () => {
               label={'Continue'}
               onClick={() => {
                 setIsOpen(false);
-                history.push(`${basePath}/veeam/configuration`);
+                openLink(veeamConfigurationView);
               }}
             />
           </Stack>

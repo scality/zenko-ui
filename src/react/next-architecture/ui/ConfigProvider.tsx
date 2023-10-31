@@ -19,6 +19,18 @@ export function useConfig(): AppConfig {
   }).spec.selfConfiguration;
 }
 
+export function useLinkOpener() {
+  return configGlobal.hooks.useLinkOpener();
+}
+
+export function useDiscoveredViews() {
+  return configGlobal.hooks.useDiscoveredViews();
+}
+
+export function useDeployedApps() {
+  return deployedInstancesGlobal.hooks.useDeployedApps();
+}
+
 export function useDeployedMetalk8sInstances(): SolutionUI[] {
   return deployedInstancesGlobal.hooks.useDeployedApps({
     kind: 'metalk8s-ui',
