@@ -27,7 +27,7 @@ const mockTableData = [
     status: undefined,
   },
   {
-    action: 'Store Veeam use case',
+    action: 'Tag bucket as Veeam Bucket',
     status: undefined,
   },
   {
@@ -35,7 +35,7 @@ const mockTableData = [
     status: undefined,
   },
   {
-    action: 'See Smart Object Storage capacity',
+    action: 'Set Smart Object Storage capacity',
     status: undefined,
   },
 ];

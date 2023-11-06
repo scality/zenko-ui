@@ -1,5 +1,6 @@
-import { EmptyStateContainer } from './ui-elements/Container';
+import { AppContainer, ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Redirect,
   Route,
@@ -9,36 +10,34 @@ import {
   useHistory,
   useLocation,
 } from 'react-router-dom';
+import { useTheme } from 'styled-components';
+import makeMgtClient from '../js/managementClient';
+import type { AppState } from '../types/state';
+import DataServiceRoleProvider, {
+  useCurrentAccount,
+} from './DataServiceRoleProvider';
+import ManagementProvider from './ManagementProvider';
+import NoMatch from './NoMatch';
+import AccountContent from './account/AccountContent';
+import AccountCreate from './account/AccountCreate';
+import Accounts from './account/Accounts';
 import {
   loadClients,
   loadInstanceLatestStatus,
   setManagementClient,
 } from './actions';
-import { useDispatch, useSelector } from 'react-redux';
-import AccountCreate from './account/AccountCreate';
-import Accounts from './account/Accounts';
-import AccountContent from './account/AccountContent';
-import type { AppState } from '../types/state';
 import DataBrowser from './databrowser/DataBrowser';
+import BucketCreate from './databrowser/buckets/BucketCreate';
 import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
-import Loader from './ui-elements/Loader';
 import LocationEditor from './locations/LocationEditor';
-import NoMatch from './NoMatch';
-import ManagementProvider from './ManagementProvider';
-import DataServiceRoleProvider, {
-  useCurrentAccount,
-} from './DataServiceRoleProvider';
-import BucketCreate from './databrowser/buckets/BucketCreate';
-import makeMgtClient from '../js/managementClient';
-import { ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
-import { Warning } from './ui-elements/Warning';
-import { AppContainer } from '@scality/core-ui';
 import { Locations } from './locations/Locations';
+import { EmptyStateContainer } from './ui-elements/Container';
+import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
+import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
+import { Warning } from './ui-elements/Warning';
 import { useAuthGroups } from './utils/hooks';
-import { useTheme } from 'styled-components';
-import Configuration from './ui-elements/Veeam/VeeamConfiguration';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -182,7 +181,7 @@ function PrivateRoutes() {
       <Route exact path="/create-dataservice" component={EndpointCreate} />
       <Route exact path="/dataservices" component={Endpoints} />
       <Route exact path="/locations" component={Locations} />
-      <Route path="/veeam/configuration" component={Configuration} />
+      <Route path="/veeam/configuration" component={VeeamSteppers} />
       <Route path="*" component={NoMatch} />
     </Switch>
   );

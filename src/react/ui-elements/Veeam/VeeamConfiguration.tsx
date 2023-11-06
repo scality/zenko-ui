@@ -1,13 +1,12 @@
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Form, FormGroup, FormSection, Stack, Toggle } from '@scality/core-ui';
+import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import VeeamTable from './VeeamTable';
-
-const VEEAMVERSION11 = 'Veeam 11';
-const VEEAMVERSION12 = 'Veeam 12';
+import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
+import { VEEAMVERSION11, VEEAMVERSION12 } from './VeeamConstants';
 
 const schema = Joi.object({
   name: Joi.string().required(),
@@ -56,11 +55,7 @@ const Configuration = () => {
     //TODO: Create account
   };
   const formRef = useRef(null);
-  const [openVeeamTable, setOpenVeeamTable] = useState(false);
-
-  if (openVeeamTable) {
-    return <VeeamTable />;
-  }
+  const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
 
   return (
     <Form
@@ -86,7 +81,7 @@ const Configuration = () => {
             label="Continue"
             disabled={!isValid}
             onClick={() => {
-              setOpenVeeamTable(true);
+              next({});
             }}
           />
         </Stack>
@@ -116,10 +111,10 @@ const Configuration = () => {
               }}
             ></Controller>
           }
-        ></FormGroup>
+        />
         <FormGroup
           id="name"
-          label="Repository name"
+          label="Bucket name"
           direction="vertical"
           required
           labelHelpTooltip="TODO"
@@ -129,16 +124,16 @@ const Configuration = () => {
               id="name"
               type="text"
               autoComplete="off"
-              placeholder="Veeam-repository name"
+              placeholder="Veeam bucket name"
               {...register('name')}
             />
           }
-        ></FormGroup>
+        />
         <FormGroup
           id="enableImmutableBackup"
           label="Immutable backup"
           direction="vertical"
-          help="Enables permanent, unchangeable backups of objects in bucket."
+          help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
           helpErrorPosition="bottom"
           labelHelpTooltip="TODO"
           content={
@@ -158,13 +153,14 @@ const Configuration = () => {
               }}
             ></Controller>
           }
-        ></FormGroup>
+        />
         {isVeeam12 ? (
           <FormGroup
             id="capacity"
-            label="Repository capacity"
+            label="Max repository capacity"
             direction="vertical"
             error={errors.capacity?.message ?? ''}
+            help="The recommended value is 80% of the platform's total capacity."
             helpErrorPosition="bottom"
             labelHelpTooltip="TODO"
             content={

@@ -1,4 +1,5 @@
-import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
+import { Form, Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
+import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import {
   Column,
   Table,
@@ -6,21 +7,20 @@ import {
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
+import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { useMockData } from './useMockData';
 
-export const CustomModal = styled(Modal)`
-  background-color: ${(props) => props.theme.backgroundLevel1};
-`;
+type VeeamTableProps = Record<string, never>;
 
-export default function VeeamTable() {
+export default function VeeamTable(_: VeeamTableProps) {
   const [id, setId] = useState<number>(0);
-  const [open, setOpen] = useState<boolean>(true);
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
 
   const theme = useTheme();
   const history = useHistory();
   const { data } = useMockData({ id, setId });
+  const { next } = useStepper(VeeamStepsIndexes.Table, VEEAM_STEPS);
 
   const columns: Column<{
     action: string;
@@ -74,7 +74,7 @@ export default function VeeamTable() {
 
   if (confirmCancel) {
     return (
-      <CustomModal
+      <Modal
         isOpen={confirmCancel}
         footer={
           <Wrap>
@@ -84,13 +84,12 @@ export default function VeeamTable() {
                 variant="danger"
                 onClick={() => {
                   setConfirmCancel(false);
-                  setOpen(false);
                   history.push('/');
                 }}
                 label="Cancel"
               />
               <Button
-                variant="primary"
+                variant="secondary"
                 onClick={() => {
                   setConfirmCancel(false);
                 }}
@@ -102,39 +101,38 @@ export default function VeeamTable() {
         title="Confirmation"
       >
         Are you sure you want to cancel ARTESCA Configuration for Veeam?
-      </CustomModal>
+      </Modal>
     );
   }
 
   return (
-    <CustomModal
-      isOpen={open}
-      title={<Text>Configure ARTESCA for Veeam</Text>}
-      footer={
-        <Wrap>
-          <p></p>
-          <Stack>
-            <Button
-              disabled={!isCancellable}
-              variant="outline"
-              label={'Cancel'}
-              onClick={() => {
-                setConfirmCancel(true);
-              }}
-            />
-            <Button
-              disabled={!isContinue}
-              variant="primary"
-              label={'Continue'}
-              onClick={() => {
-                setOpen(false);
-              }}
-            />
-          </Stack>
-        </Wrap>
+    <Form
+      layout={{
+        title: 'Configure ARTESCA for Veeam',
+        kind: 'page',
+      }}
+      rightActions={
+        <Stack gap="r16">
+          <Button
+            disabled={!isCancellable}
+            variant="outline"
+            label={'Cancel'}
+            onClick={() => {
+              setConfirmCancel(true);
+            }}
+          />
+          <Button
+            disabled={!isContinue}
+            variant="primary"
+            label={'Continue'}
+            onClick={() => {
+              next({});
+            }}
+          />
+        </Stack>
       }
     >
-      <div style={{ height: '25rem', width: '50rem' }}>
+      <div style={{ height: '25rem', width: '40rem' }}>
         <Table columns={columns} data={data}>
           <Table.SingleSelectableContent
             rowHeight="h32"
@@ -146,6 +144,6 @@ export default function VeeamTable() {
           ></Table.SingleSelectableContent>
         </Table>
       </div>
-    </CustomModal>
+    </Form>
   );
 }
