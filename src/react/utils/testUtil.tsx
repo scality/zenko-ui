@@ -7,7 +7,7 @@ import { mount, ReactWrapper } from 'enzyme';
 import thunk from 'redux-thunk';
 import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider, setLogger } from 'react-query';
 import { Route, Router } from 'react-router-dom';
 
 import { fireEvent, render } from '@testing-library/react';
@@ -142,6 +142,14 @@ export const queryClient = new QueryClient({
       retry: false,
     },
   },
+});
+
+//Note: React Query version 4 setLogger function is removed.
+setLogger({
+  log: console.log,
+  warn: console.warn,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  error: () => {},
 });
 
 export const zenkoUITestConfig = {

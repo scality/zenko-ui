@@ -17,6 +17,7 @@ import {
   BucketDefaultRetentionPromiseResult,
   BucketLatestUsedCapacityPromiseResult,
   BucketLocationConstraintPromiseResult,
+  BucketTaggingPromiseResult,
   BucketVersionningPromiseResult,
   BucketsPromiseResult,
 } from '../entities/bucket';
@@ -89,6 +90,12 @@ export const queries = {
     ],
     queryFn: () => metricsAdapter.listBucketsLatestUsedCapacity(buckets),
     enabled: !!buckets.length,
+    ...noRefetchOptions,
+  }),
+  getBucketTagging: (s3Client: S3, bucketName: string) => ({
+    queryKey: ['bucketTagging', getS3ClientHash(s3Client), bucketName],
+    queryFn: () => s3Client.getBucketTagging({ Bucket: bucketName }).promise(),
+    enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
   }),
 };
@@ -505,6 +512,43 @@ export const useBucketLatestUsedCapacity = ({
     usedCapacity: {
       status: 'success',
       value: data?.[bucketName],
+    },
+  };
+};
+
+export const useBucketTagging = ({
+  bucketName,
+}: {
+  bucketName: string;
+}): BucketTaggingPromiseResult => {
+  const s3Client = useS3Client();
+  const { data, status } = useQuery({
+    ...queries.getBucketTagging(s3Client, bucketName),
+  });
+
+  if (status === 'loading' || status === 'idle') {
+    return {
+      tags: {
+        status: 'loading',
+      },
+    };
+  }
+  if (status === 'error') {
+    return {
+      tags: {
+        status: 'error',
+        title: 'An error occurred while fetching the tags',
+        reason: 'Internal Server Error',
+      },
+    };
+  }
+  return {
+    tags: {
+      status: 'success',
+      value: data?.TagSet?.reduce((acc, tag) => {
+        acc[tag.Key] = tag.Value;
+        return acc;
+      }, {} as Record<string, string>),
     },
   };
 };

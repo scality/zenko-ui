@@ -1,4 +1,3 @@
-import * as T from '../../../../ui-elements/TableKeyValue2';
 import * as actions from '../../../../actions/s3bucket';
 import {
   bucketInfoResponseNoVersioning,
@@ -9,17 +8,18 @@ import {
   bucketInfoResponseObjectLockDefaultRetention,
 } from '../../../../../js/mock/S3Client';
 import Overview from '../Overview';
-import { Toggle } from '@scality/core-ui';
+import { NewWrapper, zenkoUITestConfig } from '../../../../utils/testUtil';
 import {
-  reduxMount,
-  reduxRender,
-  zenkoUITestConfig,
-} from '../../../../utils/testUtil';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import Immutable from 'immutable';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouterMatch } from '../../../../utils/testUtil';
-import { debug } from 'jest-preview';
+
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
   LocationConstraint: '',
@@ -198,6 +198,11 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../../../js/mock/managementClientMSWHandlers';
+import {
+  mockBucketOperations,
+  mockGetBucketTagging,
+  mockGetBucketTaggingError,
+} from '../../../../../js/mock/S3ClientMSWHandlers';
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
 const TEST_ACCOUNT =
@@ -235,12 +240,28 @@ const server = setupServer(
     zenkoUITestConfig.managementEndpoint,
     INSTANCE_ID,
   ),
+  mockBucketOperations(),
 );
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
 });
 afterAll(() => server.close());
 afterEach(() => server.resetHandlers());
+
+const selectors = {
+  editDefaultRetentionButton: () =>
+    screen.getByRole('button', {
+      name: /edit default retention/i,
+    }),
+  bucketTaggingErrorToastCloseButton: () =>
+    screen.getByRole('button', {
+      name: /close/i,
+    }),
+  bucketTaggingErrorToast: () =>
+    screen.getByText(
+      /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
+    ),
+};
 
 describe('Overview', () => {
   it('should call the updateBucketVersioning function when clicking on the toggle versioning button', async () => {
@@ -271,6 +292,45 @@ describe('Overview', () => {
 
     await waitFor(() => {
       expect(useUpdateBucketVersioningMock).toHaveBeenCalledWith(mockResponse);
+    });
+  });
+
+  it('should display the Veeam use-case and disable the edition of default retention', async () => {
+    //Setup
+    server.use(mockGetBucketTagging(bucketName));
+    //Exersise
+    render(<Overview bucket={{ name: bucketName }} />, {
+      wrapper: NewWrapper(),
+    });
+    //Verify
+    await waitFor(() => {
+      expect(
+        screen.getByText(new RegExp(`Backup - Veeam 12`, 'i')),
+      ).toBeInTheDocument();
+    });
+    expect(selectors.editDefaultRetentionButton()).toBeDisabled();
+  });
+
+  it('should show error toast when loading bucket tagging failed', async () => {
+    //Setup
+    server.use(mockGetBucketTaggingError(bucketName));
+    //Exersise
+    render(<Overview bucket={{ name: bucketName }} />, {
+      wrapper: NewWrapper(),
+    });
+    //Verify
+    await waitFor(() => {
+      expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
+    });
+    //Exersise
+    userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
+    //Verify
+    await waitFor(() => {
+      expect(
+        screen.queryByText(
+          /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
+        ),
+      ).toBe(null);
     });
   });
 });

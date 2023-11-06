@@ -27,3 +27,7 @@ export type Bucket = BucketLocationConstraintPromiseResult & {
 export type BucketsPromiseResult = {
   buckets: PromiseResult<Bucket[]>;
 };
+
+export type BucketTaggingPromiseResult = {
+  tags: PromiseResult<Record<string, string>>;
+};

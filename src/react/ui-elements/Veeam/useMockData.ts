@@ -7,34 +7,38 @@ type MockTableData = {
 
 const mockTableData = [
   {
+    step: 1,
     action: 'Create an Account',
     status: undefined,
   },
   {
+    step: 2,
     action: 'Create an User',
     status: undefined,
   },
+  { step: 3, action: 'Create a Bucket', status: undefined },
   {
-    action: 'Create a Bucket',
-    status: undefined,
-  },
-  {
+    step: 4,
     action: 'Create the Veeam policy',
     status: undefined,
   },
   {
+    step: 5,
     action: 'Attach the Veeam policy to the User',
     status: undefined,
   },
   {
+    step: 6,
     action: 'Tag bucket as Veeam Bucket',
     status: undefined,
   },
   {
+    step: 7,
     action: 'Enable Smart Object Storage support',
     status: undefined,
   },
   {
+    step: 8,
     action: 'Set Smart Object Storage capacity',
     status: undefined,
   },

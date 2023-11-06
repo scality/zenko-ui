@@ -1,4 +1,10 @@
-import { ConstrainedText, Icon, Toggle, Tooltip } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  Icon,
+  Toast,
+  Toggle,
+  Tooltip,
+} from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +16,10 @@ import type { BucketInfo } from '../../../../types/s3';
 import type { AppState } from '../../../../types/state';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
-import { useChangeBucketVersionning } from '../../../next-architecture/domain/business/buckets';
+import {
+  useBucketTagging,
+  useChangeBucketVersionning,
+} from '../../../next-architecture/domain/business/buckets';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
@@ -26,6 +35,11 @@ import {
 import { useWorkflows } from '../../../workflow/Workflows';
 import { useEffect, useState } from 'react';
 import { Button } from '@scality/core-ui/dist/next';
+import {
+  BUCKET_TAG_USECASE,
+  VEEAMVERSION11,
+  VEEAMVERSION12,
+} from '../../../ui-elements/Veeam/VeeamConstants';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -88,6 +102,17 @@ function Overview({ bucket, ingestionStates }: Props) {
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
+  const { tags } = useBucketTagging({ bucketName: bucket.name });
+  const VEEAM_FEATURE_FLAG_ENABLED = features.includes('Veeam');
+  const isVeeamBucket =
+    tags.status === 'success' &&
+    (tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION11 ||
+      tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION12) &&
+    VEEAM_FEATURE_FLAG_ENABLED;
+
+  const isVeeam12 =
+    isVeeamBucket && tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION12;
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -135,6 +160,14 @@ function Overview({ bucket, ingestionStates }: Props) {
             ? workflowAttachedError(attachedWorkflowsCount, bucket.name)
             : null
         }
+      />
+      <Toast
+        message="Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page."
+        open={tags.status === 'error' && bucketTaggingToast}
+        status="error"
+        onClose={() => {
+          setBucketTaggingToast(false);
+        }}
       />
       <ButtonContainer>
         <EmptyBucket bucketName={bucket.name} />
@@ -208,33 +241,6 @@ function Overview({ bucket, ingestionStates }: Props) {
                   )}
                 </T.Value>
               </T.Row>
-              {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                'Enabled' && (
-                <T.Row>
-                  <T.Key> Default Object-lock Retention </T.Key>
-                  <T.GroupValues>
-                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
-                    <Button
-                      id="edit-retention-btn"
-                      variant="outline"
-                      label="Edit"
-                      icon={<Icon name="Pencil" />}
-                      onClick={() => {
-                        history.push(
-                          `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
-                        );
-                      }}
-                    />
-                  </T.GroupValues>
-                </T.Row>
-              )}
-              {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                'Disabled' && (
-                <T.Row>
-                  <T.Key>Object-lock</T.Key>
-                  <T.Value>Disabled</T.Value>
-                </T.Row>
-              )}
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
@@ -253,6 +259,71 @@ function Overview({ bucket, ingestionStates }: Props) {
                     {ingestionValue}
                     {isIngestion && <HelpAsyncNotification />}
                   </T.Value>
+                </T.Row>
+              )}
+            </T.GroupContent>
+          </T.Group>
+          {isVeeamBucket && (
+            <T.Group>
+              <T.GroupName> Use-case </T.GroupName>
+              <T.Row>
+                <T.Key> Use-case </T.Key>
+                <T.Value> Backup - {tags.value?.[BUCKET_TAG_USECASE]}</T.Value>
+              </T.Row>
+              {isVeeam12 && (
+                <T.Row>
+                  <T.Key> Max repository Capacity </T.Key>
+                  <T.GroupValues>
+                    {/* TODO */}
+                    <>5TB</>
+                    <Button
+                      variant="outline"
+                      label="Edit"
+                      aria-label="Edit max capacity"
+                      icon={<Icon name="Pencil" />}
+                      onClick={() => {
+                        //TODO: open the modal to modify the capacity
+                      }}
+                    />
+                  </T.GroupValues>
+                </T.Row>
+              )}
+            </T.Group>
+          )}
+          <T.Group>
+            <T.GroupName> Data protection </T.GroupName>
+            <T.GroupContent>
+              {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
+                'Enabled' && (
+                <T.Row>
+                  <T.Key> Default Object-lock Retention </T.Key>
+                  <T.GroupValues>
+                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
+                    <Button
+                      id="edit-retention-btn"
+                      variant="outline"
+                      label="Edit"
+                      aria-label="Edit default retention"
+                      icon={<Icon name="Pencil" />}
+                      onClick={() => {
+                        history.push(
+                          `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
+                        );
+                      }}
+                      disabled={isVeeamBucket}
+                      tooltip={{
+                        overlay:
+                          'Edition is disabled as it is managed by Veeam.',
+                      }}
+                    />
+                  </T.GroupValues>
+                </T.Row>
+              )}
+              {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
+                'Disabled' && (
+                <T.Row>
+                  <T.Key>Object-lock</T.Key>
+                  <T.Value>Disabled</T.Value>
                 </T.Row>
               )}
             </T.GroupContent>

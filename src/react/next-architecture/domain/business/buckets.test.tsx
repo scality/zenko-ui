@@ -2,10 +2,15 @@ import {
   DEFAULT_LOCATION,
   useBucketLatestUsedCapacity,
   useBucketLocationConstraint,
+  useBucketTagging,
   useListBucketsForCurrentAccount,
 } from './buckets';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
-import { RenderResult, WaitFor } from '@testing-library/react-hooks';
+import {
+  RenderResult,
+  WaitFor,
+  renderHook,
+} from '@testing-library/react-hooks';
 import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapter';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -22,11 +27,18 @@ import {
   RenderAdditionalHook,
 } from '../../../utils/testMultipleHooks';
 import { _AuthContext } from '../../ui/AuthProvider';
-import { Wrapper, zenkoUITestConfig } from '../../../utils/testUtil';
+import {
+  NewWrapper,
+  Wrapper,
+  zenkoUITestConfig,
+} from '../../../utils/testUtil';
 import {
   mockBucketListing,
   mockBucketOperations,
+  mockGetBucketTagging,
+  mockGetBucketTaggingError,
 } from '../../../../js/mock/S3ClientMSWHandlers';
+import { BUCKET_TAG_USECASE } from '../../../ui-elements/Veeam/VeeamConstants';
 
 jest.setTimeout(30000);
 
@@ -883,6 +895,48 @@ describe('Buckets domain', () => {
         ...EXPECTED_METRICS_WRAPPED,
         [thousandAnd2Buckets[metricsPageSize].Name]: {
           status: 'loading',
+        },
+      });
+    });
+  });
+
+  describe('useBucketTagging', () => {
+    it('should return the tags for a specific bucket', async () => {
+      //Setup
+      const BUCKET_NAME = 'bucket-name';
+      server.use(mockGetBucketTagging(BUCKET_NAME));
+      const { waitFor, result } = renderHook(
+        () => useBucketTagging({ bucketName: BUCKET_NAME }),
+        { wrapper: NewWrapper() },
+      );
+      //Exercise
+      await waitFor(() => result.current.tags.status === 'success');
+      //Verify
+      expect(result.current).toEqual({
+        tags: {
+          status: 'success',
+          value: {
+            [BUCKET_TAG_USECASE]: 'Veeam 12',
+          },
+        },
+      });
+    });
+    it('should return an error if the tags fetching failed', async () => {
+      //Setup
+      const BUCKET_NAME = 'bucket-name';
+      server.use(mockGetBucketTaggingError(BUCKET_NAME));
+      const { waitFor, result } = renderHook(
+        () => useBucketTagging({ bucketName: BUCKET_NAME }),
+        { wrapper: NewWrapper() },
+      );
+      //Exercise
+      await waitFor(() => result.current.tags.status === 'error');
+      //Verify
+      expect(result.current).toEqual({
+        tags: {
+          status: 'error',
+          title: 'An error occurred while fetching the tags',
+          reason: 'Internal Server Error',
         },
       });
     });

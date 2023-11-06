@@ -36,7 +36,7 @@ export const initialAuthState: AuthState = {
   stsClient: new MockSTSClient(),
   managementClient: new MockManagementClient(),
   config: {
-    features: [],
+    features: ['Veeam'],
   },
   oidcLogout: null,
 };

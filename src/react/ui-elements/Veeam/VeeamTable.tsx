@@ -24,8 +24,16 @@ export default function VeeamTable(_: VeeamTableProps) {
 
   const columns: Column<{
     action: string;
+    step: number;
     status?: string;
   }>[] = [
+    {
+      Header: 'Step',
+      accessor: 'step',
+      Cell: ({ value }) => {
+        return <Text>{value}</Text>;
+      },
+    },
     {
       Header: 'Action',
       accessor: 'action',

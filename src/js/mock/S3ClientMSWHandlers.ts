@@ -118,6 +118,43 @@ export function mockBucketOperations(
         );
       }
 
+      if (req.url.searchParams.has('cors')) {
+        return res(
+          ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+          </CORSConfiguration>
+        `),
+        );
+      }
+
+      if (req.url.searchParams.has('acl')) {
+        return res(
+          ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <AccessControlPolicy xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+            <Owner>
+              <ID>1234</ID>
+              <DisplayName>test</DisplayName>
+            </Owner>
+            <AccessControlList>
+            </AccessControlList>
+          </AccessControlPolicy>
+        `),
+        );
+      }
+
+      if (req.url.searchParams.has('object-lock')) {
+        return res(
+          ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <ObjectLockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+            <ObjectLockEnabled>Enabled</ObjectLockEnabled>
+          </ObjectLockConfiguration>
+        `),
+        );
+      }
+
       return res(ctx.status(404));
     },
   );
@@ -175,6 +212,36 @@ export const mockObjectEmpty = (bucketName: string) => {
       </ListVersionsResult>
       `),
       );
+    },
+  );
+};
+
+export const mockGetBucketTagging = (bucketName: string) => {
+  return rest.get(
+    `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+    (req, res, ctx) => {
+      if (req.url.searchParams.has('tagging')) {
+        return res(
+          ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Tagging>
+            <TagSet>
+              <Tag><Key>X-Scality-Usecase</Key><Value>Veeam 12</Value></Tag>
+            </TagSet>
+          </Tagging>`),
+        );
+      }
+    },
+  );
+};
+
+export const mockGetBucketTaggingError = (bucketName: string) => {
+  return rest.get(
+    `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+    (req, res, ctx) => {
+      if (req.url.searchParams.has('tagging')) {
+        return res(ctx.status(500));
+      }
     },
   );
 };
