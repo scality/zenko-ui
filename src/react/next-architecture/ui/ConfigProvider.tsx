@@ -42,7 +42,7 @@ export function useGrafanaURL() {
   const instances = useDeployedMetalk8sInstances();
 
   if (instances.length) {
-    const baseUrl = instances[0].url;
+    const baseUrl = new URL(instances[0].url).origin;
     const runTimeConfig = retrieveConfiguration({
       configType: 'run',
       name: instances[0].name,
