@@ -118,7 +118,7 @@
     "styled-system": "^5.1.5",
     "url-loader": "^3.0.0",
     "util": "^0.12.5",
-    "vega": "^5.7.3",
+    "vega": "^5.26.0",
     "vega-embed": "^6.0.0",
     "vega-lite": "^4.0.0-beta.10",
     "vega-tooltip": "^0.28.0",
