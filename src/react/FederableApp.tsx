@@ -15,14 +15,16 @@ import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvide
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
 
 import zenkoUIReducer from './reducers';
+import { useMemo } from 'react';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const InternalRouter = ({ children }: { children: React.ReactNode }) => {
   const config = useConfig();
-  const store = createStore(
-    zenkoUIReducer(),
-    composeEnhancers(applyMiddleware(thunk)),
+  const store = useMemo(
+    () =>
+      createStore(zenkoUIReducer(), composeEnhancers(applyMiddleware(thunk))),
+    [],
   );
 
   return (

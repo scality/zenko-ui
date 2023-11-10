@@ -23,7 +23,7 @@ import type { ManagementClient as ManagementClientInterface } from './management
 import type { STSClient } from './sts';
 import type { Workflows } from './workflow';
 export type AuthState = {
-  readonly isConfigLoaded: string;
+  readonly isConfigLoaded: boolean;
   readonly isClientsLoaded: boolean;
   readonly configFailure: boolean;
   readonly managementClient: ManagementClientInterface;
