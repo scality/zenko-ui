@@ -1,21 +1,30 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Configuration from './VeeamConfiguration';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import Configuration from './VeeamConfiguration';
+import { Stepper } from '@scality/core-ui';
 
 describe('Veeam Configuration UI', () => {
   const selectors = {
-    repositoryInput: () => screen.getByLabelText(/Repository name/i),
+    repositoryInput: () => screen.getByLabelText(/bucket name/i),
     continueButton: () => screen.getByRole('button', { name: /Continue/i }),
     skipButton: () =>
       screen.getByRole('button', { name: /Skip Use case configuration/i }),
     title: () => screen.getByText(/Prepare ARTESCA for Veeam/i),
   };
+
   it('should be able to set the Veeam configuration', async () => {
     //S
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <Configuration />
+        <Stepper
+          steps={[
+            {
+              label: 'Configuration',
+              Component: Configuration,
+            },
+          ]}
+        />
       </QueryClientProvider>,
     );
     //V

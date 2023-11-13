@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import VeeamTable from './VeeamTable';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { mockOffsetSize } from '../../utils/testUtil';
+import { Stepper } from '@scality/core-ui';
 
 beforeAll(() => {
   mockOffsetSize(500, 500);
@@ -16,7 +17,14 @@ describe('VeeamTable', () => {
   it('should render the Veeam table', async () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <VeeamTable />
+        <Stepper
+          steps={[
+            {
+              label: 'Repository Table',
+              Component: VeeamTable,
+            },
+          ]}
+        />
       </QueryClientProvider>,
     );
 
