@@ -111,6 +111,7 @@ export default function VeeamTable(_: VeeamTableProps) {
         title: 'Configure ARTESCA for Veeam',
         kind: 'page',
       }}
+      requireMode="all"
       rightActions={
         <Stack gap="r16">
           <Button

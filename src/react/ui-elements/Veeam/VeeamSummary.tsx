@@ -19,6 +19,7 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
         title: 'Veeam Repository preparation summary',
         kind: 'page',
       }}
+      requireMode="all"
       rightActions={
         <Stack gap="r16">
           <p></p>
