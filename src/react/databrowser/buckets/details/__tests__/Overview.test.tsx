@@ -298,7 +298,7 @@ describe('Overview', () => {
   it('should display the Veeam use-case and disable the edition of default retention', async () => {
     //Setup
     server.use(mockGetBucketTagging(bucketName));
-    //Exersise
+    //Exercise
     render(<Overview bucket={{ name: bucketName }} />, {
       wrapper: NewWrapper(),
     });
@@ -314,7 +314,7 @@ describe('Overview', () => {
   it('should show error toast when loading bucket tagging failed', async () => {
     //Setup
     server.use(mockGetBucketTaggingError(bucketName));
-    //Exersise
+    //Exercise
     render(<Overview bucket={{ name: bucketName }} />, {
       wrapper: NewWrapper(),
     });
@@ -322,7 +322,7 @@ describe('Overview', () => {
     await waitFor(() => {
       expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
     });
-    //Exersise
+    //Exercise
     userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
     //Verify
     await waitFor(() => {

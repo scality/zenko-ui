@@ -25,7 +25,7 @@ import ZenkoClient from '../../js/ZenkoClient';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
 import { S3ClientProvider } from '../next-architecture/ui/S3ClientProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
-import { XDM_FEATURE } from '../../js/config';
+import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
 import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
@@ -108,7 +108,9 @@ export const realStoreWithInitState = (state) => {
     ...(state || {}),
   };
   tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;
-  tmpState.auth.config.features = ['Veeam'];
+  if (!state?.auth?.config?.features) {
+    tmpState.auth.config.features = [VEEAM_FEATURE];
+  }
   const store = createStore(
     zenkoUIReducer(),
     tmpState,

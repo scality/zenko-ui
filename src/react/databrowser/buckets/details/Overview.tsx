@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
-import { XDM_FEATURE } from '../../../../js/config';
+import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
 import type { BucketInfo } from '../../../../types/s3';
 import type { AppState } from '../../../../types/state';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
@@ -104,7 +104,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
   const { tags } = useBucketTagging({ bucketName: bucket.name });
-  const VEEAM_FEATURE_FLAG_ENABLED = features.includes('Veeam');
+  const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
   const isVeeamBucket =
     tags.status === 'success' &&
     (tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION11 ||
