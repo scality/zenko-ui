@@ -254,11 +254,11 @@ const selectors = {
       name: /edit default retention/i,
     }),
   bucketTaggingErrorToastCloseButton: () =>
-    screen.getByRole('button', {
+    within(screen.getByRole('status')).getByRole('button', {
       name: /close/i,
     }),
   bucketTaggingErrorToast: () =>
-    screen.getByText(
+    within(screen.getByRole('status')).getByText(
       /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
     ),
 };

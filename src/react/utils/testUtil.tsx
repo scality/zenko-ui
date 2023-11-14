@@ -108,6 +108,7 @@ export const realStoreWithInitState = (state) => {
     ...(state || {}),
   };
   tmpState.auth.managementClient = TEST_MANAGEMENT_CLIENT;
+  tmpState.auth.config.features = ['Veeam'];
   const store = createStore(
     zenkoUIReducer(),
     tmpState,
