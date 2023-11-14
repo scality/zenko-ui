@@ -43,7 +43,7 @@
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "compression-webpack-plugin": "^6.0.3",
-    "css-loader": "^3.4.2",
+    "css-loader": "^6.8.1",
     "enzyme": "^3.11.0",
     "eslint": "^8.10.0",
     "fs-extra": "^11.1.1",
