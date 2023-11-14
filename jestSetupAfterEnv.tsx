@@ -14,7 +14,7 @@ jest.mock('./src/react/next-architecture/ui/AuthProvider', () => {
   return {
     ...jest.requireActual('./src/react/next-architecture/ui/AuthProvider'),
     __esModule: true,
-    useAccessToken: jest.fn(() => 'tototo'),
+    useAccessToken: jest.fn(() => 'Token'),
     useInstanceId: jest.fn(() => INSTANCE_ID),
     useAuth: jest.fn(() => {
       return {

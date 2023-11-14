@@ -5,7 +5,7 @@ import * as s3object from '../../../actions/s3object';
 import * as hooks from '../../../next-architecture/domain/business/buckets';
 import * as queryHooks from '../../../utils/hooks';
 import { checkBox, reduxMount } from '../../../utils/testUtil';
-import ObjectList, { VEEAM_XML_PREFIX } from '../ObjectList';
+import ObjectList from '../ObjectList';
 import {
   FIRST_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
@@ -15,6 +15,7 @@ import { TEST_API_BASE_URL, reduxRender } from '../../../utils/testUtil';
 import { screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { VEEAM_XML_PREFIX } from '../../../ui-elements/Veeam/VeeamConstants';
 
 const server = setupServer(
   rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {

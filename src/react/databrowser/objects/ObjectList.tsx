@@ -18,6 +18,7 @@ import { useQueryParams } from '../../utils/hooks';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Box } from '@scality/core-ui/dist/next';
 import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
+import { VEEAM_XML_PREFIX } from '../../ui-elements/Veeam/VeeamConstants';
 type Props = {
   objects: List<ObjectEntity>;
   bucketName: string;
@@ -25,8 +26,6 @@ type Props = {
   toggled: List<ObjectEntity>;
   listType: ListObjectsType;
 };
-
-export const VEEAM_XML_PREFIX = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c';
 
 export default function ObjectList({
   objects,
