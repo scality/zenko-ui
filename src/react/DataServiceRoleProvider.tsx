@@ -9,6 +9,9 @@ import {
   useS3ConfigFromAssumeRoleResult,
 } from './next-architecture/ui/S3ClientProvider';
 import Loader from './ui-elements/Loader';
+import { useAuth } from './next-architecture/ui/AuthProvider';
+import { PromiseResult } from 'aws-sdk/lib/request';
+import { AWSError, STS } from 'aws-sdk';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -74,9 +77,16 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   const accountName = match?.params.accountName;
 
   const { getQuery } = useAssumeRoleQuery();
+  const [assumedRole, setAssumedRole] =
+    useState<PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>>();
   const assumeRoleMutation = useMutation({
     mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
+    onSuccess: (data) => {
+      setAssumedRole(data);
+    },
   });
+
+  const { userData } = useAuth();
 
   // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {
@@ -103,7 +113,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, JSON.stringify(accounts)]);
+  }, [role.roleArn, JSON.stringify(accounts), userData?.token]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 
@@ -115,12 +125,12 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     }
   };
 
-  if (role.roleArn && !assumeRoleMutation.data) {
+  if (role.roleArn && !assumedRole) {
     return <Loader>Loading...</Loader>;
   }
 
   return (
-    <S3ClientProvider configuration={getS3Config(assumeRoleMutation.data)}>
+    <S3ClientProvider configuration={getS3Config(assumedRole)}>
       <_DataServiceRoleContext.Provider
         value={{
           role,
