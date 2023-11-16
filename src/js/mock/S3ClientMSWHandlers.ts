@@ -245,3 +245,19 @@ export const mockGetBucketTaggingError = (bucketName: string) => {
     },
   );
 };
+
+export const mockGetBucketTaggingNoSuchTagSet = (bucketName: string) => {
+  return rest.get(
+    `${zenkoUITestConfig.zenkoEndpoint}/${bucketName}`,
+    (req, res, ctx) => {
+      if (req.url.searchParams.has('tagging')) {
+        return res(
+          ctx.status(404),
+          ctx.xml(
+            `<?xml version="1.0" encoding="UTF-8"?><Error><Code>NoSuchTagSet</Code><Message>The TagSet does not exist</Message><Resource></Resource><RequestId>339248ffc345a202d25e</RequestId></Error>`,
+          ),
+        );
+      }
+    },
+  );
+};

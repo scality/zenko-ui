@@ -37,6 +37,7 @@ import {
   mockBucketOperations,
   mockGetBucketTagging,
   mockGetBucketTaggingError,
+  mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../js/mock/S3ClientMSWHandlers';
 import { BUCKET_TAG_USECASE } from '../../../ui-elements/Veeam/VeeamConstants';
 
@@ -901,9 +902,9 @@ describe('Buckets domain', () => {
   });
 
   describe('useBucketTagging', () => {
+    const BUCKET_NAME = 'bucket-name';
     it('should return the tags for a specific bucket', async () => {
       //Setup
-      const BUCKET_NAME = 'bucket-name';
       server.use(mockGetBucketTagging(BUCKET_NAME));
       const { waitFor, result } = renderHook(
         () => useBucketTagging({ bucketName: BUCKET_NAME }),
@@ -923,7 +924,6 @@ describe('Buckets domain', () => {
     });
     it('should return an error if the tags fetching failed', async () => {
       //Setup
-      const BUCKET_NAME = 'bucket-name';
       server.use(mockGetBucketTaggingError(BUCKET_NAME));
       const { waitFor, result } = renderHook(
         () => useBucketTagging({ bucketName: BUCKET_NAME }),
@@ -937,6 +937,23 @@ describe('Buckets domain', () => {
           status: 'error',
           title: 'An error occurred while fetching the tags',
           reason: 'Internal Server Error',
+        },
+      });
+    });
+    it('shuold return success if NoSuchTagSet', async () => {
+      //Setup
+      server.use(mockGetBucketTaggingNoSuchTagSet(BUCKET_NAME));
+      const { waitFor, result } = renderHook(
+        () => useBucketTagging({ bucketName: BUCKET_NAME }),
+        { wrapper: NewWrapper() },
+      );
+      //Exercise
+      await waitFor(() => result.current.tags.status === 'success');
+      //Verify
+      expect(result.current).toEqual({
+        tags: {
+          status: 'success',
+          value: {},
         },
       });
     });

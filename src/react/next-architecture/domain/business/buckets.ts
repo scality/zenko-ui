@@ -522,7 +522,7 @@ export const useBucketTagging = ({
   bucketName: string;
 }): BucketTaggingPromiseResult => {
   const s3Client = useS3Client();
-  const { data, status } = useQuery({
+  const { data, status, error } = useQuery({
     ...queries.getBucketTagging(s3Client, bucketName),
   });
 
@@ -530,6 +530,14 @@ export const useBucketTagging = ({
     return {
       tags: {
         status: 'loading',
+      },
+    };
+  }
+  if (status === 'error' && error?.code === 'NoSuchTagSet') {
+    return {
+      tags: {
+        status: 'success',
+        value: {},
       },
     };
   }

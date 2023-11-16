@@ -202,6 +202,7 @@ import {
   mockBucketOperations,
   mockGetBucketTagging,
   mockGetBucketTaggingError,
+  mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../../js/mock/S3ClientMSWHandlers';
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
@@ -259,6 +260,10 @@ const selectors = {
     }),
   bucketTaggingErrorToast: () =>
     within(screen.getByRole('status')).getByText(
+      /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
+    ),
+  bucketTaggingErorToastQuery: () =>
+    screen.queryByText(
       /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
     ),
 };
@@ -326,11 +331,20 @@ describe('Overview', () => {
     userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
     //Verify
     await waitFor(() => {
-      expect(
-        screen.queryByText(
-          /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
-        ),
-      ).toBe(null);
+      expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
+    });
+  });
+
+  it('should not show error toast if tags are not found', async () => {
+    //Setup
+    server.use(mockGetBucketTaggingNoSuchTagSet(bucketName));
+    //Exercise
+    render(<Overview bucket={{ name: bucketName }} />, {
+      wrapper: NewWrapper(),
+    });
+    //Verify
+    await waitFor(() => {
+      expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
     });
   });
 });
