@@ -9,6 +9,7 @@ export type LocationInfo = {
   type: LocationV1.LocationTypeEnum;
   isTransient?: boolean;
   isCold?: boolean;
+  isBuiltin?: boolean;
   // This looks terrible
   // `type` should be link to `Locationv1Details`
   details: Locationv1Details;

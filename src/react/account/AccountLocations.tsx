@@ -11,18 +11,17 @@ import { Warning } from '../ui-elements/Warning';
 import { Icon, Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { Search } from '../ui-elements/Table';
-import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 
 export function AccountLocations() {
-  const locationsAdapter = useLocationAdapter();
   const metricsAdapter = useMetricsAdapter();
-  const accountsAdapter = useAccountsAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const { locations } = useListLocationsForCurrentAccount({
-    locationsAdapter,
     metricsAdapter,
-    accountsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
 
   const data = useMemo(() => {

@@ -232,7 +232,7 @@ describe('useListLocationsForCurrentAccount', () => {
           useListLocationsForCurrentAccount({
             locationsAdapter: locationsAdapter,
             metricsAdapter: metricsAdapter,
-            accountsAdapter: accountsAdapter,
+            accountsLocationsEndpointsAdapter: accountsAdapter,
           }),
         {
           wrapper: Wrapper,

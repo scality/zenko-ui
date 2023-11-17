@@ -34,6 +34,8 @@ import {
 import { useQueryClient } from 'react-query';
 import { queries } from '../next-architecture/domain/business/locations';
 import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
@@ -49,8 +51,6 @@ function LocationEditor() {
   const dispatch = useDispatch();
   const history = useHistory();
   const { locationName } = useParams<{ locationName: string }>();
-  const queryClient = useQueryClient();
-  const locationsAdapter = useLocationAdapter();
   const locationEditing = useSelector(
     (state: AppState) =>
       state.configuration.latest.locations[locationName || ''],
@@ -68,6 +68,10 @@ function LocationEditor() {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
+  const accountsLocationsAndEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { refetchAccountsLocationsEndpoints } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsAndEndpointsAdapter });
   const editingExisting = !!(locationEditing && locationEditing.objectId);
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
@@ -111,7 +115,7 @@ function LocationEditor() {
       };
     }
     dispatch(saveLocation(convertToLocation(submitLocation), history));
-    queryClient.resetQueries(queries.listLocations(locationsAdapter).queryKey);
+    refetchAccountsLocationsEndpoints();
   };
 
   const cancel = (e) => {

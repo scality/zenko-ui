@@ -5,10 +5,32 @@ import {
 import { AccountInfo } from '../../domain/entities/account';
 import { DEFAULT_METRICS_MESURED_ON } from '../metrics/MockedMetricsAdapter';
 import { IAccountsAdapter } from './IAccountsAdapter';
+import { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
 import { ILocationsAdapter } from './ILocationsAdapter';
 export class MockedAccountsLocationsAdapter
-  implements IAccountsAdapter, ILocationsAdapter
+  implements
+    IAccountsAdapter,
+    ILocationsAdapter,
+    IAccountsLocationsEndpointsAdapter
 {
+  listAccountsLocationsAndEndpoints = jest.fn().mockImplementation(async () => {
+    return {
+      accounts: await this.listAccounts(),
+      locations: await this.listLocations(),
+      endpoints: [
+        {
+          hostname: 's3.pod-choco.local',
+          isBuiltin: false,
+          locationName: 'us-east-1',
+        },
+        {
+          hostname: 'zenko-cloudserver-replicator',
+          isBuiltin: true,
+          locationName: 'us-east-1',
+        },
+      ],
+    };
+  });
   listLocations = jest.fn().mockImplementation(async () => {
     return [
       {

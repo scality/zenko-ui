@@ -29,6 +29,8 @@ import {
   useChangeBucketVersionning,
   useCreateBucket,
 } from '../../next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 
 const helpNonAsyncLocation =
   'Selected Storage Location does not support Async Metadata updates.';
@@ -88,25 +90,35 @@ function BucketCreate() {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: overlayStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
   const features = useSelector((state: AppState) => state.auth.config.features);
+  const watchedLocation = accountsLocationsAndEndpoints?.locations.find(
+    (l) => l.name === watchLocationName,
+  );
   const isAsyncNotificationReady = useMemo(
     () =>
       !!watchLocationName &&
-      !!locations &&
-      !!locations[watchLocationName] &&
-      isIngestLocation(locations[watchLocationName], capabilities),
-    [watchLocationName, locations, capabilities],
+      !!watchedLocation &&
+      isIngestLocation(watchedLocation, capabilities),
+    [watchLocationName, accountsLocationsAndEndpoints?.locations, capabilities],
   );
 
-  const isLocationAzureOrGcpSelected = (locationName: string) =>
-    locations?.[locationName]?.locationType === 'location-azure-v1' ||
-    locations?.[locationName]?.locationType === 'location-gcp-v1';
+  const isLocationAzureOrGcpSelected = (locationName: string) => {
+    const location = accountsLocationsAndEndpoints?.locations.find(
+      (l) => l.name === locationName,
+    );
+    return (
+      location?.type === 'location-azure-v1' ||
+      location?.type === 'location-gcp-v1'
+    );
+  };
 
   const isWatchedLocationAzureOrGCPSelected =
     isLocationAzureOrGcpSelected(watchLocationName);
@@ -323,16 +335,18 @@ function BucketCreate() {
                       value={locationName}
                       size="1"
                     >
-                      {locations &&
-                        Object.values(locations).map((location, i) => (
-                          <Select.Option
-                            key={i}
-                            value={location.name}
-                            disabled={location?.isCold}
-                          >
-                            {renderLocation(location)}
-                          </Select.Option>
-                        ))}
+                      {accountsLocationsAndEndpoints?.locations &&
+                        accountsLocationsAndEndpoints?.locations.map(
+                          (location, i) => (
+                            <Select.Option
+                              key={i}
+                              value={location.name}
+                              disabled={location?.isCold}
+                            >
+                              {renderLocation(location)}
+                            </Select.Option>
+                          ),
+                        )}
                     </Select>
                   );
                 }}

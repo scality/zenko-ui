@@ -6,7 +6,6 @@ import {
   useAuthGroups,
 } from '../../../utils/hooks';
 import { IAccessibleAccounts } from '../../adapters/accessible-accounts/IAccessibleAccounts';
-import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
   AccountLatestUsedCapacityPromiseResult,
@@ -16,6 +15,7 @@ import {
 } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { PromiseResult } from '../entities/promise';
+import { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
 
 // Pensieve API return an error with 400 if the number of requested accounts exceed 1000.
 const MAX_NUM_ACCOUNT_REQUEST = 1000;
@@ -27,9 +27,12 @@ const noRefetchOptions = {
 };
 
 export const queries = {
-  listAccounts: (accountsAdapter: IAccountsAdapter) => ({
-    queryKey: ['accounts'],
-    queryFn: () => accountsAdapter.listAccounts(),
+  listAccountsLocationAndEndpoints: (
+    accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter,
+  ) => ({
+    queryKey: ['configOverlay'],
+    queryFn: () =>
+      accountsLocationsEndpointsAdapter.listAccountsLocationsAndEndpoints(),
     ...noRefetchOptions,
   }),
   listAccountsMetrics: (
@@ -52,32 +55,55 @@ export const queries = {
   }),
 };
 
-export const useAccountCannonicalId = ({
-  accountsAdapter,
-  accountId,
+export const useAccountsLocationsAndEndpoints = ({
+  accountsLocationsEndpointsAdapter,
 }: {
-  accountsAdapter: IAccountsAdapter;
-  accountId: string;
-}): PromiseResult<string> => {
-  const { data: accountInfos, status: accountStatus } = useQuery(
-    queries.listAccounts(accountsAdapter),
+  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+}) => {
+  const {
+    data: accountsLocationsAndEndpoints,
+    refetch: refetchAccountsLocationsEndpoints,
+    ...result
+  } = useQuery(
+    queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter),
   );
 
-  if (accountStatus === 'loading' || accountStatus === 'idle') {
+  return {
+    accountsLocationsAndEndpoints,
+    refetchAccountsLocationsEndpoints,
+    ...result,
+  };
+};
+
+export const useAccountCannonicalId = ({
+  accountsLocationsEndpointsAdapter,
+  accountId,
+}: {
+  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
+  accountId: string;
+}): PromiseResult<string> => {
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+
+  if (status === 'loading' || status === 'idle') {
     return {
       status: 'loading',
     };
   }
 
-  if (accountStatus === 'error') {
+  if (status === 'error') {
     return {
-      status: accountStatus,
+      status: status,
       title: 'Account Error',
       reason: `Unexpected error while fetching account`,
     };
   }
 
-  const account = accountInfos?.find((a) => a.id === accountId);
+  const account = accountsLocationsAndEndpoints?.accounts?.find(
+    (a) => a.id === accountId,
+  );
   if (!account) {
     return {
       status: 'error',

@@ -209,14 +209,15 @@ function ReplicationForm({
     const { prefix } = stream.source;
     return prefix === '' || !prefix;
   });
-  const locationsAdapter = useLocationAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName: sourceBucket,
   });
   const locationInfos = useLocationAndStorageInfos({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
   const isTransient =
     locationInfos.status === 'success' &&

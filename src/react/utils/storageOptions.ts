@@ -45,7 +45,7 @@ export function checkIfExternalLocation(locations: Locations): boolean {
  * @returns a string which represent a locationType
  */
 export const getLocationTypeKey = (
-  location: LocationForm | LegacyLocation | Location,
+  location: LocationForm | LegacyLocation | Omit<Location, 'usedCapacity'>,
 ) => {
   if (location) {
     if (
@@ -75,7 +75,7 @@ export const getLocationTypeKey = (
 };
 
 const selectStorageLocationFromLocationType = (
-  location: LegacyLocation | Location,
+  location: LegacyLocation | Omit<Location, 'usedCapacity'>,
 ) => {
   const locationTypeKey = getLocationTypeKey(location);
   if (locationTypeKey !== '') {
@@ -85,7 +85,9 @@ const selectStorageLocationFromLocationType = (
   }
 };
 
-export const getLocationType = (location: LegacyLocation | Location) => {
+export const getLocationType = (
+  location: LegacyLocation | Omit<Location, 'usedCapacity'>,
+) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.name ?? '';
 };
@@ -121,32 +123,10 @@ export function selectStorageOptions(
       };
     });
 }
-export function locationWithIngestion(locations, capabilities) {
-  return Object.keys(locations).reduce((r, key) => {
-    const locationType = locations[key].locationType;
-    r.push({
-      value: key,
-      locationType,
-      mirrorMode: false,
-    });
-    const isIngest = isIngestLocation(locations[key], capabilities);
-
-    if (isIngest) {
-      r.push({
-        value: `${key}:ingest`,
-        locationType,
-        mirrorMode: true,
-      });
-    }
-
-    return r;
-  }, []);
-}
 export function isIngestLocation(location, capabilities) {
-  const locationType = location.locationType;
-  const ingestCapability = storageOptions[locationType]?.ingestCapability;
+  const locationType = location.locationType || location.type;
 
-  if (!!ingestCapability && !!capabilities[ingestCapability]) {
+  if (isIngestSource(storageOptions, locationType, capabilities)) {
     if (
       locationType === 'location-nfs-mount-v1' ||
       (location.details && location.details.bucketMatch)
