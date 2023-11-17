@@ -53,8 +53,8 @@ import { useEffect } from 'react';
 import { WorkflowState } from './WorkflowState';
 import { SourceBucketSelect } from './SourceBucketOption';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { useBucketLocationConstraint } from '../next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 type Props = {
   locations: Locations;

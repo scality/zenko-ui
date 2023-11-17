@@ -1,16 +1,34 @@
 import BucketCreate, { bucketErrorMessage } from '../BucketCreate';
 import {
-  reduxRender,
+  TEST_API_BASE_URL,
   renderWithRouterMatch,
   selectClick,
 } from '../../../utils/testUtil';
 import { XDM_FEATURE } from '../../../../js/config';
-import { screen, act, waitFor, fireEvent } from '@testing-library/react';
+import {
+  screen,
+  act,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LOCATIONS } from '../../../../js/mock/managementClientMSWHandlers';
+import {
+  LOCATIONS,
+  getConfigOverlay,
+} from '../../../../js/mock/managementClientMSWHandlers';
+import { setupServer } from 'msw/node';
+import { INSTANCE_ID } from '../../../actions/__tests__/utils/testUtil';
 import { debug } from 'jest-preview';
 
+const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
+
 describe('BucketCreate', () => {
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+
   const errorMessage = 'This is an error test message';
   const selectors = {
     objectlock: () => screen.getByLabelText(/object-lock/i),
@@ -101,6 +119,10 @@ describe('BucketCreate', () => {
         path: '/accounts/:accountName/create-bucket',
       });
 
+      await waitForElementToBeRemoved(() =>
+        screen.getByText(/Loading locations/i),
+      );
+
       // NOTE: All validation methods in React Hook Form are treated
       // as async functions, so it's important to wrap async around your act.
       await act(async () => {
@@ -122,7 +144,7 @@ describe('BucketCreate', () => {
           );
         });
 
-        selectClick(screen.getByText('Location Name'));
+        selectClick(selectors.locationSelect());
         expect(
           screen.getByText(new RegExp(`.*${t.expectedEmptyNameError}.*`, 'i')),
         ).toBeInTheDocument();
@@ -175,6 +197,9 @@ describe('BucketCreate', () => {
         },
       },
     );
+    await waitForElementToBeRemoved(() =>
+      screen.getByText(/Loading locations/i),
+    );
     //E
     selectClick(selectors.locationSelect());
     userEvent.click(selectors.ringLocationOption());
@@ -183,7 +208,7 @@ describe('BucketCreate', () => {
     await waitFor(() => expect(selectors.versioning()).toBeChecked());
     expect(selectors.versioning()).toBeDisabled();
   });
-  it('should disable cold location as a source storage location while creating a bucket', () => {
+  it('should disable cold location as a source storage location while creating a bucket', async () => {
     const coldLocation = 'europe25-myroom-cold';
     //S
     renderWithRouterMatch(
@@ -213,14 +238,17 @@ describe('BucketCreate', () => {
         },
       },
     );
+    await waitForElementToBeRemoved(() =>
+      screen.getByText(/Loading locations/i),
+    );
     //E
-    selectClick(screen.getByText('Location Name'));
+    selectClick(selectors.locationSelect());
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
     ).toHaveAttribute('aria-disabled', 'true');
   });
-  it('should disable versioning for Microsoft Azure Blob Storage', () => {
+  it('should disable versioning for Microsoft Azure Blob Storage', async () => {
     //S
     const azureblobstorage = 'azureblobstorage';
     renderWithRouterMatch(
@@ -243,8 +271,11 @@ describe('BucketCreate', () => {
         },
       },
     );
+    await waitForElementToBeRemoved(() =>
+      screen.getByText(/Loading locations/i),
+    );
     //E
-    selectClick(screen.getByText('Location Name'));
+    selectClick(selectors.locationSelect());
     userEvent.click(
       screen.getByRole('option', { name: new RegExp(azureblobstorage, 'i') }),
     );

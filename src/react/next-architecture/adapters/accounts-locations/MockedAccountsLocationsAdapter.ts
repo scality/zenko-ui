@@ -59,9 +59,14 @@ export class MockedAccountsLocationsAdapter
       },
       {
         isBuiltin: true,
-        locationType: 'location-file-v1',
+        type: 'location-file-v1',
         name: 'us-east-1',
-        objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+        id: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+        details: {
+          bootstrapList: [
+            'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+          ],
+        },
       },
     ];
   });

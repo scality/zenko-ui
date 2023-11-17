@@ -92,8 +92,12 @@ function BucketCreate() {
   );
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status: overlayStatus } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const {
+    accountsLocationsAndEndpoints,
+    status: accountsLocationsAndEndpointsStatus,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
 
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
@@ -317,6 +321,9 @@ function BucketCreate() {
                 control={control}
                 name="locationName"
                 render={({ field: { onChange, value: locationName } }) => {
+                  if (accountsLocationsAndEndpointsStatus === 'loading') {
+                    return <>Loading locations...</>;
+                  }
                   return (
                     <Select
                       id="locationName"
