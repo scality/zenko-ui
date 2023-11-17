@@ -22,6 +22,7 @@ const schema = Joi.object({
     otherwise: Joi.valid(),
   }),
   enableImmutableBackup: Joi.boolean().required(),
+  endpoint: Joi.string().required(),
 });
 
 type VeeamConfiguration = {
@@ -30,6 +31,7 @@ type VeeamConfiguration = {
   capacity: string;
   capacityUnit: string;
   enableImmutableBackup: boolean;
+  endpoint?: string;
 };
 
 const Configuration = () => {
@@ -48,6 +50,7 @@ const Configuration = () => {
       capacity: '5', //TODO: The default value will be net capacity.
       capacityUnit: 'TB',
       enableImmutableBackup: true,
+      endpoint: '',
     },
   });
   const isVeeam12 = watch('version') === VEEAMVERSION12;
@@ -56,7 +59,8 @@ const Configuration = () => {
   };
   const formRef = useRef(null);
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
-
+  //TODO:
+  const isS3EndointCreated = false;
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
@@ -124,7 +128,7 @@ const Configuration = () => {
               id="name"
               type="text"
               autoComplete="off"
-              placeholder="Veeam bucket name"
+              placeholder="Veeam-bucket"
               {...register('name')}
             />
           }
@@ -194,6 +198,27 @@ const Configuration = () => {
               </Stack>
             }
           ></FormGroup>
+        ) : (
+          <></>
+        )}
+        {!isS3EndointCreated ? (
+          <FormGroup
+            id="endpoint"
+            label="Endpoint"
+            labelHelpTooltip="TODO"
+            direction="vertical"
+            helpErrorPosition="bottom"
+            required
+            content={
+              <Input
+                id="endpoint"
+                type="text"
+                autoComplete="off"
+                placeholder="s3.artesca.mycompany.com"
+                {...register('endpoint')}
+              />
+            }
+          />
         ) : (
           <></>
         )}

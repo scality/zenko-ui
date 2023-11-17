@@ -141,7 +141,7 @@ export default function VeeamTable(_: VeeamTableProps) {
         </Stack>
       }
     >
-      <div style={{ height: '25rem', width: '40rem' }}>
+      <div style={{ height: '30rem', width: '40rem' }}>
         <Table columns={columns} data={data}>
           <Table.SingleSelectableContent
             rowHeight="h32"
