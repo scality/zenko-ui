@@ -16,6 +16,7 @@ import { useAccessibleAccountsAdapter } from '../next-architecture/ui/Accessible
 import { EmptyStateContainer } from '../ui-elements/Container';
 import { Warning } from '../ui-elements/Warning';
 import { useAuthGroups } from '../utils/hooks';
+import { Button } from '@scality/core-ui/dist/next';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -59,7 +60,24 @@ const Accounts = () => {
                 <Warning
                   centered={true}
                   icon={<Icon name="Account" size="5x" />}
-                  title={`You don't have any account, please create your first one.`}
+                  title={
+                    <>
+                      You don't have any account yet.
+                      <br />
+                      Launch configuration assitant to create resources needed
+                      by Veeam.
+                    </>
+                  }
+                  content={
+                    <>
+                      <Button
+                        label="Start Configuration for Veeam"
+                        variant="primary"
+                        onClick={() => history.push('/veeam/configuration')}
+                      />
+                      <p>or</p>
+                    </>
+                  }
                   btnTitle="Create Account"
                   btnAction={() => history.push('/create-account')}
                 />

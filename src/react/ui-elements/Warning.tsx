@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { ReactNode } from 'react';
-import { Icon } from '@scality/core-ui';
+import { Icon, Text } from '@scality/core-ui';
 const Container = styled.div<{ centered?: boolean }>`
   display: flex;
   flex: 1;
@@ -39,6 +39,7 @@ const ButtonSection = styled.div`
 type WarningProps = {
   icon?: ReactNode;
   title: ReactNode;
+  content?: ReactNode;
   btnTitle?: string;
   btnAction?: () => void;
   centered?: boolean;
@@ -46,17 +47,20 @@ type WarningProps = {
 export const Warning = ({
   icon,
   title,
+  content,
   btnTitle,
   btnAction,
   centered,
 }: WarningProps) => (
   <Container centered={centered}>
     <div>{icon}</div>
-    <Title> {title} </Title>
+    <Title>
+      <Text isEmphazed>{title}</Text>
+    </Title>
     {!!btnTitle && !!btnAction && (
       <ButtonSection>
-        {' '}
-        <Button label={btnTitle} variant="secondary" onClick={btnAction} />{' '}
+        {content}
+        <Button label={btnTitle} variant="outline" onClick={btnAction} />{' '}
       </ButtonSection>
     )}
   </Container>
