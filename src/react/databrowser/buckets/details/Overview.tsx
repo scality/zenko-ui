@@ -40,6 +40,9 @@ import {
   VEEAMVERSION11,
   VEEAMVERSION12,
 } from '../../../ui-elements/Veeam/VeeamConstants';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { LocationV1 } from '../../../../js/managementClient/api';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -88,16 +91,113 @@ const workflowAttachedError = (count: number, bucketName: string) => (
   </div>
 );
 
+function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
+  const dispatch = useDispatch();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: locationsStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const locationType = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === bucketInfo.locationConstraint,
+  )?.type;
+  const isBucketHostedOnAzureOrGCP =
+    locationType === LocationV1.LocationTypeEnum.AzureV1 ||
+    locationType === LocationV1.LocationTypeEnum.GcpV1;
+  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
+  const updateBucketVersioning = (isVersioning: boolean) => {
+    changeBucketVersionning({
+      Bucket: bucketInfo.name,
+      VersioningConfiguration: {
+        Status: isVersioning ? 'Enabled' : 'Disabled',
+      },
+    });
+  };
+
+  return (
+    <T.Value>
+      {bucketInfo.objectLockConfiguration.ObjectLockEnabled === 'Disabled' && (
+        <Tooltip
+          overlay={
+            locationType === LocationV1.LocationTypeEnum.AzureV1 ? (
+              <>
+                Enabling versioning is not possible due to the bucket being
+                hosted on Microsoft Azure.
+              </>
+            ) : locationType === LocationV1.LocationTypeEnum.GcpV1 ? (
+              <>
+                Enabling versioning is not possible due to the bucket being
+                hosted on Google Cloud.
+              </>
+            ) : (
+              <></>
+            )
+          }
+        >
+          <Toggle
+            disabled={
+              locationsStatus === 'idle' ||
+              locationsStatus === 'loading' ||
+              isBucketHostedOnAzureOrGCP
+            }
+            toggle={bucketInfo.isVersioning}
+            label={
+              bucketInfo.versioning === 'Enabled'
+                ? 'Active'
+                : bucketInfo.versioning === 'Disabled'
+                ? 'Inactive'
+                : bucketInfo.versioning
+            }
+            onChange={() => {
+              dispatch(
+                toggleBucketVersioning(
+                  bucketInfo.name,
+                  !bucketInfo.isVersioning,
+                ),
+              );
+              updateBucketVersioning(!bucketInfo.isVersioning);
+            }}
+          />
+        </Tooltip>
+      )}
+      {bucketInfo.objectLockConfiguration.ObjectLockEnabled === 'Enabled' && (
+        <>
+          Enabled
+          <br />
+          <SmallerText>
+            Versioning cannot be suspended because Object-lock is enabled for
+            this bucket.
+          </SmallerText>
+        </>
+      )}
+    </T.Value>
+  );
+}
+
+function LocationType({ location: locationName }: { location: string }) {
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: locationsStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const locationObject = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === locationName,
+  );
+  if (locationsStatus === 'loading' || locationsStatus === 'idle') {
+    return <small>Loading...</small>;
+  }
+  if (locationsStatus === 'error') {
+    //Todo convert to tooltip ?
+    return <small>An error occurred while fetching locations</small>;
+  }
+  if (!locationObject) {
+    return <small>Location not found: {locationName}</small>;
+  }
+  return <small>{getLocationType(locationObject)}</small>;
+}
+
 function Overview({ bucket, ingestionStates }: Props) {
   const history = useHistory();
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
   const workflowsQuery = useWorkflows([bucket.name]);
   const features = useSelector((state: AppState) => state.auth.config.features);
   const { account } = useCurrentAccount();
@@ -118,8 +218,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
 
-  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
-
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
     (workflows?.expirations?.length || 0) +
@@ -134,19 +232,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     ingestionStates,
     bucketInfo.locationConstraint || 'us-east-1',
   );
-  const locationType =
-    locations && locations[bucketInfo.locationConstraint]?.locationType;
-  const isBucketHostedOnAzureOrGCP =
-    locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
-
-  const updateBucketVersioning = (isVersioning: boolean) => {
-    changeBucketVersionning({
-      Bucket: bucketInfo.name,
-      VersioningConfiguration: {
-        Status: isVersioning ? 'Enabled' : 'Disabled',
-      },
-    });
-  };
 
   return (
     <TableContainer>
@@ -186,70 +271,14 @@ function Overview({ bucket, ingestionStates }: Props) {
               </T.Row>
               <T.Row>
                 <T.Key> Versioning </T.Key>
-                <T.Value>
-                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                    'Disabled' && (
-                    <Tooltip
-                      overlay={
-                        locationType === 'location-azure-v1' ? (
-                          <>
-                            Enabling versioning is not possible due to the
-                            bucket being hosted on Microsoft Azure.
-                          </>
-                        ) : locationType === 'location-gcp-v1' ? (
-                          <>
-                            Enabling versioning is not possible due to the
-                            bucket being hosted on Google Cloud.
-                          </>
-                        ) : (
-                          <></>
-                        )
-                      }
-                    >
-                      <Toggle
-                        disabled={loading || isBucketHostedOnAzureOrGCP}
-                        toggle={bucketInfo.isVersioning}
-                        label={
-                          bucketInfo.versioning === 'Enabled'
-                            ? 'Active'
-                            : bucketInfo.versioning === 'Disabled'
-                            ? 'Inactive'
-                            : bucketInfo.versioning
-                        }
-                        onChange={() => {
-                          dispatch(
-                            toggleBucketVersioning(
-                              bucket.name,
-                              !bucketInfo.isVersioning,
-                            ),
-                          );
-                          updateBucketVersioning(!bucketInfo.isVersioning);
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                    'Enabled' && (
-                    <>
-                      Enabled
-                      <br />
-                      <SmallerText>
-                        Versioning cannot be suspended because Object-lock is
-                        enabled for this bucket.
-                      </SmallerText>
-                    </>
-                  )}
-                </T.Value>
+                <VersionningValue bucketInfo={bucketInfo} />
               </T.Row>
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
                   {bucketInfo.locationConstraint || 'us-east-1'}
                   {' / '}
-                  <small>
-                    {locations &&
-                      getLocationType(locations[bucketInfo.locationConstraint])}
-                  </small>
+                  <LocationType location={bucketInfo.locationConstraint} />
                 </T.Value>
               </T.Row>
               {features.includes(XDM_FEATURE) && (

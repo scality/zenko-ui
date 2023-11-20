@@ -14,6 +14,7 @@ import {
   render,
   screen,
   waitFor,
+  waitForElementToBeRemoved,
   within,
 } from '@testing-library/react';
 import Immutable from 'immutable';
@@ -28,24 +29,6 @@ const BUCKET = {
 const TEST_STATE = {
   uiBuckets: {
     showDelete: false,
-  },
-  configuration: {
-    latest: {
-      locations: {
-        'us-east-1': {
-          isBuiltin: true,
-          locationType: 'location-file-v1',
-          name: 'us-east-1',
-          objectId: '1060b13c-d805-11ea-a59c-a0999b105a5f',
-        },
-
-        'azure-blob': {
-          locationType: 'location-azure-v1',
-          name: 'azure-blob',
-          objectId: '1060b13c-d806-11ea-a59c-a0999b105a5f',
-        },
-      },
-    },
   },
   workflow: {
     replications: [],
@@ -164,6 +147,7 @@ describe('Overview', () => {
       ...TEST_STATE,
       ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
     });
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
     await waitFor(() => {
       expect(
         screen.getByRole('checkbox', {

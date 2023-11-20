@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
-import type { LocationName, Locations } from '../../../types/config';
+import type { LocationName } from '../../../types/config';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
@@ -23,7 +23,6 @@ import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
-  locations: Locations;
   buckets: Bucket[];
   selectedBucketName: string | null | undefined;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
@@ -31,7 +30,6 @@ type Props = {
 export default function BucketList({
   selectedBucketName,
   buckets,
-  locations,
   ingestionStates,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
@@ -141,7 +139,7 @@ export default function BucketList({
       },
     });
     return columns;
-  }, [locations, ingestionStates, features, isStorageManager]);
+  }, [ingestionStates, features, isStorageManager]);
 
   const selectedId = useMemo(() => {
     if (buckets) {
