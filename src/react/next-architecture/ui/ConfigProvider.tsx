@@ -37,6 +37,10 @@ export function useDeployedMetalk8sInstances(): SolutionUI[] {
   });
 }
 
+export function useConfigRetriever() {
+  return configGlobal.hooks.useConfigRetriever();
+}
+
 export function useGrafanaURL() {
   const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
   const instances = useDeployedMetalk8sInstances();
@@ -74,11 +78,7 @@ function ErrorFallback() {
   return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
 }
 
-export function ConfigProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactNode {
+export function ConfigProvider({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <ComponentWithFederatedImports
