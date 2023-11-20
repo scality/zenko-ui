@@ -27,11 +27,12 @@ import type {
 } from '../../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../../utils/s3';
 import { putObjectMetadata } from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Form, Icon } from '@scality/core-ui';
-import { AppState } from '../../../../types/state';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 const userMetadataOption = {
   value: AMZ_META,
   label: AMZ_META,
@@ -99,14 +100,20 @@ function Metadata({
   storageClass,
 }: Props) {
   const dispatch = useDispatch();
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
-  const isObjectStoredColdStorage = storageClass
-    ? locations?.[storageClass]?.isCold
-    : false;
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+  const isObjectInColdStorage =
+    status === 'success' &&
+    accountsLocationsAndEndpoints?.locations.find(
+      (location) => location.name === storageClass,
+    )?.isCold;
+
   const isMetadataEditionDisabled =
-    listType === LIST_OBJECT_VERSIONS_S3_TYPE || isObjectStoredColdStorage;
+    listType === LIST_OBJECT_VERSIONS_S3_TYPE || isObjectInColdStorage;
 
   const EMPTY_ITEM = {
     key: '',
