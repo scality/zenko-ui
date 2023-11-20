@@ -11,6 +11,7 @@ export type Location = {
   type: LocationTypeKey;
   isTransient?: boolean;
   isCold?: boolean;
+  isBuiltin?: boolean;
   details: Locationv1Details;
   usedCapacity: PromiseResult<LatestUsedCapacity>;
 };

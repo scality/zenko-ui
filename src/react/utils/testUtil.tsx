@@ -30,7 +30,7 @@ import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapter
 import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
 import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsAdapterProvider } from '../next-architecture/ui/AccountAdapterProvider';
+import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 //LocationTestOK
 const theme = {
@@ -192,7 +192,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                 >
                   <LocationAdapterProvider>
                     <MetricsAdapterProvider>
-                      <AccountsAdapterProvider>
+                      <AccountsLocationsEndpointsAdapterProvider>
                         <AccessibleAccountsAdapterProvider>
                           <S3ClientProvider
                             configuration={{
@@ -208,7 +208,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                             {children}
                           </S3ClientProvider>
                         </AccessibleAccountsAdapterProvider>
-                      </AccountsAdapterProvider>
+                      </AccountsLocationsEndpointsAdapterProvider>
                     </MetricsAdapterProvider>
                   </LocationAdapterProvider>
                 </_ManagementContext.Provider>
@@ -421,7 +421,7 @@ export function renderWithRouterMatch(
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsAdapterProvider>
+                        <AccountsLocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <S3ClientProvider
                               configuration={{
@@ -440,7 +440,7 @@ export function renderWithRouterMatch(
                               <ErrorHandlerModal />
                             </S3ClientProvider>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsAdapterProvider>
+                        </AccountsLocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>
@@ -480,7 +480,7 @@ export const renderWithCustomRoute = (
                   >
                     <LocationAdapterProvider>
                       <MetricsAdapterProvider>
-                        <AccountsAdapterProvider>
+                        <AccountsLocationsEndpointsAdapterProvider>
                           <AccessibleAccountsAdapterProvider>
                             <S3ClientProvider
                               configuration={{
@@ -499,7 +499,7 @@ export const renderWithCustomRoute = (
                               <ErrorHandlerModal />
                             </S3ClientProvider>
                           </AccessibleAccountsAdapterProvider>
-                        </AccountsAdapterProvider>
+                        </AccountsLocationsEndpointsAdapterProvider>
                       </MetricsAdapterProvider>
                     </LocationAdapterProvider>
                   </_ManagementContext.Provider>
@@ -537,7 +537,7 @@ export const NewWrapper =
                 >
                   <LocationAdapterProvider>
                     <MetricsAdapterProvider>
-                      <AccountsAdapterProvider>
+                      <AccountsLocationsEndpointsAdapterProvider>
                         <AccessibleAccountsAdapterProvider>
                           <S3ClientProvider
                             configuration={{
@@ -556,7 +556,7 @@ export const NewWrapper =
                             <ErrorHandlerModal />
                           </S3ClientProvider>
                         </AccessibleAccountsAdapterProvider>
-                      </AccountsAdapterProvider>
+                      </AccountsLocationsEndpointsAdapterProvider>
                     </MetricsAdapterProvider>
                   </LocationAdapterProvider>
                 </_ManagementContext.Provider>

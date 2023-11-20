@@ -10,6 +10,7 @@ import { LatestUsedCapacity } from '../../react/next-architecture/domain/entitie
 
 export const ACCOUNT_ID = '718643629313';
 export const BUCKET_NAME = 'test-bucket';
+const azureblobstorage = 'azureblobstorage';
 
 export const TRANSITION_WORKFLOW_CURRENT_ID =
   '0d55a1d7-349c-4e79-932b-b502bcc45a8f';
@@ -148,6 +149,11 @@ export const LOCATIONS = {
     locationType: 'location-file-v1',
     name: 'us-east-1',
     objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+  },
+  [azureblobstorage]: {
+    locationType: 'location-azure-v1',
+    name: azureblobstorage,
+    details: {},
   },
 };
 

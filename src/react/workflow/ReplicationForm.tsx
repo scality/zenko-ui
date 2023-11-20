@@ -53,8 +53,8 @@ import { useEffect } from 'react';
 import { WorkflowState } from './WorkflowState';
 import { SourceBucketSelect } from './SourceBucketOption';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { useBucketLocationConstraint } from '../next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 type Props = {
   locations: Locations;
@@ -209,14 +209,15 @@ function ReplicationForm({
     const { prefix } = stream.source;
     return prefix === '' || !prefix;
   });
-  const locationsAdapter = useLocationAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName: sourceBucket,
   });
   const locationInfos = useLocationAndStorageInfos({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
   const isTransient =
     locationInfos.status === 'success' &&

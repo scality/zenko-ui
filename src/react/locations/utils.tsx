@@ -1,9 +1,7 @@
 import {
   Endpoint,
   JAGUAR_S3_LOCATION_KEY,
-  Location,
-  LocationName,
-  Locations as LocationsType,
+  Location as LegacyLocation,
   LocationTypeKey,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
@@ -17,11 +15,13 @@ import { getLocationType } from '../utils/storageOptions';
 
 import type { BucketInfo } from '../../types/s3';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
+import { Location as NextLocation } from '../next-architecture/domain/entities/location';
 
-function newLocationDetails(): Location {
+function newLocationDetails(): LegacyLocation {
   return {
     name: '',
-    locationType: '',
+    locationType: '' as LocationTypeKey,
+    //@ts-expect-error initial value is empty object
     details: {},
     objectId: '',
     isTransient: false,
@@ -33,7 +33,8 @@ function newLocationDetails(): Location {
 function newLocationForm(): LocationForm {
   return {
     name: '',
-    locationType: '',
+    locationType: '' as LocationTypeKey,
+    //@ts-expect-error initial value is empty object
     details: {},
     objectId: '',
     options: {
@@ -45,7 +46,7 @@ function newLocationForm(): LocationForm {
   };
 }
 
-function convertToLocation(locationState: LocationForm): Location {
+function convertToLocation(locationState: LocationForm): LegacyLocation {
   const { options } = locationState;
   const ret = {
     name: locationState.name,
@@ -64,7 +65,7 @@ function convertToLocation(locationState: LocationForm): Location {
   return ret;
 }
 
-function convertToForm(locationProps: Location): LocationForm {
+function convertToForm(locationProps: LegacyLocation): LocationForm {
   const ret = {
     name: locationProps.name,
     locationType: locationProps.locationType,
@@ -84,30 +85,19 @@ function convertToForm(locationProps: Location): LocationForm {
   return ret;
 }
 
-function canEditLocation(
-  locationName: LocationName,
-  locations: LocationsType,
-): boolean {
-  const isBuiltin =
-    locations[locationName] && locations[locationName].isBuiltin;
-  return !isBuiltin;
-}
-
 // TODO: add specific tooltip message about why location can not be deleted
 function canDeleteLocation(
-  locationName: LocationName,
-  locations: LocationsType,
+  location: NextLocation,
   replicationStreams: Array<Replication>,
   transitions: Array<BucketWorkflowTransitionV2>,
   buckets: BucketList,
   endpoints: Array<Endpoint>,
 ) {
-  if (!locationName) {
+  if (!location) {
     return false;
   }
 
-  const isBuiltin =
-    locations[locationName] && locations[locationName].isBuiltin;
+  const isBuiltin = location.isBuiltin;
 
   if (isBuiltin) {
     return false;
@@ -115,16 +105,16 @@ function canDeleteLocation(
 
   const checkStreamLocations = replicationStreams.every((r) => {
     if (r.destination.location) {
-      return r.destination.location !== locationName;
+      return r.destination.location !== location.name;
     }
 
     return r.destination.locations.every((destLocation) => {
-      return destLocation.name !== locationName;
+      return destLocation.name !== location.name;
     });
   });
 
   const isTransitionCreatedOnLocation = !!transitions.find(
-    (t: BucketWorkflowTransitionV2) => t.locationName === locationName,
+    (t: BucketWorkflowTransitionV2) => t.locationName === location.name,
   );
 
   if (isTransitionCreatedOnLocation) {
@@ -136,7 +126,7 @@ function canDeleteLocation(
   }
 
   const checkBucketLocations = buckets.every(
-    (bucket) => bucket.location !== locationName,
+    (bucket) => bucket.location !== location.name,
   );
 
   if (!checkBucketLocations) {
@@ -144,7 +134,7 @@ function canDeleteLocation(
   }
 
   const checkEndpointLocations = endpoints.every(
-    (e) => e.locationName !== locationName,
+    (e) => e.locationName !== location.name,
   );
 
   if (!checkEndpointLocations) {
@@ -186,7 +176,9 @@ function convertToBucketInfo(bucketInfo: BucketInfo | null) {
 }
 
 //disable the Cold Location as a source storage location
-function renderLocation(location: Location) {
+function renderLocation(
+  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'>,
+) {
   const locationTypeName = getLocationType(location);
   if (location.isCold) {
     return `${location.name} (${locationTypeName}) - Cold Location can't be used`;
@@ -208,7 +200,6 @@ export {
   convertToLocation,
   convertToForm,
   newLocationDetails,
-  canEditLocation,
   canDeleteLocation,
   isLocationExists,
   convertToBucketInfo,

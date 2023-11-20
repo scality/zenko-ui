@@ -5,10 +5,32 @@ import {
 import { AccountInfo } from '../../domain/entities/account';
 import { DEFAULT_METRICS_MESURED_ON } from '../metrics/MockedMetricsAdapter';
 import { IAccountsAdapter } from './IAccountsAdapter';
+import { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
 import { ILocationsAdapter } from './ILocationsAdapter';
 export class MockedAccountsLocationsAdapter
-  implements IAccountsAdapter, ILocationsAdapter
+  implements
+    IAccountsAdapter,
+    ILocationsAdapter,
+    IAccountsLocationsEndpointsAdapter
 {
+  listAccountsLocationsAndEndpoints = jest.fn().mockImplementation(async () => {
+    return {
+      accounts: await this.listAccounts(),
+      locations: await this.listLocations(),
+      endpoints: [
+        {
+          hostname: 's3.pod-choco.local',
+          isBuiltin: false,
+          locationName: 'us-east-1',
+        },
+        {
+          hostname: 'zenko-cloudserver-replicator',
+          isBuiltin: true,
+          locationName: 'us-east-1',
+        },
+      ],
+    };
+  });
   listLocations = jest.fn().mockImplementation(async () => {
     return [
       {
@@ -37,9 +59,14 @@ export class MockedAccountsLocationsAdapter
       },
       {
         isBuiltin: true,
-        locationType: 'location-file-v1',
+        type: 'location-file-v1',
         name: 'us-east-1',
-        objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+        id: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+        details: {
+          bootstrapList: [
+            'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+          ],
+        },
       },
     ];
   });

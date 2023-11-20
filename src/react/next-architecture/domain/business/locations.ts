@@ -1,5 +1,4 @@
 import { useQuery } from 'react-query';
-import { ILocationsAdapter } from '../../adapters/accounts-locations/ILocationsAdapter';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
   Location,
@@ -10,50 +9,40 @@ import { PromiseResult } from '../entities/promise';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { storageOptions } from '../../../locations/LocationDetails';
-import { useAccountCannonicalId } from './accounts';
-import { IAccountsAdapter } from '../../adapters/accounts-locations/IAccountsAdapter';
+import {
+  useAccountCannonicalId,
+  useAccountsLocationsAndEndpoints,
+} from './accounts';
 import { useAuthGroups } from '../../../utils/hooks';
-
-const noRefetchOptions = {
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-  refetchOnReconnect: false,
-};
-
-export const queries = {
-  listLocations: (locationsAdapter: ILocationsAdapter) => ({
-    queryKey: ['locations'],
-    queryFn: () => locationsAdapter.listLocations(),
-    ...noRefetchOptions,
-  }),
-};
+import { IAccountsLocationsEndpointsAdapter } from '../../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
 
 export const useLocationAndStorageInfos = ({
   locationName,
-  locationsAdapter,
+  accountsLocationsEndpointsAdapter,
 }: {
   locationName: string;
-  locationsAdapter: ILocationsAdapter;
+  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
 }): PromiseResult<LocationStorageInfos> => {
-  const { data: locationData, status: locationStatus } = useQuery(
-    queries.listLocations(locationsAdapter),
-  );
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
-  if (locationStatus === 'loading' || locationStatus === 'idle') {
+  if (status === 'loading' || status === 'idle') {
     return {
       status: 'loading',
     };
   }
 
-  if (locationStatus === 'error') {
+  if (status === 'error') {
     return {
-      status: locationStatus,
+      status: status,
       title: 'Location Error',
       reason: `Unexpected error while fetching location`,
     };
   }
 
-  const location = locationData?.find((l) => l.name === locationName);
+  const location = accountsLocationsAndEndpoints?.locations?.find(
+    (l) => l.name === locationName,
+  );
   const locationStorageOption = location
     ? storageOptions[location.type as unknown as keyof typeof storageOptions]
     : undefined;
@@ -82,25 +71,27 @@ export const useLocationAndStorageInfos = ({
  * @param metricsAdapter
  */
 export const useListLocations = ({
-  locationsAdapter,
+  accountsLocationsEndpointsAdapter,
   metricsAdapter,
 }: {
-  locationsAdapter: ILocationsAdapter;
+  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
   metricsAdapter: IMetricsAdapter;
 }): LocationsPromiseResult => {
-  const { data: locationData, status: locationStatus } = useQuery(
-    queries.listLocations(locationsAdapter),
-  );
+  const { accountsLocationsAndEndpoints, status: locationStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
   const { isStorageManager } = useAuthGroups();
 
-  const ids = locationData?.map((l) => l.id) ?? [];
+  const ids = accountsLocationsAndEndpoints?.locations?.map((l) => l.id) ?? [];
   const { data: metricsData, status: metricsStatus } = useQuery({
     queryKey: ['locationsMetrics', ids],
     queryFn: () => {
       return metricsAdapter.listLocationsLatestUsedCapacity(ids);
     },
-    enabled: !!locationData && ids.length > 0 && isStorageManager,
+    enabled:
+      !!accountsLocationsAndEndpoints?.locations &&
+      ids.length > 0 &&
+      isStorageManager,
   });
 
   if (locationStatus === 'loading' || locationStatus === 'idle') {
@@ -123,7 +114,7 @@ export const useListLocations = ({
 
   const locations: Record<string, Location> = {};
 
-  locationData.forEach((l) => {
+  accountsLocationsAndEndpoints?.locations.forEach((l) => {
     let usedCapacity: PromiseResult<LatestUsedCapacity> = {
       status: 'loading',
     };
@@ -144,6 +135,7 @@ export const useListLocations = ({
 
     locations[l.name] = {
       ...l,
+      type: l.type as unknown as Location['type'],
       usedCapacity: usedCapacity,
     };
   });
@@ -156,23 +148,21 @@ export const useListLocations = ({
 };
 
 export const useListLocationsForCurrentAccount = ({
-  locationsAdapter,
   metricsAdapter,
-  accountsAdapter,
+  accountsLocationsEndpointsAdapter,
 }: {
-  locationsAdapter: ILocationsAdapter;
   metricsAdapter: IMetricsAdapter;
-  accountsAdapter: IAccountsAdapter;
+  accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
 }): LocationsPromiseResult => {
   const { account } = useCurrentAccount();
   const allLocations = useListLocations({
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
     metricsAdapter,
   });
 
   const accountCannonicalIdResult = useAccountCannonicalId({
     accountId: account?.id || '',
-    accountsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
 
   const accountCannonicalId =

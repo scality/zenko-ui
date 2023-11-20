@@ -68,6 +68,7 @@ import {
   useBucketVersionning,
 } from '../next-architecture/domain/business/buckets';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -118,14 +119,15 @@ const CreateWorkflow = () => {
       workflows.filter((w) => w.replication).map((w) => w.replication),
   });
 
-  const locationsAdapter = useLocationAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName,
   });
   const locationInfos = useLocationAndStorageInfos({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
   const isTransient =
     locationInfos.status === 'success' &&

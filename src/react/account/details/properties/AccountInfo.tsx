@@ -20,8 +20,8 @@ import SecretKeyModal from './SecretKeyModal';
 import { TitleRow } from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
-import { queries } from '../../../next-architecture/domain/business/accounts';
-import { useAccountsAdapter } from '../../../next-architecture/ui/AccountAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 
 const TableContainer = styled.div`
@@ -47,7 +47,10 @@ function AccountInfo({ account }: Props) {
     dispatch(openAccountDeleteDialog());
   };
 
-  const accountsAdapter = useAccountsAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { refetchAccountsLocationsEndpoints } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const instanceId = useInstanceId();
   const deleteMutation = useMutation({
     mutationFn: () => {
@@ -63,7 +66,7 @@ function AccountInfo({ account }: Props) {
       );
     },
     onSuccess: () => {
-      queryClient.resetQueries(queries.listAccounts(accountsAdapter).queryKey);
+      refetchAccountsLocationsEndpoints();
     },
   });
 

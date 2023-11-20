@@ -83,10 +83,15 @@ const genExpectedLocation = (
         ),
         'us-east-1': {
           isBuiltin: true,
-          locationType: 'location-file-v1',
+          type: 'location-file-v1',
           name: 'us-east-1',
-          objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
+          id: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
           usedCapacity,
+          details: {
+            bootstrapList: [
+              'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+            ],
+          },
         },
       },
     },
@@ -97,14 +102,14 @@ describe('useListLocations', () => {
   beforeEach(() => queryClient.clear());
 
   const setupAndRenderHook = (
-    locationsAdapter = new MockedAccountsLocationsAdapter(),
+    accountsLocationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
     metricsAdapter = new MockedMetricsAdapter(),
   ) => {
     return {
       ...renderHook(
         () =>
           useListLocations({
-            locationsAdapter: locationsAdapter,
+            accountsLocationsEndpointsAdapter,
             metricsAdapter: metricsAdapter,
           }),
         {
@@ -136,7 +141,9 @@ describe('useListLocations', () => {
   it('should return locations loading', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listLocations = jest.fn(() => new Promise(() => {}));
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(
+      () => new Promise(() => {}),
+    );
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     // E
@@ -152,7 +159,9 @@ describe('useListLocations', () => {
   it('should return locations with error', async () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
-    mockAccountAdapter.listLocations = jest.fn(() => Promise.reject());
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() =>
+      Promise.reject(),
+    );
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
     // E
@@ -222,17 +231,15 @@ describe('useListLocations', () => {
 
 describe('useListLocationsForCurrentAccount', () => {
   const setupAndRenderHook = (
-    locationsAdapter = new MockedAccountsLocationsAdapter(),
+    accountsLocationsEndpointsAdapter = new MockedAccountsLocationsAdapter(),
     metricsAdapter = new MockedMetricsAdapter(),
-    accountsAdapter = new MockedAccountsLocationsAdapter(),
   ) => {
     return {
       ...renderHook(
         () =>
           useListLocationsForCurrentAccount({
-            locationsAdapter: locationsAdapter,
+            accountsLocationsEndpointsAdapter,
             metricsAdapter: metricsAdapter,
-            accountsAdapter: accountsAdapter,
           }),
         {
           wrapper: Wrapper,
@@ -403,7 +410,9 @@ describe('useListLocationsForCurrentAccount', () => {
     // S
     const mockAccountAdapter = new MockedAccountsLocationsAdapter();
     const mockMetricsAdapter = new MockedMetricsAdapter();
-    mockAccountAdapter.listLocations = jest.fn(() => Promise.reject());
+    mockAccountAdapter.listAccountsLocationsAndEndpoints = jest.fn(() =>
+      Promise.reject(),
+    );
     const { result, waitFor } = setupAndRenderHook(
       mockAccountAdapter,
       mockMetricsAdapter,
@@ -418,8 +427,8 @@ describe('useListLocationsForCurrentAccount', () => {
     const expectedRes = {
       locations: {
         status: 'error',
-        title: 'Location Error',
-        reason: `Unexpected error while fetching location`,
+        title: 'Account Error',
+        reason: `Unexpected error while fetching account`,
       },
     };
     expect(result.current).toStrictEqual(expectedRes);

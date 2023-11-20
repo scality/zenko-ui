@@ -1,19 +1,22 @@
-import { useQuery } from 'react-query';
 import { useAccounts } from '../../../utils/hooks';
-import { queries } from '../../domain/business/accounts';
+import { useAccountsLocationsAndEndpoints } from '../../domain/business/accounts';
 import { AccountInfo, Role } from '../../domain/entities/account';
 import { PromiseResult } from '../../domain/entities/promise';
-import { IAccountsAdapter } from '../accounts-locations/IAccountsAdapter';
 import { IAccessibleAccounts } from './IAccessibleAccounts';
+import { IAccountsLocationsEndpointsAdapter } from '../accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
 
 export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
-  constructor(private accountsAdapter: IAccountsAdapter) {}
+  constructor(
+    private accountsLocationsAndEndpointsAdapter: IAccountsLocationsEndpointsAdapter,
+  ) {}
   useListAccessibleAccounts(): {
     accountInfos: PromiseResult<(AccountInfo & { assumableRoles: Role[] })[]>;
   } {
-    const { data: accountInfos, status: accountStatus } = useQuery(
-      queries.listAccounts(this.accountsAdapter),
-    );
+    const { accountsLocationsAndEndpoints, status: accountStatus } =
+      useAccountsLocationsAndEndpoints({
+        accountsLocationsEndpointsAdapter:
+          this.accountsLocationsAndEndpointsAdapter,
+      });
     const { accounts: accessibleAccounts, status } = useAccounts();
 
     if (accountStatus === 'error' || status === 'error') {
@@ -39,20 +42,22 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
       };
     }
 
-    const value = accountInfos.flatMap((account) => {
-      const accessibleAccount = accessibleAccounts.find(
-        (ac) => ac.id === account.id,
-      );
-      if (accessibleAccount) {
-        return [
-          {
-            ...account,
-            assumableRoles: accessibleAccount.Roles,
-          },
-        ];
-      }
-      return [];
-    });
+    const value = (accountsLocationsAndEndpoints?.accounts || []).flatMap(
+      (account) => {
+        const accessibleAccount = accessibleAccounts.find(
+          (ac) => ac.id === account.id,
+        );
+        if (accessibleAccount) {
+          return [
+            {
+              ...account,
+              assumableRoles: accessibleAccount.Roles,
+            },
+          ];
+        }
+        return [];
+      },
+    );
     return {
       accountInfos: {
         status: 'success',

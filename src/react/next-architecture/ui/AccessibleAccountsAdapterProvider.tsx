@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { IAccessibleAccounts } from '../adapters/accessible-accounts/IAccessibleAccounts';
 import { IAMPensieveAccessibleAccounts } from '../adapters/accessible-accounts/IAMPensieveAccessibleAccounts';
-import { useAccountsAdapter } from './AccountAdapterProvider';
+import { useAccountsLocationsEndpointsAdapter } from './AccountsLocationsEndpointsAdapterProvider';
 
 const _AccessibleAccountsAdapterContext = createContext<null | {
   accessibleAccountsAdapter: IAccessibleAccounts;
@@ -24,7 +24,7 @@ export const AccessibleAccountsAdapterProvider = ({
 }: {
   children: JSX.Element;
 }) => {
-  const accountAdapter = useAccountsAdapter();
+  const accountAdapter = useAccountsLocationsEndpointsAdapter();
   const accessibleAccountsAdapter = new IAMPensieveAccessibleAccounts(
     accountAdapter,
   );

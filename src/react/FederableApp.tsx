@@ -9,7 +9,7 @@ import {
   useConfig,
 } from './next-architecture/ui/ConfigProvider';
 import { AuthProvider } from './next-architecture/ui/AuthProvider';
-import { AccountsAdapterProvider } from './next-architecture/ui/AccountAdapterProvider';
+import { AccountsLocationsEndpointsAdapterProvider } from './next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
@@ -39,7 +39,7 @@ const FederableApp = () => {
     <ConfigProvider>
       <InternalRouter>
         <AuthProvider>
-          <AccountsAdapterProvider>
+          <AccountsLocationsEndpointsAdapterProvider>
             <LocationAdapterProvider>
               <AccessibleAccountsAdapterProvider>
                 <MetricsAdapterProvider>
@@ -48,7 +48,7 @@ const FederableApp = () => {
                 </MetricsAdapterProvider>
               </AccessibleAccountsAdapterProvider>
             </LocationAdapterProvider>
-          </AccountsAdapterProvider>
+          </AccountsLocationsEndpointsAdapterProvider>
         </AuthProvider>
       </InternalRouter>
     </ConfigProvider>

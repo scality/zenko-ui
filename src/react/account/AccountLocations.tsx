@@ -1,28 +1,26 @@
-import { useMemo } from 'react';
-import { useListLocationsForCurrentAccount } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
-import { CellProps, CoreUIColumn } from 'react-table';
-import { Location } from '../next-architecture/domain/entities/location';
-import { getLocationType } from '../utils/storageOptions';
-import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
-import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { Warning } from '../ui-elements/Warning';
 import { Icon, Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
-import { Search } from '../ui-elements/Table';
-import { useAccountsAdapter } from '../next-architecture/ui/AccountAdapterProvider';
-import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
+import { useMemo } from 'react';
+import { CellProps, CoreUIColumn } from 'react-table';
+import { useListLocationsForCurrentAccount } from '../next-architecture/domain/business/locations';
+import { Location } from '../next-architecture/domain/entities/location';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
+import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { Search } from '../ui-elements/Table';
+import { Warning } from '../ui-elements/Warning';
+import { getLocationType } from '../utils/storageOptions';
+import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
 
 export function AccountLocations() {
-  const locationsAdapter = useLocationAdapter();
   const metricsAdapter = useMetricsAdapter();
-  const accountsAdapter = useAccountsAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const { locations } = useListLocationsForCurrentAccount({
-    locationsAdapter,
     metricsAdapter,
-    accountsAdapter,
+    accountsLocationsEndpointsAdapter,
   });
 
   const data = useMemo(() => {

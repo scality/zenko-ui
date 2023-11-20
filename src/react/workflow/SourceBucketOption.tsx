@@ -7,8 +7,8 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
 import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 type DisableOptionProps = {
   disableOption?: (obj: {
@@ -68,9 +68,10 @@ export const BucketLocationNameAndType = ({
   bucketName: string;
 }): string => {
   const { locationConstraint } = useBucketLocationConstraint({ bucketName });
-  const locationsAdapter = useLocationAdapter();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const locationInfos = useLocationAndStorageInfos({
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
@@ -98,10 +99,11 @@ export const SourceBucketOption = ({
 }: { bucketName: string } & DisableOptionProps) => {
   const { locationConstraint } = useBucketLocationConstraint({ bucketName });
   const { versionning } = useBucketVersionning({ bucketName });
-  // TODO
-  const locationsAdapter = useLocationAdapter();
+
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
   const locationInfos = useLocationAndStorageInfos({
-    locationsAdapter,
+    accountsLocationsEndpointsAdapter,
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
