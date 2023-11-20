@@ -15,14 +15,16 @@ import styled from 'styled-components';
 import { LocationName } from '../../types/config';
 import type { AppState } from '../../types/state';
 import { clearError, saveLocation } from '../actions';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useOutsideClick } from '../utils/hooks';
 import {
   getLocationTypeKey,
   selectStorageOptions,
 } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
-import locationFormCheck from './locationFormCheck';
 import LocationOptions from './LocationOptions';
+import locationFormCheck from './locationFormCheck';
 import {
   checkIsRingS3Reseller,
   convertToForm,
@@ -31,11 +33,6 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
-import { useQueryClient } from 'react-query';
-import { queries } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
