@@ -204,6 +204,10 @@ import {
   mockGetBucketTaggingError,
   mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../../js/mock/S3ClientMSWHandlers';
+import {
+  BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
+} from '../../../../ui-elements/Veeam/VeeamConstants';
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
 const TEST_ACCOUNT =
@@ -310,7 +314,9 @@ describe('Overview', () => {
     //Verify
     await waitFor(() => {
       expect(
-        screen.getByText(new RegExp(`Backup - Veeam 12`, 'i')),
+        screen.getByText(
+          new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
+        ),
       ).toBeInTheDocument();
     });
     expect(selectors.editDefaultRetentionButton()).toBeDisabled();

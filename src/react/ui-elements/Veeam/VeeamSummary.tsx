@@ -10,6 +10,7 @@ import { Clipboard } from '../Clipboard';
 import { HideCredential } from '../Hide';
 import Table, * as T from '../TableKeyValue';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 
 type VeeamSummaryProps = {
   bucketName: string;
@@ -49,9 +50,12 @@ export const VeeamSummary = ({
           <p></p>
           <Button
             variant="primary"
-            label={'Continue'}
+            label={'Complete'}
+            icon={<Icon name="Arrow-right" />}
             onClick={() => {
-              history.push(`/accounts/Veeam/buckets/${bucketName}`);
+              history.push(
+                `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
+              );
             }}
           />
         </Stack>

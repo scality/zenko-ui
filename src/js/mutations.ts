@@ -5,6 +5,7 @@ import { useIAMClient } from '../react/IAMProvider';
 import { TagSetItem } from '../types/s3';
 import { S3 } from 'aws-sdk';
 import { notFalsyTypeGuard } from '../types/typeGuards';
+import { MULTIPART_UPLOAD } from './S3Client';
 
 const useCreateEndpointMutation = () => {
   const managementClient = useManagementClient();
@@ -103,9 +104,22 @@ const usePutBucketTaggingMutation = () => {
 
 const usePutObjectMutation = () => {
   const s3Client = useS3Client();
-  return useMutation(({ Bucket, Key, Body }: S3.PutObjectRequest) =>
-    s3Client.putObject({ Bucket, Key, Body }).promise(),
+  const options = {
+    partSize: MULTIPART_UPLOAD.partSize,
+    queueSize: MULTIPART_UPLOAD.queueSize,
+  };
+  return useMutation(
+    ({ Bucket, Key, Body, ContentType }: S3.PutObjectRequest) =>
+      s3Client.upload({ Bucket, Key, Body, ContentType }, options).promise(),
   );
+};
+
+const useCreateUserAccessKeyMutation = () => {
+  const IAMClient = useIAMClient();
+  return useMutation({
+    mutationFn: ({ userName }: { userName: string }) =>
+      IAMClient.createAccessKey(userName),
+  });
 };
 
 export {
@@ -116,4 +130,5 @@ export {
   useAttachPolicyToUserMutation,
   usePutBucketTaggingMutation,
   usePutObjectMutation,
+  useCreateUserAccessKeyMutation,
 };

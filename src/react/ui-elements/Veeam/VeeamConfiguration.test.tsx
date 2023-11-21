@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import Configuration from './VeeamConfiguration';
 import { Stepper } from '@scality/core-ui';
+import { VEEAM_BACKUP_REPLICATION } from './VeeamConstants';
 
 describe('Veeam Configuration UI', () => {
   const selectors = {
@@ -36,7 +37,9 @@ describe('Veeam Configuration UI', () => {
     //V
     expect(selectors.repositoryInput()).toHaveValue('veeam-bucket');
     // expect Veeam version is selected
-    expect(screen.getByText(/Veeam 12/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(VEEAM_BACKUP_REPLICATION)),
+    ).toBeInTheDocument();
     //expect the immutable backup toogle to be active
     expect(screen.getByText('Active')).toBeEnabled();
 

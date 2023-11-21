@@ -39,7 +39,10 @@ import {
   mockGetBucketTaggingError,
   mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../js/mock/S3ClientMSWHandlers';
-import { BUCKET_TAG_USECASE } from '../../../ui-elements/Veeam/VeeamConstants';
+import {
+  BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
+} from '../../../ui-elements/Veeam/VeeamConstants';
 
 jest.setTimeout(30000);
 
@@ -917,7 +920,7 @@ describe('Buckets domain', () => {
         tags: {
           status: 'success',
           value: {
-            [BUCKET_TAG_USECASE]: 'Veeam 12',
+            [BUCKET_TAG_VEEAM_APPLICATION]: VEEAM_BACKUP_REPLICATION,
           },
         },
       });

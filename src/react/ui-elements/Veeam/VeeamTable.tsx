@@ -9,24 +9,31 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
-import { useMockData } from './useMockData';
+import { useMutationTableData } from './useMutationTableData';
+import { useQueryClient } from 'react-query';
 
-type VeeamTableProps = Record<string, never>;
+export type VeeamTableProps = {
+  accountName: string;
+  bucketName: string;
+  application: string;
+  capacity: string;
+  capacityUnit: string;
+  enableImmutableBackup: boolean;
+};
 
-export default function VeeamTable(_: VeeamTableProps) {
-  const [id, setId] = useState<number>(0);
+export default function VeeamTable(propsConfiguration: VeeamTableProps) {
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
 
   const theme = useTheme();
   const history = useHistory();
-  const { data } = useMockData({ id, setId });
+  const queryClient = useQueryClient();
   const { next } = useStepper(VeeamStepsIndexes.Table, VEEAM_STEPS);
+  const { bucketName, enableImmutableBackup } = propsConfiguration;
+  const { data, accessKey, secretKey } = useMutationTableData({
+    propsConfiguration,
+  });
 
-  const columns: Column<{
-    action: string;
-    step: number;
-    status?: string;
-  }>[] = [
+  const columns: Column<(typeof data)[number]>[] = [
     {
       Header: 'Step',
       accessor: 'step',
@@ -50,8 +57,7 @@ export default function VeeamTable(_: VeeamTableProps) {
       cellStyle: {
         width: '12.5%',
       },
-      Cell: ({ value }) => {
-        const indexOf = data.findIndex((row) => row.status === 'error');
+      Cell: ({ value, row }) => {
         return value === 'success' ? (
           <Box display="flex" gap={8} alignItems="center">
             <Icon name="Check" color={theme.statusHealthy} />
@@ -64,9 +70,10 @@ export default function VeeamTable(_: VeeamTableProps) {
             <Button
               icon={<Icon name="Redo" />}
               variant="secondary"
+              type="button"
               label={'Retry'}
               onClick={() => {
-                setId(indexOf);
+                row.original.retry();
               }}
             />
           </Box>
@@ -77,7 +84,7 @@ export default function VeeamTable(_: VeeamTableProps) {
     },
   ];
 
-  const isCancellable = data.some((row) => row.status !== undefined);
+  const isCancellable = data.some((row) => row.status === 'error');
   const isContinue = data.every((row) => row.status === 'success');
 
   if (confirmCancel) {
@@ -125,7 +132,7 @@ export default function VeeamTable(_: VeeamTableProps) {
           <Button
             disabled={!isCancellable}
             variant="outline"
-            label={'Cancel'}
+            label="Exit"
             onClick={() => {
               setConfirmCancel(true);
             }}
@@ -134,14 +141,16 @@ export default function VeeamTable(_: VeeamTableProps) {
             disabled={!isContinue}
             variant="primary"
             label={'Continue'}
+            icon={<Icon name="Arrow-right" />}
             onClick={() => {
-              next({});
+              queryClient.invalidateQueries(['WebIdentityRoles']);
+              next({ bucketName, enableImmutableBackup, accessKey, secretKey });
             }}
           />
         </Stack>
       }
     >
-      <div style={{ height: '25rem', width: '40rem' }}>
+      <div style={{ height: '30rem', width: '40rem' }}>
         <Table columns={columns} data={data}>
           <Table.SingleSelectableContent
             rowHeight="h32"

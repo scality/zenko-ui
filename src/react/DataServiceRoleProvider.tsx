@@ -16,6 +16,9 @@ import { AWSError, STS } from 'aws-sdk';
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
   setRole: (role: { roleArn: string }) => void;
+  setRolePromise: (role: {
+    roleArn: string;
+  }) => Promise<PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>>;
 }>(null);
 
 export const useDataServiceRole = () => {
@@ -40,6 +43,18 @@ export const useSetAssumedRole = () => {
   }
 
   return DataServiceCtxt.setRole;
+};
+
+export const useSetAssumedRolePromise = () => {
+  const DataServiceCtxt = useContext(_DataServiceRoleContext);
+
+  if (!DataServiceCtxt) {
+    throw new Error(
+      'The useSetAssumedRolePromise hook can only be used within DataServiceRoleProvider.',
+    );
+  }
+
+  return DataServiceCtxt.setRolePromise;
 };
 
 export const useCurrentAccount = () => {
@@ -121,8 +136,21 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     setRoleArnStored(role.roleArn);
     setRoleState(role);
     if (role.roleArn) {
-      assumeRoleMutation.mutate(role.roleArn);
+      assumeRoleMutation.mutate(role.roleArn, {});
     }
+  };
+
+  const setRolePromise = async (role: { roleArn: string }) => {
+    if (!role.roleArn) {
+      return Promise.reject('Invalid role arn');
+    }
+    return getQuery(role.roleArn)
+      .queryFn()
+      .then((data) => {
+        setAssumedRole(data);
+        setRoleArnStored(role.roleArn);
+        setRoleState(role);
+      });
   };
 
   if (role.roleArn && !assumedRole) {
@@ -135,6 +163,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
         value={{
           role,
           setRole,
+          setRolePromise,
         }}
       >
         {children}
