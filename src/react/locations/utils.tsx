@@ -16,6 +16,7 @@ import { getLocationType } from '../utils/storageOptions';
 import type { BucketInfo } from '../../types/s3';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Location as NextLocation } from '../next-architecture/domain/entities/location';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 
 function newLocationDetails(): LegacyLocation {
   return {
@@ -177,7 +178,7 @@ function convertToBucketInfo(bucketInfo: BucketInfo | null) {
 
 //disable the Cold Location as a source storage location
 function renderLocation(
-  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'>,
+  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'> | LocationInfo,
 ) {
   const locationTypeName = getLocationType(location);
   if (location.isCold) {

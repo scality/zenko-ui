@@ -17,6 +17,8 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { useHistory } from 'react-router-dom';
 import { useOutsideClick } from '../utils/hooks';
 import { renderLocation } from '../locations/utils';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -28,10 +30,14 @@ function EndpointCreate() {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid, isDirty },
   } = useForm({
-    mode: 'all',
+    mode: 'onChange',
     resolver: joiResolver(schema),
+    defaultValues: {
+      hostname: '',
+      locationName: 'us-east-1',
+    },
   });
   const history = useHistory();
   const dispatch = useDispatch();
@@ -42,12 +48,13 @@ function EndpointCreate() {
   const errorMessage = useSelector(
     (state: AppState) => state.uiErrors.errorMsg,
   );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+  const loading = status === 'idle' || status === 'loading';
 
   const clearServerError = () => {
     if (hasError) {
@@ -83,7 +90,6 @@ function EndpointCreate() {
       rightActions={
         <Stack gap="r16">
           <Button
-            disabled={loading}
             id="cancel-btn"
             variant="outline"
             onClick={handleCancel}
@@ -91,7 +97,7 @@ function EndpointCreate() {
             type="button"
           />
           <Button
-            disabled={loading}
+            disabled={!isValid}
             id="create-endpoint-btn"
             variant="primary"
             onClick={handleSubmit(onSubmit)}
@@ -123,10 +129,9 @@ function EndpointCreate() {
             <Input
               type="text"
               id="hostname"
-              {...register('hostname')}
+              {...register('hostname', { onChange: clearServerError })}
               placeholder="s3.example.com"
-              onChange={clearServerError}
-              disabled={loading}
+              autoFocus
               autoComplete="off"
             />
           }
@@ -137,32 +142,41 @@ function EndpointCreate() {
           direction="vertical"
           labelHelpTooltip="Cannot be modified after creation."
           content={
-            <Controller
-              control={control}
-              name="locationName"
-              defaultValue="us-east-1"
-              render={({ field: { onChange, value: locationName } }) => {
-                return (
-                  <Select
-                    id="locationName"
-                    onChange={onChange}
-                    placeholder="Location Name"
-                    value={locationName}
-                    disabled={loading}
-                  >
-                    {Object.values(locations || []).map((location: any, i) => (
-                      <Select.Option
-                        key={i}
-                        value={location.name}
-                        disabled={location?.isCold}
-                      >
-                        {renderLocation(location)}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                );
-              }}
-            />
+            loading ? (
+              <>Loading locations...</>
+            ) : status === 'error' ? (
+              <>Failed to load locations</>
+            ) : (
+              <Controller
+                control={control}
+                name="locationName"
+                render={({
+                  field: { onChange, onBlur, value: locationName },
+                }) => {
+                  return (
+                    <Select
+                      id="locationName"
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      placeholder="Location Name"
+                      value={locationName}
+                    >
+                      {accountsLocationsAndEndpoints?.locations.map(
+                        (location, i) => (
+                          <Select.Option
+                            key={i}
+                            value={location.name}
+                            disabled={location?.isCold}
+                          >
+                            {renderLocation(location)}
+                          </Select.Option>
+                        ),
+                      )}
+                    </Select>
+                  );
+                }}
+              />
+            )
           }
         />
       </FormSection>
