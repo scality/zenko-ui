@@ -17,6 +17,7 @@ import type { AppState } from '../../types/state';
 import { clearError, saveLocation } from '../actions';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import Loader from '../ui-elements/Loader';
 import { useOutsideClick } from '../utils/hooks';
 import {
   getLocationTypeKey,
@@ -48,9 +49,17 @@ function LocationEditor() {
   const dispatch = useDispatch();
   const history = useHistory();
   const { locationName } = useParams<{ locationName: string }>();
-  const locationEditing = useSelector(
-    (state: AppState) =>
-      state.configuration.latest.locations[locationName || ''],
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const {
+    accountsLocationsAndEndpoints,
+    refetchAccountsLocationsEndpoints,
+    status,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+  const locationEditing = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === locationName,
   );
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
@@ -65,10 +74,6 @@ function LocationEditor() {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const accountsLocationsAndEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpoints } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsAndEndpointsAdapter });
   const editingExisting = !!(locationEditing && locationEditing.objectId);
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
@@ -185,6 +190,10 @@ function LocationEditor() {
 
   const locationTypeKey = getLocationTypeKey(location);
 
+  if (status === 'loading' || status === 'idle') {
+    return <Loader>Loading location...</Loader>;
+  }
+
   return (
     <StyledForm
       ref={formRef}
@@ -209,7 +218,6 @@ function LocationEditor() {
           <Button
             type="button"
             variant="outline"
-            disabled={loading}
             onClick={cancel}
             label="Cancel"
           />

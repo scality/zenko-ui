@@ -1,21 +1,42 @@
 import { MemoryRouter } from 'react-router-dom';
 import LocationEditor from '../LocationEditor';
 
-import { fireEvent } from '@testing-library/react';
+import {
+  fireEvent,
+  screen,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { mockOffsetSize, reduxRender, selectClick } from '../../utils/testUtil';
+import {
+  TEST_API_BASE_URL,
+  mockOffsetSize,
+  reduxRender,
+  selectClick,
+} from '../../utils/testUtil';
+import { setupServer } from 'msw/node';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+
+const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
 beforeAll(() => {
+  server.listen();
   mockOffsetSize(2000, 2000);
 });
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 describe('LocationEditor', () => {
-  it('should display storageOptions expect hidden options', () => {
+  it('should display storageOptions expect hidden options', async () => {
     const {
       component: { container },
     } = reduxRender(
       <MemoryRouter>
         <LocationEditor />
       </MemoryRouter>,
+    );
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading location...'),
     );
 
     const selector = notFalsyTypeGuard(
