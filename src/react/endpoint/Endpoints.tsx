@@ -1,23 +1,32 @@
-import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
+import { useHistory } from 'react-router-dom';
 
-import type { AppState } from '../../types/state';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { EmptyStateContainer } from '../ui-elements/Container';
-import EndpointList from './EndpointList';
+import Loader from '../ui-elements/Loader';
 import { Warning } from '../ui-elements/Warning';
+import EndpointList from './EndpointList';
 
 const Endpoints = () => {
   const history = useHistory();
-  const endpoints = useSelector(
-    (state: AppState) => state.configuration.latest.endpoints,
-  );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
-  );
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+
+  if (status === 'idle' || status === 'loading') {
+    return (
+      <EmptyStateContainer>
+        <Loader>Loading Data Services...</Loader>
+      </EmptyStateContainer>
+    );
+  }
 
   // empty state.
-  if (endpoints.length === 0) {
+  if (accountsLocationsAndEndpoints?.endpoints.length === 0) {
     return (
       <EmptyStateContainer>
         <Warning
@@ -40,7 +49,10 @@ const Endpoints = () => {
         </Stack>
       </AppContainer.OverallSummary>
       <AppContainer.MainContent background="backgroundLevel3">
-        <EndpointList endpoints={endpoints} locations={locations} />
+        <EndpointList
+          endpoints={accountsLocationsAndEndpoints?.endpoints || []}
+          locations={accountsLocationsAndEndpoints?.locations || []}
+        />
       </AppContainer.MainContent>
     </>
   );

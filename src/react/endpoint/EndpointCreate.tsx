@@ -1,8 +1,5 @@
-import { Controller, useForm } from 'react-hook-form';
-import { useRef } from 'react';
-import { clearError, createEndpoint } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
@@ -12,13 +9,16 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
+import { useRef } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { useOutsideClick } from '../utils/hooks';
+import type { AppState } from '../../types/state';
+import { clearError, createEndpoint } from '../actions';
 import { renderLocation } from '../locations/utils';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useOutsideClick } from '../utils/hooks';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -30,7 +30,7 @@ function EndpointCreate() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid },
   } = useForm({
     mode: 'onChange',
     resolver: joiResolver(schema),

@@ -157,6 +157,16 @@ export const LOCATIONS = {
   },
 };
 
+export const ENDPOINTS = [
+  {
+    hostname: 'zenko-cloudserver-replicator',
+    isBuiltin: true,
+    locationName: 'us-east-1',
+  },
+  { hostname: 's3.zenko.local', locationName: 'us-east-1' },
+  { hostname: 'test.local', locationName: 'us-east-1' },
+];
+
 export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
   return rest.get(
     `${baseUrl}/api/v1/config/overlay/view/${instanceId}`,
@@ -164,15 +174,7 @@ export const getConfigOverlay = (baseUrl: string, instanceId: string) => {
       res(
         ctx.json({
           browserAccess: { enabled: true },
-          endpoints: [
-            {
-              hostname: 'zenko-cloudserver-replicator',
-              isBuiltin: true,
-              locationName: 'us-east-1',
-            },
-            { hostname: 's3.zenko.local', locationName: 'us-east-1' },
-            { hostname: 'test.local', locationName: 'us-east-1' },
-          ],
+          endpoints: ENDPOINTS,
           instanceId,
           locations: LOCATIONS,
           replicationStreams: [],

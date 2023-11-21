@@ -1,27 +1,23 @@
-import { useMemo } from 'react';
+import { ConstrainedText, Icon, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { ConstrainedText, Icon, Wrap } from '@scality/core-ui';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 
-import type {
-  Endpoint,
-  LocationName,
-  Hostname,
-  Locations,
-} from '../../types/config';
+import type { Endpoint, Hostname, LocationName } from '../../types/config';
 import type { AppState } from '../../types/state';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getLocationType } from '../utils/storageOptions';
-import { Clipboard } from '../ui-elements/Clipboard';
-import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
-import * as T from '../ui-elements/Table';
 import {
   closeEndpointDeleteDialog,
   deleteEndpoint,
   openEndpointDeleteDialog,
 } from '../actions';
+import { renderLocation } from '../locations/utils';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { Clipboard } from '../ui-elements/Clipboard';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import * as T from '../ui-elements/Table';
+import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -29,7 +25,7 @@ type CellProps = {
 };
 type Props = {
   endpoints: Array<Endpoint>;
-  locations: Locations;
+  locations: LocationInfo[];
 };
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -86,13 +82,13 @@ function EndpointList({ endpoints, locations }: Props) {
         },
 
         Cell({ value: locationName }: { value: LocationName }) {
-          const locationType = getLocationType(locations[locationName]);
-          return (
-            <span>
-              {' '}
-              {locationName} <small>({locationType})</small>{' '}
-            </span>
+          const location = locations.find(
+            (location) => location.name === locationName,
           );
+          if (!location) {
+            return <>unknown</>;
+          }
+          return <>{renderLocation(location)}</>;
         },
       },
       {
@@ -152,7 +148,7 @@ function EndpointList({ endpoints, locations }: Props) {
         <Table
           columns={columns}
           data={strictSchemaEndpoints}
-          defaultSortingKey="isBuiltin"
+          defaultSortingKey="hostname"
         >
           <T.SearchContainer>
             <T.Search>
