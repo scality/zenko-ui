@@ -1,13 +1,21 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { screen, waitFor } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 
-import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
+import {
+  INSTANCE_ID,
+  OBJECT_METADATA,
+} from '../../../../actions/__tests__/utils/testUtil';
 import {
   TEST_API_BASE_URL,
   renderWithRouterMatch,
 } from '../../../../utils/testUtil';
 import Properties from '../Properties';
+import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
 const renderProperties = (
   component: React.ReactNode = <Properties objectMetadata={OBJECT_METADATA} />,
@@ -25,6 +33,7 @@ const renderProperties = (
 
 //Mock getObjectLockConfiguration for bucket 'bucket'
 const server = setupServer(
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   rest.get(`${TEST_API_BASE_URL}/bucket?object-lock`, (req, res, ctx) => {
     return res(
       ctx.xml(`
@@ -175,25 +184,11 @@ describe('Properties', () => {
             versioning: 'Enabled',
           },
         },
-        configuration: {
-          latest: {
-            locations: {
-              ['europe25-myroom-cold']: {
-                locationType: 'location-dmf-v1',
-                name: 'europe25-myroom-cold',
-                isCold: true,
-                details: {
-                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                  repoId: ['repoId'],
-                  nsId: 'nsId',
-                  username: 'username',
-                  password: 'password',
-                },
-              },
-            },
-          },
-        },
       },
+    );
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading location information...'),
     );
 
     const labelsValues = [
@@ -232,25 +227,11 @@ describe('Properties', () => {
             versioning: 'Enabled',
           },
         },
-        configuration: {
-          latest: {
-            locations: {
-              ['europe25-myroom-cold']: {
-                locationType: 'location-dmf-v1',
-                name: 'europe25-myroom-cold',
-                isCold: true,
-                details: {
-                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                  repoId: ['repoId'],
-                  nsId: 'nsId',
-                  username: 'username',
-                  password: 'password',
-                },
-              },
-            },
-          },
-        },
       },
+    );
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading location information...'),
     );
 
     expect(screen.getByText('Temperature')).toBeInTheDocument();
@@ -296,25 +277,11 @@ describe('Properties', () => {
             versioning: 'Enabled',
           },
         },
-        configuration: {
-          latest: {
-            locations: {
-              ['europe25-myroom-cold']: {
-                locationType: 'location-dmf-v1',
-                name: 'europe25-myroom-cold',
-                isCold: true,
-                details: {
-                  endpoint: 'ws://tape.myroom.europe25.cnes:8181',
-                  repoId: ['repoId'],
-                  nsId: 'nsId',
-                  username: 'username',
-                  password: 'password',
-                },
-              },
-            },
-          },
-        },
       },
+    );
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading location information...'),
     );
 
     //V
