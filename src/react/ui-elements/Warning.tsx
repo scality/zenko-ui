@@ -1,8 +1,9 @@
 import styled, { css } from 'styled-components';
-import { Button } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { ReactNode } from 'react';
 import { Icon } from '@scality/core-ui';
+import { HeadIcon } from './EntityHeader';
 const Container = styled.div<{ centered?: boolean }>`
   display: flex;
   flex: 1;
@@ -92,4 +93,34 @@ export const NoLocationWarning = () => (
       locations that will be used as replication targets.{' '}
     </Description>
   </Container2>
+);
+
+export const NoAccountWarning = ({
+  buttonSection,
+}: {
+  buttonSection: ReactNode;
+}) => (
+  <Container centered>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      padding={16}
+    >
+      <HeadIcon>
+        <Icon name="Account" />
+      </HeadIcon>
+    </Box>
+    <Title>
+      <Box padding={16}>
+        <b>You don't have any account yet.</b>
+        <br />
+        <br />
+        <b>
+          Launch configuration assitant to create resources needed by Veeam.
+        </b>
+      </Box>
+    </Title>
+    <ButtonSection>{buttonSection}</ButtonSection>
+  </Container>
 );
