@@ -1,26 +1,24 @@
-import { Controller, useFormContext } from 'react-hook-form';
-import type { Locations } from '../../types/config';
+import Joi from '@hapi/joi';
 import {
-  Toggle,
-  IconHelp,
   FormGroup,
   FormSection,
+  IconHelp,
   Stack,
   Text,
+  Toggle,
   spacing,
 } from '@scality/core-ui';
+import { Controller, useFormContext } from 'react-hook-form';
 import { flattenFormErrors, hasUniqueKeys } from './utils';
-import Joi from '@hapi/joi';
 
-import TagsFilter from './TagsFilter';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { Box, Input } from '@scality/core-ui/dist/next';
-import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useMemo } from 'react';
+import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
 import { SourceBucketSelect } from './SourceBucketOption';
+import TagsFilter from './TagsFilter';
 
 type Props = {
-  locations: Locations;
   prefix?: string;
 };
 

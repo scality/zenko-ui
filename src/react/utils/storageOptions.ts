@@ -19,17 +19,16 @@ import {
 import { LocationForm } from '../../types/location';
 import { Location } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
-export function checkSupportsReplicationTarget(locations: Locations): boolean {
-  return Object.keys(locations).some(
-    (l) =>
-      storageOptions[locations[l].locationType]?.supportsReplicationTarget ===
-      true,
+import { LocationV1 } from '../../js/managementClient/api';
+export function checkSupportsReplicationTarget(
+  locations: LocationInfo[],
+): boolean {
+  return locations.some(
+    (l) => storageOptions[l.type]?.supportsReplicationTarget === true,
   );
 }
-export function checkIfExternalLocation(locations: Locations): boolean {
-  return Object.keys(locations || []).some(
-    (l) => locations[l].locationType !== 'location-file-v1',
-  );
+export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
+  return locations.some((l) => l.type !== LocationV1.LocationTypeEnum.FileV1);
 }
 
 /**
@@ -97,7 +96,9 @@ export const getLocationType = (
   return storageLocation?.name ?? '';
 };
 
-export const getLocationTypeShort = (location: LegacyLocation | Location) => {
+export const getLocationTypeShort = (
+  location: LegacyLocation | Location | LocationInfo,
+) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.short ?? '';
 };

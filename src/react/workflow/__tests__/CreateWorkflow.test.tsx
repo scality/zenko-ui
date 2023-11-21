@@ -1,6 +1,23 @@
-import CreateWorkflow from '../CreateWorkflow';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { act } from 'react-dom/test-utils';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import { S3Bucket } from '../../../types/s3';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import * as DSRProvider from '../../DataServiceRoleProvider';
+import { DEFAULT_METRICS_MESURED_ON } from '../../next-architecture/adapters/metrics/MockedMetricsAdapter';
+import * as hooks from '../../utils/hooks';
 import {
   mockOffsetSize,
   reduxRender,
@@ -9,31 +26,13 @@ import {
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
-import { List } from 'immutable';
-import userEvent from '@testing-library/user-event';
-import { S3Bucket } from '../../../types/s3';
-import * as hooks from '../../utils/hooks';
-import { act } from 'react-dom/test-utils';
-import { debug } from 'jest-preview';
-import {
-  mockBucketListing,
-  mockBucketOperations,
-} from '../../../js/mock/S3ClientMSWHandlers';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
-import * as DSRProvider from '../../DataServiceRoleProvider';
-import { DEFAULT_METRICS_MESURED_ON } from '../../next-architecture/adapters/metrics/MockedMetricsAdapter';
+import CreateWorkflow from '../CreateWorkflow';
 
 const instanceId = INSTANCE_ID;
 const accountName = 'pat';
 const BUCKET_NAME = 'bucket1';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
-const BUCKET_LOCATION = 'us-east-1';
+const BUCKET_LOCATION = 'chapter-ux';
 const buckets: S3Bucket[] = [
   {
     CreationDate: 'Wed Oct 07 2020 16:35:57',
@@ -173,9 +172,16 @@ describe('CreateWorkflow', () => {
 
     userEvent.click(selectors.replicationOption());
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading buckets...'),
-    );
+    if (screen.queryAllByText('Loading locations...').length > 0) {
+      await waitForElementToBeRemoved(() =>
+        screen.getByText('Loading locations...'),
+      );
+    }
+    if (screen.queryAllByText('Loading buckets...').length > 0) {
+      await waitForElementToBeRemoved(() =>
+        screen.getByText('Loading buckets...'),
+      );
+    }
 
     // Select Bucket Name
     selectClick(selectors.bucketSelect());
@@ -234,9 +240,16 @@ describe('CreateWorkflow', () => {
 
     userEvent.click(selectors.replicationOption());
 
-    await waitForElementToBeRemoved(() =>
-      screen.getByText('Loading buckets...'),
-    );
+    if (screen.queryAllByText('Loading locations...').length > 0) {
+      await waitForElementToBeRemoved(() =>
+        screen.getByText('Loading locations...'),
+      );
+    }
+    if (screen.queryAllByText('Loading buckets...').length > 0) {
+      await waitForElementToBeRemoved(() =>
+        screen.getByText('Loading buckets...'),
+      );
+    }
 
     // Select Bucket Name
     selectClick(selectors.bucketSelect());

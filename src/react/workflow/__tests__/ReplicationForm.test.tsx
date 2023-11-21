@@ -1,5 +1,23 @@
+import { Form, FormSection } from '@scality/core-ui';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import {
+  mockBucketListing,
+  mockBucketOperations,
+} from '../../../js/mock/S3ClientMSWHandlers';
+import { PerLocationMap } from '../../../types/config';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import {
   mockOffsetSize,
   reduxRender,
@@ -7,22 +25,8 @@ import {
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { screen, waitFor } from '@testing-library/react';
-import { List } from 'immutable';
-import React from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
 import ReplicationForm, { GeneralReplicationGroup } from '../ReplicationForm';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import userEvent from '@testing-library/user-event';
-import { PerLocationMap } from '../../../types/config';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
-import { Form, FormSection } from '@scality/core-ui';
-import {
-  mockBucketListing,
-  mockBucketOperations,
-} from '../../../js/mock/S3ClientMSWHandlers';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { debug } from 'jest-preview';
 
 const accountId = 'accountId';
@@ -30,42 +34,6 @@ const accountName = 'pat';
 const replicationId = 'expirationId';
 
 const bucketName = 'replication-for-chapter-ux';
-const locations: PerLocationMap<any> = {
-  'chapter-ux': {
-    details: {
-      accessKey: 'AMFFHQC1TTUIQ9K6B7LO',
-      bootstrapList: [],
-      bucketName,
-      endpoint: 'http://s3.workloadplane.scality.local',
-      region: 'us-east-1',
-      secretKey:
-        'ICzSVrjcUJYYMiGU2TJV4hcCyuO0Ds6OJsh7D/Nyp/ua9zmCp2IxhBf38nv4N4x/9A6oZG11yiPkcFq7sYNWnepIuX+hJLlLN0RI/0MFv7WBhvA0Z5GN5zw24BtTiR6STgCxqaJ0kbE/2mc47TReap9PqiZ/vQZc4kSbBH+75EDTFqZsgKmEVGKNgKb9Llt56Ml4htdR3NJZ/Pd+BwiKMf1A6L9aroylkx8plarOkmM+9FS72lV2nDa/OStezRsNdsTDEMpXfApTewSBEE/Rq+7lgva8xrXZWz/V7f4L953m9i/lSd8ZhmCH2vpqowg+qGgVkVWMiSoAt5UpkzZBTg==',
-    },
-    locationType: 'location-scality-artesca-s3-v1',
-    name: 'chapter-ux',
-    objectId: '4ab68d3f-9eec-11ec-ae58-6e38b828d159',
-  },
-  'chapter-ux2': {
-    details: {
-      accessKey: 'AMFFHQC1TTUIQ9K6B7LO',
-      bootstrapList: [],
-      bucketName,
-      endpoint: 'http://s3.workloadplane.scality.local',
-      region: 'us-east-1',
-      secretKey:
-        'ICzSVrjcUJYYMiGU2TJV4hcCyuO0Ds6OJsh7D/Nyp/ua9zmCp2IxhBf38nv4N4x/9A6oZG11yiPkcFq7sYNWnepIuX+hJLlLN0RI/0MFv7WBhvA0Z5GN5zw24BtTiR6STgCxqaJ0kbE/2mc47TReap9PqiZ/vQZc4kSbBH+75EDTFqZsgKmEVGKNgKb9Llt56Ml4htdR3NJZ/Pd+BwiKMf1A6L9aroylkx8plarOkmM+9FS72lV2nDa/OStezRsNdsTDEMpXfApTewSBEE/Rq+7lgva8xrXZWz/V7f4L953m9i/lSd8ZhmCH2vpqowg+qGgVkVWMiSoAt5UpkzZBTg==',
-    },
-    locationType: 'location-scality-artesca-s3-v1',
-    name: 'chapter-ux',
-    objectId: '4ab68d3f-9eec-11ec-ae58-6e38b828d159',
-  },
-  'us-east-1': {
-    isBuiltin: true,
-    locationType: 'location-file-v1',
-    name: 'us-east-1',
-    objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
-  },
-};
 
 const server = setupServer(
   rest.post(
@@ -73,7 +41,7 @@ const server = setupServer(
     (req, res, ctx) => res(ctx.json([])),
   ),
   mockBucketListing(),
-  getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   mockBucketOperations(),
 );
 
@@ -116,7 +84,6 @@ const selectors = {
 // prettier-ignore
 describe('ReplicationForm', () => {
   it('should render a form for replication workflow', async () => {
-    
       const { component } =
         reduxRender(
           <WithFormProvider>
@@ -126,7 +93,6 @@ describe('ReplicationForm', () => {
               </FormSection>
               <ReplicationForm
                 prefix="replication."
-                locations={locations}
               />
             </Form>
           </WithFormProvider>,
@@ -142,16 +108,13 @@ describe('ReplicationForm', () => {
               config: { features: [] },
               selectedAccount: { id: accountId },
             },
-            configuration: {
-              latest: {
-                locations,
-                endpoints: [],
-              },
-            },
           }
         );
 
+        await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
       await waitFor(() => screen.getByText(/General/i));
+      debug()
+      
       expect(screen.getByText(/State/i)).toBeInTheDocument();
       expect(screen.getByText(/Source/i)).toBeInTheDocument();
       expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
@@ -191,11 +154,11 @@ describe('ReplicationForm', () => {
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const nlOption = NewLocationName.querySelectorAll('.sc-select__option')[1]
       const nlOpt = notFalsyTypeGuard(nlOption)
-      expect(nlOpt?.textContent).toBe("chapter-ux2 (ARTESCA)");
+      expect(nlOpt?.textContent).toBe("ring-nick (RING S3)");
       userEvent.click(nlOpt);
-      expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe('chapter-ux2 (ARTESCA)');
+      expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe('ring-nick (RING S3)');
       const nlAddButon = NewLocationName.querySelector('#addbtn1')
-      expect(nlAddButon).toBeDisabled()
+      expect(nlAddButon).not.toBeDisabled()
 
       const formValidation = screen.getByTestId('form-replication');
       expect(formValidation.textContent).toBe('form-valid');
