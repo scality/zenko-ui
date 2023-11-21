@@ -2,18 +2,6 @@ import { screen, waitFor } from '@testing-library/react';
 import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { initialErrorsUIState } from '../../reducers/initialConstants';
-import { formatSimpleDate } from '../../utils';
-import {
-  mockOffsetSize,
-  reduxRender,
-  renderWithRouterMatch,
-  TEST_API_BASE_URL,
-  WrapperAsStorageManager,
-  zenkoUITestConfig,
-} from '../../utils/testUtil';
-import Accounts from '../Accounts';
-import { debug } from 'jest-preview';
 import {
   ACCOUNT_ID,
   USERS,
@@ -22,11 +10,27 @@ import {
 } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { useAuth } from '../../next-architecture/ui/AuthProvider';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { initialErrorsUIState } from '../../reducers/initialConstants';
+import { formatSimpleDate } from '../../utils';
+import {
+  TEST_API_BASE_URL,
+  WrapperAsStorageManager,
+  mockOffsetSize,
+  reduxRender,
+  renderWithRouterMatch,
+  zenkoUITestConfig,
+} from '../../utils/testUtil';
+import Accounts from '../Accounts';
 
 const TEST_ACCOUNT =
   USERS.find((user) => user.id === '064609833007')?.userName ?? '';
 const TEST_ACCOUNT_CREATION_DATE =
   USERS.find((user) => user.id === '064609833007')?.createDate ?? '';
+const NO_ACCOUNT_MESSAGE = "You don't have any account yet.";
+
+const mockUseConfig = useConfig as jest.MockedFunction<typeof useConfig>;
+const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -69,6 +73,13 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('Accounts', () => {
+  const selectors = {
+    createAccountButton: () =>
+      screen.getByRole('button', { name: /Create Account/i }),
+    startVeeamConfgurationButton: () =>
+      screen.getByRole('button', { name: /Start Configuration for Veeam/i }),
+  };
+
   it('should list accounts on which user can assume a role', async () => {
     //E
     renderWithRouterMatch(<Accounts />);
@@ -240,13 +251,14 @@ describe('Accounts', () => {
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {
-    useAuth.mockImplementation(() => {
+    mockUseAuth.mockImplementation(() => {
       return {
         userData: {
           id: 'xxx-yyy-zzzz-id',
           token: 'xxx-yyy-zzz-token',
           username: 'Renard ADMIN',
           email: 'renard.admin@scality.com',
+          roles: ['PlatformAdmin'],
           groups: ['user', 'PlatformAdmin'],
         },
       };
@@ -280,5 +292,58 @@ describe('Accounts', () => {
     expect(
       screen.queryByRole('button', { name: /Create Account/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('should display Veeam Configuration for Veeam User and Storage Manager when there are no accounts', async () => {
+    // S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
+        res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [],
+          }),
+        ),
+      ),
+    );
+
+    mockUseConfig.mockImplementation(() => {
+      return {
+        ...zenkoUITestConfig,
+        iamInternalFQDN: TEST_API_BASE_URL,
+        s3InternalFQDN: TEST_API_BASE_URL,
+        basePath: '',
+        features: ['Veeam'],
+      };
+    });
+
+    mockUseAuth.mockImplementation(() => {
+      return {
+        userData: {
+          id: 'xxx-yyy-zzzz-id',
+          token: 'xxx-yyy-zzz-token',
+          username: 'Renard ADMIN',
+          email: 'renard.admin@scality.com',
+          roles: ['StorageManager'],
+          groups: ['user', 'StorageManager'],
+        },
+      };
+    });
+
+    //E
+    reduxRender(
+      <WrapperAsStorageManager isStorageManager>
+        <Accounts />
+      </WrapperAsStorageManager>,
+      {
+        auth: { config: { iamEndpoint: TEST_API_BASE_URL } },
+      },
+    );
+
+    //V
+    await waitFor(() => screen.getByText(NO_ACCOUNT_MESSAGE));
+
+    expect(selectors.createAccountButton()).toBeInTheDocument();
+    expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
   });
 });
