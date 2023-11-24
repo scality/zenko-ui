@@ -33,7 +33,7 @@ import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/Acces
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 //LocationTestOK
-const theme = {
+export const theme = {
   name: 'Dark Rebrand Theme',
   brand: {
     // Dark Rebrand
