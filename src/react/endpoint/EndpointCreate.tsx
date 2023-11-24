@@ -112,6 +112,9 @@ function EndpointCreate() {
       rightActions={
         <Stack gap="r16">
           <Button
+            disabled={
+              createEndpointMutation.isLoading || waiterStatus === 'waiting'
+            }
             id="cancel-btn"
             variant="outline"
             onClick={handleCancel}
@@ -119,11 +122,20 @@ function EndpointCreate() {
             type="button"
           />
           <Button
-            disabled={!isValid}
+            disabled={
+              !isValid ||
+              createEndpointMutation.isLoading ||
+              loading ||
+              waiterStatus === 'waiting'
+            }
             id="create-endpoint-btn"
             variant="primary"
             onClick={handleSubmit(onSubmit)}
-            label="Create"
+            label={
+              createEndpointMutation.isLoading || waiterStatus === 'waiting'
+                ? 'Creating...'
+                : 'Create'
+            }
           />
         </Stack>
       }

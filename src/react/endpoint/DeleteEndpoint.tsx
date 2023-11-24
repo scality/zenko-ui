@@ -66,6 +66,9 @@ export const DeleteEndpoint = ({
         show={isConfirmDeleteOpen}
         cancel={() => setIsConfirmDeleteOpen(false)}
         approve={handleDeleteApprove}
+        isLoading={
+          deleteEndpointMutation.isLoading || waiterStatus === 'waiting'
+        }
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton

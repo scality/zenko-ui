@@ -8,10 +8,17 @@ type Props = {
   approve: () => void;
   cancel: () => void;
   show: boolean;
+  isLoading?: boolean;
   titleText: string;
 };
 
-const DeleteConfirmation = ({ approve, cancel, show, titleText }: Props) => {
+const DeleteConfirmation = ({
+  approve,
+  cancel,
+  show,
+  titleText,
+  isLoading,
+}: Props) => {
   if (!show) {
     return null;
   }
@@ -30,11 +37,11 @@ const DeleteConfirmation = ({ approve, cancel, show, titleText }: Props) => {
           <Stack>
             <Button variant="outline" onClick={cancel} label="Cancel" />
             <Button
-              disabled={loading}
+              disabled={loading || isLoading}
               className="delete-confirmation-delete-button"
               variant="danger"
               onClick={() => approve()}
-              icon={loading && <Loader size="larger" />}
+              icon={(isLoading || loading) && <Loader size="larger" />}
               label="Delete"
             />
           </Stack>
