@@ -3,10 +3,13 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { Form, FormGroup, FormSection, Stack, Toggle } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { VEEAMVERSION11, VEEAMVERSION12 } from './VeeamConstants';
+import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
+import prettyBytes from 'pretty-bytes';
 
 const schema = Joi.object({
   name: Joi.string().required(),
@@ -39,6 +42,7 @@ const Configuration = () => {
     register,
     watch,
     formState: { errors, isValid },
+    setValue,
   } = useForm<VeeamConfiguration>({
     mode: 'all',
     resolver: joiResolver(schema),
@@ -56,6 +60,24 @@ const Configuration = () => {
   };
   const formRef = useRef(null);
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
+  const xCoreConfig = useXcoreConfig('run');
+  const { useClusterCapacity } = useXCoreLibrary();
+  const { clusterCapacity, clusterCapacityStatus } =
+    useClusterCapacity(xCoreConfig);
+
+  useEffect(() => {
+    if (clusterCapacityStatus === 'success') {
+      const capacityValue = prettyBytes(parseInt(clusterCapacity, 10), {
+        locale: 'en',
+        binary: true,
+      }).split(' ')[0];
+      const capacityUnitValue = prettyBytes(parseInt(clusterCapacity, 10), {
+        locale: 'en',
+      }).split(' ')[1];
+      setValue('capacity', capacityValue);
+      setValue('capacityUnit', capacityUnitValue);
+    }
+  }, [clusterCapacityStatus]);
 
   return (
     <Form

@@ -37,6 +37,26 @@ export function useDeployedMetalk8sInstances(): SolutionUI[] {
   });
 }
 
+export function useDeployedXcoreInstances(): SolutionUI[] {
+  return deployedInstancesGlobal.hooks.useDeployedApps({
+    kind: 'xcore-ui',
+  });
+}
+
+export function useXcoreConfig(configType: 'run' | 'build' = 'build') {
+  const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
+  const instances = useDeployedXcoreInstances();
+
+  if (instances.length) {
+    return retrieveConfiguration({
+      configType,
+      name: instances[0].name,
+    });
+  } else {
+    console.log('There is no Xcore instance deployed yet.');
+  }
+}
+
 export function useConfigRetriever() {
   return configGlobal.hooks.useConfigRetriever();
 }

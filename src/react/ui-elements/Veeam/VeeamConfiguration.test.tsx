@@ -44,4 +44,22 @@ describe('Veeam Configuration UI', () => {
       expect(selectors.continueButton()).toBeEnabled();
     });
   });
+
+  it('should display clusterCapacity in default value with unit', async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <Stepper
+          steps={[
+            {
+              label: 'Configuration',
+              Component: Configuration,
+            },
+          ]}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.getByDisplayValue(/4.66/i)).toBeInTheDocument();
+    expect(screen.getByText(/GB/i)).toBeInTheDocument();
+  });
 });

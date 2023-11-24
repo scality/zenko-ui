@@ -48,6 +48,40 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
       };
     }),
     useGrafanaURL: jest.fn(() => TEST_API_BASE_URL + '/grafana'),
+    useXcoreConfig: jest.fn(() => {
+      return {
+        spec: {
+          hooks: {
+            xcore_library: {
+              module: './xcoreLibrary',
+              scope: 'xcore',
+            },
+          },
+        },
+      };
+    }),
+    useConfigRetriever: jest.fn(() => {
+      return {
+        retrieveConfiguration: jest.fn(),
+      };
+    }),
+  };
+});
+
+jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
+  return {
+    ...jest.requireActual(
+      './src/react/next-architecture/ui/XCoreLibraryProvider',
+    ),
+    __esModule: true,
+    useXCoreLibrary: jest.fn(() => {
+      return {
+        useClusterCapacity: jest.fn(() => ({
+          clusterCapacity: '5000000000',
+          clusterCapacityStatus: 'success',
+        })),
+      };
+    }),
   };
 });
 
