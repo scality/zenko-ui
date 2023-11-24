@@ -102,7 +102,6 @@ export default function Buckets() {
               <BucketList
                 selectedBucketName={bucketNameParam}
                 buckets={buckets.value}
-                locations={locations}
                 ingestionStates={ingestionStates}
               />
             ),
