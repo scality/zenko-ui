@@ -9,16 +9,18 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import type { AppState } from '../../types/state';
-import { clearError, createEndpoint } from '../actions';
+import {
+  useCreateEndpointMutation,
+  useWaitForRunningConfigurationVersionToBeUpdated,
+} from '../../js/mutations';
 import { renderLocation } from '../locations/utils';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useOutsideClick } from '../utils/hooks';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useMemo } from 'react';
+import { useMutation } from 'react-query';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -40,31 +42,23 @@ function EndpointCreate() {
     },
   });
   const history = useHistory();
-  const dispatch = useDispatch();
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
+  const {
+    accountsLocationsAndEndpoints,
+    status,
+    refetchAccountsLocationsEndpoints,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+  const createEndpointMutation = useCreateEndpointMutation();
+  const instanceId = useInstanceId();
   const loading = status === 'idle' || status === 'loading';
-
-  const clearServerError = () => {
-    if (hasError) {
-      dispatch(clearError());
-    }
-  };
-
-  // clear server errors if clicked on outside of element.
-  const formRef = useRef(null);
-  useOutsideClick(formRef, clearServerError);
+  const {
+    setReferenceVersion,
+    waitForRunningConfigurationVersionToBeUpdated,
+    status: waiterStatus,
+  } = useWaitForRunningConfigurationVersionToBeUpdated();
 
   const onSubmit = ({
     hostname,
@@ -73,18 +67,46 @@ function EndpointCreate() {
     hostname: string;
     locationName: string;
   }) => {
-    clearServerError();
-    dispatch(createEndpoint(hostname, locationName, history));
+    setReferenceVersion({
+      onRefTaken: () => {
+        createEndpointMutation.mutate(
+          {
+            hostname,
+            locationName,
+            instanceId,
+          },
+          {
+            onSuccess: () => {
+              waitForRunningConfigurationVersionToBeUpdated();
+            },
+          },
+        );
+      },
+    });
   };
 
+  const refetchMutation = useMutation({
+    mutationFn: () => {
+      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
+    },
+  });
+
+  useMemo(() => {
+    if (waiterStatus === 'success') {
+      refetchMutation.mutate(undefined, {
+        onSuccess: () => {
+          history.push('/dataservices');
+        },
+      });
+    }
+  }, [waiterStatus]);
+
   const handleCancel = () => {
-    clearServerError();
     history.push('/dataservices');
   };
 
   return (
     <Form
-      ref={formRef}
       layout={{ kind: 'page', title: 'Create a New Data Service' }}
       requireMode="partial"
       rightActions={
@@ -106,14 +128,14 @@ function EndpointCreate() {
         </Stack>
       }
       banner={
-        hasError && (
+        createEndpointMutation.isError && (
           <Banner
             id="zk-error-banner"
             icon={<Icon name="Exclamation-triangle" />}
             title="Error"
             variant="danger"
           >
-            {errorMessage}
+            {createEndpointMutation.error?.message}
           </Banner>
         )
       }
@@ -129,7 +151,7 @@ function EndpointCreate() {
             <Input
               type="text"
               id="hostname"
-              {...register('hostname', { onChange: clearServerError })}
+              {...register('hostname')}
               placeholder="s3.example.com"
               autoFocus
               autoComplete="off"

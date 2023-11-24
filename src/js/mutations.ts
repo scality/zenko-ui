@@ -1,23 +1,79 @@
-import { useMutation } from 'react-query';
-import { useManagementClient } from '../react/ManagementProvider';
-import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
-import { useIAMClient } from '../react/IAMProvider';
-import { TagSetItem } from '../types/s3';
 import { S3 } from 'aws-sdk';
+import { useRef, useState } from 'react';
+import { useMutation } from 'react-query';
+import { useIAMClient } from '../react/IAMProvider';
+import { useManagementClient } from '../react/ManagementProvider';
+import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
+import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
+import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
+import { EndpointV1 } from './managementClient/api';
+import { ApiError } from '../types/actions';
 
+export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
+  const managementClient = useManagementClient();
+  const instanceId = useInstanceId();
+  const client = notFalsyTypeGuard(managementClient);
+  const runningConfigurationVersionMutation = useMutation({
+    mutationFn: async (instanceId: string) => {
+      return (
+        (await client.getLatestInstanceStatus(instanceId)).state
+          ?.runningConfigurationVersion || 0
+      );
+    },
+  });
+  const versionRef = useRef(0);
+  const [status, setStatus] = useState<
+    'idle' | 'refTaken' | 'waiting' | 'success' | 'error'
+  >('idle');
+  const setReferenceVersion = ({ onRefTaken }: { onRefTaken?: () => void }) => {
+    runningConfigurationVersionMutation.mutate(instanceId, {
+      onSuccess: (version) => {
+        versionRef.current = version;
+        setStatus('refTaken');
+        if (onRefTaken) {
+          onRefTaken();
+        }
+      },
+      onError: () => {
+        setStatus('error');
+      },
+    });
+  };
+
+  const waitForRunningConfigurationVersionToBeUpdated = () => {
+    setStatus('waiting');
+    runningConfigurationVersionMutation.mutate(instanceId, {
+      onSuccess: (version) => {
+        if (version > versionRef.current) {
+          setStatus('success');
+        } else {
+          setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500);
+        }
+      },
+      onError: () => {
+        setStatus('error');
+      },
+    });
+  };
+  return {
+    waitForRunningConfigurationVersionToBeUpdated,
+    setReferenceVersion,
+    status,
+  };
+};
 const useCreateEndpointMutation = () => {
   const managementClient = useManagementClient();
-  return useMutation({
-    mutationFn: ({
-      hostname,
-      locationName,
-      instanceId,
-    }: {
+  return useMutation<
+    EndpointV1,
+    ApiError,
+    {
       hostname: string;
       locationName: string;
       instanceId: string;
-    }) => {
+    }
+  >({
+    mutationFn: ({ hostname, locationName, instanceId }) => {
       const params = {
         uuid: instanceId,
         endpoint: {
@@ -109,11 +165,11 @@ const usePutObjectMutation = () => {
 };
 
 export {
+  useAttachPolicyToUserMutation,
+  useCreateAccountMutation,
   useCreateEndpointMutation,
   useCreateIAMUserMutation,
-  useCreateAccountMutation,
   useCreatePolicyMutation,
-  useAttachPolicyToUserMutation,
   usePutBucketTaggingMutation,
   usePutObjectMutation,
 };
