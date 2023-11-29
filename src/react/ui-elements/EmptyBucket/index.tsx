@@ -21,8 +21,6 @@ import {
   BUCKET_EMPTY,
   BUCKET_EMPTY_CHECKING,
   EMPTY_CONFIRMATION_MODAL_TITLE,
-  INPUT_PLACEHOLDER,
-  VALID_CONFIRM_INPUT,
 } from './constants';
 import { createDeleteObjectsData, paginateData } from './utils';
 
@@ -129,7 +127,7 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
     resetAllStates();
   };
 
-  const isConfirm = confirmText === VALID_CONFIRM_INPUT;
+  const isConfirm = confirmText === bucketName;
 
   // Check if Object-lock is enabled
   const isObjectLock =
@@ -323,12 +321,12 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
               }}
             >
               <label style={{ float: 'left', marginRight: '1rem' }}>
-                Type "confirm" to delete all content
+                Type the name of the bucket to delete all its content.
               </label>
               <Input
                 aria-label="confirm-input"
                 autoFocus={isEmptyModalOpen}
-                placeholder={INPUT_PLACEHOLDER}
+                placeholder={`type ${bucketName}`}
                 type="text"
                 value={confirmText}
                 onChange={handleInputChange}
