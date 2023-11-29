@@ -103,10 +103,15 @@ const useCreateAccountMutation = () => {
         uuid: instanceId,
         user,
       };
-      return notFalsyTypeGuard(managementClient).createConfigurationOverlayUser(
-        params.user,
-        params.uuid,
-      );
+      return notFalsyTypeGuard(managementClient)
+        .createConfigurationOverlayUser(params.user, params.uuid)
+        .catch(async (error: Response) => {
+          if (error.status === 409) {
+            throw {
+              message: 'An account with the same name or email already exists',
+            };
+          }
+        });
     },
   });
 };

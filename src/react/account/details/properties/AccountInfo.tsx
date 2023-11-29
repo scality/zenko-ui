@@ -1,4 +1,4 @@
-import { Icon } from '@scality/core-ui';
+import { Icon, Modal } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -58,12 +58,27 @@ function DeleteAccountButtonAndModal({ account }: Props) {
   });
   const deleteMutation = useMutation({
     mutationFn: () => {
-      return notFalsyTypeGuard(managementClient).deleteConfigurationOverlayUser(
-        instanceId,
-        undefined,
-        account.Name,
-        rolePathName,
-      );
+      return notFalsyTypeGuard(managementClient)
+        .deleteConfigurationOverlayUser(
+          instanceId,
+          undefined,
+          account.Name,
+          rolePathName,
+        )
+        .catch(async (error: Response) => {
+          if (error.status >= 400 && error.status < 500) {
+            if (error.status === 409) {
+              throw {
+                message:
+                  'Unable to delete the account due to the presence of associated resources.',
+              };
+            }
+            throw await error.json();
+          }
+        });
+    },
+    onError: () => {
+      setIsModalOpened(false);
     },
     onSuccess: () => {
       refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
@@ -79,6 +94,24 @@ function DeleteAccountButtonAndModal({ account }: Props) {
 
   return (
     <>
+      {deleteMutation.isError && (
+        <Modal
+          title="Error"
+          isOpen={true}
+          footer={
+            <Button
+              variant="primary"
+              onClick={() => {
+                deleteMutation.mutate();
+              }}
+              label="Retry"
+            />
+          }
+        >
+          {deleteMutation.error?.message ||
+            'Deletion of the account failed, please retry.'}
+        </Modal>
+      )}
       <DeleteConfirmation
         show={isModalOpened}
         cancel={() => setIsModalOpened(false)}

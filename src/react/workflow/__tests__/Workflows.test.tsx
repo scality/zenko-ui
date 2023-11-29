@@ -20,8 +20,8 @@ import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../js/mock/S3ClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 
-const INSTANCE_ID = '25050307-cd09-4feb-9c2e-c93e2e844fea';
 const TEST_ACCOUNT = 'test-account';
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 
