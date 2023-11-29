@@ -48,6 +48,29 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
       };
     }),
     useGrafanaURL: jest.fn(() => TEST_API_BASE_URL + '/grafana'),
+    useDeployedApps: jest.fn(() => {
+      const mockDeployedApps = [
+        {
+          kind: 'artesca-base-ui',
+          name: 'artesca-ui.eu-west-1',
+          version: 'test',
+          url: TEST_API_BASE_URL,
+          appHistoryBasePath: '/data',
+        },
+      ];
+      return mockDeployedApps;
+    }),
+    useConfigRetriever: jest.fn(() => {
+      return {
+        retrieveConfiguration: jest.fn(() => {
+          return {
+            spec: {
+              remoteEntryPath: '/remoteEntry.js',
+            },
+          };
+        }),
+      };
+    }),
     useXcoreConfig: jest.fn(() => {
       return {
         spec: {
@@ -58,11 +81,6 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
             },
           },
         },
-      };
-    }),
-    useConfigRetriever: jest.fn(() => {
-      return {
-        retrieveConfiguration: jest.fn(),
       };
     }),
   };
