@@ -210,7 +210,6 @@ export const initialFullState = {
   uiConfig: initialConfigUIState,
   uiUser: initialUserUIState,
   uiLocations: initialLocationsUIState,
-  uiEndpoints: initialEndpointsUIState,
   uiObjects: initialObjectUIState,
   uiErrors: initialErrorsUIState,
   uiBuckets: initialBucketUIState,
