@@ -60,6 +60,6 @@ describe('Veeam Configuration UI', () => {
     );
 
     expect(screen.getByDisplayValue(/4.66/i)).toBeInTheDocument();
-    expect(screen.getByText(/GB/i)).toBeInTheDocument();
+    expect(screen.getByText(/GiB/i)).toBeInTheDocument();
   });
 });

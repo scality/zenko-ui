@@ -50,7 +50,7 @@ const Configuration = () => {
       name: '',
       version: VEEAMVERSION12,
       capacity: '5', //TODO: The default value will be net capacity.
-      capacityUnit: 'TB',
+      capacityUnit: 'TiB',
       enableImmutableBackup: true,
     },
   });
@@ -67,15 +67,16 @@ const Configuration = () => {
 
   useEffect(() => {
     if (clusterCapacityStatus === 'success') {
-      const capacityValue = prettyBytes(parseInt(clusterCapacity, 10), {
-        locale: 'en',
-        binary: true,
-      }).split(' ')[0];
-      const capacityUnitValue = prettyBytes(parseInt(clusterCapacity, 10), {
-        locale: 'en',
-      }).split(' ')[1];
-      setValue('capacity', capacityValue);
-      setValue('capacityUnit', capacityUnitValue);
+      const prettyBytesClusterCapacity = prettyBytes(
+        parseInt(clusterCapacity, 10),
+        {
+          locale: 'en',
+          binary: true,
+        },
+      );
+
+      setValue('capacity', prettyBytesClusterCapacity.split(' ')[0]);
+      setValue('capacityUnit', prettyBytesClusterCapacity.split(' ')[1]);
     }
   }, [clusterCapacityStatus]);
 
@@ -190,6 +191,7 @@ const Configuration = () => {
                 <Input
                   id="capacity"
                   type="number"
+                  // @ts-expect-error - TODO: Fix the type of the size props in Input component
                   size="1/3"
                   min={1}
                   max={999}
@@ -206,9 +208,9 @@ const Configuration = () => {
                         value={value}
                         size="2/3"
                       >
-                        <Select.Option value={'GB'}>GB</Select.Option>
-                        <Select.Option value={'TB'}>TB</Select.Option>
-                        <Select.Option value={'PB'}>PB</Select.Option>
+                        <Select.Option value={'GiB'}>GiB</Select.Option>
+                        <Select.Option value={'TiB'}>TiB</Select.Option>
+                        <Select.Option value={'PiB'}>PiB</Select.Option>
                       </Select>
                     );
                   }}
