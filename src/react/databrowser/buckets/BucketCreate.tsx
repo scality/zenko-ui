@@ -31,6 +31,7 @@ import {
 } from '../../next-architecture/domain/business/buckets';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 
 const helpNonAsyncLocation =
   'Selected Storage Location does not support Async Metadata updates.';
@@ -102,7 +103,7 @@ function BucketCreate() {
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
-  const features = useSelector((state: AppState) => state.auth.config.features);
+  const { features } = useConfig();
   const watchedLocation = accountsLocationsAndEndpoints?.locations.find(
     (l) => l.name === watchLocationName,
   );

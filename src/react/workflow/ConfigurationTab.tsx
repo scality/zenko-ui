@@ -71,6 +71,7 @@ import {
   removeEmptyTagKeys,
 } from './utils';
 import { useWorkflows } from './Workflows';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
   wfSelected: Workflow;
@@ -85,8 +86,7 @@ function useReplicationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const rolePathName = useRolePathName();
   const accountId = account?.id;
@@ -200,8 +200,7 @@ function useExpirationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
   const rolePathName = useRolePathName();
@@ -301,8 +300,7 @@ function useTransitionMutations(
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
   const rolePathName = useRolePathName();

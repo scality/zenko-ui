@@ -1,28 +1,35 @@
-import styled from 'styled-components';
-import { Button } from '@scality/core-ui/dist/next';
-import { useHistory } from 'react-router-dom';
-import { useMutation, useQueryClient } from 'react-query';
 import { Icon } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
+import { useMutation, useQueryClient } from 'react-query';
+import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
-import Table, * as T from '../../../ui-elements/TableKeyValue';
-import {
-  closeAccountDeleteDialog,
-  deleteAccount,
-  openAccountDeleteDialog,
-} from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
 import type { Account } from '../../../../types/account';
-import type { AppState } from '../../../../types/state';
-import { ButtonContainer } from '../../../ui-elements/Container';
-import { Clipboard } from '../../../ui-elements/Clipboard';
-import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import SecretKeyModal from './SecretKeyModal';
-import { TitleRow } from '../../../ui-elements/TableKeyValue';
-import { formatDate } from '../../../utils';
-import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
-import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
+import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import { useManagementClient } from '../../../ManagementProvider';
+import {
+  useAccountsLocationsAndEndpoints,
+  useListAccounts,
+} from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
+import { Clipboard } from '../../../ui-elements/Clipboard';
+import { ButtonContainer } from '../../../ui-elements/Container';
+import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
+import * as T from '../../../ui-elements/TableKeyValue';
+import Table, { TitleRow } from '../../../ui-elements/TableKeyValue';
+import { formatDate } from '../../../utils';
+import {
+  useAccounts,
+  useAuthGroups,
+  useRolePathName,
+} from '../../../utils/hooks';
+import { removeRoleArnStored } from '../../../utils/localStorage';
+import SecretKeyModal from './SecretKeyModal';
+import { useSetAssumedRole } from '../../../DataServiceRoleProvider';
+import { useAccessibleAccountsAdapter } from '../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useMetricsAdapter } from '../../../next-architecture/ui/MetricsAdapterProvider';
 
 const TableContainer = styled.div`
   display: flex;
@@ -32,77 +39,79 @@ type Props = {
   account: Account;
 };
 
-function AccountInfo({ account }: Props) {
-  const dispatch = useDispatch();
+function DeleteAccountButtonAndModal({ account }: Props) {
+  const [isModalOpened, setIsModalOpened] = useState(false);
   const history = useHistory();
   const queryClient = useQueryClient();
-  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
-  const showDelete = useSelector(
-    (state: AppState) => state.uiAccounts.showDelete,
-  );
   const rolePathName = useRolePathName();
-  const { isStorageManager } = useAuthGroups();
-
-  const handleDeleteClick = () => {
-    dispatch(openAccountDeleteDialog());
-  };
 
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
   const { refetchAccountsLocationsEndpoints } =
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const instanceId = useInstanceId();
+  const managementClient = useManagementClient();
+  const refetchAccountsLocationsEndpointsMutation = useMutation({
+    mutationFn: () => {
+      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
+    },
+  });
   const deleteMutation = useMutation({
     mutationFn: () => {
-      return dispatch(
-        deleteAccount(
-          account.Name,
-          queryClient,
-          token,
-          rolePathName,
-          history,
-          instanceId,
-        ),
+      return notFalsyTypeGuard(managementClient).deleteConfigurationOverlayUser(
+        instanceId,
+        undefined,
+        account.Name,
+        rolePathName,
       );
     },
     onSuccess: () => {
-      refetchAccountsLocationsEndpoints();
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+        onSuccess: () => {
+          removeRoleArnStored();
+          queryClient.invalidateQueries(['WebIdentityRoles']);
+          history.push('/accounts');
+          setIsModalOpened(false);
+        },
+      });
     },
   });
 
-  const handleDeleteApprove = () => {
-    if (!account) {
-      return;
-    }
+  return (
+    <>
+      <DeleteConfirmation
+        show={isModalOpened}
+        cancel={() => setIsModalOpened(false)}
+        approve={() => deleteMutation.mutate()}
+        isLoading={
+          deleteMutation.isLoading ||
+          refetchAccountsLocationsEndpointsMutation.isLoading
+        }
+        titleText={`Are you sure you want to delete account: ${account.Name} ?`}
+      />
+      <Button
+        id="delete-account-btn"
+        icon={<Icon name="Delete" />}
+        onClick={() => setIsModalOpened(true)}
+        variant="danger"
+        label="Delete Account"
+      />
+    </>
+  );
+}
 
-    deleteMutation.mutate();
-  };
-
-  const handleDeleteCancel = () => {
-    dispatch(closeAccountDeleteDialog());
-  };
+function AccountInfo({ account }: Props) {
+  const { isStorageManager } = useAuthGroups();
 
   // TODO: Should we let the user delete accounts that still owns buckets.
   return (
     <TableContainer>
-      <DeleteConfirmation
-        show={showDelete}
-        cancel={handleDeleteCancel}
-        approve={handleDeleteApprove}
-        titleText={`Are you sure you want to delete account: ${account.Name} ?`}
-      />
       <SecretKeyModal account={account} />
       <TitleRow>
         <h3>Account details</h3>
         {isStorageManager && (
           <ButtonContainer>
-            <Button
-              id="delete-account-btn"
-              icon={<Icon name="Delete" />}
-              onClick={handleDeleteClick}
-              variant="danger"
-              label="Delete Account"
-            />
+            <DeleteAccountButtonAndModal account={account} />
           </ButtonContainer>
         )}
       </TitleRow>

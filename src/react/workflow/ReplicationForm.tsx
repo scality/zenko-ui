@@ -57,6 +57,7 @@ import {
   flattenFormTouchedFields,
   renderDestination,
 } from './utils';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
   isCreateMode?: boolean;
@@ -158,8 +159,7 @@ export function GeneralReplicationGroup({
 }
 
 const useReplicationStreams = (account?: Account) => {
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();

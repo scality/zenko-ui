@@ -1,35 +1,38 @@
-import { useCallback, useMemo, useState, ComponentType } from 'react';
+import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
+import { ComponentType, useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
-import { useDispatch, useSelector } from 'react-redux';
-import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
-import { useMutation } from 'react-query';
 
-import { Replication } from '../../types/config';
-import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { canDeleteLocation } from './utils';
-import { deleteLocation } from '../actions';
-import type { AppState } from '../../types/state';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { Warning } from '../ui-elements/Warning';
-import { Table, Button, Box } from '@scality/core-ui/dist/next';
-import { useWorkflows } from '../workflow/Workflows';
-import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
-import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
-import { getLocationType } from '../utils/storageOptions';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
-import { PauseAndResume } from './PauseAndResume';
-import { useListLocations } from '../next-architecture/domain/business/locations';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
-import { Location } from '../next-architecture/domain/entities/location';
+import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
+import { Replication } from '../../types/config';
+import type { AppState } from '../../types/state';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useManagementClient } from '../ManagementProvider';
 import {
+  queries,
   useAccountsLocationsAndEndpoints,
   useListAccounts,
 } from '../next-architecture/domain/business/accounts';
+import { useListLocations } from '../next-architecture/domain/business/locations';
+import { Location } from '../next-architecture/domain/entities/location';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { HelpLocationTargetBucket } from '../ui-elements/Help';
+import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
+import { Warning } from '../ui-elements/Warning';
+import { getLocationType } from '../utils/storageOptions';
+import { useWorkflows } from '../workflow/Workflows';
+import { PauseAndResume } from './PauseAndResume';
+import { canDeleteLocation } from './utils';
 
 const ActionButtons = ({
   rowValues,
@@ -41,7 +44,6 @@ const ActionButtons = ({
   transitions: BucketWorkflowTransitionV2[];
 }) => {
   const { name: locationName } = rowValues;
-  const dispatch = useDispatch();
   const history = useHistory();
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const [showModal, setShowModal] = useState(false);
@@ -50,17 +52,55 @@ const ActionButtons = ({
   const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpoints } =
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
+  const managementClient = useManagementClient();
+  const instanceId = useInstanceId();
   const deleteMutation = useMutation({
     mutationFn: async (locationName: string) =>
-      dispatch(deleteLocation(locationName)),
-    onSuccess: () => {
-      refetchAccountsLocationsEndpoints();
+      notFalsyTypeGuard(managementClient).deleteConfigurationOverlayLocation(
+        locationName,
+        instanceId,
+      ),
+  });
+  const {
+    setReferenceVersion,
+    status: waiterStatus,
+    waitForRunningConfigurationVersionToBeUpdated,
+  } = useWaitForRunningConfigurationVersionToBeUpdated();
+  const queryClient = useQueryClient();
+  const handleDeleteClick = (locationName: string) => {
+    setReferenceVersion({
+      onRefTaken: () => {
+        deleteMutation.mutate(locationName, {
+          onSuccess: () => {
+            const newAccountsLocationsEndpoints = {
+              ...accountsLocationsAndEndpoints,
+              locations: accountsLocationsAndEndpoints?.locations.filter(
+                (location) => location.name !== locationName,
+              ),
+            };
+
+            queryClient.setQueryData(
+              queries.listAccountsLocationAndEndpoints(
+                accountsLocationsEndpointsAdapter,
+              ).queryKey,
+              newAccountsLocationsEndpoints,
+            );
+            waitForRunningConfigurationVersionToBeUpdated();
+          },
+        });
+      },
+    });
+  };
+  const refetchLocationsMutation = useMutation({
+    mutationFn: () => {
+      return refetchAccountsLocationsEndpoints();
     },
   });
-  const handleDeleteClick = useCallback(
-    (locationName) => deleteMutation.mutate(locationName),
-    [dispatch],
-  );
+  useMemo(() => {
+    if (waiterStatus === 'success') {
+      refetchLocationsMutation.mutate();
+    }
+  }, [waiterStatus]);
 
   const isDeletionEnable = canDeleteLocation(
     rowValues,
@@ -74,6 +114,7 @@ const ActionButtons = ({
     <div>
       <DeleteConfirmation
         show={showModal}
+        isLoading={deleteMutation.isLoading || waiterStatus === 'waiting'}
         cancel={() => setShowModal(false)}
         approve={() => handleDeleteClick(locationName)}
         titleText={`Delete location? \n
@@ -114,7 +155,6 @@ const ActionButtons = ({
 };
 
 export function LocationsList() {
-  const dispatch = useDispatch();
   const history = useHistory();
   const workflowsQuery = useWorkflows();
   const accountsLocationsEndpointsAdapter =
@@ -141,7 +181,7 @@ export function LocationsList() {
     if (locations.status === 'success') return Object.values(locations.value);
     else return [];
   }, [locations]);
-  const loading = useSelector(
+  const loadingBuckets = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
 
@@ -265,12 +305,11 @@ export function LocationsList() {
     });
     return columns;
   }, [
-    dispatch,
     locations,
     buckets,
     accountsLocationsAndEndpoints?.endpoints,
     workflowsQuery.data?.replications,
-    loading,
+    loadingBuckets,
   ]);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {

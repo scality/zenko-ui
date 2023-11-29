@@ -68,6 +68,7 @@ import {
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -88,13 +89,12 @@ const CreateWorkflow = () => {
   const BUCKETNAME_QUERY_PARAM = 'bucket';
   const queryParams = useQueryParams();
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
-  const state = useSelector((state: AppState) => state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
 
   const { versionning } = useBucketVersionning({ bucketName });
   const isBucketVersioningEnabled =

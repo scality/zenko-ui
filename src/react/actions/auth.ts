@@ -1,4 +1,6 @@
-import type { AppConfig, InstanceId, Theme } from '../../types/entities';
+import STSClient from '../../js/STSClient';
+import ZenkoClient from '../../js/ZenkoClient';
+import makeMgtClient from '../../js/managementClient';
 import type {
   ConfigAuthFailureAction,
   LoadClientsSuccessAction,
@@ -11,20 +13,17 @@ import type {
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
+import type { OidcLogoutFunction } from '../../types/auth';
+import type { AppConfig, InstanceId, Theme } from '../../types/entities';
+import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
+import type { STSClient as STSClientInterface } from '../../types/sts';
 import {
   addOIDCUser,
   handleErrorMessage,
   loadInstanceLatestStatus,
   networkAuthFailure,
   setZenkoClient,
-  updateConfiguration,
 } from './index';
-import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
-import type { OidcLogoutFunction } from '../../types/auth';
-import STSClient from '../../js/STSClient';
-import type { STSClient as STSClientInterface } from '../../types/sts';
-import ZenkoClient from '../../js/ZenkoClient';
-import makeMgtClient from '../../js/managementClient';
 export function setOIDCLogout(logout: OidcLogoutFunction): SetOIDCLogoutAction {
   return {
     type: 'SET_OIDC_LOGOUT',
@@ -134,10 +133,7 @@ export function loadClients(): ThunkStatePromisedAction {
     );
 
     dispatch(setManagementClient(managementClient));
-    return Promise.all([
-      dispatch(updateConfiguration()),
-      dispatch(loadInstanceLatestStatus()),
-    ])
+    return dispatch(loadInstanceLatestStatus())
       .then(() => dispatch(loadClientsSuccess()))
       .catch((error) => {
         if (error.message) {

@@ -1,24 +1,24 @@
 import type { AccessKey, Account, SecretKey } from './account';
-import type { AppConfig, InstanceId, Theme } from './entities';
 import type { AuthUser, OidcLogoutFunction } from './auth';
+import type { ConfigurationOverlay, Hostname } from './config';
+import type { AppConfig, InstanceId, Theme } from './entities';
+import type { ManagementClient } from './managementClient';
 import type {
   BucketInfo,
   CommonPrefix,
   HeadObjectResponse,
+  RetentionMode,
   S3Bucket,
   S3DeleteMarker,
   S3Object,
   S3Version,
   TagSet,
-  RetentionMode,
 } from './s3';
-import type { ConfigurationOverlay, Hostname, LocationName } from './config';
-import type { InstanceStatus } from './stats';
-import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 import type { AppState } from './state';
-import type { IamAccessKey } from './user';
-import type { ManagementClient } from './managementClient';
+import type { InstanceStatus } from './stats';
 import type { STSClient } from './sts';
+import type { IamAccessKey } from './user';
+import type { Marker, SearchResultList, ZenkoClient } from './zenko';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
 export interface ApiError extends Error {
@@ -303,16 +303,7 @@ export type AccountUIAction =
   | CloseAccountDeleteDialogAction
   | OpenAccountKeyCreateModalAction
   | CloseAccountKeyCreateModalAction;
-export type OpenLocationDeleteDialogAction = {
-  readonly type: 'OPEN_LOCATION_DELETE_DIALOG';
-  readonly locationName: LocationName;
-};
-export type CloseLocationDeleteDialogAction = {
-  readonly type: 'CLOSE_LOCATION_DELETE_DIALOG';
-};
-export type LocationUIAction =
-  | OpenLocationDeleteDialogAction
-  | CloseLocationDeleteDialogAction;
+
 export type StatsAction = InstanceStatusAction;
 export type CloseWorkflowEditNotificationAction = {
   readonly type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION';

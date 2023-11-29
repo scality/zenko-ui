@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -8,7 +8,10 @@ import { formatSimpleDate } from '../utils';
 import { ConstrainedText, Icon, Link } from '@scality/core-ui';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
-import { useSetAssumedRole } from '../DataServiceRoleProvider';
+import {
+  useCurrentAccount,
+  useSetAssumedRole,
+} from '../DataServiceRoleProvider';
 import { useAuthGroups } from '../utils/hooks';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
@@ -20,10 +23,25 @@ const TableAction = styled.div`
   margin-bottom: ${spacing.sp16};
 `;
 
+function useAutoAssumeRoleUponAccountDeletion({
+  accounts,
+}: {
+  accounts: Account[];
+}) {
+  const { account } = useCurrentAccount();
+  const setRole = useSetAssumedRole();
+  useMemo(() => {
+    if (account === undefined) {
+      setRole({ roleArn: accounts[0].preferredAssumableRoleArn });
+    }
+  }, [account]);
+}
+
 function AccountList({ accounts }: { accounts: Account[] }) {
   const history = useHistory();
 
   const { isStorageManager } = useAuthGroups();
+  useAutoAssumeRoleUponAccountDeletion({ accounts });
 
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const history = useHistory();

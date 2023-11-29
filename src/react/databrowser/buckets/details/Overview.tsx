@@ -6,43 +6,44 @@ import {
   Tooltip,
 } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
-import type { WorkflowScheduleUnitState } from '../../../../types/stats';
-import { HelpAsyncNotification } from '../../../ui-elements/Help';
+import { Button } from '@scality/core-ui/dist/next';
+import { useEffect, useState } from 'react';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
+import { LocationV1 } from '../../../../js/managementClient/api';
 import type { BucketInfo } from '../../../../types/s3';
 import type { AppState } from '../../../../types/state';
+import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import {
   useBucketTagging,
   useChangeBucketVersionning,
 } from '../../../next-architecture/domain/business/buckets';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useConfig } from '../../../next-architecture/ui/ConfigProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
 import { EmptyBucket } from '../../../ui-elements/EmptyBucket';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
+import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
+import {
+  BUCKET_TAG_USECASE,
+  VEEAMVERSION11,
+  VEEAMVERSION12,
+} from '../../../ui-elements/Veeam/VeeamConstants';
 import { maybePluralize } from '../../../utils';
 import {
   getLocationIngestionState,
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
-import { useEffect, useState } from 'react';
-import { Button } from '@scality/core-ui/dist/next';
-import {
-  BUCKET_TAG_USECASE,
-  VEEAMVERSION11,
-  VEEAMVERSION12,
-} from '../../../ui-elements/Veeam/VeeamConstants';
-import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { LocationV1 } from '../../../../js/managementClient/api';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -199,7 +200,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const workflowsQuery = useWorkflows([bucket.name]);
-  const features = useSelector((state: AppState) => state.auth.config.features);
+  const { features } = useConfig();
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);

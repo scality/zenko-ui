@@ -27,6 +27,7 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
     'idle' | 'refTaken' | 'waiting' | 'success' | 'error'
   >('idle');
   const setReferenceVersion = ({ onRefTaken }: { onRefTaken?: () => void }) => {
+    setStatus('waiting');
     runningConfigurationVersionMutation.mutate(instanceId, {
       onSuccess: (version) => {
         versionRef.current = version;
