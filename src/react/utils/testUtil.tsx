@@ -184,7 +184,9 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
                 },
               }}
             >
-              <_DataServiceRoleContext.Provider value={{ role }}>
+              <_DataServiceRoleContext.Provider
+                value={{ role, setRole: jest.fn() }}
+              >
                 <_ManagementContext.Provider
                   value={{
                     managementClient: TEST_MANAGEMENT_CLIENT,
@@ -413,7 +415,9 @@ export function renderWithRouterMatch(
           <Provider store={store}>
             <Router history={history}>
               <Route path={path}>
-                <_DataServiceRoleContext.Provider value={{ role }}>
+                <_DataServiceRoleContext.Provider
+                  value={{ role, setRole: jest.fn() }}
+                >
                   <_ManagementContext.Provider
                     value={{
                       managementClient: TEST_MANAGEMENT_CLIENT,
@@ -472,7 +476,9 @@ export const renderWithCustomRoute = (
           <Provider store={store}>
             <Router history={history}>
               <_ConfigContext.Provider value={zenkoUITestConfig}>
-                <_DataServiceRoleContext.Provider value={{ role }}>
+                <_DataServiceRoleContext.Provider
+                  value={{ role, setRole: jest.fn() }}
+                >
                   <_ManagementContext.Provider
                     value={{
                       managementClient: TEST_MANAGEMENT_CLIENT,
@@ -529,7 +535,9 @@ export const NewWrapper =
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
-              <_DataServiceRoleContext.Provider value={{ role }}>
+              <_DataServiceRoleContext.Provider
+                value={{ role, setRole: jest.fn() }}
+              >
                 <_ManagementContext.Provider
                   value={{
                     managementClient: TEST_MANAGEMENT_CLIENT,

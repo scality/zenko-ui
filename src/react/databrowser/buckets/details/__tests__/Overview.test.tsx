@@ -188,6 +188,7 @@ import {
   mockGetBucketTaggingError,
   mockGetBucketTaggingNoSuchTagSet,
 } from '../../../../../js/mock/S3ClientMSWHandlers';
+import { debug } from 'jest-preview';
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
 const TEST_ACCOUNT =
@@ -293,6 +294,7 @@ describe('Overview', () => {
     });
     //Verify
     await waitFor(() => {
+      debug();
       expect(
         screen.getByText(new RegExp(`Backup - Veeam 12`, 'i')),
       ).toBeInTheDocument();
