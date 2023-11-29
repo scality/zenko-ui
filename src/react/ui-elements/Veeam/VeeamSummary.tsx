@@ -72,7 +72,7 @@ export const VeeamSummary = ({
             Veeam application.
           </Text>
           <CopyButton
-            textToCopy={`Username\tveeam\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}`}
+            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nUsername\tveeam\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBucket name\t${bucketName}`}
             label="all"
             variant="outline"
             tooltip={{
