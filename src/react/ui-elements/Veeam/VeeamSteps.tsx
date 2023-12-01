@@ -9,7 +9,7 @@ export const VEEAM_STEPS = [
     Component: VeeamConfiguration,
   },
   {
-    label: 'Action Status',
+    label: 'Apply Actions',
     Component: VeeamTable,
   },
   {

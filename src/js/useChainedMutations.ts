@@ -35,7 +35,7 @@ export const useChainedMutations = ({
     results: unknown[] = [],
   ) => {
     const index = results.length;
-    mutationsWithRetry.current[index].retry = () => {
+    const mutateAndTriggerNext = () => {
       mutations[index].mutate(computeVariablesForNext(results), {
         onSuccess: (data) => {
           if (index < mutations.length - 1) {
@@ -44,13 +44,10 @@ export const useChainedMutations = ({
         },
       });
     };
-    mutations[index].mutate(computeVariablesForNext(results), {
-      onSuccess: (data) => {
-        if (index < mutations.length - 1) {
-          go(computeVariablesForNext, [...results, data]);
-        }
-      },
-    });
+    mutationsWithRetry.current[index].retry = () => {
+      mutateAndTriggerNext();
+    };
+    mutateAndTriggerNext();
   };
   return { mutate: go, mutationsWithRetry: mutationsWithRetry.current };
 };

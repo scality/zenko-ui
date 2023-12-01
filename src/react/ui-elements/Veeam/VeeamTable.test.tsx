@@ -76,6 +76,23 @@ describe('VeeamTable', () => {
     );
   };
 
+  const expectInitialState = (status: 'Failed' | 'Success') => {
+    selectors.allRows().forEach((row, index) => {
+      const cells = within(row).getAllByRole('gridcell');
+      expect(cells).toHaveLength(3);
+      expect(cells[0]).toHaveTextContent(`${index + 1}`);
+      expect(cells[1]).toHaveTextContent(actions[index]);
+
+      if (index === 0) {
+        try {
+          expect(cells[2]).toHaveTextContent(/Pending.../i);
+        } catch (error) {
+          expect(cells[2]).toHaveTextContent(new RegExp(status, 'i'));
+        }
+      }
+    });
+  };
+
   it('should retry the failed actions', async () => {
     //Setup
     server.use(...allFailHandlers);
@@ -93,21 +110,7 @@ describe('VeeamTable', () => {
     });
 
     //Verify
-    // initial state
-    selectors.allRows().forEach((row, index) => {
-      const cells = within(row).getAllByRole('gridcell');
-      expect(cells).toHaveLength(3);
-      expect(cells[0]).toHaveTextContent(`${index + 1}`);
-      expect(cells[1]).toHaveTextContent(actions[index]);
-
-      if (index === 0) {
-        try {
-          expect(cells[2]).toHaveTextContent(/Pending.../i);
-        } catch (error) {
-          expect(cells[2]).toHaveTextContent(/Failed/i);
-        }
-      }
-    });
+    expectInitialState('Failed');
     server.events.on('response:mocked', ({ status }) => {
       if (status !== 500) {
         server.resetHandlers(...allFailHandlers);
@@ -157,22 +160,7 @@ describe('VeeamTable', () => {
       expect(selectors.veeamConfigActionTable()).toBeInTheDocument();
     });
 
-    // initial state
-    selectors.allRows().forEach(async (row, index) => {
-      const cells = within(row).getAllByRole('gridcell');
-      expect(cells).toHaveLength(3);
-      expect(cells[0]).toHaveTextContent(`${index + 1}`);
-      expect(cells[1]).toHaveTextContent(actions[index]);
-      if (index === 0) {
-        try {
-          await waitFor(() => {
-            expect(cells[2]).toHaveTextContent(/Pending.../i);
-          });
-        } catch (error) {
-          expect(cells[2]).toHaveTextContent(/Success/i);
-        }
-      }
-    });
+    expectInitialState('Success');
     expect(selectors.allRows()).toHaveLength(actions.length);
     expect(selectors.cancelButton()).toBeDisabled();
     expect(selectors.continueButton()).toBeDisabled();
