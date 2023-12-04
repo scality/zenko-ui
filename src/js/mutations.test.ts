@@ -1,26 +1,28 @@
+import { act, renderHook } from '@testing-library/react-hooks';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { renderHook } from '@testing-library/react-hooks';
-import {
-  useAttachPolicyToUserMutation,
-  useCreateIAMUserMutation,
-  useCreateEndpointMutation,
-  useCreateAccountMutation,
-  useCreatePolicyMutation,
-  usePutObjectMutation,
-  usePutBucketTaggingMutation,
-} from './mutations';
-import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
+import { INSTANCE_ID } from '../react/actions/__tests__/utils/testUtil';
 import {
   GET_VEEAM_IMMUTABLE_POLICY,
   SYSTEM_XML_CONTENT,
   VEEAM_IMMUTABLE_POLICY_NAME,
   VEEAM_XML_PREFIX,
 } from '../react/ui-elements/Veeam/VeeamConstants';
+import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
+import {
+  useAttachPolicyToUserMutation,
+  useCreateAccountMutation,
+  useCreateEndpointMutation,
+  useCreateIAMUserMutation,
+  useCreatePolicyMutation,
+  usePutBucketTaggingMutation,
+  usePutObjectMutation,
+  useWaitForRunningConfigurationVersionToBeUpdated,
+} from './mutations';
 
 //Subject Under Testing
 const SUT = jest.fn();
-const instanceId = 'a5c1ad24-27a2-4aaf-a609-26b708729363';
+const instanceId = INSTANCE_ID;
 const accountName = 'Veeam-Account';
 const accountNameAlreadyExist = 'Veeam-Account-Error';
 const accountEmail = 'veeam12@scality.com';
@@ -43,7 +45,139 @@ const veeamPolicyArn = `arn:aws:iam::${accountId}:policy/${veeamPolicyName}`;
 const policyNameWithErrorTriggered = `${VEEAM_IMMUTABLE_POLICY_NAME}-${bucketNameWithErrorTriggered}`;
 const veeamObjectKey = `${VEEAM_XML_PREFIX}/system.xml`;
 
+const getLatestInstanceStatusFailingMock = () =>
+  rest.get(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+    (req, res, ctx) => {
+      return res(ctx.status(500));
+    },
+  );
+
+const getLatestInstanceStatusMock = (runningConfigurationVersion: number = 1) =>
+  rest.get(
+    `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/status`,
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          metrics: {
+            cpu: {
+              idle: 119998230,
+              nice: 1140,
+              sys: 8083540,
+              user: 35370130,
+            },
+            'crr-schedule': {
+              states: {
+                'eu-cloud-1': 'enabled',
+                'val-9464-location': 'enabled',
+              },
+            },
+            'crr-stats': {
+              backlog: {},
+              completions: {},
+              failures: {},
+              pending: {},
+              stalled: {},
+              throughput: {},
+              byLocation: {
+                'eu-cloud-1': {
+                  backlog: {},
+                  completions: {},
+                  failures: {},
+                  pending: {},
+                  throughput: {},
+                },
+                'val-9464-location': {
+                  backlog: {},
+                  completions: {},
+                  failures: {},
+                  pending: {},
+                  throughput: {},
+                },
+              },
+            },
+            'data-disk-usage': {
+              available: 89988096,
+              free: 92085248,
+              total: 95762432,
+            },
+            'ingest-schedule': {},
+            'ingest-stats': {
+              completions: {},
+              pending: {},
+              throughput: {},
+            },
+            'item-counts': {
+              bucketList: [
+                {
+                  isVersioned: true,
+                  location: 'us-east-1',
+                  name: 'test',
+                  ownerCanonicalId:
+                    'eae2600b0c0cfbdcae63eb13b501814668d747e136e16f68092709a23fc77422',
+                },
+              ],
+              buckets: 1,
+              dataManaged: {
+                byLocation: {
+                  '22f31240-4bd3-11ee-98b3-1e5b6f897bc7': {
+                    curr: 39472026504,
+                    prev: 10256254,
+                  },
+                  'df6098b2-56cd-11ee-815e-f65a3b964922': {
+                    curr: 1859580,
+                  },
+                },
+                total: {
+                  curr: 39473886084,
+                  prev: 10256254,
+                },
+              },
+              objects: 47835,
+              versions: 12,
+            },
+            'md-disk-usage': {
+              available: 73761554432,
+              free: 73761554432,
+              total: 213578133504,
+            },
+            memory: {
+              free: 11772411904,
+              total: 33065947136,
+            },
+          },
+          state: {
+            capabilities: {
+              locationTypeCephRadosGW: true,
+              locationTypeDigitalOcean: true,
+              locationTypeHyperdriveV2: true,
+              locationTypeLocal: true,
+              locationTypeNFS: true,
+              locationTypeS3Custom: true,
+              locationTypeSproxyd: true,
+              managedLifecycle: true,
+              managedLifecycleTransition: true,
+              preferredReadLocation: true,
+              s3cIngestLocation: true,
+              secureChannel: true,
+              secureChannelOptimizedPath: true,
+            },
+            ipAddress: '10.233.9.177',
+            lastSeen: '2023-12-01T12:59:02.407Z',
+            latestConfigurationOverlay: {
+              version: runningConfigurationVersion,
+            },
+            runningConfigurationVersion,
+            serverVersion: 'ref: refs/heads/development/8.8\n',
+          },
+        }),
+      );
+    },
+  );
+
 const server = setupServer(
+  getLatestInstanceStatusMock(),
   // create endpoint
   rest.post(
     `${TEST_API_BASE_URL}/api/v1/config/${instanceId}/endpoint`,
@@ -201,6 +335,71 @@ afterEach(() => {
 afterAll(() => server.close());
 
 describe('mutations', () => {
+  it('should return an error when failed to retrieve current running version while taking the reference', async () => {
+    //Setup
+    server.use(getLatestInstanceStatusFailingMock());
+    const { result, waitFor } = renderHook(
+      () => useWaitForRunningConfigurationVersionToBeUpdated(),
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+    //Exercise
+    act(() => {
+      result.current.setReferenceVersion({});
+    });
+    //Verify
+    await waitFor(() => {
+      expect(result.current.status).toBe('error');
+    });
+  });
+
+  it('should return an error when failed to retrieve current running version while waiting for the new version', async () => {
+    //Setup
+    const { result, waitFor } = renderHook(
+      () => useWaitForRunningConfigurationVersionToBeUpdated(),
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+    //Exercise
+    act(() => {
+      result.current.setReferenceVersion({
+        onRefTaken: () => {
+          server.use(getLatestInstanceStatusFailingMock());
+          result.current.waitForRunningConfigurationVersionToBeUpdated();
+        },
+      });
+    });
+    //Verify
+    await waitFor(() => {
+      expect(result.current.status).toBe('error');
+    });
+  });
+
+  it('should wait for running configuration to be updated', async () => {
+    //Setup
+    const { result, waitFor } = renderHook(
+      () => useWaitForRunningConfigurationVersionToBeUpdated(),
+      {
+        wrapper: NewWrapper(),
+      },
+    );
+    //Exercise
+    act(() => {
+      result.current.setReferenceVersion({
+        onRefTaken: () => {
+          server.use(getLatestInstanceStatusMock(2));
+          result.current.waitForRunningConfigurationVersionToBeUpdated();
+        },
+      });
+    });
+    //Verify
+    await waitFor(() => {
+      expect(result.current.status).toBe('success');
+    });
+  });
+
   it('should handle the useCreateEndpointMutation', async () => {
     //Setup
     const { result, waitFor } = renderHook(() => useCreateEndpointMutation(), {

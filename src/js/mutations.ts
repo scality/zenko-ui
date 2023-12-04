@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
 import { useManagementClient } from '../react/ManagementProvider';
@@ -42,6 +42,7 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
     });
   };
 
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
   const waitForRunningConfigurationVersionToBeUpdated = () => {
     setStatus('waiting');
     runningConfigurationVersionMutation.mutate(instanceId, {
@@ -49,7 +50,9 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
         if (version > versionRef.current) {
           setStatus('success');
         } else {
-          setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500);
+          setTimeoutId(
+            setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500),
+          );
         }
       },
       onError: () => {
@@ -57,6 +60,13 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
       },
     });
   };
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
   return {
     waitForRunningConfigurationVersionToBeUpdated,
     setReferenceVersion,
