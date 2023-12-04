@@ -5,7 +5,7 @@ import OriginalV4Signer from 'aws-sdk/lib/signers/v4';
 
 import { chunkArray } from './utils';
 import { isVersioning } from '../react/utils';
-const MULTIPART_UPLOAD = {
+export const MULTIPART_UPLOAD = {
   partSize: 1024 * 1024 * 6,
   queueSize: 1,
 };

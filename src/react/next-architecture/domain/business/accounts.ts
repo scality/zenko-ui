@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import {
   STORAGE_ACCOUNT_OWNER_ROLE,
   STORAGE_MANAGER_ROLE,
@@ -68,9 +68,23 @@ export const useAccountsLocationsAndEndpoints = ({
     queries.listAccountsLocationAndEndpoints(accountsLocationsEndpointsAdapter),
   );
 
+  const refetchAccountsLocationsEndpointsMutation = useMutation({
+    mutationFn: async () => {
+      return refetchAccountsLocationsEndpoints().then(
+        ({ data, status, error }) => {
+          if (status === 'error') {
+            throw error;
+          }
+          return data;
+        },
+      );
+    },
+  });
+
   return {
     accountsLocationsAndEndpoints,
     refetchAccountsLocationsEndpoints,
+    refetchAccountsLocationsEndpointsMutation,
     ...result,
   };
 };

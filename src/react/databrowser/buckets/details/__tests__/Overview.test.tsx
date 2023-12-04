@@ -190,7 +190,9 @@ import {
   BUCKET_NAME,
   INSTANCE_ID,
 } from '../../../../actions/__tests__/utils/testUtil';
+import { VEEAM_BACKUP_REPLICATION } from '../../../../ui-elements/Veeam/VeeamConstants';
 import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
+
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
 const TEST_ACCOUNT =
@@ -297,7 +299,9 @@ describe('Overview', () => {
     //Verify
     await waitFor(() => {
       expect(
-        screen.getByText(new RegExp(`Backup - Veeam 12`, 'i')),
+        screen.getByText(
+          new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
+        ),
       ).toBeInTheDocument();
     });
     expect(selectors.editDefaultRetentionButton()).toBeDisabled();

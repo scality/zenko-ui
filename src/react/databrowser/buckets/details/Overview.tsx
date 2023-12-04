@@ -1,10 +1,10 @@
 import {
   ConstrainedText,
   Icon,
+  Text,
   Toast,
   Toggle,
   Tooltip,
-  Text,
 } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,9 +35,9 @@ import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import {
-  BUCKET_TAG_USECASE,
-  VEEAMVERSION11,
-  VEEAMVERSION12,
+  BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_OFFICE_365,
 } from '../../../ui-elements/Veeam/VeeamConstants';
 import { maybePluralize } from '../../../utils';
 import {
@@ -226,12 +226,13 @@ function Overview({ bucket, ingestionStates }: Props) {
   const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
   const isVeeamBucket =
     tags.status === 'success' &&
-    (tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION11 ||
-      tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION12) &&
+    (tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_BACKUP_REPLICATION ||
+      tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_OFFICE_365) &&
     VEEAM_FEATURE_FLAG_ENABLED;
 
-  const isVeeam12 =
-    isVeeamBucket && tags.value?.[BUCKET_TAG_USECASE] === VEEAMVERSION12;
+  const isSOSAPIEnabled =
+    isVeeamBucket &&
+    tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_BACKUP_REPLICATION;
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -317,15 +318,17 @@ function Overview({ bucket, ingestionStates }: Props) {
             <T.Group>
               <T.GroupName> Use-case </T.GroupName>
               <T.Row>
-                <T.Key> Use-case </T.Key>
-                <T.Value> Backup - {tags.value?.[BUCKET_TAG_USECASE]}</T.Value>
+                <T.Key> Application </T.Key>
+                <T.Value>
+                  Backup - {tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]}
+                </T.Value>
               </T.Row>
-              {isVeeam12 && (
+              {isSOSAPIEnabled && (
                 <T.Row>
                   <T.Key> Max repository Capacity </T.Key>
                   <T.GroupValues>
                     {/* TODO */}
-                    <>5TB</>
+                    <> 5TiB </>
                     <Button
                       variant="outline"
                       label="Edit"

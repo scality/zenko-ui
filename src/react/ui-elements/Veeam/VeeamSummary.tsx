@@ -9,24 +9,39 @@ import { useAuthGroups } from '../../utils/hooks';
 import { Clipboard } from '../Clipboard';
 import { HideCredential } from '../Hide';
 import Table, * as T from '../TableKeyValue';
+import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 
-type VeeamSummaryProps = Record<string, never>;
+type VeeamSummaryProps = {
+  bucketName: string;
+  enableImmutableBackup: boolean;
+  accessKey: string;
+  secretKey: string;
+};
 
-const TEMP_SERVICE_POINT = 'https://s3.pod-choco.local';
-const TEMP_REGION = 'us-east-1';
-const TEMP_BUCKET_NAME = 'veeam-bucket';
-const TEMP_ACCESS_KEY_ID = 'JLVWC9DX45XLY0K9PVEX';
-const TEMP_ACCESS_KEY_SECRET = 'EPJGOdLwTK';
+export const VEEAM_SUMMARY_TITLE = 'Veeam Repository preparation summary';
+export const ACCOUNT_SECTION_TITLE = 'Information for Veeam Account';
+export const CREDENTIALS_SECTION_TITLE = 'Credentials';
+export const BUCKET_SECTION_TITLE = 'Bucket';
+export const CERTIFICATE_SECTION_TITLE = 'Certificate';
 
-export const VeeamSummary = (_: VeeamSummaryProps) => {
+const DEFAULT_REGION = 'us-east-1';
+
+export const VeeamSummary = ({
+  bucketName,
+  enableImmutableBackup,
+  accessKey,
+  secretKey,
+}: VeeamSummaryProps) => {
   const history = useHistory();
   const theme = useTheme();
   const { isPlatformAdmin } = useAuthGroups();
+  const { s3ServicePoint } = useGetS3ServicePoint();
 
   return (
     <Form
       layout={{
-        title: 'Veeam Repository preparation summary',
+        title: VEEAM_SUMMARY_TITLE,
         kind: 'page',
       }}
       requireMode="all"
@@ -35,10 +50,12 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
           <p></p>
           <Button
             variant="primary"
-            label={'Continue'}
+            label={'Complete'}
+            icon={<Icon name="Arrow-right" />}
             onClick={() => {
-              //TODO: Redirect to the veeam bucket
-              history.push('/accounts/Veeam12/buckets/veeam-bucket');
+              history.push(
+                `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
+              );
             }}
           />
         </Stack>
@@ -59,7 +76,7 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
             Veeam application.
           </Text>
           <CopyButton
-            textToCopy={`Username\tveeam\nAccess key ID\t${TEMP_ACCESS_KEY_ID}\nSecret Access key\t${TEMP_ACCESS_KEY_SECRET}`}
+            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nUsername\tveeam\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBucket name\t${bucketName}`}
             label="all"
             variant="outline"
             tooltip={{
@@ -73,21 +90,21 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
         <br />
         <br />
         <Stack direction="vertical" gap="r16">
-          <b>Information for Veeam Account</b>
+          <Text isEmphazed>{ACCOUNT_SECTION_TITLE}</Text>
           <Table>
             <T.Body>
               <T.Row>
                 <T.Key> Service point </T.Key>
-                <T.Value> {TEMP_SERVICE_POINT}</T.Value>
+                <T.Value> {s3ServicePoint}</T.Value>
                 <T.ExtraCell>
-                  <Clipboard text={TEMP_SERVICE_POINT} />
+                  <Clipboard text={s3ServicePoint} />
                 </T.ExtraCell>
               </T.Row>
               <T.Row>
                 <T.Key> Region </T.Key>
-                <T.Value>{TEMP_REGION}</T.Value>
+                <T.Value>{DEFAULT_REGION}</T.Value>
                 <T.ExtraCell>
-                  <Clipboard text={TEMP_REGION} />
+                  <Clipboard text={DEFAULT_REGION} />
                 </T.ExtraCell>
               </T.Row>
             </T.Body>
@@ -95,7 +112,7 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
         </Stack>
         <br />
         <Stack direction="vertical" gap="r16">
-          <b>Credentials</b>
+          <Text isEmphazed>{CREDENTIALS_SECTION_TITLE}</Text>
           <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
             The Secret Access key cannot be retrieved afterwards, so make sure
             to keep and secure it now. <br />
@@ -105,51 +122,53 @@ export const VeeamSummary = (_: VeeamSummaryProps) => {
             <T.Body>
               <T.Row>
                 <T.Key> Access key ID </T.Key>
-                <T.Value>{TEMP_ACCESS_KEY_ID}</T.Value>
+                <T.Value>{accessKey}</T.Value>
                 <T.ExtraCell>
-                  <Clipboard text={TEMP_ACCESS_KEY_ID} />
+                  <Clipboard text={accessKey} />
                 </T.ExtraCell>
               </T.Row>
               <T.Row>
                 <T.Key> Secret Access key </T.Key>
                 <T.Value>
-                  <HideCredential credentials={TEMP_ACCESS_KEY_SECRET} />
+                  <HideCredential credentials={secretKey} />
                 </T.Value>
                 <T.ExtraCell>
-                  <Clipboard text={TEMP_ACCESS_KEY_SECRET} />
+                  <Clipboard text={secretKey} />
                 </T.ExtraCell>
               </T.Row>
             </T.Body>
           </Table>
         </Stack>
         <br />
-        <Table style={{ marginTop: spacing.sp16 }}>
-          <b>Bucket</b>
-          <T.Body>
-            <T.Row>
-              <T.Key> Name </T.Key>
-              <T.Value>{TEMP_BUCKET_NAME}</T.Value>
-              <T.ExtraCell>
-                <Clipboard text={TEMP_BUCKET_NAME} />
-              </T.ExtraCell>
-            </T.Row>
-            <T.Row>
-              <T.Key> Immutable backup </T.Key>
-              <T.Value>
-                Active
-                <br />
-                <Text variant="Smaller" color="textSecondary">
-                  Make sure to check the "Make recent backups immutable"
-                  checkbox when configuring the bucket in the Veeam Server.
-                </Text>
-              </T.Value>
-            </T.Row>
-          </T.Body>
-        </Table>
+        <Stack direction="vertical" gap="r16">
+          <Text isEmphazed>{BUCKET_SECTION_TITLE}</Text>
+          <Table style={{ marginTop: spacing.sp16 }}>
+            <T.Body>
+              <T.Row>
+                <T.Key> Name </T.Key>
+                <T.Value>{bucketName}</T.Value>
+                <T.ExtraCell>
+                  <Clipboard text={bucketName} />
+                </T.ExtraCell>
+              </T.Row>
+              <T.Row>
+                <T.Key> Immutable backup </T.Key>
+                <T.Value>
+                  {enableImmutableBackup ? 'Active' : 'Inactive'}
+                  <br />
+                  <Text variant="Smaller" color="textSecondary">
+                    Make sure to check the "Make recent backups immutable"
+                    checkbox when configuring the bucket in the Veeam Server.
+                  </Text>
+                </T.Value>
+              </T.Row>
+            </T.Body>
+          </Table>
+        </Stack>
         <br />
         {isPlatformAdmin ? (
           <Stack direction="vertical" gap="r16">
-            <b>Certificate</b>
+            <Text isEmphazed>{CERTIFICATE_SECTION_TITLE}</Text>
             <Text color="textSecondary">
               Trust the ARTESCA CA Root on your Veeam server to maintain
               uninterrupted service.

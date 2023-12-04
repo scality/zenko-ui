@@ -5,10 +5,11 @@ import { useIAMClient } from '../react/IAMProvider';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
 import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
+import { ApiError } from '../types/actions';
 import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
+import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
-import { ApiError } from '../types/actions';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -175,9 +176,22 @@ const usePutBucketTaggingMutation = () => {
 
 const usePutObjectMutation = () => {
   const s3Client = useS3Client();
-  return useMutation(({ Bucket, Key, Body }: S3.PutObjectRequest) =>
-    s3Client.putObject({ Bucket, Key, Body }).promise(),
+  const options = {
+    partSize: MULTIPART_UPLOAD.partSize,
+    queueSize: MULTIPART_UPLOAD.queueSize,
+  };
+  return useMutation(
+    ({ Bucket, Key, Body, ContentType }: S3.PutObjectRequest) =>
+      s3Client.upload({ Bucket, Key, Body, ContentType }, options).promise(),
   );
+};
+
+const useCreateUserAccessKeyMutation = () => {
+  const IAMClient = useIAMClient();
+  return useMutation({
+    mutationFn: ({ userName }: { userName: string }) =>
+      IAMClient.createAccessKey(userName),
+  });
 };
 
 export {
@@ -186,6 +200,7 @@ export {
   useCreateEndpointMutation,
   useCreateIAMUserMutation,
   useCreatePolicyMutation,
+  useCreateUserAccessKeyMutation,
   usePutBucketTaggingMutation,
   usePutObjectMutation,
 };

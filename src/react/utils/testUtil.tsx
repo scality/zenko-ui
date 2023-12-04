@@ -7,7 +7,12 @@ import { mount, ReactWrapper } from 'enzyme';
 import thunk from 'redux-thunk';
 import { createMemoryHistory } from 'history';
 import IAMClient from '../../js/IAMClient';
-import { QueryClient, QueryClientProvider, setLogger } from 'react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  setLogger,
+  useMutation,
+} from 'react-query';
 import { Route, Router } from 'react-router-dom';
 
 import { fireEvent, render } from '@testing-library/react';
@@ -23,7 +28,10 @@ import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
 import ReauthDialog from '../ui-elements/ReauthDialog';
 import ZenkoClient from '../../js/ZenkoClient';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
-import { S3ClientProvider } from '../next-architecture/ui/S3ClientProvider';
+import {
+  S3ClientProvider,
+  useAssumeRoleQuery,
+} from '../next-architecture/ui/S3ClientProvider';
 import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
 import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
@@ -33,7 +41,7 @@ import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/Acces
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 //LocationTestOK
-const theme = {
+export const theme = {
   name: 'Dark Rebrand Theme',
   brand: {
     // Dark Rebrand
@@ -142,6 +150,9 @@ export const queryClient = new QueryClient({
   // because we may test the error case
   defaultOptions: {
     queries: {
+      retry: false,
+    },
+    mutations: {
       retry: false,
     },
   },
@@ -519,6 +530,27 @@ export const renderWithCustomRoute = (
   };
 };
 
+const DataServiceProvider = ({ children }) => {
+  const { getQuery } = useAssumeRoleQuery();
+  const assumeRoleMutation = useMutation({
+    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
+  });
+  const role = {
+    roleArn: TEST_ROLE_ARN,
+  };
+  const setRole = (role: { roleArn: string }) => {
+    assumeRoleMutation.mutate(role.roleArn, {});
+  };
+  const setRolePromise = async (role: { roleArn: string }) => {
+    return getQuery(role.roleArn).queryFn();
+  };
+  return (
+    <_DataServiceRoleContext.Provider value={{ role, setRole, setRolePromise }}>
+      {children}
+    </_DataServiceRoleContext.Provider>
+  );
+};
+
 export const NewWrapper =
   (route = '/', testState: unknown = {}) =>
   ({ children }: { children: ReactNode }) => {
@@ -527,17 +559,13 @@ export const NewWrapper =
 
     // const history = createMemoryHistory();
     // const store = realStoreWithInitState({});
-    const role = {
-      roleArn: TEST_ROLE_ARN,
-    };
+
     return (
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
-              <_DataServiceRoleContext.Provider
-                value={{ role, setRole: jest.fn() }}
-              >
+              <DataServiceProvider>
                 <_ManagementContext.Provider
                   value={{
                     managementClient: TEST_MANAGEMENT_CLIENT,
@@ -568,7 +596,7 @@ export const NewWrapper =
                     </MetricsAdapterProvider>
                   </LocationAdapterProvider>
                 </_ManagementContext.Provider>
-              </_DataServiceRoleContext.Provider>
+              </DataServiceProvider>
             </Router>
           </Provider>
         </ThemeProvider>

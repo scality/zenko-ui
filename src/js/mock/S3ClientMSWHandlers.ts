@@ -1,5 +1,9 @@
 import { rest } from 'msw';
 import { zenkoUITestConfig } from '../../react/utils/testUtil';
+import {
+  BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
+} from '../../react/ui-elements/Veeam/VeeamConstants';
 
 export const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 export const defaultMockedBuckets = [
@@ -226,7 +230,7 @@ export const mockGetBucketTagging = (bucketName: string) => {
           <?xml version="1.0" encoding="UTF-8"?>
           <Tagging>
             <TagSet>
-              <Tag><Key>X-Scality-Usecase</Key><Value>Veeam 12</Value></Tag>
+              <Tag><Key>${BUCKET_TAG_VEEAM_APPLICATION}</Key><Value>${VEEAM_BACKUP_REPLICATION_XML_VALUE}</Value></Tag>
             </TagSet>
           </Tagging>`),
         );

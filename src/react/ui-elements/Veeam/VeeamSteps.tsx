@@ -5,15 +5,15 @@ import { Stepper } from '@scality/core-ui';
 
 export const VEEAM_STEPS = [
   {
-    label: 'Configuration',
+    label: 'Configure Veeam',
     Component: VeeamConfiguration,
   },
   {
-    label: 'Repository Table',
+    label: 'Apply Actions',
     Component: VeeamTable,
   },
   {
-    label: 'Repository Summary',
+    label: 'Summary',
     Component: VeeamSummary,
   },
 ] as const;

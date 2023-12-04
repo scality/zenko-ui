@@ -16,6 +16,7 @@ import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterP
 
 import zenkoUIReducer from './reducers';
 import { useMemo } from 'react';
+import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -37,20 +38,22 @@ const InternalRouter = ({ children }: { children: React.ReactNode }) => {
 const FederableApp = () => {
   return (
     <ConfigProvider>
-      <InternalRouter>
-        <AuthProvider>
-          <AccountsLocationsEndpointsAdapterProvider>
-            <LocationAdapterProvider>
-              <AccessibleAccountsAdapterProvider>
-                <MetricsAdapterProvider>
-                  <ZenkoUI />
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </MetricsAdapterProvider>
-              </AccessibleAccountsAdapterProvider>
-            </LocationAdapterProvider>
-          </AccountsLocationsEndpointsAdapterProvider>
-        </AuthProvider>
-      </InternalRouter>
+      <XCoreLibraryProvider>
+        <InternalRouter>
+          <AuthProvider>
+            <AccountsLocationsEndpointsAdapterProvider>
+              <LocationAdapterProvider>
+                <AccessibleAccountsAdapterProvider>
+                  <MetricsAdapterProvider>
+                    <ZenkoUI />
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </MetricsAdapterProvider>
+                </AccessibleAccountsAdapterProvider>
+              </LocationAdapterProvider>
+            </AccountsLocationsEndpointsAdapterProvider>
+          </AuthProvider>
+        </InternalRouter>
+      </XCoreLibraryProvider>
     </ConfigProvider>
   );
 };

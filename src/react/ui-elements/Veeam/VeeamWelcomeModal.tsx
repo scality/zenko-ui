@@ -2,6 +2,7 @@ import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import styled from 'styled-components';
+import { VEEAM_FEATURE } from '../../../js/config';
 import {
   ConfigProvider,
   useConfig,
@@ -10,7 +11,6 @@ import {
 } from '../../next-architecture/ui/ConfigProvider';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
-import { VEEAM_FEATURE } from '../../../js/config';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -19,6 +19,7 @@ const CustomModal = styled(Modal)`
 export const VeeamWelcomeModalInternal = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const { features } = useConfig();
+
   if (!features.includes(VEEAM_FEATURE)) {
     return <></>;
   }

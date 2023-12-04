@@ -1,23 +1,38 @@
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Form, FormGroup, FormSection, Stack, Toggle } from '@scality/core-ui';
+import {
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  Stack,
+  Toggle,
+} from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
-import { VEEAMVERSION11, VEEAMVERSION12 } from './VeeamConstants';
+import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
+import prettyBytes from 'pretty-bytes';
+import {
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
+  VEEAM_DEFAULT_ACCOUNT_NAME,
+  VEEAM_OFFICE_365,
+} from './VeeamConstants';
 
 const schema = Joi.object({
-  name: Joi.string().required(),
-  version: Joi.string().required(),
-  capacity: Joi.when('version', {
-    is: Joi.equal(VEEAMVERSION12),
+  bucketName: Joi.string().required(),
+  application: Joi.string().required(),
+  capacity: Joi.when('application', {
+    is: Joi.equal(VEEAM_BACKUP_REPLICATION),
     then: Joi.number().required().min(1).max(999),
     otherwise: Joi.valid(),
   }),
-  capacityUnit: Joi.when('version', {
-    is: Joi.equal(VEEAMVERSION12),
+  capacityUnit: Joi.when('application', {
+    is: Joi.equal(VEEAM_BACKUP_REPLICATION),
     then: Joi.string().required(),
     otherwise: Joi.valid(),
   }),
@@ -25,8 +40,8 @@ const schema = Joi.object({
 });
 
 type VeeamConfiguration = {
-  name: string;
-  version: string;
+  bucketName: string;
+  application: string;
   capacity: string;
   capacityUnit: string;
   enableImmutableBackup: boolean;
@@ -39,30 +54,68 @@ const Configuration = () => {
     register,
     watch,
     formState: { errors, isValid },
+    setValue,
   } = useForm<VeeamConfiguration>({
     mode: 'all',
     resolver: joiResolver(schema),
     defaultValues: {
-      name: '',
-      version: VEEAMVERSION12,
+      bucketName: '',
+      application: VEEAM_BACKUP_REPLICATION_XML_VALUE,
       capacity: '5', //TODO: The default value will be net capacity.
-      capacityUnit: 'TB',
+      capacityUnit: 'TiB',
       enableImmutableBackup: true,
     },
   });
-  const isVeeam12 = watch('version') === VEEAMVERSION12;
-  const onSubmit = () => {
-    //TODO: Create account
-  };
-  const formRef = useRef(null);
+
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
+  const application = watch('application');
+  const onSubmit = ({
+    bucketName,
+    application,
+    capacity,
+    capacityUnit,
+    enableImmutableBackup,
+  }: VeeamConfiguration) => {
+    next({
+      bucketName,
+      application,
+      capacity,
+      capacityUnit,
+      enableImmutableBackup,
+      // Add advanced configuration to set the account name, for the moment we use the default account name.
+      accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
+    });
+  };
+
+  // clear server errors if clicked on outside of element.
+  const formRef = useRef(null);
+  const xCoreConfig = useXcoreConfig('run');
+  const { useClusterCapacity } = useXCoreLibrary();
+  const { clusterCapacity, clusterCapacityStatus } =
+    useClusterCapacity(xCoreConfig);
+
+  useEffect(() => {
+    if (clusterCapacityStatus === 'success') {
+      const prettyBytesClusterCapacity = prettyBytes(
+        parseInt(clusterCapacity, 10),
+        {
+          locale: 'en',
+          binary: true,
+        },
+      );
+
+      setValue('capacity', prettyBytesClusterCapacity.split(' ')[0]);
+      setValue('capacityUnit', prettyBytesClusterCapacity.split(' ')[1]);
+    }
+  }, [clusterCapacityStatus]);
 
   return (
     <Form
       onSubmit={handleSubmit(onSubmit)}
       ref={formRef}
+      requireMode="partial"
       layout={{
-        title: 'Configure ARTESCA for your Use case',
+        title: 'Prepare ARTESCA for Veeam',
         kind: 'page',
       }}
       rightActions={
@@ -80,52 +133,56 @@ const Configuration = () => {
             variant="primary"
             label="Continue"
             disabled={!isValid}
-            onClick={() => {
-              next({});
-            }}
+            icon={<Icon name="Arrow-right" />}
           />
         </Stack>
       }
     >
-      <FormSection title={{ name: 'Prepare ARTESCA for Veeam' }}>
+      <FormSection>
         <FormGroup
-          id="version"
-          label="Veeam version"
+          id="application"
+          label="Veeam application"
           direction="vertical"
           labelHelpTooltip="TODO"
           content={
             <Controller
-              name="version"
+              name="application"
               control={control}
               render={({ field: { onChange, value } }) => {
                 return (
-                  <Select id="version" onChange={onChange} value={value}>
-                    <Select.Option key={VEEAMVERSION12} value={VEEAMVERSION12}>
-                      {VEEAMVERSION12}
+                  <Select id="application" onChange={onChange} value={value}>
+                    <Select.Option
+                      key={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                      value={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                    >
+                      {VEEAM_BACKUP_REPLICATION}
                     </Select.Option>
-                    <Select.Option key={VEEAMVERSION11} value={VEEAMVERSION11}>
-                      {VEEAMVERSION11}
+                    <Select.Option
+                      key={VEEAM_OFFICE_365}
+                      value={VEEAM_OFFICE_365}
+                    >
+                      {VEEAM_OFFICE_365}
                     </Select.Option>
                   </Select>
                 );
               }}
-            ></Controller>
+            />
           }
         />
         <FormGroup
-          id="name"
+          id="bucketName"
           label="Bucket name"
           direction="vertical"
           required
           labelHelpTooltip="TODO"
-          error={errors.name?.message ?? ''}
+          error={errors.bucketName?.message ?? ''}
           content={
             <Input
-              id="name"
+              id="bucketName"
               type="text"
               autoComplete="off"
               placeholder="Veeam bucket name"
-              {...register('name')}
+              {...register('bucketName')}
             />
           }
         />
@@ -151,13 +208,13 @@ const Configuration = () => {
                   />
                 );
               }}
-            ></Controller>
+            />
           }
         />
-        {isVeeam12 ? (
+        {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
           <FormGroup
             id="capacity"
-            label="Max repository capacity"
+            label="Max Veeam Repository Capacity"
             direction="vertical"
             error={errors.capacity?.message ?? ''}
             help="The recommended value is 80% of the platform's total capacity."
@@ -168,6 +225,7 @@ const Configuration = () => {
                 <Input
                   id="capacity"
                   type="number"
+                  // @ts-expect-error - TODO: Fix the type of the size props in Input component
                   size="1/3"
                   min={1}
                   max={999}
@@ -184,16 +242,16 @@ const Configuration = () => {
                         value={value}
                         size="2/3"
                       >
-                        <Select.Option value={'GB'}>GB</Select.Option>
-                        <Select.Option value={'TB'}>TB</Select.Option>
-                        <Select.Option value={'PB'}>PB</Select.Option>
+                        <Select.Option value={'GiB'}>GiB</Select.Option>
+                        <Select.Option value={'TiB'}>TiB</Select.Option>
+                        <Select.Option value={'PiB'}>PiB</Select.Option>
                       </Select>
                     );
                   }}
                 ></Controller>
               </Stack>
             }
-          ></FormGroup>
+          />
         ) : (
           <></>
         )}

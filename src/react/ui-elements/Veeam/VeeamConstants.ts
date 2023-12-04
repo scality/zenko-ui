@@ -1,7 +1,11 @@
-export const BUCKET_TAG_USECASE = 'X-Scality-Usecase';
-export const VEEAMVERSION11 = 'Veeam 11';
-export const VEEAMVERSION12 = 'Veeam 12';
-export type VeeamVersion = 'Veeam 12' | 'Veeam 11';
+export const BUCKET_TAG_VEEAM_APPLICATION = 'X-Scality-Veeam-Application';
+export const VEEAM_BACKUP_REPLICATION = 'Veeam Backup & Replication';
+export const VEEAM_BACKUP_REPLICATION_XML_VALUE =
+  'Veeam Backup &#38; Replication';
+export const VEEAM_OFFICE_365 = 'Veeam Backup for Microsoft Office 365';
+export type VeeamApplicationType =
+  | 'Veeam Backup & Replication'
+  | 'Veeam Backup for Microsoft Office 365';
 export const VEEAM_IMMUTABLE_POLICY_NAME = 'Scality-Veeam-Immutable-Policy';
 export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
   JSON.stringify({
@@ -40,5 +44,6 @@ export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
   });
 export const VEEAM_XML_PREFIX = '.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c';
 export const SYSTEM_XML_CONTENT = `<?xml version="1.0" encoding="UTF-8"?><SystemInfo><ProtocolVersion>"1.0"</ProtocolVersion><ModelName>"ARTESCA v1.7"</ModelName><ProtocolCapabilities><CapacityInfo>true</CapacityInfo><UploadSessions>false</UploadSessions><IAMSTS>false</IAMSTS></ProtocolCapabilities></SystemInfo>`;
-export const GET_CAPACITY_XML_CONTENT = (capacity: number) =>
+export const GET_CAPACITY_XML_CONTENT = (capacity: string) =>
   `<?xml version="1.0" encoding="utf-8" ?><CapacityInfo><Capacity>${capacity}</Capacity><Available>0</Available><Used>0</Used></CapacityInfo>`;
+export const VEEAM_DEFAULT_ACCOUNT_NAME = 'Veeam';
