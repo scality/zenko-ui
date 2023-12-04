@@ -47,15 +47,11 @@ function DeleteAccountButtonAndModal({ account }: Props) {
 
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpoints } =
+  const { refetchAccountsLocationsEndpointsMutation } =
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
-  const refetchAccountsLocationsEndpointsMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
-    },
-  });
+
   const deleteMutation = useMutation({
     mutationFn: () => {
       return notFalsyTypeGuard(managementClient)

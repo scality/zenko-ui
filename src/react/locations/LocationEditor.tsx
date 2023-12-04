@@ -57,7 +57,7 @@ function LocationEditor() {
     useAccountsLocationsEndpointsAdapter();
   const {
     accountsLocationsAndEndpoints,
-    refetchAccountsLocationsEndpoints,
+    refetchAccountsLocationsEndpointsMutation,
     status,
   } = useAccountsLocationsAndEndpoints({
     accountsLocationsEndpointsAdapter,
@@ -117,11 +117,6 @@ function LocationEditor() {
     waitForRunningConfigurationVersionToBeUpdated,
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
-  const refetchMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
-    },
-  });
 
   const save = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e) {
@@ -159,7 +154,7 @@ function LocationEditor() {
 
   useMemo(() => {
     if (waiterStatus === 'success') {
-      refetchMutation.mutate(undefined, {
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
           history.goBack();
         },

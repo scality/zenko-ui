@@ -1,14 +1,14 @@
+import { Icon } from '@scality/core-ui';
 import { useMemo, useState } from 'react';
+import { useMutation } from 'react-query';
+import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useManagementClient } from '../ManagementProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
-import { Icon } from '@scality/core-ui';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
-import { useMutation } from 'react-query';
-import { useManagementClient } from '../ManagementProvider';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 
 export const DeleteEndpoint = ({
   hostname,
@@ -20,7 +20,7 @@ export const DeleteEndpoint = ({
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpoints } =
+  const { refetchAccountsLocationsEndpointsMutation } =
     useAccountsLocationsAndEndpoints({
       accountsLocationsEndpointsAdapter,
     });
@@ -38,11 +38,7 @@ export const DeleteEndpoint = ({
     waitForRunningConfigurationVersionToBeUpdated,
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
-  const refetchMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
-    },
-  });
+
   const handleDeleteApprove = () => {
     setReferenceVersion({
       onRefTaken: () => {
@@ -57,7 +53,7 @@ export const DeleteEndpoint = ({
   useMemo(() => {
     if (waiterStatus === 'success') {
       setIsConfirmDeleteOpen(false);
-      refetchMutation.mutate(undefined);
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined);
     }
   }, [waiterStatus]);
   return (

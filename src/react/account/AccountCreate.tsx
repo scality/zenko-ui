@@ -11,7 +11,7 @@ import {
 import { Button, Input } from '@scality/core-ui/dist/next';
 import { MouseEventHandler } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import { useCreateAccountMutation } from '../../js/mutations';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
@@ -54,21 +54,19 @@ function AccountCreate() {
   const instanceId = useInstanceId();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpoints } =
+  const { refetchAccountsLocationsEndpointsMutation } =
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const createAccountMutation = useCreateAccountMutation();
-  const refetchAccountsMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints();
-    },
-  });
+
   const loading =
-    createAccountMutation.isLoading || refetchAccountsMutation.isLoading;
+    createAccountMutation.isLoading ||
+    refetchAccountsLocationsEndpointsMutation.isLoading;
   const hasError =
-    createAccountMutation.isError || refetchAccountsMutation.isError;
+    createAccountMutation.isError ||
+    refetchAccountsLocationsEndpointsMutation.isError;
   const errorMessage =
     createAccountMutation.error?.message ??
-    refetchAccountsMutation.error?.message ??
+    refetchAccountsLocationsEndpointsMutation.error?.message ??
     '';
   const queryClient = useQueryClient();
   const onSubmit = ({ name, email }: AccountFormField) => {
@@ -79,7 +77,7 @@ function AccountCreate() {
       },
       {
         onSuccess: (data) => {
-          refetchAccountsMutation.mutate(undefined, {
+          refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
             onSuccess: () => {
               setRole({
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,

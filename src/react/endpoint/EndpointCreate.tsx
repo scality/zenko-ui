@@ -9,6 +9,7 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
+import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import {
@@ -19,8 +20,6 @@ import { renderLocation } from '../locations/utils';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
-import { useMemo } from 'react';
-import { useMutation } from 'react-query';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -47,7 +46,7 @@ function EndpointCreate() {
   const {
     accountsLocationsAndEndpoints,
     status,
-    refetchAccountsLocationsEndpoints,
+    refetchAccountsLocationsEndpointsMutation,
   } = useAccountsLocationsAndEndpoints({
     accountsLocationsEndpointsAdapter,
   });
@@ -85,15 +84,9 @@ function EndpointCreate() {
     });
   };
 
-  const refetchMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints().then(({ data }) => data);
-    },
-  });
-
   useMemo(() => {
     if (waiterStatus === 'success') {
-      refetchMutation.mutate(undefined, {
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
           history.push('/dataservices');
         },

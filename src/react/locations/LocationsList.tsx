@@ -49,8 +49,10 @@ const ActionButtons = ({
   const [showModal, setShowModal] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, refetchAccountsLocationsEndpoints } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const {
+    accountsLocationsAndEndpoints,
+    refetchAccountsLocationsEndpointsMutation,
+  } = useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
@@ -91,14 +93,10 @@ const ActionButtons = ({
       },
     });
   };
-  const refetchLocationsMutation = useMutation({
-    mutationFn: () => {
-      return refetchAccountsLocationsEndpoints();
-    },
-  });
+
   useMemo(() => {
     if (waiterStatus === 'success') {
-      refetchLocationsMutation.mutate();
+      refetchAccountsLocationsEndpointsMutation.mutate();
     }
   }, [waiterStatus]);
 
