@@ -186,5 +186,18 @@ describe('AccountInfo', () => {
         ),
       ).toBeInTheDocument();
     });
+    //E
+    userEvent.click(
+      within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
+        'button',
+        { name: /close/i },
+      ),
+    );
+    //V
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: /Error/i }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

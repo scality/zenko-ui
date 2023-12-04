@@ -1,4 +1,4 @@
-import { Icon, Modal } from '@scality/core-ui';
+import { Icon, Modal, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -98,14 +98,20 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         <Modal
           title="Error"
           isOpen={true}
+          close={() => {
+            deleteMutation.reset();
+          }}
           footer={
-            <Button
-              variant="primary"
-              onClick={() => {
-                deleteMutation.mutate();
-              }}
-              label="Retry"
-            />
+            <Wrap>
+              <p></p>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  deleteMutation.mutate();
+                }}
+                label="Retry"
+              />
+            </Wrap>
           }
         >
           {deleteMutation.error?.message ||
