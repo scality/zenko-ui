@@ -4,6 +4,7 @@ import {
   Toast,
   Toggle,
   Tooltip,
+  Text,
 } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useDispatch, useSelector } from 'react-redux';
@@ -186,8 +187,25 @@ function LocationType({ location: locationName }: { location: string }) {
     return <small>Loading...</small>;
   }
   if (locationsStatus === 'error') {
-    //Todo convert to tooltip ?
-    return <small>An error occurred while fetching locations</small>;
+    return (
+      <>
+        <Toast
+          open
+          autoDismiss
+          onClose={() => {
+            return;
+          }}
+          message={
+            <Text>
+              An error occured while loading locations, this can affect
+              diplaying the bucket location
+            </Text>
+          }
+          status="error"
+        />
+        <small>Error</small>
+      </>
+    );
   }
   if (!locationObject) {
     return <small>Location not found: {locationName}</small>;
