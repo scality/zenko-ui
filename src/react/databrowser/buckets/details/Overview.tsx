@@ -297,7 +297,9 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Value>
                   {bucketInfo.locationConstraint || 'us-east-1'}
                   {' / '}
-                  <LocationType location={bucketInfo.locationConstraint} />
+                  <LocationType
+                    location={bucketInfo.locationConstraint || 'us-east-1'}
+                  />
                 </T.Value>
               </T.Row>
               {features.includes(XDM_FEATURE) && (
