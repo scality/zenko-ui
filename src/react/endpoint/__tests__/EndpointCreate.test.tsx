@@ -1,14 +1,13 @@
 import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import { setupServer } from 'msw/node';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import {
   TEST_API_BASE_URL,
   renderWithRouterMatch,
   selectClick,
 } from '../../utils/testUtil';
 import EndpointCreate from '../EndpointCreate';
-import { setupServer } from 'msw/node';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
@@ -45,7 +44,6 @@ describe('EndpointCreate', () => {
     );
 
     selectClick(screen.getByRole('textbox', { name: 'Storage Location' }));
-    debug();
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),

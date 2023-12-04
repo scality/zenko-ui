@@ -1,14 +1,3 @@
-import * as actions from '../../../../actions/s3bucket';
-import {
-  bucketInfoResponseNoVersioning,
-  bucketInfoResponseVersioning,
-  bucketInfoResponseVersioningDisabled,
-  bucketInfoResponseObjectLockNoDefaultRetention,
-  bucketName,
-  bucketInfoResponseObjectLockDefaultRetention,
-} from '../../../../../js/mock/S3Client';
-import Overview from '../Overview';
-import { NewWrapper, zenkoUITestConfig } from '../../../../utils/testUtil';
 import {
   fireEvent,
   render,
@@ -17,9 +6,23 @@ import {
   waitForElementToBeRemoved,
   within,
 } from '@testing-library/react';
-import Immutable from 'immutable';
 import userEvent from '@testing-library/user-event';
-import { renderWithRouterMatch } from '../../../../utils/testUtil';
+import Immutable from 'immutable';
+import {
+  bucketInfoResponseNoVersioning,
+  bucketInfoResponseObjectLockDefaultRetention,
+  bucketInfoResponseObjectLockNoDefaultRetention,
+  bucketInfoResponseVersioning,
+  bucketInfoResponseVersioningDisabled,
+  bucketName,
+} from '../../../../../js/mock/S3Client';
+import * as actions from '../../../../actions/s3bucket';
+import {
+  NewWrapper,
+  renderWithRouterMatch,
+  zenkoUITestConfig,
+} from '../../../../utils/testUtil';
+import Overview from '../Overview';
 
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
@@ -172,10 +175,11 @@ describe('Overview', () => {
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
-  BUCKET_NAME,
-  INSTANCE_ID,
-} from '../../../../actions/__tests__/utils/testUtil';
-import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
+  mockBucketOperations,
+  mockGetBucketTagging,
+  mockGetBucketTaggingError,
+  mockGetBucketTaggingNoSuchTagSet,
+} from '../../../../../js/mock/S3ClientMSWHandlers';
 import {
   ACCOUNT_ID,
   USERS,
@@ -183,12 +187,10 @@ import {
   getStorageConsumptionMetricsHandlers,
 } from '../../../../../js/mock/managementClientMSWHandlers';
 import {
-  mockBucketOperations,
-  mockGetBucketTagging,
-  mockGetBucketTaggingError,
-  mockGetBucketTaggingNoSuchTagSet,
-} from '../../../../../js/mock/S3ClientMSWHandlers';
-import { debug } from 'jest-preview';
+  BUCKET_NAME,
+  INSTANCE_ID,
+} from '../../../../actions/__tests__/utils/testUtil';
+import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
 const mockResponse =
   '<VersioningConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Status>Enabled</Status></VersioningConfiguration>';
 const TEST_ACCOUNT =
@@ -294,7 +296,6 @@ describe('Overview', () => {
     });
     //Verify
     await waitFor(() => {
-      debug();
       expect(
         screen.getByText(new RegExp(`Backup - Veeam 12`, 'i')),
       ).toBeInTheDocument();
