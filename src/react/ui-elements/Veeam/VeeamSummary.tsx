@@ -1,4 +1,4 @@
-import { Banner, Form, Icon, Text } from '@scality/core-ui';
+import { Banner, Form, Icon, InfoMessage, Text } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Stack } from '@scality/core-ui/dist/spacing';
 import { spacing } from '@scality/core-ui/dist/style/theme';
@@ -88,8 +88,38 @@ export const VeeamSummary = ({
           />
         </Stack>
         <br />
-        <br />
         <Stack direction="vertical" gap="r16">
+          {isPlatformAdmin ? (
+            <Stack direction="vertical" gap="r16">
+              <Text isEmphazed>{CERTIFICATE_SECTION_TITLE}</Text>
+              <InfoMessage
+                title={'How to manage Certificates?'}
+                link="/docs/standard_operations/change_certificates.html"
+                content={
+                  <>
+                    By default, all certificates are generated using the ARTESCA
+                    built-in Certificate Authority and are valid for 3 months.
+                    After that time period, the certificates are automatically
+                    renewed.
+                    <br />
+                    To avoid a service interruption every time a certificate is
+                    being renewed, you must either trust the ARTESCA built-in
+                    Certificate Authority (which is valid for 10 years), or
+                    replace certificates using a custom or external Certificate
+                    Authority.
+                  </>
+                }
+              />
+              <Stack>
+                <Text color="textSecondary">
+                  ARTESCA built-in Certificate Authority
+                </Text>
+                <CertificateDownloadButton />
+              </Stack>
+            </Stack>
+          ) : (
+            <></>
+          )}
           <Text isEmphazed>{ACCOUNT_SECTION_TITLE}</Text>
           <Table>
             <T.Body>
@@ -165,19 +195,6 @@ export const VeeamSummary = ({
             </T.Body>
           </Table>
         </Stack>
-        <br />
-        {isPlatformAdmin ? (
-          <Stack direction="vertical" gap="r16">
-            <Text isEmphazed>{CERTIFICATE_SECTION_TITLE}</Text>
-            <Text color="textSecondary">
-              Trust the ARTESCA CA Root on your Veeam server to maintain
-              uninterrupted service.
-            </Text>
-            <CertificateDownloadButton />
-          </Stack>
-        ) : (
-          <></>
-        )}
       </div>
     </Form>
   );
