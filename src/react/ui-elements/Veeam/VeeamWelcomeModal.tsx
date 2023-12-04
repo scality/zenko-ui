@@ -76,10 +76,10 @@ export const VeeamWelcomeModalInternal = () => {
         </Wrap>
       }
     >
-      <>
-        <Text variant="Basic">Get started with ARTESCA Appliance for</Text>{' '}
-      </>
-      <VeeamLogo />
+      <Stack gap={'r1'}>
+        <Text variant="Basic">Get started with ARTESCA Appliance for</Text>
+        <VeeamLogo />
+      </Stack>
     </CustomModal>
   );
 };
