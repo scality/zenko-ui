@@ -16,8 +16,7 @@ export type VeeamTableProps = {
   accountName: string;
   bucketName: string;
   application: string;
-  capacity: string;
-  capacityUnit: string;
+  capacityBytes: string;
   enableImmutableBackup: boolean;
 };
 

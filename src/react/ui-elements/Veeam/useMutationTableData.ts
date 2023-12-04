@@ -37,9 +37,9 @@ export const actions = [
   'Create Veeam policy',
   'Attach Veeam policy to User',
   'Tag bucket as Veeam Bucket',
-  'Create Smart Object Storage(SOS) folder',
-  'Enable SOS API support',
-  'Set SOS API capacity',
+  'Prepare Veeam integrated object repository',
+  'Enforce Veeam integrated object repository',
+  'Set maximum repository capacity',
 ] as const;
 
 type Result = {
@@ -146,24 +146,24 @@ export const useMutationTableData = ({
             },
           ],
         };
-      } else if (isStep('Create Smart Object Storage(SOS) folder')) {
+      } else if (isStep('Prepare Veeam integrated object repository')) {
         return {
           Bucket: propsConfiguration.bucketName,
           Key: `${VEEAM_XML_PREFIX}/`,
           Body: '',
         };
-      } else if (isStep('Enable SOS API support')) {
+      } else if (isStep('Enforce Veeam integrated object repository')) {
         return {
           Bucket: propsConfiguration.bucketName,
           Key: `${VEEAM_XML_PREFIX}/system.xml`,
           Body: SYSTEM_XML_CONTENT,
           ContentType: 'text/xml',
         };
-      } else if (isStep('Set SOS API capacity')) {
+      } else if (isStep('Set maximum repository capacity')) {
         return {
           Bucket: propsConfiguration.bucketName,
           Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
-          Body: GET_CAPACITY_XML_CONTENT(propsConfiguration.capacity),
+          Body: GET_CAPACITY_XML_CONTENT(propsConfiguration.capacityBytes),
           ContentType: 'text/xml',
         };
       }

@@ -23,6 +23,12 @@ import {
   VEEAM_OFFICE_365,
 } from './VeeamConstants';
 
+export const unitChoices = {
+  GiB: 1024 ** 3,
+  TiB: 1024 ** 4,
+  PiB: 1024 ** 5,
+};
+
 const schema = Joi.object({
   bucketName: Joi.string().required(),
   application: Joi.string().required(),
@@ -62,7 +68,7 @@ const Configuration = () => {
       bucketName: '',
       application: VEEAM_BACKUP_REPLICATION_XML_VALUE,
       capacity: '5', //TODO: The default value will be net capacity.
-      capacityUnit: 'TiB',
+      capacityUnit: unitChoices.TiB.toString(),
       enableImmutableBackup: true,
     },
   });
@@ -76,11 +82,13 @@ const Configuration = () => {
     capacityUnit,
     enableImmutableBackup,
   }: VeeamConfiguration) => {
+    const capacityBytes = (
+      parseInt(capacity, 10) * parseInt(capacityUnit, 10)
+    ).toString();
     next({
       bucketName,
       application,
-      capacity,
-      capacityUnit,
+      capacityBytes,
       enableImmutableBackup,
       // Add advanced configuration to set the account name, for the moment we use the default account name.
       accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
@@ -105,7 +113,14 @@ const Configuration = () => {
       );
 
       setValue('capacity', prettyBytesClusterCapacity.split(' ')[0]);
-      setValue('capacityUnit', prettyBytesClusterCapacity.split(' ')[1]);
+      setValue(
+        'capacityUnit',
+        `${
+          unitChoices[
+            prettyBytesClusterCapacity.split(' ')[1] as 'GiB' | 'TiB' | 'PiB'
+          ]
+        }`,
+      );
     }
   }, [clusterCapacityStatus]);
 
@@ -236,16 +251,22 @@ const Configuration = () => {
                   control={control}
                   render={({ field: { value, onChange } }) => {
                     return (
-                      <Select
-                        id="capacityUnit"
-                        onChange={onChange}
-                        value={value}
-                        size="2/3"
-                      >
-                        <Select.Option value={'GiB'}>GiB</Select.Option>
-                        <Select.Option value={'TiB'}>TiB</Select.Option>
-                        <Select.Option value={'PiB'}>PiB</Select.Option>
-                      </Select>
+                      <>
+                        <Select
+                          id="capacityUnit"
+                          onChange={onChange}
+                          value={value}
+                          size="2/3"
+                        >
+                          {Object.entries(unitChoices).map(([key, value]) => {
+                            return (
+                              <Select.Option key={key} value={`${value}`}>
+                                {key}
+                              </Select.Option>
+                            );
+                          })}
+                        </Select>
+                      </>
                     );
                   }}
                 ></Controller>
