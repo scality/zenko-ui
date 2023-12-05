@@ -3,9 +3,6 @@ export const VEEAM_BACKUP_REPLICATION = 'Veeam Backup & Replication';
 export const VEEAM_BACKUP_REPLICATION_XML_VALUE =
   'Veeam Backup &#38; Replication';
 export const VEEAM_OFFICE_365 = 'Veeam Backup for Microsoft Office 365';
-export type VeeamApplicationType =
-  | 'Veeam Backup & Replication'
-  | 'Veeam Backup for Microsoft Office 365';
 export const VEEAM_IMMUTABLE_POLICY_NAME = 'Scality-Veeam-Immutable-Policy';
 export const GET_VEEAM_IMMUTABLE_POLICY = (bucketName: string) =>
   JSON.stringify({
@@ -47,3 +44,12 @@ export const SYSTEM_XML_CONTENT = `<?xml version="1.0" encoding="UTF-8"?><System
 export const GET_CAPACITY_XML_CONTENT = (capacity: string) =>
   `<?xml version="1.0" encoding="utf-8" ?><CapacityInfo><Capacity>${capacity}</Capacity><Available>0</Available><Used>0</Used></CapacityInfo>`;
 export const VEEAM_DEFAULT_ACCOUNT_NAME = 'Veeam';
+export enum VeeamApplicationType {
+  VEEAM_BACKUP_REPLICATION = 'Veeam Backup & Replication',
+  VEEAM_OFFICE_365 = 'Veeam Backup for Microsoft Office 365',
+}
+export const unitChoices = {
+  GiB: 1024 ** 3,
+  TiB: 1024 ** 4,
+  PiB: 1024 ** 5,
+};

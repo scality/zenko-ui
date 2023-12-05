@@ -26,6 +26,7 @@ import {
   generateStreamName,
   generateTransitionName,
 } from './workflow/utils';
+import { VEEAM_XML_PREFIX } from './ui-elements/Veeam/VeeamConstants';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -275,4 +276,21 @@ export const getObjectsVersions = ({
           NextVersionIdMarker,
         }
       : undefined,
+});
+
+export const getVeeamObject = ({
+  bucketName,
+  s3Client,
+  veeamKey = `${VEEAM_XML_PREFIX}/capacity.xml`,
+}: {
+  bucketName: string;
+  s3Client: S3;
+  veeamKey?: string;
+}) => ({
+  queryKey: ['getVeeamObject', bucketName],
+  queryFn: () => {
+    return s3Client.getObject({ Bucket: bucketName, Key: veeamKey }).promise();
+  },
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
 });

@@ -39,6 +39,7 @@ import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvid
 import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { ToastProvider } from '@scality/core-ui';
 
 //LocationTestOK
 export const theme = {
@@ -585,38 +586,40 @@ export const NewWrapper =
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
-              <DataServiceProvider>
-                <_ManagementContext.Provider
-                  value={{
-                    managementClient: TEST_MANAGEMENT_CLIENT,
-                  }}
-                >
-                  <LocationAdapterProvider>
-                    <MetricsAdapterProvider>
-                      <AccountsLocationsEndpointsAdapterProvider>
-                        <AccessibleAccountsAdapterProvider>
-                          <S3ClientProvider
-                            configuration={{
-                              endpoint: zenkoUITestConfig.zenkoEndpoint,
-                              s3ForcePathStyle: true,
-                              credentials: {
-                                accessKeyId: 'accessKey',
-                                secretAccessKey: 'secretKey',
-                                sessionToken: 'sessionToken',
-                              },
-                            }}
-                          >
-                            {children}
-                            {/* FIXME We are going to manage error differently
+              <ToastProvider>
+                <DataServiceProvider>
+                  <_ManagementContext.Provider
+                    value={{
+                      managementClient: TEST_MANAGEMENT_CLIENT,
+                    }}
+                  >
+                    <LocationAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <AccountsLocationsEndpointsAdapterProvider>
+                          <AccessibleAccountsAdapterProvider>
+                            <S3ClientProvider
+                              configuration={{
+                                endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                s3ForcePathStyle: true,
+                                credentials: {
+                                  accessKeyId: 'accessKey',
+                                  secretAccessKey: 'secretKey',
+                                  sessionToken: 'sessionToken',
+                                },
+                              }}
+                            >
+                              {children}
+                              {/* FIXME We are going to manage error differently
                               I keep it here to pass some tests */}
-                            <ErrorHandlerModal />
-                          </S3ClientProvider>
-                        </AccessibleAccountsAdapterProvider>
-                      </AccountsLocationsEndpointsAdapterProvider>
-                    </MetricsAdapterProvider>
-                  </LocationAdapterProvider>
-                </_ManagementContext.Provider>
-              </DataServiceProvider>
+                              <ErrorHandlerModal />
+                            </S3ClientProvider>
+                          </AccessibleAccountsAdapterProvider>
+                        </AccountsLocationsEndpointsAdapterProvider>
+                      </MetricsAdapterProvider>
+                    </LocationAdapterProvider>
+                  </_ManagementContext.Provider>
+                </DataServiceProvider>
+              </ToastProvider>
             </Router>
           </Provider>
         </ThemeProvider>

@@ -34,10 +34,10 @@ import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
+import { VeeamCapacityModal } from '../../../ui-elements/Veeam/VeeamCapacityModal';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
-  VEEAM_BACKUP_REPLICATION,
-  VEEAM_OFFICE_365,
+  VeeamApplicationType,
 } from '../../../ui-elements/Veeam/VeeamConstants';
 import { maybePluralize } from '../../../utils';
 import {
@@ -45,6 +45,8 @@ import {
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
+import { decodeEntities } from '../../../ui-elements/Veeam/decodeEntities';
+import prettyBytes from 'pretty-bytes';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -224,15 +226,35 @@ function Overview({ bucket, ingestionStates }: Props) {
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
   const { tags } = useBucketTagging({ bucketName: bucket.name });
   const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
-  const isVeeamBucket =
+  const veeamTagApplication =
     tags.status === 'success' &&
-    (tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_BACKUP_REPLICATION ||
-      tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_OFFICE_365) &&
+    decodeEntities(tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]);
+  const isVeeamBucket =
+    (veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
+      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365) &&
     VEEAM_FEATURE_FLAG_ENABLED;
 
   const isSOSAPIEnabled =
     isVeeamBucket &&
-    tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] === VEEAM_BACKUP_REPLICATION;
+    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
+
+  const s3Client = useS3Client();
+  const { data: veeamObject } = useQuery(
+    getVeeamObject({
+      bucketName: bucket.name,
+      s3Client,
+    }),
+  );
+
+  const xml = veeamObject?.Body?.toString();
+  const capacity =
+    new DOMParser()
+      ?.parseFromString(xml || '', 'application/xml')
+      ?.querySelector('Capacity')?.textContent || '0';
+  const prettyBytesClusterCapacity = prettyBytes(parseInt(capacity, 10), {
+    locale: 'en',
+    binary: true,
+  });
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -319,24 +341,16 @@ function Overview({ bucket, ingestionStates }: Props) {
               <T.GroupName> Use-case </T.GroupName>
               <T.Row>
                 <T.Key> Application </T.Key>
-                <T.Value>
-                  Backup - {tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]}
-                </T.Value>
+                <T.Value> Backup - {veeamTagApplication}</T.Value>
               </T.Row>
               {isSOSAPIEnabled && (
                 <T.Row>
                   <T.Key> Max repository Capacity </T.Key>
                   <T.GroupValues>
-                    {/* TODO */}
-                    <> 5TiB </>
-                    <Button
-                      variant="outline"
-                      label="Edit"
-                      aria-label="Edit max capacity"
-                      icon={<Icon name="Pencil" />}
-                      onClick={() => {
-                        //TODO: open the modal to modify the capacity
-                      }}
+                    <>{prettyBytesClusterCapacity}</>
+                    <VeeamCapacityModal
+                      bucketName={bucket.name}
+                      maxCapacity={prettyBytesClusterCapacity}
                     />
                   </T.GroupValues>
                 </T.Row>
