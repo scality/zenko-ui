@@ -328,29 +328,35 @@ function Overview({ bucket, ingestionStates }: Props) {
             <T.GroupContent>
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                 'Enabled' && (
-                <T.Row>
-                  <T.Key> Default Object-lock Retention </T.Key>
-                  <T.GroupValues>
-                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
-                    <Button
-                      id="edit-retention-btn"
-                      variant="outline"
-                      label="Edit"
-                      aria-label="Edit default retention"
-                      icon={<Icon name="Pencil" />}
-                      onClick={() => {
-                        history.push(
-                          `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
-                        );
-                      }}
-                      disabled={isVeeamBucket}
-                      tooltip={{
-                        overlay:
-                          'Edition is disabled as it is managed by Veeam.',
-                      }}
-                    />
-                  </T.GroupValues>
-                </T.Row>
+                <>
+                  <T.Row>
+                    <T.Key> Object-lock </T.Key>
+                    <T.Value> Enabled </T.Value>
+                  </T.Row>
+                  <T.Row>
+                    <T.Key> Default Object-lock Retention </T.Key>
+                    <T.GroupValues>
+                      <div>{getDefaultBucketRetention(bucketInfo)}</div>
+                      <Button
+                        id="edit-retention-btn"
+                        variant="outline"
+                        label="Edit"
+                        aria-label="Edit default retention"
+                        icon={<Icon name="Pencil" />}
+                        onClick={() => {
+                          history.push(
+                            `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
+                          );
+                        }}
+                        disabled={isVeeamBucket}
+                        tooltip={{
+                          overlay:
+                            'Edition is disabled as it is managed by Veeam.',
+                        }}
+                      />
+                    </T.GroupValues>
+                  </T.Row>
+                </>
               )}
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                 'Disabled' && (

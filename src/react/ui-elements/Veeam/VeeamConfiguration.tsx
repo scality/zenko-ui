@@ -24,6 +24,7 @@ import {
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
+import { useHistory } from 'react-router-dom';
 
 const schema = Joi.object({
   bucketName: Joi.string().required(),
@@ -71,6 +72,7 @@ const Configuration = () => {
     setValue,
   } = methods;
 
+  const history = useHistory();
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
   const application = watch('application');
   const onSubmit = ({
@@ -123,7 +125,7 @@ const Configuration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                //TODO: Go back to the landing page base on the user profile
+                history.push('/accounts');
               }}
               label="Skip Use case configuration"
             />
