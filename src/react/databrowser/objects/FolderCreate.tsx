@@ -1,15 +1,15 @@
+import { InfoMessage, Stack, Wrap } from '@scality/core-ui';
+import { Button, Input } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
 import { ChangeEvent, useState } from 'react';
-import { closeFolderCreateModal, createFolder } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
+import type { DispatchAPI } from 'redux';
+import styled from 'styled-components';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
-import { Button, Input } from '@scality/core-ui/dist/next';
-import type { DispatchAPI } from 'redux';
+import { closeFolderCreateModal, createFolder } from '../../actions';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
 export const Description = styled.div`
   margin-top: ${spacing.sp16};
   width: 20.5rem;
@@ -94,11 +94,12 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
         onChange={handleChange}
       />
       <Description>
-        <Banner variant="base" icon={<Icon name="Info-circle" />}>
-          When you create a folder, Data Browser creates an object with the
-          above name appended by suffix &quot;/&quot; and that object is
-          displayed as a folder in the Data Browser.
-        </Banner>
+        <InfoMessage
+          title="Creating a folder"
+          content='When you create a folder, Data Browser creates an object with the
+          above name appended by suffix "/" and that object is
+          displayed as a folder in the Data Browser.'
+        />
       </Description>
     </Modal>
   );
