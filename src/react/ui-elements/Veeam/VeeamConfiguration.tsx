@@ -185,31 +185,35 @@ const Configuration = () => {
               />
             }
           />
-          <FormGroup
-            id="enableImmutableBackup"
-            label="Immutable backup"
-            direction="vertical"
-            help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
-            helpErrorPosition="bottom"
-            labelHelpTooltip="TODO"
-            content={
-              <Controller
-                name="enableImmutableBackup"
-                control={control}
-                render={({ field: { value, onChange } }) => {
-                  return (
-                    <Toggle
-                      id="enableImmutableBackup"
-                      name="enableImmutableBackup"
-                      toggle={value}
-                      label={value ? 'Active' : 'Inactive'}
-                      onChange={onChange}
-                    />
-                  );
-                }}
-              />
-            }
-          />
+          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+            <FormGroup
+              id="enableImmutableBackup"
+              label="Immutable backup"
+              direction="vertical"
+              help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
+              helpErrorPosition="bottom"
+              labelHelpTooltip="TODO"
+              content={
+                <Controller
+                  name="enableImmutableBackup"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <Toggle
+                        id="enableImmutableBackup"
+                        name="enableImmutableBackup"
+                        toggle={value}
+                        label={value ? 'Active' : 'Inactive'}
+                        onChange={onChange}
+                      />
+                    );
+                  }}
+                />
+              }
+            />
+          ) : (
+            <></>
+          )}
           {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
             <VeeamCapacityFormSection />
           ) : (
