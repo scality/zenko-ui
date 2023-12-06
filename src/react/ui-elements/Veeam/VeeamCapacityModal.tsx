@@ -10,14 +10,14 @@ import {
   useToast,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { useRef, useState } from 'react';
+import { AWSError } from 'aws-sdk';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { usePutObjectMutation } from '../../../js/mutations';
 import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
 import { GET_CAPACITY_XML_CONTENT, VEEAM_XML_PREFIX } from './VeeamConstants';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
-import { AWSError } from 'aws-sdk';
 
 const schema = Joi.object({
   capacity: Joi.number().required().min(1).max(999),

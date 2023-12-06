@@ -38,10 +38,14 @@ export const VeeamCapacityOverviewRow = ({
   );
 
   const xml = veeamObject?.Body?.toString();
+  const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
+  const matches = xml?.match(regex);
   const capacity =
     new DOMParser()
       ?.parseFromString(xml || '', 'application/xml')
-      ?.querySelector('Capacity')?.textContent || '0';
+      ?.querySelector('Capacity')?.textContent ||
+    matches?.[1] ||
+    '0';
   const prettyBytesClusterCapacity = prettyBytes(parseInt(capacity, 10), {
     locale: 'en',
     binary: true,
@@ -59,11 +63,13 @@ export const VeeamCapacityOverviewRow = ({
               ? 'Error'
               : prettyBytesClusterCapacity}
           </>
-          <VeeamCapacityModal
-            bucketName={bucketName}
-            maxCapacity={prettyBytesClusterCapacity}
-            status={veeamObjectStatus}
-          />
+          {veeamObjectStatus === 'success' && (
+            <VeeamCapacityModal
+              bucketName={bucketName}
+              maxCapacity={prettyBytesClusterCapacity}
+              status={veeamObjectStatus}
+            />
+          )}
         </T.GroupValues>
       </T.Row>
     );
