@@ -16,7 +16,22 @@ import { AWSError, STS } from 'aws-sdk';
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
   setRole: (role: { roleArn: string }) => void;
+  assumedRole:
+    | PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>
+    | undefined;
 }>(null);
+
+export const useAssumedRole = () => {
+  const DataServiceCtxt = useContext(_DataServiceRoleContext);
+
+  if (!DataServiceCtxt) {
+    throw new Error(
+      'The useAssumedRole hook can only be used within DataServiceRoleProvider.',
+    );
+  }
+
+  return DataServiceCtxt.assumedRole;
+};
 
 export const useDataServiceRole = () => {
   const DataServiceCtxt = useContext(_DataServiceRoleContext);
@@ -135,6 +150,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
         value={{
           role,
           setRole,
+          assumedRole,
         }}
       >
         {children}
