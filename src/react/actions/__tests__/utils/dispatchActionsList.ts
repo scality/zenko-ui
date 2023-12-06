@@ -1,24 +1,12 @@
-import {
-  ACCOUNT,
-  ACCOUNT_ACCESS_KEYS,
-  APP_CONFIG,
-  BUCKET_INFO_RESPONSE,
-  INSTANCE_ID,
-  INSTANCE_STATUS_RUNNINGv1,
-  INSTANCE_STATUS_RUNNINGv2,
-  LATEST_OVERLAY,
-  LOGOUT_MOCK,
-  THEME,
-} from './testUtil';
+import { MockSTSClient } from '../../../../js/mock/STSClient';
+import { MockManagementClient } from '../../../../js/mock/managementClient';
 import type {
   CloseAccountDeleteDialogAction,
   CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
   CloseFolderCreateModalAction,
-  CloseLocationDeleteDialogAction,
   CloseObjectDeleteModalAction,
   CloseObjectUploadModalAction,
-  CloseWorkflowDeleteModalAction,
   CloseWorkflowEditNotificationAction,
   ConfigAuthFailureAction,
   ConfigurationVersionAction,
@@ -37,10 +25,8 @@ import type {
   OpenBucketDeleteDialogAction,
   OpenEndpointDeleteDialogAction,
   OpenFolderCreateModalAction,
-  OpenLocationDeleteDialogAction,
   OpenObjectDeleteModalAction,
   OpenObjectUploadModalAction,
-  OpenWorkflowDeleteModalAction,
   OpenWorkflowEditNotificationAction,
   ResetObjectMetadataAction,
   SelectAccountAction,
@@ -58,22 +44,32 @@ import type {
   ZenkoErrorAction,
   ZenkoWriteSearchListAction,
 } from '../../../../types/actions';
+import type { Hostname } from '../../../../types/config';
 import type {
   CommonPrefix,
   HeadObjectResponse,
+  RetentionMode,
   S3Object,
   TagSet,
-  RetentionMode,
 } from '../../../../types/s3';
-import type { Hostname, LocationName } from '../../../../types/config';
 import type {
   Marker,
   SearchResultList,
   ZenkoClientError,
   ZenkoClient as ZenkoClientInterface,
 } from '../../../../types/zenko';
-import { MockManagementClient } from '../../../../js/mock/managementClient';
-import { MockSTSClient } from '../../../../js/mock/STSClient';
+import {
+  ACCOUNT,
+  ACCOUNT_ACCESS_KEYS,
+  APP_CONFIG,
+  BUCKET_INFO_RESPONSE,
+  INSTANCE_ID,
+  INSTANCE_STATUS_RUNNINGv1,
+  INSTANCE_STATUS_RUNNINGv2,
+  LATEST_OVERLAY,
+  LOGOUT_MOCK,
+  THEME,
+} from './testUtil';
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
   type: 'SET_MANAGEMENT_CLIENT',
@@ -188,17 +184,6 @@ export const CLOSE_ACCOUNT_DELETE_DIALOG_ACTION: CloseAccountDeleteDialogAction 
     type: 'CLOSE_ACCOUNT_DELETE_DIALOG',
   };
 
-// * location actions
-export const OPEN_LOCATION_DELETE_DIALOG_ACTION = (
-  locationName: LocationName,
-): OpenLocationDeleteDialogAction => ({
-  type: 'OPEN_LOCATION_DELETE_DIALOG',
-  locationName,
-});
-export const CLOSE_LOCATION_DELETE_DIALOG_ACTION: CloseLocationDeleteDialogAction =
-  {
-    type: 'CLOSE_LOCATION_DELETE_DIALOG',
-  };
 // * endpoint actions
 export const OPEN_ENDPOINT_DELETE_DIALOG_ACTION = (
   hostname: Hostname,
@@ -354,18 +339,6 @@ export const CLOSE_WORKFLOW_EDIT_NOTIFICATION_ACTION =
   (): CloseWorkflowEditNotificationAction => {
     return {
       type: 'CLOSE_WORKFLOW_EDIT_NOTIFICATION',
-    };
-  };
-export const OPEN_WORKFLOW_DELETE_MODAL_ACTION =
-  (): OpenWorkflowDeleteModalAction => {
-    return {
-      type: 'OPEN_WORKFLOW_DELETE_MODAL',
-    };
-  };
-export const CLOSE_WORKFLOW_DELETE_MODAL_ACTION =
-  (): CloseWorkflowDeleteModalAction => {
-    return {
-      type: 'CLOSE_WORKFLOW_DELETE_MODAL',
     };
   };
 // instance status actions

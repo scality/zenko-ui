@@ -1,31 +1,3 @@
-import { useParams, useHistory, Redirect, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
-import { Breadcrumb } from '../ui-elements/Breadcrumb';
-import { EmptyStateContainer } from '../ui-elements/Container';
-import { Warning } from '../ui-elements/Warning';
-import WorkflowContent from './WorkflowContent';
-import WorkflowList from './WorkflowList';
-import { useQuery, UseQueryResult } from 'react-query';
-import { useManagementClient } from '../ManagementProvider';
-import { getClients } from '../utils/actions';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { makeWorkflows, workflowListQuery } from '../queries';
-import Loader from '../ui-elements/Loader';
-import {
-  handleApiError,
-  handleClientError,
-  networkEnd,
-  networkStart,
-} from '../actions';
-import { APIWorkflows } from '../../types/workflow';
-import { useAccounts, useRolePathName } from '../utils/hooks';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
-import {
-  BucketWorkflowExpirationV1,
-  BucketWorkflowTransitionV2,
-  ReplicationStreamInternalV1,
-} from '../../js/managementClient/api';
 import {
   AppContainer,
   Icon,
@@ -33,9 +5,36 @@ import {
   Text,
   TwoPanelLayout,
 } from '@scality/core-ui';
-import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useEffect } from 'react';
+import { UseQueryResult, useQuery } from 'react-query';
+import { useDispatch } from 'react-redux';
+import { Redirect, useHistory, useLocation, useParams } from 'react-router-dom';
+import {
+  BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { APIWorkflows } from '../../types/workflow';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useManagementClient } from '../ManagementProvider';
+import {
+  handleApiError,
+  handleClientError,
+  networkEnd,
+  networkStart,
+} from '../actions';
+import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { makeWorkflows, workflowListQuery } from '../queries';
+import { Breadcrumb } from '../ui-elements/Breadcrumb';
+import { EmptyStateContainer } from '../ui-elements/Container';
+import Loader from '../ui-elements/Loader';
+import { Warning } from '../ui-elements/Warning';
+import { useAccounts, useRolePathName } from '../utils/hooks';
+import WorkflowContent from './WorkflowContent';
+import WorkflowList from './WorkflowList';
 
 type Filter = string[];
 
@@ -44,8 +43,7 @@ export function useWorkflowsWithSelect<T>(
   filters?: Filter,
 ): UseQueryResult<T, unknown> {
   const mgnt = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account?.id;
   const rolePathName = useRolePathName();

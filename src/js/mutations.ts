@@ -1,24 +1,91 @@
-import { useMutation } from 'react-query';
-import { useManagementClient } from '../react/ManagementProvider';
-import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
-import { useIAMClient } from '../react/IAMProvider';
-import { TagSetItem } from '../types/s3';
 import { S3 } from 'aws-sdk';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation } from 'react-query';
+import { useIAMClient } from '../react/IAMProvider';
+import { useManagementClient } from '../react/ManagementProvider';
+import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
+import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
+import { ApiError } from '../types/actions';
+import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { MULTIPART_UPLOAD } from './S3Client';
+import { EndpointV1 } from './managementClient/api';
 
+export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
+  const managementClient = useManagementClient();
+  const instanceId = useInstanceId();
+  const client = notFalsyTypeGuard(managementClient);
+  const runningConfigurationVersionMutation = useMutation({
+    mutationFn: async (instanceId: string) => {
+      return (
+        (await client.getLatestInstanceStatus(instanceId)).state
+          ?.runningConfigurationVersion || 0
+      );
+    },
+  });
+  const versionRef = useRef(0);
+  const [status, setStatus] = useState<
+    'idle' | 'refTaken' | 'waiting' | 'success' | 'error'
+  >('idle');
+  const setReferenceVersion = ({ onRefTaken }: { onRefTaken?: () => void }) => {
+    setStatus('waiting');
+    runningConfigurationVersionMutation.mutate(instanceId, {
+      onSuccess: (version) => {
+        versionRef.current = version;
+        setStatus('refTaken');
+        if (onRefTaken) {
+          onRefTaken();
+        }
+      },
+      onError: () => {
+        setStatus('error');
+      },
+    });
+  };
+
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
+  const waitForRunningConfigurationVersionToBeUpdated = () => {
+    setStatus('waiting');
+    runningConfigurationVersionMutation.mutate(instanceId, {
+      onSuccess: (version) => {
+        if (version > versionRef.current) {
+          setStatus('success');
+        } else {
+          setTimeoutId(
+            setTimeout(waitForRunningConfigurationVersionToBeUpdated, 500),
+          );
+        }
+      },
+      onError: () => {
+        setStatus('error');
+      },
+    });
+  };
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
+  return {
+    waitForRunningConfigurationVersionToBeUpdated,
+    setReferenceVersion,
+    status,
+  };
+};
 const useCreateEndpointMutation = () => {
   const managementClient = useManagementClient();
-  return useMutation({
-    mutationFn: ({
-      hostname,
-      locationName,
-      instanceId,
-    }: {
+  return useMutation<
+    EndpointV1,
+    ApiError,
+    {
       hostname: string;
       locationName: string;
       instanceId: string;
-    }) => {
+    }
+  >({
+    mutationFn: ({ hostname, locationName, instanceId }) => {
       const params = {
         uuid: instanceId,
         endpoint: {
@@ -47,10 +114,18 @@ const useCreateAccountMutation = () => {
         uuid: instanceId,
         user,
       };
-      return notFalsyTypeGuard(managementClient).createConfigurationOverlayUser(
-        params.user,
-        params.uuid,
-      );
+      return notFalsyTypeGuard(managementClient)
+        .createConfigurationOverlayUser(params.user, params.uuid)
+        .catch(async (error: Response) => {
+          if (error.status === 409) {
+            throw {
+              message: 'An account with the same name or email already exists',
+            };
+          }
+          throw {
+            message: 'An error occurred while creating the account',
+          };
+        });
     },
   });
 };
@@ -123,12 +198,12 @@ const useCreateUserAccessKeyMutation = () => {
 };
 
 export {
+  useAttachPolicyToUserMutation,
+  useCreateAccountMutation,
   useCreateEndpointMutation,
   useCreateIAMUserMutation,
-  useCreateAccountMutation,
   useCreatePolicyMutation,
-  useAttachPolicyToUserMutation,
+  useCreateUserAccessKeyMutation,
   usePutBucketTaggingMutation,
   usePutObjectMutation,
-  useCreateUserAccessKeyMutation,
 };

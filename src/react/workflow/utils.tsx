@@ -14,26 +14,29 @@ import {
 import { CustomHelpers } from '@hapi/joi';
 import type { Tag } from '../../types/s3';
 import { FieldError, FieldErrors } from 'react-hook-form';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 
 export const destinationOptions = (
-  locations: Locations,
+  locations: LocationInfo[],
 ): Array<SelectOption> => {
-  return Object.keys(locations)
-    .filter((n) => {
-      const locationType = locations[n].locationType;
+  return locations
+    .filter((l) => {
+      const locationType = l.type;
       return storageOptions[locationType]?.supportsReplicationTarget; // && destinationLocations.every((location => location.name !== n));
     })
-    .map((n) => {
+    .map((l) => {
       return {
-        value: n,
-        label: n,
+        value: l.name,
+        label: l.name,
       };
     });
 };
 
-export const renderDestination = (locations: Locations) => {
+export const renderDestination = (locations: LocationInfo[]) => {
   return function does(option: SelectOption) {
-    return `${option.label} (${getLocationTypeShort(locations[option.value])})`;
+    const location = locations.find((l) => l.name === option.value);
+    if (!location) return option.label;
+    return `${option.label} (${getLocationTypeShort(location)})`;
   };
 };
 

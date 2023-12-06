@@ -10,6 +10,7 @@ import type {
 } from '../../types/s3';
 import type { AWSError } from '../../types/aws';
 import { addTrailingSlash } from '../../react/utils';
+import { azureblobstorage } from './managementClientMSWHandlers';
 export const ownerName = 'bart';
 export const bucketName = 'bucket';
 export const fileName = 'file';
@@ -167,7 +168,7 @@ export const bucketInfoResponseVersioningDisabled: BucketInfo = {
   versioning: 'Disabled',
   isVersioning: false,
   public: false,
-  locationConstraint: 'azure-blob',
+  locationConstraint: azureblobstorage,
   objectLockConfiguration: {
     ObjectLockEnabled: 'Disabled',
   },

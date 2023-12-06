@@ -1,28 +1,63 @@
-import { useDispatch, useSelector } from 'react-redux';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
+import { Form, FormGroup, FormSection, Stack } from '@scality/core-ui';
+import {
+  Icon,
+  IconName,
+} from '@scality/core-ui/dist/components/icon/Icon.component';
+import { Select } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import {
   Controller,
   FormProvider,
   SubmitHandler,
   useForm,
 } from 'react-hook-form';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { AppState } from '../../types/state';
-import { useHistory } from 'react-router-dom';
-import ReplicationForm, {
-  disallowedPrefixes,
-  GeneralReplicationGroup,
-  replicationSchema,
-} from './ReplicationForm';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import {
+  BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
+import { ApiError } from '../../types/actions';
 import type { Replication } from '../../types/config';
-import { getClients } from '../utils/actions';
+import { AppState } from '../../types/state';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useManagementClient } from '../ManagementProvider';
 import {
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
 } from '../actions';
+import {
+  useBucketLocationConstraint,
+  useBucketVersionning,
+} from '../next-architecture/domain/business/buckets';
+import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { workflowListQuery } from '../queries';
+import { getClients } from '../utils/actions';
+import { useQueryParams, useRolePathName } from '../utils/hooks';
+import {
+  ExpirationForm,
+  GeneralExpirationGroup,
+  expirationSchema,
+} from './ExpirationForm';
+import ReplicationForm, {
+  GeneralReplicationGroup,
+  disallowedPrefixes,
+  replicationSchema,
+} from './ReplicationForm';
+import {
+  GeneralTransitionGroup,
+  TransitionForm,
+  transitionSchema,
+} from './TransitionForm';
 import {
   convertToReplicationStream,
   generateStreamName,
@@ -33,42 +68,7 @@ import {
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
-import { useManagementClient } from '../ManagementProvider';
-import { ApiError } from '../../types/actions';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import {
-  BucketWorkflowExpirationV1,
-  BucketWorkflowTransitionV2,
-  ReplicationStreamInternalV1,
-} from '../../js/managementClient/api';
-import { workflowListQuery } from '../queries';
-import Joi from '@hapi/joi';
-import {
-  ExpirationForm,
-  expirationSchema,
-  GeneralExpirationGroup,
-} from './ExpirationForm';
-import { Select } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
-import { useQueryParams, useRolePathName } from '../utils/hooks';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
-import {
-  GeneralTransitionGroup,
-  TransitionForm,
-  transitionSchema,
-} from './TransitionForm';
-import { Form, FormGroup, FormSection, Stack } from '@scality/core-ui';
-import {
-  Icon,
-  IconName,
-} from '@scality/core-ui/dist/components/icon/Icon.component';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { useLocationAdapter } from '../next-architecture/ui/LocationAdapterProvider';
-import {
-  useBucketLocationConstraint,
-  useBucketVersionning,
-} from '../next-architecture/domain/business/buckets';
-import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -79,9 +79,8 @@ const OptionIcon = ({ icon }: { icon: IconName }) => (
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const locations =
-    useSelector((state: AppState) => state.configuration.latest?.locations) ??
-    {};
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
 
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -90,13 +89,12 @@ const CreateWorkflow = () => {
   const BUCKETNAME_QUERY_PARAM = 'bucket';
   const queryParams = useQueryParams();
   const bucketName = queryParams.get(BUCKETNAME_QUERY_PARAM) || '';
-  const state = useSelector((state: AppState) => state);
   const { account } = useCurrentAccount();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
 
   const { versionning } = useBucketVersionning({ bucketName });
   const isBucketVersioningEnabled =
@@ -119,8 +117,6 @@ const CreateWorkflow = () => {
       workflows.filter((w) => w.replication).map((w) => w.replication),
   });
 
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName,
   });
@@ -432,18 +428,10 @@ const CreateWorkflow = () => {
           )}
         </FormSection>
         {type === 'replication' && (
-          <ReplicationForm
-            locations={locations}
-            prefix="replication."
-            isCreateMode={true}
-          />
+          <ReplicationForm prefix="replication." isCreateMode={true} />
         )}
-        {type === 'expiration' && (
-          <ExpirationForm locations={locations} prefix="expiration." />
-        )}
-        {type === 'transition' && (
-          <TransitionForm locations={locations} prefix="transition." />
-        )}
+        {type === 'expiration' && <ExpirationForm prefix="expiration." />}
+        {type === 'transition' && <TransitionForm prefix="transition." />}
       </Form>
     </FormProvider>
   );

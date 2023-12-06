@@ -1,28 +1,30 @@
-import * as T from '../ui-elements/TableKeyValue2';
 import Joi from '@hapi/joi';
-import type { Locations } from '../../types/config';
-import { Controller, useFormContext } from 'react-hook-form';
-import { hasUniqueKeys, renderDestination } from './utils';
 import {
   FormGroup,
   FormSection,
-  spacing,
   Stack,
   Toggle,
+  spacing,
 } from '@scality/core-ui';
-import { flattenFormErrors } from './utils';
 import {
-  Select,
   Option,
+  Select,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
-import * as F from '../ui-elements/FormLayout';
 import { Box, Input } from '@scality/core-ui/dist/next';
-import { useMemo } from 'react';
-import TagsFilter from './TagsFilter';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useMemo } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
-import { SourceBucketSelect } from './SourceBucketOption';
+import { LocationV1 } from '../../js/managementClient/api';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import * as F from '../ui-elements/FormLayout';
+import * as T from '../ui-elements/TableKeyValue2';
+import { SourceBucketSelect } from './SourceBucketOption';
+import TagsFilter from './TagsFilter';
+import { flattenFormErrors, hasUniqueKeys, renderDestination } from './utils';
 
 export const transitionSchema = {
   workflowId: Joi.string().optional().allow(null, ''),
@@ -49,7 +51,6 @@ export const transitionSchema = {
 };
 
 type Props = {
-  locations: Locations;
   prefix?: string;
 };
 
@@ -90,16 +91,16 @@ export function GeneralTransitionGroup({
   );
 }
 
-const locationsToOptions = (locations: Locations) => {
-  return Object.entries(locations)
+const locationsToOptions = (locations: LocationInfo[]) => {
+  return locations
     .filter(
-      ([name, location]) =>
-        location.locationType !== 'location-scality-hdclient-v2',
+      (location) =>
+        location.type !== LocationV1.LocationTypeEnum.ScalityHdclientV2,
     )
-    .map(([name]) => ({ value: name, label: name }));
+    .map(({ name }) => ({ value: name, label: name }));
 };
 
-export const TransitionForm = ({ locations, prefix = '' }: Props) => {
+export const TransitionForm = ({ prefix = '' }: Props) => {
   const forceLabelWidth = convertRemToPixels(12);
   const { register, control, watch, getValues, setValue, formState, trigger } =
     useFormContext();
@@ -295,7 +296,20 @@ export const TransitionForm = ({ locations, prefix = '' }: Props) => {
                   render={({
                     field: { onChange, onBlur, value: destinationLocation },
                   }) => {
-                    const options = locationsToOptions(locations);
+                    const accountsLocationsEndpointsAdapter =
+                      useAccountsLocationsEndpointsAdapter();
+                    const { accountsLocationsAndEndpoints, status } =
+                      useAccountsLocationsAndEndpoints({
+                        accountsLocationsEndpointsAdapter,
+                      });
+                    if (status === 'loading' || status === 'idle')
+                      return <>Loading locations...</>;
+                    if (status === 'error') {
+                      return <>Error loading locations</>;
+                    }
+                    const options = locationsToOptions(
+                      accountsLocationsAndEndpoints?.locations ?? [],
+                    );
                     return (
                       <Select
                         id="destinationLocation"
@@ -306,7 +320,9 @@ export const TransitionForm = ({ locations, prefix = '' }: Props) => {
                         {options &&
                           options.map((o, i) => (
                             <Option key={i} value={o.value}>
-                              {renderDestination(locations)(o)}
+                              {renderDestination(
+                                accountsLocationsAndEndpoints?.locations ?? [],
+                              )(o)}
                             </Option>
                           ))}
                       </Select>

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
 import { queryClient } from './src/react/utils/testUtil';
+import { VEEAM_FEATURE } from './src/js/config';
 
 window.fetch = (url, ...rest) =>
   fetch(/^https?:/.test(url) ? url : new URL(url, 'http://localhost'), ...rest);
@@ -43,7 +44,7 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
         iamEndpoint: TEST_API_BASE_URL,
         navbarEndpoint: TEST_API_BASE_URL,
         navbarConfigUrl: TEST_API_BASE_URL,
-        features: [],
+        features: ['Veeam', 'XDM'],
         basePath: '',
       };
     }),

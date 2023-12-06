@@ -1,63 +1,65 @@
-import {
-  Control,
-  FieldValues,
-  Controller,
-  useFormContext,
-  FieldError,
-  ControllerRenderProps,
-} from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
-import type { Locations, Replication } from '../../types/config';
+import Joi from '@hapi/joi';
 import {
   Banner,
   FormGroup,
   FormSection,
   Icon,
   Link as LinkStyle,
-  spacing,
   Stack,
   Text,
   Toggle,
+  spacing,
 } from '@scality/core-ui';
 import {
-  Select,
   Option,
+  Select,
 } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
+import { Box, Input } from '@scality/core-ui/dist/next';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useEffect } from 'react';
+import {
+  Control,
+  Controller,
+  ControllerRenderProps,
+  FieldError,
+  FieldValues,
+  useFormContext,
+} from 'react-hook-form';
+import { useQuery } from 'react-query';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import type { Replication } from '../../types/config';
+import { Account } from '../../types/iam';
+import { AppState } from '../../types/state';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { SelectOption } from '../../types/ui';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useManagementClient } from '../ManagementProvider';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useBucketLocationConstraint } from '../next-architecture/domain/business/buckets';
+import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { workflowListQuery } from '../queries';
+import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
+import { NoLocationWarning } from '../ui-elements/Warning';
+import { getClients } from '../utils/actions';
+import { useRolePathName } from '../utils/hooks';
 import {
   checkIfExternalLocation,
   checkSupportsReplicationTarget,
 } from '../utils/storageOptions';
+import { SourceBucketSelect } from './SourceBucketOption';
+import { WorkflowState } from './WorkflowState';
 import {
   destinationOptions,
   flattenFormErrors,
   flattenFormTouchedFields,
   renderDestination,
 } from './utils';
-import Joi from '@hapi/joi';
-import { NoLocationWarning } from '../ui-elements/Warning';
-import { Box, Input } from '@scality/core-ui/dist/next';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { useQuery } from 'react-query';
-import { workflowListQuery } from '../queries';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useSelector } from 'react-redux';
-import { getClients } from '../utils/actions';
-import { AppState } from '../../types/state';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
-import { useRolePathName } from '../utils/hooks';
-import { useManagementClient } from '../ManagementProvider';
-import { Account } from '../../types/iam';
-import { SelectOption } from '../../types/ui';
-import { useEffect } from 'react';
-import { WorkflowState } from './WorkflowState';
-import { SourceBucketSelect } from './SourceBucketOption';
-import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { useBucketLocationConstraint } from '../next-architecture/domain/business/buckets';
-import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
-  locations: Locations;
   isCreateMode?: boolean;
   prefix?: string;
   isPrefixMandatory?: boolean;
@@ -157,8 +159,7 @@ export function GeneralReplicationGroup({
 }
 
 const useReplicationStreams = (account?: Account) => {
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
@@ -175,12 +176,7 @@ const useReplicationStreams = (account?: Account) => {
   return replicationsQuery.data ?? [];
 };
 
-function ReplicationForm({
-  prefix = '',
-  locations,
-  isCreateMode,
-  ...props
-}: Props) {
+function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
   const forceLabelWidth = convertRemToPixels(12);
   const methods = useFormContext();
   const {
@@ -195,12 +191,13 @@ function ReplicationForm({
   const { account } = useCurrentAccount();
   const replicationStreams = useReplicationStreams(account);
   // TODO: make sure we do not delete bucket or location if replication created.
-  if (
-    !checkIfExternalLocation(locations) ||
-    !checkSupportsReplicationTarget(locations)
-  ) {
-    return <NoLocationWarning />;
-  }
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: locationStatus } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+
   const sourceBucket: string = methods.watch(`${prefix}sourceBucket`);
   const replicationsSameBucketName = replicationStreams.filter(
     (s) => s.source.bucketName === sourceBucket,
@@ -209,8 +206,7 @@ function ReplicationForm({
     const { prefix } = stream.source;
     return prefix === '' || !prefix;
   });
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
+
   const { locationConstraint } = useBucketLocationConstraint({
     bucketName: sourceBucket,
   });
@@ -228,6 +224,17 @@ function ReplicationForm({
       return prefix !== '' && prefix;
     },
   );
+  if (locationStatus === 'loading' || locationStatus === 'idle') {
+    return <>Loading locations...</>;
+  }
+  if (
+    !checkIfExternalLocation(accountsLocationsAndEndpoints?.locations || []) ||
+    !checkSupportsReplicationTarget(
+      accountsLocationsAndEndpoints?.locations || [],
+    )
+  ) {
+    return <NoLocationWarning />;
+  }
   return (
     <>
       <input
@@ -363,9 +370,9 @@ function ReplicationForm({
           control={control}
           name={`${prefix}destinationLocation`}
           isCreateMode={isCreateMode}
-          locations={locations}
+          locations={accountsLocationsAndEndpoints?.locations || []}
           errors={errors}
-          isTransient={isTransient}
+          isTransient={!!isTransient}
         />
       </Stack>
     </>
@@ -385,7 +392,7 @@ const RenderDestination = ({
   control: Control<FieldValues, string>;
   name: string;
   isCreateMode?: boolean;
-  locations: Locations;
+  locations: LocationInfo[];
   errors: Record<string, FieldError>;
   touchedFields: { [key: string]: boolean };
   isTransient: boolean;
@@ -513,7 +520,7 @@ type PreferredReadLocationSelectorProps = {
   control: Control<FieldValues, string>;
   options: SelectOption[];
   destinationLocations: string[];
-  locations: Locations;
+  locations: LocationInfo[];
   name: string;
 };
 const PreferredReadLocationSelector = (

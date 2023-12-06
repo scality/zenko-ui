@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Input } from '@scality/core-ui/dist/next';
+import React, { useEffect, useState } from 'react';
+import { LocationDetailsFormProps } from '.';
+import { XDM_FEATURE } from '../../../js/config';
 import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
 import { isIngestSource } from '../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
-import type { AppState } from '../../../types/state';
-import { XDM_FEATURE } from '../../../js/config';
-import { LocationDetailsFormProps } from '.';
 
+import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
@@ -19,8 +18,8 @@ import {
   OUTSCALE_SNC_S3_ENDPOINT,
   OUTSCALE_SNC_S3_LOCATION_KEY,
 } from '../../../types/config';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { checkIsRingS3Reseller } from '../utils';
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -84,7 +83,7 @@ export default function LocationDetailsAwsCustom({
     onChange(formState);
   }, []);
   const isIngest = isIngestSource(storageOptions, locationType, capabilities);
-  const features = useSelector((state: AppState) => state.auth.config.features);
+  const { features } = useConfig();
   const isRingS3Reseller = checkIsRingS3Reseller(locationType);
 
   return (

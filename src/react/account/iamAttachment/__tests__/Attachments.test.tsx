@@ -9,16 +9,14 @@ import {
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import accountSeeds from '../../../../../public/assets/account-seeds.json';
+import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
 import {
+  TEST_API_BASE_URL,
   mockOffsetSize,
   renderWithRouterMatch,
-  TEST_API_BASE_URL,
 } from '../../../utils/testUtil';
 import Attachments from '../Attachments';
-import accountSeeds from '../../../../../public/assets/account-seeds.json';
-import { debug } from 'jest-preview';
-import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
-import set from 'lodash.set';
 
 const defaultAccountName = 'account1';
 const userName = 'user1';
@@ -372,7 +370,6 @@ describe('Policy Attachments', () => {
       }),
     );
 
-    debug();
     await waitFor(() =>
       screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
     );

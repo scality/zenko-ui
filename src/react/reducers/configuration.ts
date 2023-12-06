@@ -6,14 +6,6 @@ export default function configuration(
   action: ConfigurationAction,
 ) {
   switch (action.type) {
-    // case 'INSTANCE_STATUS': {
-    //     const configurationOverlay = action.status && action.status.state &&
-    //         action.status.state.latestConfigurationOverlay || initialConfiguration.latest;
-    //     return {
-    //         ...state,
-    //         latest: configurationOverlay,
-    //     };
-    // }
     case 'CONFIGURATION_VERSION':
       return { ...state, latest: action.configuration };
 

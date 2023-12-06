@@ -1,6 +1,9 @@
 import { METADATA_SYSTEM_TYPE, METADATA_USER_TYPE } from '../../../../utils';
 import Metadata from '../Metadata';
-import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
+import {
+  INSTANCE_ID,
+  OBJECT_METADATA,
+} from '../../../../actions/__tests__/utils/testUtil';
 import {
   reduxMount,
   reduxRender,
@@ -10,8 +13,9 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
+import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
-const server = setupServer();
+const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -34,16 +38,6 @@ describe('Metadata', () => {
     oidc: {
       user: {
         access_token: '',
-      },
-    },
-    configuration: {
-      latest: {
-        endpoints: [],
-        locations: {
-          [COLD_LOCATION]: {
-            isCold: true,
-          },
-        },
       },
     },
   };

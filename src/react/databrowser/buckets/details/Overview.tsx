@@ -1,45 +1,50 @@
 import {
   ConstrainedText,
   Icon,
+  Text,
   Toast,
   Toggle,
   Tooltip,
 } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
-import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
-import type { WorkflowScheduleUnitState } from '../../../../types/stats';
-import { HelpAsyncNotification } from '../../../ui-elements/Help';
+import { Button } from '@scality/core-ui/dist/next';
+import { useEffect, useState } from 'react';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
+import { LocationV1 } from '../../../../js/managementClient/api';
 import type { BucketInfo } from '../../../../types/s3';
 import type { AppState } from '../../../../types/state';
+import type { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import {
   useBucketTagging,
   useChangeBucketVersionning,
 } from '../../../next-architecture/domain/business/buckets';
 import { Bucket } from '../../../next-architecture/domain/entities/bucket';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useConfig } from '../../../next-architecture/ui/ConfigProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import { DeleteBucket } from '../../../ui-elements/DeleteBucket';
 import { EmptyBucket } from '../../../ui-elements/EmptyBucket';
 import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
+import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
+import {
+  BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_OFFICE_365,
+} from '../../../ui-elements/Veeam/VeeamConstants';
 import { maybePluralize } from '../../../utils';
 import {
   getLocationIngestionState,
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
-import { useEffect, useState } from 'react';
-import { Button } from '@scality/core-ui/dist/next';
-import {
-  BUCKET_TAG_VEEAM_APPLICATION,
-  VEEAM_BACKUP_REPLICATION,
-  VEEAM_OFFICE_365,
-} from '../../../ui-elements/Veeam/VeeamConstants';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -88,18 +93,132 @@ const workflowAttachedError = (count: number, bucketName: string) => (
   </div>
 );
 
+function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
+  const dispatch = useDispatch();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: locationsStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const locationType = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === bucketInfo.locationConstraint,
+  )?.type;
+  const isBucketHostedOnAzureOrGCP =
+    locationType === LocationV1.LocationTypeEnum.AzureV1 ||
+    locationType === LocationV1.LocationTypeEnum.GcpV1;
+  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
+  const updateBucketVersioning = (isVersioning: boolean) => {
+    changeBucketVersionning({
+      Bucket: bucketInfo.name,
+      VersioningConfiguration: {
+        Status: isVersioning ? 'Enabled' : 'Disabled',
+      },
+    });
+  };
+
+  return (
+    <T.Value>
+      {bucketInfo.objectLockConfiguration.ObjectLockEnabled === 'Disabled' && (
+        <Tooltip
+          overlay={
+            locationType === LocationV1.LocationTypeEnum.AzureV1 ? (
+              <>
+                Enabling versioning is not possible due to the bucket being
+                hosted on Microsoft Azure.
+              </>
+            ) : locationType === LocationV1.LocationTypeEnum.GcpV1 ? (
+              <>
+                Enabling versioning is not possible due to the bucket being
+                hosted on Google Cloud.
+              </>
+            ) : (
+              <></>
+            )
+          }
+        >
+          <Toggle
+            disabled={
+              locationsStatus === 'idle' ||
+              locationsStatus === 'loading' ||
+              isBucketHostedOnAzureOrGCP
+            }
+            toggle={bucketInfo.isVersioning}
+            label={
+              bucketInfo.versioning === 'Enabled'
+                ? 'Active'
+                : bucketInfo.versioning === 'Disabled'
+                ? 'Inactive'
+                : bucketInfo.versioning
+            }
+            onChange={() => {
+              dispatch(
+                toggleBucketVersioning(
+                  bucketInfo.name,
+                  !bucketInfo.isVersioning,
+                ),
+              );
+              updateBucketVersioning(!bucketInfo.isVersioning);
+            }}
+          />
+        </Tooltip>
+      )}
+      {bucketInfo.objectLockConfiguration.ObjectLockEnabled === 'Enabled' && (
+        <>
+          Enabled
+          <br />
+          <SmallerText>
+            Versioning cannot be suspended because Object-lock is enabled for
+            this bucket.
+          </SmallerText>
+        </>
+      )}
+    </T.Value>
+  );
+}
+
+function LocationType({ location: locationName }: { location: string }) {
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: locationsStatus } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const locationObject = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === locationName,
+  );
+  if (locationsStatus === 'loading' || locationsStatus === 'idle') {
+    return <small>Loading...</small>;
+  }
+  if (locationsStatus === 'error') {
+    return (
+      <>
+        <Toast
+          open
+          autoDismiss
+          onClose={() => {
+            return;
+          }}
+          message={
+            <Text>
+              An error occured while loading locations, this can affect
+              diplaying the bucket location
+            </Text>
+          }
+          status="error"
+        />
+        <small>Error</small>
+      </>
+    );
+  }
+  if (!locationObject) {
+    return <small>Location not found: {locationName}</small>;
+  }
+  return <small>{getLocationType(locationObject)}</small>;
+}
+
 function Overview({ bucket, ingestionStates }: Props) {
   const history = useHistory();
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
   const workflowsQuery = useWorkflows([bucket.name]);
-  const features = useSelector((state: AppState) => state.auth.config.features);
+  const { features } = useConfig();
   const { account } = useCurrentAccount();
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
@@ -119,8 +238,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
 
-  const { mutate: changeBucketVersionning } = useChangeBucketVersionning();
-
   const workflows = workflowsQuery.data;
   const attachedWorkflowsCount =
     (workflows?.expirations?.length || 0) +
@@ -135,19 +252,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     ingestionStates,
     bucketInfo.locationConstraint || 'us-east-1',
   );
-  const locationType =
-    locations && locations[bucketInfo.locationConstraint]?.locationType;
-  const isBucketHostedOnAzureOrGCP =
-    locationType === 'location-azure-v1' || locationType === 'location-gcp-v1';
-
-  const updateBucketVersioning = (isVersioning: boolean) => {
-    changeBucketVersionning({
-      Bucket: bucketInfo.name,
-      VersioningConfiguration: {
-        Status: isVersioning ? 'Enabled' : 'Disabled',
-      },
-    });
-  };
 
   return (
     <TableContainer>
@@ -187,70 +291,16 @@ function Overview({ bucket, ingestionStates }: Props) {
               </T.Row>
               <T.Row>
                 <T.Key> Versioning </T.Key>
-                <T.Value>
-                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                    'Disabled' && (
-                    <Tooltip
-                      overlay={
-                        locationType === 'location-azure-v1' ? (
-                          <>
-                            Enabling versioning is not possible due to the
-                            bucket being hosted on Microsoft Azure.
-                          </>
-                        ) : locationType === 'location-gcp-v1' ? (
-                          <>
-                            Enabling versioning is not possible due to the
-                            bucket being hosted on Google Cloud.
-                          </>
-                        ) : (
-                          <></>
-                        )
-                      }
-                    >
-                      <Toggle
-                        disabled={loading || isBucketHostedOnAzureOrGCP}
-                        toggle={bucketInfo.isVersioning}
-                        label={
-                          bucketInfo.versioning === 'Enabled'
-                            ? 'Active'
-                            : bucketInfo.versioning === 'Disabled'
-                            ? 'Inactive'
-                            : bucketInfo.versioning
-                        }
-                        onChange={() => {
-                          dispatch(
-                            toggleBucketVersioning(
-                              bucket.name,
-                              !bucketInfo.isVersioning,
-                            ),
-                          );
-                          updateBucketVersioning(!bucketInfo.isVersioning);
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
-                    'Enabled' && (
-                    <>
-                      Enabled
-                      <br />
-                      <SmallerText>
-                        Versioning cannot be suspended because Object-lock is
-                        enabled for this bucket.
-                      </SmallerText>
-                    </>
-                  )}
-                </T.Value>
+                <VersionningValue bucketInfo={bucketInfo} />
               </T.Row>
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
                   {bucketInfo.locationConstraint || 'us-east-1'}
                   {' / '}
-                  <small>
-                    {locations &&
-                      getLocationType(locations[bucketInfo.locationConstraint])}
-                  </small>
+                  <LocationType
+                    location={bucketInfo.locationConstraint || 'us-east-1'}
+                  />
                 </T.Value>
               </T.Row>
               {features.includes(XDM_FEATURE) && (

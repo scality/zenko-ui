@@ -7,11 +7,14 @@ import {
 } from '../../../utils/testUtil';
 import Objects from '../Objects';
 import { screen, waitFor } from '@testing-library/react';
+import { getConfigOverlay } from '../../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../../actions/__tests__/utils/testUtil';
 
 const BUCKET_NAME = 'bucket';
 const COLD_OBJECT_KEY = 'my-cold-image.jpg';
 const OBJECT_IN_DEFAULT_LOCATION = 'object-key';
 const server = setupServer(
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   //HANDLERS TO GET BUCKET INFO
   //get bucket cors
   rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
@@ -214,25 +217,10 @@ afterAll(() => server.close());
 describe('Objects', () => {
   it('should remove the link to download for the object store in cold storage', async () => {
     //S
-    renderWithRouterMatch(
-      <Objects />,
-      {
-        path: '/accounts/:accountName/buckets/:bucketName/objects',
-        route: `/accounts/renard/buckets/${BUCKET_NAME}/objects`,
-      },
-      {
-        configuration: {
-          latest: {
-            locations: {
-              'europe25-myroom-cold': {
-                name: 'europe25-myroom-cold',
-                isCold: true,
-              },
-            },
-          },
-        },
-      },
-    );
+    renderWithRouterMatch(<Objects />, {
+      path: '/accounts/:accountName/buckets/:bucketName/objects',
+      route: `/accounts/renard/buckets/${BUCKET_NAME}/objects`,
+    });
     //E
     await waitFor(() => {
       expect(screen.getByText(/storage location/i)).toBeInTheDocument();

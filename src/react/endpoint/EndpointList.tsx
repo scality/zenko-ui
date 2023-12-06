@@ -1,27 +1,16 @@
-import { useMemo } from 'react';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import { ConstrainedText, Icon, Wrap } from '@scality/core-ui';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import type {
-  Endpoint,
-  LocationName,
-  Hostname,
-  Locations,
-} from '../../types/config';
-import type { AppState } from '../../types/state';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getLocationType } from '../utils/storageOptions';
+import type { Endpoint, Hostname, LocationName } from '../../types/config';
+import { renderLocation } from '../locations/utils';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { Clipboard } from '../ui-elements/Clipboard';
-import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
 import * as T from '../ui-elements/Table';
-import {
-  closeEndpointDeleteDialog,
-  deleteEndpoint,
-  openEndpointDeleteDialog,
-} from '../actions';
+import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
+import { DeleteEndpoint } from './DeleteEndpoint';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -29,16 +18,12 @@ type CellProps = {
 };
 type Props = {
   endpoints: Array<Endpoint>;
-  locations: Locations;
+  locations: LocationInfo[];
 };
 const SEARCH_QUERY_PARAM = 'search';
 
 function EndpointList({ endpoints, locations }: Props) {
-  const dispatch = useDispatch();
   const history = useHistory();
-  const showDelete = useSelector(
-    (state: AppState) => state.uiEndpoints.showDelete,
-  );
 
   /*
    *   Enforcing a strict schema because the table interprets `undefined` values
@@ -86,13 +71,13 @@ function EndpointList({ endpoints, locations }: Props) {
         },
 
         Cell({ value: locationName }: { value: LocationName }) {
-          const locationType = getLocationType(locations[locationName]);
-          return (
-            <span>
-              {' '}
-              {locationName} <small>({locationType})</small>{' '}
-            </span>
+          const location = locations.find(
+            (location) => location.name === locationName,
           );
+          if (!location) {
+            return <>unknown</>;
+          }
+          return <>{renderLocation(location)}</>;
         },
       },
       {
@@ -108,51 +93,25 @@ function EndpointList({ endpoints, locations }: Props) {
         Cell({ row: { original } }: CellProps) {
           return (
             <T.Actions>
-              <T.ActionButton
-                disabled={original.isBuiltin}
-                icon={<Icon name="Delete" />}
-                tooltip={{
-                  overlay: 'Delete Data Service',
-                  placement: 'top',
-                }}
-                onClick={() =>
-                  dispatch(openEndpointDeleteDialog(original.hostname))
-                }
-                variant="danger"
+              <DeleteEndpoint
+                hostname={original.hostname}
+                isBuiltin={original.isBuiltin}
               />
             </T.Actions>
           );
         },
       },
     ],
-    [locations, dispatch],
+    [locations],
   );
-
-  const handleDeleteApprove = () => {
-    if (!showDelete) {
-      return;
-    }
-
-    dispatch(deleteEndpoint(showDelete));
-  };
-
-  const handleDeleteCancel = () => {
-    dispatch(closeEndpointDeleteDialog());
-  };
 
   return (
     <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
-      <DeleteConfirmation
-        show={!!showDelete}
-        cancel={handleDeleteCancel}
-        approve={handleDeleteApprove}
-        titleText={`Are you sure you want to delete Data Service: ${showDelete} ?`}
-      />
       <T.Container>
         <Table
           columns={columns}
           data={strictSchemaEndpoints}
-          defaultSortingKey="isBuiltin"
+          defaultSortingKey="hostname"
         >
           <T.SearchContainer>
             <T.Search>

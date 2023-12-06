@@ -1,28 +1,66 @@
-import AccountCreate from '../AccountCreate';
+import { act, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import {
-  reduxMountAct,
+  TEST_API_BASE_URL,
   reduxRender,
   renderWithRouterMatch,
 } from '../../utils/testUtil';
-import { screen, act } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import AccountCreate from '../AccountCreate';
+
+const accountAlreadyExists = 'accountAlreadyExists';
+const server = setupServer(
+  getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/config/${INSTANCE_ID}/user`,
+    (req, res, ctx) => {
+      //@ts-ignore
+      if (req.body.userName === accountAlreadyExists) {
+        return res(ctx.status(409));
+      }
+      return res(ctx.status(201));
+    },
+  ),
+);
 
 describe('AccountCreate', () => {
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
+  afterEach(() => {
+    server.resetHandlers();
+  });
+  afterAll(() => {
+    server.close();
+  });
   it('should render AccountCreate component with no error banner', async () => {
     renderWithRouterMatch(<AccountCreate />);
 
     expect(screen.queryByText('Error')).toBeNull();
   });
   it('should render AccountCreate component with error banner', async () => {
-    const errorMessage = 'error message test';
-    await renderWithRouterMatch(<AccountCreate />, undefined, {
-      uiErrors: {
-        errorMsg: errorMessage,
-        errorType: 'byComponent',
-      },
+    await renderWithRouterMatch(<AccountCreate />);
+
+    userEvent.type(
+      screen.getByRole('textbox', { name: /name/i }),
+      accountAlreadyExists,
+    );
+    userEvent.type(
+      screen.getByRole('textbox', { name: /email/i }),
+      'test@test.local',
+    );
+    // NOTE: All validation methods in React Hook Form are treated
+    // as async functions, so it's important to wrap async around your act.
+    await act(async () => {
+      userEvent.click(screen.getByRole('button', { name: /create/i }));
     });
 
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    expect(
+      screen.getByText('An account with the same name or email already exists'),
+    ).toBeInTheDocument();
   });
   // * error input
   //   * button click

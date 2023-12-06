@@ -30,6 +30,8 @@ import MemoRow, { createItemData } from './ObjectRow';
 import { CenterredSecondaryText } from '../../account/iamAttachment/AttachmentTable';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { parseRestore } from '../../reducers/s3';
+import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 export const Icon = styled.i`
   margin-right: ${spacing.sp4};
@@ -65,9 +67,6 @@ export default function ObjectListTable({
   );
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
   );
   const objectsLength = objects.size;
   const isToggledFull = toggled.size > 0 && toggled.size === objectsLength;
@@ -181,7 +180,17 @@ export default function ObjectListTable({
           const restore = parseRestore(headObject?.Restore);
 
           const storageClass = original.storageClass;
-          const isObjectInColdStorage = !!locations[storageClass]?.isCold;
+          const accountsLocationsEndpointsAdapter =
+            useAccountsLocationsEndpointsAdapter();
+          const { accountsLocationsAndEndpoints, status } =
+            useAccountsLocationsAndEndpoints({
+              accountsLocationsEndpointsAdapter,
+            });
+          const isObjectInColdStorage =
+            status === 'success' &&
+            accountsLocationsAndEndpoints?.locations.find(
+              (location) => location.name === storageClass,
+            )?.isCold;
           if (original.isFolder) {
             return (
               <span>
@@ -292,9 +301,20 @@ export default function ObjectListTable({
         accessor: 'storageClass',
         width: 20,
         Cell({ value: storageClass }: { value: string }) {
+          const accountsLocationsEndpointsAdapter =
+            useAccountsLocationsEndpointsAdapter();
+          const { accountsLocationsAndEndpoints, status } =
+            useAccountsLocationsAndEndpoints({
+              accountsLocationsEndpointsAdapter,
+            });
+          const isObjectInColdStorage =
+            status === 'success' &&
+            accountsLocationsAndEndpoints?.locations.find(
+              (location) => location.name === storageClass,
+            )?.isCold;
           return (
             <div>
-              {locations.storageClass?.isCold ? <ColdStorageIcon /> : ''}{' '}
+              {isObjectInColdStorage ? <ColdStorageIcon /> : ''}{' '}
               {storageClass === 'STANDARD' ? 'default' : storageClass}
             </div>
           );

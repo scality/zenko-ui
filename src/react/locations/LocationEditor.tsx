@@ -8,16 +8,21 @@ import {
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 
-import React, { useMemo, useRef, useState } from 'react';
-import { batch, useDispatch, useSelector } from 'react-redux';
+import { ChangeEvent, useMemo, useState } from 'react';
+import { useMutation } from 'react-query';
+import { useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { LocationName } from '../../types/config';
+import { LocationV1 } from '../../js/managementClient/api';
+import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
+import { LocationTypeKey } from '../../types/config';
 import type { AppState } from '../../types/state';
-import { clearError, saveLocation } from '../actions';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useOutsideClick } from '../utils/hooks';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import Loader from '../ui-elements/Loader';
 import {
   getLocationTypeKey,
   selectStorageOptions,
@@ -33,73 +38,90 @@ import {
   newLocationDetails,
   newLocationForm,
 } from './utils';
+import { Loader as LoaderCoreUI } from '@scality/core-ui';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
 `;
 
-const makeLabel = (locationType) => {
+const makeLabel = (locationType: LocationTypeKey) => {
   const details = storageOptions[locationType];
   return details.name;
 };
 
 function LocationEditor() {
-  const dispatch = useDispatch();
   const history = useHistory();
   const { locationName } = useParams<{ locationName: string }>();
-  const locationEditing = useSelector(
-    (state: AppState) =>
-      state.configuration.latest.locations[locationName || ''],
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const {
+    accountsLocationsAndEndpoints,
+    refetchAccountsLocationsEndpointsMutation,
+    status,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+  const locationEditing = accountsLocationsAndEndpoints?.locations.find(
+    (location) => location.name === locationName,
   );
   const capabilities = useSelector(
     (state: AppState) => state.instanceStatus.latest.state.capabilities,
   );
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const accountsLocationsAndEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpoints } =
-    useAccountsLocationsAndEndpoints({ accountsLocationsAndEndpointsAdapter });
-  const editingExisting = !!(locationEditing && locationEditing.objectId);
+  const editingExisting = !!(locationEditing && locationEditing.id);
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
     return selectStorageOptions(capabilities, makeLabel, !editingExisting);
   }, [capabilities, editingExisting]);
-
-  const clearServerError = () => {
-    if (hasError) {
-      dispatch(clearError());
+  useMemo(() => {
+    if (locationEditing) {
+      setLocation(convertToForm(locationEditing));
     }
-  };
+  }, [locationEditing]);
 
-  // clear server errors if clicked on outside of element.
-  const formRef = useRef(null);
-  useOutsideClick(formRef, clearServerError);
-
-  const onChange = (e) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value =
       e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     const l = { ...location, [e.target.name]: value };
-    clearServerError();
     setLocation(l);
   };
 
-  const save = (e) => {
+  const managementClient = useManagementClient();
+  const instanceId = useInstanceId();
+  const createLocationMutation = useMutation({
+    mutationFn: (location: LocationV1) => {
+      return notFalsyTypeGuard(managementClient)
+        .createConfigurationOverlayLocation(location, instanceId)
+        .catch(async (error) => {
+          if (error.status === 422) {
+            throw await error.json();
+          }
+        });
+    },
+  });
+  const updateLocationMutation = useMutation({
+    mutationFn: (location: LocationV1) => {
+      return notFalsyTypeGuard(managementClient)
+        .updateConfigurationOverlayLocation(location.name, instanceId, location)
+        .catch(async (error) => {
+          if (error.status === 422) {
+            throw await error.json();
+          }
+        });
+    },
+  });
+  const {
+    setReferenceVersion,
+    waitForRunningConfigurationVersionToBeUpdated,
+    status: waiterStatus,
+  } = useWaitForRunningConfigurationVersionToBeUpdated();
+
+  const save = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e) {
       e.preventDefault();
     }
-    clearServerError();
 
     let submitLocation = { ...location };
 
@@ -111,43 +133,66 @@ function LocationEditor() {
         ...{ locationType: 'location-scality-ring-s3-v1' },
       };
     }
-    dispatch(saveLocation(convertToLocation(submitLocation), history));
-    refetchAccountsLocationsEndpoints();
+    setReferenceVersion({
+      onRefTaken: () => {
+        if (editingExisting) {
+          updateLocationMutation.mutate(convertToLocation(submitLocation), {
+            onSuccess: () => {
+              waitForRunningConfigurationVersionToBeUpdated();
+            },
+          });
+        } else {
+          createLocationMutation.mutate(convertToLocation(submitLocation), {
+            onSuccess: () => {
+              waitForRunningConfigurationVersionToBeUpdated();
+            },
+          });
+        }
+      },
+    });
   };
 
-  const cancel = (e) => {
+  useMemo(() => {
+    if (waiterStatus === 'success') {
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+        onSuccess: () => {
+          history.goBack();
+        },
+      });
+    }
+  }, [waiterStatus]);
+
+  const loading =
+    createLocationMutation.isLoading ||
+    updateLocationMutation.isLoading ||
+    waiterStatus === 'waiting';
+
+  const cancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (e) {
       e.preventDefault();
     }
 
-    batch(() => {
-      clearServerError();
-      history.goBack();
-    });
+    history.goBack();
   };
 
-  const onTypeChange = (v: LocationName) => {
-    clearServerError();
-
-    if (location.locationType !== v) {
+  const onTypeChange = (locationType: string) => {
+    if (location.locationType !== locationType) {
       const l = {
         ...newLocationForm(),
         name: location.name || '',
-        locationType: v,
+        locationType,
         details: {},
       };
       setLocation(l);
     }
   };
 
-  const onDetailsChange = (details) => {
-    clearServerError();
+  const onDetailsChange = (details: unknown) => {
     const l = { ...location, details };
     setLocation(l);
   };
 
-  const onOptionsChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    clearServerError();
+  const onOptionsChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value =
       e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     const l = {
@@ -177,6 +222,16 @@ function LocationEditor() {
   const { disable, errorMessageFront } = locationFormCheck(location);
   let displayErrorMessage;
 
+  const hasError =
+    createLocationMutation.isError ||
+    updateLocationMutation.isError ||
+    waiterStatus === 'error';
+
+  const errorMessage =
+    createLocationMutation.error?.message ||
+    updateLocationMutation.error?.message ||
+    (waiterStatus === 'error' ? 'Error while saving location' : undefined);
+
   if (errorMessageFront) {
     displayErrorMessage = errorMessageFront;
   } else if (hasError && errorMessage) {
@@ -185,9 +240,12 @@ function LocationEditor() {
 
   const locationTypeKey = getLocationTypeKey(location);
 
+  if (status === 'loading' || status === 'idle') {
+    return <Loader>Loading location...</Loader>;
+  }
+
   return (
     <StyledForm
-      ref={formRef}
       layout={{
         kind: 'page',
         title: `${locationEditing ? 'Edit' : 'Add New'} Storage Location`,
@@ -217,12 +275,24 @@ function LocationEditor() {
           <Button
             type="button"
             variant="primary"
-            icon={locationEditing && <Icon name="Save" />}
+            icon={
+              loading ? (
+                <LoaderCoreUI size="small" />
+              ) : (
+                locationEditing && <Icon name="Save" />
+              )
+            }
             disabled={
               disable || loading || !isLocationExists(location.locationType)
             }
             onClick={save}
-            label={locationEditing ? 'Save Changes' : 'Create'}
+            label={
+              loading
+                ? 'Saving...'
+                : locationEditing
+                ? 'Save Changes'
+                : 'Create'
+            }
           />
         </Stack>
       }

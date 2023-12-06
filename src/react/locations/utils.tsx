@@ -16,17 +16,19 @@ import { getLocationType } from '../utils/storageOptions';
 import type { BucketInfo } from '../../types/s3';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Location as NextLocation } from '../next-architecture/domain/entities/location';
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 
-function newLocationDetails(): LegacyLocation {
+function newLocationDetails(): NextLocation {
   return {
     name: '',
-    locationType: '' as LocationTypeKey,
-    //@ts-expect-error initial value is empty object
+    type: '' as LocationTypeKey,
     details: {},
-    objectId: '',
+    id: '',
     isTransient: false,
     isBuiltin: false,
-    sizeLimitGB: 0,
+    usedCapacity: {
+      status: 'unknown',
+    },
   };
 }
 
@@ -65,21 +67,19 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
   return ret;
 }
 
-function convertToForm(locationProps: LegacyLocation): LocationForm {
+function convertToForm(locationProps: LocationInfo): LocationForm {
   const ret = {
     name: locationProps.name,
-    locationType: locationProps.locationType,
+    locationType: locationProps.type,
     details: locationProps.details,
-    objectId: locationProps.objectId,
+    objectId: locationProps.id,
     options: {
       isTransient: locationProps.isTransient,
       isBuiltin: locationProps.isBuiltin,
-      isSizeLimitChecked: !!locationProps.sizeLimitGB,
+      isSizeLimitChecked: false,
       isCold: !!locationProps.isCold,
-      sizeLimitGB: locationProps.sizeLimitGB
-        ? `${locationProps.sizeLimitGB}`
-        : '',
-      legacyAwsBehavior: locationProps.legacyAwsBehavior,
+      sizeLimitGB: '',
+      legacyAwsBehavior: false,
     },
   };
   return ret;
@@ -177,7 +177,7 @@ function convertToBucketInfo(bucketInfo: BucketInfo | null) {
 
 //disable the Cold Location as a source storage location
 function renderLocation(
-  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'>,
+  location: LegacyLocation | Omit<NextLocation, 'usedCapacity'> | LocationInfo,
 ) {
   const locationTypeName = getLocationType(location);
   if (location.isCold) {

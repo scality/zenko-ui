@@ -1,7 +1,5 @@
-import { MouseEventHandler, useRef } from 'react';
-import { clearError, createAccount } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
@@ -11,13 +9,14 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
+import { MouseEventHandler } from 'react';
 import { useForm } from 'react-hook-form';
-import { useOutsideClick } from '../utils/hooks';
 import { useQueryClient } from 'react-query';
-import { useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useHistory } from 'react-router-dom';
+import { useCreateAccountMutation } from '../../js/mutations';
+import { useSetAssumedRole } from '../DataServiceRoleProvider';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
@@ -50,29 +49,45 @@ function AccountCreate() {
     resolver: joiResolver(schema),
   });
   const history = useHistory();
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const dispatch = useDispatch();
-  const queryClient = useQueryClient();
+
   const setRole = useSetAssumedRole();
-  const token = useSelector((state: AppState) => state.oidc.user?.access_token);
   const instanceId = useInstanceId();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { refetchAccountsLocationsEndpointsMutation } =
+    useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
+  const createAccountMutation = useCreateAccountMutation();
+
+  const loading =
+    createAccountMutation.isLoading ||
+    refetchAccountsLocationsEndpointsMutation.isLoading;
+  const hasError =
+    createAccountMutation.isError ||
+    refetchAccountsLocationsEndpointsMutation.isError;
+  const errorMessage =
+    createAccountMutation.error?.message ??
+    refetchAccountsLocationsEndpointsMutation.error?.message ??
+    '';
+  const queryClient = useQueryClient();
   const onSubmit = ({ name, email }: AccountFormField) => {
-    clearServerError();
-    const payload = {
-      Name: name,
-      email,
-    };
-    dispatch(
-      createAccount(payload, queryClient, token, history, instanceId, setRole),
+    createAccountMutation.mutate(
+      {
+        instanceId,
+        user: { userName: name, email },
+      },
+      {
+        onSuccess: (data) => {
+          refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+            onSuccess: () => {
+              setRole({
+                roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
+              });
+              queryClient.invalidateQueries(['WebIdentityRoles']);
+              history.push(`/accounts/${name}`);
+            },
+          });
+        },
+      },
     );
   };
 
@@ -81,23 +96,12 @@ function AccountCreate() {
       e.preventDefault();
     }
 
-    clearServerError();
     history.goBack();
   };
 
-  const clearServerError = () => {
-    if (hasError) {
-      dispatch(clearError());
-    }
-  };
-
-  // clear server errors if clicked on outside of element.
-  const formRef = useRef(null);
-  useOutsideClick(formRef, clearServerError);
   return (
     <Form
       autoComplete="off"
-      ref={formRef}
       onSubmit={handleSubmit(onSubmit)}
       layout={{ kind: 'page', title: 'Create New Account' }}
       requireMode="partial"
@@ -144,7 +148,7 @@ function AccountCreate() {
             <Input
               type="text"
               id="name"
-              {...register('name', { onChange: clearServerError })}
+              {...register('name')}
               autoFocus
               autoComplete="off"
             />
@@ -157,13 +161,7 @@ function AccountCreate() {
           helpErrorPosition="bottom"
           labelHelpTooltip="When a new Account is created, a unique email is attached as the Root owner of this account, for initial authentication purpose"
           error={errors.email?.message ?? ''}
-          content={
-            <Input
-              type="email"
-              id="email"
-              {...register('email', { onChange: clearServerError })}
-            />
-          }
+          content={<Input type="email" id="email" {...register('email')} />}
         />
       </FormSection>
     </Form>

@@ -24,6 +24,8 @@ import { Button } from '@scality/core-ui/dist/next';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -39,11 +41,18 @@ function Properties({ objectMetadata }: Props) {
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
-  );
-  const location =
-    objectMetadata.storageClass && locations[objectMetadata.storageClass];
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status: checkColdLocationStatus } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+  const isObjectInColdStorage =
+    checkColdLocationStatus === 'success' &&
+    accountsLocationsAndEndpoints?.locations.find(
+      (location) => location.name === objectMetadata.storageClass,
+    )?.isCold;
+
   const prefixWithSlash = usePrefixWithSlash();
   const isLegalHoldEnabled = objectMetadata.isLegalHoldEnabled;
   //Display Legal Hold when the Bucket is versioned and object-lock enabled.
@@ -128,7 +137,15 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Location </T.Key>
                 <T.Value>{objectMetadata.storageClass || 'default'}</T.Value>
               </T.Row>
-              {(location?.isCold || objectMetadata.restore?.expiryDate) && (
+              {checkColdLocationStatus === 'idle' ||
+                (checkColdLocationStatus === 'loading' && (
+                  <T.Row>
+                    <T.Key> Temperature </T.Key>
+                    <T.Value>Loading location information...</T.Value>
+                  </T.Row>
+                ))}
+              {(isObjectInColdStorage ||
+                objectMetadata.restore?.expiryDate) && (
                 <T.Row>
                   <T.Key> Temperature </T.Key>
                   <T.GroupValues>

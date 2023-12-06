@@ -18,17 +18,17 @@ import {
 } from '../../types/config';
 import { LocationForm } from '../../types/location';
 import { Location } from '../next-architecture/domain/entities/location';
-export function checkSupportsReplicationTarget(locations: Locations): boolean {
-  return Object.keys(locations).some(
-    (l) =>
-      storageOptions[locations[l].locationType]?.supportsReplicationTarget ===
-      true,
+import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { LocationV1 } from '../../js/managementClient/api';
+export function checkSupportsReplicationTarget(
+  locations: LocationInfo[],
+): boolean {
+  return locations.some(
+    (l) => storageOptions[l.type]?.supportsReplicationTarget === true,
   );
 }
-export function checkIfExternalLocation(locations: Locations): boolean {
-  return Object.keys(locations || []).some(
-    (l) => locations[l].locationType !== 'location-file-v1',
-  );
+export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
+  return locations.some((l) => l.type !== LocationV1.LocationTypeEnum.FileV1);
 }
 
 /**
@@ -45,7 +45,11 @@ export function checkIfExternalLocation(locations: Locations): boolean {
  * @returns a string which represent a locationType
  */
 export const getLocationTypeKey = (
-  location: LocationForm | LegacyLocation | Omit<Location, 'usedCapacity'>,
+  location:
+    | LocationInfo
+    | LocationForm
+    | LegacyLocation
+    | Omit<Location, 'usedCapacity'>,
 ) => {
   if (location) {
     if (
@@ -75,7 +79,7 @@ export const getLocationTypeKey = (
 };
 
 const selectStorageLocationFromLocationType = (
-  location: LegacyLocation | Omit<Location, 'usedCapacity'>,
+  location: LegacyLocation | Omit<Location, 'usedCapacity'> | LocationInfo,
 ) => {
   const locationTypeKey = getLocationTypeKey(location);
   if (locationTypeKey !== '') {
@@ -86,13 +90,15 @@ const selectStorageLocationFromLocationType = (
 };
 
 export const getLocationType = (
-  location: LegacyLocation | Omit<Location, 'usedCapacity'>,
+  location: LegacyLocation | Omit<Location, 'usedCapacity'> | LocationInfo,
 ) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.name ?? '';
 };
 
-export const getLocationTypeShort = (location: LegacyLocation | Location) => {
+export const getLocationTypeShort = (
+  location: LegacyLocation | Location | LocationInfo,
+) => {
   const storageLocation = selectStorageLocationFromLocationType(location);
   return storageLocation?.short ?? '';
 };

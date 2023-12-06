@@ -62,10 +62,7 @@ const RedirectToAccount = () => {
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
 
-  const userGroups = useSelector(
-    (state: AppState) => state.oidc.user?.profile?.groups || [],
-  );
-  const isStorageManager = userGroups.includes('StorageManager');
+  const { isStorageManager } = useAuthGroups();
   if (selectedAccount) {
     return (
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />

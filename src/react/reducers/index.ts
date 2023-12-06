@@ -13,7 +13,6 @@ import stats from './stats';
 import uiAccounts from './uiAccounts';
 import uiBuckets from './uiBuckets';
 import uiConfig from './uiConfig';
-import uiEndpoints from './uiEndpoints';
 import uiErrors from './uiErrors';
 import uiLocations from './uiLocations';
 import uiObjects from './uiObjects';
@@ -33,7 +32,6 @@ const zenkoUIReducer = () =>
     uiAccounts,
     uiBuckets,
     uiConfig,
-    uiEndpoints,
     uiErrors,
     uiLocations,
     uiObjects,

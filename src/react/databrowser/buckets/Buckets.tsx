@@ -19,9 +19,6 @@ export default function Buckets() {
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
 
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest.locations,
-  );
   const ingestionStates = useSelector(
     (state: AppState) =>
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
@@ -105,7 +102,6 @@ export default function Buckets() {
               <BucketList
                 selectedBucketName={bucketNameParam}
                 buckets={buckets.value}
-                locations={locations}
                 ingestionStates={ingestionStates}
               />
             ),

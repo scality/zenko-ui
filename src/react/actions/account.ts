@@ -1,11 +1,5 @@
-import { QueryClient } from 'react-query';
-import { History } from 'history';
-import type {
-  AccessKey,
-  Account,
-  CreateAccountRequest,
-  SecretKey,
-} from '../../types/account';
+import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
+import type { AccessKey, Account, SecretKey } from '../../types/account';
 import type {
   AddAccountSecretAction,
   CloseAccountDeleteDialogAction,
@@ -13,14 +7,14 @@ import type {
   DeleteAccountSecretAction,
   DispatchFunction,
   GetStateFunction,
-  HandleErrorAction,
   ListAccountAccessKeySuccessAction,
   OpenAccountDeleteDialogAction,
   OpenAccountKeyCreateModalAction,
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import { removeRoleArnStored } from '../utils/localStorage';
+import type { IamAccessKey } from '../../types/user';
+import { getClients } from '../utils/actions';
 import {
   handleAWSClientError,
   handleAWSError,
@@ -28,10 +22,6 @@ import {
   handleClientError,
 } from './error';
 import { networkEnd, networkStart } from './network';
-import type { IamAccessKey } from '../../types/user';
-import { getClients } from '../utils/actions';
-import { updateConfiguration } from './configuration';
-import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
 
 export function openAccountDeleteDialog(): OpenAccountDeleteDialogAction {
   return {
@@ -85,97 +75,6 @@ export function deleteAccountSecret(): DeleteAccountSecretAction {
   };
 }
 
-export function createAccount(
-  user: CreateAccountRequest,
-  queryClient: QueryClient,
-  token: string,
-  history: History,
-  instanceId: string,
-  setRole: (role: { roleArn: string }) => void,
-): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { managementClient } = getClients(getState());
-    const params = {
-      uuid: instanceId,
-      user: { ...user, userName: user.Name },
-    };
-    dispatch(networkStart('Creating account'));
-    return managementClient
-      .createConfigurationOverlayUser(params.user, params.uuid)
-      .then(async (resp) => {
-        await Promise.all([resp.id, dispatch(updateConfiguration())]);
-        return resp;
-      })
-      .then((resp) => {
-        queryClient.clear();
-        const accountId = resp.id;
-        setRole({
-          roleArn: `arn:aws:iam::${accountId}:role/storage-manager-role`,
-        });
-
-        history.push(`/accounts/${user.Name}`);
-      })
-      .catch((error) => dispatch(handleClientError(error)))
-      .catch((error) => dispatch(handleApiError(error, 'byComponent')))
-      .finally(() => dispatch(networkEnd()));
-  };
-}
-export function deleteAccount(
-  accountName: string,
-  queryClient: QueryClient,
-  token: string,
-  rolePathName: string,
-  history: History,
-  instanceId: string,
-): ThunkStatePromisedAction {
-  return (dispatch: DispatchFunction, getState: GetStateFunction) => {
-    const { managementClient } = getClients(getState());
-    const params = {
-      uuid: instanceId,
-      accountName,
-      rolePathName,
-    };
-    dispatch(networkStart('Deleting account'));
-    return managementClient
-      .deleteConfigurationOverlayUser(
-        params.uuid,
-        undefined,
-        params.accountName,
-        params.rolePathName,
-      )
-      .then(() => {
-        dispatch(updateConfiguration());
-        history.push('/accounts');
-        dispatch(closeAccountDeleteDialog());
-        removeRoleArnStored();
-        queryClient.refetchQueries(['accounts']);
-        queryClient.invalidateQueries(['WebIdentityRoles', token]);
-      })
-      .catch((error) => {
-        // TODO: fix closeAccountDeleteDialog that might happen twice
-        // if selectAccountID() fails
-        dispatch(closeAccountDeleteDialog());
-        return dispatch(handleClientError(error));
-      })
-      .catch((error) => {
-        //We'd like to provide a better message to the user when there is buckets or policy attached to the account (409 Conflict with no error message from Pensieve API).
-        if (error.status === 409) {
-          const errorAction: HandleErrorAction = {
-            type: 'HANDLE_ERROR',
-            errorMsg:
-              'Unable to delete the account due to the presence of associated resources.',
-            errorType: 'byModal',
-          };
-          dispatch(errorAction);
-        } else {
-          dispatch(handleApiError(error, 'byModal'));
-        }
-      })
-      .finally(() => {
-        dispatch(networkEnd());
-      });
-  };
-}
 export function listAccountAccessKeys(
   roleArn: string,
 ): ThunkStatePromisedAction {

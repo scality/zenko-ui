@@ -1,8 +1,5 @@
-import { Controller, useForm } from 'react-hook-form';
-import { useRef } from 'react';
-import { clearError, createEndpoint } from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
@@ -12,11 +9,17 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
+import { useMemo } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import { useOutsideClick } from '../utils/hooks';
+import {
+  useCreateEndpointMutation,
+  useWaitForRunningConfigurationVersionToBeUpdated,
+} from '../../js/mutations';
 import { renderLocation } from '../locations/utils';
+import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -28,36 +31,33 @@ function EndpointCreate() {
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
-    mode: 'all',
+    mode: 'onChange',
     resolver: joiResolver(schema),
+    defaultValues: {
+      hostname: '',
+      locationName: 'us-east-1',
+    },
   });
   const history = useHistory();
-  const dispatch = useDispatch();
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
-  const loading = useSelector(
-    (state: AppState) => state.networkActivity.counter > 0,
-  );
-  const locations = useSelector(
-    (state: AppState) => state.configuration.latest?.locations,
-  );
-
-  const clearServerError = () => {
-    if (hasError) {
-      dispatch(clearError());
-    }
-  };
-
-  // clear server errors if clicked on outside of element.
-  const formRef = useRef(null);
-  useOutsideClick(formRef, clearServerError);
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const {
+    accountsLocationsAndEndpoints,
+    status,
+    refetchAccountsLocationsEndpointsMutation,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
+  const createEndpointMutation = useCreateEndpointMutation();
+  const instanceId = useInstanceId();
+  const loading = status === 'idle' || status === 'loading';
+  const {
+    setReferenceVersion,
+    waitForRunningConfigurationVersionToBeUpdated,
+    status: waiterStatus,
+  } = useWaitForRunningConfigurationVersionToBeUpdated();
 
   const onSubmit = ({
     hostname,
@@ -66,24 +66,48 @@ function EndpointCreate() {
     hostname: string;
     locationName: string;
   }) => {
-    clearServerError();
-    dispatch(createEndpoint(hostname, locationName, history));
+    setReferenceVersion({
+      onRefTaken: () => {
+        createEndpointMutation.mutate(
+          {
+            hostname,
+            locationName,
+            instanceId,
+          },
+          {
+            onSuccess: () => {
+              waitForRunningConfigurationVersionToBeUpdated();
+            },
+          },
+        );
+      },
+    });
   };
 
+  useMemo(() => {
+    if (waiterStatus === 'success') {
+      refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
+        onSuccess: () => {
+          history.push('/dataservices');
+        },
+      });
+    }
+  }, [waiterStatus]);
+
   const handleCancel = () => {
-    clearServerError();
     history.push('/dataservices');
   };
 
   return (
     <Form
-      ref={formRef}
       layout={{ kind: 'page', title: 'Create a New Data Service' }}
       requireMode="partial"
       rightActions={
         <Stack gap="r16">
           <Button
-            disabled={loading}
+            disabled={
+              createEndpointMutation.isLoading || waiterStatus === 'waiting'
+            }
             id="cancel-btn"
             variant="outline"
             onClick={handleCancel}
@@ -91,23 +115,32 @@ function EndpointCreate() {
             type="button"
           />
           <Button
-            disabled={loading}
+            disabled={
+              !isValid ||
+              createEndpointMutation.isLoading ||
+              loading ||
+              waiterStatus === 'waiting'
+            }
             id="create-endpoint-btn"
             variant="primary"
             onClick={handleSubmit(onSubmit)}
-            label="Create"
+            label={
+              createEndpointMutation.isLoading || waiterStatus === 'waiting'
+                ? 'Creating...'
+                : 'Create'
+            }
           />
         </Stack>
       }
       banner={
-        hasError && (
+        createEndpointMutation.isError && (
           <Banner
             id="zk-error-banner"
             icon={<Icon name="Exclamation-triangle" />}
             title="Error"
             variant="danger"
           >
-            {errorMessage}
+            {createEndpointMutation.error?.message}
           </Banner>
         )
       }
@@ -125,8 +158,7 @@ function EndpointCreate() {
               id="hostname"
               {...register('hostname')}
               placeholder="s3.example.com"
-              onChange={clearServerError}
-              disabled={loading}
+              autoFocus
               autoComplete="off"
             />
           }
@@ -137,32 +169,41 @@ function EndpointCreate() {
           direction="vertical"
           labelHelpTooltip="Cannot be modified after creation."
           content={
-            <Controller
-              control={control}
-              name="locationName"
-              defaultValue="us-east-1"
-              render={({ field: { onChange, value: locationName } }) => {
-                return (
-                  <Select
-                    id="locationName"
-                    onChange={onChange}
-                    placeholder="Location Name"
-                    value={locationName}
-                    disabled={loading}
-                  >
-                    {Object.values(locations || []).map((location: any, i) => (
-                      <Select.Option
-                        key={i}
-                        value={location.name}
-                        disabled={location?.isCold}
-                      >
-                        {renderLocation(location)}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                );
-              }}
-            />
+            loading ? (
+              <>Loading locations...</>
+            ) : status === 'error' ? (
+              <>Failed to load locations</>
+            ) : (
+              <Controller
+                control={control}
+                name="locationName"
+                render={({
+                  field: { onChange, onBlur, value: locationName },
+                }) => {
+                  return (
+                    <Select
+                      id="locationName"
+                      onChange={onChange}
+                      onBlur={onBlur}
+                      placeholder="Location Name"
+                      value={locationName}
+                    >
+                      {accountsLocationsAndEndpoints?.locations.map(
+                        (location, i) => (
+                          <Select.Option
+                            key={i}
+                            value={location.name}
+                            disabled={location?.isCold}
+                          >
+                            {renderLocation(location)}
+                          </Select.Option>
+                        ),
+                      )}
+                    </Select>
+                  );
+                }}
+              />
+            )
           }
         />
       </FormSection>

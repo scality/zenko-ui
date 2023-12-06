@@ -1,7 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { FormProvider, useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
 import {
   Banner,
   Form,
@@ -12,24 +8,58 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import type { Expiration, Locations, Replication } from '../../types/config';
-import * as T from '../ui-elements/TableKeyValue2';
+import { useEffect, useMemo, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import type { Expiration, Replication } from '../../types/config';
+import type { AppState } from '../../types/state';
 import {
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
 } from '../actions';
-import type { AppState } from '../../types/state';
+import * as T from '../ui-elements/TableKeyValue2';
 
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useMutation, useQueryClient } from 'react-query';
+import {
+  BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
+  BucketWorkflowV1,
+  ReplicationStreamInternalV1,
+} from '../../js/managementClient/api';
+import { ApiError } from '../../types/actions';
+import {
+  ReplicationForm as ReplicationFormType,
+  ReplicationForm as TypeReplicationForm,
+} from '../../types/replication';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import type { Workflow } from '../../types/workflow';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useManagementClient } from '../ManagementProvider';
+import { workflowListQuery } from '../queries';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { getClients } from '../utils/actions';
+import { useRolePathName } from '../utils/hooks';
+import {
+  ExpirationForm,
+  expirationSchema,
+  GeneralExpirationGroup,
+} from './ExpirationForm';
 import ReplicationForm, {
   disallowedPrefixes,
   GeneralReplicationGroup,
   replicationSchema,
 } from './ReplicationForm';
-import type { Workflow } from '../../types/workflow';
-import { joiResolver } from '@hookform/resolvers/joi';
+import {
+  GeneralTransitionGroup,
+  TransitionForm,
+  transitionSchema,
+} from './TransitionForm';
 import {
   convertToReplicationForm,
   convertToReplicationStream,
@@ -40,41 +70,11 @@ import {
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
-import { useMutation, useQueryClient } from 'react-query';
-import {
-  BucketWorkflowV1,
-  BucketWorkflowExpirationV1,
-  ReplicationStreamInternalV1,
-  BucketWorkflowTransitionV2,
-} from '../../js/managementClient/api';
-import { ApiError } from '../../types/actions';
-import { getClients } from '../utils/actions';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { useManagementClient } from '../ManagementProvider';
-import {
-  ReplicationForm as TypeReplicationForm,
-  ReplicationForm as ReplicationFormType,
-} from '../../types/replication';
-import { workflowListQuery } from '../queries';
-import Joi from '@hapi/joi';
-import {
-  ExpirationForm,
-  expirationSchema,
-  GeneralExpirationGroup,
-} from './ExpirationForm';
 import { useWorkflows } from './Workflows';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
-import { useRolePathName } from '../utils/hooks';
-import {
-  GeneralTransitionGroup,
-  TransitionForm,
-  transitionSchema,
-} from './TransitionForm';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
   wfSelected: Workflow;
-  locations: Locations;
 };
 
 function useReplicationMutations({
@@ -86,8 +86,7 @@ function useReplicationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const rolePathName = useRolePathName();
   const accountId = account?.id;
@@ -201,8 +200,7 @@ function useExpirationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
   const rolePathName = useRolePathName();
@@ -302,8 +300,7 @@ function useTransitionMutations(
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
-  const state = useSelector((state: AppState) => state);
-  const { instanceId } = getClients(state);
+  const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
   const rolePathName = useRolePathName();
@@ -466,11 +463,9 @@ function initTransitionDefaultValue(
 
 function EditForm({
   workflow,
-  locations,
   workflows,
 }: {
   workflow: Replication | Expiration | BucketWorkflowTransitionV2;
-  locations: Locations;
   workflows: {
     replications: Replication[];
     expirations: Expiration[];
@@ -693,14 +688,11 @@ function EditForm({
             )}
           </FormSection>
           {isExpirationWorkflow(workflow) ? (
-            <ExpirationForm locations={locations} />
+            <ExpirationForm />
           ) : isTransitionWorkflow(workflow) ? (
-            <TransitionForm locations={locations} />
+            <TransitionForm />
           ) : (
-            <ReplicationForm
-              locations={locations}
-              isPrefixMandatory={isPrefixMandatory}
-            />
+            <ReplicationForm isPrefixMandatory={isPrefixMandatory} />
           )}
         </Form>
       </FormProvider>
@@ -708,7 +700,7 @@ function EditForm({
   );
 }
 
-function ConfigurationTab({ wfSelected, locations }: Props) {
+function ConfigurationTab({ wfSelected }: Props) {
   const { workflowId } = wfSelected;
   const workflowsQuery = useWorkflows();
 
@@ -734,7 +726,6 @@ function ConfigurationTab({ wfSelected, locations }: Props) {
     <EditForm
       key={workflowId}
       workflow={workflow}
-      locations={locations}
       workflows={{
         replications: workflowsQuery.data?.replications ?? [],
         expirations: workflowsQuery.data?.expirations ?? [],
