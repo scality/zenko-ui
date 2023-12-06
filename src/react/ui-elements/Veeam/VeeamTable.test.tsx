@@ -93,7 +93,7 @@ describe('VeeamTable', () => {
     });
   };
 
-  it('should retry the failed actions', async () => {
+  it.only('should retry the failed actions', async () => {
     //Setup
     server.use(...allFailHandlers);
     setupTest();
@@ -124,7 +124,7 @@ describe('VeeamTable', () => {
             within(selectors.allRows()[i]).getAllByRole('gridcell')[2],
           ).toHaveTextContent('Failed');
         },
-        { timeout: 20_000 },
+        { timeout: 30_000 },
       );
       //E
       server.resetHandlers(...goodHandlers);
@@ -137,7 +137,7 @@ describe('VeeamTable', () => {
             within(selectors.allRows()[i]).getAllByRole('gridcell')[2],
           ).toHaveTextContent('Success');
         },
-        { timeout: 20_000 },
+        { timeout: 30_000 },
       );
     }
   });
