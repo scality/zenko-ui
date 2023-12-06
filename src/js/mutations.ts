@@ -122,6 +122,9 @@ const useCreateAccountMutation = () => {
               message: 'An account with the same name or email already exists',
             };
           }
+          throw {
+            message: 'An error occurred while creating the account',
+          };
         });
     },
   });
