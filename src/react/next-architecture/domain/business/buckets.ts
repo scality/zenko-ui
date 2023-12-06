@@ -10,6 +10,7 @@ import {
   useQueryClient,
 } from 'react-query';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
+import { useAssumedRole } from '../../../DataServiceRoleProvider';
 import { useAuthGroups } from '../../../utils/hooks';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import { useS3Client } from '../../ui/S3ClientProvider';
@@ -32,17 +33,23 @@ const noRefetchOptions = {
   refetchOnReconnect: false,
 };
 
-const getS3ClientHash = (s3Client: S3) =>
-  `${s3Client?.config?.credentials?.accessKeyId}${s3Client?.config?.credentials?.secretAccessKey}${s3Client?.config?.credentials?.sessionToken}`;
+export const queryKeys = {
+  buckets: 'buckets',
+  bucketVersioning: 'bucketVersioning',
+  bucketDefaultRetention: 'bucketDefaultRetention',
+  bucketLocation: 'bucketLocation',
+  bucketMetrics: 'bucketMetrics',
+  bucketTagging: 'bucketTagging',
+};
 
 export const queries = {
-  listBuckets: (s3Client: S3) => ({
-    queryKey: ['buckets', getS3ClientHash(s3Client)],
+  listBuckets: (s3Client: S3, assumedRole?: string) => ({
+    queryKey: [queryKeys.buckets, assumedRole],
     queryFn: () => s3Client.listBuckets().promise(),
     ...noRefetchOptions,
   }),
   getBucketVersioning: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketVersioning', getS3ClientHash(s3Client), bucketName],
+    queryKey: [queryKeys.bucketVersioning, bucketName],
     queryFn: () =>
       s3Client
         .getBucketVersioning({ Bucket: notFalsyTypeGuard(bucketName) })
@@ -51,7 +58,7 @@ export const queries = {
     ...noRefetchOptions,
   }),
   getBucketDefaultRetention: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketDefaultRetention', getS3ClientHash(s3Client), bucketName],
+    queryKey: [queryKeys.bucketDefaultRetention, bucketName],
     queryFn: () =>
       s3Client
         .getObjectLockConfiguration({
@@ -70,7 +77,7 @@ export const queries = {
     ...noRefetchOptions,
   }),
   getBucketLocation: (s3Client: S3, bucketName?: string) => ({
-    queryKey: ['bucketLocation', getS3ClientHash(s3Client), bucketName],
+    queryKey: [queryKeys.bucketLocation, bucketName],
     queryFn: () =>
       s3Client
         .getBucketLocation({ Bucket: notFalsyTypeGuard(bucketName) })
@@ -84,7 +91,7 @@ export const queries = {
     useSpecificCacheKey?: boolean,
   ) => ({
     queryKey: [
-      'bucketMetrics',
+      queryKeys.bucketMetrics,
       metricsAdapter,
       useSpecificCacheKey ? buckets.map((bucket) => bucket.Name).join(',') : '',
     ],
@@ -93,7 +100,7 @@ export const queries = {
     ...noRefetchOptions,
   }),
   getBucketTagging: (s3Client: S3, bucketName: string) => ({
-    queryKey: ['bucketTagging', getS3ClientHash(s3Client), bucketName],
+    queryKey: [queryKeys.bucketTagging, bucketName],
     queryFn: () => s3Client.getBucketTagging({ Bucket: bucketName }).promise(),
     enabled: !!bucketName && !!s3Client.config.credentials?.accessKeyId,
     ...noRefetchOptions,
@@ -110,11 +117,13 @@ export const useListBucketsForCurrentAccount = ({
 }): BucketsPromiseResult => {
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
+  const assumedRole = useAssumedRole();
+  const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
   const {
     data: buckets,
     status: bucketsStatus,
     error,
-  } = useQuery(queries.listBuckets(s3Client));
+  } = useQuery(queries.listBuckets(s3Client, assumedRoleArn));
 
   useQueries(
     Array.from({ length: 20 }).map((_, index) =>
@@ -290,12 +299,16 @@ export const useBucketDefaultRetention = ({
 export const useCreateBucket = () => {
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
+  const assumedRole = useAssumedRole();
+  const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
   const createMutation = useMutation({
     mutationFn: (request: S3.Types.CreateBucketRequest) => {
       return s3Client.createBucket(request).promise();
     },
     onSuccess: () => {
-      queryClient.resetQueries(queries.listBuckets(s3Client).queryKey);
+      queryClient.resetQueries(
+        queries.listBuckets(s3Client, assumedRoleArn).queryKey,
+      );
     },
   });
   return createMutation;
@@ -304,22 +317,27 @@ export const useCreateBucket = () => {
 export const useDeleteBucket = () => {
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
+  const assumedRole = useAssumedRole();
+  const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
   const deleteMutation = useMutation({
     mutationFn: (request: S3.Types.DeleteBucketRequest) => {
       return s3Client.deleteBucket(request).promise();
     },
     onSuccess: (_, request) => {
       const listingQueryState = queryClient.getQueryState<ListBucketsOutput>(
-        queries.listBuckets(s3Client).queryKey,
+        queries.listBuckets(s3Client, assumedRoleArn).queryKey,
       );
       if (listingQueryState?.status === 'success') {
         const newBuckets = listingQueryState.data?.Buckets?.filter(
           (bucket) => bucket.Name !== request.Bucket,
         );
-        queryClient.setQueryData(queries.listBuckets(s3Client).queryKey, {
-          ...listingQueryState.data,
-          Buckets: newBuckets,
-        });
+        queryClient.setQueryData(
+          queries.listBuckets(s3Client, assumedRoleArn).queryKey,
+          {
+            ...listingQueryState.data,
+            Buckets: newBuckets,
+          },
+        );
       }
     },
   });
