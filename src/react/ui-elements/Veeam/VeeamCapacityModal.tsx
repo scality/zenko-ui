@@ -58,7 +58,6 @@ export const VeeamCapacityModalInternal = ({
   const { mutate } = usePutObjectMutation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const formRef = useRef(null);
   const currentCapacity = watch('capacity');
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {
@@ -125,6 +124,7 @@ export const VeeamCapacityModalInternal = ({
                   label="Cancel"
                 />
                 <Button
+                  form="capacity-form"
                   type="submit"
                   variant="primary"
                   aria-label="Update max capacity"
@@ -137,7 +137,7 @@ export const VeeamCapacityModalInternal = ({
             </Wrap>
           }
         >
-          <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          <form id="capacity-form" onSubmit={handleSubmit(onSubmit)}>
             <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
           </form>
         </Modal>

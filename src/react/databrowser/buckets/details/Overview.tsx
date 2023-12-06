@@ -34,19 +34,18 @@ import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
-import { VeeamCapacityModal } from '../../../ui-elements/Veeam/VeeamCapacityModal';
+import { VeeamCapacityOverviewRow } from '../../../ui-elements/Veeam/VeeamCapacityOverviewRow';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VeeamApplicationType,
 } from '../../../ui-elements/Veeam/VeeamConstants';
+import { decodeEntities } from '../../../ui-elements/Veeam/decodeEntities';
 import { maybePluralize } from '../../../utils';
 import {
   getLocationIngestionState,
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
-import { decodeEntities } from '../../../ui-elements/Veeam/decodeEntities';
-import prettyBytes from 'pretty-bytes';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -234,28 +233,6 @@ function Overview({ bucket, ingestionStates }: Props) {
       veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365) &&
     VEEAM_FEATURE_FLAG_ENABLED;
 
-  const isSOSAPIEnabled =
-    isVeeamBucket &&
-    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
-
-  const s3Client = useS3Client();
-  const { data: veeamObject, status: veeamObjectStatus } = useQuery(
-    getVeeamObject({
-      bucketName: bucket.name,
-      s3Client,
-    }),
-  );
-
-  const xml = veeamObject?.Body?.toString();
-  const capacity =
-    new DOMParser()
-      ?.parseFromString(xml || '', 'application/xml')
-      ?.querySelector('Capacity')?.textContent || '0';
-  const prettyBytesClusterCapacity = prettyBytes(parseInt(capacity, 10), {
-    locale: 'en',
-    binary: true,
-  });
-
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
@@ -343,25 +320,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Key> Application </T.Key>
                 <T.Value> Backup - {veeamTagApplication}</T.Value>
               </T.Row>
-              {isSOSAPIEnabled && (
-                <T.Row>
-                  <T.Key> Max repository Capacity </T.Key>
-                  <T.GroupValues>
-                    <>
-                      {veeamObjectStatus === 'loading'
-                        ? 'Loading...'
-                        : veeamObjectStatus === 'error'
-                        ? 'Error'
-                        : prettyBytesClusterCapacity}
-                    </>
-                    <VeeamCapacityModal
-                      bucketName={bucket.name}
-                      maxCapacity={prettyBytesClusterCapacity}
-                      status={veeamObjectStatus}
-                    />
-                  </T.GroupValues>
-                </T.Row>
-              )}
+              <VeeamCapacityOverviewRow bucketName={bucket.name} />
             </T.Group>
           )}
           <T.Group>
