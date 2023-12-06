@@ -255,6 +255,8 @@ const selectors = {
     screen.queryByText(
       /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
     ),
+  isObjectLockEnabled: () =>
+    screen.getByRole('generic', { name: /is-object-lock-enabled/i }),
 };
 
 describe('Overview', () => {
@@ -305,6 +307,7 @@ describe('Overview', () => {
       ).toBeInTheDocument();
     });
     expect(selectors.editDefaultRetentionButton()).toBeDisabled();
+    expect(selectors.isObjectLockEnabled()).toHaveTextContent('Enabled');
   });
 
   it('should show error toast when loading bucket tagging failed', async () => {

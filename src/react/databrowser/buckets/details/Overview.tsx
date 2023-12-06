@@ -331,7 +331,9 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <>
                   <T.Row>
                     <T.Key> Object-lock </T.Key>
-                    <T.Value> Enabled </T.Value>
+                    <T.Value aria-label="is-object-lock-enabled">
+                      Enabled
+                    </T.Value>
                   </T.Row>
                   <T.Row>
                     <T.Key> Default Object-lock Retention </T.Key>
