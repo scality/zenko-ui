@@ -2,6 +2,7 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Icon,
+  Loader,
   Modal,
   Stack,
   ToastProvider,
@@ -26,6 +27,7 @@ const schema = Joi.object({
 type VeeamCapacityModalProps = {
   bucketName: string;
   maxCapacity: string;
+  status: string;
 };
 
 type VeeamCapacityForm = {
@@ -36,6 +38,7 @@ type VeeamCapacityForm = {
 export const VeeamCapacityModalInternal = ({
   bucketName,
   maxCapacity,
+  status,
 }: VeeamCapacityModalProps) => {
   const { capacityValue, capacityUnit } = useCapacityUnit(maxCapacity);
   const methods = useForm<VeeamCapacityForm>({
@@ -98,8 +101,15 @@ export const VeeamCapacityModalInternal = ({
           variant="outline"
           label="Edit"
           aria-label="Edit max capacity"
-          icon={<Icon name="Pencil" />}
+          icon={
+            status === 'loading' ? (
+              <Loader size="larger" />
+            ) : (
+              <Icon name="Pencil" />
+            )
+          }
           onClick={() => setIsCapacityModalOpen(true)}
+          disabled={status === 'loading'}
         />
         <Modal
           close={() => setIsCapacityModalOpen(false)}
@@ -128,7 +138,7 @@ export const VeeamCapacityModalInternal = ({
           }
         >
           <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
-            <VeeamCapacityFormSection />
+            <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
           </form>
         </Modal>
       </>

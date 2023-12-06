@@ -239,7 +239,7 @@ function Overview({ bucket, ingestionStates }: Props) {
     veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
 
   const s3Client = useS3Client();
-  const { data: veeamObject } = useQuery(
+  const { data: veeamObject, status: veeamObjectStatus } = useQuery(
     getVeeamObject({
       bucketName: bucket.name,
       s3Client,
@@ -347,10 +347,17 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Row>
                   <T.Key> Max repository Capacity </T.Key>
                   <T.GroupValues>
-                    <>{prettyBytesClusterCapacity}</>
+                    <>
+                      {veeamObjectStatus === 'loading'
+                        ? 'Loading...'
+                        : veeamObjectStatus === 'error'
+                        ? 'Error'
+                        : prettyBytesClusterCapacity}
+                    </>
                     <VeeamCapacityModal
                       bucketName={bucket.name}
                       maxCapacity={prettyBytesClusterCapacity}
+                      status={veeamObjectStatus}
                     />
                   </T.GroupValues>
                 </T.Row>

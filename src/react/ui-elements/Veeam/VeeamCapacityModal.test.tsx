@@ -36,7 +36,11 @@ describe('VeeamCapacityModal', () => {
 
   beforeEach(() => {
     render(
-      <VeeamCapacityModal bucketName={bucketName} maxCapacity="100 GiB" />,
+      <VeeamCapacityModal
+        bucketName={bucketName}
+        maxCapacity="100 GiB"
+        status={'success'}
+      />,
       {
         wrapper: NewWrapper(),
       },

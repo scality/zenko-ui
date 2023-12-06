@@ -3,7 +3,11 @@ import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { unitChoices } from './VeeamConstants';
 
-export const VeeamCapacityFormSection = () => {
+export const VeeamCapacityFormSection = ({
+  autoFocusEnabled,
+}: {
+  autoFocusEnabled?: boolean;
+}) => {
   const { register, control, formState } = useFormContext();
 
   return (
@@ -24,6 +28,7 @@ export const VeeamCapacityFormSection = () => {
               size="1/3"
               min={1}
               max={999}
+              autoFocus={autoFocusEnabled}
               {...register('capacity')}
             />
             <Controller
