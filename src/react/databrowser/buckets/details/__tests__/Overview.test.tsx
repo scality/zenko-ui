@@ -256,7 +256,9 @@ const selectors = {
       /Encountered issues loading bucket tagging, causing uncertainty about the use-case. Please refresh the page./i,
     ),
   isObjectLockEnabled: () =>
-    screen.getByRole('generic', { name: /is-object-lock-enabled/i }),
+    screen.getByRole('generic', {
+      name: /indicate if object lock is enabled/i,
+    }),
 };
 
 describe('Overview', () => {
