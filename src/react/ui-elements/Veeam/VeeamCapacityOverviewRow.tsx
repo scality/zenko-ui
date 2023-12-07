@@ -9,7 +9,7 @@ import * as T from '../TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
-  VEEAM_XML_PREFIX,
+  VEEAM_OBJECT_KEY,
   VeeamApplicationType,
 } from './VeeamConstants';
 import { decodeEntities } from './decodeEntities';
@@ -35,7 +35,7 @@ export const VeeamCapacityOverviewRow = ({
     getObjectQuery({
       bucketName,
       s3Client,
-      key: `${VEEAM_XML_PREFIX}/capacity.xml`,
+      key: VEEAM_OBJECT_KEY,
     }),
   );
 

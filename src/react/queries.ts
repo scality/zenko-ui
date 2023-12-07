@@ -287,7 +287,7 @@ export const getObjectQuery = ({
   s3Client: S3;
   key: string;
 }) => ({
-  queryKey: ['getObjectQuery', bucketName],
+  queryKey: ['getObjectQuery', bucketName, key],
   queryFn: () => {
     return s3Client.getObject({ Bucket: bucketName, Key: key }).promise();
   },

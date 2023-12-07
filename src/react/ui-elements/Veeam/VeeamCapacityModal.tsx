@@ -16,7 +16,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { usePutObjectMutation } from '../../../js/mutations';
 import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
-import { GET_CAPACITY_XML_CONTENT, VEEAM_XML_PREFIX } from './VeeamConstants';
+import {
+  GET_CAPACITY_XML_CONTENT,
+  VEEAM_OBJECT_KEY,
+  VEEAM_XML_PREFIX,
+} from './VeeamConstants';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 
 const schema = Joi.object({
@@ -78,7 +82,11 @@ export const VeeamCapacityModalInternal = ({
             status: 'success',
             message: 'Repository capacity updated successfully',
           });
-          queryClient.invalidateQueries(['getObjectQuery', bucketName]);
+          queryClient.invalidateQueries([
+            'getObjectQuery',
+            bucketName,
+            VEEAM_OBJECT_KEY,
+          ]);
         },
         onError: (err) => {
           const error = err as AWSError;

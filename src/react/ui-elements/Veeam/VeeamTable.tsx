@@ -7,10 +7,18 @@ import {
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { useMutationTableData } from './useMutationTableData';
 import { useQueryClient } from 'react-query';
+
+const ModalContent = styled.div`
+  max-width: 30rem;
+`;
+
+const ListItem = styled.li`
+  padding: 0.5rem;
+`;
 
 export type VeeamTableProps = {
   accountName: string;
@@ -95,26 +103,40 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
             <p></p>
             <Stack>
               <Button
+                variant="outline"
+                onClick={() => {
+                  setConfirmCancel(false);
+                }}
+                label="Cancel"
+              />
+              <Button
                 variant="danger"
                 onClick={() => {
                   setConfirmCancel(false);
                   history.push('/');
                 }}
-                label="Cancel"
-              />
-              <Button
-                variant="secondary"
-                onClick={() => {
-                  setConfirmCancel(false);
-                }}
-                label="Continue"
+                label="Exit"
               />
             </Stack>
           </Wrap>
         }
-        title="Confirmation"
+        title="Exit Veeam assistant?"
       >
-        Are you sure you want to cancel ARTESCA Configuration for Veeam?
+        <ModalContent>
+          <ul>
+            <ListItem>
+              <Text>
+                Any resources already created in this flow will be kept.
+              </Text>
+            </ListItem>
+            <ListItem>
+              <Text>
+                If you're a Storage Manager and no account are created, the
+                Veeam Assistant will appear at your next login.
+              </Text>
+            </ListItem>
+          </ul>
+        </ModalContent>
       </Modal>
     );
   }
