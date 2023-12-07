@@ -62,7 +62,9 @@ describe('VeeamCapacityModal', () => {
     fireEvent.click(selectors.editModalBtn());
 
     await waitFor(async () => {
-      expect(mockMutate).toHaveBeenCalled();
+      expect(mockMutate).toHaveBeenCalledWith(
+        '<?xml version="1.0" encoding="utf-8" ?><CapacityInfo><Capacity>214748364800</Capacity><Available>0</Available><Used>0</Used></CapacityInfo>',
+      );
     });
   });
 

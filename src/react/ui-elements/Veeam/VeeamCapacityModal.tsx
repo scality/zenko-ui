@@ -78,7 +78,7 @@ export const VeeamCapacityModalInternal = ({
             status: 'success',
             message: 'Repository capacity updated successfully',
           });
-          queryClient.invalidateQueries(['getVeeamObject', bucketName]);
+          queryClient.invalidateQueries(['getObjectQuery', bucketName]);
         },
         onError: (err) => {
           const error = err as AWSError;

@@ -1,17 +1,18 @@
 import prettyBytes from 'pretty-bytes';
+import { useQuery } from 'react-query';
 import { VEEAM_FEATURE } from '../../../js/config';
 import { useBucketTagging } from '../../next-architecture/domain/business/buckets';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
-import { getVeeamObject } from '../../queries';
+import { getObjectQuery } from '../../queries';
 import * as T from '../TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_XML_PREFIX,
   VeeamApplicationType,
 } from './VeeamConstants';
 import { decodeEntities } from './decodeEntities';
-import { useQuery } from 'react-query';
 
 export const VeeamCapacityOverviewRow = ({
   bucketName,
@@ -31,9 +32,10 @@ export const VeeamCapacityOverviewRow = ({
     VEEAM_FEATURE_FLAG_ENABLED;
 
   const { data: veeamObject, status: veeamObjectStatus } = useQuery(
-    getVeeamObject({
+    getObjectQuery({
       bucketName,
       s3Client,
+      key: `${VEEAM_XML_PREFIX}/capacity.xml`,
     }),
   );
 

@@ -278,18 +278,18 @@ export const getObjectsVersions = ({
       : undefined,
 });
 
-export const getVeeamObject = ({
+export const getObjectQuery = ({
   bucketName,
   s3Client,
-  veeamKey = `${VEEAM_XML_PREFIX}/capacity.xml`,
+  key,
 }: {
   bucketName: string;
   s3Client: S3;
-  veeamKey?: string;
+  key: string;
 }) => ({
-  queryKey: ['getVeeamObject', bucketName],
+  queryKey: ['getObjectQuery', bucketName],
   queryFn: () => {
-    return s3Client.getObject({ Bucket: bucketName, Key: veeamKey }).promise();
+    return s3Client.getObject({ Bucket: bucketName, Key: key }).promise();
   },
   refetchOnMount: false,
   refetchOnWindowFocus: false,
