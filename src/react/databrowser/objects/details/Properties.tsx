@@ -26,7 +26,10 @@ import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
-import { VEEAM_XML_PREFIX } from '../../../ui-elements/Veeam/VeeamConstants';
+import {
+  VEEAM_OBJECT_KEY,
+  VEEAM_SYSTEM_KEY,
+} from '../../../ui-elements/Veeam/VeeamConstants';
 
 type Props = {
   objectMetadata: ObjectMetadata;
@@ -137,10 +140,8 @@ function Properties({ objectMetadata }: Props) {
               <T.Row>
                 <T.Key> Location </T.Key>
                 <T.Value>
-                  {objectMetadata.objectKey ===
-                    `${VEEAM_XML_PREFIX}/system.xml` ||
-                  objectMetadata.objectKey ===
-                    `${VEEAM_XML_PREFIX}/capacity.xml`
+                  {objectMetadata.objectKey === VEEAM_SYSTEM_KEY ||
+                  objectMetadata.objectKey === VEEAM_OBJECT_KEY
                     ? 'VIRTUAL'
                     : objectMetadata.storageClass || 'default'}
                 </T.Value>

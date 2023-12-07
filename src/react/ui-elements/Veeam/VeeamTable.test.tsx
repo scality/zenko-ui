@@ -4,9 +4,10 @@ import {
   NewWrapper,
   TEST_API_BASE_URL,
   mockOffsetSize,
+  selectClick,
 } from '../../utils/testUtil';
 import { Stepper } from '@scality/core-ui';
-import { actions } from './useMutationTableData';
+import { actions as mutationActions } from './useMutationTableData';
 import { setupServer } from 'msw/node';
 import {
   bucketName,
@@ -17,6 +18,18 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import Configuration from './VeeamConfiguration';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
+
+const VeeamVBOActions = [
+  'Create an Account',
+  'Update Configuration',
+  'Assume Account Role',
+  'Create a Bucket',
+  'Create a User',
+  'Generate Access key and Secret key',
+  'Create Veeam policy',
+  'Attach Veeam policy to User',
+  'Tag bucket as Veeam Bucket',
+] as const;
 
 const allFailHandlers = [
   rest.get('*', (_, res, ctx) => {
@@ -56,6 +69,11 @@ describe('VeeamTable', () => {
       screen.getByText('Configure ARTESCA for Veeam'),
     allRows: () => screen.getAllByRole('row').filter((_, index) => index > 0),
     retryButton: () => screen.getByRole('button', { name: /retry/i }),
+    veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
+    veeamVBO: () =>
+      screen.getByRole('option', {
+        name: /Veeam Backup for Microsoft Office 365/i,
+      }),
   };
 
   const setupTest = () => {
@@ -81,7 +99,7 @@ describe('VeeamTable', () => {
       const cells = within(row).getAllByRole('gridcell');
       expect(cells).toHaveLength(3);
       expect(cells[0]).toHaveTextContent(`${index + 1}`);
-      expect(cells[1]).toHaveTextContent(actions[index]);
+      expect(cells[1]).toHaveTextContent(mutationActions[index]);
 
       if (index === 0) {
         try {
@@ -91,6 +109,29 @@ describe('VeeamTable', () => {
         }
       }
     });
+  };
+
+  const verifySuccessActions = async (
+    actions: typeof mutationActions | typeof VeeamVBOActions,
+  ) => {
+    // Veeam action table
+    await waitFor(() => {
+      expect(selectors.veeamConfigActionTable()).toBeInTheDocument();
+    });
+
+    expectInitialState('Success');
+    expect(selectors.allRows()).toHaveLength(actions.length);
+    expect(selectors.cancelButton()).toBeDisabled();
+    expect(selectors.continueButton()).toBeDisabled();
+
+    // wait for all the actions to be completed
+    for (let i = 0; i < actions.length; i++) {
+      await waitFor(() => {
+        expect(
+          within(selectors.allRows()[i]).getAllByRole('gridcell')[2],
+        ).toHaveTextContent('Success');
+      });
+    }
   };
 
   it('should retry the failed actions', async () => {
@@ -117,7 +158,7 @@ describe('VeeamTable', () => {
       }
     });
 
-    for (let i = 0; i < actions.length; i++) {
+    for (let i = 0; i < mutationActions.length; i++) {
       await waitFor(
         () => {
           expect(
@@ -153,25 +194,26 @@ describe('VeeamTable', () => {
       expect(selectors.continueButton()).toBeEnabled();
     });
     userEvent.click(selectors.continueButton());
-
     //V
-    // Veeam action table
+    await verifySuccessActions(mutationActions);
+  });
+
+  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft Office 365, ', async () => {
+    //Setup
+    server.resetHandlers(...goodHandlers);
+    setupTest();
+    //Exercise
+    //Select Veeam Backup for Microsoft Office 365
+    selectClick(selectors.veeamApplicationSelect());
+    userEvent.click(selectors.veeamVBO());
+    //type the bucket name in configuration form
+    userEvent.type(selectors.setBucketName(), bucketName);
+
     await waitFor(() => {
-      expect(selectors.veeamConfigActionTable()).toBeInTheDocument();
+      expect(selectors.continueButton()).toBeEnabled();
     });
-
-    expectInitialState('Success');
-    expect(selectors.allRows()).toHaveLength(actions.length);
-    expect(selectors.cancelButton()).toBeDisabled();
-    expect(selectors.continueButton()).toBeDisabled();
-
-    // wait for all the actions to be completed
-    for (let i = 0; i < actions.length; i++) {
-      await waitFor(() => {
-        expect(
-          within(selectors.allRows()[i]).getAllByRole('gridcell')[2],
-        ).toHaveTextContent('Success');
-      });
-    }
+    userEvent.click(selectors.continueButton());
+    //V
+    await verifySuccessActions(VeeamVBOActions);
   });
 });

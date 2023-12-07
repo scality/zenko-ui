@@ -232,7 +232,6 @@ function Overview({ bucket, ingestionStates }: Props) {
     (veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
       veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365) &&
     VEEAM_FEATURE_FLAG_ENABLED;
-
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
