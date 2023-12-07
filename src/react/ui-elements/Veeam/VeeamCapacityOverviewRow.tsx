@@ -12,7 +12,6 @@ import {
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
 } from './VeeamConstants';
-import { decodeEntities } from './decodeEntities';
 
 export const VeeamCapacityOverviewRow = ({
   bucketName,
@@ -24,8 +23,7 @@ export const VeeamCapacityOverviewRow = ({
   const { features } = useConfig();
   const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
   const veeamTagApplication =
-    tags.status === 'success' &&
-    decodeEntities(tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]);
+    tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
 
   const isSOSAPIEnabled =
     veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION &&
