@@ -93,7 +93,7 @@ describe('VeeamTable', () => {
     });
   };
 
-  it.only('should retry the failed actions', async () => {
+  it('should retry the failed actions', async () => {
     //Setup
     server.use(...allFailHandlers);
     setupTest();
