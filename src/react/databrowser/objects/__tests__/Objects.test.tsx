@@ -226,9 +226,11 @@ describe('Objects', () => {
       expect(screen.getByText(/storage location/i)).toBeInTheDocument();
     });
     //V
-    expect(
-      screen.queryByRole('link', { name: new RegExp(COLD_OBJECT_KEY) }),
-    ).toBe(null);
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('link', { name: new RegExp(COLD_OBJECT_KEY) }),
+      ).toBe(null);
+    });
     expect(
       screen.getByRole('link', {
         name: new RegExp(OBJECT_IN_DEFAULT_LOCATION),

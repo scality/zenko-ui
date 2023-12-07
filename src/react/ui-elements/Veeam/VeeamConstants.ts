@@ -54,3 +54,4 @@ export const unitChoices = {
   PiB: 1024 ** 5,
 };
 export const VEEAM_OBJECT_KEY = `${VEEAM_XML_PREFIX}/capacity.xml`;
+export const VEEAM_SYSTEM_KEY = `${VEEAM_XML_PREFIX}/system.xml`;

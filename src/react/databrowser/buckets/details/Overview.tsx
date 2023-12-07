@@ -39,7 +39,6 @@ import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VeeamApplicationType,
 } from '../../../ui-elements/Veeam/VeeamConstants';
-import { decodeEntities } from '../../../ui-elements/Veeam/decodeEntities';
 import { maybePluralize } from '../../../utils';
 import {
   getLocationIngestionState,
@@ -226,13 +225,11 @@ function Overview({ bucket, ingestionStates }: Props) {
   const { tags } = useBucketTagging({ bucketName: bucket.name });
   const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
   const veeamTagApplication =
-    tags.status === 'success' &&
-    decodeEntities(tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]);
+    tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
   const isVeeamBucket =
     (veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
       veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365) &&
     VEEAM_FEATURE_FLAG_ENABLED;
-
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
@@ -328,29 +325,37 @@ function Overview({ bucket, ingestionStates }: Props) {
             <T.GroupContent>
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                 'Enabled' && (
-                <T.Row>
-                  <T.Key> Default Object-lock Retention </T.Key>
-                  <T.GroupValues>
-                    <div>{getDefaultBucketRetention(bucketInfo)}</div>
-                    <Button
-                      id="edit-retention-btn"
-                      variant="outline"
-                      label="Edit"
-                      aria-label="Edit default retention"
-                      icon={<Icon name="Pencil" />}
-                      onClick={() => {
-                        history.push(
-                          `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
-                        );
-                      }}
-                      disabled={isVeeamBucket}
-                      tooltip={{
-                        overlay:
-                          'Edition is disabled as it is managed by Veeam.',
-                      }}
-                    />
-                  </T.GroupValues>
-                </T.Row>
+                <>
+                  <T.Row>
+                    <T.Key> Object-lock </T.Key>
+                    <T.Value aria-label="indicate if object lock is enabled">
+                      Enabled
+                    </T.Value>
+                  </T.Row>
+                  <T.Row>
+                    <T.Key> Default Object-lock Retention </T.Key>
+                    <T.GroupValues>
+                      <div>{getDefaultBucketRetention(bucketInfo)}</div>
+                      <Button
+                        id="edit-retention-btn"
+                        variant="outline"
+                        label="Edit"
+                        aria-label="Edit default retention"
+                        icon={<Icon name="Pencil" />}
+                        onClick={() => {
+                          history.push(
+                            `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
+                          );
+                        }}
+                        disabled={isVeeamBucket}
+                        tooltip={{
+                          overlay:
+                            'Edition is disabled as it is managed by Veeam.',
+                        }}
+                      />
+                    </T.GroupValues>
+                  </T.Row>
+                </>
               )}
               {bucketInfo.objectLockConfiguration.ObjectLockEnabled ===
                 'Disabled' && (

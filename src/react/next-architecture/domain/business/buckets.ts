@@ -572,7 +572,9 @@ export const useBucketTagging = ({
     tags: {
       status: 'success',
       value: data?.TagSet?.reduce((acc, tag) => {
-        acc[tag.Key] = tag.Value;
+        acc[tag.Key] =
+          new DOMParser().parseFromString(tag.Value, 'text/html').body
+            .textContent || '';
         return acc;
       }, {} as Record<string, string>),
     },

@@ -23,6 +23,7 @@ import {
   GET_CAPACITY_XML_CONTENT,
   GET_VEEAM_IMMUTABLE_POLICY,
   SYSTEM_XML_CONTENT,
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
   VEEAM_XML_PREFIX,
 } from './VeeamConstants';
 import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
@@ -71,7 +72,19 @@ export const useMutationTableData = ({
   const { refetchAccountsLocationsEndpointsMutation } =
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
-  const mutations = [
+  const mutationsVBO = [
+    useCreateAccountMutation(),
+    refetchAccountsLocationsEndpointsMutation,
+    assumeRoleMutation,
+    useCreateBucket(),
+    useCreateIAMUserMutation(),
+    useCreateUserAccessKeyMutation(),
+    useCreatePolicyMutation(),
+    useAttachPolicyToUserMutation(),
+    usePutBucketTaggingMutation(),
+  ];
+
+  const mutationsVeeamVBR = [
     useCreateAccountMutation(),
     refetchAccountsLocationsEndpointsMutation,
     assumeRoleMutation,
@@ -85,6 +98,10 @@ export const useMutationTableData = ({
     usePutObjectMutation(),
     usePutObjectMutation(),
   ];
+
+  const isVeeamVBR =
+    propsConfiguration.application === VEEAM_BACKUP_REPLICATION_XML_VALUE;
+  const mutations = isVeeamVBR ? mutationsVeeamVBR : mutationsVBO;
 
   const instanceId = useInstanceId();
   const { userData } = useAuth();
@@ -114,7 +131,9 @@ export const useMutationTableData = ({
       } else if (isStep('Create a Bucket')) {
         return {
           Bucket: propsConfiguration.bucketName,
-          ObjectLockEnabledForBucket: propsConfiguration.enableImmutableBackup,
+          ObjectLockEnabledForBucket: isVeeamVBR
+            ? propsConfiguration.enableImmutableBackup
+            : false,
         };
       } else if (isStep('Create a User')) {
         return {

@@ -24,6 +24,7 @@ import {
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
+import { useHistory } from 'react-router-dom';
 
 const schema = Joi.object({
   bucketName: Joi.string().required(),
@@ -71,6 +72,7 @@ const Configuration = () => {
     setValue,
   } = methods;
 
+  const history = useHistory();
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
   const application = watch('application');
   const onSubmit = ({
@@ -123,7 +125,7 @@ const Configuration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                //TODO: Go back to the landing page base on the user profile
+                history.push('/accounts');
               }}
               label="Skip Use case configuration"
             />
@@ -185,31 +187,35 @@ const Configuration = () => {
               />
             }
           />
-          <FormGroup
-            id="enableImmutableBackup"
-            label="Immutable backup"
-            direction="vertical"
-            help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
-            helpErrorPosition="bottom"
-            labelHelpTooltip="TODO"
-            content={
-              <Controller
-                name="enableImmutableBackup"
-                control={control}
-                render={({ field: { value, onChange } }) => {
-                  return (
-                    <Toggle
-                      id="enableImmutableBackup"
-                      name="enableImmutableBackup"
-                      toggle={value}
-                      label={value ? 'Active' : 'Inactive'}
-                      onChange={onChange}
-                    />
-                  );
-                }}
-              />
-            }
-          />
+          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+            <FormGroup
+              id="enableImmutableBackup"
+              label="Immutable backup"
+              direction="vertical"
+              help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
+              helpErrorPosition="bottom"
+              labelHelpTooltip="TODO"
+              content={
+                <Controller
+                  name="enableImmutableBackup"
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <Toggle
+                        id="enableImmutableBackup"
+                        name="enableImmutableBackup"
+                        toggle={value}
+                        label={value ? 'Active' : 'Inactive'}
+                        onChange={onChange}
+                      />
+                    );
+                  }}
+                />
+              }
+            />
+          ) : (
+            <></>
+          )}
           {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
             <VeeamCapacityFormSection />
           ) : (
