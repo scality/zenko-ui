@@ -23,6 +23,7 @@ import {
 
 //Subject Under Testing
 const SUT = jest.fn();
+export const PolicySUT = jest.fn();
 const instanceId = INSTANCE_ID;
 const accountName = 'Veeam';
 const accountNameAlreadyExist = 'Veeam-Account-Error';
@@ -256,6 +257,7 @@ export const getVeeamMutationHandler = () => [
           ),
         );
       }
+      PolicySUT(decodeURIComponent(req.body as string));
       return res(
         ctx.status(200),
         ctx.xml(

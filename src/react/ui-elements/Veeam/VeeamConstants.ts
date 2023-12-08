@@ -55,3 +55,31 @@ export const unitChoices = {
 };
 export const VEEAM_OBJECT_KEY = `${VEEAM_XML_PREFIX}/capacity.xml`;
 export const VEEAM_SYSTEM_KEY = `${VEEAM_XML_PREFIX}/system.xml`;
+export const GET_VEEAM_NON_IMMUTABLE_POLICY = (bucketName: string) =>
+  JSON.stringify({
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Sid: 'SecureBucketPolicy0',
+        Effect: 'Allow',
+        Action: [
+          's3:PutObject',
+          's3:GetObject',
+          's3:DeleteObject',
+          's3:GetBucketLocation',
+          's3:GetBucketVersioning',
+          's3:GetBucketObjectLockConfiguration',
+        ],
+        Resource: [
+          `arn:aws:s3:::${bucketName}/*`,
+          `arn:aws:s3:::${bucketName}`,
+        ],
+      },
+      {
+        Sid: 'SecureBucketPolicy1',
+        Effect: 'Allow',
+        Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
+        Resource: '*',
+      },
+    ],
+  });

@@ -22,6 +22,7 @@ import {
   BUCKET_TAG_VEEAM_APPLICATION,
   GET_CAPACITY_XML_CONTENT,
   GET_VEEAM_IMMUTABLE_POLICY,
+  GET_VEEAM_NON_IMMUTABLE_POLICY,
   SYSTEM_XML_CONTENT,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
   VEEAM_XML_PREFIX,
@@ -146,9 +147,9 @@ export const useMutationTableData = ({
       } else if (isStep('Create Veeam policy')) {
         return {
           policyName: `${propsConfiguration.bucketName}-veeam`,
-          policyDocument: GET_VEEAM_IMMUTABLE_POLICY(
-            propsConfiguration.bucketName,
-          ),
+          policyDocument: propsConfiguration.enableImmutableBackup
+            ? GET_VEEAM_IMMUTABLE_POLICY(propsConfiguration.bucketName)
+            : GET_VEEAM_NON_IMMUTABLE_POLICY(propsConfiguration.bucketName),
         };
       } else if (isStep('Attach Veeam policy to User')) {
         return {

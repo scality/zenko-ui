@@ -12,12 +12,14 @@ import { setupServer } from 'msw/node';
 import {
   bucketName,
   getVeeamMutationHandler,
+  PolicySUT,
 } from '../../../js/mutations.test';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import Configuration from './VeeamConfiguration';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
+import { GET_VEEAM_NON_IMMUTABLE_POLICY } from './VeeamConstants';
 
 const VeeamVBOActions = [
   'Create an Account',
@@ -74,6 +76,8 @@ describe('VeeamTable', () => {
       screen.getByRole('option', {
         name: /Veeam Backup for Microsoft Office 365/i,
       }),
+    immutableBackupToggle: () =>
+      screen.getByRole('checkbox', { name: /Active/i }),
   };
 
   const setupTest = () => {
@@ -215,5 +219,30 @@ describe('VeeamTable', () => {
     userEvent.click(selectors.continueButton());
     //V
     await verifySuccessActions(VeeamVBOActions);
+  });
+
+  it('should get non immutable policy when immutable backup is not selected', async () => {
+    //Setup
+    server.resetHandlers(...goodHandlers);
+    setupTest();
+    //Exercise
+    //type the bucket name in configuration form
+    userEvent.type(selectors.setBucketName(), bucketName);
+    userEvent.click(selectors.immutableBackupToggle());
+
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeEnabled();
+      expect(selectors.immutableBackupToggle()).not.toBeChecked();
+    });
+    userEvent.click(selectors.continueButton());
+    //V
+    await verifySuccessActions(mutationActions);
+    await waitFor(() => {
+      expect(PolicySUT).toHaveBeenCalledWith(
+        `Action=CreatePolicy&PolicyDocument=${GET_VEEAM_NON_IMMUTABLE_POLICY(
+          bucketName,
+        )}&PolicyName=veeam-veeam&Version=2010-05-08`,
+      );
+    });
   });
 });
