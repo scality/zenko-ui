@@ -16,7 +16,7 @@ const ModalContent = styled.div`
   max-width: 30rem;
 `;
 
-const ListItem = styled.li`
+export const ListItem = styled.li`
   padding: 0.5rem;
 `;
 

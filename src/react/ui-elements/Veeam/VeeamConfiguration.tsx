@@ -12,8 +12,10 @@ import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.co
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useEffect, useRef } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { useHistory } from 'react-router-dom';
 import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
 import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
@@ -22,9 +24,8 @@ import {
   unitChoices,
 } from './VeeamConstants';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
+import { ListItem } from './VeeamTable';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
-import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
-import { useHistory } from 'react-router-dom';
 
 const schema = Joi.object({
   bucketName: Joi.string().required(),
@@ -49,6 +50,54 @@ type VeeamConfiguration = {
   capacityUnit: string;
   enableImmutableBackup: boolean;
 };
+
+const VeeamApplicationTooltip = () => (
+  <>
+    Choose the Veeam application you're setting up.
+    <br />
+    <br />
+    Features such as Immutable Backup and Max Repository Capacity (that provides
+    notification via Smart Object Storage API) are only supported in Veeam
+    Backup and Replication, and not in Veeam Backup for Microsoft Office 365.
+  </>
+);
+
+const VeeamBucketTooltip = () => (
+  <ul>
+    <ListItem>
+      This bucket is your future Veeam destination. You'll need it when setting
+      up your Veeam application. We'll also include this in the summary provided
+      by our Veeam assistant at the end.
+    </ListItem>
+    <ListItem>
+      The bucket name should follow few constraints:
+      <ul>
+        <li>Must be unique,</li>
+        <li>Cannot be modified after creation</li>
+        <li>
+          Bucket names can include only lowercase letters, numbers, dots (.),
+          and hyphens (-).
+        </li>
+      </ul>
+    </ListItem>
+  </ul>
+);
+
+const VeeamImmutableBackupTooltip = () => (
+  <ul>
+    <ListItem>
+      Veeam's Immutable Backup feature enhances data protection by using S3
+      Object-lock technology.
+    </ListItem>
+    <ListItem>
+      By selecting the Immutable Backup feature, the ARTESCA bucket is created
+      with Object-lock enabled.
+    </ListItem>
+    <ListItem>
+      Data backed up to your ARTESCA S3 bucket via Veeam will be immutable.
+    </ListItem>
+  </ul>
+);
 
 const Configuration = () => {
   const methods = useForm<VeeamConfiguration>({
@@ -144,7 +193,7 @@ const Configuration = () => {
             id="application"
             label="Veeam application"
             direction="vertical"
-            labelHelpTooltip="TODO"
+            labelHelpTooltip={<VeeamApplicationTooltip />}
             content={
               <Controller
                 name="application"
@@ -175,7 +224,7 @@ const Configuration = () => {
             label="Bucket name"
             direction="vertical"
             required
-            labelHelpTooltip="TODO"
+            labelHelpTooltip={<VeeamBucketTooltip />}
             error={errors.bucketName?.message ?? ''}
             content={
               <Input
@@ -194,7 +243,7 @@ const Configuration = () => {
               direction="vertical"
               help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
               helpErrorPosition="bottom"
-              labelHelpTooltip="TODO"
+              labelHelpTooltip={<VeeamImmutableBackupTooltip />}
               content={
                 <Controller
                   name="enableImmutableBackup"

@@ -2,6 +2,24 @@ import { FormGroup, FormSection, Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { unitChoices } from './VeeamConstants';
+import { ListItem } from './VeeamTable';
+
+const VeeamCapacityTooltip = () => (
+  <ul>
+    <ListItem>
+      Set your ARTESCA storage capacity limit to be monitored by Veeam (via
+      Smart Object Storage API).
+    </ListItem>
+    <ListItem>
+      Keep in mind, going over this limit has no effect on ARTESCA itself, but
+      it does trigger a warning in the Veeam UI and can potentially stop backup
+      activities.
+    </ListItem>
+    <ListItem>
+      Prefilled at 80% of the ARTESCA platform's capacity (recommended).
+    </ListItem>
+  </ul>
+);
 
 export const VeeamCapacityFormSection = ({
   autoFocusEnabled,
@@ -19,6 +37,7 @@ export const VeeamCapacityFormSection = ({
         error={formState.errors.capacity?.message ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
+        labelHelpTooltip={<VeeamCapacityTooltip />}
         content={
           <Stack direction="horizontal">
             <Input
