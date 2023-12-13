@@ -86,22 +86,25 @@ export const useMutationTableData = ({
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
   const mutationsVBO = [
-    useCreateAccountMutation(),
-    refetchAccountsLocationsEndpointsMutation,
-    assumeRoleMutation,
-    useCreateBucket(),
-    useCreateIAMUserMutation(),
-    useCreateUserAccessKeyMutation(),
-    useCreatePolicyMutation(),
-    useAttachPolicyToUserMutation(),
-    usePutBucketTaggingMutation(),
+    { ...useCreateAccountMutation(), key: 'createAccountMutation' },
+    {
+      ...refetchAccountsLocationsEndpointsMutation,
+      key: 'refetchAccountsLocationsEndpointsMutation',
+    },
+    { ...assumeRoleMutation, key: 'assumeRoleMutation' },
+    { ...useCreateBucket(), key: 'createBucketMutation' },
+    { ...useCreateIAMUserMutation(), key: 'createIAMUserMutation' },
+    { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKeyMutation' },
+    { ...useCreatePolicyMutation(), key: 'createPolicyMutation' },
+    { ...useAttachPolicyToUserMutation(), key: 'attachPolicyToUserMutation' },
+    { ...usePutBucketTaggingMutation(), key: 'putBucketTaggingMutation' },
   ] as const;
 
   const mutationsVBR = [
     ...mutationsVBO,
-    usePutObjectMutation(),
-    usePutObjectMutation(),
-    usePutObjectMutation(),
+    { ...usePutObjectMutation(), key: 'putVeeamFolderMutation' },
+    { ...usePutObjectMutation(), key: 'putVeeamSystemXmlMutation' },
+    { ...usePutObjectMutation(), key: 'putVeeamCapacityXmlMutation' },
   ] as const;
 
   const isVeeamVBR =
@@ -116,8 +119,8 @@ export const useMutationTableData = ({
     computeVariablesForNext,
   } = useChainedMutations({
     mutations: mutationsVBO,
-    computeVariablesForNext: [
-      () => {
+    computeVariablesForNext: {
+      createAccountMutation: () => {
         return {
           user: {
             userName: propsConfiguration.accountName,
@@ -126,15 +129,15 @@ export const useMutationTableData = ({
           instanceId,
         };
       },
-      () => {
+      refetchAccountsLocationsEndpointsMutation: () => {
         return {};
       },
-      (results) => {
+      assumeRoleMutation: (results) => {
         return {
-          roleArn: `arn:aws:iam::${results[0].data?.id}:role/scality-internal/storage-manager-role`,
+          roleArn: `arn:aws:iam::${results[0]?.id}:role/scality-internal/storage-manager-role`,
         };
       },
-      () => {
+      createBucketMutation: () => {
         return {
           Bucket: propsConfiguration.bucketName,
           ObjectLockEnabledForBucket: isVeeamVBR
@@ -142,17 +145,17 @@ export const useMutationTableData = ({
             : false,
         };
       },
-      () => {
+      createIAMUserMutation: () => {
         return {
           userName: propsConfiguration.accountName,
         };
       },
-      () => {
+      createUserAccessKeyMutation: () => {
         return {
           userName: propsConfiguration.accountName,
         };
       },
-      () => {
+      createPolicyMutation: () => {
         return {
           policyName: `${propsConfiguration.bucketName}-veeam`,
           policyDocument: propsConfiguration.enableImmutableBackup
@@ -160,13 +163,13 @@ export const useMutationTableData = ({
             : GET_VEEAM_NON_IMMUTABLE_POLICY(propsConfiguration.bucketName),
         };
       },
-      (results) => {
+      attachPolicyToUserMutation: (results) => {
         return {
           userName: propsConfiguration.accountName,
-          policyArn: `arn:aws:iam::${results[0].data?.id}:policy/${propsConfiguration.bucketName}-veeam`,
+          policyArn: `arn:aws:iam::${results[0]?.id}:policy/${propsConfiguration.bucketName}-veeam`,
         };
       },
-      () => {
+      putBucketTaggingMutation: () => {
         return {
           bucketName: propsConfiguration.bucketName,
           tagSet: [
@@ -177,22 +180,22 @@ export const useMutationTableData = ({
           ],
         };
       },
-    ],
+    },
   });
 
   const { mutate: mutateVBR, mutationsWithRetry: mutationsVBRRetry } =
     useChainedMutations({
       mutations: mutationsVBR,
-      computeVariablesForNext: [
+      computeVariablesForNext: {
         ...computeVariablesForNext,
-        () => {
+        putVeeamFolderMutation: () => {
           return {
             Bucket: propsConfiguration.bucketName,
             Key: `${VEEAM_XML_PREFIX}/`,
             Body: '',
           };
         },
-        () => {
+        putVeeamSystemXmlMutation: () => {
           return {
             Bucket: propsConfiguration.bucketName,
             Key: `${VEEAM_XML_PREFIX}/system.xml`,
@@ -200,7 +203,7 @@ export const useMutationTableData = ({
             ContentType: 'text/xml',
           };
         },
-        () => {
+        putVeeamCapacityXmlMutation: () => {
           return {
             Bucket: propsConfiguration.bucketName,
             Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
@@ -208,7 +211,7 @@ export const useMutationTableData = ({
             ContentType: 'text/xml',
           };
         },
-      ],
+      },
     });
   const mutationsWithRetry = isVeeamVBR ? mutationsVBRRetry : mutationsVBORetry;
 
