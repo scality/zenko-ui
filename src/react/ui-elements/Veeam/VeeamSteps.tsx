@@ -25,5 +25,9 @@ export enum VeeamStepsIndexes {
 }
 
 export default function VeeamSteppers() {
-  return <Stepper steps={VEEAM_STEPS} />;
+  return (
+    <div style={{ height: '100%' }}>
+      <Stepper steps={VEEAM_STEPS} />
+    </div>
+  );
 }

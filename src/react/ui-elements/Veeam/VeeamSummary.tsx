@@ -7,19 +7,16 @@ import {
   InfoMessage,
   Text,
 } from '@scality/core-ui';
-import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Stack, Wrap, spacing } from '@scality/core-ui/dist/spacing';
-
+import { Button, CopyButton } from '@scality/core-ui/dist/next';
+import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
 import { useHistory } from 'react-router-dom';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
 import { Clipboard } from '../Clipboard';
 import { HideCredential } from '../Hide';
-import Table, * as T from '../TableKeyValue';
-import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
-import { PropsWithChildren, ReactElement } from 'react';
+import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 type VeeamSummaryProps = {
   bucketName: string;
@@ -68,7 +65,6 @@ export const VeeamSummary = ({
   secretKey,
 }: VeeamSummaryProps) => {
   const history = useHistory();
-  const theme = useTheme();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
 
@@ -82,7 +78,7 @@ export const VeeamSummary = ({
       rightActions={
         <Button
           variant="primary"
-          label={'Exit'}
+          label="Exit"
           onClick={() => {
             history.push(
               `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
@@ -96,7 +92,6 @@ export const VeeamSummary = ({
         The next steps involve managing Certificates and entering specific
         PRODUCT details within the Veeam application
       </Text>
-
       {isPlatformAdmin ? (
         <Level4FormSection title={{ name: CERTIFICATE_SECTION_TITLE }}>
           <InfoMessage
