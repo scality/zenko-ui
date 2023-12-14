@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/no-unused-vars: 0 */
 import { useRef } from 'react';
 
 type ChainedMutation<
@@ -20,11 +21,9 @@ declare type InferChainedMutation<T> = T extends ChainedMutation<
   infer TKey
 >
   ? ChainedMutation<TVariables, TData, TKey>
-  : T extends ChainedMutation<infer TVariables, infer TData, infer TKey>
-  ? ChainedMutation<TVariables, TData, TKey>
   : ChainedMutation<unknown, unknown, ''>;
 
-type ChainedMutationsResults<T extends any[]> = T extends []
+type ChainedMutationsResults<T extends unknown[]> = T extends []
   ? []
   : T extends [infer Head, ...infer Tail]
   ? [InferChainedMutation<Head>, ...ChainedMutationsResults<Tail>]
@@ -34,7 +33,7 @@ type ChainedMutationsResults<T extends any[]> = T extends []
   ? T
   : never;
 
-type ExctractVariables<T> = T extends ChainedMutation<
+type ExtractVariables<T> = T extends ChainedMutation<
   infer TVariables,
   infer TData,
   infer TKey
@@ -66,11 +65,11 @@ type ExtractKey<T> = T extends ChainedMutation<
   ? TKey
   : never;
 
-type ComputeVariableForNext<TupleOfResult extends any[], TNextVariables> = (
+type ComputeVariableForNext<TupleOfResult extends unknown[], TNextVariables> = (
   results: TupleOfResult,
 ) => TNextVariables;
 
-type ComputeVariablesForNext<T extends any[]> = T extends []
+type ComputeVariablesForNext<T extends unknown[]> = T extends []
   ? Record<string, unknown>
   : T extends [...infer Head, infer Tail]
   ? ComputeVariablesForNext<Head> &
@@ -78,16 +77,14 @@ type ComputeVariablesForNext<T extends any[]> = T extends []
         ExtractKey<Tail>,
         ComputeVariableForNext<
           ExtractDataFromChainedMutaionTuple<Head>,
-          ExctractVariables<Tail>
+          ExtractVariables<Tail>
         >
       >
   : T extends [infer Head]
-  ? Record<
-      ExtractKey<Head>,
-      ComputeVariableForNext<[], ExctractVariables<Head>>
-    >
+  ? Record<ExtractKey<Head>, ComputeVariableForNext<[], ExtractVariables<Head>>>
   : Record<string, unknown>;
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export const useChainedMutations = <T extends any[]>({
   mutations,
   computeVariablesForNext,

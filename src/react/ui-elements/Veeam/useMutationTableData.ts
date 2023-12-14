@@ -44,7 +44,7 @@ export const actions = [
   'Set maximum repository capacity',
 ] as const;
 
-type IndexOf<T extends readonly any[], U> = Exclude<
+type IndexOf<T extends readonly unknown[], U> = Exclude<
   {
     [K in keyof T]: T[K] extends U ? K : never;
   }[number],
@@ -53,7 +53,7 @@ type IndexOf<T extends readonly any[], U> = Exclude<
 
 type ToNumber<
   T extends string,
-  R extends any[] = [],
+  R extends unknown[] = [],
 > = T extends `${R['length']}` ? R['length'] : ToNumber<T, [1, ...R]>;
 
 type Result = {
