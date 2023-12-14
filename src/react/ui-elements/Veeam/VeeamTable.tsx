@@ -171,12 +171,12 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
         </Stack>
       }
     >
-      <div style={{ height: '30rem', width: '40rem' }}>
+      <div style={{ height: '30rem', width: '100%' }}>
         <Table columns={columns} data={data}>
           <Table.SingleSelectableContent
             rowHeight="h32"
             separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            backgroundVariant="backgroundLevel4"
             children={(Rows) => {
               return <>{Rows}</>;
             }}
