@@ -1,7 +1,7 @@
 import type { AccessKey, Account, SecretKey } from './account';
 import type { AuthUser, OidcLogoutFunction } from './auth';
 import type { ConfigurationOverlay, Hostname } from './config';
-import type { AppConfig, InstanceId, Theme } from './entities';
+import type { AppConfig, InstanceId } from './entities';
 import type { ManagementClient } from './managementClient';
 import type {
   BucketInfo,

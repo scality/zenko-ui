@@ -40,54 +40,8 @@ import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
 import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { ToastProvider } from '@scality/core-ui';
+import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 
-//LocationTestOK
-export const theme = {
-  name: 'Dark Rebrand Theme',
-  statusHealthy: '#0AADA6',
-  statusWarning: '#F8F32B',
-  statusCritical: '#E84855',
-  selectedActive: '#037AFF',
-  highlight: '#1A3C75',
-  border: '#313131',
-  buttonPrimary: '#2F4185',
-  buttonSecondary: '#595A78',
-  buttonDelete: '#3D0808',
-  infoPrimary: '#8E8EAC',
-  infoSecondary: '#333366',
-  backgroundLevel1: '#121219',
-  backgroundLevel2: '#323245',
-  backgroundLevel3: '#232331',
-  backgroundLevel4: '#171721',
-  textPrimary: '#FFFFFF',
-  textSecondary: '#EAEAEA',
-  textTertiary: '#B5B5B5',
-  textReverse: '#000000',
-  textLink: '#71AEFF',
-  brand: {
-    // Dark Rebrand
-    statusHealthy: '#0AADA6',
-    statusWarning: '#F8F32B',
-    statusCritical: '#E84855',
-    selectedActive: '#037AFF',
-    highlight: '#1A3C75',
-    border: '#313131',
-    buttonPrimary: '#2F4185',
-    buttonSecondary: '#595A78',
-    buttonDelete: '#3D0808',
-    infoPrimary: '#8E8EAC',
-    infoSecondary: '#333366',
-    backgroundLevel1: '#121219',
-    backgroundLevel2: '#323245',
-    backgroundLevel3: '#232331',
-    backgroundLevel4: '#171721',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#EAEAEA',
-    textTertiary: '#B5B5B5',
-    textReverse: '#000000',
-    textLink: '#71AEFF',
-  },
-};
 export const history = createMemoryHistory();
 export const configuration = {
   latest: {
@@ -259,7 +213,7 @@ export const reduxMount = (component: React.ReactNode, testState?: any) => {
   const store = newTestStore(testState);
   return {
     component: mount(
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={coreUIAvailableThemes}>
         <Provider store={store}>
           <Wrapper>{component}</Wrapper>
         </Provider>
@@ -320,7 +274,7 @@ export const reduxRender = (component: JSX.Element, testState?: unknown) => {
 
   return {
     component: render(
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={coreUIAvailableThemes}>
         <Provider store={store}>
           <Wrapper>
             <>
@@ -353,7 +307,7 @@ export async function reduxMountAct(component, testState) {
         })
       }
     >
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={coreUIAvailableThemes}>
         <Provider store={store}>
           <Wrapper>{component}</Wrapper>
         </Provider>
@@ -365,7 +319,7 @@ export async function reduxMountAct(component, testState) {
 export const themeMount = (component: React.ReactNode) => {
   return mount(
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+      <ThemeProvider theme={coreUIAvailableThemes}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
 };
@@ -422,7 +376,7 @@ export function testTableRow(
 export const simpleRender = (component: React.ReactNode) => {
   return render(
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>{component}</ThemeProvider>
+      <ThemeProvider theme={coreUIAvailableThemes}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
 };
@@ -443,7 +397,7 @@ export function renderWithRouterMatch(
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={coreUIAvailableThemes}>
           <Provider store={store}>
             <Router history={history}>
               <Route path={path}>
@@ -504,7 +458,7 @@ export const renderWithCustomRoute = (
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={coreUIAvailableThemes}>
           <Provider store={store}>
             <Router history={history}>
               <_ConfigContext.Provider value={zenkoUITestConfig}>
@@ -583,7 +537,7 @@ export const NewWrapper =
 
     return (
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={coreUIAvailableThemes}>
           <Provider store={store}>
             <Router history={history}>
               <ToastProvider>

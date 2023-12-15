@@ -123,49 +123,7 @@ export const INSTANCE_STATUS_RUNNINGv2 = {
   ...instanceStatus,
   state: { ...instanceStatus.state, runningConfigurationVersion: 2 },
 };
-export const THEME = {
-  brand: {
-    statusHealthy: '#0AADA6',
-    statusWarning: '#F8F32B',
-    statusCritical: '#E84855',
-    selectedActive: '#037AFF',
-    highlight: '#1A3C75',
-    border: '#313131',
-    buttonPrimary: '#2F4185',
-    buttonSecondary: '#595A78',
-    buttonDelete: '#3D0808',
-    infoPrimary: '#8E8EAC',
-    infoSecondary: '#333366',
-    backgroundLevel1: '#121219',
-    backgroundLevel2: '#323245',
-    backgroundLevel3: '#232331',
-    backgroundLevel4: '#171721',
-    textPrimary: '#FFFFFF',
-    textSecondary: '#EAEAEA',
-    textTertiary: '#B5B5B5',
-    textReverse: '#000000',
-    textLink: '#71AEFF',
-    // degraded colors
-    alert: '#FFE508',
-    base: '#7B7B7B',
-    primary: '#1D1D1D',
-    primaryDark1: '#171717',
-    primaryDark2: '#0A0A0A',
-    secondary: '#0F7FFF',
-    secondaryDark1: '#1C3D59',
-    secondaryDark2: '#1C2E3F',
-    success: '#006F62',
-    healthy: '#30AC26',
-    healthyLight: '#69E44C',
-    warning: '#FFC10A',
-    danger: '#AA1D05',
-    critical: '#BE321F',
-    background: '#121212',
-    backgroundBluer: '#192A41',
-    borderLight: '#A5A5A5',
-    info: '#434343',
-  },
-};
+
 export function errorManagementState(): AppState {
   const state = initState;
   return {

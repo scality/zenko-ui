@@ -38,11 +38,7 @@ export const initialAuthState: AuthState = {
   config: { features: [] },
   oidcLogout: null,
 };
-export const initialConfigUIState = {
-  theme: {
-    brand: defaultTheme.darkRebrand,
-  },
-};
+
 export const initialS3State: S3State = {
   listBucketsResults: {
     list: List(),
