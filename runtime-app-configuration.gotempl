@@ -14,7 +14,7 @@
       "iamEndpoint": "{{ .IAMEndpointPrefix }}/iam",
       "iamInternalFQDN": "{{ .IAMInternalFQDN }}",
       "s3InternalFQDN": "{{ .S3InternalFQDN }}",
-      "features": [{{if .IsXDM}}"XDM"{{end}}{{if .IsVeeam}}{{if .IsXDM}}, {{end}}"Veeam"{{end}}],
+      "features": [{{if .IsXDM}}"XDM"{{end}}{{if .IsVeeamUseCase}}{{if .IsXDM}}, {{end}}"Veeam"{{end}}],
       "basePath": "{{ .BasePath }}"
     },
     "auth": {
