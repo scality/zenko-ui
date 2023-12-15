@@ -130,9 +130,7 @@ function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
                 Enabling versioning is not possible due to the bucket being
                 hosted on Google Cloud.
               </>
-            ) : (
-              <></>
-            )
+            ) : null
           }
         >
           <Toggle
