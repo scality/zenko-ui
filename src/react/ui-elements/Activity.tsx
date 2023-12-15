@@ -12,7 +12,7 @@ const ActivityContainer = styled.div`
   right: 0px;
   padding: 1em;
   margin: 2em;
-  background-color: ${(props) => props.theme.brand.highlight};
+  background-color: ${(props) => props.theme.highlight};
   border-radius: ${spacing.sp8};
   vertical-align: 50%;
   z-index: 1100;
@@ -23,7 +23,7 @@ const ActivityContainer = styled.div`
   }
 
   svg {
-    fill: ${(props) => props.theme.brand.text};
+    fill: ${(props) => props.theme.text};
   }
 `;
 

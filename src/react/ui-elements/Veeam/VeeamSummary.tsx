@@ -43,7 +43,7 @@ const Level4FormSection = ({
   title,
 }: Parameters<typeof FormSection>[0]) => {
   const Container = styled.div`
-    background-color: ${(props) => props.theme.brand.backgroundLevel4};
+    background-color: ${(props) => props.theme.backgroundLevel4};
     padding: ${spacing.r16};
   `;
   return (

@@ -7,7 +7,6 @@ import { Banner, Icon, ScrollbarWrapper } from '@scality/core-ui';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';
 import Routes from './Routes';
-import { ThemeProvider } from 'styled-components';
 import { loadAppConfig } from './actions';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuth } from './next-architecture/ui/AuthProvider';
@@ -22,7 +21,6 @@ function ZenkoUI() {
   const configFailureErrorMessage = useSelector((state: AppState) =>
     state.uiErrors.errorType === 'byComponent' ? state.uiErrors.errorMsg : '',
   );
-  const theme = useSelector((state: AppState) => state.uiConfig.theme);
   const dispatch = useDispatch();
   const conf = useConfig();
   const user = useAuth();
@@ -58,11 +56,7 @@ function ZenkoUI() {
     return <Loader> Login in </Loader>;
   }
 
-  return (
-    <ThemeProvider theme={theme}>
-      <ScrollbarWrapper>{content()}</ScrollbarWrapper>
-    </ThemeProvider>
-  );
+  return <ScrollbarWrapper>{content()}</ScrollbarWrapper>;
 }
 
 export default ZenkoUI;

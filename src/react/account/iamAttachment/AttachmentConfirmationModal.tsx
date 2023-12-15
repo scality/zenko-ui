@@ -254,7 +254,7 @@ function AttachmentConfirmationModal({
               <Icon name="Link" /> Attach
             </span>
           ) : (
-            <Box color={theme.brand.statusCritical}>
+            <Box color={theme.statusCritical}>
               <Icon name="Unlink" /> Detach
             </Box>
           );

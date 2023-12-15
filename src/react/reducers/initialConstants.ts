@@ -207,7 +207,6 @@ export const initialFullState = {
   secrets: initialSecretsState,
   stats: initialStatsState,
   uiAccounts: initialAccountsUIState,
-  uiConfig: initialConfigUIState,
   uiUser: initialUserUIState,
   uiLocations: initialLocationsUIState,
   uiObjects: initialObjectUIState,

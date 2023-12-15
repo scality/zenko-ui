@@ -10,7 +10,7 @@ const HideValue = styled.div<{ shown?: boolean }>`
 `;
 const HideAction = styled.div`
   margin-left: ${spacing.sp8};
-  color: ${(props) => props.theme.brand.textLink};
+  color: ${(props) => props.theme.textLink};
   text-decoration: none;
   cursor: pointer;
   &:hover {

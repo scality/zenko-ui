@@ -24,7 +24,7 @@ const DropZone = styled.div`
   padding: ${spacing.sp20};
   border-width: ${spacing.sp2};
   border-radius: ${spacing.sp2};
-  border-color: ${(props) => props.theme.brand.border};
+  border-color: ${(props) => props.theme.border};
   border-style: dashed;
 `;
 const RemoveCell = styled(T.Cell)`

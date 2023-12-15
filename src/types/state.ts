@@ -134,7 +134,6 @@ export type AppState = {
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
   readonly uiBuckets: BucketsUIState;
-  readonly uiConfig: ConfigUIState;
   readonly uiObjects: ObjectsUIState;
   readonly stats: StatsState;
   readonly s3: S3State;

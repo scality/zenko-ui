@@ -35,7 +35,7 @@ const Files = styled.div`
   width: 31.25rem;
   overflow-y: scroll;
   margin: ${spacing.sp8} 0rem;
-  border: ${spacing.sp1} solid ${(props) => props.theme.brand.border};
+  border: ${spacing.sp1} solid ${(props) => props.theme.border};
 `;
 const VersionId = styled.div`
   font-size: ${fontSize.small};
@@ -323,11 +323,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
     if (s3Object.lockStatus === 'LOCKED' && s3Object.versionId) {
       if (s3Object.objectRetention?.mode === 'COMPLIANCE') {
         return (
-          <Box
-            display="flex"
-            color={theme.brand?.textTertiary}
-            gap={spacing.sp4}
-          >
+          <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
             <Icon color="buttonSecondary" name="Lock" />
             <span>Protected (compliance), won't be deleted</span>
           </Box>
@@ -335,11 +331,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
       }
       if (s3Object.objectRetention?.mode === 'GOVERNANCE') {
         return (
-          <Box
-            display="flex"
-            color={theme.brand?.textTertiary}
-            gap={spacing.sp4}
-          >
+          <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
             <Icon color="buttonSecondary" name="Lock" />
             <span>Protected (governance), will be deleted</span>
           </Box>
@@ -348,7 +340,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
     }
     if (s3Object.isLegalHoldEnabled && s3Object.versionId) {
       return (
-        <Box display="flex" color={theme.brand?.textTertiary} gap={spacing.sp4}>
+        <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
           <Icon color="buttonSecondary" name="Lock" />
           <span>Protected (legal hold), won't be deleted</span>
         </Box>

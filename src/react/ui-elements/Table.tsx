@@ -40,8 +40,7 @@ export const Container = styled.div`
 `;
 // * table head
 export const Head = styled.thead`
-  border-bottom: ${spacing.sp1} solid
-    ${(props) => props.theme.brand.backgroundLevel1};
+  border-bottom: ${spacing.sp1} solid ${(props) => props.theme.backgroundLevel1};
 `;
 export const HeadRow = styled.tr`
   align-items: center;
@@ -71,9 +70,9 @@ export const BodyWindowing = styled.tbody`
 export const Row = styled(HeadRow)`
   // it's better to use 1px instead of spacing.sp1, otherwise the border of some rows
   // can look different cause of subpixel positioning
-  border-bottom: 1px solid ${(props) => props.theme.brand.backgroundLevel1};
+  border-bottom: 1px solid ${(props) => props.theme.backgroundLevel1};
   &:hover {
-    background-color: ${(props) => props.theme.brand.secondaryDark1};
+    background-color: ${(props) => props.theme.secondaryDark1};
   }
   cursor: ${(props) => (props.onClick ? 'pointer' : 'default')};
   box-sizing: border-box;
@@ -82,35 +81,34 @@ export const Row = styled(HeadRow)`
   ${({ isSelected, theme }) =>
     isSelected &&
     `
-        background-color: ${theme.brand.highlight};
-        border-right: ${spacing.sp4} solid ${theme.brand.selectedActive};
+        background-color: ${theme.highlight};
+        border-right: ${spacing.sp4} solid ${theme.selectedActive};
     `}
 `;
 export const Cell = styled.td<{ shade?: boolean }>`
   vertical-align: middle;
-  color: ${(props) =>
-    props.shade ? props.theme.brand.base : props.theme.brand.text};
+  color: ${(props) => (props.shade ? props.theme.base : props.theme.text)};
   padding: ${spacing.sp4} ${spacing.sp16} ${spacing.sp4} ${spacing.sp16};
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 `;
 export const CellLink = styled(Link)`
-  color: ${(props) => props.theme.brand.textLink};
+  color: ${(props) => props.theme.textLink};
   text-decoration: none;
   &:hover {
     text-decoration: underline;
   }
 `;
 export const CellClick = styled.span`
-  color: ${(props) => props.theme.brand.textLink};
+  color: ${(props) => props.theme.textLink};
   text-decoration: none;
   &:hover {
     text-decoration: underline;
   }
 `;
 export const CellA = styled.a`
-  color: ${(props) => props.theme.brand.textLink};
+  color: ${(props) => props.theme.textLink};
   text-decoration: none;
   &:hover {
     text-decoration: underline;
@@ -181,7 +179,7 @@ const Table = styled.table`
 `;
 // specific to listobject/md search
 export const SearchMetadataInput = styled(Input)`
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.backgroundLevel1};
   padding: 0px ${spacing.sp32};
   max-height: ${spacing.sp32};
   box-sizing: border-box;
@@ -196,7 +194,7 @@ export const SearchInputIcon = styled.i<{ isHidden?: boolean }>`
   right: 10px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.brand.base};
+    color: ${(props) => props.theme.base};
   }
 `;
 const ValidationIcon = styled.i`
@@ -204,10 +202,10 @@ const ValidationIcon = styled.i`
   left: 10px;
   color: ${(props) =>
     props.className === 'fa fa-times'
-      ? props.theme.brand.danger
+      ? props.theme.danger
       : props.className === 'fas fa-check'
-      ? props.theme.brand.success
-      : props.theme.brand.base};
+      ? props.theme.success
+      : props.theme.base};
 `;
 type Props = {
   isMetadataType: boolean;

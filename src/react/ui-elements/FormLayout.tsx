@@ -43,12 +43,12 @@ export const Title = styled(LargerText)`
 `;
 export const SubTitle = styled.div`
   display: flex;
-  color: ${(props) => props.theme.brand.textPrimary};
+  color: ${(props) => props.theme.textPrimary};
   font-weight: bold;
 `;
 export const SectionTitle = styled.div<{ fontSize?: string }>`
   display: flex;
-  color: ${(props) => props.theme.brand.textPrimary};
+  color: ${(props) => props.theme.textPrimary};
   font-size: ${(props) => props.fontSize || 'inherit'};
 `;
 export const Fieldset = styled.fieldset<{
@@ -100,7 +100,7 @@ export const LargeCustomInput = styled(TextArea)`
   }}
 `;
 export const Hr = styled.hr`
-  border-color: ${(props) => props.theme.brand.buttonSecondary};
+  border-color: ${(props) => props.theme.buttonSecondary};
   height: 0.05rem;
   width: 40rem;
   margin-bottom: 1rem;
@@ -113,19 +113,19 @@ export const SessionSeperation = styled.div`
   width: 23px;
   height: 1px;
   margin: ${spacing.sp16} 0px ${spacing.sp16} 0px;
-  background-color: ${(props) => props.theme.brand.buttonSecondary};
+  background-color: ${(props) => props.theme.buttonSecondary};
 `;
 export const LabelSecondary = styled(SmallerText)`
-  color: ${(props) => props.theme.brand.textSecondary};
+  color: ${(props) => props.theme.textSecondary};
 `;
 // * ErrorInput
 const ErrorInputContainer = styled.div`
   height: ${spacing.sp16};
-  color: ${(props) => props.theme.brand.statusCritical};
+  color: ${(props) => props.theme.statusCritical};
 `;
 const WarningInputContainer = styled.div`
   height: ${spacing.sp16};
-  color: ${(props) => props.theme.brand.statusWarning};
+  color: ${(props) => props.theme.statusWarning};
 `;
 type ErrorInputProps = {
   error?: React.ReactNode;
@@ -229,7 +229,7 @@ export const FooterButtons = styled.div`
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
+  background-color: ${(props) => props.theme?.backgroundLevel1};
   padding-top: 1%;
   padding-left: 20%;
   padding-right: 20%;

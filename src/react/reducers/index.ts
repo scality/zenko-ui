@@ -12,7 +12,6 @@ import secrets from './secrets';
 import stats from './stats';
 import uiAccounts from './uiAccounts';
 import uiBuckets from './uiBuckets';
-import uiConfig from './uiConfig';
 import uiErrors from './uiErrors';
 import uiLocations from './uiLocations';
 import uiObjects from './uiObjects';
@@ -31,7 +30,6 @@ const zenkoUIReducer = () =>
     networkActivity,
     uiAccounts,
     uiBuckets,
-    uiConfig,
     uiErrors,
     uiLocations,
     uiObjects,

@@ -76,10 +76,6 @@ export type SelectAccountAction = {
   readonly type: 'SELECT_ACCOUNT';
   readonly account: Account;
 };
-export type SetThemeAction = {
-  readonly type: 'SET_THEME';
-  readonly theme: Theme;
-};
 export type SetOIDCLogoutAction = {
   readonly type: 'SET_OIDC_LOGOUT';
   readonly logout: OidcLogoutFunction | null;
@@ -359,7 +355,6 @@ export type Action =
   | NetworkActivityAction
   | ConfigurationAction
   | AccountUIAction
-  | SetThemeAction
   | StatsAction
   | WorkflowUIAction
   | ZenkoAction;

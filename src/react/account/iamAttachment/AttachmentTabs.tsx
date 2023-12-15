@@ -131,7 +131,7 @@ const AttachmentTabs = ({
     },
     { user: [], role: [], policy: [], group: [] },
   );
-  const { backgroundLevel3, backgroundLevel4 } = theme.brand;
+  const { backgroundLevel3, backgroundLevel4 } = theme;
   const customTabStyle = {
     inactiveTabColor: backgroundLevel4,
     activeTabColor: backgroundLevel3,

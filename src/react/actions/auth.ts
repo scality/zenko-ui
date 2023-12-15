@@ -9,12 +9,11 @@ import type {
   SetManagementClientAction,
   SetOIDCLogoutAction,
   SetSTSClientAction,
-  SetThemeAction,
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
 import type { OidcLogoutFunction } from '../../types/auth';
-import type { AppConfig, InstanceId, Theme } from '../../types/entities';
+import type { AppConfig, InstanceId } from '../../types/entities';
 import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
 import type { STSClient as STSClientInterface } from '../../types/sts';
 import {
@@ -71,12 +70,6 @@ export function loadClientsSuccess(): LoadClientsSuccessAction {
 export function configAuthFailure(): ConfigAuthFailureAction {
   return {
     type: 'CONFIG_AUTH_FAILURE',
-  };
-}
-export function setTheme(theme: Theme): SetThemeAction {
-  return {
-    type: 'SET_THEME',
-    theme,
   };
 }
 export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {

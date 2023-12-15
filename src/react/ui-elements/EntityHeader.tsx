@@ -11,10 +11,10 @@ type Props = {
 
 export const HeadIcon = styled.i`
   display: flex;
-  color: ${(props) => props.theme.brand.infoPrimary};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  color: ${(props) => props.theme.infoPrimary};
+  background-color: ${(props) => props.theme.backgroundLevel1};
   border-radius: 100%;
-  border: ${spacing.f1} solid ${(props) => props.theme.brand.infoPrimary};
+  border: ${spacing.f1} solid ${(props) => props.theme.infoPrimary};
   width: 80px;
   height: 80px;
   text-align: center;
@@ -28,7 +28,7 @@ export const HeadIcon = styled.i`
 
 export const HeadTitle = styled.div`
   display: flex;
-  color: ${(props) => props.theme.brand.textSecondary};
+  color: ${(props) => props.theme.textSecondary};
   font-size: ${fontSize.large};
   align-items: center;
 `;

@@ -35,7 +35,6 @@ import type {
   SetManagementClientAction,
   SetOIDCLogoutAction,
   SetSTSClientAction,
-  SetThemeAction,
   SetZenkoClientAction,
   ToggleAllObjectsAction,
   ToggleObjectAction,
@@ -68,7 +67,6 @@ import {
   INSTANCE_STATUS_RUNNINGv2,
   LATEST_OVERLAY,
   LOGOUT_MOCK,
-  THEME,
 } from './testUtil';
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
@@ -107,10 +105,6 @@ export const CONFIG_AUTH_FAILURE_ACTION: ConfigAuthFailureAction = {
 export const SELECT_ACCOUNT_ACTION: SelectAccountAction = {
   type: 'SELECT_ACCOUNT',
   account: ACCOUNT,
-};
-export const SET_THEME_ACTION: SetThemeAction = {
-  type: 'SET_THEME',
-  theme: THEME,
 };
 export const SET_OIDC_LOGOUT_ACTION: SetOIDCLogoutAction = {
   type: 'SET_OIDC_LOGOUT',
