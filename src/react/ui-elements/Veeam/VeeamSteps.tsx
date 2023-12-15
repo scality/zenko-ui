@@ -1,7 +1,8 @@
 import VeeamTable from './VeeamTable';
 import VeeamConfiguration from './VeeamConfiguration';
 import { VeeamSummary } from './VeeamSummary';
-import { Stepper } from '@scality/core-ui';
+import { Stepper, spacing } from '@scality/core-ui';
+import { useTheme } from 'styled-components';
 
 export const VEEAM_STEPS = [
   {
@@ -25,5 +26,16 @@ export enum VeeamStepsIndexes {
 }
 
 export default function VeeamSteppers() {
-  return <Stepper steps={VEEAM_STEPS} />;
+  const theme = useTheme();
+  return (
+    <div
+      style={{
+        height: '100%',
+        backgroundColor: theme.backgroundLevel4,
+        paddingTop: spacing.r16,
+      }}
+    >
+      <Stepper steps={VEEAM_STEPS} />
+    </div>
+  );
 }

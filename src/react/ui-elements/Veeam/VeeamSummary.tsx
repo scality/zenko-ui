@@ -1,16 +1,22 @@
-import { Banner, Form, Icon, InfoMessage, Text } from '@scality/core-ui';
+import {
+  Banner,
+  Form,
+  FormGroup,
+  FormSection,
+  Icon,
+  InfoMessage,
+  Text,
+} from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Stack } from '@scality/core-ui/dist/spacing';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
 import { useHistory } from 'react-router-dom';
-import { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
 import { Clipboard } from '../Clipboard';
 import { HideCredential } from '../Hide';
-import Table, * as T from '../TableKeyValue';
-import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
+import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 type VeeamSummaryProps = {
   bucketName: string;
@@ -20,12 +26,37 @@ type VeeamSummaryProps = {
 };
 
 export const VEEAM_SUMMARY_TITLE = 'Veeam Repository preparation summary';
-export const ACCOUNT_SECTION_TITLE = 'Information for Veeam Account';
 export const CREDENTIALS_SECTION_TITLE = 'Credentials';
 export const BUCKET_SECTION_TITLE = 'Bucket';
-export const CERTIFICATE_SECTION_TITLE = 'Certificate';
+export const CERTIFICATE_SECTION_TITLE = '1. Certificates';
+export const ACCOUNT_SECTION_TITLE =
+  '2. Information for the Veeam configuration';
 
 const DEFAULT_REGION = 'us-east-1';
+
+const WrapperWithWidth = styled(Wrap)`
+  width: 20rem;
+`;
+
+const Level4FormSection = ({
+  children,
+  title,
+}: Parameters<typeof FormSection>[0]) => {
+  const Container = styled.div`
+    background-color: ${(props) => props.theme.brand.backgroundLevel4};
+    padding: ${spacing.r16};
+  `;
+  return (
+    <Container>
+      <FormSection title={title}>{children}</FormSection>
+    </Container>
+  );
+};
+
+const Separator = styled.div`
+  width: 100%;
+  height: ${spacing.r32};
+`;
 
 export const VeeamSummary = ({
   bucketName,
@@ -34,7 +65,6 @@ export const VeeamSummary = ({
   secretKey,
 }: VeeamSummaryProps) => {
   const history = useHistory();
-  const theme = useTheme();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
 
@@ -46,37 +76,61 @@ export const VeeamSummary = ({
       }}
       requireMode="all"
       rightActions={
-        <Stack gap="r16">
-          <p></p>
-          <Button
-            variant="primary"
-            label={'Complete'}
-            icon={<Icon name="Arrow-right" />}
-            onClick={() => {
-              history.push(
-                `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
-              );
-            }}
-          />
-        </Stack>
+        <Button
+          variant="primary"
+          label="Exit"
+          onClick={() => {
+            history.push(
+              `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
+            );
+          }}
+        />
       }
-      style={{
-        height: 'calc(100vh - 100px)',
-      }}
     >
-      <div
-        style={{
-          backgroundColor: theme.brand.backgroundLevel3,
-          padding: spacing.sp16,
-        }}
-      >
-        <Stack gap="r16">
-          <Text isEmphazed>
-            ARTESCA is now ready for Veeam. You can use this data to set up your
-            Veeam application.
-          </Text>
+      <Text isEmphazed>
+        Your ARTESCA is now configured and ready to integrate with Veeam. <br />
+        The next steps involve managing Certificates and entering specific
+        PRODUCT details within the Veeam application
+      </Text>
+      {isPlatformAdmin ? (
+        <Level4FormSection title={{ name: CERTIFICATE_SECTION_TITLE }}>
+          <InfoMessage
+            title={'How to manage Certificates?'}
+            link="/docs/standard_operations/change_certificates.html"
+            content={
+              <ul>
+                <li>
+                  By default, all certificates are generated using the ARTESCA
+                  built-in Certificate Authority and are valid for 3 months.
+                  After that time period, the certificates are automatically
+                  renewed.
+                </li>
+                <li>
+                  To avoid a service interruption every time a certificate is
+                  being renewed, you must either trust the ARTESCA built-in
+                  Certificate Authority (which is valid for 10 years), or
+                  replace certificates using a custom or external Certificate
+                  Authority.
+                </li>
+              </ul>
+            }
+          />
+          <FormGroup
+            id="certificate"
+            label="ARTESCA built-in Certificate Authority"
+            content={<CertificateDownloadButton />}
+            required
+          ></FormGroup>
+        </Level4FormSection>
+      ) : (
+        <></>
+      )}
+
+      <Level4FormSection>
+        <Wrap>
+          <Text isEmphazed>{ACCOUNT_SECTION_TITLE}</Text>
           <CopyButton
-            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nUsername\tveeam\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBucket name\t${bucketName}`}
+            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBucket name\t${bucketName}`}
             label="all"
             variant="outline"
             tooltip={{
@@ -86,116 +140,85 @@ export const VeeamSummary = ({
             }}
             size="inline"
           />
-        </Stack>
-        <br />
-        <Stack direction="vertical" gap="r16">
-          {isPlatformAdmin ? (
-            <Stack direction="vertical" gap="r16">
-              <Text isEmphazed>{CERTIFICATE_SECTION_TITLE}</Text>
-              <InfoMessage
-                title={'How to manage Certificates?'}
-                link="/docs/standard_operations/change_certificates.html"
-                content={
-                  <>
-                    By default, all certificates are generated using the ARTESCA
-                    built-in Certificate Authority and are valid for 3 months.
-                    After that time period, the certificates are automatically
-                    renewed.
-                    <br />
-                    To avoid a service interruption every time a certificate is
-                    being renewed, you must either trust the ARTESCA built-in
-                    Certificate Authority (which is valid for 10 years), or
-                    replace certificates using a custom or external Certificate
-                    Authority.
-                  </>
-                }
-              />
-              <Stack>
-                <Text color="textSecondary">
-                  ARTESCA built-in Certificate Authority
-                </Text>
-                <CertificateDownloadButton />
-              </Stack>
-            </Stack>
-          ) : (
-            <></>
-          )}
-          <Text isEmphazed>{ACCOUNT_SECTION_TITLE}</Text>
-          <Table>
-            <T.Body>
-              <T.Row>
-                <T.Key> Service point </T.Key>
-                <T.Value> {s3ServicePoint}</T.Value>
-                <T.ExtraCell>
-                  <Clipboard text={s3ServicePoint} />
-                </T.ExtraCell>
-              </T.Row>
-              <T.Row>
-                <T.Key> Region </T.Key>
-                <T.Value>{DEFAULT_REGION}</T.Value>
-                <T.ExtraCell>
-                  <Clipboard text={DEFAULT_REGION} />
-                </T.ExtraCell>
-              </T.Row>
-            </T.Body>
-          </Table>
-        </Stack>
-        <br />
-        <Stack direction="vertical" gap="r16">
-          <Text isEmphazed>{CREDENTIALS_SECTION_TITLE}</Text>
-          <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
-            The Secret Access key cannot be retrieved afterwards, so make sure
-            to keep and secure it now. <br />
-            You will be able to create new Access keys at any time.
-          </Banner>
-          <Table>
-            <T.Body>
-              <T.Row>
-                <T.Key> Access key ID </T.Key>
-                <T.Value>{accessKey}</T.Value>
-                <T.ExtraCell>
-                  <Clipboard text={accessKey} />
-                </T.ExtraCell>
-              </T.Row>
-              <T.Row>
-                <T.Key> Secret Access key </T.Key>
-                <T.Value>
-                  <HideCredential credentials={secretKey} />
-                </T.Value>
-                <T.ExtraCell>
-                  <Clipboard text={secretKey} />
-                </T.ExtraCell>
-              </T.Row>
-            </T.Body>
-          </Table>
-        </Stack>
-        <br />
-        <Stack direction="vertical" gap="r16">
-          <Text isEmphazed>{BUCKET_SECTION_TITLE}</Text>
-          <Table style={{ marginTop: spacing.sp16 }}>
-            <T.Body>
-              <T.Row>
-                <T.Key> Name </T.Key>
-                <T.Value>{bucketName}</T.Value>
-                <T.ExtraCell>
-                  <Clipboard text={bucketName} />
-                </T.ExtraCell>
-              </T.Row>
-              <T.Row>
-                <T.Key> Immutable backup </T.Key>
-                <T.Value>
-                  {enableImmutableBackup ? 'Active' : 'Inactive'}
-                  <br />
-                  <Text variant="Smaller" color="textSecondary">
-                    Make sure to check the "Make recent backups immutable"
-                    checkbox when configuring the bucket in the Veeam Server.
-                  </Text>
-                </T.Value>
-              </T.Row>
-            </T.Body>
-          </Table>
-        </Stack>
-      </div>
+        </Wrap>
+        <Separator />
+        <FormGroup
+          id="service-point"
+          label="Service point"
+          required
+          content={
+            <WrapperWithWidth>
+              <Text>{s3ServicePoint}</Text> <Clipboard text={s3ServicePoint} />
+            </WrapperWithWidth>
+          }
+        />
+        <FormGroup
+          id="region"
+          required
+          label="Region"
+          content={
+            <WrapperWithWidth>
+              <Text>{DEFAULT_REGION}</Text> <Clipboard text={DEFAULT_REGION} />
+            </WrapperWithWidth>
+          }
+        />
+        <Separator />
+
+        <Text isEmphazed>{CREDENTIALS_SECTION_TITLE}</Text>
+        <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+          The Secret Access key cannot be retrieved afterwards, so make sure to
+          keep and secure it now. <br />
+          You will be able to create new Access keys at any time.
+        </Banner>
+        <FormGroup
+          id="access-key"
+          label="Access key ID"
+          required
+          content={
+            <WrapperWithWidth>
+              <Text>{accessKey}</Text>
+              <Clipboard text={accessKey} />
+            </WrapperWithWidth>
+          }
+        />
+        <FormGroup
+          id="secret-key"
+          label="Secret Access key"
+          required
+          content={
+            <WrapperWithWidth>
+              <HideCredential credentials={secretKey} />
+              <Clipboard text={accessKey} />
+            </WrapperWithWidth>
+          }
+        />
+        <Separator />
+
+        <Text isEmphazed>{BUCKET_SECTION_TITLE}</Text>
+        <FormGroup
+          id="bucket-name"
+          label="Name"
+          required
+          content={
+            <WrapperWithWidth>
+              <Text>{bucketName}</Text>
+              <Clipboard text={bucketName} />
+            </WrapperWithWidth>
+          }
+        />
+        <FormGroup
+          id="immutable-backup"
+          required
+          label="Immutable backup"
+          helpErrorPosition="bottom"
+          help={
+            'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+          }
+          content={
+            enableImmutableBackup ? <Text>Active</Text> : <Text>Inactive</Text>
+          }
+        />
+      </Level4FormSection>
     </Form>
   );
 };
