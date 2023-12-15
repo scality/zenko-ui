@@ -7,10 +7,11 @@ import {
   Icon,
   Stack,
   Toggle,
+  Text,
 } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
@@ -26,6 +27,7 @@ import {
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { ListItem } from './VeeamTable';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
+import { VeeamSkipModal } from './VeeamSkipModal';
 
 const schema = Joi.object({
   bucketName: Joi.string().required(),
@@ -151,6 +153,8 @@ const Configuration = () => {
     clusterCapacity || '0',
     true,
   );
+  const [skip, setSkip] = useState<boolean>(false);
+
   useEffect(() => {
     if (clusterCapacityStatus === 'success') {
       setValue('capacity', capacityValue);
@@ -160,6 +164,18 @@ const Configuration = () => {
 
   return (
     <FormProvider {...methods}>
+      <VeeamSkipModal
+        isOpen={skip}
+        close={() => setSkip(false)}
+        exitAction={() => history.push('/accounts')}
+        modalContent={
+          <Text>
+            Are you sure to skip this config? You’ll be able to go through this
+            flow again (in the Account page if no Account has been created,
+            otherwise on an Account edition page)
+          </Text>
+        }
+      />
       <Form
         onSubmit={handleSubmit(onSubmit)}
         ref={formRef}
@@ -174,7 +190,7 @@ const Configuration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                history.push('/accounts');
+                setSkip(true);
               }}
               label="Skip Use case configuration"
             />
@@ -252,9 +268,10 @@ const Configuration = () => {
                     return (
                       <Toggle
                         id="enableImmutableBackup"
+                        aria-label="enableImmutableBackup"
                         name="enableImmutableBackup"
                         toggle={value}
-                        label={value ? 'Active' : 'Inactive'}
+                        label={value ? 'Enabled' : 'Disabled'}
                         onChange={onChange}
                       />
                     );

@@ -60,7 +60,7 @@ export const VeeamCapacityFormSection = ({
                       id="capacityUnit"
                       onChange={onChange}
                       value={value}
-                      size="2/3"
+                      size="1/3"
                     >
                       {Object.entries(unitChoices).map(([key, value]) => {
                         return (

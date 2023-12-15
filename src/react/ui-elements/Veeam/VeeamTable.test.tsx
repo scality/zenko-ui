@@ -76,8 +76,7 @@ describe('VeeamTable', () => {
       screen.getByRole('option', {
         name: /Veeam Backup for Microsoft Office 365/i,
       }),
-    immutableBackupToggle: () =>
-      screen.getByRole('checkbox', { name: /Active/i }),
+    immutableBackupToggle: () => screen.getByLabelText('enableImmutableBackup'),
   };
 
   const setupTest = () => {
