@@ -41,7 +41,7 @@ import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/Acces
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { ToastProvider } from '@scality/core-ui';
 import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
-
+export const theme = coreUIAvailableThemes.darkRebrand;
 export const history = createMemoryHistory();
 export const configuration = {
   latest: {
@@ -213,7 +213,7 @@ export const reduxMount = (component: React.ReactNode, testState?: any) => {
   const store = newTestStore(testState);
   return {
     component: mount(
-      <ThemeProvider theme={coreUIAvailableThemes}>
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Wrapper>{component}</Wrapper>
         </Provider>
@@ -274,7 +274,7 @@ export const reduxRender = (component: JSX.Element, testState?: unknown) => {
 
   return {
     component: render(
-      <ThemeProvider theme={coreUIAvailableThemes}>
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Wrapper>
             <>
@@ -307,7 +307,7 @@ export async function reduxMountAct(component, testState) {
         })
       }
     >
-      <ThemeProvider theme={coreUIAvailableThemes}>
+      <ThemeProvider theme={theme}>
         <Provider store={store}>
           <Wrapper>{component}</Wrapper>
         </Provider>
@@ -319,7 +319,7 @@ export async function reduxMountAct(component, testState) {
 export const themeMount = (component: React.ReactNode) => {
   return mount(
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={coreUIAvailableThemes}>{component}</ThemeProvider>
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
 };
@@ -376,7 +376,7 @@ export function testTableRow(
 export const simpleRender = (component: React.ReactNode) => {
   return render(
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={coreUIAvailableThemes}>{component}</ThemeProvider>
+      <ThemeProvider theme={theme}>{component}</ThemeProvider>
     </QueryClientProvider>,
   );
 };
@@ -397,7 +397,7 @@ export function renderWithRouterMatch(
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={coreUIAvailableThemes}>
+        <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
               <Route path={path}>
@@ -458,7 +458,7 @@ export const renderWithCustomRoute = (
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={coreUIAvailableThemes}>
+        <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
               <_ConfigContext.Provider value={zenkoUITestConfig}>
@@ -537,7 +537,7 @@ export const NewWrapper =
 
     return (
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={coreUIAvailableThemes}>
+        <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
               <ToastProvider>
