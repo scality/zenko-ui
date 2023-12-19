@@ -1,4 +1,4 @@
-import { DefaultTheme, useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Properties from './details/Properties';
@@ -20,7 +20,7 @@ const NotFound = () => (
 );
 
 function AccountDetails({ account }: Props) {
-  const theme: DefaultTheme = useTheme();
+  const theme = useTheme();
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
 
