@@ -17,7 +17,7 @@ export const Hint = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => props.theme.secondaryDark1};
+    background-color: ${(props) => props.theme.backgroundLevel3};
   }
 `;
 // make my own import due to some imput event target undefined issue
@@ -29,7 +29,7 @@ const Input = styled.input<{ hasError?: boolean }>`
   border-width: ${spacing.sp1};
   border-style: solid;
   border-color: ${(props) =>
-    props.hasError ? props.theme.danger : props.theme?.border};
+    props.hasError ? props.theme.statusCritical : props.theme?.border};
   padding: 0px ${spacing.sp8};
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};

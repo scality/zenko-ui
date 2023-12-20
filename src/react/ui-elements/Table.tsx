@@ -72,7 +72,7 @@ export const Row = styled(HeadRow)`
   // can look different cause of subpixel positioning
   border-bottom: 1px solid ${(props) => props.theme.backgroundLevel1};
   &:hover {
-    background-color: ${(props) => props.theme.secondaryDark1};
+    background-color: ${(props) => props.theme.backgroundLevel3};
   }
   cursor: ${(props) => (props.onClick ? 'pointer' : 'default')};
   box-sizing: border-box;
@@ -87,7 +87,8 @@ export const Row = styled(HeadRow)`
 `;
 export const Cell = styled.td<{ shade?: boolean }>`
   vertical-align: middle;
-  color: ${(props) => (props.shade ? props.theme.base : props.theme.text)};
+  color: ${(props) =>
+    props.shade ? props.theme.infoPrimary : props.theme.textPrimary};
   padding: ${spacing.sp4} ${spacing.sp16} ${spacing.sp4} ${spacing.sp16};
   text-overflow: ellipsis;
   overflow: hidden;
@@ -194,7 +195,7 @@ export const SearchInputIcon = styled.i<{ isHidden?: boolean }>`
   right: 10px;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.base};
+    color: ${(props) => props.theme.infoPrimary};
   }
 `;
 const ValidationIcon = styled.i`
@@ -202,10 +203,10 @@ const ValidationIcon = styled.i`
   left: 10px;
   color: ${(props) =>
     props.className === 'fa fa-times'
-      ? props.theme.danger
+      ? props.theme.statusCritical
       : props.className === 'fas fa-check'
-      ? props.theme.success
-      : props.theme.base};
+      ? props.theme.statusHealthy
+      : props.theme.infoSecondary};
 `;
 type Props = {
   isMetadataType: boolean;
