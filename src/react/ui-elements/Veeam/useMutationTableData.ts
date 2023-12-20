@@ -44,6 +44,18 @@ export const actions = [
   'Set maximum repository capacity',
 ] as const;
 
+type IndexOf<T extends readonly unknown[], U> = Exclude<
+  {
+    [K in keyof T]: T[K] extends U ? K : never;
+  }[number],
+  undefined
+>;
+
+type ToNumber<
+  T extends string,
+  R extends unknown[] = [],
+> = T extends `${R['length']}` ? R['length'] : ToNumber<T, [1, ...R]>;
+
 type Result = {
   data: {
     step: number;
@@ -74,48 +86,41 @@ export const useMutationTableData = ({
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
   const mutationsVBO = [
-    useCreateAccountMutation(),
-    refetchAccountsLocationsEndpointsMutation,
-    assumeRoleMutation,
-    useCreateBucket(),
-    useCreateIAMUserMutation(),
-    useCreateUserAccessKeyMutation(),
-    useCreatePolicyMutation(),
-    useAttachPolicyToUserMutation(),
-    usePutBucketTaggingMutation(),
-  ];
+    { ...useCreateAccountMutation(), key: 'createAccountMutation' },
+    {
+      ...refetchAccountsLocationsEndpointsMutation,
+      key: 'refetchAccountsLocationsEndpointsMutation',
+    },
+    { ...assumeRoleMutation, key: 'assumeRoleMutation' },
+    { ...useCreateBucket(), key: 'createBucketMutation' },
+    { ...useCreateIAMUserMutation(), key: 'createIAMUserMutation' },
+    { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKeyMutation' },
+    { ...useCreatePolicyMutation(), key: 'createPolicyMutation' },
+    { ...useAttachPolicyToUserMutation(), key: 'attachPolicyToUserMutation' },
+    { ...usePutBucketTaggingMutation(), key: 'putBucketTaggingMutation' },
+  ] as const;
 
-  const mutationsVeeamVBR = [
-    useCreateAccountMutation(),
-    refetchAccountsLocationsEndpointsMutation,
-    assumeRoleMutation,
-    useCreateBucket(),
-    useCreateIAMUserMutation(),
-    useCreateUserAccessKeyMutation(),
-    useCreatePolicyMutation(),
-    useAttachPolicyToUserMutation(),
-    usePutBucketTaggingMutation(),
-    usePutObjectMutation(),
-    usePutObjectMutation(),
-    usePutObjectMutation(),
-  ];
+  const mutationsVBR = [
+    ...mutationsVBO,
+    { ...usePutObjectMutation(), key: 'putVeeamFolderMutation' },
+    { ...usePutObjectMutation(), key: 'putVeeamSystemXmlMutation' },
+    { ...usePutObjectMutation(), key: 'putVeeamCapacityXmlMutation' },
+  ] as const;
 
   const isVeeamVBR =
     propsConfiguration.application === VEEAM_BACKUP_REPLICATION_XML_VALUE;
-  const mutations = isVeeamVBR ? mutationsVeeamVBR : mutationsVBO;
+  const mutations = isVeeamVBR ? mutationsVBR : mutationsVBO;
 
   const instanceId = useInstanceId();
   const { userData } = useAuth();
-  const { mutate, mutationsWithRetry } = useChainedMutations({ mutations });
-
-  useMemo(() => {
-    mutate((results) => {
-      const isStep = (stepName: (typeof actions)[number]) => {
-        return (
-          results.length === actions.findIndex((action) => action === stepName)
-        );
-      };
-      if (isStep('Create an Account')) {
+  const {
+    mutate: mutateVBO,
+    mutationsWithRetry: mutationsVBORetry,
+    computeVariablesForNext,
+  } = useChainedMutations({
+    mutations: mutationsVBO,
+    computeVariablesForNext: {
+      createAccountMutation: () => {
         return {
           user: {
             userName: propsConfiguration.accountName,
@@ -123,40 +128,48 @@ export const useMutationTableData = ({
           },
           instanceId,
         };
-      } else if (isStep('Update Configuration')) {
+      },
+      refetchAccountsLocationsEndpointsMutation: () => {
         return {};
-      } else if (isStep('Assume Account Role')) {
+      },
+      assumeRoleMutation: (results) => {
         return {
-          roleArn: `arn:aws:iam::${results[0].id}:role/scality-internal/storage-manager-role`,
+          roleArn: `arn:aws:iam::${results[0]?.id}:role/scality-internal/storage-manager-role`,
         };
-      } else if (isStep('Create a Bucket')) {
+      },
+      createBucketMutation: () => {
         return {
           Bucket: propsConfiguration.bucketName,
           ObjectLockEnabledForBucket: isVeeamVBR
             ? propsConfiguration.enableImmutableBackup
             : false,
         };
-      } else if (isStep('Create a User')) {
+      },
+      createIAMUserMutation: () => {
         return {
           userName: propsConfiguration.accountName,
         };
-      } else if (isStep('Generate Access key and Secret key')) {
+      },
+      createUserAccessKeyMutation: () => {
         return {
           userName: propsConfiguration.accountName,
         };
-      } else if (isStep('Create Veeam policy')) {
+      },
+      createPolicyMutation: () => {
         return {
           policyName: `${propsConfiguration.bucketName}-veeam`,
           policyDocument: propsConfiguration.enableImmutableBackup
             ? GET_VEEAM_IMMUTABLE_POLICY(propsConfiguration.bucketName)
             : GET_VEEAM_NON_IMMUTABLE_POLICY(propsConfiguration.bucketName),
         };
-      } else if (isStep('Attach Veeam policy to User')) {
+      },
+      attachPolicyToUserMutation: (results) => {
         return {
           userName: propsConfiguration.accountName,
-          policyArn: `arn:aws:iam::${results[0].id}:policy/${propsConfiguration.bucketName}-veeam`,
+          policyArn: `arn:aws:iam::${results[0]?.id}:policy/${propsConfiguration.bucketName}-veeam`,
         };
-      } else if (isStep('Tag bucket as Veeam Bucket')) {
+      },
+      putBucketTaggingMutation: () => {
         return {
           bucketName: propsConfiguration.bucketName,
           tagSet: [
@@ -166,28 +179,48 @@ export const useMutationTableData = ({
             },
           ],
         };
-      } else if (isStep('Prepare Veeam integrated object repository')) {
-        return {
-          Bucket: propsConfiguration.bucketName,
-          Key: `${VEEAM_XML_PREFIX}/`,
-          Body: '',
-        };
-      } else if (isStep('Enforce Veeam integrated object repository')) {
-        return {
-          Bucket: propsConfiguration.bucketName,
-          Key: `${VEEAM_XML_PREFIX}/system.xml`,
-          Body: SYSTEM_XML_CONTENT,
-          ContentType: 'text/xml',
-        };
-      } else if (isStep('Set maximum repository capacity')) {
-        return {
-          Bucket: propsConfiguration.bucketName,
-          Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
-          Body: GET_CAPACITY_XML_CONTENT(propsConfiguration.capacityBytes),
-          ContentType: 'text/xml',
-        };
-      }
+      },
+    },
+  });
+
+  const { mutate: mutateVBR, mutationsWithRetry: mutationsVBRRetry } =
+    useChainedMutations({
+      mutations: mutationsVBR,
+      computeVariablesForNext: {
+        ...computeVariablesForNext,
+        putVeeamFolderMutation: () => {
+          return {
+            Bucket: propsConfiguration.bucketName,
+            Key: `${VEEAM_XML_PREFIX}/`,
+            Body: '',
+          };
+        },
+        putVeeamSystemXmlMutation: () => {
+          return {
+            Bucket: propsConfiguration.bucketName,
+            Key: `${VEEAM_XML_PREFIX}/system.xml`,
+            Body: SYSTEM_XML_CONTENT,
+            ContentType: 'text/xml',
+          };
+        },
+        putVeeamCapacityXmlMutation: () => {
+          return {
+            Bucket: propsConfiguration.bucketName,
+            Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
+            Body: GET_CAPACITY_XML_CONTENT(propsConfiguration.capacityBytes),
+            ContentType: 'text/xml',
+          };
+        },
+      },
     });
+  const mutationsWithRetry = isVeeamVBR ? mutationsVBRRetry : mutationsVBORetry;
+
+  useMemo(() => {
+    if (isVeeamVBR) {
+      mutateVBR();
+    } else {
+      mutateVBO();
+    }
   }, []);
 
   const data = mutations.map((mutation, index) => {
@@ -206,13 +239,15 @@ export const useMutationTableData = ({
       retry: mutationsWithRetry[index].retry,
     };
   });
+  const createAccessKeyLabel = 'Generate Access key and Secret key';
   const accessKeyMutationIndex = actions.findIndex(
-    (action) => action === 'Generate Access key and Secret key',
-  );
+    (action) => action === createAccessKeyLabel,
+  ) as ToNumber<IndexOf<typeof actions, typeof createAccessKeyLabel>>;
   return {
     data,
-    accessKey: mutations[accessKeyMutationIndex].data?.AccessKey?.AccessKeyId,
+    accessKey:
+      mutations[accessKeyMutationIndex].data?.AccessKey?.AccessKeyId ?? '',
     secretKey:
-      mutations[accessKeyMutationIndex].data?.AccessKey?.SecretAccessKey,
+      mutations[accessKeyMutationIndex].data?.AccessKey?.SecretAccessKey ?? '',
   };
 };
