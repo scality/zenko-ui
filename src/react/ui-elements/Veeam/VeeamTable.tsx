@@ -1,4 +1,4 @@
-import { Form, Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
+import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import {
   Column,
@@ -6,15 +6,12 @@ import {
 } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
+import { useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
+import { VeeamSkipModal } from './VeeamSkipModal';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { useMutationTableData } from './useMutationTableData';
-import { useQueryClient } from 'react-query';
-
-const ModalContent = styled.div`
-  max-width: 30rem;
-`;
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -94,35 +91,13 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
   const isCancellable = data.some((row) => row.status === 'error');
   const isContinue = data.every((row) => row.status === 'success');
 
-  if (confirmCancel) {
-    return (
-      <Modal
+  return (
+    <>
+      <VeeamSkipModal
         isOpen={confirmCancel}
-        footer={
-          <Wrap>
-            <p></p>
-            <Stack>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setConfirmCancel(false);
-                }}
-                label="Cancel"
-              />
-              <Button
-                variant="danger"
-                onClick={() => {
-                  setConfirmCancel(false);
-                  history.push('/');
-                }}
-                label="Exit"
-              />
-            </Stack>
-          </Wrap>
-        }
-        title="Exit Veeam assistant?"
-      >
-        <ModalContent>
+        close={() => setConfirmCancel(false)}
+        exitAction={() => history.push('/')}
+        modalContent={
           <ul>
             <ListItem>
               <Text>
@@ -136,53 +111,56 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
               </Text>
             </ListItem>
           </ul>
-        </ModalContent>
-      </Modal>
-    );
-  }
-
-  return (
-    <Form
-      layout={{
-        title: 'Configure ARTESCA for Veeam',
-        kind: 'page',
-      }}
-      requireMode="all"
-      rightActions={
-        <Stack gap="r16">
-          <Button
-            disabled={!isCancellable}
-            variant="outline"
-            label="Exit"
-            onClick={() => {
-              setConfirmCancel(true);
-            }}
-          />
-          <Button
-            disabled={!isContinue}
-            variant="primary"
-            label={'Continue'}
-            icon={<Icon name="Arrow-right" />}
-            onClick={() => {
-              queryClient.invalidateQueries(['WebIdentityRoles']);
-              next({ bucketName, enableImmutableBackup, accessKey, secretKey });
-            }}
-          />
-        </Stack>
-      }
-    >
-      <div style={{ height: '30rem', width: '100%' }}>
-        <Table columns={columns} data={data}>
-          <Table.SingleSelectableContent
-            rowHeight="h32"
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel4"
-            children={(Rows) => {
-              return <>{Rows}</>;
-            }}
-          ></Table.SingleSelectableContent>
-        </Table>
-      </div>
-    </Form>
+        }
+      />
+      <Form
+        layout={{
+          title: 'Configure ARTESCA for Veeam',
+          kind: 'page',
+        }}
+        requireMode="all"
+        rightActions={
+          <Stack gap="r16">
+            <Button
+              type="button"
+              disabled={!isCancellable}
+              variant="outline"
+              label="Exit"
+              onClick={() => {
+                setConfirmCancel(true);
+              }}
+            />
+            <Button
+              disabled={!isContinue}
+              variant="primary"
+              label={'Continue'}
+              icon={<Icon name="Arrow-right" />}
+              onClick={() => {
+                queryClient.invalidateQueries(['WebIdentityRoles']);
+                next({
+                  bucketName,
+                  enableImmutableBackup,
+                  accessKey,
+                  secretKey,
+                });
+              }}
+            />
+          </Stack>
+        }
+      >
+        <div style={{ height: '30rem', width: '40rem' }}>
+          <Table columns={columns} data={data}>
+            <Table.SingleSelectableContent
+              rowHeight="h32"
+              separationLineVariant="backgroundLevel3"
+              backgroundVariant="backgroundLevel1"
+              children={(Rows) => {
+                return <>{Rows}</>;
+              }}
+            ></Table.SingleSelectableContent>
+          </Table>
+        </div>
+      </Form>
+    </>
   );
 }

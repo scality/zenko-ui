@@ -47,7 +47,7 @@ describe('Veeam Configuration UI', () => {
       screen.getByText(new RegExp(VEEAM_BACKUP_REPLICATION)),
     ).toBeInTheDocument();
     //expect the immutable backup toogle to be active
-    expect(screen.getByText('Active')).toBeEnabled();
+    expect(screen.getByLabelText('enableImmutableBackup')).toBeEnabled();
 
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
@@ -98,5 +98,26 @@ describe('Veeam Configuration UI', () => {
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
     });
+  });
+
+  it('should open veeam skip modal when skip button is clicked', async () => {
+    //Setup
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <Stepper
+          steps={[
+            {
+              label: 'Configuration',
+              Component: Configuration,
+            },
+          ]}
+        />
+      </QueryClientProvider>,
+    );
+    //Exercise
+    userEvent.click(selectors.skipButton());
+    //Verify
+    expect(screen.getByText(/Exit Veeam assistant?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
   });
 });
