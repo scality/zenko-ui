@@ -100,7 +100,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
   return (
     <div
       style={{
-        backgroundColor: theme.brand.backgroundLevel3,
+        backgroundColor: theme.backgroundLevel3,
         flex: 1,
       }}
     >

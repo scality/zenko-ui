@@ -20,7 +20,7 @@ export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
       text-decoration: none;
       overflow: visible;
       * {
-        color: ${(props) => props.theme.brand.textPrimary};
+        color: ${(props) => props.theme.textPrimary};
       }
       border-bottom: 0 !important;
       min-width: auto;

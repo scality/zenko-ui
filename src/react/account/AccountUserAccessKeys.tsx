@@ -27,7 +27,7 @@ import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { getUserAccessKeysQuery } from '../queries';
 
 const CustomIcon = styled.i`
-  color: ${(props) => props.color ?? props.theme.brand.infoPrimary};
+  color: ${(props) => props.color ?? props.theme.infoPrimary};
   font-size: 32px;
 `;
 

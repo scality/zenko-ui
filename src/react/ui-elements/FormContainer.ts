@@ -8,7 +8,7 @@ const FormContainer = styled.form`
   max-width: 600px;
   margin: ${spacing.sp8};
   padding: ${spacing.sp20};
-  background-color: ${(props) => props.theme.brand.backgroundLevel4};
+  background-color: ${(props) => props.theme.backgroundLevel4};
 
   // TODO: fix inside core-ui
   .sc-select__single-value {

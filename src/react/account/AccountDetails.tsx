@@ -1,4 +1,4 @@
-import { DefaultTheme, useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import type { Account } from '../../types/account';
 import { CustomTabs } from '../ui-elements/Tabs';
 import Properties from './details/Properties';
@@ -20,7 +20,7 @@ const NotFound = () => (
 );
 
 function AccountDetails({ account }: Props) {
-  const theme: DefaultTheme = useTheme();
+  const theme = useTheme();
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
 
@@ -29,16 +29,16 @@ function AccountDetails({ account }: Props) {
   }
 
   const customTabStyle = {
-    inactiveTabColor: theme.brand.backgroundLevel2,
-    activeTabColor: theme.brand.backgroundLevel3,
-    tabContentColor: theme.brand.backgroundLevel3,
+    inactiveTabColor: theme.backgroundLevel2,
+    activeTabColor: theme.backgroundLevel3,
+    tabContentColor: theme.backgroundLevel3,
   };
 
   return (
     <CustomTabs
       {...customTabStyle}
       style={{
-        backgroundColor: theme.brand.backgroundLevel2,
+        backgroundColor: theme.backgroundLevel2,
       }}
     >
       <CustomTabs.Tab exact label="Properties" path={``}>

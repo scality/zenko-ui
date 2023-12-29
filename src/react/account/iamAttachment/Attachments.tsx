@@ -18,7 +18,7 @@ const AttachmentContainer = styled.div`
 `;
 
 const AttachmentFooterContainer = styled.div`
-  border-top: 1px solid ${(props) => props.theme.brand.backgroundLevel2};
+  border-top: 1px solid ${(props) => props.theme.backgroundLevel2};
   margin-top: 3%;
   padding-top: 1%;
   padding-left: 1%;
@@ -36,7 +36,7 @@ const TitleBlock = styled(LargerText)`
   padding: 1rem 0;
   margin-bottom: 1rem;
   gap: 2rem;
-  border-bottom: 1px solid ${(props) => props.theme.brand.backgroundLevel2};
+  border-bottom: 1px solid ${(props) => props.theme.backgroundLevel2};
 `;
 
 const DescriptiveBlock = styled(BasicText)`

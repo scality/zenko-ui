@@ -10,7 +10,7 @@ const Container = styled.div<{ centered?: boolean }>`
   flex-direction: column;
   text-align: center;
   margin-top: ${spacing.sp20};
-  color: ${(props) => props.theme.brand.textPrimary};
+  color: ${(props) => props.theme.textPrimary};
   ${(props) => {
     if (props.centered) {
       return css`
@@ -26,7 +26,7 @@ const Container = styled.div<{ centered?: boolean }>`
 const Container2 = styled.div`
   text-align: center;
   margin: ${spacing.sp32} 0px;
-  color: ${(props) => props.theme.brand.textPrimary};
+  color: ${(props) => props.theme.textPrimary};
 `;
 const Title = styled.div`
   margin-top: ${spacing.sp8};

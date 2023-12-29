@@ -81,9 +81,7 @@ export const Row = styled.div`
 `;
 const RawKey = styled.div<{ principal?: boolean; required?: boolean }>`
   color: ${(props) =>
-    props.principal
-      ? props.theme.brand.textPrimary
-      : props.theme.brand?.textSecondary};
+    props.principal ? props.theme.textPrimary : props.theme?.textSecondary};
   font-weight: ${(props) => (props.principal ? 'bold' : 'normal')};
   ${(props) =>
     props.required

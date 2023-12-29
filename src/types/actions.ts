@@ -1,7 +1,7 @@
 import type { AccessKey, Account, SecretKey } from './account';
 import type { AuthUser, OidcLogoutFunction } from './auth';
 import type { ConfigurationOverlay, Hostname } from './config';
-import type { AppConfig, InstanceId, Theme } from './entities';
+import type { AppConfig, InstanceId } from './entities';
 import type { ManagementClient } from './managementClient';
 import type {
   BucketInfo,
@@ -75,10 +75,6 @@ export type LoadClientsSuccessAction = {
 export type SelectAccountAction = {
   readonly type: 'SELECT_ACCOUNT';
   readonly account: Account;
-};
-export type SetThemeAction = {
-  readonly type: 'SET_THEME';
-  readonly theme: Theme;
 };
 export type SetOIDCLogoutAction = {
   readonly type: 'SET_OIDC_LOGOUT';
@@ -359,7 +355,6 @@ export type Action =
   | NetworkActivityAction
   | ConfigurationAction
   | AccountUIAction
-  | SetThemeAction
   | StatsAction
   | WorkflowUIAction
   | ZenkoAction;

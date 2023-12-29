@@ -19,7 +19,6 @@ import { List } from 'immutable';
 import { MockManagementClient } from '../../js/mock/managementClient';
 import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
-import { defaultTheme } from '@scality/core-ui/dist/style/theme';
 
 export const initialAccountState: AccountState = {
   display: {},
@@ -38,11 +37,7 @@ export const initialAuthState: AuthState = {
   config: { features: [] },
   oidcLogout: null,
 };
-export const initialConfigUIState = {
-  theme: {
-    brand: defaultTheme.darkRebrand,
-  },
-};
+
 export const initialS3State: S3State = {
   listBucketsResults: {
     list: List(),
@@ -207,7 +202,6 @@ export const initialFullState = {
   secrets: initialSecretsState,
   stats: initialStatsState,
   uiAccounts: initialAccountsUIState,
-  uiConfig: initialConfigUIState,
   uiUser: initialUserUIState,
   uiLocations: initialLocationsUIState,
   uiObjects: initialObjectUIState,

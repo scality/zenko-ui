@@ -3,33 +3,33 @@ import styled from 'styled-components';
 export const Hints = styled.div`
   position: absolute;
   z-index: 1;
-  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
+  background-color: ${(props) => props.theme?.backgroundLevel1};
   margin-top: ${spacing.sp40};
   padding: ${spacing.sp8};
 `;
 export const HintsTitle = styled.div`
   font-style: italic;
   padding: ${spacing.sp2} 0px ${spacing.sp4} ${spacing.sp4};
-  color: ${(props) => props.theme.brand.textSecondary};
+  color: ${(props) => props.theme.textSecondary};
 `;
 export const Hint = styled.div`
   padding: ${spacing.sp4};
   cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => props.theme.brand.secondaryDark1};
+    background-color: ${(props) => props.theme.backgroundLevel3};
   }
 `;
 // make my own import due to some imput event target undefined issue
 const Input = styled.input<{ hasError?: boolean }>`
   display: flex;
 
-  background-color: ${(props) => props.theme.brand?.backgroundLevel1};
-  color: ${(props) => props.theme.brand?.textPrimary};
+  background-color: ${(props) => props.theme?.backgroundLevel1};
+  color: ${(props) => props.theme?.textPrimary};
   border-width: ${spacing.sp1};
   border-style: solid;
   border-color: ${(props) =>
-    props.hasError ? props.theme.brand.danger : props.theme.brand?.border};
+    props.hasError ? props.theme.statusCritical : props.theme?.border};
   padding: 0px ${spacing.sp8};
   font-size: ${fontSize.base};
   border-radius: ${spacing.sp4};
@@ -44,7 +44,7 @@ const Input = styled.input<{ hasError?: boolean }>`
 
   :focus {
     outline: none;
-    border: ${spacing.sp1} solid ${(props) => props.theme.brand?.selectedActive};
+    border: ${spacing.sp1} solid ${(props) => props.theme?.selectedActive};
   }
   ${(props) =>
     props.disabled &&

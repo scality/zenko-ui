@@ -20,7 +20,7 @@ export const Row = styled.tr``;
 export const Key = styled.td`
   white-space: nowrap;
   padding: ${spacing.sp8} 0px;
-  color: ${(props) => props.theme.brand.textSecondary};
+  color: ${(props) => props.theme.textSecondary};
 `;
 export const Value = styled.td`
   padding-left: 40px;

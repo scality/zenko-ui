@@ -9,6 +9,8 @@ import {
 } from '../../../actions/__tests__/utils/testUtil';
 import FolderCreate from '../FolderCreate';
 import { reduxMount, renderWithRouterMatch } from '../../../utils/testUtil';
+import { ThemeProvider } from 'styled-components';
+import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 
 describe('FolderCreate', () => {
   const modalTitle = 'Create a folder';

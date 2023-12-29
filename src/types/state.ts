@@ -1,5 +1,5 @@
 import type { Account, AccountKey } from './account';
-import type { AppConfig, InstanceId, Theme } from './entities';
+import type { AppConfig, InstanceId } from './entities';
 import type { AuthUser, OidcLogoutFunction } from './auth';
 import type {
   BucketInfo,
@@ -80,9 +80,6 @@ export type LocationsUIState = {
 export type StatsState = {
   readonly bucketList: BucketList;
 };
-export type ConfigUIState = {
-  readonly theme: Theme;
-};
 export type S3State = {
   readonly listBucketsResults: {
     readonly list: S3BucketList;
@@ -134,7 +131,6 @@ export type AppState = {
   readonly uiEndpoints: EndpointsUIState;
   readonly uiAccounts: AccountsUIState;
   readonly uiBuckets: BucketsUIState;
-  readonly uiConfig: ConfigUIState;
   readonly uiObjects: ObjectsUIState;
   readonly stats: StatsState;
   readonly s3: S3State;

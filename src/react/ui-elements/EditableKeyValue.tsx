@@ -81,7 +81,7 @@ export const InputValue = styled(Input)<{ isShrink?: boolean }>`
   flex: 0 ${(props) => (props.isShrink ? '22%' : '39%')};
   width: ${(props) => (props.isShrink ? '22%' : '39%')};
   min-width: ${(props) => (props.isShrink ? '22%' : '39%')};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.backgroundLevel1};
 `;
 export const InputTag = styled(Input)`
   flex: 1 40%;

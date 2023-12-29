@@ -39,7 +39,7 @@ const ObjectRestorationButtonAndModal = ({
     return (
       <table style={{ borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ borderBottom: `1px solid ${theme.brand.border}` }}>
+          <tr style={{ borderBottom: `1px solid ${theme.border}` }}>
             <th align="left">Name</th>
             <th align="left">Last Modified On</th>
             <th align="left">Size</th>
@@ -47,7 +47,7 @@ const ObjectRestorationButtonAndModal = ({
           </tr>
         </thead>
         <tbody>
-          <tr style={{ borderBottom: `1px solid ${theme.brand.border}` }}>
+          <tr style={{ borderBottom: `1px solid ${theme.border}` }}>
             <td align="left">{objectMetadata.objectKey}</td>
             <td align="left">
               {formatShortDate(new Date(objectMetadata.lastModified))}

@@ -275,7 +275,7 @@ export const TransitionForm = ({ prefix = '' }: Props) => {
             }
           />
           <Box
-            background={theme.brand.backgroundLevel3}
+            background={theme.backgroundLevel3}
             padding={spacing.r16}
             display="flex"
             flexDirection="column"

@@ -8,7 +8,7 @@ const Container = styled.div`
   max-width: 600px;
   margin: ${spacing.sp8};
   padding: ${spacing.sp20};
-  background-color: ${(props) => props.theme.brand.backgroundLevel1};
+  background-color: ${(props) => props.theme.backgroundLevel1};
 `;
 const ContainerFooter = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ export const EmptyStateContainer = styled.div`
   flex: 1;
   flex-direction: column;
   width: 100%;
-  background: ${(props) => props.theme.brand.backgroundLevel1};
+  background: ${(props) => props.theme.backgroundLevel1};
 `;
 const NavbarContainer = styled.div`
   display: flex;
