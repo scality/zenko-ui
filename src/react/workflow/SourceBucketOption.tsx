@@ -2,6 +2,7 @@ import { Select } from '@scality/core-ui/dist/next';
 import { SelectProps } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import {
   useBucketLocationConstraint,
+  useBucketTagging,
   useBucketVersionning,
   useListBucketsForCurrentAccount,
 } from '../next-architecture/domain/business/buckets';
@@ -9,11 +10,13 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
 
 type DisableOptionProps = {
   disableOption?: (obj: {
     isBucketVersionned?: boolean;
     locationInfos?: LocationStorageInfos;
+    veeamTagApplication: boolean;
   }) => boolean;
 };
 
@@ -107,6 +110,7 @@ export const SourceBucketOption = ({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
+  const { tags } = useBucketTagging({ bucketName });
 
   const isOptionDisabled = disableOption
     ? disableOption({
@@ -114,6 +118,9 @@ export const SourceBucketOption = ({
           versionning.status === 'success' && versionning.value === 'Enabled',
         locationInfos:
           locationInfos.status === 'success' ? locationInfos.value : undefined,
+        veeamTagApplication:
+          tags.status === 'success' &&
+          !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION],
       })
     : false;
 
