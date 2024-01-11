@@ -15,19 +15,17 @@ import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../js/mock/S3ClientMSWHandlers';
-import { PerLocationMap } from '../../../types/config';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import {
   mockOffsetSize,
   reduxRender,
+  renderWithRouterMatch,
   selectClick,
   TEST_API_BASE_URL,
-  zenkoUITestConfig,
 } from '../../utils/testUtil';
 import ReplicationForm, { GeneralReplicationGroup } from '../ReplicationForm';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
-import { debug } from 'jest-preview';
 
 const accountId = 'accountId';
 const accountName = 'pat';
@@ -42,7 +40,10 @@ const server = setupServer(
   ),
   mockBucketListing(),
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
-  mockBucketOperations(),
+  mockBucketOperations({
+    isVersioningEnabled: true,
+    isVeeamTagged: (bucketName) => (bucketName === 'bucket2' ? true : false),
+  }),
 );
 
 beforeAll(() => {
@@ -79,12 +80,12 @@ const WithFormProvider = ({ children }) => {
 };
 const selectors = {
   bucketSelect: () => screen.getByLabelText(/bucket name \*/i),
-  bucketOption: () => screen.getByRole('option', { name: /bucket2/i }),
+  bucketOption1: () => screen.getByRole('option', { name: /bucket1/i }),
+  bucketOption2: () => screen.getByRole('option', { name: /bucket2/i }),
 };
 // prettier-ignore
 describe('ReplicationForm', () => {
   it('should render a form for replication workflow', async () => {
-      const { component } =
         reduxRender(
           <WithFormProvider>
             <Form layout={{ kind: 'tab' }}>
@@ -111,10 +112,9 @@ describe('ReplicationForm', () => {
           }
         );
 
-        await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
+      await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
       await waitFor(() => screen.getByText(/General/i));
-      debug()
-      
+
       expect(screen.getByText(/State/i)).toBeInTheDocument();
       expect(screen.getByText(/Source/i)).toBeInTheDocument();
       expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('ReplicationForm', () => {
 
       // Select the Source Bucket.
       selectClick(selectors.bucketSelect());
-      userEvent.click(selectors.bucketOption());
+      userEvent.click(selectors.bucketOption2());
 
       // Select the first destination.
       const LocationName = screen.getByTestId('select-location-name-replication-0');
@@ -163,5 +163,27 @@ describe('ReplicationForm', () => {
       const formValidation = screen.getByTestId('form-replication');
       expect(formValidation.textContent).toBe('form-valid');
    
+  });
+  it('should disable the veeam bucket as the source', async () => {
+    //S
+    renderWithRouterMatch(
+    <WithFormProvider>
+      <Form layout={{ kind: 'tab' }}>
+        <FormSection title={{ name: 'General' }}>
+          <GeneralReplicationGroup prefix="replication." />
+        </FormSection>
+        <ReplicationForm
+          prefix="replication."
+        />
+      </Form>
+    </WithFormProvider>,
+    )
+    //E
+    await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
+    await waitFor(() => screen.getByText(/General/i));
+    selectClick(selectors.bucketSelect());
+    //V
+    expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
+    expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');
   });
 });

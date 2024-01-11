@@ -16,7 +16,7 @@ type DisableOptionProps = {
   disableOption?: (obj: {
     isBucketVersionned?: boolean;
     locationInfos?: LocationStorageInfos;
-    veeamTagApplication: boolean;
+    isVeeamBucket: boolean;
   }) => boolean;
 };
 
@@ -118,7 +118,7 @@ export const SourceBucketOption = ({
           versionning.status === 'success' && versionning.value === 'Enabled',
         locationInfos:
           locationInfos.status === 'success' ? locationInfos.value : undefined,
-        veeamTagApplication:
+        isVeeamBucket:
           tags.status === 'success' &&
           !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION],
       })

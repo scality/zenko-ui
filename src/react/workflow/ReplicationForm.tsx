@@ -287,12 +287,12 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
                         disableOption={({
                           isBucketVersionned,
                           locationInfos,
-                          veeamTagApplication,
+                          isVeeamBucket,
                         }) =>
                           !locationInfos?.storageOption
                             ?.supportsReplicationSource ||
                           !isBucketVersionned ||
-                          veeamTagApplication
+                          isVeeamBucket
                         }
                       />
                     );

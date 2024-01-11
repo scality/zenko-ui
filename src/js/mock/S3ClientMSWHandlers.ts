@@ -65,16 +65,19 @@ export function mockBucketOperations(
     isVersioningEnabled = false,
     slowdown = false,
     forceFailure = false,
+    isVeeamTagged = false,
   }: {
     location?: string | ((bucketName: string) => string);
     isVersioningEnabled?: boolean | ((bucketName: string) => boolean);
     slowdown?: boolean;
     forceFailure?: boolean;
+    isVeeamTagged?: boolean | ((bucketName: string) => boolean);
   } = {
     location: '',
     isVersioningEnabled: false,
     slowdown: false,
     forceFailure: false,
+    isVeeamTagged: false,
   },
 ) {
   return rest.get(
@@ -159,6 +162,23 @@ export function mockBucketOperations(
         );
       }
 
+      if (req.url.searchParams.has('tagging')) {
+        if (
+          typeof isVeeamTagged === 'function'
+            ? isVeeamTagged(bucketName)
+            : isVeeamTagged
+        ) {
+          return res(
+            ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Tagging>
+            <TagSet>
+              <Tag><Key>${BUCKET_TAG_VEEAM_APPLICATION}</Key><Value>${VEEAM_BACKUP_REPLICATION_XML_VALUE}</Value></Tag>
+            </TagSet>
+          </Tagging>`),
+          );
+        }
+      }
       return res(ctx.status(404));
     },
   );
