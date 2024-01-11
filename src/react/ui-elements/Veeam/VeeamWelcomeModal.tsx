@@ -11,6 +11,14 @@ import {
 } from '../../next-architecture/ui/ConfigProvider';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
+import { useAccounts, useAuthGroups } from '../../utils/hooks';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
+import {
+  getSkipVeeamAssistant,
+  setSkipVeeamAssistant,
+} from '../../utils/localStorage';
+import { AuthProvider } from '../../next-architecture/ui/AuthProvider';
+import { InternalRouter } from '../../FederableApp';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -19,8 +27,27 @@ const CustomModal = styled(Modal)`
 export const VeeamWelcomeModalInternal = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const { features } = useConfig();
+  const { isStorageManager } = useAuthGroups();
+  const { accounts } = useAccounts();
+  const isVeemAccountCreated = accounts.some(
+    (account) => account.Name === VEEAM_DEFAULT_ACCOUNT_NAME,
+  );
+  const isVeeamAssistantSkipped = getSkipVeeamAssistant();
 
-  if (!features.includes(VEEAM_FEATURE)) {
+  /*
+   We display the Veeam welcome modal only if the following conditions are met:
+   1. Veeam feature flag is enabled
+   2. No Veeam account is created
+   3. Storage Manager is logged in
+   4. Have never click on the skip button
+   */
+  const isVeeamWelcomeModalEnabled =
+    features.includes(VEEAM_FEATURE) &&
+    isStorageManager &&
+    !isVeemAccountCreated &&
+    !isVeeamAssistantSkipped;
+
+  if (!isVeeamWelcomeModalEnabled) {
     return <></>;
   }
 
@@ -61,6 +88,7 @@ export const VeeamWelcomeModalInternal = () => {
               label={'Skip'}
               onClick={() => {
                 setIsOpen(false);
+                setSkipVeeamAssistant();
               }}
             />
             <Button
@@ -87,7 +115,11 @@ export const VeeamWelcomeModalInternal = () => {
 export default function VeeamWelcomeModal() {
   return (
     <ConfigProvider>
-      <VeeamWelcomeModalInternal />
+      <InternalRouter>
+        <AuthProvider>
+          <VeeamWelcomeModalInternal />
+        </AuthProvider>
+      </InternalRouter>
     </ConfigProvider>
   );
 }

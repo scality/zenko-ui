@@ -20,7 +20,7 @@ import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvide
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const InternalRouter = ({ children }: { children: React.ReactNode }) => {
+export const InternalRouter = ({ children }: { children: React.ReactNode }) => {
   const config = useConfig();
   const store = useMemo(
     () =>
