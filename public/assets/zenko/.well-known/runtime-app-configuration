@@ -12,14 +12,19 @@
       "stsEndpoint": "http://127.0.0.1:8383/sts",
       "zenkoEndpoint": "http://127.0.0.1:8383/s3",
       "iamEndpoint": "http://127.0.0.1:8383/iam",
-      "features": ["XDM"],
-      "basePath": ""
+      "features": [
+        "XDM",
+        "Veeam"
+      ],
+      "basePath": "/data",
+      "s3InternalFQDN": "s3.pod-choco.local",
+      "iamInternalFQDN": "iam.pod-choco.local"
     },
     "auth": {
       "kind": "OIDC",
-      "providerUrl": "https://ui.pod-choco.local/auth/realms/artesca",
-      "redirectUrl": "http://localhost:8084/",
-      "clientId": "zenko-ui",
+      "providerUrl": "https://13.48.197.10:8443/auth/realms/artesca",
+      "redirectUrl": "http://localhost:8084/data",
+      "clientId": "control-plane-ui",
       "responseType": "code",
       "scopes": "openid email profile",
       "providerLogout": true

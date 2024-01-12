@@ -72,12 +72,13 @@ import {
 } from './utils';
 import { useWorkflows } from './Workflows';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { DeleteWorkflow } from './DeleteWorkflow';
 
 type Props = {
   wfSelected: Workflow;
 };
 
-function useReplicationMutations({
+export function useReplicationMutations({
   onEditSuccess,
 }: {
   onEditSuccess: (replication: Replication) => void;
@@ -191,7 +192,7 @@ function useReplicationMutations({
   return { deleteReplicationMutation, editReplicationWorkflowMutation };
 }
 
-function useExpirationMutations({
+export function useExpirationMutations({
   onEditSuccess,
 }: {
   onEditSuccess: (expiration: BucketWorkflowExpirationV1) => void;
@@ -392,7 +393,7 @@ function useTransitionMutations(
   return { deleteTransitionMutation, editTransitionWorkflowMutation };
 }
 
-function isExpirationWorkflow(
+export function isExpirationWorkflow(
   workflow:
     | Expiration
     | Replication
@@ -405,7 +406,7 @@ function isExpirationWorkflow(
   );
 }
 
-function isReplicationWorkflow(
+export function isReplicationWorkflow(
   workflow:
     | Expiration
     | Replication
@@ -418,7 +419,7 @@ function isReplicationWorkflow(
   );
 }
 
-function isTransitionWorkflow(
+export function isTransitionWorkflow(
   workflow:
     | Expiration
     | Replication
@@ -431,7 +432,9 @@ function isTransitionWorkflow(
   );
 }
 
-function initDefaultValues(workflow: Expiration | BucketWorkflowTransitionV2) {
+export function initDefaultValues(
+  workflow: Expiration | BucketWorkflowTransitionV2,
+) {
   if (
     (workflow.filter &&
       (!workflow.filter.objectTags ||
@@ -452,7 +455,7 @@ function initDefaultValues(workflow: Expiration | BucketWorkflowTransitionV2) {
   return workflow;
 }
 
-function initTransitionDefaultValue(
+export function initTransitionDefaultValue(
   workflow: BucketWorkflowTransitionV2,
 ): BucketWorkflowTransitionV2 {
   return {
@@ -639,13 +642,7 @@ function EditForm({
                 label="Cancel"
                 type="button"
               />
-              <Button
-                icon={<Icon name="Delete" />}
-                label="Delete Workflow"
-                variant="danger"
-                onClick={handleOpenDeleteModal}
-                type="button"
-              />
+              <DeleteWorkflow workflow={workflow} />
             </Stack>
           }
         >

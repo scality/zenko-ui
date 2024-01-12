@@ -2,7 +2,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const path = require('path');
 
-const zenkoDNS = 'zenko.local';
+const zenkoDNS = 'pod-choco.local';
 
 const accessControlAllowHeaders = [
   'X-Requested-With',
