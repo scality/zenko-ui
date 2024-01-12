@@ -205,88 +205,94 @@ const Configuration = () => {
         }
       >
         <FormSection>
-          <FormGroup
-            id="application"
-            label="Veeam application"
-            direction="vertical"
-            labelHelpTooltip={<VeeamApplicationTooltip />}
-            content={
-              <Controller
-                name="application"
-                control={control}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <Select id="application" onChange={onChange} value={value}>
-                      <Select.Option
-                        key={VEEAM_BACKUP_REPLICATION_XML_VALUE}
-                        value={VEEAM_BACKUP_REPLICATION_XML_VALUE}
-                      >
-                        {VEEAM_BACKUP_REPLICATION}
-                      </Select.Option>
-                      <Select.Option
-                        key={VEEAM_OFFICE_365}
-                        value={VEEAM_OFFICE_365}
-                      >
-                        {VEEAM_OFFICE_365}
-                      </Select.Option>
-                    </Select>
-                  );
-                }}
-              />
-            }
-          />
-          <FormGroup
-            id="bucketName"
-            label="Bucket name"
-            direction="vertical"
-            required
-            labelHelpTooltip={<VeeamBucketTooltip />}
-            error={errors.bucketName?.message ?? ''}
-            content={
-              <Input
-                id="bucketName"
-                type="text"
-                autoComplete="off"
-                placeholder="Veeam bucket name"
-                {...register('bucketName')}
-              />
-            }
-          />
-          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+          <Stack direction="vertical" gap="r16">
             <FormGroup
-              id="enableImmutableBackup"
-              label="Immutable backup"
+              id="application"
+              label="Veeam application"
               direction="vertical"
-              help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
-              helpErrorPosition="bottom"
-              labelHelpTooltip={<VeeamImmutableBackupTooltip />}
+              labelHelpTooltip={<VeeamApplicationTooltip />}
               content={
                 <Controller
-                  name="enableImmutableBackup"
+                  name="application"
                   control={control}
-                  render={({ field: { value, onChange } }) => {
+                  render={({ field: { onChange, value } }) => {
                     return (
-                      <Toggle
-                        id="enableImmutableBackup"
-                        aria-label="enableImmutableBackup"
-                        name="enableImmutableBackup"
-                        toggle={value}
-                        label={value ? 'Enabled' : 'Disabled'}
+                      <Select
+                        id="application"
                         onChange={onChange}
-                      />
+                        value={value}
+                      >
+                        <Select.Option
+                          key={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                          value={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                        >
+                          {VEEAM_BACKUP_REPLICATION}
+                        </Select.Option>
+                        <Select.Option
+                          key={VEEAM_OFFICE_365}
+                          value={VEEAM_OFFICE_365}
+                        >
+                          {VEEAM_OFFICE_365}
+                        </Select.Option>
+                      </Select>
                     );
                   }}
                 />
               }
             />
-          ) : (
-            <></>
-          )}
-          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
-            <VeeamCapacityFormSection />
-          ) : (
-            <></>
-          )}
+            <FormGroup
+              id="bucketName"
+              label="Bucket name"
+              direction="vertical"
+              required
+              labelHelpTooltip={<VeeamBucketTooltip />}
+              error={errors.bucketName?.message ?? ''}
+              content={
+                <Input
+                  id="bucketName"
+                  type="text"
+                  autoComplete="off"
+                  placeholder="Veeam bucket name"
+                  {...register('bucketName')}
+                />
+              }
+            />
+            {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+              <FormGroup
+                id="enableImmutableBackup"
+                label="Immutable backup"
+                direction="vertical"
+                help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
+                helpErrorPosition="bottom"
+                labelHelpTooltip={<VeeamImmutableBackupTooltip />}
+                content={
+                  <Controller
+                    name="enableImmutableBackup"
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Toggle
+                          id="enableImmutableBackup"
+                          aria-label="enableImmutableBackup"
+                          name="enableImmutableBackup"
+                          toggle={value}
+                          label={value ? 'Enabled' : 'Disabled'}
+                          onChange={onChange}
+                        />
+                      );
+                    }}
+                  />
+                }
+              />
+            ) : (
+              <></>
+            )}
+            {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+              <VeeamCapacityFormSection />
+            ) : (
+              <></>
+            )}
+          </Stack>
         </FormSection>
       </Form>
     </FormProvider>
