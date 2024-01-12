@@ -44,9 +44,7 @@ type ContextType = {
 const authGlobal = {
   hooks: {},
 };
-export type AuthProviderProps = {
-  children: Node;
-};
+
 export function useAuth(): ContextType {
   return authGlobal.hooks.useAuth();
 }
@@ -60,7 +58,7 @@ function ErrorFallback() {
   return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
 }
 
-export function AuthProvider({ children }: AuthProviderProps): Node {
+export function AuthProvider({ children }: { children: JSX.Element }) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <ComponentWithFederatedImports

@@ -88,7 +88,9 @@ export const VeeamWelcomeModalInternal = () => {
               label={'Skip'}
               onClick={() => {
                 setIsOpen(false);
-                setSkipVeeamAssistant();
+                if (accounts.length) {
+                  setSkipVeeamAssistant();
+                }
               }}
             />
             <Button

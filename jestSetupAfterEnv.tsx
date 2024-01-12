@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
 import { queryClient } from './src/react/utils/testUtil';
-import { VEEAM_FEATURE } from './src/js/config';
 
 window.fetch = (url, ...rest) =>
   fetch(/^https?:/.test(url) ? url : new URL(url, 'http://localhost'), ...rest);
@@ -83,6 +82,9 @@ jest.mock('./src/react/next-architecture/ui/ConfigProvider', () => {
           },
         },
       };
+    }),
+    useLinkOpener: jest.fn(() => {
+      return { openLink: jest.fn() };
     }),
   };
 });

@@ -15,7 +15,7 @@ import {
 } from 'react-query';
 import { Route, Router } from 'react-router-dom';
 
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
 import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
@@ -588,4 +588,17 @@ export const selectClick = (component) => {
     which: 40,
     keyCode: 40,
   });
+};
+
+export const expectElementNotToBeInDocument = async (
+  selector: () => HTMLElement,
+) => {
+  try {
+    await waitFor(() => {
+      expect(selector()).not.toBeInTheDocument();
+    });
+    expect(true).toBeFalsy(); // if the previous line doesn't throw an error, we force to throw an error
+  } catch (error) {
+    expect(error).toBeDefined();
+  }
 };
