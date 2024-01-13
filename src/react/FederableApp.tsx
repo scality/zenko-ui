@@ -17,6 +17,7 @@ import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterP
 import zenkoUIReducer from './reducers';
 import { useMemo } from 'react';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
+import { ToastProvider } from '@scality/core-ui';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -39,20 +40,22 @@ const FederableApp = () => {
   return (
     <ConfigProvider>
       <XCoreLibraryProvider>
-        <InternalRouter>
-          <AuthProvider>
-            <AccountsLocationsEndpointsAdapterProvider>
-              <LocationAdapterProvider>
-                <AccessibleAccountsAdapterProvider>
-                  <MetricsAdapterProvider>
-                    <ZenkoUI />
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </MetricsAdapterProvider>
-                </AccessibleAccountsAdapterProvider>
-              </LocationAdapterProvider>
-            </AccountsLocationsEndpointsAdapterProvider>
-          </AuthProvider>
-        </InternalRouter>
+        <ToastProvider>
+          <InternalRouter>
+            <AuthProvider>
+              <AccountsLocationsEndpointsAdapterProvider>
+                <LocationAdapterProvider>
+                  <AccessibleAccountsAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <ZenkoUI />
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </MetricsAdapterProvider>
+                  </AccessibleAccountsAdapterProvider>
+                </LocationAdapterProvider>
+              </AccountsLocationsEndpointsAdapterProvider>
+            </AuthProvider>
+          </InternalRouter>
+        </ToastProvider>
       </XCoreLibraryProvider>
     </ConfigProvider>
   );

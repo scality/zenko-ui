@@ -11,6 +11,8 @@ import { useLocationAndStorageInfos } from '../next-architecture/domain/business
 import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
+import { useToast } from '@scality/core-ui';
+import { useEffect } from 'react';
 
 type DisableOptionProps = {
   disableOption?: (obj: {
@@ -111,7 +113,17 @@ export const SourceBucketOption = ({
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
   const { tags } = useBucketTagging({ bucketName });
-
+  const { showToast } = useToast();
+  useEffect(() => {
+    if (tags.status === 'error') {
+      showToast({
+        open: true,
+        status: 'error',
+        message:
+          'Encountered issues loading bucket tagging, causing uncertainty about the source of Bucket. Please refresh the page.',
+      });
+    }
+  }, [tags.status]);
   const isOptionDisabled = disableOption
     ? disableOption({
         isBucketVersionned:
@@ -119,8 +131,9 @@ export const SourceBucketOption = ({
         locationInfos:
           locationInfos.status === 'success' ? locationInfos.value : undefined,
         isVeeamBucket:
-          tags.status === 'success' &&
-          !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION],
+          tags.status === 'loading' ||
+          (tags.status === 'success' &&
+            !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]),
       })
     : false;
 

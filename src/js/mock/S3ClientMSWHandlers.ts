@@ -177,8 +177,21 @@ export function mockBucketOperations(
             </TagSet>
           </Tagging>`),
           );
+        } else {
+          return res(
+            ctx.xml(
+              `<?xml version="1.0" encoding="UTF-8"?>
+              <Error>
+                <Code>NoSuchTagSet</Code>
+                <Message>The TagSet does not exist</Message>
+                <Resource></Resource>
+                <RequestId>771ff09e6b408a3e5ed8</RequestId>
+              </Error>`,
+            ),
+          );
         }
       }
+
       return res(ctx.status(404));
     },
   );

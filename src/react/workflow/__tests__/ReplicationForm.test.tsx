@@ -3,6 +3,7 @@ import {
   screen,
   waitFor,
   waitForElementToBeRemoved,
+  within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { List } from 'immutable';
@@ -83,20 +84,23 @@ const selectors = {
   bucketOption1: () => screen.getByRole('option', { name: /bucket1/i }),
   bucketOption2: () => screen.getByRole('option', { name: /bucket2/i }),
 };
+
+const ReplicationFormWithProvider = (
+  <WithFormProvider>
+    <Form layout={{ kind: 'tab' }}>
+      <FormSection title={{ name: 'General' }}>
+        <GeneralReplicationGroup prefix="replication." />
+      </FormSection>
+      <ReplicationForm prefix="replication." />
+    </Form>
+  </WithFormProvider>
+);
+
 // prettier-ignore
 describe('ReplicationForm', () => {
   it('should render a form for replication workflow', async () => {
         reduxRender(
-          <WithFormProvider>
-            <Form layout={{ kind: 'tab' }}>
-              <FormSection title={{ name: 'General' }}>
-                <GeneralReplicationGroup prefix="replication." />
-              </FormSection>
-              <ReplicationForm
-                prefix="replication."
-              />
-            </Form>
-          </WithFormProvider>,
+          ReplicationFormWithProvider,
           {
             networkActivity: {
               counter: 0,
@@ -166,18 +170,7 @@ describe('ReplicationForm', () => {
   });
   it('should disable the veeam bucket as the source', async () => {
     //S
-    renderWithRouterMatch(
-    <WithFormProvider>
-      <Form layout={{ kind: 'tab' }}>
-        <FormSection title={{ name: 'General' }}>
-          <GeneralReplicationGroup prefix="replication." />
-        </FormSection>
-        <ReplicationForm
-          prefix="replication."
-        />
-      </Form>
-    </WithFormProvider>,
-    )
+    renderWithRouterMatch(ReplicationFormWithProvider);
     //E
     await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
     await waitFor(() => screen.getByText(/General/i));
@@ -185,5 +178,27 @@ describe('ReplicationForm', () => {
     //V
     expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
     expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');
+  });
+  it('should display toast when bucket tagging fails', async () => {
+    //S
+    server.use(
+      mockBucketOperations({
+       forceFailure: true,
+      }),
+    );
+    renderWithRouterMatch(ReplicationFormWithProvider);
+    //E
+    await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
+    await waitFor(() => screen.getByText(/General/i));
+    //V
+    await waitFor(() => {
+      expect(within(screen.getByRole('status')).getByText(/Encountered issues loading bucket tagging, causing uncertainty about the source of Bucket. Please refresh the page./i)).toBeVisible();
+    });
+    //E
+    userEvent.click(screen.getByRole('button', { name: /close/i }));
+    //V
+    await waitFor(()=>{
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    })
   });
 });
