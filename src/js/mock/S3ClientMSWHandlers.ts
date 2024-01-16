@@ -65,16 +65,19 @@ export function mockBucketOperations(
     isVersioningEnabled = false,
     slowdown = false,
     forceFailure = false,
+    isVeeamTagged = false,
   }: {
     location?: string | ((bucketName: string) => string);
     isVersioningEnabled?: boolean | ((bucketName: string) => boolean);
     slowdown?: boolean;
     forceFailure?: boolean;
+    isVeeamTagged?: boolean | ((bucketName: string) => boolean);
   } = {
     location: '',
     isVersioningEnabled: false,
     slowdown: false,
     forceFailure: false,
+    isVeeamTagged: false,
   },
 ) {
   return rest.get(
@@ -157,6 +160,36 @@ export function mockBucketOperations(
           </ObjectLockConfiguration>
         `),
         );
+      }
+
+      if (req.url.searchParams.has('tagging')) {
+        if (
+          typeof isVeeamTagged === 'function'
+            ? isVeeamTagged(bucketName)
+            : isVeeamTagged
+        ) {
+          return res(
+            ctx.xml(`
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Tagging>
+            <TagSet>
+              <Tag><Key>${BUCKET_TAG_VEEAM_APPLICATION}</Key><Value>${VEEAM_BACKUP_REPLICATION_XML_VALUE}</Value></Tag>
+            </TagSet>
+          </Tagging>`),
+          );
+        } else {
+          return res(
+            ctx.xml(
+              `<?xml version="1.0" encoding="UTF-8"?>
+              <Error>
+                <Code>NoSuchTagSet</Code>
+                <Message>The TagSet does not exist</Message>
+                <Resource></Resource>
+                <RequestId>771ff09e6b408a3e5ed8</RequestId>
+              </Error>`,
+            ),
+          );
+        }
       }
 
       return res(ctx.status(404));

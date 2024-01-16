@@ -26,11 +26,9 @@ import {
   useFormContext,
 } from 'react-hook-form';
 import { useQuery } from 'react-query';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Replication } from '../../types/config';
 import { Account } from '../../types/iam';
-import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { SelectOption } from '../../types/ui';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
@@ -43,7 +41,6 @@ import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/Ac
 import { workflowListQuery } from '../queries';
 import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
 import { NoLocationWarning } from '../ui-elements/Warning';
-import { getClients } from '../utils/actions';
 import { useRolePathName } from '../utils/hooks';
 import {
   checkIfExternalLocation,
@@ -224,6 +221,7 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
       return prefix !== '' && prefix;
     },
   );
+
   if (locationStatus === 'loading' || locationStatus === 'idle') {
     return <>Loading locations...</>;
   }
@@ -289,9 +287,12 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
                         disableOption={({
                           isBucketVersionned,
                           locationInfos,
+                          isVeeamBucket,
                         }) =>
                           !locationInfos?.storageOption
-                            ?.supportsReplicationSource || !isBucketVersionned
+                            ?.supportsReplicationSource ||
+                          !isBucketVersionned ||
+                          isVeeamBucket
                         }
                       />
                     );

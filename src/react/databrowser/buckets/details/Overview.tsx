@@ -347,8 +347,9 @@ function Overview({ bucket, ingestionStates }: Props) {
                         }}
                         disabled={isVeeamBucket}
                         tooltip={{
-                          overlay:
-                            'Edition is disabled as it is managed by Veeam.',
+                          overlay: isVeeamBucket
+                            ? 'Edition is disabled as it is managed by Veeam.'
+                            : '',
                         }}
                       />
                     </T.GroupValues>

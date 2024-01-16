@@ -2,6 +2,7 @@ import { Select } from '@scality/core-ui/dist/next';
 import { SelectProps } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 import {
   useBucketLocationConstraint,
+  useBucketTagging,
   useBucketVersionning,
   useListBucketsForCurrentAccount,
 } from '../next-architecture/domain/business/buckets';
@@ -9,11 +10,15 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
+import { useToast } from '@scality/core-ui';
+import { useEffect } from 'react';
 
 type DisableOptionProps = {
   disableOption?: (obj: {
     isBucketVersionned?: boolean;
     locationInfos?: LocationStorageInfos;
+    isVeeamBucket: boolean;
   }) => boolean;
 };
 
@@ -107,13 +112,28 @@ export const SourceBucketOption = ({
     locationName:
       locationConstraint.status === 'success' ? locationConstraint.value : '',
   });
-
+  const { tags } = useBucketTagging({ bucketName });
+  const { showToast } = useToast();
+  useEffect(() => {
+    if (tags.status === 'error') {
+      showToast({
+        open: true,
+        status: 'error',
+        message:
+          'Encountered issues loading bucket tagging, causing uncertainty about the source of Bucket. Please refresh the page.',
+      });
+    }
+  }, [tags.status]);
   const isOptionDisabled = disableOption
     ? disableOption({
         isBucketVersionned:
           versionning.status === 'success' && versionning.value === 'Enabled',
         locationInfos:
           locationInfos.status === 'success' ? locationInfos.value : undefined,
+        isVeeamBucket:
+          tags.status === 'loading' ||
+          (tags.status === 'success' &&
+            !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]),
       })
     : false;
 
