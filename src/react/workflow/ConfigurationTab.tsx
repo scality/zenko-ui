@@ -8,12 +8,11 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import type { Expiration, Replication } from '../../types/config';
-import type { AppState } from '../../types/state';
 import {
   handleApiError,
   handleClientError,
@@ -41,10 +40,10 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import type { Workflow } from '../../types/workflow';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getClients } from '../utils/actions';
 import { useRolePathName } from '../utils/hooks';
+import { DeleteWorkflowButton } from './DeleteWorkflowButton';
 import {
   ExpirationForm,
   expirationSchema,
@@ -63,15 +62,12 @@ import {
 import {
   convertToReplicationForm,
   convertToReplicationStream,
-  generateExpirationName,
   generateStreamName,
-  generateTransitionName,
   prepareExpirationQuery,
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
 import { useWorkflows } from './Workflows';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
   wfSelected: Workflow;
@@ -392,7 +388,7 @@ function useTransitionMutations(
   return { deleteTransitionMutation, editTransitionWorkflowMutation };
 }
 
-function isExpirationWorkflow(
+export function isExpirationWorkflow(
   workflow:
     | Expiration
     | Replication
@@ -418,7 +414,7 @@ function isReplicationWorkflow(
   );
 }
 
-function isTransitionWorkflow(
+export function isTransitionWorkflow(
   workflow:
     | Expiration
     | Replication
@@ -472,8 +468,6 @@ function EditForm({
     transitions: BucketWorkflowTransitionV2[];
   };
 }) {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
   const isPrefixMandatory =
     workflow &&
     isReplicationWorkflow(workflow) &&
@@ -529,45 +523,23 @@ function EditForm({
     }
   }, [workflow, reset]);
 
-  const { deleteReplicationMutation, editReplicationWorkflowMutation } =
-    useReplicationMutations({
-      onEditSuccess: (editedWorkflow) => {
-        reset(convertToReplicationForm(editedWorkflow));
-      },
-    });
+  const { editReplicationWorkflowMutation } = useReplicationMutations({
+    onEditSuccess: (editedWorkflow) => {
+      reset(convertToReplicationForm(editedWorkflow));
+    },
+  });
 
-  const { deleteExpirationMutation, editExpirationWorkflowMutation } =
-    useExpirationMutations({
-      onEditSuccess: (editedWorkflow) => {
-        reset(initDefaultValues(editedWorkflow));
-      },
-    });
+  const { editExpirationWorkflowMutation } = useExpirationMutations({
+    onEditSuccess: (editedWorkflow) => {
+      reset(initDefaultValues(editedWorkflow));
+    },
+  });
 
-  const { deleteTransitionMutation, editTransitionWorkflowMutation } =
-    useTransitionMutations({
-      onEditSuccess: (editedWorkflow) => {
-        reset(editedWorkflow);
-      },
-    });
-
-  const handleOpenDeleteModal = () => {
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleCloseDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-  };
-
-  const handleDeleteWorkflow = () => {
-    setIsDeleteModalOpen(false);
-    if (workflow && isExpirationWorkflow(workflow)) {
-      deleteExpirationMutation.mutate(workflow);
-    } else if (workflow && isTransitionWorkflow(workflow)) {
-      deleteTransitionMutation.mutate(workflow);
-    } else {
-      deleteReplicationMutation.mutate(workflow);
-    }
-  };
+  const { editTransitionWorkflowMutation } = useTransitionMutations({
+    onEditSuccess: (editedWorkflow) => {
+      reset(editedWorkflow);
+    },
+  });
 
   const onSubmit = (values: ReplicationFormType | Expiration) => {
     if (isExpirationWorkflow(values)) {
@@ -590,19 +562,6 @@ function EditForm({
 
   return (
     <>
-      <DeleteConfirmation
-        approve={handleDeleteWorkflow}
-        cancel={handleCloseDeleteModal}
-        show={isDeleteModalOpen}
-        titleText={`Permanently remove the following Workflow: ${
-          workflow.name ||
-          (isExpirationWorkflow(workflow)
-            ? generateExpirationName(workflow)
-            : isTransitionWorkflow(workflow)
-            ? generateTransitionName(workflow)
-            : generateStreamName(workflow))
-        } ?`}
-      />
       <FormProvider {...useFormMethods}>
         <Form
           requireMode="all"
@@ -639,13 +598,7 @@ function EditForm({
                 label="Cancel"
                 type="button"
               />
-              <Button
-                icon={<Icon name="Delete" />}
-                label="Delete Workflow"
-                variant="danger"
-                onClick={handleOpenDeleteModal}
-                type="button"
-              />
+              <DeleteWorkflowButton workflow={workflow} />
             </Stack>
           }
         >
