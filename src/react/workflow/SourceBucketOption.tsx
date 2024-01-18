@@ -11,7 +11,7 @@ import { useLocationAndStorageInfos } from '../next-architecture/domain/business
 import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
-import { useToast } from '@scality/core-ui';
+import { Loader, useToast } from '@scality/core-ui';
 import { useEffect } from 'react';
 
 type DisableOptionProps = {
@@ -124,6 +124,12 @@ export const SourceBucketOption = ({
       });
     }
   }, [tags.status]);
+
+  const isLoading =
+    versionning.status === 'loading' ||
+    locationInfos.status === 'loading' ||
+    tags.status === 'loading';
+
   const isOptionDisabled = disableOption
     ? disableOption({
         isBucketVersionned:
@@ -131,14 +137,17 @@ export const SourceBucketOption = ({
         locationInfos:
           locationInfos.status === 'success' ? locationInfos.value : undefined,
         isVeeamBucket:
-          tags.status === 'loading' ||
-          (tags.status === 'success' &&
-            !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]),
+          tags.status === 'success' &&
+          !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION],
       })
     : false;
 
   return (
-    <Select.Option value={bucketName} disabled={isOptionDisabled}>
+    <Select.Option
+      value={bucketName}
+      disabled={isLoading || isOptionDisabled}
+      icon={isLoading && <Loader />}
+    >
       {`${bucketName} (${BucketLocationNameAndType({ bucketName })})`}
     </Select.Option>
   );
