@@ -76,7 +76,7 @@
     "@hookform/resolvers": "^2.8.8",
     "@js-temporal/polyfill": "^0.4.3",
     "@monaco-editor/react": "^4.4.5",
-    "@scality/core-ui": "github:scality/core-ui#0.110.0",
+    "@scality/core-ui": "github:scality/core-ui#0.114.0",
     "@scality/module-federation": "github:scality/module-federation#1.1.0",
     "@types/react-table": "^7.7.10",
     "@types/react-virtualized": "^9.21.20",
