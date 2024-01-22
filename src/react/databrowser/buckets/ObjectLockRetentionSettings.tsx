@@ -166,7 +166,7 @@ export default function ObjectLockRetentionSettings({
                       <label htmlFor="locktype-governance">Governance</label>
                     </Stack>
                     <Text color="textSecondary" isEmphazed variant="Smaller">
-                      An user with a specific IAM permissions can
+                      A user with a specific IAM permissions can
                       overwrite/delete protected object versions during the
                       retention period.
                     </Text>
