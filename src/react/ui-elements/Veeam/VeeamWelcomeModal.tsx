@@ -51,7 +51,7 @@ export const VeeamWelcomeModalInternal = () => {
     return <></>;
   }
 
-  const { openLink } = useLinkOpener();
+  const { openLink, viewLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
   const zenkoUI = deployedApps.find(
     (app: { kind: string }) => app.kind === 'zenko-ui',

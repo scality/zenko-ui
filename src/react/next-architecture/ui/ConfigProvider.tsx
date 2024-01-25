@@ -19,7 +19,11 @@ export function useConfig(): AppConfig {
   }).spec.selfConfiguration;
 }
 
-export function useLinkOpener() {
+type LinkOpener = {
+  openLink: (url: string) => void;
+};
+
+export function useLinkOpener(): LinkOpener {
   return configGlobal.hooks.useLinkOpener();
 }
 
