@@ -16,6 +16,7 @@ describe.skip('auth actions', () => {
   const syncTests = [
     {
       it: 'should return SET_MANAGEMENT_CLIENT action',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.setManagementClient(new MockManagementClient()),
       expectedActions: [dispatchAction.SET_MANAGEMENT_CLIENT_ACTION],
     },
@@ -26,6 +27,7 @@ describe.skip('auth actions', () => {
     },
     {
       it: 'should return SET_APP_CONFIG action',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.setAppConfig(APP_CONFIG),
       expectedActions: [dispatchAction.SET_APP_CONFIG_ACTION],
     },
@@ -55,6 +57,7 @@ describe.skip('auth actions', () => {
       expectedActions: [dispatchAction.SET_OIDC_LOGOUT_ACTION],
     },
   ];
+  //@ts-expect-error fix this when you are working on it
   syncTests.forEach(testActionFunction);
   const asyncTests = [
     {

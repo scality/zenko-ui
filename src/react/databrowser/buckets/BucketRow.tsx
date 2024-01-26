@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useHistory } from 'react-router-dom';
 import { areEqual } from 'react-window';
 import memoize from 'memoize-one';
-import type { DispatchAPI } from 'redux';
+import type { Dispatch } from 'redux';
 
 import type { Action } from '../../../types/actions';
 import type { S3Bucket } from '../../../types/s3';
@@ -24,7 +24,7 @@ type Data = {
   rows: RowsType;
   prepareRow: PrepareRow;
   selectedBucketName: string | null | undefined;
-  dispatch: DispatchAPI<Action>;
+  dispatch: Dispatch<Action>;
 };
 type RowProps = {
   data: Data;
@@ -39,7 +39,7 @@ export const createItemData = memoize(
     rows: RowsType,
     prepareRow: PrepareRow,
     selectedBucketName: string | null | undefined,
-    dispatch: DispatchAPI<Action>,
+    dispatch: Dispatch<Action>,
   ): Data => ({
     rows,
     prepareRow,
@@ -75,6 +75,7 @@ const Row = ({
           );
         }
       }}
+      //@ts-expect-error fix this when you are working on it
       {...row.getRowProps({
         style,
       })}

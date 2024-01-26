@@ -16,6 +16,7 @@ type Props = {
   listType: ListObjectsType;
 };
 export const InfoWarning = ({ title }: { title: JSX.Element }) => (
+  //@ts-expect-error fix this when you are working on it
   <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
 );
 
@@ -25,14 +26,17 @@ const warningTitle = (toggled: List<Record<string, any>>): JSX.Element => {
     const { isDeleteMarker, isFolder } = firstObject;
 
     if (isDeleteMarker) {
+      //@ts-expect-error fix this when you are working on it
       return 'A "Delete Marker" is selected';
     }
 
     if (isFolder) {
+      //@ts-expect-error fix this when you are working on it
       return 'A "Folder" is selected';
     }
   }
 
+  //@ts-expect-error fix this when you are working on it
   return SELECT_AN_OBJECT_MESSAGE;
 };
 
@@ -47,6 +51,7 @@ function ObjectDetails({ toggled, listType }: Props) {
 
   const details = () => {
     if (toggled.size > 1) {
+      //@ts-expect-error fix this when you are working on it
       return <InfoWarning title={MULTIPLE_ITEMS_SELECTED_MESSAGE} />;
     }
 

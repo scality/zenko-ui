@@ -64,6 +64,7 @@ export default function Objects() {
     if (searchInput) {
       dispatch(
         newSearchListing(bucketNameParam, searchInput, isShowVersions),
+        //@ts-expect-error fix this when you are working on it
       ).finally(() => setLoaded(true));
     } else {
       dispatch(
@@ -72,6 +73,7 @@ export default function Objects() {
           prefixWithSlash,
           isShowVersions ? LIST_OBJECT_VERSIONS_S3_TYPE : LIST_OBJECTS_S3_TYPE,
         ),
+        //@ts-expect-error fix this when you are working on it
       ).finally(() => setLoaded(true));
     }
   }, [bucketNameParam, prefixWithSlash, dispatch, isShowVersions, searchInput]);

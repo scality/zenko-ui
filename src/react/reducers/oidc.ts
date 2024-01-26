@@ -2,6 +2,7 @@ import type { OIDCAction } from '../../types/actions';
 import type { OIDCState } from '../../types/state';
 import { initialNetworkActivityState } from './initialConstants';
 export default function oidc(
+  //@ts-expect-error fix this when you are working on it
   state: OIDCState = initialNetworkActivityState,
   action: OIDCAction,
 ) {

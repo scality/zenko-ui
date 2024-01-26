@@ -17,6 +17,7 @@ import type { InstanceStatus } from '../../types/stats';
 export const location: Location = {
   name: 'location1',
   locationType: 'location-file-v1',
+  //@ts-expect-error fix this when you are working on it
   details: {},
   objectId: 'object-id',
   isBuiltin: false,
@@ -24,6 +25,7 @@ export const location: Location = {
   sizeLimitGB: 10,
 };
 export const account: Account = {
+  //@ts-expect-error fix this when you are working on it
   arn: 'arn:aws:iam::538641674554:/bart/',
   canonicalId:
     '41901f00de359c995578b3f7af6a9ab57ccca15f1a03ed97e29ba7fdf9a09c33',
@@ -61,6 +63,7 @@ export const replicationWorkflow: Replication = {
   },
 };
 export const workflows: APIWorkflows = [
+  //@ts-expect-error fix this when you are working on it
   {
     replication: replicationWorkflow,
   },
@@ -79,6 +82,7 @@ export const instanceStatus: InstanceStatus = {
   metrics: {},
   state: {
     runningConfigurationVersion: 0,
+    //@ts-expect-error fix this when you are working on it
     capabilities: {
       secureChannel: true,
     },
@@ -93,26 +97,33 @@ export const endpoint: Endpoint = {
   isBuiltin: false,
 };
 export class MockManagementClient implements ManagementClientInterface {
+  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
+    //@ts-expect-error fix this when you are working on it
     return Promise.resolve(account);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayUser(): Promise<void> {
     return Promise.resolve();
   }
 
+  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayLocation(): Promise<Location> {
     return Promise.resolve(location);
   }
 
+  //@ts-expect-error fix this when you are working on it
   updateConfigurationOverlayLocation(): Promise<Location> {
     return Promise.resolve(location);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayLocation(): Promise<void> {
     return Promise.resolve();
   }
 
+  //@ts-expect-error fix this when you are working on it
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return Promise.resolve({
       ...latestOverlay,
@@ -125,6 +136,7 @@ export class MockManagementClient implements ManagementClientInterface {
     });
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteBucketWorkflowReplication(): Promise<void> {
     return Promise.resolve();
   }
@@ -141,12 +153,14 @@ export class MockManagementClient implements ManagementClientInterface {
     });
   }
 
+  //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<ApiAccountKeyResponse> {
     return Promise.resolve({
       ...key,
     });
   }
 
+  //@ts-expect-error fix this when you are working on it
   getLatestInstanceStatus(): Promise<InstanceStatus> {
     return Promise.resolve(instanceStatus);
   }
@@ -155,6 +169,7 @@ export class MockManagementClient implements ManagementClientInterface {
     return Promise.resolve(endpoint);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.resolve();
   }
@@ -166,38 +181,47 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     this._error = error;
   }
 
+  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayUser(): Promise<ApiAccountResponse> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayUser(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayLocation(): Promise<Location> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   updateConfigurationOverlayLocation(): Promise<Location> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayLocation(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   getConfigurationOverlayView(): Promise<ApiConfigurationResponse> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   searchWorkflows(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteBucketWorkflowReplication(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   updateBucketWorkflowReplication(): Promise<void> {
     return Promise.reject(this._error);
   }
@@ -206,14 +230,17 @@ export class ErrorMockManagementClient implements ManagementClientInterface {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   generateKeyConfigurationOverlayUser(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   createConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.reject(this._error);
   }
 
+  //@ts-expect-error fix this when you are working on it
   deleteConfigurationOverlayEndpoint(): Promise<void> {
     return Promise.reject(this._error);
   }

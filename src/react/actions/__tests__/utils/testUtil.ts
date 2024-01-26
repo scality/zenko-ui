@@ -1,18 +1,9 @@
 /* eslint-disable */
-import { ApiErrorObject, awsErrorObject } from '../../../../js/mock/error';
-import {
-  ErrorMockManagementClient,
-  account,
-  accountAccessKey,
-  userName,
-  accountSecretKey,
-  instanceStatus,
-  latestOverlay,
-  location,
-  replicationWorkflow,
-  workflows,
-} from '../../../../js/mock/managementClient';
 import { applyMiddleware, compose, createStore } from 'redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import { XDM_FEATURE } from '../../../../js/config';
+import { accountAccessKeys } from '../../../../js/mock/IAMClient';
 import {
   bucketInfoResponseNoVersioning,
   bucketName,
@@ -25,25 +16,33 @@ import {
   objectKey,
   objectKey2,
   objectMetadata,
+  objectRetention,
   ownerName,
   prefix,
   s3Object,
   systemMetadata,
   tags,
-  objectRetention,
   userMetadata,
 } from '../../../../js/mock/S3Client';
-import type { AppState } from '../../../../types/state';
 import { ErrorMockZenkoClient } from '../../../../js/mock/ZenkoClient';
+import { ApiErrorObject, awsErrorObject } from '../../../../js/mock/error';
+import {
+  ErrorMockManagementClient,
+  account,
+  accountAccessKey,
+  accountSecretKey,
+  instanceStatus,
+  latestOverlay,
+  location,
+  replicationWorkflow,
+  userName,
+  workflows,
+} from '../../../../js/mock/managementClient';
 import type { ManagementClient } from '../../../../types/managementClient';
-import { accountAccessKeys } from '../../../../js/mock/IAMClient';
-import configureStore from 'redux-mock-store';
-import { createBrowserHistory as createHistory } from 'history';
-import { initialFullState } from '../../../reducers/initialConstants';
-import thunk from 'redux-thunk';
-import zenkoUIReducer from '../../../reducers';
+import type { AppState } from '../../../../types/state';
 import type { EnabledState } from '../../../../types/stats';
-import { XDM_FEATURE } from '../../../../js/config';
+import zenkoUIReducer from '../../../reducers';
+import { initialFullState } from '../../../reducers/initialConstants';
 import { configuration } from '../../../utils/testUtil';
 type ActionTestObject = {
   skip?: boolean;
@@ -73,6 +72,7 @@ export const APP_CONFIG = {
   features: [XDM_FEATURE],
 };
 export const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
+//@ts-expect-error fix this when you are working on it
 export const initState: AppState = initialFullState;
 export const USER_MANAGER_ERROR_MSG = 'User Manager Error Response';
 export const MANAGEMENT_ERROR_MSG = 'Management API Error Response';
@@ -130,6 +130,7 @@ export function errorManagementState(): AppState {
     ...state,
     auth: {
       ...state.auth,
+      //@ts-expect-error fix this when you are working on it
       managementClient: new ErrorMockManagementClient(MANAGEMENT_ERROR),
     },
   };
@@ -139,6 +140,7 @@ export function errorZenkoState(): AppState {
     ...initState,
     zenko: {
       ...initState.zenko,
+      //@ts-expect-error fix this when you are working on it
       zenkoClient: new ErrorMockZenkoClient(AWS_CLIENT_ERROR),
     },
   };
@@ -285,7 +287,10 @@ export const testDispatchFunctionWithFullStore = (test: DispatchTestObject) => {
       compose(applyMiddleware(thunk, captureActionsMiddleware)),
     );
     return store
-      .dispatch(test.fn)
+      .dispatch(
+        //@ts-expect-error fix this when you are working on it
+        test.fn,
+      )
       .then(() => expect(actions).toEqual(test.expectedActions))
       .then(done)
       .catch((error) =>

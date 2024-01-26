@@ -116,6 +116,7 @@ export function AccountRoleSelectButtonAndModal({
                     name="Info"
                     size="xs"
                     color="buttonSecondary"
+                    //@ts-expect-error fix this when you are working on it
                     style={{ fontSize: '1rem', marginLeft: spacing.sp8 }}
                   />
                 </Tooltip>
@@ -138,6 +139,7 @@ export function AccountRoleSelectButtonAndModal({
     return (
       <div style={{ height: '25rem' }}>
         <Table
+          //@ts-expect-error fix this when you are working on it
           columns={columns}
           data={accountsWithRoles}
           defaultSortingKey={'accountName'}
@@ -148,7 +150,9 @@ export function AccountRoleSelectButtonAndModal({
             separationLineVariant="backgroundLevel3"
             backgroundVariant="backgroundLevel1"
             onRowSelected={(rowData) => {
+              //@ts-expect-error fix this when you are working on it
               setAssumedRoleArn(rowData.original.roleArn);
+              //@ts-expect-error fix this when you are working on it
               setAssumedAccount(rowData.original.accountName);
             }}
             selectedId={assumedRoleArn}

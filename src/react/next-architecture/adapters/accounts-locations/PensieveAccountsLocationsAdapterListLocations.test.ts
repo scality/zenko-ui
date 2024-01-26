@@ -52,6 +52,7 @@ describe('PensieveAccountsAdapter - listLocations', () => {
 
     //V
     const EXPECTED_LOCATIONS = Object.values(LOCATIONS).map((location) => ({
+      //@ts-expect-error fix this when you are working on it
       id: location.objectId || '',
       //@ts-ignore - isCold does not xist on builtin locations
       isCold: location.isCold,

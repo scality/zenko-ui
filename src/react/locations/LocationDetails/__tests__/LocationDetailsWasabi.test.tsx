@@ -8,6 +8,7 @@ const props = {
 describe('class <LocationDetailsWasabi />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsWasabi {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -27,6 +28,7 @@ describe('class <LocationDetailsWasabi />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsWasabi {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsWasabi).setState({ ...refLocation }, () => {
@@ -34,6 +36,7 @@ describe('class <LocationDetailsWasabi />', () => {
     });
   });
   it('should show wasabi details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsWasabi {...props} />);
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
     expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -53,6 +56,7 @@ describe('class <LocationDetailsWasabi />', () => {
       bucketMatch: true,
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsWasabi {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -77,6 +81,7 @@ describe('class <LocationDetailsWasabi />', () => {
     };
     let location = {};
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsWasabi {...props} onChange={(l) => (location = l)} />,
     );
     updateInputText(component, 'accessKey', 'ak');

@@ -1,10 +1,9 @@
-import BucketList from '../BucketList';
 import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
-import React from 'react';
+import { XDM_FEATURE } from '../../../../js/config';
 import { formatShortDate } from '../../../utils';
 import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
-import { XDM_FEATURE } from '../../../../js/config';
+import BucketList from '../BucketList';
 
 describe.skip('BucketList', () => {
   beforeAll(() => {
@@ -31,6 +30,7 @@ describe.skip('BucketList', () => {
     const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
+          //@ts-expect-error fix this when you are working on it
           buckets={buckets}
           locations={{
             'us-east-1': {
@@ -50,6 +50,7 @@ describe.skip('BucketList', () => {
             },
           }}
           selectedBucketName=""
+          //@ts-expect-error fix this when you are working on it
           ingestionStates={ingestionStates}
         />
       </MemoryRouter>,
@@ -99,6 +100,7 @@ describe.skip('BucketList', () => {
     const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
+          //@ts-expect-error fix this when you are working on it
           buckets={buckets}
           locations={{
             'us-east-1': {
@@ -157,6 +159,7 @@ describe.skip('BucketList', () => {
     const { component } = reduxRender(
       <MemoryRouter>
         <BucketList
+          //@ts-expect-error fix this when you are working on it
           buckets={buckets}
           locations={{}}
           selectedBucketName={selectedBucketName}
@@ -178,7 +181,12 @@ describe.skip('BucketList', () => {
   it('should select no row if there is no bucket name specified in the parameter', () => {
     const { component } = reduxRender(
       <MemoryRouter>
-        <BucketList buckets={buckets} locations={{}} selectedBucketName="" />
+        <BucketList
+          //@ts-expect-error fix this when you are working on it
+          buckets={buckets}
+          locations={{}}
+          selectedBucketName=""
+        />
       </MemoryRouter>,
       {},
     );

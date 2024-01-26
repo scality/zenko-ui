@@ -29,21 +29,29 @@ export default class LocationDetailsWasabi extends React.Component<
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
     // XXX disable changing it if not provided
+    //@ts-expect-error fix this when you are working on it
     this.state.secretKey = '';
+    //@ts-expect-error fix this when you are working on it
     this.state.endpoint = 'https://s3.wasabisys.com';
   }
 
   updateForm = () => {
     if (this.props.onChange) {
+      //@ts-expect-error fix this when you are working on it
       this.props.onChange(this.state);
     }
   };
   onChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
     const target = e.target;
+    //@ts-expect-error fix this when you are working on it
     const value = target.type === 'checkbox' ? target.checked : target.value;
-    this.setState({
-      [target.name]: value,
-    });
+    this.setState(
+      //@ts-expect-error fix this when you are working on it
+      {
+        //@ts-expect-error fix this when you are working on it
+        [target.name]: value,
+      },
+    );
   };
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {

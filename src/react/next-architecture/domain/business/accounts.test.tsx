@@ -352,6 +352,7 @@ describe('useAccountLatestUsedCapacity', () => {
     //Wait for the first 1000 to be ready
     await waitFor(
       () =>
+        //@ts-expect-error fix this when you are working on it
         resultAccounts.current.accounts.value[0].usedCapacity.status ===
         'success',
     );

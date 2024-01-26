@@ -348,6 +348,7 @@ describe('Policy Attachments', () => {
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'AttachGroupPolicy') {
           return res(ctx.status(500));
@@ -390,6 +391,7 @@ describe('Policy Attachments', () => {
 
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'ListUsers') {
           return res(ctx.status(500));
@@ -410,6 +412,7 @@ describe('Policy Attachments', () => {
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'ListEntitiesForPolicy') {
           return res(ctx.status(500));

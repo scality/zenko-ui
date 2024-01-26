@@ -6,6 +6,7 @@ import {
 import { getLocationTypeKey } from '../storageOptions';
 
 const location: Locations = {
+  //@ts-expect-error fix this when you are working on it
   'jaguar-location': {
     details: {
       accessKey: 'D338ZM9Z2LR0MXPN7DLE',
@@ -19,6 +20,7 @@ const location: Locations = {
     name: 'jaguar-location',
     objectId: '236ed00b-f6ed-11ec-8688-8e86d90d7766',
   },
+  //@ts-expect-error fix this when you are working on it
   'orange-location': {
     details: {
       accessKey: 'D338ZM9Z2LR0MXPN7',
@@ -32,6 +34,7 @@ const location: Locations = {
     name: 'jaguar-location',
     objectId: '236ed00b-f6ed-11ec-8688-8e86d90d7766',
   },
+  //@ts-expect-error fix this when you are working on it
   test: {
     details: {
       accessKey: '51O0SC8866YD7AF15RLT',
@@ -45,6 +48,7 @@ const location: Locations = {
     name: 'test',
     objectId: 'c73dbf58-f2d7-11ec-9298-de91f9715175',
   },
+  //@ts-expect-error fix this when you are working on it
   'us-east-1': {
     details: {
       bootstrapList: [],

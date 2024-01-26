@@ -1,5 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
+import { AppContainer, Banner, Stack, Toggle, Tooltip } from '@scality/core-ui';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
+import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui/dist/style/theme';
+import { useMemo, useState } from 'react';
+import { useMutation, useQueryClient } from 'react-query';
 import {
   Route,
   useHistory,
@@ -7,24 +12,20 @@ import {
   useParams,
   useRouteMatch,
 } from 'react-router-dom';
-import { Tooltip, Toggle, Banner, AppContainer, Stack } from '@scality/core-ui';
-import { useMutation, useQueryClient } from 'react-query';
-import { Table, Button, Box } from '@scality/core-ui/dist/next';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { Column } from 'react-table';
+import styled from 'styled-components';
+import { useIAMClient } from '../IAMProvider';
+import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import { Clipboard } from '../ui-elements/Clipboard';
-import { useIAMClient } from '../IAMProvider';
-import { formatSimpleDate } from '../utils';
-import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
+import { formatSimpleDate } from '../utils';
 import {
   useAccessKeyOutdatedStatus,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { getUserAccessKeysQuery } from '../queries';
+import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 
 const CustomIcon = styled.i`
   color: ${(props) => props.color ?? props.theme.infoPrimary};
@@ -60,6 +61,7 @@ const ToggleAccessKeyStatus = (rowValue) => {
   const updateAccessKeyMutation = useMutation(
     (accessKey) => {
       return IAMClient.updateAccessKey(
+        //@ts-expect-error fix this when you are working on it
         accessKey,
         accessKeyStatus === 'Active' ? 'Inactive' : 'Active',
         IAMUserName,
@@ -109,6 +111,7 @@ const DeleteAccessKeyAction = (rowValue) => {
   }>();
   const [showModal, setShowModal] = useState(false);
   const deleteAccessKeyMutation = useMutation(
+    //@ts-expect-error fix this when you are working on it
     (accessKey) => IAMClient.deleteAccessKey(accessKey, IAMUserName),
     {
       onSuccess: () =>
@@ -226,6 +229,7 @@ const AccountUserAccessKeys = () => {
             Access Keys
             <TextBadge
               variant={'statusWarning'}
+              //@ts-expect-error fix this when you are working on it
               text={accessKeysResultLength}
               style={{ marginLeft: spacing.sp8 }}
             />
@@ -246,6 +250,7 @@ const AccountUserAccessKeys = () => {
                 />
               </div>
             }
+            //@ts-expect-error fix this when you are working on it
             variant="statusWarning"
             title="Warning"
           >
@@ -270,7 +275,7 @@ const AccountUserAccessKeys = () => {
         <BreadcrumbAccount pathname={pathname} />
       </AppContainer.ContextContainer>
       <AppContainer.OverallSummary>
-        <Stack withSeparators gap="r32" fontSize={fontSize.large}>
+        <Stack withSeparators gap="r32">
           <>
             <CustomIcon
               color="white"
@@ -291,7 +296,12 @@ const AccountUserAccessKeys = () => {
 
       <AppContainer.MainContent hasPadding background="backgroundLevel3">
         <Box style={{ flex: 1 }}>
-          <Table columns={columns} data={data} defaultSortingKey={'health'}>
+          {/* fix this when you are working on it*/}
+          <Table
+            columns={columns as unknown as Column[]}
+            data={data}
+            defaultSortingKey={'health'}
+          >
             <TableHeader
               style={{
                 display: 'flex',

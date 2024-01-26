@@ -163,6 +163,7 @@ function useReplicationMutations({
         history.replace(`./replication-${success.streamId}`);
 
         if (onEditSuccess) {
+          //@ts-expect-error fix this when you are working on it
           onEditSuccess(success);
         }
         queryClient.invalidateQueries(
@@ -453,6 +454,7 @@ function initTransitionDefaultValue(
 ): BucketWorkflowTransitionV2 {
   return {
     ...initDefaultValues(workflow),
+    //@ts-expect-error fix this when you are working on it
     triggerDelayDays: `${workflow.triggerDelayDays}`,
   };
 }
@@ -485,12 +487,18 @@ function EditForm({
       : isTransitionWorkflow(workflow)
       ? Joi.object(transitionSchema)
       : Joi.object(
+          //@ts-expect-error fix this when you are working on it
           replicationSchema(
             [],
             disallowedPrefixes(
+              //@ts-expect-error fix this when you are working on it
               workflow.source.bucketName,
               workflows.replications,
-            ).filter((s) => s !== workflow.source.prefix),
+            ).filter(
+              (s) =>
+                //@ts-expect-error fix this when you are working on it
+                s !== workflow.source.prefix,
+            ),
             isPrefixMandatory,
           ),
         );
@@ -505,21 +513,30 @@ function EditForm({
         return joiValidator(values, context, options);
       }
     },
+    // fix this when you are working on it
     defaultValues: isExpirationWorkflow(workflow)
       ? initDefaultValues(workflow)
       : isTransitionWorkflow(workflow)
       ? initTransitionDefaultValue(workflow)
-      : convertToReplicationForm(workflow),
+      : (convertToReplicationForm(workflow) as any),
   });
 
   const { formState, handleSubmit, reset } = useFormMethods;
   useEffect(() => {
     if (workflow && isExpirationWorkflow(workflow)) {
-      reset(initDefaultValues(workflow));
+      // fix this when you are working on it
+      reset(initDefaultValues(workflow) as any);
     } else if (workflow && isTransitionWorkflow(workflow)) {
-      reset(initTransitionDefaultValue(workflow));
+      // fix this when you are working on it
+      reset(initTransitionDefaultValue(workflow) as any);
     } else {
-      reset(convertToReplicationForm(workflow));
+      // fix this when you are working on it
+      reset(
+        convertToReplicationForm(
+          //@ts-expect-error fix this when you are working on it
+          workflow,
+        ) as any,
+      );
     }
   }, [workflow, reset]);
 
@@ -531,6 +548,7 @@ function EditForm({
 
   const { editExpirationWorkflowMutation } = useExpirationMutations({
     onEditSuccess: (editedWorkflow) => {
+      //@ts-expect-error fix this when you are working on it
       reset(initDefaultValues(editedWorkflow));
     },
   });
@@ -543,6 +561,7 @@ function EditForm({
 
   const onSubmit = (values: ReplicationFormType | Expiration) => {
     if (isExpirationWorkflow(values)) {
+      //@ts-expect-error fix this when you are working on it
       editExpirationWorkflowMutation.mutate(prepareExpirationQuery(values));
     } else if (isTransitionWorkflow(values)) {
       editTransitionWorkflowMutation.mutate(prepareTransitionQuery(values));
@@ -678,9 +697,12 @@ function ConfigurationTab({ wfSelected }: Props) {
   return (
     <EditForm
       key={workflowId}
+      //@ts-expect-error fix this when you are working on it
       workflow={workflow}
       workflows={{
+        //@ts-expect-error fix this when you are working on it
         replications: workflowsQuery.data?.replications ?? [],
+        //@ts-expect-error fix this when you are working on it
         expirations: workflowsQuery.data?.expirations ?? [],
         transitions: workflowsQuery.data?.transitions ?? [],
       }}

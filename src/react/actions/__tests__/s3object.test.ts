@@ -42,6 +42,7 @@ describe.skip('s3object actions', () => {
     {
       it: 'should return LIST_OBJECTS_SUCCESS action -> test without prefix parameter',
       fn: actions.listObjectsSuccess(
+        //@ts-expect-error fix this when you are working on it
         [S3_OBJECT],
         [COMMON_PREFIX],
         '',
@@ -49,6 +50,7 @@ describe.skip('s3object actions', () => {
       ),
       expectedActions: [
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           '',
@@ -59,6 +61,7 @@ describe.skip('s3object actions', () => {
     {
       it: 'should return LIST_OBJECTS_SUCCESS action -> test with prefix parameter',
       fn: actions.listObjectsSuccess(
+        //@ts-expect-error fix this when you are working on it
         [S3_OBJECT],
         [COMMON_PREFIX],
         PREFIX,
@@ -66,6 +69,7 @@ describe.skip('s3object actions', () => {
       ),
       expectedActions: [
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           PREFIX,
@@ -130,8 +134,10 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'should return GET_OBJECT_METADATA_SUCCESS action',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.getObjectMetadataSuccess(BUCKET_NAME, OBJECT_KEY, INFO, TAGS),
       expectedActions: [
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(
           BUCKET_NAME,
           OBJECT_KEY,
@@ -141,6 +147,7 @@ describe.skip('s3object actions', () => {
       ],
     },
   ];
+  //@ts-expect-error fix this when you are working on it
   syncTests.forEach(testActionFunction);
   const asyncTests = [
     {
@@ -151,6 +158,7 @@ describe.skip('s3object actions', () => {
         createFolderNetworkAction,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           '',
@@ -169,6 +177,7 @@ describe.skip('s3object actions', () => {
         createFolderNetworkAction,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           PREFIX,
@@ -210,6 +219,7 @@ describe.skip('s3object actions', () => {
         uploadObjectsNetworkAction,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           '',
@@ -228,6 +238,7 @@ describe.skip('s3object actions', () => {
         uploadObjectsNetworkAction,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           PREFIX,
@@ -239,6 +250,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should handle error -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.uploadFiles(BUCKET_NAME, '', FOLDER_NAME),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -250,6 +262,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should handle error -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.uploadFiles(BUCKET_NAME, PREFIX, FOLDER_NAME),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -266,6 +279,7 @@ describe.skip('s3object actions', () => {
       expectedActions: [
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           '',
@@ -281,6 +295,7 @@ describe.skip('s3object actions', () => {
       expectedActions: [
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           PREFIX,
@@ -311,6 +326,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'deleteFiles: should return expected actions -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.deleteFiles(BUCKET_NAME, '', [S3_OBJECT]),
       storeState: initState,
       expectedActions: [
@@ -319,6 +335,7 @@ describe.skip('s3object actions', () => {
         dispatchAction.NETWORK_END_ACTION,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           '',
@@ -329,6 +346,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'deleteFiles: should return expected actions -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.deleteFiles(BUCKET_NAME, PREFIX, [S3_OBJECT]),
       storeState: initState,
       expectedActions: [
@@ -337,6 +355,7 @@ describe.skip('s3object actions', () => {
         dispatchAction.NETWORK_END_ACTION,
         listObjectsNetworkAction,
         dispatchAction.LIST_OBJECTS_SUCCESS_ACTION(
+          //@ts-expect-error fix this when you are working on it
           [S3_OBJECT],
           [COMMON_PREFIX],
           PREFIX,
@@ -347,6 +366,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'deleteFiles: should handle error -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.deleteFiles(BUCKET_NAME, '', [S3_OBJECT]),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -361,6 +381,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'deleteFiles: should handle error -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.deleteFiles(BUCKET_NAME, PREFIX, [S3_OBJECT]),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -379,6 +400,7 @@ describe.skip('s3object actions', () => {
       storeState: initState,
       expectedActions: [
         gettingObjectMetadataNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(
           BUCKET_NAME,
           OBJECT_KEY2,
@@ -421,6 +443,7 @@ describe.skip('s3object actions', () => {
       expectedActions: [
         gettingObjectMetadataNetworkAction,
         gettingObjectMetadataNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(
           BUCKET_NAME,
           OBJECT_KEY,
@@ -449,11 +472,13 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'putObjectTagging: should return expected actions -> test with no tag',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY, []),
       storeState: initState,
       expectedActions: [
         gettingObjectTagsNetworkAction,
         gettingObjectMetadataNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(
           BUCKET_NAME,
           OBJECT_KEY,
@@ -467,11 +492,13 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'putObjectTagging: should return expected actions -> test with tags',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY2, TAGS),
       storeState: initState,
       expectedActions: [
         gettingObjectTagsNetworkAction,
         gettingObjectMetadataNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.GET_OBJECT_METADATA_SUCCESS_ACTION(
           BUCKET_NAME,
           OBJECT_KEY2,
@@ -485,6 +512,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'putObjectTagging: should handle error',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.putObjectTagging(BUCKET_NAME, OBJECT_KEY, []),
       storeState: errorZenkoState(),
       expectedActions: [

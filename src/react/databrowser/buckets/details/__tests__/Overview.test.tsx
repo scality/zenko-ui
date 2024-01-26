@@ -44,12 +44,19 @@ const TEST_STATE = {
 //TODO: Those tests are testing implementation details based on child component names. We should refactor them.
 describe('Overview', () => {
   it('should render Overview component with given infos', () => {
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      s3: {
-        bucketInfo: bucketInfoResponseNoVersioning,
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        s3: {
+          bucketInfo: bucketInfoResponseNoVersioning,
+        },
       },
-    });
+    );
 
     const labelAndValues = [
       { label: 'Name', value: bucketName },
@@ -69,24 +76,38 @@ describe('Overview', () => {
     });
   });
   it('should render toggle versioning in Enable mode', () => {
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      s3: {
-        bucketInfo: bucketInfoResponseVersioning,
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        s3: {
+          bucketInfo: bucketInfoResponseVersioning,
+        },
       },
-    });
+    );
 
     expect(screen.getByText(/Versioning/i).parentElement).toHaveTextContent(
       'Active',
     );
   });
   it('should render object lock information in Enabled mode without default retention', () => {
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      s3: {
-        bucketInfo: bucketInfoResponseObjectLockNoDefaultRetention,
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        s3: {
+          bucketInfo: bucketInfoResponseObjectLockNoDefaultRetention,
+        },
       },
-    });
+    );
 
     const labelAndValues = [
       { label: 'Name', value: bucketName },
@@ -100,12 +121,19 @@ describe('Overview', () => {
     });
   });
   it('should render object lock information in Enabled mode with default retention', () => {
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      s3: {
-        bucketInfo: bucketInfoResponseObjectLockDefaultRetention,
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        s3: {
+          bucketInfo: bucketInfoResponseObjectLockDefaultRetention,
+        },
       },
-    });
+    );
 
     const labelAndValues = [
       { label: 'Name', value: bucketName },
@@ -119,15 +147,23 @@ describe('Overview', () => {
     });
   });
   it.skip('should trigger deleteBucket function when approving clicking on delete button when modal popup', async () => {
+    //@ts-expect-error fix this when you are working on it
     const deleteBucketMock = jest.spyOn(actions, 'deleteBucket');
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      ...{
-        s3: {
-          bucketInfo: bucketInfoResponseVersioning,
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        ...{
+          s3: {
+            bucketInfo: bucketInfoResponseVersioning,
+          },
         },
       },
-    });
+    );
     const deleteButton = screen.getByRole('button', { name: /delete bucket/i });
     userEvent.click(deleteButton);
     await waitFor(() => {
@@ -146,10 +182,17 @@ describe('Overview', () => {
   });
   it('should disable the versioning toogle for Azure Blob Storage', async () => {
     //S
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
-    });
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
+      },
+    );
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
     await waitFor(() => {
       expect(
@@ -271,10 +314,17 @@ describe('Overview', () => {
       }),
     );
 
-    renderWithRouterMatch(<Overview bucket={BUCKET} />, undefined, {
-      ...TEST_STATE,
-      ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
-    });
+    renderWithRouterMatch(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={BUCKET}
+      />,
+      undefined,
+      {
+        ...TEST_STATE,
+        ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
+      },
+    );
 
     const versioningToggleItem = screen
       .getByRole('checkbox', {
@@ -297,9 +347,15 @@ describe('Overview', () => {
     //Setup
     server.use(mockGetBucketTagging(bucketName));
     //Exercise
-    render(<Overview bucket={{ name: bucketName }} />, {
-      wrapper: NewWrapper(),
-    });
+    render(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={{ name: bucketName }}
+      />,
+      {
+        wrapper: NewWrapper(),
+      },
+    );
     //Verify
     await waitFor(() => {
       expect(
@@ -316,9 +372,15 @@ describe('Overview', () => {
     //Setup
     server.use(mockGetBucketTaggingError(bucketName));
     //Exercise
-    render(<Overview bucket={{ name: bucketName }} />, {
-      wrapper: NewWrapper(),
-    });
+    render(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={{ name: bucketName }}
+      />,
+      {
+        wrapper: NewWrapper(),
+      },
+    );
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
@@ -335,9 +397,15 @@ describe('Overview', () => {
     //Setup
     server.use(mockGetBucketTaggingNoSuchTagSet(bucketName));
     //Exercise
-    render(<Overview bucket={{ name: bucketName }} />, {
-      wrapper: NewWrapper(),
-    });
+    render(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={{ name: bucketName }}
+      />,
+      {
+        wrapper: NewWrapper(),
+      },
+    );
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErorToastQuery()).toBe(null);

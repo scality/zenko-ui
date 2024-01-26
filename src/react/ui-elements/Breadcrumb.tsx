@@ -47,6 +47,7 @@ export const breadcrumbPathsBuckets = (
   });
 
   if (matchObjectRoutes) {
+    //@ts-expect-error fix this when you are working on it
     const bucketName = matchObjectRoutes.params.bucketName;
 
     if (!bucketName) {
@@ -141,7 +142,12 @@ export const breadcrumbPathsBuckets = (
         </Link>
       </label>,
       <label key="bucket-name">
-        <ConstrainedText text={matchObjectsRoute.params.bucketName} />
+        <ConstrainedText
+          text={
+            //@ts-expect-error fix this when you are working on it
+            matchObjectsRoute.params.bucketName
+          }
+        />
       </label>,
     ];
   }
@@ -159,7 +165,10 @@ export const breadcrumbPathsBuckets = (
           }}
         >
           <ConstrainedText
-            text={matchBucketRetensionSettingRoute.params.bucketName}
+            text={
+              //@ts-expect-error fix this when you are working on it
+              matchBucketRetensionSettingRoute.params.bucketName
+            }
           />
         </Link>
       </label>,
@@ -191,7 +200,10 @@ type Props = {
 export function Breadcrumb({ breadcrumbPaths }: Props) {
   const paths = [<AccountRoleSelectButtonAndModal />];
   if (breadcrumbPaths) {
-    paths.push(...breadcrumbPaths);
+    paths.push(
+      //@ts-expect-error fix this when you are working on it
+      ...breadcrumbPaths,
+    );
   }
   return <CustomBreadCrumb paths={paths} />;
 }
@@ -202,6 +214,7 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
   });
 
   if (matchAccountUserAccessKey) {
+    //@ts-expect-error fix this when you are working on it
     const userName = matchAccountUserAccessKey.params.userName;
     return (
       <CustomBreadCrumb

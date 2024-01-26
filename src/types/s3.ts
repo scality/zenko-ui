@@ -115,7 +115,7 @@ export type MetadataPairs = Record<string, string>;
 export type MetadataItem = {
   key: string;
   value: string;
-  type: '' | METADATA_USER_TYPE | METADATA_SYSTEM_TYPE;
+  type: '' | typeof METADATA_USER_TYPE | typeof METADATA_SYSTEM_TYPE;
 };
 export type MetadataItems = Array<MetadataItem>;
 export type ListObjectsResponse = {

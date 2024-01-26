@@ -1,20 +1,17 @@
-import type {
-  Locations,
-  Replication as ReplicationStream,
-} from '../../types/config';
-import type { ReplicationForm } from '../../types/replication';
-import type { SelectOption } from '../../types/ui';
-import { getLocationTypeShort } from '../utils/storageOptions';
-import { storageOptions } from '../locations/LocationDetails';
+import { CustomHelpers } from '@hapi/joi';
+import { FieldError, FieldErrors } from 'react-hook-form';
 import {
-  BucketWorkflowTransitionV2,
   BucketWorkflowExpirationV1,
+  BucketWorkflowTransitionV2,
   BucketWorkflowV1,
 } from '../../js/managementClient/api';
-import { CustomHelpers } from '@hapi/joi';
+import type { Replication as ReplicationStream } from '../../types/config';
+import type { ReplicationForm } from '../../types/replication';
 import type { Tag } from '../../types/s3';
-import { FieldError, FieldErrors } from 'react-hook-form';
+import type { SelectOption } from '../../types/ui';
+import { storageOptions } from '../locations/LocationDetails';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
+import { getLocationTypeShort } from '../utils/storageOptions';
 
 export const destinationOptions = (
   locations: LocationInfo[],
@@ -335,6 +332,10 @@ export const filterWorkflows = (
     if (filters.objectKeyPrefix) {
       return ts.filter?.objectKeyPrefix === filters.objectKeyPrefix;
     }
-    return hasIdenticalTags(ts.filter?.objectTags || [], sanitizedTags);
+    return hasIdenticalTags(
+      //@ts-expect-error fix this when you are working on it
+      ts.filter?.objectTags || [],
+      sanitizedTags,
+    );
   });
 };

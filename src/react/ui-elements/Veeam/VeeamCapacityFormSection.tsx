@@ -34,6 +34,7 @@ export const VeeamCapacityFormSection = ({
         id="capacity"
         label="Max Veeam Repository Capacity"
         direction="vertical"
+        //@ts-expect-error fix this when you are working on it
         error={formState.errors.capacity?.message ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
@@ -43,7 +44,6 @@ export const VeeamCapacityFormSection = ({
             <Input
               id="capacity"
               type="number"
-              // @ts-expect-error - TODO: Fix the type of the size props in Input component
               size="1/3"
               min={1}
               max={999}

@@ -89,6 +89,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
@@ -119,6 +120,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'RELEASED',
           objectRetention: {
             mode: 'GOVERNANCE',
@@ -143,6 +145,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
@@ -165,6 +168,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
@@ -207,6 +211,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
@@ -254,6 +259,7 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
+          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',

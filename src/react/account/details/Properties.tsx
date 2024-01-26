@@ -3,11 +3,14 @@ import { useAuthGroups } from '../../utils/hooks';
 import AccountInfo from './properties/AccountInfo';
 import AccountKeys from './properties/AccountKeys';
 import { AutoSizer } from 'react-virtualized';
-import styled from 'styled-components';
+import styled, { CSSProperties } from 'styled-components';
 type Props = {
   account: Account;
 };
-const Container = styled.div`
+const Container = styled.div<{
+  height: CSSProperties['height'];
+  width: CSSProperties['width'];
+}>`
   display: flex;
   flex-direction: column;
   height: ${(props) => props.height}px;

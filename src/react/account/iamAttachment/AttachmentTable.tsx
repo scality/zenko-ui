@@ -484,6 +484,7 @@ export const AttachmentTable = <
             },
             {
               Header: 'Attachment status',
+              //@ts-expect-error fix this when you are working on it
               accessor: 'isPending',
               cellStyle: {
                 flex: 1,
@@ -494,6 +495,7 @@ export const AttachmentTable = <
             },
             {
               Header: '',
+              //@ts-expect-error fix this when you are working on it
               accessor: 'action',
               cellStyle: {
                 textAlign: 'right',

@@ -109,6 +109,7 @@ function EndpointList({ endpoints, locations }: Props) {
     <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
       <T.Container>
         <Table
+          //@ts-expect-error fix this when you are working on it
           columns={columns}
           data={strictSchemaEndpoints}
           defaultSortingKey="hostname"

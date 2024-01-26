@@ -21,6 +21,7 @@ import { MockSTSClient } from '../../js/mock/STSClient';
 import { MockZenkoClient } from '../../js/mock/ZenkoClient';
 
 export const initialAccountState: AccountState = {
+  //@ts-expect-error fix this when you are working on it
   display: {},
   accessKeyList: [],
 };
@@ -33,7 +34,9 @@ export const initialAuthState: AuthState = {
   isClientsLoaded: false,
   configFailure: false,
   stsClient: new MockSTSClient(),
+  //@ts-expect-error fix this when you are working on it
   managementClient: new MockManagementClient(),
+  //@ts-expect-error fix this when you are working on it
   config: { features: [] },
   oidcLogout: null,
 };
@@ -45,6 +48,7 @@ export const initialS3State: S3State = {
   },
   listObjectsType: LIST_OBJECTS_S3_TYPE,
   bucketInfo: null,
+  //@ts-expect-error fix this when you are working on it
   listObjectsResults: {
     list: List(),
     nextMarker: null,
@@ -68,6 +72,7 @@ export const initialInstancesState = {};
 export const initialInstanceStatus: InstanceStatusState = {
   latest: {
     state: {
+      //@ts-expect-error fix this when you are working on it
       capabilities: {
         secureChannel: true,
       },
@@ -134,6 +139,7 @@ export const initialInstanceStatus: InstanceStatusState = {
         states: {},
         schedules: {},
       },
+      //@ts-expect-error fix this when you are working on it
       'ingest-schedule': {},
     },
   },
@@ -144,6 +150,7 @@ export const initialLocationsUIState = {
 export const initialEndpointsUIState = {
   showDelete: '',
 };
+//@ts-expect-error fix this when you are working on it
 export const initialNetworkActivityState: NetworkActivityState = {
   counter: 0,
   messages: List(),

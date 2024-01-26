@@ -8,8 +8,10 @@ describe('MiddleEllipsis', () => {
   };
   const sentence = 'My long long long long sentence';
   const txtNode = document.createTextNode(sentence);
+  //@ts-expect-error fix this when you are working on it
   txtNode.offsetWidth = 100;
 
+  //@ts-expect-error fix this when you are working on it
   txtNode.setAttribute = () => {};
 
   it('middle ellipsis event listener add/remove', () => {
@@ -22,6 +24,7 @@ describe('MiddleEllipsis', () => {
   });
   it('ellipseNode should middle truncate TextNode', () => {
     txtNode.textContent = sentence;
+    //@ts-expect-error fix this when you are working on it
     const isEllipsized = ellipseNode(container, txtNode, sentence);
     expect(isEllipsized).toBeTruthy();
     expect(txtNode.textContent).toBe('My lon...entence');
@@ -30,6 +33,7 @@ describe('MiddleEllipsis', () => {
     txtNode.textContent = sentence;
     const ellipsisText = '&&&&';
     const isEllipsized = ellipseNode(
+      //@ts-expect-error fix this when you are working on it
       container,
       txtNode,
       sentence,
@@ -44,6 +48,7 @@ describe('MiddleEllipsis', () => {
     const ellipsisText = '...';
     const trailingCharCount = 3;
     const isEllipsized = ellipseNode(
+      //@ts-expect-error fix this when you are working on it
       container,
       txtNode,
       sentence,
@@ -63,13 +68,23 @@ describe('MiddleEllipsis', () => {
   it('ellipseNode should return false if text is empty', () => {
     const sentence = '';
     txtNode.textContent = sentence;
-    const isEllipsized = ellipseNode(container, txtNode, sentence);
+    const isEllipsized = ellipseNode(
+      //@ts-expect-error fix this when you are working on it
+      container,
+      txtNode,
+      sentence,
+    );
     expect(isEllipsized).toBe(false);
   });
   it('ellipseNode should return false if text is undefined', () => {
     const sentence = undefined;
     txtNode.textContent = sentence;
-    const isEllipsized = ellipseNode(container, txtNode, sentence);
+    const isEllipsized = ellipseNode(
+      //@ts-expect-error fix this when you are working on it
+      container,
+      txtNode,
+      sentence,
+    );
     expect(isEllipsized).toBe(false);
   });
 });

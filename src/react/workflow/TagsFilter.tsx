@@ -53,6 +53,7 @@ function TagsFilter({
       <Stack gap="r8" direction="vertical">
         {fields.map((_, index) => (
           <Stack gap="r8">
+            {/* @ts-expect-error fix this when you are working on it */}
             <Input
               size="1/2"
               autoComplete="off"
@@ -67,6 +68,7 @@ function TagsFilter({
                 handleChange(updatedTags);
               }}
             />
+            {/* @ts-expect-error fix this when you are working on it */}
             <Input
               size="1/2"
               autoComplete="off"

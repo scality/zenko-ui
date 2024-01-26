@@ -398,6 +398,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
   ];
   return (
     <AwsPaginatedResourceTable
+      //@ts-expect-error fix this when you are working on it
       columns={columns}
       additionalHeaders={
         <Button
@@ -409,6 +410,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
         />
       }
       defaultSortingKey={'policyName'}
+      //@ts-expect-error fix this when you are working on it
       getItemKey={(index, iamPolicies) => {
         return iamPolicies[index].Arn;
       }}

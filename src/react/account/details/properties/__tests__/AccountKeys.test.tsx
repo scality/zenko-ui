@@ -1,5 +1,4 @@
-import AccountKeys from '../AccountKeys';
-import React from 'react';
+import { screen } from '@testing-library/react';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
 import { formatShortDate } from '../../../../utils';
 import {
@@ -7,8 +6,7 @@ import {
   reduxRender,
   renderWithRouterMatch,
 } from '../../../../utils/testUtil';
-import { screen } from '@testing-library/react';
-import { debug } from 'jest-preview';
+import AccountKeys from '../AccountKeys';
 
 const account1 = {
   arn: 'arn1',
@@ -32,6 +30,7 @@ describe('AccountKeys', () => {
   });
 
   it('should render AccountKeys component', () => {
+    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
       configuration: {
         latest: {
@@ -56,6 +55,7 @@ describe('AccountKeys', () => {
 
   it('should render notification whenever there is at least 1 Root Access Key', () => {
     const accessKey = accountAccessKeys[0];
+    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
       configuration: {
         latest: {
@@ -75,6 +75,7 @@ describe('AccountKeys', () => {
   });
 
   it('should render Warning/Banner accordingly to number of Access Key', () => {
+    //@ts-expect-error fix this when you are working on it
     const { component } = reduxRender(<AccountKeys account={account1} />, {
       configuration: {
         latest: {

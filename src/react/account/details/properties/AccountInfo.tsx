@@ -110,8 +110,11 @@ function DeleteAccountButtonAndModal({ account }: Props) {
             </Wrap>
           }
         >
-          {deleteMutation.error?.message ||
-            'Deletion of the account failed, please retry.'}
+          {
+            //@ts-expect-error fix this when you are working on it
+            deleteMutation.error?.message ||
+              'Deletion of the account failed, please retry.'
+          }
         </Modal>
       )}
       <DeleteConfirmation

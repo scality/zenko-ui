@@ -14,6 +14,7 @@ const props = {
 describe('class <LocationDetailsHyperdriveV2 />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsHyperdriveV2 {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bootstrapList: [''],
@@ -25,6 +26,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2 {...props} onChange={onChangeFn} />,
     );
     component
@@ -34,6 +36,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       });
   });
   it('should show empty bootstrap list', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsHyperdriveV2 {...props} />);
     expect(component.find('InputList').props().values).toEqual(['']);
   });
@@ -42,6 +45,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList: ['localhost:83', 'localhost:84', 'localhost:85'],
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
     expect(component.find('InputList').props().values).toEqual([
@@ -67,6 +71,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList,
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
     expect(component.find('button[name="addbtn1"]').props().disabled).toEqual(
@@ -81,9 +86,11 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList: ['localhost:83'],
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );
@@ -98,9 +105,11 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList: [''],
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );
@@ -115,9 +124,11 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList: ['locahost:83', 'localhost:84'],
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );

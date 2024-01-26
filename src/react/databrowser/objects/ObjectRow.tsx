@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { DispatchAPI } from 'redux';
+import type { Dispatch } from 'redux';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
@@ -23,7 +23,7 @@ type RowsType = Array<RowType>;
 type Data = {
   rows: RowsType;
   prepareRow: PrepareRow;
-  dispatch: DispatchAPI<Action>;
+  dispatch: Dispatch<Action>;
 };
 type RowProps = {
   data: Data;
@@ -37,7 +37,7 @@ export const createItemData = memoize(
   (
     rows: RowsType,
     prepareRow: PrepareRow,
-    dispatch: DispatchAPI<Action>,
+    dispatch: Dispatch<Action>,
   ): Data => ({
     rows,
     prepareRow,
@@ -66,6 +66,7 @@ const Row = ({
     query.set('prefix', removeTrailingSlash(row.original.key));
 
     if (row.original.key.slice(-1) === '/') {
+      //@ts-expect-error fix this when you are working on it
       query.set('isFolder', true);
     } else {
       query.delete('isFolder');
@@ -87,6 +88,7 @@ const Row = ({
     <T.Row
       isSelected={row.original.toggled || isRowSelected}
       onClick={handleClick}
+      //@ts-expect-error fix this when you are working on it
       {...row.getRowProps({
         style,
       })}

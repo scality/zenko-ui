@@ -113,7 +113,10 @@ describe('ExpirationForm', () => {
           <FormSection title={{ name: 'General' }}>
             <GeneralExpirationGroup />
           </FormSection>
-          <ExpirationForm locations={locations} />
+          <ExpirationForm
+            //@ts-expect-error fix this when you are working on it
+            locations={locations}
+          />
         </Form>
       </WithFormProvider>,
     );

@@ -117,18 +117,24 @@ function _getSearchObjects(
 
           const list = await Promise.all(
             (Contents || []).map(async (object) => {
+              //@ts-expect-error fix this when you are working on it
               object.IsFolder = _isFolder(object.Key);
 
+              //@ts-expect-error fix this when you are working on it
               if (!object.IsFolder) {
+                //@ts-expect-error fix this when you are working on it
                 object.SignedUrl = zenkoClient.getObjectSignedUrl(
                   bucketName,
                   object.Key,
                 );
+                //@ts-expect-error fix this when you are working on it
                 object.ObjectRetention = await zenkoClient.getObjectRetention(
                   bucketName,
                   object.Key,
                 );
+                //@ts-expect-error fix this when you are working on it
                 object.IsLegalHoldEnabled =
+                  //@ts-expect-error fix this when you are working on it
                   await zenkoClient.getObjectLegalHold(bucketName, object.Key);
               }
 
@@ -137,8 +143,10 @@ function _getSearchObjects(
           );
 
           if (marker) {
+            //@ts-expect-error fix this when you are working on it
             dispatch(appendSearchListing(nextMarker, list));
           } else {
+            //@ts-expect-error fix this when you are working on it
             dispatch(writeSearchListing(nextMarker, list));
           }
         },
@@ -173,7 +181,9 @@ function _getSearchVersions(
         async ({
           NextKeyMarker,
           NextVersionIdMarker,
+          //@ts-expect-error fix this when you are working on it
           Version,
+          //@ts-expect-error fix this when you are working on it
           DeleteMarker,
           CommonPrefixes,
           Prefix,
@@ -183,6 +193,7 @@ function _getSearchVersions(
               continueListObjectVersionsSuccess(
                 Version,
                 DeleteMarker,
+                //@ts-expect-error fix this when you are working on it
                 CommonPrefixes,
                 Prefix,
                 NextKeyMarker,
@@ -194,6 +205,7 @@ function _getSearchVersions(
             listObjectVersionsSuccess(
               Version,
               DeleteMarker,
+              //@ts-expect-error fix this when you are working on it
               CommonPrefixes,
               Prefix,
               NextKeyMarker,
@@ -311,23 +323,29 @@ export function pauseIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Pausing Async Metadata updates'));
-    return zenkoClient
-      .pauseIngestionSite(site)
-      .then(() => dispatch(waitForIngestionUpdate(site, 'disabled')))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
+    return (
+      zenkoClient
+        //@ts-expect-error fix this when you are working on it
+        .pauseIngestionSite(site)
+        .then(() => dispatch(waitForIngestionUpdate(site, 'disabled')))
+        .catch((error) => dispatch(handleAWSClientError(error)))
+        .catch((error) => dispatch(handleAWSError(error, 'byModal')))
+        .finally(() => dispatch(networkEnd()))
+    );
   };
 }
 export function resumeIngestionSite(site: Site): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Resuming Async Metadata updates'));
-    return zenkoClient
-      .resumeIngestionSite(site)
-      .then(() => dispatch(waitForIngestionUpdate(site, 'enabled')))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
+    return (
+      zenkoClient
+        //@ts-expect-error fix this when you are working on it
+        .resumeIngestionSite(site)
+        .then(() => dispatch(waitForIngestionUpdate(site, 'enabled')))
+        .catch((error) => dispatch(handleAWSClientError(error)))
+        .catch((error) => dispatch(handleAWSError(error, 'byModal')))
+        .finally(() => dispatch(networkEnd()))
+    );
   };
 }

@@ -1,17 +1,15 @@
+import { screen } from '@testing-library/react';
 import { XDM_FEATURE } from '../../../../js/config';
 import { AppConfig } from '../../../../types/entities';
-import { _AuthContext } from '../../../next-architecture/ui/AuthProvider';
-import { _ConfigContext } from '../../../next-architecture/ui/ConfigProvider';
 import { renderWithRouterMatch } from '../../../utils/testUtil';
 import ObjectLockSetting from '../ObjectLockSetting';
-import { screen } from '@testing-library/react';
-import { debug } from 'jest-preview';
 
 const config: AppConfig = {
   zenkoEndpoint: 'http://localhost:8000',
   stsEndpoint: 'http://localhost:9000',
   iamEndpoint: 'http://localhost:10000',
   managementEndpoint: 'http://localhost:11000',
+  //@ts-expect-error fix this when you are working on it
   navbarEndpoint: 'http://localhost:12000',
   navbarConfigUrl: 'http://localhost:13000',
   features: [XDM_FEATURE],

@@ -66,6 +66,7 @@ export function useWorkflowsWithSelect<T>(
     select: select,
     onError: (error) => {
       try {
+        //@ts-expect-error fix this when you are working on it
         dispatch(handleClientError(error));
       } catch (err) {
         dispatch(handleApiError(err, 'byModal'));

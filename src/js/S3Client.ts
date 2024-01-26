@@ -1,6 +1,5 @@
 import S3 from 'aws-sdk/clients/s3';
 import AWS from 'aws-sdk/lib/core';
-//@ts-expect-error - Signers module is not typed
 import OriginalV4Signer from 'aws-sdk/lib/signers/v4';
 
 import { chunkArray } from './utils';
@@ -122,7 +121,9 @@ export default class S3Client {
                 })
                 .promise(),
             ]).then(([loc, ver]) => {
+              //@ts-expect-error fix this when you are working on it
               list.Buckets[key].LocationConstraint = loc.LocationConstraint;
+              //@ts-expect-error fix this when you are working on it
               list.Buckets[key].VersionStatus = ver.Status;
             });
           }),
@@ -228,6 +229,7 @@ export default class S3Client {
   _deleteFolders(bucketName, folders) {
     return new Promise((resolve, reject) => {
       if (folders.length < 1) {
+        //@ts-expect-error fix this when you are working on it
         return resolve();
       }
 
@@ -236,50 +238,53 @@ export default class S3Client {
           return this.listObjectVersions({
             Bucket: bucketName,
             Prefix: folder.Key,
-          }).then((res) => {
-            const { Versions, DeleteMarkers, CommonPrefixes } = res;
-            const filteredVersions = Versions.filter(
-              (v) => v.Key === folder.Key,
-            );
-            const filteredDM = DeleteMarkers.filter(
-              (v) => v.Key === folder.Key,
-            );
+          }).then(
+            //@ts-expect-error fix this when you are working on it
+            (res) => {
+              const { Versions, DeleteMarkers, CommonPrefixes } = res;
+              const filteredVersions = Versions.filter(
+                (v) => v.Key === folder.Key,
+              );
+              const filteredDM = DeleteMarkers.filter(
+                (v) => v.Key === folder.Key,
+              );
 
-            // only delete "empty folders"
-            if (
-              CommonPrefixes.length > 0 ||
-              filteredVersions.length + filteredDM.length <
-                Versions.length + DeleteMarkers.length
-            ) {
-              return {
-                Errors: [
-                  Error('Cannot delete folder: The folder is not empty'),
-                ],
-              };
-            }
+              // only delete "empty folders"
+              if (
+                CommonPrefixes.length > 0 ||
+                filteredVersions.length + filteredDM.length <
+                  Versions.length + DeleteMarkers.length
+              ) {
+                return {
+                  Errors: [
+                    Error('Cannot delete folder: The folder is not empty'),
+                  ],
+                };
+              }
 
-            const versions = filteredVersions.map((v) => {
-              return {
-                Key: v.Key,
-                VersionId: v.VersionId,
-              };
-            });
-            const deleteMarkers = filteredDM.map((v) => {
-              return {
-                Key: v.Key,
-                VersionId: v.VersionId,
-              };
-            });
-            const objects = versions.concat(deleteMarkers);
-            return this.client
-              .deleteObjects({
-                Bucket: bucketName,
-                Delete: {
-                  Objects: objects,
-                },
-              })
-              .promise();
-          });
+              const versions = filteredVersions.map((v) => {
+                return {
+                  Key: v.Key,
+                  VersionId: v.VersionId,
+                };
+              });
+              const deleteMarkers = filteredDM.map((v) => {
+                return {
+                  Key: v.Key,
+                  VersionId: v.VersionId,
+                };
+              });
+              const objects = versions.concat(deleteMarkers);
+              return this.client
+                .deleteObjects({
+                  Bucket: bucketName,
+                  Delete: {
+                    Objects: objects,
+                  },
+                })
+                .promise();
+            },
+          );
         }),
       )
         .then((results) => {
@@ -289,6 +294,7 @@ export default class S3Client {
             return reject(error.Errors[0]);
           }
 
+          //@ts-expect-error fix this when you are working on it
           return resolve();
         })
         .catch((error) => reject(error));
@@ -298,6 +304,7 @@ export default class S3Client {
   deleteObjects(bucketName, objects, folders) {
     return new Promise((resolve, reject) => {
       if (objects.length < 1) {
+        //@ts-expect-error fix this when you are working on it
         return resolve();
       }
 
@@ -315,7 +322,10 @@ export default class S3Client {
             return this.client.deleteObjects(params).promise();
           }),
         )
-          .then(() => resolve())
+          .then(() => {
+            //@ts-expect-error fix this when you are working on it
+            resolve();
+          })
           .catch((error) => reject(error));
       }
 
@@ -393,7 +403,9 @@ export default class S3Client {
           return reject(error);
         }
 
+        //@ts-expect-error fix this when you are working on it
         if (data.Status) {
+          //@ts-expect-error fix this when you are working on it
           return resolve(data.Status === 'ON');
         }
 
@@ -608,15 +620,22 @@ export default class S3Client {
         .then((values) => {
           const [cors, location, acl, versioning, objectLockConfiguration] =
             values;
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.cors = cors;
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.locationConstraint = location;
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.owner = acl.Owner.DisplayName;
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.aclGrantees = acl.Grants.length;
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.public = acl.Grants.find(
             (grant) => grant.Grantee.URI === publicAclIndicator,
           );
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.versioning = versioning;
           bucketInfo.isVersioning = isVersioning(versioning);
+          //@ts-expect-error fix this when you are working on it
           bucketInfo.objectLockConfiguration = objectLockConfiguration;
           return resolve(bucketInfo);
         })

@@ -49,7 +49,9 @@ export const SourceBucketSelect = (
 
     return (
       <>
-        {props.value} (<BucketLocationNameAndType bucketName={props.value} />)
+        {props.value}
+        {/* @ts-expect-error fix this when you are working on it */}
+        (<BucketLocationNameAndType bucketName={props.value} />)
       </>
     );
   }

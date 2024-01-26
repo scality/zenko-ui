@@ -11,6 +11,7 @@ export const getInstanceStatusQuery = (
 ) => ({
   queryKey: ['instanceStatus', instanceId],
   queryFn: () => {
+    //@ts-expect-error fix this when you are working on it
     return managementClient.getLatestInstanceStatus(
       instanceId,
     ) as InstanceStatus;

@@ -15,6 +15,7 @@ const props = {
 describe('class <LocationDetailsSproxyd />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsSproxyd {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bootstrapList: [''],
@@ -30,6 +31,7 @@ describe('class <LocationDetailsSproxyd />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsSproxyd {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsSproxyd).setState({ ...refLocation }, () => {
@@ -37,6 +39,7 @@ describe('class <LocationDetailsSproxyd />', () => {
     });
   });
   it('should show sproxyd details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsSproxyd {...props} />);
     expect(component.find('input[name="proxyPath"]')).toHaveLength(1);
     expect(component.find('input[name="proxyPath"]').props().value).toEqual('');
@@ -80,6 +83,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       <LocationDetailsSproxyd
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );
@@ -102,6 +106,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       <LocationDetailsSproxyd
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );
@@ -123,6 +128,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       <LocationDetailsSproxyd
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );
@@ -144,6 +150,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       <LocationDetailsSproxyd
         {...props}
         details={location}
+        //@ts-expect-error fix this when you are working on it
         onChange={(l) => (location = l)}
       />,
     );

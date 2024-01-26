@@ -40,8 +40,8 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
-import { getClients } from '../utils/actions';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import {
   ExpirationForm,
@@ -68,7 +68,6 @@ import {
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -374,10 +373,12 @@ const CreateWorkflow = () => {
         <FormSection
           title={{ name: 'General' }}
           forceLabelWidth={convertRemToPixels(12)}
+          //@ts-expect-error fix this when you are working on it
           style={{ width: '50rem' }}
         >
           <FormGroup
             required
+            //@ts-expect-error fix this when you are working on it
             style={{ width: '50rem' }}
             direction="horizontal"
             id="type"

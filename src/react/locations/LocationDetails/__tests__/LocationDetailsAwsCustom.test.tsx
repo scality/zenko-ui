@@ -23,7 +23,9 @@ const props = {
 describe('class <LocationDetailsAwsCustom />', () => {
   it('should call onChange on mount', async () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     await reduxMountAct(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={onChangeFn} />,
     );
     expect(onChangeFn).toHaveBeenCalledWith({
@@ -35,7 +37,9 @@ describe('class <LocationDetailsAwsCustom />', () => {
     });
   });
   it('should show custom details for empty details', async () => {
+    //@ts-expect-error fix this when you are working on it
     const component = await reduxMountAct(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -57,7 +61,9 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketName: 'bn',
       bucketMatch: true,
     };
+    //@ts-expect-error fix this when you are working on it
     const component = await reduxMountAct(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -85,7 +91,9 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketMatch: false,
     };
     let location = {};
+    //@ts-expect-error fix this when you are working on it
     const component = await reduxMountAct(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
     );
     updateInputText(component, 'accessKey', 'ak');

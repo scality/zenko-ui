@@ -1,10 +1,8 @@
-// @noflow
-import type { AppState } from '../../types/state';
 import { Loader } from '@scality/core-ui';
-import React from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import type { AppState } from '../../types/state';
 export const DEFAULT_MESSAGE = 'Working...';
 const ActivityContainer = styled.div`
   position: fixed;
@@ -23,7 +21,9 @@ const ActivityContainer = styled.div`
   }
 
   svg {
-    fill: ${(props) => props.theme.text};
+    fill: ${(props) =>
+      //@ts-expect-error fix this when you are working on it
+      props.theme.text};
   }
 `;
 

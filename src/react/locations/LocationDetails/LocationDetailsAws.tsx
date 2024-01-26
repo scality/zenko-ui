@@ -25,15 +25,19 @@ export default class LocationDetailsAws extends React.Component<
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
     // XXX disable changing it if not provided
+    //@ts-expect-error fix this when you are working on it
     this.state.secretKey = '';
   }
 
   onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
-    this.setState({
-      [target.name]: value,
-    });
+    this.setState(
+      //@ts-expect-error fix this when you are working on it
+      {
+        [target.name]: value,
+      },
+    );
   };
   updateForm = () => {
     if (this.props.onChange) {
@@ -146,6 +150,7 @@ export default class LocationDetailsAws extends React.Component<
             content={
               <Checkbox
                 name="serverSideEncryption"
+                //@ts-expect-error fix this when you are working on it
                 value={this.state.serverSideEncryption}
                 checked={this.state.serverSideEncryption}
                 onChange={this.onChange}

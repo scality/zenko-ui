@@ -44,6 +44,7 @@ export default function DataBrowser() {
   const s3Client = useS3Client();
 
   if (!s3Client.config.credentials?.accessKeyId) {
+    //@ts-expect-error fix this when you are working on it
     return <Loader>Authenticating...</Loader>;
   }
 

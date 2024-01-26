@@ -122,6 +122,7 @@ function Metadata({
     type: METADATA_SYSTEM_TYPE,
   };
   const defaultValues = prepareFormData(
+    //@ts-expect-error fix this when you are working on it
     metadata && metadata.length > 0 ? metadata : [EMPTY_ITEM],
   );
   const {
@@ -162,11 +163,13 @@ function Metadata({
   });
 
   if (fields.length === 0) {
+    //@ts-expect-error fix this when you are working on it
     append([EMPTY_ITEM]);
   }
 
   const deleteEntry = () => {
     remove(0);
+    //@ts-expect-error fix this when you are working on it
     append(EMPTY_ITEM);
   };
 
@@ -283,6 +286,7 @@ function Metadata({
                     index={index}
                     items={metadataFormValues}
                     insertEntry={() =>
+                      //@ts-expect-error fix this when you are working on it
                       append({
                         key: `${AMZ_META}`,
                         value: '',

@@ -33,9 +33,12 @@ const server = setupServer(
 
 describe('ObjectList', () => {
   beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue({
-      pathname: '/buckets/test/objects',
-    });
+    jest.spyOn(router, 'useLocation').mockReturnValue(
+      //@ts-expect-error fix this when you are working on it
+      {
+        pathname: '/buckets/test/objects',
+      },
+    );
     server.listen({ onUnhandledRequest: 'error' });
   });
   afterEach(() => {
@@ -45,6 +48,7 @@ describe('ObjectList', () => {
   afterAll(() => server.close());
   it('should render ObjectList with no object', () => {
     const { component } = reduxMount(
+      //@ts-expect-error fix this when you are working on it
       <ObjectList
         objects={List()}
         bucketName={BUCKET_NAME}
@@ -57,6 +61,7 @@ describe('ObjectList', () => {
   it('should render ObjectList with objects', () => {
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -78,6 +83,7 @@ describe('ObjectList', () => {
     );
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -94,6 +100,7 @@ describe('ObjectList', () => {
     );
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -106,6 +113,7 @@ describe('ObjectList', () => {
   it('Delete button should be disable if no object has been toggled', () => {
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -123,9 +131,11 @@ describe('ObjectList', () => {
     );
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
+        //@ts-expect-error fix this when you are working on it
         toggled={List([FIRST_FORMATTED_OBJECT])}
       />,
     );
@@ -138,6 +148,7 @@ describe('ObjectList', () => {
     const toggleAllObjectsSpy = jest.spyOn(s3object, 'toggleAllObjects');
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -150,6 +161,7 @@ describe('ObjectList', () => {
   it('one object should be selected and the other one not and should render all the details of each objects', () => {
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT, SECOND_FORMATTED_OBJECT])}
         bucketName={BUCKET_NAME}
         prefixWithSlash=""
@@ -182,6 +194,7 @@ describe('ObjectList', () => {
 
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         toggled={List()}
         bucketName={BUCKET_NAME}
@@ -205,6 +218,7 @@ describe('ObjectList', () => {
 
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         toggled={List()}
         bucketName={BUCKET_NAME}
@@ -223,6 +237,7 @@ describe('ObjectList', () => {
     });
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         toggled={List()}
         bucketName={BUCKET_NAME}
@@ -249,6 +264,7 @@ describe('ObjectList', () => {
 
     const { component } = reduxMount(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         toggled={List()}
         bucketName={BUCKET_NAME}
@@ -279,6 +295,7 @@ describe('ObjectList', () => {
 
     reduxRender(
       <ObjectList
+        //@ts-expect-error fix this when you are working on it
         objects={List([FIRST_FORMATTED_OBJECT])}
         toggled={List()}
         bucketName={BUCKET_NAME}

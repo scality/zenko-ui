@@ -161,9 +161,13 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <Router history={history}>
-          <_ConfigContext.Provider value={zenkoUITestConfig}>
+          <_ConfigContext.Provider
+            //@ts-expect-error fix this when you are working on it
+            value={zenkoUITestConfig}
+          >
             <_AuthContext.Provider
               value={{
+                //@ts-expect-error fix this when you are working on it
                 user: {
                   access_token: 'token',
                   profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
@@ -171,6 +175,7 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
               }}
             >
               <_DataServiceRoleContext.Provider
+                //@ts-expect-error fix this when you are working on it
                 value={{ role, setRole: jest.fn() }}
               >
                 <_ManagementContext.Provider
@@ -405,6 +410,7 @@ export function renderWithRouterMatch(
               <Router history={history}>
                 <Route path={path}>
                   <_DataServiceRoleContext.Provider
+                    //@ts-expect-error fix this when you are working on it
                     value={{ role, setRole: jest.fn() }}
                   >
                     <_ManagementContext.Provider
@@ -465,8 +471,12 @@ export const renderWithCustomRoute = (
         <ThemeProvider theme={theme}>
           <Provider store={store}>
             <Router history={history}>
-              <_ConfigContext.Provider value={zenkoUITestConfig}>
+              <_ConfigContext.Provider
+                //@ts-expect-error fix this when you are working on it
+                value={zenkoUITestConfig}
+              >
                 <_DataServiceRoleContext.Provider
+                  //@ts-expect-error fix this when you are working on it
                   value={{ role, setRole: jest.fn() }}
                 >
                   <_ManagementContext.Provider
@@ -524,6 +534,7 @@ const DataServiceProvider = ({ children }) => {
     return getQuery(role.roleArn).queryFn();
   };
   return (
+    //@ts-expect-error fix this when you are working on it
     <_DataServiceRoleContext.Provider value={{ role, setRole, setRolePromise }}>
       {children}
     </_DataServiceRoleContext.Provider>

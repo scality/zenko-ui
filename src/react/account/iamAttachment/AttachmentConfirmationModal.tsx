@@ -234,6 +234,7 @@ function AttachmentConfirmationModal({
               disabled={loading}
             />
           )}
+          <></>
         </Stack>
       </Wrap>
     );
@@ -325,6 +326,7 @@ function AttachmentConfirmationModal({
           <p>{resourceName}</p>
         </Box>
         <Table
+          //@ts-expect-error fix this when you are working on it
           columns={columns}
           data={attachmentOperationsFlat}
           defaultSortingKey={'entityName'}
@@ -363,7 +365,6 @@ function AttachmentConfirmationModal({
           disabled={attachmentOperations.length === 0}
         />
       </Box>
-      {/*@ts-expect-error TODO core-ui typing is incorrect here.*/}
       <Modal
         close={handleClose}
         footer={modalFooter()}

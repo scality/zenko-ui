@@ -150,6 +150,7 @@ export default function LocationDetailsAwsCustom({
         {!isRingS3Reseller ? (
           <FormGroup
             content={
+              //@ts-expect-error fix this when you are working on it
               <Input
                 name="endpoint"
                 type="text"
@@ -182,6 +183,7 @@ export default function LocationDetailsAwsCustom({
                 disabled={editingExisting}
                 checked={formState.bucketMatch}
                 onChange={onFormItemChange}
+                //@ts-expect-error fix this when you are working on it
                 label={
                   isIngest ? (
                     <>

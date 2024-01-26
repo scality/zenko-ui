@@ -27,7 +27,9 @@ function _convertToState(details: LocationDetails): State {
     options: '',
   };
 
+  //@ts-expect-error fix this when you are working on it
   if (!details.endpoint) {
+    //@ts-expect-error fix this when you are working on it
     return retState;
   }
 
@@ -36,10 +38,13 @@ function _convertToState(details: LocationDetails): State {
     host: server,
     pathname: path,
     search: options,
+    //@ts-expect-error fix this when you are working on it
   } = new URL(details.endpoint);
   const [protocol, version] = scheme.slice(0, -1).split('+');
   return {
+    //@ts-expect-error fix this when you are working on it
     protocol,
+    //@ts-expect-error fix this when you are working on it
     version,
     server,
     path,
@@ -54,6 +59,7 @@ function _convertToDetails({
   path,
   options,
 }: State): LocationDetails {
+  //@ts-expect-error fix this when you are working on it
   return {
     endpoint: options
       ? `${protocol}+${version}://${server}${path}?${options}`
@@ -86,6 +92,7 @@ export default class LocationDetailsNFS extends React.Component<
     this.state = Object.assign(
       {},
       INIT_STATE,
+      //@ts-expect-error fix this when you are working on it
       _convertToState(this.props.details),
     );
   }
@@ -110,9 +117,12 @@ export default class LocationDetailsNFS extends React.Component<
         break;
     }
 
-    this.setState({
-      [target.name]: value,
-    });
+    this.setState(
+      //@ts-expect-error fix this when you are working on it
+      {
+        [target.name]: value,
+      },
+    );
   };
   onProtocolChange = (p: any) => {
     this.setState({
@@ -153,6 +163,7 @@ export default class LocationDetailsNFS extends React.Component<
           helpErrorPosition="bottom"
           content={
             <Select
+              //@ts-expect-error fix this when you are working on it
               name="protocol"
               className="nfs-protocol"
               id="nfs-protocol"

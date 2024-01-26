@@ -16,6 +16,7 @@ const props = {
 describe('class <LocationDetailsAzure />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsAzure {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -74,6 +75,7 @@ describe('class <LocationDetailsAzure />', () => {
       bucketMatch: true,
       endpoint: 'https://ep',
     };
+    //@ts-expect-error fix this when you are working on it
     setupAndRenderLocationDetails(locationDetails);
 
     //V
@@ -108,6 +110,7 @@ describe('class <LocationDetailsAzure />', () => {
         accountKey: 'key',
       },
     };
+    //@ts-expect-error fix this when you are working on it
     setupAndRenderLocationDetails(locationDetails);
 
     //V
@@ -144,6 +147,7 @@ describe('class <LocationDetailsAzure />', () => {
         tenantId: 'tenantId',
       },
     };
+    //@ts-expect-error fix this when you are working on it
     setupAndRenderLocationDetails(locationDetails);
 
     //V
@@ -178,6 +182,7 @@ describe('class <LocationDetailsAzure />', () => {
         storageSasToken: 'token',
       },
     };
+    //@ts-expect-error fix this when you are working on it
     setupAndRenderLocationDetails(locationDetails);
 
     //V

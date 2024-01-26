@@ -125,6 +125,7 @@ export default function ObjectLockSetting() {
         bucketNameParam,
         objectKey,
         versionId,
+        //@ts-expect-error fix this when you are working on it
         retentionMode,
         DateTime.fromISO(retentionUntilDate).toSeconds(),
         account?.Name,
@@ -170,7 +171,6 @@ export default function ObjectLockSetting() {
         banner={
           hasError && (
             <Banner
-              id="zk-error-banner"
               icon={<Icon name="Exclamation-triangle" />}
               title="Error"
               variant="danger"

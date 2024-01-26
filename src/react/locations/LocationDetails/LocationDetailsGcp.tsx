@@ -24,15 +24,19 @@ export default class LocationDetailsGcp extends React.Component<
   constructor(props: LocationDetailsFormProps) {
     super(props);
     this.state = Object.assign({}, INIT_STATE, this.props.details);
+    //@ts-expect-error fix this when you are working on it
     this.state.secretKey = '';
   }
 
   onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
     const value = target.type === 'checkbox' ? target.checked : target.value;
-    this.setState({
-      [target.name]: value,
-    });
+    this.setState(
+      //@ts-expect-error fix this when you are working on it
+      {
+        [target.name]: value,
+      },
+    );
   };
   updateForm = () => {
     if (this.props.onChange) {

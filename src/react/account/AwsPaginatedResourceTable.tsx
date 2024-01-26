@@ -106,7 +106,9 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   return (
     <Box height="100%">
       <Table
+        //@ts-expect-error fix this when you are working on it
         columns={columns}
+        //@ts-expect-error fix this when you are working on it
         data={data}
         defaultSortingKey={defaultSortingKey}
       >
@@ -168,6 +170,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
+          //@ts-expect-error fix this when you are working on it
           customItemKey={getItemKey}
         >
           {(Rows) => (

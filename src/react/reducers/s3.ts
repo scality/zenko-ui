@@ -30,6 +30,7 @@ import type { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
 
 const sortByDate = (objs) =>
+  //@ts-expect-error fix this when you are working on it
   objs.sort((a, b) => new Date(b.CreationDate) - new Date(a.CreationDate));
 
 const objects = (objs, prefix): Array<ObjectEntity> =>
@@ -73,17 +74,24 @@ const _getObjectLockInformation = (
 ) => {
   return {
     lockStatus:
+      //@ts-expect-error fix this when you are working on it
       o.ObjectRetention &&
+      //@ts-expect-error fix this when you are working on it
       new Date(o.ObjectRetention.RetainUntilDate) >= new Date()
         ? 'LOCKED'
-        : o.ObjectRetention &&
+        : //@ts-expect-error fix this when you are working on it
+        o.ObjectRetention &&
+          //@ts-expect-error fix this when you are working on it
           new Date(o.ObjectRetention.RetainUntilDate) < new Date()
         ? 'RELEASED'
         : 'NONE',
+    //@ts-expect-error fix this when you are working on it
     objectRetention: o.ObjectRetention
       ? {
+          //@ts-expect-error fix this when you are working on it
           mode: o.ObjectRetention.Mode,
           retainUntilDate: formatShortDate(
+            //@ts-expect-error fix this when you are working on it
             new Date(o.ObjectRetention.RetainUntilDate),
           ),
         }
@@ -155,6 +163,7 @@ const convertToFormMetadata = (info): MetadataPairs => {
     });
   }
 
+  //@ts-expect-error fix this when you are working on it
   return pairs;
 };
 
@@ -263,6 +272,7 @@ export default function s3(state: S3State = initialS3State, action: S3Action) {
         listObjectsResults: {
           list: state.listObjectsResults.list.push(
             ...folder(action.commonPrefixes, action.prefix),
+            //@ts-expect-error fix this when you are working on it
             ...versioning(action.versions, action.deleteMarkers, action.prefix),
           ),
           nextMarker: action.nextMarker,

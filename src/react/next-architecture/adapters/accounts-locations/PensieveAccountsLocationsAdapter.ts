@@ -54,6 +54,7 @@ export class PensieveAccountsLocationsAdapter
       });
   }
   listLocations(): Promise<LocationInfo[]> {
+    //@ts-expect-error fix this when you are working on it
     return (
       this.managementClient
         .getConfigurationOverlayView(this.instanceId)

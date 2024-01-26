@@ -33,7 +33,7 @@ import { parseRestore } from '../../reducers/s3';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
-export const Icon = styled.i`
+export const Icon = styled.i<{ isMargin?: boolean }>`
   margin-right: ${spacing.sp4};
   margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
 `;
@@ -290,7 +290,7 @@ export default function ObjectListTable({
         Cell({ value: size }: { value: string }) {
           return (
             <TextAligner alignment={'right'}>
-              <PrettyBytes bytes={size} />
+              <PrettyBytes bytes={Number(size)} />
             </TextAligner>
           );
         },
@@ -336,6 +336,7 @@ export default function ObjectListTable({
     useTable(
       {
         columns,
+        //@ts-expect-error fix this when you are working on it
         data: objects,
         disableSortRemove: true,
         autoResetFilters: false,
@@ -377,6 +378,7 @@ export default function ObjectListTable({
                     key={column.id}
                     {...headerProps}
                     style={{
+                      //@ts-expect-error fix this when you are working on it
                       ...column.headerStyle,
                       ...headerProps.style,
                       cursor: 'default',
@@ -397,6 +399,7 @@ export default function ObjectListTable({
               <InfiniteLoader
                 isItemLoaded={isItemLoaded}
                 itemCount={rows.length}
+                //@ts-expect-error fix this when you are working on it
                 loadMoreItems={() => {
                   if (!searchInput) {
                     return dispatch(
@@ -418,6 +421,7 @@ export default function ObjectListTable({
                         convertRemToPixels(parseFloat(spacing.sp40)) || 45
                       }
                       width={width || '100%'}
+                      //@ts-expect-error fix this when you are working on it
                       itemData={createItemData(rows, prepareRow, dispatch)}
                       onItemsRendered={onItemsRendered}
                       ref={(list) => {

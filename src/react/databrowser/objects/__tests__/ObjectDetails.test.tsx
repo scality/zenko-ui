@@ -17,6 +17,7 @@ const renderObjectDetails = (
   initialState = {},
 ) => {
   renderWithRouterMatch(
+    //@ts-expect-error fix this when you are working on it
     <ObjectDetails toggled={list} />,
     {
       route: route,

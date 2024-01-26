@@ -551,6 +551,7 @@ export const useBucketTagging = ({
       },
     };
   }
+  //@ts-expect-error fix this when you are working on it
   if (status === 'error' && error?.code === 'NoSuchTagSet') {
     return {
       tags: {

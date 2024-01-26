@@ -228,6 +228,7 @@ export function LocationsList() {
             Target Bucket <HelpLocationTargetBucket />
           </>
         ),
+        //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
@@ -295,6 +296,7 @@ export function LocationsList() {
         return (
           <ActionButtons
             rowValues={value.row.original}
+            //@ts-expect-error fix this when you are working on it
             replications={workflowsQuery.data?.replications || []}
             transitions={workflowsQuery.data?.transitions || []}
           />
@@ -357,12 +359,14 @@ export function LocationsList() {
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
           backgroundVariant="backgroundLevel3"
+          //@ts-expect-error fix this when you are working on it
           customItemKey={(index: number, data: Array<Location>) =>
             data[index].name
           }
+          //@ts-expect-error fix this when you are working on it
           key={(index: number, data: Array<Location>) => data[index].name}
         >
-          {(Rows: ComponentType) => <>{Rows}</>}
+          {(Rows) => <>{Rows}</>}
         </Table.SingleSelectableContent>
       </Table>
     </Box>

@@ -156,6 +156,7 @@ const AttachmentTabs = ({
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getListUsersQuery(accountName, IAMClient)
             }
             getEntitiesFromResult={(response) => {
@@ -197,6 +198,7 @@ const AttachmentTabs = ({
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getListGroupsQuery(accountName, IAMClient)
             }
             getEntitiesFromResult={(response) => {
@@ -240,6 +242,7 @@ const AttachmentTabs = ({
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getListGroupsQuery(accountName, IAMClient)
             }
             getEntitiesFromResult={(response) => {
@@ -254,6 +257,7 @@ const AttachmentTabs = ({
               );
             }}
             getInitiallyAttachedEntitesQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getUserListGroupsQuery(resourceId, IAMClient)
             }
             getAttachedEntitesFromResult={(response) => {
@@ -281,6 +285,7 @@ const AttachmentTabs = ({
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getListRolesQuery(accountName, IAMClient)
             }
             getEntitiesFromResult={(response) => {
@@ -329,6 +334,7 @@ const AttachmentTabs = ({
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
+              //@ts-expect-error fix this when you are working on it
               getListPoliciesQuery(accountName, IAMClient)
             }
             getEntitiesFromResult={(response) => {

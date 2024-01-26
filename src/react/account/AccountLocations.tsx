@@ -71,6 +71,7 @@ export function AccountLocations() {
             Target Bucket <HelpLocationTargetBucket />
           </>
         ),
+        //@ts-expect-error fix this when you are working on it
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
@@ -116,12 +117,14 @@ export function AccountLocations() {
         rowHeight="h40"
         separationLineVariant="backgroundLevel1"
         backgroundVariant="backgroundLevel3"
+        //@ts-expect-error fix this when you are working on it
         customItemKey={(index: number, data: Array<Location>) =>
           data[index].name
         }
+        //@ts-expect-error fix this when you are working on it
         key={(index: number, data: Array<Location>) => data[index].name}
       >
-        {(Rows: ComponentType) =>
+        {(Rows) =>
           data.length === 0 ? (
             <CenterredSecondaryText>No Locations</CenterredSecondaryText>
           ) : (

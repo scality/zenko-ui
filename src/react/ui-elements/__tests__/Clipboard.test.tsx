@@ -5,6 +5,7 @@ import React from 'react';
 import { reduxMount } from '../../utils/testUtil';
 describe('Clipboard', () => {
   const writeTextFn = jest.fn();
+  //@ts-expect-error fix this when you are working on it
   global.navigator.clipboard = {
     writeText: writeTextFn,
   };
