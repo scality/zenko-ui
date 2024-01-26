@@ -1,4 +1,9 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { ResponseResolver, rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -7,6 +12,7 @@ import {
   TEST_API_BASE_URL,
 } from '../../utils/testUtil';
 import AccountPoliciesList from '../AccountPoliciesList';
+import { debug } from 'jest-preview';
 
 const SCALITY_INTERNAL_POLICY_ID = 'LRDTTFT5ZKN6VIZCICXFSAD8I1960RBB';
 const VERSION_ID = 'v1';
@@ -115,38 +121,42 @@ afterAll(() => server.close());
 
 describe('AccountPoliciesList', () => {
   it('should render header buttons and a table with user policies', async () => {
-    try {
-      reduxRender(<AccountPoliciesList accountName="account" />);
+    reduxRender(<AccountPoliciesList accountName="account" />);
 
-      expect(screen.getAllByText('Loading policies...')).toHaveLength(2);
+    expect(screen.getAllByText('Loading policies...')).toHaveLength(2);
 
-      expect(
-        screen.getByPlaceholderText(/Search by Policy Name/i),
-      ).toBeInTheDocument();
+    await waitForElementToBeRemoved(() =>
+      screen.getAllByText('Loading policies...'),
+    );
 
-      const createButton = screen.getByText('Create Policy');
-      expect(createButton).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search/i)).toBeInTheDocument();
 
-      /**********           Number of columns :         ************/
-      expect(screen.getAllByRole('columnheader').length).toEqual(
-        nbrOfColumnsExpected,
-      );
+    const createButton = screen.getByText('Create Policy');
+    expect(createButton).toBeInTheDocument();
 
-      expect(
-        screen.getByPlaceholderText(/Search by Policy Name/i),
-      ).toBeInTheDocument();
+    /**********           Number of columns :         ************/
+    expect(screen.getAllByRole('columnheader').length).toEqual(
+      nbrOfColumnsExpected,
+    );
 
-      /**********           Table columns exist :         ************/
-      expect(screen.getByText('Policy Path')).toBeInTheDocument();
-      expect(screen.getByText('Policy Name')).toBeInTheDocument();
-      expect(screen.getByText('Last Modified')).toBeInTheDocument();
-      expect(screen.getByText('Attachments')).toBeInTheDocument();
-    } catch (error: any) {
-      console.log('error: ', error.message);
-    }
+    expect(screen.getByPlaceholderText(/Search/i)).toBeInTheDocument();
+
+    /**********           Table columns exist :         ************/
+    expect(screen.getByText('Policy Path')).toBeInTheDocument();
+    expect(screen.getByText('Policy Name')).toBeInTheDocument();
+    expect(screen.getByText('Last Modified')).toBeInTheDocument();
+    expect(screen.getByText('Attachments')).toBeInTheDocument();
+
+    debug();
   });
+
   it('should render enabled Attach button', async () => {
     reduxRender(<AccountPoliciesList accountName="account" />);
+    expect(screen.getAllByText('Loading policies...')).toHaveLength(2);
+
+    await waitForElementToBeRemoved(() =>
+      screen.getAllByText('Loading policies...'),
+    );
     //E
     await waitFor(() => screen.getAllByText(/Edit/i));
     //V
