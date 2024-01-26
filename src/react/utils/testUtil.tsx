@@ -227,9 +227,13 @@ export const reduxMount = (component: React.ReactNode, testState?: any) => {
 export function mockOffsetSize(width: number, height: number) {
   const originalFunction = window.getComputedStyle;
   const spyGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
-  spyGetComputedStyle.mockImplementation((elt) => {
+  spyGetComputedStyle.mockImplementation((elt, _) => {
     const originalStyle = originalFunction(elt);
     originalStyle.fontSize = '14px';
+    originalStyle.paddingLeft = '0px';
+    originalStyle.paddingRight = '0px';
+    originalStyle.paddingTop = '0px';
+    originalStyle.paddingBottom = '0px';
     return originalStyle;
   });
 
