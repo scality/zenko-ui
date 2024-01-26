@@ -7,7 +7,13 @@ import {
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -143,6 +149,11 @@ describe('ExpirationForm', () => {
     // Select the Source Bucket.
     selectClick(selectors.bucketSelect());
 
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/bucket1 \(loading location\)/i),
+      ).not.toBeInTheDocument(),
+    );
     userEvent.click(selectors.versionedBucketOption());
     const expireCurrentToggleState = result.container.querySelector(
       '[for="expireCurrentVersions"]',
@@ -173,6 +184,8 @@ describe('ExpirationForm', () => {
       expireIncompleteMultipartToggleState.querySelector(
         'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
       );
+
+    debug();
     await waitFor(() => expect(expirePrevious).not.toBeDisabled());
     expect(expirePrevious).not.toBeDisabled();
     expect(removeExpired).toBeDisabled();
