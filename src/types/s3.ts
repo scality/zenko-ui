@@ -115,6 +115,7 @@ export type MetadataPairs = Record<string, string>;
 export type MetadataItem = {
   key: string;
   value: string;
+  //@ts-expect-error fix this when you are working on it
   type: '' | METADATA_USER_TYPE | METADATA_SYSTEM_TYPE;
 };
 export type MetadataItems = Array<MetadataItem>;

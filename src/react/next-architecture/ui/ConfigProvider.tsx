@@ -23,7 +23,7 @@ type LinkOpener = {
   openLink: (url: string) => void;
 };
 
-export function useLinkOpener(): LinkOpener {
+export function useLinkOpener() {
   return configGlobal.hooks.useLinkOpener();
 }
 
