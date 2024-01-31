@@ -38,6 +38,7 @@ const Row = ({ data: { rows, prepareRow }, index, style }: RowProps) => {
   prepareRow(row);
   return (
     <T.Row
+      //@ts-expect-error fix this when you are working on it
       {...row.getRowProps({
         style,
       })}

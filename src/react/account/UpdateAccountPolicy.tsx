@@ -120,6 +120,7 @@ const UpdateAccountPolicy = () => {
 
   return (
     <CommonPolicyLayout
+      //@ts-expect-error fix this when you are working on it
       control={control}
       isDirty={isDirty}
       isValid={isValid}

@@ -198,22 +198,31 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Lock </T.Key>
                 <T.GroupValues>
                   <div>
-                    {objectMetadata.lockStatus === 'LOCKED' && (
-                      <>
-                        Locked <Icon name="Lock" /> (
-                        {objectMetadata.objectRetention.mode.toLowerCase()})
-                        <br />
-                        until {objectMetadata.objectRetention.retainUntilDate}
-                      </>
-                    )}
-                    {objectMetadata.lockStatus === 'RELEASED' && (
-                      <>
-                        Released <Icon name="Lock-open" />
-                        <br />
-                        since {objectMetadata.objectRetention.retainUntilDate}
-                      </>
-                    )}
-                    {objectMetadata.lockStatus === 'NONE' && 'No retention'}
+                    {
+                      //@ts-expect-error fix this when you are working on it
+                      objectMetadata.lockStatus === 'LOCKED' && (
+                        <>
+                          Locked <Icon name="Lock" /> (
+                          {objectMetadata.objectRetention.mode.toLowerCase()})
+                          <br />
+                          until {objectMetadata.objectRetention.retainUntilDate}
+                        </>
+                      )
+                    }
+                    {
+                      //@ts-expect-error fix this when you are working on it
+                      objectMetadata.lockStatus === 'RELEASED' && (
+                        <>
+                          Released <Icon name="Lock-open" />
+                          <br />
+                          since {objectMetadata.objectRetention.retainUntilDate}
+                        </>
+                      )
+                    }
+                    {
+                      //@ts-expect-error fix this when you are working on it
+                      objectMetadata.lockStatus === 'NONE' && 'No retention'
+                    }
                   </div>
                   {isObjectLockEnabled && (
                     <Button

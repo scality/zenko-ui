@@ -67,6 +67,7 @@ export const listObjectsResponse = (
   prefixWithSlash: string,
 ): ListObjectsResponse => ({
   CommonPrefixes: [commonPrefix],
+  //@ts-expect-error fix this when you are working on it
   Contents: [s3Object],
   ContinuationToken: '',
   Delimiter: '',

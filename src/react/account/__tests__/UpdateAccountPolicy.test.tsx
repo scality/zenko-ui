@@ -6,6 +6,7 @@ import UpdateAccountPolicy from '../UpdateAccountPolicy';
 
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    //@ts-expect-error fix this when you are working on it
     const urlParams = new URLSearchParams(req.body);
     if (urlParams.get('Action') === 'ListPolicyVersions') {
       return res(

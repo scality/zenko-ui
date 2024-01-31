@@ -52,7 +52,9 @@ describe.skip('zenko actions', () => {
   const syncTests = [
     {
       it: 'should return SET_ZENKO_CLIENT action',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.setZenkoClient(mock),
+      //@ts-expect-error fix this when you are working on it
       expectedActions: [dispatchAction.SET_ZENKO_CLIENT_ACTION(mock)],
     },
     {
@@ -62,16 +64,20 @@ describe.skip('zenko actions', () => {
     },
     {
       it: 'should return ZENKO_HANDLE_ERROR action',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, null, null),
       expectedActions: [
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
       ],
     },
     {
       it: 'should return ZENKO_HANDLE_ERROR action with right target',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, 'target', null),
       expectedActions: [
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(
+          //@ts-expect-error fix this when you are working on it
           AWS_CLIENT_ERROR,
           'target',
           null,
@@ -80,9 +86,11 @@ describe.skip('zenko actions', () => {
     },
     {
       it: 'should return ZENKO_HANDLE_ERROR action with right type',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.zenkoHandleError(AWS_CLIENT_ERROR, null, 'type'),
       expectedActions: [
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(
+          //@ts-expect-error fix this when you are working on it
           AWS_CLIENT_ERROR,
           null,
           'type',
@@ -105,8 +113,10 @@ describe.skip('zenko actions', () => {
     },
     {
       it: 'should return ZENKO_CLIENT_WRITE_SEARCHLIST action with right list',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.writeSearchListing(null, LIST),
       expectedActions: [
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.ZENKO_CLIENT_WRITE_SEARCH_LIST_ACTION(null, LIST),
       ],
     },
@@ -126,16 +136,20 @@ describe.skip('zenko actions', () => {
     },
     {
       it: 'should return ZENKO_CLIENT_APPEND_SEARCH_LIST action with right list',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.appendSearchListing(null, LIST),
       expectedActions: [
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.ZENKO_CLIENT_APPEND_SEARCH_LIST_ACTION(null, LIST),
       ],
     },
   ];
+  //@ts-expect-error fix this when you are working on it
   syncTests.forEach(testActionFunction);
   const asyncTests = [
     {
       it: 'newSearchListing: should return expected actions',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.newSearchListing(BUCKET_NAME, QUERYSTRING),
       storeState: initState,
       expectedActions: [
@@ -149,12 +163,14 @@ describe.skip('zenko actions', () => {
     },
     {
       it: 'newSearchListing: should return expected actions when an error occurs',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.newSearchListing(BUCKET_NAME, QUERYSTRING),
       storeState: errorZenkoState(),
       expectedActions: [
         startingSearchNetworkAction,
         dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
         searchingObjectsNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
         dispatchAction.NETWORK_END_ACTION,
         dispatchAction.NETWORK_END_ACTION,
@@ -181,6 +197,7 @@ describe.skip('zenko actions', () => {
         continueSearchNetworkAction,
         dispatchAction.ZENKO_CLEAR_ERROR_ACTION(),
         searchingNextObjectsNetworkAction,
+        //@ts-expect-error fix this when you are working on it
         dispatchAction.ZENKO_HANDLE_ERROR_ACTION(AWS_CLIENT_ERROR, null, null),
         dispatchAction.NETWORK_END_ACTION,
         dispatchAction.NETWORK_END_ACTION,

@@ -1,13 +1,8 @@
-import router, { Redirect } from 'react-router-dom';
-import BucketDetails from '../BucketDetails';
-import Header from '../../../ui-elements/EntityHeader';
-import BucketList from '../BucketList';
-import Buckets from '../Buckets';
 import { List } from 'immutable';
-import { MemoryRouter } from 'react-router-dom';
+import router, { MemoryRouter, Redirect } from 'react-router-dom';
 import { ACCOUNT } from '../../../actions/__tests__/utils/testUtil';
-import React from 'react';
 import { reduxMount } from '../../../utils/testUtil';
+import Buckets from '../Buckets';
 
 describe.skip('Buckets', () => {
   const buckets = [
@@ -23,9 +18,12 @@ describe.skip('Buckets', () => {
     },
   ];
   beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue({
-      pathname: `/accounts/${ACCOUNT}/buckets`,
-    });
+    jest.spyOn(router, 'useLocation').mockReturnValue(
+      //@ts-expect-error fix this when you are working on it
+      {
+        pathname: `/accounts/${ACCOUNT}/buckets`,
+      },
+    );
   });
   it('should display EmptyStateContainer if no bucket is present', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({

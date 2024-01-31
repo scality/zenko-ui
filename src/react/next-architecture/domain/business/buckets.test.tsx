@@ -111,6 +111,7 @@ describe('Buckets domain', () => {
         wrapper: Wrapper,
       });
     await waitForWrapperToBeReady();
+    //@ts-expect-error fix this when you are working on it
     const { result, waitFor, waitForValueToBeUpdated } = renderAdditionalHook(
       'listBuckets',
       () => useListBucketsForCurrentAccount({ metricsAdapter }),

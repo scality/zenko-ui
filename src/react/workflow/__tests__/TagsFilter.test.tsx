@@ -21,9 +21,11 @@ describe('TagsFilter', () => {
             return (
               <TagsFilter
                 handleChange={onChange}
+                //@ts-expect-error fix this when you are working on it
                 control={control}
                 fieldName="filter.objectTags"
                 tags={value}
+                //@ts-expect-error fix this when you are working on it
                 watch={watch}
               />
             );

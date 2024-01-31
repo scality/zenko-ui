@@ -332,6 +332,7 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
           {((existingReplicationStream && isCreateMode) ||
             (methods.formState.isDirty && props.isPrefixMandatory)) && (
             <Banner
+              //@ts-expect-error fix this when you are working on it
               variant="infoPrimary"
               icon={<Icon name="Info-circle" size="2x" color="infoPrimary" />}
             >
@@ -533,6 +534,7 @@ const PreferredReadLocationSelector = (
       control={props.control}
       name={props.name}
       render={({ field }) => (
+        //@ts-expect-error fix this when you are working on it
         <RenderPreferredReadLocation field={field} {...props} />
       )}
     />

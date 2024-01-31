@@ -106,6 +106,7 @@ const MiddleEllipsis = ({
   const content = () => (
     <Tooltip
       overlay={text}
+      //@ts-expect-error fix this when you are working on it
       placement={tooltipPlacement}
       overlayStyle={{
         width: tooltipWidth,

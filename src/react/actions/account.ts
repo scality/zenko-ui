@@ -83,6 +83,7 @@ export function listAccountAccessKeys(
     return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
       .then((iamClient) => iamClient.listOwnAccessKeys())
       .then((resp) =>
+        //@ts-expect-error fix this when you are working on it
         dispatch(listAccountAccessKeySuccess(resp.AccessKeyMetadata)),
       )
       .catch((error) => {
@@ -102,12 +103,15 @@ export function deleteAccountAccessKey(
 ): ThunkStatePromisedAction {
   return (dispatch: DispatchFunction, getState: GetStateFunction) => {
     dispatch(networkStart('Deleting Root user Access keys'));
-    return getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
-      .then((iamClient) => iamClient.deleteAccessKey(accessKey))
-      .then(() => dispatch(listAccountAccessKeys(roleArn)))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byModal')))
-      .finally(() => dispatch(networkEnd()));
+    return (
+      getAssumeRoleWithWebIdentityIAM(getState(), roleArn)
+        //@ts-expect-error fix this when you are working on it
+        .then((iamClient) => iamClient.deleteAccessKey(accessKey))
+        .then(() => dispatch(listAccountAccessKeys(roleArn)))
+        .catch((error) => dispatch(handleAWSClientError(error)))
+        .catch((error) => dispatch(handleAWSError(error, 'byModal')))
+        .finally(() => dispatch(networkEnd()))
+    );
   };
 }
 export function createAccountAccessKey(

@@ -19,7 +19,7 @@ import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
 import type { ObjectEntity } from '../../../types/s3';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import type { DispatchAPI } from 'redux';
+import type { Dispatch } from 'redux';
 import { List } from 'immutable';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { PrettyBytes, Icon } from '@scality/core-ui';
@@ -298,7 +298,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showObjectDelete,
   );
-  const dispatch: DispatchAPI<Action> = useDispatch();
+  const dispatch: Dispatch<Action> = useDispatch();
 
   const [toggledFiles, setToggledFiles] = useState([...toggled]);
 
@@ -434,7 +434,6 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
 
   return (
     <Modal
-      id="object-delete"
       close={cancel}
       footer={
         <Wrap>
@@ -493,11 +492,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
       </Files>
       <Box mb={spacing.sp12}>Total: {PrettyBytes({ bytes: totalSize })}</Box>
       {toggledFiles.length > 0 && notificationText && (
-        <Banner
-          variant="base"
-          id="notification"
-          icon={<Icon name="Info-circle" />}
-        >
+        <Banner variant="base" icon={<Icon name="Info-circle" />}>
           <span>{notificationText}</span>
         </Banner>
       )}

@@ -1,4 +1,3 @@
-import { $ReadOnly } from 'utility-types';
 import type { ConfigurationOverlay, PerLocationMap } from './config';
 export type CrrCounter = {
   readonly count: number;
@@ -17,19 +16,19 @@ export type CrrStatUnitProps = {
   pending: CrrCounter;
 };
 export type CrrStatUnit = CrrStatUnitProps & {
-  byLocation: $ReadOnly<PerLocationMap<CrrStatUnitProps>>;
+  readonly byLocation: PerLocationMap<CrrStatUnitProps>;
 };
 export type EnabledState = 'enabled' | 'disabled';
-export type WorkflowScheduleUnitState = $ReadOnly<PerLocationMap<EnabledState>>;
+export type WorkflowScheduleUnitState = PerLocationMap<EnabledState>;
 export type WorkflowScheduleUnit = {
   readonly states: WorkflowScheduleUnitState;
-  readonly schedules: $ReadOnly<PerLocationMap<string>>;
+  readonly schedules: PerLocationMap<string>;
 };
 export type CrrScheduleUnit = WorkflowScheduleUnit;
 export type IngestScheduleUnit = WorkflowScheduleUnit;
 export type DataManagedUnit = {
   total: VersionCounter;
-  byLocation: $ReadOnly<PerLocationMap<VersionCounter>>;
+  readonly byLocation: PerLocationMap<VersionCounter>;
 };
 export type Bucket = {
   readonly name: string;

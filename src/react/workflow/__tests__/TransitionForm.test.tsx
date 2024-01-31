@@ -46,6 +46,7 @@ const triggerDelayDays = '2';
 
 const hyperdriveLocationName = 'hd-location';
 const locations: Locations = {
+  //@ts-expect-error fix this when you are working on it
   [locationName]: {
     details: {
       accessKey: 'AMFFHQC1TTUIQ9K6B7LO',
@@ -65,6 +66,7 @@ const locations: Locations = {
       bootstrapList: [
         'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
       ],
+      //@ts-expect-error fix this when you are working on it
       repoId: null,
     },
     locationType: 'location-scality-hdclient-v2',
@@ -121,7 +123,10 @@ describe('TransitionForm', () => {
           <FormSection title={{ name: 'General' }}>
             <GeneralTransitionGroup />
           </FormSection>
-          <TransitionForm locations={locations} />
+          <TransitionForm
+            //@ts-expect-error fix this when you are working on it
+            locations={locations}
+          />
         </Form>
       </WithFormProvider>,
     );

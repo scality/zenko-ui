@@ -322,6 +322,7 @@ function Routes() {
           sidebarNavigation={
             hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
           }
+          //@ts-expect-error fix this when you are working on it
           style={{ color: theme.textPrimary }}
         >
           <RemoveTrailingSlash />

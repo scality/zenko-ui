@@ -12,6 +12,7 @@ const props = {
 describe('class <LocationDetailsAws />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsAws {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       serverSideEncryption: false,
@@ -31,6 +32,7 @@ describe('class <LocationDetailsAws />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAws {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsAws).setState({ ...refLocation }, () => {
@@ -38,6 +40,7 @@ describe('class <LocationDetailsAws />', () => {
     });
   });
   it('should show aws details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsAws {...props} />);
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
     expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -63,6 +66,7 @@ describe('class <LocationDetailsAws />', () => {
       serverSideEncryption: true,
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAws {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -93,6 +97,7 @@ describe('class <LocationDetailsAws />', () => {
     };
     let location = {};
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsAws {...props} onChange={(l) => (location = l)} />,
     );
     checkBox(component, 'serverSideEncryption', true);

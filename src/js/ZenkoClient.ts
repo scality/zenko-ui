@@ -41,6 +41,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       accessKeyId: accessKey,
       secretAccessKey: secretKey,
       sessionToken,
+      //@ts-expect-error fix this when you are working on it
       apiVersion: '2018-07-11-xml',
       endpoint: this.endpoint,
       // sslEnabled: false,
@@ -52,6 +53,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       accessKeyId: accessKey,
       secretAccessKey: secretKey,
       sessionToken,
+      //@ts-expect-error fix this when you are working on it
       apiVersion: '2018-07-08-json',
       endpoint: this.endpoint,
       s3ForcePathStyle: true,
@@ -127,6 +129,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
         Bucket,
         Query,
         KeyMarker,
+        //@ts-expect-error fix this when you are working on it
         VersionIdMarker: parseInt(VersionIdMarker || '0', 10),
         MaxKeys: 100,
       })
@@ -138,6 +141,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
       Site: site,
     };
 
+    //@ts-expect-error fix this when you are working on it
     return this._jsonClient.pauseSite(params).promise();
   }
 
@@ -145,6 +149,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     const params = {
       Site: site,
     };
+    //@ts-expect-error fix this when you are working on it
     return this._jsonClient.pauseIngestionSite(params).promise();
   }
 
@@ -152,6 +157,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     const params = {
       Site: site,
     };
+    //@ts-expect-error fix this when you are working on it
     return this._jsonClient.resumeSite(params).promise();
   }
 
@@ -159,6 +165,7 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     const params = {
       Site: site,
     };
+    //@ts-expect-error fix this when you are working on it
     return this._jsonClient.resumeIngestionSite(params).promise();
   }
 

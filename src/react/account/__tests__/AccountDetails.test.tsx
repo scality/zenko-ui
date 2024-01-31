@@ -14,6 +14,7 @@ const account1 = {
 
 describe('AccountDetails', () => {
   beforeEach(() => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
@@ -40,6 +41,7 @@ describe('AccountDetails', () => {
   });
 
   it('should render AccountDetails component without access keys for non storage manager users', () => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
@@ -52,6 +54,7 @@ describe('AccountDetails', () => {
       };
     });
     const component = renderWithRouterMatch(
+      //@ts-expect-error fix this when you are working on it
       <AccountDetails account={account1} />,
       {
         route: '/accounts/bart',
@@ -67,6 +70,7 @@ describe('AccountDetails', () => {
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
     const component = renderWithRouterMatch(
+      //@ts-expect-error fix this when you are working on it
       <AccountDetails account={account1} />,
       {
         route: '/accounts/bart',

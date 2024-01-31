@@ -61,6 +61,7 @@ const CreateAccountPolicy = () => {
       },
       onError: (error) => {
         try {
+          //@ts-expect-error fix this when you are working on it
           dispatch(handleClientError(error));
         } catch (err) {
           dispatch(handleApiError(err as ApiError, 'byModal'));
@@ -82,6 +83,7 @@ const CreateAccountPolicy = () => {
 
   return (
     <CommonPolicyLayout
+      //@ts-expect-error fix this when you are working on it
       control={control}
       handleCancel={handleCancel}
       isDirty={isDirty}

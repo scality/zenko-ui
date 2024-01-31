@@ -257,6 +257,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
             direction="horizontal"
             error={errors[`${prefix}currentVersionTriggerDelayDays`]?.message}
             helpErrorPosition="bottom"
+            //@ts-expect-error fix this when you are working on it
             label={
               <>
                 Expire <Text isEmphazed>Current</Text> version of objects
@@ -358,6 +359,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
             direction="horizontal"
             error={errors[`${prefix}previousVersionTriggerDelayDays`]?.message}
             helpErrorPosition="bottom"
+            //@ts-expect-error fix this when you are working on it
             label={
               <>
                 Expire <Text isEmphazed>Previous</Text> version of objects
@@ -405,6 +407,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                   {!isSourceBucketVersionned ? (
                     <IconHelp
                       tooltipMessage="This action is disabled when source bucket is not versioned"
+                      //@ts-expect-error fix this when you are working on it
                       variant="outline"
                       overlayStyle={{ width: '13rem' }}
                     />
@@ -479,6 +482,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
               !isSourceBucketVersionned
             }
             content={
+              //@ts-expect-error fix this when you are working on it
               <Stack>
                 <Box
                   display="flex"
@@ -596,6 +600,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                   {!isSourceBucketVersionned ? (
                     <IconHelp
                       tooltipMessage="This action is disabled when source bucket is not versioned"
+                      //@ts-expect-error fix this when you are working on it
                       variant="outline"
                       overlayStyle={{ width: '13rem' }}
                     />

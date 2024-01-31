@@ -33,9 +33,11 @@ const SCALITY_DATA_CONSUMER_POLICY_ID = '3I17NWO7MOCSNZ1J4V2JJFUXW18UOSJF';
 const nbrOfColumnsExpected = 5;
 
 const mockIAMApi: ResponseResolver = (req, res, ctx) => {
+  //@ts-expect-error fix this when you are working on it
   const params = new URLSearchParams(req.body);
   if (params.get('Action') === 'ListPolicyVersions') {
     return res(
+      //@ts-expect-error fix this when you are working on it
       ctx.xml(`
 <ListPolicyVersionsResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
 <ListPolicyVersionsResult>
@@ -56,6 +58,7 @@ const mockIAMApi: ResponseResolver = (req, res, ctx) => {
     );
   }
   return res(
+    //@ts-expect-error fix this when you are working on it
     ctx.xml(`
 <ListPoliciesResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
   <ListPoliciesResult>
@@ -201,6 +204,7 @@ describe('AccountPoliciesList', () => {
     const mockedDeletePolicyInterceptor = jest.fn();
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'DeletePolicy') {
           const policyARN = params.get('PolicyArn');
@@ -253,6 +257,7 @@ describe('AccountPoliciesList', () => {
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'ListPolicyVersions') {
           return res(
@@ -298,6 +303,7 @@ describe('AccountPoliciesList', () => {
     const mockedDeletePolicyInterceptor = jest.fn();
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'DeletePolicy') {
           const policyARN = params.get('PolicyArn');
@@ -374,6 +380,7 @@ describe('AccountPoliciesList', () => {
     const mockedDeletePolicyVersionInterceptor = jest.fn();
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+        //@ts-expect-error fix this when you are working on it
         const params = new URLSearchParams(req.body);
         if (params.get('Action') === 'DeletePolicyVersion') {
           mockedDeletePolicyVersionInterceptor();

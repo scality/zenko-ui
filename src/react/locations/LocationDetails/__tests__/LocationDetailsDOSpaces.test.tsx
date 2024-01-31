@@ -8,6 +8,7 @@ const props = {
 describe('class <LocationDetailsDOSpaces />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsDOSpaces {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -27,6 +28,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsDOSpaces {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsDOSpaces).setState({ ...refLocation }, () => {
@@ -34,6 +36,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
     });
   });
   it('should show spaces details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsDOSpaces {...props} />);
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
     expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -55,6 +58,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
       bucketMatch: true,
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsDOSpaces {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -83,6 +87,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
     };
     let location = {};
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsDOSpaces {...props} onChange={(l) => (location = l)} />,
     );
     updateInputText(component, 'accessKey', 'ak');

@@ -120,7 +120,9 @@ function BucketCreate() {
       (l) => l.name === locationName,
     );
     return (
+      //@ts-expect-error fix this when you are working on it
       location?.type === 'location-azure-v1' ||
+      //@ts-expect-error fix this when you are working on it
       location?.type === 'location-gcp-v1'
     );
   };
@@ -169,7 +171,9 @@ function BucketCreate() {
 
     if (
       isAsyncNotification &&
+      //@ts-expect-error fix this when you are working on it
       locations &&
+      //@ts-expect-error fix this when you are working on it
       isIngestLocation(locations[locationName], capabilities)
     ) {
       lName = `${locationName}:ingest`;
@@ -266,7 +270,6 @@ function BucketCreate() {
         banner={
           (errorMessage || error) && (
             <Banner
-              id="zk-error-banner"
               variant="danger"
               icon={<Icon name="Exclamation-triangle" />}
               title={'Error'}

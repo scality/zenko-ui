@@ -18,6 +18,7 @@ import CreateAccountPolicy from './CreateAccountPolicy';
 import Attachments from './iamAttachment/Attachments';
 import { AppContainer } from '@scality/core-ui';
 import { AccountHead } from './AccountHead';
+import { Account } from '../../types/account';
 
 function AccountContent() {
   const { path } = useRouteMatch();
@@ -67,7 +68,8 @@ function AccountContent() {
             <AccountHead accountName={accountNameParam} />
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel1">
-            <AccountDetails account={account} />
+            {/* fix this when you are working on it */}
+            <AccountDetails account={account as unknown as Account} />
           </AppContainer.MainContent>
         </Route>
       </Switch>

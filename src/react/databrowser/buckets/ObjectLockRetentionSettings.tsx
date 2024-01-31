@@ -195,6 +195,7 @@ export default function ObjectLockRetentionSettings({
             direction="horizontal"
             helpErrorPosition="bottom"
             help="Must be a positive whole number."
+            //@ts-expect-error fix this when you are working on it
             error={errors.retentionPeriod?.message}
             disabled={!isDefaultRetentionEnabled}
             content={

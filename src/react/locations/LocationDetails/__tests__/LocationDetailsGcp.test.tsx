@@ -9,6 +9,7 @@ const props = {
 describe('class <LocationDetailsGcp />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsGcp {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -28,6 +29,7 @@ describe('class <LocationDetailsGcp />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsGcp {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsGcp).setState({ ...refLocation }, () => {
@@ -35,6 +37,7 @@ describe('class <LocationDetailsGcp />', () => {
     });
   });
   it('should show gcp details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsGcp {...props} />);
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
     expect(component.find('input[name="accessKey"]').props().value).toEqual('');
@@ -58,6 +61,7 @@ describe('class <LocationDetailsGcp />', () => {
       bucketMatch: true,
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsGcp {...props} details={locationDetails} />,
     );
     expect(component.find('input[name="accessKey"]')).toHaveLength(1);
@@ -86,6 +90,7 @@ describe('class <LocationDetailsGcp />', () => {
     };
     let location = {};
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsGcp {...props} onChange={(l) => (location = l)} />,
     );
 

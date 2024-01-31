@@ -287,7 +287,6 @@ export const useAccountLatestUsedCapacity = ({
     return {
       usedCapacity: {
         status: 'success',
-        //@ts-expect-error queryCache.data can't be undefined here
         value: queryCache.data[accountCanonicalId],
       },
     };

@@ -10,6 +10,7 @@ const props = {
 describe('class <LocationDetailsNFS />', () => {
   it('should correctly translate location details to state values', () => {
     const component = shallow(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsNFS
         {...props}
         details={{
@@ -28,6 +29,7 @@ describe('class <LocationDetailsNFS />', () => {
   it('should correctly translate state values to location details', () => {
     const onChangeFn = jest.fn();
     const component = shallow(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsNFS {...props} onChange={onChangeFn} />,
     );
     return new Promise((done) => {
@@ -43,6 +45,7 @@ describe('class <LocationDetailsNFS />', () => {
           expect(onChangeFn).toHaveBeenCalledWith({
             endpoint: 'udp+v4://ep/export/test/path?soft&sync',
           });
+          //@ts-expect-error fix this when you are working on it
           done();
         },
       );
@@ -50,6 +53,7 @@ describe('class <LocationDetailsNFS />', () => {
   });
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsNFS {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       endpoint: 'tcp+v3://',
@@ -68,6 +72,7 @@ describe('class <LocationDetailsNFS />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsNFS {...props} onChange={onChangeFn} />,
     );
     component.find(LocationDetailsNFS).setState({ ...refState }, () => {
@@ -75,6 +80,7 @@ describe('class <LocationDetailsNFS />', () => {
     });
   });
   it('should show NFS details for empty details', () => {
+    //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsNFS {...props} />);
     expect(component.find('SelectBox#nfs-protocol')).toHaveLength(1);
     expect(component.find('SelectBox#nfs-protocol').text()).toEqual('TCP');
@@ -111,6 +117,7 @@ describe('class <LocationDetailsNFS />', () => {
       endpoint: 'tcp+v3://ep/export/path?hard&async',
     };
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsNFS
         {...props}
         editingExisting={true}
@@ -151,12 +158,15 @@ describe('class <LocationDetailsNFS />', () => {
     };
     let location = {};
     const component = mount(
+      //@ts-expect-error fix this when you are working on it
       <LocationDetailsNFS {...props} onChange={(l) => (location = l)} />,
     );
     component.find('Select.nfs-protocol').props().onChange({
+      //@ts-expect-error fix this when you are working on it
       value: 'udp',
     });
     component.find('Select.nfs-version').props().onChange({
+      //@ts-expect-error fix this when you are working on it
       value: 'v4',
     });
     updateInputText(component, 'server', 'ep');

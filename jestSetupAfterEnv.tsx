@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { queryClient } from './src/react/utils/testUtil';
 
 window.fetch = (url, ...rest) =>
+  //@ts-expect-error fix this when you are working on it
   fetch(/^https?:/.test(url) ? url : new URL(url, 'http://localhost'), ...rest);
 
 beforeEach(() => {

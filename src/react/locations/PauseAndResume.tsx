@@ -37,10 +37,12 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   });
 
   const pauseIngestionSiteMutation = useMutation((locationName: string) =>
+    //@ts-expect-error fix this when you are working on it
     zenkoClient.pauseIngestionSite(locationName),
   );
 
   const resumeIngestionSiteMutation = useMutation((locationName: string) =>
+    //@ts-expect-error fix this when you are working on it
     zenkoClient.resumeIngestionSite(locationName),
   );
 
@@ -92,7 +94,11 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   if (status === 'loading' || status === 'idle') {
     return (
       <Box display="flex">
-        <Loader style={{ paddingRight: spacing.r8 }} /> Loading
+        <Loader
+          //@ts-expect-error fix this when you are working on it
+          style={{ paddingRight: spacing.r8 }}
+        />
+        Loading
       </Box>
     );
   }

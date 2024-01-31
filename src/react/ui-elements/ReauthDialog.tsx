@@ -29,7 +29,6 @@ const ReauthDialog = () => {
 
   return (
     <Modal
-      id="reauth-dialog-modal"
       close={() => {
         window.location.reload();
       }}

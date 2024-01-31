@@ -14,6 +14,7 @@ type Props = {
 
 const NotFound = () => (
   <Warning
+    //@ts-expect-error fix this when you are working on it
     iconClass="fas fa-3x fa-exclamation-triangle"
     title="Account not found."
   />
@@ -37,6 +38,7 @@ function AccountDetails({ account }: Props) {
   return (
     <CustomTabs
       {...customTabStyle}
+      //@ts-expect-error fix this when you are working on it
       style={{
         backgroundColor: theme.backgroundLevel2,
       }}

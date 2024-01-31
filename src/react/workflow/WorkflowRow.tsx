@@ -3,7 +3,7 @@ import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { useHistory } from 'react-router-dom';
-import type { DispatchAPI } from 'redux';
+import type { Dispatch } from 'redux';
 
 import * as T from '../ui-elements/Table';
 import type { Action } from '../../types/actions';
@@ -21,7 +21,7 @@ type Data = {
   rows: RowsType;
   prepareRow: PrepareRow;
   selectedWorkflowId: string | null | undefined;
-  dispatch: DispatchAPI<Action>;
+  dispatch: Dispatch<Action>;
 };
 type RowProps = {
   data: Data;
@@ -36,7 +36,7 @@ export const createItemData = memoize(
     rows: RowsType,
     prepareRow: PrepareRow,
     selectedWorkflowId: string | null | undefined,
-    dispatch: DispatchAPI<Action>,
+    dispatch: Dispatch<Action>,
   ): Data => ({
     rows,
     prepareRow,
@@ -65,6 +65,7 @@ const Row = ({
           history.push(`./${workflowId}`);
         }
       }}
+      //@ts-expect-error fix this when you are working on it
       {...row.getRowProps({
         style,
       })}

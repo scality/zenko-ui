@@ -135,7 +135,6 @@ function EndpointCreate() {
       banner={
         createEndpointMutation.isError && (
           <Banner
-            id="zk-error-banner"
             icon={<Icon name="Exclamation-triangle" />}
             title="Error"
             variant="danger"

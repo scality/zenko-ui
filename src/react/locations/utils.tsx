@@ -57,6 +57,7 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
     objectId: locationState.objectId,
     isTransient: options.isTransient,
     isBuiltin: options.isBuiltin,
+    //@ts-expect-error fix this when you are working on it
     isCold: !!options.isCold,
     sizeLimitGB:
       options.isSizeLimitChecked && options.sizeLimitGB
@@ -64,6 +65,7 @@ function convertToLocation(locationState: LocationForm): LegacyLocation {
         : 0,
     legacyAwsBehavior: locationState.options.legacyAwsBehavior,
   };
+  //@ts-expect-error fix this when you are working on it
   return ret;
 }
 
@@ -82,6 +84,7 @@ function convertToForm(locationProps: LocationInfo): LocationForm {
       legacyAwsBehavior: false,
     },
   };
+  //@ts-expect-error fix this when you are working on it
   return ret;
 }
 
@@ -104,7 +107,9 @@ function canDeleteLocation(
   }
 
   const checkStreamLocations = replicationStreams.every((r) => {
+    //@ts-expect-error fix this when you are working on it
     if (r.destination.location) {
+      //@ts-expect-error fix this when you are working on it
       return r.destination.location !== location.name;
     }
 

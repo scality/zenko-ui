@@ -20,6 +20,7 @@ const Endpoints = () => {
   if (status === 'idle' || status === 'loading') {
     return (
       <EmptyStateContainer>
+        {/* @ts-expect-error fix this when you are working on it */}
         <Loader>Loading Data Services...</Loader>
       </EmptyStateContainer>
     );
@@ -31,6 +32,7 @@ const Endpoints = () => {
       <EmptyStateContainer>
         <Warning
           centered={true}
+          //@ts-expect-error fix this when you are working on it
           icon={<Icon name="Wallet" size="5x" />}
           title="Create your first Data Service."
           btnTitle="Create Data Service"

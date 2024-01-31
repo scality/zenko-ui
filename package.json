@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "check-types": "tsc --noemit",
     "test": "jest",
     "watch": "jest --watch",
     "test:coverage": "jest --coverage --ci",
     "test:lint": "eslint src",
     "start:dev": "webpack serve --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "build": "npm run check-types && webpack --config webpack.prod.js",
     "jest-preview": "jest-preview"
   },
   "keywords": [],

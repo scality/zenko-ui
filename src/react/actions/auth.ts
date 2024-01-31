@@ -78,6 +78,7 @@ export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
     dispatch(setAppConfig(config));
     dispatch(
       setSTSClient(
+        //@ts-expect-error fix this when you are working on it
         new STSClient({
           endpoint: config.stsEndpoint,
         }),

@@ -19,6 +19,7 @@ import { useMemo } from 'react';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 import { ToastProvider } from '@scality/core-ui';
 
+//@ts-expect-error fix this when you are working on it
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export const InternalRouter = ({ children }: { children: React.ReactNode }) => {

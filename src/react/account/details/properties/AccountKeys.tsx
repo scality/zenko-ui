@@ -216,7 +216,9 @@ function AccountKeys({ account }: Props) {
       <TableContainer>
         {accessKeys.length > 0 ? (
           <Table
+            //@ts-expect-error fix this when you are working on it
             columns={columns}
+            //@ts-expect-error fix this when you are working on it
             data={accessKeys}
             defaultSortingKey="created_at"
           >

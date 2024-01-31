@@ -221,6 +221,7 @@ export const useAccounts = (
         if (!error) {
           notifyEnd();
         } else {
+          //@ts-expect-error fix this when you are working on it
           if (error?.message === 'Unmounted') {
             notifyEnd();
             return;

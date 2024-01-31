@@ -10,7 +10,9 @@ export class XCoreLibraryNotAvailable extends Error {
 }
 const xcoreLibraryGlobal = {};
 export function useXCoreLibrary() {
+  //@ts-expect-error fix this when you are working on it
   if (xcoreLibraryGlobal.hooks) {
+    //@ts-expect-error fix this when you are working on it
     return xcoreLibraryGlobal.hooks;
   }
 
@@ -24,6 +26,7 @@ const InternalXcoreLibraryProvider = ({
   moduleExports: Record<string, never>;
   children: React.ReactNode;
 }): React.ReactNode => {
+  //@ts-expect-error fix this when you are working on it
   xcoreLibraryGlobal.hooks = moduleExports['./xcoreLibrary'];
   return <>{children}</>;
 };

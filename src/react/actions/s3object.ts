@@ -217,6 +217,7 @@ function _getObjectListWithSignedUrlAndLockStatus<
     };
   })[]
 > {
+  //@ts-expect-error fix this when you are working on it
   return Promise.all(
     list.map(async (object) => {
       return {
@@ -261,6 +262,7 @@ function _getListObjectNoVersion(
           await _getObjectListWithSignedUrlAndLockStatus<S3Object>(
             zenkoClient,
             bucketName,
+            //@ts-expect-error fix this when you are working on it
             res.Contents,
           );
 
@@ -268,6 +270,7 @@ function _getListObjectNoVersion(
           return dispatch(
             continueListObjectsSuccess(
               list,
+              //@ts-expect-error fix this when you are working on it
               res.CommonPrefixes,
               res.Prefix,
               res.NextContinuationToken,
@@ -278,6 +281,7 @@ function _getListObjectNoVersion(
         return dispatch(
           listObjectsSuccess(
             list,
+            //@ts-expect-error fix this when you are working on it
             res.CommonPrefixes,
             res.Prefix,
             res.NextContinuationToken,
@@ -355,6 +359,7 @@ function _getListObjectVersion(
         const list = await _getObjectListWithSignedUrlAndLockStatus<S3Version>(
           zenkoClient,
           bucketName,
+          //@ts-expect-error fix this when you are working on it
           res.Versions,
         );
 
@@ -362,6 +367,7 @@ function _getListObjectVersion(
           return dispatch(
             continueListObjectVersionsSuccess(
               list,
+              //@ts-expect-error fix this when you are working on it
               res.DeleteMarkers,
               res.CommonPrefixes,
               res.Prefix,
@@ -374,6 +380,7 @@ function _getListObjectVersion(
         return dispatch(
           listObjectVersionsSuccess(
             list,
+            //@ts-expect-error fix this when you are working on it
             res.DeleteMarkers,
             res.CommonPrefixes,
             res.Prefix,
@@ -510,6 +517,7 @@ export function getObjectMetadata(
           getObjectMetadataSuccess(
             bucketName,
             objectKey,
+            //@ts-expect-error fix this when you are working on it
             info,
             tags.TagSet,
             objectRetention,
@@ -573,6 +581,7 @@ export function putObjectLegalHold(
         if (!metadataSearch) {
           dispatch(listObjects(bucketName, prefixWithSlash));
         } else {
+          //@ts-expect-error fix this when you are working on it
           dispatch(newSearchListing(bucketName, metadataSearch));
         }
       })

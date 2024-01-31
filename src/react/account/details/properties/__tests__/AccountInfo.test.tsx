@@ -51,6 +51,7 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
 
 describe('AccountInfo', () => {
   beforeEach(() => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
@@ -83,13 +84,18 @@ describe('AccountInfo', () => {
       extraCellComponent: 'Clipboard',
     });
     const thirdRow = rows.at(2);
-    testRow(thirdRow, {
-      key: 'Creation Date',
-      value: formatDate(new Date(account1.CreationDate)),
-    });
+    testRow(
+      thirdRow,
+      //@ts-expect-error fix this when you are working on it
+      {
+        key: 'Creation Date',
+        value: formatDate(new Date(account1.CreationDate)),
+      },
+    );
   });
 
   it('should not be able to delete an account when not a storage manager', () => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {

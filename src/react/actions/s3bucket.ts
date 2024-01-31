@@ -36,12 +36,15 @@ export function getBucketInfo(bucketName: string): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Getting bucket information'));
-    return zenkoClient
-      .getBucketInfo(bucketName)
-      .then((info) => dispatch(getBucketInfoSuccess(info)))
-      .catch((error) => dispatch(handleAWSClientError(error)))
-      .catch((error) => dispatch(handleAWSError(error, 'byComponent')))
-      .finally(() => dispatch(networkEnd()));
+    return (
+      zenkoClient
+        .getBucketInfo(bucketName)
+        //@ts-expect-error fix this when you are working on it
+        .then((info) => dispatch(getBucketInfoSuccess(info)))
+        .catch((error) => dispatch(handleAWSClientError(error)))
+        .catch((error) => dispatch(handleAWSError(error, 'byComponent')))
+        .finally(() => dispatch(networkEnd()))
+    );
   };
 }
 export function toggleBucketVersioning(

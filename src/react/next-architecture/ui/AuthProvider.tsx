@@ -20,6 +20,7 @@ export function useAccessToken() {
 export function useInstanceId() {
   const user = useAuth();
 
+  //@ts-expect-error fix this when you are working on it
   const instanceIds = user?.userData?.original?.profile?.instanceIds;
 
   if (!instanceIds || instanceIds.length === 0) {
@@ -33,6 +34,7 @@ export type UserData = {
   token: string;
   username: string;
   groups: string[];
+  //@ts-expect-error fix this when you are working on it
   roles: RoleNames[];
   email: string;
   id: string;
@@ -46,6 +48,7 @@ const authGlobal = {
 };
 
 export function useAuth(): ContextType {
+  //@ts-expect-error fix this when you are working on it
   return authGlobal.hooks.useAuth();
 }
 
@@ -71,6 +74,7 @@ export function AuthProvider({ children }: { children: JSX.Element }) {
           {
             scope: 'shell',
             module: './auth/AuthProvider',
+            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
         ]}

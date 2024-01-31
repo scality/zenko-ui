@@ -71,6 +71,7 @@ import {
 // auth actions
 export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
   type: 'SET_MANAGEMENT_CLIENT',
+  //@ts-expect-error fix this when you are working on it
   managementClient: new MockManagementClient(),
 };
 export function SET_ZENKO_CLIENT_ACTION(
@@ -87,6 +88,7 @@ export const SET_STS_CLIENT_ACTION: SetSTSClientAction = {
 };
 export const SET_APP_CONFIG_ACTION: SetAppConfigAction = {
   type: 'SET_APP_CONFIG',
+  //@ts-expect-error fix this when you are working on it
   config: APP_CONFIG,
 };
 export const SELECT_INSTANCE_ACTION: SelectInstanceAction = {

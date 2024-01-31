@@ -32,6 +32,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   const accountName = account?.Name;
   const createAccessKeyMutation = useMutation(
     (userName) => {
+      //@ts-expect-error fix this when you are working on it
       return IAMClient.createAccessKey(userName).then((res) => {
         const newKey = {
           userName: res.AccessKey.UserName,
@@ -54,6 +55,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   };
 
   const handleAccessKeyCreate = () => {
+    //@ts-expect-error fix this when you are working on it
     createAccessKeyMutation.mutate(IAMUserName);
   };
 

@@ -75,6 +75,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
           }}
         >
           {accessKeys > 2 ? (
+            //@ts-expect-error fix this when you are working on it
             <TextBadge variant={'statusWarning'} text={accessKeys}></TextBadge>
           ) : (
             accessKeys
@@ -207,6 +208,7 @@ const DeleteUserAction = ({
         ),
       onError: (error) => {
         try {
+          //@ts-expect-error fix this when you are working on it
           dispatch(handleClientError(error));
         } catch (err) {
           dispatch(handleApiError(err as ApiError, 'byModal'));
@@ -344,6 +346,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
   ];
   return (
     <AwsPaginatedResourceTable
+      //@ts-expect-error fix this when you are working on it
       columns={columns}
       additionalHeaders={
         <Button
@@ -355,6 +358,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         />
       }
       defaultSortingKey={'userName'}
+      //@ts-expect-error fix this when you are working on it
       getItemKey={(index, iamUsers) => {
         return iamUsers[index].Arn;
       }}

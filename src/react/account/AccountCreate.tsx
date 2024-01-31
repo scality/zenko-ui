@@ -65,7 +65,9 @@ function AccountCreate() {
     createAccountMutation.isError ||
     refetchAccountsLocationsEndpointsMutation.isError;
   const errorMessage =
+    //@ts-expect-error fix this when you are working on it
     createAccountMutation.error?.message ??
+    //@ts-expect-error fix this when you are working on it
     refetchAccountsLocationsEndpointsMutation.error?.message ??
     '';
   const queryClient = useQueryClient();
@@ -126,7 +128,6 @@ function AccountCreate() {
       banner={
         hasError && (
           <Banner
-            id="zk-error-banner"
             icon={<Icon name="Exclamation-triangle" />}
             title="Error"
             variant="danger"

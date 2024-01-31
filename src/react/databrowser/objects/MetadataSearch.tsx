@@ -112,6 +112,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
 
   return (
     <SearchMetadataContainer
+      //@ts-expect-error fix this when you are working on it
       isHidden={prefixWithSlash && !searchInput ? 1 : 0}
       onSubmit={handleSubmit}
     >
@@ -121,6 +122,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
           isError={!!errorZenkoMsg}
         />
         <SearchMetadataInput
+          //@ts-expect-error fix this when you are working on it
           disableToggle={true}
           ref={inputRef}
           onChange={handleChange}
@@ -131,6 +133,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
         <SearchInputIcon
           className="fas fa-times-circle"
           onClick={reset}
+          //@ts-expect-error fix this when you are working on it
           isHidden={!isMetadataType && !errorZenkoMsg ? 1 : 0}
         />
       </SearchMetadataInputAndIcon>

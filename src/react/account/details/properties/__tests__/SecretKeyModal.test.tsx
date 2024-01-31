@@ -1,6 +1,5 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 
 import { renderWithRouterMatch } from '../../../../utils/testUtil';
 import SecretKeyModal from '../SecretKeyModal';
@@ -24,16 +23,19 @@ const hiddenValue = '*********';
 describe('SecretKeyModal', () => {
   const modalTitle = 'Create Root user Access keys';
   it('should not render SecretKeyModal if closed', async () => {
+    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<SecretKeyModal account={account} />);
     expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
 
   it('should render SecretKeyModal component with key informations', () => {
     const writeTextFn = jest.fn();
+    //@ts-expect-error fix this when you are working on it
     global.navigator.clipboard = {
       writeText: writeTextFn,
     };
 
+    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<SecretKeyModal account={account} />, undefined, {
       uiAccounts: {
         showKeyCreate: true,

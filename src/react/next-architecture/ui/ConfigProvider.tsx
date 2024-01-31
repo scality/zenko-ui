@@ -13,6 +13,7 @@ const configGlobal = {};
 const deployedInstancesGlobal = {};
 export function useConfig(): AppConfig {
   const { name } = useCurrentApp();
+  //@ts-expect-error fix this when you are working on it
   return configGlobal.hooks.useConfig({
     configType: 'run',
     name,
@@ -20,30 +21,36 @@ export function useConfig(): AppConfig {
 }
 
 export function useLinkOpener() {
+  //@ts-expect-error fix this when you are working on it
   return configGlobal.hooks.useLinkOpener();
 }
 
 export function useDiscoveredViews() {
+  //@ts-expect-error fix this when you are working on it
   return configGlobal.hooks.useDiscoveredViews();
 }
 
 export function useDeployedApps() {
+  //@ts-expect-error fix this when you are working on it
   return deployedInstancesGlobal.hooks.useDeployedApps();
 }
 
-export function useDeployedMetalk8sInstances(): SolutionUI[] {
+export function useDeployedMetalk8sInstances() {
+  //@ts-expect-error fix this when you are working on it
   return deployedInstancesGlobal.hooks.useDeployedApps({
     kind: 'metalk8s-ui',
   });
 }
 
-export function useDeployedXcoreInstances(): SolutionUI[] {
+export function useDeployedXcoreInstances() {
+  //@ts-expect-error fix this when you are working on it
   return deployedInstancesGlobal.hooks.useDeployedApps({
     kind: 'xcore-ui',
   });
 }
 
 export function useXcoreConfig(configType: 'run' | 'build' = 'build') {
+  //@ts-expect-error fix this when you are working on it
   const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
   const instances = useDeployedXcoreInstances();
 
@@ -58,10 +65,12 @@ export function useXcoreConfig(configType: 'run' | 'build' = 'build') {
 }
 
 export function useConfigRetriever() {
+  //@ts-expect-error fix this when you are working on it
   return configGlobal.hooks.useConfigRetriever();
 }
 
 export function useGrafanaURL() {
+  //@ts-expect-error fix this when you are working on it
   const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
   const instances = useDeployedMetalk8sInstances();
 
@@ -85,8 +94,10 @@ const InternalConfigProvider = ({
   moduleExports: Record<string, unknown>;
   children: React.ReactNode;
 }): React.ReactNode => {
+  //@ts-expect-error fix this when you are working on it
   configGlobal.hooks =
     moduleExports['./moduleFederation/ConfigurationProvider'];
+  //@ts-expect-error fix this when you are working on it
   deployedInstancesGlobal.hooks =
     moduleExports['./moduleFederation/UIListProvider'];
   return <>{children}</>;
@@ -111,11 +122,13 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
           {
             scope: 'shell',
             module: './moduleFederation/ConfigurationProvider',
+            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
           {
             scope: 'shell',
             module: './moduleFederation/UIListProvider',
+            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
         ]}

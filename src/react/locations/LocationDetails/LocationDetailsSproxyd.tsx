@@ -36,21 +36,29 @@ export default class LocationDetailsSproxyd extends React.Component<
     const target = e.target;
     let value;
 
+    //@ts-expect-error fix this when you are working on it
     switch (target.name) {
       case 'chordCos':
         value =
+          //@ts-expect-error fix this when you are working on it
           isNaN(target.value) || target.value === ''
             ? ''
-            : parseInt(target.value, 10);
+            : //@ts-expect-error fix this when you are working on it
+              parseInt(target.value, 10);
         break;
 
       default:
+        //@ts-expect-error fix this when you are working on it
         value = target.value;
     }
 
-    this.setState({
-      [target.name]: value,
-    });
+    this.setState(
+      //@ts-expect-error fix this when you are working on it
+      {
+        //@ts-expect-error fix this when you are working on it
+        [target.name]: value,
+      },
+    );
   };
   updateForm = () => {
     if (this.props.onChange) {

@@ -25,6 +25,7 @@ afterAll(() => server.close());
 
 describe('AdvancedMetricsButton', () => {
   it('should display the button when groups contains StorageManager', async () => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
@@ -49,6 +50,7 @@ describe('AdvancedMetricsButton', () => {
   });
 
   it("should not display the button when groups doesn't contains StorageManager", async () => {
+    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {

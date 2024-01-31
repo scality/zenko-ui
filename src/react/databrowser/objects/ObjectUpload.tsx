@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
 import { Button } from '@scality/core-ui/dist/next';
-import type { DispatchAPI } from 'redux';
+import type { Dispatch } from 'redux';
 import type { File } from '../../../types/s3';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { Icon, PrettyBytes, Stack, Wrap } from '@scality/core-ui';
@@ -116,7 +116,7 @@ const ObjectUpload = ({ bucketName }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showObjectUpload,
   );
-  const dispatch: DispatchAPI<Action> = useDispatch();
+  const dispatch: Dispatch<Action> = useDispatch();
   const prefixWithSlash = usePrefixWithSlash();
 
   const onDrop = (accepted, rejections) => {
@@ -165,7 +165,6 @@ const ObjectUpload = ({ bucketName }: Props) => {
 
   return (
     <Modal
-      id="object-upload"
       close={cancel}
       footer={
         <Wrap>

@@ -73,6 +73,7 @@ function LocationEditor() {
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
+    //@ts-expect-error fix this when you are working on it
     return selectStorageOptions(capabilities, makeLabel, !editingExisting);
   }, [capabilities, editingExisting]);
   useMemo(() => {
@@ -128,6 +129,7 @@ function LocationEditor() {
     const isRingS3Reseller = checkIsRingS3Reseller(submitLocation.locationType);
 
     if (isRingS3Reseller) {
+      //@ts-expect-error fix this when you are working on it
       submitLocation = {
         ...submitLocation,
         ...{ locationType: 'location-scality-ring-s3-v1' },
@@ -136,12 +138,14 @@ function LocationEditor() {
     setReferenceVersion({
       onRefTaken: () => {
         if (editingExisting) {
+          //@ts-expect-error fix this when you are working on it
           updateLocationMutation.mutate(convertToLocation(submitLocation), {
             onSuccess: () => {
               waitForRunningConfigurationVersionToBeUpdated();
             },
           });
         } else {
+          //@ts-expect-error fix this when you are working on it
           createLocationMutation.mutate(convertToLocation(submitLocation), {
             onSuccess: () => {
               waitForRunningConfigurationVersionToBeUpdated();
@@ -183,12 +187,14 @@ function LocationEditor() {
         locationType,
         details: {},
       };
+      //@ts-expect-error fix this when you are working on it
       setLocation(l);
     }
   };
 
   const onDetailsChange = (details: unknown) => {
     const l = { ...location, details };
+    //@ts-expect-error fix this when you are working on it
     setLocation(l);
   };
 
@@ -214,11 +220,13 @@ function LocationEditor() {
         details={location.details}
         onChange={onDetailsChange}
         editingExisting={editingExisting}
+        //@ts-expect-error fix this when you are working on it
         capabilities={capabilities}
       />
     );
   };
 
+  //@ts-expect-error fix this when you are working on it
   const { disable, errorMessageFront } = locationFormCheck(location);
   let displayErrorMessage;
 
@@ -228,7 +236,9 @@ function LocationEditor() {
     waiterStatus === 'error';
 
   const errorMessage =
+    //@ts-expect-error fix this when you are working on it
     createLocationMutation.error?.message ||
+    //@ts-expect-error fix this when you are working on it
     updateLocationMutation.error?.message ||
     (waiterStatus === 'error' ? 'Error while saving location' : undefined);
 
@@ -241,6 +251,7 @@ function LocationEditor() {
   const locationTypeKey = getLocationTypeKey(location);
 
   if (status === 'loading' || status === 'idle') {
+    //@ts-expect-error fix this when you are working on it
     return <Loader>Loading location...</Loader>;
   }
 
@@ -341,6 +352,7 @@ function LocationEditor() {
               placeholder="Select an option..."
               onChange={onTypeChange}
               disabled={editingExisting}
+              //@ts-expect-error fix this when you are working on it
               value={locationTypeKey}
             >
               {selectOptions.map((opt, i) => (

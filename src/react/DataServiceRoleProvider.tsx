@@ -167,6 +167,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
   };
 
   if (role.roleArn && !assumedRole) {
+    //@ts-expect-error fix this when you are working on it
     return <Loader>Loading...</Loader>;
   }
 

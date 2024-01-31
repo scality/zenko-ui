@@ -1,4 +1,4 @@
-import LocationsList from '../LocationsList';
+import { LocationsList } from '../LocationsList';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {

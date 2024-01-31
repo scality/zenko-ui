@@ -78,7 +78,10 @@ export const Row = styled(HeadRow)`
   box-sizing: border-box;
   border-right: ${spacing.sp4} solid transparent;
 
-  ${({ isSelected, theme }) =>
+  ${(
+    //@ts-expect-error fix this when you are working on it
+    { isSelected, theme },
+  ) =>
     isSelected &&
     `
         background-color: ${theme.highlight};

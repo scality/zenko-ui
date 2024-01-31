@@ -1,22 +1,18 @@
-import * as s3object from '../../../actions/s3object';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { List } from 'immutable';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import {
   BUCKET_NAME,
   S3_OBJECT,
 } from '../../../actions/__tests__/utils/testUtil';
-import { BUCKET_INFO } from './utils/testUtil';
-import { List } from 'immutable';
+import { renderWithRouterMatch } from '../../../utils/testUtil';
 import ObjectDelete, {
-  getMessagesAndRequiredActions,
   WarningTypes,
+  getMessagesAndRequiredActions,
 } from '../ObjectDelete';
-import React from 'react';
-import { reduxMount, renderWithRouterMatch } from '../../../utils/testUtil';
-import { act } from 'react-dom/test-utils';
-import { screen, waitFor } from '@testing-library/react';
-import { debug } from 'jest-preview';
-import userEvent from '@testing-library/user-event';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { BUCKET_INFO } from './utils/testUtil';
 
 const s3ObjectToDelete = {
   key: S3_OBJECT.Key,
@@ -36,6 +32,7 @@ describe('ObjectDelete', () => {
     renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
+        //@ts-expect-error fix this when you are working on it
         toggled={[s3ObjectToDelete]}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
@@ -54,6 +51,7 @@ describe('ObjectDelete', () => {
     renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
+        //@ts-expect-error fix this when you are working on it
         toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
@@ -72,6 +70,7 @@ describe('ObjectDelete', () => {
     renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
+        //@ts-expect-error fix this when you are working on it
         toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
@@ -104,6 +103,7 @@ describe('ObjectDelete', () => {
     renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
+        //@ts-expect-error fix this when you are working on it
         toggled={List([s3ObjectToDelete])}
         bucketInfo={BUCKET_INFO}
         prefixWithSlash=""
