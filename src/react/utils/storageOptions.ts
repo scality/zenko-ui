@@ -105,11 +105,18 @@ export const getLocationTypeShort = (
 
 export function selectStorageOptions(
   capabilities: Pick<InstanceStateSnapshot, 'capabilities'>,
+  locations: Location[],
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<StorageOptionSelect> {
+  const hdLocation = locations?.find(
+    (l) => l.type === 'location-scality-hdclient-v2',
+  );
   return Object.keys(storageOptions)
     .filter((o) => {
+      if (hdLocation && o === 'location-scality-hdclient-v2') {
+        return false;
+      }
       if (exceptHidden) {
         const hidden = !!storageOptions[o].hidden;
 
