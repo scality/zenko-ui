@@ -1,5 +1,5 @@
 import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
-import { ComponentType, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -107,7 +107,8 @@ const ActionButtons = ({
     buckets,
     accountsLocationsAndEndpoints?.endpoints || [],
   );
-
+  const isEditButtonDisabled =
+    rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
   return (
     <div>
       <DeleteConfirmation
@@ -127,11 +128,18 @@ const ActionButtons = ({
             onClick={() => history.push(`/locations/${locationName}/edit`)}
             type="button"
             aria-label="Edit Location"
-            tooltip={{
-              overlay: 'Edit Location',
-              placement: 'top',
-            }}
-            disabled={rowValues.isBuiltin}
+            tooltip={
+              isEditButtonDisabled
+                ? {
+                    overlay: 'Edit Location is disabled for this location',
+                    placement: 'top',
+                  }
+                : {
+                    overlay: 'Edit Location',
+                    placement: 'top',
+                  }
+            }
+            disabled={isEditButtonDisabled}
           />
           <InlineButton
             icon={<Icon name="Delete" />}
