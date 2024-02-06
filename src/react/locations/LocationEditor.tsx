@@ -74,9 +74,13 @@ function LocationEditor() {
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
-    if(!locations) return [];
-    //@ts-expect-error fix this when you are working on it
-    return selectStorageOptions(capabilities, locations, makeLabel, !editingExisting);
+    if (!locations) return [];
+    return selectStorageOptions(
+      capabilities,
+      locations,
+      makeLabel,
+      !editingExisting,
+    );
   }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {

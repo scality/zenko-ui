@@ -138,6 +138,9 @@ const ActionButtons = ({
     );
   };
 
+  const isEditButtonDisabled =
+    rowValues.isBuiltin || rowValues.type === 'location-scality-hdclient-v2';
+
   return (
     <div>
       <DeleteConfirmation
@@ -157,11 +160,18 @@ const ActionButtons = ({
             onClick={() => history.push(`/locations/${locationName}/edit`)}
             type="button"
             aria-label="Edit Location"
-            tooltip={{
-              overlay: 'Edit Location',
-              placement: 'top',
-            }}
-            disabled={rowValues.isBuiltin}
+            tooltip={
+              isEditButtonDisabled
+                ? {
+                    overlay: 'Edit Location is disabled for this location',
+                    placement: 'top',
+                  }
+                : {
+                    overlay: 'Edit Location',
+                    placement: 'top',
+                  }
+            }
+            disabled={isEditButtonDisabled}
           />
           <InlineButton
             icon={<Icon name="Delete" />}

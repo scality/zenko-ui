@@ -17,11 +17,7 @@ import {
   selectClick,
 } from '../../utils/testUtil';
 import { setupServer } from 'msw/node';
-import {
-  ENDPOINTS,
-  USERS,
-  getConfigOverlay,
-} from '../../../js/mock/managementClientMSWHandlers';
+import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
