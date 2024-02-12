@@ -137,9 +137,8 @@ export const VeeamCapacityModalInternal = ({
                   variant="primary"
                   aria-label="Update max capacity"
                   onClick={handleSubmit(onSubmit)}
-                  label="Edit"
+                  label="Confirm"
                   disabled={!isValid || currentCapacity === capacityValue}
-                  icon={<Icon name="Pencil" />}
                 />
               </Stack>
             </Wrap>
