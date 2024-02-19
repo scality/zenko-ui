@@ -12,7 +12,6 @@ import {
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
 import { useAccounts, useAuthGroups } from '../../utils/hooks';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 import {
   getSkipVeeamAssistant,
   setSkipVeeamAssistant,
@@ -28,23 +27,21 @@ export const VeeamWelcomeModalInternal = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
-  const { accounts } = useAccounts();
-  const isVeemAccountCreated = accounts.some(
-    (account) => account.Name === VEEAM_DEFAULT_ACCOUNT_NAME,
-  );
+  const { accounts, status } = useAccounts();
+  const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isVeeamAssistantSkipped = getSkipVeeamAssistant();
 
   /*
    We display the Veeam welcome modal only if the following conditions are met:
    1. Veeam feature flag is enabled
-   2. No Veeam account is created
+   2. No account exists in the platform
    3. Storage Manager is logged in
    4. Have never click on the skip button
    */
   const isVeeamWelcomeModalEnabled =
     features.includes(VEEAM_FEATURE) &&
     isStorageManager &&
-    !isVeemAccountCreated &&
+    isZeroAccountCreated &&
     !isVeeamAssistantSkipped;
 
   if (!isVeeamWelcomeModalEnabled) {

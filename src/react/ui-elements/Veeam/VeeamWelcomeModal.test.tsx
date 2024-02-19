@@ -96,32 +96,23 @@ describe('VeeamWelcomeModal', () => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
   });
-  it('should display when there is no Veeam account and never click on the Skip button', async () => {
+  it('should display when there is no account and never click on the Skip button', async () => {
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
         return res(
           ctx.json({
             IsTruncated: false,
-            Accounts: [
-              {
-                Name: 'test-account',
-                CreationDate: TEST_ACCOUNT_CREATION_DATE,
-                Roles: [
-                  {
-                    Name: 'storage-manager-role',
-                    Arn: `arn:aws:iam::${ACCOUNT_ID}:role/scality-internal/storage-manager-role`,
-                  },
-                ],
-              },
-            ],
+            Accounts: [],
           }),
         );
       }),
     );
     const { unmount, rerender } = renderVeeamWelcomeModal();
     //V
-    expect(selectors.welcomeModal()).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.welcomeModal()).toBeInTheDocument();
+    });
     //E
     userEvent.click(selectors.skipButton());
     unmount();
