@@ -3,9 +3,10 @@ import { useDeployedXcoreInstances, useXcoreConfig } from './ConfigProvider';
 import { ComponentWithFederatedImports } from '@scality/module-federation';
 import { ErrorBoundary } from 'react-error-boundary';
 
+export const XCORE_NOT_AVAILABLE = 'XCore library is not available';
 export class XCoreLibraryNotAvailable extends Error {
   constructor() {
-    super('XCore library is not available');
+    super(XCORE_NOT_AVAILABLE);
   }
 }
 const xcoreLibraryGlobal = {};
@@ -16,7 +17,7 @@ export function useXCoreLibrary() {
     return xcoreLibraryGlobal.hooks;
   }
 
-  throw new XCoreLibraryNotAvailable();
+  return new XCoreLibraryNotAvailable();
 }
 
 const InternalXcoreLibraryProvider = ({

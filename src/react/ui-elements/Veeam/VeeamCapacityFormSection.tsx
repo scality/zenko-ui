@@ -3,6 +3,25 @@ import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
 import { unitChoices } from './VeeamConstants';
 import { ListItem } from './VeeamTable';
+import { useCapacityUnit } from './useCapacityUnit';
+import { useEffect } from 'react';
+import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
+
+type XCoreConfig = {
+  spec: {
+    selfConfiguration: {
+      url: string;
+      url_alertmanager: string;
+      url_prometheus: string;
+      url_grafana: string;
+    };
+  };
+};
+
+type UseClusterCapacityHooks = (xCoreConfig: XCoreConfig) => {
+  clusterCapacity: string | undefined;
+  clusterCapacityStatus: string;
+};
 
 const VeeamCapacityTooltip = () => (
   <ul>
@@ -21,6 +40,31 @@ const VeeamCapacityTooltip = () => (
   </ul>
 );
 
+export const VeeamCapacityFormWithXcore = ({
+  useClusterCapacity,
+}: {
+  useClusterCapacity: UseClusterCapacityHooks;
+}) => {
+  const xCoreConfig = useXcoreConfig('run');
+  const { clusterCapacity, clusterCapacityStatus } =
+    useClusterCapacity(xCoreConfig);
+  const { setValue } = useFormContext();
+
+  const { capacityValue, capacityUnit } = useCapacityUnit(
+    clusterCapacity || '0',
+    true,
+  );
+
+  useEffect(() => {
+    if (clusterCapacityStatus === 'success') {
+      setValue('capacity', capacityValue);
+      setValue('capacityUnit', capacityUnit);
+    }
+  }, [clusterCapacityStatus]);
+
+  return <VeeamCapacityFormSection />;
+};
+
 export const VeeamCapacityFormSection = ({
   autoFocusEnabled,
 }: {
@@ -34,8 +78,7 @@ export const VeeamCapacityFormSection = ({
         id="capacity"
         label="Max Veeam Repository Capacity"
         direction="vertical"
-        //@ts-expect-error fix this when you are working on it
-        error={formState.errors.capacity?.message ?? ''}
+        error={formState.errors.capacity?.message?.toString() ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
         labelHelpTooltip={<VeeamCapacityTooltip />}

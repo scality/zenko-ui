@@ -6,17 +6,22 @@ import {
   FormSection,
   Icon,
   Stack,
-  Toggle,
   Text,
+  Toggle,
 } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
-import { VeeamCapacityFormSection } from './VeeamCapacityFormSection';
+import {
+  XCORE_NOT_AVAILABLE,
+  useXCoreLibrary,
+} from '../../next-architecture/ui/XCoreLibraryProvider';
+import {
+  VeeamCapacityFormSection,
+  VeeamCapacityFormWithXcore,
+} from './VeeamCapacityFormSection';
 import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
@@ -24,10 +29,10 @@ import {
   VEEAM_OFFICE_365,
   unitChoices,
 } from './VeeamConstants';
+import { VeeamSkipModal } from './VeeamSkipModal';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { ListItem } from './VeeamTable';
-import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
-import { VeeamSkipModal } from './VeeamSkipModal';
+import { getCapacityBytes } from './useCapacityUnit';
 
 const schema = Joi.object({
   bucketName: Joi.string().required(),
@@ -108,7 +113,7 @@ const Configuration = () => {
     defaultValues: {
       bucketName: '',
       application: VEEAM_BACKUP_REPLICATION_XML_VALUE,
-      capacity: '5', //TODO: The default value will be net capacity.
+      capacity: '0',
       capacityUnit: unitChoices.TiB.toString(),
       enableImmutableBackup: true,
     },
@@ -120,7 +125,6 @@ const Configuration = () => {
     register,
     watch,
     formState: { errors, isValid },
-    setValue,
   } = methods;
 
   const history = useHistory();
@@ -145,22 +149,10 @@ const Configuration = () => {
 
   // clear server errors if clicked on outside of element.
   const formRef = useRef(null);
-  const xCoreConfig = useXcoreConfig('run');
-  const { useClusterCapacity } = useXCoreLibrary();
-  const { clusterCapacity, clusterCapacityStatus } =
-    useClusterCapacity(xCoreConfig);
-  const { capacityValue, capacityUnit } = useCapacityUnit(
-    clusterCapacity || '0',
-    true,
-  );
+  const xCoreLibrary = useXCoreLibrary();
+  const { useClusterCapacity } =
+    xCoreLibrary === XCORE_NOT_AVAILABLE ? () => ({}) : xCoreLibrary;
   const [skip, setSkip] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (clusterCapacityStatus === 'success') {
-      setValue('capacity', capacityValue);
-      setValue('capacityUnit', capacityUnit);
-    }
-  }, [clusterCapacityStatus]);
 
   return (
     <FormProvider {...methods}>
@@ -288,7 +280,13 @@ const Configuration = () => {
               <></>
             )}
             {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
-              <VeeamCapacityFormSection />
+              useClusterCapacity ? (
+                <VeeamCapacityFormWithXcore
+                  useClusterCapacity={useClusterCapacity}
+                />
+              ) : (
+                <VeeamCapacityFormSection />
+              )
             ) : (
               <></>
             )}
