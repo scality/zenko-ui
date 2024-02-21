@@ -24,35 +24,51 @@ const CustomModal = styled(Modal)`
 `;
 
 export const VeeamWelcomeModalInternal = () => {
-  const [isOpen, setIsOpen] = useState<boolean>(true);
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   const { accounts, status } = useAccounts();
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isVeeamAssistantSkipped = getSkipVeeamAssistant();
-
+  const isAlreadyInVeeamConfigurationView = window.location.pathname.endsWith(
+    '/veeam/configuration',
+  );
   /*
    We display the Veeam welcome modal only if the following conditions are met:
    1. Veeam feature flag is enabled
    2. No account exists in the platform
    3. Storage Manager is logged in
    4. Have never click on the skip button
+   5. Not already in the Veeam configuration view
    */
   const isVeeamWelcomeModalEnabled =
     features.includes(VEEAM_FEATURE) &&
     isStorageManager &&
     isZeroAccountCreated &&
-    !isVeeamAssistantSkipped;
+    !isVeeamAssistantSkipped &&
+    !isAlreadyInVeeamConfigurationView;
 
   if (!isVeeamWelcomeModalEnabled) {
     return <></>;
   }
 
+  return <VeeamModalComponent />;
+};
+
+const VeeamModalComponent = () => {
+  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const { accounts } = useAccounts();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
   const zenkoUI = deployedApps.find(
     (app: { kind: string }) => app.kind === 'zenko-ui',
   );
+  const currentApp =
+    deployedApps.find(
+      (app) =>
+        window.location.pathname.startsWith(app.appHistoryBasePath) &&
+        app.appHistoryBasePath !== '',
+    )?.kind ?? deployedApps.find((app) => app.appHistoryBasePath === '')?.kind;
+
   const zenkoUIVeeamConfigurationView = {
     path: '/veeam/configuration',
     label: {
@@ -93,10 +109,21 @@ export const VeeamWelcomeModalInternal = () => {
             <Button
               variant="primary"
               icon={<Icon name="Arrow-right" />}
-              label={'Continue'}
+              label="Continue"
               onClick={() => {
                 setIsOpen(false);
-                openLink(veeamConfigurationView);
+                // If we are already in zenko-ui context, we can't use the openLink function.
+                // That's why we have to create a custom event, and listen to it to change the route.
+                if (currentApp === 'zenko-ui') {
+                  const event = new CustomEvent('HistoryPushEvent', {
+                    detail: {
+                      path: veeamConfigurationView.view.path,
+                    },
+                  });
+                  window.dispatchEvent(event);
+                } else {
+                  openLink(veeamConfigurationView);
+                }
               }}
             />
           </Stack>

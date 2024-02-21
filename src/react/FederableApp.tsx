@@ -2,7 +2,7 @@ import { Provider } from 'react-redux';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useHistory } from 'react-router-dom';
 import ZenkoUI from './ZenkoUI';
 import {
   ConfigProvider,
@@ -15,7 +15,7 @@ import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvide
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
 
 import zenkoUIReducer from './reducers';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 import { ToastProvider } from '@scality/core-ui';
 
@@ -37,6 +37,23 @@ export const InternalRouter = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const HistoryPushEventListener = () => {
+  const history = useHistory();
+  useEffect(() => {
+    const listener = (event: CustomEvent) => {
+      const path = event.detail.path;
+      history.push(path);
+    };
+    window.addEventListener('HistoryPushEvent', listener);
+
+    return () => {
+      window.removeEventListener('HistoryPushEvent', listener);
+    };
+  }, [history]);
+
+  return <></>;
+};
+
 const FederableApp = () => {
   return (
     <ConfigProvider>
@@ -44,16 +61,19 @@ const FederableApp = () => {
         <ToastProvider>
           <InternalRouter>
             <AuthProvider>
-              <AccountsLocationsEndpointsAdapterProvider>
-                <LocationAdapterProvider>
-                  <AccessibleAccountsAdapterProvider>
-                    <MetricsAdapterProvider>
-                      <ZenkoUI />
-                      <ReactQueryDevtools initialIsOpen={false} />
-                    </MetricsAdapterProvider>
-                  </AccessibleAccountsAdapterProvider>
-                </LocationAdapterProvider>
-              </AccountsLocationsEndpointsAdapterProvider>
+              <>
+                <HistoryPushEventListener />
+                <AccountsLocationsEndpointsAdapterProvider>
+                  <LocationAdapterProvider>
+                    <AccessibleAccountsAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <ZenkoUI />
+                        <ReactQueryDevtools initialIsOpen={false} />
+                      </MetricsAdapterProvider>
+                    </AccessibleAccountsAdapterProvider>
+                  </LocationAdapterProvider>
+                </AccountsLocationsEndpointsAdapterProvider>
+              </>
             </AuthProvider>
           </InternalRouter>
         </ToastProvider>
