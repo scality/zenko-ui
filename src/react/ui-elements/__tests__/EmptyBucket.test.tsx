@@ -52,7 +52,7 @@ describe('EmptyConfirmation', () => {
       }),
     confirmButton: () =>
       getByRole(selectors.modal(), 'button', { name: /Empty/i }),
-    confirmInput: () => screen.getByLabelText(/confirm-input/i),
+    confirmInput: () => screen.getByRole('textbox', { name: /Confirm/i }),
     emptyBucket: () => screen.getByText(EMPTY_CONFIRMATION_MODAL_TITLE),
     deletionLoading: () => screen.getByText(/Deletion in progress/),
     deletionAttempts: (deletionNumber: number) =>
