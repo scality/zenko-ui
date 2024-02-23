@@ -286,14 +286,31 @@ function ReplicationForm({ prefix = '', isCreateMode, ...props }: Props) {
                         readonly={isEditing}
                         disableOption={({
                           isBucketVersionned,
-                          locationInfos,
+                          isReplicationSourceSupported,
                           isVeeamBucket,
-                        }) =>
-                          !locationInfos?.storageOption
-                            ?.supportsReplicationSource ||
-                          !isBucketVersionned ||
-                          isVeeamBucket
-                        }
+                        }) => ({
+                          disabled:
+                            isReplicationSourceSupported ||
+                            !isBucketVersionned ||
+                            isVeeamBucket,
+                          disabledMessage: isReplicationSourceSupported ? (
+                            'This location does not support replication'
+                          ) : !isBucketVersionned && isVeeamBucket ? (
+                            <ul>
+                              <li>
+                                The source bucket has to be versioning enabled.
+                              </li>
+                              <li>
+                                Replication is not available for a Bucket that
+                                was created especially for Veeam.
+                              </li>
+                            </ul>
+                          ) : !isBucketVersionned ? (
+                            'The source bucket has to be versioning enabled.'
+                          ) : isVeeamBucket ? (
+                            'Replication is not available for a Bucket that was created especially for Veeam.'
+                          ) : undefined,
+                        })}
                       />
                     );
                   }}

@@ -8,7 +8,6 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
-import { LocationStorageInfos } from '../next-architecture/domain/entities/location';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
 import { Loader, useToast } from '@scality/core-ui';
@@ -17,9 +16,9 @@ import { useEffect } from 'react';
 type DisableOptionProps = {
   disableOption?: (obj: {
     isBucketVersionned?: boolean;
-    locationInfos?: LocationStorageInfos;
+    isReplicationSourceSupported?: boolean;
     isVeeamBucket: boolean;
-  }) => boolean;
+  }) => { disabled: boolean; disabledMessage?: JSX.Element | string };
 };
 
 export const SourceBucketSelect = (
@@ -136,19 +135,23 @@ export const SourceBucketOption = ({
     ? disableOption({
         isBucketVersionned:
           versionning.status === 'success' && versionning.value === 'Enabled',
-        locationInfos:
-          locationInfos.status === 'success' ? locationInfos.value : undefined,
+        isReplicationSourceSupported:
+          locationInfos.status === 'success' &&
+          !locationInfos.value.storageOption?.supportsReplicationSource,
         isVeeamBucket:
           tags.status === 'success' &&
           !!tags.value?.[BUCKET_TAG_VEEAM_APPLICATION],
       })
-    : false;
+    : { disabled: false, disabledMessage: undefined };
 
   return (
     <Select.Option
       value={bucketName}
-      disabled={isLoading || isOptionDisabled}
+      disabled={isLoading || isOptionDisabled.disabled}
       icon={isLoading && <Loader />}
+      disabledReason={
+        isLoading ? 'Loading...' : isOptionDisabled.disabledMessage
+      }
     >
       {`${bucketName} (${BucketLocationNameAndType({ bucketName })})`}
     </Select.Option>
