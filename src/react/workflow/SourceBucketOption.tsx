@@ -18,7 +18,7 @@ type DisableOptionProps = {
     isBucketVersionned?: boolean;
     isReplicationSourceSupported?: boolean;
     isVeeamBucket: boolean;
-  }) => { disabled: boolean; disabledMessage?: JSX.Element | string };
+  }) => { disabled: boolean; disabledMessage?: JSX.Element };
 };
 
 export const SourceBucketSelect = (
@@ -150,7 +150,7 @@ export const SourceBucketOption = ({
       disabled={isLoading || isOptionDisabled.disabled}
       icon={isLoading && <Loader />}
       disabledReason={
-        isLoading ? 'Loading...' : isOptionDisabled.disabledMessage
+        isLoading ? <>Loading...</> : isOptionDisabled.disabledMessage
       }
     >
       {`${bucketName} (${BucketLocationNameAndType({ bucketName })})`}
