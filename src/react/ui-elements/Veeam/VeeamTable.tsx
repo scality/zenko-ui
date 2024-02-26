@@ -128,6 +128,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
               label="Exit"
               onClick={() => {
                 setConfirmCancel(true);
+                queryClient.invalidateQueries(['WebIdentityRoles']);
               }}
             />
             <Button
