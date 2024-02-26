@@ -168,7 +168,7 @@ describe('ReplicationForm', () => {
       expect(formValidation.textContent).toBe('form-valid');
    
   });
-  it('should disable the veeam bucket as the source', async () => {
+  it('should disable the veeam bucket as the source and display a tooltip on hover', async () => {
     //S
     renderWithRouterMatch(ReplicationFormWithProvider);
     //E
@@ -177,7 +177,11 @@ describe('ReplicationForm', () => {
     selectClick(selectors.bucketSelect());
     //V
     expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
-    expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');
+    expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');    
+    userEvent.hover(selectors.bucketOption2());
+    expect(
+      screen.getByText(/Replication is not available for a Bucket that was created especially for Veeam./i),
+    ).toBeInTheDocument();
   });
   it('should display toast when bucket tagging fails', async () => {
     //S
