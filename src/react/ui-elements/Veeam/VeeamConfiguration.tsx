@@ -201,101 +201,94 @@ const Configuration = () => {
           </Stack>
         }
       >
-        <FormSection>
-          <Stack direction="vertical" gap="r16">
+        <FormSection forceLabelWidth={300}>
+          <FormGroup
+            id="application"
+            label="Veeam application"
+            labelHelpTooltip={<VeeamApplicationTooltip />}
+            helpErrorPosition="bottom"
+            content={
+              <Controller
+                name="application"
+                control={control}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <Select id="application" onChange={onChange} value={value}>
+                      <Select.Option
+                        key={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                        value={VEEAM_BACKUP_REPLICATION_XML_VALUE}
+                      >
+                        {VEEAM_BACKUP_REPLICATION}
+                      </Select.Option>
+                      <Select.Option
+                        key={VEEAM_OFFICE_365}
+                        value={VEEAM_OFFICE_365}
+                      >
+                        {VEEAM_OFFICE_365}
+                      </Select.Option>
+                    </Select>
+                  );
+                }}
+              />
+            }
+          />
+          <FormGroup
+            id="bucketName"
+            label="Bucket name"
+            required
+            labelHelpTooltip={<VeeamBucketTooltip />}
+            error={errors.bucketName?.message ?? ''}
+            helpErrorPosition="bottom"
+            content={
+              <Input
+                id="bucketName"
+                type="text"
+                autoComplete="off"
+                placeholder="Veeam bucket name"
+                {...register('bucketName')}
+              />
+            }
+          />
+          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
             <FormGroup
-              id="application"
-              label="Veeam application"
-              direction="vertical"
-              labelHelpTooltip={<VeeamApplicationTooltip />}
+              id="enableImmutableBackup"
+              label="Immutable backup"
+              help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
+              helpErrorPosition="bottom"
+              labelHelpTooltip={<VeeamImmutableBackupTooltip />}
               content={
                 <Controller
-                  name="application"
+                  name="enableImmutableBackup"
                   control={control}
-                  render={({ field: { onChange, value } }) => {
+                  render={({ field: { value, onChange } }) => {
                     return (
-                      <Select
-                        id="application"
+                      <Toggle
+                        id="enableImmutableBackup"
+                        aria-label="enableImmutableBackup"
+                        name="enableImmutableBackup"
+                        toggle={value}
+                        label={value ? 'Enabled' : 'Disabled'}
                         onChange={onChange}
-                        value={value}
-                      >
-                        <Select.Option
-                          key={VEEAM_BACKUP_REPLICATION_XML_VALUE}
-                          value={VEEAM_BACKUP_REPLICATION_XML_VALUE}
-                        >
-                          {VEEAM_BACKUP_REPLICATION}
-                        </Select.Option>
-                        <Select.Option
-                          key={VEEAM_OFFICE_365}
-                          value={VEEAM_OFFICE_365}
-                        >
-                          {VEEAM_OFFICE_365}
-                        </Select.Option>
-                      </Select>
+                      />
                     );
                   }}
                 />
               }
             />
-            <FormGroup
-              id="bucketName"
-              label="Bucket name"
-              direction="vertical"
-              required
-              labelHelpTooltip={<VeeamBucketTooltip />}
-              error={errors.bucketName?.message ?? ''}
-              content={
-                <Input
-                  id="bucketName"
-                  type="text"
-                  autoComplete="off"
-                  placeholder="Veeam bucket name"
-                  {...register('bucketName')}
-                />
-              }
-            />
-            {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
-              <FormGroup
-                id="enableImmutableBackup"
-                label="Immutable backup"
-                direction="vertical"
-                help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
-                helpErrorPosition="bottom"
-                labelHelpTooltip={<VeeamImmutableBackupTooltip />}
-                content={
-                  <Controller
-                    name="enableImmutableBackup"
-                    control={control}
-                    render={({ field: { value, onChange } }) => {
-                      return (
-                        <Toggle
-                          id="enableImmutableBackup"
-                          aria-label="enableImmutableBackup"
-                          name="enableImmutableBackup"
-                          toggle={value}
-                          label={value ? 'Enabled' : 'Disabled'}
-                          onChange={onChange}
-                        />
-                      );
-                    }}
-                  />
-                }
+          ) : (
+            <></>
+          )}
+          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+            useClusterCapacity ? (
+              <VeeamCapacityFormWithXcore
+                useClusterCapacity={useClusterCapacity}
               />
             ) : (
-              <></>
-            )}
-            {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
-              useClusterCapacity ? (
-                <VeeamCapacityFormWithXcore
-                  useClusterCapacity={useClusterCapacity}
-                />
-              ) : (
-                <VeeamCapacityFormSection />
-              )
-            ) : (
-              <></>
-            )}
-          </Stack>
+              <VeeamCapacityFormSection />
+            )
+          ) : (
+            <></>
+          )}
         </FormSection>
       </Form>
     </FormProvider>

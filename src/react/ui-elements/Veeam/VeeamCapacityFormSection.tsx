@@ -77,7 +77,6 @@ export const VeeamCapacityFormSection = ({
       <FormGroup
         id="capacity"
         label="Max Veeam Repository Capacity"
-        direction="vertical"
         error={formState.errors.capacity?.message?.toString() ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
