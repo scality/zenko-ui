@@ -188,7 +188,7 @@ export const VeeamSummary = ({
           content={
             <WrapperWithWidth>
               <HideCredential credentials={secretKey} />
-              <Clipboard text={accessKey} />
+              <Clipboard text={secretKey} />
             </WrapperWithWidth>
           }
         />
