@@ -87,6 +87,10 @@ describe('Workflows', () => {
         ),
       }),
     ).toBeInTheDocument();
+    // Verify the button of advanced metrics
+    expect(
+      screen.getByRole('button', { name: /Advanced metrics/i }),
+    ).toBeInTheDocument();
   });
   it('should display the generated name for transition applying to the noncurrent version', async () => {
     renderWithRouterMatch(

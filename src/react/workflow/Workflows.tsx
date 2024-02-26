@@ -4,6 +4,7 @@ import {
   Stack,
   Text,
   TwoPanelLayout,
+  Wrap,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { UseQueryResult, useQuery } from 'react-query';
@@ -35,6 +36,10 @@ import { Warning } from '../ui-elements/Warning';
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
+import {
+  AuthorizedAdvancedMetricsButton,
+  replicationDashboard,
+} from '../endpoint/AdvancedMetricsButton';
 
 type Filter = string[];
 
@@ -203,10 +208,13 @@ export default function Workflows() {
     return (
       <>
         <AppContainer.OverallSummary>
-          <Stack gap="r16">
-            <Icon name="Workflow" color="infoPrimary" size="2x" withWrapper />
-            <Text variant="Larger">Workflows</Text>
-          </Stack>
+          <Wrap style={{ alignItems: 'center' }}>
+            <Stack gap="r16">
+              <Icon name="Workflow" color="infoPrimary" size="2x" withWrapper />
+              <Text variant="Larger">Workflows</Text>
+            </Stack>
+            <AuthorizedAdvancedMetricsButton dashboard={replicationDashboard} />
+          </Wrap>
         </AppContainer.OverallSummary>
         <AppContainer.MainContent background="backgroundLevel3">
           <TwoPanelLayout

@@ -9,7 +9,10 @@ import { renderLocation } from '../locations/utils';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { Clipboard } from '../ui-elements/Clipboard';
 import * as T from '../ui-elements/Table';
-import { AuthorizedAdvancedMetricsButton } from './AdvancedMetricsButton';
+import {
+  AuthorizedAdvancedMetricsButton,
+  cloudServerDashboard,
+} from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
 type CellProps = {
   row: {
@@ -132,7 +135,9 @@ function EndpointList({ endpoints, locations }: Props) {
                 onClick={() => history.push('/create-dataservice')}
                 type="submit"
               />
-              <AuthorizedAdvancedMetricsButton />
+              <AuthorizedAdvancedMetricsButton
+                dashboard={cloudServerDashboard}
+              />
             </div>
           </T.SearchContainer>
 

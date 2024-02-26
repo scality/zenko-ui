@@ -37,7 +37,7 @@ describe('AdvancedMetricsButton', () => {
         },
       };
     });
-    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
+    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton dashboard="" />);
 
     //Wait for loading to complete
     await waitFor(() =>
@@ -62,7 +62,7 @@ describe('AdvancedMetricsButton', () => {
         },
       };
     });
-    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton />);
+    renderWithRouterMatch(<AuthorizedAdvancedMetricsButton dashboard="" />);
 
     await expect(
       (async () => {
