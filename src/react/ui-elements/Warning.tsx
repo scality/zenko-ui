@@ -117,7 +117,7 @@ export const NoAccountWarning = ({
         <br />
         <br />
         <b>
-          Launch configuration assitant to create resources needed by Veeam.
+          Launch configuration assistant to create resources needed by Veeam.
         </b>
       </Box>
     </Title>
