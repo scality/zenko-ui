@@ -19,6 +19,7 @@ import {
   VeeamSummary,
 } from './VeeamSummary';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../next-architecture/ui/CertificateDownloadButton', () => ({
   CertificateDownloadButton: () => <button type="button">Download</button>,
@@ -63,7 +64,7 @@ const VeeamSummaryWrapper = ({ children }: { children: React.ReactNode }) => {
     </QueryClientProvider>
   );
 };
-
+const user = userEvent.setup();
 describe('VeeamSummary', () => {
   const selectors = {
     title: () => screen.getByText(VEEAM_SUMMARY_TITLE),

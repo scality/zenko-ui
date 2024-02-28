@@ -1,5 +1,5 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
 

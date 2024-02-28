@@ -16,6 +16,7 @@ import {
 import { setupServer } from 'msw/node';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import userEvent from '@testing-library/user-event';
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
@@ -42,10 +43,9 @@ describe('LocationEditor', () => {
     const selector = notFalsyTypeGuard(
       container.querySelector('.sc-select__control'),
     );
-    selectClick(selector);
+    await selectClick(selector);
+    await userEvent.keyboard('{arrowup}');
 
-    fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-    fireEvent.keyDown(selector, { key: 'ArrowUp', which: 38, keyCode: 38 });
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
     ).toBe('Storage Service for ARTESCA');

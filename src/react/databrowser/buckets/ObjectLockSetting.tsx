@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import Joi from '@hapi/joi';

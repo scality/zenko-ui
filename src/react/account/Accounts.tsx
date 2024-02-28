@@ -6,7 +6,7 @@ import {
 } from '@scality/core-ui';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';

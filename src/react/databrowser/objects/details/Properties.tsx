@@ -20,7 +20,7 @@ import { putObjectLegalHold } from '../../../actions/s3object';
 import { usePrefixWithSlash, useQueryParams } from '../../../utils/hooks';
 import { AppState } from '../../../../types/state';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';

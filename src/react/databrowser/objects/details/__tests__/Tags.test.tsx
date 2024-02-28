@@ -117,19 +117,25 @@ describe('Tags', () => {
       tagsConfig,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
-    userEvent.type(screen.getByRole('textbox', { name: 'Tag 2 key' }), key2);
-    userEvent.type(
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Tag 2 key' }),
+      key2,
+    );
+    await userEvent.type(
       screen.getByRole('textbox', { name: 'Tag 2 value' }),
       value2,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
-    userEvent.type(screen.getByRole('textbox', { name: 'Tag 3 key' }), key3);
-    userEvent.type(
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Tag 3 key' }),
+      key3,
+    );
+    await userEvent.type(
       screen.getByRole('textbox', { name: 'Tag 3 value' }),
       value3,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Save Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() =>
       expect(mockedRequestBodyInterceptor).toHaveBeenCalled(),
     );

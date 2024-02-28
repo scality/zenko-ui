@@ -4,7 +4,7 @@ import type { Workflows } from '../../types/workflow';
 import { useHistory } from 'react-router-dom';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Workflow } from '../../types/workflow';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { useTheme } from 'styled-components';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';

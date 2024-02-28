@@ -43,7 +43,9 @@ describe('EndpointCreate', () => {
       screen.getByText('Loading locations...'),
     );
 
-    selectClick(screen.getByRole('textbox', { name: 'Storage Location' }));
+    await selectClick(
+      screen.getByRole('textbox', { name: 'Storage Location' }),
+    );
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),

@@ -1,5 +1,5 @@
 import { Icon, Loader, Stack, Tooltip, Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { CustomModal as Modal } from '../Modal';
 import { useDeleteBucket } from '../../next-architecture/domain/business/buckets';
 import { useState } from 'react';

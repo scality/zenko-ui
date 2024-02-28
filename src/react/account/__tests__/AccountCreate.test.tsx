@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -44,23 +44,23 @@ describe('AccountCreate', () => {
   it('should render AccountCreate component with error banner', async () => {
     await renderWithRouterMatch(<AccountCreate />);
 
-    userEvent.type(
+    await userEvent.type(
       screen.getByRole('textbox', { name: /name/i }),
       accountAlreadyExists,
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByRole('textbox', { name: /email/i }),
       'test@test.local',
     );
-    // NOTE: All validation methods in React Hook Form are treated
-    // as async functions, so it's important to wrap async around your act.
-    await act(async () => {
-      userEvent.click(screen.getByRole('button', { name: /create/i }));
-    });
+    await userEvent.click(screen.getByRole('button', { name: /create/i }));
 
-    expect(
-      screen.getByText('An account with the same name or email already exists'),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'An account with the same name or email already exists',
+        ),
+      ).toBeInTheDocument();
+    });
   });
   // * error input
   //   * button click
@@ -155,14 +155,19 @@ describe('AccountCreate', () => {
   tests.forEach((t) => {
     it(`Simulate click: ${t.description}`, async () => {
       await reduxRender(<AccountCreate />);
-
-      userEvent.type(screen.getByRole('textbox', { name: /name/i }), t.name);
-      userEvent.type(screen.getByRole('textbox', { name: /email/i }), t.email);
-      // NOTE: All validation methods in React Hook Form are treated
-      // as async functions, so it's important to wrap async around your act.
-      await act(async () => {
-        userEvent.click(screen.getByRole('button', { name: /create/i }));
-      });
+      if (t.name) {
+        await userEvent.type(
+          screen.getByRole('textbox', { name: /name/i }),
+          t.name,
+        );
+      }
+      if (t.email) {
+        await userEvent.type(
+          screen.getByRole('textbox', { name: /email/i }),
+          t.email,
+        );
+      }
+      await userEvent.click(screen.getByRole('button', { name: /create/i }));
 
       if (t.expectedNameError) {
         expect(

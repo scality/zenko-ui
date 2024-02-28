@@ -1,4 +1,4 @@
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Icon } from '@scality/core-ui';
 import { useGrafanaURL } from '../next-architecture/ui/ConfigProvider';

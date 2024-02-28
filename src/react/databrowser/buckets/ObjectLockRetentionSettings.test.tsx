@@ -18,7 +18,7 @@ describe('ObjectLockRetentionSettings', () => {
       screen.getByRole('option', { name: /years/i }),
     objectlock: () => screen.getByLabelText(/object-lock/i),
   };
-  it('should enable retention settings when default retention is checked', () => {
+  it('should enable retention settings when default retention is checked', async () => {
     //S
     const Form = () => {
       const methods = useForm({
@@ -37,12 +37,12 @@ describe('ObjectLockRetentionSettings', () => {
       component: { container },
     } = reduxRender(<Form />);
     //E
-    userEvent.click(selectors.defaultRetention());
+    await userEvent.click(selectors.defaultRetention());
     //V
     expect(selectors.governanceRetentionMode()).toBeEnabled();
     expect(selectors.complianceRetentionMode()).toBeEnabled();
     expect(selectors.retentionPeriodInput()).toBeEnabled();
-    userEvent.click(selectors.retentionPeriodInput());
+    await userEvent.click(selectors.retentionPeriodInput());
 
     const selector = notFalsyTypeGuard(
       container.querySelector('.sc-select__control'),
@@ -100,7 +100,7 @@ describe('ObjectLockRetentionSettings', () => {
     };
 
     reduxRender(<Form />);
-    userEvent.click(selectors.defaultRetention());
+    await userEvent.click(selectors.defaultRetention());
     expect(screen.getByText(/expected error/i)).toBeInTheDocument();
   });
 });

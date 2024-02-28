@@ -1,5 +1,5 @@
 import { Icon, Loader, Stack, Text, Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import {
   EMPTY_APPROVE_BUTTON_LABEL,
   EMPTY_CANCEL_BUTTON_LABEL,

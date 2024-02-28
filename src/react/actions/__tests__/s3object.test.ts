@@ -5,7 +5,6 @@ import {
   AWS_CLIENT_ERROR_MSG,
   BUCKET_NAME,
   COMMON_PREFIX,
-  FILE,
   FOLDER_NAME,
   INFO,
   NEXT_CONTINUATION_TOKEN,
@@ -212,7 +211,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test without prefix parameter',
-      fn: actions.uploadFiles(BUCKET_NAME, '', [FILE]),
+      fn: actions.uploadFiles(BUCKET_NAME, '', []),
       storeState: initState,
       expectedActions: [
         dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
@@ -231,7 +230,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test with prefix parameter',
-      fn: actions.uploadFiles(BUCKET_NAME, PREFIX, [FILE]),
+      fn: actions.uploadFiles(BUCKET_NAME, PREFIX, []),
       storeState: initState,
       expectedActions: [
         dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),

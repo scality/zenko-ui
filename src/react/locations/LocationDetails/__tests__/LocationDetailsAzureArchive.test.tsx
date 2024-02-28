@@ -94,63 +94,67 @@ const selectAuthenticationHelper = (auth: authType, container: HTMLElement) => {
   });
 };
 
-const azureArchiveCommonHelper = (
+const azureArchiveCommonHelper = async (
   container: HTMLElement,
   endpoint: string,
   targetBucket: string,
 ) => {
-  userEvent.type(getByLabelText(container, 'Blob Endpoint *'), endpoint);
-  userEvent.type(
+  await userEvent.type(getByLabelText(container, 'Blob Endpoint *'), endpoint);
+  await userEvent.type(
     getByLabelText(container, /Target Azure Container Name \*/i),
     targetBucket,
   );
 };
 
 type prefilledValues = [RegExp, string][];
-const prefilledHelper = (container: HTMLElement, values: prefilledValues) => {
-  values.forEach((v) => {
-    userEvent.type(getByLabelText(container, v[0]), v[1]);
-  });
+const prefilledHelper = async (
+  container: HTMLElement,
+  values: prefilledValues,
+) => {
+  for (let value of values) {
+    await userEvent.type(getByLabelText(container, value[0]), value[1]);
+  }
+
   values.forEach((v) => {
     expect(getByLabelText(container, v[0])).toHaveValue(v[1]);
   });
 };
 
-const serviceBusTopicHelper = (container: HTMLElement) => {
+const serviceBusTopicHelper = async (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Topic Name \*/, 'mock-topic-name'],
     [/Topic Subscription Name \*/, 'mock-subscription-name'],
     [/Service Bus Endpoint \*/, 'mock-namespace'],
   ];
-  prefilledHelper(container, preDefinedAzureServiceBusTopic);
+  await prefilledHelper(container, preDefinedAzureServiceBusTopic);
 };
 
-const serviceBusQueueHelper = (container: HTMLElement) => {
+const serviceBusQueueHelper = async (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Queue Name \*/, 'mock-queue-name'],
     [/Service Bus Endpoint \*/, 'mock-endpoint'],
   ];
-  prefilledHelper(container, preDefinedAzureServiceBusTopic);
+  await prefilledHelper(container, preDefinedAzureServiceBusTopic);
 };
 
-const storageQueueHelper = (container: HTMLElement) => {
+const storageQueueHelper = async (container: HTMLElement) => {
   const preDefinedAzureServiceBusTopic: [RegExp, string][] = [
     [/Queue Name \*/, 'mock-queue-name'],
     [/Queue Endpoint/, 'mock-endpoint'],
   ];
-  prefilledHelper(container, preDefinedAzureServiceBusTopic);
+  await prefilledHelper(container, preDefinedAzureServiceBusTopic);
 };
 
-const authClientSecretHelper = (container: HTMLElement) => {
+const authClientSecretHelper = async (container: HTMLElement) => {
   const values: [RegExp, string][] = [
     [/Tenant ID \*/, 'mock-tenant-id'],
     [/Azure Client ID \*/, 'mock-azure-client-id'],
     [/Azure Client Key \*/, 'mock-azure-client-key'],
   ];
-  prefilledHelper(container, values);
+  await prefilledHelper(container, values);
 };
 
-const authSharedAccessSignature = (
+const authSharedAccessSignature = async (
   container: HTMLElement,
   isServiceBus = false,
 ) => {
@@ -164,15 +168,15 @@ const authSharedAccessSignature = (
       'mock-sas-token-for-service-bus',
     ]);
   }
-  prefilledHelper(container, values);
+  await prefilledHelper(container, values);
 };
 
-const authSharedKey = (container: HTMLElement) => {
+const authSharedKey = async (container: HTMLElement) => {
   const values: [RegExp, string][] = [
     [/Azure Account Name \*/, 'mock-azure-account-name'],
     [/Azure Account Key \*/, 'mock-azure-account-key'],
   ];
-  prefilledHelper(container, values);
+  await prefilledHelper(container, values);
 };
 
 describe('<LocationDetailsAzureArchive />', () => {
@@ -249,12 +253,11 @@ describe('<LocationDetailsAzureArchive />', () => {
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
-    serviceBusTopicHelper(container);
+    await serviceBusTopicHelper(container);
 
-    authClientSecretHelper(container);
-
+    await authClientSecretHelper(container);
     // V
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -274,22 +277,22 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Service Bus Topic + Shared Access Signature', () => {
+  test('Azure Service Bus Topic + Shared Access Signature', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
     // E + V
 
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
-    serviceBusTopicHelper(container);
+    await serviceBusTopicHelper(container);
 
     selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
 
-    authSharedAccessSignature(container, true);
+    await authSharedAccessSignature(container, true);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -308,19 +311,19 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Service Bus Queue + Client Secret', () => {
+  test('Azure Service Bus Queue + Client Secret', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
     selectQueueTypeHelper('location-azure-servicebus-queue-v1', container);
 
-    serviceBusQueueHelper(container);
+    await serviceBusQueueHelper(container);
 
-    authClientSecretHelper(container);
+    await authClientSecretHelper(container);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -339,23 +342,23 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Service Bus Queue + Shared Access Signature', () => {
+  test('Azure Service Bus Queue + Shared Access Signature', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
     selectQueueTypeHelper('location-azure-servicebus-queue-v1', container);
 
-    serviceBusQueueHelper(container);
+    await serviceBusQueueHelper(container);
 
     selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
 
-    authSharedAccessSignature(container, true);
+    await authSharedAccessSignature(container, true);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -373,19 +376,19 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Storage Queue + Client Secret', () => {
+  test('Azure Storage Queue + Client Secret', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
     selectQueueTypeHelper('location-azure-storage-queue-v1', container);
 
-    storageQueueHelper(container);
+    await storageQueueHelper(container);
 
-    authClientSecretHelper(container);
+    await authClientSecretHelper(container);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -404,24 +407,24 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Storage Queue + Shared Access Signature', () => {
+  test('Azure Storage Queue + Shared Access Signature', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
     selectQueueTypeHelper('location-azure-storage-queue-v1', container);
 
-    storageQueueHelper(container);
+    await storageQueueHelper(container);
 
     selectAuthenticationHelper(
       'location-azure-shared-access-signature',
       container,
     );
 
-    authSharedAccessSignature(container);
+    await authSharedAccessSignature(container);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,
@@ -438,21 +441,21 @@ describe('<LocationDetailsAzureArchive />', () => {
     });
   });
 
-  test('Azure Storage Queue + Shared Key', () => {
+  test('Azure Storage Queue + Shared Key', async () => {
     // S
     const { container, onChange, endpoint, targetBucket } =
       setupAndRenderLocationDetails();
 
     // E + V
-    azureArchiveCommonHelper(container, endpoint, targetBucket);
+    await azureArchiveCommonHelper(container, endpoint, targetBucket);
 
     selectQueueTypeHelper('location-azure-storage-queue-v1', container);
 
-    storageQueueHelper(container);
+    await storageQueueHelper(container);
 
     selectAuthenticationHelper('location-azure-shared-key', container);
 
-    authSharedKey(container);
+    await authSharedKey(container);
 
     expect(onChange).toHaveBeenCalledWith({
       bucketName: targetBucket,

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { formatSimpleDate } from '../utils';
 import { ConstrainedText, Icon, Link } from '@scality/core-ui';

@@ -29,9 +29,9 @@ describe('hooks', () => {
       </div>,
     );
 
-    userEvent.click(screen.getByText(/inside/));
+    await userEvent.click(screen.getByText(/inside/));
     expect(expectedToBeCalled).not.toHaveBeenCalled();
-    userEvent.click(screen.getByText(/outside/));
+    await userEvent.click(screen.getByText(/outside/));
     expect(expectedToBeCalled).toHaveBeenCalled();
   });
 });

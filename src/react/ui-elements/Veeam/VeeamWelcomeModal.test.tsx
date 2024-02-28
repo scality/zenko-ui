@@ -85,7 +85,7 @@ describe('VeeamWelcomeModal', () => {
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
-    userEvent.click(selectors.skipButton());
+    await userEvent.click(selectors.skipButton());
     //V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
     //E
@@ -114,7 +114,7 @@ describe('VeeamWelcomeModal', () => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
     //E
-    userEvent.click(selectors.skipButton());
+    await userEvent.click(selectors.skipButton());
     unmount();
     rerender(VeeamWelcomeModalComponent);
     //V

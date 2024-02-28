@@ -9,7 +9,7 @@ import {
   Wrap,
   useToast,
 } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { AWSError } from 'aws-sdk';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';

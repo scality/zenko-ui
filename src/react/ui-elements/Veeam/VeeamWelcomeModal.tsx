@@ -1,5 +1,5 @@
 import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { VEEAM_FEATURE } from '../../../js/config';

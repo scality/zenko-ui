@@ -180,7 +180,7 @@ describe('PauseAndResume', () => {
       expect(pauseButtonSelector()).not.toBeDisabled();
 
       //E
-      userEvent.click(pauseButtonSelector());
+      await userEvent.click(pauseButtonSelector());
 
       //V
       expect(pauseButtonSelector()).toBeDisabled();

@@ -6,7 +6,7 @@ import {
   useFieldArray,
   UseFormWatch,
 } from 'react-hook-form';
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import { Stack } from '@scality/core-ui';
 import { convertSizeToRem } from '@scality/core-ui/dist/components/inputv2/inputv2';
 

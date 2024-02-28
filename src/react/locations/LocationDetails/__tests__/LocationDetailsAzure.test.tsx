@@ -201,7 +201,7 @@ describe('class <LocationDetailsAzure />', () => {
     expect(screen.getByLabelText(/SAS token/i)).toHaveValue('');
   });
 
-  const setCommonValuesAndPerformCommonChecksOnAuthType = ({
+  const setCommonValuesAndPerformCommonChecksOnAuthType = async ({
     endpoint,
     targetBucket,
     container,
@@ -210,8 +210,8 @@ describe('class <LocationDetailsAzure />', () => {
     targetBucket: string;
     container: HTMLElement;
   }) => {
-    userEvent.type(screen.getByLabelText(/Blob Endpoint/i), endpoint);
-    userEvent.type(
+    await userEvent.type(screen.getByLabelText(/Blob Endpoint/i), endpoint);
+    await userEvent.type(
       screen.getByLabelText(/Target Container Name/i),
       targetBucket,
     );
@@ -219,10 +219,9 @@ describe('class <LocationDetailsAzure />', () => {
     const selector = notFalsyTypeGuard(
       container.querySelector('.sc-select__control'),
     );
-    selectClick(selector);
+    await selectClick(selector);
+    await userEvent.keyboard('{arrowup}');
 
-    fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-    fireEvent.keyDown(selector, { key: 'ArrowUp', which: 38, keyCode: 38 });
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
     ).toBe('Azure Shared Key');
@@ -243,22 +242,28 @@ describe('class <LocationDetailsAzure />', () => {
     return { selector };
   };
 
-  it('should call onChange with expected location when seting auth type to location-azure-shared-key', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-shared-key', async () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
     const accountName = 'name';
     const accountKey = 'key';
     //E
-    setCommonValuesAndPerformCommonChecksOnAuthType({
+    await setCommonValuesAndPerformCommonChecksOnAuthType({
       container,
       endpoint,
       targetBucket,
     });
-
-    userEvent.type(screen.getByLabelText(/Storage Account Name/i), accountName);
-    userEvent.type(screen.getByLabelText(/Storage Account Key/i), accountKey);
+    await userEvent.type(
+      screen.getByLabelText(/Storage Account Name/i),
+      accountName,
+    );
+    await userEvent.type(
+      screen.getByLabelText(/Storage Account Key/i),
+      accountKey,
+    );
     //V
+
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,
       endpoint,
@@ -271,7 +276,7 @@ describe('class <LocationDetailsAzure />', () => {
     });
   });
 
-  it('should call onChange with expected location when seting auth type to location-azure-client-secret', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-client-secret', async () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
@@ -279,15 +284,15 @@ describe('class <LocationDetailsAzure />', () => {
     const clientKey = 'key';
     const tenantId = 'tenanid';
     //E
-    setCommonValuesAndPerformCommonChecksOnAuthType({
+    await setCommonValuesAndPerformCommonChecksOnAuthType({
       container,
       endpoint,
       targetBucket,
     });
-    userEvent.click(screen.getByText(/Azure Client Secret/i));
-    userEvent.type(screen.getByLabelText(/Tenant ID/i), tenantId);
-    userEvent.type(screen.getByLabelText(/Client ID/i), clientId);
-    userEvent.type(screen.getByLabelText(/Client Secret/i), clientKey);
+    await userEvent.click(screen.getByText(/Azure Client Secret/i));
+    await userEvent.type(screen.getByLabelText(/Tenant ID/i), tenantId);
+    await userEvent.type(screen.getByLabelText(/Client ID/i), clientId);
+    await userEvent.type(screen.getByLabelText(/Client Secret/i), clientKey);
     //V
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,
@@ -302,20 +307,20 @@ describe('class <LocationDetailsAzure />', () => {
     });
   });
 
-  it('should call onChange with expected location when seting auth type to location-azure-shared-access-signature', () => {
+  it('should call onChange with expected location when seting auth type to location-azure-shared-access-signature', async () => {
     //S
     const { container, endpoint, onChange, targetBucket } =
       setupAndRenderLocationDetails();
     const sasToken = 'token';
     //E
-    const { selector } = setCommonValuesAndPerformCommonChecksOnAuthType({
+    const { selector } = await setCommonValuesAndPerformCommonChecksOnAuthType({
       container,
       endpoint,
       targetBucket,
     });
     fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
-    userEvent.click(screen.getByText(/Azure Shared Access Signature/i));
-    userEvent.type(screen.getByLabelText(/SAS token/i), sasToken);
+    await userEvent.click(screen.getByText(/Azure Shared Access Signature/i));
+    await userEvent.type(screen.getByLabelText(/SAS token/i), sasToken);
     //V
     expect(onChange).toHaveBeenCalledWith({
       bucketMatch: false,

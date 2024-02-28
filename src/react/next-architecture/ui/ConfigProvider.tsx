@@ -1,4 +1,4 @@
-import { ErrorPage500 } from '@scality/core-ui';
+import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
 import { createContext } from 'react';
 import {
   ComponentWithFederatedImports,

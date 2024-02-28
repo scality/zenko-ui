@@ -38,15 +38,17 @@ const helpNonAsyncLocation =
 const helpAsyncNotification =
   'Pause/resume Async Metadata updates is handled at the location level.';
 
+export const bucketNameValidationSchema = Joi.string()
+  .label('Bucket Name')
+  .required()
+  .min(3)
+  .pattern(/^[a-z0-9.-]+$/)
+  .max(63);
+
 export const bucketErrorMessage =
   'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';
 const schema = Joi.object({
-  name: Joi.string()
-    .label('Bucket Name')
-    .required()
-    .min(3)
-    .pattern(/^[a-z0-9.-]+$/)
-    .max(63),
+  name: bucketNameValidationSchema,
   locationName: Joi.string().required(),
   isVersioning: Joi.boolean(),
   isAsyncNotification: Joi.boolean(),

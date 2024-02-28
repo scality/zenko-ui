@@ -1,6 +1,6 @@
 // @noflow
-import { Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Wrap } from '@scality/core-ui/dist/spacing';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Dispatch } from 'redux';
 import type { Action } from '../../types/actions';

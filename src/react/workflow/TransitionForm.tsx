@@ -312,7 +312,7 @@ export const TransitionForm = ({ prefix = '' }: Props) => {
                     );
                     return (
                       <Select
-                        id="destinationLocation"
+                        id="locationName"
                         onBlur={onBlur}
                         onChange={onChange}
                         value={destinationLocation}

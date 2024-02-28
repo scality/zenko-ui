@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import * as JoiImport from '@hapi/joi';
 import DateExtension from '@hapi/joi-date';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import {
   Banner,
   Form,

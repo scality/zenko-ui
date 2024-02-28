@@ -33,14 +33,10 @@ import { VeeamSkipModal } from './VeeamSkipModal';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { ListItem } from './VeeamTable';
 import { getCapacityBytes } from './useCapacityUnit';
+import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
 
 const schema = Joi.object({
-  bucketName: Joi.string()
-    .label('Bucket Name')
-    .required()
-    .min(3)
-    .pattern(/^[a-z0-9.-]+$/)
-    .max(63),
+  bucketName: bucketNameValidationSchema,
   application: Joi.string().required(),
   capacity: Joi.when('application', {
     is: Joi.equal(VEEAM_BACKUP_REPLICATION),

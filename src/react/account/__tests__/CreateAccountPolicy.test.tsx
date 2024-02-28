@@ -71,10 +71,10 @@ describe('CreateAccountPolicy', () => {
       name: /Policy name/i,
     });
 
-    userEvent.type(policyNameInput, '');
+    await userEvent.click(policyNameInput);
     const createButton = screen.getByRole('button', { name: /Create/i });
 
-    userEvent.click(createButton);
+    await userEvent.click(createButton);
     expect(createButton).toBeDisabled();
   });
   it('should check if create button is disabled when no policy name is provided', async () => {
@@ -83,9 +83,9 @@ describe('CreateAccountPolicy', () => {
       name: /Policy name/i,
     });
     const createButton = screen.getByRole('button', { name: /Create/i });
-    userEvent.type(policyNameInput, 'Foo');
+    await userEvent.type(policyNameInput, 'Foo');
     await waitFor(() => expect(createButton).toBeEnabled());
-    userEvent.clear(policyNameInput);
+    await userEvent.clear(policyNameInput);
     await waitFor(() => expect(createButton).toBeDisabled());
     //V
     expect(screen.getByText('The policy name is required')).toBeInTheDocument();

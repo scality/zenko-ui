@@ -9,7 +9,7 @@ import {
   Text,
   Wrap,
 } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useCallback, useMemo, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import {

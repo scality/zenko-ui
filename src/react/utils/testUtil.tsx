@@ -15,7 +15,7 @@ import {
 } from 'react-query';
 import { Route, Router } from 'react-router-dom';
 
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { _ManagementContext } from '../ManagementProvider';
 import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
@@ -41,6 +41,8 @@ import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/Acces
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { ToastProvider } from '@scality/core-ui';
 import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
+import userEvent from '@testing-library/user-event';
+
 export const theme = coreUIAvailableThemes.darkRebrand;
 export const history = createMemoryHistory();
 export const configuration = {
@@ -600,13 +602,9 @@ export const NewWrapper =
     );
   };
 
-// FIXME This helper should be remove later when we find a way to correctly use select with userEvent.
-export const selectClick = (component) => {
-  fireEvent.keyDown(component, {
-    key: 'ArrowDown',
-    which: 40,
-    keyCode: 40,
-  });
+export const selectClick = async (component) => {
+  await userEvent.click(component);
+  await userEvent.keyboard('{ArrowDown}');
 };
 
 export const expectElementNotToBeInDocument = async (

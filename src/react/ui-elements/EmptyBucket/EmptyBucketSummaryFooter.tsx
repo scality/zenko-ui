@@ -1,5 +1,5 @@
-import { Wrap } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
+import { Wrap } from '@scality/core-ui/dist/spacing';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { CLOSE } from './constants';
 
 type EmptyBucketSummaryFooterProps = {

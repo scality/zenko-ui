@@ -10,7 +10,7 @@ import { SmallerText } from '@scality/core-ui/dist/components/text/Text.componen
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useEffect, useState } from 'react';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
 import { LocationV1 } from '../../../../js/managementClient/api';

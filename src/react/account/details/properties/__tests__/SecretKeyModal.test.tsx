@@ -28,7 +28,7 @@ describe('SecretKeyModal', () => {
     expect(screen.queryByText(modalTitle)).not.toBeInTheDocument();
   });
 
-  it('should render SecretKeyModal component with key informations', () => {
+  it('should render SecretKeyModal component with key informations', async () => {
     const writeTextFn = jest.fn();
     //@ts-expect-error fix this when you are working on it
     global.navigator.clipboard = {
@@ -54,11 +54,9 @@ describe('SecretKeyModal', () => {
     expect(screen.getByText(accountKey.accessKey)).toBeInTheDocument();
     expect(screen.getByText(hiddenValue)).toBeInTheDocument();
 
-    userEvent.click(
-      screen.getByRole('button', {
-        name: /copy to clipboard/i,
-      }),
-    );
+    await userEvent.click(screen.getByRole('button', {
+      name: /copy to clipboard/i,
+    }));
 
     expect(writeTextFn).toHaveBeenCalledTimes(1);
   });

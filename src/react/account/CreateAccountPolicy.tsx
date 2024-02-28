@@ -8,7 +8,7 @@ import { handleApiError, handleClientError } from '../actions';
 import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import { MouseEvent } from 'react';
 
 type PolicyFormValues = {

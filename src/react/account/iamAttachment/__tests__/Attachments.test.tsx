@@ -17,6 +17,7 @@ import {
   renderWithRouterMatch,
 } from '../../../utils/testUtil';
 import Attachments from '../Attachments';
+import * as DSRProvider from '../../../DataServiceRoleProvider';
 
 const defaultAccountName = 'account1';
 const userName = 'user1';
@@ -175,11 +176,19 @@ const server = setupServer(
     return res(ctx.json(accountSeeds));
   }),
 );
-
+const defaultCurrentAccount = {
+  id: 'account-id-renard',
+  Name: 'Renard',
+  Roles: [],
+  CreationDate: new Date('2022-03-18T12:51:44Z'),
+};
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
+  jest.setTimeout(20_000);
   mockOffsetSize(500, 100);
-  jest.setTimeout(10_000);
+  jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
+    account: defaultCurrentAccount,
+  });
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -229,7 +238,7 @@ describe('Policy Attachments', () => {
   it('should render the attached Groups in Groups Tab', async () => {
     // S
     setupPolicyRender();
-    userEvent.click(screen.getByRole('tab', { name: /groups/i }));
+    await userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     //E
     await waitFor(() => screen.getByText('Attachment status'));
     //V
@@ -265,7 +274,7 @@ describe('Policy Attachments', () => {
         name: new RegExp(tobeAttachedUserName, 'i'),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(tobeAttachedUserName, 'i'),
       }),
@@ -286,7 +295,7 @@ describe('Policy Attachments', () => {
     ).not.toBeDisabled();
 
     //E
-    userEvent.click(
+    await userEvent.click(
       within(pendingUser).getByRole('button', { name: /remove/i }),
     );
 
@@ -319,12 +328,12 @@ describe('Policy Attachments', () => {
         name: new RegExp(tobeAttachedUserName, 'i'),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(tobeAttachedUserName, 'i'),
       }),
     );
-    userEvent.click(screen.getByRole('button', { name: /save/i }));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
     //V
     expect(
@@ -336,13 +345,12 @@ describe('Policy Attachments', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /confirm/i })).not.toBeDisabled();
-
     //E
-    userEvent.click(screen.getByRole('button', { name: /confirm/i }));
+    await userEvent.click(screen.getByRole('button', { name: /confirm/i }));
     //V
-    await waitFor(() =>
-      expect(screen.getByText('Success')).toBeInTheDocument(),
-    );
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+    });
     expect(screen.getByRole('button', { name: /exit/i })).not.toBeDisabled();
   });
 
@@ -362,7 +370,7 @@ describe('Policy Attachments', () => {
     );
 
     //E
-    userEvent.click(screen.getByRole('tab', { name: /groups/i }));
+    await userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() =>
       expect(
         screen.getByPlaceholderText('Example: Search by entity name'),
@@ -378,11 +386,11 @@ describe('Policy Attachments', () => {
     await waitFor(() =>
       screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', { name: new RegExp(groupName, 'i') }),
     );
-    userEvent.click(screen.getByRole('button', { name: /save/i }));
-    userEvent.click(screen.getByRole('button', { name: /confirm/i }));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
+    await userEvent.click(screen.getByRole('button', { name: /confirm/i }));
 
     //V
     await waitFor(() => expect(screen.getByText('Error')).toBeInTheDocument());
@@ -470,7 +478,7 @@ describe('Policy Attachments', () => {
     const policyArn = `arn:aws:iam::718643629313:policy/scality-internal/attached-role`;
     setupPolicyRender(defaultAccountName, policyArn);
 
-    userEvent.click(screen.getByRole('tab', { name: /roles/i }));
+    await userEvent.click(screen.getByRole('tab', { name: /roles/i }));
     //E
     await waitFor(() => screen.getByText('Attachment status'));
 
@@ -527,21 +535,22 @@ describe('User Attachments', () => {
     ).not.toBeDisabled();
 
     //E
-    userEvent.click(
+    await userEvent.click(
       within(pendingGroup).getByRole('button', { name: /remove/i }),
     );
-    userEvent.click(screen.getByRole('button', { name: /save/i }));
+    await userEvent.click(screen.getByRole('button', { name: /save/i }));
 
-    expect(
-      screen.getByRole('row', {
-        name: /detach group devs waiting for confirmation/i,
-      }),
-    ).toBeInTheDocument();
-    userEvent.click(screen.getByRole('button', { name: /confirm/i }));
-
+    await waitFor(() => {
+      expect(
+        screen.getByRole('row', {
+          name: /detach group devs waiting for confirmation/i,
+        }),
+      ).toBeInTheDocument();
+    });
+    await userEvent.click(screen.getByRole('button', { name: /confirm/i }));
     await waitFor(() =>
       expect(screen.getByText('Success')).toBeInTheDocument(),
     );
-    expect(screen.getByRole('button', { name: /exit/i })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: /exit/i })).toBeEnabled();
   });
 });

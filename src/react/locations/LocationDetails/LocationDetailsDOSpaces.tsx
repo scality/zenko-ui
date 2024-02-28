@@ -1,7 +1,7 @@
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 type State = {
   bucketMatch: boolean;
   accessKey: string;

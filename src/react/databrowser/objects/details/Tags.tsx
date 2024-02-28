@@ -10,7 +10,7 @@ import {
   Items,
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import type { Tag } from '../../../../types/s3';
 import { putObjectTagging } from '../../../actions';
 import { useDispatch } from 'react-redux';
@@ -84,7 +84,7 @@ function Properties({ bucketName, objectKey, tags, versionId }: Props) {
 
   return (
     <Form
-      layout={{kind: 'tab'}}
+      layout={{ kind: 'tab' }}
       onSubmit={handleSubmit(onSubmit)}
       rightActions={
         <Button
@@ -98,47 +98,49 @@ function Properties({ bucketName, objectKey, tags, versionId }: Props) {
       }
     >
       <div>
-      <Header>
-        <HeaderKeyTag> Key </HeaderKeyTag>
-        <HeaderValueTag> Value </HeaderValueTag>
-      </Header>
+        <Header>
+          <HeaderKeyTag> Key </HeaderKeyTag>
+          <HeaderValueTag> Value </HeaderValueTag>
+        </Header>
 
-      <Items>
-        {fields.map((_, index) => {
-          return (
-            <Item key={index}>
-              <Inputs>
-                <InputTag
-                  className="tags-input-key"
-                  aria-label={`Tag ${index + 1} key`}
-                  {...register(`tags.${index}.key`)}
-                  autoComplete="off"
-                />
-                <InputTag
-                  className="tags-input-value"
-                  aria-label={`Tag ${index + 1} value`}
-                  {...register(`tags.${index}.value`)}
-                  autoComplete="off"
-                />
-              </Inputs>
-              <Buttons>
-                <SubButton
-                  index={index}
-                  items={tagsFormValues}
-                  deleteEntry={() =>
-                    tagsFormValues.length === 1 ? deleteEntry() : remove(index)
-                  }
-                />
-                <AddButton
-                  index={index}
-                  items={tagsFormValues}
-                  insertEntry={() => append({ key: '', value: '' })}
-                />
-              </Buttons>
-            </Item>
-          );
-        })}
-      </Items>
+        <Items>
+          {fields.map((_, index) => {
+            return (
+              <Item key={index}>
+                <Inputs>
+                  <InputTag
+                    className="tags-input-key"
+                    aria-label={`Tag ${index + 1} key`}
+                    {...register(`tags.${index}.key`)}
+                    autoComplete="off"
+                  />
+                  <InputTag
+                    className="tags-input-value"
+                    aria-label={`Tag ${index + 1} value`}
+                    {...register(`tags.${index}.value`)}
+                    autoComplete="off"
+                  />
+                </Inputs>
+                <Buttons>
+                  <SubButton
+                    index={index}
+                    items={tagsFormValues}
+                    deleteEntry={() =>
+                      tagsFormValues.length === 1
+                        ? deleteEntry()
+                        : remove(index)
+                    }
+                  />
+                  <AddButton
+                    index={index}
+                    items={tagsFormValues}
+                    insertEntry={() => append({ key: '', value: '' })}
+                  />
+                </Buttons>
+              </Item>
+            );
+          })}
+        </Items>
       </div>
     </Form>
   );

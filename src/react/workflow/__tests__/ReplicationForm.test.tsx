@@ -47,10 +47,10 @@ const server = setupServer(
   }),
 );
 
+jest.setTimeout(20_000);
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(10_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -131,35 +131,35 @@ describe('ReplicationForm', () => {
       expect(formValidationa.textContent).toBe('form-valid');
 
       // Select the Source Bucket.
-      selectClick(selectors.bucketSelect());
-      userEvent.click(selectors.bucketOption2());
+      await selectClick(selectors.bucketSelect());
+      await userEvent.click(selectors.bucketOption2());
 
       // Select the first destination.
       const LocationName = screen.getByTestId('select-location-name-replication-0');
       const lControl = LocationName.querySelector('.sc-select__control')
       const locCtl = notFalsyTypeGuard(lControl);
-      selectClick(locCtl);
+      await selectClick(locCtl);
       expect(locCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const lOption = LocationName.querySelector('.sc-select__option');
       const lOpt = notFalsyTypeGuard(lOption)
       expect(lOpt?.textContent).toBe("chapter-ux (ARTESCA)");
-      userEvent.click(lOpt);
+      await userEvent.click(lOpt);
       expect(locCtl.querySelector('.sc-select__single-value')?.textContent).toBe('chapter-ux (ARTESCA)');
       const lAddButton = LocationName.querySelector('#addbtn0')
-      userEvent.click(notFalsyTypeGuard(lAddButton))
+      await userEvent.click(notFalsyTypeGuard(lAddButton))
       expect(lAddButton).toBeDisabled()
 
       // Select the second destination.
       const NewLocationName = screen.getByTestId('select-location-name-replication-1')
       const nlControl = NewLocationName.querySelector('.sc-select__control')
       const nlCtl = notFalsyTypeGuard(nlControl)
-      selectClick(nlCtl);
+      await selectClick(nlCtl);
 
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe(undefined);
       const nlOption = NewLocationName.querySelectorAll('.sc-select__option')[1]
       const nlOpt = notFalsyTypeGuard(nlOption)
       expect(nlOpt?.textContent).toBe("ring-nick (RING S3)");
-      userEvent.click(nlOpt);
+      await userEvent.click(nlOpt);
       expect(nlCtl.querySelector('.sc-select__single-value')?.textContent).toBe('ring-nick (RING S3)');
       const nlAddButon = NewLocationName.querySelector('#addbtn1')
       expect(nlAddButon).not.toBeDisabled()
@@ -174,7 +174,7 @@ describe('ReplicationForm', () => {
     //E
     await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))
     await waitFor(() => screen.getByText(/General/i));
-    selectClick(selectors.bucketSelect());
+    await selectClick(selectors.bucketSelect());
     //V
     expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
     expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');    
@@ -199,7 +199,7 @@ describe('ReplicationForm', () => {
       expect(within(screen.getByRole('status')).getByText(/Encountered issues loading bucket tagging, causing uncertainty about the source of Bucket. Please refresh the page./i)).toBeVisible();
     });
     //E
-    userEvent.click(screen.getByRole('button', { name: /close/i }));
+    await userEvent.click(screen.getByRole('button', { name: /close/i }));
     //V
     await waitFor(()=>{
       expect(screen.queryByRole('status')).not.toBeInTheDocument();

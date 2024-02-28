@@ -25,7 +25,6 @@ import {
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -144,16 +143,16 @@ describe('ExpirationForm', () => {
     expect(spinButton[2].getAttribute('type')).toBe('number');
 
     // Select the Source Bucket.
-    selectClick(selectors.bucketSelect());
+    await selectClick(selectors.bucketSelect());
 
-    userEvent.click(selectors.versionedBucketOption());
+    await userEvent.click(selectors.versionedBucketOption());
     const expireCurrentToggleState = result.container.querySelector(
       '[for="expireCurrentVersions"]',
     )!.parentElement!.parentElement!.parentElement!;
     const expireCurrent = expireCurrentToggleState.querySelector(
       'input[placeholder="currentVersionDelayDaysToggle"]',
     );
-    userEvent.click(notFalsyTypeGuard(expireCurrent));
+    await userEvent.click(notFalsyTypeGuard(expireCurrent));
 
     const expirePreviousToggleState = result.container.querySelector(
       '[for="expirePreviousVersions"]',
@@ -187,7 +186,7 @@ describe('ExpirationForm', () => {
       which: 40,
       keyCode: 40,
     });
-    userEvent.click(selectors.suspendedBucketOption());
+    await userEvent.click(selectors.suspendedBucketOption());
 
     expect(expireCurrent).not.toBeDisabled();
     expect(expirePrevious).toBeDisabled();

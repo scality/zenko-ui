@@ -1,4 +1,4 @@
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useEffect, useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import { XDM_FEATURE } from '../../../js/config';
@@ -6,7 +6,11 @@ import { HelpLocationCreationAsyncNotification } from '../../ui-elements/Help';
 import { isIngestSource } from '../../utils/storageOptions';
 import { storageOptions } from './storageOptions';
 
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
+import {
+  FormGroup,
+  FormSection,
+} from '@scality/core-ui/dist/components/form/Form.component';
+import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
 import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,

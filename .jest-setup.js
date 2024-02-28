@@ -4,5 +4,3 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 Enzyme.configure({ adapter: new Adapter() });
-
-HTMLCanvasElement.prototype.getContext = () => {};

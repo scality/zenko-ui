@@ -20,7 +20,6 @@ import type {
 import type {
   CommonPrefix,
   DeleteFolder,
-  File,
   HeadObjectResponse,
   ListObjectsType,
   MetadataPairs,

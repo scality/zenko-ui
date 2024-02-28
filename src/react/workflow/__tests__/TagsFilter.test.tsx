@@ -5,7 +5,7 @@ import TagsFilter from '../TagsFilter';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 describe('TagsFilter', () => {
-  it('should render TagsFilters', () => {
+  it('should render TagsFilters', async () => {
     const ExpirationForm = () => {
       const { control, watch } = useForm({
         defaultValues: {
@@ -46,11 +46,11 @@ describe('TagsFilter', () => {
     expect(firstValueField).toBeInTheDocument();
 
     const sampleKeyName = 'secretdoor';
-    userEvent.type(firstKeyField, sampleKeyName);
+    await userEvent.type(firstKeyField, sampleKeyName);
     expect(firstKeyField).toHaveValue(sampleKeyName);
 
     const sampleValue = 'secretwindow';
-    userEvent.type(firstValueField, sampleValue);
+    await userEvent.type(firstValueField, sampleValue);
     expect(firstValueField).toHaveValue(sampleValue);
 
     const addButon = screen.getByRole('button', { name: 'Add' });

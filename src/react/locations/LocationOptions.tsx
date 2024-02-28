@@ -4,7 +4,11 @@ import type { LocationName } from '../../types/config';
 import { ChangeEvent } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
+import {
+  FormGroup,
+  FormSection,
+} from '@scality/core-ui/dist/components/form/Form.component';
+import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
 
 const isTransientEnabled = (locationType: LocationName) => {
   const transientLocationsType = [

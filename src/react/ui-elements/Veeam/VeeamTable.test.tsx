@@ -142,11 +142,11 @@ describe('VeeamTable', () => {
     server.use(...allFailHandlers);
     setupTest();
     //Exercise
-    userEvent.type(selectors.setBucketName(), bucketName);
+    await userEvent.type(selectors.setBucketName(), bucketName);
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
     });
-    userEvent.click(selectors.continueButton());
+    await userEvent.click(selectors.continueButton());
 
     // Veeam action table
     await waitFor(() => {
@@ -173,7 +173,7 @@ describe('VeeamTable', () => {
       //E
       server.resetHandlers(...goodHandlers);
 
-      userEvent.click(selectors.retryButton());
+      await userEvent.click(selectors.retryButton());
       //V
       await waitFor(
         () => {
@@ -192,11 +192,11 @@ describe('VeeamTable', () => {
     setupTest();
     //Exercise
     //type the bucket name in configuration form
-    userEvent.type(selectors.setBucketName(), bucketName);
+    await userEvent.type(selectors.setBucketName(), bucketName);
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
     });
-    userEvent.click(selectors.continueButton());
+    await userEvent.click(selectors.continueButton());
     //V
     await verifySuccessActions(mutationActions);
   });
@@ -207,15 +207,15 @@ describe('VeeamTable', () => {
     setupTest();
     //Exercise
     //Select Veeam Backup for Microsoft Office 365
-    selectClick(selectors.veeamApplicationSelect());
-    userEvent.click(selectors.veeamVBO());
+    await selectClick(selectors.veeamApplicationSelect());
+    await userEvent.click(selectors.veeamVBO());
     //type the bucket name in configuration form
-    userEvent.type(selectors.setBucketName(), bucketName);
+    await userEvent.type(selectors.setBucketName(), bucketName);
 
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
     });
-    userEvent.click(selectors.continueButton());
+    await userEvent.click(selectors.continueButton());
     //V
     await verifySuccessActions(VeeamVBOActions);
   });
@@ -226,14 +226,14 @@ describe('VeeamTable', () => {
     setupTest();
     //Exercise
     //type the bucket name in configuration form
-    userEvent.type(selectors.setBucketName(), bucketName);
-    userEvent.click(selectors.immutableBackupToggle());
+    await userEvent.type(selectors.setBucketName(), bucketName);
+    await userEvent.click(selectors.immutableBackupToggle());
 
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
       expect(selectors.immutableBackupToggle()).not.toBeChecked();
     });
-    userEvent.click(selectors.continueButton());
+    await userEvent.click(selectors.continueButton());
     //V
     await verifySuccessActions(mutationActions);
     await waitFor(() => {

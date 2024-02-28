@@ -386,7 +386,7 @@ describe('Overview', () => {
       expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
     });
     //Exercise
-    userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
+    await userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErorToastQuery()).toBe(null);

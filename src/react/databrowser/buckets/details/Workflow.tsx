@@ -1,7 +1,7 @@
 import { ConstrainedText } from '@scality/core-ui';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';

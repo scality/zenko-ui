@@ -127,6 +127,8 @@ describe('VeeamCapacityOverviewRow', () => {
       expect(screen.getByText('Max repository Capacity')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Error')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Error')).toBeInTheDocument();
+    });
   });
 });

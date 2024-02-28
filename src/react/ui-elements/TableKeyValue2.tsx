@@ -2,7 +2,7 @@
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { ReactNode } from 'react';
-import { IconHelp } from '@scality/core-ui';
+import { IconHelp } from '@scality/core-ui/dist/components/IconHelper';
 // TEMPLATE
 //
 // <Table>

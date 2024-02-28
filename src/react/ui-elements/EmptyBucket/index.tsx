@@ -1,6 +1,5 @@
-import { Banner, BasicText, Icon, Tooltip } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
-import { Button } from '@scality/core-ui/dist/next';
+import { Banner, BasicText, Icon, Input, Tooltip } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { S3 } from 'aws-sdk';
 import { isEqual } from 'lodash';

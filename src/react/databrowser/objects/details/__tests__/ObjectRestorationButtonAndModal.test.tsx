@@ -9,18 +9,19 @@ import {
 } from '../../../../utils/testUtil';
 import { OBJECT_METADATA } from '../../../../actions/__tests__/utils/testUtil';
 import ObjectRestorationButtonAndModal from '../ObjectRestorationButtonAndModal';
-import { act } from 'react-dom/test-utils';
 
 const bucketName = 'bucket';
 
 const server = setupServer(
   rest.post(
     `${TEST_API_BASE_URL}/${bucketName}/${OBJECT_METADATA.objectKey}`,
-    (req, res, ctx) => {
+    async (req, res, ctx) => {
       if (
         req.url.searchParams.get('versionId') === OBJECT_METADATA.versionId &&
         req.url.searchParams.has('restore')
       ) {
+        // Add some delay to simulate the restoration process
+        await new Promise((resolve) => setTimeout(resolve, 100));
         return res(ctx.status(202));
       }
     },
@@ -62,15 +63,14 @@ describe('Object Restoration Button And Modal', () => {
         objectMetadata={OBJECT_METADATA}
       />,
     );
-    act(() => {
-      userEvent.click(selectors.restoreButtonSelector());
-    });
+
+    await userEvent.click(selectors.restoreButtonSelector());
+
     //V
     expect(selectors.objectTableRowSeletor());
     //E
-    act(() => {
-      userEvent.click(selectors.startRestorationButtonSelector());
-    });
+    await userEvent.click(selectors.startRestorationButtonSelector());
+
     await waitFor(() => {
       expect(selectors.startRestorationButtonSelector()).toBeDisabled();
     });
@@ -113,11 +113,11 @@ describe('Object Restoration Button And Modal', () => {
         objectMetadata={OBJECT_METADATA}
       />,
     );
-    userEvent.click(selectors.restoreButtonSelector());
+    await userEvent.click(selectors.restoreButtonSelector());
     //V
     expect(selectors.objectTableRowSeletor());
     //E
-    userEvent.click(selectors.startRestorationButtonSelector());
+    await userEvent.click(selectors.startRestorationButtonSelector());
     await waitFor(() => {
       expect(selectors.startRestorationButtonSelector()).toBeDisabled();
     });

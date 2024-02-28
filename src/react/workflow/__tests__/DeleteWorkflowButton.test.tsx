@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  act,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DeleteWorkflowButton } from '../DeleteWorkflowButton';
 import { Replication } from '../../../types/config';
 import {
@@ -12,7 +6,6 @@ import {
   TEST_API_BASE_URL,
   queryClient,
 } from '../../utils/testUtil';
-import { debug } from 'jest-preview';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -135,9 +128,7 @@ describe('DeleteWorkflowButton', () => {
     fireEvent.click(selectors.deleteButton());
     expect(screen.queryByRole('checkbox')).not.toBeChecked();
 
-    await act(async () => {
-      userEvent.click(screen.getByRole('checkbox'));
-    });
+    await userEvent.click(screen.getByRole('checkbox'));
 
     expect(screen.getByRole('checkbox')).toBeChecked();
 

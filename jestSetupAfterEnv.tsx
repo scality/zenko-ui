@@ -10,6 +10,23 @@ beforeEach(() => {
   queryClient.clear();
 });
 
+// When testing that the upload api is effectively called
+// we are getting this error from MSW
+// error: TypeError [NetworkingError]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Blob
+// at new NodeError (node:internal/errors:372:5)
+// at Function.from (node:buffer:323:9)
+// at Object.concatChunkToBuffer (/Users/yanjincheng/Scality/zenko-ui/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/utils/concatChunkToBuffer.ts:6:20)
+// at NodeClientRequest.Object.<anonymous>.NodeClientRequest.getRequestBody (/Users/yanjincheng/Scality/zenko-ui/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/NodeClientRequest.ts:372:26)
+// at NodeClientRequest.Object.<anonymous>.NodeClientRequest.end (/Users/yanjincheng/Scality/zenko-ui/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/NodeClientRequest.ts:112:30)
+// We suspect this to be solved in msw 2.0.0, lets have a look when upgrading
+const originalBufferFrom = Buffer.from;
+Buffer.from = (potentialyBlob) => {
+  if (potentialyBlob instanceof Blob) {
+    return originalBufferFrom('test');
+  }
+  return originalBufferFrom(potentialyBlob);
+};
+
 jest.mock('./src/react/next-architecture/ui/AuthProvider', () => {
   const INSTANCE_ID = '3d49e1f9-fa2f-40aa-b2d4-c7a8b04c6cde';
   return {

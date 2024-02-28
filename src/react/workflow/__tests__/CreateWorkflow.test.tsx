@@ -7,7 +7,6 @@ import userEvent from '@testing-library/user-event';
 import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { act } from 'react-dom/test-utils';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import {
   mockBucketListing,
@@ -135,7 +134,6 @@ const selectors = {
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(60_000);
   jest.spyOn(DSRProvider, 'useCurrentAccount').mockReturnValue({
     account: defaultCurrentAccount,
   });
@@ -143,6 +141,7 @@ beforeAll(() => {
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
+jest.setTimeout(50_000);
 describe('CreateWorkflow', () => {
   it('should render the form to create a new replication', async () => {
     //S
@@ -164,13 +163,13 @@ describe('CreateWorkflow', () => {
     await waitFor(() => screen.getByText(/create new workflow/i));
 
     // Select Workflow Type
-    selectClick(selectors.workflowTypeSelect());
+    await selectClick(selectors.workflowTypeSelect());
 
     expect(selectors.replicationOption()).toBeInTheDocument();
     expect(selectors.expirationOption()).toBeInTheDocument();
     expect(selectors.transitionOption()).toBeInTheDocument();
 
-    userEvent.click(selectors.replicationOption());
+    await userEvent.click(selectors.replicationOption());
 
     if (screen.queryAllByText('Loading locations...').length > 0) {
       await waitForElementToBeRemoved(() =>
@@ -184,16 +183,16 @@ describe('CreateWorkflow', () => {
     }
 
     // Select Bucket Name
-    selectClick(selectors.bucketSelect());
+    await selectClick(selectors.bucketSelect());
     await waitFor(() =>
       expect(selectors.bucketVersionedOption()).toBeEnabled(),
     );
-    userEvent.click(selectors.bucketVersionedOption());
+    await userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
-    selectClick(selectors.locationSelect());
+    await selectClick(selectors.locationSelect());
 
-    userEvent.click(selectors.locationAWSS3());
+    await userEvent.click(selectors.locationAWSS3());
     //V
     await waitFor(
       () => {
@@ -232,13 +231,13 @@ describe('CreateWorkflow', () => {
     await waitFor(() => screen.getByText(/create new workflow/i));
 
     // Select Workflow Type
-    selectClick(selectors.workflowTypeSelect());
+    await selectClick(selectors.workflowTypeSelect());
 
     expect(selectors.replicationOption()).toBeInTheDocument();
     expect(selectors.expirationOption()).toBeInTheDocument();
     expect(selectors.transitionOption()).toBeInTheDocument();
 
-    userEvent.click(selectors.replicationOption());
+    await userEvent.click(selectors.replicationOption());
 
     if (screen.queryAllByText('Loading locations...').length > 0) {
       await waitForElementToBeRemoved(() =>
@@ -252,15 +251,15 @@ describe('CreateWorkflow', () => {
     }
 
     // Select Bucket Name
-    selectClick(selectors.bucketSelect());
+    await selectClick(selectors.bucketSelect());
     await waitFor(() =>
       expect(selectors.bucketVersionedOption()).toBeEnabled(),
     );
-    userEvent.click(selectors.bucketVersionedOption());
+    await userEvent.click(selectors.bucketVersionedOption());
 
     // Select Destination
-    selectClick(selectors.locationSelect());
-    userEvent.click(selectors.locationAWSS3());
+    await selectClick(selectors.locationSelect());
+    await userEvent.click(selectors.locationAWSS3());
 
     // Click on Create Button
     await waitFor(
@@ -269,17 +268,18 @@ describe('CreateWorkflow', () => {
       },
       { timeout: 10_000 },
     );
-    act(() => userEvent.click(selectors.createButton()));
+    await userEvent.click(selectors.createButton());
     //V
     await waitFor(() => expect(screen.getByText('Error')));
   });
-  it('should disable the replication option for the bucket which is not version enabled', () => {
+  it('should disable the replication option for the bucket which is not version enabled', async () => {
     //S
     jest
       .spyOn(hooks, 'useQueryParams')
       .mockReturnValue(
         new URLSearchParams(`?bucket=${BUCKET_NAME_NON_VERSIONED}`),
       );
+    server.use(mockBucketOperations({ isVersioningEnabled: false }));
     //E
     reduxRender(<CreateWorkflow />, {
       s3: {
@@ -289,11 +289,13 @@ describe('CreateWorkflow', () => {
       },
     });
     // Select Workflow Type
-    selectClick(selectors.workflowTypeSelect());
+    await selectClick(selectors.workflowTypeSelect());
     //V
-    expect(selectors.replicationOption()).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
+    await waitFor(() => {
+      expect(selectors.replicationOption()).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
   });
 });

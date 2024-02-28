@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: 'jsdom',
   testMatch: ['**/?(*.)+(test).ts?(x)'],
   transformIgnorePatterns: [
     '/node_modules/(?!(vega-lite|@scality|pretty-bytes)/)',

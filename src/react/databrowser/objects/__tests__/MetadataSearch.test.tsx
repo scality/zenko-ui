@@ -33,7 +33,7 @@ describe('Metadata Search', () => {
 
     expect(selectors.searchButton()).toBeDisabled();
   });
-  it('should render dropdown menu correctly', () => {
+  it('should render dropdown menu correctly', async () => {
     renderWithRouterMatch(
       <MetadataSearch isMetadataType={false} errorZenkoMsg={null} />,
       {
@@ -45,7 +45,7 @@ describe('Metadata Search', () => {
     expect(selectors.input()).toBeInTheDocument();
 
     expect(screen.queryByText(/suggestions/i)).not.toBeInTheDocument();
-    userEvent.click(selectors.input());
+    await userEvent.click(selectors.input());
 
     expect(screen.getByText(/suggestions/i)).toBeInTheDocument();
 

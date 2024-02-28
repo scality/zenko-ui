@@ -146,9 +146,9 @@ describe('AccountInfo', () => {
     );
 
     //E
-    userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
 
-    userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
       const params = new URLSearchParams({
@@ -177,13 +177,11 @@ describe('AccountInfo', () => {
     renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
       instances: { selectedId: INSTANCE_ID },
     });
-    userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
-    userEvent.click(
-      within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
-        'button',
-        { name: /delete/i },
-      ),
-    );
+    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    await userEvent.click(within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
+      'button',
+      { name: /delete/i },
+    ));
     //V
     await waitFor(() => {
       expect(
@@ -193,12 +191,10 @@ describe('AccountInfo', () => {
       ).toBeInTheDocument();
     });
     //E
-    userEvent.click(
-      within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
-        'button',
-        { name: /close/i },
-      ),
-    );
+    await userEvent.click(within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
+      'button',
+      { name: /close/i },
+    ));
     //V
     await waitFor(() => {
       expect(

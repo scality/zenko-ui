@@ -39,7 +39,7 @@ describe('Veeam Configuration UI', () => {
     expect(selectors.continueButton()).toBeDisabled();
     expect(selectors.skipButton()).toBeEnabled();
     //E
-    userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     //V
     expect(selectors.repositoryInput()).toHaveValue('veeam-bucket');
     // expect Veeam version is selected
@@ -87,9 +87,9 @@ describe('Veeam Configuration UI', () => {
       </QueryClientProvider>,
     );
     //Exercise
-    selectClick(selectors.veeamApplicationSelect());
-    userEvent.click(selectors.veeamVBO());
-    userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    await selectClick(selectors.veeamApplicationSelect());
+    await userEvent.click(selectors.veeamVBO());
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     //Verify
     expect(
       screen.queryByText(/Max Veeam Repository Capacity/i),
@@ -115,7 +115,7 @@ describe('Veeam Configuration UI', () => {
       </QueryClientProvider>,
     );
     //Exercise
-    userEvent.click(selectors.skipButton());
+    await userEvent.click(selectors.skipButton());
     //Verify
     expect(screen.getByText(/Exit Veeam assistant?/i)).toBeInTheDocument();
     expect(screen.getByText(/Cancel/i)).toBeInTheDocument();

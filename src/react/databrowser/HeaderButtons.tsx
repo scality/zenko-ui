@@ -1,5 +1,5 @@
 import { matchPath, useLocation, useParams } from 'react-router-dom';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { ButtonsContainer } from '../ui-elements/Container';
 import { listObjects } from '../actions/s3object';
 import { useDispatch } from 'react-redux';

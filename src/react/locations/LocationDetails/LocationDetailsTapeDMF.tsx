@@ -1,5 +1,5 @@
 import { FormGroup, FormSection } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';

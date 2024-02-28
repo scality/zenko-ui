@@ -120,9 +120,9 @@ describe('Metadata', () => {
       expect(screen.getByRole('button', { name: /Save.*/i })).toBeDisabled();
 
       //E - change metadata value
-      userEvent.type(
+      await userEvent.type(
         screen.getByRole('textbox', { name: `${metadataKey} value` }),
-        metadataNewValue,
+        metadataNewValue
       );
       expect(
         screen.getByRole('button', { name: /Save.*/i }),

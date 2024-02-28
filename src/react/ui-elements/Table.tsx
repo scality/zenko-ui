@@ -1,6 +1,6 @@
 // @noflow
 import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import { Button } from '@scality/core-ui/dist/next';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing as nextSpacing } from '@scality/core-ui';
 import Input from './Input';
 import { Link } from 'react-router-dom';

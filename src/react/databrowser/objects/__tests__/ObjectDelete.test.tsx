@@ -66,7 +66,7 @@ describe('ObjectDelete', () => {
     expect(screen.queryByText('Confirmation')).toBeNull();
   });
 
-  it('should call closeObjectDeleteModal and toggleAllObjects if cancel button is pressed', () => {
+  it('should call closeObjectDeleteModal and toggleAllObjects if cancel button is pressed', async () => {
     renderWithRouterMatch(
       <ObjectDelete
         bucketName={BUCKET_NAME}
@@ -84,7 +84,7 @@ describe('ObjectDelete', () => {
     );
 
     expect(screen.queryByText('Confirmation')).toBeInTheDocument();
-    userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
     expect(screen.queryByText('Confirmation')).toBeNull();
   });
   it('should call deleteFiles if delete button is pressed', async () => {
@@ -118,15 +118,13 @@ describe('ObjectDelete', () => {
 
     expect(screen.queryByText('Confirmation')).toBeInTheDocument();
 
-    userEvent.click(
-      screen.getByRole('checkbox', { name: /confirm the deletion/i }),
-    );
+    await userEvent.click(screen.getByRole('checkbox', { name: /confirm the deletion/i }));
 
     expect(
       screen.getByRole('checkbox', { name: /confirm the deletion/i }),
     ).toBeChecked();
 
-    userEvent.click(screen.getByRole('button', { name: /Delete/i }));
+    await userEvent.click(screen.getByRole('button', { name: /Delete/i }));
 
     await waitFor(() => {
       return expect(deleteInterceptor).toHaveBeenCalled();

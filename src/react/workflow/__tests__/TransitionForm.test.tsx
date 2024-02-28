@@ -194,7 +194,9 @@ describe('TransitionForm', () => {
     const sourceBucketContainer =
       screen.getByText(/bucket name \*/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
-    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
+    await selectClick(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -203,7 +205,7 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
           `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
@@ -225,7 +227,9 @@ describe('TransitionForm', () => {
       screen.getByText(/Bucket Name/i).parentElement!.parentElement!
         .parentElement!.parentElement!;
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
-    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
+    await selectClick(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -234,7 +238,7 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
           `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
@@ -311,13 +315,13 @@ describe('TransitionForm', () => {
     );
   });
 
-  it('should be invalid when all required fileds are not filled', () => {
+  it('should be invalid when all required fields are not filled', () => {
     //V
     //Check that by default it is not valid
     expect(screen.getByText(/Form is invalid/i)).toBeInTheDocument();
   });
 
-  it('should be valid when all required fileds are filled', async () => {
+  it('should be valid when all required fields are filled', async () => {
     //E
     //Fill in all required fields
     const sourceBucketContainer =
@@ -325,7 +329,9 @@ describe('TransitionForm', () => {
         .parentElement!.parentElement!;
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
 
-    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
+    await selectClick(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -335,7 +341,7 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
           `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
@@ -343,18 +349,16 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    const storageLocationContainer =
-      screen.getByText(/Storage location/i).parentElement!.parentElement!
-        .parentElement!.parentElement!;
-    selectClick(
-      notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
-    );
-    userEvent.click(
+
+    await userEvent.click(screen.getByLabelText(/Storage location/i));
+    await userEvent.keyboard('{ArrowDown}');
+
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(`${locationName} \\(${locationType}\\)`, 'i'),
       }),
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByRole('spinbutton', { name: /Days after object creation/i }),
       '2',
     );
@@ -366,7 +370,7 @@ describe('TransitionForm', () => {
     expect(screen.getByText(/Form is valid/i)).toBeInTheDocument();
   });
 
-  it('should be valid when all required fileds are filled and using 0 as the trigger days', async () => {
+  it('should be valid when all required fields are filled and using 0 as the trigger days', async () => {
     //E
     //Fill in all required fields
     const sourceBucketContainer =
@@ -374,7 +378,9 @@ describe('TransitionForm', () => {
         .parentElement!.parentElement!;
 
     await waitFor(() => getByText(sourceBucketContainer, /select/i));
-    selectClick(notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)));
+    await selectClick(
+      notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
+    );
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
@@ -383,7 +389,7 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
           `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
@@ -391,12 +397,8 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    const storageLocationContainer =
-      screen.getByText(/Storage location/i).parentElement!.parentElement!
-        .parentElement!.parentElement!;
-    selectClick(
-      notFalsyTypeGuard(getByText(storageLocationContainer, /select/i)),
-    );
+    await userEvent.click(screen.getByLabelText(/Storage location/i));
+    await userEvent.keyboard('{ArrowDown}');
     // expect the hyperdrive location is not in the list
     expect(
       screen.queryByRole('option', {
@@ -404,12 +406,12 @@ describe('TransitionForm', () => {
       }),
     ).not.toBeInTheDocument();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(`${locationName} \\(${locationType}\\)`, 'i'),
       }),
     );
-    userEvent.type(
+    await userEvent.type(
       screen.getByRole('spinbutton', { name: /Days after object creation/i }),
       '0',
     );

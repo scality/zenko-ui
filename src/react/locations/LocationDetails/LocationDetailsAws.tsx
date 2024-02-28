@@ -1,7 +1,11 @@
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
-import { Checkbox, FormGroup, FormSection } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
+import {
+  FormGroup,
+  FormSection,
+} from '@scality/core-ui/dist/components/form/Form.component';
+import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 
 type State = {
   serverSideEncryption: boolean;

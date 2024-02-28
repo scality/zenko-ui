@@ -1,6 +1,5 @@
 import { act } from 'react-dom/test-utils';
-import { debug } from 'jest-preview';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
@@ -12,6 +11,7 @@ import {
   mockOffsetSize,
   renderWithRouterMatch,
 } from '../../../utils/testUtil';
+import { TextEncoder } from 'util';
 
 const renderObjectUpload = () => {
   return renderWithRouterMatch(
@@ -24,7 +24,8 @@ const renderObjectUpload = () => {
     },
   );
 };
-
+const OBJECT_KEY = 'chucknorris.png';
+const mockPutObject = jest.fn();
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
     return res(
@@ -34,19 +35,14 @@ const server = setupServer(
       }),
     );
   }),
+  rest.put(
+    `${TEST_API_BASE_URL}/${BUCKET_NAME}/${OBJECT_KEY}`,
+    (req, res, ctx) => {
+      mockPutObject(req.body);
+      return res(ctx.status(200));
+    },
+  ),
 );
-//
-// rest.post(
-//   `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket/workflow/replication`,
-//   (req, res, ctx) => {
-//     return res(ctx.json([]));
-//   },
-// ),
-// getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
-// ...getStorageConsumptionMetricsHandlers(
-//   zenkoUITestConfig.managementEndpoint,
-//   INSTANCE_ID,
-// ),
 
 describe('ObjectUpload', () => {
   beforeAll(() => {
@@ -75,7 +71,7 @@ describe('ObjectUpload', () => {
       screen.getByText(/Drag and drop files and folders here/i),
     ).toBeInTheDocument();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('button', {
         name: /cancel/i,
       }),
@@ -95,29 +91,11 @@ describe('ObjectUpload', () => {
     'should call uploadFile if upload button is pressed  when FileList component is rendered',
     'should remove file when pressing the cross and render NoFile when no file is present',
   ];
-  tests.forEach((t, index) => {
+
+  let index = 0;
+  for (let t of tests) {
     it(t, async () => {
       const { container } = renderObjectUpload();
-
-      function mockData(files: File[]) {
-        return {
-          dataTransfer: {
-            files,
-            items: files.map((file) => ({
-              kind: 'file',
-              size: file.size,
-              type: file.type,
-              getAsFile: () => file,
-            })),
-            types: ['Files'],
-          },
-        };
-      }
-
-      const file = new File([JSON.stringify({ ping: true })], 'ping.json', {
-        type: 'application/json',
-      });
-      const data = mockData([file]);
 
       act(() => {
         fireEvent.drop(
@@ -127,7 +105,9 @@ describe('ObjectUpload', () => {
           {
             dataTransfer: {
               files: [
-                new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' }),
+                new File([new TextEncoder().encode('(⌐□_□)')], OBJECT_KEY, {
+                  type: 'text/plain',
+                }),
               ],
               types: ['Files'],
             },
@@ -145,7 +125,7 @@ describe('ObjectUpload', () => {
           break;
 
         case 1:
-          userEvent.click(
+          await userEvent.click(
             screen.getByRole('button', {
               name: /cancel/i,
             }),
@@ -155,17 +135,22 @@ describe('ObjectUpload', () => {
           break;
 
         case 2:
-          userEvent.click(
+          await userEvent.click(
             screen.getByRole('button', {
               name: 'Upload',
             }),
           );
-          // FIXME Need to check with msw if it's called
+
+          await waitFor(() => {
+            expect(mockPutObject).toHaveBeenCalled();
+          });
+
           expect(container).toBeEmptyDOMElement();
+
           break;
 
         case 3:
-          userEvent.click(
+          await userEvent.click(
             screen.getByRole('button', {
               name: /close modal/i,
             }),
@@ -174,6 +159,7 @@ describe('ObjectUpload', () => {
 
           break;
       }
+      index++;
     });
-  });
+  }
 });

@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import { AuthUser } from '../../../types/auth';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorPage500 } from '@scality/core-ui';
+import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
 import { ComponentWithFederatedImports } from '@scality/module-federation';
 
 //exported for testing purposes only

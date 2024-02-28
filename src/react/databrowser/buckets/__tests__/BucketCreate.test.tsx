@@ -7,7 +7,6 @@ import {
 import { XDM_FEATURE } from '../../../../js/config';
 import {
   screen,
-  act,
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
@@ -18,7 +17,6 @@ import {
 } from '../../../../js/mock/managementClientMSWHandlers';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
@@ -123,28 +121,28 @@ describe('BucketCreate', () => {
         screen.getByText(/Loading locations/i),
       );
 
-      // NOTE: All validation methods in React Hook Form are treated
-      // as async functions, so it's important to wrap async around your act.
-      await act(async () => {
-        userEvent.type(
+      if (t.testValue !== '') {
+        await userEvent.type(
           screen.getByRole('textbox', { name: /bucket name */i }),
           `${t.testValue}`,
         );
-        await userEvent.tab();
-      });
+      } else {
+        await userEvent.click(
+          screen.getByRole('textbox', { name: /bucket name */i }),
+        );
+      }
+      await userEvent.tab();
 
       if (t.expectedEmptyNameError !== null) {
-        await act(async () => {
-          userEvent.type(
-            screen.getByRole('textbox', { name: /bucket name */i }),
-            `toberemoved`,
-          );
-          userEvent.clear(
-            screen.getByRole('textbox', { name: /bucket name */i }),
-          );
-        });
+        await userEvent.type(
+          screen.getByRole('textbox', { name: /bucket name */i }),
+          `toberemoved`,
+        );
+        await userEvent.clear(
+          screen.getByRole('textbox', { name: /bucket name */i }),
+        );
 
-        selectClick(selectors.locationSelect());
+        await selectClick(selectors.locationSelect());
         expect(
           screen.getByText(new RegExp(`.*${t.expectedEmptyNameError}.*`, 'i')),
         ).toBeInTheDocument();
@@ -169,14 +167,14 @@ describe('BucketCreate', () => {
       }
     });
   });
-  it('should set versioning and disable it while enabling object lock', () => {
+  it('should set versioning and disable it while enabling object lock', async () => {
     //S
     renderWithRouterMatch(<BucketCreate />, {
       route: '/accounts/my-account/create-bucket',
       path: '/accounts/:accountName/create-bucket',
     });
     //E
-    userEvent.click(selectors.objectlock());
+    await userEvent.click(selectors.objectlock());
     //V
     expect(selectors.versioning()).toBeChecked();
     expect(selectors.versioning()).toBeDisabled();
@@ -201,9 +199,9 @@ describe('BucketCreate', () => {
       screen.getByText(/Loading locations/i),
     );
     //E
-    selectClick(selectors.locationSelect());
-    userEvent.click(selectors.ringLocationOption());
-    userEvent.click(selectors.asyncMetadata());
+    await selectClick(selectors.locationSelect());
+    await userEvent.click(selectors.ringLocationOption());
+    await userEvent.click(selectors.asyncMetadata());
     //V
     await waitFor(() => expect(selectors.versioning()).toBeChecked());
     expect(selectors.versioning()).toBeDisabled();
@@ -242,7 +240,7 @@ describe('BucketCreate', () => {
       screen.getByText(/Loading locations/i),
     );
     //E
-    selectClick(selectors.locationSelect());
+    await selectClick(selectors.locationSelect());
     //V
     expect(
       screen.queryByRole('option', { name: new RegExp(coldLocation, 'i') }),
@@ -275,31 +273,31 @@ describe('BucketCreate', () => {
       screen.getByText(/Loading locations/i),
     );
     //E
-    selectClick(selectors.locationSelect());
-    userEvent.click(
+    await selectClick(selectors.locationSelect());
+    await userEvent.click(
       screen.getByRole('option', { name: new RegExp(azureblobstorage, 'i') }),
     );
     //V
     expect(screen.getByLabelText('Versioning')).toBeDisabled();
     //E
-    userEvent.click(screen.getByLabelText('Object-lock'));
+    await userEvent.click(screen.getByLabelText('Object-lock'));
     //Verify the versioning is off even though set object-lock for Azure Blob Storage
     expect(screen.getByLabelText('Versioning')).toBeDisabled();
     expect(screen.getByLabelText('Versioning')).not.toBeChecked();
   });
-  it('should be able to remove object-lock after setting it', () => {
+  it('should be able to remove object-lock after setting it', async () => {
     //S
     renderWithRouterMatch(<BucketCreate />, {
       route: '/accounts/my-account/create-bucket',
       path: '/accounts/:accountName/create-bucket',
     });
     //E
-    userEvent.click(selectors.objectlock());
+    await userEvent.click(selectors.objectlock());
     //V
     expect(selectors.objectlock()).toBeChecked();
     expect(selectors.objectlock()).toBeEnabled();
     //E
-    userEvent.click(selectors.objectlock());
+    await userEvent.click(selectors.objectlock());
     //V
     expect(selectors.objectlock()).not.toBeChecked();
     expect(selectors.objectlock()).toBeEnabled();

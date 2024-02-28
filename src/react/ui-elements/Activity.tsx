@@ -1,4 +1,4 @@
-import { Loader } from '@scality/core-ui';
+import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';

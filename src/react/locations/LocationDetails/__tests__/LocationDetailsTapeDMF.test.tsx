@@ -4,7 +4,7 @@ import { reduxRender } from '../../../utils/testUtil';
 import LocationDetailsTapeDMF from '../LocationDetailsTapeDMF';
 
 describe('LocationDetailsTapeDMF', () => {
-  it('should trigger on change when endpoint change', () => {
+  it('should trigger on change when endpoint change', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -24,7 +24,7 @@ describe('LocationDetailsTapeDMF', () => {
     );
 
     //E
-    userEvent.type(screen.getByRole('textbox', { name: /endpoint/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /endpoint/i }), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
@@ -36,7 +36,7 @@ describe('LocationDetailsTapeDMF', () => {
     });
   });
 
-  it('should trigger on change when namespaceId change', () => {
+  it('should trigger on change when namespaceId change', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -56,7 +56,7 @@ describe('LocationDetailsTapeDMF', () => {
     );
 
     //E
-    userEvent.type(screen.getByRole('textbox', { name: /Namespace Id/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /Namespace Id/i }), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
@@ -68,7 +68,7 @@ describe('LocationDetailsTapeDMF', () => {
     });
   });
 
-  it('should trigger on change when repoId change', () => {
+  it('should trigger on change when repoId change', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -88,7 +88,7 @@ describe('LocationDetailsTapeDMF', () => {
     );
 
     //E
-    userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
@@ -100,7 +100,7 @@ describe('LocationDetailsTapeDMF', () => {
     });
   });
 
-  it('should first display disabled butons then when repoIds changed it should enable them', () => {
+  it('should first display disabled butons then when repoIds changed it should enable them', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -124,7 +124,7 @@ describe('LocationDetailsTapeDMF', () => {
     expect(screen.getByRole('button', { name: /Remove/i })).toBeDisabled();
 
     //E
-    userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
@@ -139,7 +139,7 @@ describe('LocationDetailsTapeDMF', () => {
 
     //E
     fireEvent.click(screen.getByRole('button', { name: /Add/i }));
-    userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /RepoId\(s\)/i }), 't');
 
     //V
     expect(screen.getAllByRole('button', { name: /Remove/i })).toHaveLength(2);
@@ -153,7 +153,7 @@ describe('LocationDetailsTapeDMF', () => {
     expect(screen.getAllByRole('button', { name: /Add/i })).toHaveLength(1);
   });
 
-  it('should trigger on change when username change', () => {
+  it('should trigger on change when username change', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -173,7 +173,7 @@ describe('LocationDetailsTapeDMF', () => {
     );
 
     //E
-    userEvent.type(screen.getByRole('textbox', { name: /username/i }), 't');
+    await userEvent.type(screen.getByRole('textbox', { name: /username/i }), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
@@ -185,7 +185,7 @@ describe('LocationDetailsTapeDMF', () => {
     });
   });
 
-  it('should trigger on change when password change', () => {
+  it('should trigger on change when password change', async () => {
     //S
     const sampleDetails = {
       endpoint: '',
@@ -205,7 +205,7 @@ describe('LocationDetailsTapeDMF', () => {
     );
 
     //E
-    userEvent.type(screen.getByLabelText(/password/i), 't');
+    await userEvent.type(screen.getByLabelText(/password/i), 't');
 
     //V
     expect(onChange).toHaveBeenCalledWith({
