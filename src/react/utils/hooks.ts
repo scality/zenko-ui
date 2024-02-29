@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   QueryKey,
   useQuery,
@@ -205,14 +205,17 @@ export const useAccounts = (
   >(
     {
       queryKey: ['WebIdentityRoles'],
-      queryFn: (_, marker) => {
-        notifyLoadingAccounts();
-        return getRolesForWebIdentity(
-          iamEndpoint,
-          notFalsyTypeGuard(token),
-          marker?.Marker,
-        );
-      },
+      queryFn: useCallback(
+        (_, marker) => {
+          notifyLoadingAccounts();
+          return getRolesForWebIdentity(
+            iamEndpoint,
+            notFalsyTypeGuard(token),
+            marker?.Marker,
+          );
+        },
+        [token],
+      ),
       enabled: !!token && !!iamEndpoint,
       staleTime: Infinity,
       refetchOnMount: false,

@@ -27,7 +27,6 @@ import {
 } from '../../utils/testUtil';
 import ReplicationForm, { GeneralReplicationGroup } from '../ReplicationForm';
 import { newExpiration, newReplicationForm, newTransition } from '../utils';
-
 const accountId = 'accountId';
 const accountName = 'pat';
 const replicationId = 'expirationId';
@@ -178,7 +177,7 @@ describe('ReplicationForm', () => {
     //V
     expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
     expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');    
-    userEvent.hover(selectors.bucketOption2());
+    await userEvent.hover(selectors.bucketOption2());
     expect(
       screen.getByText(/Replication is not available for a Bucket that was created especially for Veeam./i),
     ).toBeInTheDocument();
@@ -203,6 +202,6 @@ describe('ReplicationForm', () => {
     //V
     await waitFor(()=>{
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    })
-  });
+    }, {timeout: 2000})
+  }); 
 });

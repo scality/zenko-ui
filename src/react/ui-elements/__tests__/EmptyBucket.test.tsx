@@ -1,5 +1,4 @@
 import {
-  fireEvent,
   getByRole,
   screen,
   waitFor,
@@ -74,7 +73,7 @@ describe('EmptyConfirmation', () => {
 
   it('should display modal', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
 
     await waitFor(() => {
       expect(selectors.modal()).toBeInTheDocument();
@@ -83,9 +82,9 @@ describe('EmptyConfirmation', () => {
 
   it('should enable button once typed confirm', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
-    fireEvent.click(selectors.confirmButton());
+    await userEvent.click(selectors.confirmButton());
 
     expect(selectors.confirmInput()).toHaveValue(bucketName);
     await waitFor(() => {
@@ -95,7 +94,7 @@ describe('EmptyConfirmation', () => {
 
   it('displays loading state during deletion', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
 
     await waitFor(() => {
@@ -111,7 +110,7 @@ describe('EmptyConfirmation', () => {
 
   it('fetch the data when user approve', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
 
     await waitFor(() => {
@@ -132,7 +131,7 @@ describe('EmptyConfirmation', () => {
 
   it('should display summary', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
 
     await waitFor(() => {
@@ -186,7 +185,7 @@ describe('EmptyConfirmation', () => {
 
   it('should display error banner', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
 
     await waitFor(() => {
@@ -234,7 +233,7 @@ describe('EmptyConfirmation', () => {
 
   it('button should be disabled after deletion', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    fireEvent.click(selectors.emptyButton());
+    await userEvent.click(selectors.emptyButton());
     await userEvent.type(selectors.confirmInput(), bucketName);
 
     await waitFor(() => {

@@ -1,4 +1,4 @@
-import { Banner, BasicText, Icon, Input, Tooltip } from '@scality/core-ui';
+import { Banner, BasicText, Icon, Tooltip } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { S3 } from 'aws-sdk';
@@ -23,6 +23,7 @@ import {
   EMPTY_CONFIRMATION_MODAL_TITLE,
 } from './constants';
 import { createDeleteObjectsData, paginateData } from './utils';
+import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 
 export const ModalContent = styled.div`
   max-width: 35rem;
