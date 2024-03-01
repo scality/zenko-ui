@@ -1,4 +1,5 @@
-import { Banner, BasicText, Icon, Input, Tooltip } from '@scality/core-ui';
+import { Banner, BasicText, Icon, Tooltip } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { S3 } from 'aws-sdk';
@@ -324,7 +325,8 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
                 Type the name of the bucket to delete all its content.
               </label>
               <Input
-                aria-label="confirm-input"
+                id="confirm-input"
+                aria-label="confirm"
                 autoFocus={isEmptyModalOpen}
                 placeholder={`type ${bucketName}`}
                 type="text"

@@ -252,11 +252,13 @@ describe('Policy Attachments', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByPlaceholderText('Search by entity name'),
+        screen.getByPlaceholderText('Example: Search by entity name'),
       ).not.toBeDisabled(),
     );
     //E
-    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
+    fireEvent.focus(
+      screen.getByPlaceholderText('Example: Search by entity name'),
+    );
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -304,11 +306,13 @@ describe('Policy Attachments', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByPlaceholderText('Search by entity name'),
+        screen.getByPlaceholderText('Example: Search by entity name'),
       ).not.toBeDisabled(),
     );
     //E
-    fireEvent.focus(screen.getByPlaceholderText('Search by entity name'));
+    fireEvent.focus(
+      screen.getByPlaceholderText('Example: Search by entity name'),
+    );
 
     await waitFor(() =>
       screen.getByRole('option', {
@@ -361,12 +365,12 @@ describe('Policy Attachments', () => {
     userEvent.click(screen.getByRole('tab', { name: /groups/i }));
     await waitFor(() =>
       expect(
-        screen.getByPlaceholderText('Search by entity name'),
+        screen.getByPlaceholderText('Example: Search by entity name'),
       ).not.toBeDisabled(),
     );
 
     fireEvent.focus(
-      screen.getByRole('textbox', {
+      screen.getByRole('searchbox', {
         name: /search/i,
       }),
     );
@@ -403,7 +407,7 @@ describe('Policy Attachments', () => {
     //V
     await waitFor(() =>
       expect(
-        screen.getByPlaceholderText('Search by entity name'),
+        screen.getByPlaceholderText('Example: Search by entity name'),
       ).toBeDisabled(),
     );
   });
