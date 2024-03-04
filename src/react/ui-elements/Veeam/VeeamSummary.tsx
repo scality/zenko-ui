@@ -13,7 +13,6 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
-import { Clipboard } from '../Clipboard';
 import { HideCredential } from '../Hide';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
@@ -32,7 +31,7 @@ export const CERTIFICATE_SECTION_TITLE = '1. Certificates';
 export const ACCOUNT_SECTION_TITLE =
   '2. Information for the Veeam configuration';
 
-const DEFAULT_REGION = 'us-east-1';
+export const DEFAULT_REGION = 'us-east-1';
 
 const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
@@ -139,6 +138,7 @@ export const VeeamSummary = ({
               placement: 'right',
             }}
             size="inline"
+            aria-label="copy all"
           />
         </Wrap>
         <Separator />
@@ -148,7 +148,11 @@ export const VeeamSummary = ({
           required
           content={
             <WrapperWithWidth>
-              <Text>{s3ServicePoint}</Text> <Clipboard text={s3ServicePoint} />
+              <Text>{s3ServicePoint}</Text>{' '}
+              <CopyButton
+                textToCopy={s3ServicePoint}
+                aria-label="copy service point"
+              />
             </WrapperWithWidth>
           }
         />
@@ -158,7 +162,11 @@ export const VeeamSummary = ({
           label="Region"
           content={
             <WrapperWithWidth>
-              <Text>{DEFAULT_REGION}</Text> <Clipboard text={DEFAULT_REGION} />
+              <Text>{DEFAULT_REGION}</Text>{' '}
+              <CopyButton
+                textToCopy={DEFAULT_REGION}
+                aria-label="copy region"
+              />
             </WrapperWithWidth>
           }
         />
@@ -177,7 +185,7 @@ export const VeeamSummary = ({
           content={
             <WrapperWithWidth>
               <Text>{accessKey}</Text>
-              <Clipboard text={accessKey} />
+              <CopyButton textToCopy={accessKey} aria-label="copy access key" />
             </WrapperWithWidth>
           }
         />
@@ -188,7 +196,10 @@ export const VeeamSummary = ({
           content={
             <WrapperWithWidth>
               <HideCredential credentials={secretKey} />
-              <Clipboard text={secretKey} />
+              <CopyButton
+                textToCopy={secretKey}
+                aria-label="copy secret access key"
+              />
             </WrapperWithWidth>
           }
         />
@@ -202,7 +213,10 @@ export const VeeamSummary = ({
           content={
             <WrapperWithWidth>
               <Text>{bucketName}</Text>
-              <Clipboard text={bucketName} />
+              <CopyButton
+                textToCopy={bucketName}
+                aria-label="copy bucket name"
+              />
             </WrapperWithWidth>
           }
         />

@@ -5,6 +5,7 @@ const Container = styled.span`
   cursor: pointer;
 `;
 
+// Todo: Should replace it with the CopyButton form core-ui
 export const Clipboard = ({ text }: { text: string }) => {
   const { copy, copyStatus } = useClipboard();
   const isClipboard = Boolean(navigator?.clipboard);

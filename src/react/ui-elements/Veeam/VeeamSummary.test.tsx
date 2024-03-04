@@ -15,6 +15,7 @@ import {
   BUCKET_SECTION_TITLE,
   CERTIFICATE_SECTION_TITLE,
   CREDENTIALS_SECTION_TITLE,
+  DEFAULT_REGION,
   VEEAM_SUMMARY_TITLE,
   VeeamSummary,
 } from './VeeamSummary';
@@ -52,6 +53,10 @@ const config = {
   basePath: '',
   features: ['Veeam'],
 };
+const SERVICE_POINT = 'service point';
+const ACCESS_KEY = 'access-key';
+const SECRET_KEY = 'secret-access-key';
+const VEEAM_BUCKET_NAME = 'veeam-bucket-name';
 
 const VeeamSummaryWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -64,7 +69,9 @@ const VeeamSummaryWrapper = ({ children }: { children: React.ReactNode }) => {
     </QueryClientProvider>
   );
 };
-const user = userEvent.setup();
+
+jest.setTimeout(10000);
+
 describe('VeeamSummary', () => {
   const selectors = {
     title: () => screen.getByText(VEEAM_SUMMARY_TITLE),
@@ -73,37 +80,76 @@ describe('VeeamSummary', () => {
     bucketSection: () => screen.getByText(BUCKET_SECTION_TITLE),
     certificateSection: () => screen.getByText(CERTIFICATE_SECTION_TITLE),
     certificateButton: () => screen.getByRole('button', { name: /Download/i }),
+    copyServicePointButton: () =>
+      screen.getByRole('button', { name: /copy service point/i }),
+    copySecretKeyButton: () =>
+      screen.getByRole('button', { name: /copy secret access key/i }),
+    copyAccessKeyButton: () =>
+      screen.getByRole('button', { name: /copy access key/i }),
+    copyBucketNameButton: () =>
+      screen.getByRole('button', { name: /copy bucket name/i }),
+    copyRegionButton: () =>
+      screen.getByRole('button', { name: /copy region/i }),
+    copyAllButton: () => screen.getByRole('button', { name: /copy all/i }),
   };
 
   beforeEach(() => {
     mockUseAuth.mockImplementation(() => mockAuthUserData);
     mockUseGetS3ServicePoint.mockImplementation(() => ({
-      s3ServicePoint: '',
+      s3ServicePoint: SERVICE_POINT,
     }));
   });
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render VeeamSummary', () => {
+  const WrappedVeeamSummary = ({ children }: { children: React.ReactNode }) => {
+    return (
+      <VeeamSummary
+        accessKey={ACCESS_KEY}
+        secretKey={SECRET_KEY}
+        bucketName={VEEAM_BUCKET_NAME}
+        enableImmutableBackup={true}
+      />
+    );
+  };
+
+  it('should render VeeamSummary', async () => {
+    //S
     render(
       <Stepper
         steps={[
           {
             label: 'Summary',
-            Component: VeeamSummary,
+            Component: WrappedVeeamSummary,
           },
         ]}
       />,
-      {
-        wrapper: VeeamSummaryWrapper,
-      },
+      { wrapper: VeeamSummaryWrapper },
     );
-
+    const user = userEvent.setup();
+    //E+V
     expect(selectors.title()).toBeInTheDocument();
     expect(selectors.accountSection()).toBeInTheDocument();
     expect(selectors.credentialsSection()).toBeInTheDocument();
     expect(selectors.bucketSection()).toBeInTheDocument();
+    // Verify the copy buttons
+    await user.click(selectors.copyServicePointButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(SERVICE_POINT);
+    await user.click(selectors.copyAccessKeyButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(ACCESS_KEY);
+    await user.click(selectors.copySecretKeyButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(SECRET_KEY);
+    await user.click(selectors.copyBucketNameButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(
+      VEEAM_BUCKET_NAME,
+    );
+    await user.click(selectors.copyRegionButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(DEFAULT_REGION);
+    await user.click(selectors.copyAllButton());
+    await expect(navigator.clipboard.readText()).resolves.toBe(
+      `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket name\t${VEEAM_BUCKET_NAME}`,
+    );
   });
 
   it('should render the VeeamSumamry with certificate download button', async () => {
@@ -117,7 +163,6 @@ describe('VeeamSummary', () => {
         groups: ['user', 'PlatformAdmin'],
       },
     }));
-
     render(
       <Stepper
         steps={[
@@ -127,11 +172,8 @@ describe('VeeamSummary', () => {
           },
         ]}
       />,
-      {
-        wrapper: VeeamSummaryWrapper,
-      },
+      { wrapper: VeeamSummaryWrapper },
     );
-
     expect(selectors.certificateSection()).toBeInTheDocument();
     expect(selectors.certificateButton()).toBeInTheDocument();
   });
@@ -140,7 +182,6 @@ describe('VeeamSummary', () => {
     mockUseGetS3ServicePoint.mockImplementation(() => ({
       s3ServicePoint: mockServicePoint,
     }));
-
     render(
       <Stepper
         steps={[
@@ -150,11 +191,8 @@ describe('VeeamSummary', () => {
           },
         ]}
       />,
-      {
-        wrapper: VeeamSummaryWrapper,
-      },
+      { wrapper: VeeamSummaryWrapper },
     );
-
     expect(screen.getByText(mockServicePoint)).toBeInTheDocument();
   });
 });
