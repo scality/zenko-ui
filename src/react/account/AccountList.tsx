@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { spacing } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import {
   ConstrainedText,
@@ -27,7 +27,7 @@ import { VEEAM_FEATURE } from '../../js/config';
 const TableAction = styled.div`
   display: flex;
   justify-content: space-between;
-  margin-bottom: ${spacing.sp16};
+  margin-bottom: ${spacing.r16};
 `;
 
 function useAutoAssumeRoleUponAccountDeletion({
@@ -118,7 +118,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   return (
     <div
       style={{
-        padding: `${spacing.sp16}`,
+        padding: `${spacing.r16}`,
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
@@ -128,14 +128,15 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         columns={columns}
         data={accounts}
         defaultSortingKey={'creationDate'}
+        entityName={{
+          en: {
+            singular: 'account',
+            plural: 'accounts',
+          },
+        }}
       >
         <TableAction>
-          <Table.SearchWithQueryParams
-            displayedName={{
-              singular: 'account',
-              plural: 'accounts',
-            }}
-          />
+          <Table.SearchWithQueryParams />
           {isStorageManager ? (
             <Stack>
               {features.includes(VEEAM_FEATURE) && (
@@ -161,7 +162,6 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         <Table.SingleSelectableContent
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
         />
       </Table>
     </div>
