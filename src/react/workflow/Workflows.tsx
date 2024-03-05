@@ -1,5 +1,6 @@
 import {
   AppContainer,
+  EmptyState,
   Icon,
   Stack,
   Text,
@@ -136,32 +137,26 @@ export default function Workflows() {
 
   if (accounts.length === 0) {
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Account" size="5x" />}
-          title="Before browsing your workflows, create your first account."
-          btnTitle="Create Account"
-          btnAction={() => history.push('/create-account')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon="Workflow"
+        history={history}
+        link="/create-account"
+        listedResource="Workflow"
+        resourceToCreate="Account"
+      ></EmptyState>
     );
   }
 
   const content = () => {
     if (buckets.status === 'success' && buckets.value.length === 0) {
       return (
-        <EmptyStateContainer>
-          <Warning
-            centered={true}
-            icon={<Icon name="Bucket" size="5x" />}
-            title="Before browsing your workflows, create your first bucket."
-            btnTitle="Create Bucket"
-            btnAction={() =>
-              history.push(`/accounts/${accountName}/create-bucket`)
-            }
-          />
-        </EmptyStateContainer>
+        <EmptyState
+          icon="Bucket"
+          link={`accounts/${accountName}/create-bucket`}
+          listedResource="Workflow"
+          resourceToCreate="Bucket"
+          history={history}
+        ></EmptyState>
       );
     }
 
@@ -191,17 +186,11 @@ export default function Workflows() {
 
     if (workflows.length === 0) {
       return (
-        <EmptyStateContainer>
-          <Warning
-            centered={true}
-            icon={<Icon name="Replication" size="5x" />}
-            title="Before browsing your workflows, create your first workflow."
-            btnTitle="Create Workflow"
-            btnAction={() =>
-              history.push(`/accounts/${accountName}/workflows/create-workflow`)
-            }
-          />
-        </EmptyStateContainer>
+        <EmptyState
+          icon="Workflow"
+          link={`accounts/${accountName}/workflows/create-workflow`}
+          listedResource="Workflow"
+        ></EmptyState>
       );
     }
 

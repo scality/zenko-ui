@@ -19,7 +19,7 @@ import ObjectDetails from './ObjectDetails';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
-import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
+import { AppContainer, EmptyState, TwoPanelLayout } from '@scality/core-ui';
 import ObjectHead from './ObjectHead';
 export default function Objects() {
   const dispatch = useDispatch();
@@ -118,15 +118,16 @@ export default function Objects() {
   }
 
   // TODO: manage empty state
-  // if (objects.size === 0) {
-  //     return <EmptyStateContainer>
-  //         <Warning
-  //             iconClass="fas fa-5x fa-wallet"
-  //             title='This bucket is empty. Upload new objects to get started.'
-  //             btnTitle='Upload'
-  //             btnAction={() => dispatch(push(`/buckets/${bucketNameParam}/upload-object`))} />
-  //     </EmptyStateContainer>;
-  // }
+  if (objects.size === 0) {
+    return (
+      <EmptyState
+        icon="Node-backend"
+        history={history}
+        link={`/buckets/${bucketNameParam}/upload-object`}
+        listedResource="Object"
+      ></EmptyState>
+    );
+  }
   return (
     <>
       <AppContainer.OverallSummary>
