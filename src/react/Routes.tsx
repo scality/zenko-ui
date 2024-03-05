@@ -1,4 +1,10 @@
-import { AppContainer, ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
+import {
+  AppContainer,
+  EmptyState,
+  ErrorPage401,
+  Icon,
+  Sidebar,
+} from '@scality/core-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -68,17 +74,15 @@ const RedirectToAccount = () => {
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
     );
   } else if (isStorageManager) {
-    const description = pathname === '/workflows' ? 'workflows' : 'data';
+    const description = pathname === '/workflows' ? 'Workflow' : 'Bucket';
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Account" size="5x" />}
-          title={`Before browsing your ${description}, create your first account.`}
-          btnTitle="Create Account"
-          btnAction={() => history.push('/create-account')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon={description}
+        link="/create-account"
+        listedResource={description}
+        resourceToCreate="Account"
+        history={history}
+      ></EmptyState>
     );
   } else {
     return <ErrorPage401 />;
