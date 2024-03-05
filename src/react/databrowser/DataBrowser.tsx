@@ -19,7 +19,7 @@ import { clearError } from '../actions';
 import ObjectLockSetting from './buckets/ObjectLockSetting';
 import ObjectLockSettingOnObject from './objects/ObjectLockSetting';
 import { useAccounts, useQueryParams } from '../utils/hooks';
-import { AppContainer, Icon } from '@scality/core-ui';
+import { AppContainer, EmptyState, Icon } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
 import Loader from '../ui-elements/Loader';
@@ -44,8 +44,11 @@ export default function DataBrowser() {
   const s3Client = useS3Client();
 
   if (!s3Client.config.credentials?.accessKeyId) {
-    //@ts-expect-error fix this when you are working on it
-    return <Loader>Authenticating...</Loader>;
+    return (
+      <Loader>
+        <>Authenticating...</>
+      </Loader>
+    );
   }
 
   // NOTE: create-bucket page has its own way to manage "byComponent" errors.
@@ -68,15 +71,13 @@ export default function DataBrowser() {
 
   if (accounts.length === 0) {
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Account" size="5x" />}
-          title="Before browsing your data, create your first account."
-          btnTitle="Create Account"
-          btnAction={() => history.push('/create-account')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon="Bucket"
+        link="create-account"
+        history={history}
+        listedResource="Bucket"
+        resourceToCreate="Account"
+      />
     );
   }
 
