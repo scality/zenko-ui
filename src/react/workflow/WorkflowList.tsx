@@ -109,16 +109,16 @@ function WorkflowList({ workflows, workflowId }: Props) {
         data={workflows}
         defaultSortingKey={'name'}
         getRowId={getRowId}
+        entityName={{
+          en: {
+            singular: 'workflow',
+            plural: 'workflows',
+          },
+        }}
       >
         <div style={{ margin: '1rem' }}>
           <TableHeader>
-            <Table.SearchWithQueryParams
-              displayedName={{
-                singular: 'workflow',
-                plural: 'workflows',
-              }}
-              queryParams={SEARCH_QUERY_PARAM}
-            />
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
 
             <Button
               icon={<Icon name="Create-add" />}

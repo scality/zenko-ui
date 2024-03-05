@@ -1,8 +1,8 @@
 import { ConstrainedText } from '@scality/core-ui';
 import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Button } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui';
 import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 import styled from 'styled-components';
@@ -20,7 +20,7 @@ import { PropsWithChildren } from 'react';
 const TableAction = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: ${spacing.sp16};
+  margin-bottom: ${spacing.r16};
 `;
 
 function Workflow({ bucketName }: { bucketName: string }) {
@@ -87,7 +87,18 @@ function Workflow({ bucketName }: { bucketName: string }) {
         height: '100%',
       }}
     >
-      <Table columns={columns} data={data || []} defaultSortingKey={'name'}>
+      <Table
+        columns={columns}
+        data={data || []}
+        defaultSortingKey={'name'}
+        status={status}
+        entityName={{
+          en: {
+            singular: 'workflow',
+            plural: 'workflows',
+          },
+        }}
+      >
         <TableAction>
           <Button
             icon={<Icon name="Create-add" />}
@@ -106,22 +117,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
           rowHeight="h48"
           separationLineVariant="backgroundLevel2"
           backgroundVariant="backgroundLevel4"
-        >
-          {(Rows) => (
-            <>
-              {status === 'loading' || status === 'idle'
-                ? 'Loading workflows...'
-                : ''}
-              {status === 'error'
-                ? 'We failed to retrieve workflows, please retry later. If the error persists, please contact your support.'
-                : ''}
-              {status === 'success' &&
-                !data?.length &&
-                'No workflows found on this bucket.'}
-              {status === 'success' ? Rows : ''}
-            </>
-          )}
-        </Table.SingleSelectableContent>
+        ></Table.SingleSelectableContent>
       </Table>
     </div>
   );

@@ -1,26 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { Banner, Icon, Wrap, spacing } from '@scality/core-ui';
+import { Button, Table } from '@scality/core-ui/dist/next';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Row } from 'react-table';
+import styled from 'styled-components';
+import type { Account } from '../../../../types/account';
+import type { AppState } from '../../../../types/state';
+import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import {
   deleteAccountAccessKey,
   listAccountAccessKeys,
   openAccountKeyCreateModal,
 } from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { Row } from 'react-table';
-import type { Account } from '../../../../types/account';
-import type { AppState } from '../../../../types/state';
-import { Banner, Icon, Wrap } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import { formatShortDate } from '../../../utils';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import { Warning } from '../../../ui-elements/Warning';
+
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 
 const AccessKeysDetails = styled.div`
   display: block;
-  margin-top: ${spacing.sp20};
+  margin-top: ${spacing.r20};
 `;
 
 const TableContainer = styled.div`
@@ -109,7 +108,7 @@ function AccountKeys({ account }: Props) {
               <EllipsisCell>{access_key}</EllipsisCell>
               <div
                 style={{
-                  marginLeft: spacing.sp16,
+                  marginLeft: spacing.r16,
                 }}
               >
                 <Clipboard text={access_key} />
@@ -159,7 +158,7 @@ function AccountKeys({ account }: Props) {
 
         Cell({ value: accessKey }: { value: string }) {
           return (
-            <Wrap marginRight={spacing.sp8}>
+            <Wrap marginRight={spacing.r8}>
               <div></div>
               <DeleteKey accessKey={accessKey} />
             </Wrap>
@@ -214,27 +213,25 @@ function AccountKeys({ account }: Props) {
         </ButtonContainer>
       </div>
       <TableContainer>
-        {accessKeys.length > 0 ? (
-          <Table
-            //@ts-expect-error fix this when you are working on it
-            columns={columns}
-            //@ts-expect-error fix this when you are working on it
-            data={accessKeys}
-            defaultSortingKey="created_at"
-          >
-            <Table.SingleSelectableContent
-              rowHeight="h40"
-              separationLineVariant="backgroundLevel3"
-              backgroundVariant="backgroundLevel1"
-            />
-          </Table>
-        ) : (
-          <Warning
-            centered
-            icon={<Icon name="Exclamation-triangle" />}
-            title="No key created"
+        <Table
+          entityName={{
+            en: {
+              singular: 'access key',
+              plural: 'access keys',
+            },
+          }}
+          //@ts-expect-error fix this when you are working on it
+          columns={columns}
+          //@ts-expect-error fix this when you are working on it
+          data={accessKeys}
+          defaultSortingKey="created_at"
+        >
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            separationLineVariant="backgroundLevel3"
+            backgroundVariant="backgroundLevel1"
           />
-        )}
+        </Table>
       </TableContainer>
     </AccessKeysDetails>
   );
