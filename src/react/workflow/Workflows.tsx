@@ -188,8 +188,9 @@ export default function Workflows() {
       return (
         <EmptyState
           icon="Workflow"
-          link={`accounts/${accountName}/workflows/create-workflow`}
+          link={`/accounts/${accountName}/workflows/create-workflow`}
           listedResource="Workflow"
+          history={history}
         ></EmptyState>
       );
     }
