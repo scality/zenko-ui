@@ -1,41 +1,34 @@
 import styled, { css } from 'styled-components';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import { ReactNode } from 'react';
-import { Icon } from '@scality/core-ui';
-import { HeadIcon } from './EntityHeader';
-const Container = styled.div<{ centered?: boolean }>`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  text-align: center;
-  margin-top: ${spacing.sp20};
-  color: ${(props) => props.theme.textPrimary};
-  ${(props) => {
-    if (props.centered) {
-      return css`
-        justify-content: center;
-      `;
-    }
+import { Button } from '@scality/core-ui/dist/next';
+import { spacing } from '@scality/core-ui';
 
+import { ReactNode } from 'react';
+import { Icon, LargeText } from '@scality/core-ui';
+
+const Container = styled.div<{ centered?: boolean }>`
+  ${(props) => {
     return css`
-      margin-top: ${spacing.sp20};
+      color: ${props.theme.textSecondary};
     `;
   }}
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 10%;
 `;
 const Container2 = styled.div`
   text-align: center;
-  margin: ${spacing.sp32} 0px;
+  margin: ${spacing.r32} 0px;
   color: ${(props) => props.theme.textPrimary};
 `;
 const Title = styled.div`
-  margin-top: ${spacing.sp8};
+  margin-top: ${spacing.r8};
 `;
 const Description = styled.div`
-  margin-top: ${spacing.sp8};
+  margin-top: ${spacing.r8};
 `;
 const ButtonSection = styled.div`
-  margin-top: ${spacing.sp16};
+  margin-top: ${spacing.r16};
 `;
 type WarningProps = {
   icon?: ReactNode;
@@ -95,32 +88,34 @@ export const NoLocationWarning = () => (
   </Container2>
 );
 
+export const EmptyStateRow = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: ${spacing.r24};
+`;
+export const ActionWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${spacing.r8};
+`;
 export const NoAccountWarning = ({
   buttonSection,
 }: {
   buttonSection: ReactNode;
 }) => (
-  <Container centered>
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      padding={16}
-    >
-      <HeadIcon>
-        <Icon name="Account" />
-      </HeadIcon>
-    </Box>
-    <Title>
-      <Box padding={16}>
-        <b>You don't have any account yet.</b>
-        <br />
-        <br />
-        <b>
-          Launch configuration assistant to create resources needed by Veeam.
-        </b>
-      </Box>
-    </Title>
-    <ButtonSection>{buttonSection}</ButtonSection>
+  <Container>
+    <EmptyStateRow>
+      <Icon name="Account" size="5x" withWrapper />
+    </EmptyStateRow>
+    <EmptyStateRow>
+      <LargeText>You don't have any account yet.</LargeText>
+    </EmptyStateRow>
+    <EmptyStateRow>
+      <LargeText>
+        Launch configuration assitant to create resources needed by Veeam.
+      </LargeText>
+    </EmptyStateRow>
+    <ActionWrapper>{buttonSection}</ActionWrapper>
   </Container>
 );
