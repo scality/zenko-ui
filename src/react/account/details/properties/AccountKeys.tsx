@@ -46,7 +46,7 @@ type Props = {
 };
 
 type AccessKey = {
-  accessKey: string;
+  access_key: string;
   created_at: string;
 };
 
@@ -150,11 +150,11 @@ function AccountKeys({ account }: Props) {
           flex: '1',
         },
 
-        Cell({ value: accessKey }: { value: string }) {
+        Cell({ value: access_key }: { value: string }) {
           return (
             <Wrap marginRight={spacing.r8}>
               <div></div>
-              <DeleteKey accessKey={accessKey} />
+              <DeleteKey accessKey={access_key} />
             </Wrap>
           );
         },
@@ -213,7 +213,6 @@ function AccountKeys({ account }: Props) {
           }}
           //@ts-expect-error fix this when you are working on it
           columns={columns}
-          //@ts-expect-error fix this when you are working on it
           data={accessKeys}
           defaultSortingKey="created_at"
         >
