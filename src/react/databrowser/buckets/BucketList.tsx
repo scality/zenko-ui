@@ -3,10 +3,11 @@ import {
   FormattedDateTime,
   Icon,
   Link,
+  Wrap,
   spacing,
 } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Box, Table } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CoreUIColumn } from 'react-table';
@@ -19,7 +20,7 @@ import { Bucket } from '../../next-architecture/domain/entities/bucket';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
-import * as T from '../../ui-elements/Table';
+
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
@@ -82,7 +83,6 @@ export default function BucketList({
         },
         cellStyle: {
           flex: '1',
-          paddingLeft: '1rem',
         },
       },
       {
@@ -151,54 +151,50 @@ export default function BucketList({
     }
     return null;
   }, [selectedBucketName, buckets]);
-
   return (
     <Box display="flex" flexDirection="column" flex="1" id="bucket-list">
-      <T.Container>
-        <Table
-          columns={columns}
-          data={buckets}
-          defaultSortingKey="creationDate"
-        >
-          <T.SearchContainer>
-            <T.Search>
-              <Table.SearchWithQueryParams
-                displayedName={{
-                  singular: 'bucket',
-                  plural: 'buckets',
-                }}
-                queryParams={SEARCH_QUERY_PARAM}
-              />
-            </T.Search>
-            <T.ExtraButton
-              icon={<Icon name="Create-add" />}
-              label="Create Bucket"
-              variant="primary"
-              onClick={() =>
-                history.push(`/accounts/${accountName}/create-bucket`)
-              }
-              type="submit"
-            />
-          </T.SearchContainer>
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            selectedId={selectedId?.toString()}
-            onRowSelected={(row) => {
-              const isSelected = selectedBucketName === row.original.name;
+      <Table
+        columns={columns}
+        data={buckets}
+        defaultSortingKey="creationDate"
+        entityName={{
+          en: {
+            singular: 'bucket',
+            plural: 'buckets',
+          },
+        }}
+      >
+        <Wrap style={{ padding: spacing.r16 }}>
+          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
 
-              if (!isSelected) {
-                history.push(
-                  tabName
-                    ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
-                    : `/accounts/${account?.Name}/buckets/${row.original.name}`,
-                );
-              }
-            }}
-            separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel3"
+          <Button
+            icon={<Icon name="Create-add" />}
+            label="Create Bucket"
+            variant="primary"
+            onClick={() =>
+              history.push(`/accounts/${accountName}/create-bucket`)
+            }
+            type="submit"
           />
-        </Table>
-      </T.Container>
+        </Wrap>
+
+        <Table.SingleSelectableContent
+          rowHeight="h40"
+          selectedId={selectedId?.toString()}
+          onRowSelected={(row) => {
+            const isSelected = selectedBucketName === row.original.name;
+
+            if (!isSelected) {
+              history.push(
+                tabName
+                  ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
+                  : `/accounts/${account?.Name}/buckets/${row.original.name}`,
+              );
+            }
+          }}
+          separationLineVariant="backgroundLevel1"
+        />
+      </Table>
     </Box>
   );
 }

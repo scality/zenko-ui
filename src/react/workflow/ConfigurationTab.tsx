@@ -7,7 +7,6 @@ import {
   spacing,
   Stack,
 } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
@@ -19,10 +18,9 @@ import {
   networkEnd,
   networkStart,
 } from '../actions';
-import * as T from '../ui-elements/TableKeyValue2';
-
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -580,21 +578,19 @@ function EditForm({
   };
 
   return (
-    <>
+    <Box style={{ padding: spacing.r16 }}>
       <FormProvider {...useFormMethods}>
         <Form
           requireMode="all"
           banner={
             formState.isDirty && (
-              <T.BannerContainer>
-                <Banner
-                  icon={<Icon name="Exclamation-triangle" />}
-                  variant="warning"
-                >
-                  If you leave this screen without saving, your changes will be
-                  lost.
-                </Banner>
-              </T.BannerContainer>
+              <Banner
+                icon={<Icon name="Exclamation-triangle" />}
+                variant="warning"
+              >
+                If you leave this screen without saving, your changes will be
+                lost.
+              </Banner>
             )
           }
           layout={{ kind: 'tab' }}
@@ -668,7 +664,7 @@ function EditForm({
           )}
         </Form>
       </FormProvider>
-    </>
+    </Box>
   );
 }
 

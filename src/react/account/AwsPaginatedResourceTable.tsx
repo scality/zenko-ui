@@ -1,7 +1,7 @@
 import { ChangeEvent } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
-import { Tooltip } from '@scality/core-ui';
+import { Tooltip, Wrap, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
 
@@ -12,9 +12,7 @@ import {
   AWS_PAGINATED_QUERY,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import IAMClient from '../../js/IAMClient';
-import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -111,8 +109,15 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
         //@ts-expect-error fix this when you are working on it
         data={data}
         defaultSortingKey={defaultSortingKey}
+        status={queryResult.firstPageStatus}
+        entityName={{
+          en: {
+            singular: singularResourceName,
+            plural: pluralResourceName,
+          },
+        }}
       >
-        <TableHeader>
+        <Wrap style={{ padding: spacing.r16 }}>
           <Box display="flex" alignItems="center">
             {queryResult.firstPageStatus !== 'loading' &&
             queryResult.firstPageStatus !== 'error'
@@ -149,10 +154,6 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
               ) : (
                 <Table.SearchWithQueryParams
                   queryParams={SEARCH_QUERY_PARAM}
-                  displayedName={{
-                    singular: singularResourceName,
-                    plural: pluralResourceName,
-                  }}
                   disabled={queryResult.status !== 'success'}
                 />
               )}
@@ -169,37 +170,13 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
             )}
           </Box>
           {additionalHeaders}
-        </TableHeader>
+        </Wrap>
         <Table.SingleSelectableContent
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
           //@ts-expect-error fix this when you are working on it
           customItemKey={getItemKey}
-        >
-          {(Rows) => (
-            <>
-              {queryResult.firstPageStatus === 'loading' ||
-              queryResult.firstPageStatus === 'idle'
-                ? loading
-                : ''}
-              {queryResult.firstPageStatus === 'error'
-                ? errorInTableContent
-                : ''}
-              {queryResult.firstPageStatus === 'success' ? (
-                queryResult.data?.length === 0 ? (
-                  <CenterredSecondaryText>
-                    No {pluralResourceName}
-                  </CenterredSecondaryText>
-                ) : (
-                  Rows
-                )
-              ) : (
-                ''
-              )}
-            </>
-          )}
-        </Table.SingleSelectableContent>
+        ></Table.SingleSelectableContent>
       </Table>
     </Box>
   );

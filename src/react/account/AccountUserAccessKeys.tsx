@@ -21,12 +21,11 @@ import {
   useRouteMatch,
 } from 'react-router-dom';
 import { Column } from 'react-table';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { formatSimpleDate } from '../utils';
 import {
   useAccessKeyOutdatedStatus,
@@ -35,8 +34,12 @@ import {
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 
 const CustomIcon = styled.i`
-  color: ${(props) => props.color ?? props.theme.infoPrimary};
+  color: ${(props) => props.theme.textSecondary};
   font-size: 32px;
+  cursor: pointer;
+  :hover {
+    color: ${(props) => props.theme.textPrimary};
+  }
 `;
 
 const CreatedOnCell = (rowValue) => {
@@ -161,6 +164,7 @@ const DeleteAccessKeyAction = (rowValue) => {
 
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
+  const theme = useTheme();
   const { IAMUserName } = useParams<{
     IAMUserName: string;
   }>();
@@ -232,15 +236,13 @@ const AccountUserAccessKeys = () => {
     } else if (accessKeysResultLength > 2) {
       return (
         <Stack gap="r32">
-          <Box>
-            Access Keys
+          <Stack gap="r8">
+            <>Access Keys</>
             <TextBadge
               variant={'statusWarning'}
-              //@ts-expect-error fix this when you are working on it
-              text={accessKeysResultLength}
-              style={{ marginLeft: spacing.r8 }}
+              text={`${accessKeysResultLength}`}
             />
-          </Box>
+          </Stack>
           <Banner
             icon={
               <div
@@ -257,8 +259,7 @@ const AccountUserAccessKeys = () => {
                 />
               </div>
             }
-            //@ts-expect-error fix this when you are working on it
-            variant="statusWarning"
+            variant="warning"
             title="Warning"
           >
             Security Status: as a best practice, an user should not have more
@@ -285,63 +286,46 @@ const AccountUserAccessKeys = () => {
         <Stack withSeparators gap="r32">
           <>
             <CustomIcon
-              color="white"
               className="fas fa-arrow-left"
-              style={{
-                cursor: 'pointer',
-              }}
               onClick={() => {
                 history.push('../');
               }}
             />
-            <CustomIcon className="fas fa-key" />
+            <Icon name="Key" size="2x" color={theme.infoPrimary} />
             <>{`Access Keys for: ${IAMUserName}`}</>
           </>
           <>{accessKeysCountComponent}</>
         </Stack>
       </AppContainer.OverallSummary>
 
-      <AppContainer.MainContent hasPadding background="backgroundLevel3">
-        <Box style={{ flex: 1 }}>
-          {/* fix this when you are working on it*/}
-          <Table
-            columns={columns as unknown as Column[]}
-            data={data}
-            defaultSortingKey={'health'}
-          >
-            <TableHeader
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Access Keys"
-                variant="primary"
-                onClick={() => history.push('access-keys/create')}
-                type="submit"
-              />
-            </TableHeader>
-            <Table.SingleSelectableContent
-              rowHeight="h40"
-              separationLineVariant="backgroundLevel1"
-              backgroundVariant="backgroundLevel3"
-            >
-              {(Rows) => (
-                <>
-                  {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
-                    ? 'Loading access keys...'
-                    : ''}
-                  {accessKeysStatus === 'error'
-                    ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
-                    : ''}
-                  {accessKeysStatus === 'success' ? Rows : ''}
-                </>
-              )}
-            </Table.SingleSelectableContent>
-          </Table>
-        </Box>
+      <AppContainer.MainContent background="backgroundLevel3">
+        <Table
+          columns={columns as unknown as Column[]}
+          data={data}
+          defaultSortingKey={'health'}
+          status={accessKeysStatus}
+          entityName={{
+            en: {
+              singular: 'access key',
+              plural: 'access keys',
+            },
+          }}
+        >
+          <Wrap style={{ padding: spacing.r16 }}>
+            <p></p>
+            <Button
+              icon={<Icon name="Create-add" />}
+              label="Create Access Keys"
+              variant="primary"
+              onClick={() => history.push('access-keys/create')}
+              type="submit"
+            />
+          </Wrap>
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            separationLineVariant="backgroundLevel1"
+          ></Table.SingleSelectableContent>
+        </Table>
       </AppContainer.MainContent>
       <Route path={`${url}/create`}>
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />

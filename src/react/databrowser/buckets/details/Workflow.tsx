@@ -1,8 +1,6 @@
-import { ConstrainedText } from '@scality/core-ui';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Button } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui';
+import { Icon, spacing, ConstrainedText } from '@scality/core-ui';
+import { Button, Table } from '@scality/core-ui/dist/next';
+import { PropsWithChildren } from 'react';
 import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 import styled from 'styled-components';
@@ -15,12 +13,11 @@ import { makeWorkflows } from '../../../queries';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
 import { WorkflowTypeIcon } from '../../../workflow/WorkflowList';
 import { useWorkflowsWithSelect } from '../../../workflow/Workflows';
-import { PropsWithChildren } from 'react';
 
 const TableAction = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-bottom: ${spacing.r16};
+  padding: ${spacing.r16};
 `;
 
 function Workflow({ bucketName }: { bucketName: string }) {
@@ -116,7 +113,6 @@ function Workflow({ bucketName }: { bucketName: string }) {
         <Table.SingleSelectableContent
           rowHeight="h48"
           separationLineVariant="backgroundLevel2"
-          backgroundVariant="backgroundLevel4"
         ></Table.SingleSelectableContent>
       </Table>
     </div>

@@ -6,6 +6,5 @@ export const CustomTabs = styled(Tabs)`
   flex: 1;
   .sc-tabs-item-content {
     overflow-y: auto;
-    padding: ${spacing.sp16};
   }
 `;

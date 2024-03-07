@@ -8,13 +8,13 @@ import {
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppState } from '../../../../types/state';
-import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';
-import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Clipboard } from '../../../ui-elements/Clipboard';
+import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
+import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
+
 import { HideCredential } from '../../../ui-elements/Hide';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import { Box } from '@scality/core-ui/dist/next';
+
 import styled from 'styled-components';
 type Props = {
   account: Account;
@@ -109,7 +109,7 @@ const modalBody = (key: AccountKey | null) => {
       </Banner>
       <Table
         style={{
-          marginTop: spacing.sp16,
+          marginTop: spacing.r16,
         }}
       >
         <T.Body>
@@ -122,7 +122,7 @@ const modalBody = (key: AccountKey | null) => {
             <T.Value> {key.accessKey} </T.Value>
             <T.ExtraCell>
               {' '}
-              <Clipboard text={key.accessKey} />{' '}
+              <CopyButton textToCopy={key.accessKey} />{' '}
             </T.ExtraCell>
           </T.Row>
           <T.Row>
@@ -133,7 +133,7 @@ const modalBody = (key: AccountKey | null) => {
             </T.Value>
             <T.ExtraCell>
               {' '}
-              <Clipboard text={key.secretKey} />{' '}
+              <CopyButton textToCopy={key.secretKey} />{' '}
             </T.ExtraCell>
           </T.Row>
         </T.Body>

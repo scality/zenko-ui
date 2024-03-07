@@ -307,7 +307,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       Header: 'User Name',
       accessor: 'userName',
       cellStyle: {
-        minWidth: '30%',
+        flex: 3,
       },
     },
     {
@@ -315,7 +315,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'accessKeys',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10%',
+        flex: 1,
       },
       Cell: renderAccessKeyComponent,
     },
@@ -324,7 +324,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'createdOn',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10%',
+        flex: 1,
       },
       Cell: ({ value }: { value: Date }) => (
         <FormattedDateTime format="date-time" value={value} />
@@ -337,8 +337,9 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '50%',
+        flex: 5,
         marginLeft: 'auto',
+        marginRight: spacing.sp12,
       },
       disableSortBy: true,
       Cell: (value: CellProps<InternalUser>) => (

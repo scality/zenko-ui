@@ -27,6 +27,9 @@ export const EmptyStateContainer = styled.div`
   flex: 1;
   flex-direction: column;
   width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
   background: ${(props) => props.theme.backgroundLevel1};
 `;
 const NavbarContainer = styled.div`

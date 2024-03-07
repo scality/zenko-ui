@@ -1,4 +1,11 @@
-import { FormattedDateTime, Icon, Modal, Wrap } from '@scality/core-ui';
+import {
+  FormattedDateTime,
+  Icon,
+  Modal,
+  Wrap,
+  spacing,
+} from '@scality/core-ui';
+
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -14,25 +21,23 @@ import {
 } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
-import { Clipboard } from '../../../ui-elements/Clipboard';
+
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import * as T from '../../../ui-elements/TableKeyValue';
 import Table, { TitleRow } from '../../../ui-elements/TableKeyValue';
-import {
-  useAccounts,
-  useAuthGroups,
-  useRolePathName,
-} from '../../../utils/hooks';
+import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
 import SecretKeyModal from './SecretKeyModal';
 import { useSetAssumedRole } from '../../../DataServiceRoleProvider';
 import { useAccessibleAccountsAdapter } from '../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useMetricsAdapter } from '../../../next-architecture/ui/MetricsAdapterProvider';
+import { CopyButton } from '@scality/core-ui/dist/next';
 
 const TableContainer = styled.div`
   display: flex;
   flex-direction: column;
+  padding: ${spacing.r16};
 `;
 type Props = {
   account: Account;
@@ -159,7 +164,7 @@ function AccountInfo({ account }: Props) {
             <T.Value> {account.id} </T.Value>
             <T.ExtraCell>
               {' '}
-              <Clipboard text={account.id} />{' '}
+              <CopyButton textToCopy={account.id} />{' '}
             </T.ExtraCell>
           </T.Row>
           <T.Row>
@@ -167,7 +172,7 @@ function AccountInfo({ account }: Props) {
             <T.Value> {account.Name} </T.Value>
             <T.ExtraCell>
               {' '}
-              <Clipboard text={account.Name} />{' '}
+              <CopyButton textToCopy={account.Name} />{' '}
             </T.ExtraCell>
           </T.Row>
           <T.Row>

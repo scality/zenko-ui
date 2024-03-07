@@ -7,7 +7,7 @@ import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
 import { FormattedDateTime, PrettyBytes, Text } from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui';
 import styled from 'styled-components';
 import { useHistory, useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
@@ -35,8 +35,8 @@ import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 
 export const Icon = styled.i<{ isMargin?: boolean }>`
-  margin-right: ${spacing.sp4};
-  margin-left: ${(props) => (props.isMargin ? spacing.sp16 : '0px')};
+  margin-right: ${spacing.r4};
+  margin-left: ${(props) => (props.isMargin ? spacing.r16 : '0px')};
 `;
 type CellProps = {
   row: {
@@ -294,10 +294,10 @@ export default function ObjectListTable({
         Header: 'Size',
         headerStyle: {
           textAlign: 'right',
-          marginRight: spacing.sp16,
+          marginRight: spacing.r16,
         },
         cellStyle: {
-          marginRight: isTableScrollbarVisible ? spacing.sp8 : spacing.sp16,
+          marginRight: isTableScrollbarVisible ? spacing.r8 : spacing.r16,
         },
         accessor: (row) => (row.size ? row.size : ''),
         Cell({ value: size }: { value: string }) {
@@ -380,6 +380,7 @@ export default function ObjectListTable({
       }
     }
   }, []);
+
   return (
     <T.ContainerWithSubHeader>
       <Table {...getTableProps()}>
@@ -437,7 +438,7 @@ export default function ObjectListTable({
                       height={height || 300}
                       itemCount={rows.length}
                       itemSize={
-                        convertRemToPixels(parseFloat(spacing.sp40)) || 45
+                        convertRemToPixels(parseFloat(spacing.r40)) || 45
                       }
                       width={width || '100%'}
                       //@ts-expect-error fix this when you are working on it

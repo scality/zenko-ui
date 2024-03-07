@@ -1,14 +1,12 @@
-import { ConstrainedText, Icon, Wrap } from '@scality/core-ui';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { ConstrainedText, Icon, Wrap, spacing } from '@scality/core-ui';
+import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
+
 import { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import type { Endpoint, Hostname, LocationName } from '../../types/config';
 import { renderLocation } from '../locations/utils';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
-import { Clipboard } from '../ui-elements/Clipboard';
-import * as T from '../ui-elements/Table';
 import {
   AuthorizedAdvancedMetricsButton,
   cloudServerDashboard,
@@ -51,18 +49,17 @@ function EndpointList({ endpoints, locations }: Props) {
         accessor: 'hostname',
         cellStyle: {
           flex: '1',
-          paddingLeft: '18px',
         },
         Cell({ value: hostName }: { value: Hostname }) {
           return (
             <Wrap paddingRight="2rem">
               <ConstrainedText
                 text={
-                  <span style={{ paddingRight: spacing.sp14 }}>{hostName}</span>
+                  <span style={{ paddingRight: spacing.r14 }}>{hostName}</span>
                 }
                 lineClamp={2}
               />
-              <Clipboard text={hostName} />
+              <CopyButton textToCopy={hostName} />
             </Wrap>
           );
         },
@@ -96,12 +93,10 @@ function EndpointList({ endpoints, locations }: Props) {
 
         Cell({ row: { original } }: CellProps) {
           return (
-            <T.Actions>
-              <DeleteEndpoint
-                hostname={original.hostname}
-                isBuiltin={original.isBuiltin}
-              />
-            </T.Actions>
+            <DeleteEndpoint
+              hostname={original.hostname}
+              isBuiltin={original.isBuiltin}
+            />
           );
         },
       },
@@ -111,44 +106,37 @@ function EndpointList({ endpoints, locations }: Props) {
 
   return (
     <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
-      <T.Container>
-        <Table
-          //@ts-expect-error fix this when you are working on it
-          columns={columns}
-          data={strictSchemaEndpoints}
-          defaultSortingKey="hostname"
-        >
-          <T.SearchContainer>
-            <T.Search>
-              <Table.SearchWithQueryParams
-                displayedName={{
-                  singular: 'endpoint',
-                  plural: 'endpoints',
-                }}
-                queryParams={SEARCH_QUERY_PARAM}
-              />
-            </T.Search>
-            <div style={{ marginLeft: 'auto' }}>
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Data Service"
-                variant="primary"
-                onClick={() => history.push('/create-dataservice')}
-                type="submit"
-              />
-              <AuthorizedAdvancedMetricsButton
-                dashboard={cloudServerDashboard}
-              />
-            </div>
-          </T.SearchContainer>
+      <Table
+        //@ts-expect-error fix this when you are working on it
+        columns={columns}
+        data={strictSchemaEndpoints}
+        defaultSortingKey="hostname"
+        entityName={{
+          en: {
+            singular: 'endpoint',
+            plural: 'endpoints',
+          },
+        }}
+      >
+        <Wrap style={{ padding: spacing.r16 }}>
+          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
 
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel2"
-          />
-        </Table>
-      </T.Container>
+          <div style={{ marginLeft: 'auto' }}>
+            <Button
+              icon={<Icon name="Create-add" />}
+              label="Create Data Service"
+              variant="primary"
+              onClick={() => history.push('/create-dataservice')}
+              type="submit"
+            />
+            <AuthorizedAdvancedMetricsButton dashboard={cloudServerDashboard} />
+          </div>
+        </Wrap>
+        <Table.SingleSelectableContent
+          rowHeight="h40"
+          separationLineVariant="backgroundLevel1"
+        />
+      </Table>
     </Box>
   );
 }

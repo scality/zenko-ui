@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Box, Button } from '@scality/core-ui/dist/next';
+
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { CustomModal as Modal, ModalBody } from '../../ui-elements/Modal';
 import { useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
@@ -15,7 +15,6 @@ import {
 } from './AttachmentTypes';
 import { useTheme } from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { InlineButton } from '../../ui-elements/Table';
 import {
   getListAttachedUserPoliciesQuery,
   getListEntitiesForPolicyQuery,
@@ -290,8 +289,9 @@ function AttachmentConfirmationModal({
               <Box display="flex" gap={8} alignItems="center">
                 <Icon color="statusCritical" name="Times-circle" />
                 {attachmentOperationsStatuses[resourceId]}{' '}
-                <InlineButton
+                <Button
                   onClick={attach}
+                  size="inline"
                   variant="outline"
                   label="Retry"
                 />
@@ -334,10 +334,6 @@ function AttachmentConfirmationModal({
           <Table.SingleSelectableContent
             rowHeight="h32"
             separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
-            children={(Rows) => {
-              return <>{Rows}</>;
-            }}
           ></Table.SingleSelectableContent>
         </Table>
       </div>

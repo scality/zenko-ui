@@ -31,6 +31,8 @@ const TableContainer = styled.div`
 
 const ButtonContainer = styled.div`
   margin-left: auto;
+  padding: ${spacing.r16};
+  padding-right: ${spacing.r32};
 `;
 
 const EllipsisCell = styled.div`
@@ -175,7 +177,7 @@ function AccountKeys({ account }: Props) {
 
   return (
     <AccessKeysDetails>
-      <h3>Root user Access keys details</h3>
+      <h3 style={{ marginLeft: spacing.r32 }}>Root user Access keys details</h3>
       <div
         style={{
           display: 'flex',
@@ -218,8 +220,7 @@ function AccountKeys({ account }: Props) {
         >
           <Table.SingleSelectableContent
             rowHeight="h40"
-            separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
+            separationLineVariant="backgroundLevel1"
           />
         </Table>
       </TableContainer>
