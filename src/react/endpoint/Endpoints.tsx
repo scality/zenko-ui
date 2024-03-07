@@ -1,11 +1,15 @@
-import { AppContainer, Icon, Stack, Text } from '@scality/core-ui';
+import {
+  AppContainer,
+  Icon,
+  Stack,
+  Text,
+  Loader,
+  EmptyState,
+} from '@scality/core-ui';
 import { useHistory } from 'react-router-dom';
 
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { EmptyStateContainer } from '../ui-elements/Container';
-import Loader from '../ui-elements/Loader';
-import { Warning } from '../ui-elements/Warning';
 import EndpointList from './EndpointList';
 
 const Endpoints = () => {
@@ -19,26 +23,21 @@ const Endpoints = () => {
 
   if (status === 'idle' || status === 'loading') {
     return (
-      <EmptyStateContainer>
-        {/* @ts-expect-error fix this when you are working on it */}
-        <Loader>Loading Data Services...</Loader>
-      </EmptyStateContainer>
+      <Loader centered size="massive">
+        <>Loading Data Services...</>
+      </Loader>
     );
   }
 
   // empty state.
   if (accountsLocationsAndEndpoints?.endpoints.length === 0) {
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          //@ts-expect-error fix this when you are working on it
-          icon={<Icon name="Wallet" size="5x" />}
-          title="Create your first Data Service."
-          btnTitle="Create Data Service"
-          btnAction={() => history.push('/create-dataservice')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon="Account"
+        listedResource="Data Service"
+        link="/create-dataservice"
+        history={history}
+      />
     );
   }
 

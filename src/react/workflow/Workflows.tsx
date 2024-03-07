@@ -6,6 +6,7 @@ import {
   Text,
   TwoPanelLayout,
   Wrap,
+  Loader,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { UseQueryResult, useQuery } from 'react-query';
@@ -31,9 +32,7 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
-import { EmptyStateContainer } from '../ui-elements/Container';
-import Loader from '../ui-elements/Loader';
-import { Warning } from '../ui-elements/Warning';
+
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
@@ -162,7 +161,7 @@ export default function Workflows() {
 
     if (!isWorkflowsReady) {
       return (
-        <Loader>
+        <Loader size="massive" centered>
           <div>Loading workflows</div>
         </Loader>
       );

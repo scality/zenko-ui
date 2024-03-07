@@ -9,6 +9,8 @@ import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
 import { useQueryParams } from '../../utils/hooks';
 import { useSelector } from 'react-redux';
+import { Box } from '@scality/core-ui/dist/next';
+import { Icon, spacing } from '@scality/core-ui';
 export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object';
 type Props = {
@@ -16,8 +18,7 @@ type Props = {
   listType: ListObjectsType;
 };
 export const InfoWarning = ({ title }: { title: JSX.Element }) => (
-  //@ts-expect-error fix this when you are working on it
-  <Warning iconClass="fas fa-2x fa-info-circle" title={title} />
+  <Warning title={title} centered />
 );
 
 const warningTitle = (toggled: List<Record<string, any>>): JSX.Element => {
@@ -96,21 +97,21 @@ function ObjectDetails({ toggled, listType }: Props) {
         path={pathname}
         query={{ ...queryObject, tab: null }}
       >
-        {details()}
+        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
       </CustomTabs.Tab>
       <CustomTabs.Tab
         label="Metadata"
         path={pathname}
         query={{ ...queryObject, tab: 'metadata' }}
       >
-        {details()}
+        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
       </CustomTabs.Tab>
       <CustomTabs.Tab
         label="Tags"
         path={pathname}
         query={{ ...queryObject, tab: 'tags' }}
       >
-        {details()}
+        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
       </CustomTabs.Tab>
     </CustomTabs>
   );

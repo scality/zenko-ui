@@ -535,7 +535,6 @@ export const AttachmentTable = <
           defaultSortingKey="name"
         >
           <Table.SingleSelectableContent
-            backgroundVariant="backgroundLevel4"
             rowHeight={rowHeight}
             separationLineVariant="backgroundLevel2"
           >

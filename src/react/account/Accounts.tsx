@@ -4,6 +4,7 @@ import {
   ErrorPage401,
   ErrorPage500,
   Icon,
+  Loader,
 } from '@scality/core-ui';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -49,7 +50,11 @@ const Accounts = () => {
       <AppContainer.ContextContainer>
         <BreadcrumbAccount pathname={pathname} />
       </AppContainer.ContextContainer>
-      {accounts.status === 'loading' && <div>Loading accounts...</div>}
+      {accounts.status === 'loading' && (
+        <Loader centered>
+          <>Loading Accounts...</>
+        </Loader>
+      )}
       {accounts.status === 'error' && <ErrorPage500 locale="en" />}
       {accounts.status === 'success' && (
         <>

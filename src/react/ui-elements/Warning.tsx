@@ -14,7 +14,7 @@ const Container = styled.div<{ centered?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 10%;
+  text-align: ${(props) => (props.centered ? 'center' : 'left')};
 `;
 const Container2 = styled.div`
   text-align: center;

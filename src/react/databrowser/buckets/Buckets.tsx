@@ -42,7 +42,11 @@ export default function Buckets() {
   if (buckets.status === 'error') {
     return (
       <EmptyStateContainer>
-        <Warning title="Error" icon={<Icon name="Times-circle" size="5x" />} />
+        <Warning
+          title="Error"
+          icon={<Icon name="Times-circle" size="5x" />}
+          centered
+        />
       </EmptyStateContainer>
     );
   }
@@ -62,7 +66,7 @@ export default function Buckets() {
       <EmptyState
         icon="Bucket"
         history={history}
-        link="/accounts/${account?.Name}/create-bucket"
+        link={`/accounts/${account?.Name}/create-bucket`}
         listedResource="Bucket"
       ></EmptyState>
     );

@@ -1,4 +1,5 @@
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 // TEMPLATE
 //
@@ -19,7 +20,7 @@ export const Body = styled.tbody``;
 export const Row = styled.tr``;
 export const Key = styled.td`
   white-space: nowrap;
-  padding: ${spacing.sp8} 0px;
+  padding: ${spacing.r8} 0px;
   color: ${(props) => props.theme.textSecondary};
 `;
 export const Value = styled.td`
@@ -32,16 +33,16 @@ export const Value = styled.td`
 export const Title = styled.div`
   font-size: ${fontSize.larger};
   font-weight: bold;
-  margin: ${spacing.sp20} 0 ${spacing.sp20} 0;
+  margin: ${spacing.r20} 0 ${spacing.r20} 0;
 `;
 export const ExtraCell = styled.td`
-  padding-left: ${spacing.sp20};
+  padding-left: ${spacing.r20};
   min-width: 40px;
 `;
 export const Container = styled.div`
   display: block;
   width: fit-content;
-  margin: ${spacing.sp16} 0 0 30px;
+  margin: ${spacing.r16} 0 0 30px;
 `;
 const Table = styled.table`
   max-width: 600px;
@@ -52,6 +53,6 @@ export const TitleRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${spacing.sp16};
+  padding: ${spacing.r16};
 `;
 export default Table;

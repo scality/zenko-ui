@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Redirect, useHistory, useParams } from 'react-router-dom';
 import {
   getObjectMetadata,
   listObjects,
@@ -19,8 +19,9 @@ import ObjectDetails from './ObjectDetails';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
 import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
-import { AppContainer, EmptyState, TwoPanelLayout } from '@scality/core-ui';
+import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
 import ObjectHead from './ObjectHead';
+
 export default function Objects() {
   const dispatch = useDispatch();
   const [loaded, setLoaded] = useState(false);
@@ -48,6 +49,7 @@ export default function Objects() {
   const searchInput = query.get('metadatasearch');
   const objectKey = query.get('prefix');
   const versionId = query.get('versionId');
+  const history = useHistory();
   const toggled = useMemo(
     () =>
       objects.filter(
@@ -118,16 +120,16 @@ export default function Objects() {
   }
 
   // TODO: manage empty state
-  if (objects.size === 0) {
-    return (
-      <EmptyState
-        icon="Node-backend"
-        history={history}
-        link={`/buckets/${bucketNameParam}/upload-object`}
-        listedResource="Object"
-      ></EmptyState>
-    );
-  }
+  // if (objects.size === 0) {
+  //   return (
+  //     <EmptyState
+  //       icon="Node-backend"
+  //       history={history}
+  //       link={`/buckets/${bucketNameParam}/upload-object`}
+  //       listedResource="Object"
+  //     ></EmptyState>
+  //   );
+  // }
   return (
     <>
       <AppContainer.OverallSummary>

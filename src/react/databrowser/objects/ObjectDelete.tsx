@@ -12,8 +12,15 @@ import {
   deleteFiles,
   toggleAllObjects,
 } from '../../actions';
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import { Banner, Stack, Wrap } from '@scality/core-ui';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
+import {
+  Banner,
+  Stack,
+  Wrap,
+  PrettyBytes,
+  Icon,
+  spacing,
+} from '@scality/core-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Action } from '../../../types/actions';
 import type { AppState } from '../../../types/state';
@@ -22,7 +29,6 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import type { Dispatch } from 'redux';
 import { List } from 'immutable';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { PrettyBytes, Icon } from '@scality/core-ui';
 import { maybePluralize } from '../../utils';
 import { useTheme } from 'styled-components';
 import styled from 'styled-components';
@@ -34,12 +40,12 @@ const Files = styled.div`
   height: 15.63rem;
   width: 31.25rem;
   overflow-y: scroll;
-  margin: ${spacing.sp8} 0rem;
-  border: ${spacing.sp1} solid ${(props) => props.theme.border};
+  margin: ${spacing.r8} 0rem;
+  border: ${spacing.r1} solid ${(props) => props.theme.border};
 `;
 const VersionId = styled.div`
   font-size: ${fontSize.small};
-  margin-top: ${spacing.sp4};
+  margin-top: ${spacing.r4};
 `;
 const ConfirmInput = styled(Input)`
   width: 3.4375rem;
@@ -138,12 +144,12 @@ export const enum WarningTypes {
 function getWarningBanner(warningType: WarningTypes) {
   if (warningType === WarningTypes.GOVERNANCE) {
     return (
-      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+      <Box marginTop={spacing.r8} marginBottom={spacing.r8}>
         <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
           At least one object you want to delete is under Object-Lock retention{' '}
           <Icon name="Lock" color="buttonSecondary" /> with governance mode.
         </Banner>
-        <Box marginTop={spacing.sp8}>
+        <Box marginTop={spacing.r8}>
           <div>
             Protected versions won't be deleted unless you choose to bypass
           </div>
@@ -154,7 +160,7 @@ function getWarningBanner(warningType: WarningTypes) {
   }
   if (warningType === WarningTypes.COMPLIANCE) {
     return (
-      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+      <Box marginTop={spacing.r8} marginBottom={spacing.r8}>
         <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
           At least one object you want to delete is under Object-Lock retention{' '}
           <Icon name="Lock" color="buttonSecondary" /> with compliance mode.{' '}
@@ -167,7 +173,7 @@ function getWarningBanner(warningType: WarningTypes) {
 
   if (warningType === WarningTypes.LEGAL_HOLD) {
     return (
-      <Box marginTop={spacing.sp8} marginBottom={spacing.sp8}>
+      <Box marginTop={spacing.r8} marginBottom={spacing.r8}>
         <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
           At least one object you want to delete is under Legal Hold{' '}
           <Icon name="Lock" color="buttonSecondary" /> <br />
@@ -323,7 +329,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
     if (s3Object.lockStatus === 'LOCKED' && s3Object.versionId) {
       if (s3Object.objectRetention?.mode === 'COMPLIANCE') {
         return (
-          <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
+          <Box display="flex" color={theme?.textTertiary} gap={spacing.r4}>
             <Icon color="buttonSecondary" name="Lock" />
             <span>Protected (compliance), won't be deleted</span>
           </Box>
@@ -331,7 +337,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
       }
       if (s3Object.objectRetention?.mode === 'GOVERNANCE') {
         return (
-          <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
+          <Box display="flex" color={theme?.textTertiary} gap={spacing.r4}>
             <Icon color="buttonSecondary" name="Lock" />
             <span>Protected (governance), will be deleted</span>
           </Box>
@@ -340,7 +346,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
     }
     if (s3Object.isLegalHoldEnabled && s3Object.versionId) {
       return (
-        <Box display="flex" color={theme?.textTertiary} gap={spacing.sp4}>
+        <Box display="flex" color={theme?.textTertiary} gap={spacing.r4}>
           <Icon color="buttonSecondary" name="Lock" />
           <span>Protected (legal hold), won't be deleted</span>
         </Box>
@@ -474,7 +480,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
                   <VersionId hidden={!toggledFile.versionId}>
                     {toggledFile.versionId}
                   </VersionId>
-                  <Box marginTop={spacing.sp4}>
+                  <Box marginTop={spacing.r4}>
                     {toggledFile.size &&
                       PrettyBytes({ bytes: toggledFile.size })}
                     {getProtectedDeletionMessage(toggledFile)}
@@ -490,7 +496,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
           </T.Body>
         </Table>
       </Files>
-      <Box mb={spacing.sp12}>Total: {PrettyBytes({ bytes: totalSize })}</Box>
+      <Box mb={spacing.r12}>Total: {PrettyBytes({ bytes: totalSize })}</Box>
       {toggledFiles.length > 0 && notificationText && (
         <Banner variant="base" icon={<Icon name="Info-circle" />}>
           <span>{notificationText}</span>
@@ -511,7 +517,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
         {warnings.length > 0 &&
           warnings.map((warning) => getWarningBanner(warning))}
         {confirmationRequired && (
-          <Box marginBottom={spacing.sp8}>
+          <Box marginBottom={spacing.r8}>
             <span style={{ marginRight: '0.85rem' }}>
               Type "confirm" to bypass governance retention:
             </span>

@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { Stack, Tooltip, Wrap } from '@scality/core-ui';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { Stack, Tooltip, Wrap, spacing } from '@scality/core-ui';
 
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
@@ -117,7 +116,7 @@ export function AccountRoleSelectButtonAndModal({
                     size="xs"
                     color="buttonSecondary"
                     //@ts-expect-error fix this when you are working on it
-                    style={{ fontSize: '1rem', marginLeft: spacing.sp8 }}
+                    style={{ fontSize: '1rem', marginLeft: spacing.r8 }}
                   />
                 </Tooltip>
               </span>
@@ -148,7 +147,6 @@ export function AccountRoleSelectButtonAndModal({
           <Table.SingleSelectableContent
             rowHeight="h32"
             separationLineVariant="backgroundLevel3"
-            backgroundVariant="backgroundLevel1"
             onRowSelected={(rowData) => {
               //@ts-expect-error fix this when you are working on it
               setAssumedRoleArn(rowData.original.roleArn);
@@ -156,9 +154,6 @@ export function AccountRoleSelectButtonAndModal({
               setAssumedAccount(rowData.original.accountName);
             }}
             selectedId={assumedRoleArn}
-            children={(Rows) => {
-              return <>{Rows}</>;
-            }}
           ></Table.SingleSelectableContent>
         </Table>
       </div>

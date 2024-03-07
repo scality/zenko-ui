@@ -1,5 +1,13 @@
-import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
-import { ComponentType, useMemo, useState } from 'react';
+import {
+  EmptyState,
+  Icon,
+  IconHelp,
+  Loader,
+  Stack,
+  Wrap,
+  spacing,
+} from '@scality/core-ui';
+import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -27,8 +35,6 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { InlineButton, Search, SearchContainer } from '../ui-elements/Table';
-import { Warning } from '../ui-elements/Warning';
 import { getLocationType } from '../utils/storageOptions';
 import { useWorkflows } from '../workflow/Workflows';
 import { PauseAndResume } from './PauseAndResume';
@@ -121,9 +127,10 @@ const ActionButtons = ({
       <Wrap>
         <div></div>
         <Stack gap={'r8'}>
-          <InlineButton
+          <Button
             icon={<Icon name="Edit" />}
             variant="secondary"
+            size="inline"
             onClick={() => history.push(`/locations/${locationName}/edit`)}
             type="button"
             aria-label="Edit Location"
@@ -133,7 +140,8 @@ const ActionButtons = ({
             }}
             disabled={rowValues.isBuiltin}
           />
-          <InlineButton
+          <Button
+            size="inline"
             icon={<Icon name="Delete" />}
             variant="danger"
             onClick={() => setShowModal(true)}
@@ -199,7 +207,6 @@ export function LocationsList() {
         cellStyle: {
           textAlign: 'left',
           minWidth: '20rem',
-          paddingLeft: '18px',
         },
       },
       {
@@ -313,16 +320,20 @@ export function LocationsList() {
   ]);
 
   if (locations.status === 'loading' || locations.status === 'unknown') {
-    return <>Loading...</>;
+    return (
+      <Loader centered size="massive">
+        <>Loading Locations...</>
+      </Loader>
+    );
   }
 
   if (data.length === 0) {
     return (
-      <Warning
-        icon={<Icon name="Map-marker" size="5x" />}
-        title="Create your first storage location."
-        btnTitle="Create Location"
-        btnAction={() => history.push('/create-location')}
+      <EmptyState
+        icon="Map-marker"
+        link="/create-location"
+        history={history}
+        listedResource="Location"
       />
     );
   }
@@ -335,17 +346,20 @@ export function LocationsList() {
       style={{ paddingTop: '1rem' }}
       id="endpoint-list"
     >
-      <Table columns={columns} data={data} defaultSortingKey={'name'}>
-        <SearchContainer>
-          <Search>
-            <Table.SearchWithQueryParams
-              displayedName={{
-                singular: 'location',
-                plural: 'locations',
-              }}
-              queryParams={SEARCH_QUERY_PARAM}
-            />
-          </Search>
+      <Table
+        columns={columns}
+        status={locations.status}
+        data={data}
+        defaultSortingKey={'name'}
+        entityName={{
+          en: {
+            singular: 'location',
+            plural: 'locations',
+          },
+        }}
+      >
+        <Wrap style={{ padding: spacing.r16 }}>
+          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
           <Button
             icon={<Icon name="Create-add" />}
             label="Create Location"
@@ -353,12 +367,11 @@ export function LocationsList() {
             onClick={() => history.push('/create-location')}
             type="submit"
           />
-        </SearchContainer>
+        </Wrap>
         <Table.SingleSelectableContent
           id="singleTable"
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
           //@ts-expect-error fix this when you are working on it
           customItemKey={(index: number, data: Array<Location>) =>
             data[index].name

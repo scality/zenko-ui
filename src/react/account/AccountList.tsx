@@ -21,8 +21,8 @@ import { VEEAM_FEATURE } from '../../js/config';
 
 const TableAction = styled.div`
   display: flex;
+  padding: ${spacing.r16};
   justify-content: space-between;
-  margin-bottom: ${spacing.r16};
 `;
 
 function useAutoAssumeRoleUponAccountDeletion({
@@ -112,7 +112,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   return (
     <div
       style={{
-        padding: `${spacing.r16}`,
+        // padding: `${spacing.r16}`,
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
