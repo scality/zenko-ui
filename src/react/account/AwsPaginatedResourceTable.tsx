@@ -56,7 +56,6 @@ export type Props<ENTITY, PREPARED_ENTITY = ENTITY> = {
     singularResourceName: string;
     loading: string;
     errorPreviousHeaders: string;
-    errorInTableContent: string;
   };
 };
 
@@ -74,7 +73,6 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
     singularResourceName,
     loading,
     errorPreviousHeaders,
-    errorInTableContent,
   },
 }: Props<ENTITY, PREPARED_ENTITY>) => {
   const history = useHistory();

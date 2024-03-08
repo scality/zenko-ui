@@ -435,8 +435,6 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
         errorPreviousHeaders:
           'An error occured, policies listing may be incomplete. Please retry' +
           ' and if the error persist contact your support.',
-        errorInTableContent:
-          'We failed to retrieve policies, please retry later. If the error persists, please contact your support.',
       }}
     />
   );
