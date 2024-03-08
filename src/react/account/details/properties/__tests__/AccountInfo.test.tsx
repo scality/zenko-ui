@@ -68,19 +68,19 @@ describe('AccountInfo', () => {
     const { component } = reduxMount(<AccountInfo account={account1} />);
     expect(component.find(Table)).toHaveLength(1);
     const rows = component.find(T.Row);
-    // TODO: switched from 5 -> 3 because we hide the root user email and arn
+    // switched from 5 -> 3 because we hide the root user email and arn
     expect(rows).toHaveLength(3);
     const firstRow = rows.first();
     testRow(firstRow, {
       key: 'Account ID',
       value: account1.id,
-      extraCellComponent: 'Clipboard',
+      extraCellComponent: 'CopyButton',
     });
     const secondRow = rows.at(1);
     testRow(secondRow, {
       key: 'Name',
       value: account1.Name,
-      extraCellComponent: 'Clipboard',
+      extraCellComponent: 'CopyButton',
     });
     const thirdRow = rows.at(2);
     testRow(thirdRow, {

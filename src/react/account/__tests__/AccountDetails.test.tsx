@@ -64,7 +64,7 @@ describe('AccountDetails', () => {
 
     expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
-    expect(component.queryAllByText('No key created')).toHaveLength(0);
+    expect(component.queryAllByText('No access keys found')).toHaveLength(0);
   });
 
   it('should render AccountDetails component without access keys for storage manager users', () => {
@@ -80,6 +80,6 @@ describe('AccountDetails', () => {
     //E+V
     expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
-    expect(component.getByText('No key created')).toBeInTheDocument();
+    expect(component.getByText('No access keys found')).toBeInTheDocument();
   });
 });

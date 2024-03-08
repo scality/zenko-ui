@@ -93,6 +93,6 @@ describe('AccountKeys', () => {
       component.queryByTestId('root-access-keys-banner'),
     ).not.toBeInTheDocument();
     // Check if there is the Warning in the table
-    expect(component.getByText('No key created')).toBeInTheDocument();
+    expect(component.getByText('No access keys found')).toBeInTheDocument();
   });
 });
