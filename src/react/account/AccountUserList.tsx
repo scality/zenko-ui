@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
 import {
@@ -25,7 +24,7 @@ import { useDispatch } from 'react-redux';
 import { handleApiError, handleClientError } from '../actions';
 import { ApiError } from '../../types/actions';
 import { User } from 'aws-sdk/clients/iam';
-import { Icon } from '@scality/core-ui';
+import { Icon, spacing } from '@scality/core-ui';
 
 type InternalUser = {
   userName: string;
@@ -144,7 +143,7 @@ const ActionButtons = ({
   const { arn, userName } = rowValues;
   return (
     <Box
-      gap={spacing.sp12}
+      gap={spacing.r12}
       alignSelf="flex-end"
       display="flex"
       alignItems="center"
@@ -239,7 +238,7 @@ const DeleteUserAction = ({
           listAttachedUserPoliciesStatus === 'loading'
         }
         icon={<Icon name="Delete" />}
-        style={{ height: spacing.sp24, marginLeft: '0.6rem' }}
+        style={{ height: spacing.r24, marginLeft: '0.6rem' }}
         label=""
         onClick={() => {
           setShowModal(true);
@@ -334,7 +333,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         textAlign: 'right',
         flex: 5,
         marginLeft: 'auto',
-        marginRight: spacing.sp12,
+        marginRight: spacing.r12,
       },
       disableSortBy: true,
       Cell: (value: CellProps<InternalUser>) => (
@@ -377,8 +376,6 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         errorPreviousHeaders:
           'An error occured, users listing may be incomplete. Please retry' +
           ' and if the error persist contact your support.',
-        errorInTableContent:
-          'We failed to retrieve users, please retry later. If the error persists, please contact your support.',
       }}
     />
   );
