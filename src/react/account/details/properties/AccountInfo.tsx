@@ -18,7 +18,7 @@ import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import * as T from '../../../ui-elements/TableKeyValue';
-import Table, { TitleRow } from '../../../ui-elements/TableKeyValue';
+import Table from '../../../ui-elements/TableKeyValue';
 import { formatDate } from '../../../utils';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
@@ -143,14 +143,14 @@ function AccountInfo({ account }: Props) {
   return (
     <TableContainer>
       <SecretKeyModal account={account} />
-      <TitleRow>
+      <Wrap alignItems="center" marginBottom={spacing.r16}>
         <h3>Account details</h3>
         {isStorageManager && (
           <ButtonContainer>
             <DeleteAccountButtonAndModal account={account} />
           </ButtonContainer>
         )}
-      </TitleRow>
+      </Wrap>
       <Table id="account-details-table">
         <T.Body>
           <T.Row>

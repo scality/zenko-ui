@@ -19,7 +19,7 @@ import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 
 const AccessKeysDetails = styled.div`
   display: block;
-  margin-top: ${spacing.r20};
+  margin-top: ${spacing.r16};
 `;
 
 const TableContainer = styled.div`
@@ -29,7 +29,6 @@ const TableContainer = styled.div`
 const ButtonContainer = styled.div`
   margin-left: auto;
   padding: ${spacing.r16};
-  padding-right: ${spacing.r32};
 `;
 
 const EllipsisCell = styled.div`
@@ -183,7 +182,7 @@ function AccountKeys({ account }: Props) {
 
   return (
     <AccessKeysDetails>
-      <h3 style={{ marginLeft: spacing.r32 }}>Root user Access keys details</h3>
+      <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
       <div
         style={{
           display: 'flex',
