@@ -14,15 +14,16 @@ import {
   Loader,
   SearchInput,
   SecondaryText,
+  spacing,
   Tooltip,
 } from '@scality/core-ui';
 import styled from 'styled-components';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import {
   AttachableEntity,
   AttachmentOperation,
   AttachmentAction,
 } from './AttachmentTypes';
+import { tableRowHeight } from '@scality/core-ui/dist/components/tablev2/TableUtils';
 
 type AttachableEntityWithPendingStatus = {
   isPending?: boolean;
@@ -77,7 +78,7 @@ const MenuContainer = styled.ul<{
       : ''}
   border-top: 0;
   li {
-    padding: ${spacing.sp8};
+    padding: ${spacing.r8};
     cursor: pointer;
     border-top: 1px solid ${(props) => props.theme.backgroundLevel2};
     &[aria-selected='true'] {
@@ -87,11 +88,7 @@ const MenuContainer = styled.ul<{
 `;
 
 const SearchBoxContainer = styled.div`
-  margin-bottom: ${spacing.sp24};
-  width: 78%;
-  .sc-tooltip {
-    width: 100%;
-  }
+  margin-bottom: ${spacing.r24};
 `;
 
 const StyledSearchInput = styled(SearchInput)`
@@ -108,7 +105,7 @@ const StyledSearchInput = styled(SearchInput)`
 const AttachmentTableContainer = styled.div`
   height: 80%;
   background: ${(props) => props.theme.backgroundLevel3};
-  padding: ${spacing.sp24};
+  padding: ${spacing.r24};
 `;
 
 const StyledTable = styled.div`
@@ -119,6 +116,7 @@ const StyledTable = styled.div`
 export const CenterredSecondaryText = styled(SecondaryText)`
   display: block;
   text-align: center;
+  line-height: ${tableRowHeight[rowHeight]}rem;
 `;
 
 export const AttachmentTable = <
@@ -372,8 +370,12 @@ export const AttachmentTable = <
       <SearchBoxContainer
         {...getComboboxProps({
           ref: (element) => {
-            if (element) {
-              setSearchWidth(element.getBoundingClientRect().width - 2 + 'px');
+            if (element?.firstElementChild) {
+              setSearchWidth(
+                element.firstElementChild.getBoundingClientRect().width -
+                  2 +
+                  'px',
+              );
             }
           },
         })}

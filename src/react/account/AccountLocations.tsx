@@ -1,4 +1,4 @@
-import { Loader, Stack, Wrap, spacing } from '@scality/core-ui';
+import { Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { CellProps, CoreUIColumn } from 'react-table';
@@ -11,6 +11,7 @@ import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
 
 import { getLocationType } from '../utils/storageOptions';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 
 export function AccountLocations() {
   const metricsAdapter = useMetricsAdapter();
@@ -99,10 +100,12 @@ export function AccountLocations() {
       entityName={{ en: { singular: 'location', plural: 'locations' } }}
       status={locations.status}
     >
-      <Wrap style={{ padding: spacing.r16 }}>
-        <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-        <></>
-      </Wrap>
+      <TableHeaderWrapper
+        search={
+          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+        }
+      />
+
       <Table.SingleSelectableContent
         id="singleTable"
         rowHeight="h40"

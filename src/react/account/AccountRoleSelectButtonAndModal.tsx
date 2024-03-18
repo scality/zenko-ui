@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { Stack, Tooltip, Wrap, spacing } from '@scality/core-ui';
-
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
+import { Stack, Tooltip, Wrap, spacing, Icon } from '@scality/core-ui';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 import {
@@ -11,7 +9,6 @@ import {
   useDataServiceRole,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
-import { Icon } from '@scality/core-ui';
 import { AccountSelectorButton } from '../ui-elements/Table';
 
 export function AccountRoleSelectButtonAndModal({

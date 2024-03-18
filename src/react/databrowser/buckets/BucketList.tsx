@@ -18,6 +18,7 @@ import { formatShortDate } from '../../utils';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
+import { TableHeaderWrapper } from '../../ui-elements/Table';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -99,7 +100,7 @@ export default function BucketList({
         id: 'ingestion',
         disableSortBy: true,
         cellStyle: {
-          flex: '1',
+          flex: '1.3',
           textAlign: 'right',
         },
         Cell({ value: locationName }: { value: LocationName }) {
@@ -116,7 +117,10 @@ export default function BucketList({
     }
 
     if (isStorageManager) {
-      columns.push(dataUsedColumn);
+      columns.push({
+        ...dataUsedColumn,
+        cellStyle: { flex: '1', textAlign: 'right' },
+      });
     }
 
     columns.push({
@@ -158,19 +162,22 @@ export default function BucketList({
           },
         }}
       >
-        <Wrap style={{ padding: spacing.r16 }}>
-          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-
-          <Button
-            icon={<Icon name="Create-add" />}
-            label="Create Bucket"
-            variant="primary"
-            onClick={() =>
-              history.push(`/accounts/${accountName}/create-bucket`)
-            }
-            type="submit"
-          />
-        </Wrap>
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
+            <Button
+              icon={<Icon name="Create-add" />}
+              label="Create Bucket"
+              variant="primary"
+              onClick={() =>
+                history.push(`/accounts/${accountName}/create-bucket`)
+              }
+              type="submit"
+            />
+          }
+        />
 
         <Table.SingleSelectableContent
           rowHeight="h40"

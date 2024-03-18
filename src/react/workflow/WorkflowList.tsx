@@ -1,12 +1,13 @@
+import { ConstrainedText, Icon } from '@scality/core-ui';
+import { Button, Table } from '@scality/core-ui/dist/next';
 import { useCallback } from 'react';
-import { TextTransformer } from '../ui-elements/Utility';
-import type { Workflows } from '../../types/workflow';
 import { useHistory } from 'react-router-dom';
-import { Workflow } from '../../types/workflow';
-import { useTheme } from 'styled-components';
 import { CoreUIColumn, Row } from 'react-table';
-import { ConstrainedText, Wrap, spacing, Icon } from '@scality/core-ui';
-import { Table, Button } from '@scality/core-ui/dist/next';
+import { useTheme } from 'styled-components';
+import type { Workflows } from '../../types/workflow';
+import { Workflow } from '../../types/workflow';
+import { TableHeaderWrapper } from '../ui-elements/Table';
+import { TextTransformer } from '../ui-elements/Utility';
 
 const SEARCH_QUERY_PARAM = 'search';
 export function WorkflowTypeIcon({ value: type }: { value: string }) {
@@ -110,17 +111,20 @@ function WorkflowList({ workflows, workflowId }: Props) {
           },
         }}
       >
-        <Wrap style={{ padding: spacing.r16 }}>
-          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-
-          <Button
-            icon={<Icon name="Create-add" />}
-            label="Create Workflow"
-            variant="primary"
-            onClick={() => history.push('./create-workflow')}
-            type="submit"
-          />
-        </Wrap>
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
+            <Button
+              icon={<Icon name="Create-add" />}
+              label="Create Workflow"
+              variant="primary"
+              onClick={() => history.push('./create-workflow')}
+              type="submit"
+            />
+          }
+        />
 
         <Table.SingleSelectableContent
           rowHeight="h64"

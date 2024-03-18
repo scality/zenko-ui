@@ -1,5 +1,5 @@
 import { Banner, Icon, Wrap, spacing } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
+import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Row } from 'react-table';
@@ -12,7 +12,6 @@ import {
   listAccountAccessKeys,
   openAccountKeyCreateModal,
 } from '../../../actions';
-import { Clipboard } from '../../../ui-elements/Clipboard';
 import { formatShortDate } from '../../../utils';
 
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
@@ -112,7 +111,7 @@ function AccountKeys({ account }: Props) {
                   marginLeft: spacing.r16,
                 }}
               >
-                <Clipboard text={access_key} />
+                <CopyButton textToCopy={access_key} />
               </div>
             </span>
           );
@@ -183,13 +182,7 @@ function AccountKeys({ account }: Props) {
   return (
     <AccessKeysDetails>
       <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}
-      >
+      <Wrap alignItems="center" paddingLeft={spacing.r16}>
         {accessKeys && accessKeys.length > 0 && (
           <div data-testid="root-access-keys-banner">
             <Banner
@@ -212,7 +205,7 @@ function AccountKeys({ account }: Props) {
             label="Create Access key"
           />
         </ButtonContainer>
-      </div>
+      </Wrap>
       <TableContainer>
         <Table
           entityName={{
