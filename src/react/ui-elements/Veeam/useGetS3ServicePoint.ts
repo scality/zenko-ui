@@ -5,14 +5,18 @@ import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui
 export const useGetS3ServicePoint = () => {
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
-  });
 
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
   const s3ServicePoint = useMemo(
-    () => accountsLocationsAndEndpoints?.endpoints[0].hostname,
-    [accountsLocationsAndEndpoints],
+    () =>
+      accountsLocationsAndEndpoints.endpoints.find(
+        (endpoint) => !endpoint.isBuiltin,
+      )?.hostname || '',
+    [accountsLocationsAndEndpoints, status],
   );
 
-  return { s3ServicePoint: s3ServicePoint || '' };
+  return { s3ServicePoint };
 };
