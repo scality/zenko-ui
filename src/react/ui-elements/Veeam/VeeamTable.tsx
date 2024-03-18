@@ -32,7 +32,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
   const history = useHistory();
   const queryClient = useQueryClient();
   const { next } = useStepper(VeeamStepsIndexes.Table, VEEAM_STEPS);
-  const { bucketName, enableImmutableBackup } = propsConfiguration;
+  const { bucketName, enableImmutableBackup, accountName } = propsConfiguration;
   const { data, accessKey, secretKey } = useMutationTableData({
     propsConfiguration,
   });
@@ -139,6 +139,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
               onClick={() => {
                 queryClient.invalidateQueries(['WebIdentityRoles']);
                 next({
+                  accountName,
                   bucketName,
                   enableImmutableBackup,
                   accessKey,

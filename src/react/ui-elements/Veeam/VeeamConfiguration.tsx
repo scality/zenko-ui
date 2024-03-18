@@ -11,7 +11,7 @@ import {
 } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import {
@@ -34,8 +34,11 @@ import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { ListItem } from './VeeamTable';
 import { getCapacityBytes } from './useCapacityUnit';
 import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
+import { accountNameValidationSchema } from '../../../react/account/AccountCreate';
+import { useAccounts } from '../../../react/utils/hooks';
 
 const schema = Joi.object({
+  accountName: accountNameValidationSchema,
   bucketName: bucketNameValidationSchema,
   application: Joi.string().required(),
   capacity: Joi.when('application', {
@@ -52,6 +55,7 @@ const schema = Joi.object({
 });
 
 type VeeamConfiguration = {
+  accountName: string;
   bucketName: string;
   application: string;
   capacity: string;
@@ -112,6 +116,7 @@ const Configuration = () => {
     mode: 'all',
     resolver: joiResolver(schema),
     defaultValues: {
+      accountName: '',
       bucketName: '',
       application: VEEAM_BACKUP_REPLICATION_XML_VALUE,
       capacity: '0',
@@ -125,12 +130,29 @@ const Configuration = () => {
     control,
     register,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = methods;
 
   const history = useHistory();
+  const { accounts, status } = useAccounts();
+
+  useEffect(() => {
+    if (status === 'success' && accounts.length === 0) {
+      setValue('accountName', VEEAM_DEFAULT_ACCOUNT_NAME);
+    }
+  }, [status]);
   const { next } = useStepper(VeeamStepsIndexes.Configuration, VEEAM_STEPS);
   const application = watch('application');
+  const accountName = watch('accountName');
+
+  const isAccountExist = useMemo(() => {
+    return (
+      status === 'success' &&
+      accounts.some((account) => account.Name === accountName)
+    );
+  }, [accountName, status]);
+
   const onSubmit = ({
     capacity,
     capacityUnit,
@@ -146,8 +168,7 @@ const Configuration = () => {
         application === VEEAM_BACKUP_REPLICATION_XML_VALUE
           ? enableImmutableBackup
           : false,
-      // Add advanced configuration to set the account name, for the moment we use the default account name.
-      accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
+      accountName,
     });
   };
 
@@ -204,6 +225,30 @@ const Configuration = () => {
       >
         <FormSection forceLabelWidth={300}>
           <FormGroup
+            id="accountName"
+            label="Account"
+            labelHelpTooltip={'TODO'}
+            helpErrorPosition="bottom"
+            error={
+              isAccountExist
+                ? 'Account name already exists'
+                : errors.accountName?.message ?? ''
+            }
+            content={
+              <Input
+                id="accountName"
+                type="text"
+                autoComplete="off"
+                placeholder={
+                  status === 'success' && accounts.length !== 0
+                    ? 'veeam-backup'
+                    : undefined
+                }
+                {...register('accountName')}
+              />
+            }
+          />
+          <FormGroup
             id="application"
             label="Veeam application"
             labelHelpTooltip={<VeeamApplicationTooltip />}
@@ -245,7 +290,7 @@ const Configuration = () => {
                 id="bucketName"
                 type="text"
                 autoComplete="off"
-                placeholder="Veeam bucket name"
+                placeholder="veeam-bucket-name"
                 {...register('bucketName')}
               />
             }

@@ -14,10 +14,10 @@ import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
 import { HideCredential } from '../Hide';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 
 type VeeamSummaryProps = {
+  accountName: string;
   bucketName: string;
   enableImmutableBackup: boolean;
   accessKey: string;
@@ -58,6 +58,7 @@ const Separator = styled.div`
 `;
 
 export const VeeamSummary = ({
+  accountName,
   bucketName,
   enableImmutableBackup,
   accessKey,
@@ -79,9 +80,7 @@ export const VeeamSummary = ({
           variant="primary"
           label="Exit"
           onClick={() => {
-            history.push(
-              `/accounts/${VEEAM_DEFAULT_ACCOUNT_NAME}/buckets/${bucketName}`,
-            );
+            history.push(`/accounts/${accountName}/buckets/${bucketName}`);
           }}
         />
       }

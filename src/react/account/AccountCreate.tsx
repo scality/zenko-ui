@@ -21,14 +21,15 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
+export const accountNameValidationSchema = Joi.string()
+  .label('Name')
+  .required()
+  .min(2)
+  .max(64)
+  .regex(regexpName)
+  .message('Invalid Name');
 const schema = Joi.object({
-  name: Joi.string()
-    .label('Name')
-    .required()
-    .min(2)
-    .max(64)
-    .regex(regexpName)
-    .message('Invalid Name'),
+  name: accountNameValidationSchema,
   email: Joi.string()
     .label('Root Account Email')
     .required()
