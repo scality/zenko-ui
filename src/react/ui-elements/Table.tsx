@@ -1,15 +1,12 @@
 // @noflow
-import { fontSize, spacing } from '@scality/core-ui/dist/style/theme';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { spacing as nextSpacing } from '@scality/core-ui';
-import Input from './Input';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
+
+import { spacing, SecondaryText, Wrap, SearchInput } from '@scality/core-ui';
+import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { Link } from 'react-router-dom';
-import React from 'react';
-import {
-  SearchInput as SearchInputCore,
-  SecondaryText,
-} from '@scality/core-ui';
+
 import styled from 'styled-components';
+import React from 'react';
 // TEMPLATE
 //
 // <Table>
@@ -30,17 +27,34 @@ import styled from 'styled-components';
 //         </T.Row>
 //     </T.Body>
 // </Table>
+type TableHeaderWrapperProps = {
+  search?: React.ReactNode;
+  actions?: React.ReactNode;
+};
+
+export const TableHeaderWrapper = ({
+  search,
+  actions,
+}: TableHeaderWrapperProps) => {
+  return (
+    <Wrap padding={spacing.r16}>
+      <Box>{search}</Box>
+      <Box gap="r16">{actions}</Box>
+    </Wrap>
+  );
+};
+
 export const Container = styled.div`
   display: flex;
   flex: 1;
-  margin-top: ${nextSpacing.r16};
+  margin-top: ${spacing.r16};
   width: 100%;
   height: 100%;
   flex-direction: column;
 `;
 // * table head
 export const Head = styled.thead`
-  border-bottom: ${spacing.sp1} solid ${(props) => props.theme.backgroundLevel1};
+  border-bottom: ${spacing.r1} solid ${(props) => props.theme.backgroundLevel1};
 `;
 export const HeadRow = styled.tr`
   align-items: center;
@@ -53,10 +67,10 @@ export const HeadRow = styled.tr`
 `;
 export const HeadCell = styled.th`
   text-align: left;
-  padding: ${spacing.sp16};
+  padding: ${spacing.r16};
 `;
 export const Icon = styled.i`
-  margin-left: ${spacing.sp4};
+  margin-left: ${spacing.r4};
 `;
 // * table body
 export const Body = styled.tbody`
@@ -68,7 +82,7 @@ export const BodyWindowing = styled.tbody`
   flex: 1;
 `;
 export const Row = styled(HeadRow)`
-  // it's better to use 1px instead of spacing.sp1, otherwise the border of some rows
+  // it's better to use 1px instead of spacing.r1, otherwise the border of some rows
   // can look different cause of subpixel positioning
   border-bottom: 1px solid ${(props) => props.theme.backgroundLevel1};
   &:hover {
@@ -76,7 +90,7 @@ export const Row = styled(HeadRow)`
   }
   cursor: ${(props) => (props.onClick ? 'pointer' : 'default')};
   box-sizing: border-box;
-  border-right: ${spacing.sp4} solid transparent;
+  border-right: ${spacing.r4} solid transparent;
 
   ${(
     //@ts-expect-error fix this when you are working on it
@@ -85,14 +99,14 @@ export const Row = styled(HeadRow)`
     isSelected &&
     `
         background-color: ${theme.highlight};
-        border-right: ${spacing.sp4} solid ${theme.selectedActive};
+        border-right: ${spacing.r4} solid ${theme.selectedActive};
     `}
 `;
 export const Cell = styled.td<{ shade?: boolean }>`
   vertical-align: middle;
   color: ${(props) =>
     props.shade ? props.theme.infoPrimary : props.theme.textPrimary};
-  padding: ${spacing.sp4} ${spacing.sp16} ${spacing.sp4} ${spacing.sp16};
+  padding: ${spacing.r4} ${spacing.r16} ${spacing.r4} ${spacing.r16};
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -122,8 +136,8 @@ export const CellA = styled.a`
 export const SearchContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  padding-right: ${spacing.sp16};
-  padding-left: ${spacing.sp16};
+  padding-right: ${spacing.r16};
+  padding-left: ${spacing.r16};
 
   button {
     margin-left: auto;
@@ -133,14 +147,11 @@ export const Search = styled.div`
   display: flex;
   flex: 0 0 auto;
 `;
-export const SearchInput = styled(SearchInputCore)`
-  width: 100%;
-`;
 export const SearchMetadataContainer = styled.form<{ isHidden?: boolean }>`
   flex: 1 0 auto;
   display: flex;
   max-width: 600px;
-  margin-right: ${spacing.sp20};
+  margin-right: ${spacing.r20};
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
 `;
 export const SearchMetadataInputAndIcon = styled.div`
@@ -148,7 +159,7 @@ export const SearchMetadataInputAndIcon = styled.div`
   display: flex;
   flex-direction: row;
   flex: 1 0 auto;
-  margin-right: ${spacing.sp4};
+  margin-right: ${spacing.r4};
   align-items: center;
 `;
 export const ExtraButton = styled(Button)`
@@ -161,18 +172,18 @@ export const Actions = styled.div`
   text-align: right;
 `;
 export const ActionButton = styled(Button)`
-  margin-left: ${spacing.sp4};
+  margin-left: ${spacing.r4};
 `;
 export const InlineButton = styled(Button)`
-  height: ${spacing.sp24};
+  height: ${spacing.r24};
 `;
 export const AccountSelectorButton = styled(Button)<{ bigButton?: boolean }>`
-  height: ${(props) => (props.bigButton ? spacing.sp32 : spacing.sp24)};
+  height: ${(props) => (props.bigButton ? spacing.r32 : spacing.r24)};
 `;
 export const Title = styled.div`
   font-size: ${fontSize.larger};
   font-weight: bold;
-  margin: ${spacing.sp20} 0 ${spacing.sp20} 0;
+  margin: ${spacing.r20} 0 ${spacing.r20} 0;
 `;
 const Table = styled.table`
   display: flex;
@@ -184,8 +195,8 @@ const Table = styled.table`
 // specific to listobject/md search
 export const SearchMetadataInput = styled(Input)`
   background-color: ${(props) => props.theme.backgroundLevel1};
-  padding: 0px ${spacing.sp32};
-  max-height: ${spacing.sp32};
+  padding: 0px ${spacing.r32};
+  max-height: ${spacing.r32};
   box-sizing: border-box;
 `;
 export const ContainerWithSubHeader = styled(Container)`
@@ -229,26 +240,26 @@ export const SearchButton = styled(Button)`
 export const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  padding-left: ${spacing.sp16};
-  padding-right: ${spacing.sp16};
+  padding-left: ${spacing.r16};
+  padding-right: ${spacing.r16};
 `;
 export const ButtonContainer = styled.div`
   display: flex;
   flex: 0 0 auto;
 
   & > * {
-    margin-left: ${spacing.sp4};
+    margin-left: ${spacing.r4};
   }
 `;
 export const SubHeaderContainer = styled.div<{ isHidden?: boolean }>`
   visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
-  margin-left: ${spacing.sp4};
+  margin-left: ${spacing.r4};
 `;
 export const TableContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: ${spacing.sp16};
+  padding: ${spacing.r16};
 `;
 export const GentleEmphaseSecondaryText = styled(SecondaryText)<{
   alignRight?: boolean;

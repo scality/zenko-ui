@@ -1,18 +1,16 @@
 import { ChangeEvent } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
-import { Tooltip, Wrap, spacing } from '@scality/core-ui';
+import { SearchInput, Tooltip, Wrap, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
-import { SearchInput } from '@scality/core-ui/dist/components/searchinput/SearchInput.component';
-
+import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
+import IAMClient from '../../js/IAMClient';
 import { useIAMClient } from '../IAMProvider';
-import { useQueryParams } from '../utils/hooks';
 import {
   AWS_PAGINATED_ENTITIES,
   AWS_PAGINATED_QUERY,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
-import IAMClient from '../../js/IAMClient';
+import { useQueryParams } from '../utils/hooks';
 
 const WithTooltipWhileLoading = ({
   children,

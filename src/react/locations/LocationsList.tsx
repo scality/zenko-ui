@@ -40,6 +40,7 @@ import { useWorkflows } from '../workflow/Workflows';
 import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
 import styled from 'styled-components';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 
 const ActionButtons = ({
   rowValues,
@@ -367,13 +368,7 @@ export function LocationsList() {
   }
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      flex="1"
-      style={{ paddingTop: '1rem' }}
-      id="endpoint-list"
-    >
+    <Box display="flex" flexDirection="column" flex="1" id="endpoint-list">
       <Table
         columns={columns}
         status={locations.status}
@@ -386,16 +381,21 @@ export function LocationsList() {
           },
         }}
       >
-        <Wrap style={{ padding: spacing.r16 }}>
-          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-          <Button
-            icon={<Icon name="Create-add" />}
-            label="Create Location"
-            variant="primary"
-            onClick={() => history.push('/create-location')}
-            type="submit"
-          />
-        </Wrap>
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
+            <Button
+              icon={<Icon name="Create-add" />}
+              label="Create Location"
+              variant="primary"
+              onClick={() => history.push('/create-location')}
+              type="submit"
+            />
+          }
+        />
+
         <Table.SingleSelectableContent
           id="singleTable"
           rowHeight="h40"

@@ -177,13 +177,7 @@ function AccountKeys({ account }: Props) {
   return (
     <AccessKeysDetails>
       <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}
-      >
+      <Wrap alignItems="center" paddingLeft={spacing.r16}>
         {accessKeys && accessKeys.length > 0 && (
           <div data-testid="root-access-keys-banner">
             <Banner variant="danger" icon={<Icon name="Exclamation-circle" />}>
@@ -203,7 +197,7 @@ function AccountKeys({ account }: Props) {
             label="Create Access key"
           />
         </ButtonContainer>
-      </div>
+      </Wrap>
       <TableContainer>
         <Table
           entityName={{

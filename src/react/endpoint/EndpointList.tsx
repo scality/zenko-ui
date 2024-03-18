@@ -12,7 +12,7 @@ import {
   cloudServerDashboard,
 } from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
-
+import { TableHeaderWrapper } from '../ui-elements/Table';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -118,20 +118,25 @@ function EndpointList({ endpoints, locations }: Props) {
           },
         }}
       >
-        <Wrap style={{ padding: spacing.r16 }}>
-          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
-
-          <div style={{ marginLeft: 'auto' }}>
-            <Button
-              icon={<Icon name="Create-add" />}
-              label="Create Data Service"
-              variant="primary"
-              onClick={() => history.push('/create-dataservice')}
-              type="submit"
-            />
-            <AuthorizedAdvancedMetricsButton dashboard={cloudServerDashboard} />
-          </div>
-        </Wrap>
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
+            <div style={{ marginLeft: 'auto' }}>
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Data Service"
+                variant="primary"
+                onClick={() => history.push('/create-dataservice')}
+                type="submit"
+              />
+              <AuthorizedAdvancedMetricsButton
+                dashboard={cloudServerDashboard}
+              />
+            </div>
+          }
+        />
         <Table.SingleSelectableContent
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"

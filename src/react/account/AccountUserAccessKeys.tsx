@@ -32,6 +32,7 @@ import {
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 
 const CustomIcon = styled.i`
   color: ${(props) => props.theme.textSecondary};
@@ -311,16 +312,17 @@ const AccountUserAccessKeys = () => {
             },
           }}
         >
-          <Wrap style={{ padding: spacing.r16 }}>
-            <p></p>
-            <Button
-              icon={<Icon name="Create-add" />}
-              label="Create Access Keys"
-              variant="primary"
-              onClick={() => history.push('access-keys/create')}
-              type="submit"
-            />
-          </Wrap>
+          <TableHeaderWrapper
+            actions={
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Access Keys"
+                variant="primary"
+                onClick={() => history.push('access-keys/create')}
+                type="submit"
+              />
+            }
+          />
           <Table.SingleSelectableContent
             rowHeight="h40"
             separationLineVariant="backgroundLevel1"

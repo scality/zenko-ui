@@ -3,6 +3,7 @@ import {
   EmptyState,
   ErrorPage401,
   Icon,
+  Loader,
   Sidebar,
 } from '@scality/core-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -38,11 +39,9 @@ import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import LocationEditor from './locations/LocationEditor';
 import { Locations } from './locations/Locations';
-import { EmptyStateContainer } from './ui-elements/Container';
-import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
-import { Warning } from './ui-elements/Warning';
+
 import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
@@ -143,7 +142,7 @@ function PrivateRoutes() {
 
   if (!isClientsLoaded) {
     return (
-      <Loader>
+      <Loader centered>
         <div>Loading clients</div>
       </Loader>
     );

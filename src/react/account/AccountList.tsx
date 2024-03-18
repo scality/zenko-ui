@@ -1,34 +1,27 @@
-import React, { useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
-import { spacing } from '@scality/core-ui';
-import { Button } from '@scality/core-ui/dist/next';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import {
   ConstrainedText,
-  FormattedDateTime,
   Icon,
   Link,
   Stack,
+  FormattedDateTime,
 } from '@scality/core-ui';
-import { Account } from '../next-architecture/domain/entities/account';
+import { Button, Table } from '@scality/core-ui/dist/next';
+import React, { useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
+import { Account } from '../next-architecture/domain/entities/account';
+
+import { VEEAM_FEATURE } from '../../js/config';
 import {
   useCurrentAccount,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
-import { useAuthGroups } from '../utils/hooks';
-import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
-import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { VEEAM_FEATURE } from '../../js/config';
-
-const TableAction = styled.div`
-  display: flex;
-  padding: ${spacing.r16};
-  justify-content: space-between;
-`;
+import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
+import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
+import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useAuthGroups } from '../utils/hooks';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,
@@ -118,7 +111,6 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   return (
     <div
       style={{
-        // padding: `${spacing.r16}`,
         display: 'flex',
         flexDirection: 'column',
         flex: 1,
@@ -135,30 +127,30 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           },
         }}
       >
-        <TableAction>
-          <Table.SearchWithQueryParams />
-          {isStorageManager ? (
-            <Stack>
-              {features.includes(VEEAM_FEATURE) && (
+        <TableHeaderWrapper
+          search={<Table.SearchWithQueryParams />}
+          actions={
+            isStorageManager && (
+              <Stack>
+                {features.includes(VEEAM_FEATURE) && (
+                  <Button
+                    label="Start Configuration for Veeam"
+                    variant="secondary"
+                    onClick={() => history.push('/veeam/configuration')}
+                    type="button"
+                  />
+                )}
                 <Button
-                  label="Start Configuration for Veeam"
-                  variant="secondary"
-                  onClick={() => history.push('/veeam/configuration')}
-                  type="button"
-                />
-              )}
-              <Button
-                icon={<Icon name="Create-add" />}
-                label="Create Account"
-                variant="primary"
-                onClick={() => history.push('/create-account')}
-                type="submit"
-              ></Button>
-            </Stack>
-          ) : (
-            ''
-          )}
-        </TableAction>
+                  icon={<Icon name="Create-add" />}
+                  label="Create Account"
+                  variant="primary"
+                  onClick={() => history.push('/create-account')}
+                  type="submit"
+                ></Button>
+              </Stack>
+            )
+          }
+        />
         <Table.SingleSelectableContent
           rowHeight="h40"
           separationLineVariant="backgroundLevel1"
