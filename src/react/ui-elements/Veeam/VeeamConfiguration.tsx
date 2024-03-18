@@ -165,11 +165,23 @@ const Configuration = () => {
         close={() => setSkip(false)}
         exitAction={() => history.push('/accounts')}
         modalContent={
-          <Text>
-            Are you sure to skip this config? You’ll be able to go through this
-            flow again (in the Account page if no Account has been created,
-            otherwise on an Account edition page)
-          </Text>
+          <>
+            <Text>You may start again this Veeam configuration flow:</Text>
+            <ul>
+              <ListItem>
+                <Text>
+                  If no accounts are created, on your next login or directly
+                  from the Account page.
+                </Text>
+              </ListItem>
+              <ListItem>
+                <Text>
+                  Otherwise, if there is at least one account, on the Account
+                  list page.
+                </Text>
+              </ListItem>
+            </ul>
+          </>
         }
       />
       <Form

@@ -41,7 +41,7 @@ export const VeeamSkipModal = ({
                 close();
                 exitAction();
               }}
-              label="Exit"
+              label="Exit configuration"
             />
           </Stack>
         </Wrap>
