@@ -13,6 +13,11 @@ import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { ACCOUNT_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
+import { useNextLogin } from './useNextLogin';
+
+jest.mock('./useNextLogin', () => ({
+  useNextLogin: jest.fn(),
+}));
 
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 const server = setupServer(
@@ -36,6 +41,9 @@ const server = setupServer(
     );
   }),
 );
+
+const mockUseNextLogin = useNextLogin as jest.Mock;
+
 describe('VeeamWelcomeModal', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -63,12 +71,14 @@ describe('VeeamWelcomeModal', () => {
     return { unmount, rerender };
   };
   it('should not display if Veeam account has already created', async () => {
+    mockUseNextLogin.mockReturnValue({ isNextLogin: false });
     //S
     renderVeeamWelcomeModal();
     //E+V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });
   it('should render when there is no Veeam account created', async () => {
+    mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
@@ -96,7 +106,8 @@ describe('VeeamWelcomeModal', () => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
   });
-  it('should display when there is no account and never click on the Skip button', async () => {
+  it('should display when there is no account and it is next login', async () => {
+    mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {

@@ -3,21 +3,19 @@ import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.compo
 import { useState } from 'react';
 import styled from 'styled-components';
 import { VEEAM_FEATURE } from '../../../js/config';
+import { InternalRouter } from '../../FederableApp';
+import { AuthProvider, useAuth } from '../../next-architecture/ui/AuthProvider';
 import {
   ConfigProvider,
   useConfig,
   useDeployedApps,
   useLinkOpener,
 } from '../../next-architecture/ui/ConfigProvider';
+import { useAccounts, useAuthGroups } from '../../utils/hooks';
+import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
-import { useAccounts, useAuthGroups } from '../../utils/hooks';
-import {
-  getSkipVeeamAssistant,
-  setSkipVeeamAssistant,
-} from '../../utils/localStorage';
-import { AuthProvider } from '../../next-architecture/ui/AuthProvider';
-import { InternalRouter } from '../../FederableApp';
+import { useNextLogin } from './useNextLogin';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -28,24 +26,24 @@ export const VeeamWelcomeModalInternal = () => {
   const { isStorageManager } = useAuthGroups();
   const { accounts, status } = useAccounts();
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
-  const isVeeamAssistantSkipped = getSkipVeeamAssistant();
   const isAlreadyInVeeamConfigurationView = window.location.pathname.endsWith(
     '/veeam/configuration',
   );
+  const { isNextLogin } = useNextLogin();
   /*
    We display the Veeam welcome modal only if the following conditions are met:
    1. Veeam feature flag is enabled
    2. No account exists in the platform
    3. Storage Manager is logged in
-   4. Have never click on the skip button
-   5. Not already in the Veeam configuration view
+   4. Not already in the Veeam configuration view
+   5. The user skip it until the next login or login for the first time
    */
   const isVeeamWelcomeModalEnabled =
     features.includes(VEEAM_FEATURE) &&
     isStorageManager &&
     isZeroAccountCreated &&
-    !isVeeamAssistantSkipped &&
-    !isAlreadyInVeeamConfigurationView;
+    !isAlreadyInVeeamConfigurationView &&
+    isNextLogin;
 
   if (!isVeeamWelcomeModalEnabled) {
     return <></>;
@@ -56,7 +54,6 @@ export const VeeamWelcomeModalInternal = () => {
 
 const VeeamModalComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const { accounts } = useAccounts();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
   const zenkoUI = deployedApps.find(
@@ -84,6 +81,9 @@ const VeeamModalComponent = () => {
     isFederated: true,
   };
 
+  const user = useAuth();
+  const session_state = user?.userData?.original?.session_state;
+
   return (
     <CustomModal
       isOpen={isOpen}
@@ -98,12 +98,10 @@ const VeeamModalComponent = () => {
           <Stack>
             <Button
               variant="outline"
-              label={'Skip'}
+              label={'Skip until next login'}
               onClick={() => {
                 setIsOpen(false);
-                if (accounts.length) {
-                  setSkipVeeamAssistant();
-                }
+                setSessionState(session_state);
               }}
             />
             <Button

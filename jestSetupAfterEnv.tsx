@@ -42,6 +42,9 @@ jest.mock('./src/react/next-architecture/ui/AuthProvider', () => {
           username: 'Renard ADMIN',
           email: 'renard.admin@scality.com',
           groups: ['StorageManager', 'user', 'PlatformAdmin'],
+          original: {
+            session_state: 'session-state-1',
+          },
         },
       };
     }),

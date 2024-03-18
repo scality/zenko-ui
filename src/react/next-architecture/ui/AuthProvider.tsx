@@ -30,6 +30,9 @@ export function useInstanceId() {
   return instanceIds[0];
 }
 
+type UserDataOriginal = {
+  session_state?: string;
+};
 export type UserData = {
   token: string;
   username: string;
@@ -38,6 +41,7 @@ export type UserData = {
   roles: RoleNames[];
   email: string;
   id: string;
+  original?: UserDataOriginal;
 };
 type ContextType = {
   userData?: UserData;
