@@ -1,10 +1,21 @@
+import { Stepper } from '@scality/core-ui';
+import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import Configuration from './VeeamConfiguration';
-import { Stepper } from '@scality/core-ui';
-import { VEEAM_BACKUP_REPLICATION } from './VeeamConstants';
 import { selectClick } from '../../utils/testUtil';
+import Configuration from './VeeamConfiguration';
+import { VEEAM_BACKUP_REPLICATION } from './VeeamConstants';
+
+jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => {
+  return {
+    useStepper: jest.fn(() => {
+      return { next: jest.fn() };
+    }),
+  };
+});
+
+const mockUseStepper = useStepper as jest.Mock;
 
 describe('Veeam Configuration UI', () => {
   const selectors = {
@@ -16,7 +27,7 @@ describe('Veeam Configuration UI', () => {
     veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
     veeamVBO: () =>
       screen.getByRole('option', {
-        name: /Veeam Backup for Microsoft Office 365/i,
+        name: /Veeam Backup for Microsoft 365/i,
       }),
   };
 
@@ -72,7 +83,7 @@ describe('Veeam Configuration UI', () => {
     expect(screen.getByText(/GiB/i)).toBeInTheDocument();
   });
 
-  it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft Office 365 is selected', async () => {
+  it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 is selected', async () => {
     //Setup
     render(
       <QueryClientProvider client={new QueryClient()}>
@@ -119,5 +130,36 @@ describe('Veeam Configuration UI', () => {
     //Verify
     expect(screen.getByText(/Exit Veeam assistant?/i)).toBeInTheDocument();
     expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
+  });
+
+  it('should disable immutable backup when Veeam Backup for Microsoft 365 is selected', async () => {
+    const SUT = jest.fn();
+    mockUseStepper.mockReturnValue({ next: SUT });
+
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <Stepper
+          steps={[
+            {
+              label: 'Configuration',
+              Component: Configuration,
+            },
+          ]}
+        />
+      </QueryClientProvider>,
+    );
+
+    await selectClick(selectors.veeamApplicationSelect());
+    await userEvent.click(selectors.veeamVBO());
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    await userEvent.click(selectors.continueButton());
+
+    expect(SUT).toHaveBeenCalledWith({
+      accountName: 'Veeam',
+      application: 'Veeam Backup for Microsoft 365',
+      bucketName: 'veeam-bucket',
+      capacityBytes: '4294967296',
+      enableImmutableBackup: false,
+    });
   });
 });

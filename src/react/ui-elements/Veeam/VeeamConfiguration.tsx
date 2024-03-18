@@ -66,7 +66,7 @@ const VeeamApplicationTooltip = () => (
     <br />
     Features such as Immutable Backup and Max Repository Capacity (that provides
     notification via Smart Object Storage API) are only supported in Veeam
-    Backup and Replication, and not in Veeam Backup for Microsoft Office 365.
+    Backup and Replication, and not in Veeam Backup for Microsoft 365.
   </>
 );
 
@@ -142,7 +142,10 @@ const Configuration = () => {
       bucketName,
       application,
       capacityBytes: getCapacityBytes(capacity, capacityUnit),
-      enableImmutableBackup,
+      enableImmutableBackup:
+        application === VEEAM_BACKUP_REPLICATION_XML_VALUE
+          ? enableImmutableBackup
+          : false,
       // Add advanced configuration to set the account name, for the moment we use the default account name.
       accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
     });
