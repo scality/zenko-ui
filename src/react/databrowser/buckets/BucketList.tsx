@@ -87,20 +87,18 @@ export default function BucketList({
         Cell({ row }) {
           return BucketLocationNameAndType({ bucketName: row.original.name });
         },
-        cellStyle: {
-          flex: '1',
-        },
+        cellStyle: { flex: '1.2' },
       },
     ];
 
     if (features.includes(XDM_FEATURE)) {
       columns.push({
-        Header: 'Async Metadata updates',
+        Header: 'Metadata updates',
         accessor: 'locationConstraint',
         id: 'ingestion',
         disableSortBy: true,
         cellStyle: {
-          flex: '1.3',
+          flex: '1',
           textAlign: 'right',
         },
         Cell({ value: locationName }: { value: LocationName }) {
@@ -119,7 +117,7 @@ export default function BucketList({
     if (isStorageManager) {
       columns.push({
         ...dataUsedColumn,
-        cellStyle: { flex: '1', textAlign: 'right' },
+        cellStyle: { textAlign: 'right', flex: '0.8' },
       });
     }
 
@@ -128,7 +126,6 @@ export default function BucketList({
       accessor: 'creationDate',
       cellStyle: {
         flex: '1',
-        paddingRight: spacing.r32,
         textAlign: 'right',
       },
 
@@ -150,7 +147,7 @@ export default function BucketList({
     return null;
   }, [selectedBucketName, buckets]);
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="bucket-list">
+    <Box display="flex" flexDirection="column" id="bucket-list" width="100%">
       <Table
         columns={columns}
         data={buckets}
