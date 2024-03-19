@@ -2,8 +2,7 @@ import { Stepper } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { selectClick } from '../../utils/testUtil';
+import { Wrapper, selectClick } from '../../utils/testUtil';
 import Configuration from './VeeamConfiguration';
 import { VEEAM_BACKUP_REPLICATION } from './VeeamConstants';
 
@@ -19,6 +18,7 @@ const mockUseStepper = useStepper as jest.Mock;
 
 describe('Veeam Configuration UI', () => {
   const selectors = {
+    accountNameInput: () => screen.getByLabelText(/account/i),
     repositoryInput: () => screen.getByLabelText(/bucket name/i),
     continueButton: () => screen.getByRole('button', { name: /Continue/i }),
     skipButton: () =>
@@ -34,22 +34,22 @@ describe('Veeam Configuration UI', () => {
   it('should be able to set the Veeam configuration', async () => {
     //S
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <Stepper
-          steps={[
-            {
-              label: 'Configuration',
-              Component: Configuration,
-            },
-          ]}
-        />
-      </QueryClientProvider>,
+      <Stepper
+        steps={[
+          {
+            label: 'Configuration',
+            Component: Configuration,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
     );
     //V
     expect(selectors.title()).toBeInTheDocument();
     expect(selectors.continueButton()).toBeDisabled();
     expect(selectors.skipButton()).toBeEnabled();
     //E
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     //V
     expect(selectors.repositoryInput()).toHaveValue('veeam-bucket');
@@ -67,16 +67,15 @@ describe('Veeam Configuration UI', () => {
 
   it('should display clusterCapacity in default value with unit', async () => {
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <Stepper
-          steps={[
-            {
-              label: 'Configuration',
-              Component: Configuration,
-            },
-          ]}
-        />
-      </QueryClientProvider>,
+      <Stepper
+        steps={[
+          {
+            label: 'Configuration',
+            Component: Configuration,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
     );
 
     expect(screen.getByDisplayValue(/4.66/i)).toBeInTheDocument();
@@ -86,20 +85,20 @@ describe('Veeam Configuration UI', () => {
   it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 is selected', async () => {
     //Setup
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <Stepper
-          steps={[
-            {
-              label: 'Configuration',
-              Component: Configuration,
-            },
-          ]}
-        />
-      </QueryClientProvider>,
+      <Stepper
+        steps={[
+          {
+            label: 'Configuration',
+            Component: Configuration,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
     );
     //Exercise
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     //Verify
     expect(
@@ -114,16 +113,15 @@ describe('Veeam Configuration UI', () => {
   it('should open veeam skip modal when skip button is clicked', async () => {
     //Setup
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <Stepper
-          steps={[
-            {
-              label: 'Configuration',
-              Component: Configuration,
-            },
-          ]}
-        />
-      </QueryClientProvider>,
+      <Stepper
+        steps={[
+          {
+            label: 'Configuration',
+            Component: Configuration,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
     );
     //Exercise
     await userEvent.click(selectors.skipButton());
@@ -137,20 +135,20 @@ describe('Veeam Configuration UI', () => {
     mockUseStepper.mockReturnValue({ next: SUT });
 
     render(
-      <QueryClientProvider client={new QueryClient()}>
-        <Stepper
-          steps={[
-            {
-              label: 'Configuration',
-              Component: Configuration,
-            },
-          ]}
-        />
-      </QueryClientProvider>,
+      <Stepper
+        steps={[
+          {
+            label: 'Configuration',
+            Component: Configuration,
+          },
+        ]}
+      />,
+      { wrapper: Wrapper },
     );
 
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     await userEvent.click(selectors.continueButton());
 

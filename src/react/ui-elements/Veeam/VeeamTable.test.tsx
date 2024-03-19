@@ -19,7 +19,10 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import Configuration from './VeeamConfiguration';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
-import { GET_VEEAM_NON_IMMUTABLE_POLICY } from './VeeamConstants';
+import {
+  GET_VEEAM_NON_IMMUTABLE_POLICY,
+  VEEAM_DEFAULT_ACCOUNT_NAME,
+} from './VeeamConstants';
 
 const VeeamVBOActions = [
   'Create an Account',
@@ -64,6 +67,7 @@ describe('VeeamTable', () => {
   afterAll(() => server.close());
 
   const selectors = {
+    accountName: () => screen.getByLabelText(/account/i),
     setBucketName: () => screen.getByLabelText(/Bucket name*/i),
     cancelButton: () => screen.getByRole('button', { name: /Exit/i }),
     continueButton: () => screen.getByRole('button', { name: /Continue/i }),
@@ -142,6 +146,7 @@ describe('VeeamTable', () => {
     server.use(...allFailHandlers);
     setupTest();
     //Exercise
+    await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
     await userEvent.type(selectors.setBucketName(), bucketName);
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
@@ -191,7 +196,7 @@ describe('VeeamTable', () => {
     server.resetHandlers(...goodHandlers);
     setupTest();
     //Exercise
-    //type the bucket name in configuration form
+    await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
     await userEvent.type(selectors.setBucketName(), bucketName);
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
@@ -201,7 +206,7 @@ describe('VeeamTable', () => {
     await verifySuccessActions(mutationActions);
   });
 
-  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365, ', async () => {
+  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365', async () => {
     //Setup
     server.resetHandlers(...goodHandlers);
     setupTest();
@@ -209,7 +214,7 @@ describe('VeeamTable', () => {
     //Select Veeam Backup for Microsoft 365
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
-    //type the bucket name in configuration form
+    await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
     await userEvent.type(selectors.setBucketName(), bucketName);
 
     await waitFor(() => {
@@ -225,8 +230,8 @@ describe('VeeamTable', () => {
     server.resetHandlers(...goodHandlers);
     setupTest();
     //Exercise
-    //type the bucket name in configuration form
     await userEvent.type(selectors.setBucketName(), bucketName);
+    await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
     await userEvent.click(selectors.immutableBackupToggle());
 
     await waitFor(() => {

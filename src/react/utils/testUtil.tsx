@@ -162,55 +162,57 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
-        <Router history={history}>
-          <_ConfigContext.Provider
-            //@ts-expect-error fix this when you are working on it
-            value={zenkoUITestConfig}
-          >
-            <_AuthContext.Provider
-              value={{
-                //@ts-expect-error fix this when you are working on it
-                user: {
-                  access_token: 'token',
-                  profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
-                },
-              }}
+        <ThemeProvider theme={theme}>
+          <Router history={history}>
+            <_ConfigContext.Provider
+              //@ts-expect-error fix this when you are working on it
+              value={zenkoUITestConfig}
             >
-              <_DataServiceRoleContext.Provider
-                //@ts-expect-error fix this when you are working on it
-                value={{ role, setRole: jest.fn() }}
+              <_AuthContext.Provider
+                value={{
+                  //@ts-expect-error fix this when you are working on it
+                  user: {
+                    access_token: 'token',
+                    profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
+                  },
+                }}
               >
-                <_ManagementContext.Provider
-                  value={{
-                    managementClient: TEST_MANAGEMENT_CLIENT,
-                  }}
+                <_DataServiceRoleContext.Provider
+                  //@ts-expect-error fix this when you are working on it
+                  value={{ role, setRole: jest.fn() }}
                 >
-                  <LocationAdapterProvider>
-                    <MetricsAdapterProvider>
-                      <AccountsLocationsEndpointsAdapterProvider>
-                        <AccessibleAccountsAdapterProvider>
-                          <S3ClientProvider
-                            configuration={{
-                              endpoint: zenkoUITestConfig.zenkoEndpoint,
-                              s3ForcePathStyle: true,
-                              credentials: {
-                                accessKeyId: 'accessKey',
-                                secretAccessKey: 'secretKey',
-                                sessionToken: 'sessionToken',
-                              },
-                            }}
-                          >
-                            {children}
-                          </S3ClientProvider>
-                        </AccessibleAccountsAdapterProvider>
-                      </AccountsLocationsEndpointsAdapterProvider>
-                    </MetricsAdapterProvider>
-                  </LocationAdapterProvider>
-                </_ManagementContext.Provider>
-              </_DataServiceRoleContext.Provider>
-            </_AuthContext.Provider>
-          </_ConfigContext.Provider>
-        </Router>
+                  <_ManagementContext.Provider
+                    value={{
+                      managementClient: TEST_MANAGEMENT_CLIENT,
+                    }}
+                  >
+                    <LocationAdapterProvider>
+                      <MetricsAdapterProvider>
+                        <AccountsLocationsEndpointsAdapterProvider>
+                          <AccessibleAccountsAdapterProvider>
+                            <S3ClientProvider
+                              configuration={{
+                                endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                s3ForcePathStyle: true,
+                                credentials: {
+                                  accessKeyId: 'accessKey',
+                                  secretAccessKey: 'secretKey',
+                                  sessionToken: 'sessionToken',
+                                },
+                              }}
+                            >
+                              {children}
+                            </S3ClientProvider>
+                          </AccessibleAccountsAdapterProvider>
+                        </AccountsLocationsEndpointsAdapterProvider>
+                      </MetricsAdapterProvider>
+                    </LocationAdapterProvider>
+                  </_ManagementContext.Provider>
+                </_DataServiceRoleContext.Provider>
+              </_AuthContext.Provider>
+            </_ConfigContext.Provider>
+          </Router>
+        </ThemeProvider>
       </Provider>
     </QueryClientProvider>
   );

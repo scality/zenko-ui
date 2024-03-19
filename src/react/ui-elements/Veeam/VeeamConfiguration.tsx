@@ -35,7 +35,8 @@ import { ListItem } from './VeeamTable';
 import { getCapacityBytes } from './useCapacityUnit';
 import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
 import { accountNameValidationSchema } from '../../../react/account/AccountCreate';
-import { useAccounts } from '../../../react/utils/hooks';
+import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
+import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
@@ -135,7 +136,13 @@ const Configuration = () => {
   } = methods;
 
   const history = useHistory();
-  const { accounts, status } = useAccounts();
+  const accountsLocationsEndpointsAdapter =
+    useAccountsLocationsEndpointsAdapter();
+  const { accountsLocationsAndEndpoints, status } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
+  const accounts = accountsLocationsAndEndpoints?.accounts ?? [];
 
   useEffect(() => {
     if (status === 'success' && accounts.length === 0) {
@@ -149,7 +156,7 @@ const Configuration = () => {
   const isAccountExist = useMemo(() => {
     return (
       status === 'success' &&
-      accounts.some((account) => account.Name === accountName)
+      accounts.some((account) => account.name === accountName)
     );
   }, [accountName, status]);
 

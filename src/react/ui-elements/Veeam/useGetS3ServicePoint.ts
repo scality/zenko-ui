@@ -12,7 +12,7 @@ export const useGetS3ServicePoint = () => {
     });
   const s3ServicePoint = useMemo(
     () =>
-      accountsLocationsAndEndpoints.endpoints.find(
+      accountsLocationsAndEndpoints?.endpoints?.find(
         (endpoint) => !endpoint.isBuiltin,
       )?.hostname || '',
     [accountsLocationsAndEndpoints, status],
