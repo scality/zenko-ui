@@ -73,7 +73,7 @@ export const VeeamCapacityFormSection = ({
   const { register, control, formState } = useFormContext();
 
   return (
-    <FormSection>
+    <FormSection forceLabelWidth={300}>
       <FormGroup
         id="capacity"
         label="Max Veeam Repository Capacity"
