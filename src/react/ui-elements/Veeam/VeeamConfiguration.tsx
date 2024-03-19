@@ -234,6 +234,7 @@ const Configuration = () => {
           <FormGroup
             id="accountName"
             label="Account"
+            required
             labelHelpTooltip={'TODO'}
             helpErrorPosition="bottom"
             error={

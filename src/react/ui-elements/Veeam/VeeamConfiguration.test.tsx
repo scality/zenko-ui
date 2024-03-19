@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { Wrapper, selectClick } from '../../utils/testUtil';
 import Configuration from './VeeamConfiguration';
 import { VEEAM_BACKUP_REPLICATION } from './VeeamConstants';
+import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 
 jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => {
   return {
@@ -14,8 +15,15 @@ jest.mock('@scality/core-ui/dist/components/steppers/Stepper.component', () => {
   };
 });
 
-const mockUseStepper = useStepper as jest.Mock;
+jest.mock('../../next-architecture/domain/business/accounts', () => ({
+  useAccountsLocationsAndEndpoints: jest.fn(),
+}));
 
+const mockUseStepper = useStepper as jest.Mock;
+const mockUseAccountsLocationsAndEndpoints =
+  useAccountsLocationsAndEndpoints as jest.MockedFunction<
+    typeof useAccountsLocationsAndEndpoints
+  >;
 describe('Veeam Configuration UI', () => {
   const selectors = {
     accountNameInput: () => screen.getByLabelText(/account/i),
@@ -31,8 +39,26 @@ describe('Veeam Configuration UI', () => {
       }),
   };
 
-  it('should be able to set the Veeam configuration', async () => {
-    //S
+  const mockUseAccountsImplementation = () => {
+    //@ts-ignore
+    mockUseAccountsLocationsAndEndpoints.mockImplementation(() => {
+      return {
+        accountsLocationsAndEndpoints: {
+          accounts: [
+            {
+              id: '345815413706',
+              name: 'Veeam',
+              canonicalId:
+                'ae6aa5bca65ece94dc628eadad6cf857830b69c5866723dc6797d8c20b19b296',
+              creationDate: '2024-03-18T16:55:49.000Z',
+            },
+          ],
+        },
+        status: 'success',
+      };
+    });
+  };
+  const renderVeeamConfigurationForm = () => {
     render(
       <Stepper
         steps={[
@@ -44,10 +70,19 @@ describe('Veeam Configuration UI', () => {
       />,
       { wrapper: Wrapper },
     );
+  };
+
+  it('should be able to set the Veeam configuration', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
     //V
     expect(selectors.title()).toBeInTheDocument();
     expect(selectors.continueButton()).toBeDisabled();
     expect(selectors.skipButton()).toBeEnabled();
+    expect(
+      screen.getByPlaceholderText(/example: veeam-backup/i),
+    ).toBeInTheDocument();
     //E
     await userEvent.type(selectors.accountNameInput(), 'Veeam');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
@@ -66,35 +101,16 @@ describe('Veeam Configuration UI', () => {
   });
 
   it('should display clusterCapacity in default value with unit', async () => {
-    render(
-      <Stepper
-        steps={[
-          {
-            label: 'Configuration',
-            Component: Configuration,
-          },
-        ]}
-      />,
-      { wrapper: Wrapper },
-    );
-
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
     expect(screen.getByDisplayValue(/4.66/i)).toBeInTheDocument();
     expect(screen.getByText(/GiB/i)).toBeInTheDocument();
   });
 
   it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 is selected', async () => {
     //Setup
-    render(
-      <Stepper
-        steps={[
-          {
-            label: 'Configuration',
-            Component: Configuration,
-          },
-        ]}
-      />,
-      { wrapper: Wrapper },
-    );
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
     //Exercise
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
@@ -112,17 +128,8 @@ describe('Veeam Configuration UI', () => {
 
   it('should open veeam skip modal when skip button is clicked', async () => {
     //Setup
-    render(
-      <Stepper
-        steps={[
-          {
-            label: 'Configuration',
-            Component: Configuration,
-          },
-        ]}
-      />,
-      { wrapper: Wrapper },
-    );
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
     //Exercise
     await userEvent.click(selectors.skipButton());
     //Verify
@@ -133,18 +140,8 @@ describe('Veeam Configuration UI', () => {
   it('should disable immutable backup when Veeam Backup for Microsoft 365 is selected', async () => {
     const SUT = jest.fn();
     mockUseStepper.mockReturnValue({ next: SUT });
-
-    render(
-      <Stepper
-        steps={[
-          {
-            label: 'Configuration',
-            Component: Configuration,
-          },
-        ]}
-      />,
-      { wrapper: Wrapper },
-    );
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
 
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
@@ -158,6 +155,38 @@ describe('Veeam Configuration UI', () => {
       bucketName: 'veeam-bucket',
       capacityBytes: '4294967296',
       enableImmutableBackup: false,
+    });
+  });
+
+  it('should display error in case of account name already exists', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    //E
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    //V
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Account name already exists/i),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('should prefilled with Veeam account is there is no account', async () => {
+    //S
+    //@ts-ignore
+    mockUseAccountsLocationsAndEndpoints.mockImplementation(() => {
+      return {
+        accountsLocationsAndEndpoints: {
+          accounts: [],
+        },
+        status: 'success',
+      };
+    });
+    renderVeeamConfigurationForm();
+    //V
+    await waitFor(() => {
+      expect(selectors.accountNameInput()).toHaveValue('Veeam');
     });
   });
 });
