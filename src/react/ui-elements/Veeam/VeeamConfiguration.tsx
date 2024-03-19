@@ -166,21 +166,11 @@ const Configuration = () => {
         exitAction={() => history.push('/accounts')}
         modalContent={
           <>
-            <Text>You may start again this Veeam configuration flow:</Text>
-            <ul>
-              <ListItem>
-                <Text>
-                  If no accounts are created, on your next login or directly
-                  from the Account page.
-                </Text>
-              </ListItem>
-              <ListItem>
-                <Text>
-                  Otherwise, if there is at least one account, on the Account
-                  list page.
-                </Text>
-              </ListItem>
-            </ul>
+            <Text>
+              To start Veeam assistant configuration again, you can go to the{' '}
+              <b>Accounts</b> page. If the platform doesn't have any accounts,
+              it will also prompt you on your next login.
+            </Text>
           </>
         }
       />
