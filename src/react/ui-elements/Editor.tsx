@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
@@ -22,6 +22,11 @@ const Editor = ({
 }: Props) => {
   const config = useConfig();
   const { basePath } = config;
+  const [theme, setTheme] = useState('');
+  useEffect(() => {
+    setTheme(localStorage.getItem('theme') === 'dark' ? 'vs-dark' : 'light');
+  }, [localStorage.getItem('theme')]);
+
   useMemo(() => {
     loader.config({ paths: { vs: basePath + '/vs' } });
   }, []);
@@ -32,7 +37,7 @@ const Editor = ({
       width={width}
       defaultLanguage={language}
       value={value}
-      theme="vs-dark"
+      theme={theme}
       loading="Initializing..."
       onChange={onChange}
       keepCurrentModel={true}
