@@ -70,14 +70,18 @@ export const VeeamCapacityFormSection = ({
 }: {
   autoFocusEnabled?: boolean;
 }) => {
-  const { register, control, formState } = useFormContext();
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   return (
     <FormSection forceLabelWidth={300}>
       <FormGroup
         id="capacity"
         label="Max Veeam Repository Capacity"
-        error={formState.errors.capacity?.message?.toString() ?? ''}
+        error={errors.capacity?.message?.toString() ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
         labelHelpTooltip={<VeeamCapacityTooltip />}
@@ -89,6 +93,7 @@ export const VeeamCapacityFormSection = ({
               size="1/3"
               min={1}
               max={999}
+              step={0.1}
               autoFocus={autoFocusEnabled}
               {...register('capacity')}
             />

@@ -44,12 +44,12 @@ const schema = Joi.object({
   bucketName: bucketNameValidationSchema,
   application: Joi.string().required(),
   capacity: Joi.when('application', {
-    is: Joi.equal(VEEAM_BACKUP_REPLICATION),
-    then: Joi.number().required().min(1).max(999),
+    is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
+    then: Joi.number().precision(1).required().min(1).max(999),
     otherwise: Joi.valid(),
   }),
   capacityUnit: Joi.when('application', {
-    is: Joi.equal(VEEAM_BACKUP_REPLICATION),
+    is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
     then: Joi.string().required(),
     otherwise: Joi.valid(),
   }),
@@ -65,15 +65,27 @@ type VeeamConfiguration = {
   enableImmutableBackup: boolean;
 };
 
+const VeeamAccountTooltip = () => (
+  <ul>
+    <ListItem>
+      Enter a unique ARTESCA account name, where your S3 & IAM Veeam resources
+      will be structured.
+    </ListItem>
+    <ListItem>
+      This information won’t be required by the Veeam console.
+    </ListItem>
+  </ul>
+);
+
 const VeeamApplicationTooltip = () => (
-  <>
-    Choose the Veeam application you're setting up.
-    <br />
-    <br />
-    Features such as Immutable Backup and Max Repository Capacity (that provides
-    notification via Smart Object Storage API) are only supported in Veeam
-    Backup and Replication, and not in Veeam Backup for Microsoft 365.
-  </>
+  <ul>
+    <ListItem>Choose the Veeam application you're setting up.</ListItem>
+    <ListItem>
+      Features such as Immutable Backup and Max Repository Capacity (that
+      provides notification via Smart Object Storage API) are only supported in
+      Veeam Backup and Replication, and not in Veeam Backup for Microsoft 365.
+    </ListItem>
+  </ul>
 );
 
 const VeeamBucketTooltip = () => (
@@ -239,7 +251,7 @@ const Configuration = () => {
             id="accountName"
             label="Account"
             required
-            labelHelpTooltip={'TODO'}
+            labelHelpTooltip={<VeeamAccountTooltip />}
             helpErrorPosition="bottom"
             error={
               isAccountExist

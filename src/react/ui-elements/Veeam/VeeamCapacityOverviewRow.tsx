@@ -49,6 +49,8 @@ export const VeeamCapacityOverviewRow = ({
   const prettyBytesClusterCapacity = prettyBytes(parseInt(capacity, 10), {
     locale: 'en',
     binary: true,
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
   });
 
   if (isSOSAPIEnabled) {
