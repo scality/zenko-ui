@@ -88,7 +88,7 @@ export const VeeamSummary = ({
       <Text isEmphazed>
         Your ARTESCA is now configured and ready to integrate with Veeam. <br />
         The next steps involve managing Certificates and entering specific
-        PRODUCT details within the Veeam application
+        ARTESCA details within the Veeam application
       </Text>
       {isPlatformAdmin ? (
         <Level4FormSection title={{ name: CERTIFICATE_SECTION_TITLE }}>

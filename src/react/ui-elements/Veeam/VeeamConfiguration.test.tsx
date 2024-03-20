@@ -21,9 +21,7 @@ jest.mock('../../next-architecture/domain/business/accounts', () => ({
 
 const mockUseStepper = useStepper as jest.Mock;
 const mockUseAccountsLocationsAndEndpoints =
-  useAccountsLocationsAndEndpoints as jest.MockedFunction<
-    typeof useAccountsLocationsAndEndpoints
-  >;
+  useAccountsLocationsAndEndpoints as jest.Mock;
 describe('Veeam Configuration UI', () => {
   const selectors = {
     accountNameInput: () => screen.getByLabelText(/account/i),
@@ -40,7 +38,6 @@ describe('Veeam Configuration UI', () => {
   };
 
   const mockUseAccountsImplementation = () => {
-    //@ts-ignore
     mockUseAccountsLocationsAndEndpoints.mockImplementation(() => {
       return {
         accountsLocationsAndEndpoints: {
@@ -174,7 +171,6 @@ describe('Veeam Configuration UI', () => {
 
   it('should prefilled with Veeam account is there is no account', async () => {
     //S
-    //@ts-ignore
     mockUseAccountsLocationsAndEndpoints.mockImplementation(() => {
       return {
         accountsLocationsAndEndpoints: {

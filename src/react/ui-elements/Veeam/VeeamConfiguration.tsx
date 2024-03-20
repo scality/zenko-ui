@@ -171,7 +171,7 @@ const Configuration = () => {
       status === 'success' &&
       accounts.some((account) => account.name === accountName)
     );
-  }, [accountName, status]);
+  }, [accountName, status, accounts]);
 
   const onSubmit = ({
     capacity,
