@@ -31,7 +31,7 @@ describe('Veeam Configuration UI', () => {
     continueButton: () => screen.getByRole('button', { name: /Continue/i }),
     skipButton: () =>
       screen.getByRole('button', { name: /Skip Use case configuration/i }),
-    title: () => screen.getByText(/Prepare ARTESCA for Veeam/i),
+    title: () => screen.getByText(/Configure ARTESCA for your use case/i),
     veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
     veeamVBO: () =>
       screen.getByRole('option', {

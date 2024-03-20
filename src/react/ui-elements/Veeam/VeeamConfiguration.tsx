@@ -37,6 +37,7 @@ import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCrea
 import { accountNameValidationSchema } from '../../../react/account/AccountCreate';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { VeeamLogo } from './VeeamLogo';
 
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
@@ -207,7 +208,7 @@ const Configuration = () => {
         ref={formRef}
         requireMode="partial"
         layout={{
-          title: 'Prepare ARTESCA for Veeam',
+          title: 'Configure ARTESCA for your Use case',
           kind: 'page',
         }}
         rightActions={
@@ -231,6 +232,9 @@ const Configuration = () => {
         }
       >
         <FormSection forceLabelWidth={300}>
+          <Stack style={{ paddingBottom: '1rem' }}>
+            <Text variant="Large">Prepare ARTESCA for</Text> <VeeamLogo />
+          </Stack>
           <FormGroup
             id="accountName"
             label="Account"

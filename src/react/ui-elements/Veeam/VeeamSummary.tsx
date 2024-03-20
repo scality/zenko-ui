@@ -225,7 +225,9 @@ export const VeeamSummary = ({
           label="Immutable backup"
           helpErrorPosition="bottom"
           help={
-            'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+            enableImmutableBackup
+              ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+              : undefined
           }
           content={
             enableImmutableBackup ? <Text>Active</Text> : <Text>Inactive</Text>
