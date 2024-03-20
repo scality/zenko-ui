@@ -1,4 +1,4 @@
-import { ConstrainedText, Icon, Link, Wrap, spacing } from '@scality/core-ui';
+import { ConstrainedText, Icon, Link, spacing } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
@@ -13,12 +13,12 @@ import { Bucket } from '../../next-architecture/domain/entities/bucket';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
+import { TableHeaderWrapper } from '../../ui-elements/Table';
 import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
-import { TableHeaderWrapper } from '../../ui-elements/Table';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -127,6 +127,7 @@ export default function BucketList({
       cellStyle: {
         flex: '1',
         textAlign: 'right',
+        paddingRight: spacing.r16,
       },
 
       Cell({ value }: { value: string }) {
