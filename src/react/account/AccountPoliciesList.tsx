@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useIAMClient } from '../IAMProvider';
+
 import {
   ConstrainedText,
-  FormattedDateTime,
   Icon,
   Tooltip,
+  spacing,
+  FormattedDateTime,
 } from '@scality/core-ui';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
@@ -154,7 +155,7 @@ const ActionButtons = ({
     rowValues;
   return (
     <Box
-      gap={spacing.sp12}
+      gap={spacing.r12}
       alignSelf="flex-end"
       display="flex"
       alignItems="center"
@@ -254,7 +255,7 @@ const DeletePolicyAction = ({
       />
       <Box ml="0.6rem">
         <Button
-          style={{ height: spacing.sp24 }}
+          style={{ height: spacing.r24 }}
           disabled={!!attachments || isInternalPolicy}
           icon={<Icon name="Delete" />}
           label=""
@@ -280,7 +281,7 @@ const DeletePolicyAction = ({
 const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
   const { policyPath, policyName } = rowValues;
   const isInternalPolicy = policyPath.includes('scality-internal');
-  const styleProps = { style: { marginLeft: spacing.sp16 } };
+  const styleProps = { style: { marginLeft: spacing.r16 } };
   return (
     <>
       {isInternalPolicy && (
@@ -371,7 +372,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'modifiedOn',
       cellStyle: {
         textAlign: 'right',
-        flex: 1,
+        flex: 0.5,
       },
       Cell: ({ value }) => {
         if (typeof value === 'string') {
@@ -392,8 +393,8 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        flex: 2,
-        paddingRight: spacing.sp12,
+        flex: 1.5,
+        paddingRight: spacing.r12,
       },
       disableSortBy: true,
       Cell: (value) => (
