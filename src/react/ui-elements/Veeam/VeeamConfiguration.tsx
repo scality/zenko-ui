@@ -1,4 +1,4 @@
-import Joi from '@hapi/joi';
+import Joi, { CustomHelpers } from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Form,
@@ -39,13 +39,24 @@ import { useAccountsLocationsAndEndpoints } from '../../../react/next-architectu
 import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { VeeamLogo } from './VeeamLogo';
 
+const hasMoreThanOneDecimal = (num: number) => {
+  const decimalCount = num.toString().split('.')[1]?.length || 0;
+  return decimalCount > 1;
+};
+
+const precisionValidator = (value: number, helpers: CustomHelpers) => {
+  if (!hasMoreThanOneDecimal(value)) {
+    return value;
+  } else return helpers.error('number.precision', { limit: 1 });
+};
+
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
   bucketName: bucketNameValidationSchema,
   application: Joi.string().required(),
   capacity: Joi.when('application', {
     is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
-    then: Joi.number().precision(1).required().min(1).max(999),
+    then: Joi.number().required().min(1).max(999).custom(precisionValidator),
     otherwise: Joi.valid(),
   }),
   capacityUnit: Joi.when('application', {
