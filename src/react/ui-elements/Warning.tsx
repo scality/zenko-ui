@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components';
 import { Button } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui';
-
 import { ReactNode } from 'react';
 import { Icon, LargeText } from '@scality/core-ui';
 
@@ -104,7 +103,7 @@ export const NoAccountWarning = ({
 }: {
   buttonSection: ReactNode;
 }) => (
-  <Container>
+  <Container style={{ justifyContent: 'center' }}>
     <EmptyStateRow>
       <Icon name="Account" size="5x" withWrapper />
     </EmptyStateRow>
