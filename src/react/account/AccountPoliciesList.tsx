@@ -353,6 +353,8 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'policyName',
       cellStyle: {
         flex: 1,
+        width: 'unset',
+        minWidth: '5rem',
       },
       Cell: (value) => <AccessPolicyNameCell rowValues={value.row.original} />,
     },
@@ -361,13 +363,17 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       accessor: 'policyPath',
       cellStyle: {
         flex: 0.5,
+        minWidth: '5rem',
+        width: 'unset',
       },
     },
     {
       Header: 'Last Modified',
       accessor: 'modifiedOn',
       cellStyle: {
+        width: 'unset',
         textAlign: 'right',
+        minWidth: '6rem',
         flex: 0.5,
       },
       Cell: ({ value }) => <>{value}</>,
@@ -376,7 +382,9 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: 'Attachments',
       accessor: 'attachments',
       cellStyle: {
+        width: 'unset',
         textAlign: 'right',
+        minWidth: '5rem',
         flex: 0.5,
       },
     },
@@ -384,7 +392,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
       Header: '',
       accessor: 'actions',
       cellStyle: {
-        flex: 1.5,
+        minWidth: '25rem',
         paddingRight: spacing.r12,
       },
       disableSortBy: true,

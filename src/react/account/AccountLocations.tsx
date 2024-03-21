@@ -33,7 +33,7 @@ export function AccountLocations() {
       (location: Location) => {
         return location;
       },
-      { flex: '0.2' },
+      { flex: '0.5' },
     );
     const columns: CoreUIColumn<Location>[] = [
       {
@@ -41,7 +41,9 @@ export function AccountLocations() {
         accessor: 'name',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '20rem',
+          minWidth: '10rem',
+          flex: '1',
+          width: 'unset',
         },
       },
       {
@@ -49,7 +51,10 @@ export function AccountLocations() {
         accessor: 'type',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '24rem',
+          minWidth: '10rem',
+          flex: '1',
+
+          width: 'unset',
         },
         Cell(value: CellProps<Location>) {
           const rowValues = value.row.original;
@@ -74,7 +79,7 @@ export function AccountLocations() {
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
-          flex: '0.3',
+          flex: '0.5',
         },
       },
       dataUsedColumn,
