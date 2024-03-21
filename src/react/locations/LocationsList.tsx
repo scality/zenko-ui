@@ -226,7 +226,7 @@ export function LocationsList() {
       (location: Location) => {
         return location;
       },
-      { flex: '0.2', marginRight: '1rem' },
+      { flex: '0.4' },
     );
 
     const columns: CoreUIColumn<Location>[] = [
@@ -235,7 +235,9 @@ export function LocationsList() {
         accessor: 'name',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '20rem',
+          minWidth: '10rem',
+          flex: 1,
+          width: 'unset',
         },
       },
       {
@@ -243,7 +245,9 @@ export function LocationsList() {
         accessor: 'type',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '24rem',
+          minWidth: '10rem',
+          flex: 1,
+          width: 'unset',
         },
         Cell(value: CellProps<Location>) {
           const rowValues = value.row.original;
@@ -269,6 +273,7 @@ export function LocationsList() {
         cellStyle: {
           textAlign: 'left',
           flex: '0.3',
+          width: 'unset',
         },
       },
       dataUsedColumn,
@@ -298,7 +303,8 @@ export function LocationsList() {
       disableSortBy: true,
       cellStyle: {
         textAlign: 'left',
-        flex: '0.3',
+        flex: '0.5',
+        width: 'unset',
       },
       Cell: ({ row: { original } }) => (
         <PauseAndResume locationName={original.name} />
@@ -310,10 +316,11 @@ export function LocationsList() {
       accessor: 'details',
       cellStyle: {
         textAlign: 'right',
-        minWidth: '10rem',
+        minWidth: '5rem',
         marginLeft: 'auto',
-        flex: '0.1',
+        flex: '0.2',
         paddingRight: '18px',
+        width: 'unset',
       },
       disableSortBy: true,
       Cell: (value: CellProps<Location>) => {

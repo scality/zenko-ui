@@ -83,6 +83,7 @@ export default function BucketList({
         },
         cellStyle: {
           flex: '1',
+          width: 'unset',
         },
       },
       {
@@ -92,7 +93,8 @@ export default function BucketList({
         Cell({ row }) {
           return BucketLocationNameAndType({ bucketName: row.original.name });
         },
-        cellStyle: { flex: '1.2' },
+
+        cellStyle: { width: 'unset', flex: '1.2' },
       },
     ];
 
@@ -122,7 +124,7 @@ export default function BucketList({
     if (isStorageManager) {
       columns.push({
         ...dataUsedColumn,
-        cellStyle: { textAlign: 'right', flex: '0.8' },
+        cellStyle: { textAlign: 'right', width: 'unset', flex: '0.8' },
       });
     }
 
@@ -133,6 +135,7 @@ export default function BucketList({
         flex: '1',
         textAlign: 'right',
         paddingRight: spacing.r16,
+        width: 'unset',
       },
       Cell({ value }: { value: string }) {
         return (

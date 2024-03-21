@@ -307,14 +307,18 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'userName',
       cellStyle: {
         flex: 3,
+        width: 'unset',
+        minWidth: '5rem',
       },
     },
     {
       Header: 'Access Keys',
       accessor: 'accessKeys',
       cellStyle: {
+        width: 'unset',
         textAlign: 'right',
         flex: 1,
+        minWidth: '6rem',
       },
       Cell: renderAccessKeyComponent,
     },
@@ -322,8 +326,10 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       Header: 'Created On',
       accessor: 'createdOn',
       cellStyle: {
+        width: 'unset',
         textAlign: 'right',
         flex: 1,
+        minWidth: '7rem',
       },
       Cell: ({ value }: { value: Date }) => (
         <FormattedDateTime format="date-time" value={value} />
@@ -336,8 +342,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
       accessor: 'actions',
       cellStyle: {
         textAlign: 'right',
-        flex: 5,
-        marginLeft: 'auto',
+        width: '24rem',
         marginRight: spacing.r12,
       },
       disableSortBy: true,

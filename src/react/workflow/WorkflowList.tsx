@@ -64,6 +64,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '3',
+        width: 'unset',
       },
       Cell: renderRowSubComponent,
     },
@@ -73,6 +74,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '1',
+        width: 'unset',
       },
       Cell: WorkflowTypeIcon,
     },
@@ -82,6 +84,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '0.5',
+        width: 'unset',
       },
       sortType: (row1: Row<Workflow>, row2: Row<Workflow>) => {
         return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
