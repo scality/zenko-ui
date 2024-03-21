@@ -26,6 +26,8 @@ describe('Veeam Configuration UI', () => {
   const selectors = {
     accountNameInput: () => screen.getByLabelText(/account/i),
     repositoryInput: () => screen.getByLabelText(/bucket name/i),
+    maxCapacityInput: () =>
+      screen.getByLabelText(/Max Veeam Repository Capacity/i),
     continueButton: () => screen.getByRole('button', { name: /Continue/i }),
     skipButton: () =>
       screen.getByRole('button', { name: /Skip Use case configuration/i }),
@@ -81,7 +83,7 @@ describe('Veeam Configuration UI', () => {
       screen.getByPlaceholderText(/example: veeam-backup/i),
     ).toBeInTheDocument();
     //E
-    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.accountNameInput(), 'Veeam-test');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
     //V
     expect(selectors.repositoryInput()).toHaveValue('veeam-bucket');
@@ -100,7 +102,7 @@ describe('Veeam Configuration UI', () => {
   it('should display clusterCapacity in default value with unit', async () => {
     mockUseAccountsImplementation();
     renderVeeamConfigurationForm();
-    expect(screen.getByDisplayValue(/4.66/i)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(/4.7/i)).toBeInTheDocument();
     expect(screen.getByText(/GiB/i)).toBeInTheDocument();
   });
 
@@ -184,5 +186,18 @@ describe('Veeam Configuration UI', () => {
     await waitFor(() => {
       expect(selectors.accountNameInput()).toHaveValue('Veeam');
     });
+  });
+
+  it('should throw validation error if the max capacity has more than 1 decimal', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    await userEvent.type(selectors.maxCapacityInput(), '4.666');
+    //V
+    expect(
+      screen.getByText(/"capacity" must have no more than 1 decimal places/i),
+    ).toBeInTheDocument();
   });
 });

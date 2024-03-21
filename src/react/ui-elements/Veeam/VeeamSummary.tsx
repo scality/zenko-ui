@@ -172,7 +172,7 @@ export const VeeamSummary = ({
         <Separator />
 
         <Text isEmphazed>{CREDENTIALS_SECTION_TITLE}</Text>
-        <Banner icon={<Icon name="Exclamation-triangle" />} variant="warning">
+        <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
           The Secret Access key cannot be retrieved afterwards, so make sure to
           keep and secure it now. <br />
           You will be able to create new Access keys at any time.

@@ -8,6 +8,8 @@ export const useCapacityUnit = (capacity: string, pBytes = false) => {
     ? prettyBytes(parseInt(capacity, 10), {
         locale: 'en',
         binary: true,
+        maximumFractionDigits: 1,
+        minimumFractionDigits: 1,
       })
     : capacity;
   const capacityValue = pBytesCapacity.split(' ')[0];

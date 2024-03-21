@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   QueryKey,
-  useQuery,
   UseQueryOptions,
   UseQueryResult,
+  useQuery,
 } from 'react-query';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router-dom';
@@ -11,19 +11,19 @@ import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
 import { Account, WebIdentityRoles } from '../../types/iam';
+import { notFalsyTypeGuard } from '../../types/typeGuards';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 import {
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
 } from '../actions';
-import { useAwsPaginatedEntities } from './IAMhooks';
-import { useDataServiceRole } from '../DataServiceRoleProvider';
 import { useAccessToken, useAuth } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
 import { getObjectsVersions } from '../queries';
+import { useAwsPaginatedEntities } from './IAMhooks';
 
 export const useHeight = (myRef) => {
   const [height, setHeight] = useState(0);
