@@ -1,26 +1,24 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { Banner, Icon, Wrap, spacing } from '@scality/core-ui';
+import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Row } from 'react-table';
+import styled from 'styled-components';
+import type { Account } from '../../../../types/account';
+import type { AppState } from '../../../../types/state';
+import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import {
   deleteAccountAccessKey,
   listAccountAccessKeys,
   openAccountKeyCreateModal,
 } from '../../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { Row } from 'react-table';
-import type { Account } from '../../../../types/account';
-import type { AppState } from '../../../../types/state';
-import { Banner, Icon, Wrap } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
-import { Clipboard } from '../../../ui-elements/Clipboard';
 import { formatShortDate } from '../../../utils';
-import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
-import { useDataServiceRole } from '../../../DataServiceRoleProvider';
-import { Warning } from '../../../ui-elements/Warning';
+
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 
 const AccessKeysDetails = styled.div`
   display: block;
-  margin-top: ${spacing.sp20};
+  margin-top: ${spacing.r16};
 `;
 
 const TableContainer = styled.div`
@@ -29,6 +27,7 @@ const TableContainer = styled.div`
 
 const ButtonContainer = styled.div`
   margin-left: auto;
+  padding: ${spacing.r16};
 `;
 
 const EllipsisCell = styled.div`
@@ -44,7 +43,7 @@ type Props = {
 };
 
 type AccessKey = {
-  accessKey: string;
+  access_key: string;
   created_at: string;
 };
 
@@ -109,10 +108,10 @@ function AccountKeys({ account }: Props) {
               <EllipsisCell>{access_key}</EllipsisCell>
               <div
                 style={{
-                  marginLeft: spacing.sp16,
+                  marginLeft: spacing.r16,
                 }}
               >
-                <Clipboard text={access_key} />
+                <CopyButton textToCopy={access_key} />
               </div>
             </span>
           );
@@ -157,11 +156,11 @@ function AccountKeys({ account }: Props) {
           flex: '1',
         },
 
-        Cell({ value: accessKey }: { value: string }) {
+        Cell({ value: access_key }: { value: string }) {
           return (
-            <Wrap marginRight={spacing.sp8}>
+            <Wrap marginRight={spacing.r8}>
               <div></div>
-              <DeleteKey accessKey={accessKey} />
+              <DeleteKey accessKey={access_key} />
             </Wrap>
           );
         },
@@ -182,14 +181,8 @@ function AccountKeys({ account }: Props) {
 
   return (
     <AccessKeysDetails>
-      <h3>Root user Access keys details</h3>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-        }}
-      >
+      <h3 style={{ marginLeft: spacing.r16 }}>Root user Access keys details</h3>
+      <Wrap alignItems="center" paddingLeft={spacing.r16}>
         {accessKeys && accessKeys.length > 0 && (
           <div data-testid="root-access-keys-banner">
             <Banner
@@ -212,29 +205,25 @@ function AccountKeys({ account }: Props) {
             label="Create Access key"
           />
         </ButtonContainer>
-      </div>
+      </Wrap>
       <TableContainer>
-        {accessKeys.length > 0 ? (
-          <Table
-            //@ts-expect-error fix this when you are working on it
-            columns={columns}
-            //@ts-expect-error fix this when you are working on it
-            data={accessKeys}
-            defaultSortingKey="created_at"
-          >
-            <Table.SingleSelectableContent
-              rowHeight="h40"
-              separationLineVariant="backgroundLevel3"
-              backgroundVariant="backgroundLevel1"
-            />
-          </Table>
-        ) : (
-          <Warning
-            centered
-            icon={<Icon name="Exclamation-triangle" />}
-            title="No key created"
+        <Table
+          entityName={{
+            en: {
+              singular: 'access key',
+              plural: 'access keys',
+            },
+          }}
+          //@ts-expect-error fix this when you are working on it
+          columns={columns}
+          data={accessKeys}
+          defaultSortingKey="created_at"
+        >
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            separationLineVariant="backgroundLevel1"
           />
-        )}
+        </Table>
       </TableContainer>
     </AccessKeysDetails>
   );

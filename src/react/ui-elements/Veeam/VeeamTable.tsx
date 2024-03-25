@@ -155,7 +155,6 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
             <Table.SingleSelectableContent
               rowHeight="h32"
               separationLineVariant="backgroundLevel3"
-              backgroundVariant="backgroundLevel1"
               children={(Rows) => {
                 return <>{Rows}</>;
               }}

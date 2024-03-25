@@ -48,8 +48,6 @@ const ErrorsTable = (messages: string[]) => {
             <Table.SingleSelectableContent
               rowHeight="h32"
               separationLineVariant="backgroundLevel3"
-              backgroundVariant="backgroundLevel1"
-              children={(rows) => <>{rows}</>}
             />
           </Table>
         </div>
@@ -132,8 +130,6 @@ export const EmptyBucketSummaryList = ({
           <Table.SingleSelectableContent
             rowHeight="h40"
             separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel3"
-            children={(rows) => <>{rows}</>}
           />
         </div>
       </Table>

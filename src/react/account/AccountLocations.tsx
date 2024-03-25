@@ -1,4 +1,4 @@
-import { Icon, Loader, Stack } from '@scality/core-ui';
+import { Loader, Stack } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { CellProps, CoreUIColumn } from 'react-table';
@@ -9,10 +9,9 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
 import { HelpLocationTargetBucket } from '../ui-elements/Help';
-import { Search } from '../ui-elements/Table';
-import { Warning } from '../ui-elements/Warning';
+
 import { getLocationType } from '../utils/storageOptions';
-import { CenterredSecondaryText } from './iamAttachment/AttachmentTable';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 
 export function AccountLocations() {
   const metricsAdapter = useMetricsAdapter();
@@ -34,7 +33,7 @@ export function AccountLocations() {
       (location: Location) => {
         return location;
       },
-      { flex: '0.2' },
+      { flex: '0.5' },
     );
     const columns: CoreUIColumn<Location>[] = [
       {
@@ -42,7 +41,9 @@ export function AccountLocations() {
         accessor: 'name',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '20rem',
+          minWidth: '10rem',
+          flex: '1',
+          width: 'unset',
         },
       },
       {
@@ -50,7 +51,10 @@ export function AccountLocations() {
         accessor: 'type',
         cellStyle: {
           textAlign: 'left',
-          minWidth: '24rem',
+          minWidth: '10rem',
+          flex: '1',
+
+          width: 'unset',
         },
         Cell(value: CellProps<Location>) {
           const rowValues = value.row.original;
@@ -75,7 +79,7 @@ export function AccountLocations() {
         accessor: 'details.bucketName',
         cellStyle: {
           textAlign: 'left',
-          flex: '0.3',
+          flex: '0.5',
         },
       },
       dataUsedColumn,
@@ -84,7 +88,7 @@ export function AccountLocations() {
     return columns;
   }, [locations]);
 
-  if (locations.status === 'loading' || locations.status === 'unknown') {
+  if (locations.status === 'unknown') {
     return (
       <Stack>
         <Loader size="huge" />
@@ -92,46 +96,32 @@ export function AccountLocations() {
       </Stack>
     );
   }
-  if (locations.status === 'error') {
-    return (
-      <Warning
-        icon={<Icon name="Times-circle" size="2x" />}
-        title="Unable to load locations."
-      />
-    );
-  }
 
   return (
-    <Table columns={columns} data={data} defaultSortingKey={'name'}>
-      <Search>
-        <Table.SearchWithQueryParams
-          displayedName={{
-            singular: 'location',
-            plural: 'locations',
-          }}
-          queryParams={SEARCH_QUERY_PARAM}
-        />
-      </Search>
+    <Table
+      columns={columns}
+      data={data}
+      defaultSortingKey={'name'}
+      entityName={{ en: { singular: 'location', plural: 'locations' } }}
+      status={locations.status}
+    >
+      <TableHeaderWrapper
+        search={
+          <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+        }
+      />
+
       <Table.SingleSelectableContent
         id="singleTable"
         rowHeight="h40"
         separationLineVariant="backgroundLevel1"
-        backgroundVariant="backgroundLevel3"
         //@ts-expect-error fix this when you are working on it
         customItemKey={(index: number, data: Array<Location>) =>
           data[index].name
         }
         //@ts-expect-error fix this when you are working on it
         key={(index: number, data: Array<Location>) => data[index].name}
-      >
-        {(Rows) =>
-          data.length === 0 ? (
-            <CenterredSecondaryText>No Locations</CenterredSecondaryText>
-          ) : (
-            <>{Rows}</>
-          )
-        }
-      </Table.SingleSelectableContent>
+      ></Table.SingleSelectableContent>
     </Table>
   );
 }

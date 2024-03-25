@@ -1,15 +1,13 @@
+import { ConstrainedText, Icon } from '@scality/core-ui';
+import { Button, Table } from '@scality/core-ui/dist/next';
 import { useCallback } from 'react';
-import { TextTransformer } from '../ui-elements/Utility';
-import type { Workflows } from '../../types/workflow';
 import { useHistory } from 'react-router-dom';
-import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Workflow } from '../../types/workflow';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
-import { useTheme } from 'styled-components';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { CoreUIColumn, Row } from 'react-table';
-import { ConstrainedText } from '@scality/core-ui';
+import { useTheme } from 'styled-components';
+import type { Workflows } from '../../types/workflow';
+import { Workflow } from '../../types/workflow';
+import { TableHeaderWrapper } from '../ui-elements/Table';
+import { TextTransformer } from '../ui-elements/Utility';
 
 const SEARCH_QUERY_PARAM = 'search';
 export function WorkflowTypeIcon({ value: type }: { value: string }) {
@@ -66,7 +64,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '3',
-        marginLeft: '1rem',
+        width: 'unset',
       },
       Cell: renderRowSubComponent,
     },
@@ -76,7 +74,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '1',
-        marginLeft: '3rem',
+        width: 'unset',
       },
       Cell: WorkflowTypeIcon,
     },
@@ -86,7 +84,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
       cellStyle: {
         textAlign: 'left',
         flex: '0.5',
-        marginLeft: '1rem',
+        width: 'unset',
       },
       sortType: (row1: Row<Workflow>, row2: Row<Workflow>) => {
         return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
@@ -109,17 +107,18 @@ function WorkflowList({ workflows, workflowId }: Props) {
         data={workflows}
         defaultSortingKey={'name'}
         getRowId={getRowId}
+        entityName={{
+          en: {
+            singular: 'workflow',
+            plural: 'workflows',
+          },
+        }}
       >
-        <div style={{ margin: '1rem' }}>
-          <TableHeader>
-            <Table.SearchWithQueryParams
-              displayedName={{
-                singular: 'workflow',
-                plural: 'workflows',
-              }}
-              queryParams={SEARCH_QUERY_PARAM}
-            />
-
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
             <Button
               icon={<Icon name="Create-add" />}
               label="Create Workflow"
@@ -127,12 +126,12 @@ function WorkflowList({ workflows, workflowId }: Props) {
               onClick={() => history.push('./create-workflow')}
               type="submit"
             />
-          </TableHeader>
-        </div>
+          }
+        />
+
         <Table.SingleSelectableContent
           rowHeight="h64"
           separationLineVariant="backgroundLevel1"
-          backgroundVariant="backgroundLevel3"
           selectedId={workflowId}
           onRowSelected={(selectedRow: Row<Workflow>) =>
             history.push(`./${selectedRow.original.id}`)

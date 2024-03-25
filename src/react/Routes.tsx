@@ -1,4 +1,11 @@
-import { AppContainer, ErrorPage401, Icon, Sidebar } from '@scality/core-ui';
+import {
+  AppContainer,
+  EmptyState,
+  ErrorPage401,
+  Icon,
+  Loader,
+  Sidebar,
+} from '@scality/core-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -32,11 +39,9 @@ import EndpointCreate from './endpoint/EndpointCreate';
 import Endpoints from './endpoint/Endpoints';
 import LocationEditor from './locations/LocationEditor';
 import { Locations } from './locations/Locations';
-import { EmptyStateContainer } from './ui-elements/Container';
-import Loader from './ui-elements/Loader';
 import ReauthDialog from './ui-elements/ReauthDialog';
 import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
-import { Warning } from './ui-elements/Warning';
+
 import { useAuthGroups } from './utils/hooks';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
@@ -68,17 +73,15 @@ const RedirectToAccount = () => {
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
     );
   } else if (isStorageManager) {
-    const description = pathname === '/workflows' ? 'workflows' : 'data';
+    const description = pathname === '/workflows' ? 'Workflow' : 'Bucket';
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Account" size="5x" />}
-          title={`Before browsing your ${description}, create your first account.`}
-          btnTitle="Create Account"
-          btnAction={() => history.push('/create-account')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon={description}
+        link="/create-account"
+        listedResource={description}
+        resourceToCreate="Account"
+        history={history}
+      ></EmptyState>
     );
   } else {
     return <ErrorPage401 />;
@@ -139,7 +142,7 @@ function PrivateRoutes() {
 
   if (!isClientsLoaded) {
     return (
-      <Loader>
+      <Loader centered>
         <div>Loading clients</div>
       </Loader>
     );

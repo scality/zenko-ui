@@ -9,7 +9,13 @@ import Header from '../../ui-elements/EntityHeader';
 import { Warning } from '../../ui-elements/Warning';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
-import { AppContainer, Icon, Loader, TwoPanelLayout } from '@scality/core-ui';
+import {
+  AppContainer,
+  EmptyState,
+  Icon,
+  Loader,
+  TwoPanelLayout,
+} from '@scality/core-ui';
 import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/business/buckets';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 
@@ -36,7 +42,11 @@ export default function Buckets() {
   if (buckets.status === 'error') {
     return (
       <EmptyStateContainer>
-        <Warning title="Error" icon={<Icon name="Times-circle" size="5x" />} />
+        <Warning
+          title="Error"
+          icon={<Icon name="Times-circle" size="5x" />}
+          centered
+        />
       </EmptyStateContainer>
     );
   }
@@ -51,20 +61,14 @@ export default function Buckets() {
 
   const bucket = bucketIndex >= 0 ? buckets.value[bucketIndex] : null;
 
-  // empty state.
   if (buckets.value.length === 0) {
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Bucket" size="5x" />}
-          title="Create your first bucket."
-          btnTitle="Create Bucket"
-          btnAction={() =>
-            history.push(`/accounts/${account?.Name}/create-bucket`)
-          }
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon="Bucket"
+        history={history}
+        link={`/accounts/${account?.Name}/create-bucket`}
+        listedResource="Bucket"
+      ></EmptyState>
     );
   }
 

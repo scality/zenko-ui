@@ -1,12 +1,11 @@
 import { Icon, Loader, spacing } from '@scality/core-ui';
-import { Box } from '@scality/core-ui/dist/next';
+import { Box, Button } from '@scality/core-ui/dist/next';
 import { useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { InlineButton } from '../ui-elements/Table';
 import { getInstanceStatusQuery } from './queries';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
@@ -117,7 +116,8 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   if (replicationStatus === 'enabled' || ingestionStatus === 'enabled') {
     return (
       <Box display="flex">
-        <InlineButton
+        <Button
+          size="inline"
           disabled={isLoadingButton}
           icon={isLoadingButton ? <Loader /> : <Icon name="Pause-circle" />}
           tooltip={{
@@ -148,7 +148,8 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   if (replicationStatus === 'disabled' || ingestionStatus === 'disabled') {
     return (
       <Box display="flex">
-        <InlineButton
+        <Button
+          size="inline"
           disabled={isLoadingButton}
           icon={isLoadingButton ? <Loader /> : <Icon name="Play-circle" />}
           tooltip={{

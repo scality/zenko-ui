@@ -1,10 +1,12 @@
 import {
   AppContainer,
+  EmptyState,
   Icon,
   Stack,
   Text,
   TwoPanelLayout,
   Wrap,
+  Loader,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { UseQueryResult, useQuery } from 'react-query';
@@ -30,9 +32,7 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
-import { EmptyStateContainer } from '../ui-elements/Container';
-import Loader from '../ui-elements/Loader';
-import { Warning } from '../ui-elements/Warning';
+
 import { useAccounts, useRolePathName } from '../utils/hooks';
 import WorkflowContent from './WorkflowContent';
 import WorkflowList from './WorkflowList';
@@ -136,38 +136,32 @@ export default function Workflows() {
 
   if (accounts.length === 0) {
     return (
-      <EmptyStateContainer>
-        <Warning
-          centered={true}
-          icon={<Icon name="Account" size="5x" />}
-          title="Before browsing your workflows, create your first account."
-          btnTitle="Create Account"
-          btnAction={() => history.push('/create-account')}
-        />
-      </EmptyStateContainer>
+      <EmptyState
+        icon="Workflow"
+        history={history}
+        link="/create-account"
+        listedResource="Workflow"
+        resourceToCreate="Account"
+      ></EmptyState>
     );
   }
 
   const content = () => {
     if (buckets.status === 'success' && buckets.value.length === 0) {
       return (
-        <EmptyStateContainer>
-          <Warning
-            centered={true}
-            icon={<Icon name="Bucket" size="5x" />}
-            title="Before browsing your workflows, create your first bucket."
-            btnTitle="Create Bucket"
-            btnAction={() =>
-              history.push(`/accounts/${accountName}/create-bucket`)
-            }
-          />
-        </EmptyStateContainer>
+        <EmptyState
+          icon="Bucket"
+          link={`accounts/${accountName}/create-bucket`}
+          listedResource="Workflow"
+          resourceToCreate="Bucket"
+          history={history}
+        ></EmptyState>
       );
     }
 
     if (!isWorkflowsReady) {
       return (
-        <Loader>
+        <Loader size="massive" centered>
           <div>Loading workflows</div>
         </Loader>
       );
@@ -191,17 +185,12 @@ export default function Workflows() {
 
     if (workflows.length === 0) {
       return (
-        <EmptyStateContainer>
-          <Warning
-            centered={true}
-            icon={<Icon name="Replication" size="5x" />}
-            title="Before browsing your workflows, create your first workflow."
-            btnTitle="Create Workflow"
-            btnAction={() =>
-              history.push(`/accounts/${accountName}/workflows/create-workflow`)
-            }
-          />
-        </EmptyStateContainer>
+        <EmptyState
+          icon="Workflow"
+          link={`/accounts/${accountName}/workflows/create-workflow`}
+          listedResource="Workflow"
+          history={history}
+        ></EmptyState>
       );
     }
 

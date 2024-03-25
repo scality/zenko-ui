@@ -1,8 +1,15 @@
-import { AppContainer, Banner, Stack, Toggle, Tooltip } from '@scality/core-ui';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import {
+  AppContainer,
+  Banner,
+  Stack,
+  Toggle,
+  Tooltip,
+  spacing,
+  Icon,
+  TextBadge,
+} from '@scality/core-ui';
+
+import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -13,23 +20,26 @@ import {
   useRouteMatch,
 } from 'react-router-dom';
 import { Column } from 'react-table';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
-import { Clipboard } from '../ui-elements/Clipboard';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
-import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { formatSimpleDate } from '../utils';
 import {
   useAccessKeyOutdatedStatus,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 
 const CustomIcon = styled.i`
-  color: ${(props) => props.color ?? props.theme.infoPrimary};
+  color: ${(props) => props.theme.textSecondary};
   font-size: 32px;
+  cursor: pointer;
+  :hover {
+    color: ${(props) => props.theme.textPrimary};
+  }
 `;
 
 const CreatedOnCell = (rowValue) => {
@@ -97,7 +107,7 @@ const AccessKeysCell = (rowValue) => {
         justifyContent: 'space-between',
       }}
     >
-      {accessKey} <Clipboard text={accessKey} />
+      {accessKey} <CopyButton textToCopy={accessKey} />
     </div>
   );
 };
@@ -154,6 +164,7 @@ const DeleteAccessKeyAction = (rowValue) => {
 
 const AccountUserAccessKeys = () => {
   const { pathname } = useLocation();
+  const theme = useTheme();
   const { IAMUserName } = useParams<{
     IAMUserName: string;
   }>();
@@ -196,7 +207,7 @@ const AccountUserAccessKeys = () => {
       cellStyle: {
         minWidth: '10rem',
         textAlign: 'right',
-        paddingRight: spacing.sp32,
+        paddingRight: spacing.r32,
       },
     },
     {
@@ -204,7 +215,7 @@ const AccountUserAccessKeys = () => {
       accessor: 'status',
       cellStyle: {
         textAlign: 'left',
-        marginRight: spacing.sp32,
+        marginRight: spacing.r32,
       },
       Cell: (value) => ToggleAccessKeyStatus(value.row.original),
     },
@@ -225,22 +236,20 @@ const AccountUserAccessKeys = () => {
     } else if (accessKeysResultLength > 2) {
       return (
         <Stack gap="r32">
-          <Box>
-            Access Keys
+          <Stack gap="r8">
+            <>Access Keys</>
             <TextBadge
               variant={'statusWarning'}
-              //@ts-expect-error fix this when you are working on it
-              text={accessKeysResultLength}
-              style={{ marginLeft: spacing.sp8 }}
+              text={`${accessKeysResultLength}`}
             />
-          </Box>
+          </Stack>
           <Banner
             icon={
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginLeft: spacing.sp8,
+                  marginLeft: spacing.r8,
                 }}
               >
                 <Icon
@@ -250,8 +259,7 @@ const AccountUserAccessKeys = () => {
                 />
               </div>
             }
-            //@ts-expect-error fix this when you are working on it
-            variant="statusWarning"
+            variant="warning"
             title="Warning"
           >
             Security Status: as a best practice, an user should not have more
@@ -278,36 +286,33 @@ const AccountUserAccessKeys = () => {
         <Stack withSeparators gap="r32">
           <>
             <CustomIcon
-              color="white"
               className="fas fa-arrow-left"
-              style={{
-                cursor: 'pointer',
-              }}
               onClick={() => {
                 history.push('../');
               }}
             />
-            <CustomIcon className="fas fa-key" />
+            <Icon name="Key" size="2x" color={theme.infoPrimary} />
             <>{`Access Keys for: ${IAMUserName}`}</>
           </>
           <>{accessKeysCountComponent}</>
         </Stack>
       </AppContainer.OverallSummary>
 
-      <AppContainer.MainContent hasPadding background="backgroundLevel3">
-        <Box style={{ flex: 1 }}>
-          {/* fix this when you are working on it*/}
-          <Table
-            columns={columns as unknown as Column[]}
-            data={data}
-            defaultSortingKey={'health'}
-          >
-            <TableHeader
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-              }}
-            >
+      <AppContainer.MainContent background="backgroundLevel3">
+        <Table
+          columns={columns as unknown as Column[]}
+          data={data}
+          defaultSortingKey={'health'}
+          status={accessKeysStatus}
+          entityName={{
+            en: {
+              singular: 'access key',
+              plural: 'access keys',
+            },
+          }}
+        >
+          <TableHeaderWrapper
+            actions={
               <Button
                 icon={<Icon name="Create-add" />}
                 label="Create Access Keys"
@@ -315,26 +320,13 @@ const AccountUserAccessKeys = () => {
                 onClick={() => history.push('access-keys/create')}
                 type="submit"
               />
-            </TableHeader>
-            <Table.SingleSelectableContent
-              rowHeight="h40"
-              separationLineVariant="backgroundLevel1"
-              backgroundVariant="backgroundLevel3"
-            >
-              {(Rows) => (
-                <>
-                  {accessKeysStatus === 'loading' || accessKeysStatus === 'idle'
-                    ? 'Loading access keys...'
-                    : ''}
-                  {accessKeysStatus === 'error'
-                    ? 'We failed to retrieve access keys, please retry later. If the error persists, please contact your support.'
-                    : ''}
-                  {accessKeysStatus === 'success' ? Rows : ''}
-                </>
-              )}
-            </Table.SingleSelectableContent>
-          </Table>
-        </Box>
+            }
+          />
+          <Table.SingleSelectableContent
+            rowHeight="h40"
+            separationLineVariant="backgroundLevel1"
+          ></Table.SingleSelectableContent>
+        </Table>
       </AppContainer.MainContent>
       <Route path={`${url}/create`}>
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />

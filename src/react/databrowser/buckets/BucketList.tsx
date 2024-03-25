@@ -1,6 +1,6 @@
 import { ConstrainedText, Icon, Link, spacing } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { Box, Table } from '@scality/core-ui/dist/next';
+import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CoreUIColumn } from 'react-table';
@@ -13,7 +13,7 @@ import { Bucket } from '../../next-architecture/domain/entities/bucket';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
-import * as T from '../../ui-elements/Table';
+import { TableHeaderWrapper } from '../../ui-elements/Table';
 import { TextAligner } from '../../ui-elements/Utility';
 import { formatShortDate } from '../../utils';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
@@ -78,7 +78,7 @@ export default function BucketList({
         },
         cellStyle: {
           flex: '1',
-          paddingLeft: '1rem',
+          width: 'unset',
         },
       },
       {
@@ -88,15 +88,14 @@ export default function BucketList({
         Cell({ row }) {
           return BucketLocationNameAndType({ bucketName: row.original.name });
         },
-        cellStyle: {
-          flex: '1',
-        },
+
+        cellStyle: { width: 'unset', flex: '1.2' },
       },
     ];
 
     if (features.includes(XDM_FEATURE)) {
       columns.push({
-        Header: 'Async Metadata updates',
+        Header: 'Metadata updates',
         accessor: 'locationConstraint',
         id: 'ingestion',
         disableSortBy: true,
@@ -118,7 +117,10 @@ export default function BucketList({
     }
 
     if (isStorageManager) {
-      columns.push(dataUsedColumn);
+      columns.push({
+        ...dataUsedColumn,
+        cellStyle: { textAlign: 'right', width: 'unset', flex: '0.8' },
+      });
     }
 
     columns.push({
@@ -126,8 +128,9 @@ export default function BucketList({
       accessor: 'creationDate',
       cellStyle: {
         flex: '1',
-        paddingRight: spacing.r32,
         textAlign: 'right',
+        paddingRight: spacing.r16,
+        width: 'unset',
       },
 
       Cell({ value }: { value: string }) {
@@ -147,26 +150,25 @@ export default function BucketList({
     }
     return null;
   }, [selectedBucketName, buckets]);
-
   return (
-    <Box display="flex" flexDirection="column" flex="1" id="bucket-list">
-      <T.Container>
-        <Table
-          columns={columns}
-          data={buckets}
-          defaultSortingKey="creationDate"
-        >
-          <T.SearchContainer>
-            <T.Search>
-              <Table.SearchWithQueryParams
-                displayedName={{
-                  singular: 'bucket',
-                  plural: 'buckets',
-                }}
-                queryParams={SEARCH_QUERY_PARAM}
-              />
-            </T.Search>
-            <T.ExtraButton
+    <Box display="flex" flexDirection="column" id="bucket-list" width="100%">
+      <Table
+        columns={columns}
+        data={buckets}
+        defaultSortingKey="creationDate"
+        entityName={{
+          en: {
+            singular: 'bucket',
+            plural: 'buckets',
+          },
+        }}
+      >
+        <TableHeaderWrapper
+          search={
+            <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
+          }
+          actions={
+            <Button
               icon={<Icon name="Create-add" />}
               label="Create Bucket"
               variant="primary"
@@ -175,26 +177,26 @@ export default function BucketList({
               }
               type="submit"
             />
-          </T.SearchContainer>
-          <Table.SingleSelectableContent
-            rowHeight="h40"
-            selectedId={selectedId?.toString()}
-            onRowSelected={(row) => {
-              const isSelected = selectedBucketName === row.original.name;
+          }
+        />
 
-              if (!isSelected) {
-                history.push(
-                  tabName
-                    ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
-                    : `/accounts/${account?.Name}/buckets/${row.original.name}`,
-                );
-              }
-            }}
-            separationLineVariant="backgroundLevel1"
-            backgroundVariant="backgroundLevel3"
-          />
-        </Table>
-      </T.Container>
+        <Table.SingleSelectableContent
+          rowHeight="h40"
+          selectedId={selectedId?.toString()}
+          onRowSelected={(row) => {
+            const isSelected = selectedBucketName === row.original.name;
+
+            if (!isSelected) {
+              history.push(
+                tabName
+                  ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
+                  : `/accounts/${account?.Name}/buckets/${row.original.name}`,
+              );
+            }
+          }}
+          separationLineVariant="backgroundLevel1"
+        />
+      </Table>
     </Box>
   );
 }
