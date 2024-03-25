@@ -40,8 +40,7 @@ import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-archi
 import { VeeamLogo } from './VeeamLogo';
 
 const hasMoreThanOneDecimal = (num: number) => {
-  const decimalCount = num.toString().split('.')[1]?.length || 0;
-  return decimalCount > 1;
+  return num * 10 !== Math.round(num * 10);
 };
 
 const precisionValidator = (value: number, helpers: CustomHelpers) => {
