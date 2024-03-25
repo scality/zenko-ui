@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   QueryFunctionContext,
   QueryObserverIdleResult,
@@ -10,6 +10,7 @@ import type {
   UseInfiniteQueryOptions,
 } from 'react-query';
 import { useInfiniteQuery } from 'react-query';
+import { useAccessToken } from '../next-architecture/ui/AuthProvider';
 
 export type AWS_PAGINATED_ENTITIES<ENTITY> =
   | (QueryObserverIdleResult<ENTITY[]> & { firstPageStatus: 'idle' }) //idle
@@ -80,6 +81,24 @@ export const useAwsPaginatedEntities = <
     };
   }, []);
 
+  /**
+   * This is a workaround to ensure that the token is always up to date
+   * when the queryFn is called. This is necessary because the token is
+   * refreshed in the queryFn closure.
+   */
+  const token = useAccessToken();
+  const ref =
+    useRef<
+      (
+        context: QueryFunctionContext,
+        marker?: MARKER_TYPE,
+      ) => Promise<API_RESPONSE>
+    >();
+  useEffect(() => {
+    ref.current = reactQueryOptions?.queryFn;
+  }, [token]);
+  //--------------------------------------------------------------------
+
   const {
     data,
     error,
@@ -94,7 +113,7 @@ export const useAwsPaginatedEntities = <
       API_RESPONSE
     >),
     queryFn: (ctx) => {
-      return reactQueryOptions?.queryFn(ctx, ctx.pageParam);
+      return ref.current?.(ctx, ctx.pageParam);
     },
   });
   const pageIndex = data?.pageParams?.length || 0;
