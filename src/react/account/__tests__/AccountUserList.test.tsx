@@ -121,12 +121,12 @@ describe('AccountUserList', () => {
 
     await waitFor(() =>
       screen.getByText(
-        'An error occured while loading the users, please refresh the page.',
+        'An error occurred while loading the users, please refresh the page.',
       ),
     );
     expect(
       screen.getByText(
-        'An error occured while loading the users, please refresh the page.',
+        'An error occurred while loading the users, please refresh the page.',
       ),
     ).toBeInTheDocument();
   });
