@@ -144,7 +144,11 @@ export const VeeamCapacityModalInternal = ({
             </Wrap>
           }
         >
-          <form id="capacity-form" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            id="capacity-form"
+            onSubmit={handleSubmit(onSubmit)}
+            style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+          >
             <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
           </form>
         </Modal>

@@ -104,6 +104,7 @@ export const VeeamCapacityFormSection = ({
                 return (
                   <>
                     <Select
+                      menuPosition="fixed"
                       id="capacityUnit"
                       onChange={onChange}
                       value={value}
