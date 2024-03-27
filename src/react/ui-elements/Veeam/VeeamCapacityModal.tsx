@@ -24,7 +24,7 @@ import {
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 
 const schema = Joi.object({
-  capacity: Joi.number().required().min(1).max(999),
+  capacity: Joi.number().required().min(1).max(999).integer(),
   capacityUnit: Joi.string().required(),
 });
 
@@ -62,7 +62,6 @@ export const VeeamCapacityModalInternal = ({
   const { mutate } = usePutObjectMutation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const currentCapacity = watch('capacity');
 
   const onSubmit = ({ capacity, capacityUnit }: VeeamCapacityForm) => {
     mutate(
@@ -138,13 +137,25 @@ export const VeeamCapacityModalInternal = ({
                   aria-label="Update max capacity"
                   onClick={handleSubmit(onSubmit)}
                   label="Confirm"
-                  disabled={!isValid || currentCapacity === capacityValue}
+                  disabled={
+                    !isValid ||
+                    (capacityValue === watch('capacity') &&
+                      capacityUnit === watch('capacityUnit'))
+                  }
                 />
               </Stack>
             </Wrap>
           }
         >
-          <form id="capacity-form" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            id="capacity-form"
+            onSubmit={handleSubmit(onSubmit)}
+            style={{
+              paddingTop: '0.5rem',
+              paddingBottom: '0.5rem',
+              width: '40rem',
+            }}
+          >
             <VeeamCapacityFormSection autoFocusEnabled={isCapacityModalOpen} />
           </form>
         </Modal>
