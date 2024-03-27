@@ -93,17 +93,12 @@ describe('Veeam Configuration UI', () => {
     ).toBeInTheDocument();
     //expect the immutable backup toogle to be active
     expect(screen.getByLabelText('enableImmutableBackup')).toBeEnabled();
-
+    // verify the max capacity input is prefilled with 4 GiB
+    expect(selectors.maxCapacityInput()).toHaveValue(4);
+    expect(screen.getByText(/GiB/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
     });
-  });
-
-  it('should display clusterCapacity in default value with unit', async () => {
-    mockUseAccountsImplementation();
-    renderVeeamConfigurationForm();
-    expect(screen.getByDisplayValue(/4.7/i)).toBeInTheDocument();
-    expect(screen.getByText(/GiB/i)).toBeInTheDocument();
   });
 
   it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 is selected', async () => {
@@ -171,12 +166,20 @@ describe('Veeam Configuration UI', () => {
     });
   });
 
-  it('should prefilled with Veeam account is there is no account', async () => {
+  it('should prefilled with Veeam account is there is only scality internal account', async () => {
     //S
     mockUseAccountsLocationsAndEndpoints.mockImplementation(() => {
       return {
         accountsLocationsAndEndpoints: {
-          accounts: [],
+          accounts: [
+            {
+              id: '000000000000',
+              name: 'scality-internal-services',
+              canonicalId:
+                '68c2e0ec05c3de60c8ea821e5ea08bfb324a847918bd3d0288b9349429e4f11f',
+              creationDate: '2023-09-05T10:01:06.000Z',
+            },
+          ],
         },
         status: 'success',
       };
@@ -188,7 +191,7 @@ describe('Veeam Configuration UI', () => {
     });
   });
 
-  it('should throw validation error if the max capacity has more than 1 decimal', async () => {
+  it('should throw validation error if the max capacity is not integer', async () => {
     //S
     mockUseAccountsImplementation();
     renderVeeamConfigurationForm();
@@ -197,7 +200,7 @@ describe('Veeam Configuration UI', () => {
     await userEvent.type(selectors.maxCapacityInput(), '4.666');
     //V
     expect(
-      screen.getByText(/"capacity" must have no more than 1 decimal places/i),
+      screen.getByText(/"capacity" must be an integer/i),
     ).toBeInTheDocument();
   });
 });

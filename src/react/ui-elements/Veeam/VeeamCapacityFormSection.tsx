@@ -6,6 +6,7 @@ import { ListItem } from './VeeamTable';
 import { useCapacityUnit } from './useCapacityUnit';
 import { useEffect } from 'react';
 import { useXcoreConfig } from '../../next-architecture/ui/ConfigProvider';
+import { useAccessToken } from '../../next-architecture/ui/AuthProvider';
 
 type XCoreConfig = {
   spec: {
@@ -18,7 +19,10 @@ type XCoreConfig = {
   };
 };
 
-type UseClusterCapacityHooks = (xCoreConfig: XCoreConfig) => {
+type UseClusterCapacityHooks = (
+  xCoreConfig: XCoreConfig,
+  token?: string,
+) => {
   clusterCapacity: string | undefined;
   clusterCapacityStatus: string;
 };
@@ -45,9 +49,12 @@ export const VeeamCapacityFormWithXcore = ({
 }: {
   useClusterCapacity: UseClusterCapacityHooks;
 }) => {
+  const token = useAccessToken();
   const xCoreConfig = useXcoreConfig('run');
-  const { clusterCapacity, clusterCapacityStatus } =
-    useClusterCapacity(xCoreConfig);
+  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(
+    xCoreConfig,
+    token,
+  );
   const { setValue } = useFormContext();
 
   const { capacityValue, capacityUnit } = useCapacityUnit(
@@ -93,7 +100,7 @@ export const VeeamCapacityFormSection = ({
               size="1/3"
               min={1}
               max={999}
-              step={0.1}
+              step={1}
               autoFocus={autoFocusEnabled}
               {...register('capacity')}
             />

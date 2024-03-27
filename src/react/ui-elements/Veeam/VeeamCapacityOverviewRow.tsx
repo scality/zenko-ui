@@ -1,4 +1,3 @@
-import prettyBytes from 'pretty-bytes';
 import { useQuery } from 'react-query';
 import { VEEAM_FEATURE } from '../../../js/config';
 import { useBucketTagging } from '../../next-architecture/domain/business/buckets';
@@ -12,6 +11,7 @@ import {
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
 } from './VeeamConstants';
+import { PrettyBytes } from '@scality/core-ui';
 
 export const VeeamCapacityOverviewRow = ({
   bucketName,
@@ -46,12 +46,6 @@ export const VeeamCapacityOverviewRow = ({
       ?.querySelector('Capacity')?.textContent ||
     matches?.[1] ||
     '0';
-  const prettyBytesClusterCapacity = prettyBytes(parseInt(capacity, 10), {
-    locale: 'en',
-    binary: true,
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 1,
-  });
 
   if (isSOSAPIEnabled) {
     return (
@@ -59,16 +53,18 @@ export const VeeamCapacityOverviewRow = ({
         <T.Key> Max repository Capacity </T.Key>
         <T.GroupValues>
           <>
-            {veeamObjectStatus === 'loading'
-              ? 'Loading...'
-              : veeamObjectStatus === 'error'
-              ? 'Error'
-              : prettyBytesClusterCapacity}
+            {veeamObjectStatus === 'loading' ? (
+              'Loading...'
+            ) : veeamObjectStatus === 'error' ? (
+              'Error'
+            ) : (
+              <PrettyBytes bytes={parseInt(capacity)} decimals={0} />
+            )}
           </>
           {veeamObjectStatus === 'success' && (
             <VeeamCapacityModal
               bucketName={bucketName}
-              maxCapacity={prettyBytesClusterCapacity}
+              maxCapacity={capacity}
               status={veeamObjectStatus}
             />
           )}

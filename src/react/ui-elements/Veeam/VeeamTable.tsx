@@ -149,8 +149,9 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
             />
           </Stack>
         }
+        style={{ width: '50rem' }}
       >
-        <div style={{ height: '30rem', width: '40rem' }}>
+        <div style={{ height: '32rem' }}>
           <Table columns={columns} data={data}>
             <Table.SingleSelectableContent
               rowHeight="h32"
@@ -159,7 +160,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
               children={(Rows) => {
                 return <>{Rows}</>;
               }}
-            ></Table.SingleSelectableContent>
+            />
           </Table>
         </div>
       </Form>

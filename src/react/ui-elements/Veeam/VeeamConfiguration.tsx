@@ -1,4 +1,4 @@
-import Joi, { CustomHelpers } from '@hapi/joi';
+import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Form,
@@ -39,23 +39,13 @@ import { useAccountsLocationsAndEndpoints } from '../../../react/next-architectu
 import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { VeeamLogo } from './VeeamLogo';
 
-const hasMoreThanOneDecimal = (num: number) => {
-  return num * 10 !== Math.round(num * 10);
-};
-
-const precisionValidator = (value: number, helpers: CustomHelpers) => {
-  if (!hasMoreThanOneDecimal(value)) {
-    return value;
-  } else return helpers.error('number.precision', { limit: 1 });
-};
-
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
   bucketName: bucketNameValidationSchema,
   application: Joi.string().required(),
   capacity: Joi.when('application', {
     is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
-    then: Joi.number().required().min(1).max(999).custom(precisionValidator),
+    then: Joi.number().required().min(1).max(999).integer(),
     otherwise: Joi.valid(),
   }),
   capacityUnit: Joi.when('application', {
@@ -165,8 +155,10 @@ const Configuration = () => {
     useAccountsLocationsAndEndpoints({
       accountsLocationsEndpointsAdapter,
     });
-  const accounts = accountsLocationsAndEndpoints?.accounts ?? [];
-
+  const accounts =
+    accountsLocationsAndEndpoints?.accounts.filter(
+      (account) => account.name !== 'scality-internal-services',
+    ) ?? [];
   useEffect(() => {
     if (status === 'success' && accounts.length === 0) {
       setValue('accountName', VEEAM_DEFAULT_ACCOUNT_NAME);

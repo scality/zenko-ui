@@ -61,7 +61,7 @@ describe('VeeamCapacityOverviewRow', () => {
       expect(screen.getByText('Max repository Capacity')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('100.0 GiB')).toBeInTheDocument();
+    expect(screen.getByText('100 GiB')).toBeInTheDocument();
   });
 
   it('should not render the row if SOSAPI is not enabled', () => {
