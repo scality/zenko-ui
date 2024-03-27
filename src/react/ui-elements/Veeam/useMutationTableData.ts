@@ -124,7 +124,7 @@ export const useMutationTableData = ({
         return {
           user: {
             userName: propsConfiguration.accountName,
-            email: `${propsConfiguration.bucketName}${userData?.email}`,
+            email: `${propsConfiguration.accountName}${userData?.email}`,
           },
           instanceId,
         };
