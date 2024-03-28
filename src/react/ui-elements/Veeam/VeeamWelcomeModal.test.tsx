@@ -14,11 +14,14 @@ import { rest } from 'msw';
 import { ACCOUNT_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 import { useNextLogin } from './useNextLogin';
+import { useAlerts } from '../../next-architecture/ui/AlertProvider';
 
 jest.mock('./useNextLogin', () => ({
   useNextLogin: jest.fn(),
 }));
-
+jest.mock('../../next-architecture/ui/AlertProvider', () => ({
+  useAlerts: jest.fn(),
+}));
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -43,7 +46,7 @@ const server = setupServer(
 );
 
 const mockUseNextLogin = useNextLogin as jest.Mock;
-
+const mockUseAlerts = useAlerts as jest.Mock;
 describe('VeeamWelcomeModal', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -62,7 +65,7 @@ describe('VeeamWelcomeModal', () => {
   const VeeamWelcomeModalComponent = (
     <QueryClientProvider client={queryClient}>
       <InternalRouter>
-        <VeeamWelcomeModalInternal />
+        <VeeamWelcomeModalInternal isFirstTimeLogin={true} />
       </InternalRouter>
     </QueryClientProvider>
   );
@@ -72,6 +75,7 @@ describe('VeeamWelcomeModal', () => {
   };
   it('should not display if Veeam account has already created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: false });
+    mockUseAlerts.mockReturnValue([]);
     //S
     renderVeeamWelcomeModal();
     //E+V
@@ -79,6 +83,7 @@ describe('VeeamWelcomeModal', () => {
   });
   it('should render when there is no Veeam account created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
+    mockUseAlerts.mockReturnValue([]);
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
@@ -108,6 +113,7 @@ describe('VeeamWelcomeModal', () => {
   });
   it('should display when there is no account and it is next login', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
+    mockUseAlerts.mockReturnValue([]);
     //S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
@@ -130,5 +136,57 @@ describe('VeeamWelcomeModal', () => {
     rerender(VeeamWelcomeModalComponent);
     //V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
+  });
+  it('should not display in case of trial license modal displayed', async () => {
+    //S
+    mockUseAlerts.mockReturnValue([
+      {
+        id: 'mock-trial-license-alert-id',
+        labels: {
+          alertname: 'TrialLicense',
+          severity: 'info',
+          selectors: [],
+        },
+      },
+    ]);
+    mockUseNextLogin.mockReturnValue({ isNextLogin: true });
+    renderVeeamWelcomeModal();
+    //E
+    await expectElementNotToBeInDocument(selectors.welcomeModal);
+  });
+  it('should display in case of OVA and not first time login without any accounts', async () => {
+    //S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
+        return res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [],
+          }),
+        );
+      }),
+    );
+    mockUseAlerts.mockReturnValue([
+      {
+        id: 'mock-trial-license-alert-id',
+        labels: {
+          alertname: 'TrialLicense',
+          severity: 'info',
+          selectors: [],
+        },
+      },
+    ]);
+    mockUseNextLogin.mockReturnValue({ isNextLogin: true });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <InternalRouter>
+          <VeeamWelcomeModalInternal isFirstTimeLogin={false} />
+        </InternalRouter>
+      </QueryClientProvider>,
+    );
+    //E+V
+    await waitFor(() => {
+      expect(selectors.welcomeModal()).toBeInTheDocument();
+    });
   });
 });

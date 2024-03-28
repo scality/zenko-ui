@@ -16,20 +16,32 @@ import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
 import { useNextLogin } from './useNextLogin';
+import AlertProvider from '../../next-architecture/ui/AlertProvider';
+import { useAlerts } from '../../next-architecture/ui/AlertProvider';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
 `;
-
-export const VeeamWelcomeModalInternal = () => {
+const TRIAL_LICENSE = 'TrialLicense';
+type NavbarUpdaterComponentProps = {
+  isFirstTimeLogin: boolean;
+};
+export const VeeamWelcomeModalInternal = (
+  props: NavbarUpdaterComponentProps,
+) => {
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   const { accounts, status } = useAccounts();
+  const alerts = useAlerts({
+    alertname: TRIAL_LICENSE,
+  });
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isAlreadyInVeeamConfigurationView = window.location.pathname.endsWith(
     '/veeam/configuration',
   );
   const { isNextLogin } = useNextLogin();
+  const isTrialLicenseModalDisplayed =
+    alerts.length > 0 && props.isFirstTimeLogin;
   /*
    We display the Veeam welcome modal only if the following conditions are met:
    1. Veeam feature flag is enabled
@@ -37,13 +49,15 @@ export const VeeamWelcomeModalInternal = () => {
    3. Storage Manager is logged in
    4. Not already in the Veeam configuration view
    5. The user skip it until the next login or login for the first time
+   6. No trial license modal displays
    */
   const isVeeamWelcomeModalEnabled =
     features.includes(VEEAM_FEATURE) &&
     isStorageManager &&
     isZeroAccountCreated &&
     !isAlreadyInVeeamConfigurationView &&
-    isNextLogin;
+    isNextLogin &&
+    !isTrialLicenseModalDisplayed;
 
   if (!isVeeamWelcomeModalEnabled) {
     return <></>;
@@ -136,12 +150,14 @@ const VeeamModalComponent = () => {
   );
 };
 
-export default function VeeamWelcomeModal() {
+export default function VeeamWelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
     <ConfigProvider>
       <InternalRouter>
         <AuthProvider>
-          <VeeamWelcomeModalInternal />
+          <AlertProvider>
+            <VeeamWelcomeModalInternal {...props} />
+          </AlertProvider>
         </AuthProvider>
       </InternalRouter>
     </ConfigProvider>
