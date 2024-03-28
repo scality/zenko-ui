@@ -122,13 +122,11 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
           {
             scope: 'shell',
             module: './moduleFederation/ConfigurationProvider',
-            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
           {
             scope: 'shell',
             module: './moduleFederation/UIListProvider',
-            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
         ]}

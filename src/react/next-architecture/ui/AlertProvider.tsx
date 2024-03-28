@@ -26,12 +26,9 @@ type PrometheusAlert = {
   generatorURL: string;
 };
 type AlertLabels = {
-  // @ts-expect-error - FIXME when you are working on it
-  parents?: string[];
-  // @ts-expect-error - FIXME when you are working on it
+  parents: string[];
   selectors?: string[];
-  [labelName: string]: string;
-};
+} & { [labelName: string]: string };
 export type Alert = {
   id: string;
   description: string;
@@ -49,8 +46,7 @@ export const highestAlertToStatus = (alerts?: Alert[]): string => {
 export type FilterLabels = {
   parents?: string[];
   selectors?: string[];
-  [labelName: string]: string | string[];
-};
+} & { [labelName: string]: string };
 const alertGlobal: any = {};
 export const useAlerts = (filters: FilterLabels) => {
   return alertGlobal.hooks.useAlerts(filters);
@@ -67,7 +63,11 @@ const InternalAlertProvider = ({
   alertManagerUrl,
   children,
 }: {
-  moduleExports: {};
+  moduleExports: {
+    './alerts/alertHooks': {
+      useAlerts: (filters: FilterLabels) => Alert[];
+    };
+  };
   alertManagerUrl: string;
   children;
 }) => {
@@ -78,7 +78,6 @@ const InternalAlertProvider = ({
     <FederatedComponent
       module={'./alerts/AlertProvider'}
       scope={'shell'}
-      //@ts-ignore
       url={window.shellUIRemoteEntryUrl}
       props={{
         alertManagerUrl,
@@ -118,7 +117,6 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
           {
             scope: 'shell',
             module: './alerts/alertHooks',
-            //@ts-ignore
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
         ]}

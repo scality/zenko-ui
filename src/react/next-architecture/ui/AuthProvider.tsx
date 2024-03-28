@@ -78,7 +78,6 @@ export function AuthProvider({ children }: { children: JSX.Element }) {
           {
             scope: 'shell',
             module: './auth/AuthProvider',
-            //@ts-expect-error fix this when you are working on it
             remoteEntryUrl: window.shellUIRemoteEntryUrl,
           },
         ]}
