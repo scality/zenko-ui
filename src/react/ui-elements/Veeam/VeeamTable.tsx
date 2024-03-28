@@ -106,8 +106,8 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
             </ListItem>
             <ListItem>
               <Text>
-                If you're a Storage Manager and no account are created, the
-                Veeam Assistant will appear at your next login.
+                To start Veeam assistant configuration again, you can go to the{' '}
+                <b>Accounts</b> page.
               </Text>
             </ListItem>
           </ul>
