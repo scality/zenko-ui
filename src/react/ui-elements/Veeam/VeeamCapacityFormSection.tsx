@@ -18,13 +18,13 @@ type XCoreConfig = {
     };
   };
 };
-
+type ClusterCapacityStatus = 'idle' | 'loading' | 'success' | 'error';
 type UseClusterCapacityHooks = (
   xCoreConfig: XCoreConfig,
   token?: string,
 ) => {
-  clusterCapacity: string | undefined;
-  clusterCapacityStatus: string;
+  clusterCapacity: number;
+  clusterCapacityStatus: ClusterCapacityStatus;
 };
 
 const VeeamCapacityTooltip = () => (
@@ -56,12 +56,9 @@ export const VeeamCapacityFormWithXcore = ({
     token,
   );
   const { setValue } = useFormContext();
-
   const { capacityValue, capacityUnit } = useCapacityUnit(
-    clusterCapacity || '0',
-    true,
+    clusterCapacityStatus === 'success' ? clusterCapacity * 0.8 : 0,
   );
-
   useEffect(() => {
     if (clusterCapacityStatus === 'success') {
       setValue('capacity', capacityValue);

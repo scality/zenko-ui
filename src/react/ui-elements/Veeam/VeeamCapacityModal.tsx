@@ -30,7 +30,7 @@ const schema = Joi.object({
 
 type VeeamCapacityModalProps = {
   bucketName: string;
-  maxCapacity: string;
+  maxCapacity: number;
   status: string;
 };
 

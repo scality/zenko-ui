@@ -78,7 +78,8 @@ export const VeeamSummary = ({
       rightActions={
         <Button
           variant="primary"
-          label="Exit"
+          //TODO: Add flag icon in core-ui
+          label="Finish"
           onClick={() => {
             history.push(`/accounts/${accountName}/buckets/${bucketName}`);
           }}

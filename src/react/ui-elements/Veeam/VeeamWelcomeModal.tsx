@@ -30,9 +30,9 @@ export const VeeamWelcomeModalInternal = (
   props: NavbarUpdaterComponentProps,
 ) => {
   const { features } = useConfig();
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const { accounts, status } = useAccounts();
-  const alerts = useAlerts({
+  const { alerts } = useAlerts({
     alertname: TRIAL_LICENSE,
   });
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
@@ -41,7 +41,7 @@ export const VeeamWelcomeModalInternal = (
   );
   const { isNextLogin } = useNextLogin();
   const isTrialLicenseModalDisplayed =
-    alerts.length > 0 && props.isFirstTimeLogin;
+    alerts?.length > 0 && props.isFirstTimeLogin && isPlatformAdmin;
   /*
    We display the Veeam welcome modal only if the following conditions are met:
    1. Veeam feature flag is enabled

@@ -7,6 +7,7 @@ import {
   useCurrentApp,
 } from '@scality/module-federation';
 import { useConfigRetriever, useDeployedApps } from './ConfigProvider';
+import { QueryObserverResult } from 'react-query';
 
 type PrometheusAlert = {
   annotations: Record<string, string>;
@@ -47,15 +48,14 @@ export type FilterLabels = {
   parents?: string[];
   selectors?: string[];
 } & { [labelName: string]: string };
-const alertGlobal: any = {};
+
+type useAlertsType = (
+  filters: FilterLabels,
+) => Omit<QueryObserverResult<Alert[]>, 'data'> & { alerts?: Alert[] };
+const alertGlobal: { hooks?: { useAlerts: useAlertsType } } = {};
+
 export const useAlerts = (filters: FilterLabels) => {
   return alertGlobal.hooks.useAlerts(filters);
-};
-export const useHighestSeverityAlerts = (filters: FilterLabels) => {
-  return alertGlobal.hooks?.useHighestSeverityAlerts(filters);
-};
-export const useAlertLibrary = () => {
-  return alertGlobal.hooks;
 };
 
 const InternalAlertProvider = ({
@@ -64,9 +64,7 @@ const InternalAlertProvider = ({
   children,
 }: {
   moduleExports: {
-    './alerts/alertHooks': {
-      useAlerts: (filters: FilterLabels) => Alert[];
-    };
+    './alerts/alertHooks': { useAlerts: useAlertsType };
   };
   alertManagerUrl: string;
   children;

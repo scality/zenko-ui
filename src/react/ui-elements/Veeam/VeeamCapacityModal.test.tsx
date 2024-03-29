@@ -38,7 +38,7 @@ describe('VeeamCapacityModal', () => {
     render(
       <VeeamCapacityModal
         bucketName={bucketName}
-        maxCapacity="114748364800"
+        maxCapacity={114748364800}
         status={'success'}
       />,
       {
