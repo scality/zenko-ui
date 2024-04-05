@@ -188,6 +188,7 @@
         "s3:PutObjectVersionAcl",
         "s3:PutObjectVersionTagging",
         "s3:ListAllMyBuckets",
+        "s3:ListBucketVersions",
         "s3:ReplicateObject",
         "s3:GetObjectVersionRetention",
         "s3:PutObjectVersionRetention",
