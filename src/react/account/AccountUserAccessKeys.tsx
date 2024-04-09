@@ -1,8 +1,16 @@
-import { AppContainer, Banner, Stack, Toggle, Tooltip } from '@scality/core-ui';
-import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
-import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
-import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import {
+  AppContainer,
+  Banner,
+  FormattedDateTime,
+  Stack,
+  Toggle,
+  Tooltip,
+  Wrap,
+  Icon,
+  TextBadge,
+  spacing,
+} from '@scality/core-ui';
+import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import {
@@ -17,7 +25,6 @@ import styled from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
-import { Clipboard } from '../ui-elements/Clipboard';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { TitleRow as TableHeader } from '../ui-elements/TableKeyValue';
 import { formatSimpleDate } from '../utils';
@@ -35,7 +42,7 @@ const CustomIcon = styled.i`
 const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
   return (
-    <div>
+    <Box gap={spacing.r4} justifyContent="right">
       {outdatedAlert ? (
         <Tooltip
           overlay={outdatedAlert}
@@ -46,8 +53,13 @@ const CreatedOnCell = (rowValue) => {
           <Icon name="Exclamation-circle" color="statusWarning" />
         </Tooltip>
       ) : null}
-      {rowValue.createdOn}
-    </div>
+      {
+        <FormattedDateTime
+          format="date-time"
+          value={new Date(rowValue.createdOn)}
+        />
+      }
+    </Box>
   );
 };
 
@@ -91,14 +103,9 @@ const ToggleAccessKeyStatus = (rowValue) => {
 const AccessKeysCell = (rowValue) => {
   const { accessKey } = rowValue;
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}
-    >
-      {accessKey} <Clipboard text={accessKey} />
-    </div>
+    <Wrap alignItems="center">
+      {accessKey} <CopyButton textToCopy={accessKey} />
+    </Wrap>
   );
 };
 
@@ -196,7 +203,7 @@ const AccountUserAccessKeys = () => {
       cellStyle: {
         minWidth: '10rem',
         textAlign: 'right',
-        paddingRight: spacing.sp32,
+        paddingRight: spacing.r32,
       },
     },
     {
@@ -204,7 +211,7 @@ const AccountUserAccessKeys = () => {
       accessor: 'status',
       cellStyle: {
         textAlign: 'left',
-        marginRight: spacing.sp32,
+        marginRight: spacing.r32,
       },
       Cell: (value) => ToggleAccessKeyStatus(value.row.original),
     },
@@ -231,7 +238,7 @@ const AccountUserAccessKeys = () => {
               variant={'statusWarning'}
               //@ts-expect-error fix this when you are working on it
               text={accessKeysResultLength}
-              style={{ marginLeft: spacing.sp8 }}
+              style={{ marginLeft: spacing.r8 }}
             />
           </Box>
           <Banner
@@ -240,7 +247,7 @@ const AccountUserAccessKeys = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginLeft: spacing.sp8,
+                  marginLeft: spacing.r8,
                 }}
               >
                 <Icon

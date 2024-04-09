@@ -19,7 +19,7 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import * as T from '../../../ui-elements/TableKeyValue';
 import Table, { TitleRow } from '../../../ui-elements/TableKeyValue';
-import { formatDate } from '../../../utils';
+import { formatShortDate } from '../../../utils';
 import {
   useAccounts,
   useAuthGroups,
@@ -173,7 +173,9 @@ function AccountInfo({ account }: Props) {
           </T.Row>
           <T.Row>
             <T.Key> Creation Date </T.Key>
-            <T.Value> {formatDate(new Date(account.CreationDate))} </T.Value>
+            <T.Value>
+              {formatShortDate(new Date(account.CreationDate))}{' '}
+            </T.Value>
           </T.Row>
           {/* We have to hide this two fields until the information is ready from GetRolesForWebIdentity() */}
           {/* <T.Row>
