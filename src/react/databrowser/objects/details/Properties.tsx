@@ -210,7 +210,15 @@ function Properties({ objectMetadata }: Props) {
                           Locked <Icon name="Lock" /> (
                           {objectMetadata.objectRetention.mode.toLowerCase()})
                           <br />
-                          until {objectMetadata.objectRetention.retainUntilDate}
+                          until{' '}
+                          <FormattedDateTime
+                            format="date-time-second"
+                            value={
+                              new Date(
+                                objectMetadata.objectRetention.retainUntilDate,
+                              )
+                            }
+                          />
                         </>
                       )
                     }
@@ -220,7 +228,15 @@ function Properties({ objectMetadata }: Props) {
                         <>
                           Released <Icon name="Lock-open" />
                           <br />
-                          since {objectMetadata.objectRetention.retainUntilDate}
+                          since{' '}
+                          <FormattedDateTime
+                            format="date-time-second"
+                            value={
+                              new Date(
+                                objectMetadata.objectRetention.retainUntilDate,
+                              )
+                            }
+                          />
                         </>
                       )
                     }
