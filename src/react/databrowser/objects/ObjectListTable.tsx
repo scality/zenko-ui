@@ -5,7 +5,7 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
-import { PrettyBytes, Text } from '@scality/core-ui';
+import { FormattedDateTime, PrettyBytes, Text } from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -271,6 +271,15 @@ export default function ObjectListTable({
         headerStyle: {
           textAlign: 'right',
         },
+        Cell: ({ value }) => {
+          return (
+            <FormattedDateTime
+              format="date-time-second"
+              value={new Date(value)}
+            />
+          );
+        },
+
         cellStyle: {
           textAlign: 'right',
         },
