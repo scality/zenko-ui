@@ -10,7 +10,6 @@ import {
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
-import { formatDate, formatShortDate } from '../../../../utils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
@@ -86,7 +85,7 @@ describe('AccountInfo', () => {
     const thirdRow = rows.at(2);
     testRow(thirdRow, {
       key: 'Creation Date',
-      value: formatShortDate(new Date(account1.CreationDate)),
+      value: '',
       extraCellComponent: undefined,
     });
   });

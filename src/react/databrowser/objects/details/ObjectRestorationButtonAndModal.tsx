@@ -1,6 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import {
   Banner,
+  FormattedDateTime,
   Icon,
   Modal,
   PrettyBytes,
@@ -14,7 +15,6 @@ import { useSelector } from 'react-redux';
 import { AWSError } from 'aws-sdk';
 import { getClients } from '../../../utils/actions';
 import { AppState } from '../../../../types/state';
-import { formatShortDate } from '../../../utils';
 import { useTheme } from 'styled-components';
 import { ObjectMetadata } from '../../../../types/s3';
 
@@ -50,7 +50,10 @@ const ObjectRestorationButtonAndModal = ({
           <tr style={{ borderBottom: `1px solid ${theme.border}` }}>
             <td align="left">{objectMetadata.objectKey}</td>
             <td align="left">
-              {formatShortDate(new Date(objectMetadata.lastModified))}
+              <FormattedDateTime
+                value={new Date(objectMetadata.lastModified)}
+                format="date-time-second"
+              />
             </td>
             <td align="left">
               <PrettyBytes bytes={objectMetadata.contentLength} decimals={2} />

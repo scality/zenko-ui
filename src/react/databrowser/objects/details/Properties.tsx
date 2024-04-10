@@ -13,7 +13,6 @@ import {
   Toggle,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
-import { formatShortDate } from '../../../utils';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
@@ -115,14 +114,20 @@ function Properties({ objectMetadata }: Props) {
               <T.Row>
                 <T.Key> Modified On </T.Key>
                 <T.Value>
-                  {formatShortDate(new Date(objectMetadata.lastModified))}{' '}
+                  <FormattedDateTime
+                    format="date-time-second"
+                    value={new Date(objectMetadata.lastModified)}
+                  />
                 </T.Value>
               </T.Row>
               {objectMetadata.expiration ? (
                 <T.Row>
                   <T.Key> Expires On </T.Key>
                   <T.Value>
-                    {formatShortDate(objectMetadata.expiration)}{' '}
+                    <FormattedDateTime
+                      format="date-time-second"
+                      value={new Date(objectMetadata.expiration)}
+                    />
                   </T.Value>
                 </T.Row>
               ) : (

@@ -1,4 +1,4 @@
-import { Icon, Modal, Wrap } from '@scality/core-ui';
+import { FormattedDateTime, Icon, Modal, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useMutation, useQueryClient } from 'react-query';
 import { useHistory } from 'react-router-dom';
@@ -19,7 +19,6 @@ import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
 import * as T from '../../../ui-elements/TableKeyValue';
 import Table, { TitleRow } from '../../../ui-elements/TableKeyValue';
-import { formatShortDate } from '../../../utils';
 import {
   useAccounts,
   useAuthGroups,
@@ -174,7 +173,10 @@ function AccountInfo({ account }: Props) {
           <T.Row>
             <T.Key> Creation Date </T.Key>
             <T.Value>
-              {formatShortDate(new Date(account.CreationDate))}{' '}
+              <FormattedDateTime
+                format="date-time"
+                value={new Date(account.CreationDate)}
+              />
             </T.Value>
           </T.Row>
           {/* We have to hide this two fields until the information is ready from GetRolesForWebIdentity() */}

@@ -1,4 +1,10 @@
-import { ConstrainedText, Icon, Link, spacing } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  FormattedDateTime,
+  Icon,
+  Link,
+  spacing,
+} from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
@@ -14,8 +20,6 @@ import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../../next-architecture/ui/metrics/DataUsedColumn';
 import * as T from '../../ui-elements/Table';
-import { TextAligner } from '../../ui-elements/Utility';
-import { formatShortDate } from '../../utils';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
@@ -129,12 +133,12 @@ export default function BucketList({
         paddingRight: spacing.r32,
         textAlign: 'right',
       },
-
       Cell({ value }: { value: string }) {
         return (
-          <TextAligner alignment="right">
-            {formatShortDate(new Date(value))}
-          </TextAligner>
+          <FormattedDateTime
+            format="date-time-second"
+            value={new Date(value)}
+          />
         );
       },
     });
