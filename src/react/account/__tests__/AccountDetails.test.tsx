@@ -5,7 +5,8 @@ import { _AuthContext, useAuth } from '../../next-architecture/ui/AuthProvider';
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  Roles: [],
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
@@ -54,7 +55,6 @@ describe('AccountDetails', () => {
       };
     });
     const component = renderWithRouterMatch(
-      //@ts-expect-error fix this when you are working on it
       <AccountDetails account={account1} />,
       {
         route: '/accounts/bart',
@@ -70,7 +70,6 @@ describe('AccountDetails', () => {
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
     const component = renderWithRouterMatch(
-      //@ts-expect-error fix this when you are working on it
       <AccountDetails account={account1} />,
       {
         route: '/accounts/bart',

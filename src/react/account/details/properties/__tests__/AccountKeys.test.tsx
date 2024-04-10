@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { accountAccessKeys } from '../../../../../js/mock/IAMClient';
-import { formatShortDate } from '../../../../utils';
+
 import {
   mockOffsetSize,
   reduxRender,
@@ -11,7 +11,8 @@ import AccountKeys from '../AccountKeys';
 const account1 = {
   arn: 'arn1',
   canonicalId: 'canonicalId1',
-  createDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  CreationDate: Date.parse('04 Jan 2000 05:12:00 GMT'),
+  Roles: [],
   email: 'test@email1.com',
   id: '1',
   quotaMax: 1,
@@ -30,7 +31,6 @@ describe('AccountKeys', () => {
   });
 
   it('should render AccountKeys component', () => {
-    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
       configuration: {
         latest: {
@@ -45,17 +45,16 @@ describe('AccountKeys', () => {
     expect(screen.getByText('Access key ID')).toBeInTheDocument();
     expect(screen.getByText('Created On')).toBeInTheDocument();
 
-    accountAccessKeys.forEach((accessKey) => {
+    accountAccessKeys.forEach((accessKey, i) => {
       expect(screen.getByText(accessKey.AccessKeyId)).toBeInTheDocument();
       expect(
-        screen.getByText(formatShortDate(new Date(accessKey.CreateDate))),
+        screen.getByText(i === 0 ? '2020-04-19 16:15' : '2021-04-19 16:15'),
       ).toBeInTheDocument();
     });
   });
 
   it('should render notification whenever there is at least 1 Root Access Key', () => {
     const accessKey = accountAccessKeys[0];
-    //@ts-expect-error fix this when you are working on it
     renderWithRouterMatch(<AccountKeys account={account1} />, undefined, {
       configuration: {
         latest: {
@@ -75,7 +74,6 @@ describe('AccountKeys', () => {
   });
 
   it('should render Warning/Banner accordingly to number of Access Key', () => {
-    //@ts-expect-error fix this when you are working on it
     const { component } = reduxRender(<AccountKeys account={account1} />, {
       configuration: {
         latest: {

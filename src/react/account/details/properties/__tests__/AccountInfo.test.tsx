@@ -10,7 +10,7 @@ import {
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
-import { formatDate } from '../../../../utils';
+import { formatDate, formatShortDate } from '../../../../utils';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
@@ -84,14 +84,11 @@ describe('AccountInfo', () => {
       extraCellComponent: 'Clipboard',
     });
     const thirdRow = rows.at(2);
-    testRow(
-      thirdRow,
-      //@ts-expect-error fix this when you are working on it
-      {
-        key: 'Creation Date',
-        value: formatDate(new Date(account1.CreationDate)),
-      },
-    );
+    testRow(thirdRow, {
+      key: 'Creation Date',
+      value: formatShortDate(new Date(account1.CreationDate)),
+      extraCellComponent: undefined,
+    });
   });
 
   it('should not be able to delete an account when not a storage manager', () => {
@@ -146,7 +143,9 @@ describe('AccountInfo', () => {
     );
 
     //E
-    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /Delete Account/i }),
+    );
 
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
@@ -177,11 +176,15 @@ describe('AccountInfo', () => {
     renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
       instances: { selectedId: INSTANCE_ID },
     });
-    await userEvent.click(screen.getByRole('button', { name: /Delete Account/i }));
-    await userEvent.click(within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
-      'button',
-      { name: /delete/i },
-    ));
+    await userEvent.click(
+      screen.getByRole('button', { name: /Delete Account/i }),
+    );
+    await userEvent.click(
+      within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
+        'button',
+        { name: /delete/i },
+      ),
+    );
     //V
     await waitFor(() => {
       expect(
@@ -191,10 +194,12 @@ describe('AccountInfo', () => {
       ).toBeInTheDocument();
     });
     //E
-    await userEvent.click(within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
-      'button',
-      { name: /close/i },
-    ));
+    await userEvent.click(
+      within(screen.getByRole('dialog', { name: /Error/i })).getByRole(
+        'button',
+        { name: /close/i },
+      ),
+    );
     //V
     await waitFor(() => {
       expect(
