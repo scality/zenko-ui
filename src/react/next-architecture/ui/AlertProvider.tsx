@@ -96,10 +96,19 @@ const AlertProvider = ({ children }: { children: React.ReactNode }) => {
   const metalk8sUI = deployedApps.find(
     (app: { kind: string }) => app.kind === 'metalk8s-ui',
   );
-  const metalk8sUIConfig = retrieveConfiguration({
-    configType: 'run',
-    name: metalk8sUI.name,
-  });
+
+  const metalk8sUIConfig = metalk8sUI
+    ? retrieveConfiguration({
+        configType: 'run',
+        name: metalk8sUI.name,
+      })
+    : {
+        spec: {
+          selfConfiguration: {
+            url_alertmanager: '',
+          },
+        },
+      };
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
