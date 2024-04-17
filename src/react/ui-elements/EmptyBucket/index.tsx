@@ -145,9 +145,8 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
         isInfinite: true,
       }),
       refetchOnWindowFocus: false,
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnReconnect: false,
-      staleTime: Infinity,
     },
     (data) => createDeleteObjectsData(data.DeleteMarkers, data.Versions),
   );
