@@ -35,7 +35,6 @@ export function UsedCapacity({ value }: { value: LatestUsedCapacity }) {
         <PrettyBytes bytes={totalObjects} decimals={2} />{' '}
         <IconHelp
           placement="top"
-          overlayStyle={{ width: '24rem' }}
           tooltipMessage={
             <>
               <Text isGentleEmphazed>
