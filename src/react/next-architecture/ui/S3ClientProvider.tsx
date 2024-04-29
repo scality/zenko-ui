@@ -92,9 +92,64 @@ export const S3ClientProvider = ({
   );
 };
 
+export const S3ClientWithoutReduxProvider = ({
+  configuration,
+  children,
+}: PropsWithChildren<{
+  configuration: S3.Types.ClientConfiguration;
+}>) => {
+  const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, basePath } =
+    useConfig();
+  const { s3Client, zenkoClient, iamClient } = useMemo(() => {
+    const s3Config = {
+      ...configuration,
+      endpoint: genClientEndpoint(configuration.endpoint as string),
+    };
+    const s3Client = new S3(s3Config);
+    const zenkoClient = new ZenkoClient(
+      s3Config.endpoint,
+      iamInternalFQDN,
+      s3InternalFQDN,
+      process.env.NODE_ENV === 'development' ? '' : basePath,
+    );
+    const iamClient = new IAMClient(iamEndpoint);
+
+    if (
+      configuration.credentials?.accessKeyId &&
+      configuration.credentials?.secretAccessKey &&
+      configuration.credentials?.sessionToken
+    ) {
+      zenkoClient.login({
+        accessKey: configuration.credentials.accessKeyId,
+        secretKey: configuration.credentials.secretAccessKey,
+        sessionToken: configuration.credentials.sessionToken,
+      });
+
+      iamClient.login({
+        accessKey: configuration.credentials.accessKeyId,
+        secretKey: configuration.credentials.secretAccessKey,
+        sessionToken: configuration.credentials.sessionToken,
+      });
+    }
+
+    return { s3Client, zenkoClient, iamClient };
+  }, [configuration]);
+
+  return (
+    <S3ClientContext.Provider value={s3Client}>
+      <ZenkoClientContext.Provider value={zenkoClient}>
+        <_IAMContext.Provider value={{ iamClient }}>
+          {children}
+        </_IAMContext.Provider>
+      </ZenkoClientContext.Provider>
+    </S3ClientContext.Provider>
+  );
+};
+
 export const useAssumeRoleQuery = () => {
   const { stsEndpoint } = useConfig();
   const token = useAccessToken();
+
   const user = useAuth();
   const roleSessionName = `ui-${user.userData?.id}`;
   const stsClient = new STSClient({ endpoint: stsEndpoint });
@@ -102,20 +157,22 @@ export const useAssumeRoleQuery = () => {
 
   return {
     queryKey,
-    getQuery: (roleArn: string) => ({
-      queryKey,
-      queryFn: () =>
-        stsClient.assumeRoleWithWebIdentity({
-          idToken: notFalsyTypeGuard(token),
-          roleArn: roleArn,
-          RoleSessionName: roleSessionName,
-        }),
+    getQuery: (roleArn: string) => {
+      return {
+        queryKey,
+        queryFn: () =>
+          stsClient.assumeRoleWithWebIdentity({
+            idToken: notFalsyTypeGuard(token),
+            roleArn: roleArn,
+            RoleSessionName: roleSessionName,
+          }),
 
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      enabled: !!token && !!roleArn,
-    }),
+        refetchOnMount: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        enabled: !!token && !!roleArn,
+      };
+    },
   };
 };
 
