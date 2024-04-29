@@ -41,7 +41,7 @@ jobs:
           push: true
           context: .
           tags: |
-            ghcr.io/${{ github.repository }}/zenko-ui:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
 
   trivy-zenko-ui:
     needs: build-ui
