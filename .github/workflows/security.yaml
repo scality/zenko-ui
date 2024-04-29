@@ -49,3 +49,4 @@ jobs:
     uses: scality/workflows/.github/workflows/trivy.yaml@v1
     with:
       name: zenko-ui
+      namespace: scality
