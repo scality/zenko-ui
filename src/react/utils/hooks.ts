@@ -146,9 +146,10 @@ export function useQueryWithUnmountSupport<
   });
   return query;
 }
-
+// arn:aws:sts::142222634614:assumed-role/storage-manager-role/ui-9160673b-2c2a-4a6f-a1ef-a3cb6ce25d7f
+// arn:aws:iam::142222634614:role/scality-internal/storage-manager-role
 export const regexArn =
-  /arn:aws:iam::(?<account_id>\d{12}):(?<resource_type>role|policy)\/(?<path>(?:[^/]*\/)*)(?<name>[^/]+)$/;
+  /arn:aws:(?:iam|sts)::(?<account_id>\d{12}):(?<resource_type>role|policy|assumed-role)\/(?<path>(?:[^/]*\/)*)(?<name>[^/]+)$/;
 
 export const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 export const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
@@ -233,6 +234,7 @@ export const useAccounts = (
     },
     (data) => data.Accounts,
   );
+
   const uniqueAccountsWithRoles = Object.values(
     data?.reduce(
       (agg, current) => ({
