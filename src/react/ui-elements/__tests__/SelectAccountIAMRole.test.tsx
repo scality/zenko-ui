@@ -243,7 +243,7 @@ describe('SelectAccountIAMRole', () => {
 
     expect(screen.getByText('no-bucket')).toBeInTheDocument();
 
-    await userEvent.click(seletors.selectOption(/no\-bucket/i));
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
 
     await waitFor(() => {
       expect(seletors.roleSelect()).toBeInTheDocument();
@@ -353,7 +353,7 @@ describe('SelectAccountIAMRole', () => {
 
     await userEvent.click(seletors.accountSelect());
 
-    await userEvent.click(seletors.selectOption(/no\-bucket/i));
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
 
     await waitFor(() => {
       expect(seletors.roleSelect()).toBeInTheDocument();
