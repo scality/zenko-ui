@@ -81,6 +81,8 @@ module.exports = {
         './FederableApp': './src/react/FederableApp.tsx',
         './VeeamWelcomeModal':
           './src/react/ui-elements/Veeam/VeeamWelcomeModal.tsx',
+        './SelectAccountIAMRole':
+          './src/react/ui-elements/SelectAccountIAMRole.tsx',
       },
       shared: {
         ...Object.fromEntries(
