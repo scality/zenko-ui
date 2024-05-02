@@ -22,7 +22,7 @@ import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/
 import { getListRolesQuery } from '../queries';
 import { regexArn } from '../utils/hooks';
 
-class NoOppMetricsAdapter implements IMetricsAdapter {
+class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
     buckets: Bucket[],
   ): Promise<Record<string, LatestUsedCapacity>> {
