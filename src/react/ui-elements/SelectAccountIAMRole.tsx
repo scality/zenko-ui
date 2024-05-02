@@ -61,7 +61,7 @@ const filterRoles = (
 };
 
 /**
- * DataServiceRoleProvider is using the the path to figure out what is the current account.
+ * DataServiceRoleProvider is using the path to figure out what is the current account.
  * In order to reuse this logic, we need to have a router and set DataServiceRoleProvider under
  * the path /accounts/:accountName
  * Without this INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION, it won't render.
