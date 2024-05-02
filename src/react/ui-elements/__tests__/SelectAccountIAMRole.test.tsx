@@ -364,6 +364,6 @@ describe('SelectAccountIAMRole', () => {
 
     expect(screen.getByText(/no options/i)).toBeInTheDocument();
 
-    debug();
+    
   });
 });
