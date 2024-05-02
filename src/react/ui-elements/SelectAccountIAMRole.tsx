@@ -60,6 +60,10 @@ const filterRoles = (
   );
 };
 
+export const extractAccountIdFromARN = (arn: string) => {
+  return regexArn.exec(arn)?.groups?.['account_id'] ?? '';
+};
+
 /**
  * DataServiceRoleProvider is using the path to figure out what is the current account.
  * In order to reuse this logic, we need to have a router and set DataServiceRoleProvider under
@@ -75,7 +79,7 @@ const AssumeDefaultIAMRole = ({
   defaultValue,
 }: Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>) => {
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOppMetricsAdapter();
+  const metricsAdapter = new NoOpMetricsAdapter();
   const accounts = useListAccounts({
     accessibleAccountsAdapter,
     metricsAdapter,
@@ -169,10 +173,12 @@ const SelectAccountIAMRoleWithAccount = (
   const rolesQuery = getListRolesQuery(accountName, IAMClient);
   const queryClient = useQueryClient();
 
-  const assumedRoleAccountId = regexArn.exec(assumedRole?.AssumedRoleUser?.Arn)
-    ?.groups?.['account_id'];
-  const selectedAccountId = regexArn.exec(account?.preferredAssumableRoleArn)
-    ?.groups?.['account_id'];
+  const assumedRoleAccountId = extractAccountIdFromARN(
+    assumedRole?.AssumedRoleUser?.Arn,
+  );
+  const selectedAccountId = extractAccountIdFromARN(
+    account?.preferredAssumableRoleArn,
+  );
 
   /**
    * When we change account, it will take some time to assume the role for the new account.
@@ -263,7 +269,7 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
   } = props;
 
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOppMetricsAdapter();
+  const metricsAdapter = new NoOpMetricsAdapter();
   const accounts = useListAccounts({
     accessibleAccountsAdapter,
     metricsAdapter,
