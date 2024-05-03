@@ -18,8 +18,8 @@ Tagged versions of Zenko UI will be stored in the production namespace.
 ## How to Pull Docker Images
 
 ```sh
-docker pull registry.scality.com/zenko-ui-dev/zenko-ui:<commit hash>
-docker pull registry.scality.com/zenko-ui/zenko-ui:<tag>
+docker pull ghcr.io/zenko-ui-dev/zenko-ui:<commit hash>
+docker pull ghcr.io/zenko-ui/zenko-ui:<tag>
 ```
 
 ## Release Process
