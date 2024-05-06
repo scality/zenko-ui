@@ -174,6 +174,7 @@ export const bucketInfoResponseVersioningDisabled: BucketInfo = {
     ObjectLockEnabled: 'Disabled',
   },
 };
+
 export class MockS3Client implements S3ClientInterface {
   listBucketsWithLocation() {
     return Promise.resolve({
