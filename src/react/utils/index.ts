@@ -53,11 +53,6 @@ export function errorParser(error) {
 export function formatDate(d) {
   return `${d.toDateString()} ${d.toTimeString().split(' ')[0]}`;
 }
-export function formatShortDate(d: Date) {
-  const date = DateTime.fromISO(d?.toISOString()).toISODate();
-  const time = DateTime.fromISO(d?.toISOString()).toFormat('TT');
-  return `${date} ${time}`;
-}
 export function formatSimpleDate(d) {
   return d.toISOString().split('T')[0];
 }

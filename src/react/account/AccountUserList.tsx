@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { formatSimpleDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
 import {
   AWS_PAGINATED_ENTITIES,
@@ -25,11 +24,12 @@ import { useDispatch } from 'react-redux';
 import { handleApiError, handleClientError } from '../actions';
 import { ApiError } from '../../types/actions';
 import { User } from 'aws-sdk/clients/iam';
-import { Icon } from '@scality/core-ui';
+import { FormattedDateTime, Icon } from '@scality/core-ui';
+import { Row } from 'react-table';
 
 type InternalUser = {
   userName: string;
-  createdOn: string;
+  createdOn: Date;
   accessKeys: string | null;
   arn: string;
   actions: null;
@@ -281,7 +281,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         queryResult.data?.map((user) => {
           return {
             userName: user.UserName,
-            createdOn: formatSimpleDate(user.CreateDate),
+            createdOn: user.CreateDate,
             accessKeys: null,
             arn: user.Arn,
             actions: null,
@@ -326,6 +326,11 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         textAlign: 'right',
         minWidth: '10%',
       },
+      Cell: ({ value }: { value: Date }) => (
+        <FormattedDateTime format="date-time" value={value} />
+      ),
+      sortType: (row1: Row<InternalUser>, row2: Row<InternalUser>) =>
+        row1.original.createdOn.getTime() - row2.original.createdOn.getTime(),
     }, // Table cell for all the actions (Copy ARN, Edit and Delete)
     {
       Header: '',

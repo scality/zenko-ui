@@ -1,7 +1,6 @@
 import { List } from 'immutable';
 import { MemoryRouter } from 'react-router-dom';
 import { XDM_FEATURE } from '../../../../js/config';
-import { formatShortDate } from '../../../utils';
 import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
 import BucketList from '../BucketList';
 
@@ -78,9 +77,7 @@ describe.skip('BucketList', () => {
       'us-east-1 / Local Filesystem',
     );
     expect(firstBucketCellAsyncNotification.textContent).toBe('-');
-    expect(firstBucketCellDate.textContent).toBe(
-      formatShortDate(new Date(buckets.get(0).CreationDate)),
-    );
+    expect(firstBucketCellDate.textContent).toBe('2020-04-19 16:15:29');
     const secondRow = rows[1];
     const secondRowCells = secondRow.getElementsByClassName('td');
     const secondBucketCellLink = secondRowCells[0];
@@ -92,9 +89,7 @@ describe.skip('BucketList', () => {
       's3c-ring / Scality RING with S3 Connector',
     );
     expect(secondBucketCellAsyncNotification.textContent).toBe('Active');
-    expect(secondBucketCellDate.textContent).toBe(
-      formatShortDate(new Date(buckets.get(1).CreationDate)),
-    );
+    expect(secondBucketCellDate.textContent).toBe('2020-04-19 16:15:29');
   });
   it('should list buckets with the data associated when XDM feature is disabled', () => {
     const { component } = reduxRender(
@@ -139,9 +134,7 @@ describe.skip('BucketList', () => {
     expect(firstBucketCellLocation.textContent).toBe(
       'us-east-1 / Local Filesystem',
     );
-    expect(firstBucketCellDate.textContent).toBe(
-      formatShortDate(new Date(buckets.get(0).CreationDate)),
-    );
+    expect(firstBucketCellDate.textContent).toBe('2020-04-19 16:15:29');
     const secondRow = rows[1];
     const secondRowCells = secondRow.getElementsByClassName('td');
     const secondBucketCellLink = secondRowCells[0];
@@ -151,9 +144,7 @@ describe.skip('BucketList', () => {
     expect(secondBucketCellLocation.textContent).toBe(
       's3c-ring / Scality RING with S3 Connector',
     );
-    expect(secondBucketCellDate.textContent).toBe(
-      formatShortDate(new Date(buckets.get(1).CreationDate)),
-    );
+    expect(secondBucketCellDate.textContent).toBe('2020-04-19 16:15:29');
   });
   it('should select row if the bucket name specified in the parameter matches one of the bucket names listed', () => {
     const { component } = reduxRender(

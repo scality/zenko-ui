@@ -8,10 +8,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Row } from 'react-table';
 import type { Account } from '../../../../types/account';
 import type { AppState } from '../../../../types/state';
-import { Banner, Icon, Wrap } from '@scality/core-ui';
-import { Button, Table } from '@scality/core-ui/dist/next';
-import { Clipboard } from '../../../ui-elements/Clipboard';
-import { formatShortDate } from '../../../utils';
+import { Banner, FormattedDateTime, Icon, Wrap } from '@scality/core-ui';
+import { Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
@@ -96,25 +94,14 @@ function AccountKeys({ account }: Props) {
         Header: 'Access key ID',
         accessor: 'access_key',
         cellStyle: {
-          flex: '0.25',
+          flex: '0.3',
         },
         Cell({ value: access_key }: { value: string }) {
           return (
-            <span
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-              }}
-            >
-              <EllipsisCell>{access_key}</EllipsisCell>
-              <div
-                style={{
-                  marginLeft: spacing.sp16,
-                }}
-              >
-                <Clipboard text={access_key} />
-              </div>
-            </span>
+            <Wrap style={{ alignItems: 'center' }}>
+              {access_key}
+              <CopyButton textToCopy={access_key} />
+            </Wrap>
           );
         },
       },
@@ -145,7 +132,9 @@ function AccountKeys({ account }: Props) {
         },
 
         Cell({ value }: { value: string }) {
-          return formatShortDate(new Date(value));
+          return (
+            <FormattedDateTime format="date-time" value={new Date(value)} />
+          );
         },
       },
       {
@@ -192,10 +181,7 @@ function AccountKeys({ account }: Props) {
       >
         {accessKeys && accessKeys.length > 0 && (
           <div data-testid="root-access-keys-banner">
-            <Banner
-              variant="danger"
-              icon={<Icon name="Exclamation-triangle" />}
-            >
+            <Banner variant="danger" icon={<Icon name="Exclamation-circle" />}>
               <>
                 Security Status: Root user Access keys give unrestricted access
                 to account resources. It is a best practice to delete root

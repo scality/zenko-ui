@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { formatShortDate } from '../utils';
 import { useIAMClient } from '../IAMProvider';
-import { ConstrainedText, Icon, Tooltip } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  FormattedDateTime,
+  Icon,
+  Tooltip,
+} from '@scality/core-ui';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
@@ -310,7 +314,7 @@ const AccessPolicyNameCell = ({ rowValues }: { rowValues: InternalPolicy }) => {
 type InternalPolicy = {
   policyPath: string;
   policyName: string;
-  modifiedOn: string;
+  modifiedOn: string | Date;
   attachments: number;
   defaultVersionId: string;
   policyArn: string;
@@ -333,9 +337,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
           return {
             policyPath: policy.Path?.substring(1) || '',
             policyName: policy.PolicyName || '',
-            modifiedOn: policy.UpdateDate
-              ? formatShortDate(policy.UpdateDate)
-              : '-',
+            modifiedOn: policy.UpdateDate || '-',
             attachments: policy.AttachmentCount || 0,
             policyArn: policy.Arn || '',
             defaultVersionId: policy?.DefaultVersionId || '',
@@ -371,7 +373,12 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
         textAlign: 'right',
         minWidth: '20%',
       },
-      Cell: ({ value }) => <>{value}</>,
+      Cell: ({ value }) => {
+        if (typeof value === 'string') {
+          return <>{value}</>;
+        }
+        return <FormattedDateTime format="date-time" value={value} />;
+      },
     },
     {
       Header: 'Attachments',

@@ -4,8 +4,13 @@ import styled from 'styled-components';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { formatSimpleDate } from '../utils';
-import { ConstrainedText, Icon, Link, Stack } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  FormattedDateTime,
+  Icon,
+  Link,
+  Stack,
+} from '@scality/core-ui';
 import { Account } from '../next-architecture/domain/entities/account';
 import { CellProps, CoreUIColumn } from 'react-table';
 import {
@@ -70,10 +75,6 @@ function AccountList({ accounts }: { accounts: Account[] }) {
     );
   };
 
-  const createDateCell = ({ value }: CellProps<Account, string>) => {
-    return <div>{formatSimpleDate(new Date(value))}</div>;
-  };
-
   const columns: CoreUIColumn<Account>[] = React.useMemo(() => {
     const dataUsedColumn = getDataUsedColumn(
       (account: Account) => {
@@ -103,7 +104,12 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           textAlign: 'right',
           minWidth: '7rem',
         },
-        Cell: (value: CellProps<Account, string>) => createDateCell(value),
+        Cell: ({ value }: CellProps<Account, string>) => (
+          <FormattedDateTime
+            format="date-time-second"
+            value={new Date(value)}
+          />
+        ),
       },
       ...(isStorageManager ? additionalStorageManagerColumns : []),
     ];

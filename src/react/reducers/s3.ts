@@ -7,7 +7,6 @@ import {
 import {
   METADATA_SYSTEM_TYPE,
   METADATA_USER_TYPE,
-  formatShortDate,
   stripQuotes,
   systemMetadataKeys,
 } from '../utils';
@@ -40,7 +39,7 @@ const objects = (objs, prefix): Array<ObjectEntity> =>
       return {
         name: o.Key.replace(prefix, ''),
         key: o.Key,
-        lastModified: formatShortDate(new Date(o.LastModified)),
+        lastModified: o.LastModified,
         size: o.Size,
         isFolder: false,
         toggled: false,
@@ -90,10 +89,8 @@ const _getObjectLockInformation = (
       ? {
           //@ts-expect-error fix this when you are working on it
           mode: o.ObjectRetention.Mode,
-          retainUntilDate: formatShortDate(
-            //@ts-expect-error fix this when you are working on it
-            new Date(o.ObjectRetention.RetainUntilDate),
-          ),
+          //@ts-expect-error fix this when you are working on it
+          retainUntilDate: o.ObjectRetention.RetainUntilDate,
         }
       : undefined,
   };
@@ -104,7 +101,7 @@ const search = (objs): Array<ObjectEntity> => {
     return {
       name: o.Key,
       key: o.Key,
-      lastModified: formatShortDate(new Date(o.LastModified)),
+      lastModified: o.LastModified,
       size: o.Size,
       isFolder: o.IsFolder,
       isLatest: true,
@@ -129,7 +126,7 @@ const versioning = (
       return {
         name: o.Key.replace(prefix, ''),
         key: o.Key,
-        lastModified: formatShortDate(new Date(o.LastModified)),
+        lastModified: o.LastModified,
         size: o.Size || null,
         isFolder: false,
         isLatest: o.IsLatest,

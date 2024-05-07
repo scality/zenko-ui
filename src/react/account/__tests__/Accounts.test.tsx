@@ -90,9 +90,7 @@ describe('Accounts', () => {
 
     expect(screen.getByText(TEST_ACCOUNT)).toBeInTheDocument();
 
-    expect(
-      screen.getByText(formatSimpleDate(new Date(TEST_ACCOUNT_CREATION_DATE))),
-    ).toBeInTheDocument();
+    expect(screen.getByText('2022-03-18 12:51:44')).toBeInTheDocument();
   });
 
   it('should list accounts display an error when retrieval of accounts failed', async () => {
