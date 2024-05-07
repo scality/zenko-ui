@@ -7,11 +7,13 @@ import {
   FormSection,
   Icon,
   Stack,
+  spacing,
 } from '@scality/core-ui';
-import { Button, Input, Select } from '@scality/core-ui/dist/next';
+import { Box, Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 import {
   useCreateEndpointMutation,
   useWaitForRunningConfigurationVersionToBeUpdated,
@@ -20,6 +22,14 @@ import { renderLocation } from '../locations/utils';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+
+const BannerMessageList = styled.ul`
+  margin: ${spacing.r8} 0;
+  padding-left: ${spacing.r16};
+  li {
+    margin-bottom: ${spacing.r8};
+  }
+`;
 
 const schema = Joi.object({
   hostname: Joi.string().label('Hostname').required().min(3),
@@ -100,7 +110,7 @@ function EndpointCreate() {
 
   return (
     <Form
-      layout={{ kind: 'page', title: 'Create a New Data Service' }}
+      layout={{ kind: 'page', title: 'Create new Data Service' }}
       requireMode="partial"
       rightActions={
         <Stack gap="r16">
@@ -133,15 +143,39 @@ function EndpointCreate() {
         </Stack>
       }
       banner={
-        createEndpointMutation.isError && (
+        <Stack gap="r16" direction="vertical">
           <Banner
-            icon={<Icon name="Exclamation-triangle" />}
-            title="Error"
-            variant="danger"
+            icon={
+              <Box display="flex" alignItems="center" ml={spacing.r8}>
+                <Icon
+                  name="Exclamation-circle"
+                  color="statusWarning"
+                  size="lg"
+                />
+              </Box>
+            }
+            variant="warning"
           >
-            {createEndpointMutation.error?.message}
+            <BannerMessageList>
+              <li>Expect some delay—creating a new Data Service takes time.</li>
+              <li>
+                Creating a new Data Service will regenerate all Certificates
+                related to Data Services. If these Certificates were already
+                replaced by ones issued by your Authority, they will have to be
+                replaced again. Contact your Platform admin if needed.
+              </li>
+            </BannerMessageList>
           </Banner>
-        )
+          {createEndpointMutation.isError ? (
+            <Banner
+              icon={<Icon name="Exclamation-triangle" />}
+              title="Error"
+              variant="danger"
+            >
+              {createEndpointMutation.error?.message}
+            </Banner>
+          ) : null}
+        </Stack>
       }
     >
       <FormSection>
@@ -151,6 +185,7 @@ function EndpointCreate() {
           labelHelpTooltip="Cannot be modified after creation."
           direction="vertical"
           error={errors.hostname?.message ?? ''}
+          required
           content={
             <Input
               type="text"
@@ -167,6 +202,7 @@ function EndpointCreate() {
           label="Storage Location"
           direction="vertical"
           labelHelpTooltip="Cannot be modified after creation."
+          required
           content={
             loading ? (
               <>Loading locations...</>
