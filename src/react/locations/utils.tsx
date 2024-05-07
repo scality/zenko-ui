@@ -88,23 +88,14 @@ function convertToForm(locationProps: LocationInfo): LocationForm {
   return ret;
 }
 
-// TODO: add specific tooltip message about why location can not be deleted
-function canDeleteLocation(
+function getLocationDeletionBlocker(
   location: NextLocation,
   replicationStreams: Array<Replication>,
   transitions: Array<BucketWorkflowTransitionV2>,
   buckets: BucketList,
   endpoints: Array<Endpoint>,
-) {
-  if (!location) {
-    return false;
-  }
-
+): Record<string, boolean> {
   const isBuiltin = location.isBuiltin;
-
-  if (isBuiltin) {
-    return false;
-  }
 
   const checkStreamLocations = replicationStreams.every((r) => {
     //@ts-expect-error fix this when you are working on it
@@ -112,41 +103,28 @@ function canDeleteLocation(
       //@ts-expect-error fix this when you are working on it
       return r.destination.location !== location.name;
     }
-
     return r.destination.locations.every((destLocation) => {
       return destLocation.name !== location.name;
     });
   });
+  const hasReplicationWorkflow = !checkStreamLocations;
 
-  const isTransitionCreatedOnLocation = !!transitions.find(
+  const hasTransitionWorkflow = !!transitions.find(
     (t: BucketWorkflowTransitionV2) => t.locationName === location.name,
   );
 
-  if (isTransitionCreatedOnLocation) {
-    return false;
-  }
-
-  if (!checkStreamLocations) {
-    return false;
-  }
-
-  const checkBucketLocations = buckets.every(
+  const hasBucket = !buckets.every(
     (bucket) => bucket.location !== location.name,
   );
 
-  if (!checkBucketLocations) {
-    return false;
-  }
+  const hasEndpoint = !endpoints.every((e) => e.locationName !== location.name);
 
-  const checkEndpointLocations = endpoints.every(
-    (e) => e.locationName !== location.name,
-  );
-
-  if (!checkEndpointLocations) {
-    return false;
-  }
-
-  return true;
+  return {
+    isBuiltin,
+    hasWorkflow: hasTransitionWorkflow || hasReplicationWorkflow,
+    hasBucket,
+    hasEndpoint,
+  };
 }
 
 function isLocationExists(location: string): boolean {
@@ -205,7 +183,7 @@ export {
   convertToLocation,
   convertToForm,
   newLocationDetails,
-  canDeleteLocation,
+  getLocationDeletionBlocker,
   isLocationExists,
   convertToBucketInfo,
   renderLocation,

@@ -1,5 +1,5 @@
-import { Icon, IconHelp, Stack, Wrap } from '@scality/core-ui';
-import { ComponentType, useMemo, useState } from 'react';
+import { Icon, IconHelp, Stack, Wrap, spacing } from '@scality/core-ui';
+import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -32,7 +32,8 @@ import { Warning } from '../ui-elements/Warning';
 import { getLocationType } from '../utils/storageOptions';
 import { useWorkflows } from '../workflow/Workflows';
 import { PauseAndResume } from './PauseAndResume';
-import { canDeleteLocation } from './utils';
+import { getLocationDeletionBlocker } from './utils';
+import styled from 'styled-components';
 
 const ActionButtons = ({
   rowValues,
@@ -100,13 +101,42 @@ const ActionButtons = ({
     }
   }, [waiterStatus]);
 
-  const isDeletionEnable = canDeleteLocation(
-    rowValues,
-    replications,
-    transitions,
-    buckets,
-    accountsLocationsAndEndpoints?.endpoints || [],
-  );
+  const { isBuiltin, hasWorkflow, hasBucket, hasEndpoint } =
+    getLocationDeletionBlocker(
+      rowValues,
+      replications,
+      transitions,
+      buckets,
+      accountsLocationsAndEndpoints?.endpoints || [],
+    );
+  const isDeletionDisabled =
+    isBuiltin || hasWorkflow || hasBucket || hasEndpoint;
+
+  const List = styled.ul`
+    margin-left: ${spacing.r8};
+    li {
+      margin-bottom: 0;
+    }
+  `;
+
+  const TooltipOverlay = () => {
+    return isDeletionDisabled ? (
+      isBuiltin ? (
+        <>You cannot delete a default location</>
+      ) : (
+        <div>
+          You cannot delete this location because it has:
+          <List>
+            {hasWorkflow && <li>at least one workflow</li>}
+            {hasBucket && <li>at least one bucket</li>}
+            {hasEndpoint && <li>at least one data service</li>}
+          </List>
+        </div>
+      )
+    ) : (
+      <>Delete location</>
+    );
+  };
 
   return (
     <div>
@@ -139,12 +169,10 @@ const ActionButtons = ({
             onClick={() => setShowModal(true)}
             type="button"
             tooltip={{
-              overlay: isDeletionEnable
-                ? 'Delete Location'
-                : `You can't delete this location`,
-              overlayStyle: { width: '8rem' },
+              overlay: <TooltipOverlay />,
+              overlayStyle: { textAlign: 'left' },
             }}
-            disabled={!isDeletionEnable}
+            disabled={isDeletionDisabled}
           />
         </Stack>
       </Wrap>
