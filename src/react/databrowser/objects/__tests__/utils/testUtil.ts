@@ -16,6 +16,15 @@ export const SECOND_FORMATTED_OBJECT = {
   signedUrl: '',
   toggled: true,
 };
+export const NO_DATE_FORMATTED_OBJECT = {
+  key: 'toto/object3',
+  isFolder: false,
+  name: 'object3',
+  lastModified: '',
+  size: 213,
+  signedUrl: '',
+  toggled: false,
+};
 export const BUCKET_INFO = {
   name: 'bucket1',
   policy: false,

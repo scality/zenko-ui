@@ -8,14 +8,20 @@ import { checkBox, reduxMount } from '../../../utils/testUtil';
 import ObjectList from '../ObjectList';
 import {
   FIRST_FORMATTED_OBJECT,
+  NO_DATE_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
 import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
 import { TEST_API_BASE_URL, reduxRender } from '../../../utils/testUtil';
-import { screen, waitFor } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { VEEAM_XML_PREFIX } from '../../../ui-elements/Veeam/VeeamConstants';
+import { Icon } from '@scality/core-ui';
 
 const server = setupServer(
   rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
@@ -307,5 +313,20 @@ describe('ObjectList', () => {
     await waitFor(() => {
       expect(screen.getByText('List Versions')).toBeEnabled();
     });
+  });
+  it('should display empty cell when date and stroage location are undefined', async () => {
+    reduxRender(
+      <ObjectList
+        //@ts-expect-error fix this when you are working on it
+        objects={List([NO_DATE_FORMATTED_OBJECT])}
+        bucketName={BUCKET_NAME}
+        prefixWithSlash=""
+        toggled={List()}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByText(/object3/i)).toBeInTheDocument(),
+    );
+    expect(screen.getAllByLabelText(/Minus/)).toHaveLength(2);
   });
 });

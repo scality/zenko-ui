@@ -32,6 +32,7 @@ import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { parseRestore } from '../../reducers/s3';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 
 export const Icon = styled.i<{ isMargin?: boolean }>`
   margin-right: ${spacing.sp4};
@@ -272,12 +273,15 @@ export default function ObjectListTable({
           textAlign: 'right',
         },
         Cell: ({ value }) => {
-          return (
-            <FormattedDateTime
-              format="date-time-second"
-              value={new Date(value)}
-            />
-          );
+          if (value) {
+            return (
+              <FormattedDateTime
+                format="date-time-second"
+                value={new Date(value)}
+              />
+            );
+          }
+          return <EmptyCell mr={0} />;
         },
 
         cellStyle: {
@@ -310,6 +314,9 @@ export default function ObjectListTable({
         accessor: 'storageClass',
         width: 20,
         Cell({ value: storageClass }: { value: string }) {
+          if (!storageClass) {
+            return <EmptyCell mr={0} />;
+          }
           const accountsLocationsEndpointsAdapter =
             useAccountsLocationsEndpointsAdapter();
           const { accountsLocationsAndEndpoints, status } =
@@ -327,6 +334,9 @@ export default function ObjectListTable({
               {storageClass === 'STANDARD' ? 'default' : storageClass}
             </div>
           );
+        },
+        cellStyle: {
+          textAlign: 'right',
         },
       },
     ],
