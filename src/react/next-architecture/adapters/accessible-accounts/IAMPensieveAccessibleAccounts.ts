@@ -1,4 +1,4 @@
-import { useAccounts } from '../../../utils/hooks';
+import { noopBasedEventDispatcher, useAccounts } from '../../../utils/hooks';
 import { useAccountsLocationsAndEndpoints } from '../../domain/business/accounts';
 import { AccountInfo, Role } from '../../domain/entities/account';
 import { PromiseResult } from '../../domain/entities/promise';
@@ -8,6 +8,7 @@ import { IAccountsLocationsEndpointsAdapter } from '../accounts-locations/IAccou
 export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
   constructor(
     private accountsLocationsAndEndpointsAdapter: IAccountsLocationsEndpointsAdapter,
+    private withEventDispatcher = true,
   ) {}
   useListAccessibleAccounts(): {
     accountInfos: PromiseResult<(AccountInfo & { assumableRoles: Role[] })[]>;
@@ -17,7 +18,11 @@ export class IAMPensieveAccessibleAccounts implements IAccessibleAccounts {
         accountsLocationsEndpointsAdapter:
           this.accountsLocationsAndEndpointsAdapter,
       });
-    const { accounts: accessibleAccounts, status } = useAccounts();
+    const eventDispatcher = this.withEventDispatcher
+      ? undefined
+      : noopBasedEventDispatcher;
+    const { accounts: accessibleAccounts, status } =
+      useAccounts(eventDispatcher);
 
     if (accountStatus === 'error' || status === 'error') {
       return {

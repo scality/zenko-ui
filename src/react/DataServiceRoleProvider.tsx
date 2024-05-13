@@ -5,6 +5,7 @@ import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 import { useMutation } from 'react-query';
 import {
   S3ClientProvider,
+  S3ClientWithoutReduxProvider,
   useAssumeRoleQuery,
   useS3ConfigFromAssumeRoleResult,
 } from './next-architecture/ui/S3ClientProvider';
@@ -94,7 +95,18 @@ export const useCurrentAccount = () => {
   };
 };
 
-const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
+const DataServiceRoleProvider = ({
+  children,
+  /**
+   * DoNotChangePropsWithRedux is a static props.
+   * When set, it must not be changed, otherwise it will break the hook rules.
+   * To be removed when we remove redux.
+   */
+  DoNotChangePropsWithRedux = true,
+}: {
+  children: JSX.Element;
+  DoNotChangePropsWithRedux?: boolean;
+}) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
     roleArn: '',
   });
@@ -121,7 +133,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     const storedRole = getRoleArnStored();
     if (accountName) {
       const account = accounts.find((account) => account.Name === accountName);
-      if (account) {
+      if (account && !role.roleArn) {
         setRoleState({ roleArn: account?.Roles[0].Arn });
       }
     } else if (!role.roleArn && storedRole && accounts.length) {
@@ -138,6 +150,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     } else if (!storedRole && !role.roleArn && accounts.length) {
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
+
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
@@ -171,8 +184,25 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
     return <Loader>Loading...</Loader>;
   }
 
+  if (DoNotChangePropsWithRedux) {
+    return (
+      <S3ClientProvider configuration={getS3Config(assumedRole)}>
+        <_DataServiceRoleContext.Provider
+          value={{
+            role,
+            setRole,
+            setRolePromise,
+            assumedRole,
+          }}
+        >
+          {children}
+        </_DataServiceRoleContext.Provider>
+      </S3ClientProvider>
+    );
+  }
+
   return (
-    <S3ClientProvider configuration={getS3Config(assumedRole)}>
+    <S3ClientWithoutReduxProvider configuration={getS3Config(assumedRole)}>
       <_DataServiceRoleContext.Provider
         value={{
           role,
@@ -183,7 +213,7 @@ const DataServiceRoleProvider = ({ children }: { children: JSX.Element }) => {
       >
         {children}
       </_DataServiceRoleContext.Provider>
-    </S3ClientProvider>
+    </S3ClientWithoutReduxProvider>
   );
 };
 

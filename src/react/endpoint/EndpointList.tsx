@@ -14,6 +14,7 @@ import {
   cloudServerDashboard,
 } from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
+
 type CellProps = {
   row: {
     original: Endpoint;
