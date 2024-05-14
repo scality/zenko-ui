@@ -1,5 +1,4 @@
 import {
-  fireEvent,
   render,
   screen,
   waitFor,
@@ -195,17 +194,8 @@ describe('Overview', () => {
     );
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
     await waitFor(() => {
-      expect(
-        screen.getByRole('checkbox', {
-          name: /inactive/i,
-        }),
-      ).toBeInTheDocument();
+      expect(selectors.inActiveVersioningToggle()).toHaveAttribute('disabled');
     });
-    const versioningToggleItem = screen.getByRole('checkbox', {
-      name: /inactive/i,
-    });
-    //V
-    expect(versioningToggleItem).toHaveAttribute('disabled');
   });
 });
 
@@ -302,6 +292,8 @@ const selectors = {
     screen.getByRole('generic', {
       name: /indicate if object lock is enabled/i,
     }),
+  inActiveVersioningToggle: () =>
+    screen.getByRole('checkbox', { name: /inactive/i }),
 };
 
 describe('Overview', () => {
@@ -312,32 +304,23 @@ describe('Overview', () => {
         useUpdateBucketVersioningMock(req.body);
         return res(ctx.status(200));
       }),
+      mockBucketOperations({
+        isVersioningEnabled: false,
+        isObjectLockEnabled: false,
+      }),
     );
 
-    renderWithRouterMatch(
+    render(
       <Overview
         //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
+        bucket={{ name: bucketName }}
       />,
-      undefined,
-      {
-        ...TEST_STATE,
-        ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
-      },
+      { wrapper: NewWrapper() },
     );
-
-    const versioningToggleItem = screen
-      .getByRole('checkbox', {
-        name: /inactive/i,
-      })
-      .querySelector('input');
-
     await waitFor(() => {
-      expect(versioningToggleItem).toBeInTheDocument();
+      expect(selectors.inActiveVersioningToggle()).toBeEnabled();
     });
-
-    versioningToggleItem && fireEvent.click(versioningToggleItem);
-
+    await userEvent.click(selectors.inActiveVersioningToggle());
     await waitFor(() => {
       expect(useUpdateBucketVersioningMock).toHaveBeenCalledWith(mockResponse);
     });
@@ -409,6 +392,36 @@ describe('Overview', () => {
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
+    });
+  });
+
+  it('should disable the versioning toggle for Veeam bucket', async () => {
+    //S
+    server.use(
+      mockBucketOperations({
+        isVersioningEnabled: false,
+        isVeeamTagged: true,
+        isObjectLockEnabled: false,
+      }),
+    );
+    //E
+    render(
+      <Overview
+        //@ts-expect-error fix this when you are working on it
+        bucket={{ name: bucketName }}
+      />,
+      { wrapper: NewWrapper() },
+    );
+    //V
+    await waitFor(() => {
+      expect(selectors.inActiveVersioningToggle()).toBeInTheDocument();
+    });
+
+    // toBeDisabled() works only with the following element, but not with label.
+    // https://html.spec.whatwg.org/multipage/semantics-other.html#disabled-elements
+    // https://github.com/testing-library/jest-dom/blob/e8c8b13c6de2a0ccffaa6539809c8c11f141beca/src/to-be-disabled.js#L71
+    await waitFor(() => {
+      expect(selectors.inActiveVersioningToggle()).toHaveAttribute('disabled');
     });
   });
 });

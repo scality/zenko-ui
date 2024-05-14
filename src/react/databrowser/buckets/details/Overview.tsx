@@ -93,7 +93,13 @@ const workflowAttachedError = (count: number, bucketName: string) => (
   </div>
 );
 
-function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
+function VersionningValue({
+  bucketInfo,
+  isVeeamBucket,
+}: {
+  bucketInfo: BucketInfo;
+  isVeeamBucket: boolean;
+}) {
   const dispatch = useDispatch();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -114,6 +120,11 @@ function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
       },
     });
   };
+  const isVersioningToggleDisabled =
+    locationsStatus === 'idle' ||
+    locationsStatus === 'loading' ||
+    isBucketHostedOnAzureOrGCP ||
+    isVeeamBucket;
 
   return (
     <T.Value>
@@ -130,15 +141,17 @@ function VersionningValue({ bucketInfo }: { bucketInfo: BucketInfo }) {
                 Enabling versioning is not possible due to the bucket being
                 hosted on Google Cloud.
               </>
+            ) : isVeeamBucket ? (
+              <>
+                Enabling versioning is not possible due to the bucket being
+                managed by Veeam.
+              </>
             ) : null
           }
         >
           <Toggle
-            disabled={
-              locationsStatus === 'idle' ||
-              locationsStatus === 'loading' ||
-              isBucketHostedOnAzureOrGCP
-            }
+            id="versioningToggle"
+            disabled={isVersioningToggleDisabled}
             toggle={bucketInfo.isVersioning}
             label={
               bucketInfo.versioning === 'Enabled'
@@ -285,7 +298,10 @@ function Overview({ bucket, ingestionStates }: Props) {
               </T.Row>
               <T.Row>
                 <T.Key> Versioning </T.Key>
-                <VersionningValue bucketInfo={bucketInfo} />
+                <VersionningValue
+                  bucketInfo={bucketInfo}
+                  isVeeamBucket={isVeeamBucket}
+                />
               </T.Row>
               <T.Row>
                 <T.Key> Location </T.Key>

@@ -170,13 +170,13 @@ function BucketCreate() {
   }) => {
     clearServerError();
     let lName = locationName;
-
+    const location = accountsLocationsAndEndpoints?.locations.find(
+      (location) => location.name === locationName,
+    );
     if (
       isAsyncNotification &&
-      //@ts-expect-error fix this when you are working on it
-      locations &&
-      //@ts-expect-error fix this when you are working on it
-      isIngestLocation(locations[locationName], capabilities)
+      location &&
+      isIngestLocation(location, capabilities)
     ) {
       lName = `${locationName}:ingest`;
     }

@@ -66,18 +66,21 @@ export function mockBucketOperations(
     slowdown = false,
     forceFailure = false,
     isVeeamTagged = false,
+    isObjectLockEnabled = true,
   }: {
     location?: string | ((bucketName: string) => string);
     isVersioningEnabled?: boolean | ((bucketName: string) => boolean);
     slowdown?: boolean;
     forceFailure?: boolean;
     isVeeamTagged?: boolean | ((bucketName: string) => boolean);
+    isObjectLockEnabled?: boolean;
   } = {
     location: '',
     isVersioningEnabled: false,
     slowdown: false,
     forceFailure: false,
     isVeeamTagged: false,
+    isObjectLockEnabled: true,
   },
 ) {
   return rest.get(
@@ -152,14 +155,28 @@ export function mockBucketOperations(
       }
 
       if (req.url.searchParams.has('object-lock')) {
-        return res(
-          ctx.xml(`
+        if (isObjectLockEnabled) {
+          return res(
+            ctx.xml(`
           <?xml version="1.0" encoding="UTF-8"?>
           <ObjectLockConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
             <ObjectLockEnabled>Enabled</ObjectLockEnabled>
           </ObjectLockConfiguration>
         `),
-        );
+          );
+        } else {
+          return res(
+            ctx.status(404),
+            ctx.xml(
+              `<?xml version="1.0" encoding="UTF-8"?>
+              <Error>
+                <Code>ObjectLockConfigurationNotFoundError</Code>
+                <Resource></Resource>
+                <RequestId>771ff09e6b408a3e5ed8</RequestId>
+              </Error>`,
+            ),
+          );
+        }
       }
 
       if (req.url.searchParams.has('tagging')) {
