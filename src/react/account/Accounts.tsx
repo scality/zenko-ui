@@ -91,7 +91,6 @@ const Accounts = () => {
                   icon="Account"
                   link="/create-account"
                   listedResource={{ singular: 'Account', plural: 'Accounts' }}
-                  history={history}
                 ></EmptyState>
               )
             ) : (

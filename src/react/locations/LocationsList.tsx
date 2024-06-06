@@ -368,7 +368,6 @@ export function LocationsList() {
       <EmptyState
         icon="Map-marker"
         link="/create-location"
-        history={history}
         listedResource={{ singular: 'location', plural: 'locations' }}
       />
     );

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useLocation, Redirect, useParams, useHistory } from 'react-router-dom';
+import { useLocation, Redirect, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { AppState } from '../../../types/state';
 import BucketDetails from './BucketDetails';
@@ -20,7 +20,6 @@ import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 
 export default function Buckets() {
-  const history = useHistory();
   const { pathname } = useLocation();
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
@@ -65,7 +64,6 @@ export default function Buckets() {
     return (
       <EmptyState
         icon="Bucket"
-        history={history}
         link={`/accounts/${account?.Name}/create-bucket`}
         listedResource={{
           singular: 'Bucket',

@@ -124,7 +124,6 @@ export default function Objects() {
   //   return (
   //     <EmptyState
   //       icon="Node-backend"
-  //       history={history}
   //       link={`/buckets/${bucketNameParam}/upload-object`}
   //       listedResource="Object"
   //     ></EmptyState>

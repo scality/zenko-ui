@@ -63,7 +63,7 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
 
 const RedirectToAccount = () => {
   // To be replace later by react-query or context
-  const history = useHistory();
+
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
 
@@ -83,7 +83,6 @@ const RedirectToAccount = () => {
         link="/create-account"
         listedResource={description}
         resourceToCreate="Account"
-        history={history}
       ></EmptyState>
     );
   } else {

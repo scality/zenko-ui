@@ -11,7 +11,7 @@ import {
 import { useEffect } from 'react';
 import { UseQueryResult, useQuery } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { Redirect, useHistory, useLocation, useParams } from 'react-router-dom';
+import { Redirect, useLocation, useParams } from 'react-router-dom';
 import {
   BucketWorkflowExpirationV1,
   BucketWorkflowTransitionV2,
@@ -116,7 +116,6 @@ export function useWorkflows(filters?: Filter): UseQueryResult<
 }
 
 export default function Workflows() {
-  const history = useHistory();
   const params = useParams<{
     workflowId?: string;
   }>();
@@ -141,7 +140,6 @@ export default function Workflows() {
     return (
       <EmptyState
         icon="Workflow"
-        history={history}
         link="/create-account"
         listedResource={listedResource}
         resourceToCreate="Account"
@@ -157,7 +155,6 @@ export default function Workflows() {
           link={`/accounts/${accountName}/create-bucket`}
           listedResource={listedResource}
           resourceToCreate="Bucket"
-          history={history}
         ></EmptyState>
       );
     }
@@ -192,7 +189,6 @@ export default function Workflows() {
           icon="Workflow"
           link={`/accounts/${accountName}/workflows/create-workflow`}
           listedResource={listedResource}
-          history={history}
         ></EmptyState>
       );
     }

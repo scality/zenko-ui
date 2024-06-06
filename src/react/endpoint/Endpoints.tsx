@@ -6,14 +6,12 @@ import {
   Loader,
   EmptyState,
 } from '@scality/core-ui';
-import { useHistory } from 'react-router-dom';
 
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import EndpointList from './EndpointList';
 
 const Endpoints = () => {
-  const history = useHistory();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
   const { accountsLocationsAndEndpoints, status } =
@@ -39,7 +37,6 @@ const Endpoints = () => {
           plural: 'Data Services',
         }}
         link="/create-dataservice"
-        history={history}
       />
     );
   }
