@@ -73,7 +73,7 @@ export default function DataBrowser() {
     return (
       <EmptyState
         icon="Bucket"
-        link="create-account"
+        link="/create-account"
         history={history}
         listedResource={{
           singular: 'Bucket',

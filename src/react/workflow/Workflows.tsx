@@ -154,7 +154,7 @@ export default function Workflows() {
       return (
         <EmptyState
           icon="Bucket"
-          link={`accounts/${accountName}/create-bucket`}
+          link={`/accounts/${accountName}/create-bucket`}
           listedResource={listedResource}
           resourceToCreate="Bucket"
           history={history}
