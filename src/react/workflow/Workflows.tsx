@@ -133,14 +133,17 @@ export default function Workflows() {
   const workflows = workflowListDataQuery.data ?? [];
   const isWorkflowsReady = workflowListDataQuery.data !== undefined;
   const noWorkflows = workflowListDataQuery?.data?.length === 0;
-
+  const listedResource = {
+    singular: 'Workflow',
+    plural: 'Workflows',
+  };
   if (accounts.length === 0) {
     return (
       <EmptyState
         icon="Workflow"
         history={history}
         link="/create-account"
-        listedResource="Workflow"
+        listedResource={listedResource}
         resourceToCreate="Account"
       ></EmptyState>
     );
@@ -152,7 +155,7 @@ export default function Workflows() {
         <EmptyState
           icon="Bucket"
           link={`accounts/${accountName}/create-bucket`}
-          listedResource="Workflow"
+          listedResource={listedResource}
           resourceToCreate="Bucket"
           history={history}
         ></EmptyState>
@@ -188,7 +191,7 @@ export default function Workflows() {
         <EmptyState
           icon="Workflow"
           link={`/accounts/${accountName}/workflows/create-workflow`}
-          listedResource="Workflow"
+          listedResource={listedResource}
           history={history}
         ></EmptyState>
       );

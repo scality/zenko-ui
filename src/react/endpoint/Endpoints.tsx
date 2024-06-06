@@ -34,7 +34,10 @@ const Endpoints = () => {
     return (
       <EmptyState
         icon="Account"
-        listedResource="Data Service"
+        listedResource={{
+          singular: 'Data Service',
+          plural: 'Data Services',
+        }}
         link="/create-dataservice"
         history={history}
       />

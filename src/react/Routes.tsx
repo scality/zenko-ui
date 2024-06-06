@@ -73,10 +73,13 @@ const RedirectToAccount = () => {
       <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
     );
   } else if (isStorageManager) {
-    const description = pathname === '/workflows' ? 'Workflow' : 'Bucket';
+    const description =
+      pathname === '/workflows'
+        ? { singular: 'Workflow', plural: 'Workflows' }
+        : { singular: 'Bucket', plural: 'Buckets' };
     return (
       <EmptyState
-        icon={description}
+        icon={pathname === '/workflows' ? 'Workflow' : 'Bucket'}
         link="/create-account"
         listedResource={description}
         resourceToCreate="Account"

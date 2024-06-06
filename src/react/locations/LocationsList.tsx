@@ -369,7 +369,7 @@ export function LocationsList() {
         icon="Map-marker"
         link="/create-location"
         history={history}
-        listedResource="Location"
+        listedResource={{ singular: 'location', plural: 'locations' }}
       />
     );
   }

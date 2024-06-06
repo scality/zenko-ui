@@ -75,7 +75,10 @@ export default function DataBrowser() {
         icon="Bucket"
         link="create-account"
         history={history}
-        listedResource="Bucket"
+        listedResource={{
+          singular: 'Bucket',
+          plural: 'Buckets',
+        }}
         resourceToCreate="Account"
       />
     );

@@ -90,7 +90,7 @@ const Accounts = () => {
                 <EmptyState
                   icon="Account"
                   link="/create-account"
-                  listedResource="Account"
+                  listedResource={{ singular: 'Account', plural: 'Accounts' }}
                   history={history}
                 ></EmptyState>
               )

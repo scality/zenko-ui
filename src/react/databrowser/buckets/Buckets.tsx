@@ -67,7 +67,10 @@ export default function Buckets() {
         icon="Bucket"
         history={history}
         link={`/accounts/${account?.Name}/create-bucket`}
-        listedResource="Bucket"
+        listedResource={{
+          singular: 'Bucket',
+          plural: 'Buckets',
+        }}
       ></EmptyState>
     );
   }
