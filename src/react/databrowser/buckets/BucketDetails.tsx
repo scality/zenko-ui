@@ -1,5 +1,5 @@
 import React from 'react';
-import { CustomTabs } from '../../ui-elements/Tabs';
+
 import Overview from './details/Overview';
 import Workflow from './details/Workflow';
 import { Warning } from '../../ui-elements/Warning';
@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import type { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useQueryParams } from '../../utils/hooks';
 import { Icon } from '@scality/core-ui';
+import { Tabs } from '@scality/core-ui/dist/next';
 import { Bucket } from '../../next-architecture/domain/entities/bucket';
 
 type Props = {
@@ -29,22 +30,23 @@ function BucketDetails({ bucket, ingestionStates }: Props) {
   return (
     <>
       {bucket && (
-        <CustomTabs>
-          <CustomTabs.Tab
+        <Tabs>
+          <Tabs.Tab
             label="Overview"
             path={pathname}
             query={{ ...queryObject, tab: null }}
           >
             <Overview bucket={bucket} ingestionStates={ingestionStates} />
-          </CustomTabs.Tab>
-          <CustomTabs.Tab
+          </Tabs.Tab>
+          <Tabs.Tab
             label="Workflow"
             path={pathname}
             query={{ ...queryObject, tab: 'workflow' }}
+            withoutPadding
           >
             <Workflow bucketName={bucket.name}></Workflow>
-          </CustomTabs.Tab>
-        </CustomTabs>
+          </Tabs.Tab>
+        </Tabs>
       )}
       {!bucket && <NotFound />}
     </>

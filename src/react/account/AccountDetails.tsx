@@ -1,6 +1,6 @@
 import { useTheme } from 'styled-components';
 import type { Account } from '../../types/account';
-import { CustomTabs } from '../ui-elements/Tabs';
+import { Tabs } from '@scality/core-ui/dist/next';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
 import { useParams } from 'react-router-dom';
@@ -36,28 +36,22 @@ function AccountDetails({ account }: Props) {
   };
 
   return (
-    <CustomTabs
-      {...customTabStyle}
-      //@ts-expect-error fix this when you are working on it
-      style={{
-        backgroundColor: theme.backgroundLevel2,
-      }}
-    >
-      <CustomTabs.Tab exact label="Properties" path={``}>
+    <Tabs {...customTabStyle} tabLineColor={theme.backgroundLevel2}>
+      <Tabs.Tab exact label="Properties" path={``} withoutPadding>
         <Properties account={account} />
-      </CustomTabs.Tab>
+      </Tabs.Tab>
       {isStorageManager && (
-        <CustomTabs.Tab label="Locations" path={`locations`}>
+        <Tabs.Tab label="Locations" path={`locations`} withoutPadding>
           <AccountLocations />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
-      <CustomTabs.Tab label="Users" path={`users`}>
+      <Tabs.Tab label="Users" path={`users`} withoutPadding>
         <AccountUserList accountName={accountName} />
-      </CustomTabs.Tab>
-      <CustomTabs.Tab label="Policies" path={`policies`}>
+      </Tabs.Tab>
+      <Tabs.Tab label="Policies" path={`policies`} withoutPadding>
         <AccountPoliciesList accountName={accountName} />
-      </CustomTabs.Tab>
-    </CustomTabs>
+      </Tabs.Tab>
+    </Tabs>
   );
 }
 

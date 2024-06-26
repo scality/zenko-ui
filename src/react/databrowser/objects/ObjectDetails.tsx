@@ -1,5 +1,5 @@
 import type { AppState } from '../../../types/state';
-import { CustomTabs } from '../../ui-elements/Tabs';
+
 import { List } from 'immutable';
 import type { ListObjectsType } from '../../../types/s3';
 import Metadata from './details/Metadata';
@@ -9,8 +9,8 @@ import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
 import { useQueryParams } from '../../utils/hooks';
 import { useSelector } from 'react-redux';
-import { Box } from '@scality/core-ui/dist/next';
-import { Icon, spacing } from '@scality/core-ui';
+import { Tabs } from '@scality/core-ui/dist/next';
+
 export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object';
 type Props = {
@@ -91,29 +91,29 @@ function ObjectDetails({ toggled, listType }: Props) {
   };
 
   return (
-    <CustomTabs>
-      <CustomTabs.Tab
+    <Tabs>
+      <Tabs.Tab
         label="Summary"
         path={pathname}
         query={{ ...queryObject, tab: null }}
       >
-        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
-      </CustomTabs.Tab>
-      <CustomTabs.Tab
+        {details()}
+      </Tabs.Tab>
+      <Tabs.Tab
         label="Metadata"
         path={pathname}
         query={{ ...queryObject, tab: 'metadata' }}
       >
-        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
-      </CustomTabs.Tab>
-      <CustomTabs.Tab
+        {details()}
+      </Tabs.Tab>
+      <Tabs.Tab
         label="Tags"
         path={pathname}
         query={{ ...queryObject, tab: 'tags' }}
       >
-        <Box style={{ padding: spacing.r16 }}>{details()}</Box>
-      </CustomTabs.Tab>
-    </CustomTabs>
+        {details()}
+      </Tabs.Tab>
+    </Tabs>
   );
 }
 

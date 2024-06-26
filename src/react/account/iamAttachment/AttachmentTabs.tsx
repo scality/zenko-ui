@@ -14,7 +14,7 @@ import {
   getListUsersQuery,
   getUserListGroupsQuery,
 } from '../../queries';
-import { CustomTabs } from '../../ui-elements/Tabs';
+import { Tabs } from '@scality/core-ui/dist/next';
 import { useQueryParams } from '../../utils/hooks';
 import {
   AWS_PAGINATED_QUERY,
@@ -146,13 +146,14 @@ const AttachmentTabs = ({
     ) || [];
 
   return (
-    <CustomTabs {...customTabStyle}>
+    <Tabs {...customTabStyle}>
       {resourceType === 'policy' && (
-        <CustomTabs.Tab
+        <Tabs.Tab
           label="Users"
           path={pathname}
           query={{ ...queryObject, tab: null }}
           icon={<Icon name="User" />}
+          withoutPadding
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -187,14 +188,15 @@ const AttachmentTabs = ({
               setAttachmentOperations({ type: 'user', attachmentOperations })
             }
           />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
       {resourceType === 'policy' && (
-        <CustomTabs.Tab
+        <Tabs.Tab
           label="Groups"
           path={pathname}
           query={{ ...queryObject, tab: 'groups' }}
           icon={<Icon name="Group" />}
+          withoutPadding
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -231,14 +233,15 @@ const AttachmentTabs = ({
               setAttachmentOperations({ type: 'group', attachmentOperations })
             }
           />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
       {resourceType === 'user' && (
-        <CustomTabs.Tab
+        <Tabs.Tab
           label="Groups"
           path={pathname}
           query={{ ...queryObject, tab: null }}
           icon={<Icon name="Group" />}
+          withoutPadding
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -274,14 +277,15 @@ const AttachmentTabs = ({
               setAttachmentOperations({ type: 'group', attachmentOperations })
             }
           />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
       {resourceType === 'policy' && (
-        <CustomTabs.Tab
+        <Tabs.Tab
           label="Roles"
           path={pathname}
           query={{ ...queryObject, tab: 'roles' }}
           icon={<Icon name="Role" />}
+          withoutPadding
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -323,14 +327,15 @@ const AttachmentTabs = ({
               setAttachmentOperations({ type: 'role', attachmentOperations })
             }
           />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
       {resourceType === 'user' && (
-        <CustomTabs.Tab
+        <Tabs.Tab
           label="Policies"
           path={pathname}
           query={{ ...queryObject, tab: 'policies' }}
           icon={<Icon name="Policy" />}
+          withoutPadding
         >
           <AttachmentTableProxy
             getAllEntitiesPaginatedQuery={() =>
@@ -371,9 +376,9 @@ const AttachmentTabs = ({
               setAttachmentOperations({ type: 'policy', attachmentOperations })
             }
           />
-        </CustomTabs.Tab>
+        </Tabs.Tab>
       )}
-    </CustomTabs>
+    </Tabs>
   );
 };
 
