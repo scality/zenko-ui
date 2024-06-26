@@ -1,4 +1,4 @@
-import { Loader, Stack } from '@scality/core-ui';
+import { Loader, Stack, spacing } from '@scality/core-ui';
 import { Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { CellProps, CoreUIColumn } from 'react-table';
@@ -33,7 +33,7 @@ export function AccountLocations() {
       (location: Location) => {
         return location;
       },
-      { flex: '0.5' },
+      { flex: '0.5', paddingRight: spacing.r16 },
     );
     const columns: CoreUIColumn<Location>[] = [
       {

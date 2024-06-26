@@ -1,4 +1,4 @@
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -6,15 +6,15 @@ const Container = styled.div`
   flex-direction: column;
 
   max-width: 600px;
-  margin: ${spacing.sp8};
-  padding: ${spacing.sp20};
+  margin: ${spacing.r8};
+  padding: ${spacing.r20};
   background-color: ${(props) => props.theme.backgroundLevel1};
 `;
 const ContainerFooter = styled.div`
   display: flex;
   justify-content: flex-end;
 
-  margin-top: ${spacing.sp8};
+  margin-top: ${spacing.r8};
 `;
 const LoaderContainer = styled.div`
   display: flex;
@@ -83,6 +83,7 @@ const ZenkoUIContainer = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
+  padding-bottom: ${spacing.r16};
 `;
 const ButtonsContainer = styled.div`
   height: 100%;

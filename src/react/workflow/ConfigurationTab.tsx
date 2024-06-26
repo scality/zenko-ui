@@ -578,93 +578,88 @@ function EditForm({
   };
 
   return (
-    <Box style={{ padding: spacing.r16 }}>
-      <FormProvider {...useFormMethods}>
-        <Form
-          requireMode="all"
-          banner={
-            formState.isDirty && (
-              <Banner
-                icon={<Icon name="Exclamation-triangle" />}
-                variant="warning"
-              >
-                If you leave this screen without saving, your changes will be
-                lost.
-              </Banner>
-            )
-          }
-          layout={{ kind: 'tab' }}
-          onSubmit={handleSubmit(onSubmit)}
-          rightActions={
-            <Stack gap="r16" style={{ paddingRight: spacing.r16 }}>
-              <Button
-                disabled={!formState.isDirty || !formState.isValid}
-                icon={<Icon name="Save" />}
-                id="create-workflow-btn"
-                variant="primary"
-                label="Save"
-                type="submit"
-              />
-              <Button
-                id="cancel-workflow-btn"
-                variant="outline"
-                disabled={!formState.isDirty}
-                onClick={() => useFormMethods.reset()}
-                label="Cancel"
-                type="button"
-              />
-              <DeleteWorkflowButton workflow={workflow} />
-            </Stack>
-          }
-        >
-          <FormSection forceLabelWidth={convertRemToPixels(12)}>
-            <FormGroup
-              required
-              label="Rule Type"
-              id="type"
-              content={
-                isExpirationWorkflow(workflow) ? (
-                  <Stack direction="horizontal">
-                    <Icon name="Expiration" />
-                    Expiration
-                  </Stack>
-                ) : isTransitionWorkflow(workflow) ? (
-                  <Stack direction="horizontal">
-                    <Icon name="Transition" />
-                    Transition
-                  </Stack>
-                ) : (
-                  <Stack direction="horizontal">
-                    <Icon name="Replication" />
-                    Replication
-                  </Stack>
-                )
-              }
+    <FormProvider {...useFormMethods}>
+      <Form
+        requireMode="all"
+        banner={
+          formState.isDirty && (
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+              If you leave this screen without saving, your changes will be
+              lost.
+            </Banner>
+          )
+        }
+        layout={{ kind: 'tab' }}
+        onSubmit={handleSubmit(onSubmit)}
+        rightActions={
+          <Stack gap="r16">
+            <Button
+              disabled={!formState.isDirty || !formState.isValid}
+              icon={<Icon name="Save" />}
+              id="create-workflow-btn"
+              variant="primary"
+              label="Save"
+              type="submit"
             />
-          </FormSection>
-          <FormSection
-            forceLabelWidth={convertRemToPixels(12)}
-            title={{ name: 'General' }}
-          >
-            {/* The required prop is a little hacky to remove the "optional" label of FormSection */}
-            {isExpirationWorkflow(workflow) ? (
-              <GeneralExpirationGroup required />
-            ) : isTransitionWorkflow(workflow) ? (
-              <GeneralTransitionGroup required />
-            ) : (
-              <GeneralReplicationGroup required />
-            )}
-          </FormSection>
+            <Button
+              id="cancel-workflow-btn"
+              variant="outline"
+              disabled={!formState.isDirty}
+              onClick={() => useFormMethods.reset()}
+              label="Cancel"
+              type="button"
+            />
+            <DeleteWorkflowButton workflow={workflow} />
+          </Stack>
+        }
+      >
+        <FormSection forceLabelWidth={convertRemToPixels(12)}>
+          <FormGroup
+            required
+            label="Rule Type"
+            id="type"
+            content={
+              isExpirationWorkflow(workflow) ? (
+                <Stack direction="horizontal">
+                  <Icon name="Expiration" />
+                  Expiration
+                </Stack>
+              ) : isTransitionWorkflow(workflow) ? (
+                <Stack direction="horizontal">
+                  <Icon name="Transition" />
+                  Transition
+                </Stack>
+              ) : (
+                <Stack direction="horizontal">
+                  <Icon name="Replication" />
+                  Replication
+                </Stack>
+              )
+            }
+          />
+        </FormSection>
+        <FormSection
+          forceLabelWidth={convertRemToPixels(12)}
+          title={{ name: 'General' }}
+        >
+          {/* The required prop is a little hacky to remove the "optional" label of FormSection */}
           {isExpirationWorkflow(workflow) ? (
-            <ExpirationForm />
+            <GeneralExpirationGroup required />
           ) : isTransitionWorkflow(workflow) ? (
-            <TransitionForm />
+            <GeneralTransitionGroup required />
           ) : (
-            <ReplicationForm isPrefixMandatory={isPrefixMandatory} />
+            <GeneralReplicationGroup required />
           )}
-        </Form>
-      </FormProvider>
-    </Box>
+        </FormSection>
+        {isExpirationWorkflow(workflow) ? (
+          <ExpirationForm />
+        ) : isTransitionWorkflow(workflow) ? (
+          <TransitionForm />
+        ) : (
+          <ReplicationForm isPrefixMandatory={isPrefixMandatory} />
+        )}
+      </Form>
+    </FormProvider>
   );
 }
 

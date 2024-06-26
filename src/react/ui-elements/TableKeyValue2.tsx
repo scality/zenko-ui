@@ -147,6 +147,8 @@ export const ErrorContainer = styled.div`
   position: absolute;
 `;
 const Table = styled.div`
+  height: 100%;
+  overflow: auto;
   width: 100%;
 `;
 export const Header = styled.div<{ isRemoved?: boolean }>`

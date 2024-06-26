@@ -73,6 +73,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       cellStyle: {
         flex: 1,
         textAlign: 'right',
+        paddingRight: spacing.r16,
       },
       Cell: ({ value }: { value: boolean }) => (value ? 'Active' : 'Inactive'),
       width: 0,

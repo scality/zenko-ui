@@ -38,7 +38,6 @@ export const DeleteBucket = ({ bucketName }: DeleteBucketProps) => {
             : 'Bucket is not empty'
         }
         overlayStyle={{
-          width: '9rem',
           display: isBucketEmpty ? undefined : 'none',
         }}
       >
