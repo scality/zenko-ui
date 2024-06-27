@@ -291,13 +291,21 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
   }
 };
 
+export const SelectAccountIAMRoleInternal = (
+  props: SelectAccountIAMRoleProps,
+) => {
+  return (
+    <InternalProvider defaultValue={props.defaultValue}>
+      <_SelectAccountIAMRole {...props} />
+    </InternalProvider>
+  );
+};
+
 export default function SelectAccountIAMRole(props: SelectAccountIAMRoleProps) {
   return (
     <ConfigProvider>
       <AuthProvider>
-        <InternalProvider defaultValue={props.defaultValue}>
-          <_SelectAccountIAMRole {...props} />
-        </InternalProvider>
+        <SelectAccountIAMRoleInternal {...props} />
       </AuthProvider>
     </ConfigProvider>
   );
