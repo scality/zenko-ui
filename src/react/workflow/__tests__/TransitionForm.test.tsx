@@ -200,7 +200,7 @@ describe('TransitionForm', () => {
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -208,7 +208,7 @@ describe('TransitionForm', () => {
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -233,7 +233,7 @@ describe('TransitionForm', () => {
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
-          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${versionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -241,7 +241,7 @@ describe('TransitionForm', () => {
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
-          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${versionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -336,7 +336,7 @@ describe('TransitionForm', () => {
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -344,7 +344,7 @@ describe('TransitionForm', () => {
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -384,7 +384,7 @@ describe('TransitionForm', () => {
     await waitFor(() =>
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -392,7 +392,7 @@ describe('TransitionForm', () => {
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
-          `${notVersionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),
@@ -435,7 +435,7 @@ describe('TransitionForm', () => {
     userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
-          `${versionedBucket} \\(us-east-1 / Local Filesystem \\)`,
+          `${versionedBucket} \\(us-east-1 / Storage Service \\)`,
           'i',
         ),
       }),

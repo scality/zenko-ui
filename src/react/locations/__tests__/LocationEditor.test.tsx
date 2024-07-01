@@ -49,13 +49,11 @@ describe('LocationEditor', () => {
     );
     await selectClick(selector);
     await userEvent.keyboard('{arrowup}');
-
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('Storage Service for ARTESCA');
+    ).toBe('Scality ARTESCA S3');
 
     [
-      'Scality ARTESCA S3',
       'Scality RING with S3 Connector',
       'Amazon S3',
       'Google Cloud Storage',
