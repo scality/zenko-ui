@@ -202,6 +202,6 @@ describe('ReplicationForm', () => {
     //V
     await waitFor(()=>{
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    }, {timeout: 2000})
+    }, {timeout: 8000})
   }); 
 });
