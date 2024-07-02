@@ -1,4 +1,4 @@
-import type { InstanceStateSnapshot } from '../../types/stats';
+import type { Capabilities, InstanceStateSnapshot } from '../../types/stats';
 import type {
   LabelFunction,
   StorageOptionSelect,
@@ -8,7 +8,6 @@ import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
   Location as LegacyLocation,
-  Locations,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_ENDPOINT,
@@ -20,6 +19,7 @@ import { LocationForm } from '../../types/location';
 import { Location } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { LocationV1 } from '../../js/managementClient/api';
+
 export function checkSupportsReplicationTarget(
   locations: LocationInfo[],
 ): boolean {
@@ -104,12 +104,19 @@ export const getLocationTypeShort = (
 };
 
 export function selectStorageOptions(
-  capabilities: Pick<InstanceStateSnapshot, 'capabilities'>,
+  capabilities: Capabilities,
+  locations?: LocationInfo[],
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<StorageOptionSelect> {
+  const hdLocation = locations?.find(
+    (l) => l.type === LocationV1.LocationTypeEnum.ScalityHdclientV2,
+  );
   return Object.keys(storageOptions)
     .filter((o) => {
+      if (hdLocation && o === 'location-scality-hdclient-v2') {
+        return false;
+      }
       if (exceptHidden) {
         const hidden = !!storageOptions[o].hidden;
 
