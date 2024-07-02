@@ -105,11 +105,11 @@ export const getLocationTypeShort = (
 
 export function selectStorageOptions(
   capabilities: Capabilities,
-  locations: LocationInfo[],
+  locations?: LocationInfo[],
   labelFn?: LabelFunction,
   exceptHidden = true,
 ): Array<StorageOptionSelect> {
-  const hdLocation = locations.find(
+  const hdLocation = locations?.find(
     (l) => l.type === LocationV1.LocationTypeEnum.ScalityHdclientV2,
   );
   return Object.keys(storageOptions)

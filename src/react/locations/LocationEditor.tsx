@@ -74,7 +74,6 @@ function LocationEditor() {
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
-    if (!locations) return [];
     return selectStorageOptions(
       capabilities,
       locations,
