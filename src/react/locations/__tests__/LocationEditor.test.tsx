@@ -3,12 +3,15 @@ import LocationEditor from '../LocationEditor';
 
 import {
   fireEvent,
+  render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import {
   TEST_API_BASE_URL,
+  Wrapper,
   mockOffsetSize,
   reduxRender,
   selectClick,
@@ -17,6 +20,7 @@ import { setupServer } from 'msw/node';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import userEvent from '@testing-library/user-event';
+import { rest } from 'msw';
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
@@ -45,13 +49,11 @@ describe('LocationEditor', () => {
     );
     await selectClick(selector);
     await userEvent.keyboard('{arrowup}');
-
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('Storage Service for ARTESCA');
+    ).toBe('Scality ARTESCA S3');
 
     [
-      'Scality ARTESCA S3',
       'Scality RING with S3 Connector',
       'Amazon S3',
       'Google Cloud Storage',
@@ -67,6 +69,45 @@ describe('LocationEditor', () => {
       expect(
         container.querySelector('.sc-select__option--is-focused')?.textContent,
       ).toBe(locationName);
+    });
+  });
+  const selectors = {
+    loadingLocation: () => screen.getByText('Loading location...'),
+    locationType: () => screen.getByLabelText(/location type \*/i),
+  };
+
+  it('should hide the artesca storage service if it is already created', async () => {
+    //S
+    server.use(
+      rest.get(
+        `${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`,
+        (_, res, ctx) =>
+          res(
+            ctx.json({
+              locations: {
+                'us-east-2': {
+                  details: {
+                    bootstrapList: [
+                      'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+                    ],
+                    repoId: null,
+                  },
+                  locationType: 'location-scality-hdclient-v2',
+                  name: 'us-east-2',
+                  objectId: '22f31240-4bd3-11ee-98b3-1e5b6f897bc7',
+                },
+              },
+            }),
+          ),
+      ),
+    );
+    render(<LocationEditor />, { wrapper: Wrapper });
+    await waitForElementToBeRemoved(() => selectors.loadingLocation());
+    //E
+    selectClick(selectors.locationType());
+    //V
+    await waitFor(() => {
+      expect(screen.queryByText('Storage Service for ARTESCA')).toBeNull();
     });
   });
 });

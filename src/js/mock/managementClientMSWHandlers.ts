@@ -144,16 +144,21 @@ export const LOCATIONS = {
     name: 'ring-nick',
     objectId: '99a06f79-c62c-11ec-b993-7e8a0ab79998',
   },
-  'us-east-1': {
-    isBuiltin: true,
-    locationType: 'location-file-v1',
-    name: 'us-east-1',
-    objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
-  },
   [azureblobstorage]: {
     locationType: 'location-azure-v1',
     name: azureblobstorage,
     details: {},
+  },
+  'us-east-1': {
+    details: {
+      bootstrapList: [
+        'artesca-storage-service-hdservice-proxy.xcore.svc:18888',
+      ],
+      repoId: null,
+    },
+    locationType: 'location-scality-hdclient-v2',
+    name: 'us-east-1',
+    objectId: '22f31240-4bd3-11ee-98b3-1e5b6f897bc7',
   },
 };
 

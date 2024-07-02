@@ -62,7 +62,8 @@ function LocationEditor() {
   } = useAccountsLocationsAndEndpoints({
     accountsLocationsEndpointsAdapter,
   });
-  const locationEditing = accountsLocationsAndEndpoints?.locations.find(
+  const locations = accountsLocationsAndEndpoints?.locations;
+  const locationEditing = locations?.find(
     (location) => location.name === locationName,
   );
   const capabilities = useSelector(
@@ -73,9 +74,13 @@ function LocationEditor() {
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
-    //@ts-expect-error fix this when you are working on it
-    return selectStorageOptions(capabilities, makeLabel, !editingExisting);
-  }, [capabilities, editingExisting]);
+    return selectStorageOptions(
+      capabilities,
+      locations,
+      makeLabel,
+      !editingExisting,
+    );
+  }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {
       setLocation(convertToForm(locationEditing));
