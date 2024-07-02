@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { TEST_API_BASE_URL } from '../../../react/utils/testUtil';
 import {
-  SelectAccountIAMRole,
+  SelectAccountIAMRoleInternal as SelectAccountIAMRole,
   extractAccountIdFromARN,
 } from '../SelectAccountIAMRole';
 
