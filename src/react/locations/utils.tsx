@@ -3,6 +3,7 @@ import {
   JAGUAR_S3_LOCATION_KEY,
   Location as LegacyLocation,
   LocationTypeKey,
+  ORACLE_CLOUD_LOCATION_KEY,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_LOCATION_KEY,
   OUTSCALE_SNC_S3_LOCATION_KEY,
@@ -174,7 +175,8 @@ export const checkIsRingS3Reseller = (locationType: LocationTypeKey) => {
     locationType === JAGUAR_S3_LOCATION_KEY ||
     locationType === ORANGE_S3_LOCATION_KEY ||
     locationType === OUTSCALE_PUBLIC_S3_LOCATION_KEY ||
-    locationType === OUTSCALE_SNC_S3_LOCATION_KEY
+    locationType === OUTSCALE_SNC_S3_LOCATION_KEY ||
+    locationType === ORACLE_CLOUD_LOCATION_KEY
   );
 };
 
