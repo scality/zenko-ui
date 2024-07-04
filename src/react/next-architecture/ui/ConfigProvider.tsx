@@ -1,57 +1,43 @@
-import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
+import { useCurrentApp } from '@scality/module-federation';
 import { createContext } from 'react';
-import {
-  ComponentWithFederatedImports,
-  useCurrentApp,
-} from '@scality/module-federation';
 import { AppConfig } from '../../../types/entities';
-import { ErrorBoundary } from 'react-error-boundary';
 
 export const _ConfigContext = createContext<AppConfig | null>(null);
 
-const configGlobal = {};
-const deployedInstancesGlobal = {};
 export function useConfig(): AppConfig {
   const { name } = useCurrentApp();
-  //@ts-expect-error fix this when you are working on it
-  return configGlobal.hooks.useConfig({
+  return window.shellHooks.useConfig<AppConfig>({
     configType: 'run',
     name,
   }).spec.selfConfiguration;
 }
 
 export function useLinkOpener() {
-  //@ts-expect-error fix this when you are working on it
-  return configGlobal.hooks.useLinkOpener();
+  return window.shellHooks.useLinkOpener();
 }
 
 export function useDiscoveredViews() {
-  //@ts-expect-error fix this when you are working on it
-  return configGlobal.hooks.useDiscoveredViews();
+  return window.shellHooks.useDiscoveredViews();
 }
 
 export function useDeployedApps() {
-  //@ts-expect-error fix this when you are working on it
-  return deployedInstancesGlobal.hooks.useDeployedApps();
+  return window.shellHooks.useDeployedApps();
 }
 
 export function useDeployedMetalk8sInstances() {
-  //@ts-expect-error fix this when you are working on it
-  return deployedInstancesGlobal.hooks.useDeployedApps({
+  return window.shellHooks.useDeployedApps({
     kind: 'metalk8s-ui',
   });
 }
 
 export function useDeployedXcoreInstances() {
-  //@ts-expect-error fix this when you are working on it
-  return deployedInstancesGlobal.hooks.useDeployedApps({
+  return window.shellHooks.useDeployedApps({
     kind: 'xcore-ui',
   });
 }
 
 export function useXcoreConfig(configType: 'run' | 'build' = 'build') {
-  //@ts-expect-error fix this when you are working on it
-  const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
+  const { retrieveConfiguration } = window.shellHooks.useConfigRetriever();
   const instances = useDeployedXcoreInstances();
 
   if (instances.length) {
@@ -65,18 +51,20 @@ export function useXcoreConfig(configType: 'run' | 'build' = 'build') {
 }
 
 export function useConfigRetriever() {
-  //@ts-expect-error fix this when you are working on it
-  return configGlobal.hooks.useConfigRetriever();
+  return window.shellHooks.useConfigRetriever();
 }
 
+// FIXME this is a temporary (hopefully) solution to get the Grafana URL
+type Config = {
+  url_grafana: string;
+};
 export function useGrafanaURL() {
-  //@ts-expect-error fix this when you are working on it
-  const { retrieveConfiguration } = configGlobal.hooks.useConfigRetriever();
+  const { retrieveConfiguration } = window.shellHooks.useConfigRetriever();
   const instances = useDeployedMetalk8sInstances();
 
   if (instances.length) {
     const baseUrl = new URL(instances[0].url).origin;
-    const runTimeConfig = retrieveConfiguration({
+    const runTimeConfig = retrieveConfiguration<Config>({
       configType: 'run',
       name: instances[0].name,
     });
@@ -85,52 +73,4 @@ export function useGrafanaURL() {
     console.log('There is no Metalk8s instance deployed yet.');
     return '';
   }
-}
-
-const InternalConfigProvider = ({
-  moduleExports,
-  children,
-}: {
-  moduleExports: Record<string, unknown>;
-  children: React.ReactNode;
-}): React.ReactNode => {
-  //@ts-expect-error fix this when you are working on it
-  configGlobal.hooks =
-    moduleExports['./moduleFederation/ConfigurationProvider'];
-  //@ts-expect-error fix this when you are working on it
-  deployedInstancesGlobal.hooks =
-    moduleExports['./moduleFederation/UIListProvider'];
-  return <>{children}</>;
-};
-
-function ErrorFallback() {
-  // const intl = useIntl();
-  // const language = intl.locale;
-  return <ErrorPage500 data-cy="sc-error-page500" locale={'en'} />;
-}
-
-export function ConfigProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ComponentWithFederatedImports
-        componentWithInjectedImports={InternalConfigProvider}
-        renderOnError={<ErrorPage500 />}
-        componentProps={{
-          children,
-        }}
-        federatedImports={[
-          {
-            scope: 'shell',
-            module: './moduleFederation/ConfigurationProvider',
-            remoteEntryUrl: window.shellUIRemoteEntryUrl,
-          },
-          {
-            scope: 'shell',
-            module: './moduleFederation/UIListProvider',
-            remoteEntryUrl: window.shellUIRemoteEntryUrl,
-          },
-        ]}
-      />
-    </ErrorBoundary>
-  );
 }

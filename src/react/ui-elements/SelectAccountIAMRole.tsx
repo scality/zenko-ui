@@ -22,7 +22,6 @@ import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/
 import { getListRolesQuery } from '../queries';
 import { regexArn } from '../utils/hooks';
 import { AuthProvider } from '../next-architecture/ui/AuthProvider';
-import { ConfigProvider } from '../next-architecture/ui/ConfigProvider';
 
 class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -302,11 +301,5 @@ export const SelectAccountIAMRoleInternal = (
 };
 
 export default function SelectAccountIAMRole(props: SelectAccountIAMRoleProps) {
-  return (
-    <ConfigProvider>
-      <AuthProvider>
-        <SelectAccountIAMRoleInternal {...props} />
-      </AuthProvider>
-    </ConfigProvider>
-  );
+  return <SelectAccountIAMRoleInternal {...props} />;
 }

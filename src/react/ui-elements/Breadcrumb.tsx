@@ -4,9 +4,27 @@ import {
   ConstrainedText,
 } from '@scality/core-ui';
 import styled from 'styled-components';
-import { ellipsis } from 'polished';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 import { fontSize } from '@scality/core-ui/dist/style/theme';
+
+// vendor from `polished` package
+type Styles = {
+  [ruleOrSelector: string]: string | number | Styles;
+};
+function ellipsis(width: string | number): Styles {
+  if (width === void 0) {
+    width = '100%';
+  }
+
+  return {
+    display: 'inline-block',
+    maxWidth: width,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    wordWrap: 'normal',
+  };
+}
 
 export const CustomBreadCrumb = styled(CoreUIBreadcrumb)`
   align-items: center;
