@@ -78,4 +78,19 @@ describe('FolderCreate', () => {
     );
     expect(createFolderMock).toHaveBeenCalledTimes(1);
   });
+
+  it('should disable the save button if the folder name is invalid', async () => {
+    renderWithRouterMatch(
+      <FolderCreate bucketName={BUCKET_NAME} prefixWithSlash="" />,
+      undefined,
+      {
+        uiObjects: {
+          showFolderCreate: true,
+        },
+      },
+    );
+
+    await userEvent.type(screen.getByRole('textbox'), '/' + FILE_NAME);
+    expect(screen.getByRole('button', { name: /save/i })).toBeDisabled();
+  });
 });

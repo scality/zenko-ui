@@ -54,6 +54,8 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
     setFolderName(e.target.value);
   };
 
+  const isFolderNameValid = folderName && !folderName.startsWith('/');
+  const folderNameInvalidMsg = 'The folder name is not valid.';
   return (
     <Modal
       close={cancel}
@@ -70,10 +72,11 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             />
             <Button
               id="folder-create-save-button"
-              disabled={loading || !folderName}
+              disabled={loading || !isFolderNameValid}
               variant="secondary"
               onClick={save}
               label="Save"
+              tooltip={!isFolderNameValid && { overlay: folderNameInvalidMsg }}
             />
           </Stack>
         </Wrap>
@@ -91,14 +94,20 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
             setTimeout(() => input.focus());
           }
         }}
+        error={!isFolderNameValid && folderNameInvalidMsg}
         onChange={handleChange}
       />
       <Description>
         <InfoMessage
           title="Creating a folder"
-          content='When you create a folder, Data Browser creates an object with the
-          above name appended by suffix "/" and that object is
-          displayed as a folder in the Data Browser.'
+          content={
+            <>
+              Ensure the folder name does not begin with a slash. <br />
+              When you create a folder, Data Browser creates an object with the
+              above name appended by suffix "/" and that object is displayed as
+              a folder in the Data Browser.
+            </>
+          }
         />
       </Description>
     </Modal>
