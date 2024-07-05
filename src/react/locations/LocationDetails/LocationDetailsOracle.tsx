@@ -29,6 +29,17 @@ const INIT_STATE: State = {
 export const oracleCloudEndpointBuilder = (namespace: string, region: string) =>
   `https://${namespace}.compat.objectstorage.${region}.oraclecloud.com`;
 
+export const getNamespaceAndRegion = (endpoint: string) => {
+  if (!endpoint) return { namespace: '', region: '' };
+  const regex =
+    /https:\/\/(?<namespace>.+)\.compat\.objectstorage\.(?<region>.+).oraclecloud.com/;
+  const parts = endpoint.match(regex);
+  return {
+    namespace: parts.groups['namespace'],
+    region: parts.groups['region'],
+  };
+};
+
 export default function LocationDetailsOracle({
   details,
   editingExisting,
@@ -36,7 +47,10 @@ export default function LocationDetailsOracle({
 }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     return {
-      ...Object.assign({}, INIT_STATE, details, { secretKey: '' }),
+      ...Object.assign({}, INIT_STATE, details, {
+        secretKey: '',
+        ...getNamespaceAndRegion(details.endpoint),
+      }),
     };
   });
   const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {

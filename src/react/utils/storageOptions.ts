@@ -8,6 +8,7 @@ import {
   JAGUAR_S3_ENDPOINT,
   JAGUAR_S3_LOCATION_KEY,
   Location as LegacyLocation,
+  ORACLE_CLOUD_LOCATION_KEY,
   ORANGE_S3_ENDPOINT,
   ORANGE_S3_LOCATION_KEY,
   OUTSCALE_PUBLIC_S3_ENDPOINT,
@@ -34,8 +35,8 @@ export function checkIfExternalLocation(locations: LocationInfo[]): boolean {
 /**
  * Retrieve the `LocationTypeKey` so that it can be use to to get the right
  * storage option.
- * The `JAGUAR_S3_LOCATION_KEY` and `ORANGE_S3_LOCATION_KEY` work like
- * `location-scality-ring-s3-v1` in the UI with predefine values but are not
+ * The `JAGUAR_S3_LOCATION_KEY`,`ORANGE_S3_LOCATION_KEY` and `ORACLE_CLOUD_LOCATION_KEY`
+ * work like `location-scality-ring-s3-v1` in the UI with predefine values but are not
  * implemented in the backend.
  *
  * We need to add extra logic because changing the backend is expensive.
@@ -65,6 +66,8 @@ export const getLocationTypeKey = (
         return OUTSCALE_PUBLIC_S3_LOCATION_KEY;
       } else if (location.details.endpoint === OUTSCALE_SNC_S3_ENDPOINT) {
         return OUTSCALE_SNC_S3_LOCATION_KEY;
+      } else if (location.details.endpoint.endsWith('oraclecloud.com')) {
+        return ORACLE_CLOUD_LOCATION_KEY;
       } else {
         return 'locationType' in location
           ? location.locationType
