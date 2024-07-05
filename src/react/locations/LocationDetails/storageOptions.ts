@@ -13,6 +13,7 @@ import LocationDetailsDOSpaces from './LocationDetailsDOSpaces';
 import LocationDetailsGcp from './LocationDetailsGcp';
 import LocationDetailsHyperdriveV2 from './LocationDetailsHyperdriveV2';
 import LocationDetailsNFS from './LocationDetailsNFS';
+import LocationDetailsOracle from './LocationDetailsOracle';
 import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
@@ -212,5 +213,15 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: true,
     hasIcon: false,
+  },
+  'location-oracle-ring-s3-v1': {
+    name: 'Oracle Cloud Object Storage',
+    short: 'Oracle',
+    formDetails: LocationDetailsOracle,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: true,
+    hasIcon: false,
+    checkCapability: 'locationTypeS3Custom',
   },
 };

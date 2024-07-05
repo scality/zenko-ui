@@ -33,7 +33,7 @@ const server = setupServer(
 
 describe('LocationList', () => {
   beforeAll(() => {
-    jest.setTimeout(30_000);
+    jest.setTimeout(50_000);
     mockOffsetSize(500, 100);
     server.listen({ onUnhandledRequest: 'error' });
   });

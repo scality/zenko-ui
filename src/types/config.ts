@@ -17,6 +17,7 @@ export const OUTSCALE_SNC_S3_ENDPOINT =
   'https://oos.cloudgouv-eu-west-1.outscale.com';
 export const OUTSCALE_SNC_S3_LOCATION_KEY = 'location-3ds-outscale-oos-snc';
 
+export const ORACLE_CLOUD_LOCATION_KEY = 'location-oracle-ring-s3-v1';
 export type LocationName = string;
 
 type LocationS3Type =
@@ -26,7 +27,8 @@ type LocationS3Type =
   | 'location-orange-ring-s3-v1'
   | 'location-aws-s3-v1'
   | 'location-3ds-outscale-oos-public'
-  | 'location-3ds-outscale-oos-snc';
+  | 'location-3ds-outscale-oos-snc'
+  | 'location-oracle-ring-s3-v1';
 type LocationFSType =
   | 'location-scality-hdclient-v2'
   | 'location-aws-s3-v1'
