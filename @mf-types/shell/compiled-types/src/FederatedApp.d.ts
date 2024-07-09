@@ -11,7 +11,7 @@ import { useLanguage } from './navbar/lang';
 import AlertProvider from './alerts/AlertProvider';
 import { getAlertingAlertSelectors, getAuthenticationAlertSelectors, getBootstrapAlertSelectors, getDashboardingAlertSelectors, getIngressControllerAlertSelectors, getK8SMasterAlertSelectors, getLoggingAlertSelectors, getMonitoringAlertSelectors, getNetworksAlertSelectors, getNodesAlertSelectors, getPlatformAlertSelectors, getServicesAlertSelectors, getVolumesAlertSelectors, useAlerts, useHighestSeverityAlerts } from './alerts';
 import { useHistory } from 'react-router';
-import { UseQueryResult } from 'react-query/types/react';
+import { UseQueryResult } from 'react-query';
 export declare const queryClient: QueryClient;
 export type ShellTypes = {
     shellHooks: {
