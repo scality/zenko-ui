@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
 import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
+import React, { useMemo, useState } from 'react';
+
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
 type Props = {
@@ -23,12 +24,15 @@ const Editor = ({
   const config = useConfig();
   const { basePath } = config;
   const [theme, setTheme] = useState('');
-  useEffect(() => {
-    setTheme(localStorage.getItem('theme') === 'dark' ? 'vs-dark' : 'light');
-  }, [localStorage.getItem('theme')]);
+  const { themeMode } = window.shellHooks.useShellThemeSelector();
 
   useMemo(() => {
-    loader.config({ paths: { vs: basePath + '/vs' } });
+    setTheme(themeMode === 'dark' ? 'vs-dark' : 'light');
+  }, [themeMode]);
+
+  useMemo(() => {
+    const path = process.env.NODE_ENV === 'development' ? '/zenko' : basePath;
+    loader.config({ paths: { vs: path + '/vs' } });
   }, []);
 
   return (

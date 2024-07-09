@@ -10,7 +10,7 @@ import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterProvider';
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 
-import { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 import zenkoUIReducer from './reducers';
 

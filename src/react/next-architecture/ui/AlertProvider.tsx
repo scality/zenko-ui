@@ -1,4 +1,6 @@
-import { QueryObserverResult } from 'react-query';
+import React from 'react';
+import { FilterLabels } from 'shell/compiled-types/src/alerts/services/alertUtils';
+import { useXcoreConfig } from './ConfigProvider';
 
 type PrometheusAlert = {
   annotations: Record<string, string>;
@@ -35,15 +37,20 @@ export type Alert = {
 export const highestAlertToStatus = (alerts?: Alert[]): string => {
   return (alerts?.[0] && alerts[0].severity) || 'healthy';
 };
-export type FilterLabels = {
-  parents?: string[];
-  selectors?: string[];
-} & { [labelName: string]: string };
-
-type useAlertsType = (
-  filters: FilterLabels,
-) => Omit<QueryObserverResult<Alert[]>, 'data'> & { alerts?: Alert[] };
 
 export const useAlerts = (filters: FilterLabels) => {
   return window.shellAlerts.hooks.useAlerts(filters);
 };
+
+const AlertProvider = ({ children }: { children: React.ReactNode }) => {
+  const xcoreConfig = useXcoreConfig('run');
+  return (
+    <window.shellAlerts.AlertsProvider
+      alertManagerUrl={xcoreConfig.spec.selfConfiguration.url_alertmanager}
+    >
+      {children}
+    </window.shellAlerts.AlertsProvider>
+  );
+};
+
+export default AlertProvider;

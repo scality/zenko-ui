@@ -41,7 +41,6 @@ export function XCoreLibraryProvider({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
   const xcoreWebfinger = useXcoreConfig();
   const instances = useDeployedXcoreInstances();
   const federatedImports = instances.map((instance) => {

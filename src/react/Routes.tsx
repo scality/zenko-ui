@@ -279,7 +279,7 @@ function Routes() {
       },
       {
         label: 'Workflows',
-        icon: <i className="fas fa-route" />,
+        icon: <Icon name="Workflow" />,
         onClick: () => {
           history.push('/workflows');
         },

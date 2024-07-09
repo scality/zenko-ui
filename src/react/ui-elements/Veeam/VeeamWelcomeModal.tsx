@@ -15,7 +15,9 @@ import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
 import { useNextLogin } from './useNextLogin';
-import { useAlerts } from '../../next-architecture/ui/AlertProvider';
+import AlertProvider, {
+  useAlerts,
+} from '../../next-architecture/ui/AlertProvider';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -151,7 +153,9 @@ const VeeamModalComponent = () => {
 export default function VeeamWelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
     <InternalRouter>
-      <VeeamWelcomeModalInternal {...props} />
+      <AlertProvider>
+        <VeeamWelcomeModalInternal {...props} />
+      </AlertProvider>
     </InternalRouter>
   );
 }

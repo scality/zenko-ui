@@ -27,20 +27,6 @@ export function useInstanceId() {
   return instanceIds[0];
 }
 
-type UserDataOriginal = {
-  session_state?: string;
-};
-export type UserData = {
-  token: string;
-  username: string;
-  groups: string[];
-  //@ts-expect-error fix this when you are working on it
-  roles: RoleNames[];
-  email: string;
-  id: string;
-  original?: UserDataOriginal;
-};
-
 export function useAuth() {
   return window.shellHooks.useAuth();
 }
