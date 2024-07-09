@@ -229,3 +229,5 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
 //     };
 //   }),
 // }));
+
+jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });
