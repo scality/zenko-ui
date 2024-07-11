@@ -18,7 +18,6 @@ import { MockedMetricsAdapter } from '../../adapters/metrics/MockedMetricsAdapte
 import { AccountInfo } from '../entities/account';
 import { LatestUsedCapacity } from '../entities/metrics';
 import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
-import { _AuthContext } from '../../ui/AuthProvider';
 import { PromiseResult } from '../entities/promise';
 import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 import { NewWrapper } from '../../../utils/testUtil';

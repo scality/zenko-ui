@@ -17,7 +17,6 @@ export function useAccessToken() {
 export function useInstanceId() {
   const user = useAuth();
 
-  //@ts-expect-error fix this when you are working on it
   const instanceIds = user?.userData?.original?.profile?.instanceIds;
 
   if (!instanceIds || instanceIds.length === 0) {

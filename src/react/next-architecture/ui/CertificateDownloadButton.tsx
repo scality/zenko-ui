@@ -11,7 +11,7 @@ export const CertificateDownloadButton = () => {
   if (artescaUI) {
     const url =
       artescaUI.url +
-      retrieveConfiguration({
+      retrieveConfiguration<'build'>({
         configType: 'build',
         name: artescaUI.name,
       }).spec.remoteEntryPath;
@@ -26,7 +26,7 @@ export const CertificateDownloadButton = () => {
           filename: 'artesca-ca.pem',
           variant: 'outline',
         }}
-      ></FederatedComponent>
+      />
     );
   }
 

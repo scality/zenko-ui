@@ -21,7 +21,6 @@ import {
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { regexArn } from '../utils/hooks';
-import { AuthProvider } from '../next-architecture/ui/AuthProvider';
 
 class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(

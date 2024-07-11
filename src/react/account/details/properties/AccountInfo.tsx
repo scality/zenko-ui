@@ -15,24 +15,17 @@ import { useState } from 'react';
 import type { Account } from '../../../../types/account';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
-import {
-  useAccountsLocationsAndEndpoints,
-  useListAccounts,
-} from '../../../next-architecture/domain/business/accounts';
+import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 
+import { CopyButton } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
 import DeleteConfirmation from '../../../ui-elements/DeleteConfirmation';
-import * as T from '../../../ui-elements/TableKeyValue';
-import Table from '../../../ui-elements/TableKeyValue';
+import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
 import SecretKeyModal from './SecretKeyModal';
-import { useSetAssumedRole } from '../../../DataServiceRoleProvider';
-import { useAccessibleAccountsAdapter } from '../../../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { useMetricsAdapter } from '../../../next-architecture/ui/MetricsAdapterProvider';
-import { CopyButton } from '@scality/core-ui/dist/next';
 
 const TableContainer = styled.div`
   display: flex;

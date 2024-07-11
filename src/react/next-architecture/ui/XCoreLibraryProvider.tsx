@@ -1,7 +1,10 @@
 import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
-import { useDeployedXcoreInstances, useXcoreConfig } from './ConfigProvider';
 import { ComponentWithFederatedImports } from '@scality/module-federation';
 import { ErrorBoundary } from 'react-error-boundary';
+import {
+  useDeployedXcoreInstances,
+  useXcoreBuildtimeConfig,
+} from './ConfigProvider';
 
 export const XCORE_NOT_AVAILABLE = 'XCore library is not available';
 export class XCoreLibraryNotAvailable extends Error {
@@ -41,7 +44,7 @@ export function XCoreLibraryProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const xcoreWebfinger = useXcoreConfig();
+  const xcoreWebfinger = useXcoreBuildtimeConfig();
   const instances = useDeployedXcoreInstances();
   const federatedImports = instances.map((instance) => {
     return {
