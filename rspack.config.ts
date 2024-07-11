@@ -170,7 +170,7 @@ const config: Configuration = {
         errors: true,
       },
     },
-    static: path.join(__dirname, 'public'),
+    static: path.join(__dirname, 'public/assets'),
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods':
