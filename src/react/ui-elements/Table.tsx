@@ -1,7 +1,6 @@
-// @noflow
 import { fontSize } from '@scality/core-ui/dist/style/theme';
 
-import { spacing, SecondaryText, Wrap, SearchInput } from '@scality/core-ui';
+import { spacing, SecondaryText, Wrap } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { Link } from 'react-router-dom';
 
