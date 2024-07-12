@@ -5,7 +5,7 @@
     "kind": "zenko-ui"
   },
   "spec": {
-    "remoteEntryPath": "/js/remoteEntry.js",
+    "remoteEntryPath": "/mf-manifest.json",
     "views": {
       "dataManagement": {
         "path": "/",
