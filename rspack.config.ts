@@ -40,7 +40,7 @@ const config: Configuration = {
     assetModuleFilename: 'static/assets/[name].[hash][ext][query]',
     cssFilename: 'static/css/[name].[contenthash].css',
     path: path.resolve(__dirname, 'build'),
-    publicPath: isProduction ? '/data/' : '/zenko/',
+    publicPath: '/data/',
   },
   module: {
     rules: [
