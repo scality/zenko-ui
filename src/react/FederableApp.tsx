@@ -1,7 +1,9 @@
+import { ToastProvider } from '@scality/core-ui';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Provider } from 'react-redux';
 import { BrowserRouter, useHistory } from 'react-router-dom';
 import { applyMiddleware, compose, createStore } from 'redux';
+
 import thunk from 'redux-thunk';
 import ZenkoUI from './ZenkoUI';
 import { AccessibleAccountsAdapterProvider } from './next-architecture/ui/AccessibleAccountsAdapterProvider';
@@ -58,7 +60,9 @@ const FederableApp = () => {
           <LocationAdapterProvider>
             <AccessibleAccountsAdapterProvider>
               <MetricsAdapterProvider>
-                <ZenkoUI />
+                <ToastProvider>
+                  <ZenkoUI />
+                </ToastProvider>
                 <ReactQueryDevtools initialIsOpen={false} />
               </MetricsAdapterProvider>
             </AccessibleAccountsAdapterProvider>
