@@ -36,9 +36,9 @@ const config: Configuration = {
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? false : 'source-map',
   output: {
-    filename: `js/[name].[contenthash].${revision}.js`,
-    assetModuleFilename: 'assets/[name].[hash][ext][query]',
-    cssFilename: 'css/[name].[contenthash].css',
+    filename: `static/js/[name].[contenthash].${revision}.js`,
+    assetModuleFilename: 'static/assets/[name].[hash][ext][query]',
+    cssFilename: 'static/css/[name].[contenthash].css',
     path: path.resolve(__dirname, 'build'),
     publicPath: isProduction ? '/data/' : '/zenko/',
   },
@@ -118,7 +118,7 @@ const config: Configuration = {
   plugins: [
     new ModuleFederationPlugin({
       name: 'zenko',
-      filename: 'js/remoteEntry.js',
+      filename: 'static/js/remoteEntry.js',
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
         './VeeamWelcomeModal':
