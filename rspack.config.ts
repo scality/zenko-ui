@@ -156,7 +156,7 @@ const config: Configuration = {
       },
     }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'public/assets/zenko' }],
+      patterns: [{ from: 'public/assets/data' }],
     }),
     process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
   ].filter(Boolean),
