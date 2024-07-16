@@ -179,9 +179,9 @@ const config: Configuration = {
       'Access-Control-Expose-Headers': 'ETag',
     },
     proxy: {
-      '/s3': {
+      '/data/s3': {
         target: `https://s3.${zenkoDNS}`,
-        pathRewrite: { '^/s3': '' },
+        pathRewrite: { '^/data/s3': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
