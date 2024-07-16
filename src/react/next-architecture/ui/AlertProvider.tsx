@@ -15,10 +15,16 @@ export const useAlerts = (filters: FilterLabels) => {
 
 const AlertProvider = ({ children }: { children: React.ReactNode }) => {
   const xcoreConfig = useXcoreRuntimeConfig();
+
+  let alertManagerUrl = '';
+  if (xcoreConfig) {
+    alertManagerUrl = xcoreConfig.spec.selfConfiguration.url_alertmanager;
+  } else {
+    console.log('The alert manager is not available.');
+  }
+
   return (
-    <window.shellAlerts.AlertsProvider
-      alertManagerUrl={xcoreConfig.spec.selfConfiguration.url_alertmanager}
-    >
+    <window.shellAlerts.AlertsProvider alertManagerUrl={alertManagerUrl}>
       {children}
     </window.shellAlerts.AlertsProvider>
   );
