@@ -192,9 +192,9 @@ const config: Configuration = {
           }
         },
       },
-      '/iam': {
+      '/data/iam': {
         target: `https://iam.${zenkoDNS}`,
-        pathRewrite: { '^/iam': '' },
+        pathRewrite: { '^/data/iam': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
