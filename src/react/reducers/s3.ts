@@ -10,7 +10,7 @@ import {
   stripQuotes,
   systemMetadataKeys,
 } from '../utils';
-import type {
+import {
   MetadataPairs,
   ObjectEntity,
   S3DeleteMarker,
@@ -19,13 +19,10 @@ import type {
   TagSet,
   Tags,
 } from '../../types/s3';
-import type {
-  GetObjectMetadataSuccessAction,
-  S3Action,
-} from '../../types/actions';
-import type { SearchResult } from '../../types/zenko';
+import { GetObjectMetadataSuccessAction, S3Action } from '../../types/actions';
+import { SearchResult } from '../../types/zenko';
 import { List } from 'immutable';
-import type { S3State } from '../../types/state';
+import { S3State } from '../../types/state';
 import { initialS3State } from './initialConstants';
 
 const sortByDate = (objs) =>

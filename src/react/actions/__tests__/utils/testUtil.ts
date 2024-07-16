@@ -38,9 +38,9 @@ import {
   userName,
   workflows,
 } from '../../../../js/mock/managementClient';
-import type { ManagementClient } from '../../../../types/managementClient';
-import type { AppState } from '../../../../types/state';
-import type { EnabledState } from '../../../../types/stats';
+import { ManagementClient } from '../../../../types/managementClient';
+import { AppState } from '../../../../types/state';
+import { EnabledState } from '../../../../types/stats';
 import zenkoUIReducer from '../../../reducers';
 import { initialFullState } from '../../../reducers/initialConstants';
 import { configuration } from '../../../utils/testUtil';

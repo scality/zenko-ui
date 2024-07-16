@@ -1,4 +1,4 @@
-import type { ConfigurationOverlay, PerLocationMap } from './config';
+import { ConfigurationOverlay, PerLocationMap } from './config';
 export type CrrCounter = {
   readonly count: number;
   readonly size?: number;

@@ -1,19 +1,19 @@
-import type { AccessKey, Account, SecretKey } from '../../types/account';
-import type {
+import { AccessKey, Account, SecretKey } from '../../types/account';
+import {
   ApiAccountKeyResponse,
   ApiAccountResponse,
   ApiConfigurationResponse,
   ManagementClient as ManagementClientInterface,
 } from '../../types/managementClient';
-import type {
+import {
   ConfigurationOverlay,
   Endpoint,
   Location,
   Replication,
 } from '../../types/config';
-import type { APIWorkflows } from '../../types/workflow';
+import { APIWorkflows } from '../../types/workflow';
 import { ApiErrorObject } from './error';
-import type { InstanceStatus } from '../../types/stats';
+import { InstanceStatus } from '../../types/stats';
 export const location: Location = {
   name: 'location1',
   locationType: 'location-file-v1',

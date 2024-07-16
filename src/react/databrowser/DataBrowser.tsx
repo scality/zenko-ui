@@ -8,7 +8,7 @@ import {
 } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 import { Breadcrumb, breadcrumbPathsBuckets } from '../ui-elements/Breadcrumb';
 import Buckets from './buckets/Buckets';
 import { EmptyStateContainer } from '../ui-elements/Container';

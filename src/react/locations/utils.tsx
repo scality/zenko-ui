@@ -8,12 +8,12 @@ import {
   OUTSCALE_SNC_S3_LOCATION_KEY,
   Replication,
 } from '../../types/config';
-import type { BucketList } from '../../types/stats';
-import type { LocationForm } from '../../types/location';
+import { BucketList } from '../../types/stats';
+import { LocationForm } from '../../types/location';
 import { storageOptions } from './LocationDetails';
 import { getLocationType } from '../utils/storageOptions';
 
-import type { BucketInfo } from '../../types/s3';
+import { BucketInfo } from '../../types/s3';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { Location as NextLocation } from '../next-architecture/domain/entities/location';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';

@@ -1,18 +1,16 @@
-import { useState } from 'react';
-import Table, * as T from '../../ui-elements/Table';
-import { closeObjectUploadModal, uploadFiles } from '../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import type { Action } from '../../../types/actions';
-import type { AppState } from '../../../types/state';
-import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import type { Dispatch } from 'redux';
-import type { File } from '../../../types/s3';
-import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { Icon, PrettyBytes, Stack, Wrap } from '@scality/core-ui';
-import { maybePluralize } from '../../utils';
+import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import styled from 'styled-components';
+import { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components';
+import { File } from '../../../types/s3';
+import { AppState } from '../../../types/state';
+import { closeObjectUploadModal, uploadFiles } from '../../actions';
+import { CustomModal as Modal } from '../../ui-elements/Modal';
+import Table, * as T from '../../ui-elements/Table';
+import { maybePluralize } from '../../utils';
 import { usePrefixWithSlash } from '../../utils/hooks';
 const DropZone = styled.div`
   flex: 1;
@@ -116,7 +114,7 @@ const ObjectUpload = ({ bucketName }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showObjectUpload,
   );
-  const dispatch: Dispatch<Action> = useDispatch();
+  const dispatch = useDispatch();
   const prefixWithSlash = usePrefixWithSlash();
 
   const onDrop = (accepted, rejections) => {

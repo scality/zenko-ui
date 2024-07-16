@@ -1,5 +1,5 @@
 import { genClientEndpoint } from '../react/utils';
-import type {
+import {
   Credentials,
   SearchBucketResp,
   SearchBucketVersionsResp,

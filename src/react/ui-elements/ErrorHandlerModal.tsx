@@ -1,10 +1,7 @@
-// @noflow
-import { Wrap } from '@scality/core-ui/dist/spacing';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { Wrap } from '@scality/core-ui/dist/spacing';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Dispatch } from 'redux';
-import type { Action } from '../../types/actions';
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 import { clearError } from '../actions';
 import { CustomModal as Modal } from './Modal';
 
@@ -16,7 +13,7 @@ const ErrorHandlerModal = () => {
   const errorMessage = useSelector(
     (state: AppState) => state.uiErrors.errorMsg,
   );
-  const dispatch: Dispatch<Action> = useDispatch();
+  const dispatch = useDispatch();
 
   const close = () => dispatch(clearError());
 

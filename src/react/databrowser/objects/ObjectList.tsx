@@ -1,5 +1,5 @@
 import * as T from '../../ui-elements/Table';
-import type { ListObjectsType, ObjectEntity } from '../../../types/s3';
+import { ListObjectsType, ObjectEntity } from '../../../types/s3';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import { maybePluralize } from '../../utils';
 import {
@@ -8,7 +8,7 @@ import {
   openObjectUploadModal,
 } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import { List } from 'immutable';
 import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';

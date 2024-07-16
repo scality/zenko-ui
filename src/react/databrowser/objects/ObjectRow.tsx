@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import type { Dispatch } from 'redux';
+import { Dispatch } from 'redux';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
@@ -7,10 +7,10 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import * as T from '../../ui-elements/Table';
 import { toggleAllObjects } from '../../actions';
-import type { Action } from '../../../types/actions';
+import { Action } from '../../../types/actions';
 import { useQueryParams } from '../../utils/hooks';
 import { removeTrailingSlash } from '../../../js/utils';
-import type { ObjectEntity } from '../../../types/s3';
+import { ObjectEntity } from '../../../types/s3';
 
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {

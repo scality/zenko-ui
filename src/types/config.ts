@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { BucketWorkflowV1 } from '../js/managementClient/api';
-import type { Account } from './account';
+import { Account } from './account';
 import { Tag } from './s3';
 // locations
 export const JAGUAR_S3_ENDPOINT = 'https://s3.fr-lyo.jaguar-network.com';

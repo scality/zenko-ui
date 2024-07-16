@@ -23,7 +23,7 @@ import {
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
-import type { Replication } from '../../types/config';
+import { Replication } from '../../types/config';
 import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useCurrentAccount } from '../DataServiceRoleProvider';

@@ -1,6 +1,6 @@
 import { getAssumeRoleWithWebIdentityIAM } from '../../js/IAMClient';
-import type { AccessKey, Account, SecretKey } from '../../types/account';
-import type {
+import { AccessKey, Account, SecretKey } from '../../types/account';
+import {
   AddAccountSecretAction,
   CloseAccountDeleteDialogAction,
   CloseAccountKeyCreateModalAction,
@@ -13,7 +13,7 @@ import type {
   SelectAccountAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import type { IamAccessKey } from '../../types/user';
+import { IamAccessKey } from '../../types/user';
 import { getClients } from '../utils/actions';
 import {
   handleAWSClientError,

@@ -1,7 +1,7 @@
 import STSClient from '../../js/STSClient';
 import ZenkoClient from '../../js/ZenkoClient';
 import makeMgtClient from '../../js/managementClient';
-import type {
+import {
   ConfigAuthFailureAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
@@ -12,10 +12,10 @@ import type {
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import type { OidcLogoutFunction } from '../../types/auth';
-import type { AppConfig, InstanceId } from '../../types/entities';
-import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
-import type { STSClient as STSClientInterface } from '../../types/sts';
+import { OidcLogoutFunction } from '../../types/auth';
+import { AppConfig, InstanceId } from '../../types/entities';
+import { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
+import { STSClient as STSClientInterface } from '../../types/sts';
 import {
   addOIDCUser,
   handleErrorMessage,

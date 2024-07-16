@@ -1,5 +1,5 @@
-import type { AccountAction } from '../../types/actions';
-import type { AccountState } from '../../types/state';
+import { AccountAction } from '../../types/actions';
+import { AccountState } from '../../types/state';
 import { initialAccountState } from './initialConstants';
 export default function account(
   state: AccountState = initialAccountState,

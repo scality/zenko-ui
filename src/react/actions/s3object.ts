@@ -1,5 +1,5 @@
 import { History } from 'history';
-import type {
+import {
   CloseFolderCreateModalAction,
   CloseObjectDeleteModalAction,
   CloseObjectUploadModalAction,
@@ -17,7 +17,7 @@ import type {
   ToggleAllObjectsAction,
   ToggleObjectAction,
 } from '../../types/actions';
-import type {
+import {
   CommonPrefix,
   DeleteFolder,
   HeadObjectResponse,
@@ -37,7 +37,7 @@ import {
 } from './error';
 import { networkEnd, networkStart } from './network';
 import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
-import type { Marker, ZenkoClient } from '../../types/zenko';
+import { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
 

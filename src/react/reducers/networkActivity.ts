@@ -1,5 +1,5 @@
-import type { NetworkActivityAction } from '../../types/actions';
-import type { NetworkActivityState } from '../../types/state';
+import { NetworkActivityAction } from '../../types/actions';
+import { NetworkActivityState } from '../../types/state';
 import { initialNetworkActivityState } from './initialConstants';
 export default function networkActivity(
   state: NetworkActivityState = initialNetworkActivityState,

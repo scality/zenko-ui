@@ -8,7 +8,7 @@ import {
 } from '../../actions';
 import { UPLOADING_OBJECT } from '../../actions/s3object';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import FolderCreate from './FolderCreate';
 import {
   LIST_OBJECTS_S3_TYPE,

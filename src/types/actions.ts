@@ -1,9 +1,9 @@
-import type { AccessKey, Account, SecretKey } from './account';
-import type { AuthUser, OidcLogoutFunction } from './auth';
-import type { ConfigurationOverlay, Hostname } from './config';
-import type { AppConfig, InstanceId } from './entities';
-import type { ManagementClient } from './managementClient';
-import type {
+import { AccessKey, Account, SecretKey } from './account';
+import { AuthUser, OidcLogoutFunction } from './auth';
+import { ConfigurationOverlay, Hostname } from './config';
+import { AppConfig, InstanceId } from './entities';
+import { ManagementClient } from './managementClient';
+import {
   BucketInfo,
   CommonPrefix,
   HeadObjectResponse,
@@ -14,11 +14,11 @@ import type {
   S3Version,
   TagSet,
 } from './s3';
-import type { AppState } from './state';
-import type { InstanceStatus } from './stats';
-import type { STSClient } from './sts';
-import type { IamAccessKey } from './user';
-import type { Marker, SearchResultList, ZenkoClient } from './zenko';
+import { AppState } from './state';
+import { InstanceStatus } from './stats';
+import { STSClient } from './sts';
+import { IamAccessKey } from './user';
+import { Marker, SearchResultList, ZenkoClient } from './zenko';
 export type DispatchFunction = (arg0: Action) => any;
 export type GetStateFunction = () => AppState;
 export interface ApiError extends Error {
@@ -341,8 +341,6 @@ export type Action =
   | AccountAction
   | AuthAction
   | BucketsUIAction
-  //@ts-expect-error fix this when you are working on it
-  | LocationUIAction
   | ObjectsUIAction
   | OIDCAction
   | S3Action

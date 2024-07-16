@@ -1,5 +1,5 @@
 // @noflow
-import type { InstanceStatus } from '../../types/stats';
+import { InstanceStatus } from '../../types/stats';
 import { getClients } from '../utils/actions';
 import { handleClientError } from './error';
 export function instanceStatus(status: InstanceStatus) {

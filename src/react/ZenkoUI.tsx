@@ -2,7 +2,7 @@ import { Container } from './ui-elements/Container';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Activity from './ui-elements/Activity';
-import type { AppState } from '../types/state';
+import { AppState } from '../types/state';
 import { Banner, Icon, ScrollbarWrapper } from '@scality/core-ui';
 import ErrorHandlerModal from './ui-elements/ErrorHandlerModal';
 import Loader from './ui-elements/Loader';

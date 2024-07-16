@@ -1,6 +1,6 @@
 import * as T from '../ui-elements/Table';
 import React, { memo } from 'react';
-import type { Endpoint } from '../../types/config';
+import { Endpoint } from '../../types/config';
 import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';

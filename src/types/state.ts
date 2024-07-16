@@ -1,27 +1,27 @@
-import type { Account, AccountKey } from './account';
-import type { AppConfig, InstanceId } from './entities';
-import type { AuthUser, OidcLogoutFunction } from './auth';
-import type {
+import { Account, AccountKey } from './account';
+import { AppConfig, InstanceId } from './entities';
+import { AuthUser, OidcLogoutFunction } from './auth';
+import {
   BucketInfo,
   ListObjectsType,
   ObjectEntity,
   ObjectMetadata,
   S3BucketList,
 } from './s3';
-import type { BucketList, InstanceStatus } from './stats';
-import type {
+import { BucketList, InstanceStatus } from './stats';
+import {
   ConfigurationOverlay,
   Hostname,
   LocationName,
   ReplicationStreams,
 } from './config';
-import type { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
-import type { ErrorViewType } from './ui';
-import type { IamAccessKey } from './user';
+import { Marker, ZenkoClient as ZenkoClientInterface } from './zenko';
+import { ErrorViewType } from './ui';
+import { IamAccessKey } from './user';
 import { List } from 'immutable';
-import type { ManagementClient as ManagementClientInterface } from './managementClient';
-import type { STSClient } from './sts';
-import type { Workflows } from './workflow';
+import { ManagementClient as ManagementClientInterface } from './managementClient';
+import { STSClient } from './sts';
+import { Workflows } from './workflow';
 export type AuthState = {
   readonly isConfigLoaded: boolean;
   readonly isClientsLoaded: boolean;

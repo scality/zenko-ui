@@ -1,5 +1,5 @@
 import { handleErrorMessage, networkAuthFailure } from './index';
-import type { ThunkStatePromisedAction } from '../../types/actions';
+import { ThunkStatePromisedAction } from '../../types/actions';
 import { getClients } from '../utils/actions';
 
 // TODO: To be removed eventually

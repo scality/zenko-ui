@@ -1,4 +1,4 @@
-import type { Account, AccountKey } from '../../../../types/account';
+import { Account, AccountKey } from '../../../../types/account';
 import { CustomModal as Modal, ModalBody } from '../../../ui-elements/Modal';
 import Table, * as T from '../../../ui-elements/TableKeyValue';
 import {
@@ -7,7 +7,7 @@ import {
   deleteAccountSecret,
 } from '../../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../../types/state';
+import { AppState } from '../../../../types/state';
 import { Banner, Icon, Stack, Wrap, spacing } from '@scality/core-ui';
 import { Button, CopyButton, Box } from '@scality/core-ui/dist/next';
 

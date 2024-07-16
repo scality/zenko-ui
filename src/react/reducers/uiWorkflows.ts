@@ -1,5 +1,5 @@
-import type { WorkflowUIAction } from '../../types/actions';
-import type { WorkflowsUIState } from '../../types/state';
+import { WorkflowUIAction } from '../../types/actions';
+import { WorkflowsUIState } from '../../types/state';
 import { initialWorkflowsUIState } from './initialConstants';
 export default function uiWorkflows(
   state: WorkflowsUIState = initialWorkflowsUIState,

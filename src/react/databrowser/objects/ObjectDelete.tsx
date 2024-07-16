@@ -1,3 +1,14 @@
+import {
+  Banner,
+  Icon,
+  PrettyBytes,
+  spacing,
+  Stack,
+  Wrap,
+} from '@scality/core-ui';
+import { Box, Button } from '@scality/core-ui/dist/next';
+import { fontSize } from '@scality/core-ui/dist/style/theme';
+import { List } from 'immutable';
 import React, {
   createContext,
   Fragment,
@@ -6,35 +17,21 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import Table, * as T from '../../ui-elements/Table';
+import { useDispatch, useSelector } from 'react-redux';
+import styled, { useTheme } from 'styled-components';
+import { ObjectEntity } from '../../../types/s3';
+import { AppState } from '../../../types/state';
 import {
   closeObjectDeleteModal,
   deleteFiles,
   toggleAllObjects,
 } from '../../actions';
-import { fontSize } from '@scality/core-ui/dist/style/theme';
-import {
-  Banner,
-  Stack,
-  Wrap,
-  PrettyBytes,
-  Icon,
-  spacing,
-} from '@scality/core-ui';
-import { useDispatch, useSelector } from 'react-redux';
-import type { Action } from '../../../types/actions';
-import type { AppState } from '../../../types/state';
-import type { ObjectEntity } from '../../../types/s3';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import type { Dispatch } from 'redux';
-import { List } from 'immutable';
-import { CustomModal as Modal } from '../../ui-elements/Modal';
-import { maybePluralize } from '../../utils';
-import { useTheme } from 'styled-components';
-import styled from 'styled-components';
-import Input from '../../ui-elements/Input';
-import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
 import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
+import { Checkbox, CheckboxContainer } from '../../ui-elements/FormLayout';
+import Input from '../../ui-elements/Input';
+import { CustomModal as Modal } from '../../ui-elements/Modal';
+import Table, * as T from '../../ui-elements/Table';
+import { maybePluralize } from '../../utils';
 
 const Files = styled.div`
   height: 15.63rem;
@@ -304,7 +301,7 @@ const ObjectDelete = ({ bucketName, toggled, prefixWithSlash }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showObjectDelete,
   );
-  const dispatch: Dispatch<Action> = useDispatch();
+  const dispatch = useDispatch();
 
   const [toggledFiles, setToggledFiles] = useState([...toggled]);
 

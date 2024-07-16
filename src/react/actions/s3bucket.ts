@@ -1,5 +1,5 @@
-import type { BucketInfo, ObjectLockRetentionSettings } from '../../types/s3';
-import type {
+import { BucketInfo, ObjectLockRetentionSettings } from '../../types/s3';
+import {
   CloseBucketDeleteDialogAction,
   GetBucketInfoSuccessAction,
   OpenBucketDeleteDialogAction,

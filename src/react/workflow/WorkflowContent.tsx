@@ -1,6 +1,6 @@
 import { Icon } from '@scality/core-ui';
 import { useRouteMatch } from 'react-router-dom';
-import type { Workflow } from '../../types/workflow';
+import { Workflow } from '../../types/workflow';
 import { Tabs } from '@scality/core-ui/dist/next';
 import { Warning } from '../ui-elements/Warning';
 import { useQueryParams } from '../utils/hooks';

@@ -1,5 +1,5 @@
-import type { Capabilities, InstanceStateSnapshot } from '../../types/stats';
-import type {
+import { Capabilities, InstanceStateSnapshot } from '../../types/stats';
+import {
   LabelFunction,
   StorageOptionSelect,
 } from '../../types/storageOptionsHelper';

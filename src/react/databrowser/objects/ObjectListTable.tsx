@@ -12,11 +12,11 @@ import styled from 'styled-components';
 import { useHistory, useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
 
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import { Checkbox } from '../../ui-elements/FormLayout';
 import { ColdStorageIcon } from '../../ui-elements/ColdStorageIcon';
 import MiddleEllipsis from '../../ui-elements/MiddleEllipsis';
-import type { ObjectEntity } from '../../../types/s3';
+import { ObjectEntity } from '../../../types/s3';
 import { TextAligner } from '../../ui-elements/Utility';
 import { useQueryParams } from '../../utils/hooks';
 import Table, * as T from '../../ui-elements/Table';

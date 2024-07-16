@@ -1,5 +1,5 @@
-import type { StatsAction } from '../../types/actions';
-import type { StatsState } from '../../types/state';
+import { StatsAction } from '../../types/actions';
+import { StatsState } from '../../types/state';
 import { initialStatsState } from './initialConstants';
 export default function stats(
   state: StatsState = initialStatsState,

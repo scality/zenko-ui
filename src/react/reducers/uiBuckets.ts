@@ -1,5 +1,5 @@
-import type { BucketsUIAction } from '../../types/actions';
-import type { BucketsUIState } from '../../types/state';
+import { BucketsUIAction } from '../../types/actions';
+import { BucketsUIState } from '../../types/state';
 import { initialBucketUIState } from './initialConstants';
 export default function uiBuckets(
   state: BucketsUIState = initialBucketUIState,

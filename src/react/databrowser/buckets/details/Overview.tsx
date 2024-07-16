@@ -14,9 +14,9 @@ import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.compo
 import { useEffect, useState } from 'react';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
 import { LocationV1 } from '../../../../js/managementClient/api';
-import type { BucketInfo } from '../../../../types/s3';
-import type { AppState } from '../../../../types/state';
-import type { WorkflowScheduleUnitState } from '../../../../types/stats';
+import { BucketInfo } from '../../../../types/s3';
+import { AppState } from '../../../../types/state';
+import { WorkflowScheduleUnitState } from '../../../../types/stats';
 import { useCurrentAccount } from '../../../DataServiceRoleProvider';
 import { getBucketInfo, toggleBucketVersioning } from '../../../actions';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';

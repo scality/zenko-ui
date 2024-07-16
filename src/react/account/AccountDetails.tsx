@@ -1,5 +1,5 @@
 import { useTheme } from 'styled-components';
-import type { Account } from '../../types/account';
+import { Account } from '../../types/account';
 import { Tabs } from '@scality/core-ui/dist/next';
 import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';

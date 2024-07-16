@@ -7,7 +7,7 @@ import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Banner, Icon, Form, Stack } from '@scality/core-ui';
 
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import ObjectLockRetentionSettings, {
   objectLockRetentionSettingsValidationRules,
 } from './ObjectLockRetentionSettings';

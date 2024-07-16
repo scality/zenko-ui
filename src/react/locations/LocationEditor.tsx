@@ -16,7 +16,7 @@ import styled from 'styled-components';
 import { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { LocationTypeKey } from '../../types/config';
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';

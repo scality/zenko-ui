@@ -1,4 +1,4 @@
-import type { AWSError } from '../../types/aws';
+import { AWSError } from '../../types/aws';
 export class ApiErrorObject extends Error {
   code: number | string;
   status: number | string;

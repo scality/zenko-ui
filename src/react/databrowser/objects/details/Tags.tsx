@@ -11,7 +11,7 @@ import {
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import type { Tag } from '../../../../types/s3';
+import { Tag } from '../../../../types/s3';
 import { putObjectTagging } from '../../../actions';
 import { useDispatch } from 'react-redux';
 import { useFieldArray, useForm } from 'react-hook-form';

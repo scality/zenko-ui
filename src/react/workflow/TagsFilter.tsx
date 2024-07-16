@@ -1,5 +1,5 @@
 import { AddButton, SubButton } from '../ui-elements/EditableKeyValue';
-import type { Tag } from '../../types/s3';
+import { Tag } from '../../types/s3';
 import {
   FieldValues,
   Control,

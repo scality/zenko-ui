@@ -12,7 +12,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useState } from 'react';
-import type { Account } from '../../../../types/account';
+import { Account } from '../../../../types/account';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';

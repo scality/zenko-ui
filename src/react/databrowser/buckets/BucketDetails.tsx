@@ -4,7 +4,7 @@ import Overview from './details/Overview';
 import Workflow from './details/Workflow';
 import { Warning } from '../../ui-elements/Warning';
 import { useLocation } from 'react-router-dom';
-import type { WorkflowScheduleUnitState } from '../../../types/stats';
+import { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useQueryParams } from '../../utils/hooks';
 import { Icon } from '@scality/core-ui';
 import { Tabs } from '@scality/core-ui/dist/next';

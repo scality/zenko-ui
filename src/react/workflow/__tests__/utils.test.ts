@@ -1,4 +1,4 @@
-import type { Expiration } from '../../../types/config';
+import { Expiration } from '../../../types/config';
 import { BucketWorkflowV1 } from '../../../js/managementClient/api';
 import { flattenFormErrors, prepareExpirationQuery } from '../utils';
 describe('prepareExpirationQuery', () => {

@@ -6,7 +6,7 @@ import {
   networkStart,
 } from '../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 import {
   Banner,
   Form,

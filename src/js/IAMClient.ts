@@ -1,7 +1,7 @@
-import type { AppState } from '../types/state';
-import type { Credentials } from '../types/zenko';
+import { AppState } from '../types/state';
+import { Credentials } from '../types/zenko';
 import IAM from 'aws-sdk/clients/iam';
-import type {
+import {
   IAMClient as IAMClientInterface,
   WebIdentityRoles,
 } from '../types/iam';
