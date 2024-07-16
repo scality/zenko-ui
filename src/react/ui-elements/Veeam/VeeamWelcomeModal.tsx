@@ -92,7 +92,7 @@ const VeeamModalComponent = () => {
   const veeamConfigurationView = {
     view: zenkoUIVeeamConfigurationView,
     app: zenkoUI,
-    isFederated: true,
+    isFederated: true as const,
   };
 
   const user = useAuth();

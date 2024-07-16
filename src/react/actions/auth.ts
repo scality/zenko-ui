@@ -120,6 +120,7 @@ export function loadClients(): ThunkStatePromisedAction {
     }
 
     // TODO: Give the user the ability to select an instance.
+    // @ts-expect-error should be remove when we remove redux
     dispatch(selectInstance(instanceIds[0]));
     const managementClient = makeMgtClient(
       config.managementEndpoint,
