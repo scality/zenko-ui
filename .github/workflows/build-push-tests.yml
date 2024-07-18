@@ -66,7 +66,7 @@ jobs:
         run: npm config set unsafe-perm true && npm ci
 
       - name: build assets
-        run: npm run build
+        run: npm run rsbuild
 
       - name: Build and push zenko ui
         uses: docker/build-push-action@v2.7.0
