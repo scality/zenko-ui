@@ -1,4 +1,4 @@
-import type { LocationDetails } from '../../../types/config';
+import { LocationDetails } from '../../../types/config';
 import React from 'react';
 import { LocationDetailsFormProps } from '.';
 import { FormGroup, FormSection } from '@scality/core-ui';

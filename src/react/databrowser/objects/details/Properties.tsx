@@ -2,7 +2,7 @@
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
-import type { ObjectMetadata } from '../../../../types/s3';
+import { ObjectMetadata } from '../../../../types/s3';
 import {
   FormattedDateTime,
   Icon,

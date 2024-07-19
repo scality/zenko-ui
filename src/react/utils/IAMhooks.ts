@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type {
+import {
   QueryFunctionContext,
   QueryObserverIdleResult,
   QueryObserverLoadingErrorResult,

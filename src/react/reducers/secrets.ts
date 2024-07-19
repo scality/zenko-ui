@@ -1,5 +1,5 @@
-import type { SecretsAction } from '../../types/actions';
-import type { SecretsState } from '../../types/state';
+import { SecretsAction } from '../../types/actions';
+import { SecretsState } from '../../types/state';
 import { initialSecretsState } from './initialConstants';
 export default function secrets(
   state: SecretsState = initialSecretsState,

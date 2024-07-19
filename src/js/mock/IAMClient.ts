@@ -1,5 +1,5 @@
-import type { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
-import type { AWSError } from '../../types/aws';
+import { IamAccessKey, ListAccessKeysResponse } from '../../types/user';
+import { AWSError } from '../../types/aws';
 export const accountAccessKeys: Array<IamAccessKey> = [
   {
     AccessKeyId: 'LEAST_RECENT_KEY_BBB',

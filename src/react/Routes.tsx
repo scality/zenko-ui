@@ -19,7 +19,7 @@ import {
 } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import makeMgtClient from '../js/managementClient';
-import type { AppState } from '../types/state';
+import { AppState } from '../types/state';
 import DataServiceRoleProvider, {
   useCurrentAccount,
 } from './DataServiceRoleProvider';
@@ -279,7 +279,7 @@ function Routes() {
       },
       {
         label: 'Workflows',
-        icon: <i className="fas fa-route" />,
+        icon: <Icon name="Workflow" />,
         onClick: () => {
           history.push('/workflows');
         },

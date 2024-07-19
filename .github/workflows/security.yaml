@@ -28,7 +28,7 @@ jobs:
       - name: install dependencies
         run: npm config set unsafe-perm true && npm ci
       - name: build assets
-        run: npm run build
+        run: npm run rsbuild
       - name: Login to GitHub Registry
         uses: docker/login-action@v2
         with:

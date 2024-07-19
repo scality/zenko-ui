@@ -10,8 +10,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Row } from 'react-table';
 import styled from 'styled-components';
-import type { Account } from '../../../../types/account';
-import type { AppState } from '../../../../types/state';
+import { Account } from '../../../../types/account';
+import { AppState } from '../../../../types/state';
 import { useDataServiceRole } from '../../../DataServiceRoleProvider';
 import {
   deleteAccountAccessKey,

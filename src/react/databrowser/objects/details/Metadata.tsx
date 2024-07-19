@@ -20,7 +20,7 @@ import {
   SubButton,
 } from '../../../ui-elements/EditableKeyValue';
 import { Button, Select } from '@scality/core-ui/dist/next';
-import type {
+import {
   ListObjectsType,
   MetadataItem,
   MetadataItems,

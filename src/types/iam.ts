@@ -1,5 +1,5 @@
 /* eslint-disable */
-import type { Credentials } from './zenko';
+import { Credentials } from './zenko';
 export type IAMResp = {};
 export type WebIdentityRoles = {
   IsTruncated: boolean;

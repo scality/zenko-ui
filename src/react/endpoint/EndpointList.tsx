@@ -4,7 +4,7 @@ import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import type { Endpoint, Hostname, LocationName } from '../../types/config';
+import { Endpoint, Hostname, LocationName } from '../../types/config';
 import { renderLocation } from '../locations/utils';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import {

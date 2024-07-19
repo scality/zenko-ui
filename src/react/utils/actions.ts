@@ -1,4 +1,4 @@
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 export function getClients(state: AppState) {
   return {
     instanceId: state.instances.selectedId,

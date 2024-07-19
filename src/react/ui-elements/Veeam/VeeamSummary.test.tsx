@@ -1,7 +1,7 @@
 import { Stepper } from '@scality/core-ui';
 import { render, screen } from '@testing-library/react';
 import { useAuth } from '../../next-architecture/ui/AuthProvider';
-import { Wrapper } from '../../utils/testUtil';
+import { FAKE_TOKEN, Wrapper, defaultUserData } from '../../utils/testUtil';
 import {
   ACCOUNT_SECTION_TITLE,
   BUCKET_SECTION_TITLE,
@@ -26,16 +26,6 @@ jest.mock('./useGetS3ServicePoint', () => ({
 }));
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
-const mockAuthUserData = {
-  userData: {
-    id: 'xxx-yyy-zzzz-id',
-    token: 'xxx-yyy-zzz-token',
-    username: 'Renard ADMIN',
-    email: 'renard.admin@scality.com',
-    roles: ['StorageManager'],
-    groups: ['user', 'StorageManager'],
-  },
-};
 
 const SERVICE_POINT = 's3.test.local';
 const ACCESS_KEY = 'access-key';
@@ -83,7 +73,16 @@ describe('VeeamSummary', () => {
 
   it('should render VeeamSummary', async () => {
     //S
-    mockUseAuth.mockImplementation(() => mockAuthUserData);
+    mockUseAuth.mockImplementation(() => {
+      return {
+        userData: {
+          ...defaultUserData,
+          roles: ['StorageManager'],
+          groups: ['user', 'StorageManager'],
+        },
+        getToken: async () => FAKE_TOKEN,
+      };
+    });
     render(
       <Stepper
         steps={[
@@ -121,16 +120,12 @@ describe('VeeamSummary', () => {
   });
 
   it('should render the VeeamSumamry with certificate download button', async () => {
-    mockUseAuth.mockImplementation(() => ({
-      userData: {
-        id: 'xxx-yyy-zzzz-id',
-        token: 'xxx-yyy-zzz-token',
-        username: 'Renard ADMIN',
-        email: 'renard.admin@scality.com',
-        roles: ['PlatformAdmin'],
-        groups: ['user', 'PlatformAdmin'],
-      },
-    }));
+    mockUseAuth.mockImplementation(() => {
+      return {
+        userData: defaultUserData,
+        getToken: async () => FAKE_TOKEN,
+      };
+    });
     render(
       <Stepper
         steps={[

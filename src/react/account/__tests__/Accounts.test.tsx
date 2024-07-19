@@ -12,10 +12,11 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { useAuth } from '../../next-architecture/ui/AuthProvider';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { initialErrorsUIState } from '../../reducers/initialConstants';
-import { formatSimpleDate } from '../../utils';
 import {
+  FAKE_TOKEN,
   TEST_API_BASE_URL,
   WrapperAsStorageManager,
+  defaultUserData,
   mockOffsetSize,
   reduxRender,
   renderWithRouterMatch,
@@ -252,14 +253,8 @@ describe('Accounts', () => {
   it('should hide Create Account Button for Storage Account Owner', async () => {
     mockUseAuth.mockImplementation(() => {
       return {
-        userData: {
-          id: 'xxx-yyy-zzzz-id',
-          token: 'xxx-yyy-zzz-token',
-          username: 'Renard ADMIN',
-          email: 'renard.admin@scality.com',
-          roles: ['PlatformAdmin'],
-          groups: ['user', 'PlatformAdmin'],
-        },
+        userData: defaultUserData,
+        getToken: async () => FAKE_TOKEN,
       };
     });
     server.use(
@@ -322,13 +317,11 @@ describe('Accounts', () => {
     mockUseAuth.mockImplementation(() => {
       return {
         userData: {
-          id: 'xxx-yyy-zzzz-id',
-          token: 'xxx-yyy-zzz-token',
-          username: 'Renard ADMIN',
-          email: 'renard.admin@scality.com',
+          ...defaultUserData,
           roles: ['StorageManager'],
           groups: ['user', 'StorageManager'],
         },
+        getToken: async () => FAKE_TOKEN,
       };
     });
 

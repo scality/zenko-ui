@@ -27,7 +27,7 @@ import {
 } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
-import type { Replication } from '../../types/config';
+import { Replication } from '../../types/config';
 import { Account } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { SelectOption } from '../../types/ui';

@@ -1,5 +1,5 @@
 import { BucketWorkflowTransitionV2 } from '../js/managementClient/api';
-import type { Expiration, Replication } from './config';
+import { Expiration, Replication } from './config';
 
 export type APIReplicationWorkflow = {
   replication: Replication;

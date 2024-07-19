@@ -4,9 +4,8 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { VEEAM_FEATURE } from '../../../js/config';
 import { InternalRouter } from '../../FederableApp';
-import { AuthProvider, useAuth } from '../../next-architecture/ui/AuthProvider';
+import { useAuth } from '../../next-architecture/ui/AuthProvider';
 import {
-  ConfigProvider,
   useConfig,
   useDeployedApps,
   useLinkOpener,
@@ -16,8 +15,9 @@ import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
 import { VeeamLogo } from './VeeamLogo';
 import { useNextLogin } from './useNextLogin';
-import AlertProvider from '../../next-architecture/ui/AlertProvider';
-import { useAlerts } from '../../next-architecture/ui/AlertProvider';
+import AlertProvider, {
+  useAlerts,
+} from '../../next-architecture/ui/AlertProvider';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -92,7 +92,7 @@ const VeeamModalComponent = () => {
   const veeamConfigurationView = {
     view: zenkoUIVeeamConfigurationView,
     app: zenkoUI,
-    isFederated: true,
+    isFederated: true as const,
   };
 
   const user = useAuth();
@@ -152,14 +152,10 @@ const VeeamModalComponent = () => {
 
 export default function VeeamWelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
-    <ConfigProvider>
-      <InternalRouter>
-        <AuthProvider>
-          <AlertProvider>
-            <VeeamWelcomeModalInternal {...props} />
-          </AlertProvider>
-        </AuthProvider>
-      </InternalRouter>
-    </ConfigProvider>
+    <InternalRouter>
+      <AlertProvider>
+        <VeeamWelcomeModalInternal {...props} />
+      </AlertProvider>
+    </InternalRouter>
   );
 }

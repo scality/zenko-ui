@@ -1,5 +1,5 @@
-import type { ObjectsUIAction } from '../../types/actions';
-import type { ObjectsUIState } from '../../types/state';
+import { ObjectsUIAction } from '../../types/actions';
+import { ObjectsUIState } from '../../types/state';
 import { initialObjectUIState } from './initialConstants';
 export default function uiObjects(
   state: ObjectsUIState = initialObjectUIState,

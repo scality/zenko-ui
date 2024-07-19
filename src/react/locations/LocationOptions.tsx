@@ -1,6 +1,6 @@
 import { default as BasicInput } from '../ui-elements/Input';
-import type { LocationFormOptions } from '../../types/location';
-import type { LocationName } from '../../types/config';
+import { LocationFormOptions } from '../../types/location';
+import { LocationName } from '../../types/config';
 import { ChangeEvent } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';

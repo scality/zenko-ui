@@ -1,4 +1,4 @@
-import type {
+import {
   BucketInfo,
   CreateBucketResponse,
   GetObjectTaggingResponse,
@@ -8,7 +8,7 @@ import type {
   PutObjectTaggingResponse,
   S3Client as S3ClientInterface,
 } from '../../types/s3';
-import type { AWSError } from '../../types/aws';
+import { AWSError } from '../../types/aws';
 import { addTrailingSlash } from '../../react/utils';
 import { azureblobstorage } from './managementClientMSWHandlers';
 export const ownerName = 'bart';

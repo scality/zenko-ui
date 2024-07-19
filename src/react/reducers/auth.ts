@@ -1,5 +1,5 @@
-import type { AuthAction } from '../../types/actions';
-import type { AuthState } from '../../types/state';
+import { AuthAction } from '../../types/actions';
+import { AuthState } from '../../types/state';
 import { initialAuthState } from './initialConstants';
 export default function auth(
   state: AuthState = initialAuthState,

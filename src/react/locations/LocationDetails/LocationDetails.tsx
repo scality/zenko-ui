@@ -1,5 +1,5 @@
-import type { EnabledState, InstanceStateSnapshot } from '../../../types/stats';
-import type {
+import { EnabledState, InstanceStateSnapshot } from '../../../types/stats';
+import {
   LocationDetails as LocationFormDetails,
   LocationTypeKey,
 } from '../../../types/config';

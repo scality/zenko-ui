@@ -10,6 +10,40 @@ beforeEach(() => {
   queryClient.clear();
 });
 
+const shellHooks = {
+  useShellThemeSelector: jest.fn(() => {
+    return {
+      theme: 'dark',
+      setTheme: jest.fn(),
+    };
+  }),
+  useConfigRetriever: jest.fn(() => {
+    return {
+      retrieveConfiguration: jest.fn(() => {
+        return {
+          spec: {
+            remoteEntryPath: '/remoteEntry.js',
+          },
+        };
+      }),
+    };
+  }),
+  useDeployedApps: jest.fn(() => {
+    return [
+      {
+        kind: 'zenko-ui',
+        name: 'zenko-ui.eu-west-1',
+        version: 'local-dev',
+        url: 'http://127.0.0.1:8383/zenko',
+        appHistoryBasePath: '/data',
+      },
+    ];
+  }),
+};
+
+// @ts-expect-error The type is wrong because we only mock what we need for the test
+window.shellHooks = shellHooks;
+
 // When testing that the upload api is effectively called
 // we are getting this error from MSW
 // error: TypeError [NetworkingError]: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Blob
@@ -127,105 +161,4 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
   };
 });
 
-// useConfig
-// jest.mock('./containers/ConfigProvider', () => ({
-//   __esModule: true,
-//   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-// }));
-
-// jest.mock('./containers/AlertProvider', () => ({
-//   __esModule: true,
-//   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-//   useHighestSeverityAlerts: jest.fn(),
-//   useAlerts: jest.fn(),
-//   useAlertLibrary: jest.fn(() => {
-//     return {
-//       getNodesAlertSelectors: jest.fn(),
-//       getVolumesAlertSelectors: jest.fn(),
-//       getNetworksAlertSelectors: jest.fn(),
-//       getServicesAlertSelectors: jest.fn(),
-//       getK8SMasterAlertSelectors: jest.fn(),
-//       getBootstrapAlertSelectors: jest.fn(),
-//       getMonitoringAlertSelectors: jest.fn(),
-//       getAlertingAlertSelectors: jest.fn(),
-//       getLoggingAlertSelectors: jest.fn(),
-//       getDashboardingAlertSelectors: jest.fn(),
-//       getIngressControllerAlertSelectors: jest.fn(),
-//       getAuthenticationAlertSelectors: jest.fn(),
-
-//       useHighestSeverityAlerts: jest.fn(),
-//       useAlerts: jest.fn(),
-//     };
-//   }),
-//   highestAlertToStatus: (alerts?: Alert[]): string => {
-//     return (alerts?.[0] && (alerts[0].severity as any as string)) || 'healthy';
-//   },
-// }));
-
-// jest.mock('./containers/PrivateRoute', () => ({
-//   __esModule: true,
-//   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-//   useAuth: jest.fn(() => {
-//     return {
-//       userData: {
-//         id: 'xxx-yyy-zzzz-id',
-//         token: 'xxx-yyy-zzz-token',
-//         username: 'Renard ADMIN',
-//         email: 'renard.admin@scality.com',
-//         groups: ['StorageManager', 'user', 'PlatformAdmin'],
-//       },
-//     };
-//   }),
-//   useShellConfig: jest.fn(() => {
-//     return {
-//       config: {
-//         navbar: {
-//           main: [
-//             {
-//               kind: 'artesca-base-ui',
-//               view: 'overview',
-//             },
-//             {
-//               kind: 'artesca-base-ui',
-//               view: 'identity',
-//             },
-//             {
-//               kind: 'metalk8s-ui',
-//               view: 'platform',
-//             },
-//             {
-//               kind: 'xcore-ui',
-//               view: 'storageservices',
-//             },
-//             {
-//               kind: 'metalk8s-ui',
-//               view: 'alerts',
-//             },
-//           ],
-//           subLogin: [
-//             {
-//               kind: 'artesca-base-ui',
-//               view: 'certificates',
-//             },
-//             {
-//               kind: 'artesca-base-ui',
-//               view: 'about',
-//             },
-//             {
-//               kind: 'artesca-base-ui',
-//               view: 'license',
-//               icon: 'fas fa-file-invoice',
-//             },
-//           ],
-//         },
-//         discoveryUrl: '/shell/deployed-ui-apps.json',
-//         productName: 'MetalK8s',
-//       },
-//       favicon: '/navbar/artesca-favicon.svg',
-//       themes: {
-//         darkRebrand: { logoPath: '/logo.svg' },
-//       },
-//       status: 'success',
-//     };
-//   }),
-// }));
+jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });

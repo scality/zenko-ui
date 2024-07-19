@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { CoreUIColumn, Row } from 'react-table';
 import { useTheme } from 'styled-components';
-import type { Workflows } from '../../types/workflow';
+import { Workflows } from '../../types/workflow';
 import { Workflow } from '../../types/workflow';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { TextTransformer } from '../ui-elements/Utility';

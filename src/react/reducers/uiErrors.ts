@@ -1,5 +1,5 @@
-import type { ErrorsUIAction } from '../../types/actions';
-import type { ErrorsUIState } from '../../types/state';
+import { ErrorsUIAction } from '../../types/actions';
+import { ErrorsUIState } from '../../types/state';
 import { initialErrorsUIState } from './initialConstants';
 export default function uiErrors(
   state: ErrorsUIState = initialErrorsUIState,

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { ErrorMockS3Client, MockS3Client } from './S3Client';
-import type {
+import {
   SearchBucketResp,
   ZenkoMapResp,
   ZenkoClient as ZenkoClientInterface,

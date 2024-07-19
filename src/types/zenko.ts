@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { S3 } from 'aws-sdk';
 import S3Client from '../js/S3Client';
-import type { RetentionMode } from './s3';
+import { RetentionMode } from './s3';
 
 export type Site = string;
 export type Marker = null | string;

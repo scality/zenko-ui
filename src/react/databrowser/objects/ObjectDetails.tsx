@@ -1,7 +1,7 @@
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 
 import { List } from 'immutable';
-import type { ListObjectsType } from '../../../types/s3';
+import { ListObjectsType } from '../../../types/s3';
 import Metadata from './details/Metadata';
 import Properties from './details/Properties';
 import Tags from './details/Tags';

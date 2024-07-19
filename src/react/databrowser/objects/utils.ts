@@ -1,5 +1,5 @@
 import { DateTime, Duration } from 'luxon';
-import type { ObjectMetadata } from '../../../types/s3';
+import { ObjectMetadata } from '../../../types/s3';
 
 function getDefaultRetention(objectMetadata: ObjectMetadata | null) {
   const isDefaultRetentionEnabled =

@@ -1,5 +1,5 @@
-import type { AccountUIAction } from '../../types/actions';
-import type { AccountsUIState } from '../../types/state';
+import { AccountUIAction } from '../../types/actions';
+import { AccountsUIState } from '../../types/state';
 import { initialAccountsUIState } from './initialConstants';
 export default function uiAccounts(
   state: AccountsUIState = initialAccountsUIState,

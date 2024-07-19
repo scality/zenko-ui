@@ -1,4 +1,4 @@
-import type { Account } from '../../../types/account';
+import { Account } from '../../../types/account';
 import { useAuthGroups } from '../../utils/hooks';
 import AccountInfo from './properties/AccountInfo';
 import AccountKeys from './properties/AccountKeys';

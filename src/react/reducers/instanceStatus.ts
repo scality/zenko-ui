@@ -1,5 +1,5 @@
-import type { InstanceStatusAction } from '../../types/actions';
-import type { InstanceStatusState } from '../../types/state';
+import { InstanceStatusAction } from '../../types/actions';
+import { InstanceStatusState } from '../../types/state';
 import { initialInstanceStatus } from './initialConstants';
 export default function (
   state: InstanceStatusState = initialInstanceStatus,

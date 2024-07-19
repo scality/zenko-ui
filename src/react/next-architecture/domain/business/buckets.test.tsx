@@ -26,7 +26,6 @@ import {
   prepareRenderMultipleHooks,
   RenderAdditionalHook,
 } from '../../../utils/testMultipleHooks';
-import { _AuthContext } from '../../ui/AuthProvider';
 import {
   NewWrapper,
   Wrapper,

@@ -1,4 +1,4 @@
-import type { S3DeleteMarker, S3Version } from '../../types/s3';
+import { S3DeleteMarker, S3Version } from '../../types/s3';
 export const LIST_OBJECTS_S3_TYPE = 's3';
 export const LIST_OBJECTS_METADATA_TYPE = 'md';
 export const LIST_OBJECT_VERSIONS_S3_TYPE = 'ver';

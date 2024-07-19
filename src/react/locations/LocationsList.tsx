@@ -17,7 +17,7 @@ import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { BucketWorkflowTransitionV2 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { Replication } from '../../types/config';
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import {

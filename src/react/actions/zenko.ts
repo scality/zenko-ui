@@ -1,4 +1,4 @@
-import type {
+import {
   DispatchFunction,
   GetStateFunction,
   SetZenkoClientAction,
@@ -9,7 +9,7 @@ import type {
   ZenkoErrorAction,
   ZenkoWriteSearchListAction,
 } from '../../types/actions';
-import type {
+import {
   Marker,
   SearchBucketResp,
   SearchResultList,

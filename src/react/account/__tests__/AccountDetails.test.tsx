@@ -1,6 +1,6 @@
 import AccountDetails from '../AccountDetails';
 import { renderWithRouterMatch } from '../../utils/testUtil';
-import { _AuthContext, useAuth } from '../../next-architecture/ui/AuthProvider';
+import { useAuth } from '../../next-architecture/ui/AuthProvider';
 
 const account1 = {
   arn: 'arn1',

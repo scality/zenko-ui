@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation, Redirect, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import BucketDetails from './BucketDetails';
 import BucketList from './BucketList';
 import { EmptyStateContainer } from '../../ui-elements/Container';

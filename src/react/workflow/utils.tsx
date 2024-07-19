@@ -5,10 +5,10 @@ import {
   BucketWorkflowTransitionV2,
   BucketWorkflowV1,
 } from '../../js/managementClient/api';
-import type { Replication as ReplicationStream } from '../../types/config';
-import type { ReplicationForm } from '../../types/replication';
-import type { Tag } from '../../types/s3';
-import type { SelectOption } from '../../types/ui';
+import { Replication as ReplicationStream } from '../../types/config';
+import { ReplicationForm } from '../../types/replication';
+import { Tag } from '../../types/s3';
+import { SelectOption } from '../../types/ui';
 import { storageOptions } from '../locations/LocationDetails';
 import { LocationInfo } from '../next-architecture/adapters/accounts-locations/ILocationsAdapter';
 import { getLocationTypeShort } from '../utils/storageOptions';

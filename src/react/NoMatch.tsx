@@ -1,7 +1,6 @@
-import React from 'react';
-import { Warning } from './ui-elements/Warning';
+import { Icon } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { useLocation } from 'react-router-dom';
-import { Icon } from '@scality/core-ui';
+import { Warning } from './ui-elements/Warning';
 
 function NoMatch() {
   const { pathname } = useLocation();

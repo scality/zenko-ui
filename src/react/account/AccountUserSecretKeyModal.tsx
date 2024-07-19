@@ -1,4 +1,4 @@
-import type { AccountKey } from '../../types/account';
+import { AccountKey } from '../../types/account';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import Table, * as T from '../ui-elements/TableKeyValue';
 import { Banner, Icon, Stack, Wrap } from '@scality/core-ui';

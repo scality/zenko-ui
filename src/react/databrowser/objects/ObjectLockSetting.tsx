@@ -28,7 +28,7 @@ import {
   getDefaultRetention,
   getRetainUntilDateHint,
 } from './utils';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 
 const Joi = JoiImport.extend(DateExtension);

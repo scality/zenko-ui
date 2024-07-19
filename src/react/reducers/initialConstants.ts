@@ -1,5 +1,5 @@
 // @noflow
-import type {
+import {
   AccountState,
   AccountsUIState,
   AuthState,

@@ -1,7 +1,7 @@
 import STSClient from '../../js/STSClient';
 import ZenkoClient from '../../js/ZenkoClient';
 import makeMgtClient from '../../js/managementClient';
-import type {
+import {
   ConfigAuthFailureAction,
   LoadClientsSuccessAction,
   LoadConfigSuccessAction,
@@ -12,10 +12,10 @@ import type {
   ThunkNonStateAction,
   ThunkStatePromisedAction,
 } from '../../types/actions';
-import type { OidcLogoutFunction } from '../../types/auth';
-import type { AppConfig, InstanceId } from '../../types/entities';
-import type { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
-import type { STSClient as STSClientInterface } from '../../types/sts';
+import { OidcLogoutFunction } from '../../types/auth';
+import { AppConfig, InstanceId } from '../../types/entities';
+import { ManagementClient as ManagementClientInterface } from '../../types/managementClient';
+import { STSClient as STSClientInterface } from '../../types/sts';
 import {
   addOIDCUser,
   handleErrorMessage,
@@ -90,7 +90,7 @@ export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
           config.zenkoEndpoint,
           config.iamInternalFQDN,
           config.s3InternalFQDN,
-          process.env.NODE_ENV === 'development' ? '' : config.basePath,
+          config.basePath,
         ),
       ),
     );
@@ -120,6 +120,7 @@ export function loadClients(): ThunkStatePromisedAction {
     }
 
     // TODO: Give the user the ability to select an instance.
+    // @ts-expect-error should be remove when we remove redux
     dispatch(selectInstance(instanceIds[0]));
     const managementClient = makeMgtClient(
       config.managementEndpoint,

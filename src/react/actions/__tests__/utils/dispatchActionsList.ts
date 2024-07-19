@@ -1,6 +1,6 @@
 import { MockSTSClient } from '../../../../js/mock/STSClient';
 import { MockManagementClient } from '../../../../js/mock/managementClient';
-import type {
+import {
   CloseAccountDeleteDialogAction,
   CloseBucketDeleteDialogAction,
   CloseEndpointDeleteDialogAction,
@@ -43,15 +43,15 @@ import type {
   ZenkoErrorAction,
   ZenkoWriteSearchListAction,
 } from '../../../../types/actions';
-import type { Hostname } from '../../../../types/config';
-import type {
+import { Hostname } from '../../../../types/config';
+import {
   CommonPrefix,
   HeadObjectResponse,
   RetentionMode,
   S3Object,
   TagSet,
 } from '../../../../types/s3';
-import type {
+import {
   Marker,
   SearchResultList,
   ZenkoClientError,

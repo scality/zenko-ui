@@ -1,5 +1,5 @@
-import type { ConfigurationAction } from '../../types/actions';
-import type { ConfigurationState } from '../../types/state';
+import { ConfigurationAction } from '../../types/actions';
+import { ConfigurationState } from '../../types/state';
 import { initialConfiguration } from './initialConstants';
 export default function configuration(
   state: ConfigurationState = initialConfiguration,

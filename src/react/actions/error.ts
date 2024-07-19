@@ -1,12 +1,12 @@
-import type {
+import {
   ApiError,
   ClearErrorAction,
   DispatchFunction,
   HandleErrorAction,
   ThunkNonStateAction,
 } from '../../types/actions';
-import type { AWSError } from '../../types/aws';
-import type { ErrorViewType } from '../../types/ui';
+import { AWSError } from '../../types/aws';
+import { ErrorViewType } from '../../types/ui';
 import { errorParser } from '../utils';
 import { networkAuthFailure } from './network';
 export function handleApiError(

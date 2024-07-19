@@ -1,16 +1,15 @@
-import { memo } from 'react';
-import type { Dispatch } from 'redux';
-import { areEqual } from 'react-window';
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
+import { memo } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import { areEqual } from 'react-window';
+import { Dispatch } from 'redux';
 
-import * as T from '../../ui-elements/Table';
-import { toggleAllObjects } from '../../actions';
-import type { Action } from '../../../types/actions';
-import { useQueryParams } from '../../utils/hooks';
 import { removeTrailingSlash } from '../../../js/utils';
-import type { ObjectEntity } from '../../../types/s3';
+import { ObjectEntity } from '../../../types/s3';
+import { toggleAllObjects } from '../../actions';
+import * as T from '../../ui-elements/Table';
+import { useQueryParams } from '../../utils/hooks';
 
 type PrepareRow = (arg0: RowType) => void;
 type RowType = {
@@ -23,7 +22,7 @@ type RowsType = Array<RowType>;
 type Data = {
   rows: RowsType;
   prepareRow: PrepareRow;
-  dispatch: Dispatch<Action>;
+  dispatch: Dispatch;
 };
 type RowProps = {
   data: Data;
@@ -34,11 +33,7 @@ type RowProps = {
 // To avoid causing unnecessary re-renders pure MemoRow components.
 // This is only needed since we are passing multiple props with a wrapper object.
 export const createItemData = memoize(
-  (
-    rows: RowsType,
-    prepareRow: PrepareRow,
-    dispatch: Dispatch<Action>,
-  ): Data => ({
+  (rows: RowsType, prepareRow: PrepareRow, dispatch: Dispatch): Data => ({
     rows,
     prepareRow,
     dispatch,

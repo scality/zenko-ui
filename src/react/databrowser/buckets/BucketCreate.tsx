@@ -11,7 +11,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { ChangeEvent, useMemo, useRef } from 'react';
 import { clearError } from '../../actions';
 import { useDispatch, useSelector } from 'react-redux';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';

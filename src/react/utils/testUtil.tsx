@@ -1,47 +1,46 @@
-import { Provider } from 'react-redux';
-import { PropsWithChildren, ReactNode } from 'react';
-import { ThemeProvider } from 'styled-components';
-import configureStore from 'redux-mock-store';
-import { initialFullState } from '../reducers/initialConstants';
-import { mount, ReactWrapper } from 'enzyme';
-import thunk from 'redux-thunk';
+import { ReactWrapper, mount } from 'enzyme';
 import { createMemoryHistory } from 'history';
-import IAMClient from '../../js/IAMClient';
+import { PropsWithChildren, ReactNode } from 'react';
 import {
   QueryClient,
   QueryClientProvider,
   setLogger,
   useMutation,
 } from 'react-query';
+import { Provider } from 'react-redux';
 import { Route, Router } from 'react-router-dom';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import { ThemeProvider } from 'styled-components';
+import IAMClient from '../../js/IAMClient';
+import { initialFullState } from '../reducers/initialConstants';
 
+import { ToastProvider } from '@scality/core-ui';
+import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
 import { render, waitFor } from '@testing-library/react';
-import { _ManagementContext } from '../ManagementProvider';
+import userEvent from '@testing-library/user-event';
+import { applyMiddleware, compose, createStore } from 'redux';
+import ZenkoClient from '../../js/ZenkoClient';
+import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
 import { UiFacingApi } from '../../js/managementClient/api';
 import { Configuration } from '../../js/managementClient/configuration';
-import Activity from '../ui-elements/Activity';
-import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
-import zenkoUIReducer from '../reducers';
-import { applyMiddleware, compose, createStore } from 'redux';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
+import { _ManagementContext } from '../ManagementProvider';
 import { authenticatedUserState } from '../actions/__tests__/utils/testUtil';
-import ReauthDialog from '../ui-elements/ReauthDialog';
-import ZenkoClient from '../../js/ZenkoClient';
+import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { _AuthContext } from '../next-architecture/ui/AuthProvider';
 import { _ConfigContext } from '../next-architecture/ui/ConfigProvider';
+import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
+import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
 import {
   S3ClientProvider,
   useAssumeRoleQuery,
 } from '../next-architecture/ui/S3ClientProvider';
-import { _AuthContext } from '../next-architecture/ui/AuthProvider';
-import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
-import { LocationAdapterProvider } from '../next-architecture/ui/LocationAdapterProvider';
-import MetricsAdapterProvider from '../next-architecture/ui/MetricsAdapterProvider';
-import { INSTANCE_ID } from '../actions/__tests__/utils/testUtil';
-import { AccessibleAccountsAdapterProvider } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { ToastProvider } from '@scality/core-ui';
-import { coreUIAvailableThemes } from '@scality/core-ui/dist/style/theme';
-import userEvent from '@testing-library/user-event';
+import zenkoUIReducer from '../reducers';
+import Activity from '../ui-elements/Activity';
+import ErrorHandlerModal from '../ui-elements/ErrorHandlerModal';
+import ReauthDialog from '../ui-elements/ReauthDialog';
 
 export const theme = coreUIAvailableThemes.darkRebrand;
 export const history = createMemoryHistory();
@@ -103,6 +102,36 @@ export const realStoreWithInitState = (state) => {
   );
 
   return store;
+};
+
+export const FAKE_TOKEN = 'xxx-yyy-zzz-token';
+export const defaultUserData = {
+  id: 'xxx-yyy-zzzz-id',
+  token: FAKE_TOKEN,
+  username: 'Renard ADMIN',
+  email: 'renard.admin@scality.com',
+  roles: ['PlatformAdmin'],
+  groups: ['user', 'PlatformAdmin'],
+  original: {
+    id_token: 'idtoken',
+    access_token: 'token',
+    token_type: 'bearer',
+    scope: 'openid profile email',
+    expires_at: 1592597205,
+    state: 'path',
+    toStorageString: () => 'token',
+    expires_in: 3600,
+    expired: false,
+    scopes: ['openid', 'profile', 'email'],
+    profile: {
+      aud: 'myclient',
+      exp: 1592597205,
+      iat: 1592593605,
+      iss: 'https://zenko.io',
+      sub: 'test',
+      groups: ['StorageManager'],
+    },
+  },
 };
 
 export const TEST_ROLE_PATH_NAME = 'scality-internal/storage-manager-role';
@@ -168,48 +197,38 @@ export const Wrapper = ({ children }: { children: ReactNode }) => {
               //@ts-expect-error fix this when you are working on it
               value={zenkoUITestConfig}
             >
-              <_AuthContext.Provider
-                value={{
-                  //@ts-expect-error fix this when you are working on it
-                  user: {
-                    access_token: 'token',
-                    profile: { sub: 'test', instanceIds: [INSTANCE_ID] },
-                  },
-                }}
+              <_DataServiceRoleContext.Provider
+                //@ts-expect-error fix this when you are working on it
+                value={{ role, setRole: jest.fn() }}
               >
-                <_DataServiceRoleContext.Provider
-                  //@ts-expect-error fix this when you are working on it
-                  value={{ role, setRole: jest.fn() }}
+                <_ManagementContext.Provider
+                  value={{
+                    managementClient: TEST_MANAGEMENT_CLIENT,
+                  }}
                 >
-                  <_ManagementContext.Provider
-                    value={{
-                      managementClient: TEST_MANAGEMENT_CLIENT,
-                    }}
-                  >
-                    <LocationAdapterProvider>
-                      <MetricsAdapterProvider>
-                        <AccountsLocationsEndpointsAdapterProvider>
-                          <AccessibleAccountsAdapterProvider>
-                            <S3ClientProvider
-                              configuration={{
-                                endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                s3ForcePathStyle: true,
-                                credentials: {
-                                  accessKeyId: 'accessKey',
-                                  secretAccessKey: 'secretKey',
-                                  sessionToken: 'sessionToken',
-                                },
-                              }}
-                            >
-                              {children}
-                            </S3ClientProvider>
-                          </AccessibleAccountsAdapterProvider>
-                        </AccountsLocationsEndpointsAdapterProvider>
-                      </MetricsAdapterProvider>
-                    </LocationAdapterProvider>
-                  </_ManagementContext.Provider>
-                </_DataServiceRoleContext.Provider>
-              </_AuthContext.Provider>
+                  <LocationAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <AccountsLocationsEndpointsAdapterProvider>
+                        <AccessibleAccountsAdapterProvider>
+                          <S3ClientProvider
+                            configuration={{
+                              endpoint: zenkoUITestConfig.zenkoEndpoint,
+                              s3ForcePathStyle: true,
+                              credentials: {
+                                accessKeyId: 'accessKey',
+                                secretAccessKey: 'secretKey',
+                                sessionToken: 'sessionToken',
+                              },
+                            }}
+                          >
+                            {children}
+                          </S3ClientProvider>
+                        </AccessibleAccountsAdapterProvider>
+                      </AccountsLocationsEndpointsAdapterProvider>
+                    </MetricsAdapterProvider>
+                  </LocationAdapterProvider>
+                </_ManagementContext.Provider>
+              </_DataServiceRoleContext.Provider>
             </_ConfigContext.Provider>
           </Router>
         </ThemeProvider>

@@ -11,7 +11,7 @@ import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import type { Expiration, Replication } from '../../types/config';
+import { Expiration, Replication } from '../../types/config';
 import {
   handleApiError,
   handleClientError,
@@ -35,7 +35,7 @@ import {
   ReplicationForm as TypeReplicationForm,
 } from '../../types/replication';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
-import type { Workflow } from '../../types/workflow';
+import { Workflow } from '../../types/workflow';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';

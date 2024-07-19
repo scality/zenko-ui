@@ -3,10 +3,8 @@ import { Button, Input } from '@scality/core-ui/dist/next';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { ChangeEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Dispatch } from 'redux';
 import styled from 'styled-components';
-import type { Action } from '../../../types/actions';
-import type { AppState } from '../../../types/state';
+import { AppState } from '../../../types/state';
 import { closeFolderCreateModal, createFolder } from '../../actions';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
@@ -28,7 +26,7 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
   const show = useSelector(
     (state: AppState) => state.uiObjects.showFolderCreate,
   );
-  const dispatch: Dispatch<Action> = useDispatch();
+  const dispatch = useDispatch();
 
   if (!show) {
     return null;

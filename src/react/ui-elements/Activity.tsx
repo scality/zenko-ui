@@ -2,7 +2,7 @@ import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import type { AppState } from '../../types/state';
+import { AppState } from '../../types/state';
 export const DEFAULT_MESSAGE = 'Working...';
 const ActivityContainer = styled.div`
   position: fixed;
