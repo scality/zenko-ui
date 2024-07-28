@@ -1,12 +1,11 @@
 import { createContext, useContext, useMemo } from 'react';
-import makeMgtClient from '../js/managementClient';
-import { UiFacingApi } from '../js/managementClient/api';
+import makeMgtClient, { UiFacingApiWrapper } from '../js/managementClient';
 import { useAccessToken } from './next-architecture/ui/AuthProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 
 // Only exported to ease testing
 export const _ManagementContext = createContext<null | {
-  managementClient: UiFacingApi | null;
+  managementClient: UiFacingApiWrapper | null;
 }>(null);
 
 export const useManagementClient = () => {
@@ -28,6 +27,7 @@ const ManagementProvider = ({ children }: { children: JSX.Element }) => {
   const managementClient = useMemo(() => {
     if (token) {
       const managementClient = makeMgtClient(managementEndpoint, token);
+      managementClient.setToken(token);
       return managementClient;
     }
     return null;

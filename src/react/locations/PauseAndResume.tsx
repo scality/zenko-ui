@@ -6,9 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
-import { getInstanceStatusQuery } from './queries';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { handleClientError } from '../actions';
+import { ApiError } from '../../types/actions';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
@@ -19,11 +20,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const dispatch = useDispatch();
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
-  const instanceStatusQuery = getInstanceStatusQuery(
-    dispatch,
-    notFalsyTypeGuard(managementClient),
-    instanceId,
-  );
+  const { getToken } = useAuth();
 
   const zenkoClient = useSelector((state: AppState) => state.zenko.zenkoClient);
 
@@ -50,7 +47,17 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
     status,
     isFetching: loadingWorkflowStatus,
   } = useQuery({
-    ...instanceStatusQuery,
+    queryKey: ['instanceStatus', instanceId],
+    queryFn: async () => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return managementClient.getLatestInstanceStatus(instanceId);
+    },
+    onError: (error: ApiError) => {
+      dispatch(handleClientError(error));
+    },
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     refetchInterval: isPollingEnabled ? 1_000 : Infinity,
   });
 

@@ -6,7 +6,7 @@ import { ListItem } from './VeeamTable';
 import { useCapacityUnit } from './useCapacityUnit';
 import { useEffect } from 'react';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useAccessToken } from '../../next-architecture/ui/AuthProvider';
+import { useAuth } from '../../next-architecture/ui/AuthProvider';
 
 type XCoreConfig = {
   spec: {
@@ -21,7 +21,7 @@ type XCoreConfig = {
 type ClusterCapacityStatus = 'idle' | 'loading' | 'success' | 'error';
 type UseClusterCapacityHooks = (
   xCoreConfig: XCoreConfig,
-  token?: string,
+  getToken: () => Promise<string | null>,
 ) => {
   clusterCapacity: number;
   clusterCapacityStatus: ClusterCapacityStatus;
@@ -49,11 +49,11 @@ export const VeeamCapacityFormWithXcore = ({
 }: {
   useClusterCapacity: UseClusterCapacityHooks;
 }) => {
-  const token = useAccessToken();
+  const { getToken } = useAuth();
   const xCoreConfig = useXcoreRuntimeConfig();
   const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(
     xCoreConfig,
-    token,
+    getToken,
   );
   const { setValue } = useFormContext();
   const { capacityValue, capacityUnit } = useCapacityUnit(

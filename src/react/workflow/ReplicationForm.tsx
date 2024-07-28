@@ -54,7 +54,7 @@ import {
   flattenFormTouchedFields,
   renderDestination,
 } from './utils';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 
 type Props = {
   isCreateMode?: boolean;
@@ -160,12 +160,14 @@ const useReplicationStreams = (account?: Account) => {
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
+  const { getToken } = useAuth();
   const replicationsQuery = useQuery({
     ...workflowListQuery(
       notFalsyTypeGuard(mgnt),
-      accountId!,
-      instanceId!,
+      accountId,
+      instanceId,
       rolePathName,
+      getToken,
     ),
     select: (workflows) =>
       workflows.filter((w) => w.replication).map((w) => w.replication),

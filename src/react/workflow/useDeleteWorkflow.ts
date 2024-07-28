@@ -8,7 +8,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
 import { networkEnd, networkStart } from '../actions';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { errorParser } from '../utils';
 import { useRolePathName } from '../utils/hooks';
@@ -23,6 +23,7 @@ export const useDeleteWorkflow = (
   workflowRuleType: WorkflowRule,
   closeModal?: (isClose: boolean) => void,
 ) => {
+  const { getToken } = useAuth();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
@@ -120,6 +121,7 @@ export const useDeleteWorkflow = (
           accountId,
           instanceId,
           rolePathName,
+          getToken,
         ).queryKey,
       );
       showToast({

@@ -80,6 +80,7 @@ jest.mock('./src/react/next-architecture/ui/AuthProvider', () => {
             session_state: 'session-state-1',
           },
         },
+        getToken: Promise.resolve('xxx-yyy-zzz-token'),
       };
     }),
   };

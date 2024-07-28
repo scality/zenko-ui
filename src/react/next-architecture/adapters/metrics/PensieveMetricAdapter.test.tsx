@@ -28,6 +28,8 @@ const server = setupServer(
   ...getStorageConsumptionMetricsHandlers(baseUrl, instanceId),
 );
 
+const mockGettoken = () => Promise.resolve('test-token');
+
 describe('PensieveMetricsAdapter - listLocationsLatestUsedCapacity', () => {
   beforeEach(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -39,8 +41,7 @@ describe('PensieveMetricsAdapter - listLocationsLatestUsedCapacity', () => {
 
   it('should rejects when pensieve api returns an error', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
       rest.post(
         `${baseUrl}/api/v1/instance/${instanceId}/location/metrics`,
@@ -54,8 +55,7 @@ describe('PensieveMetricsAdapter - listLocationsLatestUsedCapacity', () => {
 
   it('should return expected location metrics', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
     const result = await SUT.listLocationsLatestUsedCapacity([
@@ -80,8 +80,7 @@ describe('PensieveMetricsAdapter - listBucketsLatestUsedCapacity', () => {
 
   it('should rejects when pensieve api returns an error', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
       rest.post(
         `${baseUrl}/api/v1/instance/${instanceId}/bucket/metrics`,
@@ -95,8 +94,7 @@ describe('PensieveMetricsAdapter - listBucketsLatestUsedCapacity', () => {
 
   it('should return expected buckets metrics', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
     const result = await SUT.listBucketsLatestUsedCapacity([
@@ -124,8 +122,7 @@ describe('PensieveMetricsAdapter - listAccountsLatestUsedCapacity', () => {
 
   it('should rejects when pensieve api returns an error', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
       rest.post(
         `${baseUrl}/api/v1/instance/${instanceId}/account/metrics`,
@@ -139,8 +136,7 @@ describe('PensieveMetricsAdapter - listAccountsLatestUsedCapacity', () => {
 
   it('should return expected buckets metrics', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
     const result = await SUT.listAccountsLatestUsedCapacity([
@@ -168,8 +164,7 @@ describe('PensieveMetricsAdapter - listAccountLocationsLatestUsedCapacity', () =
 
   it('should rejects when pensieve api returns an error', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
     server.use(
       rest.get(
         `${baseUrl}/api/v1/instance/${instanceId}/account/${ACCOUNT_CANONICAL_ID}/metrics`,
@@ -185,8 +180,7 @@ describe('PensieveMetricsAdapter - listAccountLocationsLatestUsedCapacity', () =
 
   it('should return expected buckets metrics', async () => {
     //S
-    const token = 'test-token';
-    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, token);
+    const SUT = new PensieveMetricsAdapter(baseUrl, instanceId, mockGettoken);
 
     //E
     const result = await SUT.listAccountLocationsLatestUsedCapacity(

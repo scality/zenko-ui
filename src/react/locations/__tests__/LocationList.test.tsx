@@ -7,6 +7,7 @@ import {
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import {
+  ACCOUNT_ID,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
@@ -18,6 +19,7 @@ import {
 } from '../../utils/testUtil';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { LocationsList } from '../LocationsList';
+import { debug } from 'jest-preview';
 
 const server = setupServer(
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
@@ -29,6 +31,32 @@ const server = setupServer(
     `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/status`,
     (req, res, ctx) => res(ctx.json({})),
   ),
+  rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    const params = new URLSearchParams(req.body);
+    console.log(req.body);
+
+    if (params.get('Action') === 'GetRolesForWebIdentity') {
+      const TEST_ACCOUNT = 'Test Account';
+      const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
+      return res(
+        ctx.json({
+          IsTruncated: false,
+          Accounts: [
+            {
+              Name: TEST_ACCOUNT,
+              CreationDate: TEST_ACCOUNT_CREATION_DATE,
+              Roles: [
+                {
+                  Name: 'storage-manager-role',
+                  Arn: `arn:aws:iam::${ACCOUNT_ID}:role/scality-internal/storage-manager-role`,
+                },
+              ],
+            },
+          ],
+        }),
+      );
+    }
+  }),
 );
 
 describe('LocationList', () => {

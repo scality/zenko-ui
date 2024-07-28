@@ -19,7 +19,7 @@ import {
   networkEnd,
   networkStart,
 } from '../actions';
-import { useAccessToken, useAuth } from '../next-architecture/ui/AuthProvider';
+import { useAuth } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
 import { getObjectsVersions } from '../queries';
@@ -194,7 +194,7 @@ export const useAccounts = (
     notifyError: (error: ApiError) => void;
   } = reduxBasedEventDispatcher,
 ) => {
-  const token = useAccessToken();
+  const { getToken } = useAuth();
   const { iamEndpoint } = useConfig();
 
   const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
@@ -206,15 +206,15 @@ export const useAccounts = (
   >(
     {
       queryKey: ['WebIdentityRoles'],
-      queryFn: (_, marker) => {
+      queryFn: async (_, marker) => {
         notifyLoadingAccounts();
         return getRolesForWebIdentity(
           iamEndpoint,
-          notFalsyTypeGuard(token),
+          notFalsyTypeGuard(await getToken()),
           marker?.Marker,
         );
       },
-      enabled: !!token && !!iamEndpoint,
+      enabled: !!iamEndpoint,
       staleTime: Infinity,
       refetchOnMount: false,
       refetchOnWindowFocus: false,

@@ -3,7 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
 import { useManagementClient } from '../react/ManagementProvider';
-import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
+import {
+  useAuth,
+  useInstanceId,
+} from '../react/next-architecture/ui/AuthProvider';
 import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
 import { ApiError } from '../types/actions';
 import { TagSetItem } from '../types/s3';
@@ -14,9 +17,11 @@ import { EndpointV1 } from './managementClient/api';
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
+  const { getToken } = useAuth();
   const client = notFalsyTypeGuard(managementClient);
   const runningConfigurationVersionMutation = useMutation({
     mutationFn: async (instanceId: string) => {
+      client.setToken(await getToken());
       return (
         (await client.getLatestInstanceStatus(instanceId)).state
           ?.runningConfigurationVersion || 0
@@ -76,6 +81,8 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
 };
 const useCreateEndpointMutation = () => {
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
+
   return useMutation<
     EndpointV1,
     ApiError,
@@ -85,7 +92,9 @@ const useCreateEndpointMutation = () => {
       instanceId: string;
     }
   >({
-    mutationFn: ({ hostname, locationName, instanceId }) => {
+    mutationFn: async ({ hostname, locationName, instanceId }) => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
       const params = {
         uuid: instanceId,
         endpoint: {
@@ -93,28 +102,32 @@ const useCreateEndpointMutation = () => {
           locationName,
         },
       };
-      return notFalsyTypeGuard(
-        managementClient,
-      ).createConfigurationOverlayEndpoint(params.endpoint, params.uuid);
+      return notFalsyTypeGuard(client).createConfigurationOverlayEndpoint(
+        params.endpoint,
+        params.uuid,
+      );
     },
   });
 };
 
 const useCreateAccountMutation = () => {
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       user,
       instanceId,
     }: {
       user: { userName: string; email: string };
       instanceId: string;
     }) => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
       const params = {
         uuid: instanceId,
         user,
       };
-      return notFalsyTypeGuard(managementClient)
+      return notFalsyTypeGuard(client)
         .createConfigurationOverlayUser(params.user, params.uuid)
         .catch(async (error: Response) => {
           if (error.status === 409) {

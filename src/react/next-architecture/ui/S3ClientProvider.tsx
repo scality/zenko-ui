@@ -2,7 +2,7 @@ import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { AWSError, S3, STS } from 'aws-sdk';
 import STSClient from '../../../js/STSClient';
 import { useConfig } from './ConfigProvider';
-import { useAccessToken, useAuth } from './AuthProvider';
+import { useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import ZenkoClient from '../../../js/ZenkoClient';
 import { useDispatch } from 'react-redux';
@@ -148,21 +148,21 @@ export const S3ClientWithoutReduxProvider = ({
 
 export const useAssumeRoleQuery = () => {
   const { stsEndpoint } = useConfig();
-  const token = useAccessToken();
 
+  const { getToken } = useAuth();
   const user = useAuth();
   const roleSessionName = `ui-${user.userData?.id}`;
   const stsClient = new STSClient({ endpoint: stsEndpoint });
-  const queryKey = ['s3AssumeRoleClient', roleSessionName, token];
+  const queryKey = ['s3AssumeRoleClient', roleSessionName];
 
   return {
     queryKey,
     getQuery: (roleArn: string) => {
       return {
         queryKey,
-        queryFn: () =>
+        queryFn: async () =>
           stsClient.assumeRoleWithWebIdentity({
-            idToken: notFalsyTypeGuard(token),
+            idToken: notFalsyTypeGuard(await getToken()),
             roleArn: roleArn,
             RoleSessionName: roleSessionName,
           }),
@@ -170,7 +170,7 @@ export const useAssumeRoleQuery = () => {
         refetchOnMount: false,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        enabled: !!token && !!roleArn,
+        enabled: !!roleArn,
       };
     },
   };

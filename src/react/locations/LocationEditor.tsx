@@ -21,7 +21,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import Loader from '../ui-elements/Loader';
 import {
   getLocationTypeKey,
@@ -95,10 +95,13 @@ function LocationEditor() {
   };
 
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const createLocationMutation = useMutation({
-    mutationFn: (location: LocationV1) => {
-      return notFalsyTypeGuard(managementClient)
+    mutationFn: async (location: LocationV1) => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client
         .createConfigurationOverlayLocation(location, instanceId)
         .catch(async (error) => {
           if (error.status === 422) {

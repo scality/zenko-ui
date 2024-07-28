@@ -26,6 +26,7 @@ import {
   generateStreamName,
   generateTransitionName,
 } from './workflow/utils';
+import { UiFacingApiWrapper } from 'src/js/managementClient';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -67,20 +68,21 @@ export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
 };
 
 export const workflowListQuery = (
-  mgnt: UiFacingApi,
+  mgnt: UiFacingApiWrapper,
   accountId: string,
   instanceId: string,
   rolePathName: string,
+  getToken: () => Promise<string | null>,
   onStart?: () => void,
   filters?: string[],
 ) => {
   return {
     queryKey: ['workflowList', accountId, instanceId, rolePathName, filters],
-    queryFn: (): Promise<APIWorkflows> => {
+    queryFn: async (): Promise<APIWorkflows> => {
       if (onStart) {
         onStart();
       }
-      //@ts-expect-error fix this when you are working on it
+      mgnt.setToken(await getToken());
       return notFalsyTypeGuard(mgnt).searchWorkflows(
         accountId,
         instanceId,

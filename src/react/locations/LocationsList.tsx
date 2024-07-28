@@ -29,7 +29,7 @@ import { useListLocations } from '../next-architecture/domain/business/locations
 import { Location } from '../next-architecture/domain/entities/location';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
@@ -64,12 +64,16 @@ const ActionButtons = ({
 
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
+  const { getToken } = useAuth();
   const deleteMutation = useMutation({
-    mutationFn: async (locationName: string) =>
-      notFalsyTypeGuard(managementClient).deleteConfigurationOverlayLocation(
+    mutationFn: async (locationName: string) => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client.deleteConfigurationOverlayLocation(
         locationName,
         instanceId,
-      ),
+      );
+    },
   });
   const {
     setReferenceVersion,

@@ -10,6 +10,8 @@ const baseUrl = 'http://localhost:8080';
 const instanceId = 'test-instance-id';
 const server = setupServer(getConfigOverlay(baseUrl, instanceId));
 
+const mockGettoken = () => Promise.resolve('test-token');
+
 describe('PensieveAccountsAdapter - listAccounts', () => {
   beforeEach(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -20,11 +22,10 @@ describe('PensieveAccountsAdapter - listAccounts', () => {
   });
   it('should return all the accounts from pensieve api', async () => {
     //S
-    const token = 'test-token';
     const SUT = new PensieveAccountsLocationsAdapter(
       baseUrl,
       instanceId,
-      token,
+      mockGettoken,
     );
     //E
     const result = await SUT.listAccounts();
@@ -41,11 +42,10 @@ describe('PensieveAccountsAdapter - listAccounts', () => {
   });
   it('should reject when pensieve api return an error', async () => {
     //S
-    const token = 'test-token';
     const SUT = new PensieveAccountsLocationsAdapter(
       baseUrl,
       instanceId,
-      token,
+      mockGettoken,
     );
     server.use(
       rest.get(

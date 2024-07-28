@@ -28,7 +28,7 @@ import {
   networkStart,
 } from '../actions';
 import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
@@ -53,6 +53,7 @@ export function useWorkflowsWithSelect<T>(
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const dispatch = useDispatch();
+  const { getToken } = useAuth();
 
   const workflowsQuery = useQuery({
     ...workflowListQuery(
@@ -60,6 +61,7 @@ export function useWorkflowsWithSelect<T>(
       accountId,
       instanceId,
       rolePathName,
+      getToken,
       () => {
         dispatch(networkStart('Loading workflows...'));
       },

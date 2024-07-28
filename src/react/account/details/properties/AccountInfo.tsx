@@ -17,7 +17,10 @@ import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
+import {
+  useAuth,
+  useInstanceId,
+} from '../../../next-architecture/ui/AuthProvider';
 
 import { CopyButton } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
@@ -48,10 +51,13 @@ function DeleteAccountButtonAndModal({ account }: Props) {
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
 
   const deleteMutation = useMutation({
-    mutationFn: () => {
-      return notFalsyTypeGuard(managementClient)
+    mutationFn: async () => {
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client
         .deleteConfigurationOverlayUser(
           instanceId,
           undefined,

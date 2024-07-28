@@ -9,6 +9,7 @@ import { PensieveAccountsLocationsAdapter } from './PensieveAccountsLocationsAda
 const baseUrl = 'http://localhost:8080';
 const instanceId = 'test-instance-id';
 const server = setupServer(getConfigOverlay(baseUrl, instanceId));
+const mockGettoken = () => Promise.resolve('test-token');
 
 describe('PensieveAccountsAdapter - listLocations', () => {
   beforeEach(() => {
@@ -25,7 +26,7 @@ describe('PensieveAccountsAdapter - listLocations', () => {
     const SUT = new PensieveAccountsLocationsAdapter(
       baseUrl,
       instanceId,
-      token,
+      mockGettoken,
     );
     server.use(
       rest.get(
@@ -44,7 +45,7 @@ describe('PensieveAccountsAdapter - listLocations', () => {
     const SUT = new PensieveAccountsLocationsAdapter(
       baseUrl,
       instanceId,
-      token,
+      mockGettoken,
     );
 
     //E

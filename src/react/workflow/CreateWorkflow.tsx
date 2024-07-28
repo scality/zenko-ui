@@ -40,7 +40,7 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import {
@@ -94,6 +94,7 @@ const CreateWorkflow = () => {
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const instanceId = useInstanceId();
+  const { getToken } = useAuth();
 
   const { versionning } = useBucketVersionning({ bucketName });
   const isBucketVersioningEnabled =
@@ -111,6 +112,7 @@ const CreateWorkflow = () => {
       accountId,
       instanceId,
       rolePathName,
+      getToken,
     ),
     select: (workflows) =>
       workflows.filter((w) => w.replication).map((w) => w.replication),
@@ -210,6 +212,7 @@ const CreateWorkflow = () => {
             notFalsyTypeGuard(accountId),
             notFalsyTypeGuard(instanceId),
             rolePathName,
+            getToken,
           ).queryKey,
         );
         if (bucketName !== '') {
@@ -258,6 +261,7 @@ const CreateWorkflow = () => {
             notFalsyTypeGuard(accountId),
             notFalsyTypeGuard(instanceId),
             rolePathName,
+            getToken,
           ).queryKey,
         );
         if (bucketName !== '') {
@@ -305,6 +309,7 @@ const CreateWorkflow = () => {
             notFalsyTypeGuard(accountId),
             notFalsyTypeGuard(instanceId),
             rolePathName,
+            getToken,
           ).queryKey,
         );
         if (bucketName !== '') {

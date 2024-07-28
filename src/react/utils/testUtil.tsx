@@ -22,7 +22,7 @@ import userEvent from '@testing-library/user-event';
 import { applyMiddleware, compose, createStore } from 'redux';
 import ZenkoClient from '../../js/ZenkoClient';
 import { VEEAM_FEATURE, XDM_FEATURE } from '../../js/config';
-import { UiFacingApi } from '../../js/managementClient/api';
+import { UiFacingApiWrapper } from '../../js/managementClient';
 import { Configuration } from '../../js/managementClient/configuration';
 import { _DataServiceRoleContext } from '../DataServiceRoleProvider';
 import { _ManagementContext } from '../ManagementProvider';
@@ -143,7 +143,7 @@ const params = {
 };
 const iamClient = new IAMClient(TEST_API_BASE_URL);
 iamClient.login(params);
-export const TEST_MANAGEMENT_CLIENT = new UiFacingApi(
+export const TEST_MANAGEMENT_CLIENT = new UiFacingApiWrapper(
   new Configuration({
     apiKey: 'token',
     basePath: `${TEST_API_BASE_URL}/api/v1`,

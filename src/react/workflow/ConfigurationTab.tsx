@@ -38,7 +38,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { Workflow } from '../../types/workflow';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
-import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useRolePathName } from '../utils/hooks';
 import { DeleteWorkflowButton } from './DeleteWorkflowButton';
@@ -80,6 +80,7 @@ function useReplicationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const rolePathName = useRolePathName();
@@ -89,7 +90,7 @@ function useReplicationMutations({
     ApiError,
     Replication
   >({
-    mutationFn: (replication) => {
+    mutationFn: async (replication) => {
       const params = {
         bucketName: replication.source.bucketName,
         instanceId,
@@ -98,7 +99,9 @@ function useReplicationMutations({
         rolePathName,
       };
       dispatch(networkStart('Deleting replication'));
-      return notFalsyTypeGuard(managementClient)
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client
         .deleteBucketWorkflowReplication(
           params.bucketName,
           params.instanceId,
@@ -118,6 +121,7 @@ function useReplicationMutations({
           accountId,
           instanceId,
           rolePathName,
+          getToken,
         ).queryKey,
       );
     },
@@ -170,6 +174,7 @@ function useReplicationMutations({
             accountId,
             instanceId,
             rolePathName,
+            getToken,
           ).queryKey,
         );
       },
@@ -195,14 +200,17 @@ function useExpirationMutations({
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
   const rolePathName = useRolePathName();
   const deleteExpirationMutation = useMutation<Response, ApiError, Expiration>({
-    mutationFn: (expiration) => {
+    mutationFn: async (expiration) => {
       dispatch(networkStart('Deleting expiration'));
-      return notFalsyTypeGuard(managementClient)
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client
         .deleteBucketWorkflowExpiration(
           expiration.bucketName,
           instanceId,
@@ -222,6 +230,7 @@ function useExpirationMutations({
           accountId,
           instanceId,
           rolePathName,
+          getToken,
         ).queryKey,
       );
     },
@@ -268,6 +277,7 @@ function useExpirationMutations({
             accountId,
             instanceId,
             rolePathName,
+            getToken,
           ).queryKey,
         );
       },
@@ -295,6 +305,7 @@ function useTransitionMutations(
   const history = useHistory();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
   const accountId = account.id;
@@ -304,9 +315,11 @@ function useTransitionMutations(
     ApiError,
     BucketWorkflowTransitionV2
   >({
-    mutationFn: (expiration) => {
+    mutationFn: async (expiration) => {
       dispatch(networkStart('Deleting transition'));
-      return notFalsyTypeGuard(managementClient)
+      const client = notFalsyTypeGuard(managementClient);
+      client.setToken(await getToken());
+      return client
         .deleteBucketWorkflowTransition(
           expiration.bucketName,
           instanceId,
@@ -326,6 +339,7 @@ function useTransitionMutations(
           accountId,
           instanceId,
           rolePathName,
+          getToken,
         ).queryKey,
       );
     },
@@ -372,6 +386,7 @@ function useTransitionMutations(
             accountId,
             instanceId,
             rolePathName,
+            getToken,
           ).queryKey,
         );
       },

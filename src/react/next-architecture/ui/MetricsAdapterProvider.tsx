@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { PensieveMetricsAdapter } from '../adapters/metrics/PensieveMetricsAdapter';
 import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
-import { useAccessToken, useInstanceId } from './AuthProvider';
+import { useAuth, useInstanceId } from './AuthProvider';
 import { useConfig } from './ConfigProvider';
 
 const _MetricsAdapterContext = createContext<null | {
@@ -21,14 +21,14 @@ export const useMetricsAdapter = (): IMetricsAdapter => {
 };
 
 const MetricsAdapterProvider = ({ children }: { children: ReactNode }) => {
-  const token = useAccessToken();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();
   // We only need to change to SCUBA Adaptor later on.
   const metricsAdapter = new PensieveMetricsAdapter(
     managementEndpoint,
     instanceId,
-    token,
+    getToken,
   );
   return (
     <_MetricsAdapterContext.Provider value={{ metricsAdapter }}>

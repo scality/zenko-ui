@@ -18,6 +18,7 @@ import { useAuth } from '../../../../next-architecture/ui/AuthProvider';
 import userEvent from '@testing-library/user-event';
 import { Route, Switch } from 'react-router-dom';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
+import { debug } from 'jest-preview';
 
 const server = setupServer(
   getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
@@ -39,6 +40,7 @@ const account1 = {
   quotaMax: 1,
   Name: 'bart',
 };
+const fakeToken = 'xxx-yyy-zzz-token';
 
 function testRow(rowWrapper, { key, value, extraCellComponent }) {
   testTableRow(T, rowWrapper, {
@@ -60,6 +62,7 @@ describe('AccountInfo', () => {
           email: 'renard.admin@scality.com',
           groups: ['StorageManager', 'user', 'PlatformAdmin'],
         },
+        getToken: async () => fakeToken,
       };
     });
   });
@@ -101,6 +104,7 @@ describe('AccountInfo', () => {
           email: 'renard.admin@scality.com',
           groups: ['user', 'PlatformAdmin'],
         },
+        getToken: async () => fakeToken,
       };
     });
     //S+E
@@ -175,15 +179,18 @@ describe('AccountInfo', () => {
     renderWithRouterMatch(<AccountInfo account={account1} />, undefined, {
       instances: { selectedId: INSTANCE_ID },
     });
+
     await userEvent.click(
       screen.getByRole('button', { name: /Delete Account/i }),
     );
+
     await userEvent.click(
       within(screen.getByRole('dialog', { name: /Confirmation/i })).getByRole(
         'button',
         { name: /delete/i },
       ),
     );
+    debug();
     //V
     await waitFor(() => {
       expect(

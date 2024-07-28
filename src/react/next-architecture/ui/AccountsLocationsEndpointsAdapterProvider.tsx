@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
-import { PensieveAccountsLocationsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
-import { useAccessToken, useInstanceId } from './AuthProvider';
-import { useConfig } from './ConfigProvider';
 import { IAccountsLocationsEndpointsAdapter } from '../adapters/accounts-locations/IAccountsLocationsEndpointsBundledAdapter';
+import { PensieveAccountsLocationsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
+import { useAuth, useInstanceId } from './AuthProvider';
+import { useConfig } from './ConfigProvider';
 
 const _AccountsLocationsEndpointsAdapterContext = createContext<null | {
   accountsLocationsEndpointsAdapter: IAccountsLocationsEndpointsAdapter;
@@ -26,11 +26,15 @@ export const AccountsLocationsEndpointsAdapterProvider = ({
 }: {
   children: JSX.Element;
 }) => {
-  const token = useAccessToken();
+  const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();
   const accountsLocationsEndpointsAdapter =
-    new PensieveAccountsLocationsAdapter(managementEndpoint, instanceId, token);
+    new PensieveAccountsLocationsAdapter(
+      managementEndpoint,
+      instanceId,
+      getToken,
+    );
   return (
     <_AccountsLocationsEndpointsAdapterContext.Provider
       value={{ accountsLocationsEndpointsAdapter }}

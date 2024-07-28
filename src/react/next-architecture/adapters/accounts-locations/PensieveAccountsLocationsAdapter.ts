@@ -1,30 +1,33 @@
-import { UiFacingApi, UserV1 } from '../../../../js/managementClient/api';
+import makeMgtClient, {
+  UiFacingApiWrapper,
+} from '../../../../js/managementClient';
+import { UserV1 } from '../../../../js/managementClient/api';
+import { Endpoint } from '../../../../types/config';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { AccountInfo } from '../../domain/entities/account';
 import { IAccountsAdapter } from './IAccountsAdapter';
-import { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
-import makeMgtClient from '../../../../js/managementClient';
 import { IAccountsLocationsEndpointsAdapter } from './IAccountsLocationsEndpointsBundledAdapter';
-import { Endpoint } from '../../../../types/config';
+import { ILocationsAdapter, LocationInfo } from './ILocationsAdapter';
 export class PensieveAccountsLocationsAdapter
   implements
     IAccountsAdapter,
     ILocationsAdapter,
     IAccountsLocationsEndpointsAdapter
 {
-  managementClient: UiFacingApi;
+  managementClient: UiFacingApiWrapper;
   constructor(
     private baseUrl: string,
     private instanceId: string,
-    private token: string,
+    private getToken: () => Promise<string | null>,
   ) {
-    this.managementClient = makeMgtClient(baseUrl, token);
+    this.managementClient = makeMgtClient(baseUrl, 'NOT_YET_AUTHENTICATED');
   }
-  listAccountsLocationsAndEndpoints(): Promise<{
+  async listAccountsLocationsAndEndpoints(): Promise<{
     accounts: AccountInfo[];
     locations: LocationInfo[];
     endpoints: Endpoint[];
   }> {
+    this.managementClient.setToken(await this.getToken());
     return this.managementClient
       .getConfigurationOverlayView(this.instanceId)
       .then((overlay) => {
@@ -53,8 +56,8 @@ export class PensieveAccountsLocationsAdapter
         };
       });
   }
-  listLocations(): Promise<LocationInfo[]> {
-    //@ts-expect-error fix this when you are working on it
+  async listLocations(): Promise<LocationInfo[]> {
+    this.managementClient.setToken(await this.getToken());
     return (
       this.managementClient
         .getConfigurationOverlayView(this.instanceId)
@@ -71,6 +74,7 @@ export class PensieveAccountsLocationsAdapter
     );
   }
   async listAccounts(): Promise<AccountInfo[]> {
+    this.managementClient.setToken(await this.getToken());
     return this.managementClient
       .getConfigurationOverlayView(this.instanceId)
       .then((overlay) => {

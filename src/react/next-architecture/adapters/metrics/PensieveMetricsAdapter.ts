@@ -1,22 +1,24 @@
 import { Bucket } from 'aws-sdk/clients/s3';
 import { LatestUsedCapacity } from '../../domain/entities/metrics';
 import { IMetricsAdapter } from './IMetricsAdapter';
-import makeMgtClient from '../../../../js/managementClient';
-import { UiFacingApi } from '../../../../js/managementClient/api';
+import makeMgtClient, {
+  UiFacingApiWrapper,
+} from '../../../../js/managementClient';
 import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 
 export class PensieveMetricsAdapter implements IMetricsAdapter {
-  managementClient: UiFacingApi;
+  managementClient: UiFacingApiWrapper;
   constructor(
     private baseUrl: string,
     private instanceId: string,
-    private token: string,
+    private getToken: () => Promise<string | null>,
   ) {
-    this.managementClient = makeMgtClient(this.baseUrl, this.token);
+    this.managementClient = makeMgtClient(baseUrl, 'NOT_YET_AUTHENTICATED');
   }
   async listBucketsLatestUsedCapacity(
     buckets: Bucket[],
   ): Promise<Record<string, LatestUsedCapacity>> {
+    this.managementClient.setToken(await this.getToken());
     const bucketsMetrics =
       await this.managementClient.getStorageConsumptionMetricsForBuckets(
         this.instanceId,
@@ -46,6 +48,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   async listLocationsLatestUsedCapacity(
     locationIds: string[],
   ): Promise<Record<string, LatestUsedCapacity>> {
+    this.managementClient.setToken(await this.getToken());
     const locationsMetrics =
       await this.managementClient.getStorageConsumptionMetricsForLocations(
         this.instanceId,
@@ -78,6 +81,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   async listAccountLocationsLatestUsedCapacity(
     accountCanonicalId: string,
   ): Promise<Record<string, LatestUsedCapacity>> {
+    this.managementClient.setToken(await this.getToken());
     const accountLocationsMetrics =
       await this.managementClient.getStorageConsumptionMetricsForAccount(
         this.instanceId,
@@ -116,6 +120,7 @@ export class PensieveMetricsAdapter implements IMetricsAdapter {
   async listAccountsLatestUsedCapacity(
     accountCanonicalIds: string[],
   ): Promise<Record<string, LatestUsedCapacity>> {
+    this.managementClient.setToken(await this.getToken());
     const accountsMetrics =
       await this.managementClient.getStorageConsumptionMetricsForAccounts(
         this.instanceId,
