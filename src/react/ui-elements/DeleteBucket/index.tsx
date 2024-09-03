@@ -38,13 +38,12 @@ export const DeleteBucket = ({ bucketName }: DeleteBucketProps) => {
             : 'Bucket is not empty'
         }
         overlayStyle={{
-          width: '9rem',
-          display: isBucketEmpty ? undefined : 'none',
+          display: isBucketEmpty ? 'none' : undefined,
         }}
       >
         <Button
           icon={<Icon name="Delete" />}
-          disabled={isBucketEmpty}
+          disabled={!isBucketEmpty}
           variant="danger"
           onClick={handleDeleteClick}
           label="Delete Bucket"

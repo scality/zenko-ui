@@ -295,7 +295,7 @@ export const useCheckIfBucketEmpty = (bucketName: string) => {
   );
 
   const isBucketEmpty = object
-    ? Boolean(
+    ? !Boolean(
         [
           ...(object.Versions ? object.Versions : []),
           ...(object.DeleteMarkers ? object.DeleteMarkers : []),
