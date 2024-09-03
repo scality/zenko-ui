@@ -53,7 +53,7 @@ export const useAwsPaginatedEntities = <
     ENTITY,
     TError,
     MARKER_TYPE
-  >,
+  > & { additionalDepsToUpdateQueryFn?: unknown[] },
   getEntitiesFromResult: (data: API_RESPONSE) => ENTITY[],
   preventNextPagesRetrieval = false,
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
@@ -96,7 +96,7 @@ export const useAwsPaginatedEntities = <
     >();
   useEffect(() => {
     ref.current = reactQueryOptions?.queryFn;
-  }, [token]);
+  }, [token, ...(reactQueryOptions.additionalDepsToUpdateQueryFn || [])]);
   //--------------------------------------------------------------------
 
   const {
@@ -116,16 +116,19 @@ export const useAwsPaginatedEntities = <
       return ref.current?.(ctx, ctx.pageParam);
     },
   });
+
   const pageIndex = data?.pageParams?.length || 0;
   const entities =
     data &&
     data.pages &&
     data.pages.flatMap((page) => getEntitiesFromResult(page));
+
   useMemo(() => {
     if (pageIndex === 0 || (pageIndex === 1 && internalStatus === 'success')) {
       setFirstPageStatus(internalStatus);
     }
   }, [internalStatus, pageIndex]);
+
   useMemo(() => {
     if (
       internalStatus === 'idle' ||
@@ -165,11 +168,13 @@ export const useAwsPaginatedEntities = <
     firstPageStatus,
   } as AWS_PAGINATED_ENTITIES<ENTITY>;
 };
+
 type AccessKeyObject = {
   accessKey: string;
   createdOn: string;
   status: string;
 };
+
 export const useAccessKeyOutdatedStatus = (
   accessKeyObject: AccessKeyObject,
 ) => {
