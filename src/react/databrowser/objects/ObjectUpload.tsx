@@ -12,6 +12,7 @@ import { CustomModal as Modal } from '../../ui-elements/Modal';
 import Table, * as T from '../../ui-elements/Table';
 import { maybePluralize } from '../../utils';
 import { usePrefixWithSlash } from '../../utils/hooks';
+import { useQueryClient } from 'react-query';
 const DropZone = styled.div`
   flex: 1;
   display: flex;
@@ -116,6 +117,7 @@ const ObjectUpload = ({ bucketName }: Props) => {
   );
   const dispatch = useDispatch();
   const prefixWithSlash = usePrefixWithSlash();
+  const queryClient = useQueryClient();
 
   const onDrop = (accepted, rejections) => {
     if (accepted.length > 0) {
@@ -154,7 +156,9 @@ const ObjectUpload = ({ bucketName }: Props) => {
 
   const upload = () => {
     cleanFiles();
-    dispatch(uploadFiles(bucketName, prefixWithSlash, acceptedFiles));
+    dispatch(
+      uploadFiles(bucketName, prefixWithSlash, acceptedFiles, queryClient),
+    );
   };
 
   if (!show) {
