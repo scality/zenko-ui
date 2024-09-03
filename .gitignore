@@ -12,3 +12,4 @@ coverage
 .DS_Store
 
 build
+build_ts
