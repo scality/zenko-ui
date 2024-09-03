@@ -10,6 +10,7 @@ import type { AppState } from '../../../types/state';
 import { closeFolderCreateModal, createFolder } from '../../actions';
 import { CustomModal as Modal } from '../../ui-elements/Modal';
 import { addTrailingSlash } from '../../utils';
+import { useQueryClient } from 'react-query';
 export const Description = styled.div`
   margin-top: ${spacing.sp16};
   width: 20.5rem;
@@ -30,6 +31,8 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
   );
   const dispatch: Dispatch<Action> = useDispatch();
 
+  const queryClient = useQueryClient();
+
   if (!show) {
     return null;
   }
@@ -46,7 +49,12 @@ const FolderCreate = ({ bucketName, prefixWithSlash }: Props) => {
 
     setFolderName('');
     dispatch(
-      createFolder(bucketName, prefixWithSlash, addTrailingSlash(folderName)),
+      createFolder(
+        bucketName,
+        prefixWithSlash,
+        addTrailingSlash(folderName),
+        queryClient,
+      ),
     );
   };
 

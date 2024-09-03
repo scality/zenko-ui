@@ -40,6 +40,7 @@ import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../utils/s3';
 import type { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
+import { QueryClient } from 'react-query';
 
 export const UPLOADING_OBJECT = 'Uploading object(s)';
 export function listObjectsSuccess(
@@ -178,17 +179,22 @@ export function resetObjectMetadata(): ResetObjectMetadataAction {
     type: 'RESET_OBJECT_METADATA',
   };
 }
+
 export function createFolder(
   bucketName: string,
   prefixWithSlash: string,
   folderName: string,
+  queryClient: QueryClient,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Creating folder'));
     return zenkoClient
       .createFolder(bucketName, prefixWithSlash, folderName)
-      .then(() => dispatch(listObjects(bucketName, prefixWithSlash)))
+      .then(() => {
+        queryClient.removeQueries(['objectVersions', bucketName]);
+        dispatch(listObjects(bucketName, prefixWithSlash));
+      })
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byComponent')))
       .finally(() => {
@@ -447,6 +453,7 @@ export function uploadFiles(
   bucketName: string,
   prefixWithSlash: string,
   files: Array<File>,
+  queryClient: QueryClient,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
@@ -455,6 +462,7 @@ export function uploadFiles(
     return zenkoClient
       .uploadObject(bucketName, prefixWithSlash, files)
       .then(() => {
+        queryClient.removeQueries(['objectVersions', bucketName]);
         dispatch(listObjects(bucketName, prefixWithSlash));
       })
       .catch((error) => {

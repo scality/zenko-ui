@@ -14,6 +14,7 @@ import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
 import { useDropzone } from 'react-dropzone';
 import { usePrefixWithSlash } from '../../utils/hooks';
+import { useQueryClient } from 'react-query';
 const DropZone = styled.div`
   flex: 1;
   display: flex;
@@ -118,6 +119,7 @@ const ObjectUpload = ({ bucketName }: Props) => {
   );
   const dispatch: Dispatch<Action> = useDispatch();
   const prefixWithSlash = usePrefixWithSlash();
+  const queryClient = useQueryClient();
 
   const onDrop = (accepted, rejections) => {
     if (accepted.length > 0) {
@@ -156,7 +158,9 @@ const ObjectUpload = ({ bucketName }: Props) => {
 
   const upload = () => {
     cleanFiles();
-    dispatch(uploadFiles(bucketName, prefixWithSlash, acceptedFiles));
+    dispatch(
+      uploadFiles(bucketName, prefixWithSlash, acceptedFiles, queryClient),
+    );
   };
 
   if (!show) {
