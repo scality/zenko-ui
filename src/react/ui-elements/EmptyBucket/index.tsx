@@ -147,6 +147,7 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
       refetchOnWindowFocus: false,
       refetchOnMount: true,
       refetchOnReconnect: false,
+      additionalDepsToUpdateQueryFn: [bucketName],
     },
     (data) => createDeleteObjectsData(data.DeleteMarkers, data.Versions),
   );
@@ -209,12 +210,12 @@ export const EmptyBucket = ({ bucketName }: EmptyBucketProps) => {
         }
         overlayStyle={{
           width: '9rem',
-          display: isBucketEmpty ? 'none' : undefined,
+          display: isBucketEmpty ? undefined : 'none',
         }}
       >
         <Button
           icon={<Icon name="Eraser" />}
-          disabled={!isBucketEmpty}
+          disabled={isBucketEmpty}
           variant="danger"
           onClick={handleEmptyClick}
           label={EMPTY_CONFIRMATION_MODAL_TITLE}
