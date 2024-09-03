@@ -151,6 +151,7 @@ describe.skip('s3object actions', () => {
   const asyncTests = [
     {
       it: 'createFolder: should return expected actions -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME),
       storeState: initState,
       expectedActions: [
@@ -170,6 +171,8 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should return expected actions -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
+
       fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME),
       storeState: initState,
       expectedActions: [
@@ -189,6 +192,8 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should handle error -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
+
       fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -200,6 +205,8 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should handle error -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
+
       fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME),
       storeState: errorZenkoState(),
       expectedActions: [
@@ -211,6 +218,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test without prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.uploadFiles(BUCKET_NAME, '', []),
       storeState: initState,
       expectedActions: [
@@ -230,6 +238,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test with prefix parameter',
+      //@ts-expect-error fix this when you are working on it
       fn: actions.uploadFiles(BUCKET_NAME, PREFIX, []),
       storeState: initState,
       expectedActions: [
