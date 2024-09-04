@@ -1,5 +1,4 @@
 import STSClient from '../../js/STSClient';
-import ZenkoClient from '../../js/ZenkoClient';
 import makeMgtClient from '../../js/managementClient';
 import {
   ConfigAuthFailureAction,

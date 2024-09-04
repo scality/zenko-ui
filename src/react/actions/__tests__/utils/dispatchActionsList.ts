@@ -35,7 +35,6 @@ import {
   SetManagementClientAction,
   SetOIDCLogoutAction,
   SetSTSClientAction,
-  SetZenkoClientAction,
   ToggleAllObjectsAction,
   ToggleObjectAction,
   ZenkoAppendSearchListAction,
@@ -55,7 +54,6 @@ import {
   Marker,
   SearchResultList,
   ZenkoClientError,
-  ZenkoClient as ZenkoClientInterface,
 } from '../../../../types/zenko';
 import {
   ACCOUNT,
