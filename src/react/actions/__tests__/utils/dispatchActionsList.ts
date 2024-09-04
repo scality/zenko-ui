@@ -74,14 +74,6 @@ export const SET_MANAGEMENT_CLIENT_ACTION: SetManagementClientAction = {
   //@ts-expect-error fix this when you are working on it
   managementClient: new MockManagementClient(),
 };
-export function SET_ZENKO_CLIENT_ACTION(
-  zenkoClient: ZenkoClientInterface,
-): SetZenkoClientAction {
-  return {
-    type: 'SET_ZENKO_CLIENT',
-    zenkoClient,
-  };
-}
 export const SET_STS_CLIENT_ACTION: SetSTSClientAction = {
   type: 'SET_STS_CLIENT',
   stsClient: new MockSTSClient(),

@@ -48,15 +48,7 @@ describe.skip('zenko actions', () => {
       SignedUrl: '',
     },
   ];
-  const mock = new MockZenkoClient();
   const syncTests = [
-    {
-      it: 'should return SET_ZENKO_CLIENT action',
-      //@ts-expect-error fix this when you are working on it
-      fn: actions.setZenkoClient(mock),
-      //@ts-expect-error fix this when you are working on it
-      expectedActions: [dispatchAction.SET_ZENKO_CLIENT_ACTION(mock)],
-    },
     {
       it: 'should return ZENKO_CLEAR_ERROR action',
       fn: actions.zenkoClearError(),

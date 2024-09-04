@@ -1,7 +1,6 @@
 import {
   DispatchFunction,
   GetStateFunction,
-  SetZenkoClientAction,
   ThunkNonStatePromisedAction,
   ThunkStatePromisedAction,
   ZenkoAppendSearchListAction,
@@ -15,7 +14,6 @@ import {
   SearchResultList,
   Site,
   ZenkoClientError,
-  ZenkoClient as ZenkoClientInterface,
 } from '../../types/zenko';
 import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
 import { handleAWSClientError, handleAWSError } from './error';
@@ -72,14 +70,6 @@ export function appendSearchListing(
     type: 'ZENKO_CLIENT_APPEND_SEARCH_LIST',
     nextMarker,
     list,
-  };
-}
-export function setZenkoClient(
-  zenkoClient: ZenkoClientInterface,
-): SetZenkoClientAction {
-  return {
-    type: 'SET_ZENKO_CLIENT',
-    zenkoClient,
   };
 }
 
