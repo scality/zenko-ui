@@ -27,6 +27,7 @@ import {
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
   VEEAM_DEFAULT_ACCOUNT_NAME,
   VEEAM_OFFICE_365,
+  VEEAM_OFFICE_365_V8,
   unitChoices,
 } from './VeeamConstants';
 import { VeeamSkipModal } from './VeeamSkipModal';
@@ -187,7 +188,8 @@ const Configuration = () => {
       application,
       capacityBytes: getCapacityBytes(capacity, capacityUnit),
       enableImmutableBackup:
-        application === VEEAM_BACKUP_REPLICATION_XML_VALUE
+        application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
+        application === VEEAM_OFFICE_365_V8
           ? enableImmutableBackup
           : false,
       accountName,
@@ -298,6 +300,12 @@ const Configuration = () => {
                       >
                         {VEEAM_OFFICE_365}
                       </Select.Option>
+                      <Select.Option
+                        key={VEEAM_OFFICE_365_V8}
+                        value={VEEAM_OFFICE_365_V8}
+                      >
+                        {VEEAM_OFFICE_365_V8}
+                      </Select.Option>
                     </Select>
                   );
                 }}
@@ -321,7 +329,8 @@ const Configuration = () => {
               />
             }
           />
-          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ? (
+          {application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
+          application === VEEAM_OFFICE_365_V8 ? (
             <FormGroup
               id="enableImmutableBackup"
               label="Immutable backup"

@@ -239,7 +239,8 @@ function Overview({ bucket, ingestionStates }: Props) {
     tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
   const isVeeamBucket =
     (veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
-      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365) &&
+      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
+      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8) &&
     VEEAM_FEATURE_FLAG_ENABLED;
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));

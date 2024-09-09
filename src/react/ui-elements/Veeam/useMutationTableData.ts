@@ -25,6 +25,7 @@ import {
   GET_VEEAM_NON_IMMUTABLE_POLICY,
   SYSTEM_XML_CONTENT,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
+  VEEAM_OFFICE_365_V8,
   VEEAM_XML_PREFIX,
 } from './VeeamConstants';
 import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
@@ -109,6 +110,7 @@ export const useMutationTableData = ({
 
   const isVeeamVBR =
     propsConfiguration.application === VEEAM_BACKUP_REPLICATION_XML_VALUE;
+  const isVeeamVBOV8 = propsConfiguration.application === VEEAM_OFFICE_365_V8;
   const mutations = isVeeamVBR ? mutationsVBR : mutationsVBO;
 
   const instanceId = useInstanceId();
@@ -140,9 +142,10 @@ export const useMutationTableData = ({
       createBucketMutation: () => {
         return {
           Bucket: propsConfiguration.bucketName,
-          ObjectLockEnabledForBucket: isVeeamVBR
-            ? propsConfiguration.enableImmutableBackup
-            : false,
+          ObjectLockEnabledForBucket:
+            isVeeamVBR || isVeeamVBOV8
+              ? propsConfiguration.enableImmutableBackup
+              : false,
         };
       },
       createIAMUserMutation: () => {
