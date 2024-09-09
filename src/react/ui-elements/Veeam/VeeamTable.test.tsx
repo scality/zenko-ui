@@ -78,7 +78,11 @@ describe('VeeamTable', () => {
     veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
     veeamVBO: () =>
       screen.getByRole('option', {
-        name: /Veeam Backup for Microsoft 365/i,
+        name: /Veeam Backup for Microsoft 365 \(pre-v8\)/i,
+      }),
+    veeamVBOV8: () =>
+      screen.getByRole('option', {
+        name: /Veeam Backup for Microsoft 365 \(v8\)/i,
       }),
     immutableBackupToggle: () => screen.getByLabelText('enableImmutableBackup'),
   };
@@ -206,7 +210,7 @@ describe('VeeamTable', () => {
     await verifySuccessActions(mutationActions);
   });
 
-  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365', async () => {
+  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365 (pre-v8)', async () => {
     //Setup
     server.resetHandlers(...goodHandlers);
     setupTest();
@@ -214,6 +218,25 @@ describe('VeeamTable', () => {
     //Select Veeam Backup for Microsoft 365
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBO());
+    await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
+    await userEvent.type(selectors.setBucketName(), bucketName);
+
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeEnabled();
+    });
+    await userEvent.click(selectors.continueButton());
+    //V
+    await verifySuccessActions(VeeamVBOActions);
+  });
+
+  it('should skip the SOSAPI setup when choosing VeeamBackup for Microsoft 365 (v8)', async () => {
+    //Setup
+    server.resetHandlers(...goodHandlers);
+    setupTest();
+    //Exercise
+    //Select Veeam Backup for Microsoft 365 (v8)
+    await selectClick(selectors.veeamApplicationSelect());
+    await userEvent.click(selectors.veeamVBOV8());
     await userEvent.type(selectors.accountName(), VEEAM_DEFAULT_ACCOUNT_NAME);
     await userEvent.type(selectors.setBucketName(), bucketName);
 
