@@ -35,7 +35,11 @@ describe('Veeam Configuration UI', () => {
     veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
     veeamVBO: () =>
       screen.getByRole('option', {
-        name: /Veeam Backup for Microsoft 365/i,
+        name: /Veeam Backup for Microsoft 365 \(pre-v8\)/i,
+      }),
+    veeamVBOV8: () =>
+      screen.getByRole('option', {
+        name: /Veeam Backup for Microsoft 365 \(v8\)/i,
       }),
   };
 
@@ -101,7 +105,7 @@ describe('Veeam Configuration UI', () => {
     });
   });
 
-  it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 is selected', async () => {
+  it('should hide immutable backup and Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 pre-v8 is selected', async () => {
     //Setup
     mockUseAccountsImplementation();
     renderVeeamConfigurationForm();
@@ -131,7 +135,7 @@ describe('Veeam Configuration UI', () => {
     expect(screen.getByText(/Cancel/i)).toBeInTheDocument();
   });
 
-  it('should disable immutable backup when Veeam Backup for Microsoft 365 is selected', async () => {
+  it('should disable immutable backup when Veeam Backup for Microsoft 365 pre-v8 is selected', async () => {
     const SUT = jest.fn();
     mockUseStepper.mockReturnValue({ next: SUT });
     mockUseAccountsImplementation();
@@ -145,10 +149,31 @@ describe('Veeam Configuration UI', () => {
 
     expect(SUT).toHaveBeenCalledWith({
       accountName: 'Veeam',
-      application: 'Veeam Backup for Microsoft 365',
+      application: 'Veeam Backup for Microsoft 365 (pre-v8)',
       bucketName: 'veeam-bucket',
       capacityBytes: '4294967296',
       enableImmutableBackup: false,
+    });
+  });
+
+  it('should show immutable backup but hide Max Veeam Repository Capacity when Veeam Backup for Microsoft 365 v8 is selected', async () => {
+    const SUT = jest.fn();
+    mockUseStepper.mockReturnValue({ next: SUT });
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+
+    await selectClick(selectors.veeamApplicationSelect());
+    await userEvent.click(selectors.veeamVBOV8());
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    await userEvent.click(selectors.continueButton());
+
+    expect(SUT).toHaveBeenCalledWith({
+      accountName: 'Veeam',
+      application: 'Veeam Backup for Microsoft 365 (v8)',
+      bucketName: 'veeam-bucket',
+      capacityBytes: '4294967296',
+      enableImmutableBackup: true,
     });
   });
 
