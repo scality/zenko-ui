@@ -34,14 +34,6 @@ const ButtonContainer = styled.div`
   padding: ${spacing.r16};
 `;
 
-const EllipsisCell = styled.div`
-  overflow: hidden;
-  overflow-wrap: break-word;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  word-break: break-all;
-`;
-
 type Props = {
   account: Account;
 };

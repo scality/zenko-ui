@@ -1,5 +1,4 @@
 import STSClient from '../../js/STSClient';
-import ZenkoClient from '../../js/ZenkoClient';
 import makeMgtClient from '../../js/managementClient';
 import {
   ConfigAuthFailureAction,
@@ -21,7 +20,6 @@ import {
   handleErrorMessage,
   loadInstanceLatestStatus,
   networkAuthFailure,
-  setZenkoClient,
 } from './index';
 export function setOIDCLogout(logout: OidcLogoutFunction): SetOIDCLogoutAction {
   return {
@@ -82,16 +80,6 @@ export function loadAppConfig(config: AppConfig, user): ThunkNonStateAction {
         new STSClient({
           endpoint: config.stsEndpoint,
         }),
-      ),
-    );
-    dispatch(
-      setZenkoClient(
-        new ZenkoClient(
-          config.zenkoEndpoint,
-          config.iamInternalFQDN,
-          config.s3InternalFQDN,
-          config.basePath,
-        ),
       ),
     );
     dispatch(loadConfigSuccess());
