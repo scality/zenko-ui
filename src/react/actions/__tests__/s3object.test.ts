@@ -1,3 +1,4 @@
+import { queryClient } from '../../utils/testUtil';
 import * as actions from '../s3object';
 import { UPLOADING_OBJECT } from '../s3object';
 import * as dispatchAction from './utils/dispatchActionsList';
@@ -151,7 +152,7 @@ describe.skip('s3object actions', () => {
   const asyncTests = [
     {
       it: 'createFolder: should return expected actions -> test without prefix parameter',
-      fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME),
+      fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME, queryClient),
       storeState: initState,
       expectedActions: [
         createFolderNetworkAction,
@@ -170,7 +171,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should return expected actions -> test with prefix parameter',
-      fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME),
+      fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME, queryClient),
       storeState: initState,
       expectedActions: [
         createFolderNetworkAction,
@@ -189,7 +190,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should handle error -> test without prefix parameter',
-      fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME),
+      fn: actions.createFolder(BUCKET_NAME, '', FOLDER_NAME, queryClient),
       storeState: errorZenkoState(),
       expectedActions: [
         createFolderNetworkAction,
@@ -200,7 +201,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'createFolder: should handle error -> test with prefix parameter',
-      fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME),
+      fn: actions.createFolder(BUCKET_NAME, PREFIX, FOLDER_NAME, queryClient),
       storeState: errorZenkoState(),
       expectedActions: [
         createFolderNetworkAction,
@@ -211,7 +212,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test without prefix parameter',
-      fn: actions.uploadFiles(BUCKET_NAME, '', []),
+      fn: actions.uploadFiles(BUCKET_NAME, '', [], queryClient),
       storeState: initState,
       expectedActions: [
         dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),
@@ -230,7 +231,7 @@ describe.skip('s3object actions', () => {
     },
     {
       it: 'uploadFiles: should return expected actions -> test with prefix parameter',
-      fn: actions.uploadFiles(BUCKET_NAME, PREFIX, []),
+      fn: actions.uploadFiles(BUCKET_NAME, PREFIX, [], queryClient),
       storeState: initState,
       expectedActions: [
         dispatchAction.CLOSE_OBJECT_UPLOAD_MODAL_ACTION(),

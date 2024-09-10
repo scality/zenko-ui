@@ -55,6 +55,7 @@ import {
   renderDestination,
 } from './utils';
 import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
 
 type Props = {
   isCreateMode?: boolean;
@@ -64,7 +65,7 @@ type Props = {
 
 export const disallowedPrefixes = (
   bucketName: string,
-  streams: Replication[],
+  streams: ReplicationStreamInternalV1[],
 ) => {
   return streams
     .filter((s) => {

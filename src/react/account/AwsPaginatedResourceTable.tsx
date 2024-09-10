@@ -138,7 +138,6 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
                   disabled={queryResult.status !== 'success'}
                   value={search}
                   placeholder={'Search'}
-                  disableToggle
                   onReset={() => {
                     queryParams.delete(SEARCH_QUERY_PARAM);
                     history.push(`${match.url}?${queryParams.toString()}`);

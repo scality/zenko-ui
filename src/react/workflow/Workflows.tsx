@@ -16,6 +16,7 @@ import {
   BucketWorkflowExpirationV1,
   BucketWorkflowTransitionV2,
   ReplicationStreamInternalV1,
+  SearchWorkflowsListV1,
 } from '../../js/managementClient/api';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { APIWorkflows } from '../../types/workflow';
@@ -44,7 +45,7 @@ import {
 type Filter = string[];
 
 export function useWorkflowsWithSelect<T>(
-  select: (workflows: APIWorkflows) => T,
+  select: (workflows: SearchWorkflowsListV1) => T,
   filters?: Filter,
 ): UseQueryResult<T, unknown> {
   const mgnt = useManagementClient();

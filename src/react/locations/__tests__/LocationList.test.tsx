@@ -32,6 +32,7 @@ const server = setupServer(
     (req, res, ctx) => res(ctx.json({})),
   ),
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
+    //@ts-ignore
     const params = new URLSearchParams(req.body);
     console.log(req.body);
 

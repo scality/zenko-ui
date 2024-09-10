@@ -16,7 +16,6 @@ import {
 import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
 import { InfiniteData } from 'react-query';
 import IAMClient from '../js/IAMClient';
-import { UiFacingApi } from '../js/managementClient/api';
 import { getAccountSeeds } from '../js/vault';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { APIWorkflows, Workflow, Workflows } from '../types/workflow';
@@ -26,7 +25,7 @@ import {
   generateStreamName,
   generateTransitionName,
 } from './workflow/utils';
-import { UiFacingApiWrapper } from 'src/js/managementClient';
+import { UiFacingApiWrapper } from '../js/managementClient';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -78,7 +77,7 @@ export const workflowListQuery = (
 ) => {
   return {
     queryKey: ['workflowList', accountId, instanceId, rolePathName, filters],
-    queryFn: async (): Promise<APIWorkflows> => {
+    queryFn: async () => {
       if (onStart) {
         onStart();
       }
