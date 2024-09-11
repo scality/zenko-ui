@@ -78,11 +78,11 @@ describe('VeeamTable', () => {
     veeamApplicationSelect: () => screen.getByLabelText(/Veeam application/i),
     veeamVBO: () =>
       screen.getByRole('option', {
-        name: /Veeam Backup for Microsoft 365 \(pre-v8\)/i,
+        name: /Veeam Backup for Microsoft 365 \(v6, v7\)/i,
       }),
     veeamVBOV8: () =>
       screen.getByRole('option', {
-        name: /Veeam Backup for Microsoft 365 \(v8\)/i,
+        name: /Veeam Backup for Microsoft 365 \(v8\+\)/i,
       }),
     immutableBackupToggle: () => screen.getByLabelText('enableImmutableBackup'),
   };
@@ -210,7 +210,7 @@ describe('VeeamTable', () => {
     await verifySuccessActions(mutationActions);
   });
 
-  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365 (pre-v8)', async () => {
+  it('should skip the SOSAPI setup step when choosing Veeam Backup for Microsoft 365 (v6 or v7)', async () => {
     //Setup
     server.resetHandlers(...goodHandlers);
     setupTest();
