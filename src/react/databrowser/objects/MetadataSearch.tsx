@@ -1,20 +1,21 @@
 import { useRef, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { Hint, Hints, HintsTitle } from '../../ui-elements/Input';
 import {
   SearchButton,
-  SearchInputIcon,
   SearchMetadataContainer,
-  SearchMetadataInput,
   SearchMetadataInputAndIcon,
   SearchValidationIcon,
 } from '../../ui-elements/Table';
 import {
   useOutsideClick,
-  useQueryParams,
   usePrefixWithSlash,
+  useQueryParams,
 } from '../../utils/hooks';
+import { Icon, spacing } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 
 export const METADATA_SEARCH_HINT_ITEMS = [
   {
@@ -50,6 +51,19 @@ export const METADATA_SEARCH_HINT_ITEMS = [
     q: 'replication-status="PENDING"',
   },
 ];
+
+const SearchMetadataInputContainer = styled.div`
+  width: 100%;
+  > div {
+    width: 100%;
+  }
+`;
+const SearchMetadataInput = styled(Input)`
+  background-color: ${(props) => props.theme.backgroundLevel1};
+  padding: 0px ${spacing.r32};
+  max-height: ${spacing.r32};
+  box-sizing: border-box;
+`;
 type Props = {
   isMetadataType: boolean;
   errorZenkoMsg: string | null | undefined;
@@ -110,6 +124,8 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
     setHintsShown(true);
   };
 
+  const isHidden = !isMetadataType && !errorZenkoMsg;
+
   return (
     <SearchMetadataContainer
       //@ts-expect-error fix this when you are working on it
@@ -121,20 +137,27 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
           isMetadataType={isMetadataType}
           isError={!!errorZenkoMsg}
         />
-        <SearchMetadataInput
-          //@ts-expect-error fix this when you are working on it
-          disableToggle={true}
-          ref={inputRef}
-          onChange={handleChange}
-          placeholder="Metadata Search"
-          value={inputText}
-          onClick={handleInputClicked}
-        />
-        <SearchInputIcon
-          className="fas fa-times-circle"
+        <SearchMetadataInputContainer>
+          <SearchMetadataInput
+            id="metadata-search-input"
+            ref={inputRef}
+            onChange={handleChange}
+            placeholder="Metadata Search"
+            value={inputText}
+            onClick={handleInputClicked}
+          />
+        </SearchMetadataInputContainer>
+
+        <Icon
+          name="Times-circle"
+          style={{
+            position: 'absolute',
+            visibility: isHidden ? 'hidden' : 'visible',
+            right: '10px',
+            cursor: 'pointer',
+          }}
+          //@ts-expect-error Need to improve typing on core-ui for including the event
           onClick={reset}
-          //@ts-expect-error fix this when you are working on it
-          isHidden={!isMetadataType && !errorZenkoMsg ? 1 : 0}
         />
       </SearchMetadataInputAndIcon>
       {hintsShown && !inputText && (

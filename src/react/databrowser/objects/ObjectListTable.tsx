@@ -5,10 +5,9 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
-import { FormattedDateTime, PrettyBytes, Text } from '@scality/core-ui';
+import { FormattedDateTime, Icon, PrettyBytes, Text } from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { spacing } from '@scality/core-ui';
-import styled from 'styled-components';
 import { useHistory, useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
 
@@ -34,10 +33,6 @@ import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 
-export const Icon = styled.i<{ isMargin?: boolean }>`
-  margin-right: ${spacing.r4};
-  margin-left: ${(props) => (props.isMargin ? spacing.r16 : '0px')};
-`;
 type CellProps = {
   row: {
     original: ObjectEntity;
@@ -195,7 +190,7 @@ export default function ObjectListTable({
           if (original.isFolder) {
             return (
               <span>
-                <Icon className="far fa-folder"></Icon>
+                <Icon name="Folder" />
                 <T.CellClick
                   onClick={handleCellClicked(bucketName, original.key)}
                 >
@@ -205,14 +200,16 @@ export default function ObjectListTable({
             );
           }
 
+          const iconStyle = {
+            marginRight: spacing.r4,
+            marginLeft: !original.isLatest ? spacing.r16 : 0,
+          };
+
           if (original.isDeleteMarker) {
             return (
               <span>
                 {' '}
-                <Icon
-                  isMargin={!original.isLatest}
-                  className="fas fa-ban"
-                ></Icon>
+                <Icon style={iconStyle} name="Deletion-marker" />
                 {original.name}
               </span>
             );
@@ -220,19 +217,14 @@ export default function ObjectListTable({
 
           return (
             <span>
-              <Icon
-                isMargin={!original.isLatest}
-                className="far fa-file"
-              ></Icon>
+              <Icon style={iconStyle} name="File" />
               {original.lockStatus === 'LOCKED' && (
-                <Icon className="fa fa-lock"></Icon>
+                <Icon style={iconStyle} name="Lock" />
               )}
               {original.lockStatus === 'RELEASED' && (
-                <Icon className="fa fa-lock-open"></Icon>
+                <Icon style={iconStyle} name="Lock-open" />
               )}
-              {original.isLegalHoldEnabled && (
-                <Icon className="fas fa-balance-scale"></Icon>
-              )}
+              {original.isLegalHoldEnabled && <Icon name="Rebalance" />}
               {isObjectInColdStorage &&
               (headObjectStatus === 'idle' ||
                 headObjectStatus === 'loading' ||

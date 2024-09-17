@@ -1,21 +1,23 @@
+import { Icon } from '@scality/core-ui';
+import { Tabs } from '@scality/core-ui/dist/next';
+import { useParams } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { Account } from '../../types/account';
-import { Tabs } from '@scality/core-ui/dist/next';
-import Properties from './details/Properties';
 import { Warning } from '../ui-elements/Warning';
-import { useParams } from 'react-router-dom';
-import AccountUserList from './AccountUserList';
-import AccountPoliciesList from './AccountPoliciesList';
-import { AccountLocations } from './AccountLocations';
 import { useAuthGroups } from '../utils/hooks';
+import { AccountLocations } from './AccountLocations';
+import AccountPoliciesList from './AccountPoliciesList';
+import AccountUserList from './AccountUserList';
+import Properties from './details/Properties';
+
 type Props = {
   account: Account | null | undefined;
 };
 
 const NotFound = () => (
   <Warning
-    //@ts-expect-error fix this when you are working on it
-    iconClass="fas fa-3x fa-exclamation-triangle"
+    centered={true}
+    icon={<Icon name="Exclamation-triangle" size="3x" />}
     title="Account not found."
   />
 );

@@ -4,7 +4,7 @@ import {
   LocationTypeKey,
 } from '../../../types/config';
 import React from 'react';
-import { Tooltip } from '@scality/core-ui';
+import { Tooltip, Icon } from '@scality/core-ui';
 import { storageOptions } from './storageOptions';
 
 type Props = {
@@ -66,7 +66,7 @@ export default class LocationDetails extends React.Component<Props> {
       } else if (this.props.repStatus === 'disabled') {
         msg = (
           <div>
-            <span className="mr-2 fa fa-exclamation-circle" />
+            <Icon name="Exclamation-triangle" />
             <span>
               Your instance failed to automatically resume this location. Please
               resume manually.

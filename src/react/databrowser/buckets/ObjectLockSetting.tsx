@@ -133,7 +133,7 @@ export default function ObjectLockSetting() {
               type="submit"
               variant="primary"
               label="Save"
-              icon={<i className="fas fa-save"></i>}
+              icon={<Icon name="Save" />}
             />
           </Stack>
         }

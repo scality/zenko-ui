@@ -1,6 +1,6 @@
 import { fontSize } from '@scality/core-ui/dist/style/theme';
 
-import { spacing, SecondaryText, Wrap } from '@scality/core-ui';
+import { spacing, SecondaryText, Wrap, Icon } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
 import { Link } from 'react-router-dom';
 
@@ -68,9 +68,7 @@ export const HeadCell = styled.th`
   text-align: left;
   padding: ${spacing.r16};
 `;
-export const Icon = styled.i`
-  margin-left: ${spacing.r4};
-`;
+
 // * table body
 export const Body = styled.tbody`
   // following is needed to display scroll bar onto the table
@@ -192,46 +190,30 @@ const Table = styled.table`
   border-collapse: collapse;
 `;
 // specific to listobject/md search
-export const SearchMetadataInput = styled(Input)`
-  background-color: ${(props) => props.theme.backgroundLevel1};
-  padding: 0px ${spacing.r32};
-  max-height: ${spacing.r32};
-  box-sizing: border-box;
-`;
 export const ContainerWithSubHeader = styled(Container)`
   height: 100%;
   margin-top: 0px;
 `;
-export const SearchInputIcon = styled.i<{ isHidden?: boolean }>`
-  position: absolute;
-  visibility: ${(props) => (props.isHidden ? 'hidden' : 'visible')};
-  right: 10px;
-  cursor: pointer;
-  &:hover {
-    color: ${(props) => props.theme.infoPrimary};
-  }
-`;
-const ValidationIcon = styled.i`
-  position: absolute;
-  left: 10px;
-  color: ${(props) =>
-    props.className === 'fa fa-times'
-      ? props.theme.statusCritical
-      : props.className === 'fas fa-check'
-      ? props.theme.statusHealthy
-      : props.theme.infoSecondary};
-`;
+
 type Props = {
   isMetadataType: boolean;
   isError: boolean;
 };
 export const SearchValidationIcon = ({ isMetadataType, isError }: Props) => {
-  const className = isError
-    ? 'fa fa-times'
-    : isMetadataType
-    ? 'fas fa-check'
-    : 'fas fa-search';
-  return <ValidationIcon className={className} />;
+  const style = {
+    position: 'absolute' as const,
+    left: '10px',
+    marginLeft: `${spacing.r4}`,
+  };
+  if (isError) {
+    return <Icon name="Close" color="statusCritical" style={style} />;
+  }
+
+  if (isMetadataType) {
+    return <Icon name="Check" color="statusHealthy" style={style} />;
+  }
+
+  return <Icon name="Search" color="infoPrimary" style={style} />;
 };
 export const SearchButton = styled(Button)`
   flex: 0 0 auto;

@@ -21,7 +21,7 @@ import {
   useRouteMatch,
 } from 'react-router-dom';
 import { Column } from 'react-table';
-import styled, { useTheme } from 'styled-components';
+import { useTheme } from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
@@ -33,15 +33,6 @@ import {
 } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 import { TableHeaderWrapper } from '../ui-elements/Table';
-
-const CustomIcon = styled.i`
-  color: ${(props) => props.theme.textSecondary};
-  font-size: 32px;
-  cursor: pointer;
-  :hover {
-    color: ${(props) => props.theme.textPrimary};
-  }
-`;
 
 const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -286,8 +277,10 @@ const AccountUserAccessKeys = () => {
       <AppContainer.OverallSummary>
         <Stack withSeparators gap="r32">
           <>
-            <CustomIcon
-              className="fas fa-arrow-left"
+            <Icon
+              name="Arrow-left"
+              size="2x"
+              style={{ cursor: 'pointer' }}
               onClick={() => {
                 history.push('../');
               }}
