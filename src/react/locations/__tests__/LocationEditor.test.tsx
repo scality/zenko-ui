@@ -22,6 +22,7 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import userEvent from '@testing-library/user-event';
 import { rest } from 'msw';
 
+jest.setTimeout(60_000);
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
 beforeAll(() => {
@@ -73,7 +74,11 @@ describe('LocationEditor', () => {
   });
   const selectors = {
     loadingLocation: () => screen.getByText('Loading location...'),
-    locationType: () => screen.getByLabelText(/location type \*/i),
+    selectLocationType: () => screen.getByLabelText(/location type \*/i),
+    inputLocationType: () =>
+      screen.getByRole('textbox', { name: /location type \*/i }),
+    optionLocationType: (locationName: string | RegExp) =>
+      screen.getByRole('option', { name: locationName }),
   };
 
   it('should hide the artesca storage service if it is already created', async () => {
@@ -104,10 +109,127 @@ describe('LocationEditor', () => {
     render(<LocationEditor />, { wrapper: Wrapper });
     await waitForElementToBeRemoved(() => selectors.loadingLocation());
     //E
-    selectClick(selectors.locationType());
+    selectClick(selectors.selectLocationType());
     //V
     await waitFor(() => {
       expect(screen.queryByText('Storage Service for ARTESCA')).toBeNull();
     });
+  });
+
+  it(`test if each location display correctly`, async () => {
+    reduxRender(
+      <MemoryRouter>
+        <LocationEditor />
+      </MemoryRouter>,
+    );
+
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading location...'),
+    );
+
+    const locationsTests = [
+      {
+        name: 'Scality ARTESCA S3',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Scality ARTESCA S3/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: 'Scality RING with S3 Connector',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Scality RING with S3 Connector/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: 'Amazon S3',
+        optionToQuery: () => selectors.optionLocationType(/Amazon S3/i),
+        checkField: () => screen.getByText(/AWS Access Key \*/i),
+      },
+      {
+        name: 'Google Cloud Storage',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Google Cloud Storage/i),
+        checkField: () => screen.getByText(/GCP Access Key \*/i),
+      },
+      {
+        name: 'Microsoft Azure Blob Storage',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Microsoft Azure Blob Storage/i),
+        checkField: () => screen.getByText(/Blob endpoint \*/i),
+      },
+      {
+        name: 'Microsoft Azure Archive',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Microsoft Azure Archive/i),
+        checkField: () => screen.getByText(/Blob endpoint \*/i),
+      },
+      {
+        name: 'Atlas Object Storage (Free Pro)',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Atlas Object Storage \(Free Pro\)/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: '3DS Outscale OOS Public',
+        optionToQuery: () =>
+          selectors.optionLocationType(/3DS Outscale OOS Public/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: '3DS Outscale OOS SNC',
+        optionToQuery: () =>
+          selectors.optionLocationType(/3DS Outscale OOS SNC/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: 'Flexible Datastore',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Flexible Datastore/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: 'Tape DMF',
+        optionToQuery: () => selectors.optionLocationType(/Tape DMF/i),
+        checkField: () => screen.getByText(/Temperature/i),
+      },
+      {
+        name: 'Ceph RADOS Gateway',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Ceph RADOS Gateway/i),
+        checkField: () => screen.getByText(/access key \*/i),
+      },
+      {
+        name: 'Scality RING with Sproxyd Connector',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Scality RING with Sproxyd Connector/i),
+        checkField: () => screen.getByText(/Bootstrap List \*/i),
+      },
+      {
+        name: 'Wasabi',
+        optionToQuery: () => selectors.optionLocationType(/Wasabi/i),
+        checkField: () => screen.getByText(/Wasabi Access Key \*/i),
+      },
+      {
+        name: 'Oracle Cloud Object Storage',
+        optionToQuery: () =>
+          selectors.optionLocationType(/Oracle Cloud Object Storage/i),
+        checkField: () => screen.getByText(/Namespace \*/i),
+      },
+    ];
+
+    for await (const location of locationsTests) {
+      await userEvent.click(screen.getByLabelText(/select a location type/i));
+
+      await userEvent.clear(
+        screen.getByRole('textbox', { name: /location type \*/i }),
+      );
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /location type \*/i }),
+        location.name,
+      );
+
+      await userEvent.click(location.optionToQuery());
+      expect(location.checkField()).toBeInTheDocument();
+    }
   });
 });

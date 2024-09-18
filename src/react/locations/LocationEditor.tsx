@@ -357,7 +357,7 @@ function LocationEditor() {
           content={
             <Select
               id="locationType"
-              placeholder="Select an option..."
+              placeholder="Select a location type..."
               onChange={onTypeChange}
               disabled={editingExisting}
               //@ts-expect-error fix this when you are working on it

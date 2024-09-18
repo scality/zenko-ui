@@ -66,7 +66,7 @@ export const getLocationTypeKey = (
         return OUTSCALE_PUBLIC_S3_LOCATION_KEY;
       } else if (location.details.endpoint === OUTSCALE_SNC_S3_ENDPOINT) {
         return OUTSCALE_SNC_S3_LOCATION_KEY;
-      } else if (location.details.endpoint.endsWith('oraclecloud.com')) {
+      } else if (location.details.endpoint?.endsWith('oraclecloud.com')) {
         return ORACLE_CLOUD_LOCATION_KEY;
       } else {
         return 'locationType' in location
