@@ -21,6 +21,8 @@ import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import { LocationsList } from '../LocationsList';
 import { debug } from 'jest-preview';
 
+jest.setTimeout(30_000);
+
 const server = setupServer(
   getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID),
   ...getStorageConsumptionMetricsHandlers(
@@ -62,7 +64,6 @@ const server = setupServer(
 
 describe('LocationList', () => {
   beforeAll(() => {
-    jest.setTimeout(50_000);
     mockOffsetSize(500, 100);
     server.listen({ onUnhandledRequest: 'error' });
   });

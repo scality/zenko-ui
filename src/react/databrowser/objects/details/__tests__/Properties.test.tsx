@@ -18,7 +18,9 @@ import Properties from '../Properties';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
 const renderProperties = (
-  component: React.ReactNode = <Properties objectMetadata={OBJECT_METADATA} />,
+  component: React.ReactNode = (
+    <Properties objectMetadata={{ ...OBJECT_METADATA, lockStatus: 'NONE' }} />
+  ),
   state = {},
 ) => {
   return renderWithRouterMatch(
@@ -89,11 +91,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
         }}
       />,
@@ -120,11 +121,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'RELEASED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
         }}
       />,
@@ -145,11 +145,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
           isLegalHoldEnabled: true,
         }}
@@ -168,11 +167,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
           isLegalHoldEnabled: true,
           storageClass: 'europe25-myroom-cold',
@@ -211,11 +209,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
           isLegalHoldEnabled: true,
           storageClass: 'europe25-myroom-cold',
@@ -259,11 +256,10 @@ describe('Properties', () => {
       <Properties
         objectMetadata={{
           ...OBJECT_METADATA,
-          //@ts-expect-error fix this when you are working on it
           lockStatus: 'LOCKED',
           objectRetention: {
             mode: 'GOVERNANCE',
-            retainUntilDate: '2020-10-17 10:06:54',
+            retainUntilDate: new Date('2020-10-17 10:06:54'),
           },
           isLegalHoldEnabled: true,
           storageClass: 'europe25-myroom-cold',
