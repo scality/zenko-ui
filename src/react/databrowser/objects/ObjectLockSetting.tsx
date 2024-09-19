@@ -137,7 +137,10 @@ export default function ObjectLockSetting() {
   useEffect(() => {
     setValue('isRetentionEnabled', isDefaultRetentionEnabled);
     setValue('retentionMode', defaultRetentionMode);
-    setValue('retentionUntilDate', defaultRetentionUntilDate);
+    setValue(
+      'retentionUntilDate',
+      DateTime.fromJSDate(defaultRetentionUntilDate).toFormat('yyyy-LL-dd'),
+    );
   }, [
     setValue,
     isDefaultRetentionEnabled,
@@ -285,9 +288,9 @@ export default function ObjectLockSetting() {
                       type="date"
                       name="retention-until-date"
                       disabled={!isRetentionEnabled}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        onChange(e.target.value)
-                      }
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        onChange(e.target.value);
+                      }}
                       value={retentionUntilDate}
                       min={minRetainUtilDate}
                     />
