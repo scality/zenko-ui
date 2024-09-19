@@ -2,7 +2,7 @@
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { Clipboard } from '../../../ui-elements/Clipboard';
 import MiddleEllipsis from '../../../ui-elements/MiddleEllipsis';
-import type { ObjectMetadata } from '../../../../types/s3';
+import type { ObjectEntity, ObjectMetadata } from '../../../../types/s3';
 import {
   FormattedDateTime,
   Icon,
@@ -31,7 +31,7 @@ import {
 } from '../../../ui-elements/Veeam/VeeamConstants';
 
 type Props = {
-  objectMetadata: ObjectMetadata;
+  objectMetadata: ObjectMetadata & { lockStatus?: ObjectEntity['lockStatus'] };
 };
 const TruncatedValue = styled.div`
   max-width: 18rem;
@@ -203,47 +203,38 @@ function Properties({ objectMetadata }: Props) {
                 <T.Key> Lock </T.Key>
                 <T.GroupValues>
                   <div>
-                    {
-                      //@ts-expect-error fix this when you are working on it
-                      objectMetadata.lockStatus === 'LOCKED' && (
-                        <>
-                          Locked <Icon name="Lock" /> (
-                          {objectMetadata.objectRetention.mode.toLowerCase()})
-                          <br />
-                          until{' '}
-                          <FormattedDateTime
-                            format="date-time-second"
-                            value={
-                              new Date(
-                                objectMetadata.objectRetention.retainUntilDate,
-                              )
-                            }
-                          />
-                        </>
-                      )
-                    }
-                    {
-                      //@ts-expect-error fix this when you are working on it
-                      objectMetadata.lockStatus === 'RELEASED' && (
-                        <>
-                          Released <Icon name="Lock-open" />
-                          <br />
-                          since{' '}
-                          <FormattedDateTime
-                            format="date-time-second"
-                            value={
-                              new Date(
-                                objectMetadata.objectRetention.retainUntilDate,
-                              )
-                            }
-                          />
-                        </>
-                      )
-                    }
-                    {
-                      //@ts-expect-error fix this when you are working on it
-                      objectMetadata.lockStatus === 'NONE' && 'No retention'
-                    }
+                    {objectMetadata.lockStatus === 'LOCKED' && (
+                      <>
+                        Locked <Icon name="Lock" /> (
+                        {objectMetadata.objectRetention.mode.toLowerCase()})
+                        <br />
+                        until{' '}
+                        <FormattedDateTime
+                          format="date-time-second"
+                          value={
+                            new Date(
+                              objectMetadata.objectRetention.retainUntilDate,
+                            )
+                          }
+                        />
+                      </>
+                    )}
+                    {objectMetadata.lockStatus === 'RELEASED' && (
+                      <>
+                        Released <Icon name="Lock-open" />
+                        <br />
+                        since{' '}
+                        <FormattedDateTime
+                          format="date-time-second"
+                          value={
+                            new Date(
+                              objectMetadata.objectRetention.retainUntilDate,
+                            )
+                          }
+                        />
+                      </>
+                    )}
+                    {objectMetadata.lockStatus === 'NONE' && 'No retention'}
                   </div>
                   {isObjectLockEnabled && (
                     <Button

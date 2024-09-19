@@ -42,7 +42,7 @@ describe('ObjectLockSetting', () => {
             bucketName: 'test-bucket',
             objectRetention: {
               mode: 'GOVERNANCE',
-              retainUntilDate: '2022-01-31 00:00:00"',
+              retainUntilDate: new Date('2022-01-31 00:00:00'),
             },
           },
         },
@@ -72,7 +72,7 @@ describe('ObjectLockSetting', () => {
             bucketName: 'test-bucket',
             objectRetention: {
               mode: 'COMPLIANCE',
-              retainUntilDate: '2022-01-31 00:00:00"',
+              retainUntilDate: new Date('2022-01-31 00:00:00'),
             },
           },
         },

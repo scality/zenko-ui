@@ -18,7 +18,9 @@ import Properties from '../Properties';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
 
 const renderProperties = (
-  component: React.ReactNode = <Properties objectMetadata={OBJECT_METADATA} />,
+  component: React.ReactNode = (
+    <Properties objectMetadata={{ ...OBJECT_METADATA, lockStatus: 'NONE' }} />
+  ),
   state = {},
 ) => {
   return renderWithRouterMatch(
