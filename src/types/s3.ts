@@ -161,7 +161,7 @@ export type ObjectMetadata = {
   readonly isLegalHoldEnabled?: boolean;
   readonly objectRetention?: {
     mode: RetentionMode;
-    retainUntilDate: string;
+    retainUntilDate: Date;
   };
   readonly metadata: MetadataItems;
   readonly tags: Tags;

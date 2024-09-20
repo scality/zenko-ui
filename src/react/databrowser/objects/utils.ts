@@ -4,8 +4,9 @@ import type { ObjectMetadata } from '../../../types/s3';
 function getDefaultRetention(objectMetadata: ObjectMetadata | null) {
   const isDefaultRetentionEnabled =
     objectMetadata?.objectRetention !== undefined;
+
   const defaultRetentionUntilDate =
-    objectMetadata?.objectRetention?.retainUntilDate.split(' ')[0] || '';
+    objectMetadata?.objectRetention?.retainUntilDate;
   const defaultRetentionMode =
     objectMetadata?.objectRetention?.mode || 'GOVERNANCE';
   return {
@@ -17,7 +18,7 @@ function getDefaultRetention(objectMetadata: ObjectMetadata | null) {
 
 // input date format yyyy-mm-dd hh:mm:ss "2017-05-15 09:24:15"
 // get the min value for calendar picker in object retention setting, with yyyy-mm-dd as format
-function getDefaultMinRetainUntilDate(d: string, mode: string): string {
+function getDefaultMinRetainUntilDate(d: Date, mode: string): string {
   const futureDate = DateTime.now()
     .plus(
       Duration.fromObject({
@@ -33,8 +34,8 @@ function getDefaultMinRetainUntilDate(d: string, mode: string): string {
   // when we switch mode from "GOVERNANCE" to "COMPLIANCE", we should be able to keep the same previous retain date
   const previousRetainUntilDate =
     mode === 'GOVERNANCE'
-      ? DateTime.fromSQL(d).toISODate()
-      : DateTime.fromSQL(d)
+      ? DateTime.fromJSDate(d).toISODate()
+      : DateTime.fromJSDate(d)
           .plus(
             Duration.fromObject({
               days: 1,
