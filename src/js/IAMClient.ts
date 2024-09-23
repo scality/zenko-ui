@@ -189,6 +189,14 @@ export default class IAMClient implements IAMClientInterface {
       .promise();
   }
 
+  getRole(roleName: string) {
+    return notFalsyTypeGuard(this.client)
+      .getRole({
+        RoleName: roleName,
+      })
+      .promise();
+  }
+
   listOwnAccessKeys() {
     return notFalsyTypeGuard(this.client).listAccessKeys().promise();
   }

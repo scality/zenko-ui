@@ -1,9 +1,9 @@
-import { Stack } from '@scality/core-ui';
+import { Form, FormGroup, FormSection, Stack } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import { IAM } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
 import { PropsWithChildren, useState } from 'react';
-import { useQuery, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { MemoryRouter, Route, useHistory, useParams } from 'react-router-dom';
 import DataServiceRoleProvider, {
   useAssumedRole,
@@ -20,7 +20,7 @@ import {
 } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
-import { regexArn } from '../utils/hooks';
+import { SCALITY_INTERNAL_ROLES, regexArn } from '../utils/hooks';
 
 class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -128,7 +128,7 @@ const InternalProvider = ({
       ]}
     >
       <Route path="/accounts/:accountName">
-        <DataServiceRoleProvider DoNotChangePropsWithRedux={false}>
+        <DataServiceRoleProvider DoNotChangePropsWithRedux={false} inlineLoader>
           <AccountsLocationsEndpointsAdapterProvider>
             <AccessibleAccountsAdapterProvider
               DoNotChangePropsWithEventDispatcher={false}
@@ -146,9 +146,16 @@ const InternalProvider = ({
 };
 
 type SelectAccountIAMRoleProps = {
-  onChange: (account: Account, role: IAM.Role) => void;
+  onChange: (
+    account: Account,
+    role: IAM.Role,
+    keycloakRoleName: string,
+  ) => void;
   defaultValue?: { accountName: string; roleName: string };
   hideAccountRoles?: { accountName: string; roleName: string }[];
+  menuPosition?: 'absolute' | 'fixed';
+  identityProviderUrl?: string;
+  filterOutInternalRoles?: boolean;
 };
 
 type SelectAccountIAMRoleWithAccountProps = SelectAccountIAMRoleProps & {
@@ -168,6 +175,12 @@ const SelectAccountIAMRoleWithAccount = (
   const [account, setAccount] = useState<Account | null>(defaultAccount);
   const [role, setRole] = useState<IAM.Role | null>(null);
   const assumedRole = useAssumedRole();
+
+  const getIAMRoleMutation = useMutation({
+    mutationFn: (roleName: string) => {
+      return IAMClient.getRole(roleName);
+    },
+  });
 
   const accountName = account ? account.name : '';
   const rolesQuery = getListRolesQuery(accountName, IAMClient);
@@ -197,66 +210,132 @@ const SelectAccountIAMRoleWithAccount = (
   };
   const roleQueryData = useQuery(listRolesQuery);
 
-  const roles = filterRoles(
+  const allRolesExceptHiddenOnes = filterRoles(
     accountName,
     roleQueryData?.data?.Roles ?? [],
     hideAccountRoles,
   );
+  const roles = props.filterOutInternalRoles
+    ? allRolesExceptHiddenOnes.filter((role) => {
+        return (
+          SCALITY_INTERNAL_ROLES.includes(role.RoleName) ||
+          !role.Arn.includes('role/scality-internal')
+        );
+      })
+    : allRolesExceptHiddenOnes;
 
   const isDefaultAccountSelected = account?.name === defaultValue?.accountName;
   const defaultRole = isDefaultAccountSelected ? defaultValue?.roleName : null;
 
   return (
-    <Stack>
-      <Select
-        id="select-account"
-        value={account?.name ?? defaultValue?.accountName}
-        onChange={(accountName) => {
-          const selectedAccount = accounts.find(
-            (account) => account.name === accountName,
-          );
+    <Form layout={{ kind: 'tab' }}>
+      <FormSection>
+        <FormGroup
+          label="Account"
+          id="select-account"
+          content={
+            <Select
+              id="select-account"
+              value={account?.name ?? defaultValue?.accountName}
+              onChange={(accountName) => {
+                const selectedAccount = accounts.find(
+                  (account) => account.name === accountName,
+                );
 
-          setAssumedRole({
-            roleArn: selectedAccount.preferredAssumableRoleArn,
-          });
-          history.push(`/accounts/${accountName}`);
+                setAssumedRole({
+                  roleArn: selectedAccount.preferredAssumableRoleArn,
+                });
+                history.push(`/accounts/${accountName}`);
 
-          setAccount(selectedAccount);
-          setRole(null);
-          queryClient.invalidateQueries(rolesQuery.queryKey);
-        }}
-        size="1/2"
-        placeholder="Select Account"
-      >
-        {accounts.map((account) => (
-          <Select.Option key={`${account.name}`} value={account.name}>
-            {account.name}
-          </Select.Option>
-        ))}
-      </Select>
+                setAccount(selectedAccount);
+                setRole(null);
+                queryClient.invalidateQueries(rolesQuery.queryKey);
+              }}
+              menuPosition={props.menuPosition}
+              placeholder="Select Account"
+            >
+              {accounts.map((account) => (
+                <Select.Option key={`${account.name}`} value={account.name}>
+                  {account.name}
+                </Select.Option>
+              ))}
+            </Select>
+          }
+        />
 
-      {roles.length > 0 ? (
-        <Select
+        <FormGroup
+          label="Role"
           id="select-account-role"
-          value={role?.RoleName ?? defaultRole}
-          onChange={(roleName) => {
-            const selectedRole = roles.find(
-              (role) => role.RoleName === roleName,
-            );
-            onChange(account, selectedRole);
-            setRole(selectedRole);
-          }}
-          size="2/3"
-          placeholder="Select Role"
-        >
-          {roles.map((role) => (
-            <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
-              {role.RoleName}
-            </Select.Option>
-          ))}
-        </Select>
-      ) : null}
-    </Stack>
+          content={
+            roles.length > 0 ? (
+              <Select
+                id="select-account-role"
+                value={role?.RoleName ?? defaultRole}
+                onChange={(roleName) => {
+                  const selectedRole = roles.find(
+                    (role) => role.RoleName === roleName,
+                  );
+                  getIAMRoleMutation.mutate(roleName, {
+                    onSuccess: (data) => {
+                      const assumeRolePolicyDocument: {
+                        Statement: {
+                          Effect: 'Allow' | 'Deny';
+                          Principal: { Federated?: string };
+                          Action: 'sts:AssumeRoleWithWebIdentity';
+                          Condition: {
+                            StringEquals: { ['keycloak:roles']: string };
+                          };
+                        }[];
+                      } = JSON.parse(
+                        decodeURIComponent(data.Role.AssumeRolePolicyDocument),
+                      );
+                      const keycloakRoleName =
+                        assumeRolePolicyDocument.Statement.find(
+                          (statement) =>
+                            (props.identityProviderUrl
+                              ? statement.Principal?.Federated?.startsWith(
+                                  props.identityProviderUrl,
+                                )
+                              : true) &&
+                            statement.Condition.StringEquals[
+                              'keycloak:roles'
+                            ] &&
+                            statement.Effect === 'Allow' &&
+                            statement.Action ===
+                              'sts:AssumeRoleWithWebIdentity',
+                        ).Condition.StringEquals['keycloak:roles'];
+                      onChange(account, selectedRole, keycloakRoleName);
+                    },
+                  });
+                  setRole(selectedRole);
+                }}
+                menuPosition={props.menuPosition}
+                placeholder="Select Role"
+              >
+                {roles.map((role) => (
+                  <Select.Option key={`${role.RoleName}`} value={role.RoleName}>
+                    {role.RoleName}
+                  </Select.Option>
+                ))}
+              </Select>
+            ) : (
+              <Select
+                id="select-account-role"
+                value={'Please select an account'}
+                disabled
+                onChange={() => {}}
+                menuPosition={props.menuPosition}
+                placeholder="Select Role"
+              >
+                <Select.Option value={'Please select an account'}>
+                  Please select an account
+                </Select.Option>
+              </Select>
+            )
+          }
+        />
+      </FormSection>
+    </Form>
   );
 };
 
@@ -282,6 +361,9 @@ export const _SelectAccountIAMRole = (props: SelectAccountIAMRoleProps) => {
         defaultValue={defaultValue}
         hideAccountRoles={hideAccountRoles}
         onChange={onChange}
+        menuPosition={props.menuPosition}
+        filterOutInternalRoles={props.filterOutInternalRoles}
+        identityProviderUrl={props.identityProviderUrl}
       />
     );
   } else {

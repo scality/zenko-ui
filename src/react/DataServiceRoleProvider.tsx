@@ -97,6 +97,7 @@ export const useCurrentAccount = () => {
 
 const DataServiceRoleProvider = ({
   children,
+  inlineLoader = false,
   /**
    * DoNotChangePropsWithRedux is a static props.
    * When set, it must not be changed, otherwise it will break the hook rules.
@@ -105,6 +106,7 @@ const DataServiceRoleProvider = ({
   DoNotChangePropsWithRedux = true,
 }: {
   children: JSX.Element;
+  inlineLoader?: boolean;
   DoNotChangePropsWithRedux?: boolean;
 }) => {
   const [role, setRoleState] = useState<{ roleArn: string }>({
@@ -181,7 +183,7 @@ const DataServiceRoleProvider = ({
 
   if (role.roleArn && !assumedRole) {
     //@ts-expect-error fix this when you are working on it
-    return <Loader>Loading...</Loader>;
+    return inlineLoader ? <div>loading...</div> : <Loader>Loading...</Loader>;
   }
 
   if (DoNotChangePropsWithRedux) {

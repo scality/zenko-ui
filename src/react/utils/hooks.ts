@@ -154,10 +154,12 @@ export const regexArn =
 export const STORAGE_MANAGER_ROLE = 'storage-manager-role';
 export const STORAGE_ACCOUNT_OWNER_ROLE = 'storage-account-owner-role';
 const DATA_CONSUMER_ROLE = 'data-consumer-role';
+const DATA_ACCESSOR_ROLE = 'data-accessor-role';
 export const SCALITY_INTERNAL_ROLES = [
   STORAGE_MANAGER_ROLE,
   STORAGE_ACCOUNT_OWNER_ROLE,
   DATA_CONSUMER_ROLE,
+  DATA_ACCESSOR_ROLE,
 ];
 
 const reduxBasedEventDispatcher = () => {
