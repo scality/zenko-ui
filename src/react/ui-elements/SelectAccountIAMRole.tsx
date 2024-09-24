@@ -323,6 +323,7 @@ const SelectAccountIAMRoleWithAccount = (
                 id="select-account-role"
                 value={'Please select an account'}
                 disabled
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
                 onChange={() => {}}
                 menuPosition={props.menuPosition}
                 placeholder="Select Role"
