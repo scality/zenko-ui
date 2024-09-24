@@ -209,6 +209,28 @@ const genFn = (getPayloadFn: jest.Mock) => {
         }),
       );
     }
+
+    if (params.get('Action') === 'GetRole') {
+      return res(
+        ctx.xml(`
+        <GetRoleResponse xmlns="https://iam.amazonaws.com/doc/2010-05-08/">
+        <GetRoleResult>
+        <Role>
+        <AssumeRolePolicyDocument>%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Aroles%22%3A%2211112%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2Fui.pod-choco.local%2Fauth%2Frealms%2Fartesca%22%7D%7D%2C%7B%22Action%22%3A%22sts%3AAssumeRoleWithWebIdentity%22%2C%22Condition%22%3A%7B%22StringEquals%22%3A%7B%22keycloak%3Aroles%22%3A%2211112%3A%3ADataConsumer%22%7D%7D%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22Federated%22%3A%22https%3A%2F%2F13.48.197.10%3A8443%2Fauth%2Frealms%2Fartesca%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D</AssumeRolePolicyDocument>
+        <Description>Has S3 read and write accesses to 11112 S3 Buckets. Cannot create or delete S3 Buckets.</Description>
+        <Path>/scality-internal/</Path>
+        <RoleName>data-consumer-role</RoleName>
+        <RoleId>ZX41BHX0Z4JYLB711HLUKWL2BBVM5DFZ</RoleId>
+        <Arn>arn:aws:iam::087998292579:role/scality-internal/data-consumer-role</Arn>
+        <CreateDate>2024-05-06T14:09:38Z</CreateDate>
+        </Role>
+        </GetRoleResult>
+        <ResponseMetadata>
+        <RequestId>6273e485a54abdb41527</RequestId>
+        </ResponseMetadata>
+        </GetRoleResponse>`),
+      );
+    }
   });
 };
 
@@ -307,7 +329,7 @@ describe('SelectAccountIAMRole', () => {
       RoleName: 'backbeat-gc-1',
       Tags: [],
     };
-    expect(onChange).toHaveBeenCalledWith(account, role);
+    expect(onChange).toHaveBeenCalledWith(account, role, '11112::DataConsumer');
   });
 
   it('test the change of account and role', async () => {
@@ -370,6 +392,7 @@ describe('SelectAccountIAMRole', () => {
         RoleName: 'backbeat-gc-1',
         Tags: [],
       },
+      '11112::DataConsumer',
     );
 
     await userEvent.click(seletors.accountSelect());
@@ -533,8 +556,8 @@ describe('SelectAccountIAMRole', () => {
         RoleName: 'yanjin-custom-role',
         Tags: [],
       },
+      '11112::DataConsumer',
     );
-    debug();
   });
 
   it('renders with default value', async () => {
@@ -614,5 +637,34 @@ describe('SelectAccountIAMRole', () => {
     await userEvent.type(seletors.roleSelect(), 'data-consumer');
 
     expect(screen.getByText(/no options/i)).toBeInTheDocument();
+  });
+
+  it('renders with hidden internal roles', async () => {
+    const getPayloadFn = jest.fn();
+    server.use(genFn(getPayloadFn));
+    const onChange = jest.fn();
+    render(
+      <LocalWrapper>
+        <SelectAccountIAMRole onChange={onChange} filterOutInternalRoles />
+      </LocalWrapper>,
+    );
+
+    await waitFor(() => {
+      expect(seletors.accountSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.accountSelect());
+
+    await userEvent.click(seletors.selectOption(/no-bucket/i));
+
+    await waitFor(() => {
+      expect(seletors.roleSelect()).toBeInTheDocument();
+    });
+
+    await userEvent.click(seletors.roleSelect());
+
+    expect(
+      screen.queryAllByRole('option', { name: /backbeat-gc-1/i }),
+    ).toHaveLength(0);
   });
 });
