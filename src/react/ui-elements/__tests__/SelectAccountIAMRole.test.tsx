@@ -355,7 +355,7 @@ describe('SelectAccountIAMRole', () => {
     expect(onChange).toHaveBeenCalledWith(account, role, '11112::DataConsumer');
   });
 
-  it.only('should display an error when failing to retrieve the role', async () => {
+  it('should display an error when failing to retrieve the role', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn, true));
     const onChange = jest.fn();
