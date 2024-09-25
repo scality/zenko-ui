@@ -1,4 +1,10 @@
-import { Form, FormGroup, FormSection, Stack } from '@scality/core-ui';
+import {
+  Form,
+  FormGroup,
+  FormSection,
+  Stack,
+  useToast,
+} from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import { IAM } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
@@ -175,10 +181,20 @@ const SelectAccountIAMRoleWithAccount = (
   const [account, setAccount] = useState<Account | null>(defaultAccount);
   const [role, setRole] = useState<IAM.Role | null>(null);
   const assumedRole = useAssumedRole();
+  const { showToast } = useToast();
 
   const getIAMRoleMutation = useMutation({
     mutationFn: (roleName: string) => {
       return IAMClient.getRole(roleName);
+    },
+    onError: () => {
+      showToast({
+        status: 'error',
+        open: true,
+        autoDismiss: false,
+        message:
+          "An error occured on our side while fetching the role's policy.",
+      });
     },
   });
 
