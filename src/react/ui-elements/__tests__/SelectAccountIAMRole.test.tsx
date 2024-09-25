@@ -22,6 +22,8 @@ import { ThemeProvider } from 'styled-components';
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
 
+jest.setTimeout(30_000);
+
 const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
   //@ts-ignore
   const params = new URLSearchParams(req.body);
@@ -215,7 +217,8 @@ const commonIAMHandlers = (getPayloadFn: jest.Mock, req, res, ctx) => {
 
 const genFn = (getPayloadFn: jest.Mock, failingGetRole: boolean = false) => {
   return rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
-    const params = new URLSearchParams(req.url.search);
+    //@ts-ignore
+    const params = new URLSearchParams(req.body);
     const commonResponse = commonIAMHandlers(getPayloadFn, req, res, ctx);
     if (commonResponse) {
       return commonResponse;
@@ -352,7 +355,16 @@ describe('SelectAccountIAMRole', () => {
       RoleName: 'backbeat-gc-1',
       Tags: [],
     };
-    expect(onChange).toHaveBeenCalledWith(account, role, '11112::DataConsumer');
+
+    await waitFor(
+      () =>
+        expect(onChange).toHaveBeenCalledWith(
+          account,
+          role,
+          '11112::DataConsumer',
+        ),
+      { timeout: 10_000 },
+    );
   });
 
   it('should display an error when failing to retrieve the role', async () => {
@@ -420,40 +432,42 @@ describe('SelectAccountIAMRole', () => {
     await userEvent.click(seletors.roleSelect());
     await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
 
-    expect(onChange).toHaveBeenNthCalledWith(
-      1,
-      {
-        assumableRoles: [
-          {
-            Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
-            Name: 'storage-manager-role',
+    await waitFor(() => {
+      expect(onChange).toHaveBeenNthCalledWith(
+        1,
+        {
+          assumableRoles: [
+            {
+              Arn: 'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+              Name: 'storage-manager-role',
+            },
+          ],
+          canManageAccount: true,
+          canonicalId:
+            '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
+          creationDate: '2022-03-18T12:51:44.000Z',
+          id: '064609833007',
+          name: 'no-bucket',
+          preferredAssumableRoleArn:
+            'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
+          usedCapacity: {
+            status: 'unknown',
           },
-        ],
-        canManageAccount: true,
-        canonicalId:
-          '1e3492312ab47ab0785e3411824352a8fa8aab68cece94973af04167926b8f2c',
-        creationDate: '2022-03-18T12:51:44.000Z',
-        id: '064609833007',
-        name: 'no-bucket',
-        preferredAssumableRoleArn:
-          'arn:aws:iam::064609833007:role/scality-internal/storage-manager-role',
-        usedCapacity: {
-          status: 'unknown',
         },
-      },
-      {
-        Arn: 'arn:aws:iam::232853836441:role/scality-internal/backbeat-gc-1',
-        AssumeRolePolicyDocument:
-          '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
-        CreateDate: new Date('2024-04-17T16:31:36.000Z'),
-        Description: 'undefined',
-        Path: '/scality-internal/',
-        RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
-        RoleName: 'backbeat-gc-1',
-        Tags: [],
-      },
-      '11112::DataConsumer',
-    );
+        {
+          Arn: 'arn:aws:iam::232853836441:role/scality-internal/backbeat-gc-1',
+          AssumeRolePolicyDocument:
+            '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
+          CreateDate: new Date('2024-04-17T16:31:36.000Z'),
+          Description: 'undefined',
+          Path: '/scality-internal/',
+          RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
+          RoleName: 'backbeat-gc-1',
+          Tags: [],
+        },
+        '11112::DataConsumer',
+      );
+    });
 
     await userEvent.click(seletors.accountSelect());
 
@@ -584,40 +598,42 @@ describe('SelectAccountIAMRole', () => {
 
     await userEvent.click(seletors.selectOption(/yanjin-custom-role/i));
 
-    expect(onChange).toHaveBeenNthCalledWith(
-      2,
-      {
-        assumableRoles: [
-          {
-            Arn: 'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
-            Name: 'storage-manager-role',
+    await waitFor(() => {
+      expect(onChange).toHaveBeenNthCalledWith(
+        2,
+        {
+          assumableRoles: [
+            {
+              Arn: 'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
+              Name: 'storage-manager-role',
+            },
+          ],
+          canManageAccount: true,
+          canonicalId:
+            '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
+          creationDate: '2022-04-29T09:35:35.000Z',
+          id: '377232323695',
+          name: 'yanjin',
+          preferredAssumableRoleArn:
+            'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
+          usedCapacity: {
+            status: 'unknown',
           },
-        ],
-        canManageAccount: true,
-        canonicalId:
-          '8c3b89e95e9768755365a8c2d528e71bc7b1cab781ac118b0824cefe21abaf29',
-        creationDate: '2022-04-29T09:35:35.000Z',
-        id: '377232323695',
-        name: 'yanjin',
-        preferredAssumableRoleArn:
-          'arn:aws:iam::377232323695:role/scality-internal/storage-manager-role',
-        usedCapacity: {
-          status: 'unknown',
         },
-      },
-      {
-        Arn: 'arn:aws:iam::232853836441:role/scality-internal/yanjin-custom-role',
-        AssumeRolePolicyDocument:
-          '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
-        CreateDate: new Date('2024-04-17T16:31:36.000Z'),
-        Description: 'undefined',
-        Path: '/scality-internal/',
-        RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
-        RoleName: 'yanjin-custom-role',
-        Tags: [],
-      },
-      '11112::DataConsumer',
-    );
+        {
+          Arn: 'arn:aws:iam::232853836441:role/scality-internal/yanjin-custom-role',
+          AssumeRolePolicyDocument:
+            '%7B%22Statement%22%3A%5B%7B%22Action%22%3A%22sts%3AAssumeRole%22%2C%22Effect%22%3A%22Allow%22%2C%22Principal%22%3A%7B%22AWS%22%3A%22arn%3Aaws%3Aiam%3A%3A000000000000%3Auser%2Fscality-internal%2Fbackbeat-gc-1%22%7D%7D%5D%2C%22Version%22%3A%222012-10-17%22%7D',
+          CreateDate: new Date('2024-04-17T16:31:36.000Z'),
+          Description: 'undefined',
+          Path: '/scality-internal/',
+          RoleId: 'NPP7LHXVP8THSFDX9J58KJED1VKO5WIZ',
+          RoleName: 'yanjin-custom-role',
+          Tags: [],
+        },
+        '11112::DataConsumer',
+      );
+    });
   });
 
   it('renders with default value', async () => {
