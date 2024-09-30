@@ -15,6 +15,7 @@ import { CertificateDownloadButton } from '../../next-architecture/ui/Certificat
 import { useAuthGroups } from '../../utils/hooks';
 import { HideCredential } from '../Hide';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import { VEEAM_OFFICE_365_V8 } from './VeeamConstants';
 
 type VeeamSummaryProps = {
   accountName: string;
@@ -22,6 +23,7 @@ type VeeamSummaryProps = {
   enableImmutableBackup: boolean;
   accessKey: string;
   secretKey: string;
+  application: string;
 };
 
 export const VEEAM_SUMMARY_TITLE = 'Veeam Repository preparation summary';
@@ -63,6 +65,7 @@ export const VeeamSummary = ({
   enableImmutableBackup,
   accessKey,
   secretKey,
+  application,
 }: VeeamSummaryProps) => {
   const history = useHistory();
   const { isPlatformAdmin } = useAuthGroups();
@@ -227,7 +230,9 @@ export const VeeamSummary = ({
           helpErrorPosition="bottom"
           help={
             enableImmutableBackup
-              ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+              ? `Ensure "Make ${
+                  application === VEEAM_OFFICE_365_V8 ? '' : 'recent '
+                }backups immutable" is checked when configuring the bucket in Veeam.`
               : undefined
           }
           content={

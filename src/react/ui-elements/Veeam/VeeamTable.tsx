@@ -32,7 +32,8 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
   const history = useHistory();
   const queryClient = useQueryClient();
   const { next } = useStepper(VeeamStepsIndexes.Table, VEEAM_STEPS);
-  const { bucketName, enableImmutableBackup, accountName } = propsConfiguration;
+  const { bucketName, enableImmutableBackup, accountName, application } =
+    propsConfiguration;
   const { data, accessKey, secretKey } = useMutationTableData({
     propsConfiguration,
   });
@@ -144,6 +145,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
                   enableImmutableBackup,
                   accessKey,
                   secretKey,
+                  application,
                 });
               }}
             />
