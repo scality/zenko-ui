@@ -12,7 +12,10 @@ import {
   VeeamSummary,
 } from './VeeamSummary';
 import userEvent from '@testing-library/user-event';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
+import {
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_DEFAULT_ACCOUNT_NAME,
+} from './VeeamConstants';
 
 jest.mock('../../next-architecture/ui/CertificateDownloadButton', () => ({
   CertificateDownloadButton: () => <button type="button">Download</button>,
@@ -67,6 +70,7 @@ describe('VeeamSummary', () => {
         secretKey={SECRET_KEY}
         bucketName={VEEAM_BUCKET_NAME}
         enableImmutableBackup={true}
+        application={VEEAM_BACKUP_REPLICATION}
       />
     );
   };
