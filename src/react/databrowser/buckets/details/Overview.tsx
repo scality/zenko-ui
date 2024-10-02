@@ -209,7 +209,7 @@ function LocationType({ location: locationName }: { location: string }) {
           message={
             <Text>
               An error occured while loading locations, this can affect
-              diplaying the bucket location
+              displaying the bucket location
             </Text>
           }
           status="error"
