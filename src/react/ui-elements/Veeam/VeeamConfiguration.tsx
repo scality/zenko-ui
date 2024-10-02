@@ -45,7 +45,18 @@ const schema = Joi.object({
   application: Joi.string().required(),
   capacity: Joi.when('application', {
     is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
-    then: Joi.number().required().min(1).max(999).integer(),
+    then: Joi.number()
+      .required()
+      .min(1)
+      .max(1024)
+      .custom((value, helpers) => {
+        if (!Number.isInteger(value * 100)) {
+          return helpers.message({
+            custom: '"capacity" must have at most 2 decimals',
+          });
+        }
+        return value;
+      }),
     otherwise: Joi.valid(),
   }),
   capacityUnit: Joi.when('application', {

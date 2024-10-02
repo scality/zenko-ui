@@ -24,7 +24,18 @@ import {
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
 
 const schema = Joi.object({
-  capacity: Joi.number().required().min(1).max(999).integer(),
+  capacity: Joi.number()
+    .required()
+    .min(1)
+    .max(1024)
+    .custom((value, helpers) => {
+      if (!Number.isInteger(value * 100)) {
+        return helpers.message({
+          custom: '"capacity" must have at most 2 decimals',
+        });
+      }
+      return value;
+    }),
   capacityUnit: Joi.string().required(),
 });
 

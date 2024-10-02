@@ -67,6 +67,54 @@ describe('VeeamCapacityModal', () => {
       );
     });
   });
+  it('should validate capacity value correctly : number less than 1', async () => {
+    fireEvent.click(selectors.editBtn());
+    fireEvent.change(selectors.capacityInput(), { target: { value: '0' } });
+
+    await waitFor(async () => {
+      expect(selectors.editModalBtn()).toBeDisabled();
+      expect(
+        screen.getByText(/"capacity" must be larger than or equal to 1/i),
+      ).toBeInTheDocument();
+    });
+  });
+  it('should validate capacity value correctly : number greater than 1024', async () => {
+    fireEvent.click(selectors.editBtn());
+    fireEvent.change(selectors.capacityInput(), { target: { value: '1025' } });
+
+    await waitFor(async () => {
+      expect(selectors.editModalBtn()).toBeDisabled();
+      expect(
+        screen.getByText(/"capacity" must be less than or equal to 1024/i),
+      ).toBeInTheDocument();
+    });
+  });
+  it('should validate capacity value correctly : number with more than 2 decimals', async () => {
+    fireEvent.click(selectors.editBtn());
+    fireEvent.change(selectors.capacityInput(), {
+      target: { value: '12.345' },
+    });
+
+    await waitFor(async () => {
+      expect(selectors.editModalBtn()).toBeDisabled();
+      expect(
+        screen.getByText(/"capacity" must have at most 2 decimals/i),
+      ).toBeInTheDocument();
+    });
+  });
+  it('should validate capacity value correctly : number is required', async () => {
+    fireEvent.click(selectors.editBtn());
+    fireEvent.change(selectors.capacityInput(), {
+      target: { value: '' },
+    });
+
+    await waitFor(async () => {
+      expect(selectors.editModalBtn()).toBeDisabled();
+      expect(
+        screen.getByText(/"capacity" must be a number/i),
+      ).toBeInTheDocument();
+    });
+  });
 
   it('should display error toast if mutation failed', async () => {
     server.use(

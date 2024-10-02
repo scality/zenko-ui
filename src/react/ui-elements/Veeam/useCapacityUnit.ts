@@ -12,9 +12,9 @@ export const useCapacityUnit = (
   const pBytesCapacity = prettyBytes(capacity, {
     locale: 'en',
     binary: true,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   });
-  const capacityValue = pBytesCapacity.split(' ')[0];
+  const capacityValue = pBytesCapacity.split(' ')[0].replace(',', '');
   const capacityUnit = `${unitChoices[pBytesCapacity.split(' ')[1] as Units]}`;
   return { capacityValue, capacityUnit };
 };
@@ -23,5 +23,7 @@ export const getCapacityBytes = (
   capacityValue: string,
   capacityUnit: string,
 ) => {
-  return (parseInt(capacityValue, 10) * parseInt(capacityUnit, 10)).toString();
+  return Math.round(
+    parseFloat(capacityValue) * parseFloat(capacityUnit),
+  ).toString();
 };
