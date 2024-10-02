@@ -96,8 +96,8 @@ export const VeeamCapacityFormSection = ({
               type="number"
               size="1/3"
               min={1}
-              max={999}
-              step={1}
+              max={1024}
+              step={0.01}
               autoFocus={autoFocusEnabled}
               {...register('capacity')}
             />

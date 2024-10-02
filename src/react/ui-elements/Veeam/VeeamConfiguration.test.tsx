@@ -97,8 +97,8 @@ describe('Veeam Configuration UI', () => {
     ).toBeInTheDocument();
     //expect the immutable backup toogle to be active
     expect(screen.getByLabelText('enableImmutableBackup')).toBeEnabled();
-    // verify the max capacity input is prefilled with 4 GiB
-    expect(selectors.maxCapacityInput()).toHaveValue(4);
+    // verify the max capacity input is prefilled with 80% of binary value of clusterCapacity: jestSetupAfterEnv.tsx
+    expect(selectors.maxCapacityInput()).toHaveValue(3.73);
     expect(screen.getByText(/GiB/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(selectors.continueButton()).toBeEnabled();
@@ -151,7 +151,7 @@ describe('Veeam Configuration UI', () => {
       accountName: 'Veeam',
       application: 'Veeam Backup for Microsoft 365 (v6, v7)',
       bucketName: 'veeam-bucket',
-      capacityBytes: '4294967296',
+      capacityBytes: '4005057004',
       enableImmutableBackup: false,
     });
   });
@@ -164,15 +164,22 @@ describe('Veeam Configuration UI', () => {
 
     await selectClick(selectors.veeamApplicationSelect());
     await userEvent.click(selectors.veeamVBOV8());
+
+    expect(
+      screen.queryByText(/Max Veeam Repository Capacity/i),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Immutable Backup/i)).toBeInTheDocument();
+
     await userEvent.type(selectors.accountNameInput(), 'Veeam');
     await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+
     await userEvent.click(selectors.continueButton());
 
     expect(SUT).toHaveBeenCalledWith({
       accountName: 'Veeam',
       application: 'Veeam Backup for Microsoft 365 (v8+)',
       bucketName: 'veeam-bucket',
-      capacityBytes: '4294967296',
+      capacityBytes: '4005057004',
       enableImmutableBackup: true,
     });
   });
@@ -215,17 +222,86 @@ describe('Veeam Configuration UI', () => {
       expect(selectors.accountNameInput()).toHaveValue('Veeam');
     });
   });
-
-  it('should throw validation error if the max capacity is not integer', async () => {
+  it('should show validation error if the max capacity is less than 1', async () => {
     //S
     mockUseAccountsImplementation();
     renderVeeamConfigurationForm();
     //E
     await userEvent.clear(selectors.maxCapacityInput());
-    await userEvent.type(selectors.maxCapacityInput(), '4.666');
+    await userEvent.type(selectors.maxCapacityInput(), '0');
     //V
     expect(
-      screen.getByText(/"capacity" must be an integer/i),
+      screen.getByText(/"capacity" must be larger than or equal to 1/i),
     ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+  });
+  it('should show validation error and disable continue button if the max capacity is more than 1024', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    await userEvent.type(selectors.maxCapacityInput(), '1025');
+    //V
+    expect(
+      screen.getByText(/"capacity" must be less than or equal to 1024/i),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+  });
+  it('should show validation error and disable continue button if the max capacity is not a number', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    await userEvent.type(selectors.maxCapacityInput(), 'abc');
+    //V
+    expect(
+      screen.getByText(/"capacity" must be a number/i),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+  });
+  it('should show validation error and disable continue button if the max capacity is empty', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    //V
+    expect(
+      screen.getByText(/"capacity" must be a number/i),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeDisabled();
+    });
+  });
+  it('should show validation error if max capacity as more than 2 decimal points', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    await userEvent.type(selectors.maxCapacityInput(), '1.123');
+    //V
+    expect(
+      screen.getByText(/"capacity" must have at most 2 decimals/i),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(selectors.continueButton()).toBeDisabled();
+    });
   });
 });

@@ -40,13 +40,12 @@ export const VeeamCapacityOverviewRow = ({
   const xml = veeamObject?.Body?.toString();
   const regex = /<Capacity>([\s\S]*?)<\/Capacity>/;
   const matches = xml?.match(regex);
-  const capacity = parseInt(
+  const capacity = parseFloat(
     new DOMParser()
       ?.parseFromString(xml || '', 'application/xml')
       ?.querySelector('Capacity')?.textContent ||
       matches?.[1] ||
       '0',
-    10,
   );
 
   if (isSOSAPIEnabled) {
@@ -60,7 +59,7 @@ export const VeeamCapacityOverviewRow = ({
             ) : veeamObjectStatus === 'error' ? (
               'Error'
             ) : (
-              <PrettyBytes bytes={capacity} decimals={0} />
+              <PrettyBytes bytes={capacity} decimals={2} />
             )}
           </>
           {veeamObjectStatus === 'success' && (
