@@ -238,8 +238,8 @@ export const SubHeaderContainer = styled.div<{ isHidden?: boolean }>`
 `;
 export const TableContainer = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: column;
+  height: 100%;
 `;
 export const GentleEmphaseSecondaryText = styled(SecondaryText)<{
   alignRight?: boolean;
