@@ -1,4 +1,4 @@
-ARG TAG=1.25.3.1-2-alpine-fat
+ARG TAG=1.25.3.2-alpine-fat
 
 FROM openresty/openresty:${TAG}
 
