@@ -161,6 +161,11 @@ export const SCALITY_INTERNAL_ROLES = [
   DATA_CONSUMER_ROLE,
   DATA_ACCESSOR_ROLE,
 ];
+export const SCALITY_IAM_ROLES = [
+  STORAGE_ACCOUNT_OWNER_ROLE,
+  DATA_CONSUMER_ROLE,
+  DATA_ACCESSOR_ROLE,
+];
 
 const reduxBasedEventDispatcher = () => {
   const dispatch = useDispatch();

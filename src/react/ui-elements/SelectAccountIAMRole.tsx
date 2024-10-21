@@ -1,10 +1,4 @@
-import {
-  Form,
-  FormGroup,
-  FormSection,
-  Stack,
-  useToast,
-} from '@scality/core-ui';
+import { Form, FormGroup, FormSection, useToast } from '@scality/core-ui';
 import { Select } from '@scality/core-ui/dist/next';
 import { IAM } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
@@ -26,7 +20,7 @@ import {
 } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
-import { SCALITY_INTERNAL_ROLES, regexArn } from '../utils/hooks';
+import { SCALITY_IAM_ROLES, regexArn } from '../utils/hooks';
 
 class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -234,7 +228,7 @@ const SelectAccountIAMRoleWithAccount = (
   const roles = props.filterOutInternalRoles
     ? allRolesExceptHiddenOnes.filter((role) => {
         return (
-          SCALITY_INTERNAL_ROLES.includes(role.RoleName) ||
+          SCALITY_IAM_ROLES.includes(role.RoleName) ||
           !role.Arn.includes('role/scality-internal')
         );
       })
