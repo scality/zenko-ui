@@ -5,7 +5,13 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
-import { FormattedDateTime, Icon, PrettyBytes, Text } from '@scality/core-ui';
+import {
+  FormattedDateTime,
+  Icon,
+  PrettyBytes,
+  Text,
+  Wrap,
+} from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { spacing } from '@scality/core-ui';
 import { useHistory, useParams } from 'react-router-dom';
@@ -190,7 +196,7 @@ export default function ObjectListTable({
           if (original.isFolder) {
             return (
               <span>
-                <Icon name="Folder" />
+                <Icon style={{ marginRight: spacing.r4 }} name="Folder" />
                 <T.CellClick
                   onClick={handleCellClicked(bucketName, original.key)}
                 >
@@ -321,10 +327,10 @@ export default function ObjectListTable({
               (location) => location.name === storageClass,
             )?.isCold;
           return (
-            <div>
-              {isObjectInColdStorage ? <ColdStorageIcon /> : ''}{' '}
+            <Wrap style={{ alignItems: 'center' }}>
+              {isObjectInColdStorage ? <ColdStorageIcon /> : <p></p>}
               {storageClass === 'STANDARD' ? 'default' : storageClass}
-            </div>
+            </Wrap>
           );
         },
         cellStyle: {
