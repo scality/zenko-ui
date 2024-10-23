@@ -5,7 +5,7 @@ import { AutoSizer } from 'react-virtualized';
 import { FixedSizeList } from 'react-window';
 import InfiniteLoader from 'react-window-infinite-loader';
 import { List } from 'immutable';
-import { FormattedDateTime, PrettyBytes, Text } from '@scality/core-ui';
+import { FormattedDateTime, Wrap, PrettyBytes, Text } from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';
@@ -329,10 +329,10 @@ export default function ObjectListTable({
               (location) => location.name === storageClass,
             )?.isCold;
           return (
-            <div>
-              {isObjectInColdStorage ? <ColdStorageIcon /> : ''}{' '}
+            <Wrap style={{ alignItems: 'center' }}>
+              {isObjectInColdStorage ? <ColdStorageIcon /> : <p></p>}
               {storageClass === 'STANDARD' ? 'default' : storageClass}
-            </div>
+            </Wrap>
           );
         },
         cellStyle: {
