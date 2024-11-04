@@ -114,6 +114,7 @@ export const defaultUserData = {
   groups: ['user', 'PlatformAdmin'],
   original: {
     id_token: 'idtoken',
+    session_state: null,
     access_token: 'token',
     token_type: 'bearer',
     scope: 'openid profile email',

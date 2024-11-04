@@ -159,7 +159,6 @@ export const AddButton = ({
           overlay: 'Add',
           placement: 'top',
         }}
-        //@ts-expect-error fix this when you are working on it
         icon={<Icon name="Add-plus" style={iconStyle} />}
       />
     </>
@@ -200,7 +199,6 @@ export const SubButton = ({
         overlay: 'Remove',
         placement: 'top',
       }}
-      //@ts-expect-error fix this when you are working on it
       icon={<Icon name="Remove-minus" style={iconStyle} />}
     />
   );

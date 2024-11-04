@@ -19,7 +19,10 @@ export function useInstanceId() {
 
   const instanceIds = user?.userData?.original?.profile?.instanceIds;
 
-  if (!instanceIds || instanceIds.length === 0) {
+  if (
+    !instanceIds ||
+    (Array.isArray(instanceIds) && instanceIds.length === 0)
+  ) {
     return '';
   }
 

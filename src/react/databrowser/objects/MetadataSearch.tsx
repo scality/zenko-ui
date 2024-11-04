@@ -156,7 +156,6 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
             right: '10px',
             cursor: 'pointer',
           }}
-          //@ts-expect-error Need to improve typing on core-ui for including the event
           onClick={reset}
         />
       </SearchMetadataInputAndIcon>
