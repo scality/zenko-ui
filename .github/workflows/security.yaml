@@ -28,7 +28,7 @@ jobs:
       - name: install dependencies
         run: npm ci
       - name: build assets
-        run: npm run rsbuild
+        run: npm run build
       - name: Login to GitHub Registry
         uses: docker/login-action@v2
         with:
