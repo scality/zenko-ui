@@ -105,5 +105,8 @@
   },
   "msw": {
     "workerDirectory": "public/assets"
+  },
+  "optionalDependencies": {
+    "@rspack/binding-linux-x64-gnu": "^0.7.5"
   }
 }
