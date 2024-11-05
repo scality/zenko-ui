@@ -492,7 +492,7 @@ export const AttachmentTable = <
                 flex: 1,
               },
               Cell: ({ value }: { value?: boolean }) => {
-                return value ? 'Pending' : 'Attached';
+                return <>{value ? 'Pending' : 'Attached'}</>;
               },
             },
             {

@@ -75,7 +75,8 @@ function Workflow({ bucketName }: { bucketName: string }) {
         textAlign: 'right',
         paddingRight: spacing.r16,
       },
-      Cell: ({ value }: { value: boolean }) => (value ? 'Active' : 'Inactive'),
+      Cell: ({ value }: { value: boolean }) =>
+        value ? <>{'Active'}</> : <>{'Inactive'}</>,
       width: 0,
     },
   ];

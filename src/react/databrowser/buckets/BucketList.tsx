@@ -9,9 +9,8 @@ import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.comp
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
-import { LocationName } from '../../../types/config';
+import { CellProps, CoreUIColumn } from 'react-table';
 import { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
@@ -24,6 +23,7 @@ import { TableHeaderWrapper } from '../../ui-elements/Table';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
+import { PromiseResult } from '../../next-architecture/domain/entities/promise';
 
 const SEARCH_QUERY_PARAM = 'search';
 
@@ -59,8 +59,7 @@ export default function BucketList({
       {
         Header: 'Bucket Name',
         accessor: 'name',
-
-        Cell({ value: name }: { value: string }) {
+        Cell({ value: name }) {
           const history = useHistory();
           return (
             <ConstrainedText
@@ -91,7 +90,9 @@ export default function BucketList({
         accessor: 'locationConstraint',
 
         Cell({ row }) {
-          return BucketLocationNameAndType({ bucketName: row.original.name });
+          return (
+            <>{BucketLocationNameAndType({ bucketName: row.original.name })}</>
+          );
         },
 
         cellStyle: { width: 'unset', flex: '1.2' },
@@ -108,7 +109,7 @@ export default function BucketList({
           flex: '1',
           textAlign: 'right',
         },
-        Cell({ value: locationName }: { value: LocationName }) {
+        Cell({ value: locationName }) {
           const value = getLocationIngestionState(
             ingestionStates,
             locationName,
@@ -116,7 +117,7 @@ export default function BucketList({
           if (value === '-') {
             return <EmptyCell mr={0} />;
           }
-          return value;
+          return <>{value}</>;
         },
       });
     }
@@ -137,7 +138,7 @@ export default function BucketList({
         paddingRight: spacing.r16,
         width: 'unset',
       },
-      Cell({ value }: { value: string }) {
+      Cell({ value }) {
         return (
           <FormattedDateTime
             format="date-time-second"

@@ -47,7 +47,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
     const history = useHistory();
     const setRole = useSetAssumedRole();
     if (!row.original.canManageAccount) {
-      return value;
+      return <>{value}</>;
     }
 
     return (
@@ -97,7 +97,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
           textAlign: 'right',
           minWidth: '7rem',
         },
-        Cell: ({ value }: CellProps<Account, string>) => (
+        Cell: ({ value }: CellProps<Account, Date>) => (
           <FormattedDateTime
             format="date-time-second"
             value={new Date(value)}

@@ -89,8 +89,8 @@ function WorkflowList({ workflows, workflowId }: Props) {
       sortType: (row1: Row<Workflow>, row2: Row<Workflow>) => {
         return `${row1.original.state}` < `${row2.original.state}` ? 1 : -1;
       },
-      Cell: function ({ value }: { value: boolean }): string {
-        return value ? 'Active' : 'Inactive';
+      Cell: function ({ value }: { value: boolean }): JSX.Element {
+        return value ? <>{'Active'}</> : <>{'Inactive'}</>;
       },
     },
   ];

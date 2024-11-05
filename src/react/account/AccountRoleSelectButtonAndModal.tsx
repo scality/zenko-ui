@@ -62,6 +62,7 @@ function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   return (
     <div style={{ height: '25rem' }}>
       <Table
+        // @ts-expect-error fix this when you are working on it
         columns={columns}
         data={accountsWithRoles}
         defaultSortingKey={'accountName'}

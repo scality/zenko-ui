@@ -3,22 +3,28 @@ import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.componen
 import { useMemo } from 'react';
 import { maybePluralize } from '../../utils';
 import { DELETE_FAILED, DELETE_SUCCESS, TOTAL_ATTEMPTS } from './constants';
-import { DeleteSummary, ErrorsListData, TableDeleteSummaryData } from './types';
+import {
+  DeleteSummary,
+  ErrorsList,
+  ErrorsListData,
+  TableDeleteSummaryData,
+} from './types';
 import { getUniqueErrorMessages } from './utils';
+import { CoreUIColumn } from 'react-table';
 
 type EmptyBucketSummaryListProps = {
   summaryData: DeleteSummary[];
 };
 
-const ErrorsTable = (messages: string[]) => {
-  const messagesColumns = [
+const ErrorsTable = ({ messages }: { messages: string[] }) => {
+  const messagesColumns: CoreUIColumn<ErrorsList>[] = [
     {
       Header: 'Error Message',
       accessor: 'message',
       cellStyle: {
         minWidth: '8rem',
       },
-      Cell({ value }: { value: string }) {
+      Cell({ value }) {
         return <Text>{value}</Text>;
       },
     },
@@ -28,7 +34,7 @@ const ErrorsTable = (messages: string[]) => {
       cellStyle: {
         minWidth: '8rem',
       },
-      Cell({ value }: { value: number }) {
+      Cell({ value }) {
         return <Text>{value}</Text>;
       },
     },
@@ -70,7 +76,7 @@ const SummaryCell = (
           color={isFailed ? 'statusCritical' : 'statusHealthy'}
         />
         <BasicText>{text}</BasicText>
-        {messages?.length ? ErrorsTable(messages) : null}
+        {messages?.length ? <ErrorsTable messages={messages} /> : null}
       </Stack>
     );
   }
@@ -78,7 +84,7 @@ const SummaryCell = (
   return <BasicText>{text}</BasicText>;
 };
 
-const useCreateDeleteSummaryColumns = () =>
+const useCreateDeleteSummaryColumns = (): CoreUIColumn<DeleteSummary>[] =>
   useMemo(
     () => [
       {
@@ -87,7 +93,7 @@ const useCreateDeleteSummaryColumns = () =>
         cellStyle: {
           minWidth: '12rem',
         },
-        Cell({ value }: { value: number }) {
+        Cell({ value }) {
           return SummaryCell(value);
         },
       },
@@ -97,7 +103,7 @@ const useCreateDeleteSummaryColumns = () =>
         cellStyle: {
           minWidth: '12rem',
         },
-        Cell({ value }: { value: number }) {
+        Cell({ value }) {
           return SummaryCell(value, false, true);
         },
       },
@@ -107,7 +113,7 @@ const useCreateDeleteSummaryColumns = () =>
         cellStyle: {
           minWidth: '12rem',
         },
-        Cell({ value }: { value: { nbErrors: number; messages?: string[] } }) {
+        Cell({ value }) {
           return SummaryCell(value.nbErrors, true, true, value.messages);
         },
       },
