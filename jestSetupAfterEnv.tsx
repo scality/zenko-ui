@@ -2,6 +2,12 @@ import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
 import { queryClient } from './src/react/utils/testUtil';
 
+import Enzyme from 'enzyme';
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
+import 'core-js/stable';
+
+Enzyme.configure({ adapter: new Adapter() });
+
 window.fetch = (url, ...rest) =>
   //@ts-expect-error fix this when you are working on it
   fetch(/^https?:/.test(url) ? url : new URL(url, 'http://localhost'), ...rest);
