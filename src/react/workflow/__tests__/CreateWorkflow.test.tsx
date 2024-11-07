@@ -7,13 +7,19 @@ import userEvent from '@testing-library/user-event';
 import { List } from 'immutable';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
+import {
+  getConfigOverlay,
+  getStorageConsumptionMetricsHandlers,
+} from '../../../js/mock/managementClientMSWHandlers';
 import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../js/mock/S3ClientMSWHandlers';
 import { S3Bucket } from '../../../types/s3';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import {
+  INSTANCE_ID,
+  waitForSelectOptionToBeEnabled,
+} from '../../actions/__tests__/utils/testUtil';
 import * as DSRProvider from '../../DataServiceRoleProvider';
 import { DEFAULT_METRICS_MESURED_ON } from '../../next-architecture/adapters/metrics/MockedMetricsAdapter';
 import * as hooks from '../../utils/hooks';
@@ -26,12 +32,14 @@ import {
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import CreateWorkflow from '../CreateWorkflow';
+import { debug } from 'jest-preview';
 
 const instanceId = INSTANCE_ID;
 const accountName = 'pat';
 const BUCKET_NAME = 'bucket1';
 const BUCKET_NAME_NON_VERSIONED = 'bucket-non-versioned';
 const BUCKET_LOCATION = 'chapter-ux';
+const ACCOUNT_ID = 'account-id-renard';
 const buckets: S3Bucket[] = [
   {
     CreationDate: 'Wed Oct 07 2020 16:35:57',
@@ -69,6 +77,16 @@ const defaultCurrentAccount = {
 };
 
 const server = setupServer(
+  ...getStorageConsumptionMetricsHandlers(
+    zenkoUITestConfig.managementEndpoint,
+    INSTANCE_ID,
+  ),
+  rest.post(
+    `${TEST_API_BASE_URL}/api/v1/instance/${INSTANCE_ID}/account/${ACCOUNT_ID}/bucket/bucket1/workflow/replication`,
+    (req, res, ctx) => {
+      return res(ctx.status(500), ctx.json([]));
+    },
+  ),
   rest.post(
     `${TEST_API_BASE_URL}/api/v1/instance/${instanceId}/account/${defaultCurrentAccount.id}/bucket/bucket/workflow/replication`,
     (req, res, ctx) => {
@@ -184,8 +202,8 @@ describe('CreateWorkflow', () => {
 
     // Select Bucket Name
     await selectClick(selectors.bucketSelect());
-    await waitFor(() =>
-      expect(selectors.bucketVersionedOption()).toBeEnabled(),
+    await waitForSelectOptionToBeEnabled(() =>
+      selectors.bucketVersionedOption(),
     );
     await userEvent.click(selectors.bucketVersionedOption());
 
@@ -252,12 +270,12 @@ describe('CreateWorkflow', () => {
 
     // Select Bucket Name
     await selectClick(selectors.bucketSelect());
-    await waitFor(() =>
-      expect(selectors.bucketVersionedOption()).toBeEnabled(),
+
+    await waitForSelectOptionToBeEnabled(() =>
+      selectors.bucketVersionedOption(),
     );
     await userEvent.click(selectors.bucketVersionedOption());
 
-    // Select Destination
     await selectClick(selectors.locationSelect());
     await userEvent.click(selectors.locationAWSS3());
 

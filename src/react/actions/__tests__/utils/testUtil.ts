@@ -44,6 +44,7 @@ import { EnabledState } from '../../../../types/stats';
 import zenkoUIReducer from '../../../reducers';
 import { initialFullState } from '../../../reducers/initialConstants';
 import { configuration } from '../../../utils/testUtil';
+import { waitFor } from '@testing-library/react';
 type ActionTestObject = {
   skip?: boolean;
   it: string;
@@ -317,4 +318,14 @@ export const testDispatchErrorTestFn = (
     expect(store.getActions()).toEqual(test.expectedActions);
     expect(testError).toEqual(error.message);
   });
+};
+
+export const waitForSelectOptionToBeEnabled = async (screenElementFn) => {
+  await waitFor(
+    () => expect(screenElementFn()).toHaveAttribute('aria-disabled', 'false'),
+    {
+      timeout: 10_000,
+    },
+  );
+  return new Promise((resolve) => setTimeout(resolve, 500));
 };
