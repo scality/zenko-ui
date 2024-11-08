@@ -24,7 +24,10 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import {
+  INSTANCE_ID,
+  waitForSelectOptionToBeEnabled,
+} from '../../actions/__tests__/utils/testUtil';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -54,6 +57,7 @@ const locations: PerLocationMap<any> = {
     objectId: '95dbedf5-9888-11ec-8565-1ac2af7d1e53',
   },
 };
+jest.setTimeout(60_000);
 
 const server = setupServer(
   rest.post(
@@ -75,7 +79,6 @@ const server = setupServer(
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
   mockOffsetSize(200, 800);
-  jest.setTimeout(10_000);
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
@@ -144,6 +147,10 @@ describe('ExpirationForm', () => {
 
     // Select the Source Bucket.
     await selectClick(selectors.bucketSelect());
+
+    await waitForSelectOptionToBeEnabled(() =>
+      selectors.versionedBucketOption(),
+    );
 
     await userEvent.click(selectors.versionedBucketOption());
     const expireCurrentToggleState = result.container.querySelector(

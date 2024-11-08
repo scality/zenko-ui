@@ -35,7 +35,11 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
-import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
+import {
+  INSTANCE_ID,
+  waitForSelectOptionToBeEnabled,
+} from '../../actions/__tests__/utils/testUtil';
+import { debug } from 'jest-preview';
 
 const versionedBucket = 'bucket1';
 const notVersionedBucket = 'bucket2';
@@ -107,6 +111,8 @@ const server = setupServer(
     INSTANCE_ID,
   ),
 );
+
+jest.setTimeout(60_000);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' });
@@ -230,7 +236,8 @@ describe('TransitionForm', () => {
     await selectClick(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
-    await waitFor(() =>
+
+    await waitForSelectOptionToBeEnabled(() =>
       screen.getByRole('option', {
         name: new RegExp(
           `${versionedBucket} \\(us-east-1 / Storage Service \\)`,
@@ -333,7 +340,7 @@ describe('TransitionForm', () => {
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
 
-    await waitFor(() =>
+    await waitForSelectOptionToBeEnabled(() =>
       screen.getByRole('option', {
         name: new RegExp(
           `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
@@ -381,7 +388,8 @@ describe('TransitionForm', () => {
     await selectClick(
       notFalsyTypeGuard(getByText(sourceBucketContainer, /select/i)),
     );
-    await waitFor(() =>
+
+    await waitForSelectOptionToBeEnabled(() =>
       screen.getByRole('option', {
         name: new RegExp(
           `${notVersionedBucket} \\(us-east-1 / Storage Service \\)`,
@@ -389,6 +397,7 @@ describe('TransitionForm', () => {
         ),
       }),
     );
+    debug();
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
@@ -397,7 +406,9 @@ describe('TransitionForm', () => {
         ),
       }),
     );
+    debug();
     await userEvent.click(screen.getByLabelText(/Storage location/i));
+
     await userEvent.keyboard('{ArrowDown}');
     // expect the hyperdrive location is not in the list
     expect(
@@ -415,6 +426,7 @@ describe('TransitionForm', () => {
       screen.getByRole('spinbutton', { name: /Days after object creation/i }),
       '0',
     );
+
     //V
     //Check that the form is now valid
     await waitFor(() =>

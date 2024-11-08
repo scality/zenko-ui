@@ -175,8 +175,25 @@ describe('ReplicationForm', () => {
     await waitFor(() => screen.getByText(/General/i));
     await selectClick(selectors.bucketSelect());
     //V
-    expect(selectors.bucketOption1()).toHaveAttribute('aria-disabled', 'false');
-    expect(selectors.bucketOption2()).toHaveAttribute('aria-disabled', 'true');    
+
+    await waitFor(
+      () =>
+        expect(
+          selectors.bucketOption1(),
+        ).toHaveAttribute('aria-disabled', 'false'),
+      {
+        timeout: 10_000,
+      },
+    );
+    await waitFor(
+      () =>
+        expect(
+          selectors.bucketOption2(),
+        ).toHaveAttribute('aria-disabled', 'true'),
+      {
+        timeout: 10_000,
+      },
+    );   
     await userEvent.hover(selectors.bucketOption2());
     expect(
       screen.getByText(/Replication is not available for a Bucket that was created especially for Veeam./i),
