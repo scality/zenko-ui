@@ -4,7 +4,7 @@ const ColdStorageTemperatureToolTip = () => {
   return (
     <IconHelp
       placement="top"
-      overlayStyle={{ width: '24rem' }}
+      overlayStyle={{ textWrap: 'wrap', width: '24rem', textAlign: 'left' }}
       tooltipMessage={
         <>
           The Temperature of this Location is Cold.
