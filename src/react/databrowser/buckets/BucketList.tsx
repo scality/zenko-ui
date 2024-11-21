@@ -9,8 +9,8 @@ import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.comp
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
-import { CellProps, CoreUIColumn } from 'react-table';
 import { WorkflowScheduleUnitState } from '../../../types/stats';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useBucketLatestUsedCapacity } from '../../next-architecture/domain/business/buckets';
@@ -23,8 +23,6 @@ import { TableHeaderWrapper } from '../../ui-elements/Table';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
-import { PromiseResult } from '../../next-architecture/domain/entities/promise';
-
 const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {

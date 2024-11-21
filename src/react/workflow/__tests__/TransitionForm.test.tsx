@@ -39,7 +39,6 @@ import {
   INSTANCE_ID,
   waitForSelectOptionToBeEnabled,
 } from '../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
 
 const versionedBucket = 'bucket1';
 const notVersionedBucket = 'bucket2';
@@ -397,7 +396,6 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    debug();
     await userEvent.click(
       screen.getByRole('option', {
         name: new RegExp(
@@ -406,7 +404,6 @@ describe('TransitionForm', () => {
         ),
       }),
     );
-    debug();
     await userEvent.click(screen.getByLabelText(/Storage location/i));
 
     await userEvent.keyboard('{ArrowDown}');
