@@ -29,10 +29,14 @@ const schema = Joi.object({
     .min(1)
     .max(1024)
     .custom((value, helpers) => {
-      if (!Number.isInteger(value * 100)) {
-        return helpers.message({
-          custom: '"capacity" must have at most 2 decimals',
-        });
+      const stringValue = value.toString();
+      if (stringValue.includes('.')) {
+        const decimals = stringValue.split('.')[1];
+        if (decimals.length > 2) {
+          return helpers.message({
+            custom: '"capacity" must have at most 2 decimals',
+          });
+        }
       }
       return value;
     }),
