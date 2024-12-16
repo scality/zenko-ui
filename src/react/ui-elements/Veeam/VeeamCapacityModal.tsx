@@ -22,6 +22,7 @@ import {
   VEEAM_XML_PREFIX,
 } from './VeeamConstants';
 import { getCapacityBytes, useCapacityUnit } from './useCapacityUnit';
+import { checkDecimals } from './VeeamConfiguration';
 
 const schema = Joi.object({
   capacity: Joi.number()
@@ -29,16 +30,7 @@ const schema = Joi.object({
     .min(1)
     .max(1024)
     .custom((value, helpers) => {
-      const stringValue = value.toString();
-      if (stringValue.includes('.')) {
-        const decimals = stringValue.split('.')[1];
-        if (decimals.length > 2) {
-          return helpers.message({
-            custom: '"capacity" must have at most 2 decimals',
-          });
-        }
-      }
-      return value;
+      return checkDecimals(value, helpers);
     }),
   capacityUnit: Joi.string().required(),
 });

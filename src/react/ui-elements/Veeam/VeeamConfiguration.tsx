@@ -40,6 +40,19 @@ import { useAccountsLocationsAndEndpoints } from '../../../react/next-architectu
 import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { VeeamLogo } from './VeeamLogo';
 
+export const checkDecimals = (value: number, helpers: Joi.CustomHelpers) => {
+  const stringValue = value.toString();
+  if (stringValue.includes('.')) {
+    const decimals = stringValue.split('.')[1];
+    if (decimals.length > 2) {
+      return helpers.message({
+        custom: '"capacity" must have at most 2 decimals',
+      });
+    }
+  }
+  return value;
+};
+
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
   bucketName: bucketNameValidationSchema,
@@ -50,18 +63,7 @@ const schema = Joi.object({
       .required()
       .min(1)
       .max(1024)
-      .custom((value, helpers) => {
-        const stringValue = value.toString();
-        if (stringValue.includes('.')) {
-          const decimals = stringValue.split('.')[1];
-          if (decimals.length > 2) {
-            return helpers.message({
-              custom: '"capacity" must have at most 2 decimals',
-            });
-          }
-        }
-        return value;
-      }),
+      .custom((value, helpers) => checkDecimals(value, helpers)),
     otherwise: Joi.valid(),
   }),
   capacityUnit: Joi.when('application', {

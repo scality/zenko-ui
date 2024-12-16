@@ -222,6 +222,19 @@ describe('Veeam Configuration UI', () => {
       expect(selectors.accountNameInput()).toHaveValue('Veeam');
     });
   });
+  it('should enabled continnue button if capacity value is valid', async () => {
+    //S
+    mockUseAccountsImplementation();
+    renderVeeamConfigurationForm();
+    await userEvent.type(selectors.accountNameInput(), 'Veeam');
+    await userEvent.type(selectors.repositoryInput(), 'veeam-bucket');
+    //E
+    await userEvent.clear(selectors.maxCapacityInput());
+    expect(selectors.continueButton()).toBeDisabled();
+    await userEvent.type(selectors.maxCapacityInput(), '2.2');
+    //V
+    expect(selectors.continueButton()).toBeEnabled();
+  });
   it('should show validation error if the max capacity is less than 1', async () => {
     //S
     mockUseAccountsImplementation();

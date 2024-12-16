@@ -5,6 +5,7 @@ import { bucketName } from '../../../js/mock/S3Client';
 import { NewWrapper, TEST_API_BASE_URL } from '../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import { VEEAM_XML_PREFIX } from './VeeamConstants';
+import userEvent from '@testing-library/user-event';
 
 describe('VeeamCapacityModal', () => {
   const mockMutate = jest.fn();
@@ -50,6 +51,16 @@ describe('VeeamCapacityModal', () => {
   it('should render the modal', () => {
     fireEvent.click(selectors.editBtn());
     expect(selectors.modalTitle()).toBeInTheDocument();
+  });
+
+  it('should enabled edit button when value is valid', async () => {
+    await userEvent.click(selectors.editBtn());
+
+    await userEvent.clear(selectors.capacityInput());
+    expect(selectors.editModalBtn()).toBeDisabled();
+    await userEvent.type(selectors.capacityInput(), '2.2');
+
+    expect(selectors.editModalBtn()).toBeEnabled();
   });
 
   it('should call mutate function when edit button is clicked', async () => {
