@@ -6,20 +6,20 @@ import {
   useQuery,
 } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { addTrailingSlash } from '.';
 import { getRolesForWebIdentity } from '../../js/IAMClient';
 import { ApiError } from '../../types/actions';
 import { Account, WebIdentityRoles } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useDataServiceRole } from '../DataServiceRoleProvider';
+import { useShellHooks } from '@scality/module-federation';
 import {
   handleApiError,
   handleClientError,
   networkEnd,
   networkStart,
 } from '../actions';
-import { useAuth } from '../next-architecture/ui/AuthProvider';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
 import { getObjectsVersions } from '../queries';
@@ -201,7 +201,9 @@ export const useAccounts = (
     notifyError: (error: ApiError) => void;
   } = reduxBasedEventDispatcher,
 ) => {
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
+
   const { iamEndpoint } = useConfig();
 
   const { notifyLoadingAccounts, notifyEnd, notifyError } = eventDispatcher();
@@ -274,6 +276,7 @@ export const useRolePathName = () => {
 };
 
 export const useAuthGroups = () => {
+  const { useAuth } = useShellHooks();
   const user = useAuth();
   const userGroups = user.userData?.groups || [];
 
@@ -284,7 +287,7 @@ export const useAuthGroups = () => {
 };
 
 export const usePrevious = <T>(value: T): T | undefined => {
-  const ref = useRef<T>();
+  const ref = useRef<T>(undefined);
   useEffect(() => {
     ref.current = value;
   });

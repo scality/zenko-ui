@@ -6,7 +6,7 @@ import { ListItem } from './VeeamTable';
 import { useCapacityUnit } from './useCapacityUnit';
 import { useEffect } from 'react';
 import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 type XCoreConfig = {
   spec: {
@@ -49,6 +49,7 @@ export const VeeamCapacityFormWithXcore = ({
 }: {
   useClusterCapacity: UseClusterCapacityHooks;
 }) => {
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const xCoreConfig = useXcoreRuntimeConfig();
   const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(

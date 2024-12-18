@@ -12,7 +12,6 @@ import {
 import { Box, Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   useCreateEndpointMutation,
@@ -22,6 +21,7 @@ import { renderLocation } from '../locations/utils';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const BannerMessageList = styled.ul`
   margin: ${spacing.r8} 0;
@@ -50,7 +50,7 @@ function EndpointCreate() {
       locationName: 'us-east-1',
     },
   });
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
   const {
@@ -98,14 +98,14 @@ function EndpointCreate() {
     if (waiterStatus === 'success') {
       refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
-          history.push('/dataservices');
+          navigate('/dataservices');
         },
       });
     }
   }, [waiterStatus]);
 
   const handleCancel = () => {
-    history.push('/dataservices');
+    navigate('/dataservices');
   };
 
   return (

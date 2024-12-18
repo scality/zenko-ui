@@ -2,7 +2,7 @@ import { fontSize } from '@scality/core-ui/dist/style/theme';
 
 import { spacing, SecondaryText, Wrap, Icon } from '@scality/core-ui';
 import { Box, Button, Input } from '@scality/core-ui/dist/next';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 
 import styled from 'styled-components';
 import React from 'react';

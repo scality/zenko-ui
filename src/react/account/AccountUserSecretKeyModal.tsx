@@ -7,12 +7,12 @@ import { Clipboard } from '../ui-elements/Clipboard';
 import { HideCredential } from '../ui-elements/Hide';
 import { useState } from 'react';
 import { spacing } from '@scality/core-ui/dist/style/theme';
-import { useHistory } from 'react-router-dom';
 import { useIAMClient } from '../IAMProvider';
 import { useMutation, useQueryClient } from 'react-query';
 import { getUserAccessKeysQuery } from '../queries';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 type Props = {
   IAMUserName: string;
 };
@@ -23,7 +23,7 @@ const StyledCopybutton = styled(CopyButton)({
 });
 
 function AccountUserSecretKeyModal({ IAMUserName }: Props) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const [newKey, setNewKey] = useState(null);
@@ -51,7 +51,7 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
   );
 
   const handleClose = () => {
-    history.push('.');
+    navigate('.');
   };
 
   const handleAccessKeyCreate = () => {

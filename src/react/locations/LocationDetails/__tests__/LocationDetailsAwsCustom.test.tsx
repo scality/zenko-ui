@@ -37,21 +37,24 @@ describe('class <LocationDetailsAwsCustom />', () => {
     });
   });
   it('should show custom details for empty details', async () => {
-    //@ts-expect-error fix this when you are working on it
     const component = await reduxMountAct(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsAwsCustom {...props} />,
+      {},
     );
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual('');
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
+
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
       '',
     );
-    expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-    expect(component.find('input[name="endpoint"]').props().value).toEqual('');
+    expect(
+      component.container.querySelector('input[name="secretKey"]'),
+    ).toHaveValue('');
+    expect(
+      component.container.querySelector('input[name="bucketName"]'),
+    ).toHaveValue('');
+    expect(
+      component.container.querySelector('input[name="endpoint"]'),
+    ).toHaveValue('');
   });
   it('should show custom details when editing an existing location', async () => {
     const locationDetails = {
@@ -61,26 +64,24 @@ describe('class <LocationDetailsAwsCustom />', () => {
       bucketName: 'bn',
       bucketMatch: true,
     };
-    //@ts-expect-error fix this when you are working on it
     const component = await reduxMountAct(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsAwsCustom {...props} details={locationDetails} />,
+      {},
     );
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual(
+
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
       'ak',
     );
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    // for now we just set it as empty since it's encrypted
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
-      'bn',
-    );
-    expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-    expect(component.find('input[name="endpoint"]').props().value).toEqual(
-      'https://ep',
-    );
+    expect(
+      component.container.querySelector('input[name="secretKey"]'),
+    ).toHaveValue(''); // encrypted
+    expect(
+      component.container.querySelector('input[name="bucketName"]'),
+    ).toHaveValue('bn');
+    expect(
+      component.container.querySelector('input[name="endpoint"]'),
+    ).toHaveValue('https://ep');
   });
   it('should call onChange on location details updates', async () => {
     const refLocation = {
@@ -92,14 +93,14 @@ describe('class <LocationDetailsAwsCustom />', () => {
     };
     let location = {};
     //@ts-expect-error fix this when you are working on it
-    const component = await reduxMountAct(
+    const { container } = await reduxMountAct(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAwsCustom {...props} onChange={(l) => (location = l)} />,
     );
-    updateInputText(component, 'accessKey', 'ak');
-    updateInputText(component, 'secretKey', 'sk');
-    updateInputText(component, 'bucketName', 'bn');
-    updateInputText(component, 'endpoint', 'https://ep');
+    updateInputText(container, 'accessKey', 'ak');
+    updateInputText(container, 'secretKey', 'sk');
+    updateInputText(container, 'bucketName', 'bn');
+    updateInputText(container, 'endpoint', 'https://ep');
     expect(location).toEqual(refLocation);
   });
 });

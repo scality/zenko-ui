@@ -1,6 +1,7 @@
 import { Modal, Stack, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import styled from 'styled-components';
+import { JSX } from 'react';
 
 type VeeamSkipModalProps = {
   isOpen: boolean;

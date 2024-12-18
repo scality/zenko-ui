@@ -9,13 +9,13 @@ import {
 } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
 import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
 import { HideCredential } from '../Hide';
 import { useGetS3ServicePoint } from './useGetS3ServicePoint';
 import { VEEAM_OFFICE_365_V8 } from './VeeamConstants';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type VeeamSummaryProps = {
   accountName: string;
@@ -67,7 +67,7 @@ export const VeeamSummary = ({
   secretKey,
   application,
 }: VeeamSummaryProps) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
 
@@ -84,7 +84,7 @@ export const VeeamSummary = ({
           //TODO: Add flag icon in core-ui
           label="Finish"
           onClick={() => {
-            history.push(`/accounts/${accountName}/buckets/${bucketName}`);
+            navigate(`/accounts/${accountName}/buckets/${bucketName}`);
           }}
         />
       }

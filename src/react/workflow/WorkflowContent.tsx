@@ -1,10 +1,10 @@
 import { Icon } from '@scality/core-ui';
-import { useRouteMatch } from 'react-router-dom';
 import { Workflow } from '../../types/workflow';
 import { Tabs } from '@scality/core-ui/dist/next';
 import { Warning } from '../ui-elements/Warning';
 import { useQueryParams } from '../utils/hooks';
 import ConfigurationTab from './ConfigurationTab';
+import { useLocation } from 'react-router';
 export const SELECT_A_WORKFLOW_MESSAGE = 'Select a workflow.';
 type Props = {
   wfSelected: Workflow | null | undefined;
@@ -28,11 +28,10 @@ function Details({ wfSelected }: Props) {
 }
 
 function WorkflowContent(props: Props) {
-  const { path } = useRouteMatch();
   return (
     // @ts-expect-error Tabs expects multiple children
     <Tabs>
-      <Tabs.Tab label="Configuration" path={path}>
+      <Tabs.Tab label="Configuration" path={''} query={{ tab: null }}>
         <Details {...props} />
       </Tabs.Tab>
     </Tabs>

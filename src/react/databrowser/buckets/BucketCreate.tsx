@@ -23,7 +23,7 @@ import ObjectLockRetentionSettings, {
 import { XDM_FEATURE } from '../../../js/config';
 import { renderLocation } from '../../locations/utils';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import {
   useChangeBucketDefaultRetention,
   useChangeBucketVersionning,
@@ -32,6 +32,7 @@ import {
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const helpNonAsyncLocation =
   'Selected Storage Location does not support Async Metadata updates.';
@@ -57,7 +58,7 @@ const schema = Joi.object({
 
 function BucketCreate() {
   // TODO: redirect to list buckets if no account
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { accountName } = useParams<{ accountName: string }>();
 
   const useFormMethods = useForm({
@@ -222,7 +223,7 @@ function BucketCreate() {
               },
             });
           }
-          history.push(`/accounts/${accountName}/buckets/${name}`);
+          navigate(`/accounts/${accountName}/buckets/${name}`);
         },
       },
     );
@@ -230,7 +231,7 @@ function BucketCreate() {
 
   const handleCancel = () => {
     clearServerError();
-    history.push('/buckets');
+    navigate('/buckets');
   };
 
   const matchVersioning = (checked: boolean) => {
@@ -280,7 +281,7 @@ function BucketCreate() {
                 (error &&
                   typeof error === 'object' &&
                   'message' in error &&
-                  error?.message) ||
+                  (error.message as string)) ||
                 'An unexpected error occurred.'}
             </Banner>
           )

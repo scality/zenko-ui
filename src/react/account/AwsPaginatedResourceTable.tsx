@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { ChangeEvent, JSX } from 'react';
+import { useLocation } from 'react-router';
 import { SearchInput, Tooltip, Wrap, spacing } from '@scality/core-ui';
 import { Box, Table } from '@scality/core-ui/dist/next';
 import { TableItemCount } from '@scality/core-ui/dist/components/tablev2/Search';
@@ -11,6 +11,7 @@ import {
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import { useQueryParams } from '../utils/hooks';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const WithTooltipWhileLoading = ({
   children,
@@ -73,10 +74,10 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
     errorPreviousHeaders,
   },
 }: Props<ENTITY, PREPARED_ENTITY>) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
   const queryParams = useQueryParams();
-  const match = useRouteMatch();
+  const location = useLocation();
   const search = queryParams.get(SEARCH_QUERY_PARAM);
 
   const queryResult = useAwsPaginatedEntities(
@@ -87,7 +88,9 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
 
   const setSearch = (newSearch: string) => {
     queryParams.set(SEARCH_QUERY_PARAM, newSearch);
-    history.replace(`${match.url}?${queryParams.toString()}`);
+    navigate(`${location.pathname}?${queryParams.toString()}`, {
+      replace: true,
+    });
   };
 
   const data = (() => {
@@ -140,7 +143,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
                   placeholder={'Search'}
                   onReset={() => {
                     queryParams.delete(SEARCH_QUERY_PARAM);
-                    history.push(`${match.url}?${queryParams.toString()}`);
+                    navigate(`${location.pathname}?${queryParams.toString()}`);
                   }}
                   onChange={(evt: ChangeEvent<HTMLInputElement>) => {
                     setSearch(evt.target.value);

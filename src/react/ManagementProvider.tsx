@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo, JSX } from 'react';
 import makeMgtClient, { UiFacingApiWrapper } from '../js/managementClient';
 import { useAccessToken } from './next-architecture/ui/AuthProvider';
 import { useConfig } from './next-architecture/ui/ConfigProvider';

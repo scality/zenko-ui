@@ -14,7 +14,6 @@ import {
   EntityType,
 } from './AttachmentTypes';
 import { useTheme } from 'styled-components';
-import { useHistory } from 'react-router-dom';
 import {
   getListAttachedUserPoliciesQuery,
   getListEntitiesForPolicyQuery,
@@ -30,6 +29,7 @@ import {
   Wrap,
   spacing,
 } from '@scality/core-ui';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type AttachmentStatus = 'Waiting for confirmation' | 'Error' | 'Success';
 
@@ -67,7 +67,7 @@ function AttachmentConfirmationModal({
   resourceType: ResourceType;
   redirectUrl: string;
 }) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const { account } = useCurrentAccount();
   const loading = useSelector(
@@ -228,7 +228,7 @@ function AttachmentConfirmationModal({
             <Button
               icon={<Icon name="Arrow-right" />}
               variant="primary"
-              onClick={() => history.push(redirectUrl)}
+              onClick={() => navigate(redirectUrl)}
               label="Exit"
               disabled={loading}
             />
@@ -351,7 +351,7 @@ function AttachmentConfirmationModal({
         <Button
           label="Cancel"
           variant="outline"
-          onClick={() => history.push(redirectUrl)}
+          onClick={() => navigate(redirectUrl)}
         />
         <Button
           icon={<Icon name="Save" />}

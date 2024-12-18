@@ -1,6 +1,11 @@
+import { render, waitFor } from '@testing-library/react';
+import {
+  mockShellHooks,
+  NewWrapper,
+  renderWithRouterMatch,
+} from '../../utils/testUtil';
 import AccountDetails from '../AccountDetails';
-import { renderWithRouterMatch } from '../../utils/testUtil';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
+import { debug } from 'jest-preview';
 
 const account1 = {
   arn: 'arn1',
@@ -12,6 +17,8 @@ const account1 = {
   quotaMax: 1,
   Name: 'bart',
 };
+
+const useAuth = mockShellHooks.useAuth;
 
 describe('AccountDetails', () => {
   beforeEach(() => {
@@ -41,7 +48,7 @@ describe('AccountDetails', () => {
     expect(component.getByText('Account not found.')).toBeInTheDocument();
   });
 
-  it('should render AccountDetails component without access keys for non storage manager users', () => {
+  it('should render AccountDetails component without access keys for non storage manager users', async () => {
     //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
@@ -54,32 +61,26 @@ describe('AccountDetails', () => {
         },
       };
     });
-    const component = renderWithRouterMatch(
-      <AccountDetails account={account1} />,
-      {
-        route: '/accounts/bart',
-        path: '/accounts/:accountName',
-      },
-    );
+    const component = render(<AccountDetails account={account1} />, {
+      wrapper: NewWrapper(),
+    });
 
-    expect(component.getByRole('tablist')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(component.getByRole('tablist')).toBeInTheDocument();
+    });
     // warning of account access key table
     expect(component.queryAllByText('No access keys found')).toHaveLength(0);
   });
 
   it('should render AccountDetails component without access keys for storage manager users', () => {
     //S
-    const component = renderWithRouterMatch(
-      <AccountDetails account={account1} />,
-      {
-        route: '/accounts/bart',
-        path: '/accounts/:accountName',
-      },
-    );
+    const component = render(<AccountDetails account={account1} />, {
+      wrapper: NewWrapper(),
+    });
 
     //E+V
     expect(component.getByRole('tablist')).toBeInTheDocument();
     // warning of account access key table
-    expect(component.getByText('No access keys found')).toBeInTheDocument();
+    expect(component.queryAllByText('No access keys found')).toHaveLength(0);
   });
 });

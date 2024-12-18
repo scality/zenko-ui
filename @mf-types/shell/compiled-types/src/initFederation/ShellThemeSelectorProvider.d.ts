@@ -13,5 +13,5 @@ export declare function useShellThemeSelector(): ThemeContextValues;
 export declare function ShellThemeSelectorProvider({ children, }: {
     children: (theme: CoreUITheme, themeName: ThemeMode) => React.ReactNode;
     onThemeChanged?: (evt: CustomEvent) => void;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;
 export {};

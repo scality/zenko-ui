@@ -1,4 +1,8 @@
-import { screen, waitFor } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
@@ -168,6 +172,11 @@ describe('Workflows', () => {
     //E
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
     await waitFor(() => screen.queryAllByText(/expiration/i));
+
+    await waitForElementToBeRemoved(
+      () => [...screen.queryAllByText(/Loading/i)],
+      { timeout: 8000 },
+    );
     //V
     expect(
       screen.getByRole('checkbox', {

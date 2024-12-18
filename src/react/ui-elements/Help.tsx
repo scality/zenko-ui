@@ -1,4 +1,4 @@
-import { IconHelp } from '@scality/core-ui/dist/components/IconHelper';
+import { IconHelp } from '@scality/core-ui/dist/components/iconhelper/IconHelper';
 
 export const HelpAsyncNotification = () => (
   <IconHelp

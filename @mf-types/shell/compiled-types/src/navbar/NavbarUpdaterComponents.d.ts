@@ -1,1 +1,1 @@
-export declare const NavbarUpdaterComponents: () => JSX.Element;
+export declare const NavbarUpdaterComponents: () => import("react/jsx-runtime").JSX.Element;

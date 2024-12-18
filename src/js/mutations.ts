@@ -3,20 +3,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
 import { useManagementClient } from '../react/ManagementProvider';
-import {
-  useAuth,
-  useInstanceId,
-} from '../react/next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
 import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
 import { ApiError } from '../types/actions';
 import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
+import { useShellHooks } from '@scality/module-federation';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const client = notFalsyTypeGuard(managementClient);
   const runningConfigurationVersionMutation = useMutation({
@@ -81,6 +80,7 @@ export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
 };
 const useCreateEndpointMutation = () => {
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
   return useMutation<
@@ -112,6 +112,7 @@ const useCreateEndpointMutation = () => {
 
 const useCreateAccountMutation = () => {
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   return useMutation({
     mutationFn: async ({

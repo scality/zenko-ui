@@ -3,7 +3,7 @@ import { ViewDefinition } from '../initFederation/ConfigurationProviders';
 import type { Link as TypeLink } from './navbarHooks';
 export declare const LoadingNavbar: ({ logo }: {
     logo: string;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;
 export declare const useNavbarLinksToActions: (links: TypeLink[]) => {
     link: TypeLink;
     selected: boolean;
@@ -17,4 +17,4 @@ export declare const Navbar: ({ logo, canChangeLanguage, canChangeTheme, childre
     canChangeTheme?: boolean;
     providerLogout?: boolean;
     children?: React.ReactNode;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;

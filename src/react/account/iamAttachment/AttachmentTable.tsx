@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useReducer, useRef, useState } from 'react';
-import { useCombobox } from 'downshift';
+import { useCombobox, UseComboboxStateChange } from 'downshift';
 import {
   AWS_PAGINATED_QUERY,
   useAwsPaginatedEntities,
@@ -268,9 +268,12 @@ export const AttachmentTable = <
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const onSelectedItemChange = useCallback(
-    ({ selectedItem }) => {
-      if (selectedItem) {
-        dispatch({ action: AttachmentAction.ADD, entity: selectedItem });
+    (changes: UseComboboxStateChange<AttachableEntity>) => {
+      if (changes.selectedItem) {
+        dispatch({
+          action: AttachmentAction.ADD,
+          entity: changes.selectedItem,
+        });
         if (resetRef.current) resetRef.current();
         if (searchInputRef.current) searchInputRef.current.blur();
       }

@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useIAMClient } from '../IAMProvider';
 import {
   getListPoliciesQuery,
@@ -13,6 +13,7 @@ import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { regexArn } from '../utils/hooks';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
 import { MouseEvent } from 'react';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type FormValues = {
   policyName: string;
@@ -21,7 +22,7 @@ type FormValues = {
 
 const UpdateAccountPolicy = () => {
   const IAMClient = useIAMClient();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { policyArn: encodedPolicyArn, defaultVersionId } = useParams<{
     accountName: string;
     policyArn: string;
@@ -83,7 +84,7 @@ const UpdateAccountPolicy = () => {
         queryClient.refetchQueries(
           getListPolicyVersionsQuery(policyArn, IAMClient),
         );
-        history.push(`/accounts/${account?.Name}/policies`);
+        navigate(`/accounts/${account?.Name}/policies`);
       },
       onError: (error) =>
         setError('policyDocument', {
@@ -102,7 +103,7 @@ const UpdateAccountPolicy = () => {
     if (e) {
       e.preventDefault();
     }
-    history.push(`/accounts/${account?.Name}/policies`);
+    navigate(`/accounts/${account?.Name}/policies`);
   };
 
   if (

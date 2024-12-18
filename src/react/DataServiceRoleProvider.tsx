@@ -1,5 +1,5 @@
-import { createContext, useContext, useMemo, useState } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { createContext, useContext, useMemo, useState, JSX } from 'react';
+import { useParams } from 'react-router';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
 import { useMutation } from 'react-query';
@@ -10,9 +10,9 @@ import {
   useS3ConfigFromAssumeRoleResult,
 } from './next-architecture/ui/S3ClientProvider';
 import Loader from './ui-elements/Loader';
-import { useAuth } from './next-architecture/ui/AuthProvider';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { AWSError, STS } from 'aws-sdk';
+import { useShellHooks } from '@scality/module-federation';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
@@ -72,10 +72,8 @@ export const useSetAssumedRolePromise = () => {
 };
 
 export const useCurrentAccount = () => {
-  const match = useRouteMatch<{
-    accountName: string;
-  }>('/accounts/:accountName');
-  const accountName = match?.params?.accountName;
+  const params = useParams();
+  const accountName = params?.accountName;
   const { roleArn } = useDataServiceRole();
   const accountId = roleArn
     ? regexArn.exec(roleArn)?.groups?.['account_id']
@@ -88,7 +86,7 @@ export const useCurrentAccount = () => {
       else if (accountId) return account.id === accountId;
       else return true;
     });
-  }, [accountId, JSON.stringify(accounts)]);
+  }, [accountId, JSON.stringify(accounts), accountName]);
 
   return {
     account,
@@ -113,10 +111,8 @@ const DataServiceRoleProvider = ({
     roleArn: '',
   });
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
-  const match = useRouteMatch<{
-    accountName: string;
-  }>('/accounts/:accountName');
-  const accountName = match?.params.accountName;
+  const params = useParams();
+  const accountName = params.accountName;
 
   const { getQuery } = useAssumeRoleQuery();
   const [assumedRole, setAssumedRole] =
@@ -128,6 +124,7 @@ const DataServiceRoleProvider = ({
     },
   });
 
+  const { useAuth } = useShellHooks();
   const { userData } = useAuth();
 
   // invalide the stored ARN if it's not in the list accountsWithRoles
@@ -156,7 +153,7 @@ const DataServiceRoleProvider = ({
     if (role.roleArn) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, JSON.stringify(accounts), userData?.token]);
+  }, [role.roleArn, JSON.stringify(accounts), userData?.token, accountName]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
 

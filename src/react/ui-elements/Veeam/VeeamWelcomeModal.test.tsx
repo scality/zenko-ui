@@ -1,11 +1,12 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { VeeamWelcomeModalInternal } from './VeeamWelcomeModal';
-import { QueryClientProvider } from 'react-query';
 import {
   TEST_API_BASE_URL,
   expectElementNotToBeInDocument,
   mockOffsetSize,
+  mockShellAlerts,
+  mockShellHooks,
   queryClient,
 } from '../../utils/testUtil';
 import { InternalRouter } from '../../FederableApp';
@@ -15,6 +16,8 @@ import { ACCOUNT_ID } from '../../../js/mock/managementClientMSWHandlers';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from './VeeamConstants';
 import { useNextLogin } from './useNextLogin';
 import { useAlerts } from '../../next-architecture/ui/AlertProvider';
+import { QueryClientProvider } from '../../../QueryClientProvider';
+import { ShellHooksProvider } from '@scality/module-federation';
 
 jest.mock('./useNextLogin', () => ({
   useNextLogin: jest.fn(),
@@ -64,9 +67,14 @@ describe('VeeamWelcomeModal', () => {
   };
   const VeeamWelcomeModalComponent = (
     <QueryClientProvider client={queryClient}>
-      <InternalRouter>
-        <VeeamWelcomeModalInternal isFirstTimeLogin={true} />
-      </InternalRouter>
+      <ShellHooksProvider
+        shellHooks={mockShellHooks}
+        shellAlerts={mockShellAlerts}
+      >
+        <InternalRouter>
+          <VeeamWelcomeModalInternal isFirstTimeLogin={true} />
+        </InternalRouter>
+      </ShellHooksProvider>
     </QueryClientProvider>
   );
   const renderVeeamWelcomeModal = () => {
@@ -96,16 +104,23 @@ describe('VeeamWelcomeModal', () => {
       }),
     );
     const { unmount, rerender } = renderVeeamWelcomeModal();
+
     //E
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
-    await userEvent.click(selectors.skipButton());
+
+    await act(async () => {
+      await userEvent.click(selectors.skipButton());
+    });
     //V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
     //E
     unmount();
-    rerender(VeeamWelcomeModalComponent);
+
+    await act(async () => {
+      render(VeeamWelcomeModalComponent);
+    });
     //V should see the modal again since there is no Veeam account created
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
@@ -131,9 +146,14 @@ describe('VeeamWelcomeModal', () => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
     //E
-    await userEvent.click(selectors.skipButton());
+    await act(async () => {
+      await userEvent.click(selectors.skipButton());
+    });
     unmount();
-    rerender(VeeamWelcomeModalComponent);
+
+    await act(async () => {
+      render(VeeamWelcomeModalComponent);
+    });
     //V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });

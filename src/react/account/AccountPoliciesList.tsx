@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { useIAMClient } from '../IAMProvider';
 
@@ -22,6 +21,7 @@ import { ApiError } from '../../types/actions';
 import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
 import { CoreUIColumn } from 'react-table';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const EditButton = ({
   policyName,
@@ -36,7 +36,7 @@ const EditButton = ({
   policyArn: string;
   defaultVersionId: string;
 }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
 
   const IAMClient = useIAMClient();
   const { data, status } = useQuery(
@@ -59,7 +59,7 @@ const EditButton = ({
           label="View"
           icon={<Icon name="Eye" />}
           onClick={() =>
-            history.push(
+            navigate(
               `/accounts/${accountName}/policies/${encodeURIComponent(
                 policyArn,
               )}/${defaultVersionId}/update-policy`,
@@ -94,7 +94,7 @@ const EditButton = ({
           label="Edit"
           icon={<Icon name="Pen" />}
           onClick={() =>
-            history.push(
+            navigate(
               `/accounts/${accountName}/policies/${encodeURIComponent(
                 policyArn,
               )}/${defaultVersionId}/update-policy`,
@@ -125,7 +125,7 @@ const AttachButton = ({
   policyArn: string;
   accountName: string;
 }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   return (
     <Button
       size="inline"
@@ -133,7 +133,7 @@ const AttachButton = ({
       label="Attach"
       icon={<Icon name="Link" />}
       onClick={() =>
-        history.push(
+        navigate(
           `/accounts/${accountName}/policies/${encodeURIComponent(
             policyArn,
           )}/attachments`,
@@ -323,7 +323,7 @@ type InternalPolicy = {
 };
 
 const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const getQuery = (IAMClient?: IAMClient | null) =>
     getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient);
   const getEntitiesFromResult = (data?: ListPoliciesResponse) =>
@@ -422,7 +422,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create Policy"
           variant="primary"
-          onClick={() => history.push('create-policy')}
+          onClick={() => navigate('/create-policy')}
           type="submit"
         />
       }

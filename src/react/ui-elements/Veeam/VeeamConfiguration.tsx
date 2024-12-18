@@ -13,7 +13,6 @@ import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.co
 import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
 import {
   XCORE_NOT_AVAILABLE,
   useXCoreLibrary,
@@ -39,6 +38,7 @@ import { accountNameValidationSchema } from '../../../react/account/AccountCreat
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../..//react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { VeeamLogo } from './VeeamLogo';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const schema = Joi.object({
   accountName: accountNameValidationSchema,
@@ -160,7 +160,7 @@ const Configuration = () => {
     formState: { errors, isValid },
   } = methods;
 
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
   const { accountsLocationsAndEndpoints, status } =
@@ -219,7 +219,7 @@ const Configuration = () => {
       <VeeamSkipModal
         isOpen={skip}
         close={() => setSkip(false)}
-        exitAction={() => history.push('/accounts')}
+        exitAction={() => navigate('/accounts')}
         modalContent={
           <>
             <Text>

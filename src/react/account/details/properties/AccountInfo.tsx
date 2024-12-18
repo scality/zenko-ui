@@ -8,7 +8,6 @@ import {
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useMutation, useQueryClient } from 'react-query';
-import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { useState } from 'react';
@@ -17,10 +16,7 @@ import { notFalsyTypeGuard } from '../../../../types/typeGuards';
 import { useManagementClient } from '../../../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import {
-  useAuth,
-  useInstanceId,
-} from '../../../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../../../next-architecture/ui/AuthProvider';
 
 import { CopyButton } from '@scality/core-ui/dist/next';
 import { ButtonContainer } from '../../../ui-elements/Container';
@@ -29,6 +25,8 @@ import Table, * as T from '../../../ui-elements/TableKeyValue';
 import { useAuthGroups, useRolePathName } from '../../../utils/hooks';
 import { removeRoleArnStored } from '../../../utils/localStorage';
 import SecretKeyModal from './SecretKeyModal';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useShellHooks } from '@scality/module-federation';
 
 const TableContainer = styled.div`
   display: flex;
@@ -41,7 +39,7 @@ type Props = {
 
 function DeleteAccountButtonAndModal({ account }: Props) {
   const [isModalOpened, setIsModalOpened] = useState(false);
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const rolePathName = useRolePathName();
 
@@ -51,6 +49,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
   const deleteMutation = useMutation({
@@ -84,7 +83,7 @@ function DeleteAccountButtonAndModal({ account }: Props) {
         onSuccess: () => {
           removeRoleArnStored();
           queryClient.invalidateQueries(['WebIdentityRoles']);
-          history.push('/accounts');
+          navigate('/accounts');
           setIsModalOpened(false);
         },
       });

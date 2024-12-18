@@ -1,7 +1,9 @@
-import ReactDOM from 'react-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import '../css/index.css';
 import FederableApp from './FederableApp';
+import { QueryClientProvider } from '../QueryClientProvider';
+import { createRoot } from 'react-dom/client';
+
 declare global {
   interface Window {
     shellUIRemoteEntryUrl: string;
@@ -10,10 +12,12 @@ declare global {
 export const queryClient = new QueryClient();
 
 const rootElement = document.getElementById('app');
-rootElement &&
-  ReactDOM.render(
+
+if (rootElement) {
+  const root = createRoot(rootElement);
+  root.render(
     <QueryClientProvider client={queryClient}>
       <FederableApp />
     </QueryClientProvider>,
-    rootElement,
   );
+}

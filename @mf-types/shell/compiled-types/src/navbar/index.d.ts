@@ -3,4 +3,4 @@ import './library';
 export type SolutionsNavbarProps = {
     children?: React.ReactNode;
 };
-export declare const SolutionsNavbar: ({ children }: SolutionsNavbarProps) => JSX.Element;
+export declare const SolutionsNavbar: ({ children }: SolutionsNavbarProps) => import("react/jsx-runtime").JSX.Element;

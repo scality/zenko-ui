@@ -9,7 +9,6 @@ import {
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { initialErrorsUIState } from '../../reducers/initialConstants';
 import {
@@ -18,6 +17,7 @@ import {
   WrapperAsStorageManager,
   defaultUserData,
   mockOffsetSize,
+  mockShellHooks,
   reduxRender,
   renderWithRouterMatch,
   zenkoUITestConfig,
@@ -29,6 +29,8 @@ const TEST_ACCOUNT =
 const TEST_ACCOUNT_CREATION_DATE =
   USERS.find((user) => user.id === '064609833007')?.createDate ?? '';
 const NO_ACCOUNT_MESSAGE = "You don't have any account yet.";
+
+const useAuth = mockShellHooks.useAuth;
 
 const mockUseConfig = useConfig as jest.MockedFunction<typeof useConfig>;
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;

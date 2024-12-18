@@ -26,7 +26,7 @@ import {
   useFormContext,
 } from 'react-hook-form';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Replication } from '../../types/config';
 import { Account } from '../../types/iam';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -54,8 +54,9 @@ import {
   flattenFormTouchedFields,
   renderDestination,
 } from './utils';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { ReplicationStreamInternalV1 } from '../../js/managementClient/api';
+import { useShellHooks } from '@scality/module-federation';
 
 type Props = {
   isCreateMode?: boolean;
@@ -161,6 +162,7 @@ const useReplicationStreams = (account?: Account) => {
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const mgnt = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const replicationsQuery = useQuery({
     ...workflowListQuery(

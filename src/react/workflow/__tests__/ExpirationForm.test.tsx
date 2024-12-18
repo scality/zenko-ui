@@ -7,7 +7,13 @@ import {
   TEST_API_BASE_URL,
   zenkoUITestConfig,
 } from '../../utils/testUtil';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import React from 'react';
 import ExpirationForm from '../ExpirationForm';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -28,6 +34,7 @@ import {
   INSTANCE_ID,
   waitForSelectOptionToBeEnabled,
 } from '../../actions/__tests__/utils/testUtil';
+import { debug } from 'jest-preview';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -124,6 +131,12 @@ describe('ExpirationForm', () => {
     );
 
     await waitFor(() => screen.getByText(/General/i));
+
+    await waitForElementToBeRemoved(
+      () => [...screen.queryAllByText(/Loading/i)],
+      { timeout: 8000 },
+    );
+
     expect(screen.getByText(/State/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Source/i)[0]).toBeInTheDocument();
     expect(screen.getByText(/Bucket Name/i)).toBeInTheDocument();

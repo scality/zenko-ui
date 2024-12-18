@@ -4,4 +4,4 @@ export declare const useFirstTimeLogin: () => {
 };
 export declare function FirstTimeLoginProvider({ children, }: {
     children: React.ReactNode;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;

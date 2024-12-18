@@ -2,6 +2,7 @@ import { TextBadge } from './TextBadge';
 import { Icon, Stack } from '@scality/core-ui';
 import styled from 'styled-components';
 import { fontSize } from '@scality/core-ui/dist/style/theme';
+import { JSX } from 'react';
 type Props = {
   icon: JSX.Element;
   headTitle: string;

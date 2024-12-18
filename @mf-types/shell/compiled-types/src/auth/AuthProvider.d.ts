@@ -2,7 +2,7 @@ import { User } from 'oidc-client-ts';
 import React from 'react';
 export declare function AuthProvider({ children }: {
     children: React.ReactNode;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;
 export type UserData = {
     token: string;
     username: string;

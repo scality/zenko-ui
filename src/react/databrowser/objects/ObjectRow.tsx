@@ -1,7 +1,7 @@
 import isDeepEqual from 'lodash.isequal';
 import memoize from 'memoize-one';
 import { memo } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { areEqual } from 'react-window';
 import { Dispatch } from 'redux';
 
@@ -49,7 +49,7 @@ const Row = ({
 }: RowProps) => {
   const row = rows[index];
   prepareRow(row);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const query = useQueryParams();
   const versionId = query.get('versionId');
@@ -73,7 +73,7 @@ const Row = ({
       query.delete('versionId');
     }
 
-    history.push(`${pathname}?${query.toString()}`);
+    navigate(`${pathname}?${query.toString()}`);
   };
 
   const isRowSelected = isListVersions

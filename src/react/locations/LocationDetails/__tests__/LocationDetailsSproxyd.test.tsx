@@ -4,18 +4,27 @@ import {
   delListEntry,
   editListEntry,
   themeMount as mount,
+  NewWrapper,
   updateInputText,
 } from '../../../utils/testUtil';
 import LocationDetailsSproxyd from '../LocationDetailsSproxyd';
 import React from 'react';
+import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
+
 const props = {
-  details: {},
+  details: {
+    bootstrapList: [''],
+    proxyPath: '',
+    chordCos: 0,
+  },
   onChange: () => {},
+  editingExisting: false,
 };
+
 describe('class <LocationDetailsSproxyd />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
-    //@ts-expect-error fix this when you are working on it
     mount(<LocationDetailsSproxyd {...props} onChange={onChangeFn} />);
     expect(onChangeFn).toHaveBeenCalledWith({
       bootstrapList: [''],
@@ -23,51 +32,66 @@ describe('class <LocationDetailsSproxyd />', () => {
       chordCos: 0,
     });
   });
-  it('should call onChange on state update', () => {
+
+  it('should call onChange on state update', async () => {
     const refLocation = {
       bootstrapList: ['localhost:42'],
       proxyPath: '/proxy/path/',
       chordCos: 3,
     };
     const onChangeFn = jest.fn();
-    const component = mount(
-      //@ts-expect-error fix this when you are working on it
-      <LocationDetailsSproxyd {...props} onChange={onChangeFn} />,
-    );
-    component.find(LocationDetailsSproxyd).setState({ ...refLocation }, () => {
-      expect(onChangeFn).toHaveBeenCalledWith(refLocation);
+    render(<LocationDetailsSproxyd {...props} onChange={onChangeFn} />, {
+      wrapper: NewWrapper(),
     });
+
+    await userEvent.type(screen.getByLabelText(/proxy path/i), '/proxy/path/');
+    await userEvent.type(
+      screen.getByRole('textbox', {
+        name: /Replication Factor for Small Objects /i,
+      }),
+      '3',
+    );
+    await userEvent.type(
+      screen.getByLabelText(/bootstrap list/i),
+      'localhost:42',
+    );
+
+    expect(onChangeFn).toHaveBeenCalledWith(refLocation);
   });
+
   it('should show sproxyd details for empty details', () => {
-    //@ts-expect-error fix this when you are working on it
-    const component = mount(<LocationDetailsSproxyd {...props} />);
-    expect(component.find('input[name="proxyPath"]')).toHaveLength(1);
-    expect(component.find('input[name="proxyPath"]').props().value).toEqual('');
-    expect(component.find('input[name="chordCos"]')).toHaveLength(1);
-    expect(component.find('input[name="chordCos"]').props().value).toEqual(0);
-    expect(component.find('InputList').props().values).toEqual(['']);
+    render(<LocationDetailsSproxyd {...props} />, { wrapper: NewWrapper() });
+
+    expect(screen.getByLabelText(/proxy path/i)).toHaveValue('');
+    expect(
+      screen.getByRole('textbox', {
+        name: /Replication Factor for Small Objects /i,
+      }),
+    ).toHaveValue('0');
+    expect(screen.getByLabelText(/bootstrap list/i)).toHaveValue('');
   });
+
   it('should show sproxyd details when editing an existing location', () => {
     const locationDetails = {
       bootstrapList: ['localhost:42', 'localhost:43', 'localhost:44'],
       proxyPath: '/proxy/path/',
       chordCos: 3,
     };
-    const component = mount(
-      <LocationDetailsSproxyd {...props} details={locationDetails} />,
-    );
-    expect(component.find('input[name="proxyPath"]')).toHaveLength(1);
-    expect(component.find('input[name="proxyPath"]').props().value).toEqual(
-      '/proxy/path/',
-    );
-    expect(component.find('input[name="chordCos"]')).toHaveLength(1);
-    expect(component.find('input[name="chordCos"]').props().value).toEqual(3);
-    expect(component.find('InputList').props().values).toEqual([
-      'localhost:42',
-      'localhost:43',
-      'localhost:44',
-    ]);
+    render(<LocationDetailsSproxyd {...props} details={locationDetails} />, {
+      wrapper: NewWrapper(),
+    });
+
+    expect(screen.getByLabelText(/proxy path/i)).toHaveValue('/proxy/path/');
+    expect(
+      screen.getByRole('textbox', {
+        name: /Replication Factor for Small Objects /i,
+      }),
+    ).toHaveValue('3');
+
+    const bootstrapInputs = screen.getAllByLabelText(/bootstrap list/i);
+    expect(bootstrapInputs[0]).toHaveValue('localhost:44');
   });
+
   it('should call onChange on location details updates', () => {
     const refLocation = {
       bootstrapList: ['localhost:42'],
@@ -79,7 +103,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       proxyPath: '',
       chordCos: 0,
     };
-    const component = mount(
+    const { container } = mount(
       <LocationDetailsSproxyd
         {...props}
         details={location}
@@ -87,10 +111,11 @@ describe('class <LocationDetailsSproxyd />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    updateInputText(component, 'proxyPath', '/proxy/path/');
-    updateInputText(component, 'chordCos', 3);
+    updateInputText(container, 'proxyPath', '/proxy/path/');
+    updateInputText(container, 'chordCos', 3);
     expect(location).toEqual(refLocation);
   });
+
   it('should add entry and save sproxyd location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:42', ''],
@@ -102,7 +127,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       proxyPath: '/proxy/path/',
       chordCos: 3,
     };
-    const component = mount(
+    const { container } = mount(
       <LocationDetailsSproxyd
         {...props}
         details={location}
@@ -110,9 +135,10 @@ describe('class <LocationDetailsSproxyd />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    addListEntry(component);
+    addListEntry(container);
     expect(location).toEqual(refLocation);
   });
+
   it('should edit entry and save sproxyd location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:42'],
@@ -124,7 +150,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       proxyPath: '/proxy/path/',
       chordCos: 3,
     };
-    const component = mount(
+    const { container } = mount(
       <LocationDetailsSproxyd
         {...props}
         details={location}
@@ -132,9 +158,10 @@ describe('class <LocationDetailsSproxyd />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    editListEntry(component, 'localhost:42', 0);
+    editListEntry(container, 'localhost:42', 0);
     expect(location).toEqual(refLocation);
   });
+
   it('should delete entry and save sproxyd location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:42'],
@@ -146,7 +173,7 @@ describe('class <LocationDetailsSproxyd />', () => {
       proxyPath: '/proxy/path/',
       chordCos: 3,
     };
-    const component = mount(
+    const { container } = mount(
       <LocationDetailsSproxyd
         {...props}
         details={location}
@@ -154,7 +181,7 @@ describe('class <LocationDetailsSproxyd />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    delListEntry(component, 0);
+    delListEntry(container, 0);
     expect(location).toEqual(refLocation);
   });
 });

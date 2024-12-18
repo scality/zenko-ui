@@ -13,4 +13,4 @@ export declare const useDeployedApps: (selectors?: {
 export declare const UIListProvider: ({ children, discoveryURL, }: {
     children: React.ReactNode;
     discoveryURL: string;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;

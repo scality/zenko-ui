@@ -77,9 +77,15 @@ describe('LocationList', () => {
     //S
     renderWithRouterMatch(<LocationsList />);
     //E
-    await waitForElementToBeRemoved(() => [
-      ...screen.queryAllByText(/Loading/i),
-    ]);
+
+    const loading = await screen.findByText(/Loading/i);
+
+    expect(loading).toBeInTheDocument();
+
+    await waitForElementToBeRemoved(loading, {
+      timeout: 1600,
+    });
+
     const defaultArtescaLocationRow = screen.getByRole('row', {
       name: /us-east-1 Storage Service for ARTESCA/i,
     });

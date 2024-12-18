@@ -42,6 +42,7 @@ import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_BACKUP_REPLICATION,
 } from '../../../ui-elements/Veeam/VeeamConstants';
+import { waitFor } from '@testing-library/react';
 
 jest.setTimeout(30000);
 
@@ -107,7 +108,7 @@ describe('Buckets domain', () => {
 
     const { renderAdditionalHook, waitForWrapperToBeReady } =
       prepareRenderMultipleHooks({
-        wrapper: Wrapper,
+        wrapper: Wrapper as unknown as React.ReactNode,
       });
     await waitForWrapperToBeReady();
     //@ts-expect-error fix this when you are working on it
@@ -133,7 +134,7 @@ describe('Buckets domain', () => {
   ) => {
     if (!renderAdditionalHook) {
       const prepared = prepareRenderMultipleHooks({
-        wrapper: Wrapper,
+        wrapper: Wrapper as unknown as React.ReactNode,
       });
 
       renderAdditionalHook = prepared.renderAdditionalHook;
@@ -159,7 +160,7 @@ describe('Buckets domain', () => {
       : new MockedMetricsAdapter();
     if (!renderAdditionalHook) {
       const prepared = prepareRenderMultipleHooks({
-        wrapper: Wrapper,
+        wrapper: Wrapper as unknown as React.ReactNode,
       });
 
       renderAdditionalHook = prepared.renderAdditionalHook;
@@ -213,6 +214,7 @@ describe('Buckets domain', () => {
           status: 'loading',
         });
       }
+
       if (expectedMetrics && expectedMetrics[expectedBuckets[i].Name]) {
         expect(resolvedBuckets.value[i].usedCapacity).toEqual(
           expectedMetrics[expectedBuckets[i].Name],

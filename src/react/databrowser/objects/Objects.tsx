@@ -1,27 +1,32 @@
+import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
 import { useEffect, useMemo, useState } from 'react';
-import { Redirect, useHistory, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Navigate, useLocation, useParams } from 'react-router';
+import { AppState } from '../../../types/state';
 import {
   getObjectMetadata,
   listObjects,
-  resetObjectMetadata,
   newSearchListing,
+  resetObjectMetadata,
 } from '../../actions';
 import { UPLOADING_OBJECT } from '../../actions/s3object';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../../types/state';
-import FolderCreate from './FolderCreate';
+import {
+  Breadcrumb,
+  breadcrumbPathsBuckets,
+} from '../../ui-elements/Breadcrumb';
+import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
 import {
   LIST_OBJECTS_S3_TYPE,
   LIST_OBJECT_VERSIONS_S3_TYPE,
 } from '../../utils/s3';
+import FolderCreate from './FolderCreate';
 import ObjectDelete from './ObjectDelete';
 import ObjectDetails from './ObjectDetails';
+import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
-import { usePrefixWithSlash, useQueryParams } from '../../utils/hooks';
-import { AppContainer, TwoPanelLayout } from '@scality/core-ui';
-import ObjectHead from './ObjectHead';
-
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 export default function Objects() {
   const dispatch = useDispatch();
   const [loaded, setLoaded] = useState(false);
@@ -49,7 +54,6 @@ export default function Objects() {
   const searchInput = query.get('metadatasearch');
   const objectKey = query.get('prefix');
   const versionId = query.get('versionId');
-  const history = useHistory();
   const toggled = useMemo(
     () =>
       objects.filter(
@@ -60,8 +64,16 @@ export default function Objects() {
       ),
     [objects, isShowVersions, objectKey, versionId],
   );
-  const { bucketName: bucketNameParam } = useParams<{ bucketName: string }>();
+  const { bucketName: bucketNameParam, accountName } = useParams<{
+    bucketName: string;
+    accountName: string;
+  }>();
   const prefixWithSlash = usePrefixWithSlash();
+  const prefixPath = query.get('prefix');
+
+  const { pathname } = useLocation();
+  const { basePath } = useConfig();
+
   useEffect(() => {
     if (searchInput) {
       dispatch(
@@ -116,7 +128,7 @@ export default function Objects() {
   }
 
   if (!bucketNameParam) {
-    return <Redirect to={'/buckets'} />;
+    return <Navigate to={'/buckets'} replace />;
   }
 
   // TODO: manage empty state
@@ -131,6 +143,18 @@ export default function Objects() {
   // }
   return (
     <>
+      <AppContainer.ContextContainer>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Breadcrumb
+            breadcrumbPaths={breadcrumbPathsBuckets(
+              pathname,
+              prefixPath,
+              accountName,
+              basePath,
+            )}
+          />
+        </Box>
+      </AppContainer.ContextContainer>
       <AppContainer.OverallSummary>
         <ObjectHead bucketName={bucketNameParam} />
       </AppContainer.OverallSummary>

@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { CustomModal as Modal } from './Modal';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 import { Icon, Stack, Wrap } from '@scality/core-ui';

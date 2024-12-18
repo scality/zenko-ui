@@ -3,7 +3,7 @@ import {
   LocationDetails as LocationFormDetails,
   LocationTypeKey,
 } from '../../../types/config';
-import React from 'react';
+import React, { JSX } from 'react';
 import { Tooltip, Icon } from '@scality/core-ui';
 import { storageOptions } from './storageOptions';
 

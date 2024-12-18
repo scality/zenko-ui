@@ -8,10 +8,7 @@ import {
   usePutBucketTaggingMutation,
   usePutObjectMutation,
 } from '../../../js/mutations';
-import {
-  useAuth,
-  useInstanceId,
-} from '../../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
@@ -29,6 +26,7 @@ import {
   VEEAM_XML_PREFIX,
 } from './VeeamConstants';
 import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
+import { useShellHooks } from '@scality/module-federation';
 
 export const actions = [
   'Create an Account',
@@ -114,6 +112,7 @@ export const useMutationTableData = ({
   const mutations = isVeeamVBR ? mutationsVBR : mutationsVBO;
 
   const instanceId = useInstanceId();
+  const { useAuth } = useShellHooks();
   const { userData } = useAuth();
   const {
     mutate: mutateVBO,

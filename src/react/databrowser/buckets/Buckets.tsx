@@ -1,14 +1,3 @@
-import { useMemo } from 'react';
-import { useLocation, Redirect, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { AppState } from '../../../types/state';
-import BucketDetails from './BucketDetails';
-import BucketList from './BucketList';
-import { EmptyStateContainer } from '../../ui-elements/Container';
-import Header from '../../ui-elements/EntityHeader';
-import { Warning } from '../../ui-elements/Warning';
-import { MultiBucketsIcon } from './MutliBucketsIcon';
-import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import {
   AppContainer,
   EmptyState,
@@ -16,11 +5,22 @@ import {
   Loader,
   TwoPanelLayout,
 } from '@scality/core-ui';
+import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { Navigate, useLocation, useParams } from 'react-router';
+import { AppState } from '../../../types/state';
+import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/business/buckets';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
+import { EmptyStateContainer } from '../../ui-elements/Container';
+import Header from '../../ui-elements/EntityHeader';
+import { Warning } from '../../ui-elements/Warning';
+import BucketDetails from './BucketDetails';
+import BucketList from './BucketList';
+import { MultiBucketsIcon } from './MutliBucketsIcon';
 
 export default function Buckets() {
-  const { pathname } = useLocation();
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
 
@@ -28,7 +28,10 @@ export default function Buckets() {
     (state: AppState) =>
       state.instanceStatus.latest.metrics?.['ingest-schedule']?.states,
   );
-  const { bucketName: bucketNameParam } = useParams<{ bucketName: string }>();
+  const { bucketName: bucketNameParam, accountName } = useParams<{
+    bucketName: string;
+    accountName: string;
+  }>();
   const { account } = useCurrentAccount();
   const bucketIndex = useMemo(
     () =>
@@ -37,6 +40,9 @@ export default function Buckets() {
         : -1,
     [buckets.status, bucketNameParam],
   );
+
+  const { basePath } = useConfig();
+  const { pathname } = useLocation();
 
   if (buckets.status === 'error') {
     return (
@@ -64,7 +70,7 @@ export default function Buckets() {
     return (
       <EmptyState
         icon="Bucket"
-        link={`/accounts/${account?.Name}/create-bucket`}
+        link={`${basePath}/accounts/${account?.Name}/create-bucket`}
         listedResource={{
           singular: 'Bucket',
           plural: 'Buckets',
@@ -73,19 +79,27 @@ export default function Buckets() {
     );
   }
 
-  // redirect to the first bucket.
+  // Redirect to the first bucket if no bucket name is provided
   if (!bucketNameParam) {
-    return <Redirect to={`${pathname}/${buckets.value[0].name}`} />;
+    return (
+      <Navigate
+        to={`${basePath}/accounts/${account?.Name}/buckets/${buckets.value[0].name}`}
+        replace
+      />
+    );
   }
 
-  // replace the old <bucket-name> by the new one when we switch account
+  // Replace the old bucket name with the new one when switching accounts
+
   if (
     bucketNameParam &&
-    !buckets.value.filter((bucket) => bucket.name === bucketNameParam).length
+    !buckets.value.some((bucket) => bucket.name === bucketNameParam) &&
+    accountName === account?.Name
   ) {
     return (
-      <Redirect
-        to={`/accounts/${account?.Name}/buckets/${buckets.value[0].name}`}
+      <Navigate
+        to={`${basePath}/accounts/${account?.Name}/buckets/${buckets.value[0].name}`}
+        replace
       />
     );
   }

@@ -1,11 +1,12 @@
 import { screen, waitFor } from '@testing-library/react';
-import { renderWithRouterMatch } from '../../utils/testUtil';
-import { AuthorizedAdvancedMetricsButton } from '../AdvancedMetricsButton';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
+import { mockShellHooks, renderWithRouterMatch } from '../../utils/testUtil';
+import { AuthorizedAdvancedMetricsButton } from '../AdvancedMetricsButton';
 
 const expectedBasePath = 'http://testurl';
+
+const useAuth = mockShellHooks.useAuth;
 
 const server = setupServer(
   rest.get(`http://localhost/config-shell.json`, (req, res, ctx) => {

@@ -2,7 +2,6 @@ import { ConstrainedText, Icon, Wrap, spacing } from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 
 import { useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
 
 import { Endpoint, Hostname, LocationName } from '../../types/config';
 import { renderLocation } from '../locations/utils';
@@ -13,6 +12,7 @@ import {
 } from './AdvancedMetricsButton';
 import { DeleteEndpoint } from './DeleteEndpoint';
 import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 type CellProps = {
   row: {
     original: Endpoint;
@@ -25,7 +25,7 @@ type Props = {
 const SEARCH_QUERY_PARAM = 'search';
 
 function EndpointList({ endpoints, locations }: Props) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
 
   /*
    *   Enforcing a strict schema because the table interprets `undefined` values
@@ -128,7 +128,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 icon={<Icon name="Create-add" />}
                 label="Create Data Service"
                 variant="primary"
-                onClick={() => history.push('/create-dataservice')}
+                onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />
               <AuthorizedAdvancedMetricsButton

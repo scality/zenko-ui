@@ -7,7 +7,6 @@ import {
 } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
 import React, { useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { Account } from '../next-architecture/domain/entities/account';
 
@@ -22,6 +21,7 @@ import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvide
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,
@@ -38,13 +38,13 @@ function useAutoAssumeRoleUponAccountDeletion({
 }
 
 function AccountList({ accounts }: { accounts: Account[] }) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
 
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
-    const history = useHistory();
+    const navigate = useBasenameRelativeNavigate();
     const setRole = useSetAssumedRole();
     if (!row.original.canManageAccount) {
       return <>{value}</>;
@@ -57,7 +57,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
             href="#"
             onClick={() => {
               setRole({ roleArn: row.original.preferredAssumableRoleArn });
-              history.push(`/accounts/${value}`);
+              navigate(`/accounts/${value}`);
             }}
           >
             {value}
@@ -136,7 +136,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   <Button
                     label="Start Configuration for Veeam"
                     variant="secondary"
-                    onClick={() => history.push('/veeam/configuration')}
+                    onClick={() => navigate('/veeam/configuration')}
                     type="button"
                   />
                 )}
@@ -144,7 +144,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
                   variant="primary"
-                  onClick={() => history.push('/create-account')}
+                  onClick={() => navigate('/create-account')}
                   type="submit"
                 ></Button>
               </Stack>

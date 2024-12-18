@@ -23,4 +23,4 @@ export declare const useHighestSeverityAlerts: (filters: FilterLabels) => Alert[
  *
  * @returns react query result
  */
-export declare function useAlerts(filters: FilterLabels): any;
+export declare function useAlerts(filters?: FilterLabels): any;

@@ -1,1 +1,1 @@
-export declare const AlertContext: any;
+export declare const AlertContext: import("react").Context<any>;

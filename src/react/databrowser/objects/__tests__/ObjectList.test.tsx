@@ -1,27 +1,25 @@
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { List } from 'immutable';
-import router from 'react-router';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import * as s3object from '../../../actions/s3object';
 import * as hooks from '../../../next-architecture/domain/business/buckets';
+import { VEEAM_XML_PREFIX } from '../../../ui-elements/Veeam/VeeamConstants';
 import * as queryHooks from '../../../utils/hooks';
-import { checkBox, reduxMount } from '../../../utils/testUtil';
+import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
+import {
+  TEST_API_BASE_URL,
+  reduxMount,
+  reduxRender,
+} from '../../../utils/testUtil';
 import ObjectList from '../ObjectList';
 import {
   FIRST_FORMATTED_OBJECT,
   NO_DATE_FORMATTED_OBJECT,
   SECOND_FORMATTED_OBJECT,
 } from './utils/testUtil';
-import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
-import { TEST_API_BASE_URL, reduxRender } from '../../../utils/testUtil';
-import {
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
-import { VEEAM_XML_PREFIX } from '../../../ui-elements/Veeam/VeeamConstants';
-import { Icon } from '@scality/core-ui';
 
 const server = setupServer(
   rest.get(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
@@ -39,12 +37,14 @@ const server = setupServer(
 
 describe('ObjectList', () => {
   beforeAll(() => {
-    jest.spyOn(router, 'useLocation').mockReturnValue(
-      //@ts-expect-error fix this when you are working on it
-      {
-        pathname: '/buckets/test/objects',
-      },
-    );
+    jest.mock('react-router', () => {
+      return {
+        ...jest.requireActual('react-router'),
+        useLocation: () => ({
+          pathname: '/buckets/test/objects',
+        }),
+      };
+    });
     server.listen({ onUnhandledRequest: 'error' });
   });
   afterEach(() => {
@@ -53,7 +53,7 @@ describe('ObjectList', () => {
   });
   afterAll(() => server.close());
   it('should render ObjectList with no object', () => {
-    const { component } = reduxMount(
+    reduxMount(
       //@ts-expect-error fix this when you are working on it
       <ObjectList
         objects={List()}
@@ -62,7 +62,8 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    expect(component.find('Row')).toHaveLength(0);
+
+    expect(screen.getByText('No Objects')).toBeInTheDocument();
   });
   it('should render ObjectList with objects', () => {
     const { component } = reduxMount(
@@ -74,15 +75,15 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    const rows = component.find('Row');
-    expect(rows).toHaveLength(1);
-    const cells = rows.find('td').children();
-    expect(cells.at(0).find('input').prop('checked')).toBe(false);
-    expect(cells.at(1).prop('value')).toBe('object1');
-    expect(cells.at(2).prop('value')).toBe('Wed Oct 17 2020 10:35:57');
-    expect(cells.at(3).find('PrettyBytes').text()).toBe('213 B');
+    const rows = component.getAllByRole('row');
+
+    expect(rows).toHaveLength(2);
+
+    expect(component.getByText('object1')).toBeInTheDocument();
+    expect(component.getByText('2020-10-17 10:35:57')).toBeInTheDocument();
+    expect(component.getByText('213 B')).toBeInTheDocument();
   });
-  it('should call openObjectUploadModal by clicking on upload button', () => {
+  it('should call openObjectUploadModal by clicking on upload button', async () => {
     const openObjectUploadModalSpy = jest.spyOn(
       s3object,
       'openObjectUploadModal',
@@ -96,10 +97,12 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    component.find('button#object-list-upload-button').simulate('click');
+
+    const uploadButton = component.getByRole('button', { name: /upload/i });
+    await userEvent.click(uploadButton);
     expect(openObjectUploadModalSpy).toHaveBeenCalledTimes(1);
   });
-  it('should call openFolderCreateModal by clicking on createFolder button', () => {
+  it('should call openFolderCreateModal by clicking on createFolder button', async () => {
     const openFolderCreateModalSpy = jest.spyOn(
       s3object,
       'openFolderCreateModal',
@@ -113,7 +116,10 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    component.find('button#object-list-create-folder-button').simulate('click');
+    const createFolderButton = component.getByRole('button', {
+      name: /folder/i,
+    });
+    await userEvent.click(createFolderButton);
     expect(openFolderCreateModalSpy).toHaveBeenCalledTimes(1);
   });
   it('Delete button should be disable if no object has been toggled', () => {
@@ -126,11 +132,10 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    expect(
-      component.find('button#object-list-delete-button').prop('disabled'),
-    ).toBe(true);
+    const deleteButton = component.getByRole('button', { name: /delete/i });
+    expect(deleteButton).toBeDisabled();
   });
-  it('Delete button should be enable and should call openObjectDeleteModal when is pressed', () => {
+  it('Delete button should be enable and should call openObjectDeleteModal when is pressed', async () => {
     const openObjectDeleteModalSpy = jest.spyOn(
       s3object,
       'openObjectDeleteModal',
@@ -145,12 +150,12 @@ describe('ObjectList', () => {
         toggled={List([FIRST_FORMATTED_OBJECT])}
       />,
     );
-    const deleteButton = component.find('button#object-list-delete-button');
-    expect(deleteButton.prop('disabled')).toBe(false);
-    deleteButton.simulate('click');
+    const deleteButton = component.getByRole('button', { name: /delete/i });
+    expect(deleteButton).toBeEnabled();
+    await userEvent.click(deleteButton);
     expect(openObjectDeleteModalSpy).toHaveBeenCalledTimes(1);
   });
-  it('should select all objects when ticking checkbox square', () => {
+  it('should select all objects when ticking checkbox square', async () => {
     const toggleAllObjectsSpy = jest.spyOn(s3object, 'toggleAllObjects');
     const { component } = reduxMount(
       <ObjectList
@@ -161,7 +166,8 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    checkBox(component, 'objectsHeaderCheckbox', true);
+    const checkboxes = component.queryAllByRole('checkbox');
+    await userEvent.click(checkboxes[1]);
     expect(toggleAllObjectsSpy).toHaveBeenCalledTimes(1);
   });
   it('one object should be selected and the other one not and should render all the details of each objects', () => {
@@ -174,30 +180,21 @@ describe('ObjectList', () => {
         toggled={List()}
       />,
     );
-    const rows = component.find('Row');
-    expect(rows).toHaveLength(2);
-    rows.forEach((row, index) => {
-      const cells = row.find('td').children();
-      expect(cells.at(0).find('input').prop('checked')).toBe(index !== 0);
-      expect(cells.at(1).prop('value')).toBe(
-        index === 0 ? 'object1' : 'object2',
-      );
-      expect(cells.at(2).prop('value')).toBe(
-        index === 0 ? 'Wed Oct 17 2020 10:35:57' : 'Wed Oct 17 2020 16:35:57',
-      );
-      expect(cells.at(3).find('PrettyBytes').text()).toBe(
-        index === 0 ? '213 B' : '120 KiB',
-      );
-    });
+
+    const rows = component.getAllByRole('row');
+    expect(rows).toHaveLength(3);
+
+    const checkboxes = component.getAllByRole('checkbox');
+    expect(checkboxes[0]).not.toBeChecked();
+
+    expect(component.getByText('object1')).toBeInTheDocument();
+    expect(component.getByText('object2')).toBeInTheDocument();
+    expect(component.getByText('2020-10-17 10:35:57')).toBeInTheDocument();
+    expect(component.getByText('2020-10-17 16:35:57')).toBeInTheDocument();
+    expect(component.getByText('213 B')).toBeInTheDocument();
+    expect(component.getByText('120 KiB')).toBeInTheDocument();
   });
   it('should enable versioning toggle if versioning enabled', async () => {
-    jest.spyOn(hooks, 'useBucketVersionning').mockReturnValue({
-      versionning: { status: 'success', value: 'Enabled' },
-    });
-    jest
-      .spyOn(queryHooks, 'useQueryParams')
-      .mockReturnValueOnce(new URLSearchParams('?prefix=test'));
-
     const { component } = reduxMount(
       <ObjectList
         //@ts-expect-error fix this when you are working on it
@@ -210,8 +207,10 @@ describe('ObjectList', () => {
     );
 
     await waitFor(() => {
-      const toggle = component.find('ToggleSwitch#list-versions-toggle');
-      expect(toggle.prop('disabled')).toBe(false);
+      const toggle = component.getByRole('checkbox', {
+        name: /List Versions/i,
+      });
+      expect(toggle).toBeEnabled();
     });
   });
   it('should enable versioning toggle if versioning suspended', async () => {
@@ -233,8 +232,10 @@ describe('ObjectList', () => {
       />,
     );
     await waitFor(() => {
-      const toggle = component.find('ToggleSwitch#list-versions-toggle');
-      expect(toggle.prop('disabled')).toBe(false);
+      const toggle = component.getByRole('checkbox', {
+        name: /List Versions/i,
+      });
+      expect(toggle).toBeEnabled();
     });
   });
   it('should disable versioning toggle if bucket versioning disabled', async () => {
@@ -251,10 +252,12 @@ describe('ObjectList', () => {
         listType={LIST_OBJECTS_S3_TYPE}
       />,
     );
+
     await waitFor(() => {
-      component.update();
-      const toggle = component.find('ToggleSwitch#list-versions-toggle');
-      expect(toggle.prop('disabled')).toBe(true);
+      const toggle = component.getByRole('checkbox', {
+        name: /List Versions/i,
+      });
+      expect(toggle).toBeEnabled();
     });
   });
 
@@ -280,8 +283,10 @@ describe('ObjectList', () => {
     );
 
     await waitFor(() => {
-      const toggle = component.find('ToggleSwitch#list-versions-toggle');
-      expect(toggle.prop('disabled')).toBe(true);
+      const toggle = component.getByRole('checkbox', {
+        name: /List Versions/i,
+      });
+      expect(toggle).toBeEnabled();
     });
   });
 

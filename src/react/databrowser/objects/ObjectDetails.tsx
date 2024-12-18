@@ -6,10 +6,11 @@ import Metadata from './details/Metadata';
 import Properties from './details/Properties';
 import Tags from './details/Tags';
 import { Warning } from '../../ui-elements/Warning';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { useQueryParams } from '../../utils/hooks';
 import { useSelector } from 'react-redux';
 import { Tabs } from '@scality/core-ui/dist/next';
+import { JSX } from 'react';
 
 export const MULTIPLE_ITEMS_SELECTED_MESSAGE = 'Multiple items selected';
 export const SELECT_AN_OBJECT_MESSAGE = 'Select an object';
@@ -92,25 +93,17 @@ function ObjectDetails({ toggled, listType }: Props) {
 
   return (
     <Tabs>
-      <Tabs.Tab
-        label="Summary"
-        path={pathname}
-        query={{ ...queryObject, tab: null }}
-      >
+      <Tabs.Tab label="Summary" path={''} query={{ ...queryObject, tab: null }}>
         {details()}
       </Tabs.Tab>
       <Tabs.Tab
         label="Metadata"
-        path={pathname}
+        path={''}
         query={{ ...queryObject, tab: 'metadata' }}
       >
         {details()}
       </Tabs.Tab>
-      <Tabs.Tab
-        label="Tags"
-        path={pathname}
-        query={{ ...queryObject, tab: 'tags' }}
-      >
+      <Tabs.Tab label="Tags" path={''} query={{ ...queryObject, tab: 'tags' }}>
         {details()}
       </Tabs.Tab>
     </Tabs>

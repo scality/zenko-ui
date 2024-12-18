@@ -1,12 +1,12 @@
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
-import { queryClient } from './src/react/utils/testUtil';
+import {
+  mockShellAlerts,
+  mockShellHooks,
+  queryClient,
+} from './src/react/utils/testUtil';
 
-import Enzyme from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import 'core-js/stable';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 window.fetch = (url, ...rest) =>
   //@ts-expect-error fix this when you are working on it
@@ -46,9 +46,6 @@ const shellHooks = {
     ];
   }),
 };
-
-// @ts-expect-error The type is wrong because we only mock what we need for the test
-window.shellHooks = shellHooks;
 
 // When testing that the upload api is effectively called
 // we are getting this error from MSW
@@ -169,3 +166,17 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
 });
 
 jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });
+
+jest.mock('@scality/module-federation', () => {
+  const router = jest.requireActual('react-router');
+  return {
+    useCurrentApp: () => ({
+      name: 'zenko-ui',
+      appHistoryBasePath: '',
+    }),
+    ShellHooksProvider: ({ children }) => <>{children}</>,
+    useShellHooks: () => mockShellHooks,
+    useShellAlerts: () => mockShellAlerts,
+    useBasenameRelativeNavigate: router.useNavigate,
+  };
+});

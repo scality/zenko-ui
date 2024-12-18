@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from '../../types/state';
 import { clearError } from '../actions';
 import { CustomModal as Modal } from './Modal';
+import { JSX } from 'react';
 
 const ErrorHandlerModal = () => {
   const showError = useSelector(

@@ -1,4 +1,5 @@
 import {
+  act,
   getByRole,
   screen,
   waitFor,
@@ -19,6 +20,7 @@ import {
 } from '../../utils/testUtil';
 import { EmptyBucket } from '../EmptyBucket';
 import { EMPTY_CONFIRMATION_MODAL_TITLE } from '../EmptyBucket/constants';
+import { debug } from 'jest-preview';
 
 const bucketName = 'test-bucket';
 
@@ -65,7 +67,7 @@ describe('EmptyConfirmation', () => {
     closeButton: () => screen.getByRole('button', { name: 'Close' }),
   };
 
-  it('should render empty button', () => {
+  it.only('should render empty button', () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
 
     expect(selectors.emptyBucket()).toBeInTheDocument();
@@ -82,9 +84,18 @@ describe('EmptyConfirmation', () => {
 
   it('should enable button once typed confirm', async () => {
     renderWithRouterMatch(<EmptyBucket bucketName={bucketName} />);
-    await userEvent.click(selectors.emptyButton());
+    await act(async () => {
+      await userEvent.click(selectors.emptyButton());
+    });
+
+    await waitFor(() => {
+      expect(selectors.confirmInput()).toBeInTheDocument();
+    });
     await userEvent.type(selectors.confirmInput(), bucketName);
-    await userEvent.click(selectors.confirmButton());
+
+    await act(async () => {
+      await userEvent.click(selectors.confirmButton());
+    });
 
     expect(selectors.confirmInput()).toHaveValue(bucketName);
     await waitFor(() => {

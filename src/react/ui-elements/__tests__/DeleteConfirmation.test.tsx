@@ -1,57 +1,72 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import DeleteConfirmation from '../DeleteConfirmation';
-import React from 'react';
-import { reduxMount } from '../../utils/testUtil';
+import { NewWrapper } from '../../utils/testUtil';
+
 describe('DeleteConfirmation', () => {
   const TITLE_TEXT = 'Are you sure you want to delete bucket: test ?';
   const approveFn = jest.fn();
   const cancelFn = jest.fn();
+
   it('DeleteConfirmation should render', () => {
-    const { component } = reduxMount(
+    render(
       <DeleteConfirmation
         approve={approveFn}
         cancel={cancelFn}
         show={true}
         titleText={TITLE_TEXT}
       />,
+      {
+        wrapper: NewWrapper(),
+      },
     );
-    expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(false);
-    expect(component.find('div.sc-modal-body').text()).toBe(TITLE_TEXT);
+    expect(screen.getByText(TITLE_TEXT)).toBeInTheDocument();
   });
+
   it('DeleteConfirmation should not render', () => {
-    const { component } = reduxMount(
+    render(
       <DeleteConfirmation
         approve={approveFn}
         cancel={cancelFn}
         show={false}
         titleText={TITLE_TEXT}
       />,
+      {
+        wrapper: NewWrapper(),
+      },
     );
-    expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(true);
+    expect(screen.queryByText(TITLE_TEXT)).not.toBeInTheDocument();
   });
-  it('should call approve function after clicking on delete button', () => {
-    const { component } = reduxMount(
+
+  it('should call approve function after clicking on delete button', async () => {
+    render(
       <DeleteConfirmation
         approve={approveFn}
         cancel={cancelFn}
         show={true}
         titleText={TITLE_TEXT}
       />,
+      {
+        wrapper: NewWrapper(),
+      },
     );
-    expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(false);
-    component.find('button[label="Delete"]').simulate('click');
+    await userEvent.click(screen.getByRole('button', { name: /delete/i }));
     expect(approveFn).toHaveBeenCalledTimes(1);
   });
-  it('should call cancel function after clicking on cancel button', () => {
-    const { component } = reduxMount(
+
+  it('should call cancel function after clicking on cancel button', async () => {
+    render(
       <DeleteConfirmation
         approve={approveFn}
         cancel={cancelFn}
         show={true}
         titleText={TITLE_TEXT}
       />,
+      {
+        wrapper: NewWrapper(),
+      },
     );
-    expect(component.find(DeleteConfirmation).isEmptyRender()).toBe(false);
-    component.find('button[label="Cancel"]').simulate('click');
+    await userEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(cancelFn).toHaveBeenCalledTimes(1);
   });
 });

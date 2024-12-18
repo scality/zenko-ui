@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react-hooks';
 import { MockedAccountsLocationsAdapter } from '../../adapters/accounts-locations/MockedAccountsLocationsAdapter';
 import {
   ACCOUNT_OWN_METRICS,
@@ -14,11 +14,17 @@ import {
   useListLocations,
   useListLocationsForCurrentAccount,
 } from './locations';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { PropsWithChildren } from 'react';
 import * as DSRProvider from '../../../DataServiceRoleProvider';
 import { LocationTypeKey } from '../../../../types/config';
-import { WrapperAsStorageManager } from '../../../utils/testUtil';
+import {
+  mockShellAlerts,
+  mockShellHooks,
+  WrapperAsStorageManager,
+} from '../../../utils/testUtil';
+import { QueryClientProvider } from '../../../../QueryClientProvider';
+import { ShellHooksProvider } from '@scality/module-federation';
 
 const defaultUsedCapacity = {
   status: 'success' as const,
@@ -50,7 +56,14 @@ const queryClient = new QueryClient({
 const Wrapper = ({ children }: PropsWithChildren<Record<string, never>>) => {
   return (
     <WrapperAsStorageManager isStorageManager={true}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <ShellHooksProvider
+        shellHooks={mockShellHooks}
+        shellAlerts={mockShellAlerts}
+      >
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </ShellHooksProvider>
     </WrapperAsStorageManager>
   );
 };
@@ -120,10 +133,13 @@ describe('useListLocations', () => {
     };
   };
 
+  const flushPromises = () => new Promise(setImmediate);
+
   it('should return the locations with metrics', async () => {
     // S
     const { result, waitFor } = setupAndRenderHook();
 
+    await flushPromises();
     // E
     await waitFor(() => {
       return (
@@ -146,6 +162,7 @@ describe('useListLocations', () => {
     );
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
+    await flushPromises();
     // E
     await waitFor(() => result.current.locations.status === 'loading');
 
@@ -164,6 +181,7 @@ describe('useListLocations', () => {
     );
     const { result, waitFor } = setupAndRenderHook(mockAccountAdapter);
 
+    await flushPromises();
     // E
     await waitFor(() => result.current.locations.status === 'error');
 
@@ -190,6 +208,7 @@ describe('useListLocations', () => {
       mockMetricsAdapter,
     );
 
+    await flushPromises();
     // E
     await waitFor(() => result.current.locations.status === 'success');
 
@@ -210,6 +229,7 @@ describe('useListLocations', () => {
       mockMetricsAdapter,
     );
 
+    await flushPromises();
     // E
     await waitFor(() => {
       return (

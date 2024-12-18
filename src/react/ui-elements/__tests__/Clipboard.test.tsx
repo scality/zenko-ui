@@ -1,25 +1,30 @@
-import { Clipboard } from '../Clipboard';
-import { IconCopy, IconSuccess } from '../Icons';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { OWNER_NAME } from '../../actions/__tests__/utils/testUtil';
-import { reduxMount } from '../../utils/testUtil';
+import { Clipboard } from '../Clipboard';
+import { NewWrapper } from '../../utils/testUtil';
+
 describe('Clipboard', () => {
   const writeTextFn = jest.fn();
   //@ts-expect-error fix this when you are working on it
   global.navigator.clipboard = {
     writeText: writeTextFn,
   };
+
   it('Clipboard should render with copy icon', () => {
-    const { component } = reduxMount(<Clipboard text={OWNER_NAME} />);
-    expect(component.find(Clipboard)).toHaveLength(1);
-    expect(component.find(IconCopy)).toHaveLength(1);
+    render(<Clipboard text={OWNER_NAME} />, { wrapper: NewWrapper() });
+    expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument();
   });
-  it('Clipboard should render with success icon', () => {
-    const { component } = reduxMount(<Clipboard text={OWNER_NAME} />);
-    expect(component.find(Clipboard)).toHaveLength(1);
-    expect(component.find(IconCopy)).toHaveLength(1);
-    component.find(IconCopy).simulate('click');
+
+  it('Clipboard should render with success icon', async () => {
+    render(<Clipboard text={OWNER_NAME} />, { wrapper: NewWrapper() });
+
+    const copyButton = screen.getByRole('button', { name: /copy/i });
+    await userEvent.click(copyButton);
+
     expect(writeTextFn).toHaveBeenCalledTimes(1);
-    expect(component.find(IconSuccess)).toHaveLength(1);
-    expect(component.find(IconCopy)).toHaveLength(0);
+    expect(
+      screen.queryByRole('button', { name: /copy/i }),
+    ).not.toBeInTheDocument();
   });
 });

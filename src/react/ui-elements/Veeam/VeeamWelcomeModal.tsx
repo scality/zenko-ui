@@ -4,12 +4,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { VEEAM_FEATURE } from '../../../js/config';
 import { InternalRouter } from '../../FederableApp';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
-import {
-  useConfig,
-  useDeployedApps,
-  useLinkOpener,
-} from '../../next-architecture/ui/ConfigProvider';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useAccounts, useAuthGroups } from '../../utils/hooks';
 import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
@@ -18,6 +13,7 @@ import { useNextLogin } from './useNextLogin';
 import AlertProvider, {
   useAlerts,
 } from '../../next-architecture/ui/AlertProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -68,6 +64,7 @@ export const VeeamWelcomeModalInternal = (
 
 const VeeamModalComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
   const zenkoUI = deployedApps.find(

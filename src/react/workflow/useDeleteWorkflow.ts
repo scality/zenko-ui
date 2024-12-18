@@ -8,10 +8,11 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
 import { networkEnd, networkStart } from '../actions';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { errorParser } from '../utils';
 import { useRolePathName } from '../utils/hooks';
+import { useShellHooks } from '@scality/module-federation';
 
 export enum WorkflowRule {
   Replication = 'replication',
@@ -23,6 +24,7 @@ export const useDeleteWorkflow = (
   workflowRuleType: WorkflowRule,
   closeModal?: (isClose: boolean) => void,
 ) => {
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();

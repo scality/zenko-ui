@@ -51,5 +51,5 @@ export declare const useShellConfig: () => ShellConfig;
 export declare const ShellConfigProvider: ({ shellConfigUrl, children }: {
     shellConfigUrl: any;
     children: any;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;
 export {};

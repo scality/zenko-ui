@@ -9,7 +9,7 @@ import {
   SmallerText,
 } from '@scality/core-ui/dist/components/text/Text.component';
 import { Select as BasicSelect } from '@scality/core-ui/dist/next';
-import { HTMLAttributes, LabelHTMLAttributes, ReactNode } from 'react';
+import { HTMLAttributes, LabelHTMLAttributes, ReactNode, JSX } from 'react';
 import styled, { CSSProperties, css } from 'styled-components';
 import { IconQuestionCircle } from './Icons';
 import { default as BasicInput } from './Input';

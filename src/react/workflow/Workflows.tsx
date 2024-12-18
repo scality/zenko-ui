@@ -2,16 +2,16 @@ import {
   AppContainer,
   EmptyState,
   Icon,
+  Loader,
   Stack,
   Text,
   TwoPanelLayout,
   Wrap,
-  Loader,
 } from '@scality/core-ui';
 import { useEffect } from 'react';
 import { UseQueryResult, useQuery } from 'react-query';
 import { useDispatch } from 'react-redux';
-import { Redirect, useLocation, useParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router';
 import {
   BucketWorkflowExpirationV1,
   BucketWorkflowTransitionV2,
@@ -29,18 +29,20 @@ import {
   networkStart,
 } from '../actions';
 import { useListBucketsForCurrentAccount } from '../next-architecture/domain/business/buckets';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { makeWorkflows, workflowListQuery } from '../queries';
 import { Breadcrumb } from '../ui-elements/Breadcrumb';
 
-import { useAccounts, useRolePathName } from '../utils/hooks';
-import WorkflowContent from './WorkflowContent';
-import WorkflowList from './WorkflowList';
+import { useShellHooks } from '@scality/module-federation';
 import {
   AuthorizedAdvancedMetricsButton,
   replicationDashboard,
 } from '../endpoint/AdvancedMetricsButton';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { useAccounts, useRolePathName } from '../utils/hooks';
+import WorkflowContent from './WorkflowContent';
+import WorkflowList from './WorkflowList';
 
 type Filter = string[];
 
@@ -54,6 +56,7 @@ export function useWorkflowsWithSelect<T>(
   const accountId = account?.id;
   const rolePathName = useRolePathName();
   const dispatch = useDispatch();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
   const workflowsQuery = useQuery({
@@ -128,7 +131,6 @@ export default function Workflows() {
   const { accounts } = useAccounts();
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
-  const { search } = useLocation();
 
   const workflowListDataQuery = useWorkflowsWithSelect(makeWorkflows);
 
@@ -139,11 +141,14 @@ export default function Workflows() {
     singular: 'Workflow',
     plural: 'Workflows',
   };
+  const config = useConfig();
+  const [searchParams] = useSearchParams();
+
   if (accounts.length === 0) {
     return (
       <EmptyState
         icon="Workflow"
-        link="/create-account"
+        link={`${config.basePath}/create-account`}
         listedResource={listedResource}
         resourceToCreate="Account"
       ></EmptyState>
@@ -155,7 +160,7 @@ export default function Workflows() {
       return (
         <EmptyState
           icon="Bucket"
-          link={`/accounts/${accountName}/create-bucket`}
+          link={`${config.basePath}/accounts/${accountName}/create-bucket`}
           listedResource={listedResource}
           resourceToCreate="Bucket"
         ></EmptyState>
@@ -170,27 +175,39 @@ export default function Workflows() {
       );
     }
 
-    // redirect to the first workflow.
+    // Redirect to the first workflow
     if (!noWorkflows && !workflowId) {
-      const searchParams = new URLSearchParams(search);
-      let firstWorkflowId = workflows[0].id;
+      let firstWorkflowId = workflows[0]?.id;
+
       if (searchParams.has('search')) {
-        const searchString = (searchParams.get('search') || '').toLowerCase();
+        const searchString = searchParams.get('search')?.toLowerCase() || '';
         firstWorkflowId =
           workflows.find(
             (w) =>
               w.name.toLowerCase().includes(searchString) ||
               w.type.toLowerCase().includes(searchString),
-          )?.id ?? firstWorkflowId;
+          )?.id || firstWorkflowId;
       }
-      return <Redirect to={`./workflows/${firstWorkflowId}${search}`} />;
+
+      const searchString = searchParams.toString();
+      const targetPath = `${
+        config.basePath
+      }/accounts/${accountName}/workflows/${firstWorkflowId}${
+        searchString ? `?${searchString}` : ''
+      }`;
+
+      const currentPath = `${location.pathname}${location.search}`;
+
+      if (currentPath !== targetPath) {
+        return <Navigate to={targetPath} replace />;
+      }
     }
 
     if (workflows.length === 0) {
       return (
         <EmptyState
           icon="Workflow"
-          link={`/accounts/${accountName}/workflows/create-workflow`}
+          link={`${config.basePath}/accounts/${accountName}/workflows/create-workflow`}
           listedResource={listedResource}
         ></EmptyState>
       );

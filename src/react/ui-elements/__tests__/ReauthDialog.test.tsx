@@ -86,6 +86,7 @@ describe('class <ReauthDialog />', () => {
         },
       },
     });
+
     expect(screen.getByText(modalTitle)).toBeInTheDocument();
     expect(screen.getByText(defaultMessage)).toBeInTheDocument();
   });

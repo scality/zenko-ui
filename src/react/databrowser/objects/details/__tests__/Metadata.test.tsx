@@ -55,7 +55,7 @@ describe('Metadata', () => {
       />,
       {},
     );
-    expect(component.find(Metadata).isEmptyRender()).toBe(false);
+    expect(component.container).not.toBeEmptyDOMElement();
   });
 
   it('should enable save when value of a metadata changed', async () => {
@@ -122,7 +122,7 @@ describe('Metadata', () => {
       //E - change metadata value
       await userEvent.type(
         screen.getByRole('textbox', { name: `${metadataKey} value` }),
-        metadataNewValue
+        metadataNewValue,
       );
       expect(
         screen.getByRole('button', { name: /Save.*/i }),

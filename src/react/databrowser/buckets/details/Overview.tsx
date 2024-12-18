@@ -8,7 +8,6 @@ import {
 } from '@scality/core-ui';
 import { SmallerText } from '@scality/core-ui/dist/components/text/Text.component';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useEffect, useState } from 'react';
@@ -45,6 +44,7 @@ import {
   getLocationType,
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -225,7 +225,7 @@ function LocationType({ location: locationName }: { location: string }) {
 }
 
 function Overview({ bucket, ingestionStates }: Props) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const dispatch = useDispatch();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const workflowsQuery = useWorkflows([bucket.name]);
@@ -358,7 +358,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                         aria-label="Edit default retention"
                         icon={<Icon name="Pencil" />}
                         onClick={() => {
-                          history.push(
+                          navigate(
                             `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
                           );
                         }}

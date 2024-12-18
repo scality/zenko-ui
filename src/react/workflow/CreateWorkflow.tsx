@@ -16,7 +16,6 @@ import {
 } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import {
   BucketWorkflowExpirationV1,
   BucketWorkflowTransitionV2,
@@ -40,7 +39,7 @@ import {
 } from '../next-architecture/domain/business/buckets';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useQueryParams, useRolePathName } from '../utils/hooks';
 import {
@@ -68,6 +67,9 @@ import {
   prepareTransitionQuery,
   removeEmptyTagKeys,
 } from './utils';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useParams } from 'react-router';
+import { useShellHooks } from '@scality/module-federation';
 
 const OptionIcon = ({ icon }: { icon: IconName }) => (
   <Box width="2rem" display="flex" alignItems="center" justifyContent="center">
@@ -77,7 +79,7 @@ const OptionIcon = ({ icon }: { icon: IconName }) => (
 
 const CreateWorkflow = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
 
@@ -94,7 +96,9 @@ const CreateWorkflow = () => {
   const mgnt = useManagementClient();
   const queryClient = useQueryClient();
   const instanceId = useInstanceId();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
+  const { accountName } = useParams();
 
   const { versionning } = useBucketVersionning({ bucketName });
   const isBucketVersioningEnabled =
@@ -217,11 +221,11 @@ const CreateWorkflow = () => {
         );
         if (bucketName !== '') {
           // redirectly to the bucket list -> workflow tab
-          history.push(
+          navigate(
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          history.push(`./replication-${success.streamId}`);
+          navigate(`./replication-${success.streamId}`);
         }
       },
       onError: (error) => {
@@ -265,11 +269,11 @@ const CreateWorkflow = () => {
           ).queryKey,
         );
         if (bucketName !== '') {
-          history.push(
+          navigate(
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          history.push(`./expiration-${success.workflowId}`);
+          navigate(`./expiration-${success.workflowId}`);
         }
       },
       onError: (error) => {
@@ -313,11 +317,11 @@ const CreateWorkflow = () => {
           ).queryKey,
         );
         if (bucketName !== '') {
-          history.push(
+          navigate(
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          history.push(`./transition-${success.workflowId}`);
+          navigate(`./transition-${success.workflowId}`);
         }
       },
       onError: (error) => {
@@ -362,7 +366,7 @@ const CreateWorkflow = () => {
               id="cancel-workflow-btn"
               type="button"
               variant="outline"
-              onClick={() => history.push('./')}
+              onClick={() => navigate(`/accounts/${accountName}/workflows`)}
               label="Cancel"
             />
             <Button

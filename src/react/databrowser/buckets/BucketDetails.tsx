@@ -1,12 +1,9 @@
-import React from 'react';
-
+import { Icon } from '@scality/core-ui';
+import { WorkflowScheduleUnitState } from '../../../types/stats';
+import { Warning } from '../../ui-elements/Warning';
+import { useQueryParams } from '../../utils/hooks';
 import Overview from './details/Overview';
 import Workflow from './details/Workflow';
-import { Warning } from '../../ui-elements/Warning';
-import { useLocation } from 'react-router-dom';
-import { WorkflowScheduleUnitState } from '../../../types/stats';
-import { useQueryParams } from '../../utils/hooks';
-import { Icon } from '@scality/core-ui';
 import { Tabs } from '@scality/core-ui/dist/next';
 import { Bucket } from '../../next-architecture/domain/entities/bucket';
 
@@ -23,7 +20,6 @@ const NotFound = () => (
 );
 
 function BucketDetails({ bucket, ingestionStates }: Props) {
-  const { pathname } = useLocation();
   const query = useQueryParams();
   const queryObject = Object.fromEntries(query.entries());
 
@@ -33,14 +29,14 @@ function BucketDetails({ bucket, ingestionStates }: Props) {
         <Tabs>
           <Tabs.Tab
             label="Overview"
-            path={pathname}
+            path={''}
             query={{ ...queryObject, tab: null }}
           >
             <Overview bucket={bucket} ingestionStates={ingestionStates} />
           </Tabs.Tab>
           <Tabs.Tab
             label="Workflow"
-            path={pathname}
+            path={''}
             query={{ ...queryObject, tab: 'workflow' }}
             withoutPadding
           >

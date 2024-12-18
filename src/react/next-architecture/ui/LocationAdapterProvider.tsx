@@ -1,8 +1,9 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, JSX } from 'react';
 import { ILocationsAdapter } from '../adapters/accounts-locations/ILocationsAdapter';
 import { PensieveAccountsLocationsAdapter } from '../adapters/accounts-locations/PensieveAccountsLocationsAdapter';
-import { useAuth, useInstanceId } from './AuthProvider';
+import { useInstanceId } from './AuthProvider';
 import { useConfig } from './ConfigProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 const _LocationAdapterContext = createContext<null | {
   locationAdapter: ILocationsAdapter;
@@ -25,6 +26,7 @@ export const LocationAdapterProvider = ({
 }: {
   children: JSX.Element;
 }) => {
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();
