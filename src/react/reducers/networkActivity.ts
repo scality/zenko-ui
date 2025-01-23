@@ -17,7 +17,7 @@ export default function networkActivity(
       return {
         ...state,
         counter: Math.max(state.counter - 1, 0),
-        messages: state.messages.shift(),
+        messages: state.messages?.shift(),
       };
 
     case 'NETWORK_AUTH_FAILURE':

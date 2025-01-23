@@ -1,4 +1,4 @@
-import React, { Dispatch } from 'react';
+import { Dispatch, FC, ReactNode } from 'react';
 export type Notification = {
     id: string;
     title: string;
@@ -14,7 +14,10 @@ export type NotificationCenterContextType = {
     notifications: InternalNotification[];
     dispatch: Dispatch<NotificationCenterActions>;
 };
-export declare const NotificationCenterContext: React.Context<NotificationCenterContextType>;
+export declare const NotificationCenterContext: import("react").Context<NotificationCenterContextType>;
+type NotificationCenterProviderProps = {
+    children: ReactNode;
+};
 export declare enum NotificationActionType {
     PUBLISH = 0,
     UNPUBLISH = 1,
@@ -29,7 +32,5 @@ export type NotificationCenterActions = {
 } | {
     type: NotificationActionType.READ_ALL;
 };
-declare const NotificationCenterProvider: ({ children }: {
-    children: any;
-}) => JSX.Element;
+declare const NotificationCenterProvider: FC<NotificationCenterProviderProps>;
 export default NotificationCenterProvider;

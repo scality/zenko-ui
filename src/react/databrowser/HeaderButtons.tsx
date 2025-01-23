@@ -1,4 +1,4 @@
-import { matchPath, useLocation, useParams } from 'react-router-dom';
+import { matchPath, useLocation, useParams } from 'react-router';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { ButtonsContainer } from '../ui-elements/Container';
 import { listObjects } from '../actions/s3object';
@@ -13,8 +13,8 @@ export function RefreshButton() {
   const prefixWithSlash = usePrefixWithSlash();
   const dispatch = useDispatch();
   const isBrowsingObjects = !!matchPath(
-    pathname,
     '/accounts/:accountName/buckets/:bucketName/objects',
+    pathname,
   );
   const queryClient = useQueryClient();
 

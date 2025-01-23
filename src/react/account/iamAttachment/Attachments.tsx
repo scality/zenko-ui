@@ -1,6 +1,6 @@
 import { BasicText, EmphaseText, LargerText } from '@scality/core-ui';
 import { useState } from 'react';
-import { useParams, useRouteMatch } from 'react-router-dom';
+import { matchPath, useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { regexArn } from '../../utils/hooks';
@@ -44,8 +44,10 @@ const DescriptiveBlock = styled(BasicText)`
 `;
 
 const Attachments = () => {
-  const isAttachToPolicy = useRouteMatch(
+  const location = useLocation();
+  const isAttachToPolicy = matchPath(
     '/accounts/:accountName/policies/:policyArn/attachments',
+    location.pathname,
   );
   const [attachmentOperations, setAttachmentOperations] = useState<
     AttachmentOperation[]

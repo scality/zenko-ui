@@ -1,13 +1,14 @@
 import { ConstrainedText, Icon } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
-import { useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useCallback, JSX } from 'react';
 import { CoreUIColumn, Row } from 'react-table';
 import { useTheme } from 'styled-components';
 import { Workflows } from '../../types/workflow';
 import { Workflow } from '../../types/workflow';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { TextTransformer } from '../ui-elements/Utility';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useParams } from 'react-router';
 
 const SEARCH_QUERY_PARAM = 'search';
 export function WorkflowTypeIcon({ value: type }: { value: string }) {
@@ -32,7 +33,8 @@ type Props = {
 };
 
 function WorkflowList({ workflows, workflowId }: Props) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
+  const { accountName } = useParams();
   const theme = useTheme();
 
   function DataComponent({ row }: { row: Row<Workflow> }) {
@@ -123,7 +125,9 @@ function WorkflowList({ workflows, workflowId }: Props) {
               icon={<Icon name="Create-add" />}
               label="Create Workflow"
               variant="primary"
-              onClick={() => history.push('./create-workflow')}
+              onClick={() =>
+                navigate(`/accounts/${accountName}/workflows/create-workflow`)
+              }
               type="submit"
             />
           }
@@ -134,7 +138,7 @@ function WorkflowList({ workflows, workflowId }: Props) {
           separationLineVariant="backgroundLevel1"
           selectedId={workflowId}
           onRowSelected={(selectedRow: Row<Workflow>) =>
-            history.push(`./${selectedRow.original.id}`)
+            navigate(`./${selectedRow.original.id}`)
           }
         />
       </Table>

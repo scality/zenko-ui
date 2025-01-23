@@ -1,6 +1,7 @@
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import {
+  render,
   screen,
   waitFor,
   waitForElementToBeRemoved,
@@ -11,6 +12,7 @@ import {
   OBJECT_METADATA,
 } from '../../../../actions/__tests__/utils/testUtil';
 import {
+  NewWrapper,
   TEST_API_BASE_URL,
   renderWithRouterMatch,
 } from '../../../../utils/testUtil';
@@ -23,14 +25,7 @@ const renderProperties = (
   ),
   state = {},
 ) => {
-  return renderWithRouterMatch(
-    component,
-    {
-      route: `/buckets/test/objects?prefix=${OBJECT_METADATA.objectKey}`,
-      path: '/buckets/:bucketName/objects',
-    },
-    state,
-  );
+  return render(component, { wrapper: NewWrapper() });
 };
 
 //Mock getObjectLockConfiguration for bucket 'bucket'

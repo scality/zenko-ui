@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { DateTime } from 'luxon';
@@ -30,6 +30,8 @@ import {
 } from './utils';
 import { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { RetentionMode } from '../../../types/s3';
 
 const Joi = JoiImport.extend(DateExtension);
 const objectLockRetentionSettingsValidationRules = {
@@ -50,7 +52,7 @@ const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 
 export default function ObjectLockSetting() {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const query = useQueryParams();
   const hasError = useSelector(
     (state: AppState) =>
@@ -97,7 +99,7 @@ export default function ObjectLockSetting() {
 
   const handleCancel = () => {
     clearServerError();
-    history.push(
+    navigate(
       `/accounts/${account?.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
     );
   };
@@ -125,11 +127,9 @@ export default function ObjectLockSetting() {
         bucketNameParam,
         objectKey,
         versionId,
-        //@ts-expect-error fix this when you are working on it
-        retentionMode,
-        DateTime.fromISO(retentionUntilDate).toSeconds(),
+        retentionMode as RetentionMode,
+        DateTime.fromISO(retentionUntilDate).toSeconds() as unknown as Date,
         account?.Name,
-        history,
       ),
     );
   };

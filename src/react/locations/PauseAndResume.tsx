@@ -7,9 +7,10 @@ import { AppState } from '../../types/state';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { handleClientError } from '../actions';
 import { ApiError } from '../../types/actions';
+import { useShellHooks } from '@scality/module-federation';
 
 export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const [isPollingEnabled, setIsPollingEnabled] = useState(false);
@@ -20,6 +21,7 @@ export const PauseAndResume = ({ locationName }: { locationName: string }) => {
   const dispatch = useDispatch();
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
   const zenkoClient = useSelector((state: AppState) => state.zenko.zenkoClient);

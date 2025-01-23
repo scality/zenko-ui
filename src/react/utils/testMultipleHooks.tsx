@@ -5,7 +5,7 @@ import {
   waitForOptions,
 } from '@testing-library/react';
 import { WaitFor } from '@testing-library/react-hooks';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, JSX } from 'react';
 import { act } from 'react-dom/test-utils';
 import { ErrorBoundary } from 'react-error-boundary';
 

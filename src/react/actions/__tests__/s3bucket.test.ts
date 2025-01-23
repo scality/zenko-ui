@@ -85,7 +85,6 @@ describe.skip('s3bucket actions', () => {
     },
     {
       it: 'editDefaultRetention: should edit the default retention',
-      //@ts-expect-error fix this when you are working on it
       fn: actions.editDefaultRetention(BUCKET_NAME, {
         isDefaultRetentionEnabled: false,
       }),
@@ -97,7 +96,6 @@ describe.skip('s3bucket actions', () => {
     },
     {
       it: 'editDefaultRetention: should handle error',
-      //@ts-expect-error fix this when you are working on it
       fn: actions.editDefaultRetention(BUCKET_NAME, {
         isDefaultRetentionEnabled: false,
       }),

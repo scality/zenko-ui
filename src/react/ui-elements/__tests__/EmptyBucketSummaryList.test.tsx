@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { QueryClient } from 'react-query';
 import { mockOffsetSize } from '../../utils/testUtil';
 import { EmptyBucketSummaryList } from '../EmptyBucket/EmptyBucketSummaryList';
 import {
@@ -8,15 +7,17 @@ import {
   DELETE_SUCCESS,
   TOTAL_ATTEMPTS,
 } from '../EmptyBucket/constants';
+import { QueryClientProvider } from '../../../QueryClientProvider';
+import { MemoryRouter } from 'react-router';
 
 const queryClient = new QueryClient();
 
 type WrapperProps = { children?: React.ReactNode };
 
 const Wrapper = ({ children }: WrapperProps) => (
-  <BrowserRouter>
+  <MemoryRouter>
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  </BrowserRouter>
+  </MemoryRouter>
 );
 
 beforeAll(() => {

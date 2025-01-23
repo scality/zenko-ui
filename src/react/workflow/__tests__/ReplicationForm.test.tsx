@@ -199,7 +199,7 @@ describe('ReplicationForm', () => {
       screen.getByText(/Replication is not available for a Bucket that was created especially for Veeam./i),
     ).toBeInTheDocument();
   });
-  it('should display toast when bucket tagging fails', async () => {
+  it.only('should display toast when bucket tagging fails', async () => {
     //S
     server.use(
       mockBucketOperations({

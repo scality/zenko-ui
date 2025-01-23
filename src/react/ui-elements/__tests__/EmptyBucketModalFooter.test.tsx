@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { EmptyBucketModalFooter } from '../EmptyBucket/EmptyBucketModalFooter';
+import { QueryClientProvider } from '../../../QueryClientProvider';
 
 const queryClient = new QueryClient();
 

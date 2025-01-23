@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   QueryFunctionContext,
   QueryObserverIdleResult,
@@ -7,9 +7,9 @@ import {
   QueryObserverLoadingResult,
   QueryObserverOptions,
   QueryObserverSuccessResult,
+  useInfiniteQuery,
   UseInfiniteQueryOptions,
 } from 'react-query';
-import { useInfiniteQuery } from 'react-query';
 import { useAccessToken } from '../next-architecture/ui/AuthProvider';
 
 export type AWS_PAGINATED_ENTITIES<ENTITY> =
@@ -93,7 +93,7 @@ export const useAwsPaginatedEntities = <
         context: QueryFunctionContext,
         marker?: MARKER_TYPE,
       ) => Promise<API_RESPONSE>
-    >();
+    >(undefined);
   useEffect(() => {
     ref.current = reactQueryOptions?.queryFn;
   }, [token, ...(reactQueryOptions.additionalDepsToUpdateQueryFn || [])]);

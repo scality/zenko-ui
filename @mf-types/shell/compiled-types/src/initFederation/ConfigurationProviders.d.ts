@@ -1,6 +1,7 @@
 import { IconName } from '@scality/core-ui/dist/components/icon/Icon.component';
 import { SolutionUI } from '@scality/module-federation';
 import React from 'react';
+import { UseQueryResult } from 'react-query';
 export type OAuth2ProxyConfig = {
     kind: 'OAuth2Proxy';
 };
@@ -90,6 +91,10 @@ export type NonFederatedView = {
     icon?: IconName;
 };
 export type ViewDefinition = FederatedView | NonFederatedView;
+export declare function useWebFingersStore(): {
+    state: UseQueryResult<BuildtimeWebFinger | RuntimeWebFinger<Record<string, unknown>>, unknown>[];
+    updateWebFingersState: (newState: UseQueryResult<BuildtimeWebFinger | RuntimeWebFinger<Record<string, unknown>>, unknown>[]) => void;
+};
 export declare function useDiscoveredViews(): ViewDefinition[];
 export declare const useLinkOpener: () => {
     openLink: (to: {
@@ -105,4 +110,4 @@ export declare const useLinkOpener: () => {
 };
 export declare const ConfigurationProvider: ({ children, }: {
     children: React.ReactNode;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;

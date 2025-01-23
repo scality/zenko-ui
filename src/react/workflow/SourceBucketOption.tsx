@@ -11,7 +11,7 @@ import { useLocationAndStorageInfos } from '../next-architecture/domain/business
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
 import { Loader, useToast } from '@scality/core-ui';
-import { useEffect } from 'react';
+import { useEffect, JSX } from 'react';
 
 type DisableOptionProps = {
   disableOption?: (obj: {
@@ -49,7 +49,6 @@ export const SourceBucketSelect = (
     return (
       <>
         {props.value}
-        {/* @ts-expect-error fix this when you are working on it */}
         (<BucketLocationNameAndType bucketName={props.value} />)
       </>
     );

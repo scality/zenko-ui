@@ -9,4 +9,4 @@ import React from 'react';
 export default function AlertProvider({ alertManagerUrl, children, }: {
     alertManagerUrl: string;
     children: React.ReactNode;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;

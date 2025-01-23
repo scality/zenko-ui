@@ -6,7 +6,7 @@ import {
   Icon,
   Loader,
 } from '@scality/core-ui';
-import { useHistory, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
@@ -20,6 +20,8 @@ import AccountList from './AccountList';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { VEEAM_FEATURE } from '../../js/config';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import AccountContent from './AccountContent';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -29,10 +31,10 @@ const Accounts = () => {
     metricsAdapter,
     accessibleAccountsAdapter,
   });
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
 
   const { isStorageManager } = useAuthGroups();
-  const { features } = useConfig();
+  const { features, basePath } = useConfig();
 
   const displayVeeamConfiguration =
     features.includes(VEEAM_FEATURE) && isStorageManager;
@@ -74,14 +76,14 @@ const Accounts = () => {
                       <Button
                         label="Start Configuration for Veeam"
                         variant="primary"
-                        onClick={() => history.push('/veeam/configuration')}
+                        onClick={() => navigate('/veeam/configuration')}
                       />
                       or
                       <Button
                         label="Create Account"
                         icon={<Icon name="Create-add" />}
                         variant="outline"
-                        onClick={() => history.push('/create-account')}
+                        onClick={() => navigate('/create-account')}
                       />
                     </>
                   }
@@ -89,7 +91,7 @@ const Accounts = () => {
               ) : (
                 <EmptyState
                   icon="Account"
-                  link="/create-account"
+                  link={`${basePath}/create-account`}
                   listedResource={{ singular: 'Account', plural: 'Accounts' }}
                 ></EmptyState>
               )

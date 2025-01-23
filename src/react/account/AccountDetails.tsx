@@ -1,6 +1,6 @@
 import { Icon } from '@scality/core-ui';
 import { Tabs } from '@scality/core-ui/dist/next';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import { Account } from '../../types/account';
 import { Warning } from '../ui-elements/Warning';
@@ -9,6 +9,24 @@ import { AccountLocations } from './AccountLocations';
 import AccountPoliciesList from './AccountPoliciesList';
 import AccountUserList from './AccountUserList';
 import Properties from './details/Properties';
+import { useEffect } from 'react';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+
+const variantMapping = {
+  healthy: 'statusHealthy',
+  success: 'statusHealthy',
+  warning: 'statusWarning',
+  danger: 'statusCritical',
+  selected: 'selectedActive',
+  base: 'infoPrimary',
+};
+
+/** Translates the old colors into new colors while keeping the same name.
+ * New names are also supported. */
+export const getThemePropSelector = (key) => (props) => {
+  const key_ = variantMapping[key] ?? key;
+  return props.theme[key_];
+};
 
 type Props = {
   account: Account | null | undefined;
@@ -26,6 +44,8 @@ function AccountDetails({ account }: Props) {
   const theme = useTheme();
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
+  const { pathname } = useLocation();
+  const navigate = useBasenameRelativeNavigate();
 
   if (!account) {
     return <NotFound />;
@@ -37,20 +57,35 @@ function AccountDetails({ account }: Props) {
     tabContentColor: theme.backgroundLevel3,
   };
 
+  const baseUrl = pathname.substring(0, pathname.lastIndexOf('/'));
+
+  useEffect(() => {
+    navigate(`/accounts/${accountName}/properties`, { replace: true });
+  }, []);
+
   return (
     <Tabs {...customTabStyle} tabLineColor={theme.backgroundLevel2}>
-      <Tabs.Tab exact label="Properties" path={``} withoutPadding>
+      <Tabs.Tab
+        exact
+        label="Properties"
+        path={`${baseUrl}/properties`}
+        withoutPadding
+      >
         <Properties account={account} />
       </Tabs.Tab>
       {isStorageManager && (
-        <Tabs.Tab label="Locations" path={`locations`} withoutPadding>
+        <Tabs.Tab
+          label="Locations"
+          path={`${baseUrl}/locations`}
+          withoutPadding
+        >
           <AccountLocations />
         </Tabs.Tab>
       )}
-      <Tabs.Tab label="Users" path={`users`} withoutPadding>
+      <Tabs.Tab label="Users" path={`${baseUrl}/users`} withoutPadding>
         <AccountUserList accountName={accountName} />
       </Tabs.Tab>
-      <Tabs.Tab label="Policies" path={`policies`} withoutPadding>
+      <Tabs.Tab label="Policies" path={`${baseUrl}/policies`} withoutPadding>
         <AccountPoliciesList accountName={accountName} />
       </Tabs.Tab>
     </Tabs>

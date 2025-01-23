@@ -6,9 +6,10 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
+import { useShellHooks } from '@scality/module-federation';
 
 export const DeleteEndpoint = ({
   hostname,
@@ -26,6 +27,7 @@ export const DeleteEndpoint = ({
     });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const deleteEndpointMutation = useMutation({
     mutationFn: async () => {

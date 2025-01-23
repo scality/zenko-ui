@@ -4,7 +4,13 @@ import { IAM } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
 import { PropsWithChildren, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import { MemoryRouter, Route, useHistory, useParams } from 'react-router-dom';
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from 'react-router';
 import DataServiceRoleProvider, {
   useAssumedRole,
   useSetAssumedRole,
@@ -21,6 +27,7 @@ import {
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { SCALITY_IAM_ROLES, regexArn } from '../utils/hooks';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -84,11 +91,12 @@ const AssumeDefaultIAMRole = ({
     accessibleAccountsAdapter,
     metricsAdapter,
   });
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const setAssumeRole = useSetAssumedRole();
+  const location = useLocation();
 
   const isInternalDefaultAccountSelected =
-    history.location.pathname ===
+    location.pathname ===
     '/accounts/' + INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION;
 
   if (
@@ -109,7 +117,7 @@ const AssumeDefaultIAMRole = ({
     setAssumeRole({
       roleArn: acc?.preferredAssumableRoleArn ?? '',
     });
-    history.replace('/accounts/' + defaultValue?.accountName);
+    navigate('/accounts/' + defaultValue?.accountName, { replace: true });
   }
 
   return <></>;
@@ -127,20 +135,28 @@ const InternalProvider = ({
         `/accounts/${INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION}`,
       ]}
     >
-      <Route path="/accounts/:accountName">
-        <DataServiceRoleProvider DoNotChangePropsWithRedux={false} inlineLoader>
-          <AccountsLocationsEndpointsAdapterProvider>
-            <AccessibleAccountsAdapterProvider
-              DoNotChangePropsWithEventDispatcher={false}
+      <Routes>
+        <Route
+          path="/accounts/:accountName"
+          element={
+            <DataServiceRoleProvider
+              DoNotChangePropsWithRedux={false}
+              inlineLoader
             >
-              <>
-                <AssumeDefaultIAMRole defaultValue={defaultValue} />
-                {children}
-              </>
-            </AccessibleAccountsAdapterProvider>
-          </AccountsLocationsEndpointsAdapterProvider>
-        </DataServiceRoleProvider>
-      </Route>
+              <AccountsLocationsEndpointsAdapterProvider>
+                <AccessibleAccountsAdapterProvider
+                  DoNotChangePropsWithEventDispatcher={false}
+                >
+                  <>
+                    <AssumeDefaultIAMRole defaultValue={defaultValue} />
+                    {children}
+                  </>
+                </AccessibleAccountsAdapterProvider>
+              </AccountsLocationsEndpointsAdapterProvider>
+            </DataServiceRoleProvider>
+          }
+        ></Route>
+      </Routes>
     </MemoryRouter>
   );
 };
@@ -165,7 +181,7 @@ type SelectAccountIAMRoleWithAccountProps = SelectAccountIAMRoleProps & {
 const SelectAccountIAMRoleWithAccount = (
   props: SelectAccountIAMRoleWithAccountProps,
 ) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
   const setAssumedRole = useSetAssumedRole();
   const { accounts, defaultValue, hideAccountRoles, onChange } = props;
@@ -255,7 +271,7 @@ const SelectAccountIAMRoleWithAccount = (
                 setAssumedRole({
                   roleArn: selectedAccount.preferredAssumableRoleArn,
                 });
-                history.push(`/accounts/${accountName}`);
+                navigate(`/accounts/${accountName}`);
 
                 setAccount(selectedAccount);
                 setRole(null);

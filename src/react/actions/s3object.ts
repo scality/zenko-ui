@@ -41,6 +41,7 @@ import { Marker, ZenkoClient } from '../../types/zenko';
 import { getClients } from '../utils/actions';
 import { newSearchListing } from '.';
 import { QueryClient } from 'react-query';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 export const UPLOADING_OBJECT = 'Uploading object(s)';
 export function listObjectsSuccess(
@@ -605,10 +606,10 @@ export function putObjectRetention(
   retentionMode: RetentionMode,
   retentionUntilDate: Date,
   accountName: string,
-  history: History,
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
+    const navigate = useBasenameRelativeNavigate();
     dispatch(networkStart('Editing object retention'));
     return zenkoClient
       .putObjectRetention(
@@ -619,7 +620,7 @@ export function putObjectRetention(
         retentionUntilDate,
       )
       .then(() => {
-        history.push(
+        navigate(
           `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
         );
       })

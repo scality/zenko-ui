@@ -2,37 +2,32 @@ import {
   AppContainer,
   Banner,
   FormattedDateTime,
+  Icon,
   Stack,
+  TextBadge,
   Toggle,
   Tooltip,
   Wrap,
-  Icon,
-  TextBadge,
   spacing,
 } from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import {
-  Route,
-  useHistory,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from 'react-router-dom';
+import { Route, useLocation, useParams } from 'react-router';
 import { Column } from 'react-table';
 import { useTheme } from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
 import { getUserAccessKeysQuery } from '../queries';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
+import { TableHeaderWrapper } from '../ui-elements/Table';
 import { formatSimpleDate } from '../utils';
 import {
   useAccessKeyOutdatedStatus,
   useAwsPaginatedEntities,
 } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
-import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -160,9 +155,8 @@ const AccountUserAccessKeys = () => {
   const { IAMUserName } = useParams<{
     IAMUserName: string;
   }>();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
-  const { url } = useRouteMatch();
   const { data: accessKeysResult, status: accessKeysStatus } =
     useAwsPaginatedEntities(
       getUserAccessKeysQuery(IAMUserName, IAMClient),
@@ -282,7 +276,7 @@ const AccountUserAccessKeys = () => {
               size="2x"
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                history.push('../');
+                navigate('../');
               }}
             />
             <Icon name="Key" size="2x" color={theme.infoPrimary} />
@@ -311,7 +305,7 @@ const AccountUserAccessKeys = () => {
                 icon={<Icon name="Create-add" />}
                 label="Create Access Keys"
                 variant="primary"
-                onClick={() => history.push('access-keys/create')}
+                onClick={() => navigate('access-keys/create')}
                 type="submit"
               />
             }
@@ -322,7 +316,7 @@ const AccountUserAccessKeys = () => {
           ></Table.SingleSelectableContent>
         </Table>
       </AppContainer.MainContent>
-      <Route path={`${url}/create`}>
+      <Route path={`${pathname}/create`}>
         <AccountUserSecretKeyModal IAMUserName={IAMUserName} />
       </Route>
     </div>

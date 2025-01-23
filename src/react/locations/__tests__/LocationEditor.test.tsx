@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import LocationEditor from '../LocationEditor';
 
 import {
@@ -35,11 +35,7 @@ describe('LocationEditor', () => {
   it('should display storageOptions expect hidden options', async () => {
     const {
       component: { container },
-    } = reduxRender(
-      <MemoryRouter>
-        <LocationEditor />
-      </MemoryRouter>,
-    );
+    } = reduxRender(<LocationEditor />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading location...'),
@@ -117,11 +113,7 @@ describe('LocationEditor', () => {
   });
 
   it(`test if each location display correctly`, async () => {
-    reduxRender(
-      <MemoryRouter>
-        <LocationEditor />
-      </MemoryRouter>,
-    );
+    reduxRender(<LocationEditor />);
 
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading location...'),

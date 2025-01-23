@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { UserData } from '../auth/AuthProvider';
-export declare const InstanceNameProvider: ({ children }: PropsWithChildren<{}>) => JSX.Element;
+export declare const InstanceNameProvider: ({ children }: PropsWithChildren<{}>) => import("react/jsx-runtime").JSX.Element;
 export declare const useInstanceName: () => string;
 export declare const useInstanceNameAdapter: () => {
     remoteEntryUrl: string;
@@ -14,5 +14,5 @@ export declare const _InternalInstanceName: ({ moduleExports, }: {
             setInstanceName: (userData: UserData | undefined, name: string) => Promise<void>;
         };
     };
-}) => JSX.Element;
-export declare const InstanceName: () => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;
+export declare const InstanceName: () => import("react/jsx-runtime").JSX.Element;

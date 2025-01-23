@@ -3,14 +3,14 @@ import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
 import { useIAMClient } from '../IAMProvider';
 
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { handleApiError, handleClientError } from '../actions';
 import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
 import { CommonPolicyLayout } from './AccountEditCommonLayout';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import { MouseEvent } from 'react';
-
+import { useNavigate } from 'react-router';
 type PolicyFormValues = {
   policyName: string;
   policyDocument: string;
@@ -18,7 +18,7 @@ type PolicyFormValues = {
 
 const CreateAccountPolicy = () => {
   const IAMClient = useIAMClient();
-  const history = useHistory();
+  const navigate = useNavigate();
   const { accountName } = useParams<{ accountName: string }>();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -54,7 +54,7 @@ const CreateAccountPolicy = () => {
     },
     {
       onSuccess: () => {
-        history.push(`/accounts/${accountName}/policies`);
+        navigate(`/accounts/${accountName}/policies`);
         queryClient.invalidateQueries(
           getListPoliciesQuery(accountName, IAMClient).queryKey,
         );
@@ -78,7 +78,7 @@ const CreateAccountPolicy = () => {
     if (e) {
       e.preventDefault();
     }
-    history.goBack();
+    navigate(-1);
   };
 
   return (

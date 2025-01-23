@@ -7,11 +7,11 @@ import {
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import { useQueryClient } from 'react-query';
-import { useHistory } from 'react-router-dom';
 import styled, { useTheme } from 'styled-components';
 import { VeeamSkipModal } from './VeeamSkipModal';
 import { VEEAM_STEPS, VeeamStepsIndexes } from './VeeamSteps';
 import { useMutationTableData } from './useMutationTableData';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -29,7 +29,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
 
   const theme = useTheme();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const { next } = useStepper(VeeamStepsIndexes.Table, VEEAM_STEPS);
   const { bucketName, enableImmutableBackup, accountName, application } =
@@ -97,7 +97,7 @@ export default function VeeamTable(propsConfiguration: VeeamTableProps) {
       <VeeamSkipModal
         isOpen={confirmCancel}
         close={() => setConfirmCancel(false)}
-        exitAction={() => history.push('/')}
+        exitAction={() => navigate('/')}
         modalContent={
           <ul>
             <ListItem>

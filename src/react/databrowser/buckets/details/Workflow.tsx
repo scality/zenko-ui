@@ -1,7 +1,6 @@
 import { Icon, spacing, ConstrainedText } from '@scality/core-ui';
 import { Button, Table } from '@scality/core-ui/dist/next';
 import { PropsWithChildren } from 'react';
-import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 import styled from 'styled-components';
 import {
@@ -13,6 +12,7 @@ import { makeWorkflows } from '../../../queries';
 import { NameLinkContaner } from '../../../ui-elements/NameLink';
 import { WorkflowTypeIcon } from '../../../workflow/WorkflowList';
 import { useWorkflowsWithSelect } from '../../../workflow/Workflows';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const TableAction = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ const TableAction = styled.div`
 `;
 
 function Workflow({ bucketName }: { bucketName: string }) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { account } = useCurrentAccount();
   const accountName = account?.Name;
   const select = (workflows: APIWorkflows) => makeWorkflows(workflows);
@@ -36,9 +36,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
       <ConstrainedText
         text={
           <NameLinkContaner
-            onClick={() =>
-              history.push(`/accounts/${accountName}/workflows/${id}`)
-            }
+            onClick={() => navigate(`/accounts/${accountName}/workflows/${id}`)}
           >
             {workflowName}
           </NameLinkContaner>
@@ -104,7 +102,7 @@ function Workflow({ bucketName }: { bucketName: string }) {
             label="Create Workflow"
             variant="secondary"
             onClick={() =>
-              history.push(
+              navigate(
                 `/accounts/${accountName}/workflows/create-workflow?bucket=${bucketName}`,
               )
             }

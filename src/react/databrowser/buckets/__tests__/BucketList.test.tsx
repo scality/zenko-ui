@@ -1,5 +1,5 @@
 import { List } from 'immutable';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { XDM_FEATURE } from '../../../../js/config';
 import { mockOffsetSize, reduxRender } from '../../../utils/testUtil';
 import BucketList from '../BucketList';

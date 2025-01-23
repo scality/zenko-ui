@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -8,16 +8,7 @@ function PrivateRoute(props) {
   if (props.authenticated) {
     return <Route {...rest} component={component} />;
   } else {
-    return (
-      <Redirect
-        to={{
-          pathname: '/login',
-          state: {
-            path: props.pathname,
-          },
-        }}
-      />
-    );
+    return <Navigate to="/login" />;
   }
 }
 

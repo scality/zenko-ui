@@ -6,4 +6,4 @@ export declare const useAuthConfig: () => {
 };
 export declare function AuthConfigProvider({ children, }: {
     children: React.ReactNode;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;

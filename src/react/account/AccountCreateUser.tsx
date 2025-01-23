@@ -22,7 +22,7 @@ import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
 import { useMutation, InfiniteData, useQueryClient } from 'react-query';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { getListUsersQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { CreateUserResponse, ListUsersResponse } from 'aws-sdk/clients/iam';
@@ -40,7 +40,7 @@ const schema = Joi.object({
 
 const AccountCreateUser = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const IAMClient = useIAMClient();
   const {
     register,
@@ -80,7 +80,7 @@ const AccountCreateUser = () => {
     },
     {
       onSuccess: () => {
-        history.push('./users');
+        navigate('./users');
       },
       onError: () => {
         const str = 'An error occurred during the user creation.';
@@ -116,7 +116,7 @@ const AccountCreateUser = () => {
     }
 
     clearServerError();
-    history.goBack();
+    navigate(-1);
   };
 
   const clearServerError = () => {

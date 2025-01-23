@@ -1,1 +1,1 @@
-export declare const SleepingNotificationBell: () => JSX.Element;
+export declare const SleepingNotificationBell: () => import("react/jsx-runtime").JSX.Element;

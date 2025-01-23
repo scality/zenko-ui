@@ -1,4 +1,4 @@
-export declare const useShellHistory: () => import("history").History<unknown>;
+export declare const useShellHistory: () => import("react-router").NavigateFunction;
 export declare const ShellHistoryProvider: ({ children }: {
     children: any;
-}) => JSX.Element;
+}) => import("react/jsx-runtime").JSX.Element;

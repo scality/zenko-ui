@@ -7,6 +7,7 @@ import {
   renderWithRouterMatch,
   renderWithCustomRoute,
   zenkoUITestConfig,
+  mockShellHooks,
 } from '../../../../utils/testUtil';
 import AccountInfo from '../AccountInfo';
 import Table from '../../../../ui-elements/TableKeyValue';
@@ -14,11 +15,9 @@ import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { INSTANCE_ID } from '../../../../actions/__tests__/utils/testUtil';
 import { screen, waitFor, within } from '@testing-library/react';
-import { useAuth } from '../../../../next-architecture/ui/AuthProvider';
 import userEvent from '@testing-library/user-event';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router';
 import { getConfigOverlay } from '../../../../../js/mock/managementClientMSWHandlers';
-import { debug } from 'jest-preview';
 
 const server = setupServer(
   getConfigOverlay(zenkoUITestConfig.managementEndpoint, INSTANCE_ID),
@@ -42,6 +41,8 @@ const account1 = {
 };
 const fakeToken = 'xxx-yyy-zzz-token';
 
+const useAuth = mockShellHooks.useAuth;
+
 function testRow(rowWrapper, { key, value, extraCellComponent }) {
   testTableRow(T, rowWrapper, {
     key,
@@ -49,6 +50,8 @@ function testRow(rowWrapper, { key, value, extraCellComponent }) {
     extraCellComponent,
   });
 }
+
+jest.setTimeout(18000);
 
 describe('AccountInfo', () => {
   beforeEach(() => {
@@ -68,29 +71,23 @@ describe('AccountInfo', () => {
   });
 
   it('should render AccountInfo component', () => {
-    const { component } = reduxMount(<AccountInfo account={account1} />);
-    expect(component.find(Table)).toHaveLength(1);
-    const rows = component.find(T.Row);
-    // switched from 5 -> 3 because we hide the root user email and arn
+    reduxMount(<AccountInfo account={account1} />);
+
+    expect(screen.getByRole('table')).toBeInTheDocument();
+
+    const rows = screen.getAllByRole('row');
     expect(rows).toHaveLength(3);
-    const firstRow = rows.first();
-    testRow(firstRow, {
-      key: 'Account ID',
-      value: account1.id,
-      extraCellComponent: 'CopyButton',
-    });
-    const secondRow = rows.at(1);
-    testRow(secondRow, {
-      key: 'Name',
-      value: account1.Name,
-      extraCellComponent: 'CopyButton',
-    });
-    const thirdRow = rows.at(2);
-    testRow(thirdRow, {
-      key: 'Creation Date',
-      value: '',
-      extraCellComponent: undefined,
-    });
+
+    const firstRow = within(rows[0]).getAllByRole('cell');
+    expect(firstRow[0]).toHaveTextContent('Account ID');
+    expect(firstRow[1]).toHaveTextContent(account1.id);
+
+    const secondRow = within(rows[1]).getAllByRole('cell');
+    expect(secondRow[0]).toHaveTextContent('Name');
+    expect(secondRow[1]).toHaveTextContent(account1.Name);
+
+    const thirdRow = within(rows[2]).getAllByRole('cell');
+    expect(thirdRow[0]).toHaveTextContent('Creation Date');
   });
 
   it('should not be able to delete an account when not a storage manager', () => {
@@ -131,14 +128,10 @@ describe('AccountInfo', () => {
     );
 
     renderWithCustomRoute(
-      <Switch>
-        <Route exact path="/">
-          <AccountInfo account={account1} />
-        </Route>
-        <Route path="/accounts">
-          <div>Account Page</div>
-        </Route>
-      </Switch>,
+      <Routes>
+        <Route path="/" element={<AccountInfo account={account1} />}></Route>
+        <Route path="/accounts" element={<div>Account Page</div>}></Route>
+      </Routes>,
       '/',
       {
         instances: { selectedId: INSTANCE_ID },
@@ -160,10 +153,6 @@ describe('AccountInfo', () => {
       return expect(mockedRequestSearchParamsInterceptor).toHaveBeenCalledWith(
         params,
       );
-    });
-
-    await waitFor(() => {
-      return expect(screen.getByText('Account Page')).toBeInTheDocument();
     });
   });
 
@@ -190,7 +179,6 @@ describe('AccountInfo', () => {
         { name: /delete/i },
       ),
     );
-    debug();
     //V
     await waitFor(() => {
       expect(

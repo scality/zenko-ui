@@ -21,6 +21,7 @@ import { useAccountLatestUsedCapacity, useListAccounts } from './accounts';
 import { PromiseResult } from '../entities/promise';
 import { STORAGE_ACCOUNT_OWNER_ROLE } from '../../../utils/hooks';
 import { NewWrapper } from '../../../utils/testUtil';
+import { JSX } from 'react';
 
 const CREATION_DATE = '2023-03-27T12:58:13.000Z';
 
@@ -302,7 +303,7 @@ const setUpTest = async ({
 }) => {
   const { renderAdditionalHook, waitForWrapperToBeReady } =
     prepareRenderMultipleHooks({
-      wrapper: NewWrapper(),
+      wrapper: NewWrapper() as unknown as JSX.Element,
     });
   await waitForWrapperToBeReady();
   const { waitFor, result: resultAccounts } = renderAdditionalHook(
@@ -433,7 +434,7 @@ describe('useAccountLatestUsedCapacity', () => {
     //E
     const { renderAdditionalHook, waitForWrapperToBeReady } =
       prepareRenderMultipleHooks({
-        wrapper: NewWrapper(),
+        wrapper: NewWrapper() as unknown as JSX.Element,
       });
     await waitForWrapperToBeReady();
     const { result } = renderAdditionalHook('accountMetrics', () =>

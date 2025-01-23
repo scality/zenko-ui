@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { Box, Button, CopyButton } from '@scality/core-ui/dist/next';
 import { TextBadge } from '@scality/core-ui/dist/components/textbadge/TextBadge.component';
 import { useIAMClient } from '../IAMProvider';
@@ -25,6 +24,7 @@ import { ApiError } from '../../types/actions';
 import { User } from 'aws-sdk/clients/iam';
 import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
 import { Row } from 'react-table';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type InternalUser = {
   userName: string;
@@ -36,7 +36,7 @@ type InternalUser = {
 
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { data: accessKeysResult, status: userAccessKeyStatus } =
     useAwsPaginatedEntities(
       getUserAccessKeysQuery(userName, IAMClient),
@@ -85,7 +85,7 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
         size="inline"
         icon={<Icon name="Eye" color="textSecondary" />}
         variant="secondary"
-        onClick={() => history.push(`users/${userName}/access-keys`)}
+        onClick={() => navigate(`users/${userName}/access-keys`)}
         type="button"
         tooltip={{ overlay: 'Checking or creating access keys' }}
         disabled={userAccessKeyStatus === 'loading'}
@@ -99,14 +99,14 @@ const renderAccessKeyComponent = ({ row }) => (
 );
 
 const EditButton = ({ userName }: { userName: string }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   return (
     <Button
       size="inline"
       variant="secondary"
       label="Edit"
       icon={<Icon name="Pen" color="textSecondary" />}
-      onClick={() => history.push(`users/${userName}/update-user`)}
+      onClick={() => navigate(`users/${userName}/update-user`)}
     />
   );
 };
@@ -118,7 +118,7 @@ const AttachButton = ({
   userName: string;
   accountName: string;
 }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   return (
     <Button
       size="inline"
@@ -126,7 +126,7 @@ const AttachButton = ({
       label="Attach"
       icon={<Icon name="Link" />}
       onClick={() =>
-        history.push(`/accounts/${accountName}/users/${userName}/attachments`)
+        navigate(`/accounts/${accountName}/users/${userName}/attachments`)
       }
       aria-label={`Attach ${userName}`}
     />
@@ -267,7 +267,7 @@ const DeleteUserAction = ({
 };
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const listUsersQuery = (IAMClient?: IAMClient | null) =>
     getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient);
   const getEntitiesFromResult = (page) => page.Users;
@@ -363,7 +363,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create User"
           variant="primary"
-          onClick={() => history.push('create-user')}
+          onClick={() => navigate('/create-user')}
           type="submit"
         />
       }

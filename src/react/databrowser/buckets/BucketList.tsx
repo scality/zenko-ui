@@ -8,7 +8,7 @@ import {
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
 import { useMemo } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { CoreUIColumn } from 'react-table';
 import { XDM_FEATURE } from '../../../js/config';
 import { WorkflowScheduleUnitState } from '../../../types/stats';
@@ -23,6 +23,7 @@ import { TableHeaderWrapper } from '../../ui-elements/Table';
 import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
@@ -39,7 +40,7 @@ export default function BucketList({
   const { features } = useConfig();
   const query = useQueryParams();
   const { account } = useCurrentAccount();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const tabName = query.get('tab');
 
   const { isStorageManager } = useAuthGroups();
@@ -58,7 +59,7 @@ export default function BucketList({
         Header: 'Bucket Name',
         accessor: 'name',
         Cell({ value: name }) {
-          const history = useHistory();
+          const navigate = useBasenameRelativeNavigate();
           return (
             <ConstrainedText
               text={
@@ -66,7 +67,7 @@ export default function BucketList({
                   href="#"
                   onClick={(e) => {
                     e.stopPropagation();
-                    history.push(
+                    navigate(
                       `/accounts/${accountName}/buckets/${name}/objects`,
                     );
                   }}
@@ -176,9 +177,7 @@ export default function BucketList({
               icon={<Icon name="Create-add" />}
               label="Create Bucket"
               variant="primary"
-              onClick={() =>
-                history.push(`/accounts/${accountName}/create-bucket`)
-              }
+              onClick={() => navigate(`/accounts/${accountName}/create-bucket`)}
               type="submit"
             />
           }
@@ -191,7 +190,7 @@ export default function BucketList({
             const isSelected = selectedBucketName === row.original.name;
 
             if (!isSelected) {
-              history.push(
+              navigate(
                 tabName
                   ? `/accounts/${account?.Name}/buckets/${row.original.name}?tab=${tabName}`
                   : `/accounts/${account?.Name}/buckets/${row.original.name}`,

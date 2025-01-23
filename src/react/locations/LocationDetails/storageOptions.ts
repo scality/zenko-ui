@@ -17,6 +17,7 @@ import LocationDetailsOracle from './LocationDetailsOracle';
 import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
+import { JSX } from 'react';
 
 export type StorageOptionValues = {
   name: string;

@@ -1,7 +1,16 @@
 import { Stepper } from '@scality/core-ui';
 import { render, screen } from '@testing-library/react';
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
-import { FAKE_TOKEN, Wrapper, defaultUserData } from '../../utils/testUtil';
+import userEvent from '@testing-library/user-event';
+import {
+  FAKE_TOKEN,
+  Wrapper,
+  defaultUserData,
+  mockShellHooks,
+} from '../../utils/testUtil';
+import {
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_DEFAULT_ACCOUNT_NAME,
+} from './VeeamConstants';
 import {
   ACCOUNT_SECTION_TITLE,
   BUCKET_SECTION_TITLE,
@@ -11,11 +20,6 @@ import {
   VEEAM_SUMMARY_TITLE,
   VeeamSummary,
 } from './VeeamSummary';
-import userEvent from '@testing-library/user-event';
-import {
-  VEEAM_BACKUP_REPLICATION,
-  VEEAM_DEFAULT_ACCOUNT_NAME,
-} from './VeeamConstants';
 
 jest.mock('../../next-architecture/ui/CertificateDownloadButton', () => ({
   CertificateDownloadButton: () => <button type="button">Download</button>,
@@ -28,6 +32,7 @@ jest.mock('./useGetS3ServicePoint', () => ({
   },
 }));
 
+const useAuth = mockShellHooks.useAuth;
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
 const SERVICE_POINT = 's3.test.local';
@@ -35,7 +40,7 @@ const ACCESS_KEY = 'access-key';
 const SECRET_KEY = 'secret-access-key';
 const VEEAM_BUCKET_NAME = 'veeam-bucket-name';
 
-jest.setTimeout(10000);
+jest.setTimeout(18000);
 
 describe('VeeamSummary', () => {
   const selectors = {

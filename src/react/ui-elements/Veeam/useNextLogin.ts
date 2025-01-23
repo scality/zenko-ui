@@ -1,7 +1,8 @@
-import { useAuth } from '../../next-architecture/ui/AuthProvider';
 import { getSessionState } from '../../utils/localStorage';
+import { useShellHooks } from '@scality/module-federation';
 
 export const useNextLogin = () => {
+  const { useAuth } = useShellHooks();
   const actualSessionState = useAuth()?.userData?.original?.session_state;
   const localStorageSessionState = getSessionState();
 

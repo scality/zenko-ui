@@ -8,15 +8,7 @@ import {
 } from '@scality/core-ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Redirect,
-  Route,
-  RouteProps,
-  Switch,
-  matchPath,
-  useHistory,
-  useLocation,
-} from 'react-router-dom';
+import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router';
 import { useTheme } from 'styled-components';
 import makeMgtClient from '../js/managementClient';
 import { AppState } from '../types/state';
@@ -24,25 +16,36 @@ import DataServiceRoleProvider, {
   useCurrentAccount,
 } from './DataServiceRoleProvider';
 import ManagementProvider from './ManagementProvider';
-import NoMatch from './NoMatch';
-import AccountContent from './account/AccountContent';
-import AccountCreate from './account/AccountCreate';
-import Accounts from './account/Accounts';
 import {
   loadClients,
   loadInstanceLatestStatus,
   setManagementClient,
 } from './actions';
-import DataBrowser from './databrowser/DataBrowser';
-import BucketCreate from './databrowser/buckets/BucketCreate';
-import EndpointCreate from './endpoint/EndpointCreate';
-import Endpoints from './endpoint/Endpoints';
-import LocationEditor from './locations/LocationEditor';
-import { Locations } from './locations/Locations';
 import ReauthDialog from './ui-elements/ReauthDialog';
-import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
 
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from './utils/hooks';
+import NoMatch from './NoMatch';
+import Accounts from './account/Accounts';
+import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
+import { Locations } from './locations/Locations';
+import Endpoints from './endpoint/Endpoints';
+import EndpointCreate from './endpoint/EndpointCreate';
+import AccountCreate from './account/AccountCreate';
+import AccountContent from './account/AccountContent';
+import BucketCreate from './databrowser/buckets/BucketCreate';
+import DataBrowser from './databrowser/DataBrowser';
+import LocationEditor from './locations/LocationEditor';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import Workflows from './workflow/Workflows';
+import CreateWorkflow from './workflow/CreateWorkflow';
+import Objects from './databrowser/objects/Objects';
+import Attachments from './account/iamAttachment/Attachments';
+import AccountUpdateUser from './account/AccountUpdateUser';
+import UpdateAccountPolicy from './account/UpdateAccountPolicy';
+import AccountUserAccessKeys from './account/AccountUserAccessKeys';
+import AccountCreateUser from './account/AccountCreateUser';
+import CreateAccountPolicy from './account/CreateAccountPolicy';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -50,7 +53,7 @@ export const RemoveTrailingSlash = ({ ...rest }) => {
   // If the last character of the url is '/'
   if (location.pathname.match('/.*/$')) {
     return (
-      <Redirect
+      <Navigate
         {...rest}
         to={{
           pathname: location.pathname.replace(/\/+$/, ''),
@@ -66,11 +69,15 @@ const RedirectToAccount = () => {
 
   const { account: selectedAccount } = useCurrentAccount();
   const { pathname, search } = useLocation();
+  const config = useConfig();
 
   const { isStorageManager } = useAuthGroups();
+
   if (selectedAccount) {
     return (
-      <Redirect to={`/accounts/${selectedAccount.Name}${pathname}${search}`} />
+      <Navigate
+        to={`${config.basePath}/accounts/${selectedAccount.Name}${pathname}${search}`}
+      />
     );
   } else if (isStorageManager) {
     const description =
@@ -80,7 +87,7 @@ const RedirectToAccount = () => {
     return (
       <EmptyState
         icon={pathname === '/workflows' ? 'Workflow' : 'Bucket'}
-        link="/create-account"
+        link={`${config.basePath}/create-account`}
         listedResource={description}
         resourceToCreate="Account"
       ></EmptyState>
@@ -151,81 +158,116 @@ function PrivateRoutes() {
   }
 
   return (
-    <Switch>
-      <Route exact path="/" render={() => <Redirect to="/accounts" />} />
-      <Route exact path="/create-location" component={LocationEditor} />
-      <Route path="/locations/:locationName/edit" component={LocationEditor} />
-
-      <Route path="/workflows" exact>
-        <RedirectToAccount />
-      </Route>
-      <Route path="/buckets" exact>
-        <RedirectToAccount />
-      </Route>
-      <Route path="/accounts/:accountName">
-        <Switch>
-          <Route path="/accounts/:accountName/buckets">
-            <DataBrowser />
-          </Route>
-          <Route
-            path={'/accounts/:accountName/create-bucket'}
-            component={BucketCreate}
-          />
-          <Route path="/accounts/:accountName">
-            <AccountContent />
-          </Route>
-        </Switch>
-      </Route>
-
-      <Route path="/accounts" component={Accounts} />
-      <Route path="/create-account" component={AccountCreate} />
-
-      <Route exact path="/create-dataservice" component={EndpointCreate} />
-      <Route exact path="/dataservices" component={Endpoints} />
-      <Route exact path="/locations" component={Locations} />
-      <Route path="/veeam/configuration" component={VeeamSteppers} />
-      <Route path="*" component={NoMatch} />
-    </Switch>
+    <Routes>
+      <Route path="create-location/*" element={<LocationEditor />} />
+      <Route
+        path="locations/:locationName/edit/*"
+        element={<LocationEditor />}
+      />
+      <Route path="workflows/*" element={<RedirectToAccount />} />
+      <Route path={`create-user/*`} element={<AccountCreateUser />} />
+      <Route path={`create-policy/*`} element={<CreateAccountPolicy />} />
+      <Route path="create-account/*" element={<AccountCreate />} />
+      <Route path="create-dataservice/*" element={<EndpointCreate />} />
+      <Route path="dataservices/*" element={<Endpoints />} />
+      <Route path="locations/*" element={<Locations />} />
+      <Route path="veeam/configuration/*" element={<VeeamSteppers />} />
+      <Route
+        path={`accounts/:accountName/policies/:policyArn/attachments/*`}
+        element={<Attachments />}
+      />
+      <Route
+        path={`accounts/:accountName/users/:IAMUserName/update-user/*`}
+        element={<AccountUpdateUser />}
+      />
+      <Route
+        path={`accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy/*`}
+        element={<UpdateAccountPolicy />}
+      />
+      <Route
+        path={`accounts/:accountName/users/:IAMUserName/access-keys/*`}
+        element={<AccountUserAccessKeys />}
+      />
+      <Route
+        path="accounts/:accountName/users/:IAMUserName/attachments/*"
+        element={<Attachments />}
+      />
+      <Route
+        path={'accounts/:accountName/workflows/:workflowId/*'}
+        element={<Workflows />}
+      />
+      <Route
+        path={'accounts/:accountName/workflows/create-workflow/*'}
+        element={<CreateWorkflow />}
+      />
+      <Route
+        path="accounts/:accountName/data/workflows/*"
+        element={<Workflows />}
+      />
+      <Route path="accounts/:accountName/workflows/*" element={<Workflows />} />
+      <Route
+        path="accounts/:accountName/create-bucket/*"
+        element={<BucketCreate />}
+      />
+      <Route
+        path={'accounts/:accountName/buckets/:bucketName/objects'}
+        element={<Objects />}
+      />
+      <Route
+        path="accounts/:accountName/data/buckets/*"
+        element={<DataBrowser />}
+      />
+      <Route path="accounts/:accountName/buckets/*" element={<DataBrowser />} />
+      <Route path="accounts/:accountName/*" element={<AccountContent />} />
+      <Route path="accounts/*" element={<Accounts />} />
+      <Route path="buckets/*" element={<RedirectToAccount />} />
+      <Route path="/" element={<Navigate to="accounts" replace />} />
+      <Route path="*" element={<NoMatch />} />
+    </Routes>
   );
 }
 
-function Routes() {
+function InternalRoutes() {
   const [isSideBarOpen, setIsSideBarOpen] = useState(
     localStorage.getItem('isSideBarOpen') === null ||
       localStorage.getItem('isSideBarOpen') === 'true',
   );
-  const history = useHistory();
   const location = useLocation();
   const theme = useTheme();
   const { isStorageManager } = useAuthGroups();
+  const config = useConfig();
+  const navigate = useBasenameRelativeNavigate();
 
   const doesRouteMatch = useCallback(
-    (paths: RouteProps | RouteProps[]) => {
-      const location = history.location;
+    (paths: string | string[]) => {
       if (Array.isArray(paths)) {
-        const foundMatchingRoute = paths.find((path) => {
-          const demo = matchPath(location.pathname, path);
-          return demo;
-        });
-        return !!foundMatchingRoute;
+        return paths.some((path) =>
+          matchPath(
+            { path: config.basePath + path, end: true },
+            location.pathname,
+          ),
+        );
       } else {
-        return !!matchPath(location.pathname, paths);
+        return !!matchPath(
+          { path: config.basePath + paths, end: true },
+          location.pathname,
+        );
       }
     },
-    [location],
+    [location.pathname],
   );
 
   const routeWithoutSideBars = [
-    { path: '/create-account' },
-    { path: '/create-dataservice' },
-    { path: '/create-location' },
-    { path: '/locations/:locations/edit' },
-    { path: '/accounts/:accountName/create-user' },
-    { path: '/accounts/:accountName/users/:user/update-user' },
-    { path: '/accounts/:accountName/create-bucket' },
-    { path: '/accounts/:accountName/workflows/create-workflow' },
-    { path: '/accounts/:accountName/create-policy' },
-    { path: '/veeam/configuration' },
+    '/create-account',
+    '/create-dataservice',
+    '/create-location',
+    '/locations/:locations/edit',
+    '/accounts/:accountName/create-user',
+    '/accounts/:accountName/users/:user/update-user',
+    '/accounts/:accountName/create-bucket',
+    '/accounts/:accountName/workflows/create-workflow',
+    '/accounts/:accountName/create-policy',
+    '/veeam/configuration',
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);
@@ -242,54 +284,37 @@ function Routes() {
         label: 'Accounts',
         icon: <Icon name="Account" />,
         onClick: () => {
-          history.push('/accounts');
+          navigate('/accounts');
         },
         active:
-          doesRouteMatch({
-            path: '/accounts',
-            exact: true,
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName',
-            exact: true,
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName/locations',
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName/users',
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName/policies',
-          }),
+          doesRouteMatch('/accounts') ||
+          doesRouteMatch('/accounts/:accountName') ||
+          doesRouteMatch('/accounts/:accountName/properties') ||
+          doesRouteMatch('/accounts/:accountName/locations') ||
+          doesRouteMatch('/accounts/:accountName/users') ||
+          doesRouteMatch('/accounts/:accountName/policies'),
       },
       {
         label: 'Data Browser',
         icon: <Icon name="Bucket" />,
         onClick: () => {
-          history.push('/buckets');
+          navigate('/buckets');
         },
         active:
-          doesRouteMatch({
-            path: '/buckets',
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName/buckets',
-          }),
+          doesRouteMatch('/buckets') ||
+          doesRouteMatch('/accounts/:accountName/buckets/*') ||
+          doesRouteMatch('/accounts/:accountName/data/buckets/*'),
       },
       {
         label: 'Workflows',
         icon: <Icon name="Workflow" />,
         onClick: () => {
-          history.push('/workflows');
+          navigate('/workflows');
         },
         active:
-          doesRouteMatch({
-            path: '/workflows',
-          }) ||
-          doesRouteMatch({
-            path: '/accounts/:accountName/workflows',
-          }),
+          doesRouteMatch('/workflows') ||
+          doesRouteMatch('/accounts/:accountName/workflows/*') ||
+          doesRouteMatch('/accounts/:accountName/data/workflows/*'),
       },
       ...(isStorageManager
         ? [
@@ -297,21 +322,17 @@ function Routes() {
               label: 'Locations',
               icon: <Icon name="Location" />,
               onClick: () => {
-                history.push('/locations');
+                navigate('/locations');
               },
-              active: doesRouteMatch({
-                path: '/locations',
-              }),
+              active: doesRouteMatch('/locations'),
             },
             {
               label: 'Data Services',
               icon: <Icon name="Cubes" />,
               onClick: () => {
-                history.push('/dataservices');
+                navigate('/dataservices');
               },
-              active: doesRouteMatch({
-                path: '/dataservices',
-              }),
+              active: doesRouteMatch('/dataservices'),
             },
           ]
         : []),
@@ -340,4 +361,4 @@ function Routes() {
   );
 }
 
-export default Routes;
+export default InternalRoutes;

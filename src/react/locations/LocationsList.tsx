@@ -10,7 +10,6 @@ import {
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import { CellProps, CoreUIColumn } from 'react-table';
 
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
@@ -29,7 +28,7 @@ import { useListLocations } from '../next-architecture/domain/business/locations
 import { Location } from '../next-architecture/domain/entities/location';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { ColdStorageIcon } from '../ui-elements/ColdStorageIcon';
@@ -41,6 +40,9 @@ import { PauseAndResume } from './PauseAndResume';
 import { getLocationDeletionBlocker } from './utils';
 import styled from 'styled-components';
 import { TableHeaderWrapper } from '../ui-elements/Table';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 const ActionButtons = ({
   rowValues,
@@ -52,7 +54,7 @@ const ActionButtons = ({
   transitions: BucketWorkflowTransitionV2[];
 }) => {
   const { name: locationName } = rowValues;
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const buckets = useSelector((state: AppState) => state.stats.bucketList);
   const [showModal, setShowModal] = useState(false);
   const accountsLocationsEndpointsAdapter =
@@ -64,6 +66,7 @@ const ActionButtons = ({
 
   const managementClient = useManagementClient();
   const instanceId = useInstanceId();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const deleteMutation = useMutation({
     mutationFn: async (locationName: string) => {
@@ -169,7 +172,7 @@ const ActionButtons = ({
             icon={<Icon name="Edit" />}
             variant="secondary"
             size="inline"
-            onClick={() => history.push(`/locations/${locationName}/edit`)}
+            onClick={() => navigate(`/locations/${locationName}/edit`)}
             type="button"
             aria-label="Edit Location"
             tooltip={
@@ -204,7 +207,7 @@ const ActionButtons = ({
 };
 
 export function LocationsList() {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const workflowsQuery = useWorkflows();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -233,6 +236,8 @@ export function LocationsList() {
   const loadingBuckets = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
   );
+
+  const { basePath } = useConfig();
 
   const SEARCH_QUERY_PARAM = 'search';
   const columns = useMemo(() => {
@@ -381,7 +386,7 @@ export function LocationsList() {
     return (
       <EmptyState
         icon="Map-marker"
-        link="/create-location"
+        link={`${basePath}/create-location`}
         listedResource={{ singular: 'location', plural: 'locations' }}
       />
     );
@@ -410,7 +415,7 @@ export function LocationsList() {
               icon={<Icon name="Create-add" />}
               label="Create Location"
               variant="primary"
-              onClick={() => history.push('/create-location')}
+              onClick={() => navigate('/create-location')}
               type="submit"
             />
           }

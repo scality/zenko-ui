@@ -1,11 +1,4 @@
-import {
-  Route,
-  Switch,
-  useHistory,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from 'react-router-dom';
+import { Route, Routes, useLocation, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from '../../types/state';
@@ -23,10 +16,12 @@ import { AppContainer, EmptyState, Icon } from '@scality/core-ui';
 import { Box } from '@scality/core-ui/dist/next';
 import { useS3Client } from '../next-architecture/ui/S3ClientProvider';
 import Loader from '../ui-elements/Loader';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
 export default function DataBrowser() {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { accountName } = useParams<{ accountName: string }>();
   const { accounts } = useAccounts();
   const hasError = useSelector(
@@ -39,9 +34,9 @@ export default function DataBrowser() {
   const { pathname } = useLocation();
   const query = useQueryParams();
   const prefixPath = query.get('prefix');
-  const { path } = useRouteMatch();
 
   const s3Client = useS3Client();
+  const { basePath } = useConfig();
 
   if (!s3Client.config.credentials?.accessKeyId) {
     return (
@@ -62,7 +57,7 @@ export default function DataBrowser() {
           btnTitle="Display buckets"
           btnAction={() => {
             dispatch(clearError());
-            history.push('/buckets');
+            navigate('/buckets');
           }}
         />
       </EmptyStateContainer>
@@ -73,7 +68,7 @@ export default function DataBrowser() {
     return (
       <EmptyState
         icon="Bucket"
-        link="/create-account"
+        link={`${basePath}/create-account`}
         listedResource={{
           singular: 'Bucket',
           plural: 'Buckets',
@@ -92,32 +87,27 @@ export default function DataBrowser() {
               pathname,
               prefixPath,
               accountName,
+              basePath,
             )}
           />
-          <Route path={`${path}/:bucketName`} component={ListLayoutButtons} />
+          <Routes>
+            <Route path={':bucketName'} element={<ListLayoutButtons />} />
+          </Routes>
         </Box>
       </AppContainer.ContextContainer>
 
-      <Switch>
+      <Routes>
         <Route
-          exact
-          path={`${path}/:bucketName/retention-setting`}
-          component={ObjectLockSetting}
+          path={':bucketName/retention-setting'}
+          element={<ObjectLockSetting />}
         />
         <Route
-          exact
-          path={`${path}/:bucketName/objects/retention-setting`}
-          component={ObjectLockSettingOnObject}
+          path={':bucketName/objects/retention-setting'}
+          element={<ObjectLockSettingOnObject />}
         />
-        <Route
-          exact
-          strict
-          path={`${path}/:bucketName/objects`}
-          component={Objects}
-        />
-        <Route path={`${path}/:bucketName/objects/*`} component={Objects} />
-        <Route path={`${path}/:bucketName?`} component={Buckets} />
-      </Switch>
+        <Route path={':bucketName/objects/*'} element={<Objects />} />
+        <Route path={':bucketName?'} element={<Buckets />} />
+      </Routes>
     </Box>
   );
 }

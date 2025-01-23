@@ -1,4 +1,4 @@
-import { Link, matchPath } from 'react-router-dom';
+import { Link, matchPath } from 'react-router';
 import {
   Breadcrumb as CoreUIBreadcrumb,
   ConstrainedText,
@@ -6,6 +6,8 @@ import {
 import styled from 'styled-components';
 import AccountRoleSelectButtonAndModal from '../account/AccountRoleSelectButtonAndModal';
 import { fontSize } from '@scality/core-ui/dist/style/theme';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { JSX } from 'react';
 
 // vendor from `polished` package
 type Styles = {
@@ -51,21 +53,23 @@ export const breadcrumbPathsBuckets = (
   pathname: string,
   prefixPath: string,
   accountName: string,
+  basePath: string,
 ): JSX.IntrinsicElements['label'][] => {
-  const accountsURLPrefix = `/accounts/${accountName}`;
-  const matchCreateBucketRoute = matchPath(pathname, {
-    path: `${accountsURLPrefix}/create-bucket`,
-  });
+  const accountsURLPrefix = `/accounts/:accountName`;
+  const matchCreateBucketRoute = matchPath(
+    `${accountsURLPrefix}/create-bucket`,
+    pathname,
+  );
   if (matchCreateBucketRoute) {
     return [<label key="buckets">create bucket</label>];
   }
 
-  const matchObjectRoutes = matchPath(pathname, {
-    path: `${accountsURLPrefix}/buckets/:bucketName/objects*`,
-  });
+  const matchObjectRoutes = matchPath(
+    basePath + `${accountsURLPrefix}/buckets/:bucketName/objects*`,
+    pathname,
+  );
 
   if (matchObjectRoutes) {
-    //@ts-expect-error fix this when you are working on it
     const bucketName = matchObjectRoutes.params.bucketName;
 
     if (!bucketName) {
@@ -77,9 +81,11 @@ export const breadcrumbPathsBuckets = (
     let splits: string[] = [];
 
     if (
-      matchPath(pathname, {
-        path: `${accountsURLPrefix}/buckets/:bucketName/objects/retention-setting`,
-      })
+      matchPath(
+        basePath +
+          `${accountsURLPrefix}/buckets/:bucketName/objects/retention-setting`,
+        pathname,
+      )
     ) {
       splits = prefixPath ? prefixPath.split('/') : [];
     } else if (prefixPath && isInFolder) {
@@ -106,7 +112,9 @@ export const breadcrumbPathsBuckets = (
           <label key={s}>
             <Link
               to={{
-                pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
+                pathname:
+                  basePath +
+                  `${accountsURLPrefix}/buckets/${bucketName}/objects`,
                 search: `?prefix=${prefix}/`,
               }}
             >
@@ -121,7 +129,7 @@ export const breadcrumbPathsBuckets = (
         {' '}
         <Link
           to={{
-            pathname: '/buckets',
+            pathname: basePath + '/buckets',
           }}
         >
           {' '}
@@ -132,7 +140,8 @@ export const breadcrumbPathsBuckets = (
         {' '}
         <Link
           to={{
-            pathname: `${accountsURLPrefix}/buckets/${bucketName}/objects`,
+            pathname:
+              basePath + `${accountsURLPrefix}/buckets/${bucketName}/objects`,
           }}
         >
           {' '}
@@ -143,9 +152,10 @@ export const breadcrumbPathsBuckets = (
     ];
   }
 
-  const matchObjectsRoute = matchPath(pathname, {
-    path: `${accountsURLPrefix}/buckets/:bucketName/objects`,
-  });
+  const matchObjectsRoute = matchPath(
+    `${accountsURLPrefix}/buckets/:bucketName/objects`,
+    pathname,
+  );
 
   if (matchObjectsRoute) {
     return [
@@ -160,33 +170,26 @@ export const breadcrumbPathsBuckets = (
         </Link>
       </label>,
       <label key="bucket-name">
-        <ConstrainedText
-          text={
-            //@ts-expect-error fix this when you are working on it
-            matchObjectsRoute.params.bucketName
-          }
-        />
+        <ConstrainedText text={matchObjectsRoute.params.bucketName} />
       </label>,
     ];
   }
 
-  const matchBucketRetensionSettingRoute = matchPath(pathname, {
-    path: `${accountsURLPrefix}/buckets/:bucketName/retention-setting`,
-  });
+  const matchBucketRetensionSettingRoute = matchPath(
+    basePath + `${accountsURLPrefix}buckets/:bucketName/retention-setting`,
+    pathname,
+  );
 
   if (matchBucketRetensionSettingRoute) {
     return [
       <label key="buckets">
         <Link
           to={{
-            pathname: '/buckets',
+            pathname: basePath + '/buckets',
           }}
         >
           <ConstrainedText
-            text={
-              //@ts-expect-error fix this when you are working on it
-              matchBucketRetensionSettingRoute.params.bucketName
-            }
+            text={matchBucketRetensionSettingRoute.params.bucketName}
           />
         </Link>
       </label>,
@@ -196,9 +199,10 @@ export const breadcrumbPathsBuckets = (
     ];
   }
 
-  const matchBucketsRoute = matchPath(pathname, {
-    path: `${accountsURLPrefix}/buckets/:bucketName`,
-  });
+  const matchBucketsRoute = matchPath(
+    basePath + '/accounts/:accountName/buckets/:bucketName',
+    pathname,
+  );
 
   if (matchBucketsRoute) {
     return [
@@ -227,12 +231,14 @@ export function Breadcrumb({ breadcrumbPaths }: Props) {
 }
 
 export function BreadcrumbAccount({ pathname }: { pathname: string }) {
-  const matchAccountUserAccessKey = matchPath(pathname, {
-    path: '/accounts/:accountName/users/:userName/access-keys',
-  });
+  const config = useConfig();
+
+  const matchAccountUserAccessKey = matchPath(
+    config.basePath + '/accounts/:accountName/users/:userName/access-keys',
+    pathname,
+  );
 
   if (matchAccountUserAccessKey) {
-    //@ts-expect-error fix this when you are working on it
     const userName = matchAccountUserAccessKey.params.userName;
     return (
       <CustomBreadCrumb
@@ -244,9 +250,10 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
     );
   }
 
-  const matchAccountRoute = matchPath(pathname, {
-    path: '/accounts/:accountName',
-  });
+  const matchAccountRoute = matchPath(
+    config.basePath + '/accounts/:accountName' + '/*',
+    pathname,
+  );
 
   if (matchAccountRoute) {
     return (
@@ -256,9 +263,10 @@ export function BreadcrumbAccount({ pathname }: { pathname: string }) {
     );
   }
 
-  const matchAllAccountsRoute = matchPath(pathname, {
-    path: '/accounts/',
-  });
+  const matchAllAccountsRoute = matchPath(
+    config.basePath + '/accounts/',
+    pathname,
+  );
 
   if (matchAllAccountsRoute) {
     return (

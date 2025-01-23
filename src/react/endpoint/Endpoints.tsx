@@ -10,6 +10,7 @@ import {
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import EndpointList from './EndpointList';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
 const Endpoints = () => {
   const accountsLocationsEndpointsAdapter =
@@ -18,6 +19,8 @@ const Endpoints = () => {
     useAccountsLocationsAndEndpoints({
       accountsLocationsEndpointsAdapter,
     });
+
+  const { basePath } = useConfig();
 
   if (status === 'idle' || status === 'loading') {
     return (
@@ -36,7 +39,7 @@ const Endpoints = () => {
           singular: 'Data Service',
           plural: 'Data Services',
         }}
-        link="/create-dataservice"
+        link={`${basePath}/create-dataservice`}
       />
     );
   }

@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import styled from 'styled-components';
 
+import { Icon, spacing } from '@scality/core-ui';
+import { Input } from '@scality/core-ui/dist/next';
 import { Hint, Hints, HintsTitle } from '../../ui-elements/Input';
 import {
   SearchButton,
@@ -14,8 +16,6 @@ import {
   usePrefixWithSlash,
   useQueryParams,
 } from '../../utils/hooks';
-import { Icon, spacing } from '@scality/core-ui';
-import { Input } from '@scality/core-ui/dist/next';
 
 export const METADATA_SEARCH_HINT_ITEMS = [
   {
@@ -71,7 +71,7 @@ type Props = {
 
 const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
   const [hintsShown, setHintsShown] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
   const query = useQueryParams();
   const { pathname } = useLocation();
   const prefixWithSlash = usePrefixWithSlash();
@@ -95,7 +95,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
 
     // Add metadatasearch in the query params
     query.set('metadatasearch', inputText);
-    history.push(`${pathname}?${query.toString()}`);
+    navigate(`${pathname}?${query.toString()}`);
   };
 
   const reset = (e) => {
@@ -104,7 +104,7 @@ const MetadataSearch = ({ isMetadataType, errorZenkoMsg }: Props) => {
     setInputText('');
     // Remove the medatasearch from the query params
     query.delete('metadatasearch');
-    history.push(`${pathname}?${query.toString()}`);
+    navigate(`${pathname}?${query.toString()}`);
   };
 
   const handleHintClicked = (q) => {

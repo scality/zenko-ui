@@ -1,5 +1,5 @@
 import { List } from 'immutable';
-import router, { MemoryRouter, Redirect } from 'react-router-dom';
+import router, { MemoryRouter, Navigate } from 'react-router';
 import { ACCOUNT } from '../../../actions/__tests__/utils/testUtil';
 import { reduxMount } from '../../../utils/testUtil';
 import Buckets from '../Buckets';
@@ -30,9 +30,9 @@ describe.skip('Buckets', () => {
       bucketName: '',
     });
     const { component } = reduxMount(<Buckets />);
-    expect(component.find('Warning').prop('title')).toBe(
-      'Create your first bucket.',
-    );
+    expect(
+      component.getByText('Create your first bucket.'),
+    ).toBeInTheDocument();
   });
   it('should redirect to the first bucket if no bucket is selected', () => {
     jest.spyOn(router, 'useParams').mockReturnValue({
@@ -50,6 +50,6 @@ describe.skip('Buckets', () => {
         },
       },
     );
-    expect(component.find(Redirect)).toHaveLength(1);
+    expect(component.container.querySelector('Navigate')).toBeInTheDocument();
   });
 });

@@ -9,7 +9,7 @@ import Loader from './ui-elements/Loader';
 import Routes from './Routes';
 import { loadAppConfig } from './actions';
 import { useConfig } from './next-architecture/ui/ConfigProvider';
-import { useAuth } from './next-architecture/ui/AuthProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 function ZenkoUI() {
   const isConfigLoaded = useSelector(
@@ -23,6 +23,7 @@ function ZenkoUI() {
   );
   const dispatch = useDispatch();
   const conf = useConfig();
+  const { useAuth } = useShellHooks();
   const user = useAuth();
   useEffect(() => {
     dispatch(loadAppConfig(conf, user.userData));

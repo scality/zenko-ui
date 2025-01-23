@@ -1,6 +1,6 @@
 import { Icon, Loader } from '@scality/core-ui';
 import { useReducer } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import { useQuery } from 'react-query';
 import { useIAMClient } from '../../IAMProvider';
@@ -150,7 +150,7 @@ const AttachmentTabs = ({
       {resourceType === 'policy' && (
         <Tabs.Tab
           label="Users"
-          path={pathname}
+          path={''}
           query={{ ...queryObject, tab: null }}
           icon={<Icon name="User" />}
           withoutPadding
@@ -193,7 +193,7 @@ const AttachmentTabs = ({
       {resourceType === 'policy' && (
         <Tabs.Tab
           label="Groups"
-          path={pathname}
+          path={''}
           query={{ ...queryObject, tab: 'groups' }}
           icon={<Icon name="Group" />}
           withoutPadding
@@ -238,7 +238,7 @@ const AttachmentTabs = ({
       {resourceType === 'user' && (
         <Tabs.Tab
           label="Groups"
-          path={pathname}
+          path={''}
           query={{ ...queryObject, tab: null }}
           icon={<Icon name="Group" />}
           withoutPadding
@@ -282,7 +282,7 @@ const AttachmentTabs = ({
       {resourceType === 'policy' && (
         <Tabs.Tab
           label="Roles"
-          path={pathname}
+          path={''}
           query={{ ...queryObject, tab: 'roles' }}
           icon={<Icon name="Role" />}
           withoutPadding
@@ -332,7 +332,7 @@ const AttachmentTabs = ({
       {resourceType === 'user' && (
         <Tabs.Tab
           label="Policies"
-          path={pathname}
+          path={''}
           query={{ ...queryObject, tab: 'policies' }}
           icon={<Icon name="Policy" />}
           withoutPadding

@@ -1,7 +1,8 @@
 import { FederatedComponent } from '@scality/module-federation';
-import { useConfigRetriever, useDeployedApps } from './ConfigProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 export const CertificateDownloadButton = () => {
+  const { useDeployedApps, useConfigRetriever } = useShellHooks();
   const deployedApps = useDeployedApps();
   const artescaUI = deployedApps.find(
     (app: { kind: string }) => app.kind === 'artesca-base-ui',
@@ -11,7 +12,7 @@ export const CertificateDownloadButton = () => {
   if (artescaUI) {
     const url =
       artescaUI.url +
-      retrieveConfiguration<'build'>({
+      retrieveConfiguration({
         configType: 'build',
         name: artescaUI.name,
       }).spec.remoteEntryPath;

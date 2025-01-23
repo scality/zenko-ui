@@ -2,7 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Controller, useForm } from 'react-hook-form';
 import userEvent from '@testing-library/user-event';
 import TagsFilter from '../TagsFilter';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
+import { QueryClientProvider } from '../../../QueryClientProvider';
 
 describe('TagsFilter', () => {
   it('should render TagsFilters', async () => {

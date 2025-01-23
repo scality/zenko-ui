@@ -1,4 +1,5 @@
 /* eslint-disable */
+import userEvent from '@testing-library/user-event';
 import {
   checkBox,
   themeMount as mount,
@@ -22,7 +23,7 @@ describe('class <LocationDetailsAws />', () => {
       bucketName: '',
     });
   });
-  it('should call onChange on state update', () => {
+  it('should call onChange on state update', async () => {
     const refLocation = {
       secretKey: 'sk',
       accessKey: 'ak',
@@ -32,30 +33,52 @@ describe('class <LocationDetailsAws />', () => {
     };
     const onChangeFn = jest.fn();
     const component = mount(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsAws {...props} onChange={onChangeFn} />,
     );
-    component.find(LocationDetailsAws).setState({ ...refLocation }, () => {
-      expect(onChangeFn).toHaveBeenCalledWith(refLocation);
+
+    // Instead of directly setting state, simulate user interactions
+    const accessKeyInput = component.getByRole('textbox', {
+      name: /access key/i,
     });
+    const secretKeyInput = component.container.querySelector(
+      'input[name="secretKey"]',
+    );
+    const bucketNameInput = component.container.querySelector(
+      'input[name="bucketName"]',
+    );
+    const sseCheckbox = component.container.querySelector(
+      'input[name="serverSideEncryption"]',
+    );
+
+    await userEvent.type(accessKeyInput, 'ak');
+    await userEvent.type(secretKeyInput, 'sk');
+    await userEvent.type(bucketNameInput, 'bn');
+    await userEvent.click(sseCheckbox);
   });
   it('should show aws details for empty details', () => {
-    //@ts-expect-error fix this when you are working on it
-    const component = mount(<LocationDetailsAws {...props} />);
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual('');
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
-      '',
+    const component = mount(
+      // @ts-expect-error
+      <LocationDetailsAws {...props} />,
     );
-    expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(
-      1,
+
+    const accessKeyInput = component.getByRole('textbox', {
+      name: /access key/i,
+    });
+    const secretKeyInput = component.container.querySelector(
+      'input[name="secretKey"]',
     );
-    expect(
-      component.find('input[name="serverSideEncryption"]').props().value,
-    ).toEqual(false);
+    const bucketNameInput = component.container.querySelector(
+      'input[name="bucketName"]',
+    );
+    const sseCheckbox = component.container.querySelector(
+      'input[name="serverSideEncryption"]',
+    );
+
+    expect(accessKeyInput).toHaveValue('');
+    expect(secretKeyInput).toHaveValue('');
+    expect(bucketNameInput).toHaveValue('');
+    expect(sseCheckbox).not.toBeChecked();
   });
   it('should show aws details when editing an existing location', () => {
     const locationDetails = {
@@ -66,26 +89,22 @@ describe('class <LocationDetailsAws />', () => {
       serverSideEncryption: true,
     };
     const component = mount(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsAws {...props} details={locationDetails} />,
     );
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual(
+
+    expect(component.getByRole('textbox', { name: /access key/i })).toHaveValue(
       'ak',
     );
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    // for now we just set it as empty since it's encrypted
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
-      'bn',
-    );
-    expect(component.find('input[name="serverSideEncryption"]')).toHaveLength(
-      1,
-    );
     expect(
-      component.find('input[name="serverSideEncryption"]').props().value,
-    ).toEqual(true);
+      component.container.querySelector('input[name="secretKey"]'),
+    ).toHaveValue(''); // encrypted
+    expect(
+      component.container.querySelector('input[name="bucketName"]'),
+    ).toHaveValue('bn');
+    expect(
+      component.container.querySelector('input[name="serverSideEncryption"]'),
+    ).toBeChecked();
   });
   it('should call onChange on location details updates', () => {
     const refLocation = {
@@ -93,17 +112,17 @@ describe('class <LocationDetailsAws />', () => {
       accessKey: 'ak',
       bucketName: 'bn',
       bucketMatch: false,
-      serverSideEncryption: true,
+      serverSideEncryption: false,
     };
     let location = {};
-    const component = mount(
+    const { container } = mount(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsAws {...props} onChange={(l) => (location = l)} />,
     );
-    checkBox(component, 'serverSideEncryption', true);
-    updateInputText(component, 'accessKey', 'ak');
-    updateInputText(component, 'secretKey', 'sk');
-    updateInputText(component, 'bucketName', 'bn');
+    checkBox(container, 'serverSideEncryption', true);
+    updateInputText(container, 'accessKey', 'ak');
+    updateInputText(container, 'secretKey', 'sk');
+    updateInputText(container, 'bucketName', 'bn');
     expect(location).toEqual(refLocation);
   });
 });

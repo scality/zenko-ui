@@ -1,28 +1,19 @@
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
   FormGroup,
   FormSection,
   Icon,
-  spacing,
   Stack,
 } from '@scality/core-ui';
+import { Button } from '@scality/core-ui/dist/next';
+import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
-import { Expiration, Replication } from '../../types/config';
-import {
-  handleApiError,
-  handleClientError,
-  networkEnd,
-  networkStart,
-} from '../actions';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { Box, Button } from '@scality/core-ui/dist/next';
-import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useMutation, useQueryClient } from 'react-query';
+import { useDispatch } from 'react-redux';
 import {
   BucketWorkflowExpirationV1,
   BucketWorkflowTransitionV2,
@@ -30,15 +21,22 @@ import {
   ReplicationStreamInternalV1,
 } from '../../js/managementClient/api';
 import { ApiError } from '../../types/actions';
+import { Expiration, Replication } from '../../types/config';
 import {
   ReplicationForm as ReplicationFormType,
   ReplicationForm as TypeReplicationForm,
 } from '../../types/replication';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { Workflow } from '../../types/workflow';
+import {
+  handleApiError,
+  handleClientError,
+  networkEnd,
+  networkStart,
+} from '../actions';
 import { useCurrentAccount } from '../DataServiceRoleProvider';
 import { useManagementClient } from '../ManagementProvider';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { workflowListQuery } from '../queries';
 import { useRolePathName } from '../utils/hooks';
 import { DeleteWorkflowButton } from './DeleteWorkflowButton';
@@ -66,6 +64,8 @@ import {
   removeEmptyTagKeys,
 } from './utils';
 import { useWorkflows } from './Workflows';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useShellHooks } from '@scality/module-federation';
 
 type Props = {
   wfSelected: Workflow;
@@ -77,9 +77,10 @@ function useReplicationMutations({
   onEditSuccess: (replication: Replication) => void;
 }) {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
@@ -162,7 +163,7 @@ function useReplicationMutations({
     },
     {
       onSuccess: (success) => {
-        history.replace(`./replication-${success.streamId}`);
+        navigate(`./replication-${success.streamId}`, { replace: true });
 
         if (onEditSuccess) {
           //@ts-expect-error fix this when you are working on it
@@ -197,9 +198,10 @@ function useExpirationMutations({
   onEditSuccess: (expiration: BucketWorkflowExpirationV1) => void;
 }) {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
@@ -266,7 +268,7 @@ function useExpirationMutations({
     },
     {
       onSuccess: (success) => {
-        history.replace(`./expiration-${success.workflowId}`);
+        navigate(`./expiration-${success.workflowId}`, { replace: true });
 
         if (onEditSuccess) {
           onEditSuccess(success);
@@ -302,9 +304,10 @@ function useTransitionMutations(
   } = { onEditSuccess: undefined },
 ) {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const queryClient = useQueryClient();
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { account } = useCurrentAccount();
@@ -375,7 +378,7 @@ function useTransitionMutations(
     },
     {
       onSuccess: (success) => {
-        history.replace(`./transition-${success.workflowId}`);
+        navigate(`./transition-${success.workflowId}`, { replace: true });
 
         if (onEditSuccess) {
           onEditSuccess(success);

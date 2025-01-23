@@ -9,6 +9,7 @@ import { handleAWSClientError, handleAWSError } from './error';
 import { networkEnd, networkStart } from './network';
 import { getClients } from '../utils/actions';
 import { History } from 'history';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 export function getBucketInfoSuccess(
   info: BucketInfo,
@@ -65,12 +66,12 @@ export function toggleBucketVersioning(
 export function editDefaultRetention(
   bucketName: string,
   objectLockRetentionSettings: ObjectLockRetentionSettings,
-  history: History,
 ): ThunkStatePromisedAction {
   return async (dispatch, getState) => {
     // TODO: credentials expired => zenkoClient out of date => zenkoClient.createBucket error.
     const { zenkoClient } = getClients(getState());
     dispatch(networkStart('Editing bucket default retention'));
+    const navigate = useBasenameRelativeNavigate();
 
     try {
       await zenkoClient.putObjectLockConfiguration({
@@ -88,7 +89,7 @@ export function editDefaultRetention(
       return;
     }
 
-    history.push('/buckets');
+    navigate('/buckets');
     await dispatch(networkEnd());
   };
 }

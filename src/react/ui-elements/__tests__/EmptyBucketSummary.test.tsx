@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { EmptyBucketSummary } from '../EmptyBucket/EmptyBucketSummary';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { QueryClient } from 'react-query';
+import { BrowserRouter } from 'react-router';
+import { QueryClientProvider } from '../../../QueryClientProvider';
 
 const queryClient = new QueryClient();
 

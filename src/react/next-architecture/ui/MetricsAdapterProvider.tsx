@@ -1,8 +1,9 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { PensieveMetricsAdapter } from '../adapters/metrics/PensieveMetricsAdapter';
 import { IMetricsAdapter } from '../adapters/metrics/IMetricsAdapter';
-import { useAuth, useInstanceId } from './AuthProvider';
+import { useInstanceId } from './AuthProvider';
 import { useConfig } from './ConfigProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 const _MetricsAdapterContext = createContext<null | {
   metricsAdapter: IMetricsAdapter;
@@ -21,6 +22,7 @@ export const useMetricsAdapter = (): IMetricsAdapter => {
 };
 
 const MetricsAdapterProvider = ({ children }: { children: ReactNode }) => {
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const { managementEndpoint } = useConfig();

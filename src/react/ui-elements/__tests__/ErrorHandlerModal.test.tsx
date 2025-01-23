@@ -1,12 +1,11 @@
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import ErrorHandlerModal from '../ErrorHandlerModal';
-import { reduxMount, renderWithRouterMatch } from '../../utils/testUtil';
+import { renderWithRouterMatch } from '../../utils/testUtil';
 
 describe('ErrorHandlerModal', () => {
   const errorMessage = 'test error message';
+
   it('ErrorHandlerModal should render', () => {
-    // I put <></> because  ErrorHandlerModal is already in `renderWithRouterMatch`
-    // We will remove/change this component anyway
     renderWithRouterMatch(<></>, undefined, {
       uiErrors: {
         errorMsg: errorMessage,
@@ -15,22 +14,24 @@ describe('ErrorHandlerModal', () => {
     });
     expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
+
   it('ErrorHandlerModal should not render if errorType is set to "byAuth"', () => {
-    const { component } = reduxMount(<ErrorHandlerModal />, {
+    renderWithRouterMatch(<ErrorHandlerModal />, undefined, {
       uiErrors: {
         errorMsg: errorMessage,
         errorType: 'byAuth',
       },
     });
-    expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(true);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
-  it('ErrorHandlerModal should not render if children errorType and errorMessage are set to null', () => {
-    const { component } = reduxMount(<ErrorHandlerModal />, {
+
+  it('ErrorHandlerModal should not render if errorType and errorMessage are null', () => {
+    renderWithRouterMatch(<ErrorHandlerModal />, undefined, {
       uiErrors: {
         errorMsg: null,
         errorType: null,
       },
     });
-    expect(component.find(ErrorHandlerModal).isEmptyRender()).toBe(true);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

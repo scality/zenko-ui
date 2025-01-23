@@ -10,5 +10,5 @@ export declare function LanguageProvider({ children, canChangeLanguage, onLangua
     children: React.ReactNode;
     canChangeLanguage?: boolean;
     onLanguageChanged?: (evt: CustomEvent) => void;
-}): JSX.Element;
+}): import("react/jsx-runtime").JSX.Element;
 export {};

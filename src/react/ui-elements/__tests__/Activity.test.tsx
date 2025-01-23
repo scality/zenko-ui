@@ -26,12 +26,13 @@ describe('Activity', () => {
     expect(screen.getByText(DEFAULT_MESSAGE)).toBeInTheDocument();
   });
   it('Activity should not render', () => {
-    const { component } = reduxMount(<Activity />, {
+    reduxMount(<Activity />, {
       networkActivity: {
         counter: 0,
         messages: List(),
       },
     });
-    expect(component.find(Activity).isEmptyRender()).toBe(true);
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

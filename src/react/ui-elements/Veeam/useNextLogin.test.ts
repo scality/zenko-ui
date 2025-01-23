@@ -13,7 +13,7 @@ describe('useNextLogin', () => {
   it('should return true if actual session state is different from local storage session state', () => {
     const localStorageSessionState = 'session-state-2';
 
-    mockGetSessionState.mockReturnValue(localStorageSessionState);
+    mockGetSessionState.mockReturnValueOnce(localStorageSessionState);
 
     const { result } = renderHook(() => useNextLogin(), {
       wrapper: NewWrapper(),
@@ -25,7 +25,7 @@ describe('useNextLogin', () => {
   it('should return false if actual session state is same as local storage session state', () => {
     const sessionState = 'session-state-1';
 
-    mockGetSessionState.mockReturnValue(sessionState);
+    mockGetSessionState.mockReturnValueOnce(sessionState);
 
     const { result } = renderHook(() => useNextLogin(), {
       wrapper: NewWrapper(),

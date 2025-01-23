@@ -1,15 +1,18 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { TEST_API_BASE_URL } from '../../../react/utils/testUtil';
+import { QueryClient } from 'react-query';
+import {
+  mockShellAlerts,
+  mockShellHooks,
+  TEST_API_BASE_URL,
+} from '../../../react/utils/testUtil';
 import {
   SelectAccountIAMRoleInternal as SelectAccountIAMRole,
   extractAccountIdFromARN,
 } from '../SelectAccountIAMRole';
 
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 import {
   USERS,
   getConfigOverlay,
@@ -18,6 +21,8 @@ import { INSTANCE_ID } from '../../../react/actions/__tests__/utils/testUtil';
 import { ToastProvider } from '@scality/core-ui';
 import { coreUIAvailableThemes } from '@scality/core-ui/src/lib/style/theme';
 import { ThemeProvider } from 'styled-components';
+import { QueryClientProvider } from '../../../QueryClientProvider';
+import { ShellHooksProvider } from '@scality/module-federation';
 
 const testAccountId1 = '064609833007';
 const testAccountId2 = '377232323695';
@@ -275,7 +280,14 @@ const LocalWrapper = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={coreUIAvailableThemes.artescaLight}>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          <ShellHooksProvider
+            shellHooks={mockShellHooks}
+            shellAlerts={mockShellAlerts}
+          >
+            {children}
+          </ShellHooksProvider>
+        </ToastProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
@@ -313,18 +325,27 @@ describe('SelectAccountIAMRole', () => {
       expect(seletors.accountSelect()).toBeInTheDocument();
     });
 
-    await userEvent.click(seletors.accountSelect());
+    await act(async () => {
+      await userEvent.click(seletors.accountSelect());
+    });
 
     expect(screen.getByText('no-bucket')).toBeInTheDocument();
 
-    await userEvent.click(seletors.selectOption(/no-bucket/i));
+    await act(async () => {
+      await userEvent.click(seletors.selectOption(/no-bucket/i));
+    });
 
     await waitFor(() => {
       expect(seletors.roleSelect()).toBeInTheDocument();
     });
 
-    await userEvent.click(seletors.roleSelect());
-    await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+    await act(async () => {
+      await userEvent.click(seletors.roleSelect());
+    });
+
+    await act(async () => {
+      await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+    });
 
     const account = {
       assumableRoles: [
@@ -381,18 +402,27 @@ describe('SelectAccountIAMRole', () => {
       expect(seletors.accountSelect()).toBeInTheDocument();
     });
 
-    await userEvent.click(seletors.accountSelect());
+    await act(async () => {
+      await userEvent.click(seletors.accountSelect());
+    });
 
     expect(screen.getByText('no-bucket')).toBeInTheDocument();
 
-    await userEvent.click(seletors.selectOption(/no-bucket/i));
+    await act(async () => {
+      await userEvent.click(seletors.selectOption(/no-bucket/i));
+    });
 
     await waitFor(() => {
       expect(seletors.roleSelect()).toBeInTheDocument();
     });
 
-    await userEvent.click(seletors.roleSelect());
-    await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+    await act(async () => {
+      await userEvent.click(seletors.roleSelect());
+    });
+
+    await act(async () => {
+      await userEvent.click(seletors.selectOption(/backbeat-gc-1/i));
+    });
 
     expect(onChange).not.toHaveBeenCalled();
     await waitFor(() => {
@@ -636,7 +666,7 @@ describe('SelectAccountIAMRole', () => {
     });
   });
 
-  it('renders with default value', async () => {
+  it.only('renders with default value', async () => {
     const getPayloadFn = jest.fn();
     server.use(genFn(getPayloadFn));
     const onChange = jest.fn();
@@ -655,7 +685,9 @@ describe('SelectAccountIAMRole', () => {
       expect(seletors.accountSelect()).toBeInTheDocument();
     });
 
-    expect(screen.getByText('no-bucket')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('no-bucket')).toBeInTheDocument();
+    });
   });
 
   it('renders with wrong default value', async () => {

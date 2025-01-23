@@ -2,7 +2,6 @@ import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
 import { AWSError, S3, STS } from 'aws-sdk';
 import STSClient from '../../../js/STSClient';
 import { useConfig } from './ConfigProvider';
-import { useAuth } from './AuthProvider';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import ZenkoClient from '../../../js/ZenkoClient';
 import { useDispatch } from 'react-redux';
@@ -10,6 +9,7 @@ import IAMClient from '../../../js/IAMClient';
 import { _IAMContext } from '../../IAMProvider';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { genClientEndpoint } from '../../utils';
+import { useShellHooks } from '@scality/module-federation';
 
 const S3ClientContext = createContext<S3 | null>(null);
 const ZenkoClientContext = createContext<ZenkoClient | null>(null);
@@ -148,7 +148,7 @@ export const S3ClientWithoutReduxProvider = ({
 
 export const useAssumeRoleQuery = () => {
   const { stsEndpoint } = useConfig();
-
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const user = useAuth();
   const roleSessionName = `ui-${user.userData?.id}`;

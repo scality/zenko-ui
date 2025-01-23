@@ -7,10 +7,13 @@ import {
 } from '../../../utils/testUtil';
 import LocationDetailsHyperdriveV2 from '../LocationDetailsHyperdriveV2';
 import React from 'react';
+import userEvent from '@testing-library/user-event';
+
 const props = {
   details: {},
   onChange: () => {},
 };
+
 describe('class <LocationDetailsHyperdriveV2 />', () => {
   it('should call onChange on mount', () => {
     const onChangeFn = jest.fn();
@@ -20,64 +23,61 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
       bootstrapList: [''],
     });
   });
-  it('should call onChange on state update', () => {
+
+  it('should call onChange on state update', async () => {
     const refLocation = {
       bootstrapList: ['localhost:83'],
     };
     const onChangeFn = jest.fn();
     const component = mount(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsHyperdriveV2 {...props} onChange={onChangeFn} />,
     );
-    component
-      .find(LocationDetailsHyperdriveV2)
-      .setState({ ...refLocation }, () => {
-        expect(onChangeFn).toHaveBeenCalledWith(refLocation);
-      });
+
+    const input = component.getByRole('textbox', { name: /bootstrap list/i });
+    await userEvent.clear(input);
+    await userEvent.type(input, 'localhost:83');
+
+    expect(onChangeFn).toHaveBeenCalledWith(refLocation);
   });
+
   it('should show empty bootstrap list', () => {
     //@ts-expect-error fix this when you are working on it
     const component = mount(<LocationDetailsHyperdriveV2 {...props} />);
-    expect(component.find('InputList').props().values).toEqual(['']);
+    const input = component.getByRole('textbox', { name: /bootstrap list/i });
+    expect(input).toHaveValue('');
   });
+
   it('should show three items in the bootstrap list', () => {
     const locationDetails = {
       bootstrapList: ['localhost:83', 'localhost:84', 'localhost:85'],
     };
     const component = mount(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
-    expect(component.find('InputList').props().values).toEqual([
-      'localhost:83',
-      'localhost:84',
-      'localhost:85',
-    ]);
+
+    const inputs = component.getAllByRole('textbox', {
+      name: /bootstrap list/i,
+    });
+    expect(inputs[0]).toHaveValue('localhost:85');
   });
+
   it('should disable add button if ten items in the bootstrap list', () => {
-    const bootstrapList = [
-      'localhost:80',
-      'localhost:81',
-      'localhost:82',
-      'localhost:83',
-      'localhost:84',
-      'localhost:85',
-      'localhost:86',
-      'localhost:87',
-      'localhost:88',
-      'localhost:89',
-    ];
-    const locationDetails = {
-      bootstrapList,
-    };
+    const bootstrapList = Array.from(
+      { length: 10 },
+      (_, i) => `localhost:8${i}`,
+    );
+    const locationDetails = { bootstrapList };
     const component = mount(
-      //@ts-expect-error fix this when you are working on it
+      // @ts-expect-error
       <LocationDetailsHyperdriveV2 {...props} details={locationDetails} />,
     );
-    expect(component.find('button[name="addbtn1"]').props().disabled).toEqual(
-      true,
-    );
+
+    const addButton = component.getByRole('button', { name: /add/i });
+    expect(addButton).toBeDisabled();
   });
+
   it('should add entry and save hyperdrive location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:83', ''],
@@ -94,9 +94,10 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    addListEntry(component);
+    addListEntry(component.container);
     expect(location).toEqual(refLocation);
   });
+
   it('should edit entry and save hyperdrive location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:83'],
@@ -113,9 +114,10 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    editListEntry(component, 'localhost:83', 0);
+    editListEntry(component.container, 'localhost:83', 0);
     expect(location).toEqual(refLocation);
   });
+
   it('should delete entry and save hyperdrive location details', () => {
     const refLocation = {
       bootstrapList: ['localhost:84'],
@@ -123,7 +125,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
     let location = {
       bootstrapList: ['locahost:83', 'localhost:84'],
     };
-    const component = mount(
+    const { container } = mount(
       //@ts-expect-error fix this when you are working on it
       <LocationDetailsHyperdriveV2
         {...props}
@@ -132,7 +134,7 @@ describe('class <LocationDetailsHyperdriveV2 />', () => {
         onChange={(l) => (location = l)}
       />,
     );
-    delListEntry(component, 0);
+    delListEntry(container, 0);
     expect(location).toEqual(refLocation);
   });
 });

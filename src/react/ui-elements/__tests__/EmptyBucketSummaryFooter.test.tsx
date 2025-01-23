@@ -1,6 +1,7 @@
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient } from 'react-query';
 import { render, fireEvent } from '@testing-library/react';
 import { EmptyBucketSummaryFooter } from '../EmptyBucket/EmptyBucketSummaryFooter';
+import { QueryClientProvider } from '../../../QueryClientProvider';
 
 const queryClient = new QueryClient();
 

@@ -11,7 +11,7 @@ import { Button, Input, Select } from '@scality/core-ui/dist/next';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import { LocationV1 } from '../../js/managementClient/api';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
@@ -21,7 +21,7 @@ import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { useManagementClient } from '../ManagementProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useAuth, useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import Loader from '../ui-elements/Loader';
 import {
   getLocationTypeKey,
@@ -39,6 +39,8 @@ import {
   newLocationForm,
 } from './utils';
 import { Loader as LoaderCoreUI } from '@scality/core-ui';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useShellHooks } from '@scality/module-federation';
 
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
@@ -51,7 +53,7 @@ const makeLabel = (locationType: LocationTypeKey) => {
 };
 
 function LocationEditor() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { locationName } = useParams<{ locationName: string }>();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -95,6 +97,7 @@ function LocationEditor() {
   };
 
   const managementClient = useManagementClient();
+  const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const instanceId = useInstanceId();
   const createLocationMutation = useMutation({
@@ -168,7 +171,7 @@ function LocationEditor() {
     if (waiterStatus === 'success') {
       refetchAccountsLocationsEndpointsMutation.mutate(undefined, {
         onSuccess: () => {
-          history.goBack();
+          navigate(-1);
         },
       });
     }
@@ -184,7 +187,7 @@ function LocationEditor() {
       e.preventDefault();
     }
 
-    history.goBack();
+    navigate(-1);
   };
 
   const onTypeChange = (locationType: string) => {

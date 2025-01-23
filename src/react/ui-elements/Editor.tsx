@@ -2,6 +2,7 @@ import MonacoEditor, { EditorProps, loader } from '@monaco-editor/react';
 import React, { useMemo, useState } from 'react';
 
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
+import { useShellHooks } from '@scality/module-federation';
 
 type Props = {
   width?: string;
@@ -24,7 +25,8 @@ const Editor = ({
   const config = useConfig();
   const { basePath } = config;
   const [theme, setTheme] = useState('');
-  const { themeMode } = window.shellHooks.useShellThemeSelector();
+  const { useShellThemeSelector } = useShellHooks();
+  const { themeMode } = useShellThemeSelector();
 
   useMemo(() => {
     setTheme(themeMode === 'dark' ? 'vs-dark' : 'light');

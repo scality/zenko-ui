@@ -12,7 +12,7 @@ import { Button, Input } from '@scality/core-ui/dist/next';
 import { MouseEventHandler } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useCreateAccountMutation } from '../../js/mutations';
 import { useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
@@ -49,7 +49,7 @@ function AccountCreate() {
     mode: 'all',
     resolver: joiResolver(schema),
   });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const setRole = useSetAssumedRole();
   const instanceId = useInstanceId();
@@ -86,7 +86,7 @@ function AccountCreate() {
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
               });
               queryClient.invalidateQueries(['WebIdentityRoles']);
-              history.push(`/accounts/${name}`);
+              navigate(`/accounts/${name}`);
             },
           });
         },
@@ -99,7 +99,7 @@ function AccountCreate() {
       e.preventDefault();
     }
 
-    history.goBack();
+    navigate(-1);
   };
 
   return (

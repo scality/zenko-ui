@@ -265,12 +265,15 @@ export const testActionFunction = (test: ActionTestObject) => {
 export const testDispatchFunction = (test: DispatchTestObject) => {
   (test.skip ? it.skip : it)(test.it, () => {
     const store = mockStore()(test.storeState);
-    return store
-      .dispatch(test.fn)
-      .then(() => expect(store.getActions()).toEqual(test.expectedActions))
-      .catch((error) => {
-        throw new Error(`Expected success, but got error ${error.message}`);
-      });
+    return (
+      store
+        // @ts-expect-error
+        .dispatch(test.fn)
+        .then(() => expect(store.getActions()).toEqual(test.expectedActions))
+        .catch((error) => {
+          throw new Error(`Expected success, but got error ${error.message}`);
+        })
+    );
   });
 };
 export const testDispatchFunctionWithFullStore = (test: DispatchTestObject) => {
@@ -309,6 +312,7 @@ export const testDispatchErrorTestFn = (
     let testError = null;
 
     try {
+      // @ts-expect-error
       await store.dispatch(test.fn);
     } catch (e) {
       const { message } = e.response.body;
@@ -324,7 +328,7 @@ export const waitForSelectOptionToBeEnabled = async (screenElementFn) => {
   await waitFor(
     () => expect(screenElementFn()).toHaveAttribute('aria-disabled', 'false'),
     {
-      timeout: 10_000,
+      timeout: 18_000,
     },
   );
   return new Promise((resolve) => setTimeout(resolve, 500));

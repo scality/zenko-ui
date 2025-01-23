@@ -55,7 +55,7 @@ describe('Tags', () => {
       />,
       {},
     );
-    expect(component.find(Tags).isEmptyRender()).toBe(false);
+    expect(component.container).not.toBeEmptyDOMElement();
   });
   it('should render by default an Item with empty values in each input when there are no key/value present', () => {
     reduxRender(

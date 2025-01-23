@@ -14,7 +14,7 @@ import {
 } from '@scality/core-ui';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { spacing } from '@scality/core-ui';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQuery } from 'react-query';
 
 import { AppState } from '../../../types/state';
@@ -38,6 +38,7 @@ import { parseRestore } from '../../reducers/s3';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type CellProps = {
   row: {
@@ -58,7 +59,7 @@ export default function ObjectListTable({
   isVersioningType,
   prefixWithSlash,
 }: Props) {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const { accountName } = useParams<{ accountName: string }>();
 
   const [isTableScrollbarVisible, setIsTableScrollbarVisible] = useState(false);
@@ -84,7 +85,7 @@ export default function ObjectListTable({
     (bucketName, key) => (e) => {
       e.stopPropagation();
       query.set('prefix', key);
-      history.push(
+      navigate(
         `/accounts/${accountName}/buckets/${bucketName}/objects?${query.toString()}`,
       );
     },

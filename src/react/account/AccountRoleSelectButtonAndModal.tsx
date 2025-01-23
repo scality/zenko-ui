@@ -1,15 +1,16 @@
-import { useMemo, useState } from 'react';
-import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
+import { Icon, Stack, Tooltip, Wrap } from '@scality/core-ui';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
-import { Stack, Tooltip, Wrap, Icon } from '@scality/core-ui';
-import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
-import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
+import { useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   useCurrentAccount,
   useDataServiceRole,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
 import { AccountSelectorButton } from '../ui-elements/Table';
+import { regexArn, SCALITY_INTERNAL_ROLES, useAccounts } from '../utils/hooks';
 
 function AccountRoleList({ accountsWithRoles, onRowSelected }) {
   const { roleArn } = useDataServiceRole();
@@ -189,8 +190,23 @@ const ModalFooter = ({
   roleArn,
   assumedAccount,
 }) => {
-  const history = useHistory();
-  const { path } = useRouteMatch();
+  const navigateWithBasename = useBasenameRelativeNavigate();
+  const navigate = useNavigate();
+  const { accountName } = useParams();
+  const location = useLocation();
+
+  const handleAccountClick = () => {
+    const replacePath = location.pathname.replace(accountName, assumedAccount);
+
+    if (replacePath.includes('/buckets')) {
+      navigateWithBasename(`/accounts/${assumedAccount}/buckets`);
+    } else if (replacePath.includes('/workflows')) {
+      navigateWithBasename(`/accounts/${assumedAccount}/workflows`);
+    } else {
+      navigate(replacePath);
+    }
+  };
+
   return (
     <Wrap>
       <p></p>
@@ -201,11 +217,7 @@ const ModalFooter = ({
           variant="primary"
           onClick={() => {
             setRole({ roleArn: assumedRoleArn });
-            history.push(
-              generatePath(path, {
-                accountName: assumedAccount,
-              }),
-            );
+            handleAccountClick();
             handleClose();
           }}
           label="Continue"

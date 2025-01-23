@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { Banner, Icon, Form, Stack } from '@scality/core-ui';
@@ -13,11 +13,13 @@ import ObjectLockRetentionSettings, {
 } from './ObjectLockRetentionSettings';
 import { clearError, editDefaultRetention, getBucketInfo } from '../../actions';
 import { convertToBucketInfo } from '../../locations/utils';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { RetentionMode } from '../../../types/s3';
 
 const schema = Joi.object(objectLockRetentionSettingsValidationRules);
 
 export default function ObjectLockSetting() {
-  const history = useHistory();
+  const navigate = useBasenameRelativeNavigate();
   const bucketInfo = useSelector((state: AppState) => state.s3.bucketInfo);
   const hasError = useSelector(
     (state: AppState) =>
@@ -53,7 +55,7 @@ export default function ObjectLockSetting() {
 
   const handleCancel = () => {
     clearServerError();
-    history.push('/buckets');
+    navigate('/buckets');
   };
 
   const { bucketName } = useParams<{ bucketName: string }>();
@@ -79,16 +81,11 @@ export default function ObjectLockSetting() {
             years: retentionPeriod,
           };
     dispatch(
-      editDefaultRetention(
-        bucketName,
-        {
-          isDefaultRetentionEnabled,
-          //@ts-expect-error fix this when you are working on it
-          retentionMode,
-          retentionPeriod: retentionPeriodToSubmit,
-        },
-        history,
-      ),
+      editDefaultRetention(bucketName, {
+        isDefaultRetentionEnabled,
+        retentionMode: retentionMode as RetentionMode,
+        retentionPeriod: retentionPeriodToSubmit,
+      }),
     );
   };
 

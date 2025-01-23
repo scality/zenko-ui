@@ -1,24 +1,24 @@
-import * as T from '../../ui-elements/Table';
+import { Icon, spacing, Toggle } from '@scality/core-ui';
+import { Box } from '@scality/core-ui/dist/next';
+import { List } from 'immutable';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router';
 import { ListObjectsType, ObjectEntity } from '../../../types/s3';
-import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
-import { maybePluralize } from '../../utils';
+import { AppState } from '../../../types/state';
 import {
   openFolderCreateModal,
   openObjectDeleteModal,
   openObjectUploadModal,
 } from '../../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../../types/state';
-import { List } from 'immutable';
+import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
+import * as T from '../../ui-elements/Table';
+import { VEEAM_XML_PREFIX } from '../../ui-elements/Veeam/VeeamConstants';
+import { WarningMetadata } from '../../ui-elements/Warning';
+import { maybePluralize } from '../../utils';
+import { useQueryParams } from '../../utils/hooks';
+import { LIST_OBJECT_VERSIONS_S3_TYPE } from '../../utils/s3';
 import MetadataSearch from './MetadataSearch';
 import ObjectListTable from './ObjectListTable';
-import { Icon, spacing, Toggle } from '@scality/core-ui';
-import { WarningMetadata } from '../../ui-elements/Warning';
-import { useQueryParams } from '../../utils/hooks';
-import { useHistory, useLocation } from 'react-router-dom';
-import { Box } from '@scality/core-ui/dist/next';
-import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
-import { VEEAM_XML_PREFIX } from '../../ui-elements/Veeam/VeeamConstants';
 type Props = {
   objects: List<ObjectEntity>;
   bucketName: string;
@@ -34,7 +34,7 @@ export default function ObjectList({
   toggled,
   listType,
 }: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const query = useQueryParams();
@@ -120,7 +120,7 @@ export default function ObjectList({
                 query.delete('versionId');
               }
 
-              history.push(`${pathname}?${query.toString()}`);
+              navigate(`${pathname}?${query.toString()}`);
             }}
           />
         </T.ButtonContainer>

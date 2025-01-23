@@ -17,10 +17,11 @@ import { useForm } from 'react-hook-form';
 import { useOutsideClick } from '../utils/hooks';
 import { useIAMClient } from '../IAMProvider';
 import { InfiniteData, useMutation, useQueryClient } from 'react-query';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { ListUsersResponse } from 'aws-sdk/clients/iam';
 import { getListUsersQuery } from '../queries';
+import { useNavigate } from 'react-router';
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
   name: Joi.string()
@@ -35,7 +36,7 @@ const schema = Joi.object({
 //TODO this component is duplicated ith AccountCreateUser...
 const AccountUpdateUser = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
   const { IAMUserName, accountName } = useParams<{
@@ -89,7 +90,7 @@ const AccountUpdateUser = () => {
     },
     {
       onSuccess: () => {
-        history.goBack();
+        navigate(-1);
       },
     },
   );
@@ -119,7 +120,7 @@ const AccountUpdateUser = () => {
     }
 
     clearServerError();
-    history.goBack();
+    navigate(-1);
   };
 
   const clearServerError = () => {

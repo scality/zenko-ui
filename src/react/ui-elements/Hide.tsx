@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, JSX } from 'react';
 import MiddleEllipsis from './MiddleEllipsis';
 import { spacing } from '@scality/core-ui/dist/style/theme';
 import styled from 'styled-components';

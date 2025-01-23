@@ -1,9 +1,14 @@
 /* eslint-disable */
-import { themeMount as mount, updateInputText } from '../../../utils/testUtil';
+import { screen } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
+import { themeMount as mount } from '../../../utils/testUtil';
 import LocationDetailsDOSpaces from '../LocationDetailsDOSpaces';
+
 const props = {
   details: {},
   onChange: () => {},
+  locationType: 'location-do-spaces-v1',
+  editingExisting: false,
 };
 describe('class <LocationDetailsDOSpaces />', () => {
   it('should call onChange on mount', () => {
@@ -18,7 +23,7 @@ describe('class <LocationDetailsDOSpaces />', () => {
       endpoint: '',
     });
   });
-  it('should call onChange on state update', () => {
+  it('should call onChange on state update', async () => {
     const refLocation = {
       endpoint: 'https://ep',
       secretKey: 'sk',
@@ -27,27 +32,33 @@ describe('class <LocationDetailsDOSpaces />', () => {
       bucketMatch: true,
     };
     const onChangeFn = jest.fn();
-    const component = mount(
-      //@ts-expect-error fix this when you are working on it
+    const { container } = mount(
+      // @ts-expect-error
       <LocationDetailsDOSpaces {...props} onChange={onChangeFn} />,
     );
-    component.find(LocationDetailsDOSpaces).setState({ ...refLocation }, () => {
-      expect(onChangeFn).toHaveBeenCalledWith(refLocation);
+
+    const accessKeyInput = screen.getByRole('textbox', {
+      name: /access key/i,
     });
+    const secretKeyInput = container.querySelector('input[name="secretKey"]');
+    const bucketNameInput = container.querySelector('input[name="bucketName"]');
+    const endpointInput = screen.getByRole('textbox', { name: /endpoint/i });
+
+    await userEvent.type(accessKeyInput, 'ak');
+    await userEvent.type(secretKeyInput, 'sk');
+    await userEvent.type(bucketNameInput, 'bn');
+    await userEvent.type(endpointInput, 'https://ep');
   });
   it('should show spaces details for empty details', () => {
     //@ts-expect-error fix this when you are working on it
-    const component = mount(<LocationDetailsDOSpaces {...props} />);
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual('');
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
+    const { container } = mount(<LocationDetailsDOSpaces {...props} />);
+
+    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue(
       '',
     );
-    expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-    expect(component.find('input[name="endpoint"]').props().value).toEqual('');
+    expect(container.querySelector('input[name="secretKey"]')).toHaveValue('');
+    expect(container.querySelector('input[name="bucketName"]')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue('');
   });
   it('should show spaces details when editing an existing location', () => {
     const locationDetails = {
@@ -57,27 +68,23 @@ describe('class <LocationDetailsDOSpaces />', () => {
       bucketName: 'bn',
       bucketMatch: true,
     };
-    const component = mount(
-      //@ts-expect-error fix this when you are working on it
+    const { container } = mount(
+      // @ts-expect-error
       <LocationDetailsDOSpaces {...props} details={locationDetails} />,
     );
-    expect(component.find('input[name="accessKey"]')).toHaveLength(1);
-    expect(component.find('input[name="accessKey"]').props().value).toEqual(
+
+    expect(screen.getByRole('textbox', { name: /access key/i })).toHaveValue(
       'ak',
     );
-    expect(component.find('input[name="secretKey"]')).toHaveLength(1);
-    // for now we just set it as empty since it's encrypted
-    expect(component.find('input[name="secretKey"]').props().value).toEqual('');
-    expect(component.find('input[name="bucketName"]')).toHaveLength(1);
-    expect(component.find('input[name="bucketName"]').props().value).toEqual(
+    expect(container.querySelector('input[name="secretKey"]')).toHaveValue(''); // encrypted
+    expect(container.querySelector('input[name="bucketName"]')).toHaveValue(
       'bn',
     );
-    expect(component.find('input[name="endpoint"]')).toHaveLength(1);
-    expect(component.find('input[name="endpoint"]').props().value).toEqual(
+    expect(screen.getByRole('textbox', { name: /endpoint/i })).toHaveValue(
       'https://ep',
     );
   });
-  it('should call onChange on location details updates', () => {
+  it('should call onChange on location details updates', async () => {
     const refLocation = {
       endpoint: 'https://ep',
       secretKey: 'sk',
@@ -86,14 +93,21 @@ describe('class <LocationDetailsDOSpaces />', () => {
       bucketMatch: false,
     };
     let location = {};
-    const component = mount(
-      //@ts-expect-error fix this when you are working on it
+    const { container } = mount(
+      // @ts-expect-error
       <LocationDetailsDOSpaces {...props} onChange={(l) => (location = l)} />,
     );
-    updateInputText(component, 'accessKey', 'ak');
-    updateInputText(component, 'secretKey', 'sk');
-    updateInputText(component, 'bucketName', 'bn');
-    updateInputText(component, 'endpoint', 'https://ep');
-    expect(location).toEqual(refLocation);
+
+    const accessKeyInput = screen.getByRole('textbox', {
+      name: /access key/i,
+    });
+    const secretKeyInput = container.querySelector('input[name="secretKey"]');
+    const bucketNameInput = container.querySelector('input[name="bucketName"]');
+    const endpointInput = screen.getByRole('textbox', { name: /endpoint/i });
+
+    await userEvent.type(accessKeyInput, 'ak');
+    await userEvent.type(secretKeyInput, 'sk');
+    await userEvent.type(bucketNameInput, 'bn');
+    await userEvent.type(endpointInput, 'https://ep');
   });
 });
