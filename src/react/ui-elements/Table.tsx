@@ -82,8 +82,11 @@ export const Row = styled(HeadRow)`
   // it's better to use 1px instead of spacing.r1, otherwise the border of some rows
   // can look different cause of subpixel positioning
   border-bottom: 1px solid ${(props) => props.theme.backgroundLevel1};
-  &:hover {
-    background-color: ${(props) => props.theme.backgroundLevel3};
+  &:hover,
+  &:focus {
+    background-color: ${(props) => props.theme.highlight};
+    outline: none;
+    cursor: pointer;
   }
   cursor: ${(props) => (props.onClick ? 'pointer' : 'default')};
   box-sizing: border-box;
