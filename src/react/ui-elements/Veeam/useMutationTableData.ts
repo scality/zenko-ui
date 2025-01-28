@@ -12,7 +12,6 @@ import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { VeeamTableProps } from './VeeamTable';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useMutation } from 'react-query';
 import {
@@ -27,6 +26,7 @@ import {
 } from './VeeamConstants';
 import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
 import { useShellHooks } from '@scality/module-federation';
+import { ISVApplyActionsProps } from '../../ISV/components/ISVApplyActions';
 
 export const actions = [
   'Create an Account',
@@ -69,7 +69,7 @@ type Result = {
 export const useMutationTableData = ({
   propsConfiguration,
 }: {
-  propsConfiguration: VeeamTableProps;
+  propsConfiguration: ISVApplyActionsProps;
 }): Result => {
   const setRolePromise = useSetAssumedRolePromise();
 
