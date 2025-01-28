@@ -2,7 +2,7 @@ import { ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { baseSchema, checkDecimals, ListItem } from '..';
+import { checkDecimals, ListItem } from '..';
 
 export const Commvault: ISVPlatformConfig = {
   id: 'commvault',
@@ -40,7 +40,9 @@ export const Commvault: ISVPlatformConfig = {
       placeholder: 'Select COMMVAULT application',
       tooltip: (
         <ul>
-          <ListItem>Choose the COMMVAULT application you're setting up.</ListItem>
+          <ListItem>
+            Choose the COMMVAULT application you're setting up.
+          </ListItem>
           <ListItem>
             Features such as Immutable Backup and Max Repository Capacity (that
             provides notification via Smart Object Storage API) are only
@@ -91,8 +93,8 @@ export const Commvault: ISVPlatformConfig = {
       tooltip: (
         <ul>
           <ListItem>
-            COMMVAULT's Immutable Backup feature enhances data protection by using
-            S3 Object-lock technology.
+            COMMVAULT's Immutable Backup feature enhances data protection by
+            using S3 Object-lock technology.
           </ListItem>
           <ListItem>
             By selecting the Immutable Backup feature, the ARTESCA bucket is
@@ -107,7 +109,6 @@ export const Commvault: ISVPlatformConfig = {
     },
   ],
   validator: Joi.object({
-    ...baseSchema,
     application: Joi.string().required(),
     capacity: Joi.alternatives().try(
       Joi.number()
