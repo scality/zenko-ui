@@ -5,6 +5,7 @@ import { Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../../ui-elements/Veeam/VeeamConstants';
 
 export const Veeam: ISVPlatformConfig = {
   id: 'veeam',
@@ -113,14 +114,21 @@ export const Veeam: ISVPlatformConfig = {
     accountName: accountNameValidationSchema,
     bucketName: bucketNameValidationSchema,
     application: Joi.string().required(),
-    capacity: Joi.alternatives().try(
-      Joi.number()
+    capacity: Joi.when('application', {
+      is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
+      then: Joi.number()
+        .required()
         .min(1)
         .max(1024)
         .custom((value, helpers) => checkDecimals(value, helpers)),
-      Joi.string().valid('0'),
-    ),
-    capacityUnit: Joi.string().valid('TB', 'GB'),
-    enableImmutableBackup: Joi.boolean().default(true),
+      otherwise: Joi.valid(),
+    }),
+    capacityUnit: Joi.when('application', {
+      is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    capacityBytes: Joi.number().required(),
+    enableImmutableBackup: Joi.boolean().required(),
   }),
 };
