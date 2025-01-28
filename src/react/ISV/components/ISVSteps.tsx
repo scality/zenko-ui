@@ -56,12 +56,8 @@ export const ISVSteps = () => {
 
   const [config, setConfig] = useState<ISVConfig>(() => ({
     accountName: '',
-    bucketName: '',
-    application: '',
-    capacity: '',
-    capacityUnit: 'TB',
-    capacityBytes: 0,
-    enableImmutableBackup: false,
+    enableImmutableBackup: true,
+    buckets: [],
   }));
 
   const platform = useMemo(() => {
@@ -71,6 +67,12 @@ export const ISVSteps = () => {
   useEffect(() => {
     if (!platform && id) {
       navigate('/isv');
+    }
+    if (platform.id === 'veeam') {
+      setConfig({
+        ...config,
+        application: '',
+      });
     }
   }, [platform, id, navigate]);
 
