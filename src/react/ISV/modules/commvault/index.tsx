@@ -1,8 +1,65 @@
 import { ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, ListItem } from '..';
-import { CommvaultLogo } from '../../../ui-elements/Logo/CommvaultLogo';
+import { ListItem } from '..';
+import { accountNameValidationSchema } from '../../../account/AccountCreate';
+import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { CommvaultLogo } from './components/CommvaultLogo';
+
+const AccountTooltip = () => {
+  return (
+    <ul>
+      <ListItem>
+        Enter a unique ARTESCA account name, where your S3 & IAM Veeam resources
+        will be structured.
+      </ListItem>
+      <ListItem>
+        This information won’t be required by the Veeam console.
+      </ListItem>
+    </ul>
+  );
+};
+
+const BucketNameTooltip = () => {
+  return (
+    <ul>
+      <ListItem>
+        This bucket is your future Veeam destination. You'll need it when
+        setting up your Veeam application. We'll also include this in the
+        summary provided by our Veeam assistant at the end.
+      </ListItem>
+      <ListItem>
+        The bucket name should follow few constraints:
+        <ul>
+          <li>Must be unique,</li>
+          <li>Cannot be modified after creation</li>
+          <li>
+            Bucket names can include only lowercase letters, numbers, dots (.),
+            and hyphens (-).
+          </li>
+        </ul>
+      </ListItem>
+    </ul>
+  );
+};
+
+const EnableImmutableBackupTooltip = () => {
+  return (
+    <ul>
+      <ListItem>
+        Veeam's Immutable Backup feature enhances data protection by using S3
+        Object-lock technology.
+      </ListItem>
+      <ListItem>
+        By selecting the Immutable Backup feature, the ARTESCA bucket is created
+        with Object-lock enabled.
+      </ListItem>
+      <ListItem>
+        Data backed up to your ARTESCA S3 bucket via Veeam will be immutable.
+      </ListItem>
+    </ul>
+  );
+};
 
 export const Commvault: ISVPlatformConfig = {
   id: 'commvault',
@@ -22,17 +79,7 @@ export const Commvault: ISVPlatformConfig = {
       name: 'accountName',
       label: 'Account',
       placeholder: 'Enter account name',
-      tooltip: (
-        <ul>
-          <ListItem>
-            Enter a unique ARTESCA account name, where your S3 & IAM COMMVAULT
-            resources will be structured.
-          </ListItem>
-          <ListItem>
-            This information won’t be required by the COMMVAULT console.
-          </ListItem>
-        </ul>
-      ),
+      tooltip: <AccountTooltip />,
     },
     {
       name: 'application',
@@ -55,69 +102,23 @@ export const Commvault: ISVPlatformConfig = {
       name: 'bucketName',
       label: 'Bucket name',
       placeholder: 'Enter bucket name',
-      tooltip: (
-        <ul>
-          <ListItem>
-            This bucket is your future Veeam destination. You'll need it when
-            setting up your Veeam application. We'll also include this in the
-            summary provided by our Veeam assistant at the end.
-          </ListItem>
-          <ListItem>
-            The bucket name should follow few constraints:
-            <ul>
-              <li>Must be unique,</li>
-              <li>Cannot be modified after creation</li>
-              <li>
-                Bucket names can include only lowercase letters, numbers, dots
-                (.), and hyphens (-).
-              </li>
-            </ul>
-          </ListItem>
-        </ul>
-      ),
+      tooltip: <BucketNameTooltip />,
     },
-    {
-      name: 'capacity',
-      label: 'Repository Capacity',
-      placeholder: 'Enter capacity',
-      tooltip: (
-        <ul>
-          <li>Set the maximum capacity for your Veeam backup repository</li>
-          <li>This will help monitor and manage your storage usage</li>
-        </ul>
-      ),
-    },
+
     {
       name: 'enableImmutableBackup',
-      label: 'Immutable Backup',
-      tooltip: (
-        <ul>
-          <ListItem>
-            COMMVAULT's Immutable Backup feature enhances data protection by
-            using S3 Object-lock technology.
-          </ListItem>
-          <ListItem>
-            By selecting the Immutable Backup feature, the ARTESCA bucket is
-            created with Object-lock enabled.
-          </ListItem>
-          <ListItem>
-            Data backed up to your ARTESCA S3 bucket via Veeam will be
-            immutable.
-          </ListItem>
-        </ul>
-      ),
+      label: 'WORM bucket',
+      tooltip: <EnableImmutableBackupTooltip />,
     },
   ],
   validator: Joi.object({
-    application: Joi.string().required(),
-    capacity: Joi.alternatives().try(
-      Joi.number()
-        .min(1)
-        .max(1024)
-        .custom((value, helpers) => checkDecimals(value, helpers)),
-      Joi.string().valid('0'),
-    ),
-    capacityUnit: Joi.string().valid('TB', 'GB'),
+    accountName: accountNameValidationSchema,
     enableImmutableBackup: Joi.boolean().default(true),
+    buckets: Joi.array().items(
+      Joi.object({
+        name: bucketNameValidationSchema,
+        tag: Joi.string(),
+      }),
+    ),
   }),
 };

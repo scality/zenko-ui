@@ -2,12 +2,15 @@ import Joi from '@hapi/joi';
 
 export type ISVConfig = {
   accountName: string;
-  bucketName: string;
-  application: string;
-  capacity: string;
-  capacityUnit: string;
-  capacityBytes: number;
-  enableImmutableBackup: boolean;
+  application?: string;
+  enableImmutableBackup?: boolean;
+  buckets?: {
+    name: string;
+    tag: string;
+    capacity?: string;
+    capacityUnit?: string;
+    capacityBytes?: number;
+  }[];
 };
 
 export type ISVFieldOverride = {

@@ -27,7 +27,6 @@ import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from './utils/hooks';
 import NoMatch from './NoMatch';
 import Accounts from './account/Accounts';
-import VeeamSteppers from './ui-elements/Veeam/VeeamSteps';
 import { Locations } from './locations/Locations';
 import Endpoints from './endpoint/Endpoints';
 import EndpointCreate from './endpoint/EndpointCreate';
@@ -46,6 +45,7 @@ import UpdateAccountPolicy from './account/UpdateAccountPolicy';
 import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
+import { ISVSteps } from './ISV/components/ISVSteps';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -171,7 +171,9 @@ function PrivateRoutes() {
       <Route path="create-dataservice/*" element={<EndpointCreate />} />
       <Route path="dataservices/*" element={<Endpoints />} />
       <Route path="locations/*" element={<Locations />} />
-      <Route path="veeam/configuration/*" element={<VeeamSteppers />} />
+
+      <Route path="isv/configuration" element={<ISVSteps />} />
+
       <Route
         path={`accounts/:accountName/policies/:policyArn/attachments/*`}
         element={<Attachments />}
@@ -267,6 +269,7 @@ function InternalRoutes() {
     '/accounts/:accountName/create-bucket',
     '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
+    '/isv/:isvId',
     '/veeam/configuration',
   ];
 

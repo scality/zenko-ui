@@ -135,7 +135,10 @@ export const ISVConfiguration = () => {
     setConfig(data);
     next({
       ...data,
-      capacityBytes: getCapacityBytes(data.capacity, data.capacityUnit),
+      capacityBytes: getCapacityBytes(
+        data.buckets[0].capacity,
+        data.buckets[0].capacityUnit,
+      ),
       enableImmutableBackup:
         application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
         application === VEEAM_OFFICE_365_V8
@@ -267,7 +270,7 @@ export const ISVConfiguration = () => {
 
           {platform.id === 'veeam' && renderVeeamApplication()}
 
-          <FormGroup
+          {/* <FormGroup
             id={FORM_FIELDS.BUCKET_NAME}
             label="Bucket name"
             required
@@ -287,7 +290,7 @@ export const ISVConfiguration = () => {
                 {...register(FORM_FIELDS.BUCKET_NAME)}
               />
             }
-          />
+          /> */}
 
           {isImmutableBackupEnabled(application) && (
             <FormGroup
