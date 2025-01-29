@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { VeeamWelcomeModalInternal } from './VeeamWelcomeModal';
+import { WelcomeModalInternal } from './WelcomeModal';
 import {
   TEST_API_BASE_URL,
   expectElementNotToBeInDocument,
@@ -72,7 +72,7 @@ describe('VeeamWelcomeModal', () => {
         shellAlerts={mockShellAlerts}
       >
         <InternalRouter>
-          <VeeamWelcomeModalInternal isFirstTimeLogin={true} />
+          <WelcomeModalInternal isFirstTimeLogin={true} />
         </InternalRouter>
       </ShellHooksProvider>
     </QueryClientProvider>
@@ -200,7 +200,7 @@ describe('VeeamWelcomeModal', () => {
     render(
       <QueryClientProvider client={queryClient}>
         <InternalRouter>
-          <VeeamWelcomeModalInternal isFirstTimeLogin={false} />
+          <WelcomeModalInternal isFirstTimeLogin={false} />
         </InternalRouter>
       </QueryClientProvider>,
     );

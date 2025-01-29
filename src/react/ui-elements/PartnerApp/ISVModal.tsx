@@ -3,7 +3,7 @@ import { Button } from '@scality/core-ui/dist/next';
 
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { CardISV, ManualISVCard, MoreToCome } from './CardISV';
+import { CardISV, ManualISVCard } from './CardISV';
 import { ISVList, ISVManualList } from './ISVList';
 
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -13,7 +13,7 @@ const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
 `;
 
-const StyledGrid = styled.div`
+export const StyledGrid = styled.div`
   display: grid;
   gap: ${spacing.r8};
   grid-template-columns: 1fr 1fr 1fr;
@@ -60,7 +60,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
       }
     >
       <Stack direction="vertical" gap="r8">
-        <Text isEmphazed variant="Large" style={{ paddingBottom: spacing.r32 }}>
+        <Text isEmphazed variant="Large" style={{ marginBottom: spacing.r16 }}>
           Which application would you like to configure with your ARTESCA?
         </Text>
         <Text style={{ paddingLeft: spacing.r16 }}>
@@ -100,7 +100,6 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
                   ></CardISV>
                 );
               })}
-              <MoreToCome disabled />
             </StyledGrid>
             <Text isEmphazed color="textPrimary">
               Manual configuration
@@ -115,7 +114,6 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
                   ></ManualISVCard>
                 );
               })}
-              <MoreToCome disabled />
             </StyledGrid>
           </Stack>
         </form>
