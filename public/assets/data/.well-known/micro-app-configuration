@@ -19,7 +19,7 @@
     },
     "navbarUpdaterComponents": [
       {
-        "module": "./VeeamWelcomeModal",
+        "module": "./WelcomeModal",
         "scope": "zenko"
       }
     ]
