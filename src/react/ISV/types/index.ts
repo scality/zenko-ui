@@ -1,8 +1,12 @@
 import Joi from '@hapi/joi';
 
+export type ISVPlatform = 'veeam' | 'commvault';
+
 export type ISVConfig = {
   accountName: string;
   accountNameType?: 'create' | 'existing';
+  IAMUserName?: string;
+  IAMUserNameType?: 'create' | 'existing';
   application?: string;
   enableImmutableBackup?: boolean;
   buckets?: {
@@ -33,7 +37,7 @@ export type FieldOverride = {
 };
 
 export type ISVPlatformConfig = {
-  id: string;
+  id: ISVPlatform;
   name: string;
   logo: React.JSX.Element;
   description: string;

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -35,10 +35,13 @@ import {
 import { getCapacityBytes } from '../../ui-elements/Veeam/useCapacityUnit';
 import { ISVSkipModal } from './ISVSkipModal';
 import { RadioGroup } from './RadioGroup';
+import { useIAMClient } from '../../IAMProvider';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
   ACCOUNT_NAME_TYPE: 'accountNameType',
+  IAM_USER_NAME: 'IAMUserName',
+  IAM_USER_NAME_TYPE: 'IAMUserNameType',
   APPLICATION: 'application',
   BUCKET_NAME: 'bucketName',
   ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
@@ -60,83 +63,108 @@ const accountTypeOptions = [
   },
 ];
 
-const AccountNameField = ({
+const IAMUserTypeOptions = [
+  {
+    value: 'create',
+    label: 'Create a new IAM User',
+  },
+  {
+    value: 'existing',
+    label: 'Use an existing IAM User',
+  },
+];
+
+const NameField = ({
   register,
   control,
   errors,
-  isAccountExist,
+  isExist,
   status,
-  accounts,
+  options,
   platform,
-  accountNameType,
-}) => (
-  <FormGroup
-    id={FORM_FIELDS.ACCOUNT_NAME}
-    label="Account"
-    required
-    labelHelpTooltip={
-      platform.fieldOverrides.find(
-        (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
-      ).tooltip
-    }
-    helpErrorPosition="bottom"
-    error={
-      isAccountExist && accountNameType === 'create'
-        ? 'Account name already exists'
-        : errors.accountName?.message ?? ''
-    }
-    content={
-      <>
-        <Controller
-          name={FORM_FIELDS.ACCOUNT_NAME_TYPE}
-          control={control}
-          defaultValue={accountNameType}
-          render={({ field: { onChange, value } }) => (
-            <RadioGroup
-              options={accountTypeOptions}
-              value={value}
-              onChange={onChange}
-              direction="vertical"
-            />
-          )}
-        />
+  type,
+  fieldType,
+}) => {
+  const isAccount = fieldType === 'account';
+  const fieldName = isAccount
+    ? FORM_FIELDS.ACCOUNT_NAME
+    : FORM_FIELDS.IAM_USER_NAME;
+  const typeFieldName = isAccount
+    ? FORM_FIELDS.ACCOUNT_NAME_TYPE
+    : FORM_FIELDS.IAM_USER_NAME_TYPE;
+  const radioOptions = isAccount ? accountTypeOptions : IAMUserTypeOptions;
 
-        {accountNameType === 'create' ? (
-          <Input
-            id={FORM_FIELDS.ACCOUNT_NAME}
-            type="text"
-            autoComplete="off"
-            placeholder={
-              status === 'success' && accounts.length !== 0
-                ? `${platform.id}-backup`
-                : undefined
-            }
-            {...register(FORM_FIELDS.ACCOUNT_NAME)}
-          />
-        ) : (
+  return (
+    <FormGroup
+      id={fieldName}
+      label={isAccount ? 'Account' : 'IAM User Management'}
+      required
+      labelHelpTooltip={
+        platform.fieldOverrides.find(
+          (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
+        ).tooltip
+      }
+      helpErrorPosition="bottom"
+      error={
+        isExist && type === 'create'
+          ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
+          : errors[fieldName]?.message ?? ''
+      }
+      content={
+        <>
           <Controller
-            name={FORM_FIELDS.ACCOUNT_NAME}
+            name={typeFieldName}
             control={control}
+            defaultValue={type}
             render={({ field: { onChange, value } }) => (
-              <Select
-                id={FORM_FIELDS.ACCOUNT_NAME}
-                onChange={onChange}
+              <RadioGroup
+                options={radioOptions}
                 value={value}
-                placeholder="Select existing account"
-              >
-                {accounts.map((account) => (
-                  <Select.Option key={account.name} value={account.name}>
-                    {account.name}
-                  </Select.Option>
-                ))}
-              </Select>
+                onChange={onChange}
+                direction="vertical"
+              />
             )}
           />
-        )}
-      </>
-    }
-  />
-);
+
+          {type === 'create' ? (
+            <Input
+              id={fieldName}
+              type="text"
+              autoComplete="off"
+              placeholder={
+                status === 'success' && options.length !== 0
+                  ? `${platform.id}-backup`
+                  : undefined
+              }
+              {...register(fieldName)}
+            />
+          ) : (
+            <Controller
+              name={fieldName}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <Select
+                  id={fieldName}
+                  onChange={onChange}
+                  value={value}
+                  placeholder={`Select existing ${
+                    isAccount ? 'account' : 'user'
+                  }`}
+                >
+                  {options.map((item) => (
+                    <Select.Option key={item.name} value={item.name}>
+                      {item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
+            />
+          )}
+        </>
+      }
+    />
+  );
+};
 
 export const ISVConfiguration = () => {
   const { platform, config, setConfig } = useISVStepper();
@@ -151,6 +179,7 @@ export const ISVConfiguration = () => {
     defaultValues: {
       ...config,
       accountNameType: 'create',
+      IAMUserNameType: 'create',
     },
     resolver: joiResolver(platform.validator),
   });
@@ -178,13 +207,46 @@ export const ISVConfiguration = () => {
 
   const accountName = watch('accountName');
   const accountNameType = watch('accountNameType');
+  const IAMUserName = watch('IAMUserName');
+  const IAMUserNameType = watch('IAMUserNameType');
   const application = watch('application');
+
   const isAccountExist = useMemo(() => {
     const exists =
       status === 'success' &&
       accounts.some((account) => account.name === accountName);
     return exists;
   }, [accountName, status, accounts]);
+  const isIAMUserExist = useMemo(() => {
+    const exists =
+      status === 'success' &&
+      accounts.some((account) => account.name === IAMUserName);
+    return exists;
+  }, [IAMUserName, status, accounts]);
+
+  const IAMClient = useIAMClient();
+  const [IAMUsers, setIAMUsers] = useState([]);
+  const [IAMUsersStatus, setIAMUsersStatus] = useState('loading');
+
+  useEffect(() => {
+    const fetchIAMUsers = async () => {
+      try {
+        const response = await IAMClient.listUsers();
+        setIAMUsers(
+          response.Users.map((user) => ({
+            id: user.UserId,
+            name: user.UserName,
+          })),
+        );
+        setIAMUsersStatus('success');
+      } catch (error) {
+        console.error('Failed to fetch IAM users:', error);
+        setIAMUsersStatus('error');
+      }
+    };
+
+    fetchIAMUsers();
+  }, [IAMClient]);
 
   const onSubmit = (data: ISVConfig) => {
     console.log('Form submitted with data:', data);
@@ -210,55 +272,69 @@ export const ISVConfiguration = () => {
   const [skip, setSkip] = useState<boolean>(false);
 
   const renderVeeamApplication = () => (
-    <FormGroup
-      id={FORM_FIELDS.APPLICATION}
-      label={
-        platform.fieldOverrides.find(
-          (field) => field.name === FORM_FIELDS.APPLICATION,
-        ).label
-      }
-      labelHelpTooltip={
-        platform.fieldOverrides.find(
-          (field) => field.name === FORM_FIELDS.APPLICATION,
-        ).tooltip
-      }
-      helpErrorPosition="bottom"
-      content={
-        <Controller
-          name={FORM_FIELDS.APPLICATION}
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Select
-              id={FORM_FIELDS.APPLICATION}
-              onChange={onChange}
-              value={value}
-            >
-              {[
-                {
-                  key: VEEAM_BACKUP_REPLICATION_XML_VALUE,
-                  value: VEEAM_BACKUP_REPLICATION_XML_VALUE,
-                  label: VEEAM_BACKUP_REPLICATION,
-                },
-                {
-                  key: VEEAM_OFFICE_365,
-                  value: VEEAM_OFFICE_365,
-                  label: VEEAM_OFFICE_365,
-                },
-                {
-                  key: VEEAM_OFFICE_365_V8,
-                  value: VEEAM_OFFICE_365_V8,
-                  label: VEEAM_OFFICE_365_V8,
-                },
-              ].map(({ key, value, label }) => (
-                <Select.Option key={key} value={value}>
-                  {label}
-                </Select.Option>
-              ))}
-            </Select>
-          )}
-        />
-      }
-    />
+    <>
+      <NameField
+        register={register}
+        control={control}
+        errors={errors}
+        isExist={isIAMUserExist}
+        status={IAMUsersStatus}
+        options={IAMUsers}
+        platform={platform}
+        type={IAMUserNameType}
+        fieldType="iamUser"
+      />
+
+      <FormGroup
+        id={FORM_FIELDS.APPLICATION}
+        label={
+          platform.fieldOverrides.find(
+            (field) => field.name === FORM_FIELDS.APPLICATION,
+          ).label
+        }
+        labelHelpTooltip={
+          platform.fieldOverrides.find(
+            (field) => field.name === FORM_FIELDS.APPLICATION,
+          ).tooltip
+        }
+        helpErrorPosition="bottom"
+        content={
+          <Controller
+            name={FORM_FIELDS.APPLICATION}
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                id={FORM_FIELDS.APPLICATION}
+                onChange={onChange}
+                value={value}
+              >
+                {[
+                  {
+                    key: VEEAM_BACKUP_REPLICATION_XML_VALUE,
+                    value: VEEAM_BACKUP_REPLICATION_XML_VALUE,
+                    label: VEEAM_BACKUP_REPLICATION,
+                  },
+                  {
+                    key: VEEAM_OFFICE_365,
+                    value: VEEAM_OFFICE_365,
+                    label: VEEAM_OFFICE_365,
+                  },
+                  {
+                    key: VEEAM_OFFICE_365_V8,
+                    value: VEEAM_OFFICE_365_V8,
+                    label: VEEAM_OFFICE_365_V8,
+                  },
+                ].map(({ key, value, label }) => (
+                  <Select.Option key={key} value={value}>
+                    {label}
+                  </Select.Option>
+                ))}
+              </Select>
+            )}
+          />
+        }
+      />
+    </>
   );
 
   const renderCapacitySection = () => {
@@ -315,15 +391,16 @@ export const ISVConfiguration = () => {
             <Text variant="Large">{platform.description}</Text> {platform.logo}
           </Stack>
 
-          <AccountNameField
+          <NameField
             register={register}
             control={control}
             errors={errors}
-            isAccountExist={isAccountExist}
+            isExist={isAccountExist}
             status={status}
-            accounts={accounts}
+            options={accounts}
             platform={platform}
-            accountNameType={accountNameType}
+            type={accountNameType}
+            fieldType="account"
           />
 
           {platform.id === 'veeam' && renderVeeamApplication()}
