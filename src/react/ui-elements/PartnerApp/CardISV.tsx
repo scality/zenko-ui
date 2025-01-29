@@ -16,27 +16,6 @@ type ManualCardProps = {
   link: string;
 };
 
-export const MoreToCome = (props: { disabled?: boolean }) => {
-  const { disabled } = props;
-  return (
-    <div
-      style={{
-        borderRadius: spacing.f8,
-        display: 'flex',
-        alignItems: 'flex-end',
-        backgroundColor: disabled
-          ? 'rgba(27, 27, 39, 0.5)'
-          : 'rgba(27, 27, 39, 1)',
-        cursor: 'not-allowed',
-        height: '4.5rem',
-        padding: spacing.r20,
-      }}
-    >
-      <Text color="textPrimary">More to come...</Text>
-    </div>
-  );
-};
-
 const cardContainerStyle = {
   display: 'flex',
   justifyContent: 'space-between',
@@ -68,21 +47,18 @@ const CardContent = (props: { logo: JSX.Element; application: string }) => {
 };
 
 export const ManualISVCard = (props: ManualCardProps) => {
-  const theme = useTheme();
   const { logo, application, link } = props;
   return (
     <div
       style={{
         position: 'relative',
-        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
         borderRadius: '8px',
       }}
     >
       <div
         style={{
           ...cardContainerStyle,
-          backgroundColor: theme.backgroundLevel4,
-          opacity: 0.5,
+          backgroundColor: 'rgba(27, 27, 39, 0.5)',
         }}
       >
         <CardContent logo={logo} application={application}></CardContent>
@@ -98,26 +74,6 @@ export const ManualISVCard = (props: ManualCardProps) => {
       >
         Learn more <Icon name="External-link"></Icon>
       </Link>
-      {/* <div
-        style={{
-          position: 'absolute',
-          cursor: 'default',
-          top: '1rem',
-          right: '-3rem',
-          color: 'white',
-          width: '10rem',
-          textAlign: 'center',
-
-          paddingBlock: spacing.r8,
-          backgroundColor: theme.infoSecondary,
-          transform: 'rotate(45deg)',
-          boxShadow: '0px 4px 4px 0px rgba(0,0,0,0.5)',
-        }}
-      >
-        <Text color="textPrimary" variant="Smaller">
-          Manual
-        </Text>
-      </div> */}
     </div>
   );
 };
@@ -125,7 +81,6 @@ export const ManualISVCard = (props: ManualCardProps) => {
 export const CardISV = (props: CardProps) => {
   const theme = useTheme();
   const { logo, name, application, onChange, selected } = props;
-  logo.props.height = 20;
   return (
     <label
       htmlFor={`isv-${name}`}
