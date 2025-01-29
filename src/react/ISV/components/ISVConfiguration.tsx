@@ -3,6 +3,7 @@ import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
+  Checkbox,
   Form,
   FormGroup,
   FormSection,
@@ -46,6 +47,7 @@ const FORM_FIELDS = {
   APPLICATION: 'application',
   BUCKET_NAME: 'bucketName',
   ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
+  GENERATE_KEY: 'generateKey',
 } as const;
 
 const isImmutableBackupEnabled = (application: string) =>
@@ -112,7 +114,7 @@ const NameField = ({
           : errors[fieldName]?.message ?? ''
       }
       content={
-        <>
+        <Stack gap="r8" direction="vertical">
           <Controller
             name={typeFieldName}
             control={control}
@@ -161,7 +163,22 @@ const NameField = ({
               )}
             />
           )}
-        </>
+
+          {!isAccount && (
+            <Controller
+              name={FORM_FIELDS.GENERATE_KEY}
+              control={control}
+              render={({ field: { onChange, value } }) => (
+                <Checkbox
+                  id={FORM_FIELDS.GENERATE_KEY}
+                  value={value}
+                  label="Generate a new set of AK/SK"
+                  onChange={onChange}
+                />
+              )}
+            />
+          )}
+        </Stack>
       }
     />
   );
@@ -181,6 +198,7 @@ export const ISVConfiguration = () => {
       ...config,
       accountNameType: 'create',
       IAMUserNameType: 'create',
+      generateKey: false,
     },
     resolver: joiResolver(platform.validator),
   });
@@ -211,6 +229,12 @@ export const ISVConfiguration = () => {
   const IAMUserNameType = watch('IAMUserNameType');
   const application = watch('application');
 
+  const [IAMUsersStatus, setIAMUsersStatus] = useState('loading');
+  const IAMClient = useIAMClient();
+  const [IAMUsers, setIAMUsers] = useState<Array<{ id: string; name: string }>>(
+    [],
+  );
+
   const isAccountExist = useMemo(() => {
     const exists =
       status === 'success' &&
@@ -219,14 +243,10 @@ export const ISVConfiguration = () => {
   }, [accountName, status, accounts]);
   const isIAMUserExist = useMemo(() => {
     const exists =
-      status === 'success' &&
-      accounts.some((account) => account.name === IAMUserName);
+      IAMUsersStatus === 'success' &&
+      IAMUsers.some((user) => user.name === IAMUserName);
     return exists;
-  }, [IAMUserName, status, accounts]);
-
-  const IAMClient = useIAMClient();
-  const [IAMUsers, setIAMUsers] = useState([]);
-  const [IAMUsersStatus, setIAMUsersStatus] = useState('loading');
+  }, [IAMUserName, IAMUsersStatus, IAMUsers]);
 
   useEffect(() => {
     const fetchIAMUsers = async () => {
@@ -262,6 +282,7 @@ export const ISVConfiguration = () => {
         application === VEEAM_OFFICE_365_V8
           ? data.enableImmutableBackup
           : false,
+      generateKey: data.generateKey,
     });
   };
 
@@ -273,17 +294,19 @@ export const ISVConfiguration = () => {
 
   const renderVeeamApplication = () => (
     <>
-      <NameField
-        register={register}
-        control={control}
-        errors={errors}
-        isExist={isIAMUserExist}
-        status={IAMUsersStatus}
-        options={IAMUsers}
-        platform={platform}
-        type={IAMUserNameType}
-        fieldType="iamUser"
-      />
+      {accountNameType === 'existing' && accountName && (
+        <NameField
+          register={register}
+          control={control}
+          errors={errors}
+          isExist={isIAMUserExist}
+          status={IAMUsersStatus}
+          options={IAMUsers}
+          platform={platform}
+          type={IAMUserNameType}
+          fieldType="iamUser"
+        />
+      )}
 
       <FormGroup
         id={FORM_FIELDS.APPLICATION}

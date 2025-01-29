@@ -7,6 +7,7 @@ export type ISVConfig = {
   accountNameType?: 'create' | 'existing';
   IAMUserName?: string;
   IAMUserNameType?: 'create' | 'existing';
+  generateKey?: boolean;
   application?: string;
   enableImmutableBackup?: boolean;
   buckets?: {
