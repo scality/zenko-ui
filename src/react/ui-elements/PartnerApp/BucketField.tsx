@@ -81,7 +81,7 @@ const defaultBucketNameTooltip = (
   <Text>Choose an unique name for your bucket</Text>
 );
 type BucketFieldProps = {
-  bucketNameTooltip?: JSX.Element;
+  bucketNameTooltip?: React.JSX.Element;
   platform?: string;
 };
 const BucketField = (fieldOverrides: BucketFieldProps) => {

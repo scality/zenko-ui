@@ -9,6 +9,7 @@ import SplunkLogo from '../Logo/SplunkLogo';
 import ZertoLogo from '../Logo/ZertoLogo';
 import VeritasLogo from '../Logo/VeritasLogo';
 import CohesityLogo from '../Logo/CohesityLogo';
+import React from 'react';
 
 export const ISVList = [
   {
@@ -30,15 +31,15 @@ export const ISVList = [
 export type ISVConfigurationProps = {
   application: 'Veeam' | 'Commvault';
   bucketTag: 'Veeam' | 'Commvault';
-  logo: JSX.Element;
+  logo: React.JSX.Element;
   fieldOverrides: [
     {
       name: string;
       label?: string;
-      tooltip?: JSX.Element;
+      tooltip?: React.JSX.Element;
       helpText?: string;
       placeholder?: string;
-      additionnal?: JSX.Element[];
+      additionnal?: React.JSX.Element[];
     },
   ];
 };
@@ -46,7 +47,7 @@ type ISVManual = {
   name: string;
   application?: string;
   documentationLink: string;
-  logo: JSX.Element;
+  logo: React.JSX.Element;
 };
 
 export const ISVManualList: ISVManual[] = [
