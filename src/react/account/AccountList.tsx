@@ -22,6 +22,7 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import ISVModal from '../ui-elements/PartnerApp/ISVModal';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,
@@ -42,7 +43,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
-
+  const [isISVModalOpen, setIsISVModalOpen] = React.useState(true);
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const navigate = useBasenameRelativeNavigate();
     const setRole = useSetAssumedRole();
@@ -116,6 +117,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         flex: 1,
       }}
     >
+      <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
       <Table
         columns={columns}
         data={accounts}
@@ -136,7 +138,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
                   <Button
                     label="Start Configuration for Veeam"
                     variant="secondary"
-                    onClick={() => navigate('/veeam/configuration')}
+                    onClick={() => setIsISVModalOpen(true)}
                     type="button"
                   />
                 )}

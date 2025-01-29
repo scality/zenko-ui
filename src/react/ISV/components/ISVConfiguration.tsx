@@ -44,7 +44,8 @@ const FORM_FIELDS = {
 
 const isImmutableBackupEnabled = (application: string) =>
   application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
-  application === VEEAM_OFFICE_365_V8;
+  application === VEEAM_OFFICE_365_V8 ||
+  application === 'COMMVAULT';
 
 const AccountNameField = ({
   register,

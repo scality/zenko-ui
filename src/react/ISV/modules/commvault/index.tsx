@@ -1,14 +1,14 @@
 import { ISVPlatformConfig } from '../../types';
-import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '..';
+import { CommvaultLogo } from '../../../ui-elements/Logo/CommvaultLogo';
 
 export const Commvault: ISVPlatformConfig = {
   id: 'commvault',
   name: 'COMMVAULT',
-  logo: <VeeamLogo />,
-  description: 'Configure ARTESCA for COMMVAULT',
+  logo: <CommvaultLogo />,
+  description: 'Configure ARTESCA for ',
   bucketTag: 'commvault-backup',
   skipModalContent: (
     <Text>
