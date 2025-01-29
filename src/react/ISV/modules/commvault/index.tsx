@@ -113,6 +113,7 @@ export const Commvault: ISVPlatformConfig = {
   ],
   validator: Joi.object({
     accountName: accountNameValidationSchema,
+    accountNameType: Joi.string().required(),
     enableImmutableBackup: Joi.boolean().default(true),
     buckets: Joi.array().items(
       Joi.object({

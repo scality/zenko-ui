@@ -131,6 +131,7 @@ export const Veeam: ISVPlatformConfig = {
   ],
   validator: Joi.object({
     accountName: accountNameValidationSchema,
+    accountNameType: Joi.string().required(),
     application: Joi.string().required(),
     enableImmutableBackup: Joi.boolean().required(),
     buckets: Joi.array().items(

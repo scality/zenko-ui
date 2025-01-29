@@ -34,9 +34,11 @@ import {
 } from '../../next-architecture/ui/XCoreLibraryProvider';
 import { getCapacityBytes } from '../../ui-elements/Veeam/useCapacityUnit';
 import { ISVSkipModal } from './ISVSkipModal';
+import { RadioGroup } from './RadioGroup';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
+  ACCOUNT_NAME_TYPE: 'accountNameType',
   APPLICATION: 'application',
   BUCKET_NAME: 'bucketName',
   ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
@@ -47,13 +49,26 @@ const isImmutableBackupEnabled = (application: string) =>
   application === VEEAM_OFFICE_365_V8 ||
   application === 'COMMVAULT';
 
+const accountTypeOptions = [
+  {
+    value: 'create',
+    label: 'Create a new account',
+  },
+  {
+    value: 'existing',
+    label: 'Use an existing Account',
+  },
+];
+
 const AccountNameField = ({
   register,
+  control,
   errors,
   isAccountExist,
   status,
   accounts,
   platform,
+  accountNameType,
 }) => (
   <FormGroup
     id={FORM_FIELDS.ACCOUNT_NAME}
@@ -66,22 +81,59 @@ const AccountNameField = ({
     }
     helpErrorPosition="bottom"
     error={
-      isAccountExist
+      isAccountExist && accountNameType === 'create'
         ? 'Account name already exists'
         : errors.accountName?.message ?? ''
     }
     content={
-      <Input
-        id={FORM_FIELDS.ACCOUNT_NAME}
-        type="text"
-        autoComplete="off"
-        placeholder={
-          status === 'success' && accounts.length !== 0
-            ? `${platform.id}-backup`
-            : undefined
-        }
-        {...register(FORM_FIELDS.ACCOUNT_NAME)}
-      />
+      <>
+        <Controller
+          name={FORM_FIELDS.ACCOUNT_NAME_TYPE}
+          control={control}
+          defaultValue={accountNameType}
+          render={({ field: { onChange, value } }) => (
+            <RadioGroup
+              options={accountTypeOptions}
+              value={value}
+              onChange={onChange}
+              direction="vertical"
+            />
+          )}
+        />
+
+        {accountNameType === 'create' ? (
+          <Input
+            id={FORM_FIELDS.ACCOUNT_NAME}
+            type="text"
+            autoComplete="off"
+            placeholder={
+              status === 'success' && accounts.length !== 0
+                ? `${platform.id}-backup`
+                : undefined
+            }
+            {...register(FORM_FIELDS.ACCOUNT_NAME)}
+          />
+        ) : (
+          <Controller
+            name={FORM_FIELDS.ACCOUNT_NAME}
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                id={FORM_FIELDS.ACCOUNT_NAME}
+                onChange={onChange}
+                value={value}
+                placeholder="Select existing account"
+              >
+                {accounts.map((account) => (
+                  <Select.Option key={account.name} value={account.name}>
+                    {account.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            )}
+          />
+        )}
+      </>
     }
   />
 );
@@ -96,7 +148,10 @@ export const ISVConfiguration = () => {
 
   const methods = useForm<ISVConfig>({
     mode: 'all',
-    defaultValues: config,
+    defaultValues: {
+      ...config,
+      accountNameType: 'create',
+    },
     resolver: joiResolver(platform.validator),
   });
 
@@ -122,6 +177,7 @@ export const ISVConfiguration = () => {
     ) ?? [];
 
   const accountName = watch('accountName');
+  const accountNameType = watch('accountNameType');
   const application = watch('application');
   const isAccountExist = useMemo(() => {
     const exists =
@@ -261,11 +317,13 @@ export const ISVConfiguration = () => {
 
           <AccountNameField
             register={register}
+            control={control}
             errors={errors}
             isAccountExist={isAccountExist}
             status={status}
             accounts={accounts}
             platform={platform}
+            accountNameType={accountNameType}
           />
 
           {platform.id === 'veeam' && renderVeeamApplication()}

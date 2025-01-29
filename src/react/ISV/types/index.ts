@@ -2,6 +2,7 @@ import Joi from '@hapi/joi';
 
 export type ISVConfig = {
   accountName: string;
+  accountNameType?: 'create' | 'existing';
   application?: string;
   enableImmutableBackup?: boolean;
   buckets?: {
