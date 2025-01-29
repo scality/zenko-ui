@@ -6,6 +6,10 @@ const CteraLogo = () => {
       viewBox="0 0 52 25"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={{
+        scale: '1.15',
+        transformOrigin: 'top left',
+      }}
     >
       <g clip-path="url(#clip0_22770_333767)">
         <path

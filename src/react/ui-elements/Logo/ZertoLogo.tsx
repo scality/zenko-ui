@@ -5,6 +5,10 @@ const ZertoLogo = () => {
       height="23"
       viewBox="0 0 76 23"
       fill="none"
+      style={{
+        scale: '0.9',
+        transformOrigin: 'top left',
+      }}
       xmlns="http://www.w3.org/2000/svg"
     >
       <g clip-path="url(#clip0_22803_19770)">

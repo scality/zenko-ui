@@ -6,6 +6,10 @@ const VeritasLogo = () => {
       viewBox="0 0 183 23"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      style={{
+        scale: '0.9',
+        transformOrigin: 'top left',
+      }}
     >
       <g clip-path="url(#clip0_22803_20692)">
         <path
