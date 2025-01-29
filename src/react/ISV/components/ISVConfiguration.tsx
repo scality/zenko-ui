@@ -36,6 +36,7 @@ import { getCapacityBytes } from '../../ui-elements/Veeam/useCapacityUnit';
 import { ISVSkipModal } from './ISVSkipModal';
 import { RadioGroup } from './RadioGroup';
 import { useIAMClient } from '../../IAMProvider';
+import BucketField from '../../ui-elements/PartnerApp/BucketField';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -191,7 +192,6 @@ export const ISVConfiguration = () => {
     watch,
     register,
   } = methods;
-
   const navigate = useBasenameRelativeNavigate();
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -405,27 +405,14 @@ export const ISVConfiguration = () => {
 
           {platform.id === 'veeam' && renderVeeamApplication()}
 
-          {/* <FormGroup
-            id={FORM_FIELDS.BUCKET_NAME}
-            label="Bucket name"
-            required
-            labelHelpTooltip={
+          <BucketField
+            platform={platform.id}
+            bucketNameTooltip={
               platform.fieldOverrides.find(
                 (field) => field.name === FORM_FIELDS.BUCKET_NAME,
               ).tooltip
             }
-            error={errors[FORM_FIELDS.BUCKET_NAME]?.message ?? ''}
-            helpErrorPosition="bottom"
-            content={
-              <Input
-                id={FORM_FIELDS.BUCKET_NAME}
-                type="text"
-                autoComplete="off"
-                placeholder={`${platform.id}-bucket-name`}
-                {...register(FORM_FIELDS.BUCKET_NAME)}
-              />
-            }
-          /> */}
+          />
 
           {isImmutableBackupEnabled(application) && (
             <FormGroup
