@@ -1,6 +1,6 @@
 import { Icon, Link, spacing, Stack, Text } from '@scality/core-ui';
 import React from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 
 type CardProps = {
   application?: string;
@@ -81,23 +81,27 @@ export const ManualISVCard = (props: ManualCardProps) => {
   );
 };
 
-const CustomLabel = styled.label`
+const CustomLabel = styled.label<{ selected?: boolean }>`
+  cursor: 'pointer';
+  background-color: ${(props) =>
+    props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
+  border: 1px solid
+    ${(props) =>
+      props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
   &:hover {
-    border: 1px solid ${(props) => props.theme.textPrimary};
+    border-color: ${(props) => props.theme.textPrimary};
   }
 `;
 
 export const CardISV = (props: CardProps) => {
-  const theme = useTheme();
   const { logo, name, application, onChange, selected } = props;
   return (
     <CustomLabel
       htmlFor={`isv-${name}`}
       style={{
         ...cardContainerStyle,
-        cursor: 'pointer',
-        backgroundColor: selected ? theme.highlight : theme.backgroundLevel4,
       }}
+      selected={selected}
     >
       <CardContent logo={logo} application={application} />
 
