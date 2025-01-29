@@ -136,7 +136,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
               <Stack>
                 {features.includes(VEEAM_FEATURE) && (
                   <Button
-                    label="Start Configuration for Veeam"
+                    label="Start Configuration for ISV"
                     variant="secondary"
                     onClick={() => setIsISVModalOpen(true)}
                     type="button"

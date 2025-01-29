@@ -21,10 +21,75 @@ export const StyledGrid = styled.div`
   border-radius: ${spacing.f8};
 `;
 
+export const ISVModalContent = ({ selectedISV, setSelectedISV }) => {
+  const theme = useTheme();
+
+  return (
+    <Stack direction="vertical" gap="r8">
+      <Text isEmphazed variant="Large" style={{ marginBottom: spacing.r16 }}>
+        Which application would you like to configure with your ARTESCA?
+      </Text>
+      <Text style={{ paddingLeft: spacing.r16 }}>
+        Scality provides products that are certified with some of the most
+        esteemed applications in the industry.
+      </Text>
+      <form
+        style={{
+          backgroundColor: theme.backgroundLevel2,
+          borderRadius: spacing.f8,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          height: '50vh',
+        }}
+      >
+        <Stack
+          direction="vertical"
+          gap="r8"
+          style={{
+            backgroundColor: theme.backgroundLevel2,
+            padding: spacing.r16,
+            borderRadius: spacing.f8,
+          }}
+        >
+          <Text isEmphazed color="textPrimary">
+            Automatic configuration via assistant
+          </Text>
+          <StyledGrid>
+            {ISVList.map((isv) => {
+              return (
+                <CardISV
+                  name={isv.name}
+                  logo={isv.logo}
+                  application={isv.type}
+                  selected={selectedISV === isv.id}
+                  onChange={() => setSelectedISV(isv.id)}
+                ></CardISV>
+              );
+            })}
+          </StyledGrid>
+          <Text isEmphazed color="textPrimary">
+            Manual configuration
+          </Text>
+          <StyledGrid>
+            {ISVManualList.map((isv) => {
+              return (
+                <ManualISVCard
+                  logo={isv.logo}
+                  application={isv.application}
+                  link={isv.documentationLink}
+                ></ManualISVCard>
+              );
+            })}
+          </StyledGrid>
+        </Stack>
+      </form>
+    </Stack>
+  );
+};
+
 const ISVModal = ({ isOpen, setIsOpen }) => {
   const navigate = useBasenameRelativeNavigate();
   const [selectedISV, setSelectedISV] = useState<string>('');
-  const theme = useTheme();
 
   if (!isOpen) {
     return <></>;
@@ -59,65 +124,10 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
         </Wrap>
       }
     >
-      <Stack direction="vertical" gap="r8">
-        <Text isEmphazed variant="Large" style={{ marginBottom: spacing.r16 }}>
-          Which application would you like to configure with your ARTESCA?
-        </Text>
-        <Text style={{ paddingLeft: spacing.r16 }}>
-          Scality provides products that are certified with some of the most
-          esteemed applications in the industry.
-        </Text>
-        <form
-          style={{
-            backgroundColor: theme.backgroundLevel2,
-            borderRadius: spacing.f8,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            height: '50vh',
-          }}
-        >
-          <Stack
-            direction="vertical"
-            gap="r8"
-            style={{
-              backgroundColor: theme.backgroundLevel2,
-              padding: spacing.r16,
-              borderRadius: spacing.f8,
-            }}
-          >
-            <Text isEmphazed color="textPrimary">
-              Automatic configuration via assistant
-            </Text>
-            <StyledGrid>
-              {ISVList.map((isv) => {
-                return (
-                  <CardISV
-                    name={isv.name}
-                    logo={isv.logo}
-                    application={isv.type}
-                    selected={selectedISV === isv.id}
-                    onChange={() => setSelectedISV(isv.id)}
-                  ></CardISV>
-                );
-              })}
-            </StyledGrid>
-            <Text isEmphazed color="textPrimary">
-              Manual configuration
-            </Text>
-            <StyledGrid>
-              {ISVManualList.map((isv) => {
-                return (
-                  <ManualISVCard
-                    logo={isv.logo}
-                    application={isv.application}
-                    link={isv.documentationLink}
-                  ></ManualISVCard>
-                );
-              })}
-            </StyledGrid>
-          </Stack>
-        </form>
-      </Stack>
+      <ISVModalContent
+        selectedISV={selectedISV}
+        setSelectedISV={setSelectedISV}
+      ></ISVModalContent>
     </CustomModal>
   );
 };

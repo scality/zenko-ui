@@ -1,7 +1,7 @@
-import { Icon, Modal, spacing, Stack, Text, Wrap } from '@scality/core-ui';
+import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useMemo, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 
 import { InternalRouter } from '../../FederableApp';
 
@@ -14,9 +14,7 @@ import AlertProvider, {
   useAlerts,
 } from '../../next-architecture/ui/AlertProvider';
 import { useShellHooks } from '@scality/module-federation';
-import { StyledGrid } from '../PartnerApp/ISVModal';
-import { ISVList, ISVManualList } from '../PartnerApp/ISVList';
-import { CardISV, ManualISVCard } from '../PartnerApp/CardISV';
+import { ISVModalContent } from '../PartnerApp/ISVModal';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -71,7 +69,6 @@ const ModalComponent = () => {
     (app: { kind: string }) => app.kind === 'zenko-ui',
   );
 
-  const theme = useTheme();
   const currentApp =
     deployedApps.find(
       (app) =>
@@ -146,65 +143,10 @@ const ModalComponent = () => {
         </Wrap>
       }
     >
-      <Stack direction="vertical" gap="r8">
-        <Text isEmphazed variant="Large" style={{ marginBottom: spacing.r16 }}>
-          Which application would you like to configure with your ARTESCA?
-        </Text>
-        <Text style={{ paddingLeft: spacing.r16 }}>
-          Scality provides products that are certified with some of the most
-          esteemed applications in the industry.
-        </Text>
-        <form
-          style={{
-            backgroundColor: theme.backgroundLevel2,
-            borderRadius: spacing.f8,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            height: '50vh',
-          }}
-        >
-          <Stack
-            direction="vertical"
-            gap="r8"
-            style={{
-              backgroundColor: theme.backgroundLevel2,
-              padding: spacing.r16,
-              borderRadius: spacing.f8,
-            }}
-          >
-            <Text isEmphazed color="textPrimary">
-              Automatic configuration via assistant
-            </Text>
-            <StyledGrid>
-              {ISVList.map((isv) => {
-                return (
-                  <CardISV
-                    name={isv.name}
-                    logo={isv.logo}
-                    application={isv.type}
-                    selected={selectedISV === isv.id}
-                    onChange={() => setSelectedISV(isv.id)}
-                  ></CardISV>
-                );
-              })}
-            </StyledGrid>
-            <Text isEmphazed color="textPrimary">
-              Manual configuration
-            </Text>
-            <StyledGrid>
-              {ISVManualList.map((isv) => {
-                return (
-                  <ManualISVCard
-                    logo={isv.logo}
-                    application={isv.application}
-                    link={isv.documentationLink}
-                  ></ManualISVCard>
-                );
-              })}
-            </StyledGrid>
-          </Stack>
-        </form>
-      </Stack>
+      <ISVModalContent
+        selectedISV={selectedISV}
+        setSelectedISV={setSelectedISV}
+      ></ISVModalContent>
     </CustomModal>
   );
 };
