@@ -174,6 +174,7 @@ function PrivateRoutes() {
 
       <Route path="isv/configuration" element={<ISVSteps />} />
 
+      <Route path="isv/configuration" element={<ISVSteps />} />
       <Route
         path={`accounts/:accountName/policies/:policyArn/attachments/*`}
         element={<Attachments />}
@@ -269,8 +270,8 @@ function InternalRoutes() {
     '/accounts/:accountName/create-bucket',
     '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
-    '/isv/:isvId',
-    '/veeam/configuration',
+
+    '/isv/configuration',
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);

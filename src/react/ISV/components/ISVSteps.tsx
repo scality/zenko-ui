@@ -56,8 +56,8 @@ export const ISVSteps = () => {
 
   const [config, setConfig] = useState<ISVConfig>(() => ({
     accountName: '',
-    enableImmutableBackup: true,
-    buckets: [],
+    enableImmutableBackup: false,
+    buckets: [{ name: '', tag: '' }],
   }));
 
   const platform = useMemo(() => {

@@ -1,7 +1,7 @@
 import { ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, ListItem } from '..';
+import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { CommvaultLogo } from './components/CommvaultLogo';
@@ -65,7 +65,7 @@ export const Commvault: ISVPlatformConfig = {
   id: 'commvault',
   name: 'COMMVAULT',
   logo: <CommvaultLogo />,
-  description: 'Configure ARTESCA for ',
+  description: 'Prepare ARTESCA for ',
   bucketTag: 'commvault-backup',
   skipModalContent: (
     <Text>

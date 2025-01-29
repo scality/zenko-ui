@@ -89,7 +89,7 @@ export const Veeam: ISVPlatformConfig = {
   id: 'veeam',
   name: 'Veeam',
   logo: <VeeamLogo />,
-  description: 'Configure ARTESCA for Veeam',
+  description: 'Prepare ARTESCA for ',
   bucketTag: 'veeam-backup',
   skipModalContent: (
     <Text>

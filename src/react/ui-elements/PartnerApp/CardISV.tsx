@@ -1,6 +1,6 @@
 import { Icon, Link, spacing, Stack, Text } from '@scality/core-ui';
 import React from 'react';
-import { useTheme } from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 
 type CardProps = {
   application?: string;
@@ -78,11 +78,17 @@ export const ManualISVCard = (props: ManualCardProps) => {
   );
 };
 
+const CustomLabel = styled.label`
+  &:hover {
+    border: 1px solid ${(props) => props.theme.textPrimary};
+  }
+`;
+
 export const CardISV = (props: CardProps) => {
   const theme = useTheme();
   const { logo, name, application, onChange, selected } = props;
   return (
-    <label
+    <CustomLabel
       htmlFor={`isv-${name}`}
       style={{
         ...cardContainerStyle,
@@ -103,6 +109,6 @@ export const CardISV = (props: CardProps) => {
         checked={selected}
         onChange={() => onChange(name)}
       />
-    </label>
+    </CustomLabel>
   );
 };
