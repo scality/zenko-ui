@@ -43,7 +43,7 @@ function AccountList({ accounts }: { accounts: Account[] }) {
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
-  const [isISVModalOpen, setIsISVModalOpen] = React.useState(true);
+  const [isISVModalOpen, setIsISVModalOpen] = React.useState(false);
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const navigate = useBasenameRelativeNavigate();
     const setRole = useSetAssumedRole();
