@@ -14,16 +14,16 @@ import React from 'react';
 export const ISVList = [
   {
     id: 'veeam',
-
     name: 'Veeam',
     logo: <VeeamLogo />,
     type: VEEAM_BACKUP_REPLICATION,
   },
-  // {
-  //   name: 'Veeam VBO',
-  //   logo: <VeeamLogo />,
-  //   type: 'Veeam Backup for Microsoft 365',
-  // },
+  {
+    id: 'veeam-vbo',
+    name: 'Veeam VBO',
+    logo: <VeeamLogo />,
+    type: 'Veeam Backup for Microsoft 365',
+  },
 
   { id: 'commvault', name: 'Commvault', logo: <CommvaultLogo /> },
 ];

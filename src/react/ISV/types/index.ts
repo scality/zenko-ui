@@ -1,6 +1,6 @@
 import Joi from '@hapi/joi';
 
-export type ISVPlatform = 'veeam' | 'commvault';
+export type ISVPlatform = 'veeam' | 'commvault' | 'veeam-vbo';
 
 export type ISVConfig = {
   accountName: string;
