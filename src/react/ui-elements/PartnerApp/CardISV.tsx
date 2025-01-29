@@ -4,7 +4,7 @@ import styled, { useTheme } from 'styled-components';
 
 type CardProps = {
   application?: string;
-  logo: JSX.Element;
+  logo: React.JSX.Element;
   name: string;
   selected?: boolean;
   onChange?: (value: React.SetStateAction<string>) => void;
@@ -12,7 +12,7 @@ type CardProps = {
 
 type ManualCardProps = {
   application?: string;
-  logo: JSX.Element;
+  logo: React.JSX.Element;
   link: string;
 };
 
@@ -26,7 +26,10 @@ const cardContainerStyle = {
   borderRadius: '8px',
 };
 
-const CardContent = (props: { logo: JSX.Element; application: string }) => {
+const CardContent = (props: {
+  logo: React.JSX.Element;
+  application: string;
+}) => {
   const { logo, application } = props;
   return (
     <Stack
