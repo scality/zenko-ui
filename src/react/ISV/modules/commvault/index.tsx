@@ -1,7 +1,7 @@
 import { ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { ListItem } from '..';
+import { checkDecimals, ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { CommvaultLogo } from './components/CommvaultLogo';
