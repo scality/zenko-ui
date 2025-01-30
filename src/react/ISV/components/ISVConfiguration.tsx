@@ -1,6 +1,5 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
-import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useMemo, useRef, useState } from 'react';
+import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
   Checkbox,
@@ -12,7 +11,7 @@ import {
   Text,
   Toggle,
 } from '@scality/core-ui';
-import { Button, Input, Select } from '@scality/core-ui/dist/next';
+import { Accordion, Button, Input, Select } from '@scality/core-ui/dist/next';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
@@ -35,8 +34,10 @@ import {
 import { getCapacityBytes } from '../../ui-elements/Veeam/useCapacityUnit';
 import { ISVSkipModal } from './ISVSkipModal';
 import { RadioGroup } from './RadioGroup';
-import { useIAMClient } from '../../IAMProvider';
 import BucketField from '../../ui-elements/PartnerApp/BucketField';
+import { useIAMUser } from '../hooks/useIAMUser';
+import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -86,6 +87,7 @@ const NameField = ({
   platform,
   type,
   fieldType,
+  getIAMUsersMutation = null,
 }) => {
   const isAccount = fieldType === 'account';
   const fieldName = isAccount
@@ -144,10 +146,19 @@ const NameField = ({
             <Controller
               name={fieldName}
               control={control}
+              defaultValue={options.length > 0 ? options[0].name : ''}
               render={({ field: { onChange, value } }) => (
                 <Select
                   id={fieldName}
-                  onChange={onChange}
+                  onChange={(value) => {
+                    const roleArn = options.find(
+                      (option) => option.name === value,
+                    ).preferredAssumableRoleArn;
+                    onChange(value);
+                    if (getIAMUsersMutation) {
+                      getIAMUsersMutation.mutate(roleArn);
+                    }
+                  }}
                   value={value}
                   placeholder={`Select existing ${
                     isAccount ? 'account' : 'user'
@@ -167,14 +178,20 @@ const NameField = ({
             <Controller
               name={FORM_FIELDS.GENERATE_KEY}
               control={control}
-              render={({ field: { onChange, value } }) => (
-                <Checkbox
-                  id={FORM_FIELDS.GENERATE_KEY}
-                  value={value}
-                  label="Generate a new set of AK/SK"
-                  onChange={onChange}
-                />
-              )}
+              render={({ field: { onChange, value } }) => {
+                const isCreateMode = type === 'create';
+                
+                return (
+                  <Checkbox
+                    id={FORM_FIELDS.GENERATE_KEY}
+                    value={value}
+                    label="Generate a new set of AK/SK"
+                    onChange={newValue => !isCreateMode && onChange(newValue)}
+                    disabled={isCreateMode}
+                    checked={isCreateMode || value}
+                  />
+                );
+              }}
             />
           )}
         </Stack>
@@ -205,17 +222,12 @@ export const ISVConfiguration = () => {
     register,
   } = methods;
   const navigate = useBasenameRelativeNavigate();
-  const accountsLocationsEndpointsAdapter =
-    useAccountsLocationsEndpointsAdapter();
-  const { accountsLocationsAndEndpoints, status } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
-
-  const accounts =
-    accountsLocationsAndEndpoints?.accounts.filter(
-      (account) => account.name !== 'scality-internal-services',
-    ) ?? [];
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const metricsAdapter = new NoOpMetricsAdapter();
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
 
   const accountName = watch('accountName');
   const accountNameType = watch('accountNameType');
@@ -223,44 +235,33 @@ export const ISVConfiguration = () => {
   const IAMUserNameType = watch('IAMUserNameType');
   const application = watch('application');
 
-  const [IAMUsersStatus, setIAMUsersStatus] = useState('loading');
-  const IAMClient = useIAMClient();
-  const [IAMUsers, setIAMUsers] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
+  const _accounts = useMemo(() => {
+    if (accounts.status === 'success') {
+      return accounts.value.filter(
+        (account) => account.name !== 'scality-internal-services',
+      );
+    }
+    return [];
+  }, [accounts]);
 
   const isAccountExist = useMemo(() => {
-    const exists =
-      status === 'success' &&
-      accounts.some((account) => account.name === accountName);
-    return exists;
-  }, [accountName, status, accounts]);
-  const isIAMUserExist = useMemo(() => {
-    const exists =
-      IAMUsersStatus === 'success' &&
-      IAMUsers.some((user) => user.name === IAMUserName);
-    return exists;
-  }, [IAMUserName, IAMUsersStatus, IAMUsers]);
+    return _accounts.some((account) => account.name === accountName);
+  }, [_accounts, accountName]);
 
-  useEffect(() => {
-    const fetchIAMUsers = async () => {
-      try {
-        const response = await IAMClient.listUsers();
-        setIAMUsers(
-          response.Users.map((user) => ({
-            id: user.UserId,
-            name: user.UserName,
-          })),
-        );
-        setIAMUsersStatus('success');
-      } catch (error) {
-        console.error('Failed to fetch IAM users:', error);
-        setIAMUsersStatus('error');
-      }
-    };
-
-    fetchIAMUsers();
-  }, [IAMClient]);
+  const { isIAMUserExist, IAMUsersStatus, IAMUsers, getIAMUsersMutation } =
+    useIAMUser({
+      IAMUserName,
+      IAMUserNameType,
+      onIAMUsersLoaded: (users) => {
+        if (users.length > 0) {
+          methods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+          methods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+        }
+      },
+      onShouldGenerateKey: (shouldGenerateKey) => {
+        methods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+      },
+    });
 
   const onSubmit = (data: ISVConfig) => {
     console.log('Form submitted with data:', data);
@@ -287,66 +288,50 @@ export const ISVConfiguration = () => {
   const [skip, setSkip] = useState<boolean>(false);
 
   const renderVeeamApplication = () => (
-    <>
-      {accountNameType === 'existing' && accountName && (
-        <NameField
-          register={register}
+    <FormGroup
+      id={FORM_FIELDS.APPLICATION}
+      label={
+        platform.fieldOverrides.find(
+          (field) => field.name === FORM_FIELDS.APPLICATION,
+        ).label
+      }
+      labelHelpTooltip={
+        platform.fieldOverrides.find(
+          (field) => field.name === FORM_FIELDS.APPLICATION,
+        ).tooltip
+      }
+      helpErrorPosition="bottom"
+      content={
+        <Controller
+          name={FORM_FIELDS.APPLICATION}
           control={control}
-          errors={errors}
-          isExist={isIAMUserExist}
-          status={IAMUsersStatus}
-          options={IAMUsers}
-          platform={platform}
-          type={IAMUserNameType}
-          fieldType="iamUser"
+          render={({ field: { onChange, value } }) => (
+            <Select
+              id={FORM_FIELDS.APPLICATION}
+              onChange={onChange}
+              value={value}
+            >
+              {[
+                {
+                  key: VEEAM_OFFICE_365,
+                  value: VEEAM_OFFICE_365,
+                  label: VEEAM_OFFICE_365,
+                },
+                {
+                  key: VEEAM_OFFICE_365_V8,
+                  value: VEEAM_OFFICE_365_V8,
+                  label: VEEAM_OFFICE_365_V8,
+                },
+              ].map(({ key, value, label }) => (
+                <Select.Option key={key} value={value}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
         />
-      )}
-
-      <FormGroup
-        id={FORM_FIELDS.APPLICATION}
-        label={
-          platform.fieldOverrides.find(
-            (field) => field.name === FORM_FIELDS.APPLICATION,
-          ).label
-        }
-        labelHelpTooltip={
-          platform.fieldOverrides.find(
-            (field) => field.name === FORM_FIELDS.APPLICATION,
-          ).tooltip
-        }
-        helpErrorPosition="bottom"
-        content={
-          <Controller
-            name={FORM_FIELDS.APPLICATION}
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Select
-                id={FORM_FIELDS.APPLICATION}
-                onChange={onChange}
-                value={value}
-              >
-                {[
-                  {
-                    key: VEEAM_OFFICE_365,
-                    value: VEEAM_OFFICE_365,
-                    label: VEEAM_OFFICE_365,
-                  },
-                  {
-                    key: VEEAM_OFFICE_365_V8,
-                    value: VEEAM_OFFICE_365_V8,
-                    label: VEEAM_OFFICE_365_V8,
-                  },
-                ].map(({ key, value, label }) => (
-                  <Select.Option key={key} value={value}>
-                    {label}
-                  </Select.Option>
-                ))}
-              </Select>
-            )}
-          />
-        }
-      />
-    </>
+      }
+    />
   );
 
   const renderCapacitySection = () => {
@@ -408,12 +393,29 @@ export const ISVConfiguration = () => {
             control={control}
             errors={errors}
             isExist={isAccountExist}
-            status={status}
-            options={accounts}
+            status={accounts.status}
+            options={_accounts}
             platform={platform}
             type={accountNameType}
             fieldType="account"
+            getIAMUsersMutation={getIAMUsersMutation}
           />
+
+          {accountNameType === 'existing' && accountName && (
+            <Accordion title="Advanced settings" id="advanced-settings">
+              <NameField
+                register={register}
+                control={control}
+                errors={errors}
+                isExist={isIAMUserExist}
+                status={IAMUsersStatus}
+                options={IAMUsers}
+                platform={platform}
+                type={IAMUserNameType}
+                fieldType="iamUser"
+              />
+            </Accordion>
+          )}
 
           {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 

@@ -29,7 +29,7 @@ import { getListRolesQuery } from '../queries';
 import { SCALITY_IAM_ROLES, regexArn } from '../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
-class NoOpMetricsAdapter implements IMetricsAdapter {
+export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
     buckets: Bucket[],
   ): Promise<Record<string, LatestUsedCapacity>> {
