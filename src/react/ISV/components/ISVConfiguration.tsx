@@ -25,7 +25,6 @@ import {
 
 import {
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_BACKUP_REPLICATION,
   VEEAM_OFFICE_365,
   VEEAM_OFFICE_365_V8,
 } from '../../ui-elements/Veeam/VeeamConstants';
@@ -194,12 +193,7 @@ export const ISVConfiguration = () => {
 
   const methods = useForm<ISVConfig>({
     mode: 'all',
-    defaultValues: {
-      ...config,
-      accountNameType: 'create',
-      IAMUserNameType: 'create',
-      generateKey: false,
-    },
+    defaultValues: config,
     resolver: joiResolver(platform.validator),
   });
 
@@ -333,11 +327,6 @@ export const ISVConfiguration = () => {
               >
                 {[
                   {
-                    key: VEEAM_BACKUP_REPLICATION_XML_VALUE,
-                    value: VEEAM_BACKUP_REPLICATION_XML_VALUE,
-                    label: VEEAM_BACKUP_REPLICATION,
-                  },
-                  {
                     key: VEEAM_OFFICE_365,
                     value: VEEAM_OFFICE_365,
                     label: VEEAM_OFFICE_365,
@@ -426,7 +415,7 @@ export const ISVConfiguration = () => {
             fieldType="account"
           />
 
-          {platform.id === 'veeam' && renderVeeamApplication()}
+          {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 
           <BucketField
             platform={platform.id}

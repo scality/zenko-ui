@@ -1,13 +1,15 @@
 import { spacing, Stepper } from '@scality/core-ui';
-import { useState, useEffect, createContext, useContext, useMemo } from 'react';
+import { useState, createContext, useContext, useMemo } from 'react';
 import { ISVConfiguration } from './ISVConfiguration';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { isvModules } from '../modules';
 import { useTheme } from 'styled-components';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Box } from '@scality/core-ui/dist/next';
 import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
+import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../ui-elements/Veeam/VeeamConstants';
+import { VEEAM_OFFICE_365 } from '../../ui-elements/Veeam/VeeamConstants';
 
 export enum ISVStepsIndexes {
   Configuration,
@@ -50,35 +52,36 @@ export const ISV_STEPS = [
 
 export const ISVSteps = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const id = searchParams.get('platform');
+
+  const getApplication = () => {
+    switch (id) {
+      case 'veeam':
+        return VEEAM_BACKUP_REPLICATION_XML_VALUE;
+      case 'veeam-vbo':
+        return VEEAM_OFFICE_365;
+      case 'commvault':
+        return 'Commvault';
+      default:
+        return '';
+    }
+  };
 
   const [config, setConfig] = useState<ISVConfig>(() => ({
     accountName: '',
     enableImmutableBackup: false,
     buckets: [{ name: '', tag: '' }],
+    application: getApplication(),
+
+    accountNameType: 'create',
+    IAMUserNameType: 'create',
+    generateKey: false,
   }));
 
   const platform = useMemo(() => {
     return isvModules.find((p) => p.id === id);
   }, [id]);
-
-  useEffect(() => {
-    if (!platform && id) {
-      navigate('/isv');
-    }
-    if (platform.id === 'veeam') {
-      setConfig({
-        ...config,
-        application: '',
-      });
-    }
-  }, [platform, id, navigate]);
-
-  if (!platform) {
-    return null;
-  }
 
   const contextValue = useMemo(
     () => ({
