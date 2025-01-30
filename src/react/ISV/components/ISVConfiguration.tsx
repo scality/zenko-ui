@@ -180,13 +180,13 @@ const NameField = ({
               control={control}
               render={({ field: { onChange, value } }) => {
                 const isCreateMode = type === 'create';
-                
+
                 return (
                   <Checkbox
                     id={FORM_FIELDS.GENERATE_KEY}
                     value={value}
                     label="Generate a new set of AK/SK"
-                    onChange={newValue => !isCreateMode && onChange(newValue)}
+                    onChange={(newValue) => !isCreateMode && onChange(newValue)}
                     disabled={isCreateMode}
                     checked={isCreateMode || value}
                   />
@@ -212,6 +212,7 @@ export const ISVConfiguration = () => {
     mode: 'all',
     defaultValues: config,
     resolver: joiResolver(platform.validator),
+    shouldUnregister: true,
   });
 
   const {

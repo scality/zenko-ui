@@ -115,9 +115,30 @@ export const Commvault: ISVPlatformConfig = {
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),
     enableImmutableBackup: Joi.boolean().default(true),
+    bucketPrefix: Joi.string()
+      .label('Bucket Prefix')
+      .min(3)
+      .pattern(/^[a-z0-9.-]+$/)
+      .max(61)
+      .messages({
+        'string.empty':
+          'Choose a prefix for your buckets or set up values on the bucket level',
+      }),
     buckets: Joi.array().items(
       Joi.object({
-        name: bucketNameValidationSchema,
+        name: bucketNameValidationSchema.custom((value, helpers) => {
+          const { state } = helpers;
+
+          const allNames = state.ancestors[1].map((item) => item.name);
+          const occurrences = allNames.filter((n) => n === value).length;
+          if (occurrences > 1) {
+            return helpers.message({
+              custom: 'Bucket name must be unique',
+            });
+          }
+          return value;
+        }, 'Unique name validation'),
+
         tag: Joi.string(),
       }),
     ),

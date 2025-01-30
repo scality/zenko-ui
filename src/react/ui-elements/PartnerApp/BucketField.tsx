@@ -1,10 +1,8 @@
-import { FormGroup, Toggle, Text, spacing, Stack } from '@scality/core-ui';
+import { FormGroup, spacing, Text, Toggle } from '@scality/core-ui';
 import React, { useEffect, useState } from 'react';
-import { VeeamCapacityFormSection } from '../Veeam/VeeamCapacityFormSection';
-import { Input, Select } from '@scality/core-ui/dist/next';
-import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
+import { Input } from '@scality/core-ui/dist/next';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
-import { unitChoices } from '../Veeam/VeeamConstants';
 
 // const additionalFields = [
 //   (index: number, register: any, errors: any) => (
@@ -92,20 +90,22 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
   } = fieldOverrides;
   const theme = useTheme();
   const [bucketNumber, setBucketNumber] = useState<number>(1);
-  const [bucketPrefix, setBucketPrefix] = useState<string>('');
+  // const [bucketPrefix, setBucketPrefix] = useState<string>('');
   const [isGlobal, setIsGlobal] = useState<boolean>(true);
 
   const {
     register,
     control,
-    getValues,
     setValue,
+    unregister,
+    watch,
     formState: { errors },
   } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     name: 'buckets',
     control,
   });
+  const bucketPrefix = watch('bucketPrefix');
 
   useEffect(() => {
     if (isGlobal && bucketNumber > 1 && bucketPrefix) {
@@ -114,13 +114,12 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
           `buckets.${index}.name`,
           bucketPrefix + '-' + (index + 1).toFixed(0).padStart(2, '0'),
         );
-        setValue(`buckets.${index}.tag`, platform);
       });
     }
-  }, [bucketPrefix, bucketNumber, isGlobal]);
+  }, [bucketPrefix, isGlobal, bucketNumber]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.valueAsNumber < 1) {
+    if (e.target.valueAsNumber < 1 || e.target.valueAsNumber > 20) {
       return;
     } else if (e.target.valueAsNumber < fields.length) {
       remove(fields.length - 1);
@@ -129,6 +128,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
         name: bucketPrefix
           ? bucketPrefix + '-' + (fields.length + 1).toFixed(0).padStart(2, '0')
           : '',
+        tag: platform,
       });
     }
 
@@ -136,6 +136,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
   };
 
   const handleGlobalValueChange = () => {
+    unregister('bucketPrefix', { keepValue: true });
     setIsGlobal(!isGlobal);
   };
 
@@ -146,7 +147,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     <>
       <FormGroup
         id="bucketNumber"
-        label="Bucket number"
+        label="Number of buckets"
         required
         labelHelpTooltip={
           'Choose the number of buckets to create within your account'
@@ -166,14 +167,23 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
         }
       ></FormGroup>
       {bucketNumber > 1 && (
-        <label>
-          Set up values on the level
-          <Toggle
-            label={isGlobal ? 'Global' : 'Details'}
-            toggle={isGlobal}
-            onChange={handleGlobalValueChange}
-          ></Toggle>
-        </label>
+        <FormGroup
+          id="globalValue"
+          label="Set up values on the level"
+          help={
+            isGlobal
+              ? 'The values will be applied to all the buckets'
+              : 'Fill the details for each bucket'
+          }
+          content={
+            <Toggle
+              label={isGlobal ? 'Global' : 'Details'}
+              toggle={isGlobal}
+              onChange={handleGlobalValueChange}
+            ></Toggle>
+          }
+          helpErrorPosition="bottom"
+        />
       )}
 
       {bucketNumber > 1 && isGlobal && (
@@ -187,7 +197,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
               automatically named using the prefix and a number.
             </>
           }
-          //TODO add validation for bucket prefix
           error={(errors.bucketPrefix?.message as string) ?? ''}
           helpErrorPosition="bottom"
           help='The buckets will be named "prefix-01", "prefix-02", etc.'
@@ -197,8 +206,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
               type="text"
               autoComplete="off"
               placeholder={bucketPrefixPlaceholder}
-              value={bucketPrefix}
-              onChange={(e) => setBucketPrefix(e.target.value)}
+              {...register('bucketPrefix')}
             />
           }
         />
@@ -232,11 +240,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
                         type="text"
                         autoComplete="off"
                         placeholder={bucketNamePlaceholder}
-                        size="2/3"
-                        {...register(`buckets.${index}.name`, {
-                          required: 'Bucket name is required',
-                          minLength: 5,
-                        })}
+                        {...register(`buckets.${index}.name`)}
                       />
                     }
                   />
@@ -249,6 +253,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
 
             return (
               <FormGroup
+                key={field.id}
                 id={`bucketName-${index}`}
                 label="Bucket name"
                 required
