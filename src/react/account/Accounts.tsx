@@ -3,14 +3,14 @@ import {
   EmptyState,
   ErrorPage401,
   ErrorPage500,
-  Icon,
   Loader,
 } from '@scality/core-ui';
-import { Route, Routes, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import Header from '../ui-elements/EntityHeader';
@@ -18,10 +18,10 @@ import { NoAccountWarning } from '../ui-elements/Warning';
 import { useAuthGroups } from '../utils/hooks';
 import AccountList from './AccountList';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
-import { VEEAM_FEATURE } from '../../js/config';
+
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import AccountContent from './AccountContent';
+import { useState } from 'react';
+import ISVModal from '../ui-elements/PartnerApp/ISVModal';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -32,12 +32,9 @@ const Accounts = () => {
     accessibleAccountsAdapter,
   });
   const navigate = useBasenameRelativeNavigate();
+  const [isISVModalOpen, setIsISVModalOpen] = useState(false);
 
   const { isStorageManager } = useAuthGroups();
-  const { features, basePath } = useConfig();
-
-  const displayVeeamConfiguration =
-    features.includes(VEEAM_FEATURE) && isStorageManager;
 
   if (
     accounts.status == 'success' &&
@@ -68,35 +65,31 @@ const Accounts = () => {
             ></Header>
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel3">
+            <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
             {accounts.value.length === 0 ? (
-              displayVeeamConfiguration ? (
-                <NoAccountWarning
-                  buttonSection={
-                    <>
-                      <Button
-                        label="Start Configuration for Veeam"
-                        variant="primary"
-                        onClick={() => navigate('/veeam/configuration')}
-                      />
-                      or
+              <NoAccountWarning
+                buttonSection={
+                  <>
+                    <Button
+                      label="Start Configuration for ISV"
+                      variant="primary"
+                      onClick={() => setIsISVModalOpen(true)}
+                    />
+                    {/* or
                       <Button
                         label="Create Account"
                         icon={<Icon name="Create-add" />}
                         variant="outline"
                         onClick={() => navigate('/create-account')}
-                      />
-                    </>
-                  }
-                />
-              ) : (
-                <EmptyState
-                  icon="Account"
-                  link={`${basePath}/create-account`}
-                  listedResource={{ singular: 'Account', plural: 'Accounts' }}
-                ></EmptyState>
-              )
+                      /> */}
+                  </>
+                }
+              />
             ) : (
-              <AccountList accounts={accounts.value} />
+              <AccountList
+                accounts={accounts.value}
+                setIsISVModalOpen={setIsISVModalOpen}
+              />
             )}
           </AppContainer.MainContent>
         </>

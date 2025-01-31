@@ -38,12 +38,18 @@ function useAutoAssumeRoleUponAccountDeletion({
   }, [account]);
 }
 
-function AccountList({ accounts }: { accounts: Account[] }) {
+function AccountList({
+  accounts,
+  setIsISVModalOpen,
+}: {
+  accounts: Account[];
+
+  setIsISVModalOpen: (value: boolean) => void;
+}) {
   const navigate = useBasenameRelativeNavigate();
   const { features } = useConfig();
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
-  const [isISVModalOpen, setIsISVModalOpen] = React.useState(false);
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
     const navigate = useBasenameRelativeNavigate();
     const setRole = useSetAssumedRole();
@@ -117,7 +123,6 @@ function AccountList({ accounts }: { accounts: Account[] }) {
         flex: 1,
       }}
     >
-      <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
       <Table
         columns={columns}
         data={accounts}

@@ -22,6 +22,7 @@ const CustomModal = styled(Modal)`
 
   > div {
     max-width: 60vw;
+    width: 60vw;
   }
 `;
 const TRIAL_LICENSE = 'TrialLicense';
@@ -113,6 +114,24 @@ const ModalComponent = () => {
   const user = useAuth();
   const session_state = user?.userData?.original?.session_state;
 
+  const handleContinueClick = () => {
+    setIsOpen(false);
+    // If we are already in zenko-ui context, we can't use the openLink function.
+    // That's why we have to create a custom event, and listen to it to change the route.
+    window.open(selectedISV.documentationLink, '_blank');
+
+    if (currentApp === 'zenko-ui') {
+      const event = new CustomEvent('HistoryPushEvent', {
+        detail: {
+          path: configurationView.view.path,
+        },
+      });
+      window.dispatchEvent(event);
+    } else {
+      openLink(configurationView);
+    }
+  };
+
   return (
     <CustomModal
       title={
@@ -149,21 +168,7 @@ const ModalComponent = () => {
                   : 'Continue'
               }
               disabled={!selectedISV}
-              onClick={() => {
-                setIsOpen(false);
-                // If we are already in zenko-ui context, we can't use the openLink function.
-                // That's why we have to create a custom event, and listen to it to change the route.
-                if (currentApp === 'zenko-ui') {
-                  const event = new CustomEvent('HistoryPushEvent', {
-                    detail: {
-                      path: configurationView.view.path,
-                    },
-                  });
-                  window.dispatchEvent(event);
-                } else {
-                  openLink(configurationView);
-                }
-              }}
+              onClick={handleContinueClick}
             />
           </Stack>
         </Wrap>
