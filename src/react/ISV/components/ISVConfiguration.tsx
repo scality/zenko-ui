@@ -99,23 +99,17 @@ const NameField = ({
   const radioOptions = isAccount ? accountTypeOptions : IAMUserTypeOptions;
 
   return (
-    <FormGroup
-      id={fieldName}
-      label={isAccount ? 'Account' : 'IAM User Management'}
-      required
-      labelHelpTooltip={
-        platform.fieldOverrides.find(
-          (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
-        ).tooltip
-      }
-      helpErrorPosition="bottom"
-      error={
-        isExist && type === 'create'
-          ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-          : errors[fieldName]?.message ?? ''
-      }
-      content={
-        <Stack gap="r8" direction="vertical">
+    <Stack gap="r8" direction="vertical">
+      <FormGroup
+        id={fieldName}
+        label={isAccount ? 'Account' : 'IAM User Management'}
+        required
+        labelHelpTooltip={
+          platform.fieldOverrides.find(
+            (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
+          ).tooltip
+        }
+        content={
           <Controller
             name={typeFieldName}
             control={control}
@@ -129,74 +123,87 @@ const NameField = ({
               />
             )}
           />
-
-          {type === 'create' ? (
-            <Input
-              id={fieldName}
-              type="text"
-              autoComplete="off"
-              placeholder={
-                status === 'success' && options.length !== 0
-                  ? `${platform.id}-backup`
-                  : undefined
-              }
-              {...register(fieldName)}
-            />
-          ) : (
-            <Controller
-              name={fieldName}
-              control={control}
-              defaultValue={options.length > 0 ? options[0].name : ''}
-              render={({ field: { onChange, value } }) => (
-                <Select
+        }
+      />
+      {(isAccount || (!isAccount && type === 'existing')) && (
+        <FormGroup
+          id={fieldName}
+          label={isAccount ? 'Account Name' : 'IAM User Name'}
+          required
+          helpErrorPosition="bottom"
+          error={
+            isExist && type === 'create'
+              ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
+              : errors[fieldName]?.message ?? ''
+          }
+          content={
+            <Stack gap="r8" direction="vertical">
+              {type === 'create' ? (
+                <Input
                   id={fieldName}
-                  onChange={(value) => {
-                    if (getIAMUsersMutation) {
-                      const roleArn = options.find(
-                        (option) => option.name === value,
-                      ).preferredAssumableRoleArn;
-                      getIAMUsersMutation.mutate(roleArn);
-                    }
-                    onChange(value);
-                  }}
-                  value={value}
-                  placeholder={`Select existing ${
-                    isAccount ? 'account' : 'user'
-                  }`}
-                >
-                  {options.map((item) => (
-                    <Select.Option key={item.name} value={item.name}>
-                      {item.name}
-                    </Select.Option>
-                  ))}
-                </Select>
+                  type="text"
+                  autoComplete="off"
+                  placeholder={
+                    status === 'success' && options.length !== 0
+                      ? `${platform.id}-backup`
+                      : undefined
+                  }
+                  {...register(fieldName)}
+                />
+              ) : (
+                <Controller
+                  name={fieldName}
+                  control={control}
+                  defaultValue={options.length > 0 ? options[0].name : ''}
+                  render={({ field: { onChange, value } }) => (
+                    <Select
+                      id={fieldName}
+                      onChange={(value) => {
+                        if (getIAMUsersMutation) {
+                          const roleArn = options.find(
+                            (option) => option.name === value,
+                          ).preferredAssumableRoleArn;
+                          getIAMUsersMutation.mutate(roleArn);
+                        }
+                        onChange(value);
+                      }}
+                      value={value}
+                      placeholder={`Select existing ${
+                        isAccount ? 'account' : 'user'
+                      }`}
+                    >
+                      {options.map((item) => (
+                        <Select.Option key={item.name} value={item.name}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  )}
+                />
               )}
-            />
-          )}
 
-          {!isAccount && (
-            <Controller
-              name={FORM_FIELDS.GENERATE_KEY}
-              control={control}
-              render={({ field: { onChange, value } }) => {
-                const isCreateMode = type === 'create';
-
-                return (
-                  <Checkbox
-                    id={FORM_FIELDS.GENERATE_KEY}
-                    value={value}
-                    label="Generate a new set of AK/SK"
-                    onChange={(newValue) => !isCreateMode && onChange(newValue)}
-                    disabled={isCreateMode}
-                    checked={isCreateMode || value}
-                  />
-                );
-              }}
-            />
-          )}
-        </Stack>
-      }
-    />
+              {!isAccount && type === 'existing' && (
+                <Controller
+                  name={FORM_FIELDS.GENERATE_KEY}
+                  control={control}
+                  render={({ field: { onChange, value } }) => {
+                    return (
+                      <Checkbox
+                        id={FORM_FIELDS.GENERATE_KEY}
+                        value={value}
+                        label="Generate a new set of AK/SK"
+                        onChange={onChange}
+                        checked={value}
+                      />
+                    );
+                  }}
+                />
+              )}
+            </Stack>
+          }
+        />
+      )}
+    </Stack>
   );
 };
 
@@ -269,10 +276,10 @@ export const ISVConfiguration = () => {
     setConfig(data);
     next({
       ...data,
-      // capacityBytes: getCapacityBytes(
-      //   data.buckets[0].capacity,
-      //   data.buckets[0].capacityUnit,
-      // ),
+      capacityBytes: getCapacityBytes(
+        data.buckets[0].capacity,
+        data.buckets[0].capacityUnit,
+      ),
       enableImmutableBackup: isImmutableBackupEnabled(data.application)
         ? data.enableImmutableBackup
         : false,
@@ -368,7 +375,7 @@ export const ISVConfiguration = () => {
               variant="outline"
               onClick={() => {
                 console.log(methods.getValues());
-                // setSkip(true);
+                setSkip(true);
               }}
               label="Skip Use case configuration"
             />
@@ -397,28 +404,24 @@ export const ISVConfiguration = () => {
             platform={platform}
             type={accountNameType}
             fieldType="account"
-            getIAMUsersMutation={
-              platform.id === 'commvault' ? null : getIAMUsersMutation
-            }
+            getIAMUsersMutation={getIAMUsersMutation}
           />
 
-          {accountNameType === 'existing' &&
-            accountName &&
-            (platform.id === 'veeam' || platform.id === 'veeam-vbo') && (
-              <Accordion title="Advanced settings" id="advanced-settings">
-                <NameField
-                  register={register}
-                  control={control}
-                  errors={errors}
-                  isExist={isIAMUserExist}
-                  status={IAMUsersStatus}
-                  options={IAMUsers}
-                  platform={platform}
-                  type={IAMUserNameType}
-                  fieldType="iamUser"
-                />
-              </Accordion>
-            )}
+          {accountNameType === 'existing' && accountName && (
+            <Accordion title="Advanced settings" id="advanced-settings">
+              <NameField
+                register={register}
+                control={control}
+                errors={errors}
+                isExist={isIAMUserExist}
+                status={IAMUsersStatus}
+                options={IAMUsers}
+                platform={platform}
+                type={IAMUserNameType}
+                fieldType="iamUser"
+              />
+            </Accordion>
+          )}
 
           {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 
