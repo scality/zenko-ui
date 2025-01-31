@@ -74,8 +74,6 @@ export const ISVSteps = () => {
     buckets: [{ name: '', tag: id }],
     application: getApplication(),
     accountNameType: 'create',
-    IAMUserNameType: 'create',
-    generateKey: false,
   }));
 
   const platform = useMemo(() => {

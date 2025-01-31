@@ -82,23 +82,6 @@ export const Commvault: ISVPlatformConfig = {
       tooltip: <AccountTooltip />,
     },
     {
-      name: 'application',
-      label: 'COMMVAULT application',
-      placeholder: 'Select COMMVAULT application',
-      tooltip: (
-        <ul>
-          <ListItem>
-            Choose the COMMVAULT application you're setting up.
-          </ListItem>
-          <ListItem>
-            Features such as Immutable Backup and Max Repository Capacity (that
-            provides notification via Smart Object Storage API) are only
-            supported in COMMVAULT, and not in COMMVAULT.
-          </ListItem>
-        </ul>
-      ),
-    },
-    {
       name: 'bucketName',
       label: 'Bucket name',
       placeholder: 'Enter bucket name',
@@ -115,15 +98,6 @@ export const Commvault: ISVPlatformConfig = {
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),
     enableImmutableBackup: Joi.boolean().default(true),
-    bucketPrefix: Joi.string()
-      .label('Bucket Prefix')
-      .min(3)
-      .pattern(/^[a-z0-9.-]+$/)
-      .max(61)
-      .messages({
-        'string.empty':
-          'Choose a prefix for your buckets or set up values on the bucket level',
-      }),
     buckets: Joi.array().items(
       Joi.object({
         name: bucketNameValidationSchema.custom((value, helpers) => {

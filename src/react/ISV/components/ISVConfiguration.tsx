@@ -151,13 +151,13 @@ const NameField = ({
                 <Select
                   id={fieldName}
                   onChange={(value) => {
-                    const roleArn = options.find(
-                      (option) => option.name === value,
-                    ).preferredAssumableRoleArn;
-                    onChange(value);
                     if (getIAMUsersMutation) {
+                      const roleArn = options.find(
+                        (option) => option.name === value,
+                      ).preferredAssumableRoleArn;
                       getIAMUsersMutation.mutate(roleArn);
                     }
+                    onChange(value);
                   }}
                   value={value}
                   placeholder={`Select existing ${
@@ -269,16 +269,13 @@ export const ISVConfiguration = () => {
     setConfig(data);
     next({
       ...data,
-      capacityBytes: getCapacityBytes(
-        data.buckets[0].capacity,
-        data.buckets[0].capacityUnit,
-      ),
-      enableImmutableBackup:
-        application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
-        application === VEEAM_OFFICE_365_V8
-          ? data.enableImmutableBackup
-          : false,
-      generateKey: data.generateKey,
+      // capacityBytes: getCapacityBytes(
+      //   data.buckets[0].capacity,
+      //   data.buckets[0].capacityUnit,
+      // ),
+      enableImmutableBackup: isImmutableBackupEnabled(data.application)
+        ? data.enableImmutableBackup
+        : false,
     });
   };
 
@@ -370,7 +367,8 @@ export const ISVConfiguration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                setSkip(true);
+                console.log(methods.getValues());
+                // setSkip(true);
               }}
               label="Skip Use case configuration"
             />
@@ -399,24 +397,28 @@ export const ISVConfiguration = () => {
             platform={platform}
             type={accountNameType}
             fieldType="account"
-            getIAMUsersMutation={getIAMUsersMutation}
+            getIAMUsersMutation={
+              platform.id === 'commvault' ? null : getIAMUsersMutation
+            }
           />
 
-          {accountNameType === 'existing' && accountName && (
-            <Accordion title="Advanced settings" id="advanced-settings">
-              <NameField
-                register={register}
-                control={control}
-                errors={errors}
-                isExist={isIAMUserExist}
-                status={IAMUsersStatus}
-                options={IAMUsers}
-                platform={platform}
-                type={IAMUserNameType}
-                fieldType="iamUser"
-              />
-            </Accordion>
-          )}
+          {accountNameType === 'existing' &&
+            accountName &&
+            (platform.id === 'veeam' || platform.id === 'veeam-vbo') && (
+              <Accordion title="Advanced settings" id="advanced-settings">
+                <NameField
+                  register={register}
+                  control={control}
+                  errors={errors}
+                  isExist={isIAMUserExist}
+                  status={IAMUsersStatus}
+                  options={IAMUsers}
+                  platform={platform}
+                  type={IAMUserNameType}
+                  fieldType="iamUser"
+                />
+              </Accordion>
+            )}
 
           {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 
@@ -432,7 +434,11 @@ export const ISVConfiguration = () => {
           {isImmutableBackupEnabled(config.application) && (
             <FormGroup
               id={FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP}
-              label="Immutable backup"
+              label={
+                platform.fieldOverrides.find(
+                  (field) => field.name === FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP,
+                ).label
+              }
               help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
               helpErrorPosition="bottom"
               labelHelpTooltip={

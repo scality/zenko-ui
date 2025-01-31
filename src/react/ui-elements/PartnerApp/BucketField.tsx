@@ -84,6 +84,16 @@ type BucketFieldProps = {
   platform?: string;
 };
 
+type BucketField = {
+  name: string;
+  tag?: string;
+};
+
+type FormValues = {
+  buckets: BucketField[];
+  bucketNumber?: number;
+};
+
 const BucketField = (fieldOverrides: BucketFieldProps) => {
   const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
     fieldOverrides;
@@ -95,12 +105,27 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     register,
     control,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<FormValues>();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     name: 'buckets',
     control,
   });
+
+  useEffect(() => {
+    if (fields.length === 0) {
+      append({
+        name: '',
+        tag: platform,
+      });
+    } else {
+      const updatedFields = fields.map((field) => ({
+        name: field.name,
+        tag: platform,
+      }));
+      replace(updatedFields);
+    }
+  }, [platform, fields.length]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.valueAsNumber;
@@ -116,23 +141,13 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
         remove(i);
       }
     } else if (newNumber > fields.length) {
-      for (let i = fields.length; i < newNumber; i++) {
-        append({
-          name: '',
-          tag: platform,
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (fields.length === 0) {
-      append({
+      const newFields = Array(newNumber - fields.length).fill({
         name: '',
         tag: platform,
       });
+      append(newFields);
     }
-  }, []);
+  };
 
   const bucketNamePlaceholder = `${platform}-bucket-name`;
 
