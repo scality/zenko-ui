@@ -2,6 +2,7 @@ import {
   Banner,
   Icon,
   InfoMessage,
+  Link,
   Modal,
   spacing,
   Stack,
@@ -112,21 +113,30 @@ export const ISVModalContent = ({
       >
         {selectedISV && (
           <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
-            <Text>
-              The documentation for{' '}
-              <Text isEmphazed>{selectedISV.type || selectedISV.name}</Text>{' '}
-              integration will open in a new tab, and{' '}
-              {selectedISV.assistant ? (
+            {selectedISV.assistant ? (
+              <Text>
                 <Text>
-                  the{' '}
+                  The{' '}
                   <Text isEmphazed>{selectedISV.type || selectedISV.name}</Text>{' '}
                   assistant will start to guide you through the configuration
                   process.
-                </Text>
-              ) : (
-                `you will be redirected to the account page.`
-              )}
-            </Text>
+                </Text>{' '}
+                For more details, you can follow the{' '}
+                <Link href={selectedISV.documentationLink} target="_blank">
+                  documentation <Icon name="External-link"></Icon>
+                </Link>
+              </Text>
+            ) : (
+              <Text>
+                You will be redirected to the account page. To be guide through
+                the configuration for{' '}
+                <Text isEmphazed>{selectedISV.type || selectedISV.name}</Text>,
+                you can follow the{' '}
+                <Link href={selectedISV.documentationLink} target="_blank">
+                  documentation <Icon name="External-link"></Icon>
+                </Link>
+              </Text>
+            )}
           </Banner>
         )}
       </Box>
@@ -139,7 +149,6 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
 
   const handleContinueClick = () => {
-    window.open(selectedISV.documentationLink, '_blank', 'noopener');
     if (selectedISV?.assistant) {
       navigate(`/isv/configuration?platform=${selectedISV.id}`);
     } else {
