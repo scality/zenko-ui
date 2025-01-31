@@ -429,7 +429,7 @@ export const ISVConfiguration = () => {
             }
           />
 
-          {isImmutableBackupEnabled(application) && (
+          {isImmutableBackupEnabled(config.application) && (
             <FormGroup
               id={FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP}
               label="Immutable backup"

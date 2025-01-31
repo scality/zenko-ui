@@ -62,7 +62,7 @@ export const ISVSteps = () => {
       case 'veeam-vbo':
         return VEEAM_OFFICE_365;
       case 'commvault':
-        return 'Commvault';
+        return 'COMMVAULT';
       default:
         return '';
     }
