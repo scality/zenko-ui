@@ -139,8 +139,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
   const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
 
   const handleContinueClick = () => {
-    console.log('Continue clicked');
-    window.open(selectedISV.documentationLink, '_blank');
+    window.open(selectedISV.documentationLink, '_blank', 'noopener');
     if (selectedISV?.assistant) {
       navigate(`/isv/configuration?platform=${selectedISV.id}`);
     } else {

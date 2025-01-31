@@ -118,7 +118,8 @@ const ModalComponent = () => {
     setIsOpen(false);
     // If we are already in zenko-ui context, we can't use the openLink function.
     // That's why we have to create a custom event, and listen to it to change the route.
-    window.open(selectedISV.documentationLink, '_blank');
+
+    window.open(selectedISV.documentationLink, '_blank', 'noopener');
 
     if (currentApp === 'zenko-ui') {
       const event = new CustomEvent('HistoryPushEvent', {
