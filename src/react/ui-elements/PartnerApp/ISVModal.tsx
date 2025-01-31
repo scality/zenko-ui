@@ -1,16 +1,27 @@
-import { Icon, Modal, spacing, Stack, Text, Wrap } from '@scality/core-ui';
+import {
+  Banner,
+  Icon,
+  Modal,
+  spacing,
+  Stack,
+  Text,
+  Wrap,
+} from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/next';
 
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
-import { CardISV, ManualISVCard } from './CardISV';
-import { ISVList, ISVManualList } from './ISVList';
+import { CardISV } from './CardISV';
+import { ISVConfig, ISVList } from './ISVList';
 
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ArtescaLogo } from '../Veeam/ArtescaLogo';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
+  > div {
+    max-width: 60vw;
+  }
 `;
 
 export const StyledGrid = styled.div`
@@ -21,18 +32,21 @@ export const StyledGrid = styled.div`
   border-radius: ${spacing.f8};
 `;
 
-export const ISVModalContent = ({ selectedISV, setSelectedISV }) => {
+export const ISVModalContent = ({
+  selectedISV,
+  setSelectedISV,
+}: {
+  selectedISV: ISVConfig;
+  setSelectedISV: (value: ISVConfig) => void;
+}) => {
   const theme = useTheme();
 
   return (
-    <Stack direction="vertical" gap="r8">
-      <Text isEmphazed variant="Large" style={{ marginBottom: spacing.r16 }}>
+    <Stack direction="vertical" gap="r16">
+      <Text isEmphazed variant="Large">
         Which application would you like to configure with your ARTESCA?
       </Text>
-      <Text style={{ paddingLeft: spacing.r16 }}>
-        Scality provides products that are certified with some of the most
-        esteemed applications in the industry.
-      </Text>
+
       <form
         style={{
           backgroundColor: theme.backgroundLevel2,
@@ -40,6 +54,7 @@ export const ISVModalContent = ({ selectedISV, setSelectedISV }) => {
           overflowY: 'auto',
           overflowX: 'hidden',
           height: '50vh',
+          marginBottom: !selectedISV && '74px',
         }}
       >
         <Stack
@@ -55,14 +70,15 @@ export const ISVModalContent = ({ selectedISV, setSelectedISV }) => {
             Automatic configuration via assistant
           </Text>
           <StyledGrid>
-            {ISVList.map((isv) => {
+            {ISVList.filter((isv) => isv.assistant === true).map((isv) => {
               return (
                 <CardISV
                   name={isv.name}
                   logo={isv.logo}
                   application={isv.type}
-                  selected={selectedISV === isv.id}
-                  onChange={() => setSelectedISV(isv.id)}
+                  link={isv.documentationLink}
+                  selected={selectedISV?.id === isv.id}
+                  onChange={() => setSelectedISV(isv)}
                 ></CardISV>
               );
             })}
@@ -71,25 +87,40 @@ export const ISVModalContent = ({ selectedISV, setSelectedISV }) => {
             Manual configuration
           </Text>
           <StyledGrid>
-            {ISVManualList.map((isv) => {
+            {ISVList.filter((isv) => isv.assistant !== true).map((isv) => {
               return (
-                <ManualISVCard
+                <CardISV
+                  name={isv.name}
                   logo={isv.logo}
                   application={isv.application}
                   link={isv.documentationLink}
-                ></ManualISVCard>
+                  selected={selectedISV?.id === isv.id}
+                  onChange={() => setSelectedISV(isv)}
+                ></CardISV>
               );
             })}
           </StyledGrid>
         </Stack>
       </form>
+      {selectedISV && (
+        <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
+          <Text>
+            The documentation for {selectedISV.name} integration will open in a
+            new tab, and{' '}
+            {selectedISV.assistant
+              ? `the ${selectedISV.name} assistant will start to guide
+            you through the configuration process.`
+              : `you will be redirected to the account page.`}
+          </Text>
+        </Banner>
+      )}
     </Stack>
   );
 };
 
 const ISVModal = ({ isOpen, setIsOpen }) => {
   const navigate = useBasenameRelativeNavigate();
-  const [selectedISV, setSelectedISV] = useState<string>('');
+  const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
 
   if (!isOpen) {
     return <></>;
@@ -108,16 +139,22 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
           <Stack>
             <Button
               variant="outline"
-              label="Cancel"
+              label="Skip"
               onClick={() => setIsOpen(false)}
             ></Button>
             <Button
               disabled={!selectedISV}
               variant="primary"
-              label="Confirm"
+              label={
+                selectedISV?.assistant
+                  ? 'Continue to assistant'
+                  : 'Continue to account'
+              }
               icon={<Icon name="Arrow-right"></Icon>}
               onClick={() =>
-                navigate(`/isv/configuration?platform=${selectedISV}`)
+                selectedISV?.assistant
+                  ? navigate(`/isv/configuration?platform=${selectedISV}`)
+                  : navigate(`/accounts`)
               }
             ></Button>
           </Stack>

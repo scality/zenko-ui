@@ -15,9 +15,14 @@ import AlertProvider, {
 } from '../../next-architecture/ui/AlertProvider';
 import { useShellHooks } from '@scality/module-federation';
 import { ISVModalContent } from '../PartnerApp/ISVModal';
+import { ISVConfig } from '../PartnerApp/ISVList';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
+
+  > div {
+    max-width: 60vw;
+  }
 `;
 const TRIAL_LICENSE = 'TrialLicense';
 type NavbarUpdaterComponentProps = {
@@ -45,23 +50,23 @@ export const WelcomeModalInternal = (props: NavbarUpdaterComponentProps) => {
    4. The user skip it until the next login or login for the first time
    5. No trial license modal displays
    */
-  const isWelcomeModalEnabled =
-    isStorageManager &&
-    isZeroAccountCreated &&
-    !isAlreadyInConfigurationView &&
-    isNextLogin &&
-    !isTrialLicenseModalDisplayed;
+  // const isWelcomeModalEnabled =
+  //   isStorageManager &&
+  //   isZeroAccountCreated &&
+  //   !isAlreadyInConfigurationView &&
+  //   isNextLogin &&
+  //   !isTrialLicenseModalDisplayed;
 
-  if (!isWelcomeModalEnabled) {
-    return <></>;
-  }
+  // if (!isWelcomeModalEnabled) {
+  //   return <></>;
+  // }
 
   return <ModalComponent />;
 };
 
 const ModalComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [selectedISV, setSelectedISV] = useState<string>('');
+  const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
   const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
@@ -76,18 +81,28 @@ const ModalComponent = () => {
         app.appHistoryBasePath !== '',
     )?.kind ?? deployedApps.find((app) => app.appHistoryBasePath === '')?.kind;
 
-  const zenkoUIConfigurationView = useMemo(
-    () => ({
-      path: `/isv/configuration?platform=${selectedISV}`,
-      label: {
-        en: 'ISV Configuration',
-        fr: 'Configuration ISV',
-      },
-      module: './FederableApp',
-      scope: 'zenko',
-    }),
-    [selectedISV],
-  );
+  const zenkoUIConfigurationView = useMemo(() => {
+    const view = selectedISV?.assistant
+      ? {
+          path: `/isv/configuration?platform=${selectedISV.id}`,
+          label: {
+            en: 'ISV Configuration',
+            fr: 'Configuration ISV',
+          },
+          module: './FederableApp',
+          scope: 'zenko',
+        }
+      : {
+          path: `/accounts`,
+          label: {
+            en: 'Accounts',
+            fr: 'Comptes',
+          },
+          module: './FederableApp',
+          scope: 'zenko',
+        };
+    return view;
+  }, [selectedISV]);
 
   const configurationView = {
     view: zenkoUIConfigurationView,
@@ -102,7 +117,12 @@ const ModalComponent = () => {
     <CustomModal
       title={
         <Stack direction="horizontal" gap="r8">
-          <Text variant="Large">Welcome to ARTESCA</Text> <ArtescaLogo />
+          <Text variant="Large">Welcome to</Text>
+          <ArtescaLogo />
+          <Text variant="Large">ARTESCA - Connector Marketplace</Text>
+          <Text variant="Large" color="textSecondary">
+            Draft Concept
+          </Text>
         </Stack>
       }
       isOpen={isOpen}
@@ -112,7 +132,7 @@ const ModalComponent = () => {
           <Stack>
             <Button
               variant="outline"
-              label={'Skip until next login'}
+              label={'Skip'}
               onClick={() => {
                 setIsOpen(false);
                 setSessionState(session_state);
@@ -121,7 +141,13 @@ const ModalComponent = () => {
             <Button
               variant="primary"
               icon={<Icon name="Arrow-right" />}
-              label="Continue"
+              label={
+                selectedISV
+                  ? selectedISV?.assistant
+                    ? 'Continue to assistant'
+                    : 'Continue to account'
+                  : 'Continue'
+              }
               disabled={!selectedISV}
               onClick={() => {
                 setIsOpen(false);

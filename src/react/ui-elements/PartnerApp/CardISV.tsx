@@ -1,6 +1,8 @@
 import { Icon, Link, spacing, Stack, Text } from '@scality/core-ui';
 import React from 'react';
-import styled from 'styled-components';
+
+import styled, { useTheme } from 'styled-components';
+import Input from '../Input';
 
 type CardProps = {
   application?: string;
@@ -8,6 +10,7 @@ type CardProps = {
   name: string;
   selected?: boolean;
   onChange?: (value: React.SetStateAction<string>) => void;
+  link?: string;
 };
 
 type ManualCardProps = {
@@ -24,6 +27,7 @@ const cardContainerStyle = {
   height: '4.5rem',
   alignItems: 'flex-start',
   borderRadius: '8px',
+  cursor: 'pointer',
 };
 
 const CardContent = (props: {
@@ -50,6 +54,7 @@ const CardContent = (props: {
 };
 
 export const ManualISVCard = (props: ManualCardProps) => {
+  const theme = useTheme();
   const { logo, application, link } = props;
   return (
     <div
@@ -61,7 +66,7 @@ export const ManualISVCard = (props: ManualCardProps) => {
       <div
         style={{
           ...cardContainerStyle,
-          backgroundColor: 'rgba(27, 27, 39, 0.5)',
+          backgroundColor: theme.backgroundLevel4,
         }}
       >
         <CardContent logo={logo} application={application}></CardContent>
@@ -82,7 +87,6 @@ export const ManualISVCard = (props: ManualCardProps) => {
 };
 
 const CustomLabel = styled.label<{ selected?: boolean }>`
-  cursor: 'pointer';
   background-color: ${(props) =>
     props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
   border: 1px solid
@@ -91,23 +95,28 @@ const CustomLabel = styled.label<{ selected?: boolean }>`
   &:hover {
     border-color: ${(props) => props.theme.textPrimary};
   }
+  &:focus-visible {
+    outline: 1px dashed ${(props) => props.theme.highlight};
+  }
 `;
 
 export const CardISV = (props: CardProps) => {
-  const { logo, name, application, onChange, selected } = props;
+  const { logo, name, application, onChange, selected, link } = props;
   return (
     <CustomLabel
       htmlFor={`isv-${name}`}
       style={{
         ...cardContainerStyle,
+        position: 'relative',
+        overflow: 'hidden',
       }}
       selected={selected}
     >
       <CardContent logo={logo} application={application} />
 
-      <input
+      <Input
         style={{
-          flex: 'flex-start',
+          width: 0,
         }}
         type="radio"
         name="isv"
@@ -116,6 +125,20 @@ export const CardISV = (props: CardProps) => {
         checked={selected}
         onChange={() => onChange(name)}
       />
+      {link && (
+        <Link
+          href={link}
+          target="_blank"
+          style={{
+            position: 'absolute',
+            bottom: spacing.r10,
+            right: spacing.r24,
+            fontSize: '0.875rem',
+          }}
+        >
+          Learn more <Icon name="External-link"></Icon>
+        </Link>
+      )}
     </CustomLabel>
   );
 };
