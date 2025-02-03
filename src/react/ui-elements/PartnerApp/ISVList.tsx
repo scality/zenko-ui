@@ -64,19 +64,21 @@ export const ISVList: ISVConfig[] = [
     documentationLink:
       'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/rubrik_security_cloud.html',
   },
+
   {
-    id: 'cohesity',
-    name: 'Cohesity',
-    logo: <CohesityLogo />,
+    id: 'zerto',
+    name: 'Zerto',
+    logo: <ZertoLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/cohesity_cloud_archive.html',
+      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/zerto/zerto.html',
   },
   {
-    id: 'veritas',
-    name: 'Veritas NetBackup',
-    logo: <VeritasLogo />,
+    id: 'splunk',
+    name: 'Splunk',
+    logo: <SplunkLogo />,
+    //TODO update the link once the documentation is available
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/veritas_netbackup.html',
+      'https://documentation-internal.scality.com/Artesca/3.1.0-dev/partner_applications/validated_designs/index.html',
   },
   {
     id: 'hycu',
@@ -94,19 +96,19 @@ export const ISVList: ISVConfig[] = [
   },
 
   {
-    id: 'splunk',
-    name: 'Splunk',
-    logo: <SplunkLogo />,
-    //TODO update the link once the documentation is available
+    id: 'veritas',
+    name: 'Veritas NetBackup',
+    logo: <VeritasLogo />,
     documentationLink:
-      'https://documentation-internal.scality.com/Artesca/3.1.0-dev/partner_applications/validated_designs/index.html',
+      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/veritas_netbackup.html',
   },
+
   {
-    id: 'zerto',
-    name: 'Zerto',
-    logo: <ZertoLogo />,
+    id: 'cohesity',
+    name: 'Cohesity',
+    logo: <CohesityLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/zerto/zerto.html',
+      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/cohesity_cloud_archive.html',
   },
 ];
 
