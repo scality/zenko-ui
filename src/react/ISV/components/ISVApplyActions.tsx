@@ -99,8 +99,13 @@ export default memo(function ISVApplyActions(
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const { bucketName, enableImmutableBackup, accountName, application } =
-    propsConfiguration;
+  const {
+    bucketName,
+    enableImmutableBackup,
+    accountName,
+    application,
+    platform,
+  } = propsConfiguration;
 
   const { data, accessKey, secretKey } = useMutationTableData({
     propsConfiguration,
@@ -146,12 +151,12 @@ export default memo(function ISVApplyActions(
         isOpen={confirmCancel}
         close={() => setConfirmCancel(false)}
         exitAction={() => navigate('/')}
-        title={`Exit ${propsConfiguration.platform.name} Assistant Configuration`}
-        modalContent={propsConfiguration.platform.skipModalContent}
+        title={`Exit ${platform.name} Assistant Configuration`}
+        modalContent={platform.skipModalContent}
       />
       <Form
         layout={{
-          title: `Configure ARTESCA for ${propsConfiguration.platform.name}`,
+          title: `Configure ARTESCA for ${platform.name}`,
           kind: 'page',
         }}
         requireMode="all"
