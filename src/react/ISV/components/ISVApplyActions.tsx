@@ -10,15 +10,17 @@ import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMutationTableData } from '../../ui-elements/Veeam/useMutationTableData';
-import { VeeamSkipModal } from '../../ui-elements/Veeam/VeeamSkipModal';
 import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { memo } from 'react';
+import { ISVSkipModal } from './ISVSkipModal';
+import { ISVPlatformConfig } from '../types';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
 `;
 
 export type ISVApplyActionsProps = {
+  platform: ISVPlatformConfig;
   accountName: string;
   bucketName: string;
   application: string;
@@ -140,29 +142,16 @@ export default memo(function ISVApplyActions(
 
   return (
     <>
-      <VeeamSkipModal
+      <ISVSkipModal
         isOpen={confirmCancel}
         close={() => setConfirmCancel(false)}
         exitAction={() => navigate('/')}
-        modalContent={
-          <ul>
-            <ListItem>
-              <Text>
-                Any resources already created in this flow will be kept.
-              </Text>
-            </ListItem>
-            <ListItem>
-              <Text>
-                To start Veeam assistant configuration again, you can go to the{' '}
-                <b>Accounts</b> page.
-              </Text>
-            </ListItem>
-          </ul>
-        }
+        title={`Exit ${propsConfiguration.platform.name} Assistant Configuration`}
+        modalContent={propsConfiguration.platform.skipModalContent}
       />
       <Form
         layout={{
-          title: 'Configure ARTESCA for Veeam',
+          title: `Configure ARTESCA for ${propsConfiguration.platform.name}`,
           kind: 'page',
         }}
         requireMode="all"

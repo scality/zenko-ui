@@ -276,6 +276,7 @@ export const ISVConfiguration = () => {
     setConfig(data);
     next({
       ...data,
+      platform,
       capacityBytes: getCapacityBytes(
         data.buckets[0].capacity,
         data.buckets[0].capacityUnit,
