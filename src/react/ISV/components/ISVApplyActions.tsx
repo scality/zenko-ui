@@ -9,11 +9,11 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useMutationTableData } from '../../ui-elements/Veeam/useMutationTableData';
 import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { memo } from 'react';
 import { ISVSkipModal } from './ISVSkipModal';
 import { ISVPlatformConfig } from '../types';
+import { useMutationTableData } from '../hooks/useMutationTableData';
 
 export const ListItem = styled.li`
   padding: 0.5rem;

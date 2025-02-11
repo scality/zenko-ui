@@ -15,8 +15,8 @@ import { useAuthGroups } from '../../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../../ui-elements/Veeam/useGetS3ServicePoint';
-import { VEEAM_OFFICE_365_V8 } from '../../ui-elements/Veeam/VeeamConstants';
 import { useISVStepper } from './ISVSteps';
+import { VEEAM_OFFICE_365_V8 } from '../constants';
 type ISVSummaryProps = {
   accountName: string;
   bucketName: string;
@@ -71,7 +71,7 @@ export const ISVSummary = ({
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
-  
+
   return (
     <Form
       layout={{
@@ -91,7 +91,8 @@ export const ISVSummary = ({
       }
     >
       <Text isEmphazed>
-        Your ARTESCA is now configured and ready to integrate with {platform.name}. <br />
+        Your ARTESCA is now configured and ready to integrate with{' '}
+        {platform.name}. <br />
         The next steps involve managing Certificates and entering specific
         ARTESCA details within the {platform.name} application
       </Text>
@@ -233,7 +234,9 @@ export const ISVSummary = ({
             enableImmutableBackup
               ? `Ensure "Make ${
                   application === VEEAM_OFFICE_365_V8 ? '' : 'recent '
-                }backups immutable" is checked when configuring the bucket in ${platform.name}.`
+                }backups immutable" is checked when configuring the bucket in ${
+                  platform.name
+                }.`
               : undefined
           }
           content={

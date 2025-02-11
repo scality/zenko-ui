@@ -5,7 +5,7 @@ import { Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
-import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../../ui-elements/Veeam/VeeamConstants';
+import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../constants';
 
 const AccountTooltip = () => {
   return (

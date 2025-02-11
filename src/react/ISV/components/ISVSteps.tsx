@@ -8,8 +8,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Box } from '@scality/core-ui/dist/next';
 import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
-import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../ui-elements/Veeam/VeeamConstants';
-import { VEEAM_OFFICE_365 } from '../../ui-elements/Veeam/VeeamConstants';
+import {
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
+  VEEAM_OFFICE_365,
+} from '../constants';
 
 export enum ISVStepsIndexes {
   Configuration,

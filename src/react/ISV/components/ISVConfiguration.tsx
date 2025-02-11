@@ -23,11 +23,6 @@ import {
 } from '../../ui-elements/Veeam/VeeamCapacityFormSection';
 
 import {
-  VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_OFFICE_365,
-  VEEAM_OFFICE_365_V8,
-} from '../../ui-elements/Veeam/VeeamConstants';
-import {
   useXCoreLibrary,
   XCORE_NOT_AVAILABLE,
 } from '../../next-architecture/ui/XCoreLibraryProvider';
@@ -38,6 +33,11 @@ import BucketField from '../../ui-elements/PartnerApp/BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
+import {
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
+  VEEAM_OFFICE_365,
+  VEEAM_OFFICE_365_V8,
+} from '../constants';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
