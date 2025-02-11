@@ -2,10 +2,10 @@ import { ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, ListItem } from '../index';
+import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
-import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../constants';
+import { VEEAM_OFFICE_365_V8 } from '../../constants';
 
 const AccountTooltip = () => {
   return (
@@ -132,31 +132,34 @@ export const VeeamVBO: ISVPlatformConfig = {
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),
-    IAMUserName: accountNameValidationSchema,
-    IAMUserNameType: Joi.string().required(),
-    generateKey: Joi.boolean().required(),
+    IAMUserName: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: accountNameValidationSchema,
+      otherwise: Joi.valid(),
+    }),
+    IAMUserNameType: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    generateKey: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.boolean().required(),
+      otherwise: Joi.valid(),
+    }),
     application: Joi.string().required(),
-    enableImmutableBackup: Joi.boolean().required(),
     buckets: Joi.array().items(
       Joi.object({
         name: bucketNameValidationSchema,
         tag: Joi.string(),
-        capacity: Joi.when('application', {
-          is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
-          then: Joi.number()
-            .required()
-            .min(1)
-            .max(1024)
-            .custom((value, helpers) => checkDecimals(value, helpers)),
-          otherwise: Joi.valid(),
-        }),
-        capacityUnit: Joi.when('application', {
-          is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
-          then: Joi.string().required(),
-          otherwise: Joi.valid(),
-        }),
-        capacityBytes: Joi.number().required(),
+        capacity: Joi.valid(),
+        capacityUnit: Joi.valid(),
       }),
     ),
+    enableImmutableBackup: Joi.when('application', {
+      is: Joi.equal(VEEAM_OFFICE_365_V8),
+      then: Joi.boolean().required(),
+      otherwise: Joi.valid(),
+    }),
   }),
 };

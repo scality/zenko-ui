@@ -23,11 +23,7 @@ import BucketField from '../../ui-elements/PartnerApp/BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import {
-  VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_OFFICE_365,
-  VEEAM_OFFICE_365_V8,
-} from '../constants';
+import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 
 const FORM_FIELDS = {
@@ -42,9 +38,7 @@ const FORM_FIELDS = {
 } as const;
 
 const isImmutableBackupEnabled = (application: string) =>
-  application === VEEAM_BACKUP_REPLICATION_XML_VALUE ||
-  application === VEEAM_OFFICE_365_V8 ||
-  application === 'COMMVAULT';
+  application === undefined || application === VEEAM_OFFICE_365_V8;
 
 const accountTypeOptions = [
   {
@@ -403,7 +397,6 @@ export const ISVConfiguration = () => {
           {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 
           <BucketField
-            application={application}
             platform={platform.id}
             bucketNameTooltip={
               platform.fieldOverrides.find(
@@ -412,7 +405,7 @@ export const ISVConfiguration = () => {
             }
           />
 
-          {isImmutableBackupEnabled(config.application) && (
+          {isImmutableBackupEnabled(application) && (
             <FormGroup
               id={FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP}
               label={

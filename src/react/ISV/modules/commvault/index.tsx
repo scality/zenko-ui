@@ -97,26 +97,28 @@ export const Commvault: ISVPlatformConfig = {
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),
-    IAMUserName: accountNameValidationSchema,
-    IAMUserNameType: Joi.string().required(),
-    generateKey: Joi.boolean().required(),
+    IAMUserName: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: accountNameValidationSchema,
+      otherwise: Joi.valid(),
+    }),
+    IAMUserNameType: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    generateKey: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.boolean().required(),
+      otherwise: Joi.valid(),
+    }),
     enableImmutableBackup: Joi.boolean().required(),
     buckets: Joi.array().items(
       Joi.object({
-        name: bucketNameValidationSchema.custom((value, helpers) => {
-          const { state } = helpers;
-
-          const allNames = state.ancestors[1].map((item) => item.name);
-          const occurrences = allNames.filter((n) => n === value).length;
-          if (occurrences > 1) {
-            return helpers.message({
-              custom: 'Bucket name must be unique',
-            });
-          }
-          return value;
-        }, 'Unique name validation'),
-
+        name: bucketNameValidationSchema,
         tag: Joi.string(),
+        capacity: Joi.valid(),
+        capacityUnit: Joi.valid(),
       }),
     ),
   }),

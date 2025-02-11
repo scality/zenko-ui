@@ -44,7 +44,19 @@ export const bucketNameValidationSchema = Joi.string()
   .required()
   .min(3)
   .pattern(/^[a-z0-9.-]+$/)
-  .max(63);
+  .max(63)
+  .custom((value, helpers) => {
+    const { state } = helpers;
+
+    const allNames = state.ancestors[1].map((item) => item.name);
+    const occurrences = allNames.filter((n) => n === value).length;
+    if (occurrences > 1) {
+      return helpers.message({
+        custom: 'Bucket name must be unique',
+      });
+    }
+    return value;
+  }, 'Unique name validation');
 
 export const bucketErrorMessage =
   'Bucket names can include only lowercase letters, numbers, dots (.), and hyphens (-)';

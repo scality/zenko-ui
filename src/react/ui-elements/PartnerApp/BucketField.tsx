@@ -12,77 +12,6 @@ import {
 } from '../../ISV/components/ISVCapacityFormSection';
 import { unitChoices } from '../../ISV/constants';
 
-// const additionalFields = [
-//   (index: number, register: any, errors: any) => (
-//     <FormGroup
-//       id={`bucketTest-${index}`}
-//       label="Bucket test"
-//       required
-//       labelHelpTooltip={'TEST'}
-//       error={(errors.bucketName?.message as string) ?? ''}
-//       helpErrorPosition="bottom"
-//       content={
-//         <Input
-//           id="buckettest"
-//           type="text"
-//           autoComplete="off"
-//           placeholder="bucket-test"
-//           {...register(`buckets.${index}.customField`)}
-//         />
-//       }
-//     />
-//   ),
-//   (index: number, register: any, errors: any, control: any) => (
-//     <FormGroup
-//       id="capacity"
-//       label="Max Veeam Repository Capacity"
-//       error={errors.capacity?.message?.toString() ?? ''}
-//       help="The recommended value is 80% of the platform's total capacity."
-//       helpErrorPosition="bottom"
-//       labelHelpTooltip={''}
-//       content={
-//         <Stack direction="horizontal">
-//           <Input
-//             id="capacity"
-//             type="number"
-//             size="1/3"
-//             min={1}
-//             max={1024}
-//             step={0.01}
-//             autoFocus={false}
-//             {...register(`buckets.${index}.capacity`)}
-//           />
-//           <Controller
-//             name={`buckets.${index}.capacityUnit`}
-//             control={control}
-//             render={({ field: { value, onChange } }) => {
-//               return (
-//                 <>
-//                   <Select
-//                     menuPosition="fixed"
-//                     id="capacityUnit"
-//                     onChange={onChange}
-//                     value={value}
-//                     size="1/3"
-//                   >
-//                     {Object.entries(unitChoices).map(([key, value]) => {
-//                       return (
-//                         <Select.Option key={key} value={`${value}`}>
-//                           {key}
-//                         </Select.Option>
-//                       );
-//                     })}
-//                   </Select>
-//                 </>
-//               );
-//             }}
-//           ></Controller>
-//         </Stack>
-//       }
-//     />
-//   ),
-// ];
-
 const defaultBucketNameTooltip = (
   <Text>Choose an unique name for your bucket</Text>
 );
@@ -90,7 +19,6 @@ const defaultBucketNameTooltip = (
 type BucketFieldProps = {
   bucketNameTooltip?: React.JSX.Element;
   platform?: string;
-  application?: string;
 };
 
 type BucketField = {
@@ -106,11 +34,8 @@ type FormValues = {
 };
 
 const BucketField = (fieldOverrides: BucketFieldProps) => {
-  const {
-    bucketNameTooltip = defaultBucketNameTooltip,
-    platform,
-    application,
-  } = fieldOverrides;
+  const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
+    fieldOverrides;
 
   const theme = useTheme();
   const [bucketNumber, setBucketNumber] = useState<number>(1);
@@ -143,7 +68,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       }));
       replace(updatedFields);
     }
-    console.log('application', application);
   }, [platform, fields.length]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
