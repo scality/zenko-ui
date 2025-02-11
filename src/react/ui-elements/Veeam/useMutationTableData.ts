@@ -26,7 +26,7 @@ import {
 } from './VeeamConstants';
 import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
 import { useShellHooks } from '@scality/module-federation';
-import { ISVApplyActionsProps } from '../../ISV/components/ISVApplyActions';
+import { VeeamTableProps } from './VeeamTable';
 
 export const actions = [
   'Create an Account',
@@ -69,7 +69,7 @@ type Result = {
 export const useMutationTableData = ({
   propsConfiguration,
 }: {
-  propsConfiguration: ISVApplyActionsProps;
+  propsConfiguration: VeeamTableProps;
 }): Result => {
   const setRolePromise = useSetAssumedRolePromise();
 
