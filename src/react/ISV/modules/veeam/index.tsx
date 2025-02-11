@@ -5,7 +5,7 @@ import { Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
-import { VEEAM_BACKUP_REPLICATION_XML_VALUE } from '../../constants';
+import { VEEAM_OFFICE_365 } from '../../constants';
 
 const AccountTooltip = () => {
   return (
@@ -153,16 +153,17 @@ export const Veeam: ISVPlatformConfig = {
         name: bucketNameValidationSchema,
         tag: Joi.string(),
         capacity: Joi.when('application', {
-          is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
+          is: Joi.not(VEEAM_OFFICE_365),
           then: Joi.number()
             .required()
             .min(1)
             .max(1024)
-            .custom((value, helpers) => checkDecimals(value, helpers)),
+            .custom((value, helpers) => checkDecimals(value, helpers))
+            .label('Capacity'),
           otherwise: Joi.valid(),
         }),
         capacityUnit: Joi.when('application', {
-          is: Joi.equal(VEEAM_BACKUP_REPLICATION_XML_VALUE),
+          is: Joi.not(VEEAM_OFFICE_365),
           then: Joi.string().required(),
           otherwise: Joi.valid(),
         }),

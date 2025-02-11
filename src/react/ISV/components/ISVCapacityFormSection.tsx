@@ -93,7 +93,7 @@ export const CapacityFormSection = ({
       <FormGroup
         id={`buckets.${index}.capacity`}
         label="Max Veeam Repository Capacity"
-        error={errors.capacity?.message?.toString() ?? ''}
+        error={errors.buckets?.[index]?.capacity?.message?.toString() ?? ''}
         help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
         labelHelpTooltip={<CapacityTooltip />}
