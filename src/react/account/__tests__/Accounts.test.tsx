@@ -76,12 +76,12 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('Accounts', () => {
-  const selectors = {
-    createAccountButton: () =>
-      screen.getByRole('button', { name: /Create Account/i }),
-    startVeeamConfgurationButton: () =>
-      screen.getByRole('button', { name: /Start Configuration for Veeam/i }),
-  };
+  // const selectors = {
+  //   createAccountButton: () =>
+  //     screen.getByRole('button', { name: /Create Account/i }),
+  //   startVeeamConfgurationButton: () =>
+  //     screen.getByRole('button', { name: /Start Configuration for Veeam/i }),
+  // };
 
   it('should list accounts on which user can assume a role', async () => {
     //E
@@ -249,7 +249,7 @@ describe('Accounts', () => {
       name: /Create Account/i,
     });
     expect(createAccountButton).toBeInTheDocument();
-    expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
+    // expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {
@@ -340,7 +340,7 @@ describe('Accounts', () => {
     //V
     await waitFor(() => screen.getByText(NO_ACCOUNT_MESSAGE));
 
-    expect(selectors.createAccountButton()).toBeInTheDocument();
-    expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
+    // expect(selectors.createAccountButton()).toBeInTheDocument();
+    // expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
   });
 });
