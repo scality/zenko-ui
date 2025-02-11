@@ -17,16 +17,6 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
-import {
-  VeeamCapacityFormWithXcore,
-  VeeamCapacityFormSection,
-} from '../../ui-elements/Veeam/VeeamCapacityFormSection';
-
-import {
-  useXCoreLibrary,
-  XCORE_NOT_AVAILABLE,
-} from '../../next-architecture/ui/XCoreLibraryProvider';
-import { getCapacityBytes } from '../../ui-elements/Veeam/useCapacityUnit';
 import { ISVSkipModal } from './ISVSkipModal';
 import { RadioGroup } from './RadioGroup';
 import BucketField from '../../ui-elements/PartnerApp/BucketField';
@@ -38,6 +28,7 @@ import {
   VEEAM_OFFICE_365,
   VEEAM_OFFICE_365_V8,
 } from '../constants';
+import { getCapacityBytes } from '../hooks/useCapacityUnit';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -277,10 +268,10 @@ export const ISVConfiguration = () => {
     next({
       ...data,
       platform,
-      capacityBytes: getCapacityBytes(
-        data.buckets[0].capacity,
-        data.buckets[0].capacityUnit,
-      ),
+      buckets: data.buckets.map((bucket) => ({
+        ...bucket,
+        capacityBytes: getCapacityBytes(bucket.capacity, bucket.capacityUnit),
+      })),
       enableImmutableBackup: isImmutableBackupEnabled(data.application)
         ? data.enableImmutableBackup
         : false,
@@ -288,9 +279,6 @@ export const ISVConfiguration = () => {
   };
 
   const formRef = useRef(null);
-  const xCoreLibrary = useXCoreLibrary();
-  const { useClusterCapacity } =
-    xCoreLibrary === XCORE_NOT_AVAILABLE ? () => ({}) : xCoreLibrary;
   const [skip, setSkip] = useState<boolean>(false);
 
   const renderVeeamApplication = () => (
@@ -339,18 +327,6 @@ export const ISVConfiguration = () => {
       }
     />
   );
-
-  const renderCapacitySection = () => {
-    if (application !== VEEAM_BACKUP_REPLICATION_XML_VALUE) {
-      return null;
-    }
-
-    return useClusterCapacity ? (
-      <VeeamCapacityFormWithXcore useClusterCapacity={useClusterCapacity} />
-    ) : (
-      <VeeamCapacityFormSection />
-    );
-  };
 
   return (
     <FormProvider {...methods}>
@@ -427,6 +403,7 @@ export const ISVConfiguration = () => {
           {platform.id === 'veeam-vbo' && renderVeeamApplication()}
 
           <BucketField
+            application={application}
             platform={platform.id}
             bucketNameTooltip={
               platform.fieldOverrides.find(
@@ -470,8 +447,6 @@ export const ISVConfiguration = () => {
               }
             />
           )}
-
-          {renderCapacitySection()}
         </FormSection>
       </Form>
     </FormProvider>

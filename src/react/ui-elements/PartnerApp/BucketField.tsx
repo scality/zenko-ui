@@ -4,6 +4,14 @@ import { Input } from '@scality/core-ui/dist/next';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 
+import { XCORE_NOT_AVAILABLE } from '../../../react/next-architecture/ui/XCoreLibraryProvider';
+import { useXCoreLibrary } from '../../../react/next-architecture/ui/XCoreLibraryProvider';
+import {
+  CapacityFormWithXcore,
+  CapacityFormSection,
+} from '../../ISV/components/ISVCapacityFormSection';
+import { unitChoices } from '../../ISV/constants';
+
 // const additionalFields = [
 //   (index: number, register: any, errors: any) => (
 //     <FormGroup
@@ -82,11 +90,14 @@ const defaultBucketNameTooltip = (
 type BucketFieldProps = {
   bucketNameTooltip?: React.JSX.Element;
   platform?: string;
+  application?: string;
 };
 
 type BucketField = {
   name: string;
   tag?: string;
+  capacity?: string;
+  capacityUnit?: string;
 };
 
 type FormValues = {
@@ -95,8 +106,11 @@ type FormValues = {
 };
 
 const BucketField = (fieldOverrides: BucketFieldProps) => {
-  const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
-    fieldOverrides;
+  const {
+    bucketNameTooltip = defaultBucketNameTooltip,
+    platform,
+    application,
+  } = fieldOverrides;
 
   const theme = useTheme();
   const [bucketNumber, setBucketNumber] = useState<number>(1);
@@ -117,14 +131,19 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       append({
         name: '',
         tag: platform,
+        capacity: '0',
+        capacityUnit: unitChoices.TiB.toString(),
       });
     } else {
       const updatedFields = fields.map((field) => ({
         name: field.name,
         tag: platform,
+        capacity: field.capacity,
+        capacityUnit: field.capacityUnit,
       }));
       replace(updatedFields);
     }
+    console.log('application', application);
   }, [platform, fields.length]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,12 +163,33 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       const newFields = Array(newNumber - fields.length).fill({
         name: '',
         tag: platform,
+        capacity: '0',
+        capacityUnit: unitChoices.TiB.toString(),
       });
       append(newFields);
     }
   };
 
   const bucketNamePlaceholder = `${platform}-bucket-name`;
+
+  const xCoreLibrary = useXCoreLibrary();
+  const { useClusterCapacity } =
+    xCoreLibrary === XCORE_NOT_AVAILABLE ? () => ({}) : xCoreLibrary;
+
+  const renderCapacitySection = (index: number) => {
+    if (platform !== 'veeam') {
+      return null;
+    }
+
+    return useClusterCapacity ? (
+      <CapacityFormWithXcore
+        useClusterCapacity={useClusterCapacity}
+        index={index}
+      />
+    ) : (
+      <CapacityFormSection index={index} />
+    );
+  };
 
   return (
     <>
@@ -175,26 +215,28 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
 
       {fields.map((field, index) => {
         const BucketFormGroup = (
-          <FormGroup
-            key={field.id}
-            id={`bucketName-${index}`}
-            label={
-              bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'
-            }
-            required
-            labelHelpTooltip={bucketNameTooltip}
-            error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
-            helpErrorPosition="bottom"
-            content={
-              <Input
-                id={`bucketName-${index}`}
-                type="text"
-                autoComplete="off"
-                placeholder={bucketNamePlaceholder}
-                {...register(`buckets.${index}.name`)}
-              />
-            }
-          />
+          <div key={field.id}>
+            <FormGroup
+              id={`bucketName-${index}`}
+              label={
+                bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'
+              }
+              required
+              labelHelpTooltip={bucketNameTooltip}
+              error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
+              helpErrorPosition="bottom"
+              content={
+                <Input
+                  id={`bucketName-${index}`}
+                  type="text"
+                  autoComplete="off"
+                  placeholder={bucketNamePlaceholder}
+                  {...register(`buckets.${index}.name`)}
+                />
+              }
+            />
+            {renderCapacitySection(index)}
+          </div>
         );
         if (bucketNumber > 1) {
           return (

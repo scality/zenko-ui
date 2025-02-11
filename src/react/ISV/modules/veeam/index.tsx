@@ -132,11 +132,22 @@ export const Veeam: ISVPlatformConfig = {
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),
-    IAMUserName: accountNameValidationSchema,
-    IAMUserNameType: Joi.string().required(),
-    generateKey: Joi.boolean().required(),
-    application: Joi.string().required(),
-    enableImmutableBackup: Joi.boolean().required(),
+    IAMUserName: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: accountNameValidationSchema,
+      otherwise: Joi.valid(),
+    }),
+    IAMUserNameType: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    generateKey: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.boolean().required(),
+      otherwise: Joi.valid(),
+    }),
+    enableImmutableBackup: Joi.boolean().required().default(false),
     buckets: Joi.array().items(
       Joi.object({
         name: bucketNameValidationSchema,
@@ -155,7 +166,6 @@ export const Veeam: ISVPlatformConfig = {
           then: Joi.string().required(),
           otherwise: Joi.valid(),
         }),
-        capacityBytes: Joi.number().required(),
       }),
     ),
   }),

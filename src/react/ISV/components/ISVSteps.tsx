@@ -72,8 +72,8 @@ export const ISVSteps = () => {
 
   const [config, setConfig] = useState<ISVConfig>(() => ({
     accountName: '',
-    enableImmutableBackup: false,
-    buckets: [{ name: '', tag: id }],
+    enableImmutableBackup: true,
+    buckets: [],
     application: getApplication(),
     accountNameType: 'create',
   }));
