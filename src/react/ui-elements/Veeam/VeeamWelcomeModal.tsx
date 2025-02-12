@@ -29,7 +29,7 @@ type NavbarUpdaterComponentProps = {
   shellAlerts: ShellAlerts;
 };
 export const VeeamWelcomeModalInternal = (
-  props: NavbarUpdaterComponentProps,
+  props: Omit<NavbarUpdaterComponentProps, 'shellHooks' | 'shellAlerts'>,
 ) => {
   const { features } = useConfig();
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
