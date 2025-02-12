@@ -144,7 +144,7 @@ export const VeeamVBO: ISVPlatformConfig = {
     }),
     generateKey: Joi.when('accountNameType', {
       is: Joi.equal('existing'),
-      then: Joi.boolean().required(),
+      then: Joi.boolean(),
       otherwise: Joi.valid(),
     }),
     application: Joi.string().required(),

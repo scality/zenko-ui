@@ -110,84 +110,83 @@ const NameField = ({
           />
         }
       />
-      {(isAccount || (!isAccount && type === 'existing')) && (
-        <FormGroup
-          id={fieldName}
-          label={isAccount ? 'Account Name' : 'IAM User Name'}
-          required
-          helpErrorPosition="bottom"
-          error={
-            isExist && type === 'create'
-              ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-              : errors[fieldName]?.message ?? ''
-          }
-          content={
-            <Stack gap="r8" direction="vertical">
-              {type === 'create' ? (
-                <Input
-                  id={fieldName}
-                  type="text"
-                  autoComplete="off"
-                  placeholder={
-                    status === 'success' && options.length !== 0
-                      ? `${platform.id}-backup`
-                      : undefined
-                  }
-                  {...register(fieldName)}
-                />
-              ) : (
-                <Controller
-                  name={fieldName}
-                  control={control}
-                  defaultValue={options.length > 0 ? options[0].name : ''}
-                  render={({ field: { onChange, value } }) => (
-                    <Select
-                      id={fieldName}
-                      onChange={(value) => {
-                        if (getIAMUsersMutation) {
-                          const roleArn = options.find(
-                            (option) => option.name === value,
-                          ).preferredAssumableRoleArn;
-                          getIAMUsersMutation.mutate(roleArn);
-                        }
-                        onChange(value);
-                      }}
-                      value={value}
-                      placeholder={`Select existing ${
-                        isAccount ? 'account' : 'user'
-                      }`}
-                    >
-                      {options.map((item) => (
-                        <Select.Option key={item.name} value={item.name}>
-                          {item.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  )}
-                />
-              )}
 
-              {!isAccount && type === 'existing' && (
-                <Controller
-                  name={FORM_FIELDS.GENERATE_KEY}
-                  control={control}
-                  render={({ field: { onChange, value } }) => {
-                    return (
-                      <Checkbox
-                        id={FORM_FIELDS.GENERATE_KEY}
-                        value={value}
-                        label="Generate a new set of AK/SK"
-                        onChange={onChange}
-                        checked={value}
-                      />
-                    );
-                  }}
-                />
-              )}
-            </Stack>
-          }
-        />
-      )}
+      <FormGroup
+        id={fieldName}
+        label={isAccount ? 'Account Name' : 'IAM User Name'}
+        required
+        helpErrorPosition="bottom"
+        error={
+          isExist && type === 'create'
+            ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
+            : errors[fieldName]?.message ?? ''
+        }
+        content={
+          <Stack gap="r8" direction="vertical">
+            {type === 'create' ? (
+              <Input
+                id={fieldName}
+                type="text"
+                autoComplete="off"
+                placeholder={
+                  status === 'success' && options.length !== 0
+                    ? `${platform.id}-backup`
+                    : undefined
+                }
+                {...register(fieldName)}
+              />
+            ) : (
+              <Controller
+                name={fieldName}
+                control={control}
+                defaultValue={options.length > 0 ? options[0].name : ''}
+                render={({ field: { onChange, value } }) => (
+                  <Select
+                    id={fieldName}
+                    onChange={(value) => {
+                      if (getIAMUsersMutation) {
+                        const roleArn = options.find(
+                          (option) => option.name === value,
+                        ).preferredAssumableRoleArn;
+                        getIAMUsersMutation.mutate(roleArn);
+                      }
+                      onChange(value);
+                    }}
+                    value={value}
+                    placeholder={`Select existing ${
+                      isAccount ? 'account' : 'user'
+                    }`}
+                  >
+                    {options.map((item) => (
+                      <Select.Option key={item.name} value={item.name}>
+                        {item.name}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              />
+            )}
+
+            {!isAccount && type === 'existing' && (
+              <Controller
+                name={FORM_FIELDS.GENERATE_KEY}
+                control={control}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <Checkbox
+                      id={FORM_FIELDS.GENERATE_KEY}
+                      value={value}
+                      label="Generate a new set of AK/SK"
+                      onChange={onChange}
+                      checked={value}
+                    />
+                  );
+                }}
+              />
+            )}
+          </Stack>
+        }
+      />
     </Stack>
   );
 };

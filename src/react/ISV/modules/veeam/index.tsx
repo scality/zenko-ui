@@ -144,7 +144,7 @@ export const Veeam: ISVPlatformConfig = {
     }),
     generateKey: Joi.when('accountNameType', {
       is: Joi.equal('existing'),
-      then: Joi.boolean().required(),
+      then: Joi.boolean(),
       otherwise: Joi.valid(),
     }),
     enableImmutableBackup: Joi.boolean().required().default(false),
