@@ -241,7 +241,7 @@ export const useAccounts = (
         }
       },
     },
-    (data) => data.Accounts,
+    (data) => data?.Accounts,
   );
 
   const uniqueAccountsWithRoles = Object.values(

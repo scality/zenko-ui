@@ -59,7 +59,7 @@ export const useAwsPaginatedEntities = <
 ): AWS_PAGINATED_ENTITIES<ENTITY> => {
   if (!reactQueryOptions.getNextPageParam) {
     reactQueryOptions.getNextPageParam = (lastPage: MARKER_TYPE) =>
-      ((lastPage as { Marker?: string }).Marker
+      ((lastPage as { Marker?: string })?.Marker
         ? { Marker: (lastPage as { Marker?: string }).Marker }
         : undefined) as MARKER_TYPE;
   }

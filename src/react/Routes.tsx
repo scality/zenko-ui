@@ -103,6 +103,7 @@ function PrivateRoutes() {
     (state: AppState) => state.auth.isClientsLoaded,
   );
   const user = useSelector((state: AppState) => state.oidc.user);
+  const config = useConfig();
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
@@ -222,7 +223,10 @@ function PrivateRoutes() {
       <Route path="accounts/*" element={<Accounts />} />
       <Route path="buckets/*" element={<RedirectToAccount />} />
       <Route path="/" element={<Navigate to="accounts" replace />} />
-      <Route path="*" element={<NoMatch />} />
+      <Route
+        path="*"
+        element={<Navigate to={config.basePath + `/accounts`} replace />}
+      />
     </Routes>
   );
 }
