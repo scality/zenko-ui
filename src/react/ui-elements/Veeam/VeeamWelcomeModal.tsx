@@ -13,7 +13,11 @@ import { useNextLogin } from './useNextLogin';
 import AlertProvider, {
   useAlerts,
 } from '../../next-architecture/ui/AlertProvider';
-import { useShellHooks } from '@scality/module-federation';
+import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
+import {
+  ShellAlerts,
+  ShellHooks,
+} from 'shell/compiled-types/src/hooks/useShellHooks';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -21,6 +25,8 @@ const CustomModal = styled(Modal)`
 const TRIAL_LICENSE = 'TrialLicense';
 type NavbarUpdaterComponentProps = {
   isFirstTimeLogin: boolean;
+  shellHooks: ShellHooks;
+  shellAlerts: ShellAlerts;
 };
 export const VeeamWelcomeModalInternal = (
   props: NavbarUpdaterComponentProps,
@@ -149,10 +155,15 @@ const VeeamModalComponent = () => {
 
 export default function VeeamWelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
-    <InternalRouter>
-      <AlertProvider>
-        <VeeamWelcomeModalInternal {...props} />
-      </AlertProvider>
-    </InternalRouter>
+    <ShellHooksProvider
+      shellHooks={props.shellHooks}
+      shellAlerts={props.shellAlerts}
+    >
+      <InternalRouter>
+        <AlertProvider>
+          <VeeamWelcomeModalInternal {...props} />
+        </AlertProvider>
+      </InternalRouter>
+    </ShellHooksProvider>
   );
 }
