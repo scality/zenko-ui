@@ -12,6 +12,7 @@ import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-archit
 import { useMutation } from 'react-query';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useMemo } from 'react';
+import { useBucketMutation } from './useBucketMutation';
 
 type Result = {
   data: {
@@ -59,6 +60,14 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
     },
   });
 
+  const bucketMutationArray =
+    props.buckets?.map((bucket) => {
+      return {
+        ...useBucketMutation(bucket),
+        key: `bucketMutation`,
+      };
+    }) ?? [];
+
   const steps = [
     // 1. Create an Account
     { ...useCreateAccountMutation(), key: 'createAccount' },
@@ -76,7 +85,6 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
     { ...useCreateIAMUserMutation(), key: 'createIAMUser' },
     // 6. Generate Access key and Secret key
     { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKey' },
-  
   ] as const;
 
   const { mutate, mutationsWithRetry } = useChainedMutations({

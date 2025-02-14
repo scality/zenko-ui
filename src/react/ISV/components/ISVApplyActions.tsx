@@ -1,9 +1,7 @@
 import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import {
-  Column,
-  Table,
-} from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import { Column } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
+import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from 'react-query';
@@ -22,10 +20,32 @@ export const ListItem = styled.li`
 export type ISVApplyActionsProps = {
   platform: ISVPlatformConfig;
   accountName: string;
-  bucketName: string;
   application: string;
-  capacityBytes: string;
+  buckets?: {
+    name: string;
+    tag: string;
+    capacity?: string;
+    capacityUnit?: string;
+    capacityBytes?: number;
+  }[];
   enableImmutableBackup: boolean;
+};
+
+export type ISVConfig = {
+  accountName: string;
+  accountNameType?: 'create' | 'existing';
+  IAMUserName?: string;
+  IAMUserNameType?: 'create' | 'existing';
+  generateKey?: boolean;
+  application?: string;
+  enableImmutableBackup?: boolean;
+  buckets?: {
+    name: string;
+    tag: string;
+    capacity?: string;
+    capacityUnit?: string;
+    capacityBytes?: number;
+  }[];
 };
 
 type TableDataType = {
@@ -99,13 +119,8 @@ export default memo(function ISVApplyActions(
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const {
-    bucketName,
-    enableImmutableBackup,
-    accountName,
-    application,
-    platform,
-  } = propsConfiguration;
+  const { buckets, enableImmutableBackup, accountName, application, platform } =
+    propsConfiguration;
 
   const { data, accessKey, secretKey } = useMutationTableData({
     propsConfiguration,
@@ -125,7 +140,7 @@ export default memo(function ISVApplyActions(
     queryClient.invalidateQueries(['WebIdentityRoles']);
     next({
       accountName,
-      bucketName,
+      buckets,
       enableImmutableBackup,
       accessKey,
       secretKey,
@@ -133,7 +148,7 @@ export default memo(function ISVApplyActions(
     });
   }, [
     accountName,
-    bucketName,
+    buckets,
     enableImmutableBackup,
     accessKey,
     secretKey,
@@ -181,14 +196,61 @@ export default memo(function ISVApplyActions(
         style={{ width: '50rem' }}
       >
         <div style={{ height: '32rem' }}>
-          <Table columns={columns} data={data}>
+          {/* <Table columns={columns} data={data}>
             <Table.SingleSelectableContent
               rowHeight="h32"
               separationLineVariant="backgroundLevel3"
-              children={(Rows) => {
-                return <>{Rows}</>;
+              children={(rows) => {
+                console.log('DEBUG rows', rows);
+                return rows;
               }}
             />
+          </Table> */}
+          <Table>
+            <T.Head>
+              <T.HeadRow>
+                <T.HeadCell>Step</T.HeadCell>
+                <T.HeadCell>Action</T.HeadCell>
+                <T.HeadCell>Status</T.HeadCell>
+              </T.HeadRow>
+            </T.Head>
+            <T.Body>
+              {data.map((row, index) => (
+                <T.Row key={index} style={{ display: 'flex' }}>
+                  <T.Cell>{row.step}</T.Cell>
+                  <T.Cell style={{ flex: 0.5 }}>
+                    <div>
+                      <Text>{row.action}</Text>
+                    </div>
+                  </T.Cell>
+                  <T.Cell>
+                    {row.status === 'success' ? (
+                      <StatusBox>
+                        <Icon name="Check" color={theme.statusHealthy} />
+                        <span>Success</span>
+                      </StatusBox>
+                    ) : row.status === 'error' ? (
+                      <StatusBox>
+                        <Icon
+                          name="Exclamation-triangle"
+                          color={theme.statusCritical}
+                        />
+                        <span>Failed</span>
+                        <Button
+                          icon={<Icon name="Redo" />}
+                          variant="secondary"
+                          type="button"
+                          label="Retry"
+                          onClick={row.retry}
+                        />
+                      </StatusBox>
+                    ) : (
+                      <span>Pending...</span>
+                    )}
+                  </T.Cell>
+                </T.Row>
+              ))}
+            </T.Body>
           </Table>
         </div>
       </Form>

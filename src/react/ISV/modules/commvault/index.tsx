@@ -10,11 +10,11 @@ const AccountTooltip = () => {
   return (
     <ul>
       <ListItem>
-        Enter a unique ARTESCA account name, where your S3 & IAM Veeam resources
-        will be structured.
+        Enter a unique ARTESCA account name, where your S3 & IAM Commvault
+        resources will be structured.
       </ListItem>
       <ListItem>
-        This information won’t be required by the Veeam console.
+        This information won’t be required by the Commvault console.
       </ListItem>
     </ul>
   );
@@ -24,9 +24,9 @@ const BucketNameTooltip = () => {
   return (
     <ul>
       <ListItem>
-        This bucket is your future Veeam destination. You'll need it when
-        setting up your Veeam application. We'll also include this in the
-        summary provided by our Veeam assistant at the end.
+        This bucket is your future Commvault destination. You'll need it when
+        setting up your Commvault application. We'll also include this in the
+        summary provided by our Commvault assistant at the end.
       </ListItem>
       <ListItem>
         The bucket name should follow few constraints:
@@ -47,15 +47,16 @@ const EnableImmutableBackupTooltip = () => {
   return (
     <ul>
       <ListItem>
-        Veeam's Immutable Backup feature enhances data protection by using S3
+        Commvault's WORM feature enhances data protection by using S3
         Object-lock technology.
       </ListItem>
       <ListItem>
-        By selecting the Immutable Backup feature, the ARTESCA bucket is created
-        with Object-lock enabled.
+        By selecting the WORM feature, the ARTESCA bucket is created with
+        Object-lock enabled.
       </ListItem>
       <ListItem>
-        Data backed up to your ARTESCA S3 bucket via Veeam will be immutable.
+        Data backed up to your ARTESCA S3 bucket via Commvault will be
+        immutable.
       </ListItem>
     </ul>
   );
