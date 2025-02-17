@@ -12,22 +12,6 @@ import Properties from './details/Properties';
 import { useEffect } from 'react';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
-const variantMapping = {
-  healthy: 'statusHealthy',
-  success: 'statusHealthy',
-  warning: 'statusWarning',
-  danger: 'statusCritical',
-  selected: 'selectedActive',
-  base: 'infoPrimary',
-};
-
-/** Translates the old colors into new colors while keeping the same name.
- * New names are also supported. */
-export const getThemePropSelector = (key) => (props) => {
-  const key_ = variantMapping[key] ?? key;
-  return props.theme[key_];
-};
-
 type Props = {
   account: Account | null | undefined;
 };
@@ -47,10 +31,6 @@ function AccountDetails({ account }: Props) {
   const { pathname } = useLocation();
   const navigate = useBasenameRelativeNavigate();
 
-  if (!account) {
-    return <NotFound />;
-  }
-
   const customTabStyle = {
     inactiveTabColor: theme.backgroundLevel2,
     activeTabColor: theme.backgroundLevel3,
@@ -62,6 +42,10 @@ function AccountDetails({ account }: Props) {
   useEffect(() => {
     navigate(`/accounts/${accountName}/properties`, { replace: true });
   }, []);
+
+  if (!account) {
+    return <NotFound />;
+  }
 
   return (
     <Tabs {...customTabStyle} tabLineColor={theme.backgroundLevel2}>
