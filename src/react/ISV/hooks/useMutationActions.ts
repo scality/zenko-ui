@@ -3,8 +3,10 @@ import { useShellHooks } from '@scality/module-federation';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import {
+  useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateIAMUserMutation,
+  useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
 } from '../../../js/mutations';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
@@ -12,7 +14,8 @@ import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-archit
 import { useMutation } from 'react-query';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useMemo } from 'react';
-import { useBucketMutation } from './useBucketMutation';
+import { GET_ISV_POLICY } from './useBucketMutation';
+import { useCreateBucket } from '../../../react/next-architecture/domain/business/buckets';
 
 type Result = {
   data: {
@@ -23,23 +26,6 @@ type Result = {
   }[];
   accessKey: string;
   secretKey: string;
-};
-
-const actions = [
-  'Create an Account',
-  'Update Configuration',
-  'Assume Account Role',
-  'Create a User',
-  'Generate Access key and Secret key',
-] as const;
-
-const getKeys = (steps) => {
-  const label = 'Generate Access key and Secret key';
-  const index = actions.findIndex((action) => action === label);
-  return {
-    accessKey: steps[index].data?.AccessKey?.AccessKeyId ?? '',
-    secretKey: steps[index].data?.AccessKey?.SecretAccessKey ?? '',
-  };
 };
 
 export const useMutationActions = (props: ISVApplyActionsProps): Result => {
@@ -55,18 +41,39 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
   const setRolePromise = useSetAssumedRolePromise();
 
   const assumeRoleMutation = useMutation({
-    mutationFn: ({ roleArn }: { roleArn: string }) => {
-      return setRolePromise({ roleArn });
+    mutationFn: async ({ roleArn }: { roleArn: string }) => {
+      const result = await setRolePromise({ roleArn });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return result;
     },
   });
 
-  const bucketMutationArray =
-    props.buckets?.map((bucket) => {
-      return {
-        ...useBucketMutation(bucket),
-        key: `bucketMutation`,
-      };
-    }) ?? [];
+  const bucketMutationArray = props.buckets?.map((bucket) => {
+    return {
+      ...useCreateBucket(),
+      key: `createBucket-${bucket.name}`,
+    };
+  });
+
+  const actions = [
+    'Create an Account',
+    'Update Configuration',
+    'Assume Account Role',
+    ...props.buckets.map((bucket) => `Create a Bucket: ${bucket.name}`),
+    'Create a User',
+    'Generate Access key and Secret key',
+    'Create Policy',
+    'Attach Policy to User',
+  ] as const;
+
+  const getKeys = (steps) => {
+    const label = 'Generate Access key and Secret key';
+    const index = actions.findIndex((action) => action === label);
+    return {
+      accessKey: steps[index].data?.AccessKey?.AccessKeyId ?? '',
+      secretKey: steps[index].data?.AccessKey?.SecretAccessKey ?? '',
+    };
+  };
 
   const steps = [
     // 1. Create an Account
@@ -80,15 +87,35 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
     { ...assumeRoleMutation, key: 'assumeRole' },
 
     //TODO 4. Bucket Settings
+    ...bucketMutationArray,
 
     // 5. Create a User
     { ...useCreateIAMUserMutation(), key: 'createIAMUser' },
     // 6. Generate Access key and Secret key
     { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKey' },
+
+    { ...useCreatePolicyMutation(), key: 'createPolicy' },
+
+    { ...useAttachPolicyToUserMutation(), key: 'attachPolicyToUser' },
   ] as const;
 
+  const createBucketArray = useMemo(() => {
+    return props.buckets?.reduce(
+      (acc, bucket) => ({
+        ...acc,
+        [`createBucket-${bucket.name}`]: () => {
+          return {
+            ObjectLockEnabledForBucket: props.enableImmutableBackup,
+            Bucket: bucket.name,
+          };
+        },
+      }),
+      {},
+    );
+  }, [props.buckets, props.enableImmutableBackup, bucketMutationArray]);
+
   const { mutate, mutationsWithRetry } = useChainedMutations({
-    mutations: steps,
+    mutations: steps as any,
     computeVariablesForNext: {
       createAccount: () => ({
         user: {
@@ -98,14 +125,29 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
         instanceId,
       }),
       refetchAccountsLocationsEndpoints: () => ({}),
-      assumeRole: (results) => ({
-        roleArn: `arn:aws:iam::${results[0]?.id}:role/scality-internal/storage-manager-role`,
-      }),
+      assumeRole: (results) => {
+        return {
+          roleArn: `arn:aws:iam::${results[0].id}:role/scality-internal/storage-manager-role`,
+        };
+      },
+      ...createBucketArray,
       createIAMUser: () => ({
         userName: props.accountName,
       }),
       createUserAccessKey: () => ({
         userName: props.accountName,
+      }),
+      createPolicy: () => ({
+        policyName: `${props.platform.name}`,
+        policyDocument: GET_ISV_POLICY(
+          props.buckets.map((bucket) => bucket.name),
+          props.application,
+          props.enableImmutableBackup,
+        ),
+      }),
+      attachPolicyToUser: (results: any) => ({
+        userName: props.accountName,
+        policyArn: `arn:aws:iam::${results[0]?.id}:policy/${props.platform.name}`,
       }),
     },
   });

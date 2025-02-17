@@ -1,6 +1,5 @@
 import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import { Column } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState, useMemo, useCallback } from 'react';
@@ -11,24 +10,28 @@ import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { memo } from 'react';
 import { ISVSkipModal } from './ISVSkipModal';
 import { ISVPlatformConfig } from '../types';
-import { useMutationTableData } from '../hooks/useMutationTableData';
+import { useMutationActions } from '../hooks/useMutationActions';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
 `;
 
+export type Bucket = {
+  name: string;
+  tag: string;
+  capacity?: string;
+  capacityUnit?: string;
+  capacityBytes?: number;
+};
+
 export type ISVApplyActionsProps = {
   platform: ISVPlatformConfig;
   accountName: string;
   application: string;
-  buckets?: {
-    name: string;
-    tag: string;
-    capacity?: string;
-    capacityUnit?: string;
-    capacityBytes?: number;
-  }[];
+  buckets?: Bucket[];
   enableImmutableBackup: boolean;
+  accessKey: string;
+  secretKey: string;
 };
 
 export type ISVConfig = {
@@ -48,62 +51,6 @@ export type ISVConfig = {
   }[];
 };
 
-type TableDataType = {
-  step: number;
-  action: string;
-  status: 'success' | 'error' | 'loading' | 'idle';
-  retry: () => void;
-};
-
-const getTableColumns = (
-  theme: typeof useTheme extends () => infer R ? R : never,
-): Column<TableDataType>[] => [
-  {
-    Header: 'Step',
-    accessor: 'step',
-    Cell: ({ value }) => <Text>{value}</Text>,
-  },
-  {
-    Header: 'Action',
-    accessor: 'action',
-    cellStyle: { width: '50%' },
-    Cell: ({ value }) => <Text>{value}</Text>,
-  },
-  {
-    Header: 'Status',
-    accessor: 'status',
-    cellStyle: { width: '12.5%' },
-    Cell: ({ value, row }) => {
-      if (value === 'success') {
-        return (
-          <StatusBox>
-            <Icon name="Check" color={theme.statusHealthy} />
-            <span>Success</span>
-          </StatusBox>
-        );
-      }
-
-      if (value === 'error') {
-        return (
-          <StatusBox>
-            <Icon name="Exclamation-triangle" color={theme.statusCritical} />
-            <span>Failed</span>
-            <Button
-              icon={<Icon name="Redo" />}
-              variant="secondary"
-              type="button"
-              label="Retry"
-              onClick={row.original.retry}
-            />
-          </StatusBox>
-        );
-      }
-
-      return <span>Pending...</span>;
-    },
-  },
-];
-
 const StatusBox = styled(Box)`
   display: flex;
   gap: 8px;
@@ -122,11 +69,8 @@ export default memo(function ISVApplyActions(
   const { buckets, enableImmutableBackup, accountName, application, platform } =
     propsConfiguration;
 
-  const { data, accessKey, secretKey } = useMutationTableData({
-    propsConfiguration,
-  });
+  const { data, accessKey, secretKey } = useMutationActions(propsConfiguration);
 
-  const columns = useMemo(() => getTableColumns(theme), [theme]);
   const isCancellable = useMemo(
     () => data.some((row) => row.status === 'error'),
     [data],

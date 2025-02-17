@@ -8,7 +8,7 @@ import {
   Text,
 } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
+import { Stack, Wrap, spacing } from '@scality/core-ui/dist/spacing';
 import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
@@ -17,21 +17,8 @@ import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../../ui-elements/Veeam/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
 import { VEEAM_OFFICE_365_V8 } from '../constants';
-type ISVSummaryProps = {
-  accountName: string;
-  bucketName: string;
-  enableImmutableBackup: boolean;
-  accessKey: string;
-  secretKey: string;
-  application: string;
-};
+import { ISVApplyActionsProps } from './ISVApplyActions';
 
-export const VEEAM_SUMMARY_TITLE = 'Veeam Repository preparation summary';
-export const CREDENTIALS_SECTION_TITLE = 'Credentials';
-export const BUCKET_SECTION_TITLE = 'Bucket';
-export const CERTIFICATE_SECTION_TITLE = '1. Certificates';
-export const ACCOUNT_SECTION_TITLE =
-  '2. Information for the Veeam configuration';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -61,12 +48,12 @@ const Separator = styled.div`
 
 export const ISVSummary = ({
   accountName,
-  bucketName,
+  buckets,
   enableImmutableBackup,
   accessKey,
   secretKey,
   application,
-}: ISVSummaryProps) => {
+}: ISVApplyActionsProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
@@ -75,7 +62,7 @@ export const ISVSummary = ({
   return (
     <Form
       layout={{
-        title: VEEAM_SUMMARY_TITLE,
+        title: `${platform.name} Repository preparation summary`,
         kind: 'page',
       }}
       requireMode="all"
@@ -85,7 +72,7 @@ export const ISVSummary = ({
           //TODO: Add flag icon in core-ui
           label="Finish"
           onClick={() => {
-            navigate(`/accounts/${accountName}/buckets/${bucketName}`);
+            navigate(`/accounts/${accountName}/buckets/`);
           }}
         />
       }
@@ -97,7 +84,7 @@ export const ISVSummary = ({
         ARTESCA details within the {platform.name} application
       </Text>
       {isPlatformAdmin ? (
-        <Level4FormSection title={{ name: CERTIFICATE_SECTION_TITLE }}>
+        <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
             title={'How to manage Certificates?'}
             link="/docs/standard_operations/change_certificates.html"
@@ -132,9 +119,13 @@ export const ISVSummary = ({
 
       <Level4FormSection>
         <Wrap>
-          <Text isEmphazed>{ACCOUNT_SECTION_TITLE}</Text>
+          <Text
+            isEmphazed
+          >{`2. Information for the ${platform.name} configuration`}</Text>
           <CopyButton
-            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBucket name\t${bucketName}`}
+            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBuckets name\t${buckets
+              .map((bucket) => bucket.name)
+              .join(', ')}`}
             label="all"
             variant="outline"
             tooltip={{
@@ -177,7 +168,7 @@ export const ISVSummary = ({
         />
         <Separator />
 
-        <Text isEmphazed>{CREDENTIALS_SECTION_TITLE}</Text>
+        <Text isEmphazed>{'Credentials'}</Text>
         <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
           The Secret Access key cannot be retrieved afterwards, so make sure to
           keep and secure it now. <br />
@@ -210,19 +201,23 @@ export const ISVSummary = ({
         />
         <Separator />
 
-        <Text isEmphazed>{BUCKET_SECTION_TITLE}</Text>
+        <Text isEmphazed>{'Buckets'}</Text>
         <FormGroup
-          id="bucket-name"
+          id="buckets-name"
           label="Name"
           required
           content={
-            <WrapperWithWidth>
-              <Text>{bucketName}</Text>
-              <CopyButton
-                textToCopy={bucketName}
-                aria-label="copy bucket name"
-              />
-            </WrapperWithWidth>
+            <>
+              {buckets.map((bucket) => (
+                <Stack key={bucket.name}>
+                  <Text>{bucket.name}</Text>
+                  <CopyButton
+                    textToCopy={bucket.name}
+                    aria-label="copy bucket name"
+                  />
+                </Stack>
+              ))}
+            </>
           }
         />
         <FormGroup

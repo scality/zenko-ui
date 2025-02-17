@@ -261,6 +261,7 @@ export const ISVConfiguration = () => {
     next({
       ...data,
       platform,
+      application: config.application,
       buckets: data.buckets.map((bucket) => ({
         ...bucket,
         capacityBytes: getCapacityBytes(bucket.capacity, bucket.capacityUnit),

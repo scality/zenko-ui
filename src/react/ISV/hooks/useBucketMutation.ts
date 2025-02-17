@@ -1,16 +1,3 @@
-import { useMutation } from 'react-query';
-import {
-  useAttachPolicyToUserMutation,
-  useCreatePolicyMutation,
-  usePutBucketTaggingMutation,
-} from '../../../js/mutations';
-
-import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
-import {
-  GET_VEEAM_IMMUTABLE_POLICY,
-  GET_VEEAM_NON_IMMUTABLE_POLICY,
-} from '../constants';
-
 const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
   JSON.stringify({
     Version: '2012-10-17',
@@ -62,30 +49,25 @@ export const GET_ISV_POLICY = (
   application: string,
   enableImmutableBackup: boolean,
 ) => {
+  console.log('DEBUG GET_ISV_POLICY', {
+    buckets,
+    application,
+    enableImmutableBackup,
+  });
+
   switch (application) {
     // case 'Veeam':
     //   return enableImmutableBackup
     //     ? GET_VEEAM_IMMUTABLE_POLICY(bucketName)
     //     : GET_VEEAM_NON_IMMUTABLE_POLICY(bucketName);
-    case 'Commvault':
+    case 'COMMVAULT':
+      console.log(
+        'DEBUG GET_COMMVAULT_POLICY',
+        GET_COMMVAULT_POLICY(buckets, enableImmutableBackup),
+      );
+
       return GET_COMMVAULT_POLICY(buckets, enableImmutableBackup);
     default:
       return 'Default Policy';
   }
-};
-
-export const useBucketMutation = (bucket) => {
-  const { mutate: createBucket, error, data } = useCreateBucket();
-
-  return useMutation({
-    mutationFn: async (variables) => {
-      console.log('DEBUG useBucketMutation in mutationFn', variables);
-      const createBucketArray = createBucket({
-        ObjectLockEnabledForBucket: variables.ObjectLockEnabledForBucket,
-        Bucket: bucket.name,
-      });
-
-      return createBucketArray;
-    },
-  });
 };
