@@ -1,21 +1,21 @@
-import { ISVConfig, ISVPlatformConfig } from '../types';
 import { useShellHooks } from '@scality/module-federation';
-import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
-import { useChainedMutations } from '../../../js/useChainedMutations';
+import { useMemo } from 'react';
+import { useMutation } from 'react-query';
 import {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateIAMUserMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
+  usePolicyMutation,
 } from '../../../js/mutations';
-import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
-import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { useMutation } from 'react-query';
+import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
-import { useMemo } from 'react';
-import { GET_ISV_POLICY } from '../utils/ISVPolicy';
+import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
 import { useCreateBucket } from '../../../react/next-architecture/domain/business/buckets';
+import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
+import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
+import { ISVConfig, ISVPlatformConfig } from '../types';
 
 type Result = {
   data: {
@@ -64,7 +64,8 @@ export const useMutationActions = (
     ...props.buckets.map((bucket) => `Create a Bucket: ${bucket.name}`),
     'Create a User',
     'Generate Access key and Secret key',
-    'Create Policy',
+    props.IAMUserNameType === 'existing' ? 'Update Policy' : 'Create Policy',
+
     'Attach Policy to User',
   ] as const;
 
@@ -96,7 +97,7 @@ export const useMutationActions = (
     // 6. Generate Access key and Secret key
     { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKey' },
 
-    { ...useCreatePolicyMutation(), key: 'createPolicy' },
+    { ...usePolicyMutation(), key: 'createPolicy' },
 
     { ...useAttachPolicyToUserMutation(), key: 'attachPolicyToUser' },
   ] as const;
@@ -139,17 +140,26 @@ export const useMutationActions = (
       createUserAccessKey: () => ({
         userName: props.accountName,
       }),
-      createPolicy: () => ({
-        policyName: `${props.platform.name}`,
-        policyDocument: GET_ISV_POLICY(
-          props.buckets.map((bucket) => bucket.name),
-          props.application,
-          props.enableImmutableBackup,
-        ),
-      }),
+      createPolicy: (results) => {
+        console.log('DEBUG createPolicyMutation', results);
+        return {
+          //TODO change accountName for IAMUSerName when ready
+          policyName: `${props.accountName}-${props.platform.id}-${
+            props.enableImmutableBackup ? 'immutable' : 'non-immutable'
+          }`,
+          accountName: props.accountName,
+          bucketsName: props.buckets.map((bucket) => bucket.name),
+          application: props.platform.id,
+          isImmutable: props.enableImmutableBackup,
+        };
+      },
       attachPolicyToUser: (results) => ({
+        //TODO change accountName for IAMUSerName when ready
         userName: props.accountName,
-        policyArn: `arn:aws:iam::${results[0].id}:policy/${props.platform.name}`,
+        //TODO change accountName for IAMUSerName when ready
+        policyArn: `arn:aws:iam::${results[0].id}:policy/${props.accountName}-${
+          props.platform.id
+        }-${props.enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
       }),
     },
   });

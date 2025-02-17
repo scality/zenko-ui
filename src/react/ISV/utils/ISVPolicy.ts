@@ -89,9 +89,11 @@ export const GET_ISV_POLICY = (
   });
 
   switch (application) {
-    case 'Veeam':
+    case 'veeam':
       return GET_VEEAM_POLICY(buckets, enableImmutableBackup);
-    case 'COMMVAULT':
+    case 'veeam-vbo':
+      return GET_VEEAM_POLICY(buckets, enableImmutableBackup);
+    case 'commvault':
       return GET_COMMVAULT_POLICY(buckets, enableImmutableBackup);
     default:
       return 'Default Policy';
