@@ -9,47 +9,12 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { memo } from 'react';
 import { ISVSkipModal } from './ISVSkipModal';
-import { ISVPlatformConfig } from '../types';
 import { useMutationActions } from '../hooks/useMutationActions';
+import { ISVConfig, ISVPlatformConfig } from '../types';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
 `;
-
-export type Bucket = {
-  name: string;
-  tag: string;
-  capacity?: string;
-  capacityUnit?: string;
-  capacityBytes?: number;
-};
-
-export type ISVApplyActionsProps = {
-  platform: ISVPlatformConfig;
-  accountName: string;
-  application: string;
-  buckets?: Bucket[];
-  enableImmutableBackup: boolean;
-  accessKey: string;
-  secretKey: string;
-};
-
-export type ISVConfig = {
-  accountName: string;
-  accountNameType?: 'create' | 'existing';
-  IAMUserName?: string;
-  IAMUserNameType?: 'create' | 'existing';
-  generateKey?: boolean;
-  application?: string;
-  enableImmutableBackup?: boolean;
-  buckets?: {
-    name: string;
-    tag: string;
-    capacity?: string;
-    capacityUnit?: string;
-    capacityBytes?: number;
-  }[];
-};
 
 const StatusBox = styled(Box)`
   display: flex;
@@ -57,9 +22,9 @@ const StatusBox = styled(Box)`
   align-items: center;
 `;
 
-export default memo(function ISVApplyActions(
-  propsConfiguration: ISVApplyActionsProps,
-) {
+type ISVApplyActionsProps = ISVConfig & { platform: ISVPlatformConfig };
+
+export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const theme = useTheme();
   const navigate = useBasenameRelativeNavigate();
@@ -67,9 +32,9 @@ export default memo(function ISVApplyActions(
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
   const { buckets, enableImmutableBackup, accountName, application, platform } =
-    propsConfiguration;
+    props;
 
-  const { data, accessKey, secretKey } = useMutationActions(propsConfiguration);
+  const { data, accessKey, secretKey } = useMutationActions(props);
 
   const isCancellable = useMemo(
     () => data.some((row) => row.status === 'error'),

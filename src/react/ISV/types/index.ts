@@ -2,6 +2,14 @@ import Joi from '@hapi/joi';
 
 export type ISVPlatform = 'veeam' | 'commvault' | 'veeam-vbo';
 
+export type Bucket = {
+  name: string;
+  tag: string;
+  capacity?: string;
+  capacityUnit?: string;
+  capacityBytes?: number;
+};
+
 export type ISVConfig = {
   accountName: string;
   accountNameType?: 'create' | 'existing';
@@ -10,13 +18,7 @@ export type ISVConfig = {
   generateKey?: boolean;
   application?: string;
   enableImmutableBackup?: boolean;
-  buckets?: {
-    name: string;
-    tag: string;
-    capacity?: string;
-    capacityUnit?: string;
-    capacityBytes?: number;
-  }[];
+  buckets?: Bucket[];
 };
 
 export type ISVFieldOverride = {

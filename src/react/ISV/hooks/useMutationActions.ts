@@ -1,4 +1,4 @@
-import { ISVApplyActionsProps } from '../components/ISVApplyActions';
+import { ISVConfig, ISVPlatformConfig } from '../types';
 import { useShellHooks } from '@scality/module-federation';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { useChainedMutations } from '../../../js/useChainedMutations';
@@ -28,7 +28,9 @@ type Result = {
   secretKey: string;
 };
 
-export const useMutationActions = (props: ISVApplyActionsProps): Result => {
+export const useMutationActions = (
+  props: ISVConfig & { platform: ISVPlatformConfig },
+): Result => {
   const instanceId = useInstanceId();
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
@@ -86,7 +88,7 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
     // 3. Assume Account Role
     { ...assumeRoleMutation, key: 'assumeRole' },
 
-    //TODO 4. Bucket Settings
+    // 4. Bucket Settings
     ...bucketMutationArray,
 
     // 5. Create a User
@@ -145,9 +147,9 @@ export const useMutationActions = (props: ISVApplyActionsProps): Result => {
           props.enableImmutableBackup,
         ),
       }),
-      attachPolicyToUser: (results: any) => ({
+      attachPolicyToUser: (results) => ({
         userName: props.accountName,
-        policyArn: `arn:aws:iam::${results[0]?.id}:policy/${props.platform.name}`,
+        policyArn: `arn:aws:iam::${results[0].id}:policy/${props.platform.name}`,
       }),
     },
   });

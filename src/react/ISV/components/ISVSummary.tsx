@@ -17,8 +17,7 @@ import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../../ui-elements/Veeam/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
 import { VEEAM_OFFICE_365_V8 } from '../constants';
-import { ISVApplyActionsProps } from './ISVApplyActions';
-
+import { ISVConfig, ISVPlatformConfig } from '../types';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -46,6 +45,12 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
+type ISVSummaryProps = ISVConfig & {
+  accessKey: string;
+  secretKey: string;
+  platform: ISVPlatformConfig;
+};
+
 export const ISVSummary = ({
   accountName,
   buckets,
@@ -53,7 +58,7 @@ export const ISVSummary = ({
   accessKey,
   secretKey,
   application,
-}: ISVApplyActionsProps) => {
+}: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
