@@ -29,7 +29,7 @@ export const ISVList: ISVConfig[] = [
     logo: <VeeamLogo />,
     type: VEEAM_BACKUP_REPLICATION,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/veeam/index.html',
+      '/docs/partner_applications/validated_designs/veeam/index.html',
   },
   {
     assistant: true,
@@ -38,7 +38,7 @@ export const ISVList: ISVConfig[] = [
     logo: <VeeamLogo />,
     type: 'Veeam Backup for Microsoft 365',
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
+      '/docs/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
   },
 
   {
@@ -47,14 +47,14 @@ export const ISVList: ISVConfig[] = [
     name: 'Commvault',
     logo: <CommvaultLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/commvault.html',
+      '/docs/partner_applications/validated_designs/commvault.html',
   },
   {
     id: 'kasten',
     name: 'Kasten',
     application: 'Veeam Kasten',
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/kasten.html',
+      '/docs/partner_applications/validated_designs/kasten.html',
     logo: <KastenLogo />,
   },
   {
@@ -62,7 +62,7 @@ export const ISVList: ISVConfig[] = [
     name: 'Rubrik',
     logo: <RubrikLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/rubrik_security_cloud.html',
+      '/docs/partner_applications/validated_designs/rubrik_security_cloud.html',
   },
 
   {
@@ -70,29 +70,29 @@ export const ISVList: ISVConfig[] = [
     name: 'Zerto',
     logo: <ZertoLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/zerto/zerto.html',
+      '/docs/partner_applications/validated_designs/zerto/zerto.html',
   },
   {
     id: 'splunk',
     name: 'Splunk',
     logo: <SplunkLogo />,
-    //TODO update the link once the documentation is available
+
     documentationLink:
-      'https://documentation-internal.scality.com/Artesca/3.1.0-dev/partner_applications/validated_designs/index.html',
+      '/docs/partner_applications/validated_designs/splunk.html',
   },
   {
     id: 'hycu',
     name: 'Hycu',
     logo: <HycuLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/hycu_enterprise-clouds.html',
+      '/docs/partner_applications/validated_designs/hycu_enterprise-clouds.html',
   },
   {
     id: 'ctera',
     name: 'Ctera',
     logo: <CteraLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/ctera/index.html',
+      '/docs/partner_applications/validated_designs/ctera/index.html',
   },
 
   {
@@ -100,7 +100,7 @@ export const ISVList: ISVConfig[] = [
     name: 'Veritas NetBackup',
     logo: <VeritasLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/veritas_netbackup.html',
+      '/docs/partner_applications/validated_designs/veritas_netbackup.html',
   },
 
   {
@@ -108,7 +108,7 @@ export const ISVList: ISVConfig[] = [
     name: 'Cohesity',
     logo: <CohesityLogo />,
     documentationLink:
-      'https://documentation.scality.com/Artesca/3.0.2/partner_applications/validated_designs/cohesity_cloud_archive.html',
+      '/docs/partner_applications/validated_designs/cohesity_cloud_archive.html',
   },
 ];
 
