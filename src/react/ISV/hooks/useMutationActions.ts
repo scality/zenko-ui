@@ -14,7 +14,7 @@ import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-archit
 import { useMutation } from 'react-query';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useMemo } from 'react';
-import { GET_ISV_POLICY } from './useBucketMutation';
+import { GET_ISV_POLICY } from '../utils/ISVPolicy';
 import { useCreateBucket } from '../../../react/next-architecture/domain/business/buckets';
 
 type Result = {

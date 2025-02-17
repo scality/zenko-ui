@@ -12,7 +12,7 @@ import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
 import { getListPoliciesQuery } from '../react/queries';
-import { GET_ISV_POLICY } from '../react/ISV/hooks/useBucketMutation';
+import { GET_ISV_POLICY } from '../react/ISV/utils/ISVPolicy';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
