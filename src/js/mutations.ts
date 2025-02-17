@@ -1,6 +1,6 @@
 import { S3 } from 'aws-sdk';
 import { useEffect, useRef, useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
@@ -11,6 +11,8 @@ import { notFalsyTypeGuard } from '../types/typeGuards';
 import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
+import { getListPoliciesQuery } from '../react/queries';
+import { GET_ISV_POLICY } from '../react/ISV/hooks/useBucketMutation';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -165,6 +167,80 @@ const useCreatePolicyMutation = () => {
   });
 };
 
+const usePolicyMutation = () => {
+  const IAMClient = useIAMClient();
+  const queryClient = useQueryClient();
+  // List policies for the account
+
+  // Find if policy already exists for user + app + immutability
+  // If yes update the policy
+  // List policy versions
+  // If there are 5 versions delete the oldest one
+  // Create a new policy version
+
+  // If no create a new policy
+
+  return useMutation({
+    mutationFn: async ({
+      policyName,
+      bucketsName,
+      accountName,
+      application,
+      isImmutable,
+    }: {
+      policyName: string;
+
+      accountName: string;
+      bucketsName: string[];
+      application: string;
+      isImmutable: boolean;
+    }) => {
+      const policies = await queryClient.fetchQuery(
+        getListPoliciesQuery(accountName, IAMClient),
+      );
+      const policy = policies.Policies.find(
+        (policy) => policy.PolicyName === policyName,
+      );
+      if (!policy) {
+        const policyDocument = GET_ISV_POLICY(
+          bucketsName,
+          application,
+          isImmutable,
+        );
+        return IAMClient.createPolicy(policyName, policyDocument);
+      }
+
+      const policyVersions = await IAMClient.listPolicyVersions(policy.Arn);
+      if (policyVersions.Versions.length === 5) {
+        const firstNonDefaultVersion = policyVersions.Versions.find(
+          (version) => !version.IsDefaultVersion,
+        );
+        await IAMClient.deletePolicyVersion(
+          policy.Arn,
+          firstNonDefaultVersion.VersionId,
+        );
+      }
+      const defaultPolicy = await IAMClient.getPolicyVersion(
+        policy.Arn,
+        policy.DefaultVersionId,
+      );
+
+      const policyDocument = defaultPolicy.PolicyVersion.Document;
+      const policyJSON = JSON.parse(policyDocument);
+      policyJSON.Statement[0].Resource.push(
+        ...bucketsName
+          .map((bucket) => [
+            `arn:aws:s3:::${bucket}/*`,
+            `arn:aws:s3:::${bucket}`,
+          ])
+          .flat(),
+      );
+      const newPolicyDocument = JSON.stringify(policyJSON);
+      return IAMClient.createPolicyVersion(policy.Arn, newPolicyDocument);
+    },
+  });
+};
+
 const useAttachPolicyToUserMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
@@ -181,13 +257,14 @@ const useAttachPolicyToUserMutation = () => {
 const usePutBucketTaggingMutation = () => {
   const s3Client = useS3Client();
   return useMutation(
-    ({ bucketName, tagSet }: { bucketName: string; tagSet: TagSetItem[] }) =>
-      s3Client
+    ({ bucketName, tagSet }: { bucketName: string; tagSet: TagSetItem[] }) => {
+      return s3Client
         .putBucketTagging({
           Bucket: bucketName,
           Tagging: { TagSet: tagSet },
         })
-        .promise(),
+        .promise();
+    },
   );
 };
 
@@ -206,8 +283,9 @@ const usePutObjectMutation = () => {
 const useCreateUserAccessKeyMutation = () => {
   const IAMClient = useIAMClient();
   return useMutation({
-    mutationFn: ({ userName }: { userName: string }) =>
-      IAMClient.createAccessKey(userName),
+    mutationFn: ({ userName }: { userName: string }) => {
+      return IAMClient.createAccessKey(userName);
+    },
   });
 };
 
@@ -220,4 +298,5 @@ export {
   useCreateUserAccessKeyMutation,
   usePutBucketTaggingMutation,
   usePutObjectMutation,
+  usePolicyMutation,
 };
