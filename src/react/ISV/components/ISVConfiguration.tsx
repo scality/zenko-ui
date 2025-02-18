@@ -25,6 +25,7 @@ import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/Accessi
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
+import { Account } from '../../next-architecture/domain/entities/account';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -73,6 +74,7 @@ const NameField = ({
   type,
   fieldType,
   getIAMUsersMutation = null,
+  setAccount = null,
 }) => {
   const isAccount = fieldType === 'account';
   const fieldName = isAccount
@@ -150,6 +152,12 @@ const NameField = ({
                         ).preferredAssumableRoleArn;
                         getIAMUsersMutation.mutate(roleArn);
                       }
+                      if (isAccount) {
+                        const account = options.find(
+                          (option) => option.name === value,
+                        );
+                        setAccount(account);
+                      }
                       onChange(value);
                     }}
                     value={value}
@@ -194,6 +202,7 @@ const NameField = ({
 export const ISVConfiguration = () => {
   const { platform, config, setConfig } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
+  const [account, setAccount] = useState<Account | null>(null);
 
   if (!platform.id) {
     return null;
@@ -269,6 +278,7 @@ export const ISVConfiguration = () => {
       enableImmutableBackup: isImmutableBackupEnabled(data.application)
         ? data.enableImmutableBackup
         : false,
+      account,
     });
   };
 
@@ -345,7 +355,7 @@ export const ISVConfiguration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                console.log(methods.getValues());
+                console.log(account);
                 setSkip(true);
               }}
               label="Skip Use case configuration"
@@ -376,6 +386,7 @@ export const ISVConfiguration = () => {
             type={accountNameType}
             fieldType="account"
             getIAMUsersMutation={getIAMUsersMutation}
+            setAccount={setAccount}
           />
 
           {accountNameType === 'existing' && accountName && (

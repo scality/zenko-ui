@@ -11,6 +11,7 @@ import { memo } from 'react';
 import { ISVSkipModal } from './ISVSkipModal';
 import { useMutationActions } from '../hooks/useMutationActions';
 import { ISVConfig, ISVPlatformConfig } from '../types';
+import { Account } from '../../next-architecture/domain/entities/account';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -22,7 +23,10 @@ const StatusBox = styled(Box)`
   align-items: center;
 `;
 
-type ISVApplyActionsProps = ISVConfig & { platform: ISVPlatformConfig };
+type ISVApplyActionsProps = ISVConfig & {
+  platform: ISVPlatformConfig;
+  account: null | Account;
+};
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -31,8 +35,13 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const { buckets, enableImmutableBackup, accountName, application, platform } =
-    props;
+  const {
+    buckets,
+    enableImmutableBackup,
+    accountName,
+    application,
+    platform,
+  } = props;
 
   const { data, accessKey, secretKey } = useMutationActions(props);
 

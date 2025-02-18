@@ -5,7 +5,6 @@ import {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateIAMUserMutation,
-  useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
   usePolicyMutation,
 } from '../../../js/mutations';
@@ -16,6 +15,7 @@ import { useCreateBucket } from '../../../react/next-architecture/domain/busines
 import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
+import { Account } from '../../next-architecture/domain/entities/account';
 
 type Result = {
   data: {
@@ -29,8 +29,18 @@ type Result = {
 };
 
 export const useMutationActions = (
-  props: ISVConfig & { platform: ISVPlatformConfig },
+  props: ISVConfig & { platform: ISVPlatformConfig; account: Account },
 ): Result => {
+  const {
+    buckets,
+    enableImmutableBackup,
+    accountName,
+    platform,
+    IAMUserNameType,
+    IAMUserName,
+    account,
+    generateKey,
+  } = props;
   const instanceId = useInstanceId();
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
@@ -41,7 +51,6 @@ export const useMutationActions = (
     useAccountsLocationsAndEndpoints({ accountsLocationsEndpointsAdapter });
 
   const setRolePromise = useSetAssumedRolePromise();
-
   const assumeRoleMutation = useMutation({
     mutationFn: async ({ roleArn }: { roleArn: string }) => {
       const result = await setRolePromise({ roleArn });
@@ -50,117 +59,170 @@ export const useMutationActions = (
     },
   });
 
-  const bucketMutationArray = props.buckets?.map((bucket) => {
+  const createMutation = useCreateBucket();
+  const bucketMutationArray = buckets?.map((bucket) => {
     return {
-      ...useCreateBucket(),
+      ...createMutation,
       key: `createBucket-${bucket.name}`,
     };
   });
 
-  const actions = [
-    'Create an Account',
-    'Update Configuration',
-    'Assume Account Role',
-    ...props.buckets.map((bucket) => `Create a Bucket: ${bucket.name}`),
-    'Create a User',
-    'Generate Access key and Secret key',
-    props.IAMUserNameType === 'existing' ? 'Update Policy' : 'Create Policy',
+  const generateStepsAndActions = () => {
+    const steps = [];
+    const actions = [];
+    if (!account) {
+      actions.push('Create an Account');
+      steps.push({
+        ...useCreateAccountMutation(),
+        key: 'createAccount',
+      });
+      actions.push('Update Configuration');
+      steps.push({
+        ...refetchAccountsLocationsEndpointsMutation,
+        key: 'refetchAccountsLocationsEndpoints',
+      });
+      actions.push('Assume Account Role');
+      steps.push({
+        ...assumeRoleMutation,
+        key: 'assumeRole',
+      });
+    }
 
-    'Attach Policy to User',
-  ] as const;
+    buckets.forEach((bucket) => {
+      actions.push(`Create a Bucket: ${bucket.name}`);
+      steps.push({
+        ...useCreateBucket(),
+        key: `createBucket-${bucket.name}`,
+      });
+    });
+
+    if (!account || IAMUserNameType === 'create') {
+      actions.push('Create a User');
+      steps.push({
+        ...useCreateIAMUserMutation(),
+        key: 'createIAMUser',
+      });
+
+      actions.push('Generate Access key and Secret key');
+      steps.push({
+        ...useCreateUserAccessKeyMutation(),
+        key: 'createUserAccessKey',
+      });
+    }
+
+    if (IAMUserNameType === 'existing' && !generateKey) {
+      actions.push('Generate Access key and Secret key');
+      steps.push({
+        ...useCreateUserAccessKeyMutation(),
+        key: 'createUserAccessKey',
+      });
+    }
+
+    actions.push('Create Policy');
+    steps.push({
+      ...usePolicyMutation(),
+      key: 'createPolicy',
+    });
+
+    actions.push('Attach Policy to User');
+    steps.push({
+      ...useAttachPolicyToUserMutation(),
+      key: 'attachPolicyToUser',
+    });
+
+    return { actions, steps };
+  };
+
+  const { actions, steps } = generateStepsAndActions();
 
   const getKeys = (steps) => {
     const label = 'Generate Access key and Secret key';
     const index = actions.findIndex((action) => action === label);
     return {
-      accessKey: steps[index].data?.AccessKey?.AccessKeyId ?? '',
-      secretKey: steps[index].data?.AccessKey?.SecretAccessKey ?? '',
+      accessKey: '',
+      secretKey: '',
     };
   };
 
-  const steps = [
-    // 1. Create an Account
-    { ...useCreateAccountMutation(), key: 'createAccount' },
-    // 2. Refetch Accounts Locations Endpoints
-    {
-      ...refetchAccountsLocationsEndpointsMutation,
-      key: 'refetchAccountsLocationsEndpoints',
-    },
-    // 3. Assume Account Role
-    { ...assumeRoleMutation, key: 'assumeRole' },
-
-    // 4. Bucket Settings
-    ...bucketMutationArray,
-
-    // 5. Create a User
-    { ...useCreateIAMUserMutation(), key: 'createIAMUser' },
-    // 6. Generate Access key and Secret key
-    { ...useCreateUserAccessKeyMutation(), key: 'createUserAccessKey' },
-
-    { ...usePolicyMutation(), key: 'createPolicy' },
-
-    { ...useAttachPolicyToUserMutation(), key: 'attachPolicyToUser' },
-  ] as const;
+  const getIAMUserName = (results) => {
+    const label = 'Create a User';
+    const index = actions.findIndex((action) => action === label);
+    return results[index].User.UserName;
+  };
 
   const createBucketArray = useMemo(() => {
-    return props.buckets?.reduce(
+    return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
         [`createBucket-${bucket.name}`]: () => {
           return {
-            ObjectLockEnabledForBucket: props.enableImmutableBackup,
+            ObjectLockEnabledForBucket: enableImmutableBackup,
             Bucket: bucket.name,
           };
         },
       }),
       {},
     );
-  }, [props.buckets, props.enableImmutableBackup, bucketMutationArray]);
+  }, [buckets, enableImmutableBackup, bucketMutationArray]);
 
   const { mutate, mutationsWithRetry } = useChainedMutations({
     mutations: steps as any,
     computeVariablesForNext: {
       createAccount: () => ({
         user: {
-          userName: props.accountName,
-          email: `${props.accountName}${userData?.email}`,
+          userName: accountName,
+          email: `${accountName}${userData?.email}`,
         },
         instanceId,
       }),
       refetchAccountsLocationsEndpoints: () => ({}),
       assumeRole: (results) => {
-        return {
-          roleArn: `arn:aws:iam::${results[0].id}:role/scality-internal/storage-manager-role`,
-        };
+        if (!account) {
+          return {
+            roleArn: `arn:aws:iam::${results[0].id}:role/scality-internal/storage-manager-role`,
+          };
+        } else {
+          return {
+            roleArn: account.preferredAssumableRoleArn,
+          };
+        }
       },
       ...createBucketArray,
       createIAMUser: () => ({
-        userName: props.accountName,
+        userName: IAMUserName || accountName,
       }),
       createUserAccessKey: () => ({
-        userName: props.accountName,
+        userName: IAMUserName || accountName,
       }),
-      createPolicy: (results) => {
-        console.log('DEBUG createPolicyMutation', results);
+      createPolicy: () => {
         return {
-          //TODO change accountName for IAMUSerName when ready
-          policyName: `${props.accountName}-${props.platform.id}-${
-            props.enableImmutableBackup ? 'immutable' : 'non-immutable'
+          policyName: `${IAMUserName}-${platform.id}-${
+            enableImmutableBackup ? 'immutable' : 'non-immutable'
           }`,
-          accountName: props.accountName,
-          bucketsName: props.buckets.map((bucket) => bucket.name),
-          application: props.platform.id,
-          isImmutable: props.enableImmutableBackup,
+          accountName: accountName,
+          bucketsName: buckets.map((bucket) => bucket.name),
+          application: platform.id,
+          isImmutable: enableImmutableBackup,
         };
       },
-      attachPolicyToUser: (results) => ({
-        //TODO change accountName for IAMUSerName when ready
-        userName: props.accountName,
-        //TODO change accountName for IAMUSerName when ready
-        policyArn: `arn:aws:iam::${results[0].id}:policy/${props.accountName}-${
-          props.platform.id
-        }-${props.enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
-      }),
+      attachPolicyToUser: (results) => {
+        if (!account) {
+          const name = getIAMUserName(results);
+          return {
+            userName: name,
+            policyArn: `arn:aws:iam::${results[0].id}:policy/${name}-${
+              platform.id
+            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
+          };
+        } else {
+          return {
+            userName: IAMUserName,
+            policyArn: `arn:aws:iam::${account.id}:policy/${IAMUserName}-${
+              platform.id
+            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
+          };
+        }
+      },
     },
   });
 
