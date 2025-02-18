@@ -11,7 +11,10 @@ import {
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
-import { useCreateBucket } from '../../../react/next-architecture/domain/business/buckets';
+import {
+  useCreateBucket,
+  useCreateBucketByS3Client,
+} from '../../../react/next-architecture/domain/business/buckets';
 import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
@@ -53,19 +56,13 @@ export const useMutationActions = (
   const setRolePromise = useSetAssumedRolePromise();
   const assumeRoleMutation = useMutation({
     mutationFn: async ({ roleArn }: { roleArn: string }) => {
-      const result = await setRolePromise({ roleArn });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return result;
+      return await setRolePromise({ roleArn });
     },
   });
 
-  const createMutation = useCreateBucket();
-  const bucketMutationArray = buckets?.map((bucket) => {
-    return {
-      ...createMutation,
-      key: `createBucket-${bucket.name}`,
-    };
-  });
+  const createBucketMutation = account
+    ? useCreateBucket()
+    : useCreateBucketByS3Client();
 
   const generateStepsAndActions = () => {
     const steps = [];
@@ -91,7 +88,7 @@ export const useMutationActions = (
     buckets.forEach((bucket) => {
       actions.push(`Create a Bucket: ${bucket.name}`);
       steps.push({
-        ...useCreateBucket(),
+        ...createBucketMutation,
         key: `createBucket-${bucket.name}`,
       });
     });
@@ -154,16 +151,26 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`createBucket-${bucket.name}`]: () => {
-          return {
-            ObjectLockEnabledForBucket: enableImmutableBackup,
-            Bucket: bucket.name,
-          };
+        [`createBucket-${bucket.name}`]: (results) => {
+          if (account) {
+            return {
+              ObjectLockEnabledForBucket: enableImmutableBackup,
+              Bucket: bucket.name,
+            };
+          } else {
+            return {
+              s3Client: results[2],
+              request: {
+                ObjectLockEnabledForBucket: enableImmutableBackup,
+                Bucket: bucket.name,
+              },
+            };
+          }
         },
       }),
       {},
     );
-  }, [buckets, enableImmutableBackup, bucketMutationArray]);
+  }, [buckets, enableImmutableBackup]);
 
   const { mutate, mutationsWithRetry } = useChainedMutations({
     mutations: steps as any,

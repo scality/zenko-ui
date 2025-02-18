@@ -11,13 +11,13 @@ import {
 } from './next-architecture/ui/S3ClientProvider';
 import Loader from './ui-elements/Loader';
 import { PromiseResult } from 'aws-sdk/lib/request';
-import { AWSError, STS } from 'aws-sdk';
+import { AWSError, S3, STS } from 'aws-sdk';
 import { useShellHooks } from '@scality/module-federation';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
   setRole: (role: { roleArn: string }) => void;
-  setRolePromise: (role: { roleArn: string }) => Promise<void>;
+  setRolePromise: (role: { roleArn: string }) => Promise<S3>;
   assumedRole:
     | PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>
     | undefined;
@@ -175,6 +175,8 @@ const DataServiceRoleProvider = ({
         setAssumedRole(data);
         setRoleArnStored(role.roleArn);
         setRoleState(role);
+
+        return new S3(getS3Config(data));
       });
   };
 

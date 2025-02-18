@@ -314,6 +314,17 @@ export const useCreateBucket = () => {
   return createMutation;
 };
 
+export const useCreateBucketByS3Client = () => {
+  return useMutation({
+    mutationFn: (request: {
+      s3Client: S3;
+      request: S3.Types.CreateBucketRequest;
+    }) => {
+      return request.s3Client.createBucket(request.request).promise();
+    },
+  });
+};
+
 export const useDeleteBucket = () => {
   const s3Client = useS3Client();
   const queryClient = useQueryClient();
