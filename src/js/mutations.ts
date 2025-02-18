@@ -226,7 +226,8 @@ const usePolicyMutation = () => {
       );
 
       const policyDocument = defaultPolicy.PolicyVersion.Document;
-      const policyJSON = JSON.parse(policyDocument);
+      const decodedPolicyDocument = decodeURIComponent(policyDocument);
+      const policyJSON = JSON.parse(decodedPolicyDocument);
       policyJSON.Statement[0].Resource.push(
         ...bucketsName
           .map((bucket) => [
@@ -235,7 +236,7 @@ const usePolicyMutation = () => {
           ])
           .flat(),
       );
-      const newPolicyDocument = JSON.stringify(policyJSON);
+      const newPolicyDocument = JSON.stringify(policyJSON, null, 2);
       return IAMClient.createPolicyVersion(policy.Arn, newPolicyDocument);
     },
   });
