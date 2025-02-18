@@ -7,6 +7,7 @@ import {
   useCreateIAMUserMutation,
   useCreateUserAccessKeyMutation,
   usePolicyMutation,
+  usePutBucketTaggingMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
@@ -86,11 +87,20 @@ export const useMutationActions = (
     }
 
     buckets.forEach((bucket) => {
-      actions.push(`Create a Bucket: ${bucket.name}`);
-      steps.push({
-        ...createBucketMutation,
-        key: `createBucket-${bucket.name}`,
-      });
+      actions.push(
+        `Create a Bucket: ${bucket.name}`,
+        `Tag Bucket: ${bucket.name}`,
+      );
+      steps.push(
+        {
+          ...useCreateBucket(),
+          key: `createBucket-${bucket.name}`,
+        },
+        {
+          ...usePutBucketTaggingMutation(),
+          key: `putBucketTagging-${bucket.name}`,
+        },
+      );
     });
 
     if (!account || IAMUserNameType === 'create') {
@@ -151,26 +161,36 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`createBucket-${bucket.name}`]: (results) => {
-          if (account) {
-            return {
-              ObjectLockEnabledForBucket: enableImmutableBackup,
-              Bucket: bucket.name,
-            };
-          } else {
-            return {
-              s3Client: results[2],
-              request: {
-                ObjectLockEnabledForBucket: enableImmutableBackup,
-                Bucket: bucket.name,
-              },
-            };
-          }
+        [`createBucket-${bucket.name}`]: () => {
+          return {
+            ObjectLockEnabledForBucket: enableImmutableBackup,
+            Bucket: bucket.name,
+          };
         },
       }),
       {},
     );
-  }, [buckets, enableImmutableBackup]);
+  }, [buckets, enableImmutableBackup, bucketMutationArray]);
+
+  const putBucketTaggingArray = useMemo(() => {
+    return buckets?.reduce(
+      (acc, bucket) => ({
+        ...acc,
+        [`putBucketTagging-${bucket.name}`]: () => {
+          return {
+            bucketName: bucket.name,
+            tagSet: [
+              {
+                Key: 'X-Scality-Application',
+                Value: platform.bucketTag,
+              },
+            ],
+          };
+        },
+      }),
+      {},
+    );
+  }, [buckets, platform]);
 
   const { mutate, mutationsWithRetry } = useChainedMutations({
     mutations: steps as any,
@@ -203,7 +223,7 @@ export const useMutationActions = (
       }),
       createPolicy: () => {
         return {
-          policyName: `${IAMUserName}-${platform.id}-${
+          policyName: `${IAMUserName || accountName}-${platform.id}-${
             enableImmutableBackup ? 'immutable' : 'non-immutable'
           }`,
           accountName: accountName,
@@ -230,6 +250,7 @@ export const useMutationActions = (
           };
         }
       },
+      ...putBucketTaggingArray,
     },
   });
 
