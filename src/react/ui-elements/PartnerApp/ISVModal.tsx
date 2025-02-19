@@ -1,7 +1,6 @@
 import {
   Banner,
   Icon,
-  InfoMessage,
   Link,
   Modal,
   spacing,
@@ -13,9 +12,10 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CardISV } from './CardISV';
-import { ISVConfig, ISVList } from './ISVList';
+import { ISVList } from './ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ArtescaLogo } from '../Veeam/ArtescaLogo';
+import { ISVCardConfig } from '../../../react/ISV/types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -37,8 +37,8 @@ export const ISVModalContent = ({
   selectedISV,
   setSelectedISV,
 }: {
-  selectedISV: ISVConfig;
-  setSelectedISV: (value: ISVConfig) => void;
+  selectedISV: ISVCardConfig;
+  setSelectedISV: (value: ISVCardConfig) => void;
 }) => {
   const theme = useTheme();
 
@@ -75,7 +75,7 @@ export const ISVModalContent = ({
                 <CardISV
                   name={isv.name}
                   logo={isv.logo}
-                  application={isv.type}
+                  application={isv.application}
                   link={isv.documentationLink}
                   selected={selectedISV?.id === isv.id}
                   onChange={() => setSelectedISV(isv)}
@@ -117,7 +117,9 @@ export const ISVModalContent = ({
               <Text>
                 <Text>
                   The{' '}
-                  <Text isEmphazed>{selectedISV.type || selectedISV.name}</Text>{' '}
+                  <Text isEmphazed>
+                    {selectedISV.application || selectedISV.name}
+                  </Text>{' '}
                   assistant will start to guide you through the configuration
                   process.
                 </Text>{' '}
@@ -130,8 +132,10 @@ export const ISVModalContent = ({
               <Text>
                 You will be redirected to the account page. To be guide through
                 the configuration for{' '}
-                <Text isEmphazed>{selectedISV.type || selectedISV.name}</Text>,
-                you can follow the{' '}
+                <Text isEmphazed>
+                  {selectedISV.application || selectedISV.name}
+                </Text>
+                , you can follow the{' '}
                 <Link href={selectedISV.documentationLink} target="_blank">
                   documentation <Icon name="External-link"></Icon>
                 </Link>
@@ -146,7 +150,7 @@ export const ISVModalContent = ({
 
 const ISVModal = ({ isOpen, setIsOpen }) => {
   const navigate = useBasenameRelativeNavigate();
-  const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
+  const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
 
   const handleContinueClick = () => {
     if (selectedISV?.assistant) {

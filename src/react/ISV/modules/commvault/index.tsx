@@ -1,4 +1,4 @@
-import { ISVPlatformConfig } from '../../types';
+import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
 import { ListItem } from '..';
@@ -62,12 +62,25 @@ const EnableImmutableBackupTooltip = () => {
   );
 };
 
+const CommvaultInfo: ISVInfo = {
+  id: 'commvault',
+  name: 'Commvault',
+  logo: <CommvaultLogo />,
+};
+
+export const CommvaultCardInfo: ISVCardConfig = {
+  assistant: true,
+  ...CommvaultInfo,
+  documentationLink:
+    '/docs/partner_applications/validated_designs/commvault.html',
+};
+
 export const Commvault: ISVPlatformConfig = {
   id: 'commvault',
   name: 'COMMVAULT',
   logo: <CommvaultLogo />,
   description: 'Prepare ARTESCA for ',
-  bucketTag: 'commvault-backup',
+  bucketTag: 'Commvault',
   skipModalContent: (
     <Text>
       To start COMMVAULT assistant configuration again, you can go to the{' '}

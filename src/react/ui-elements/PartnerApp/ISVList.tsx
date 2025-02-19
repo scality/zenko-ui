@@ -1,54 +1,21 @@
-import { CommvaultLogo } from '../Logo/CommvaultLogo';
-import KastenLogo from '../Logo/KastenLogo';
-import { VEEAM_BACKUP_REPLICATION } from '../Veeam/VeeamConstants';
-import HycuLogo from '../Logo/HycuLogo';
-import CteraLogo from '../Logo/CteraLogo';
-import RubrikLogo from '../Logo/RubrikLogo';
-import VeeamLogo from '../Logo/VeeamLogo';
-import SplunkLogo from '../Logo/SplunkLogo';
-import ZertoLogo from '../Logo/ZertoLogo';
-import VeritasLogo from '../Logo/VeritasLogo';
-import CohesityLogo from '../Logo/CohesityLogo';
 import React from 'react';
+import { VeeamVBOCardInfo } from '../../../react/ISV/modules/veeam-vbo';
+import { ISVCardConfig } from '../../../react/ISV/types';
+import CohesityLogo from '../Logo/CohesityLogo';
+import CteraLogo from '../Logo/CteraLogo';
+import HycuLogo from '../Logo/HycuLogo';
+import KastenLogo from '../Logo/KastenLogo';
+import RubrikLogo from '../Logo/RubrikLogo';
+import SplunkLogo from '../Logo/SplunkLogo';
+import VeritasLogo from '../Logo/VeritasLogo';
+import ZertoLogo from '../Logo/ZertoLogo';
+import { VeeamCardInfo } from '../../../react/ISV/modules/veeam';
+import { CommvaultCardInfo } from '../../../react/ISV/modules/commvault';
 
-export type ISVConfig = {
-  id: string;
-  name: string;
-  application?: string;
-  documentationLink: string;
-  logo: React.JSX.Element;
-  type?: string;
-  assistant?: boolean;
-};
-
-export const ISVList: ISVConfig[] = [
-  {
-    assistant: true,
-    id: 'veeam',
-    name: 'Veeam',
-    logo: <VeeamLogo />,
-    type: VEEAM_BACKUP_REPLICATION,
-    documentationLink:
-      '/docs/partner_applications/validated_designs/veeam/index.html',
-  },
-  {
-    assistant: true,
-    id: 'veeam-vbo',
-    name: 'Veeam VBO',
-    logo: <VeeamLogo />,
-    type: 'Veeam Backup for Microsoft 365',
-    documentationLink:
-      '/docs/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
-  },
-
-  {
-    assistant: true,
-    id: 'commvault',
-    name: 'Commvault',
-    logo: <CommvaultLogo />,
-    documentationLink:
-      '/docs/partner_applications/validated_designs/commvault.html',
-  },
+export const ISVList: ISVCardConfig[] = [
+  VeeamVBOCardInfo,
+  VeeamCardInfo,
+  CommvaultCardInfo,
   {
     id: 'kasten',
     name: 'Kasten',
@@ -124,27 +91,6 @@ export type ISVConfigurationProps = {
       helpText?: string;
       placeholder?: string;
       additionnal?: React.JSX.Element[];
-    },
-  ];
-};
-
-// Future implementation type
-export type FutureConfigurationProps = {
-  // General isv name
-  name: 'Veeam' | 'Commvault';
-  // Application of the isv
-  // An isv can have multiple applications
-  application: string;
-  bucketTag: 'Veeam' | 'Commvault';
-  logo: Element;
-  fieldOverrides: [
-    {
-      name: string;
-      lable?: string;
-      tooltip?: Element;
-      helpText?: string;
-      placeholder?: string;
-      additionnal?: Element[];
     },
   ];
 };

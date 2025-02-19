@@ -1,4 +1,4 @@
-import { ISVPlatformConfig } from '../../types';
+import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
@@ -85,12 +85,24 @@ const EnableImmutableBackupTooltip = () => {
   );
 };
 
-export const VeeamVBO: ISVPlatformConfig = {
+export const VeeamVBOInfo: ISVInfo = {
   id: 'veeam-vbo',
-  name: 'Veeam',
+  name: 'Veeam VBO',
   logo: <VeeamLogo />,
+};
+
+export const VeeamVBOCardInfo: ISVCardConfig = {
+  ...VeeamVBOInfo,
+  assistant: true,
+  application: 'Veeam Backup for Microsoft 365',
+  documentationLink:
+    '/docs/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
+};
+
+export const VeeamVBO: ISVPlatformConfig = {
+  ...VeeamVBOInfo,
   description: 'Prepare ARTESCA for ',
-  bucketTag: 'veeam-backup',
+  bucketTag: 'Veeam for Microsoft 365',
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}

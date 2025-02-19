@@ -1,6 +1,15 @@
 import Joi from '@hapi/joi';
 
 export type ISVPlatform = 'veeam' | 'commvault' | 'veeam-vbo';
+export type ISVValidatedDesign =
+  | 'kasten'
+  | 'rubrik'
+  | 'zerto'
+  | 'splunk'
+  | 'hycu'
+  | 'cohesity'
+  | 'ctera'
+  | 'veritas';
 
 export type Bucket = {
   name: string;
@@ -8,6 +17,18 @@ export type Bucket = {
   capacity?: string;
   capacityUnit?: string;
   capacityBytes?: number;
+};
+
+export type ISVInfo = {
+  name: string;
+  logo: React.JSX.Element;
+  id: ISVPlatform | ISVValidatedDesign;
+};
+
+export type ISVCardConfig = ISVInfo & {
+  application?: string;
+  documentationLink: string;
+  assistant?: boolean;
 };
 
 export type ISVConfig = {
@@ -39,10 +60,7 @@ export type FieldOverride = {
   additional?: React.JSX.Element[];
 };
 
-export type ISVPlatformConfig = {
-  id: ISVPlatform;
-  name: string;
-  logo: React.JSX.Element;
+export type ISVPlatformConfig = ISVInfo & {
   description: string;
   bucketTag: string;
   skipModalContent?: React.JSX.Element;

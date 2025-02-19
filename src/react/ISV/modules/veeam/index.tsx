@@ -1,11 +1,11 @@
-import { ISVPlatformConfig } from '../../types';
+import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
-import { VEEAM_OFFICE_365 } from '../../constants';
+import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 
 const AccountTooltip = () => {
   return (
@@ -85,12 +85,24 @@ const EnableImmutableBackupTooltip = () => {
   );
 };
 
-export const Veeam: ISVPlatformConfig = {
+export const VeeamInfo: ISVInfo = {
   id: 'veeam',
   name: 'Veeam',
   logo: <VeeamLogo />,
+};
+
+export const VeeamCardInfo: ISVCardConfig = {
+  ...VeeamInfo,
+  assistant: true,
+  application: VEEAM_BACKUP_REPLICATION,
+  documentationLink:
+    '/docs/partner_applications/validated_designs/veeam/index.html',
+};
+
+export const Veeam: ISVPlatformConfig = {
+  ...VeeamInfo,
   description: 'Prepare ARTESCA for ',
-  bucketTag: 'veeam-backup',
+  bucketTag: VEEAM_BACKUP_REPLICATION,
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}
