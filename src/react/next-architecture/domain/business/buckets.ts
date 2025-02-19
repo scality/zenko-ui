@@ -316,11 +316,14 @@ export const useCreateBucket = () => {
 
 export const useCreateBucketByS3Client = () => {
   return useMutation({
-    mutationFn: (request: {
+    mutationFn: ({
+      s3Client,
+      request,
+    }: {
       s3Client: S3;
       request: S3.Types.CreateBucketRequest;
     }) => {
-      return request.s3Client.createBucket(request.request).promise();
+      return s3Client.createBucket(request).promise();
     },
   });
 };

@@ -128,9 +128,9 @@ export const ISVSummary = ({
             isEmphazed
           >{`2. Information for the ${platform.name} configuration`}</Text>
           <CopyButton
-            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\nSecret Access key\t${secretKey}\nBuckets name\t${buckets
-              .map((bucket) => bucket.name)
-              .join(', ')}`}
+            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\n${
+              secretKey ? `Secret Access key\t${secretKey}\n` : ''
+            }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`}
             label="all"
             variant="outline"
             tooltip={{
@@ -190,20 +190,22 @@ export const ISVSummary = ({
             </WrapperWithWidth>
           }
         />
-        <FormGroup
-          id="secret-key"
-          label="Secret Access key"
-          required
-          content={
-            <WrapperWithWidth>
-              <HideCredential credentials={secretKey} />
-              <CopyButton
-                textToCopy={secretKey}
-                aria-label="copy secret access key"
-              />
-            </WrapperWithWidth>
-          }
-        />
+        {secretKey && (
+          <FormGroup
+            id="secret-key"
+            label="Secret Access key"
+            required
+            content={
+              <WrapperWithWidth>
+                <HideCredential credentials={secretKey} />
+                <CopyButton
+                  textToCopy={secretKey}
+                  aria-label="copy secret access key"
+                />
+              </WrapperWithWidth>
+            }
+          />
+        )}
         <Separator />
 
         <Text isEmphazed>{'Buckets'}</Text>

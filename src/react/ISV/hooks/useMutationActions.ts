@@ -33,7 +33,11 @@ type Result = {
 };
 
 export const useMutationActions = (
-  props: ISVConfig & { platform: ISVPlatformConfig; account: Account },
+  props: ISVConfig & {
+    platform: ISVPlatformConfig;
+    account: Account;
+    accessKey: string;
+  },
 ): Result => {
   const {
     buckets,
@@ -44,6 +48,7 @@ export const useMutationActions = (
     IAMUserName,
     account,
     generateKey,
+    accessKey,
   } = props;
   const instanceId = useInstanceId();
   const { useAuth } = useShellHooks();
@@ -64,6 +69,8 @@ export const useMutationActions = (
   const createBucketMutation = account
     ? useCreateBucket()
     : useCreateBucketByS3Client();
+
+  const putBucketTaggingMutation = usePutBucketTaggingMutation();
 
   const generateStepsAndActions = () => {
     const steps = [];
@@ -93,11 +100,11 @@ export const useMutationActions = (
       );
       steps.push(
         {
-          ...useCreateBucket(),
+          ...createBucketMutation,
           key: `createBucket-${bucket.name}`,
         },
         {
-          ...usePutBucketTaggingMutation(),
+          ...putBucketTaggingMutation,
           key: `putBucketTagging-${bucket.name}`,
         },
       );
@@ -117,7 +124,7 @@ export const useMutationActions = (
       });
     }
 
-    if (IAMUserNameType === 'existing' && !generateKey) {
+    if (IAMUserNameType === 'existing' && generateKey) {
       actions.push('Generate Access key and Secret key');
       steps.push({
         ...useCreateUserAccessKeyMutation(),
@@ -142,15 +149,6 @@ export const useMutationActions = (
 
   const { actions, steps } = generateStepsAndActions();
 
-  const getKeys = (steps) => {
-    const label = 'Generate Access key and Secret key';
-    const index = actions.findIndex((action) => action === label);
-    return {
-      accessKey: '',
-      secretKey: '',
-    };
-  };
-
   const getIAMUserName = (results) => {
     const label = 'Create a User';
     const index = actions.findIndex((action) => action === label);
@@ -161,16 +159,26 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`createBucket-${bucket.name}`]: () => {
-          return {
-            ObjectLockEnabledForBucket: enableImmutableBackup,
-            Bucket: bucket.name,
-          };
+        [`createBucket-${bucket.name}`]: (results) => {
+          if (account) {
+            return {
+              ObjectLockEnabledForBucket: enableImmutableBackup,
+              Bucket: bucket.name,
+            };
+          } else {
+            return {
+              s3Client: results[2],
+              request: {
+                ObjectLockEnabledForBucket: enableImmutableBackup,
+                Bucket: bucket.name,
+              },
+            };
+          }
         },
       }),
       {},
     );
-  }, [buckets, enableImmutableBackup, bucketMutationArray]);
+  }, [buckets, enableImmutableBackup]);
 
   const putBucketTaggingArray = useMemo(() => {
     return buckets?.reduce(
@@ -193,7 +201,7 @@ export const useMutationActions = (
   }, [buckets, platform]);
 
   const { mutate, mutationsWithRetry } = useChainedMutations({
-    mutations: steps as any,
+    mutations: steps,
     computeVariablesForNext: {
       createAccount: () => ({
         user: {
@@ -273,9 +281,20 @@ export const useMutationActions = (
     };
   });
 
+  const createAccessKeyLabel = 'Generate Access key and Secret key';
+  const accessKeyMutationIndex = actions.findIndex(
+    (action) => action === createAccessKeyLabel,
+  );
+
+  let secretKey = '';
+  if (accessKeyMutationIndex !== -1) {
+    secretKey = steps[accessKeyMutationIndex].data?.AccessKey?.SecretAccessKey;
+  }
+
   return {
     data,
-    accessKey: getKeys(steps).accessKey,
-    secretKey: getKeys(steps).secretKey,
+    accessKey:
+      accessKey || steps[accessKeyMutationIndex].data?.AccessKey?.AccessKeyId,
+    secretKey,
   };
 };

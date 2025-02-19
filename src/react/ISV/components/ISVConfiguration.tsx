@@ -230,11 +230,11 @@ export const ISVConfiguration = () => {
     metricsAdapter,
   });
 
-  const accountName = watch('accountName');
-  const accountNameType = watch('accountNameType');
-  const IAMUserName = watch('IAMUserName');
-  const IAMUserNameType = watch('IAMUserNameType');
-  const application = watch('application');
+  const accountName = watch(FORM_FIELDS.ACCOUNT_NAME);
+  const accountNameType = watch(FORM_FIELDS.ACCOUNT_NAME_TYPE);
+  const IAMUserName = watch(FORM_FIELDS.IAM_USER_NAME);
+  const IAMUserNameType = watch(FORM_FIELDS.IAM_USER_NAME_TYPE);
+  const application = watch(FORM_FIELDS.APPLICATION);
 
   const _accounts = useMemo(() => {
     if (accounts.status === 'success') {
@@ -249,22 +249,27 @@ export const ISVConfiguration = () => {
     return _accounts.some((account) => account.name === accountName);
   }, [_accounts, accountName]);
 
-  const { isIAMUserExist, IAMUsersStatus, IAMUsers, getIAMUsersMutation } =
-    useIAMUser({
-      IAMUserName,
-      IAMUserNameType,
-      onIAMUsersLoaded: (users) => {
-        if (users.length > 0) {
-          methods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-          methods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
-        }
-      },
-      onShouldGenerateKey: (shouldGenerateKey) => {
-        methods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
-      },
-    });
+  const {
+    isIAMUserExist,
+    IAMUsersStatus,
+    IAMUsers,
+    getIAMUsersMutation,
+    accessKey,
+  } = useIAMUser({
+    IAMUserName,
+    IAMUserNameType,
+    onIAMUsersLoaded: (users) => {
+      if (users.length > 0) {
+        methods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+        methods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+      }
+    },
+    onShouldGenerateKey: (shouldGenerateKey) => {
+      methods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+    },
+  });
 
-  const onSubmit = (data: ISVConfig) => {
+  const onSubmit = async (data: ISVConfig) => {
     console.log('Form submitted with data:', data);
     setConfig(data);
     next({
@@ -279,6 +284,7 @@ export const ISVConfiguration = () => {
         ? data.enableImmutableBackup
         : false,
       account,
+      accessKey,
     });
   };
 

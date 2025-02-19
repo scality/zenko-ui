@@ -27,7 +27,7 @@ export const useIAMUser = ({
   const { getQuery } = useAssumeRoleQuery();
   const [status, setStatus] = useState<IAMUserStatus>('loading');
   const [users, setUsers] = useState<IAMUser[]>([]);
-
+  const [accessKey, setAccessKey] = useState<string | null>(null);
   const checkUserAccessKeys = async (userName: string) => {
     try {
       const userExists = users.some((user) => user.name === userName);
@@ -36,6 +36,12 @@ export const useIAMUser = ({
       }
 
       const { AccessKeyMetadata } = await IAMClient.listAccessKeys(userName);
+      const activeKey = AccessKeyMetadata.find(
+        (key) => key.Status === 'Active',
+      );
+      if (activeKey) {
+        setAccessKey(activeKey.AccessKeyId);
+      }
       const shouldGenerateKey = !AccessKeyMetadata.some(
         (key) => key.Status === 'Active',
       );
@@ -96,5 +102,6 @@ export const useIAMUser = ({
     IAMUsers: users,
     IAMUserNameType,
     getIAMUsersMutation: mutation,
+    accessKey,
   } as const;
 };

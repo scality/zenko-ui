@@ -26,6 +26,8 @@ const StatusBox = styled(Box)`
 type ISVApplyActionsProps = ISVConfig & {
   platform: ISVPlatformConfig;
   account: null | Account;
+  accessKey: string;
+  secretKey: string;
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
@@ -35,13 +37,8 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const {
-    buckets,
-    enableImmutableBackup,
-    accountName,
-    application,
-    platform,
-  } = props;
+  const { buckets, enableImmutableBackup, accountName, application, platform } =
+    props;
 
   const { data, accessKey, secretKey } = useMutationActions(props);
 
