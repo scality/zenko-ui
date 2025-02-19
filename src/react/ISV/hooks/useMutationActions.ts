@@ -66,11 +66,15 @@ export const useMutationActions = (
     },
   });
 
+  const createAccountMutation = useCreateAccountMutation();
   const createBucketMutation = account
     ? useCreateBucket()
     : useCreateBucketByS3Client();
-
   const putBucketTaggingMutation = usePutBucketTaggingMutation();
+  const createIAMUserMutation = useCreateIAMUserMutation();
+  const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
+  const createPolicyMutation = usePolicyMutation();
+  const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
 
   const generateStepsAndActions = () => {
     const steps = [];
@@ -78,7 +82,7 @@ export const useMutationActions = (
     if (!account) {
       actions.push('Create an Account');
       steps.push({
-        ...useCreateAccountMutation(),
+        ...createAccountMutation,
         key: 'createAccount',
       });
       actions.push('Update Configuration');
@@ -113,13 +117,13 @@ export const useMutationActions = (
     if (!account || IAMUserNameType === 'create') {
       actions.push('Create a User');
       steps.push({
-        ...useCreateIAMUserMutation(),
+        ...createIAMUserMutation,
         key: 'createIAMUser',
       });
 
       actions.push('Generate Access key and Secret key');
       steps.push({
-        ...useCreateUserAccessKeyMutation(),
+        ...createUserAccessKeyMutation,
         key: 'createUserAccessKey',
       });
     }
@@ -127,20 +131,20 @@ export const useMutationActions = (
     if (IAMUserNameType === 'existing' && generateKey) {
       actions.push('Generate Access key and Secret key');
       steps.push({
-        ...useCreateUserAccessKeyMutation(),
+        ...createUserAccessKeyMutation,
         key: 'createUserAccessKey',
       });
     }
 
     actions.push('Create Policy');
     steps.push({
-      ...usePolicyMutation(),
+      ...createPolicyMutation,
       key: 'createPolicy',
     });
 
     actions.push('Attach Policy to User');
     steps.push({
-      ...useAttachPolicyToUserMutation(),
+      ...attachPolicyToUserMutation,
       key: 'attachPolicyToUser',
     });
 
