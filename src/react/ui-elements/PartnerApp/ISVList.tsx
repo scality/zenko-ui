@@ -1,5 +1,5 @@
 import React from 'react';
-import { VeeamVBOCardInfo } from '../../../react/ISV/modules/veeam-vbo';
+import { VeeamVBOCardInfo } from '../../ISV/modules/veeam-vbo';
 import { ISVCardConfig } from '../../../react/ISV/types';
 import CohesityLogo from '../Logo/CohesityLogo';
 import CteraLogo from '../Logo/CteraLogo';

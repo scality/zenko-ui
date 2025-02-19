@@ -1,9 +1,5 @@
-import { Veeam } from './veeam';
-import { ISVPlatformConfig } from '../types';
-import styled from 'styled-components';
 import Joi from '@hapi/joi';
-import { Commvault } from './commvault';
-import { VeeamVBO } from './veeam-vbo';
+import styled from 'styled-components';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
 
@@ -52,7 +48,3 @@ export const commonValidator = {
     }),
   ),
 };
-
-export const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
-
-export type { ISVPlatformConfig };

@@ -1,8 +1,9 @@
 import { spacing, Stepper } from '@scality/core-ui';
 import { useState, createContext, useContext, useMemo } from 'react';
 import { ISVConfiguration } from './ISVConfiguration';
+
 import { ISVConfig, ISVPlatformConfig } from '../types';
-import { isvModules } from '../modules';
+
 import { useTheme } from 'styled-components';
 import { Box } from '@scality/core-ui/dist/next';
 import { ISVSummary } from './ISVSummary';
@@ -12,6 +13,9 @@ import {
   VEEAM_OFFICE_365,
 } from '../constants';
 import { useSearchParams } from 'react-router';
+import { Veeam } from '../modules/veeam';
+import { Commvault } from '../modules/commvault';
+import { VeeamVBO } from '../modules/veeam-vbo';
 
 export enum ISVStepsIndexes {
   Configuration,
@@ -69,7 +73,7 @@ export const ISVSteps = () => {
         return '';
     }
   };
-
+  const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
   const [config, setConfig] = useState<ISVConfig>(() => ({
     accountName: '',
     enableImmutableBackup: true,
