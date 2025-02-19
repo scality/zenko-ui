@@ -357,6 +357,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                         label="Edit"
                         aria-label="Edit default retention"
                         icon={<Icon name="Pencil" />}
+                        type="button"
                         onClick={() => {
                           navigate(
                             `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,

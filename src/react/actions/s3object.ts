@@ -609,7 +609,6 @@ export function putObjectRetention(
 ): ThunkStatePromisedAction {
   return (dispatch, getState) => {
     const { zenkoClient } = getClients(getState());
-    const navigate = useBasenameRelativeNavigate();
     dispatch(networkStart('Editing object retention'));
     return zenkoClient
       .putObjectRetention(
@@ -620,9 +619,12 @@ export function putObjectRetention(
         retentionUntilDate,
       )
       .then(() => {
-        navigate(
-          `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
-        );
+        const event = new CustomEvent('HistoryPushEvent', {
+          detail: {
+            path: `/accounts/${accountName}/buckets/${bucketName}/objects?prefix=${objectName}`,
+          },
+        });
+        window.dispatchEvent(event);
       })
       .catch((error) => dispatch(handleAWSClientError(error)))
       .catch((error) => dispatch(handleAWSError(error, 'byModal')))

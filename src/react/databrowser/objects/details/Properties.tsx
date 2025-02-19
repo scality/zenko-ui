@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { putObjectLegalHold } from '../../../actions/s3object';
 import { usePrefixWithSlash, useQueryParams } from '../../../utils/hooks';
 import { AppState } from '../../../../types/state';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { ColdStorageIconLabel } from '../../../ui-elements/ColdStorageIcon';
 import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
@@ -28,7 +28,6 @@ import {
   VEEAM_OBJECT_KEY,
   VEEAM_SYSTEM_KEY,
 } from '../../../ui-elements/Veeam/VeeamConstants';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type Props = {
   objectMetadata: ObjectMetadata & { lockStatus?: ObjectEntity['lockStatus'] };
@@ -39,7 +38,7 @@ const TruncatedValue = styled.div`
 
 function Properties({ objectMetadata }: Props) {
   const dispatch = useDispatch();
-  const navigate = useBasenameRelativeNavigate();
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const loading = useSelector(
     (state: AppState) => state.networkActivity.counter > 0,
@@ -242,10 +241,15 @@ function Properties({ objectMetadata }: Props) {
                       variant="outline"
                       label="Edit"
                       icon={<Icon name="Pencil" />}
+                      type="button"
                       onClick={() =>
-                        navigate(
-                          `${pathname}/retention-setting?${query.toString()}`,
-                        )
+                        navigate({
+                          pathname: `${pathname.slice(
+                            0,
+                            pathname.lastIndexOf('/'),
+                          )}/objects-retention-setting`,
+                          search: `?${query.toString()}`,
+                        })
                       }
                     />
                   )}

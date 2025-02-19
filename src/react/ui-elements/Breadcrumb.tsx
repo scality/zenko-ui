@@ -83,7 +83,7 @@ export const breadcrumbPathsBuckets = (
     if (
       matchPath(
         basePath +
-          `${accountsURLPrefix}/buckets/:bucketName/objects/retention-setting`,
+          `${accountsURLPrefix}/buckets/:bucketName/objects-retention-setting`,
         pathname,
       )
     ) {

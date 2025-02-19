@@ -26,6 +26,8 @@ import { useNavigate, useParams } from 'react-router';
 import { getListUsersQuery } from '../queries';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
 import { CreateUserResponse, ListUsersResponse } from 'aws-sdk/clients/iam';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
@@ -41,6 +43,7 @@ const schema = Joi.object({
 const AccountCreateUser = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const baseNameRelativeNavigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
   const {
     register,
@@ -53,7 +56,7 @@ const AccountCreateUser = () => {
   });
   const queryClient = useQueryClient();
 
-  const { accountName } = useParams<{ accountName: string }>();
+  const { account } = useCurrentAccount();
 
   const createUserMutation = useMutation(
     (userName: string) => {
@@ -61,7 +64,7 @@ const AccountCreateUser = () => {
       return IAMClient.createUser(userName)
         .then((newUser: CreateUserResponse) => {
           queryClient.setQueryData<InfiniteData<ListUsersResponse> | undefined>(
-            getListUsersQuery(accountName, IAMClient)?.queryKey,
+            getListUsersQuery(account.Name, IAMClient)?.queryKey,
             (old: InfiniteData<ListUsersResponse> | undefined) => {
               if (old) {
                 const pages = old.pages;
@@ -80,7 +83,7 @@ const AccountCreateUser = () => {
     },
     {
       onSuccess: () => {
-        navigate('./users');
+        baseNameRelativeNavigate(`/accounts/${account.Name}/users`);
       },
       onError: () => {
         const str = 'An error occurred during the user creation.';

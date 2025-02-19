@@ -102,7 +102,7 @@ export default function DataBrowser() {
           element={<ObjectLockSetting />}
         />
         <Route
-          path={':bucketName/objects/retention-setting'}
+          path={':bucketName/objects-retention-setting'}
           element={<ObjectLockSettingOnObject />}
         />
         <Route path={':bucketName/objects/*'} element={<Objects />} />

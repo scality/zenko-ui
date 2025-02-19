@@ -25,6 +25,7 @@ import { User } from 'aws-sdk/clients/iam';
 import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
 import { Row } from 'react-table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 type InternalUser = {
   userName: string;
@@ -37,6 +38,7 @@ type InternalUser = {
 const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
   const IAMClient = useIAMClient();
   const navigate = useBasenameRelativeNavigate();
+  const currentAccount = useCurrentAccount();
   const { data: accessKeysResult, status: userAccessKeyStatus } =
     useAwsPaginatedEntities(
       getUserAccessKeysQuery(userName, IAMClient),
@@ -85,7 +87,11 @@ const AsyncRenderAccessKey = ({ userName }: { userName: string }) => {
         size="inline"
         icon={<Icon name="Eye" color="textSecondary" />}
         variant="secondary"
-        onClick={() => navigate(`users/${userName}/access-keys`)}
+        onClick={() =>
+          navigate(
+            `/accounts/${currentAccount.account.Name}/users/${userName}/access-keys`,
+          )
+        }
         type="button"
         tooltip={{ overlay: 'Checking or creating access keys' }}
         disabled={userAccessKeyStatus === 'loading'}
@@ -100,13 +106,18 @@ const renderAccessKeyComponent = ({ row }) => (
 
 const EditButton = ({ userName }: { userName: string }) => {
   const navigate = useBasenameRelativeNavigate();
+  const currentAccount = useCurrentAccount();
   return (
     <Button
       size="inline"
       variant="secondary"
       label="Edit"
       icon={<Icon name="Pen" color="textSecondary" />}
-      onClick={() => navigate(`users/${userName}/update-user`)}
+      onClick={() =>
+        navigate(
+          `/accounts/${currentAccount.account.Name}/users/${userName}/update-user`,
+        )
+      }
     />
   );
 };

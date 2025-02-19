@@ -60,7 +60,16 @@ function AccountDetails({ account }: Props) {
   const baseUrl = pathname.substring(0, pathname.lastIndexOf('/'));
 
   useEffect(() => {
-    navigate(`/accounts/${accountName}/properties`, { replace: true });
+    if (
+      !(
+        pathname.includes('/properties') ||
+        pathname.includes('/locations') ||
+        pathname.includes('/users') ||
+        pathname.includes('/policies')
+      )
+    ) {
+      navigate(`/accounts/${accountName}/properties`, { replace: true });
+    }
   }, []);
 
   return (

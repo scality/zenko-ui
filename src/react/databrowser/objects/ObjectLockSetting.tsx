@@ -17,11 +17,7 @@ import {
   Toggle,
 } from '@scality/core-ui';
 import { Text } from '@scality/core-ui/dist/components/text/Text.component';
-import {
-  clearError,
-  getObjectMetadata,
-  putObjectRetention,
-} from '../../actions';
+import { getObjectMetadata } from '../../actions';
 import { useQueryParams } from '../../utils/hooks';
 import {
   getDefaultMinRetainUntilDate,
@@ -32,6 +28,9 @@ import { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { RetentionMode } from '../../../types/s3';
+import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
+import { useMutation } from 'react-query';
+import { S3 } from 'aws-sdk';
 
 const Joi = JoiImport.extend(DateExtension);
 const objectLockRetentionSettingsValidationRules = {
@@ -54,13 +53,7 @@ export default function ObjectLockSetting() {
   const dispatch = useDispatch();
   const navigate = useBasenameRelativeNavigate();
   const query = useQueryParams();
-  const hasError = useSelector(
-    (state: AppState) =>
-      !!state.uiErrors.errorMsg && state.uiErrors.errorType === 'byComponent',
-  );
-  const errorMessage = useSelector(
-    (state: AppState) => state.uiErrors.errorMsg,
-  );
+
   const objectMetadata = useSelector(
     (state: AppState) => state.s3.objectMetadata,
   );
@@ -91,18 +84,28 @@ export default function ObjectLockSetting() {
     },
   });
 
-  const clearServerError = () => {
-    if (hasError) {
-      dispatch(clearError());
-    }
-  };
-
   const handleCancel = () => {
-    clearServerError();
     navigate(
       `/accounts/${account?.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}&versionId=${versionId}`,
     );
   };
+
+  const s3 = useS3Client();
+  const putObjectRetentionMutation = useMutation({
+    mutationFn: (params: S3.PutObjectRetentionRequest) => {
+      return s3
+        .putObjectRetention(params)
+        .promise()
+        .then(() => {
+          const event = new CustomEvent('HistoryPushEvent', {
+            detail: {
+              path: `/accounts/${account.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}`,
+            },
+          });
+          window.dispatchEvent(event);
+        });
+    },
+  });
 
   const {
     handleSubmit,
@@ -121,17 +124,15 @@ export default function ObjectLockSetting() {
     retentionMode: string;
     retentionUntilDate: string;
   }) => {
-    clearServerError();
-    dispatch(
-      putObjectRetention(
-        bucketNameParam,
-        objectKey,
-        versionId,
-        retentionMode as RetentionMode,
-        DateTime.fromISO(retentionUntilDate).toSeconds() as unknown as Date,
-        account?.Name,
-      ),
-    );
+    putObjectRetentionMutation.mutate({
+      Bucket: bucketNameParam,
+      Key: objectKey,
+      VersionId: versionId,
+      Retention: {
+        Mode: retentionMode as RetentionMode,
+        RetainUntilDate: new Date(retentionUntilDate),
+      },
+    });
   };
 
   useEffect(() => {
@@ -172,13 +173,13 @@ export default function ObjectLockSetting() {
           </Stack>
         }
         banner={
-          hasError && (
+          putObjectRetentionMutation.error && (
             <Banner
               icon={<Icon name="Exclamation-triangle" />}
               title="Error"
               variant="danger"
             >
-              {errorMessage}
+              An error occurred while saving the retention settings.
             </Banner>
           )
         }
