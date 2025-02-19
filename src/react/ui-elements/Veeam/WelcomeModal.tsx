@@ -15,7 +15,7 @@ import AlertProvider, {
 } from '../../next-architecture/ui/AlertProvider';
 import { useShellHooks } from '@scality/module-federation';
 import { ISVModalContent } from '../PartnerApp/ISVModal';
-import { ISVConfig } from '../PartnerApp/ISVList';
+import { ISVCardConfig } from '../../../react/ISV/types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -51,23 +51,23 @@ export const WelcomeModalInternal = (props: NavbarUpdaterComponentProps) => {
    4. The user skip it until the next login or login for the first time
    5. No trial license modal displays
    */
-  // const isWelcomeModalEnabled =
-  //   isStorageManager &&
-  //   isZeroAccountCreated &&
-  //   !isAlreadyInConfigurationView &&
-  //   isNextLogin &&
-  //   !isTrialLicenseModalDisplayed;
+  const isWelcomeModalEnabled =
+    isStorageManager &&
+    isZeroAccountCreated &&
+    !isAlreadyInConfigurationView &&
+    isNextLogin &&
+    !isTrialLicenseModalDisplayed;
 
-  // if (!isWelcomeModalEnabled) {
-  //   return <></>;
-  // }
+  if (!isWelcomeModalEnabled) {
+    return <></>;
+  }
 
   return <ModalComponent />;
 };
 
 const ModalComponent = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [selectedISV, setSelectedISV] = useState<ISVConfig>(null);
+  const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
   const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
