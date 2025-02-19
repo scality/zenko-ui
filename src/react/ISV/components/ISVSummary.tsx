@@ -16,7 +16,11 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../../ui-elements/Veeam/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import { VEEAM_OFFICE_365_V8 } from '../constants';
+import {
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_OFFICE_365,
+  VEEAM_OFFICE_365_V8,
+} from '../constants';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 
 export const DEFAULT_REGION = 'us-east-1';
@@ -45,6 +49,38 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
+const getImmutabilitySectionInfo = (
+  application: string,
+  isImmutable: boolean,
+) => {
+  if (application === 'Commvault') {
+    return {
+      help: undefined,
+      label: 'WORM',
+      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
+    };
+  } else if (
+    application === VEEAM_OFFICE_365 ||
+    application === VEEAM_BACKUP_REPLICATION
+  ) {
+    return {
+      help:
+        isImmutable &&
+        'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.',
+      label: 'Immutable backup',
+      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
+    };
+  } else if (application === VEEAM_OFFICE_365_V8) {
+    return {
+      help:
+        isImmutable &&
+        'Ensure "Make backups immutable" is checked when configuring the bucket in Veeam.',
+      label: 'Immutable backup',
+      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
+    };
+  }
+};
+
 type ISVSummaryProps = ISVConfig & {
   accessKey: string;
   secretKey: string;
@@ -57,12 +93,16 @@ export const ISVSummary = ({
   enableImmutableBackup,
   accessKey,
   secretKey,
-  application,
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
-  const { platform } = useISVStepper();
+  const { platform, config } = useISVStepper();
+
+  const immutableSectionInfos = getImmutabilitySectionInfo(
+    config.application || platform.name,
+    enableImmutableBackup,
+  );
 
   return (
     <Form
@@ -74,7 +114,6 @@ export const ISVSummary = ({
       rightActions={
         <Button
           variant="primary"
-          //TODO: Add flag icon in core-ui
           label="Finish"
           onClick={() => {
             navigate(`/accounts/${accountName}/buckets/`);
@@ -208,43 +247,37 @@ export const ISVSummary = ({
         )}
         <Separator />
 
-        <Text isEmphazed>{'Buckets'}</Text>
-        <FormGroup
-          id="buckets-name"
-          label="Name"
-          required
-          content={
-            <>
-              {buckets.map((bucket) => (
-                <Stack key={bucket.name}>
-                  <Text>{bucket.name}</Text>
-                  <CopyButton
-                    textToCopy={bucket.name}
-                    aria-label="copy bucket name"
-                  />
-                </Stack>
-              ))}
-            </>
-          }
-        />
-        <FormGroup
-          id="immutable-backup"
-          required
-          label="Immutable backup"
-          helpErrorPosition="bottom"
-          help={
-            enableImmutableBackup
-              ? `Ensure "Make ${
-                  application === VEEAM_OFFICE_365_V8 ? '' : 'recent '
-                }backups immutable" is checked when configuring the bucket in ${
-                  platform.name
-                }.`
-              : undefined
-          }
-          content={
-            enableImmutableBackup ? <Text>Active</Text> : <Text>Inactive</Text>
-          }
-        />
+        <FormSection title={{ name: 'Buckets' }} forceLabelWidth={200}>
+          {buckets.map((bucket) => (
+            <FormGroup
+              key={bucket.name}
+              id="buckets-name"
+              label="Name"
+              required
+              content={
+                <>
+                  <Stack key={bucket.name}>
+                    <Text>{bucket.name}</Text>
+                    <CopyButton
+                      textToCopy={bucket.name}
+                      aria-label="copy bucket name"
+                    />
+                  </Stack>
+                </>
+              }
+            />
+          ))}
+        </FormSection>
+        <FormSection title={{ name: 'Option' }} forceLabelWidth={200}>
+          <FormGroup
+            id="immutable"
+            required
+            label={immutableSectionInfos.label}
+            helpErrorPosition="bottom"
+            help={immutableSectionInfos.help}
+            content={immutableSectionInfos.content}
+          />
+        </FormSection>
       </Level4FormSection>
     </Form>
   );
