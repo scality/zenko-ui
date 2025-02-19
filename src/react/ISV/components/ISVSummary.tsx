@@ -53,7 +53,7 @@ const getImmutabilitySectionInfo = (
   application: string,
   isImmutable: boolean,
 ) => {
-  if (application === 'Commvault') {
+  if (application === 'COMMVAULT') {
     return {
       help: undefined,
       label: 'WORM',
@@ -78,7 +78,12 @@ const getImmutabilitySectionInfo = (
       label: 'Immutable backup',
       content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
     };
-  }
+  } else
+    return {
+      help: undefined,
+      label: 'Object-Lock',
+      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
+    };
 };
 
 type ISVSummaryProps = ISVConfig & {
