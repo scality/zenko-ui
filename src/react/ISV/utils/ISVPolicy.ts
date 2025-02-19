@@ -82,12 +82,6 @@ export const GET_ISV_POLICY = (
   application: string,
   enableImmutableBackup: boolean,
 ) => {
-  console.log('DEBUG GET_ISV_POLICY', {
-    buckets,
-    application,
-    enableImmutableBackup,
-  });
-
   switch (application) {
     case 'veeam':
       return GET_VEEAM_POLICY(buckets, enableImmutableBackup);
