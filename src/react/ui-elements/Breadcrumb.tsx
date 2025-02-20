@@ -57,7 +57,7 @@ export const breadcrumbPathsBuckets = (
 ): JSX.IntrinsicElements['label'][] => {
   const accountsURLPrefix = `/accounts/:accountName`;
   const matchCreateBucketRoute = matchPath(
-    `${accountsURLPrefix}/create-bucket`,
+    basePath + `${accountsURLPrefix}/create-bucket`,
     pathname,
   );
   if (matchCreateBucketRoute) {
@@ -153,7 +153,7 @@ export const breadcrumbPathsBuckets = (
   }
 
   const matchObjectsRoute = matchPath(
-    `${accountsURLPrefix}/buckets/:bucketName/objects`,
+    basePath + `${accountsURLPrefix}/buckets/:bucketName/objects`,
     pathname,
   );
 
