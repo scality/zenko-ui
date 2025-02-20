@@ -109,7 +109,6 @@ const AttachmentTabs = ({
   ) => void;
 }) => {
   const query = useQueryParams();
-  const { pathname } = useLocation();
   const theme = useTheme();
   const queryObject = Object.fromEntries(query.entries());
   const IAMClient = useIAMClient();
@@ -156,6 +155,7 @@ const AttachmentTabs = ({
           withoutPadding
         >
           <AttachmentTableProxy
+            key="policy-users"
             getAllEntitiesPaginatedQuery={() =>
               //@ts-expect-error fix this when you are working on it
               getListUsersQuery(accountName, IAMClient)
@@ -199,6 +199,7 @@ const AttachmentTabs = ({
           withoutPadding
         >
           <AttachmentTableProxy
+            key="policy-groups"
             getAllEntitiesPaginatedQuery={() =>
               //@ts-expect-error fix this when you are working on it
               getListGroupsQuery(accountName, IAMClient)
@@ -244,6 +245,7 @@ const AttachmentTabs = ({
           withoutPadding
         >
           <AttachmentTableProxy
+            key="user-groups"
             getAllEntitiesPaginatedQuery={() =>
               //@ts-expect-error fix this when you are working on it
               getListGroupsQuery(accountName, IAMClient)
@@ -288,6 +290,7 @@ const AttachmentTabs = ({
           withoutPadding
         >
           <AttachmentTableProxy
+            key="policy-roles"
             getAllEntitiesPaginatedQuery={() =>
               //@ts-expect-error fix this when you are working on it
               getListRolesQuery(accountName, IAMClient)
@@ -338,10 +341,11 @@ const AttachmentTabs = ({
           withoutPadding
         >
           <AttachmentTableProxy
-            getAllEntitiesPaginatedQuery={() =>
-              //@ts-expect-error fix this when you are working on it
-              getListPoliciesQuery(accountName, IAMClient)
-            }
+            key="user-policies"
+            //@ts-expect-error fix this when you are working on it
+            getAllEntitiesPaginatedQuery={() => {
+              return getListPoliciesQuery(accountName, IAMClient);
+            }}
             getEntitiesFromResult={(response) => {
               return (
                 response.Policies?.map((policy) => {

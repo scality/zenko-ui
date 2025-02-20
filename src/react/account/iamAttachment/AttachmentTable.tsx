@@ -131,7 +131,6 @@ export const AttachmentTable = <
   onAttachmentsOperationsChanged,
 }: AttachmentTableProps<API_RESPONSE>) => {
   //Desired attached entities and onAttachmentsOperationsChanged handling
-
   const [{ desiredAttachedEntities }, dispatch] = useReducer(
     (
       state: {

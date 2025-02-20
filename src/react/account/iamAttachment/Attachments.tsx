@@ -7,6 +7,7 @@ import { regexArn } from '../../utils/hooks';
 import AttachmentConfirmationModal from './AttachmentConfirmationModal';
 import AttachmentTabs from './AttachmentTabs';
 import { AttachmentOperation, ResourceType } from './AttachmentTypes';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 
 const AttachmentContainer = styled.div`
   padding-top: 1%;
@@ -45,8 +46,9 @@ const DescriptiveBlock = styled(BasicText)`
 
 const Attachments = () => {
   const location = useLocation();
+  const { basePath } = useConfig();
   const isAttachToPolicy = matchPath(
-    '/accounts/:accountName/policies/:policyArn/attachments',
+    basePath + '/accounts/:accountName/policies/:policyArn/attachments',
     location.pathname,
   );
   const [attachmentOperations, setAttachmentOperations] = useState<
