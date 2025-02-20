@@ -136,6 +136,7 @@ const AttachButton = ({
       variant="secondary"
       label="Attach"
       icon={<Icon name="Link" />}
+      type="button"
       onClick={() =>
         navigate(`/accounts/${accountName}/users/${userName}/attachments`)
       }
