@@ -267,32 +267,25 @@ export const ISVSummary = ({
         )}
         {!secretKey && accessKeys && (
           <FormSection forceLabelWidth={150} title={{ name: 'Access keys' }}>
-            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-              Here is the list of Access keys available for this user. <br />
-              If you lost the corresponding secret key, you can create a new
-              Access keys at any time.
-            </Banner>
-            <>
-              {accessKeys.map((accessKey) => (
-                <FormGroup
-                  key={accessKey}
-                  id="access-key"
-                  label="Access key ID"
-                  required
-                  content={
-                    <WrapperWithWidth>
-                      <Text style={{ display: 'flex', alignItems: 'center' }}>
-                        {accessKey}
-                      </Text>
-                      <CopyButton
-                        textToCopy={accessKey}
-                        aria-label="copy access key"
-                      />
-                    </WrapperWithWidth>
-                  }
-                />
-              ))}
-            </>
+            {accessKeys.map((accessKey) => (
+              <FormGroup
+                key={accessKey}
+                id="access-key"
+                label="Access key ID"
+                required
+                content={
+                  <WrapperWithWidth>
+                    <Text style={{ display: 'flex', alignItems: 'center' }}>
+                      {accessKey}
+                    </Text>
+                    <CopyButton
+                      textToCopy={accessKey}
+                      aria-label="copy access key"
+                    />
+                  </WrapperWithWidth>
+                }
+              />
+            ))}
           </FormSection>
         )}
         <Separator />
