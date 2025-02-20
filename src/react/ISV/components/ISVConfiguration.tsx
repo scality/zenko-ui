@@ -389,7 +389,7 @@ export const ISVConfiguration = () => {
           </Stack>
         }
       >
-        <FormSection forceLabelWidth={300}>
+        <FormSection forceLabelWidth={280}>
           <Stack style={{ paddingBottom: '1rem' }}>
             <Text variant="Large">{platform.description}</Text> {platform.logo}
           </Stack>

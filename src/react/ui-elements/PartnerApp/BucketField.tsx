@@ -1,7 +1,12 @@
-import { FormGroup, spacing, Text } from '@scality/core-ui';
+import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
 import React, { useEffect, useState } from 'react';
 import { Input } from '@scality/core-ui/dist/next';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import {
+  FieldErrors,
+  useFieldArray,
+  useFormContext,
+  UseFormRegister,
+} from 'react-hook-form';
 import { useTheme } from 'styled-components';
 
 import { XCORE_NOT_AVAILABLE } from '../../../react/next-architecture/ui/XCoreLibraryProvider';
@@ -32,6 +37,40 @@ type FormValues = {
   buckets: BucketField[];
   bucketNumber?: number;
 };
+
+const BucketNameFormGroup = ({
+  index,
+  errors,
+  bucketNamePlaceholder,
+  bucketNumber,
+  bucketNameTooltip,
+  register,
+}: {
+  index: number;
+  errors: FieldErrors<FormValues>;
+  bucketNamePlaceholder: string;
+  bucketNumber: number;
+  bucketNameTooltip: React.JSX.Element;
+  register: UseFormRegister<FormValues>;
+}) => (
+  <FormGroup
+    id={`bucketName-${index}`}
+    label={bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'}
+    required
+    labelHelpTooltip={bucketNameTooltip}
+    error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
+    helpErrorPosition="bottom"
+    content={
+      <Input
+        id={`bucketName-${index}`}
+        type="text"
+        autoComplete="off"
+        placeholder={bucketNamePlaceholder}
+        {...register(`buckets.${index}.name`)}
+      />
+    }
+  />
+);
 
 const BucketField = (fieldOverrides: BucketFieldProps) => {
   const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
@@ -115,71 +154,75 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     );
   };
 
-  return (
-    <>
-      <FormGroup
-        id="bucketNumber"
-        label="Number of buckets"
-        required
-        labelHelpTooltip="Choose the number of buckets to create within your account"
-        error={(errors.bucketNumber?.message as string) ?? ''}
-        helpErrorPosition="bottom"
-        content={
-          <Input
-            id="bucketNumber"
-            type="number"
-            value={bucketNumber}
-            onChange={handleBucketNumberChange}
-            size="1/3"
-            min={1}
-            max={20}
+  const renderBucketNameFormSection = () => {
+    if (fields.length === 1) {
+      return (
+        <FormSection forceLabelWidth={280}>
+          <BucketNameFormGroup
+            index={0}
+            errors={errors}
+            bucketNamePlaceholder={bucketNamePlaceholder}
+            bucketNumber={bucketNumber}
+            bucketNameTooltip={bucketNameTooltip}
+            register={register}
           />
-        }
-      />
-
-      {fields.map((field, index) => {
-        const BucketFormGroup = (
-          <div key={field.id}>
-            <FormGroup
-              id={`bucketName-${index}`}
-              label={
-                bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'
-              }
-              required
-              labelHelpTooltip={bucketNameTooltip}
-              error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
-              helpErrorPosition="bottom"
-              content={
-                <Input
-                  id={`bucketName-${index}`}
-                  type="text"
-                  autoComplete="off"
-                  placeholder={bucketNamePlaceholder}
-                  {...register(`buckets.${index}.name`)}
-                />
-              }
-            />
-            {renderCapacitySection(index)}
-          </div>
-        );
-        if (bucketNumber > 1) {
-          return (
+          {renderCapacitySection(0)}
+        </FormSection>
+      );
+    } else if (fields.length > 1) {
+      return fields.map((field, index) => {
+        return (
+          <FormSection forceLabelWidth={272} key={field.id}>
             <div
-              key={field.id}
               style={{
                 backgroundColor: theme.backgroundLevel2,
-                padding: '1rem',
+                padding: spacing.f16,
+                paddingLeft: spacing.f8,
+                paddingBottom: spacing.f8,
                 borderRadius: spacing.f4,
                 marginBottom: spacing.f4,
               }}
             >
-              {BucketFormGroup}
+              <BucketNameFormGroup
+                index={index}
+                errors={errors}
+                bucketNamePlaceholder={bucketNamePlaceholder}
+                bucketNumber={bucketNumber}
+                bucketNameTooltip={bucketNameTooltip}
+                register={register}
+              />
+              {renderCapacitySection(index)}
             </div>
-          );
-        }
+          </FormSection>
+        );
+      });
+    }
+  };
 
-        return BucketFormGroup;
-      })}
+  return (
+    <>
+      <FormSection forceLabelWidth={280}>
+        <FormGroup
+          id="bucketNumber"
+          label="Number of buckets"
+          required
+          labelHelpTooltip="Choose the number of buckets to create within your account"
+          error={(errors.bucketNumber?.message as string) ?? ''}
+          helpErrorPosition="bottom"
+          content={
+            <Input
+              id="bucketNumber"
+              type="number"
+              value={bucketNumber}
+              onChange={handleBucketNumberChange}
+              size="1/3"
+              min={1}
+              max={20}
+            />
+          }
+        />
+      </FormSection>
+      {renderBucketNameFormSection()}
     </>
   );
 };
