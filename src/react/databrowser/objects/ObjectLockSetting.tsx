@@ -97,12 +97,9 @@ export default function ObjectLockSetting() {
         .putObjectRetention(params)
         .promise()
         .then(() => {
-          const event = new CustomEvent('HistoryPushEvent', {
-            detail: {
-              path: `/accounts/${account.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}`,
-            },
-          });
-          window.dispatchEvent(event);
+          navigate(
+            `/accounts/${account.Name}/buckets/${bucketNameParam}/objects?prefix=${objectKey}`,
+          );
         });
     },
   });
