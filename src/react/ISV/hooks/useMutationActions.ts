@@ -7,19 +7,15 @@ import {
   useCreateIAMUserMutation,
   useCreateUserAccessKeyMutation,
   usePolicyMutation,
-  usePutBucketTaggingMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../react/next-architecture/domain/business/accounts';
-import {
-  useCreateBucket,
-  useCreateBucketByS3Client,
-} from '../../../react/next-architecture/domain/business/buckets';
 import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
+import { MutationWithKey } from './useMultiMutation';
 
 type Result = {
   data: {
@@ -38,6 +34,7 @@ export const useMutationActions = (
     account: Account;
     accessKey: string;
   },
+  bucketMutations: Record<string, MutationWithKey>,
 ): Result => {
   const {
     buckets,
@@ -67,10 +64,6 @@ export const useMutationActions = (
   });
 
   const createAccountMutation = useCreateAccountMutation();
-  const createBucketMutation = account
-    ? useCreateBucket()
-    : useCreateBucketByS3Client();
-  const putBucketTaggingMutation = usePutBucketTaggingMutation();
   const createIAMUserMutation = useCreateIAMUserMutation();
   const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
   const createPolicyMutation = usePolicyMutation();
@@ -103,14 +96,8 @@ export const useMutationActions = (
         `Tag Bucket: ${bucket.name}`,
       );
       steps.push(
-        {
-          ...createBucketMutation,
-          key: `createBucket-${bucket.name}`,
-        },
-        {
-          ...putBucketTaggingMutation,
-          key: `putBucketTagging-${bucket.name}`,
-        },
+        bucketMutations[`createBucket-${bucket.name}`],
+        bucketMutations[`putBucketTagging-${bucket.name}`],
       );
     });
 
@@ -218,7 +205,9 @@ export const useMutationActions = (
       assumeRole: (results) => {
         if (!account) {
           return {
-            roleArn: `arn:aws:iam::${results[0].id}:role/scality-internal/storage-manager-role`,
+            roleArn: `arn:aws:iam::${
+              (results[0] as { id: string }).id
+            }:role/scality-internal/storage-manager-role`,
           };
         } else {
           return {
@@ -249,9 +238,11 @@ export const useMutationActions = (
           const name = getIAMUserName(results);
           return {
             userName: name,
-            policyArn: `arn:aws:iam::${results[0].id}:policy/${name}-${
-              platform.id
-            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
+            policyArn: `arn:aws:iam::${
+              (results[0] as { id: string }).id
+            }:policy/${name}-${platform.id}-${
+              enableImmutableBackup ? 'immutable' : 'non-immutable'
+            }`,
           };
         } else {
           return {
@@ -298,7 +289,7 @@ export const useMutationActions = (
   return {
     data,
     accessKey:
-      accessKey || steps[accessKeyMutationIndex].data?.AccessKey?.AccessKeyId,
+      accessKey || steps[accessKeyMutationIndex]?.data?.AccessKey?.AccessKeyId,
     secretKey,
   };
 };

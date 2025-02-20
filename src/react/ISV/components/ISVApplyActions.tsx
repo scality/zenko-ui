@@ -2,7 +2,7 @@ import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, Fragment } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -10,8 +10,12 @@ import { ISVStepsIndexes, ISV_STEPS } from './ISVSteps';
 import { memo } from 'react';
 import { ISVSkipModal } from './ISVSkipModal';
 import { useMutationActions } from '../hooks/useMutationActions';
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
+import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
+import { useCreateBucketByS3Client } from '../../next-architecture/domain/business/buckets';
+import { usePutBucketTaggingMutation } from '../../../js/mutations';
+import { useMultiMutation, MutationWithKey } from '../hooks/useMultiMutation';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -31,7 +35,59 @@ type ISVApplyActionsProps = ISVConfig & {
   accessKeys?: string[];
 };
 
-export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
+const BucketMutation = ({
+  account,
+  bucket,
+  onMutationReady,
+}: {
+  account: null | Account;
+  bucket: Bucket;
+  onMutationReady: (key: string, mutation: MutationWithKey) => void;
+}) => {
+  const createBucketMutation = useCreateBucket();
+  const createBucketByS3ClientMutation = useCreateBucketByS3Client();
+
+  useMemo(() => {
+    onMutationReady(
+      `createBucket-${bucket.name}`,
+      account
+        ? { ...createBucketMutation, key: `createBucket-${bucket.name}` }
+        : {
+            ...createBucketByS3ClientMutation,
+            key: `createBucket-${bucket.name}`,
+          },
+    );
+  }, [createBucketMutation.status, createBucketByS3ClientMutation.status]);
+
+  return <></>;
+};
+
+const BucketTagMutation = ({
+  bucket,
+  onMutationReady,
+}: {
+  bucket: Bucket;
+  onMutationReady: (key: string, mutation: MutationWithKey) => void;
+}) => {
+  const putBucketTaggingMutation = usePutBucketTaggingMutation();
+
+  useMemo(() => {
+    onMutationReady(`putBucketTagging-${bucket.name}`, {
+      ...putBucketTaggingMutation,
+      key: `putBucketTagging-${bucket.name}`,
+    });
+  }, [putBucketTaggingMutation.status]);
+
+  return <></>;
+};
+
+const Main = ({
+  props,
+  mutations,
+}: {
+  props: ISVApplyActionsProps;
+  mutations: Record<string, MutationWithKey>;
+}) => {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const theme = useTheme();
   const navigate = useBasenameRelativeNavigate();
@@ -46,7 +102,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     platform,
     accessKeys,
   } = props;
-  const { data, accessKey, secretKey } = useMutationActions(props);
+  const { data, accessKey, secretKey } = useMutationActions(props, mutations);
 
   const isCancellable = useMemo(
     () => data.some((row) => row.status === 'error'),
@@ -119,16 +175,6 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
         style={{ width: '50rem' }}
       >
         <div style={{ height: '32rem' }}>
-          {/* <Table columns={columns} data={data}>
-            <Table.SingleSelectableContent
-              rowHeight="h32"
-              separationLineVariant="backgroundLevel3"
-              children={(rows) => {
-                console.log('DEBUG rows', rows);
-                return rows;
-              }}
-            />
-          </Table> */}
           <Table>
             <T.Head>
               <T.HeadRow>
@@ -177,6 +223,32 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
           </Table>
         </div>
       </Form>
+    </>
+  );
+};
+
+export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
+  const { buckets, account } = props;
+  const { mutations, handleMutationReady, isAllMutationsReady } =
+    useMultiMutation(buckets, buckets.length * 2);
+
+  return (
+    <>
+      {buckets.map((bucket) => (
+        <Fragment key={bucket.name}>
+          <BucketMutation
+            account={account}
+            bucket={bucket}
+            onMutationReady={handleMutationReady}
+          />
+          <BucketTagMutation
+            bucket={bucket}
+            onMutationReady={handleMutationReady}
+          />
+        </Fragment>
+      ))}
+
+      {isAllMutationsReady && <Main mutations={mutations} props={props} />}
     </>
   );
 });
