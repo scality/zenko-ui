@@ -177,22 +177,22 @@ const Main = ({
         <div style={{ height: '32rem' }}>
           <Table>
             <T.Head>
-              <T.HeadRow>
-                <T.HeadCell>Step</T.HeadCell>
-                <T.HeadCell>Action</T.HeadCell>
-                <T.HeadCell>Status</T.HeadCell>
+              <T.HeadRow style={{ display: 'flex' }}>
+                <T.HeadCell style={{ width: '150px' }}>Step</T.HeadCell>
+                <T.HeadCell style={{ width: '50%' }}>Action</T.HeadCell>
+                <T.HeadCell style={{ width: '12.5%' }}>Status</T.HeadCell>
               </T.HeadRow>
             </T.Head>
             <T.Body>
               {data.map((row, index) => (
                 <T.Row key={index} style={{ display: 'flex' }}>
-                  <T.Cell>{row.step}</T.Cell>
-                  <T.Cell style={{ flex: 0.5 }}>
+                  <T.Cell style={{ width: '150px' }}>{row.step}</T.Cell>
+                  <T.Cell style={{ width: '50%' }}>
                     <div>
                       <Text>{row.action}</Text>
                     </div>
                   </T.Cell>
-                  <T.Cell>
+                  <T.Cell style={{ width: '12.5%' }}>
                     {row.status === 'success' ? (
                       <StatusBox>
                         <Icon name="Check" color={theme.statusHealthy} />

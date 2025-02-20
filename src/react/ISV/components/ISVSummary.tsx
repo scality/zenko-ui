@@ -8,7 +8,7 @@ import {
   Text,
 } from '@scality/core-ui';
 import { Button, CopyButton } from '@scality/core-ui/dist/next';
-import { Stack, Wrap, spacing } from '@scality/core-ui/dist/spacing';
+import { Wrap, spacing } from '@scality/core-ui/dist/spacing';
 import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
@@ -298,11 +298,11 @@ export const ISVSummary = ({
         <Separator />
 
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
-          {buckets.map((bucket) => (
+          {buckets.map((bucket, index) => (
             <FormGroup
               key={bucket.name}
               id="buckets-name"
-              label="Name"
+              label={`Bucket #${index + 1}`}
               required
               content={
                 <WrapperWithWidth key={bucket.name}>
