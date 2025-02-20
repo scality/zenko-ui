@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
@@ -7,6 +7,7 @@ import {
   FormGroup,
   FormSection,
   Icon,
+  Loader,
   Stack,
   Text,
   Toggle,
@@ -26,6 +27,7 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
+import set from 'lodash.set';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -165,6 +167,17 @@ const NameField = ({
                       isAccount ? 'account' : 'user'
                     }`}
                   >
+                    {status === 'loading' && (
+                      <Select.Option
+                        disabled
+                        disabledReason="Please wait until the list is loaded"
+                        key="loading"
+                        value="loading"
+                        icon={<Loader size="small" />}
+                      >
+                        Loading...
+                      </Select.Option>
+                    )}
                     {options.map((item) => (
                       <Select.Option key={item.name} value={item.name}>
                         {item.name}
