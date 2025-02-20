@@ -146,6 +146,7 @@ const NameField = ({
                 defaultValue={options.length > 0 ? options[0].name : ''}
                 render={({ field: { onChange, value } }) => (
                   <Select
+                    menuPosition="fixed"
                     id={fieldName}
                     onChange={(value) => {
                       if (getIAMUsersMutation) {
