@@ -254,7 +254,7 @@ export const ISVConfiguration = () => {
     IAMUsersStatus,
     IAMUsers,
     getIAMUsersMutation,
-    accessKey,
+    accessKeys,
   } = useIAMUser({
     IAMUserName,
     IAMUserNameType,
@@ -284,7 +284,7 @@ export const ISVConfiguration = () => {
         ? data.enableImmutableBackup
         : false,
       account,
-      accessKey,
+      accessKeys,
     });
   };
 

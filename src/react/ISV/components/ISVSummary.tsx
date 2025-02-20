@@ -90,6 +90,7 @@ type ISVSummaryProps = ISVConfig & {
   accessKey: string;
   secretKey: string;
   platform: ISVPlatformConfig;
+  accessKeys?: string[];
 };
 
 export const ISVSummary = ({
@@ -98,16 +99,22 @@ export const ISVSummary = ({
   enableImmutableBackup,
   accessKey,
   secretKey,
+  accessKeys,
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform, config } = useISVStepper();
-
   const immutableSectionInfos = getImmutabilitySectionInfo(
     config.application || platform.name,
     enableImmutableBackup,
   );
+
+  const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
+    secretKey ? 'Access key ID' : 'Access key IDs'
+  }\t${secretKey ? accessKey : accessKeys.join(', ')}\n${
+    secretKey ? `Secret Access key\t${secretKey}\n` : ''
+  }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`;
 
   return (
     <Form
@@ -172,9 +179,7 @@ export const ISVSummary = ({
             isEmphazed
           >{`2. Information for the ${platform.name} configuration`}</Text>
           <CopyButton
-            textToCopy={`Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${accessKey}\n${
-              secretKey ? `Secret Access key\t${secretKey}\n` : ''
-            }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`}
+            textToCopy={textToCopy}
             label="all"
             variant="outline"
             tooltip={{
@@ -187,72 +192,112 @@ export const ISVSummary = ({
           />
         </Wrap>
         <Separator />
-        <FormGroup
-          id="service-point"
-          label="Service point"
-          required
-          content={
-            <WrapperWithWidth>
-              <Text>{s3ServicePoint}</Text>{' '}
-              <CopyButton
-                textToCopy={s3ServicePoint}
-                aria-label="copy service point"
-              />
-            </WrapperWithWidth>
-          }
-        />
-        <FormGroup
-          id="region"
-          required
-          label="Region"
-          content={
-            <WrapperWithWidth>
-              <Text>{DEFAULT_REGION}</Text>{' '}
-              <CopyButton
-                textToCopy={DEFAULT_REGION}
-                aria-label="copy region"
-              />
-            </WrapperWithWidth>
-          }
-        />
-        <Separator />
-
-        <Text isEmphazed>{'Credentials'}</Text>
-        <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
-          The Secret Access key cannot be retrieved afterwards, so make sure to
-          keep and secure it now. <br />
-          You will be able to create new Access keys at any time.
-        </Banner>
-        <FormGroup
-          id="access-key"
-          label="Access key ID"
-          required
-          content={
-            <WrapperWithWidth>
-              <Text>{accessKey}</Text>
-              <CopyButton textToCopy={accessKey} aria-label="copy access key" />
-            </WrapperWithWidth>
-          }
-        />
-        {secretKey && (
+        <FormSection forceLabelWidth={150}>
           <FormGroup
-            id="secret-key"
-            label="Secret Access key"
+            id="service-point"
+            label="Service point"
             required
             content={
               <WrapperWithWidth>
-                <HideCredential credentials={secretKey} />
+                <Text>{s3ServicePoint}</Text>{' '}
                 <CopyButton
-                  textToCopy={secretKey}
-                  aria-label="copy secret access key"
+                  textToCopy={s3ServicePoint}
+                  aria-label="copy service point"
                 />
               </WrapperWithWidth>
             }
           />
+          <FormGroup
+            id="region"
+            required
+            label="Region"
+            content={
+              <WrapperWithWidth>
+                <Text>{DEFAULT_REGION}</Text>{' '}
+                <CopyButton
+                  textToCopy={DEFAULT_REGION}
+                  aria-label="copy region"
+                />
+              </WrapperWithWidth>
+            }
+          />
+        </FormSection>
+
+        <Separator />
+
+        {secretKey && (
+          <FormSection forceLabelWidth={150} title={{ name: 'Credentials' }}>
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+              The Secret Access key cannot be retrieved afterwards, so make sure
+              to keep and secure it now. <br />
+              You will be able to create new Access keys at any time.
+            </Banner>
+            <FormGroup
+              id="access-key"
+              label="Access key ID"
+              required
+              content={
+                <WrapperWithWidth>
+                  <Text style={{ display: 'flex', alignItems: 'center' }}>
+                    {accessKey}
+                  </Text>
+                  <CopyButton
+                    textToCopy={accessKey}
+                    aria-label="copy access key"
+                  />
+                </WrapperWithWidth>
+              }
+            />
+
+            <FormGroup
+              id="secret-key"
+              label="Secret Access key"
+              required
+              content={
+                <WrapperWithWidth>
+                  <HideCredential credentials={secretKey} />
+                  <CopyButton
+                    textToCopy={secretKey}
+                    aria-label="copy secret access key"
+                  />
+                </WrapperWithWidth>
+              }
+            />
+          </FormSection>
+        )}
+        {!secretKey && accessKeys && (
+          <FormSection forceLabelWidth={150} title={{ name: 'Access keys' }}>
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+              Here is the list of Access keys available for this user. <br />
+              If you lost the corresponding secret key, you can create a new
+              Access keys at any time.
+            </Banner>
+            <>
+              {accessKeys.map((accessKey) => (
+                <FormGroup
+                  key={accessKey}
+                  id="access-key"
+                  label="Access key ID"
+                  required
+                  content={
+                    <WrapperWithWidth>
+                      <Text style={{ display: 'flex', alignItems: 'center' }}>
+                        {accessKey}
+                      </Text>
+                      <CopyButton
+                        textToCopy={accessKey}
+                        aria-label="copy access key"
+                      />
+                    </WrapperWithWidth>
+                  }
+                />
+              ))}
+            </>
+          </FormSection>
         )}
         <Separator />
 
-        <FormSection title={{ name: 'Buckets' }} forceLabelWidth={200}>
+        <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
           {buckets.map((bucket) => (
             <FormGroup
               key={bucket.name}
@@ -260,20 +305,19 @@ export const ISVSummary = ({
               label="Name"
               required
               content={
-                <>
-                  <Stack key={bucket.name}>
-                    <Text>{bucket.name}</Text>
-                    <CopyButton
-                      textToCopy={bucket.name}
-                      aria-label="copy bucket name"
-                    />
-                  </Stack>
-                </>
+                <WrapperWithWidth key={bucket.name}>
+                  <Text>{bucket.name}</Text>
+                  <CopyButton
+                    textToCopy={bucket.name}
+                    aria-label="copy bucket name"
+                  />
+                </WrapperWithWidth>
               }
             />
           ))}
         </FormSection>
-        <FormSection title={{ name: 'Option' }} forceLabelWidth={200}>
+        <Separator />
+        <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
           <FormGroup
             id="immutable"
             required

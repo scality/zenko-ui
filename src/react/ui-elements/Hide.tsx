@@ -1,15 +1,19 @@
 import { useState, JSX } from 'react';
 import MiddleEllipsis from './MiddleEllipsis';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+
 import styled from 'styled-components';
+import { spacing } from '@scality/core-ui';
 const HideContainer = styled.div`
   display: flex;
+  align-items: center;
 `;
 const HideValue = styled.div<{ shown?: boolean }>`
-  ${(props) => props.shown && 'width: 260px;'}
+  ${(props) => props.shown && 'width: 15rem;'}
+  overflow: hidden;
+  text-wrap: nowrap;
 `;
 const HideAction = styled.div`
-  margin-left: ${spacing.sp8};
+  margin-left: ${spacing.r8};
   color: ${(props) => props.theme.textLink};
   text-decoration: none;
   cursor: pointer;

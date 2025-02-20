@@ -28,6 +28,7 @@ type ISVApplyActionsProps = ISVConfig & {
   account: null | Account;
   accessKey: string;
   secretKey: string;
+  accessKeys?: string[];
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
@@ -37,9 +38,14 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const queryClient = useQueryClient();
   const { next } = useStepper(ISVStepsIndexes.ApplyActions, ISV_STEPS);
 
-  const { buckets, enableImmutableBackup, accountName, application, platform } =
-    props;
-
+  const {
+    buckets,
+    enableImmutableBackup,
+    accountName,
+    application,
+    platform,
+    accessKeys,
+  } = props;
   const { data, accessKey, secretKey } = useMutationActions(props);
 
   const isCancellable = useMemo(
@@ -60,6 +66,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
       accessKey,
       secretKey,
       application,
+      accessKeys,
     });
   }, [
     accountName,
@@ -68,6 +75,7 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
     accessKey,
     secretKey,
     application,
+    accessKeys,
   ]);
 
   const handleExit = useCallback(() => {
