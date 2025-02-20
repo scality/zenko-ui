@@ -176,7 +176,14 @@ function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
-      <Route path="workflows/*" element={<RedirectToAccount />} />
+      <Route
+        path="workflows/*"
+        element={
+          <DataServiceRoleProvider>
+            <RedirectToAccount />
+          </DataServiceRoleProvider>
+        }
+      />
       <Route
         path={`create-user/*`}
         element={
