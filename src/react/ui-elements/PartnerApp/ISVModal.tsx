@@ -130,7 +130,7 @@ export const ISVModalContent = ({
               </Text>
             ) : (
               <Text>
-                You will be redirected to the account page. To be guide through
+                You will be redirected to the account page. To be guided through
                 the configuration for{' '}
                 <Text isEmphazed>
                   {selectedISV.application || selectedISV.name}
