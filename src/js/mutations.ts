@@ -170,15 +170,6 @@ const useCreatePolicyMutation = () => {
 const usePolicyMutation = () => {
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
-  // List policies for the account
-
-  // Find if policy already exists for user + app + immutability
-  // If yes update the policy
-  // List policy versions
-  // If there are 5 versions delete the oldest one
-  // Create a new policy version
-
-  // If no create a new policy
 
   return useMutation({
     mutationFn: async ({
