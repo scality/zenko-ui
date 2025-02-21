@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
@@ -27,7 +27,6 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
-import set from 'lodash.set';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',

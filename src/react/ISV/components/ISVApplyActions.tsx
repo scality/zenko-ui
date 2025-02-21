@@ -12,9 +12,8 @@ import { ISVSkipModal } from './ISVSkipModal';
 import { useMutationActions } from '../hooks/useMutationActions';
 import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { useCreateBucket } from '../../next-architecture/domain/business/buckets';
 import { useCreateBucketByS3Client } from '../../next-architecture/domain/business/buckets';
-import { usePutBucketTaggingMutation } from '../../../js/mutations';
+import { usePutBucketTaggingMutationByS3Client } from '../../../js/mutations';
 import { useMultiMutation, MutationWithKey } from '../hooks/useMultiMutation';
 
 export const ListItem = styled.li`
@@ -36,28 +35,20 @@ type ISVApplyActionsProps = ISVConfig & {
 };
 
 const BucketMutation = ({
-  account,
   bucket,
   onMutationReady,
 }: {
-  account: null | Account;
   bucket: Bucket;
   onMutationReady: (key: string, mutation: MutationWithKey) => void;
 }) => {
-  const createBucketMutation = useCreateBucket();
-  const createBucketByS3ClientMutation = useCreateBucketByS3Client();
+  const createBucketMutation = useCreateBucketByS3Client();
 
   useMemo(() => {
-    onMutationReady(
-      `createBucket-${bucket.name}`,
-      account
-        ? { ...createBucketMutation, key: `createBucket-${bucket.name}` }
-        : {
-            ...createBucketByS3ClientMutation,
-            key: `createBucket-${bucket.name}`,
-          },
-    );
-  }, [createBucketMutation.status, createBucketByS3ClientMutation.status]);
+    onMutationReady(`createBucket-${bucket.name}`, {
+      ...createBucketMutation,
+      key: `createBucket-${bucket.name}`,
+    });
+  }, [createBucketMutation.status]);
 
   return <></>;
 };
@@ -69,7 +60,7 @@ const BucketTagMutation = ({
   bucket: Bucket;
   onMutationReady: (key: string, mutation: MutationWithKey) => void;
 }) => {
-  const putBucketTaggingMutation = usePutBucketTaggingMutation();
+  const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
 
   useMemo(() => {
     onMutationReady(`putBucketTagging-${bucket.name}`, {
@@ -228,7 +219,7 @@ const Main = ({
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
-  const { buckets, account } = props;
+  const { buckets } = props;
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(buckets, buckets.length * 2);
 
@@ -237,7 +228,6 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
       {buckets.map((bucket) => (
         <Fragment key={bucket.name}>
           <BucketMutation
-            account={account}
             bucket={bucket}
             onMutationReady={handleMutationReady}
           />

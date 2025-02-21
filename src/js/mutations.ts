@@ -269,6 +269,23 @@ const usePutBucketTaggingMutation = () => {
   );
 };
 
+const usePutBucketTaggingMutationByS3Client = () => {
+  return useMutation({
+    mutationFn: ({
+      s3Client,
+      bucketName,
+      tagSet,
+    }: {
+      s3Client: S3;
+      bucketName: string;
+      tagSet: TagSetItem[];
+    }) =>
+      s3Client
+        .putBucketTagging({ Bucket: bucketName, Tagging: { TagSet: tagSet } })
+        .promise(),
+  });
+};
+
 const usePutObjectMutation = () => {
   const s3Client = useS3Client();
   const options = {
@@ -298,6 +315,7 @@ export {
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
   usePutBucketTaggingMutation,
+  usePutBucketTaggingMutationByS3Client,
   usePutObjectMutation,
   usePolicyMutation,
 };

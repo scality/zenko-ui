@@ -83,12 +83,13 @@ export const useMutationActions = (
         ...refetchAccountsLocationsEndpointsMutation,
         key: 'refetchAccountsLocationsEndpoints',
       });
-      actions.push('Assume Account Role');
-      steps.push({
-        ...assumeRoleMutation,
-        key: 'assumeRole',
-      });
     }
+
+    actions.push('Assume Account Role');
+    steps.push({
+      ...assumeRoleMutation,
+      key: 'assumeRole',
+    });
 
     buckets.forEach((bucket) => {
       actions.push(
@@ -151,20 +152,13 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`createBucket-${bucket.name}`]: (results) => {
-          if (account) {
-            return {
+          return {
+            s3Client: account ? results[0] : results[2],
+            request: {
               ObjectLockEnabledForBucket: enableImmutableBackup,
               Bucket: bucket.name,
-            };
-          } else {
-            return {
-              s3Client: results[2],
-              request: {
-                ObjectLockEnabledForBucket: enableImmutableBackup,
-                Bucket: bucket.name,
-              },
-            };
-          }
+            },
+          };
         },
       }),
       {},
@@ -175,8 +169,9 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`putBucketTagging-${bucket.name}`]: () => {
+        [`putBucketTagging-${bucket.name}`]: (results) => {
           return {
+            s3Client: account ? results[0] : results[2],
             bucketName: bucket.name,
             tagSet: [
               {
