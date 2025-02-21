@@ -13,7 +13,10 @@ import { useMutationActions } from '../hooks/useMutationActions';
 import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { useCreateBucketByS3Client } from '../../next-architecture/domain/business/buckets';
-import { usePutBucketTaggingMutationByS3Client } from '../../../js/mutations';
+import {
+  usePutBucketTaggingMutationByS3Client,
+  usePutObjectMutation,
+} from '../../../js/mutations';
 import { useMultiMutation, MutationWithKey } from '../hooks/useMultiMutation';
 
 export const ListItem = styled.li`
@@ -42,36 +45,54 @@ const BucketMutation = ({
   onMutationReady: (key: string, mutation: MutationWithKey) => void;
 }) => {
   const createBucketMutation = useCreateBucketByS3Client();
+  const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
 
   useMemo(() => {
     onMutationReady(`createBucket-${bucket.name}`, {
       ...createBucketMutation,
       key: `createBucket-${bucket.name}`,
     });
-  }, [createBucketMutation.status]);
+    onMutationReady(`putBucketTagging-${bucket.name}`, {
+      ...putBucketTaggingMutation,
+      key: `putBucketTagging-${bucket.name}`,
+    });
+  }, [createBucketMutation.status, putBucketTaggingMutation.status]);
 
   return <></>;
 };
 
-const BucketTagMutation = ({
+const BucketVeeamMutation = ({
   bucket,
   onMutationReady,
 }: {
   bucket: Bucket;
   onMutationReady: (key: string, mutation: MutationWithKey) => void;
 }) => {
-  const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
+  const putVeeamFolderMutation = usePutObjectMutation();
+  const putVeeamSystemXmlMutation = usePutObjectMutation();
+  const putVeeamCapacityXmlMutation = usePutObjectMutation();
 
   useMemo(() => {
-    onMutationReady(`putBucketTagging-${bucket.name}`, {
-      ...putBucketTaggingMutation,
-      key: `putBucketTagging-${bucket.name}`,
+    onMutationReady(`putVeeamFolder-${bucket.name}`, {
+      ...putVeeamFolderMutation,
+      key: `putVeeamFolder-${bucket.name}`,
     });
-  }, [putBucketTaggingMutation.status]);
+    onMutationReady(`putVeeamSystemXml-${bucket.name}`, {
+      ...putVeeamSystemXmlMutation,
+      key: `putVeeamSystemXml-${bucket.name}`,
+    });
+    onMutationReady(`putVeeamCapacityXml-${bucket.name}`, {
+      ...putVeeamCapacityXmlMutation,
+      key: `putVeeamCapacityXml-${bucket.name}`,
+    });
+  }, [
+    putVeeamFolderMutation.status,
+    putVeeamSystemXmlMutation.status,
+    putVeeamCapacityXmlMutation.status,
+  ]);
 
   return <></>;
 };
-
 const Main = ({
   props,
   mutations,
@@ -219,9 +240,13 @@ const Main = ({
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
-  const { buckets } = props;
+  const { buckets, platform } = props;
+  const isVeeamVBR = platform.id === 'veeam';
   const { mutations, handleMutationReady, isAllMutationsReady } =
-    useMultiMutation(buckets, buckets.length * 2);
+    useMultiMutation(
+      buckets,
+      isVeeamVBR ? buckets.length * 5 : buckets.length * 2,
+    );
 
   return (
     <>
@@ -231,10 +256,12 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
             bucket={bucket}
             onMutationReady={handleMutationReady}
           />
-          <BucketTagMutation
-            bucket={bucket}
-            onMutationReady={handleMutationReady}
-          />
+          {isVeeamVBR && (
+            <BucketVeeamMutation
+              bucket={bucket}
+              onMutationReady={handleMutationReady}
+            />
+          )}
         </Fragment>
       ))}
 

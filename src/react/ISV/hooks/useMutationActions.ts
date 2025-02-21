@@ -16,6 +16,9 @@ import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { MutationWithKey } from './useMultiMutation';
+import { VEEAM_XML_PREFIX } from '../../ui-elements/Veeam/VeeamConstants';
+import { SYSTEM_XML_CONTENT } from '../../ui-elements/Veeam/VeeamConstants';
+import { GET_CAPACITY_XML_CONTENT } from '../../ui-elements/Veeam/VeeamConstants';
 
 type Result = {
   data: {
@@ -100,6 +103,19 @@ export const useMutationActions = (
         bucketMutations[`createBucket-${bucket.name}`],
         bucketMutations[`putBucketTagging-${bucket.name}`],
       );
+
+      if (platform.id === 'veeam') {
+        actions.push(
+          'Prepare Veeam integrated object repository',
+          'Enforce Veeam integrated object repository',
+          'Set maximum repository capacity',
+        );
+        steps.push(
+          bucketMutations[`putVeeamFolder-${bucket.name}`],
+          bucketMutations[`putVeeamSystemXml-${bucket.name}`],
+          bucketMutations[`putVeeamCapacityXml-${bucket.name}`],
+        );
+      }
     });
 
     if (!account || IAMUserNameType === 'create') {
@@ -186,6 +202,38 @@ export const useMutationActions = (
     );
   }, [buckets, platform]);
 
+  const putVeeamFolderArray = useMemo(() => {
+    return buckets?.reduce(
+      (acc, bucket) => ({
+        ...acc,
+        [`putVeeamFolder-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `${VEEAM_XML_PREFIX}/`,
+            Body: '',
+          };
+        },
+        [`putVeeamSystemXml-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `${VEEAM_XML_PREFIX}/system.xml`,
+            Body: SYSTEM_XML_CONTENT,
+            ContentType: 'text/xml',
+          };
+        },
+        [`putVeeamCapacityXml-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Key: `${VEEAM_XML_PREFIX}/capacity.xml`,
+            Body: GET_CAPACITY_XML_CONTENT(bucket.capacityBytes.toString()),
+            ContentType: 'text/xml',
+          };
+        },
+      }),
+      {},
+    );
+  }, [buckets]);
+
   const { mutate, mutationsWithRetry } = useChainedMutations({
     mutations: steps,
     computeVariablesForNext: {
@@ -249,6 +297,7 @@ export const useMutationActions = (
         }
       },
       ...putBucketTaggingArray,
+      ...(platform.id === 'veeam' ? putVeeamFolderArray : {}),
     },
   });
 
