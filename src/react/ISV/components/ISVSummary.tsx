@@ -266,27 +266,37 @@ export const ISVSummary = ({
           </FormSection>
         )}
         {!secretKey && accessKeys && (
-          <FormSection forceLabelWidth={150} title={{ name: 'Access keys' }}>
-            {accessKeys.map((accessKey) => (
-              <FormGroup
-                key={accessKey}
-                id="access-key"
-                label="Access key ID"
-                required
-                content={
-                  <WrapperWithWidth>
-                    <Text style={{ display: 'flex', alignItems: 'center' }}>
-                      {accessKey}
-                    </Text>
-                    <CopyButton
-                      textToCopy={accessKey}
-                      aria-label="copy access key"
-                    />
-                  </WrapperWithWidth>
-                }
-              />
-            ))}
-          </FormSection>
+          <>
+            <Text isEmphazed>{`Credentials`}</Text>
+            <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
+              An existing user has been chosen and no new Access Key has been
+              created
+              <br />
+              You must use an Access Key and Secret key already created. Here is
+              a list of Access keys that can be used for this user:
+            </Banner>
+            <FormSection forceLabelWidth={150}>
+              {accessKeys.map((accessKey) => (
+                <FormGroup
+                  key={accessKey}
+                  id="access-key"
+                  label="Access key ID"
+                  required
+                  content={
+                    <WrapperWithWidth>
+                      <Text style={{ display: 'flex', alignItems: 'center' }}>
+                        {accessKey}
+                      </Text>
+                      <CopyButton
+                        textToCopy={accessKey}
+                        aria-label="copy access key"
+                      />
+                    </WrapperWithWidth>
+                  }
+                />
+              ))}
+            </FormSection>
+          </>
         )}
         <Separator />
 
