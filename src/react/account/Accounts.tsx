@@ -1,8 +1,8 @@
 import {
   AppContainer,
-  EmptyState,
   ErrorPage401,
   ErrorPage500,
+  Icon,
   Loader,
 } from '@scality/core-ui';
 import { useLocation } from 'react-router';
@@ -10,7 +10,6 @@ import { useLocation } from 'react-router';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useListAccounts } from '../next-architecture/domain/business/accounts';
 import { useAccessibleAccountsAdapter } from '../next-architecture/ui/AccessibleAccountsAdapterProvider';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { BreadcrumbAccount } from '../ui-elements/Breadcrumb';
 import Header from '../ui-elements/EntityHeader';
@@ -75,13 +74,13 @@ const Accounts = () => {
                       variant="primary"
                       onClick={() => setIsISVModalOpen(true)}
                     />
-                    {/* or
-                      <Button
-                        label="Create Account"
-                        icon={<Icon name="Create-add" />}
-                        variant="outline"
-                        onClick={() => navigate('/create-account')}
-                      /> */}
+                    or
+                    <Button
+                      label="Create Account"
+                      icon={<Icon name="Create-add" />}
+                      variant="outline"
+                      onClick={() => navigate('/create-account')}
+                    />
                   </>
                 }
               />
