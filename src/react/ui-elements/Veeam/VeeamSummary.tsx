@@ -13,7 +13,7 @@ import styled from 'styled-components';
 import { CertificateDownloadButton } from '../../next-architecture/ui/CertificateDownloadButton';
 import { useAuthGroups } from '../../utils/hooks';
 import { HideCredential } from '../Hide';
-import { useGetS3ServicePoint } from './useGetS3ServicePoint';
+import { useGetS3ServicePoint } from '../../ISV/hooks/useGetS3ServicePoint';
 import { VEEAM_OFFICE_365_V8 } from './VeeamConstants';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
