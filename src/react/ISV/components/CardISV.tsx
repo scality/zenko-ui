@@ -2,7 +2,7 @@ import { Icon, Link, spacing, Stack, Text } from '@scality/core-ui';
 import React from 'react';
 
 import styled, { useTheme } from 'styled-components';
-import Input from '../Input';
+import Input from '../../ui-elements/Input';
 
 type CardProps = {
   application?: string;

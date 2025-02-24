@@ -9,13 +9,13 @@ import { useAccounts, useAuthGroups } from '../../utils/hooks';
 import { setSessionState } from '../../utils/localStorage';
 import { ArtescaLogo } from './ArtescaLogo';
 
-import { useNextLogin } from './useNextLogin';
+import { useNextLogin } from '../hooks/useNextLogin';
 import AlertProvider, {
   useAlerts,
 } from '../../next-architecture/ui/AlertProvider';
 import { useShellHooks } from '@scality/module-federation';
-import { ISVModalContent } from '../PartnerApp/ISVModal';
-import { ISVCardConfig } from '../../../react/ISV/types';
+import { ISVModalContent } from './ISVModal';
+import { ISVCardConfig } from '../types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};

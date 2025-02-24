@@ -22,7 +22,7 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import ISVModal from '../ui-elements/PartnerApp/ISVModal';
+import ISVModal from '../ISV/components/ISVModal';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,

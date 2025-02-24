@@ -14,7 +14,7 @@ import { CertificateDownloadButton } from '../../next-architecture/ui/Certificat
 import { useAuthGroups } from '../../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
-import { useGetS3ServicePoint } from '../../ui-elements/Veeam/useGetS3ServicePoint';
+import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
 import {
   VEEAM_BACKUP_REPLICATION,

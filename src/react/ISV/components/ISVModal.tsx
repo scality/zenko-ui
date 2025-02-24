@@ -14,8 +14,8 @@ import styled, { useTheme } from 'styled-components';
 import { CardISV } from './CardISV';
 import { ISVList } from './ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { ArtescaLogo } from '../Veeam/ArtescaLogo';
-import { ISVCardConfig } from '../../../react/ISV/types';
+import { ArtescaLogo } from './ArtescaLogo';
+import { ISVCardConfig } from '../types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};

@@ -20,7 +20,7 @@ import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.co
 import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
 import { RadioGroup } from './RadioGroup';
-import BucketField from '../../ui-elements/PartnerApp/BucketField';
+import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';

@@ -9,13 +9,13 @@ import {
 } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 
-import { XCORE_NOT_AVAILABLE } from '../../../react/next-architecture/ui/XCoreLibraryProvider';
-import { useXCoreLibrary } from '../../../react/next-architecture/ui/XCoreLibraryProvider';
+import { XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
+import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
 import {
   CapacityFormWithXcore,
   CapacityFormSection,
-} from '../../ISV/components/ISVCapacityFormSection';
-import { unitChoices } from '../../ISV/constants';
+} from './ISVCapacityFormSection';
+import { unitChoices } from '../constants';
 
 const defaultBucketNameTooltip = (
   <Text>Choose an unique name for your bucket</Text>

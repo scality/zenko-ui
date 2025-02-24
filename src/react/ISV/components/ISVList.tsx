@@ -1,16 +1,16 @@
 import React from 'react';
-import { VeeamVBOCardInfo } from '../../ISV/modules/veeam-vbo';
-import { ISVCardConfig } from '../../../react/ISV/types';
-import CohesityLogo from '../Logo/CohesityLogo';
-import CteraLogo from '../Logo/CteraLogo';
-import HycuLogo from '../Logo/HycuLogo';
-import KastenLogo from '../Logo/KastenLogo';
-import RubrikLogo from '../Logo/RubrikLogo';
-import SplunkLogo from '../Logo/SplunkLogo';
-import VeritasLogo from '../Logo/VeritasLogo';
-import ZertoLogo from '../Logo/ZertoLogo';
-import { VeeamCardInfo } from '../../../react/ISV/modules/veeam';
-import { CommvaultCardInfo } from '../../../react/ISV/modules/commvault';
+import { VeeamVBOCardInfo } from '../modules/veeam-vbo';
+import { ISVCardConfig } from '../types';
+import CohesityLogo from '../../ui-elements/Logo/CohesityLogo';
+import CteraLogo from '../../ui-elements/Logo/CteraLogo';
+import HycuLogo from '../../ui-elements/Logo/HycuLogo';
+import KastenLogo from '../../ui-elements/Logo/KastenLogo';
+import RubrikLogo from '../../ui-elements/Logo/RubrikLogo';
+import SplunkLogo from '../../ui-elements/Logo/SplunkLogo';
+import VeritasLogo from '../../ui-elements/Logo/VeritasLogo';
+import ZertoLogo from '../../ui-elements/Logo/ZertoLogo';
+import { VeeamCardInfo } from '../modules/veeam';
+import { CommvaultCardInfo } from '../modules/commvault';
 
 export const ISVList: ISVCardConfig[] = [
   VeeamVBOCardInfo,
