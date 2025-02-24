@@ -121,7 +121,7 @@ const config: Configuration = {
       filename: 'static/js/remoteEntry.js',
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
-        './WelcomeModal': './src/react/ui-elements/Veeam/WelcomeModal.tsx',
+        './WelcomeModal': './src/react/ISV/components/WelcomeModal.tsx',
         './SelectAccountIAMRole':
           './src/react/ui-elements/SelectAccountIAMRole.tsx',
       },
