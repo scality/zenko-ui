@@ -8,21 +8,21 @@ import {
   mockShellAlerts,
   mockShellHooks,
   queryClient,
-} from '../../utils/testUtil';
-import { InternalRouter } from '../../FederableApp';
+} from '../../../utils/testUtil';
+import { InternalRouter } from '../../../FederableApp';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-import { ACCOUNT_ID } from '../../../js/mock/managementClientMSWHandlers';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../ui-elements/Veeam/VeeamConstants';
-import { useNextLogin } from '../hooks/useNextLogin';
-import { useAlerts } from '../../next-architecture/ui/AlertProvider';
-import { QueryClientProvider } from '../../../QueryClientProvider';
+import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/modules/veeam/VeeamConstants';
+import { useNextLogin } from '../../hooks/useNextLogin';
+import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
+import { QueryClientProvider } from '../../../../QueryClientProvider';
 import { ShellHooksProvider } from '@scality/module-federation';
 
-jest.mock('../hooks/useNextLogin', () => ({
+jest.mock('../../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
 }));
-jest.mock('../../next-architecture/ui/AlertProvider', () => ({
+jest.mock('../../../next-architecture/ui/AlertProvider', () => ({
   useAlerts: jest.fn(),
 }));
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';

@@ -12,7 +12,7 @@ import {
 } from '../../actions';
 import { useBucketVersionning } from '../../next-architecture/domain/business/buckets';
 import * as T from '../../ui-elements/Table';
-import { VEEAM_XML_PREFIX } from '../../ui-elements/Veeam/VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../ISV/modules/veeam/VeeamConstants';
 import { WarningMetadata } from '../../ui-elements/Warning';
 import { maybePluralize } from '../../utils';
 import { useQueryParams } from '../../utils/hooks';

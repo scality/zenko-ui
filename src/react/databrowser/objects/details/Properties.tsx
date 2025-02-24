@@ -27,7 +27,7 @@ import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/dom
 import {
   VEEAM_OBJECT_KEY,
   VEEAM_SYSTEM_KEY,
-} from '../../../ui-elements/Veeam/VeeamConstants';
+} from '../../../ISV/modules/veeam/VeeamConstants';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type Props = {

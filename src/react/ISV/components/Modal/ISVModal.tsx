@@ -12,10 +12,10 @@ import { Box, Button } from '@scality/core-ui/dist/next';
 import { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CardISV } from './CardISV';
-import { ISVList } from './ISVList';
+import { ISVList } from '../ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { ArtescaLogo } from './ArtescaLogo';
-import { ISVCardConfig } from '../types';
+import { ArtescaLogo } from '../ArtescaLogo';
+import { ISVCardConfig } from '../../types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};

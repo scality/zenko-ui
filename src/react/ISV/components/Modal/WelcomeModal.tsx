@@ -3,19 +3,19 @@ import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.compo
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { InternalRouter } from '../../FederableApp';
+import { InternalRouter } from '../../../FederableApp';
 
-import { useAccounts, useAuthGroups } from '../../utils/hooks';
-import { setSessionState } from '../../utils/localStorage';
-import { ArtescaLogo } from './ArtescaLogo';
+import { useAccounts, useAuthGroups } from '../../../utils/hooks';
+import { setSessionState } from '../../../utils/localStorage';
+import { ArtescaLogo } from '../ArtescaLogo';
 
-import { useNextLogin } from '../hooks/useNextLogin';
+import { useNextLogin } from '../../hooks/useNextLogin';
 import AlertProvider, {
   useAlerts,
-} from '../../next-architecture/ui/AlertProvider';
+} from '../../../next-architecture/ui/AlertProvider';
 import { useShellHooks } from '@scality/module-federation';
 import { ISVModalContent } from './ISVModal';
-import { ISVCardConfig } from '../types';
+import { ISVCardConfig } from '../../types';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};

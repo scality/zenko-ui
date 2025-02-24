@@ -1,14 +1,14 @@
 import React from 'react';
 import { VeeamVBOCardInfo } from '../modules/veeam-vbo';
 import { ISVCardConfig } from '../types';
-import CohesityLogo from '../../ui-elements/Logo/CohesityLogo';
-import CteraLogo from '../../ui-elements/Logo/CteraLogo';
-import HycuLogo from '../../ui-elements/Logo/HycuLogo';
-import KastenLogo from '../../ui-elements/Logo/KastenLogo';
-import RubrikLogo from '../../ui-elements/Logo/RubrikLogo';
-import SplunkLogo from '../../ui-elements/Logo/SplunkLogo';
-import VeritasLogo from '../../ui-elements/Logo/VeritasLogo';
-import ZertoLogo from '../../ui-elements/Logo/ZertoLogo';
+import CohesityLogo from './Modal/Logos/CohesityLogo';
+import CteraLogo from './Modal/Logos/CteraLogo';
+import HycuLogo from './Modal/Logos/HycuLogo';
+import KastenLogo from './Modal/Logos/KastenLogo';
+import RubrikLogo from './Modal/Logos/RubrikLogo';
+import SplunkLogo from './Modal/Logos/SplunkLogo';
+import VeritasLogo from './Modal/Logos/VeritasLogo';
+import ZertoLogo from './Modal/Logos/ZertoLogo';
 import { VeeamCardInfo } from '../modules/veeam';
 import { CommvaultCardInfo } from '../modules/commvault';
 

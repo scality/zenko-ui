@@ -9,7 +9,7 @@ import {
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { useLocationAndStorageInfos } from '../next-architecture/domain/business/locations';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import { BUCKET_TAG_VEEAM_APPLICATION } from '../ui-elements/Veeam/VeeamConstants';
+import { BUCKET_TAG_VEEAM_APPLICATION } from '../ISV/modules/veeam/VeeamConstants';
 import { Loader, useToast } from '@scality/core-ui';
 import { useEffect, JSX } from 'react';
 

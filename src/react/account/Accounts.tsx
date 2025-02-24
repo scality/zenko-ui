@@ -20,7 +20,7 @@ import { MultiAccountsIcon } from './MultiAccountsIcon';
 
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useState } from 'react';
-import ISVModal from '../ISV/components/ISVModal';
+import ISVModal from '../ISV/components/Modal/ISVModal';
 
 const Accounts = () => {
   const { pathname } = useLocation();
