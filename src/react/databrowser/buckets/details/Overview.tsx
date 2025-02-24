@@ -34,10 +34,7 @@ import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityOverviewRow } from '../../../ui-elements/Veeam/VeeamCapacityOverviewRow';
-import {
-  BUCKET_TAG_VEEAM_APPLICATION,
-  VeeamApplicationType,
-} from '../../../ui-elements/Veeam/VeeamConstants';
+
 import { maybePluralize } from '../../../utils';
 import {
   getLocationIngestionState,
@@ -45,6 +42,8 @@ import {
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { BUCKET_TAG_VEEAM_APPLICATION } from '../../../ISV/constants';
+import { VeeamApplicationType } from '../../../ISV/constants';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -235,6 +234,8 @@ function Overview({ bucket, ingestionStates }: Props) {
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
   const { tags } = useBucketTagging({ bucketName: bucket.name });
   const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
+
+  // Keep this to avoid breaking changes
   const veeamTagApplication =
     tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
   const isVeeamBucket =
@@ -242,6 +243,11 @@ function Overview({ bucket, ingestionStates }: Props) {
       veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
       veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8) &&
     VEEAM_FEATURE_FLAG_ENABLED;
+
+  // New tag for ISV application
+  const ISVApplicationTag =
+    tags.status === 'success' && tags.value?.['X-Scality-Application'];
+
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
   }, [dispatch, bucket.name]);
@@ -333,6 +339,18 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Value> Backup - {veeamTagApplication}</T.Value>
               </T.Row>
               <VeeamCapacityOverviewRow bucketName={bucket.name} />
+            </T.Group>
+          )}
+          {!isVeeamBucket && (
+            <T.Group>
+              <T.GroupName> Use-case </T.GroupName>
+              <T.Row>
+                <T.Key> Application </T.Key>
+                <T.Value> {ISVApplicationTag || 'S3 Generic'}</T.Value>
+              </T.Row>
+              {ISVApplicationTag === 'Veeam Backup & Replication' && (
+                <VeeamCapacityOverviewRow bucketName={bucket.name} />
+              )}
             </T.Group>
           )}
           <T.Group>
