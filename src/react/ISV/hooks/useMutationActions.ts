@@ -16,9 +16,9 @@ import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { MutationWithKey } from './useMultiMutation';
-import { VEEAM_XML_PREFIX } from '../../ISV/modules/veeam/VeeamConstants';
-import { SYSTEM_XML_CONTENT } from '../../ISV/modules/veeam/VeeamConstants';
-import { GET_CAPACITY_XML_CONTENT } from '../../ISV/modules/veeam/VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../ISV/constants';
+import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
+import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
 
 type Result = {
   data: {

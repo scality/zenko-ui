@@ -24,10 +24,7 @@ import ObjectRestorationButtonAndModal from './ObjectRestorationButtonAndModal';
 import { useBucketDefaultRetention } from '../../../next-architecture/domain/business/buckets';
 import { useAccountsLocationsEndpointsAdapter } from '../../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useAccountsLocationsAndEndpoints } from '../../../next-architecture/domain/business/accounts';
-import {
-  VEEAM_OBJECT_KEY,
-  VEEAM_SYSTEM_KEY,
-} from '../../../ISV/modules/veeam/VeeamConstants';
+import { VEEAM_OBJECT_KEY, VEEAM_SYSTEM_KEY } from '../../../ISV/constants';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 type Props = {

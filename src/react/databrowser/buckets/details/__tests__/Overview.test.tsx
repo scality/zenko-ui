@@ -223,7 +223,7 @@ import {
   BUCKET_NAME,
   INSTANCE_ID,
 } from '../../../../actions/__tests__/utils/testUtil';
-import { VEEAM_BACKUP_REPLICATION } from '../../../../ISV/modules/veeam/VeeamConstants';
+import { VEEAM_BACKUP_REPLICATION } from '../../../../ISV/constants';
 import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
 
 const mockResponse =

@@ -6,7 +6,7 @@ import { setupServer } from 'msw/node';
 import { BUCKET_NAME } from '../../../actions/__tests__/utils/testUtil';
 import * as s3object from '../../../actions/s3object';
 import * as hooks from '../../../next-architecture/domain/business/buckets';
-import { VEEAM_XML_PREFIX } from '../../../ISV/modules/veeam/VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../../ISV/constants';
 import * as queryHooks from '../../../utils/hooks';
 import { LIST_OBJECTS_S3_TYPE } from '../../../utils/s3';
 import {

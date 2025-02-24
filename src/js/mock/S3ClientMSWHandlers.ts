@@ -3,7 +3,7 @@ import { zenkoUITestConfig } from '../../react/utils/testUtil';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
-} from '../../react/ISV/modules/veeam/VeeamConstants';
+} from '../../react/ISV/constants';
 
 export const frozenDate = new Date('2021-01-01T00:00:00.000Z');
 export const defaultMockedBuckets = [

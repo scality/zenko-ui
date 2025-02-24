@@ -7,7 +7,7 @@ import {
   SYSTEM_XML_CONTENT,
   VEEAM_IMMUTABLE_POLICY_NAME,
   VEEAM_XML_PREFIX,
-} from '../react/ISV/modules/veeam/VeeamConstants';
+} from '../react/ISV/constants';
 import { NewWrapper, TEST_API_BASE_URL } from '../react/utils/testUtil';
 import {
   useAttachPolicyToUserMutation,

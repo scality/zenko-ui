@@ -13,7 +13,7 @@ import { InternalRouter } from '../../../FederableApp';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/modules/veeam/VeeamConstants';
+import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/constants';
 import { useNextLogin } from '../../hooks/useNextLogin';
 import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import { QueryClientProvider } from '../../../../QueryClientProvider';

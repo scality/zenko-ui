@@ -41,7 +41,7 @@ import {
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_BACKUP_REPLICATION,
-} from '../../../ISV/modules/veeam/VeeamConstants';
+} from '../../../ISV/constants';
 import { waitFor } from '@testing-library/react';
 
 jest.setTimeout(30000);
