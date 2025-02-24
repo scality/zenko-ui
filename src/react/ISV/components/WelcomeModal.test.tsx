@@ -19,7 +19,7 @@ import { useAlerts } from '../../next-architecture/ui/AlertProvider';
 import { QueryClientProvider } from '../../../QueryClientProvider';
 import { ShellHooksProvider } from '@scality/module-federation';
 
-jest.mock('./useNextLogin', () => ({
+jest.mock('../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
 }));
 jest.mock('../../next-architecture/ui/AlertProvider', () => ({

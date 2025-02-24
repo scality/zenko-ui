@@ -24,7 +24,7 @@ import {
 jest.mock('../../next-architecture/ui/CertificateDownloadButton', () => ({
   CertificateDownloadButton: () => <button type="button">Download</button>,
 }));
-jest.mock('./useGetS3ServicePoint', () => ({
+jest.mock('../../ISV/hooks/useGetS3ServicePoint', () => ({
   useGetS3ServicePoint: () => {
     return {
       s3ServicePoint: SERVICE_POINT,
