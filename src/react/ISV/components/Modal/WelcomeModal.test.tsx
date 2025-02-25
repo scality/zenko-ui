@@ -9,6 +9,7 @@ import {
   mockShellAlerts,
   mockShellHooks,
   queryClient,
+  theme,
 } from '../../../utils/testUtil';
 import { InternalRouter } from '../../../FederableApp';
 import { setupServer } from 'msw/node';
@@ -66,8 +67,6 @@ const server = setupServer(
 
 const mockUseNextLogin = useNextLogin as jest.Mock;
 const mockUseAlerts = useAlerts as jest.Mock;
-const mockDefaultTheme = {} as any;
-
 describe('WelcomeModal', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -84,10 +83,9 @@ describe('WelcomeModal', () => {
       screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
-
   const WelcomeModalComponent = (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={mockDefaultTheme}>
+      <ThemeProvider theme={theme}>
         <ShellHooksProvider
           shellHooks={mockShellHooks}
           shellAlerts={mockShellAlerts}
@@ -99,7 +97,6 @@ describe('WelcomeModal', () => {
       </ThemeProvider>
     </QueryClientProvider>
   );
-
   const renderWelcomeModal = () => {
     const { unmount, rerender } = render(WelcomeModalComponent);
     return { unmount, rerender };
@@ -118,8 +115,7 @@ describe('WelcomeModal', () => {
     //E+V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });
-
-  it('should render when there is no Veeam account created', async () => {
+  it('should render when there is no account created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     mockUseAlerts.mockReturnValue([]);
     //S
@@ -133,7 +129,7 @@ describe('WelcomeModal', () => {
         );
       }),
     );
-    const { unmount, rerender } = renderWelcomeModal();
+    const { unmount } = renderWelcomeModal();
 
     //E
     await waitFor(() => {
@@ -232,7 +228,7 @@ describe('WelcomeModal', () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={mockDefaultTheme}>
+        <ThemeProvider theme={theme}>
           <InternalRouter>
             <WelcomeModalInternal isFirstTimeLogin={false} />
           </InternalRouter>
