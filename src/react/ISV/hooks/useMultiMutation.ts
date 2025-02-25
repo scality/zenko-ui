@@ -22,8 +22,9 @@ export function useMultiMutation<T>(items: T[], expectedTotal?: number) {
     }));
   };
 
+  const targetCount = expectedTotal ?? items.length;
   const isAllMutationsReady =
-    Object.keys(mutations).length === (expectedTotal ?? items.length);
+    targetCount === 0 || Object.keys(mutations).length >= targetCount;
 
   return {
     mutations,
