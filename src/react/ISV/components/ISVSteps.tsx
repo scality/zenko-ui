@@ -101,6 +101,9 @@ export const ISVSteps = () => {
         height="100%"
         backgroundColor={theme.backgroundLevel4}
         paddingTop={spacing.r16}
+        style={{
+          boxSizing: 'border-box',
+        }}
       >
         <Stepper steps={ISV_STEPS} />
       </Box>
