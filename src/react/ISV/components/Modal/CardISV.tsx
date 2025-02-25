@@ -10,12 +10,6 @@ type CardProps = {
   name: string;
   selected?: boolean;
   onChange?: (value: React.SetStateAction<string>) => void;
-  link?: string;
-};
-
-type ManualCardProps = {
-  application?: string;
-  logo: React.JSX.Element;
   link: string;
 };
 
@@ -24,7 +18,6 @@ const cardContainerStyle = {
   justifyContent: 'space-between',
   gap: spacing.r32,
   padding: spacing.r20,
-  height: '4.5rem',
   alignItems: 'flex-start',
   borderRadius: '8px',
   cursor: 'pointer',
@@ -36,13 +29,7 @@ const CardContent = (props: {
 }) => {
   const { logo, application } = props;
   return (
-    <Stack
-      direction="vertical"
-      gap="r8"
-      style={{
-        paddingTop: '0.5rem',
-      }}
-    >
+    <Stack direction="vertical" gap="r8">
       {logo}
       {application && (
         <Text color="textPrimary" isEmphazed variant="Smaller">
@@ -53,45 +40,13 @@ const CardContent = (props: {
   );
 };
 
-export const ManualISVCard = (props: ManualCardProps) => {
-  const theme = useTheme();
-  const { logo, application, link } = props;
-  return (
-    <div
-      style={{
-        position: 'relative',
-        borderRadius: '8px',
-      }}
-    >
-      <div
-        style={{
-          ...cardContainerStyle,
-          backgroundColor: theme.backgroundLevel4,
-        }}
-      >
-        <CardContent logo={logo} application={application}></CardContent>
-      </div>
-      <Link
-        href={link}
-        target="_blank"
-        style={{
-          position: 'absolute',
-          bottom: spacing.r10,
-          right: spacing.r24,
-        }}
-      >
-        Learn more <Icon name="External-link"></Icon>
-      </Link>
-    </div>
-  );
-};
-
 const CustomLabel = styled.label<{ selected?: boolean }>`
   background-color: ${(props) =>
     props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
   border: 1px solid
     ${(props) =>
       props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
+  min-width: 12rem;
   &:hover {
     border-color: ${(props) => props.theme.textPrimary};
   }
@@ -125,20 +80,19 @@ export const CardISV = (props: CardProps) => {
         checked={selected}
         onChange={() => onChange(name)}
       />
-      {link && (
-        <Link
-          href={link}
-          target="_blank"
-          style={{
-            position: 'absolute',
-            bottom: spacing.r10,
-            right: spacing.r24,
-            fontSize: '0.875rem',
-          }}
-        >
-          Learn more <Icon name="External-link"></Icon>
-        </Link>
-      )}
+
+      <Link
+        href={link}
+        target="_blank"
+        style={{
+          position: 'absolute',
+          bottom: spacing.r10,
+          right: spacing.r24,
+          fontSize: '0.875rem',
+        }}
+      >
+        Learn more <Icon name="External-link"></Icon>
+      </Link>
     </CustomLabel>
   );
 };
