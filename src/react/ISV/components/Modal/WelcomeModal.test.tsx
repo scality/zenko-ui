@@ -1,3 +1,4 @@
+import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WelcomeModalInternal } from './WelcomeModal';
@@ -18,6 +19,7 @@ import { useNextLogin } from '../../hooks/useNextLogin';
 import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
 import { QueryClientProvider } from '../../../../QueryClientProvider';
 import { ShellHooksProvider } from '@scality/module-federation';
+import { ThemeProvider } from 'styled-components';
 
 jest.mock('../../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
@@ -25,6 +27,20 @@ jest.mock('../../hooks/useNextLogin', () => ({
 jest.mock('../../../next-architecture/ui/AlertProvider', () => ({
   useAlerts: jest.fn(),
 }));
+jest.mock('../../../next-architecture/domain/business/accounts');
+
+jest.mock('./ISVModal', () => {
+  const originalModule = jest.requireActual('./ISVModal');
+  return {
+    ...originalModule,
+    ISVModalContent: ({ children, ...props }) => (
+      <div data-testid="isv-modal-content" {...props}>
+        {children}
+      </div>
+    ),
+  };
+});
+
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 const server = setupServer(
   rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) => {
@@ -50,7 +66,9 @@ const server = setupServer(
 
 const mockUseNextLogin = useNextLogin as jest.Mock;
 const mockUseAlerts = useAlerts as jest.Mock;
-describe('VeeamWelcomeModal', () => {
+const mockDefaultTheme = {} as any;
+
+describe('WelcomeModal', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
     mockOffsetSize(200, 1000);
@@ -60,35 +78,47 @@ describe('VeeamWelcomeModal', () => {
     queryClient.clear();
   });
   afterAll(() => server.close());
+
   const selectors = {
     welcomeModal: () =>
       screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
-  const VeeamWelcomeModalComponent = (
+
+  const WelcomeModalComponent = (
     <QueryClientProvider client={queryClient}>
-      <ShellHooksProvider
-        shellHooks={mockShellHooks}
-        shellAlerts={mockShellAlerts}
-      >
-        <InternalRouter>
-          <WelcomeModalInternal isFirstTimeLogin={true} />
-        </InternalRouter>
-      </ShellHooksProvider>
+      <ThemeProvider theme={mockDefaultTheme}>
+        <ShellHooksProvider
+          shellHooks={mockShellHooks}
+          shellAlerts={mockShellAlerts}
+        >
+          <InternalRouter>
+            <WelcomeModalInternal isFirstTimeLogin={true} />
+          </InternalRouter>
+        </ShellHooksProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
-  const renderVeeamWelcomeModal = () => {
-    const { unmount, rerender } = render(VeeamWelcomeModalComponent);
+
+  const renderWelcomeModal = () => {
+    const { unmount, rerender } = render(WelcomeModalComponent);
     return { unmount, rerender };
   };
+
+  beforeEach(() => {
+    localStorage.clear();
+    jest.clearAllMocks();
+  });
+
   it('should not display if Veeam account has already created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: false });
     mockUseAlerts.mockReturnValue([]);
     //S
-    renderVeeamWelcomeModal();
+    renderWelcomeModal();
     //E+V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });
+
   it('should render when there is no Veeam account created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     mockUseAlerts.mockReturnValue([]);
@@ -103,7 +133,7 @@ describe('VeeamWelcomeModal', () => {
         );
       }),
     );
-    const { unmount, rerender } = renderVeeamWelcomeModal();
+    const { unmount, rerender } = renderWelcomeModal();
 
     //E
     await waitFor(() => {
@@ -119,13 +149,14 @@ describe('VeeamWelcomeModal', () => {
     unmount();
 
     await act(async () => {
-      render(VeeamWelcomeModalComponent);
+      render(WelcomeModalComponent);
     });
     //V should see the modal again since there is no Veeam account created
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
     });
   });
+
   it('should display when there is no account and it is next login', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     mockUseAlerts.mockReturnValue([]);
@@ -140,7 +171,7 @@ describe('VeeamWelcomeModal', () => {
         );
       }),
     );
-    const { unmount, rerender } = renderVeeamWelcomeModal();
+    const { unmount } = renderWelcomeModal();
     //V
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
@@ -152,11 +183,12 @@ describe('VeeamWelcomeModal', () => {
     unmount();
 
     await act(async () => {
-      render(VeeamWelcomeModalComponent);
+      render(WelcomeModalComponent);
     });
     //V
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });
+
   it('should not display in case of trial license modal displayed', async () => {
     //S
     mockUseAlerts.mockReturnValue([
@@ -170,10 +202,11 @@ describe('VeeamWelcomeModal', () => {
       },
     ]);
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
-    renderVeeamWelcomeModal();
+    renderWelcomeModal();
     //E
     await expectElementNotToBeInDocument(selectors.welcomeModal);
   });
+
   it('should display in case of OVA and not first time login without any accounts', async () => {
     //S
     server.use(
@@ -199,9 +232,11 @@ describe('VeeamWelcomeModal', () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     render(
       <QueryClientProvider client={queryClient}>
-        <InternalRouter>
-          <WelcomeModalInternal isFirstTimeLogin={false} />
-        </InternalRouter>
+        <ThemeProvider theme={mockDefaultTheme}>
+          <InternalRouter>
+            <WelcomeModalInternal isFirstTimeLogin={false} />
+          </InternalRouter>
+        </ThemeProvider>
       </QueryClientProvider>,
     );
     //E+V
