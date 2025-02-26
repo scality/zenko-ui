@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useEffect, useState } from 'react';
-import { VEEAM_FEATURE, XDM_FEATURE } from '../../../../js/config';
+import { XDM_FEATURE } from '../../../../js/config';
 import { LocationV1 } from '../../../../js/managementClient/api';
 import { BucketInfo } from '../../../../types/s3';
 import { AppState } from '../../../../types/state';
@@ -33,7 +33,7 @@ import { DumbErrorModal } from '../../../ui-elements/ErrorHandlerModal';
 import { HelpAsyncNotification } from '../../../ui-elements/Help';
 import { CellLink, TableContainer } from '../../../ui-elements/Table';
 import Table, * as T from '../../../ui-elements/TableKeyValue2';
-import { VeeamCapacityOverviewRow } from '../../../ui-elements/Veeam/VeeamCapacityOverviewRow';
+import { VeeamCapacityOverviewRow } from '../../../ISV/modules/veeam/components/VeeamCapacityOverviewRow';
 
 import { maybePluralize } from '../../../utils';
 import {
@@ -233,16 +233,14 @@ function Overview({ bucket, ingestionStates }: Props) {
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [bucketTaggingToast, setBucketTaggingToast] = useState(true);
   const { tags } = useBucketTagging({ bucketName: bucket.name });
-  const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
 
   // Keep this to avoid breaking changes
   const veeamTagApplication =
     tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
   const isVeeamBucket =
-    (veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
-      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
-      veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8) &&
-    VEEAM_FEATURE_FLAG_ENABLED;
+    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
+    veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
+    veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8;
 
   // New tag for ISV application
   const ISVApplicationTag =

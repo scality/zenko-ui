@@ -10,19 +10,17 @@ import React, { useMemo } from 'react';
 import { CellProps, CoreUIColumn } from 'react-table';
 import { Account } from '../next-architecture/domain/entities/account';
 
-import { VEEAM_FEATURE } from '../../js/config';
 import {
   useCurrentAccount,
   useSetAssumedRole,
 } from '../DataServiceRoleProvider';
 import { useAccountLatestUsedCapacity } from '../next-architecture/domain/business/accounts';
-import { useConfig } from '../next-architecture/ui/ConfigProvider';
+
 import { useMetricsAdapter } from '../next-architecture/ui/MetricsAdapterProvider';
 import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColumn';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import ISVModal from '../ISV/components/ISVModal';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,
@@ -47,7 +45,7 @@ function AccountList({
   setIsISVModalOpen: (value: boolean) => void;
 }) {
   const navigate = useBasenameRelativeNavigate();
-  const { features } = useConfig();
+
   const { isStorageManager } = useAuthGroups();
   useAutoAssumeRoleUponAccountDeletion({ accounts });
   const nameCell = ({ value, row }: CellProps<Account, string>) => {
@@ -139,14 +137,13 @@ function AccountList({
           actions={
             isStorageManager && (
               <Stack>
-                {features.includes(VEEAM_FEATURE) && (
-                  <Button
-                    label="Start Configuration for ISV"
-                    variant="secondary"
-                    onClick={() => setIsISVModalOpen(true)}
-                    type="button"
-                  />
-                )}
+                <Button
+                  label="Start Configuration for ISV"
+                  variant="secondary"
+                  onClick={() => setIsISVModalOpen(true)}
+                  type="button"
+                />
+
                 <Button
                   icon={<Icon name="Create-add" />}
                   label="Create Account"
