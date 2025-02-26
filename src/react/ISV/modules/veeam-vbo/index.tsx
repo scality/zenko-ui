@@ -1,5 +1,5 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
-import { VeeamLogo } from '../../../ui-elements/Veeam/VeeamLogo';
+import { VeeamLogo } from '../veeam/components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
 import { ListItem } from '../index';

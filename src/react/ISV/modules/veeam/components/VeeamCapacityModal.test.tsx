@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 import { bucketName } from '../../../../../js/mock/S3Client';
 import { NewWrapper, TEST_API_BASE_URL } from '../../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
-import { VEEAM_XML_PREFIX } from '../../../../ui-elements/Veeam/VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../../constants';
 import userEvent from '@testing-library/user-event';
 
 describe('VeeamCapacityModal', () => {
