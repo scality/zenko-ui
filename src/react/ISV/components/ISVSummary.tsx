@@ -128,7 +128,7 @@ export const ISVSummary = ({
           variant="primary"
           label="Finish"
           onClick={() => {
-            navigate(`/accounts/${accountName}/buckets/`);
+            navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
           }}
         />
       }
