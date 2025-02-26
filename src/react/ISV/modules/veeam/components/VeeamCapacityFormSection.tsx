@@ -1,12 +1,13 @@
 import { FormGroup, FormSection, Stack } from '@scality/core-ui';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
-import { unitChoices } from './VeeamConstants';
-import { ListItem } from './VeeamTable';
-import { useCapacityUnit } from './useCapacityUnit';
+
 import { useEffect } from 'react';
-import { useXcoreRuntimeConfig } from '../../next-architecture/ui/ConfigProvider';
+import { useXcoreRuntimeConfig } from '../../../../next-architecture/ui/ConfigProvider';
 import { useShellHooks } from '@scality/module-federation';
+import { ListItem } from '../..';
+import { unitChoices } from '../../../constants';
+import { useCapacityUnit } from '../../../hooks/useCapacityUnit';
 
 type XCoreConfig = {
   spec: {
@@ -52,14 +53,9 @@ export const VeeamCapacityFormWithXcore = ({
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
   const xCoreConfig = useXcoreRuntimeConfig();
-  const { clusterCapacity, clusterCapacityStatus } = useClusterCapacity(
-    xCoreConfig,
-    getToken,
-  );
+  const { clusterCapacityStatus } = useClusterCapacity(xCoreConfig, getToken);
   const { setValue } = useFormContext();
-  const { capacityValue, capacityUnit } = useCapacityUnit(
-    clusterCapacityStatus === 'success' ? clusterCapacity * 0.8 : 0,
-  );
+  const { capacityValue, capacityUnit } = useCapacityUnit(0);
   useEffect(() => {
     if (clusterCapacityStatus === 'success') {
       setValue('capacity', capacityValue);
@@ -87,7 +83,6 @@ export const VeeamCapacityFormSection = ({
         id="capacity"
         label="Max Veeam Repository Capacity"
         error={errors.capacity?.message?.toString() ?? ''}
-        help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
         labelHelpTooltip={<VeeamCapacityTooltip />}
         content={

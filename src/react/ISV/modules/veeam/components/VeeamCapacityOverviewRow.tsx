@@ -1,16 +1,16 @@
 import { useQuery } from 'react-query';
-import { VEEAM_FEATURE } from '../../../js/config';
-import { useBucketTagging } from '../../next-architecture/domain/business/buckets';
-import { useConfig } from '../../next-architecture/ui/ConfigProvider';
-import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
-import { getObjectQuery } from '../../queries';
-import * as T from '../TableKeyValue2';
+
+import { useBucketTagging } from '../../../../next-architecture/domain/business/buckets';
+
+import { useS3Client } from '../../../../next-architecture/ui/S3ClientProvider';
+import { getObjectQuery } from '../../../../queries';
+import * as T from '../../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
-} from './VeeamConstants';
+} from '../../../constants';
 import { PrettyBytes } from '@scality/core-ui';
 
 export const VeeamCapacityOverviewRow = ({
@@ -20,14 +20,12 @@ export const VeeamCapacityOverviewRow = ({
 }) => {
   const s3Client = useS3Client();
   const { tags } = useBucketTagging({ bucketName });
-  const { features } = useConfig();
-  const VEEAM_FEATURE_FLAG_ENABLED = features.includes(VEEAM_FEATURE);
+
   const veeamTagApplication =
     tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
 
   const isSOSAPIEnabled =
-    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION &&
-    VEEAM_FEATURE_FLAG_ENABLED;
+    veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;
 
   const { data: veeamObject, status: veeamObjectStatus } = useQuery(
     getObjectQuery({

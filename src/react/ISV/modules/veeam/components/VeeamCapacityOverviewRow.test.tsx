@@ -1,14 +1,14 @@
 import { render, waitFor, screen } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { bucketName } from '../../../js/mock/S3Client';
+import { bucketName } from '../../../../../js/mock/S3Client';
 import {
   NewWrapper,
   TEST_API_BASE_URL,
   mockOffsetSize,
-} from '../../utils/testUtil';
+} from '../../../../utils/testUtil';
 import { VeeamCapacityOverviewRow } from './VeeamCapacityOverviewRow';
-import { VEEAM_XML_PREFIX } from './VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../../constants';
 
 describe('VeeamCapacityOverviewRow', () => {
   const server = setupServer(

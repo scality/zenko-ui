@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-import { bucketName } from '../../../js/mock/S3Client';
-import { NewWrapper, TEST_API_BASE_URL } from '../../utils/testUtil';
+import { bucketName } from '../../../../../js/mock/S3Client';
+import { NewWrapper, TEST_API_BASE_URL } from '../../../../utils/testUtil';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
-import { VEEAM_XML_PREFIX } from './VeeamConstants';
+import { VEEAM_XML_PREFIX } from '../../../../ui-elements/Veeam/VeeamConstants';
 import userEvent from '@testing-library/user-event';
 
 describe('VeeamCapacityModal', () => {
