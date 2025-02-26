@@ -45,6 +45,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
 } from '../../../ISV/constants';
 import { VeeamApplicationType } from '../../../ISV/constants';
 
@@ -240,14 +241,18 @@ function Overview({ bucket, ingestionStates }: Props) {
   // Keep this to avoid breaking changes
   const veeamTagApplication =
     tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
+  // New tag for ISV application
+  const ISVApplicationTag =
+    tags.status === 'success' && tags.value?.[BUCKET_TAG_APPLICATION];
+
   const isVeeamBucket =
     veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
     veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
     veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8;
-
-  // New tag for ISV application
-  const ISVApplicationTag =
-    tags.status === 'success' && tags.value?.[BUCKET_TAG_APPLICATION];
+  const isISVBucketTagAsVeeam =
+    ISVApplicationTag === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
+    ISVApplicationTag === VeeamApplicationType.VEEAM_OFFICE_365 ||
+    ISVApplicationTag === VeeamApplicationType.VEEAM_OFFICE_365_V8;
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -308,7 +313,7 @@ function Overview({ bucket, ingestionStates }: Props) {
                 <T.Key> Versioning </T.Key>
                 <VersionningValue
                   bucketInfo={bucketInfo}
-                  isVeeamBucket={isVeeamBucket}
+                  isVeeamBucket={isVeeamBucket || isISVBucketTagAsVeeam}
                 />
               </T.Row>
               <T.Row>
@@ -332,28 +337,23 @@ function Overview({ bucket, ingestionStates }: Props) {
               )}
             </T.GroupContent>
           </T.Group>
-          {isVeeamBucket && (
-            <T.Group>
-              <T.GroupName> Use-case </T.GroupName>
-              <T.Row>
-                <T.Key> Application </T.Key>
-                <T.Value> Backup - {veeamTagApplication}</T.Value>
-              </T.Row>
+
+          <T.Group>
+            <T.GroupName> Use-case </T.GroupName>
+            <T.Row>
+              <T.Key> Application </T.Key>
+              <T.Value>
+                {isISVBucketTagAsVeeam || isVeeamBucket
+                  ? `Backup - ${ISVApplicationTag || veeamTagApplication}`
+                  : ISVApplicationTag || 'S3 Generic'}
+              </T.Value>
+            </T.Row>
+            {(ISVApplicationTag === VEEAM_BACKUP_REPLICATION ||
+              veeamTagApplication === VEEAM_BACKUP_REPLICATION) && (
               <VeeamCapacityOverviewRow bucketName={bucket.name} />
-            </T.Group>
-          )}
-          {!isVeeamBucket && (
-            <T.Group>
-              <T.GroupName> Use-case </T.GroupName>
-              <T.Row>
-                <T.Key> Application </T.Key>
-                <T.Value> {ISVApplicationTag || 'S3 Generic'}</T.Value>
-              </T.Row>
-              {ISVApplicationTag === 'Veeam Backup & Replication' && (
-                <VeeamCapacityOverviewRow bucketName={bucket.name} />
-              )}
-            </T.Group>
-          )}
+            )}
+          </T.Group>
+
           <T.Group>
             <T.GroupName> Data protection </T.GroupName>
             <T.GroupContent>
