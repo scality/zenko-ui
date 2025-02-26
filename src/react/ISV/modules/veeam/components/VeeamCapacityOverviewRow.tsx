@@ -7,6 +7,7 @@ import { getObjectQuery } from '../../../../queries';
 import * as T from '../../../../ui-elements/TableKeyValue2';
 import { VeeamCapacityModal } from './VeeamCapacityModal';
 import {
+  BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
   VEEAM_OBJECT_KEY,
   VeeamApplicationType,
@@ -22,7 +23,9 @@ export const VeeamCapacityOverviewRow = ({
   const { tags } = useBucketTagging({ bucketName });
 
   const veeamTagApplication =
-    tags.status === 'success' && tags.value?.[BUCKET_TAG_VEEAM_APPLICATION];
+    tags.status === 'success' &&
+    (tags.value?.[BUCKET_TAG_VEEAM_APPLICATION] ||
+      tags.value?.[BUCKET_TAG_APPLICATION]);
 
   const isSOSAPIEnabled =
     veeamTagApplication === VeeamApplicationType.VEEAM_BACKUP_REPLICATION;

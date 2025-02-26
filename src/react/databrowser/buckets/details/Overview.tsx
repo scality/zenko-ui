@@ -42,7 +42,10 @@ import {
 } from '../../../utils/storageOptions';
 import { useWorkflows } from '../../../workflow/Workflows';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { BUCKET_TAG_VEEAM_APPLICATION } from '../../../ISV/constants';
+import {
+  BUCKET_TAG_APPLICATION,
+  BUCKET_TAG_VEEAM_APPLICATION,
+} from '../../../ISV/constants';
 import { VeeamApplicationType } from '../../../ISV/constants';
 
 function capitalize(string: string) {
@@ -244,7 +247,7 @@ function Overview({ bucket, ingestionStates }: Props) {
 
   // New tag for ISV application
   const ISVApplicationTag =
-    tags.status === 'success' && tags.value?.['X-Scality-Application'];
+    tags.status === 'success' && tags.value?.[BUCKET_TAG_APPLICATION];
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));

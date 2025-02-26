@@ -1,4 +1,5 @@
 export const BUCKET_TAG_VEEAM_APPLICATION = 'X-Scality-Veeam-Application';
+export const BUCKET_TAG_APPLICATION = 'X-Scality-Application';
 export const VEEAM_BACKUP_REPLICATION = 'Veeam Backup & Replication';
 export const VEEAM_BACKUP_REPLICATION_XML_VALUE =
   'Veeam Backup &#38; Replication';
