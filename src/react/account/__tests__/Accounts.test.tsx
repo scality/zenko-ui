@@ -76,12 +76,12 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe('Accounts', () => {
-  // const selectors = {
-  //   createAccountButton: () =>
-  //     screen.getByRole('button', { name: /Create Account/i }),
-  //   startVeeamConfgurationButton: () =>
-  //     screen.getByRole('button', { name: /Start Configuration for Veeam/i }),
-  // };
+  const selectors = {
+    createAccountButton: () =>
+      screen.queryByRole('button', { name: /Create Account/i }),
+    startISVConfgurationButton: () =>
+      screen.queryByRole('button', { name: /Start Configuration for ISV/i }),
+  };
 
   it('should list accounts on which user can assume a role', async () => {
     //E
@@ -245,11 +245,8 @@ describe('Accounts', () => {
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
 
-    const createAccountButton = screen.getByRole('button', {
-      name: /Create Account/i,
-    });
-    expect(createAccountButton).toBeInTheDocument();
-    // expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
+    expect(selectors.createAccountButton()).toBeInTheDocument();
+    expect(selectors.startISVConfgurationButton()).toBeInTheDocument();
   });
 
   it('should hide Create Account Button for Storage Account Owner', async () => {
@@ -285,15 +282,11 @@ describe('Accounts', () => {
     //V
     //Wait for account to be loaded
     await waitFor(() => screen.getByText(TEST_ACCOUNT));
-    expect(
-      screen.queryByRole('button', { name: /Create Account/i }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Start Configuration for Veeam/i }),
-    ).not.toBeInTheDocument();
+    expect(selectors.createAccountButton()).not.toBeInTheDocument();
+    expect(selectors.startISVConfgurationButton()).not.toBeInTheDocument();
   });
 
-  it('should display Veeam Configuration for Veeam User and Storage Manager when there are no accounts', async () => {
+  it('should display ISV Configuration for Storage Manager when there are no accounts', async () => {
     // S
     server.use(
       rest.post(`${TEST_API_BASE_URL}/`, (req, res, ctx) =>
@@ -340,7 +333,7 @@ describe('Accounts', () => {
     //V
     await waitFor(() => screen.getByText(NO_ACCOUNT_MESSAGE));
 
-    // expect(selectors.createAccountButton()).toBeInTheDocument();
-    // expect(selectors.startVeeamConfgurationButton()).toBeInTheDocument();
+    expect(selectors.createAccountButton()).toBeInTheDocument();
+    expect(selectors.startISVConfgurationButton()).toBeInTheDocument();
   });
 });
