@@ -1,7 +1,7 @@
 import { Icon, Link, spacing, Stack, Text } from '@scality/core-ui';
 import React from 'react';
 
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import Input from '../../../ui-elements/Input';
 
 type CardProps = {
@@ -11,16 +11,6 @@ type CardProps = {
   selected?: boolean;
   onChange?: (value: React.SetStateAction<string>) => void;
   link: string;
-};
-
-const cardContainerStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  gap: spacing.r32,
-  padding: spacing.r20,
-  alignItems: 'flex-start',
-  borderRadius: '8px',
-  cursor: 'pointer',
 };
 
 const CardContent = (props: {
@@ -41,6 +31,14 @@ const CardContent = (props: {
 };
 
 const CustomLabel = styled.label<{ selected?: boolean }>`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: ${spacing.r32};
+  padding: ${spacing.r20};
+  align-items: flex-start;
+  border-radius: ${spacing.f8};
+  cursor: pointer;
   background-color: ${(props) =>
     props.selected ? props.theme.highlight : props.theme.backgroundLevel4};
   border: 1px solid
@@ -50,29 +48,23 @@ const CustomLabel = styled.label<{ selected?: boolean }>`
   &:hover {
     border-color: ${(props) => props.theme.textPrimary};
   }
-  &:focus-visible {
-    outline: 1px dashed ${(props) => props.theme.highlight};
-  }
+`;
+
+const CustomLink = styled(Link)`
+  position: absolute;
+  bottom: ${spacing.r10};
+  right: ${spacing.r24};
+  font-size: 0.875rem;
 `;
 
 export const CardISV = (props: CardProps) => {
   const { logo, name, application, onChange, selected, link } = props;
   return (
-    <CustomLabel
-      htmlFor={`isv-${name}`}
-      style={{
-        ...cardContainerStyle,
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-      selected={selected}
-    >
+    <CustomLabel htmlFor={`isv-${name}`} selected={selected}>
       <CardContent logo={logo} application={application} />
 
       <Input
-        style={{
-          width: 0,
-        }}
+        style={{ width: 0 }}
         type="radio"
         name="isv"
         value={name}
@@ -81,18 +73,9 @@ export const CardISV = (props: CardProps) => {
         onChange={() => onChange(name)}
       />
 
-      <Link
-        href={link}
-        target="_blank"
-        style={{
-          position: 'absolute',
-          bottom: spacing.r10,
-          right: spacing.r24,
-          fontSize: '0.875rem',
-        }}
-      >
+      <CustomLink href={link} target="_blank">
         Learn more <Icon name="External-link"></Icon>
-      </Link>
+      </CustomLink>
     </CustomLabel>
   );
 };

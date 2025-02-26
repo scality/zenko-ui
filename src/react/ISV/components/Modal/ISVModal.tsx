@@ -1,5 +1,6 @@
 import {
   Banner,
+  Form,
   Icon,
   Link,
   Modal,
@@ -33,6 +34,21 @@ export const StyledGrid = styled.div`
   border-radius: ${spacing.f8};
 `;
 
+const StyledForm = styled(Form)`
+  background-color: ${(props) => props.theme.backgroundLevel2};
+  border-radius: ${spacing.f8};
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 50vh;
+`;
+
+const ModalFooter = styled(Box)`
+  display: flex;
+  width: 100%;
+  height: 64px;
+  align-items: center;
+`;
+
 export const ISVModalContent = ({
   selectedISV,
   setSelectedISV,
@@ -48,13 +64,9 @@ export const ISVModalContent = ({
         Which application would you like to configure with your ARTESCA?
       </Text>
 
-      <form
-        style={{
-          backgroundColor: theme.backgroundLevel2,
-          borderRadius: spacing.f8,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          height: '50vh',
+      <StyledForm
+        layout={{
+          kind: 'tab',
         }}
       >
         <Stack
@@ -101,16 +113,9 @@ export const ISVModalContent = ({
             })}
           </StyledGrid>
         </Stack>
-      </form>
+      </StyledForm>
 
-      <Box
-        style={{
-          display: 'flex',
-          width: '100%',
-          height: '64px',
-          alignItems: 'center',
-        }}
-      >
+      <ModalFooter>
         {selectedISV && (
           <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
             {selectedISV.assistant ? (
@@ -143,7 +148,7 @@ export const ISVModalContent = ({
             )}
           </Banner>
         )}
-      </Box>
+      </ModalFooter>
     </Stack>
   );
 };
