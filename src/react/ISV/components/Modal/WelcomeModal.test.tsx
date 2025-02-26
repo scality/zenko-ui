@@ -107,7 +107,7 @@ describe('WelcomeModal', () => {
     jest.clearAllMocks();
   });
 
-  it('should not display if Veeam account has already created', async () => {
+  it('should not display if account has already been created', async () => {
     mockUseNextLogin.mockReturnValue({ isNextLogin: false });
     mockUseAlerts.mockReturnValue([]);
     //S

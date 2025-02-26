@@ -112,7 +112,8 @@ export const NoAccountWarning = ({
     </EmptyStateRow>
     <EmptyStateRow>
       <LargeText>
-        Launch configuration assitant to create resources needed by Veeam.
+        Launch configuration assitant to create resources needed for your use
+        case or create an account.
       </LargeText>
     </EmptyStateRow>
     <ActionWrapper>{buttonSection}</ActionWrapper>
