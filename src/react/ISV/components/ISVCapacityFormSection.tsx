@@ -39,9 +39,6 @@ const CapacityTooltip = () => (
       it does trigger a warning in the Veeam UI and can potentially stop backup
       activities.
     </ListItem>
-    <ListItem>
-      Prefilled at 80% of the ARTESCA platform's capacity (recommended).
-    </ListItem>
   </ul>
 );
 
@@ -94,7 +91,6 @@ export const CapacityFormSection = ({
         id={`buckets.${index}.capacity`}
         label="Max Veeam Repository Capacity"
         error={errors.buckets?.[index]?.capacity?.message?.toString() ?? ''}
-        help="The recommended value is 80% of the platform's total capacity."
         helpErrorPosition="bottom"
         labelHelpTooltip={<CapacityTooltip />}
         content={
