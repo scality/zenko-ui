@@ -48,6 +48,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
 } from '../../../ISV/constants';
 import { VeeamApplicationType } from '../../../ISV/constants';
+import { VEEAM_VBO_APPLICATION } from '../../../ISV/modules/veeam-vbo';
 
 function capitalize(string: string) {
   return string.toLowerCase().replace(/^\w/, (c) => {
@@ -250,9 +251,8 @@ function Overview({ bucket, ingestionStates }: Props) {
     veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365 ||
     veeamTagApplication === VeeamApplicationType.VEEAM_OFFICE_365_V8;
   const isISVBucketTagAsVeeam =
-    ISVApplicationTag === VeeamApplicationType.VEEAM_BACKUP_REPLICATION ||
-    ISVApplicationTag === VeeamApplicationType.VEEAM_OFFICE_365 ||
-    ISVApplicationTag === VeeamApplicationType.VEEAM_OFFICE_365_V8;
+    ISVApplicationTag === VEEAM_BACKUP_REPLICATION ||
+    ISVApplicationTag === VEEAM_VBO_APPLICATION;
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -381,11 +381,12 @@ function Overview({ bucket, ingestionStates }: Props) {
                             `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
                           );
                         }}
-                        disabled={isVeeamBucket}
+                        disabled={isVeeamBucket || isISVBucketTagAsVeeam}
                         tooltip={{
-                          overlay: isVeeamBucket
-                            ? 'Edition is disabled as it is managed by Veeam.'
-                            : '',
+                          overlay:
+                            isVeeamBucket || isISVBucketTagAsVeeam
+                              ? 'Edition is disabled as it is managed by Veeam.'
+                              : '',
                         }}
                       />
                     </T.GroupValues>

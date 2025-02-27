@@ -91,10 +91,12 @@ export const VeeamVBOInfo: ISVInfo = {
   logo: <VeeamLogo />,
 };
 
+export const VEEAM_VBO_APPLICATION = 'Veeam Backup for Microsoft 365';
+
 export const VeeamVBOCardInfo: ISVCardConfig = {
   ...VeeamVBOInfo,
   assistant: true,
-  application: 'Veeam Backup for Microsoft 365',
+  application: VEEAM_VBO_APPLICATION,
   documentationLink:
     '/docs/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
 };
@@ -102,7 +104,7 @@ export const VeeamVBOCardInfo: ISVCardConfig = {
 export const VeeamVBO: ISVPlatformConfig = {
   ...VeeamVBOInfo,
   description: 'Prepare ARTESCA for ',
-  bucketTag: 'Veeam for Microsoft 365',
+  bucketTag: VEEAM_VBO_APPLICATION,
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}

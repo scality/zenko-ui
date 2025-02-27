@@ -17,11 +17,30 @@ import {
 } from '../../../../../js/mock/S3Client';
 import * as actions from '../../../../actions/s3bucket';
 import {
+  mockShellHooks,
   NewWrapper,
   renderWithRouterMatch,
   zenkoUITestConfig,
 } from '../../../../utils/testUtil';
 import Overview from '../Overview';
+import * as bucketsMutation from '../../../../../react/next-architecture/domain/business/buckets';
+import { VEEAM_VBO_APPLICATION } from '../../../../ISV/modules/veeam-vbo';
+import { Bucket } from '../../../../next-architecture/domain/entities/bucket';
+
+const bucketTest: Bucket = {
+  name: bucketName,
+  creationDate: new Date('2025-02-27T13:47:12.067Z'),
+  locationConstraint: {
+    status: 'success',
+    value: 'us-east-1',
+  },
+  usedCapacity: {
+    status: 'success',
+    value: {
+      type: 'noMetrics',
+    },
+  },
+};
 
 const BUCKET = {
   CreationDate: 'Tue Oct 12 2020 18:38:56',
@@ -44,10 +63,7 @@ const TEST_STATE = {
 describe('Overview', () => {
   it('should render Overview component with given infos', () => {
     renderWithRouterMatch(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
-      />,
+      <Overview bucket={bucketTest} ingestionStates={null} />,
       undefined,
       {
         ...TEST_STATE,
@@ -69,17 +85,14 @@ describe('Overview', () => {
       { label: 'Public', value: 'No' },
     ];
 
-    labelAndValues.forEach(({ label, value }) => {
+    labelAndValues.forEach(({ label }) => {
       expect(screen.getByText(label)).toBeInTheDocument();
-      expect(screen.getByText(label).parentElement).toHaveTextContent(value);
     });
+    expect(screen.queryByText(/Async Metadata Updates/i)).toBeInTheDocument();
   });
-  it('should render toggle versioning in Enable mode', () => {
+  it('should render toggle versioning if Object-lock is disabled', async () => {
     renderWithRouterMatch(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
-      />,
+      <Overview bucket={bucketTest} ingestionStates={null} />,
       undefined,
       {
         ...TEST_STATE,
@@ -89,16 +102,37 @@ describe('Overview', () => {
       },
     );
 
-    expect(screen.getByText(/Versioning/i).parentElement).toHaveTextContent(
-      'Active',
+    await waitFor(() => {
+      expect(selectors.versioningToggle()).toBeInTheDocument();
+    });
+    //V
+    expect(selectors.versioningToggle()).toBeEnabled();
+  });
+  it('should not render toggle versioning if Object-lock is enabled but display Enabled and help text', async () => {
+    renderWithRouterMatch(
+      <Overview bucket={bucketTest} ingestionStates={null} />,
+      undefined,
+      {
+        ...TEST_STATE,
+        s3: {
+          bucketInfo: bucketInfoResponseObjectLockNoDefaultRetention,
+        },
+      },
     );
+
+    await waitFor(() => {
+      expect(selectors.versioningToggle()).not.toBeInTheDocument();
+    });
+    //V
+    expect(
+      screen.getByText(
+        /Versioning cannot be suspended because Object-lock is enabled for this bucket./,
+      ),
+    ).toBeInTheDocument();
   });
   it('should render object lock information in Enabled mode without default retention', () => {
     renderWithRouterMatch(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
-      />,
+      <Overview bucket={bucketTest} ingestionStates={null} />,
       undefined,
       {
         ...TEST_STATE,
@@ -121,10 +155,7 @@ describe('Overview', () => {
   });
   it('should render object lock information in Enabled mode with default retention', () => {
     renderWithRouterMatch(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
-      />,
+      <Overview bucket={bucketTest} ingestionStates={null} />,
       undefined,
       {
         ...TEST_STATE,
@@ -143,6 +174,22 @@ describe('Overview', () => {
     labelAndValues.forEach(({ label, value }) => {
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByText(label).parentElement).toHaveTextContent(value);
+    });
+  });
+  it('should not display Async Metadata update if XDM feature is not enabled', async () => {
+    const useConfigMock = mockShellHooks.useConfig;
+    useConfigMock.mockReturnValue({
+      features: [],
+    });
+    //E
+    render(<Overview bucket={bucketTest} ingestionStates={undefined} />, {
+      wrapper: NewWrapper(),
+    });
+    //V
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/Async Metadata Updates/i),
+      ).not.toBeInTheDocument();
     });
   });
   it.skip('should trigger deleteBucket function when approving clicking on delete button when modal popup', async () => {
@@ -179,22 +226,175 @@ describe('Overview', () => {
     userEvent.click(confirmDeleteButton);
     expect(deleteBucketMock).toHaveBeenCalledWith(bucketName);
   });
-  it('should disable the versioning toogle for Azure Blob Storage', async () => {
-    //S
-    renderWithRouterMatch(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={BUCKET}
-      />,
-      undefined,
-      {
-        ...TEST_STATE,
-        ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
-      },
-    );
-    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
-    await waitFor(() => {
-      expect(selectors.inActiveVersioningToggle()).toHaveAttribute('disabled');
+  describe('Versioning toggle', () => {
+    it('should disable the versioning toggle for Azure Blob Storage', async () => {
+      //S
+      renderWithRouterMatch(
+        <Overview
+          //@ts-expect-error fix this when you are working on it
+          bucket={BUCKET}
+        />,
+        undefined,
+        {
+          ...TEST_STATE,
+          ...{ s3: { bucketInfo: bucketInfoResponseVersioningDisabled } },
+        },
+      );
+
+      await waitFor(() => {
+        expect(selectors.versioningToggle()).toHaveAttribute('disabled');
+      });
+      await userEvent.hover(selectors.versioningToggle());
+      expect(
+        screen.getByText(
+          /Enabling versioning is not possible due to the bucket being hosted on Microsoft Azure/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should disable the versioning toggle for Veeam bucket', async () => {
+      //S
+      server.use(
+        mockBucketOperations({
+          isVersioningEnabled: false,
+          isVeeamTagged: true,
+          isObjectLockEnabled: false,
+        }),
+      );
+      //E
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      //V
+      await waitFor(() => {
+        expect(selectors.versioningToggle()).toBeInTheDocument();
+      });
+
+      // toBeDisabled() works only with the following element, but not with label.
+      // https://html.spec.whatwg.org/multipage/semantics-other.html#disabled-elements
+      // https://github.com/testing-library/jest-dom/blob/e8c8b13c6de2a0ccffaa6539809c8c11f141beca/src/to-be-disabled.js#L71
+      await waitFor(() => {
+        expect(selectors.versioningToggle()).toHaveAttribute('disabled');
+      });
+      await userEvent.hover(selectors.versioningToggle());
+      expect(
+        screen.getByText(
+          /Enabling versioning is not possible due to the bucket being managed by Veeam./i,
+        ),
+      ).toBeInTheDocument();
+    });
+    it('should call the updateBucketVersioning function when clicking on the toggle versioning button', async () => {
+      const useUpdateBucketVersioningMock = jest.fn();
+      server.use(
+        rest.put(`${TEST_API_BASE_URL}/${BUCKET_NAME}`, (req, res, ctx) => {
+          useUpdateBucketVersioningMock(req.body);
+          return res(ctx.status(200));
+        }),
+        mockBucketOperations({
+          isVersioningEnabled: false,
+          isObjectLockEnabled: false,
+        }),
+      );
+
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      await waitFor(() => {
+        expect(selectors.versioningToggle()).toBeEnabled();
+      });
+      await userEvent.click(selectors.versioningToggle());
+      await waitFor(() => {
+        expect(useUpdateBucketVersioningMock).toHaveBeenCalledWith(
+          mockResponse,
+        );
+      });
+    });
+  });
+  describe('Application', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+    it('should render the application name and the use-case for previous Veeam Tag', async () => {
+      //S
+      server.use(mockGetBucketTagging(bucketName));
+
+      //E
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      //V
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+    it('should render application name and use-case for Bucket tagged as Veeam', async () => {
+      //S
+      jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+        return {
+          tags: {
+            status: 'success',
+            value: {
+              [`${BUCKET_TAG_APPLICATION}`]: VEEAM_VBO_APPLICATION,
+            },
+          },
+        };
+      });
+      //E
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      //V
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            new RegExp(`Backup - ${VEEAM_VBO_APPLICATION}`, 'i'),
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+    it('should render the application name if Bucket is tagged', async () => {
+      //S
+      jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+        return {
+          tags: {
+            status: 'success',
+            value: {
+              [`${BUCKET_TAG_APPLICATION}`]: 'Commvault',
+            },
+          },
+        };
+      });
+      //E
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      //V
+      await waitFor(() => {
+        expect(screen.getByText(/Commvault/i)).toBeInTheDocument();
+      });
+    });
+    it('should render S3 Generic use-case if no tag is found', async () => {
+      //S
+      jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+        return {
+          tags: {
+            status: 'success',
+            value: {},
+          },
+        };
+      });
+      //E
+      render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+        wrapper: NewWrapper(),
+      });
+      //V
+      await waitFor(() => {
+        expect(screen.getByText(/S3 Generic/i)).toBeInTheDocument();
+      });
     });
   });
 });
@@ -216,6 +416,7 @@ import {
 import {
   ACCOUNT_ID,
   USERS,
+  azureblobstorage,
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../../../js/mock/managementClientMSWHandlers';
@@ -223,7 +424,10 @@ import {
   BUCKET_NAME,
   INSTANCE_ID,
 } from '../../../../actions/__tests__/utils/testUtil';
-import { VEEAM_BACKUP_REPLICATION } from '../../../../ISV/constants';
+import {
+  BUCKET_TAG_APPLICATION,
+  VEEAM_BACKUP_REPLICATION,
+} from '../../../../ISV/constants';
 import { TEST_API_BASE_URL } from '../../../../utils/testUtil';
 
 const mockResponse =
@@ -292,8 +496,7 @@ const selectors = {
     screen.getByRole('generic', {
       name: /indicate if object lock is enabled/i,
     }),
-  inActiveVersioningToggle: () =>
-    screen.getByRole('checkbox', { name: /inactive/i }),
+  versioningToggle: () => screen.queryByRole('checkbox'),
 };
 
 describe('Overview', () => {
@@ -310,60 +513,25 @@ describe('Overview', () => {
       }),
     );
 
-    render(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={{ name: bucketName }}
-      />,
-      { wrapper: NewWrapper() },
-    );
-    await waitFor(() => {
-      expect(selectors.inActiveVersioningToggle()).toBeEnabled();
+    render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+      wrapper: NewWrapper(),
     });
-    await userEvent.click(selectors.inActiveVersioningToggle());
+    await waitFor(() => {
+      expect(selectors.versioningToggle()).toBeEnabled();
+    });
+    await userEvent.click(selectors.versioningToggle());
     await waitFor(() => {
       expect(useUpdateBucketVersioningMock).toHaveBeenCalledWith(mockResponse);
     });
-  });
-
-  it('should display the Veeam use-case and disable the edition of default retention', async () => {
-    //Setup
-    server.use(mockGetBucketTagging(bucketName));
-    //Exercise
-    render(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={{ name: bucketName }}
-      />,
-      {
-        wrapper: NewWrapper(),
-      },
-    );
-    //Verify
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
-        ),
-      ).toBeInTheDocument();
-    });
-    expect(selectors.editDefaultRetentionButton()).toBeDisabled();
-    expect(selectors.isObjectLockEnabled()).toHaveTextContent('Enabled');
   });
 
   it('should show error toast when loading bucket tagging failed', async () => {
     //Setup
     server.use(mockGetBucketTaggingError(bucketName));
     //Exercise
-    render(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={{ name: bucketName }}
-      />,
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+      wrapper: NewWrapper(),
+    });
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
@@ -380,48 +548,55 @@ describe('Overview', () => {
     //Setup
     server.use(mockGetBucketTaggingNoSuchTagSet(bucketName));
     //Exercise
-    render(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={{ name: bucketName }}
-      />,
-      {
-        wrapper: NewWrapper(),
-      },
-    );
+    render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+      wrapper: NewWrapper(),
+    });
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
     });
   });
-
-  it('should disable the versioning toggle for Veeam bucket', async () => {
-    //S
-    server.use(
-      mockBucketOperations({
-        isVersioningEnabled: false,
-        isVeeamTagged: true,
-        isObjectLockEnabled: false,
-      }),
-    );
-    //E
-    render(
-      <Overview
-        //@ts-expect-error fix this when you are working on it
-        bucket={{ name: bucketName }}
-      />,
-      { wrapper: NewWrapper() },
-    );
-    //V
-    await waitFor(() => {
-      expect(selectors.inActiveVersioningToggle()).toBeInTheDocument();
+  it('should disable the edition of default retention for Veeam Bucket', async () => {
+    //Setup
+    server.use(mockGetBucketTagging(bucketName));
+    //Exercise
+    render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+      wrapper: NewWrapper(),
     });
-
-    // toBeDisabled() works only with the following element, but not with label.
-    // https://html.spec.whatwg.org/multipage/semantics-other.html#disabled-elements
-    // https://github.com/testing-library/jest-dom/blob/e8c8b13c6de2a0ccffaa6539809c8c11f141beca/src/to-be-disabled.js#L71
+    //Verify
     await waitFor(() => {
-      expect(selectors.inActiveVersioningToggle()).toHaveAttribute('disabled');
+      expect(
+        screen.getByText(
+          new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
+        ),
+      ).toBeInTheDocument();
     });
+    expect(selectors.editDefaultRetentionButton()).toBeDisabled();
+    expect(selectors.isObjectLockEnabled()).toHaveTextContent('Enabled');
+  });
+  it('should disable the edition of default retention for Bucket tagges as Veeam', async () => {
+    //Setup
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'success',
+          value: {
+            [`${BUCKET_TAG_APPLICATION}`]: VEEAM_VBO_APPLICATION,
+          },
+        },
+      };
+    });
+    //Exercise
+    render(<Overview bucket={bucketTest} ingestionStates={null} />, {
+      wrapper: NewWrapper(),
+    });
+    //Verify
+    await waitFor(() => {
+      expect(
+        screen.getByText(new RegExp(`Backup - ${VEEAM_VBO_APPLICATION}`, 'i')),
+      ).toBeInTheDocument();
+    });
+    expect(selectors.editDefaultRetentionButton()).toBeDisabled();
+    expect(selectors.isObjectLockEnabled()).toHaveTextContent('Enabled');
   });
 });
