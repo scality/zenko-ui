@@ -305,7 +305,6 @@ describe('Accounts', () => {
         iamInternalFQDN: TEST_API_BASE_URL,
         s3InternalFQDN: TEST_API_BASE_URL,
         basePath: '',
-        features: ['Veeam'],
       };
     });
 

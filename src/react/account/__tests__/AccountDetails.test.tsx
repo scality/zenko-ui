@@ -5,7 +5,6 @@ import {
   renderWithRouterMatch,
 } from '../../utils/testUtil';
 import AccountDetails from '../AccountDetails';
-import { debug } from 'jest-preview';
 
 const account1 = {
   arn: 'arn1',
@@ -45,19 +44,26 @@ describe('AccountDetails', () => {
       },
     );
     expect(component.queryByRole('tablist')).toBeFalsy();
-    expect(component.getByText('Account not found.')).toBeInTheDocument();
+    waitFor(() => {
+      expect(component.getByText('Account not found.')).toBeInTheDocument();
+    });
   });
 
   it('should render AccountDetails component without access keys for non storage manager users', async () => {
-    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
+          original: {
+            session_state: 'xxx-yyy-zzzz-id',
+          },
           id: 'xxx-yyy-zzzz-id',
           token: 'xxx-yyy-zzz-token',
           username: 'Renard ADMIN',
           email: 'renard.admin@scality.com',
           groups: ['user', 'PlatformAdmin'],
+        },
+        getToken: async (): Promise<string> => {
+          return 'xxx-yyy-zzz-token';
         },
       };
     });
