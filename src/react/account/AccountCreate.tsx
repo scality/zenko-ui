@@ -18,6 +18,7 @@ import { useSetAssumedRole } from '../DataServiceRoleProvider';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const regexpEmailAddress = /^\S+@\S+.\S+$/;
 const regexpName = /^[\w+=,.@ -]+$/;
@@ -50,6 +51,7 @@ function AccountCreate() {
     resolver: joiResolver(schema),
   });
   const navigate = useNavigate();
+  const basenameRelativeNavigate = useBasenameRelativeNavigate();
 
   const setRole = useSetAssumedRole();
   const instanceId = useInstanceId();
@@ -86,7 +88,7 @@ function AccountCreate() {
                 roleArn: `arn:aws:iam::${data.id}:role/scality-internal/storage-manager-role`,
               });
               queryClient.invalidateQueries(['WebIdentityRoles']);
-              navigate(`/accounts/${name}`);
+              basenameRelativeNavigate(`/accounts/${name}`);
             },
           });
         },
