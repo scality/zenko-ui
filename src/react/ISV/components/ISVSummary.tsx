@@ -28,15 +28,15 @@ export const DEFAULT_REGION = 'us-east-1';
 const WrapperWithWidth = styled(Wrap)`
   width: 20rem;
 `;
+const Container = styled.div`
+  background-color: ${(props) => props.theme.backgroundLevel4};
+  padding: ${spacing.r16};
+`;
 
 const Level4FormSection = ({
   children,
   title,
 }: Parameters<typeof FormSection>[0]) => {
-  const Container = styled.div`
-    background-color: ${(props) => props.theme.backgroundLevel4};
-    padding: ${spacing.r16};
-  `;
   return (
     <Container>
       <FormSection title={title}>{children}</FormSection>
@@ -86,7 +86,7 @@ const getImmutabilitySectionInfo = (
     };
 };
 
-type ISVSummaryProps = ISVConfig & {
+export type ISVSummaryProps = ISVConfig & {
   accessKey: string;
   secretKey: string;
   platform: ISVPlatformConfig;
@@ -115,7 +115,6 @@ export const ISVSummary = ({
   }\t${secretKey ? accessKey : accessKeys.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
   }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`;
-
   return (
     <Form
       layout={{
@@ -139,6 +138,7 @@ export const ISVSummary = ({
         The next steps involve managing Certificates and entering specific
         ARTESCA details within the {platform.name} application
       </Text>
+
       {isPlatformAdmin ? (
         <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
