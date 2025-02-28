@@ -23,7 +23,7 @@ export enum ISVStepsIndexes {
   Summary,
 }
 
-type ISVStepperContextType = {
+export type ISVStepperContextType = {
   platform: ISVPlatformConfig;
   config: ISVConfig;
   setConfig: (config: ISVConfig) => void;

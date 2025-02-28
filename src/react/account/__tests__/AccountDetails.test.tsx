@@ -21,15 +21,20 @@ const useAuth = mockShellHooks.useAuth;
 
 describe('AccountDetails', () => {
   beforeEach(() => {
-    //@ts-expect-error fix this when you are working on it
     useAuth.mockImplementation(() => {
       return {
         userData: {
+          original: {
+            session_state: 'xxx-yyy-zzzz-id',
+          },
           id: 'xxx-yyy-zzzz-id',
           token: 'xxx-yyy-zzz-token',
           username: 'Renard ADMIN',
           email: 'renard.admin@scality.com',
           groups: ['StorageManager', 'user', 'PlatformAdmin'],
+        },
+        getToken: async (): Promise<string> => {
+          return 'xxx-yyy-zzz-token';
         },
       };
     });
