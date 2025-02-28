@@ -11,6 +11,7 @@ import { CommonPolicyLayout } from './AccountEditCommonLayout';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 type PolicyFormValues = {
   policyName: string;
   policyDocument: string;
@@ -18,6 +19,7 @@ type PolicyFormValues = {
 
 const CreateAccountPolicy = () => {
   const IAMClient = useIAMClient();
+  const basenameNavigate = useBasenameRelativeNavigate();
   const navigate = useNavigate();
   const { accountName } = useParams<{ accountName: string }>();
   const dispatch = useDispatch();
@@ -54,7 +56,7 @@ const CreateAccountPolicy = () => {
     },
     {
       onSuccess: () => {
-        navigate(`/accounts/${accountName}/policies`);
+        basenameNavigate(`/accounts/${accountName}/policies`);
         queryClient.invalidateQueries(
           getListPoliciesQuery(accountName, IAMClient).queryKey,
         );
