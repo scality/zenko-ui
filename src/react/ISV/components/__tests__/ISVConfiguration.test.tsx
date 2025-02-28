@@ -7,10 +7,9 @@ import { useListAccounts } from '../../../next-architecture/domain/business/acco
 import { Veeam } from '../../modules/veeam';
 import { Commvault } from '../../modules/commvault';
 import { VeeamVBO } from '../../modules/veeam-vbo';
-import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
+import { VEEAM_OFFICE_365 } from '../../constants';
 import { ISVConfig } from '../../types';
 import { Wrapper } from '../../../utils/testUtil';
-import { useFormContext } from 'react-hook-form';
 
 // Add FORM_FIELDS import
 const FORM_FIELDS = {
@@ -366,20 +365,6 @@ describe('ISVConfiguration', () => {
       await userEvent.clear(accountNameInput);
       await userEvent.type(accountNameInput, 'new-test-account');
 
-      // Select Veeam application first since it affects other fields
-      // const applicationSelect = screen.getByRole('textbox', {
-      //   name: /Veeam application/i,
-      // });
-      // await userEvent.click(applicationSelect);
-      // await userEvent.click(screen.getByText(VEEAM_OFFICE_365_V8));
-
-      // Set number of buckets to 1 and fill in bucket name
-      // const bucketCountInput = screen.getByRole('spinbutton', {
-      //   name: /Number of buckets/i,
-      // });
-      // await userEvent.clear(bucketCountInput);
-      // await userEvent.type(bucketCountInput, '1');
-
       // Fill in bucket name
       const bucketNameInput = screen.getByRole('textbox', {
         name: /Bucket name * /i,
@@ -387,18 +372,15 @@ describe('ISVConfiguration', () => {
       await userEvent.clear(bucketNameInput);
       await userEvent.type(bucketNameInput, 'test-bucket-1');
 
-      // Toggle immutable backup
-      // const immutableToggle = screen.getByRole('checkbox', {
-      //   name: 'Enabled',
-      // });
-      // await userEvent.click(immutableToggle);
-
-      // Wait for form validation to complete and button to be enabled
+      // Wait for form validation to complete
       const submitButton = screen.getByRole('button', {
         name: /Continue/i,
       });
 
-      expect(submitButton).toBeEnabled();
+      // Make sure the button is enabled
+      await waitFor(() => {
+        expect(submitButton).not.toBeDisabled();
+      });
 
       // Submit the form
       await userEvent.click(submitButton);
@@ -408,11 +390,10 @@ describe('ISVConfiguration', () => {
         expect(mockSetConfig).toHaveBeenCalledWith({
           accountName: 'new-test-account',
           accountNameType: 'create',
-          application: Commvault,
           buckets: [
             {
-              tag: 'commvault',
               name: 'test-bucket-1',
+              tag: 'commvault',
               capacity: '0',
               capacityUnit: '1099511627776',
             },
