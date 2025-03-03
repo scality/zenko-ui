@@ -84,7 +84,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     formState: { errors },
   } = useFormContext<FormValues>();
 
-  const { fields, append, remove, replace } = useFieldArray({
+  const { fields, append, replace } = useFieldArray({
     name: 'buckets',
     control,
   });
@@ -116,9 +116,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     }
 
     if (newNumber < fields.length) {
-      for (let i = fields.length - 1; i >= newNumber; i--) {
-        remove(i);
-      }
+      replace(fields.slice(0, newNumber));
     } else if (newNumber > fields.length) {
       const newFields = Array(newNumber - fields.length).fill({
         name: '',
