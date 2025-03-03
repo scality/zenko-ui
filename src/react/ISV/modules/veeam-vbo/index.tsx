@@ -6,6 +6,7 @@ import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_OFFICE_365_V8 } from '../../constants';
+import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 
 const AccountTooltip = () => {
   return (
@@ -105,6 +106,15 @@ export const VeeamVBO: ISVPlatformConfig = {
   ...VeeamVBOInfo,
   description: 'Prepare ARTESCA for ',
   bucketTag: VEEAM_VBO_APPLICATION,
+  getPolicy: GET_VEEAM_POLICY,
+  immutabilitySummaryOverride: ({ isImmutable, application }) => ({
+    label: 'Immutable Backup',
+    helpText: isImmutable
+      ? application === VEEAM_OFFICE_365_V8
+        ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+        : 'Ensure "Make backups immutable" is checked when configuring the bucket in Veeam.'
+      : undefined,
+  }),
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}

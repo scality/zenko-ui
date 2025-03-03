@@ -1,4 +1,14 @@
-import { GET_ISV_POLICY, GET_VEEAM_POLICY } from './ISVPolicy';
+import { GET_COMMVAULT_POLICY, GET_VEEAM_POLICY } from './ISVPolicy';
+
+const immutableActions = [
+  's3:ListBucketVersions',
+  's3:GetObjectVersion',
+  's3:GetObjectRetention',
+  's3:GetObjectLegalHold',
+  's3:PutObjectRetention',
+  's3:PutObjectLegalHold',
+  's3:DeleteObjectVersion',
+];
 
 describe('ISVPolicy', () => {
   const testBuckets = ['test-bucket-1', 'test-bucket-2'];
@@ -27,20 +37,6 @@ describe('ISVPolicy', () => {
       );
       expect(parsedPolicy.Statement[0].Resource).toContain(
         `arn:aws:s3:::${testBuckets[1]}/*`,
-      );
-
-      // Check immutable-specific actions
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:PutObjectRetention',
-      );
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:PutObjectLegalHold',
-      );
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:GetObjectRetention',
-      );
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:GetObjectLegalHold',
       );
     });
 
@@ -85,27 +81,9 @@ describe('ISVPolicy', () => {
     });
   });
 
-  const immutableActions = [
-    's3:ListBucketVersions',
-    's3:GetObjectVersion',
-    's3:GetObjectRetention',
-    's3:GetObjectLegalHold',
-    's3:PutObjectRetention',
-    's3:PutObjectLegalHold',
-    's3:DeleteObjectVersion',
-  ];
-  describe('GET_ISV_POLICY', () => {
-    it('should return Veeam policy for veeam application', () => {
-      const veeamPolicy = GET_ISV_POLICY(testBuckets, 'veeam', true);
-      const veeamVboPolicy = GET_ISV_POLICY(testBuckets, 'veeam-vbo', true);
-      const veeamPolicyFromFunction = GET_VEEAM_POLICY(testBuckets, true);
-
-      expect(veeamPolicy).toBe(veeamPolicyFromFunction);
-      expect(veeamVboPolicy).toBe(veeamPolicyFromFunction);
-    });
-
-    it('should return Commvault policy for commvault application', () => {
-      const commvaultPolicy = GET_ISV_POLICY(testBuckets, 'commvault', true);
+  describe('GET_COMMVAULT_POLICY', () => {
+    it('should return correct Commvault policy', () => {
+      const commvaultPolicy = GET_COMMVAULT_POLICY(testBuckets, true);
       const parsedPolicy = JSON.parse(commvaultPolicy);
 
       expect(parsedPolicy.Version).toBe('2012-10-17');
@@ -128,19 +106,6 @@ describe('ISVPolicy', () => {
       expect(parsedPolicy.Statement[0].Resource).toContain(
         `arn:aws:s3:::${testBuckets[1]}/*`,
       );
-
-      // Check immutable-specific actions
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:PutObjectRetention',
-      );
-      expect(parsedPolicy.Statement[0].Action).toContain(
-        's3:PutObjectLegalHold',
-      );
-    });
-
-    it('should return default policy for unknown application', () => {
-      const defaultPolicy = GET_ISV_POLICY(testBuckets, 'unknown', true);
-      expect(defaultPolicy).toBe('Default Policy');
     });
   });
 

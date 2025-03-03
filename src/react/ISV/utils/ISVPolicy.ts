@@ -48,7 +48,7 @@ export const GET_VEEAM_POLICY = (buckets: string[], isImmutable: boolean) => {
     ],
   });
 };
-const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
+export const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
   JSON.stringify({
     Version: '2012-10-17',
     Statement: [
@@ -71,19 +71,3 @@ const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
       },
     ],
   });
-export const GET_ISV_POLICY = (
-  buckets: string[],
-  application: string,
-  enableImmutableBackup: boolean,
-) => {
-  switch (application) {
-    case 'veeam':
-      return GET_VEEAM_POLICY(buckets, enableImmutableBackup);
-    case 'veeam-vbo':
-      return GET_VEEAM_POLICY(buckets, enableImmutableBackup);
-    case 'commvault':
-      return GET_COMMVAULT_POLICY(buckets, enableImmutableBackup);
-    default:
-      return 'Default Policy';
-  }
-};

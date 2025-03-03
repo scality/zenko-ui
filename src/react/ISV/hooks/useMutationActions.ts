@@ -6,7 +6,7 @@ import {
   useCreateAccountMutation,
   useCreateIAMUserMutation,
   useCreateUserAccessKeyMutation,
-  usePolicyMutation,
+  useCreateOrAddBucketToPolicyMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
@@ -69,7 +69,7 @@ export const useMutationActions = (
   const createAccountMutation = useCreateAccountMutation();
   const createIAMUserMutation = useCreateIAMUserMutation();
   const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
-  const createPolicyMutation = usePolicyMutation();
+  const createPolicyMutation = useCreateOrAddBucketToPolicyMutation();
   const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
 
   const generateStepsAndActions = () => {
@@ -265,15 +265,19 @@ export const useMutationActions = (
       createUserAccessKey: () => ({
         userName: IAMUserName || accountName,
       }),
-      createPolicy: () => {
+      createPolicy: (results) => {
+        const policyName = `${IAMUserName || accountName}-${platform.id}-${
+          enableImmutableBackup ? 'immutable' : 'non-immutable'
+        }`;
+        const accountId = account
+          ? account.id
+          : (results[0] as { id: string }).id;
         return {
-          policyName: `${IAMUserName || accountName}-${platform.id}-${
-            enableImmutableBackup ? 'immutable' : 'non-immutable'
-          }`,
-          accountName: accountName,
+          policyName,
           bucketsName: buckets.map((bucket) => bucket.name),
-          application: platform.id,
           isImmutable: enableImmutableBackup,
+          policyArn: `arn:aws:iam::${accountId}:policy/${policyName}`,
+          getPolicy: platform.getPolicy,
         };
       },
       attachPolicyToUser: (results) => {

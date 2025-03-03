@@ -16,11 +16,6 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
-import {
-  VEEAM_BACKUP_REPLICATION,
-  VEEAM_OFFICE_365,
-  VEEAM_OFFICE_365_V8,
-} from '../constants';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 
 export const DEFAULT_REGION = 'us-east-1';
@@ -49,43 +44,6 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
-export const getImmutabilitySectionInfo = (
-  application: string,
-  isImmutable: boolean,
-) => {
-  if (application === 'COMMVAULT') {
-    return {
-      help: undefined,
-      label: 'WORM',
-      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
-    };
-  } else if (
-    application === VEEAM_OFFICE_365 ||
-    application === VEEAM_BACKUP_REPLICATION
-  ) {
-    return {
-      help:
-        isImmutable &&
-        'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.',
-      label: 'Immutable backup',
-      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
-    };
-  } else if (application === VEEAM_OFFICE_365_V8) {
-    return {
-      help:
-        isImmutable &&
-        'Ensure "Make backups immutable" is checked when configuring the bucket in Veeam.',
-      label: 'Immutable backup',
-      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
-    };
-  } else
-    return {
-      help: undefined,
-      label: 'Object-Lock',
-      content: <Text>{isImmutable ? 'Active' : 'Inactive'}</Text>,
-    };
-};
-
 export type ISVSummaryProps = ISVConfig & {
   accessKey: string;
   secretKey: string;
@@ -105,10 +63,11 @@ export const ISVSummary = ({
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform, config } = useISVStepper();
-  const immutableSectionInfos = getImmutabilitySectionInfo(
-    config.application || platform.name,
-    enableImmutableBackup,
-  );
+
+  const immutableSectionInfos = platform.immutabilitySummaryOverride({
+    isImmutable: enableImmutableBackup,
+    application: config.application,
+  });
 
   const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     secretKey ? 'Access key ID' : 'Access key IDs'
@@ -324,10 +283,12 @@ export const ISVSummary = ({
           <FormGroup
             id="immutable"
             required
-            label={immutableSectionInfos.label}
+            label={immutableSectionInfos.label || 'Object-lock'}
             helpErrorPosition="bottom"
-            help={immutableSectionInfos.help}
-            content={immutableSectionInfos.content}
+            help={immutableSectionInfos.helpText}
+            content={
+              <Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
+            }
           />
         </FormSection>
       </Level4FormSection>

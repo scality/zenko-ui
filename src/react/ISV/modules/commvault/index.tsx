@@ -5,6 +5,7 @@ import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { CommvaultLogo } from './components/CommvaultLogo';
+import { GET_COMMVAULT_POLICY } from '../../utils/ISVPolicy';
 
 const AccountTooltip = () => {
   return (
@@ -81,6 +82,10 @@ export const Commvault: ISVPlatformConfig = {
   logo: <CommvaultLogo />,
   description: 'Prepare ARTESCA for ',
   bucketTag: 'Commvault',
+  getPolicy: GET_COMMVAULT_POLICY,
+  immutabilitySummaryOverride: () => ({
+    label: 'WORM Storage lock',
+  }),
   skipModalContent: (
     <Text>
       To start COMMVAULT assistant configuration again, you can go to the{' '}
@@ -108,6 +113,7 @@ export const Commvault: ISVPlatformConfig = {
       tooltip: <EnableImmutableBackupTooltip />,
     },
   ],
+
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),

@@ -11,8 +11,7 @@ import { notFalsyTypeGuard } from '../types/typeGuards';
 import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
-import { getListPoliciesQuery } from '../react/queries';
-import { GET_ISV_POLICY } from '../react/ISV/utils/ISVPolicy';
+import { getPolicyInfoQuery } from '../react/queries';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -167,7 +166,7 @@ const useCreatePolicyMutation = () => {
   });
 };
 
-const usePolicyMutation = () => {
+const useCreateOrAddBucketToPolicyMutation = () => {
   const IAMClient = useIAMClient();
   const queryClient = useQueryClient();
 
@@ -175,45 +174,43 @@ const usePolicyMutation = () => {
     mutationFn: async ({
       policyName,
       bucketsName,
-      accountName,
-      application,
       isImmutable,
+      policyArn,
+      getPolicy,
     }: {
       policyName: string;
-
-      accountName: string;
       bucketsName: string[];
-      application: string;
       isImmutable: boolean;
+      policyArn: string;
+      getPolicy: (bucketsName: string[], isImmutable: boolean) => string;
     }) => {
-      const policies = await queryClient.fetchQuery(
-        getListPoliciesQuery(accountName, IAMClient),
-      );
-      const policy = policies.Policies.find(
-        (policy) => policy.PolicyName === policyName,
-      );
-      if (!policy) {
-        const policyDocument = GET_ISV_POLICY(
-          bucketsName,
-          application,
-          isImmutable,
-        );
+      const { Policy: policyData } = await queryClient
+        .fetchQuery(getPolicyInfoQuery(policyArn, IAMClient))
+        .catch((error) => {
+          const notFound = error.toString().includes('NoSuchEntity');
+          if (notFound) {
+            return { Policy: null };
+          } else throw error;
+        });
+
+      if (!policyData) {
+        const policyDocument = getPolicy(bucketsName, isImmutable);
         return IAMClient.createPolicy(policyName, policyDocument);
       }
 
-      const policyVersions = await IAMClient.listPolicyVersions(policy.Arn);
+      const policyVersions = await IAMClient.listPolicyVersions(policyData.Arn);
       if (policyVersions.Versions.length === 5) {
         const firstNonDefaultVersion = policyVersions.Versions.find(
           (version) => !version.IsDefaultVersion,
         );
         await IAMClient.deletePolicyVersion(
-          policy.Arn,
+          policyData.Arn,
           firstNonDefaultVersion.VersionId,
         );
       }
       const defaultPolicy = await IAMClient.getPolicyVersion(
-        policy.Arn,
-        policy.DefaultVersionId,
+        policyData.Arn,
+        policyData.DefaultVersionId,
       );
 
       const policyDocument = defaultPolicy.PolicyVersion.Document;
@@ -228,7 +225,7 @@ const usePolicyMutation = () => {
           .flat(),
       );
       const newPolicyDocument = JSON.stringify(policyJSON, null, 2);
-      return IAMClient.createPolicyVersion(policy.Arn, newPolicyDocument);
+      return IAMClient.createPolicyVersion(policyData.Arn, newPolicyDocument);
     },
   });
 };
@@ -308,5 +305,5 @@ export {
   usePutBucketTaggingMutation,
   usePutBucketTaggingMutationByS3Client,
   usePutObjectMutation,
-  usePolicyMutation,
+  useCreateOrAddBucketToPolicyMutation,
 };

@@ -6,6 +6,7 @@ import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
+import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 
 const AccountTooltip = () => {
   return (
@@ -110,6 +111,7 @@ export const Veeam: ISVPlatformConfig = {
       also prompt you on your next login.
     </Text>
   ),
+  getPolicy: GET_VEEAM_POLICY,
   fieldOverrides: [
     {
       name: 'accountName',
@@ -141,6 +143,12 @@ export const Veeam: ISVPlatformConfig = {
       tooltip: <EnableImmutableBackupTooltip />,
     },
   ],
+  immutabilitySummaryOverride: ({ isImmutable }) => ({
+    label: 'Immutable Backup',
+    helpText: isImmutable
+      ? 'Ensure "Make recent backups immutable" is checked when configuring the bucket in Veeam.'
+      : undefined,
+  }),
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),

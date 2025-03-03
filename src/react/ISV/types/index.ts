@@ -60,12 +60,23 @@ export type FieldOverride = {
   additional?: React.JSX.Element[];
 };
 
+export type ImmutabilitySummaryOverride = (options?: {
+  isImmutable?: boolean;
+  application?: string;
+}) => {
+  label: string;
+  tooltip?: React.JSX.Element;
+  helpText?: string;
+};
+
 export type ISVPlatformConfig = ISVInfo & {
   description: string;
   bucketTag: string;
   skipModalContent?: React.JSX.Element;
   fieldOverrides: FieldOverride[];
   validator?: Joi.ObjectSchema<ISVConfig>;
+  getPolicy: (buckets: string[], isImmutable: boolean) => string;
+  immutabilitySummaryOverride?: ImmutabilitySummaryOverride;
 };
 
 export type ISVSummaryData = {

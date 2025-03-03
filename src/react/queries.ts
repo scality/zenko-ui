@@ -207,6 +207,16 @@ export const getPolicyQuery = (
   refetchOnWindowFocus: false,
 });
 
+export const getPolicyInfoQuery = (
+  policyArn: string,
+  IAMClient: IAMClient,
+) => ({
+  queryKey: ['getPolicyInfo', policyArn],
+  queryFn: () => IAMClient.getPolicy(policyArn),
+  enabled: IAMClient !== null,
+  refetchOnWindowFocus: false,
+});
+
 export const getListPolicyVersionsQuery = (
   policyArn: string,
   IAMClient: IAMClient,
