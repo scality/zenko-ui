@@ -1,12 +1,7 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
 import React, { useEffect } from 'react';
 import { Input } from '@scality/core-ui/dist/next';
-import {
-  FieldErrors,
-  useFieldArray,
-  useFormContext,
-  UseFormRegister,
-} from 'react-hook-form';
+import { FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
 
 import { XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
@@ -47,33 +42,34 @@ const BucketNameFormGroup = ({
   bucketNamePlaceholder,
   bucketNumber,
   bucketNameTooltip,
-  register,
 }: {
   index: number;
   errors: FieldErrors<FormValues>;
   bucketNamePlaceholder: string;
   bucketNumber: number;
   bucketNameTooltip: React.JSX.Element;
-  register: UseFormRegister<FormValues>;
-}) => (
-  <FormGroup
-    id={`bucketName-${index}`}
-    label={bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'}
-    required
-    labelHelpTooltip={bucketNameTooltip}
-    error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
-    helpErrorPosition="bottom"
-    content={
-      <Input
-        id={`bucketName-${index}`}
-        type="text"
-        autoComplete="off"
-        placeholder={bucketNamePlaceholder}
-        {...register(`buckets.${index}.name`)}
-      />
-    }
-  />
-);
+}) => {
+  const { register } = useFormContext<FormValues>();
+  return (
+    <FormGroup
+      id={`bucketName-${index}`}
+      label={bucketNumber > 1 ? `Bucket #${index + 1} name` : 'Bucket name'}
+      required
+      labelHelpTooltip={bucketNameTooltip}
+      error={(errors?.buckets?.[index]?.name?.message as string) ?? ''}
+      helpErrorPosition="bottom"
+      content={
+        <Input
+          id={`bucketName-${index}`}
+          type="text"
+          autoComplete="off"
+          placeholder={bucketNamePlaceholder}
+          {...register(`buckets.${index}.name`)}
+        />
+      }
+    />
+  );
+};
 
 const BucketField = (fieldOverrides: BucketFieldProps) => {
   const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
@@ -82,7 +78,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
   const theme = useTheme();
 
   const {
-    register,
     control,
     formState: { errors },
   } = useFormContext<FormValues>();
@@ -172,7 +167,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
             bucketNamePlaceholder={bucketNamePlaceholder}
             bucketNumber={fields.length}
             bucketNameTooltip={bucketNameTooltip}
-            register={register}
           />
           {renderCapacitySection(0)}
         </FormSection>
@@ -197,7 +191,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
                 bucketNamePlaceholder={bucketNamePlaceholder}
                 bucketNumber={fields.length}
                 bucketNameTooltip={bucketNameTooltip}
-                register={register}
               />
               {renderCapacitySection(index)}
             </div>
