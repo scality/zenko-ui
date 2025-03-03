@@ -40,6 +40,7 @@ const mockVeeamPlatform: ISVPlatformConfig = {
   description: 'Veeam Backup & Replication',
   bucketTag: 'veeam',
   fieldOverrides: [],
+  getPolicy: jest.fn(),
 };
 const BUCKET_NAME = 'bucket-name';
 const SERVICE_POINT = 's3.test.local';
@@ -444,6 +445,7 @@ describe('ISVSummary', () => {
         description: 'Commvault',
         bucketTag: 'commvault',
         fieldOverrides: [],
+        getPolicy: jest.fn(),
       };
       render(
         <ISVStepperContext.Provider
@@ -518,6 +520,7 @@ describe('ISVSummary', () => {
         description: 'Veeam Backup for Microsoft Office 365 V8',
         bucketTag: 'veeam',
         fieldOverrides: [],
+        getPolicy: jest.fn(),
       };
       render(
         <ISVStepperContext.Provider

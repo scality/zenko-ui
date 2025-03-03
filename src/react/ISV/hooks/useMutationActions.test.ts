@@ -9,7 +9,7 @@ import {
   useCreateAccountMutation,
   useCreateIAMUserMutation,
   useCreateUserAccessKeyMutation,
-  usePolicyMutation,
+  useCreateOrAddBucketToPolicyMutation,
   useAttachPolicyToUserMutation,
 } from '../../../js/mutations';
 import { useMutation } from 'react-query';
@@ -43,7 +43,7 @@ jest.mock('../../../js/mutations', () => ({
   useCreateAccountMutation: jest.fn(),
   useCreateIAMUserMutation: jest.fn(),
   useCreateUserAccessKeyMutation: jest.fn(),
-  usePolicyMutation: jest.fn(),
+  useCreateOrAddBucketToPolicyMutation: jest.fn(),
   useAttachPolicyToUserMutation: jest.fn(),
 }));
 
@@ -208,7 +208,7 @@ describe('useMutationActions', () => {
     });
 
     // Mock create policy
-    (usePolicyMutation as jest.Mock).mockReturnValue({
+    (useCreateOrAddBucketToPolicyMutation as jest.Mock).mockReturnValue({
       mutate: jest.fn(),
       status: 'success',
       data: { Policy: { Arn: 'policy-arn' } },

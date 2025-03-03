@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import ISVModal from './ISVModal';
 import { Wrapper } from '../../../utils/testUtil';
-import { ISVList } from '../ISVList';
+import { ISVList } from '../../ISVList';
 import userEvent from '@testing-library/user-event';
 
 describe('ISVModal', () => {
