@@ -1,16 +1,15 @@
-import React from 'react';
-import { VeeamVBOCardInfo } from '../modules/veeam-vbo';
-import { ISVCardConfig } from '../types';
-import CohesityLogo from './Modal/Logos/CohesityLogo';
-import CteraLogo from './Modal/Logos/CteraLogo';
-import HycuLogo from './Modal/Logos/HycuLogo';
-import KastenLogo from './Modal/Logos/KastenLogo';
-import RubrikLogo from './Modal/Logos/RubrikLogo';
-import SplunkLogo from './Modal/Logos/SplunkLogo';
-import VeritasLogo from './Modal/Logos/VeritasLogo';
-import ZertoLogo from './Modal/Logos/ZertoLogo';
-import { VeeamCardInfo } from '../modules/veeam';
-import { CommvaultCardInfo } from '../modules/commvault';
+import { VeeamVBOCardInfo } from './modules/veeam-vbo';
+import { ISVCardConfig } from './types';
+import CohesityLogo from './components/Modal/Logos/CohesityLogo';
+import CteraLogo from './components/Modal/Logos/CteraLogo';
+import HycuLogo from './components/Modal/Logos/HycuLogo';
+import KastenLogo from './components/Modal/Logos/KastenLogo';
+import RubrikLogo from './components/Modal/Logos/RubrikLogo';
+import SplunkLogo from './components/Modal/Logos/SplunkLogo';
+import VeritasLogo from './components/Modal/Logos/VeritasLogo';
+import ZertoLogo from './components/Modal/Logos/ZertoLogo';
+import { VeeamCardInfo } from './modules/veeam';
+import { CommvaultCardInfo } from './modules/commvault';
 
 export const ISVList: ISVCardConfig[] = [
   VeeamVBOCardInfo,
@@ -78,19 +77,3 @@ export const ISVList: ISVCardConfig[] = [
       '/docs/partner_applications/validated_designs/cohesity_cloud_archive.html',
   },
 ];
-
-export type ISVConfigurationProps = {
-  application: 'Veeam' | 'Commvault';
-  bucketTag: 'Veeam' | 'Commvault';
-  logo: React.JSX.Element;
-  fieldOverrides: [
-    {
-      name: string;
-      label?: string;
-      tooltip?: React.JSX.Element;
-      helpText?: string;
-      placeholder?: string;
-      additionnal?: React.JSX.Element[];
-    },
-  ];
-};
