@@ -13,7 +13,12 @@ import {
   Toggle,
 } from '@scality/core-ui';
 import { Accordion, Button, Input, Select } from '@scality/core-ui/dist/next';
-import { FormProvider, useForm, Controller } from 'react-hook-form';
+import {
+  FormProvider,
+  useForm,
+  Controller,
+  useFormContext,
+} from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
@@ -65,9 +70,6 @@ const IAMUserTypeOptions = [
 ];
 
 const NameField = ({
-  register,
-  control,
-  errors,
   isExist,
   status,
   options,
@@ -77,6 +79,11 @@ const NameField = ({
   getIAMUsersMutation = null,
   setAccount = null,
 }) => {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext();
   const isAccount = fieldType === 'account';
   const fieldName = isAccount
     ? FORM_FIELDS.ACCOUNT_NAME
@@ -122,7 +129,7 @@ const NameField = ({
         error={
           isExist && type === 'create'
             ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : errors[fieldName]?.message ?? ''
+            : (errors[fieldName]?.message as string) ?? ''
         }
         content={
           <Stack gap="r8" direction="vertical">
@@ -231,9 +238,8 @@ export const ISVConfiguration = () => {
   const {
     handleSubmit,
     control,
-    formState: { errors, isValid },
+    formState: { isValid },
     watch,
-    register,
   } = methods;
   const navigate = useBasenameRelativeNavigate();
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
@@ -395,9 +401,6 @@ export const ISVConfiguration = () => {
           </Stack>
 
           <NameField
-            register={register}
-            control={control}
-            errors={errors}
             isExist={isAccountExist}
             status={accounts.status}
             options={_accounts}
@@ -411,9 +414,6 @@ export const ISVConfiguration = () => {
           {accountNameType === 'existing' && accountName && (
             <Accordion title="Advanced settings" id="advanced-settings">
               <NameField
-                register={register}
-                control={control}
-                errors={errors}
                 isExist={isIAMUserExist}
                 status={IAMUsersStatus}
                 options={IAMUsers}
