@@ -48,7 +48,7 @@ export const ISVConfiguration = () => {
     return null;
   }
 
-  const methods = useForm<ISVConfig>({
+  const formMethods = useForm<ISVConfig>({
     mode: 'all',
     defaultValues: config,
     resolver: joiResolver(platform.validator),
@@ -60,7 +60,7 @@ export const ISVConfiguration = () => {
     control,
     formState: { isValid },
     watch,
-  } = methods;
+  } = formMethods;
   const navigate = useBasenameRelativeNavigate();
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = new NoOpMetricsAdapter();
@@ -99,12 +99,12 @@ export const ISVConfiguration = () => {
     IAMUserNameType,
     onIAMUsersLoaded: (users) => {
       if (users.length > 0) {
-        methods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-        methods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
       }
     },
     onShouldGenerateKey: (shouldGenerateKey) => {
-      methods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+      formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
     },
   });
 
@@ -179,7 +179,7 @@ export const ISVConfiguration = () => {
   );
 
   return (
-    <FormProvider {...methods}>
+    <FormProvider {...formMethods}>
       <ISVSkipModal
         isOpen={skipConfirmationModalIsDisplayed}
         close={() => setSkipConfirmationModalIsDisplayed(false)}
