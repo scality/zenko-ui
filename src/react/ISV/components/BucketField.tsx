@@ -17,6 +17,9 @@ import {
 } from './ISVCapacityFormSection';
 import { unitChoices } from '../constants';
 
+const MIN_BUCKETS = 1;
+const MAX_BUCKETS = 20;
+
 const defaultBucketNameTooltip = (
   <Text>Choose an unique name for your bucket</Text>
 );
@@ -115,7 +118,11 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.valueAsNumber;
 
-    if (newNumber < 1 || newNumber > 20 || isNaN(newNumber)) {
+    if (
+      newNumber < MIN_BUCKETS ||
+      newNumber > MAX_BUCKETS ||
+      isNaN(newNumber)
+    ) {
       return;
     }
 
@@ -217,8 +224,8 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
               value={fields.length}
               onChange={handleBucketNumberChange}
               size="1/3"
-              min={1}
-              max={20}
+              min={MIN_BUCKETS}
+              max={MAX_BUCKETS}
             />
           }
         />
