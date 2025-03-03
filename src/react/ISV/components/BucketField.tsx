@@ -97,7 +97,11 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
         capacity: '0',
         capacityUnit: unitChoices.TiB.toString(),
       });
-    } else {
+    }
+  }, []);
+
+  useEffect(() => {
+    if (fields.length > 0) {
       const updatedFields = fields.map((field) => ({
         name: field.name,
         tag: platform,
@@ -106,7 +110,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       }));
       replace(updatedFields);
     }
-  }, [platform, fields.length]);
+  }, [platform]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.valueAsNumber;
