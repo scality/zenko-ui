@@ -1,5 +1,5 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Input } from '@scality/core-ui/dist/next';
 import {
   FieldErrors,
@@ -77,7 +77,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     fieldOverrides;
 
   const theme = useTheme();
-  const [bucketNumber, setBucketNumber] = useState<number>(1);
 
   const {
     register,
@@ -116,8 +115,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       return;
     }
 
-    setBucketNumber(newNumber);
-
     if (newNumber < fields.length) {
       for (let i = fields.length - 1; i >= newNumber; i--) {
         remove(i);
@@ -137,7 +134,9 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
 
   const xCoreLibrary = useXCoreLibrary();
   const { useClusterCapacity } =
-    xCoreLibrary === XCORE_NOT_AVAILABLE ? () => ({}) : xCoreLibrary;
+    xCoreLibrary === XCORE_NOT_AVAILABLE
+      ? { useClusterCapacity: undefined }
+      : xCoreLibrary;
 
   const renderCapacitySection = (index: number) => {
     if (platform !== 'veeam') {
@@ -162,7 +161,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
             index={0}
             errors={errors}
             bucketNamePlaceholder={bucketNamePlaceholder}
-            bucketNumber={bucketNumber}
+            bucketNumber={fields.length}
             bucketNameTooltip={bucketNameTooltip}
             register={register}
           />
@@ -187,7 +186,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
                 index={index}
                 errors={errors}
                 bucketNamePlaceholder={bucketNamePlaceholder}
-                bucketNumber={bucketNumber}
+                bucketNumber={fields.length}
                 bucketNameTooltip={bucketNameTooltip}
                 register={register}
               />
@@ -213,7 +212,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
             <Input
               id="bucketNumber"
               type="number"
-              value={bucketNumber}
+              value={fields.length}
               onChange={handleBucketNumberChange}
               size="1/3"
               min={1}
