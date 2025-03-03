@@ -16,6 +16,7 @@ import AlertProvider, {
 import { useShellHooks } from '@scality/module-federation';
 import { ISVModalContent } from './ISVModal';
 import { ISVCardConfig } from '../../types';
+import { useLocation } from 'react-router';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -36,9 +37,10 @@ export const WelcomeModalInternal = (props: NavbarUpdaterComponentProps) => {
   const { alerts } = useAlerts({
     alertname: TRIAL_LICENSE,
   });
+  const location = useLocation();
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isAlreadyInConfigurationView =
-    window.location.pathname.endsWith('/configuration');
+    location.pathname.endsWith('/configuration');
   const { isNextLogin } = useNextLogin();
   const isTrialLicenseModalDisplayed =
     alerts?.length > 0 && props.isFirstTimeLogin && isPlatformAdmin;
