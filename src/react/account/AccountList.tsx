@@ -138,7 +138,7 @@ function AccountList({
             isStorageManager && (
               <Stack>
                 <Button
-                  label="Start Configuration for ISV"
+                  label="Start ISV Connector"
                   variant="secondary"
                   onClick={() => setIsISVModalOpen(true)}
                   type="button"

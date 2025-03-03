@@ -80,7 +80,7 @@ describe('Accounts', () => {
     createAccountButton: () =>
       screen.queryByRole('button', { name: /Create Account/i }),
     startISVConfgurationButton: () =>
-      screen.queryByRole('button', { name: /Start Configuration for ISV/i }),
+      screen.queryByRole('button', { name: /Start ISV Connector/i }),
   };
 
   it('should list accounts on which user can assume a role', async () => {

@@ -70,7 +70,7 @@ const Accounts = () => {
                 buttonSection={
                   <>
                     <Button
-                      label="Start Configuration for ISV"
+                      label="Start ISV Connector"
                       variant="primary"
                       onClick={() => setIsISVModalOpen(true)}
                     />
