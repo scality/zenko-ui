@@ -2,29 +2,21 @@ import { useMemo, useRef, useState } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
-  Checkbox,
   Form,
   FormGroup,
   FormSection,
   Icon,
-  Loader,
   Stack,
   Text,
   Toggle,
 } from '@scality/core-ui';
-import { Accordion, Button, Input, Select } from '@scality/core-ui/dist/next';
-import {
-  FormProvider,
-  useForm,
-  Controller,
-  useFormContext,
-} from 'react-hook-form';
+import { Accordion, Button, Select } from '@scality/core-ui/dist/next';
+import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import { ISVStepsIndexes, useISVStepper } from './ISVSteps';
 import { ISVSkipModal } from './ISVSkipModal';
-import { RadioGroup } from './RadioGroup';
 import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
@@ -32,7 +24,7 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
-
+import { NameField } from './NameField';
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
   ACCOUNT_NAME_TYPE: 'accountNameType',
@@ -46,178 +38,6 @@ const FORM_FIELDS = {
 
 const isImmutableBackupEnabled = (application: string) =>
   application === undefined || application === VEEAM_OFFICE_365_V8;
-
-const accountTypeOptions = [
-  {
-    value: 'create',
-    label: 'Create a new account',
-  },
-  {
-    value: 'existing',
-    label: 'Use an existing Account',
-  },
-];
-
-const IAMUserTypeOptions = [
-  {
-    value: 'create',
-    label: 'Create a new IAM User',
-  },
-  {
-    value: 'existing',
-    label: 'Use an existing IAM User',
-  },
-];
-
-const NameField = ({
-  isExist,
-  status,
-  options,
-  platform,
-  type,
-  fieldType,
-  getIAMUsersMutation = null,
-  setAccount = null,
-}) => {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext();
-  const isAccount = fieldType === 'account';
-  const fieldName = isAccount
-    ? FORM_FIELDS.ACCOUNT_NAME
-    : FORM_FIELDS.IAM_USER_NAME;
-  const typeFieldName = isAccount
-    ? FORM_FIELDS.ACCOUNT_NAME_TYPE
-    : FORM_FIELDS.IAM_USER_NAME_TYPE;
-  const radioOptions = isAccount ? accountTypeOptions : IAMUserTypeOptions;
-
-  return (
-    <Stack gap="r8" direction="vertical">
-      <FormGroup
-        id={fieldName}
-        label={isAccount ? 'Account' : 'IAM User Management'}
-        required
-        labelHelpTooltip={
-          platform.fieldOverrides.find(
-            (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
-          ).tooltip
-        }
-        content={
-          <Controller
-            name={typeFieldName}
-            control={control}
-            defaultValue={type}
-            render={({ field: { onChange, value } }) => (
-              <RadioGroup
-                options={radioOptions}
-                value={value}
-                onChange={onChange}
-                direction="vertical"
-              />
-            )}
-          />
-        }
-      />
-
-      <FormGroup
-        id={fieldName}
-        label={isAccount ? 'Account Name' : 'IAM User Name'}
-        required
-        helpErrorPosition="bottom"
-        error={
-          isExist && type === 'create'
-            ? `${isAccount ? 'Account' : 'IAM User'} name already exists`
-            : (errors[fieldName]?.message as string) ?? ''
-        }
-        content={
-          <Stack gap="r8" direction="vertical">
-            {type === 'create' ? (
-              <Input
-                id={fieldName}
-                type="text"
-                autoComplete="off"
-                placeholder={
-                  status === 'success' && options.length !== 0
-                    ? `${platform.id}-backup`
-                    : undefined
-                }
-                {...register(fieldName)}
-              />
-            ) : (
-              <Controller
-                name={fieldName}
-                control={control}
-                defaultValue={options.length > 0 ? options[0].name : ''}
-                render={({ field: { onChange, value } }) => (
-                  <Select
-                    menuPosition="fixed"
-                    id={fieldName}
-                    onChange={(value) => {
-                      if (getIAMUsersMutation) {
-                        const roleArn = options.find(
-                          (option) => option.name === value,
-                        ).preferredAssumableRoleArn;
-                        getIAMUsersMutation.mutate(roleArn);
-                      }
-                      if (isAccount) {
-                        const account = options.find(
-                          (option) => option.name === value,
-                        );
-                        setAccount(account);
-                      }
-                      onChange(value);
-                    }}
-                    value={value}
-                    placeholder={`Select existing ${
-                      isAccount ? 'account' : 'user'
-                    }`}
-                  >
-                    {status === 'loading' && (
-                      <Select.Option
-                        disabled
-                        disabledReason="Please wait until the list is loaded"
-                        key="loading"
-                        value="loading"
-                        icon={<Loader size="small" />}
-                      >
-                        Loading...
-                      </Select.Option>
-                    )}
-                    {options.map((item) => (
-                      <Select.Option key={item.name} value={item.name}>
-                        {item.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                )}
-              />
-            )}
-
-            {!isAccount && type === 'existing' && (
-              <Controller
-                name={FORM_FIELDS.GENERATE_KEY}
-                control={control}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <Checkbox
-                      id={FORM_FIELDS.GENERATE_KEY}
-                      value={value}
-                      label="Generate a new set of AK/SK"
-                      onChange={onChange}
-                      checked={value}
-                    />
-                  );
-                }}
-              />
-            )}
-          </Stack>
-        }
-      />
-    </Stack>
-  );
-};
 
 export const ISVConfiguration = () => {
   const { platform, config, setConfig } = useISVStepper();
@@ -289,7 +109,6 @@ export const ISVConfiguration = () => {
   });
 
   const onSubmit = async (data: ISVConfig) => {
-    console.log('Form submitted with data:', data);
     setConfig(data);
     next({
       ...data,
@@ -404,11 +223,16 @@ export const ISVConfiguration = () => {
             isExist={isAccountExist}
             status={accounts.status}
             options={_accounts}
-            platform={platform}
+            platform={platform.id}
             type={accountNameType}
-            fieldType="account"
-            getIAMUsersMutation={getIAMUsersMutation}
-            setAccount={setAccount}
+            fieldName={FORM_FIELDS.ACCOUNT_NAME}
+            label="Account"
+            tooltip={
+              platform.fieldOverrides.find(
+                (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
+              ).tooltip
+            }
+            onFieldNameChange={{ getIAMUsersMutation, setAccount }}
           />
 
           {accountNameType === 'existing' && accountName && (
@@ -417,9 +241,10 @@ export const ISVConfiguration = () => {
                 isExist={isIAMUserExist}
                 status={IAMUsersStatus}
                 options={IAMUsers}
-                platform={platform}
                 type={IAMUserNameType}
-                fieldType="iamUser"
+                platform={platform.id}
+                fieldName={FORM_FIELDS.IAM_USER_NAME}
+                label="IAM User Management"
               />
             </Accordion>
           )}
