@@ -1,8 +1,7 @@
 import { useState, JSX } from 'react';
-import MiddleEllipsis from './MiddleEllipsis';
 
 import styled from 'styled-components';
-import { spacing } from '@scality/core-ui';
+import { ConstrainedText, spacing } from '@scality/core-ui';
 const HideContainer = styled.div`
   display: flex;
   align-items: center;
@@ -10,7 +9,6 @@ const HideContainer = styled.div`
 const HideValue = styled.div<{ shown?: boolean }>`
   ${(props) => props.shown && 'width: 15rem;'}
   overflow: hidden;
-  text-wrap: nowrap;
 `;
 const HideAction = styled.div`
   margin-left: ${spacing.r8};
@@ -26,15 +24,7 @@ export function HideCredential({ credentials }: { credentials: string }) {
   return (
     <HideContainer>
       <HideValue shown={shown}>
-        {shown ? (
-          <MiddleEllipsis
-            text={credentials}
-            tooltipPlacement="top"
-            tooltipWidth="21rem"
-          />
-        ) : (
-          '*********'
-        )}
+        {shown ? <ConstrainedText text={credentials} /> : '*********'}
       </HideValue>
       <HideAction onClick={() => setShown(!shown)}>
         {shown ? 'Hide' : 'Show'}

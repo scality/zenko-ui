@@ -3,12 +3,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 
 import { DEFAULT_REGION, ISVSummary, ISVSummaryProps } from '../ISVSummary';
 import userEvent from '@testing-library/user-event';
-import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../constants';
+import {
+  VEEAM_BACKUP_REPLICATION,
+  VEEAM_DEFAULT_ACCOUNT_NAME,
+  VEEAM_OFFICE_365_V8,
+} from '../../constants';
 
 import { mockShellHooks, Wrapper } from '../../../utils/testUtil';
 import { ISVStepperContext, ISVStepperContextType } from '../ISVSteps';
 import { ISVPlatformConfig } from '../../types';
-import { debug } from 'jest-preview';
+
 import * as modFed from '@scality/module-federation';
 
 const useAuth = mockShellHooks.useAuth;
@@ -48,7 +52,7 @@ const mockStepperContext: ISVStepperContextType = {
     accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
     enableImmutableBackup: true,
     buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
-    application: 'VEEAM_BACKUP_REPLICATION_XML_VALUE',
+    application: VEEAM_BACKUP_REPLICATION,
     accountNameType: 'create',
   },
   setConfig: jest.fn(),
@@ -89,7 +93,7 @@ const CERTIFICATE_SECTION_TITLE = '1. Certificates';
 const CREDENTIALS_SECTION_TITLE = 'Credentials';
 const BUCKET_SECTION_TITLE = 'Buckets';
 const CONFIGURATION_SUMMARY_TITLE = (platformName: string) =>
-  `2. Information for the ${platformName} configuration`;
+  new RegExp(`Information for the ${platformName} configuration`, 'i');
 const SUMMARY_TITLE = (platformName) => /preparation summary/;
 
 jest.setTimeout(10000);
@@ -367,14 +371,13 @@ describe('ISVSummary', () => {
     expect(finishButton).toBeInTheDocument();
     expect(finishButton).toBeEnabled();
     await userEvent.click(finishButton);
-    debug();
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/buckets/bucket-name');
     });
     expect(finishButton).toBeDisabled();
     //V
   });
-  it.skip('should render the VeeamSumamry with certificate download button', async () => {
+  it.skip('should render the ISVSummary with certificate download button', async () => {
     useAuth.mockImplementation(() => {
       return {
         userData: {
@@ -431,5 +434,131 @@ describe('ISVSummary', () => {
     expect(selectors.certificateSection()).toBeInTheDocument();
     expect(selectors.certificateButton()).toBeInTheDocument();
   });
-  describe('Immutability Section', () => {});
+  describe('Immutability Section', () => {
+    it('should render WORM storage lock for Commvault', async () => {
+      //S
+      const mockCommvaultPlatform: ISVPlatformConfig = {
+        name: 'COMMVAULT',
+        logo: <div />,
+        id: 'commvault',
+        description: 'Commvault',
+        bucketTag: 'commvault',
+        fieldOverrides: [],
+      };
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockCommvaultPlatform,
+            config: {
+              accountName: 'Commvault',
+              enableImmutableBackup: true,
+              buckets: [{ name: BUCKET_NAME, tag: 'commvault' }],
+            },
+            setConfig: jest.fn(),
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockCommvaultPlatform}
+                      accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      enableImmutableBackup={true}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      //E+V
+      expect(screen.getByText(/WORM/i)).toBeInTheDocument();
+    });
+    it('should render Immutability Section with help text for Veeam Backup & Replication', async () => {
+      //S
+      useAuth.mockImplementation(() => {
+        return mockAuthUserData;
+      });
+      render(
+        <ISVStepperContext.Provider value={mockStepperContext}>
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return <ISVSummary {...mockSummaryProps} />;
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+      //E+V
+      expect(screen.getByText(/Immutable backup/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Ensure "Make recent backups immutable"/i),
+      ).toBeInTheDocument();
+    });
+    it('should render Immutability Section with help text for Veeam VBO V8', async () => {
+      //S
+      const mockVeeamVBOV8Platform: ISVPlatformConfig = {
+        name: 'Veeam',
+        logo: <div />,
+        id: 'veeam',
+        description: 'Veeam Backup for Microsoft Office 365 V8',
+        bucketTag: 'veeam',
+        fieldOverrides: [],
+      };
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockVeeamVBOV8Platform,
+            config: {
+              application: VEEAM_OFFICE_365_V8,
+              accountName: 'Veeam',
+              enableImmutableBackup: true,
+              buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
+            },
+            setConfig: jest.fn(),
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockVeeamVBOV8Platform}
+                      accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      enableImmutableBackup={true}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+      //E+V
+      expect(screen.getByText(/Immutable backup/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Ensure "Make backups immutable"/i),
+      ).toBeInTheDocument();
+    });
+  });
 });

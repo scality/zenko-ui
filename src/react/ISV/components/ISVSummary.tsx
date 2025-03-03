@@ -49,7 +49,7 @@ const Separator = styled.div`
   height: ${spacing.r32};
 `;
 
-const getImmutabilitySectionInfo = (
+export const getImmutabilitySectionInfo = (
   application: string,
   isImmutable: boolean,
 ) => {
