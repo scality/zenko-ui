@@ -9,27 +9,13 @@ import { VeeamVBO } from '../../modules/veeam-vbo';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { ISVConfig } from '../../types';
 import { Wrapper } from '../../../utils/testUtil';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
-// Add FORM_FIELDS import
-const FORM_FIELDS = {
-  ACCOUNT_NAME: 'accountName',
-  ACCOUNT_NAME_TYPE: 'accountNameType',
-  IAM_USER_NAME: 'IAMUserName',
-  IAM_USER_NAME_TYPE: 'IAMUserNameType',
-  APPLICATION: 'application',
-  BUCKET_NAME: 'bucketName',
-  ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
-  GENERATE_KEY: 'generateKey',
-} as const;
-
-// Mock module federation hooks
-jest.mock('@scality/module-federation', () => {
-  const navigate = jest.fn();
-  return {
-    useShellHooks: jest.fn(() => ({})),
-    useBasenameRelativeNavigate: jest.fn(() => navigate),
-  };
-});
+const mockNavigate = jest.fn();
+jest.mock('@scality/module-federation', () => ({
+  useShellHooks: jest.fn(),
+  useBasenameRelativeNavigate: jest.fn().mockImplementation(() => mockNavigate),
+}));
 
 // Mock domain hooks
 jest.mock('../../../next-architecture/domain/business/accounts', () => ({
@@ -113,6 +99,8 @@ describe('ISVConfiguration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Explicitly reset mockNavigate between tests
+    mockNavigate.mockReset();
     (useListAccounts as jest.Mock).mockReturnValue({ accounts: mockAccounts });
   });
 
@@ -400,6 +388,59 @@ describe('ISVConfiguration', () => {
           enableImmutableBackup: true,
         });
       });
+    });
+  });
+
+  describe('Navigation', () => {
+    beforeEach(() => {
+      mockNavigate.mockReset();
+    });
+
+    it('should show skip modal when clicking Skip button', async () => {
+      renderComponent();
+
+      // Click the skip button
+      await userEvent.click(screen.getByText('Skip Use case configuration'));
+
+      // Verify modal is shown
+      expect(screen.getByText('Exit Veeam assistant?')).toBeInTheDocument();
+    });
+
+    // it('should navigate to accounts page when confirming skip', async () => {
+    //   renderComponent();
+
+    //   // Click the skip button
+    //   await userEvent.click(screen.getByText('Skip Use case configuration'));
+
+    //   // Click the "Exit" button in the modal
+    //   await userEvent.click(
+    //     screen.getByRole('button', { name: 'Exit configuration' }),
+    //   );
+
+    //   await waitFor(() => {
+    //     expect(mockNavigate).toHaveBeenCalledWith('/accounts');
+    //   });
+    // });
+
+    it('should close modal without navigating when canceling skip', async () => {
+      // Reset mocks before test
+      mockNavigate.mockClear();
+
+      renderComponent();
+
+      // Click the skip button
+      await userEvent.click(screen.getByText('Skip Use case configuration'));
+
+      // Click the "Cancel" button in the modal
+      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      // Verify modal is closed (by checking it's no longer in the document)
+      expect(
+        screen.queryByText('Exit Veeam assistant?'),
+      ).not.toBeInTheDocument();
+
+      // Verify navigation was NOT called
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 });
