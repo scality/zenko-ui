@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
@@ -126,8 +126,10 @@ export const ISVConfiguration = () => {
     });
   };
 
-  const formRef = useRef(null);
-  const [skip, setSkip] = useState<boolean>(false);
+  const [
+    skipConfirmationModalIsDisplayed,
+    setSkipConfirmationModalIsDisplayed,
+  ] = useState<boolean>(false);
 
   const renderVeeamApplication = () => (
     <FormGroup
@@ -179,15 +181,14 @@ export const ISVConfiguration = () => {
   return (
     <FormProvider {...methods}>
       <ISVSkipModal
-        isOpen={skip}
-        close={() => setSkip(false)}
+        isOpen={skipConfirmationModalIsDisplayed}
+        close={() => setSkipConfirmationModalIsDisplayed(false)}
         exitAction={() => navigate('/accounts')}
         title={`Exit ${platform.name} assistant?`}
         modalContent={platform.skipModalContent}
       />
       <Form
         onSubmit={handleSubmit(onSubmit)}
-        ref={formRef}
         requireMode="partial"
         layout={{
           title: 'Configure ARTESCA for your Use case',
@@ -199,8 +200,7 @@ export const ISVConfiguration = () => {
               type="button"
               variant="outline"
               onClick={() => {
-                console.log(account);
-                setSkip(true);
+                setSkipConfirmationModalIsDisplayed(true);
               }}
               label="Skip Use case configuration"
             />

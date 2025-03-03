@@ -9,7 +9,6 @@ import { VeeamVBO } from '../../modules/veeam-vbo';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { ISVConfig } from '../../types';
 import { Wrapper } from '../../../utils/testUtil';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const mockNavigate = jest.fn();
 jest.mock('@scality/module-federation', () => ({

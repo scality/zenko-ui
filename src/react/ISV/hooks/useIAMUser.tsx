@@ -86,8 +86,6 @@ export const useIAMUser = ({
         }),
       );
       setUsers(mappedUsers);
-      console.log('IAM users:', mappedUsers);
-      setStatus('success');
 
       if (mappedUsers.length > 0) {
         onIAMUsersLoaded?.(mappedUsers);
