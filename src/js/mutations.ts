@@ -12,6 +12,8 @@ import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
 import { getPolicyInfoQuery } from '../react/queries';
+import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
+import { policyDocumentType } from 'aws-sdk/clients/iam';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -192,10 +194,10 @@ const useCreateOrAddBucketToPolicyMutation = () => {
             return { Policy: null };
           } else throw error;
         });
+      const newPolicyDocument = getPolicy(bucketsName, isImmutable);
 
       if (!policyData) {
-        const policyDocument = getPolicy(bucketsName, isImmutable);
-        return IAMClient.createPolicy(policyName, policyDocument);
+        return IAMClient.createPolicy(policyName, newPolicyDocument);
       }
 
       const policyVersions = await IAMClient.listPolicyVersions(policyData.Arn);
@@ -216,16 +218,56 @@ const useCreateOrAddBucketToPolicyMutation = () => {
       const policyDocument = defaultPolicy.PolicyVersion.Document;
       const decodedPolicyDocument = decodeURIComponent(policyDocument);
       const policyJSON = JSON.parse(decodedPolicyDocument);
-      policyJSON.Statement[0].Resource.push(
-        ...bucketsName
-          .map((bucket) => [
-            `arn:aws:s3:::${bucket}/*`,
-            `arn:aws:s3:::${bucket}`,
-          ])
-          .flat(),
+
+      const statementIndex = policyJSON.Statement.findIndex(
+        (statement: {
+          Effect: string;
+          Action: string[];
+          Resource: string | string[];
+        }) =>
+          statement.Effect === 'Allow' &&
+          defaultActions.every((action) => statement.Action.includes(action)) &&
+          (isImmutable
+            ? immutableActions.every((action) =>
+                statement.Action.includes(action),
+              )
+            : true),
       );
-      const newPolicyDocument = JSON.stringify(policyJSON, null, 2);
-      return IAMClient.createPolicyVersion(policyData.Arn, newPolicyDocument);
+      if (statementIndex !== -1) {
+        policyJSON.Statement[statementIndex].Resource.push(
+          ...bucketsName
+            .map((bucket) => [
+              `arn:aws:s3:::${bucket}/*`,
+              `arn:aws:s3:::${bucket}`,
+            ])
+            .flat(),
+        );
+      } else {
+        const newStatement = JSON.parse(newPolicyDocument).Statement[0];
+        policyJSON.Statement.push(newStatement);
+      }
+
+      //Enforce allow list bucket actions statement on all resources
+      const allowListBucketsStatement = policyJSON.Statement.findIndex(
+        (statement: {
+          Effect: string;
+          Action: string[];
+          Resource: string | string[];
+        }) =>
+          statement.Effect === 'Allow' &&
+          statement.Action.includes('s3:ListAllMyBuckets') &&
+          statement.Action.includes('s3:ListBucket') &&
+          statement.Resource === '*',
+      );
+      if (allowListBucketsStatement === -1) {
+        policyJSON.Statement.push(JSON.parse(newPolicyDocument).Statement[1]);
+      }
+
+      const updatedPolicyDocument = JSON.stringify(policyJSON, null, 2);
+      return IAMClient.createPolicyVersion(
+        policyData.Arn,
+        updatedPolicyDocument,
+      );
     },
   });
 };

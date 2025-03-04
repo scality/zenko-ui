@@ -1,22 +1,24 @@
+export const immutableActions = [
+  's3:ListBucketVersions',
+  's3:GetObjectVersion',
+  's3:GetObjectRetention',
+  's3:GetObjectLegalHold',
+  's3:PutObjectRetention',
+  's3:PutObjectLegalHold',
+  's3:DeleteObjectVersion',
+];
+
+export const defaultActions = [
+  's3:GetObject',
+  's3:PutObject',
+  's3:DeleteObject',
+  's3:GetBucketLocation',
+  's3:GetBucketVersioning',
+  's3:GetBucketObjectLockConfiguration',
+];
+
 const getAllowedActions = (isImmutable: boolean) => {
-  const immutableActions = [
-    's3:ListBucketVersions',
-    's3:GetObjectVersion',
-    's3:GetObjectRetention',
-    's3:GetObjectLegalHold',
-    's3:PutObjectRetention',
-    's3:PutObjectLegalHold',
-    's3:DeleteObjectVersion',
-  ];
-  return [
-    's3:GetObject',
-    's3:PutObject',
-    's3:DeleteObject',
-    's3:GetBucketLocation',
-    's3:GetBucketVersioning',
-    's3:GetBucketObjectLockConfiguration',
-    ...(isImmutable ? immutableActions : []),
-  ];
+  return [...defaultActions, ...(isImmutable ? immutableActions : [])];
 };
 
 export const GET_VEEAM_POLICY = (buckets: string[], isImmutable: boolean) => {
