@@ -52,7 +52,7 @@ const RadioContent = styled.div`
   gap: ${spacing.r4};
 `;
 
-const RadioLabel = styled.span`
+const RadioLabel = styled.label`
   color: ${(props) => props.theme.textPrimary};
   font-weight: 500;
 `;
@@ -75,24 +75,28 @@ export const RadioGroup = ({
 
   return (
     <RadioContainer direction={direction}>
-      {options.map((option) => (
-        <RadioWrapper key={option.value} data-disabled={disabled}>
-          <RadioInput
-            type="radio"
-            name={groupName}
-            value={option.value}
-            checked={value === option.value}
-            onChange={(e) => onChange(e.target.value)}
-            disabled={disabled}
-          />
-          <RadioContent>
-            <RadioLabel>{option.label}</RadioLabel>
-            {option.description && (
-              <RadioDescription>{option.description}</RadioDescription>
-            )}
-          </RadioContent>
-        </RadioWrapper>
-      ))}
+      {options.map((option) => {
+        const optionId = `${groupName}-${option.value}`;
+        return (
+          <RadioWrapper key={option.value} data-disabled={disabled}>
+            <RadioInput
+              type="radio"
+              id={optionId}
+              name={groupName}
+              value={option.value}
+              checked={value === option.value}
+              onChange={(e) => onChange(e.target.value)}
+              disabled={disabled}
+            />
+            <RadioContent>
+              <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>
+              {option.description && (
+                <RadioDescription>{option.description}</RadioDescription>
+              )}
+            </RadioContent>
+          </RadioWrapper>
+        );
+      })}
     </RadioContainer>
   );
 };
