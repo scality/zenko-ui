@@ -155,12 +155,12 @@ export const ISVConfiguration = () => {
       label={
         platform.fieldOverrides.find(
           (field) => field.name === FORM_FIELDS.APPLICATION,
-        ).label
+        )?.label
       }
       labelHelpTooltip={
         platform.fieldOverrides.find(
           (field) => field.name === FORM_FIELDS.APPLICATION,
-        ).tooltip
+        )?.tooltip
       }
       helpErrorPosition="bottom"
       content={
@@ -248,7 +248,7 @@ export const ISVConfiguration = () => {
             tooltip={
               platform.fieldOverrides.find(
                 (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
-              ).tooltip
+              )?.tooltip
             }
             onFieldNameChange={{ getIAMUsersMutation, setAccount }}
           />
@@ -264,7 +264,7 @@ export const ISVConfiguration = () => {
                 tooltip={
                   platform.fieldOverrides.find(
                     (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
-                  ).tooltip
+                  )?.tooltip
                 }
                 fieldName={FORM_FIELDS.IAM_USER_NAME}
                 label="IAM User Management"
@@ -279,7 +279,7 @@ export const ISVConfiguration = () => {
             bucketNameTooltip={
               platform.fieldOverrides.find(
                 (field) => field.name === FORM_FIELDS.BUCKET_NAME,
-              ).tooltip
+              )?.tooltip
             }
           />
 
@@ -289,14 +289,14 @@ export const ISVConfiguration = () => {
               label={
                 platform.fieldOverrides.find(
                   (field) => field.name === FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP,
-                ).label
+                )?.label
               }
               help="It enables object-lock on the bucket which means backups will be permanent and unchangeable."
               helpErrorPosition="bottom"
               labelHelpTooltip={
                 platform.fieldOverrides.find(
                   (field) => field.name === FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP,
-                ).tooltip
+                )?.tooltip
               }
               content={
                 <Controller
