@@ -58,7 +58,7 @@ describe('useIAMUser', () => {
     });
   });
 
-  it('should initialize with loading status', () => {
+  it('should initialize with idle status', () => {
     const { result } = renderHook(
       () =>
         useIAMUser({
@@ -68,7 +68,7 @@ describe('useIAMUser', () => {
       { wrapper },
     );
 
-    expect(result.current.IAMUsersStatus).toBe('loading');
+    expect(result.current.getIAMUsersMutation.status).toBe('idle');
     expect(result.current.IAMUsers).toEqual([]);
     expect(result.current.isIAMUserExist).toBe(false);
     expect(result.current.accessKeys).toBeNull();
@@ -107,7 +107,7 @@ describe('useIAMUser', () => {
     expect(mockIAMClient.listUsers).toHaveBeenCalledWith(100);
 
     // verify status update
-    expect(result.current.IAMUsersStatus).toBe('success');
+    expect(result.current.getIAMUsersMutation.status).toBe('success');
     expect(result.current.IAMUsers).toEqual([
       { id: 'user1', name: 'test-user', tags: [] },
       { id: 'user2', name: 'other-user', tags: [] },
@@ -272,7 +272,7 @@ describe('useIAMUser', () => {
     await waitForNextUpdate();
 
     // verify error status
-    expect(result.current.IAMUsersStatus).toBe('error');
+    expect(result.current.getIAMUsersMutation.status).toBe('error');
   });
 
   it('should trigger onIAMUsersLoaded callback when users are loaded', async () => {

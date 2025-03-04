@@ -1,5 +1,5 @@
-import { useMutation } from 'react-query';
-import { useMemo, useState, useEffect } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import { useMemo, useState } from 'react';
 import { useIAMClient } from '../../IAMProvider';
 import { useAssumeRoleQuery } from '../../next-architecture/ui/S3ClientProvider';
 
@@ -25,36 +25,38 @@ export const useIAMUser = ({
   const { getQuery } = useAssumeRoleQuery();
   const [users, setUsers] = useState<IAMUser[]>([]);
   const [accessKeys, setAccessKeys] = useState<string[] | null>(null);
-  const checkUserAccessKeys = async (userName: string) => {
-    try {
-      const userExists = users.some((user) => user.name === userName);
-      if (!userExists) {
-        return true;
-      }
 
-      const { AccessKeyMetadata } = await IAMClient.listAccessKeys(userName);
-      const activeKeys = AccessKeyMetadata.filter(
-        (key) => key.Status === 'Active',
-      );
-      if (activeKeys.length > 0) {
-        setAccessKeys(activeKeys.map((key) => key.AccessKeyId));
-      }
-      const shouldGenerateKey = !AccessKeyMetadata.some(
-        (key) => key.Status === 'Active',
-      );
-      onShouldGenerateKey?.(shouldGenerateKey);
-      return shouldGenerateKey;
-    } catch (error) {
-      onShouldGenerateKey?.(true);
-      return true;
-    }
-  };
+  useQuery(
+    ['userAccessKeys', IAMUserName],
+    async () => {
+      try {
+        const userExists = users.some((user) => user.name === IAMUserName);
+        if (!userExists) {
+          return { shouldGenerateKey: true, activeKeys: [] };
+        }
 
-  useEffect(() => {
-    if (IAMUserNameType === 'existing' && IAMUserName) {
-      checkUserAccessKeys(IAMUserName);
-    }
-  }, [IAMUserName, IAMUserNameType]);
+        const { AccessKeyMetadata } = await IAMClient.listAccessKeys(IAMUserName);
+        const activeKeys = AccessKeyMetadata.filter(
+          (key) => key.Status === 'Active',
+        );
+        const shouldGenerateKey = !AccessKeyMetadata.some(
+          (key) => key.Status === 'Active',
+        );
+        return { shouldGenerateKey, activeKeys };
+      } catch (error) {
+        return { shouldGenerateKey: true, activeKeys: [] };
+      }
+    },
+    {
+      enabled: IAMUserNameType === 'existing' && Boolean(IAMUserName),
+      onSuccess: (data) => {
+        if (data.activeKeys.length > 0) {
+          setAccessKeys(data.activeKeys.map((key) => key.AccessKeyId));
+        }
+        onShouldGenerateKey?.(data.shouldGenerateKey);
+      },
+    },
+  );
 
   const mutation = useMutation({
     mutationFn: async (roleArn: string) => {
@@ -80,7 +82,6 @@ export const useIAMUser = ({
 
       if (mappedUsers.length > 0) {
         onIAMUsersLoaded?.(mappedUsers);
-        await checkUserAccessKeys(mappedUsers[0].name);
       }
     },
   });
