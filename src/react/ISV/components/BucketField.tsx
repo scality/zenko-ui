@@ -1,5 +1,5 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Input } from '@scality/core-ui/dist/next';
 import { FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import { useTheme } from 'styled-components';
@@ -86,29 +86,6 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     name: 'buckets',
     control,
   });
-
-  useEffect(() => {
-    if (fields.length === 0) {
-      append({
-        name: '',
-        tag: platform,
-        capacity: '0',
-        capacityUnit: unitChoices.TiB.toString(),
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (fields.length > 0) {
-      const updatedFields = fields.map((field) => ({
-        name: field.name,
-        tag: platform,
-        capacity: field.capacity,
-        capacityUnit: field.capacityUnit,
-      }));
-      replace(updatedFields);
-    }
-  }, [platform]);
 
   const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.valueAsNumber;

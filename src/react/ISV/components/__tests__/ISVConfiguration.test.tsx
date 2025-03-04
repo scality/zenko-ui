@@ -7,7 +7,6 @@ import { Veeam } from '../../modules/veeam';
 import { Commvault } from '../../modules/commvault';
 import { VeeamVBO } from '../../modules/veeam-vbo';
 import { VEEAM_OFFICE_365 } from '../../constants';
-import { ISVConfig } from '../../types';
 import { Wrapper } from '../../../utils/testUtil';
 
 const mockNavigate = jest.fn();
@@ -56,14 +55,6 @@ jest.mock('../../hooks/useCapacityUnit', () => ({
 
 describe('ISVConfiguration', () => {
   const mockSetConfig = jest.fn();
-  const defaultConfig: ISVConfig = {
-    accountName: '',
-    enableImmutableBackup: true,
-    buckets: [],
-    application: '',
-    accountNameType: 'create' as const,
-  };
-
   const mockAccounts = {
     status: 'success',
     value: [
@@ -96,7 +87,6 @@ describe('ISVConfiguration', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Explicitly reset mockNavigate between tests
     mockNavigate.mockReset();
     (useListAccounts as jest.Mock).mockReturnValue({ accounts: mockAccounts });
   });
@@ -248,7 +238,9 @@ describe('ISVConfiguration', () => {
         name: 'Veeam application',
       });
       await userEvent.click(applicationInput);
-      await userEvent.click(screen.getByRole('option', { name: VEEAM_OFFICE_365 }));
+      await userEvent.click(
+        screen.getByRole('option', { name: VEEAM_OFFICE_365 }),
+      );
 
       // Wait for validation to complete and form to be valid
       await waitFor(() => {
@@ -420,9 +412,6 @@ describe('ISVConfiguration', () => {
     // });
 
     it('should close modal without navigating when canceling skip', async () => {
-      // Reset mocks before test
-      mockNavigate.mockClear();
-
       renderComponent();
 
       // Click the skip button

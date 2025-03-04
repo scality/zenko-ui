@@ -22,6 +22,7 @@ import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import {
+  unitChoices,
   VEEAM_BACKUP_REPLICATION_XML_VALUE,
   VEEAM_OFFICE_365,
   VEEAM_OFFICE_365_V8,
@@ -71,7 +72,14 @@ export const ISVConfiguration = () => {
     defaultValues: {
       accountName: '',
       enableImmutableBackup: true,
-      buckets: [],
+      buckets: [
+        {
+          name: '',
+          tag: platform.id,
+          capacity: '0',
+          capacityUnit: unitChoices.TiB.toString(),
+        },
+      ],
       application: _application,
       accountNameType: 'create',
     },
