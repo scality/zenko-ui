@@ -37,11 +37,12 @@ export const WelcomeModalInternal = (props: NavbarUpdaterComponentProps) => {
   const { alerts } = useAlerts({
     alertname: TRIAL_LICENSE,
   });
+  const { isNextLogin } = useNextLogin();
   const location = useLocation();
+
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isAlreadyInConfigurationView =
     location.pathname.endsWith('/configuration');
-  const { isNextLogin } = useNextLogin();
   const isTrialLicenseModalDisplayed =
     alerts?.length > 0 && props.isFirstTimeLogin && isPlatformAdmin;
   /*
@@ -140,9 +141,6 @@ const ModalComponent = () => {
           <Text variant="Large">Welcome to</Text>
           <ArtescaLogo />
           <Text variant="Large">ARTESCA - Connector Marketplace</Text>
-          <Text variant="Large" color="textSecondary">
-            Draft Concept
-          </Text>
         </Stack>
       }
       isOpen={isOpen}
