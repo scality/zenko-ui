@@ -97,13 +97,12 @@ describe('ISVModal', () => {
     });
 
     await userEvent.keyboard('{arrowdown}');
-
     const secondCard = screen.getAllByRole('radio')[1];
     await waitFor(() => {
       expect(secondCard).toBeChecked();
     });
-    //? don't know why but right is going to the left card
-    await userEvent.keyboard('{arrowright}');
+
+    await userEvent.keyboard('{arrowup}');
 
     await waitFor(() => {
       expect(firstCard).toBeChecked();

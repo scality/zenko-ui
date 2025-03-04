@@ -1,14 +1,9 @@
-import { GET_COMMVAULT_POLICY, GET_VEEAM_POLICY } from './ISVPolicy';
-
-const immutableActions = [
-  's3:ListBucketVersions',
-  's3:GetObjectVersion',
-  's3:GetObjectRetention',
-  's3:GetObjectLegalHold',
-  's3:PutObjectRetention',
-  's3:PutObjectLegalHold',
-  's3:DeleteObjectVersion',
-];
+import {
+  defaultActions,
+  GET_COMMVAULT_POLICY,
+  GET_VEEAM_POLICY,
+  immutableActions,
+} from './ISVPolicy';
 
 describe('ISVPolicy', () => {
   const testBuckets = ['test-bucket-1', 'test-bucket-2'];
@@ -134,14 +129,7 @@ describe('ISVPolicy', () => {
         GET_VEEAM_POLICY(testBuckets, false),
       );
 
-      const commonActions = [
-        's3:GetObject',
-        's3:PutObject',
-        's3:DeleteObject',
-        's3:GetBucketLocation',
-        's3:GetBucketVersioning',
-        's3:GetBucketObjectLockConfiguration',
-      ];
+      const commonActions = defaultActions;
 
       commonActions.forEach((action) => {
         expect(immutablePolicy.Statement[0].Action).toContain(action);
