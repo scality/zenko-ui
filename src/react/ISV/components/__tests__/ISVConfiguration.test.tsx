@@ -8,6 +8,7 @@ import { Commvault } from '../../modules/commvault';
 import { VeeamVBO } from '../../modules/veeam-vbo';
 import { VEEAM_OFFICE_365 } from '../../constants';
 import { Wrapper } from '../../../utils/testUtil';
+import { debug } from 'jest-preview';
 
 const mockNavigate = jest.fn();
 jest.mock('@scality/module-federation', () => ({
@@ -150,7 +151,10 @@ describe('ISVConfiguration', () => {
   describe('Platform Specific Features', () => {
     it('should show application selection for Veeam VBO', async () => {
       renderComponent(VeeamVBO);
-
+      debug();
+      waitFor(() => {
+        expect(screen.getByText('Veeam application')).toBeInTheDocument();
+      });
       // Check for Veeam application label
       expect(screen.getByText('Veeam application')).toBeInTheDocument();
 

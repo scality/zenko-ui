@@ -1,4 +1,5 @@
 import Joi from '@hapi/joi';
+import React from 'react';
 
 export type ISVPlatform = 'veeam' | 'commvault' | 'veeam-vbo';
 export type ISVValidatedDesign =
@@ -77,6 +78,8 @@ export type ISVPlatformConfig = ISVInfo & {
   validator?: Joi.ObjectSchema<ISVConfig>;
   getPolicy: (buckets: string[], isImmutable: boolean) => string;
   immutabilitySummaryOverride?: ImmutabilitySummaryOverride;
+  additionalFields?: React.ReactNode[];
+  isObjectLockEnabled?: (props: ISVConfig) => boolean;
 };
 
 export type ISVSummaryData = {

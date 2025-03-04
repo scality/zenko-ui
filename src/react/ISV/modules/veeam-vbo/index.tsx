@@ -1,12 +1,14 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../veeam/components/VeeamLogo';
 import Joi from '@hapi/joi';
-import { Text } from '@scality/core-ui';
+import { FormGroup, Text } from '@scality/core-ui';
 import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
-import { VEEAM_OFFICE_365_V8 } from '../../constants';
+import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
+import { Select } from '@scality/core-ui/dist/next';
+import { Controller, useFormContext } from 'react-hook-form';
 
 const AccountTooltip = () => {
   return (
@@ -86,6 +88,47 @@ const EnableImmutableBackupTooltip = () => {
   );
 };
 
+const OfficeVersion = () => {
+  const { control } = useFormContext();
+  return (
+    <FormGroup
+      id={'application'}
+      label={'Veeam application'}
+      labelHelpTooltip={
+        'Choose the version of Veeam Backup for Microsoft 365 you are setting up.'
+      }
+      helpErrorPosition="bottom"
+      content={
+        <Controller
+          name={'application'}
+          control={control}
+          defaultValue={VEEAM_OFFICE_365}
+          render={({ field: { onChange, value } }) => (
+            <Select id={'application'} onChange={onChange} value={value}>
+              {[
+                {
+                  key: VEEAM_OFFICE_365,
+                  value: VEEAM_OFFICE_365,
+                  label: VEEAM_OFFICE_365,
+                },
+                {
+                  key: VEEAM_OFFICE_365_V8,
+                  value: VEEAM_OFFICE_365_V8,
+                  label: VEEAM_OFFICE_365_V8,
+                },
+              ].map(({ key, value, label }) => (
+                <Select.Option key={key} value={value}>
+                  {label}
+                </Select.Option>
+              ))}
+            </Select>
+          )}
+        />
+      }
+    />
+  );
+};
+
 export const VeeamVBOInfo: ISVInfo = {
   id: 'veeam-vbo',
   name: 'Veeam VBO',
@@ -153,6 +196,8 @@ export const VeeamVBO: ISVPlatformConfig = {
       tooltip: <EnableImmutableBackupTooltip />,
     },
   ],
+  additionalFields: [<OfficeVersion />],
+  isObjectLockEnabled: (props) => props.application === VEEAM_OFFICE_365_V8,
   validator: Joi.object({
     accountName: accountNameValidationSchema,
     accountNameType: Joi.string().required(),

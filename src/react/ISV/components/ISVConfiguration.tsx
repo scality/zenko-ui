@@ -10,7 +10,7 @@ import {
   Text,
   Toggle,
 } from '@scality/core-ui';
-import { Accordion, Button, Select } from '@scality/core-ui/dist/next';
+import { Accordion, Button } from '@scality/core-ui/dist/next';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
@@ -21,12 +21,7 @@ import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import {
-  unitChoices,
-  VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_OFFICE_365,
-  VEEAM_OFFICE_365_V8,
-} from '../constants';
+import { unitChoices } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { NameField } from './NameField';
@@ -41,27 +36,10 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 } as const;
 
-const isImmutableBackupEnabled = (application: string) =>
-  application === undefined || application === VEEAM_OFFICE_365_V8;
-
-const getApplication = (id: string) => {
-  switch (id) {
-    case 'veeam':
-      return VEEAM_BACKUP_REPLICATION_XML_VALUE;
-    case 'veeam-vbo':
-      return VEEAM_OFFICE_365;
-    case 'commvault':
-      return 'COMMVAULT';
-    default:
-      return '';
-  }
-};
-
 export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
-  const _application = getApplication(platform.id);
 
   if (!platform.id) {
     return null;
@@ -75,12 +53,12 @@ export const ISVConfiguration = () => {
       buckets: [
         {
           name: '',
-          tag: platform.id,
+          tag: platform.bucketTag,
           capacity: '0',
           capacityUnit: unitChoices.TiB.toString(),
         },
       ],
-      application: _application,
+
       accountNameType: 'create',
     },
     resolver: joiResolver(platform.validator),
@@ -93,6 +71,11 @@ export const ISVConfiguration = () => {
     formState: { isValid },
     watch,
   } = formMethods;
+  const formValues = watch();
+  const isObjectLockEnabled = platform.isObjectLockEnabled
+    ? platform.isObjectLockEnabled(formValues)
+    : true;
+
   const navigate = useBasenameRelativeNavigate();
   const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
   const metricsAdapter = new NoOpMetricsAdapter();
@@ -105,7 +88,6 @@ export const ISVConfiguration = () => {
   const accountNameType = watch(FORM_FIELDS.ACCOUNT_NAME_TYPE);
   const IAMUserName = watch(FORM_FIELDS.IAM_USER_NAME);
   const IAMUserNameType = watch(FORM_FIELDS.IAM_USER_NAME_TYPE);
-  const application = watch(FORM_FIELDS.APPLICATION);
 
   const _accounts = useMemo(() => {
     if (accounts.status === 'success') {
@@ -139,14 +121,11 @@ export const ISVConfiguration = () => {
     next({
       ...data,
       platform,
-      application: _application,
       buckets: data.buckets.map((bucket) => ({
         ...bucket,
         capacityBytes: getCapacityBytes(bucket.capacity, bucket.capacityUnit),
       })),
-      enableImmutableBackup: isImmutableBackupEnabled(data.application)
-        ? data.enableImmutableBackup
-        : false,
+      enableImmutableBackup: !!data.enableImmutableBackup,
       account,
       accessKeys,
     });
@@ -156,53 +135,6 @@ export const ISVConfiguration = () => {
     skipConfirmationModalIsDisplayed,
     setSkipConfirmationModalIsDisplayed,
   ] = useState<boolean>(false);
-
-  const renderVeeamApplication = () => (
-    <FormGroup
-      id={FORM_FIELDS.APPLICATION}
-      label={
-        platform.fieldOverrides.find(
-          (field) => field.name === FORM_FIELDS.APPLICATION,
-        )?.label
-      }
-      labelHelpTooltip={
-        platform.fieldOverrides.find(
-          (field) => field.name === FORM_FIELDS.APPLICATION,
-        )?.tooltip
-      }
-      helpErrorPosition="bottom"
-      content={
-        <Controller
-          name={FORM_FIELDS.APPLICATION}
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <Select
-              id={FORM_FIELDS.APPLICATION}
-              onChange={onChange}
-              value={value}
-            >
-              {[
-                {
-                  key: VEEAM_OFFICE_365,
-                  value: VEEAM_OFFICE_365,
-                  label: VEEAM_OFFICE_365,
-                },
-                {
-                  key: VEEAM_OFFICE_365_V8,
-                  value: VEEAM_OFFICE_365_V8,
-                  label: VEEAM_OFFICE_365_V8,
-                },
-              ].map(({ key, value, label }) => (
-                <Select.Option key={key} value={value}>
-                  {label}
-                </Select.Option>
-              ))}
-            </Select>
-          )}
-        />
-      }
-    />
-  );
 
   return (
     <FormProvider {...formMethods}>
@@ -280,7 +212,13 @@ export const ISVConfiguration = () => {
             </Accordion>
           )}
 
-          {platform.id === 'veeam-vbo' && renderVeeamApplication()}
+          {platform.additionalFields && (
+            <FormSection forceLabelWidth={280}>
+              {platform.additionalFields.map((field, index) => {
+                return <div key={index}>{field}</div>;
+              })}
+            </FormSection>
+          )}
 
           <BucketField
             platform={platform.id}
@@ -291,7 +229,7 @@ export const ISVConfiguration = () => {
             }
           />
 
-          {isImmutableBackupEnabled(application) && (
+          {isObjectLockEnabled && (
             <FormGroup
               id={FORM_FIELDS.ENABLE_IMMUTABLE_BACKUP}
               label={

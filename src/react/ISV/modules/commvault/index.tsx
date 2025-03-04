@@ -77,9 +77,7 @@ export const CommvaultCardInfo: ISVCardConfig = {
 };
 
 export const Commvault: ISVPlatformConfig = {
-  id: 'commvault',
-  name: 'COMMVAULT',
-  logo: <CommvaultLogo />,
+  ...CommvaultInfo,
   description: 'Prepare ARTESCA for ',
   bucketTag: 'Commvault',
   getPolicy: GET_COMMVAULT_POLICY,
@@ -88,7 +86,7 @@ export const Commvault: ISVPlatformConfig = {
   }),
   skipModalContent: (
     <Text>
-      To start COMMVAULT assistant configuration again, you can go to the{' '}
+      To start Commvault assistant configuration again, you can go to the{' '}
       <b>Accounts</b> page. If the platform doesn't have any accounts, it will
       also prompt you on your next login.
     </Text>
