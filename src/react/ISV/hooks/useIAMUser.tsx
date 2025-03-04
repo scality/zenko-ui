@@ -8,8 +8,6 @@ interface IAMUser {
   name: string;
 }
 
-type IAMUserStatus = 'loading' | 'success' | 'error';
-
 interface UseIAMUserProps {
   IAMUserName: string;
   IAMUserNameType: 'create' | 'existing';
@@ -25,7 +23,6 @@ export const useIAMUser = ({
 }: UseIAMUserProps) => {
   const IAMClient = useIAMClient();
   const { getQuery } = useAssumeRoleQuery();
-  const [status, setStatus] = useState<IAMUserStatus>('loading');
   const [users, setUsers] = useState<IAMUser[]>([]);
   const [accessKeys, setAccessKeys] = useState<string[] | null>(null);
   const checkUserAccessKeys = async (userName: string) => {
@@ -59,12 +56,6 @@ export const useIAMUser = ({
     }
   }, [IAMUserName, IAMUserNameType]);
 
-  const isUserExist = useMemo(
-    () =>
-      status === 'success' && users.some((user) => user.name === IAMUserName),
-    [IAMUserName, status, users],
-  );
-
   const mutation = useMutation({
     mutationFn: async (roleArn: string) => {
       const { Credentials } = await getQuery(roleArn).queryFn();
@@ -92,15 +83,17 @@ export const useIAMUser = ({
         await checkUserAccessKeys(mappedUsers[0].name);
       }
     },
-    onError: (error) => {
-      setStatus('error');
-      console.error('Failed to fetch IAM users:', error);
-    },
   });
+
+  const isUserExist = useMemo(
+    () =>
+      mutation.status === 'success' &&
+      users.some((user) => user.name === IAMUserName),
+    [IAMUserName, mutation.status, users],
+  );
 
   return {
     isIAMUserExist: isUserExist,
-    IAMUsersStatus: status,
     IAMUsers: users,
     IAMUserNameType,
     getIAMUsersMutation: mutation,

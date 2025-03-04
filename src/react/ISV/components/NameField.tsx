@@ -125,7 +125,7 @@ export const NameField = ({
                 autoComplete="off"
                 placeholder={
                   status === 'success' && options.length !== 0
-                    ? `${platform}-backup`
+                    ? `${platform}`
                     : undefined
                 }
                 {...register(fieldName)}

@@ -21,7 +21,11 @@ import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../constants';
+import {
+  VEEAM_BACKUP_REPLICATION_XML_VALUE,
+  VEEAM_OFFICE_365,
+  VEEAM_OFFICE_365_V8,
+} from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { NameField } from './NameField';
@@ -39,10 +43,24 @@ const FORM_FIELDS = {
 const isImmutableBackupEnabled = (application: string) =>
   application === undefined || application === VEEAM_OFFICE_365_V8;
 
+const getApplication = (id: string) => {
+  switch (id) {
+    case 'veeam':
+      return VEEAM_BACKUP_REPLICATION_XML_VALUE;
+    case 'veeam-vbo':
+      return VEEAM_OFFICE_365;
+    case 'commvault':
+      return 'COMMVAULT';
+    default:
+      return '';
+  }
+};
+
 export const ISVConfiguration = () => {
-  const { platform, config, setConfig } = useISVStepper();
+  const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
+  const _application = getApplication(platform.id);
 
   if (!platform.id) {
     return null;
@@ -50,7 +68,13 @@ export const ISVConfiguration = () => {
 
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
-    defaultValues: config,
+    defaultValues: {
+      accountName: '',
+      enableImmutableBackup: true,
+      buckets: [],
+      application: _application,
+      accountNameType: 'create',
+    },
     resolver: joiResolver(platform.validator),
     shouldUnregister: true,
   });
@@ -90,7 +114,6 @@ export const ISVConfiguration = () => {
 
   const {
     isIAMUserExist,
-    IAMUsersStatus,
     IAMUsers,
     getIAMUsersMutation,
     accessKeys,
@@ -109,11 +132,10 @@ export const ISVConfiguration = () => {
   });
 
   const onSubmit = async (data: ISVConfig) => {
-    setConfig(data);
     next({
       ...data,
       platform,
-      application: config.application,
+      application: _application,
       buckets: data.buckets.map((bucket) => ({
         ...bucket,
         capacityBytes: getCapacityBytes(bucket.capacity, bucket.capacityUnit),
@@ -239,7 +261,7 @@ export const ISVConfiguration = () => {
             <Accordion title="Advanced settings" id="advanced-settings">
               <NameField
                 isExist={isIAMUserExist}
-                status={IAMUsersStatus}
+                status={getIAMUsersMutation.status}
                 options={IAMUsers}
                 type={IAMUserNameType}
                 platform={platform.id}

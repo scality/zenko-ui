@@ -1,17 +1,14 @@
 import { spacing, Stepper } from '@scality/core-ui';
-import { useState, createContext, useContext, useMemo } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { ISVConfiguration } from './ISVConfiguration';
 
-import { ISVConfig, ISVPlatformConfig } from '../types';
+import { ISVPlatformConfig } from '../types';
 
 import { useTheme } from 'styled-components';
 import { Box } from '@scality/core-ui/dist/next';
 import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
-import {
-  VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_OFFICE_365,
-} from '../constants';
+
 import { useSearchParams } from 'react-router';
 import { Veeam } from '../modules/veeam';
 import { Commvault } from '../modules/commvault';
@@ -25,8 +22,6 @@ export enum ISVStepsIndexes {
 
 export type ISVStepperContextType = {
   platform: ISVPlatformConfig;
-  config: ISVConfig;
-  setConfig: (config: ISVConfig) => void;
 };
 
 export const ISVStepperContext = createContext<
@@ -61,26 +56,7 @@ export const ISVSteps = () => {
   const [searchParams] = useSearchParams();
   const id = searchParams.get('platform');
 
-  const getApplication = () => {
-    switch (id) {
-      case 'veeam':
-        return VEEAM_BACKUP_REPLICATION_XML_VALUE;
-      case 'veeam-vbo':
-        return VEEAM_OFFICE_365;
-      case 'commvault':
-        return 'COMMVAULT';
-      default:
-        return '';
-    }
-  };
   const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
-  const [config, setConfig] = useState<ISVConfig>(() => ({
-    accountName: '',
-    enableImmutableBackup: true,
-    buckets: [],
-    application: getApplication(),
-    accountNameType: 'create',
-  }));
 
   const platform = useMemo(() => {
     return isvModules.find((p) => p.id === id);
@@ -89,10 +65,8 @@ export const ISVSteps = () => {
   const contextValue = useMemo(
     () => ({
       platform,
-      config,
-      setConfig,
     }),
-    [platform, config],
+    [platform],
   );
 
   return (

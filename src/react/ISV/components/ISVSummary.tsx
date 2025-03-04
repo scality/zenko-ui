@@ -58,15 +58,16 @@ export const ISVSummary = ({
   accessKey,
   secretKey,
   accessKeys,
+  application,
 }: ISVSummaryProps) => {
   const navigate = useBasenameRelativeNavigate();
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
-  const { platform, config } = useISVStepper();
+  const { platform } = useISVStepper();
 
   const immutableSectionInfos = platform.immutabilitySummaryOverride({
     isImmutable: enableImmutableBackup,
-    application: config.application,
+    application: application,
   });
 
   const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${

@@ -1,12 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { ISVStepperContext, useISVStepper } from '../ISVSteps';
-import { ThemeProvider } from 'styled-components';
-import {
-  VEEAM_BACKUP_REPLICATION_XML_VALUE,
-  VEEAM_OFFICE_365,
-} from '../../constants';
+import { Veeam } from '../../modules/veeam';
+import { Commvault } from '../../modules/commvault';
+import { VeeamVBO } from '../../modules/veeam-vbo';
 import { ISVPlatformConfig } from '../../types';
+import { Wrapper } from '../../../utils/testUtil';
 
 jest.mock('../ISVSteps', () => {
   const originalModule = jest.requireActual('../ISVSteps');
@@ -22,33 +21,9 @@ jest.mock('react-router', () => ({
   useSearchParams: jest.fn(),
 }));
 
-// Mock Scality core-ui components
-jest.mock('@scality/core-ui', () => ({
-  spacing: { r16: '16px' },
-  Stepper: ({ steps }) => (
-    <div data-testid="stepper">
-      {steps.map((step, index) => (
-        <div key={index} data-testid={`step-${index}`}>
-          {step.label}
-        </div>
-      ))}
-    </div>
-  ),
-  Text: ({ children }) => <div>{children}</div>,
-}));
-
 jest.mock('@scality/core-ui/dist/next', () => ({
   Box: ({ children }) => <div data-testid="box">{children}</div>,
 }));
-
-const mockTheme = {
-  backgroundLevel4: '#f5f5f5',
-  colors: {
-    primary: '#0088cc',
-    secondary: '#666',
-    text: '#333',
-  },
-} as any;
 
 // Import React hooks correctly
 const { useContext } = React;
@@ -80,9 +55,8 @@ describe('ISVSteps', () => {
 
     return (
       <div>
-        <div data-testid="application">{context.config.application}</div>
         <div data-testid="platform-id">
-          {context.platform?.id || 'undefined'}
+          {context.platform?.id || 'no-platform'}
         </div>
       </div>
     );
@@ -92,44 +66,18 @@ describe('ISVSteps', () => {
   const setupMockISVSteps = (platformId: string | null) => {
     const { ISVSteps } = require('../ISVSteps');
 
-    // Configure mock implementation for this specific test
     ISVSteps.mockImplementation(({ children }) => {
-      // Create platform config based on ID
       let platform: ISVPlatformConfig | undefined;
-      let application = '';
 
-      if (platformId) {
-        switch (platformId) {
-          case 'veeam':
-            application = VEEAM_BACKUP_REPLICATION_XML_VALUE;
-            break;
-          case 'veeam-vbo':
-            application = VEEAM_OFFICE_365;
-            break;
-          case 'commvault':
-            application = 'COMMVAULT';
-            break;
-        }
-
-        platform = {
-          id: platformId,
-          name: platformId.charAt(0).toUpperCase() + platformId.slice(1),
-          logo: React.createElement('div'),
-          bucketTag: 'mock-bucket-tag',
-        } as unknown as ISVPlatformConfig;
+      if (platformId === 'veeam') {
+        platform = Veeam;
+      } else if (platformId === 'commvault') {
+        platform = Commvault;
+      } else if (platformId === 'veeam-vbo') {
+        platform = VeeamVBO;
       }
 
-      // Create config
-      const config = {
-        accountName: '',
-        enableImmutableBackup: true,
-        buckets: [],
-        application,
-        accountNameType: 'create' as const,
-      };
-
-      // Mock context value
-      const contextValue = { platform, config, setConfig: jest.fn() };
+      const contextValue = { platform };
 
       return (
         <ISVStepperContext.Provider value={contextValue}>
@@ -158,28 +106,24 @@ describe('ISVSteps', () => {
     const { ISVSteps } = require('../ISVSteps');
 
     return render(
-      <ThemeProvider theme={mockTheme}>
+      <Wrapper>
         <ISVSteps>
           <ContextReader />
         </ISVSteps>
-      </ThemeProvider>,
+      </Wrapper>,
     );
   };
 
-  it.each([
-    ['veeam', VEEAM_BACKUP_REPLICATION_XML_VALUE],
-    ['veeam-vbo', VEEAM_OFFICE_365],
-    ['commvault', 'COMMVAULT'],
-    ['unknown', ''],
-  ])(
+  it.each([['veeam'], ['veeam-vbo'], ['commvault'], [null]])(
     'should set correct context for %s platform',
-    (platformId, expectedApp) => {
+    (platformId) => {
       setupMockISVSteps(platformId);
       renderWithThemeAndContextReader();
 
-      // Check context values
-      expect(screen.getByTestId('application')).toHaveTextContent(expectedApp);
-      expect(screen.getByTestId('platform-id')).toHaveTextContent(platformId);
+      // Check platform ID in context
+      expect(screen.getByTestId('platform-id')).toHaveTextContent(
+        platformId || 'no-platform',
+      );
     },
   );
 
@@ -195,15 +139,5 @@ describe('ISVSteps', () => {
     expect(screen.getByTestId('step-0')).toHaveTextContent('Configure');
     expect(screen.getByTestId('step-1')).toHaveTextContent('Apply Actions');
     expect(screen.getByTestId('step-2')).toHaveTextContent('Summary');
-  });
-
-  it('should initialize config with default values', () => {
-    setupMockISVSteps('veeam');
-    renderWithThemeAndContextReader();
-
-    // Verify application is correctly set
-    expect(screen.getByTestId('application')).toHaveTextContent(
-      VEEAM_BACKUP_REPLICATION_XML_VALUE,
-    );
   });
 });
