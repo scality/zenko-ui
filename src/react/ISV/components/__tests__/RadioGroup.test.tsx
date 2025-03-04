@@ -34,9 +34,9 @@ describe('RadioGroup', () => {
   it('should render all radio options', () => {
     renderRadioGroup();
 
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
-    expect(screen.getByText('Option 3')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Option 1/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Option 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /Option 3/i })).toBeInTheDocument();
   });
 
   it('should render descriptions when provided', () => {
