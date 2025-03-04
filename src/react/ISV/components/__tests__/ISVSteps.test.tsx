@@ -21,10 +21,6 @@ jest.mock('react-router', () => ({
   useSearchParams: jest.fn(),
 }));
 
-jest.mock('@scality/core-ui/dist/next', () => ({
-  Box: ({ children }) => <div data-testid="box">{children}</div>,
-}));
-
 // Import React hooks correctly
 const { useContext } = React;
 

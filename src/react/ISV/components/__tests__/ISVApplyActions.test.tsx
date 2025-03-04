@@ -73,51 +73,13 @@ jest.mock('../../../../js/mutations', () => ({
   }),
 }));
 
-// Mock components
-jest.mock('@scality/core-ui', () => {
-  const original = jest.requireActual('@scality/core-ui');
-  return {
-    ...original,
-    Form: ({ children, rightActions, layout }) => (
-      <div data-testid="form">
-        {layout?.title && <div>{layout.title}</div>}
-        {children}
-        <div data-testid="form-actions">{rightActions}</div>
-      </div>
-    ),
-    Icon: ({ name }) => <span data-testid={`icon-${name}`}>{name}</span>,
-    Stack: ({ children }) => <div data-testid="stack">{children}</div>,
-    Text: ({ children }) => <span>{children}</span>,
-  };
-});
-
-jest.mock('@scality/core-ui/dist/next', () => ({
-  Box: ({ children }) => <div data-testid="box">{children}</div>,
-  Button: ({ label, onClick, disabled, type }) => (
-    <button
-      data-testid={`button-${label}`}
-      onClick={onClick}
-      disabled={disabled}
-      type={type}
-    >
-      {label}
-    </button>
-  ),
-}));
-
 jest.mock('../../../ui-elements/Table', () => {
-  const Table = ({ children }) => <table>{children}</table>;
-  Table.Head = ({ children }) => <thead>{children}</thead>;
-  Table.HeadRow = ({ children }) => <tr>{children}</tr>;
-  Table.HeadCell = ({ children }) => <th>{children}</th>;
-  Table.Body = ({ children }) => <tbody>{children}</tbody>;
-  Table.Row = ({ children }) => <tr>{children}</tr>;
-  Table.Cell = ({ children }) => <td>{children}</td>;
-  return Table;
+  const original = jest.requireActual('../../../ui-elements/Table');
+  return original;
 });
 
 jest.mock('../ISVSkipModal', () => ({
-  ISVSkipModal: () => <div data-testid="skip-modal"></div>,
+  ISVSkipModal: () => <div>Skip Modal</div>,
 }));
 
 describe('ISVApplyActions', () => {
@@ -160,14 +122,12 @@ describe('ISVApplyActions', () => {
 
   it('renders the form with correct title', () => {
     renderComponent();
-    expect(screen.getByTestId('form')).toBeInTheDocument();
-    expect(
-      screen.getByText(`Configure ARTESCA for ${mockProps.platform.name}`),
-    ).toBeInTheDocument();
+    expect(screen.getByText(`Configure ARTESCA for ${mockProps.platform.name}`)).toBeInTheDocument();
   });
 
   it('renders the table with steps', () => {
     renderComponent();
+    expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText('Step 1')).toBeInTheDocument();
     expect(screen.getByText('Step 2')).toBeInTheDocument();
     expect(screen.getByText('Create bucket')).toBeInTheDocument();
@@ -177,13 +137,15 @@ describe('ISVApplyActions', () => {
 
   it('renders action buttons', () => {
     renderComponent();
-    expect(screen.getByTestId('button-Continue')).toBeInTheDocument();
-    expect(screen.getByTestId('button-Exit')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Arrow-right Continue' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Exit' })).toBeInTheDocument();
   });
 
   it('enables Continue button when all steps are successful', () => {
     renderComponent();
-    expect(screen.getByTestId('button-Continue')).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Arrow-right Continue' })).not.toBeDisabled();
   });
 
   it('renders Veeam-specific components when platform is Veeam', () => {
@@ -258,9 +220,9 @@ describe('ISVApplyActions', () => {
 
     expect(screen.getByText('Success')).toBeInTheDocument();
     expect(screen.getByText('Failed')).toBeInTheDocument();
-    expect(screen.getByTestId('button-Retry')).toBeInTheDocument();
-    expect(screen.getByTestId('button-Exit')).not.toBeDisabled();
-    expect(screen.getByTestId('button-Continue')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Redo Retry' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Exit' })).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Arrow-right Continue' })).toBeDisabled();
 
     // Reset the mock to its original implementation
     jest.restoreAllMocks();
@@ -293,7 +255,7 @@ describe('ISVApplyActions', () => {
 
     renderComponent();
 
-    const retryButton = screen.getByTestId('button-Retry');
+    const retryButton = screen.getByRole('button', { name: 'Redo Retry' });
     fireEvent.click(retryButton);
     expect(retryMock).toHaveBeenCalled();
 

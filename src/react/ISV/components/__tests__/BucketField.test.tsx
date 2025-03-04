@@ -12,60 +12,6 @@ jest.mock('../../../next-architecture/ui/XCoreLibraryProvider', () => {
   };
 });
 
-// Mock core-ui components
-jest.mock('@scality/core-ui', () => ({
-  FormGroup: ({ children, label, labelHelpTooltip, error, content, id }) => (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      {labelHelpTooltip}
-      {content || children}
-      {error && <div>{error}</div>}
-    </div>
-  ),
-  FormSection: ({ children }) => <div>{children}</div>,
-  spacing: {
-    f16: '16px',
-    f8: '8px',
-    f4: '4px',
-  },
-  Text: ({ children }) => <div>{children}</div>,
-  Stack: ({ children, direction }) => (
-    <div data-testid={`stack-${direction}`}>{children}</div>
-  ),
-}));
-
-jest.mock('@scality/core-ui/dist/next', () => {
-  const Select = ({ id, value, onChange, children }) => {
-    return (
-      <select id={id} value={value} onChange={(e) => onChange(e.target.value)}>
-        {children}
-      </select>
-    );
-  };
-  Select.Option = ({ children, value }) => (
-    <option value={value}>{children}</option>
-  );
-  return {
-    Input: ({ id, type, value, onChange, placeholder, ...props }) => (
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        aria-label={props['aria-label'] || id}
-        {...props}
-      />
-    ),
-    Select,
-    Box: ({ children, ...props }) => (
-      <div data-testid="box" {...props}>
-        {children}
-      </div>
-    ),
-  };
-});
-
 const TestWrapper = ({ children }) => {
   const methods = useForm({
     defaultValues: {
@@ -164,7 +110,7 @@ describe('BucketField', () => {
     const bucketNameInput = screen.getByLabelText(/bucket name/i);
     expect(bucketNameInput).toHaveAttribute(
       'placeholder',
-      'test-platform-bucket-name',
+      'Example: test-platform-bucket-name',
     );
   });
 });
