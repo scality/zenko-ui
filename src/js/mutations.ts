@@ -13,7 +13,6 @@ import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
 import { getPolicyInfoQuery } from '../react/queries';
 import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
-import { policyDocumentType } from 'aws-sdk/clients/iam';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();

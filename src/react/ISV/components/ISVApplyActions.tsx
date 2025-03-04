@@ -17,7 +17,7 @@ import {
   usePutBucketTaggingMutationByS3Client,
   usePutObjectMutation,
 } from '../../../js/mutations';
-import { useMultiMutation, MutationWithKey } from '../hooks/useMultiMutation';
+import { useMultiMutation, Mutation } from '../hooks/useMultiMutation';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -42,20 +42,17 @@ const BucketMutation = ({
   onMutationReady,
 }: {
   bucket: Bucket;
-  onMutationReady: (key: string, mutation: MutationWithKey) => void;
+  onMutationReady: (key: string, mutation: Mutation) => void;
 }) => {
   const createBucketMutation = useCreateBucketByS3Client();
   const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
 
   useMemo(() => {
-    onMutationReady(`createBucket-${bucket.name}`, {
-      ...createBucketMutation,
-      key: `createBucket-${bucket.name}`,
-    });
-    onMutationReady(`putBucketTagging-${bucket.name}`, {
-      ...putBucketTaggingMutation,
-      key: `putBucketTagging-${bucket.name}`,
-    });
+    onMutationReady(`createBucket-${bucket.name}`, createBucketMutation);
+    onMutationReady(
+      `putBucketTagging-${bucket.name}`,
+      putBucketTaggingMutation,
+    );
   }, [createBucketMutation.status, putBucketTaggingMutation.status]);
 
   return <></>;
@@ -66,25 +63,22 @@ const BucketVeeamMutation = ({
   onMutationReady,
 }: {
   bucket: Bucket;
-  onMutationReady: (key: string, mutation: MutationWithKey) => void;
+  onMutationReady: (key: string, mutation: Mutation) => void;
 }) => {
   const putVeeamFolderMutation = usePutObjectMutation();
   const putVeeamSystemXmlMutation = usePutObjectMutation();
   const putVeeamCapacityXmlMutation = usePutObjectMutation();
 
   useMemo(() => {
-    onMutationReady(`putVeeamFolder-${bucket.name}`, {
-      ...putVeeamFolderMutation,
-      key: `putVeeamFolder-${bucket.name}`,
-    });
-    onMutationReady(`putVeeamSystemXml-${bucket.name}`, {
-      ...putVeeamSystemXmlMutation,
-      key: `putVeeamSystemXml-${bucket.name}`,
-    });
-    onMutationReady(`putVeeamCapacityXml-${bucket.name}`, {
-      ...putVeeamCapacityXmlMutation,
-      key: `putVeeamCapacityXml-${bucket.name}`,
-    });
+    onMutationReady(`putVeeamFolder-${bucket.name}`, putVeeamFolderMutation);
+    onMutationReady(
+      `putVeeamSystemXml-${bucket.name}`,
+      putVeeamSystemXmlMutation,
+    );
+    onMutationReady(
+      `putVeeamCapacityXml-${bucket.name}`,
+      putVeeamCapacityXmlMutation,
+    );
   }, [
     putVeeamFolderMutation.status,
     putVeeamSystemXmlMutation.status,
@@ -98,7 +92,7 @@ const Main = ({
   mutations,
 }: {
   props: ISVApplyActionsProps;
-  mutations: Record<string, MutationWithKey>;
+  mutations: Record<string, Mutation>;
 }) => {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const theme = useTheme();

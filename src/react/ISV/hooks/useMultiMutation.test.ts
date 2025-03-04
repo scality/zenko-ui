@@ -1,10 +1,10 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useMultiMutation, MutationWithKey } from './useMultiMutation';
+import { useMultiMutation, Mutation } from './useMultiMutation';
 
 describe('useMultiMutation', () => {
   const mockItems = ['item1', 'item2', 'item3'];
 
-  const createMockMutation = (key: string): MutationWithKey =>
+  const createMockMutation = (key: string): Mutation =>
     ({
       key,
       mutate: jest.fn(),
@@ -23,7 +23,7 @@ describe('useMultiMutation', () => {
       variables: null,
       mutateAsync: jest.fn(),
       context: null,
-    } as unknown as MutationWithKey);
+    } as unknown as Mutation);
 
   describe('initialization', () => {
     it('should initialize with empty mutations object', () => {
@@ -45,7 +45,7 @@ describe('useMultiMutation', () => {
       });
 
       expect(result.current.mutations).toHaveProperty('item1');
-      expect(result.current.mutations.item1).toBe(mockMutation);
+      expect(result.current.mutations.item1).toStrictEqual(mockMutation);
       expect(result.current.isAllMutationsReady).toBe(false);
     });
 
@@ -60,8 +60,8 @@ describe('useMultiMutation', () => {
         result.current.handleMutationReady('item1', updatedMutation);
       });
 
-      expect(result.current.mutations.item1).toBe(updatedMutation);
-      expect(result.current.mutations.item1).not.toBe(firstMutation);
+      expect(result.current.mutations.item1).toStrictEqual(updatedMutation);
+      expect(result.current.mutations.item1).not.toStrictEqual(firstMutation);
     });
   });
 

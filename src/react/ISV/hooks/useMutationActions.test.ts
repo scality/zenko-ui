@@ -1,10 +1,9 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { useMutationActions } from './useMutationActions';
-import { useShellHooks } from '@scality/module-federation';
 import { useAccountsLocationsAndEndpoints } from '../../next-architecture/domain/business/accounts';
 import { useSetAssumedRolePromise } from '../../DataServiceRoleProvider';
 import { useChainedMutations } from '../../../js/useChainedMutations';
-import { MutationWithKey } from './useMultiMutation';
+import { Mutation } from './useMultiMutation';
 import {
   useCreateAccountMutation,
   useCreateIAMUserMutation,
@@ -88,61 +87,61 @@ describe('useMutationActions', () => {
       status: 'success',
       data: { name: 'test-bucket-1' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putBucketTagging-test-bucket-1': {
       key: 'putBucketTagging-test-bucket-1',
       status: 'success',
       data: { tagged: true },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'createBucket-test-bucket-2': {
       key: 'createBucket-test-bucket-2',
       status: 'success',
       data: { name: 'test-bucket-2' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putBucketTagging-test-bucket-2': {
       key: 'putBucketTagging-test-bucket-2',
       status: 'success',
       data: { tagged: true },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamFolder-test-bucket-1': {
       key: 'putVeeamFolder-test-bucket-1',
       status: 'success',
       data: { folder: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamSystemXml-test-bucket-1': {
       key: 'putVeeamSystemXml-test-bucket-1',
       status: 'success',
       data: { system: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamCapacityXml-test-bucket-1': {
       key: 'putVeeamCapacityXml-test-bucket-1',
       status: 'success',
       data: { capacity: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamFolder-test-bucket-2': {
       key: 'putVeeamFolder-test-bucket-2',
       status: 'success',
       data: { folder: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamSystemXml-test-bucket-2': {
       key: 'putVeeamSystemXml-test-bucket-2',
       status: 'success',
       data: { system: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
     'putVeeamCapacityXml-test-bucket-2': {
       key: 'putVeeamCapacityXml-test-bucket-2',
       status: 'success',
       data: { capacity: 'created' },
       mutate: jest.fn(),
-    } as unknown as MutationWithKey,
+    } as unknown as Mutation,
   };
 
   // Mock various dependency return values

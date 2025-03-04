@@ -15,7 +15,7 @@ import { useAccountsLocationsEndpointsAdapter } from '../../../react/next-archit
 import { useInstanceId } from '../../next-architecture/ui/AuthProvider';
 import { ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { MutationWithKey } from './useMultiMutation';
+import { Mutation } from './useMultiMutation';
 import { VEEAM_XML_PREFIX } from '../../ISV/constants';
 import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
 import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
@@ -37,7 +37,7 @@ export const useMutationActions = (
     account: Account;
     accessKey: string;
   },
-  bucketMutations: Record<string, MutationWithKey>,
+  bucketMutations: Record<string, Mutation>,
 ): Result => {
   const {
     buckets,
