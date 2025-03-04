@@ -15,7 +15,12 @@ jest.mock('../../../next-architecture/ui/XCoreLibraryProvider', () => {
 const TestWrapper = ({ children }) => {
   const methods = useForm({
     defaultValues: {
-      buckets: [],
+      buckets: [{
+        name: '',
+        tag: '',
+        capacity: '0',
+        capacityUnit: 'TiB',
+      }],
     },
   });
 
@@ -36,7 +41,7 @@ describe('BucketField', () => {
 
     const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
     expect(bucketNumberInput).toBeInTheDocument();
-    expect(bucketNumberInput).toHaveValue(1);
+    expect(bucketNumberInput).toHaveValue(1); 
   });
 
   it('should add a default bucket on initial render', () => {
