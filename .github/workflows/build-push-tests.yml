@@ -39,7 +39,7 @@ jobs:
           nginx.conf.gotempl:text/nginx-conf-template
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -79,7 +79,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.5
       - uses: actions/setup-node@v2.4.1
