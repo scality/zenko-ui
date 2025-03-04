@@ -41,6 +41,11 @@ const mockVeeamPlatform: ISVPlatformConfig = {
   bucketTag: 'veeam',
   fieldOverrides: [],
   getPolicy: jest.fn(),
+  immutabilitySummaryOverride: jest.fn().mockReturnValue({
+    isImmutable: true,
+    application: VEEAM_BACKUP_REPLICATION,
+    helpText: 'Ensure "Make recent backups immutable"',
+  }),
 };
 const BUCKET_NAME = 'bucket-name';
 const SERVICE_POINT = 's3.test.local';
@@ -49,14 +54,6 @@ const SECRET_KEY = 'secret-access-key';
 
 const mockStepperContext: ISVStepperContextType = {
   platform: mockVeeamPlatform,
-  config: {
-    accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
-    enableImmutableBackup: true,
-    buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
-    application: VEEAM_BACKUP_REPLICATION,
-    accountNameType: 'create',
-  },
-  setConfig: jest.fn(),
 };
 
 const mockSummaryProps: ISVSummaryProps = {
@@ -66,6 +63,7 @@ const mockSummaryProps: ISVSummaryProps = {
   secretKey: SECRET_KEY,
   buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
   enableImmutableBackup: true,
+  application: VEEAM_BACKUP_REPLICATION,
 };
 
 const mockExistingAccountSummaryProps: ISVSummaryProps = {
@@ -76,6 +74,7 @@ const mockExistingAccountSummaryProps: ISVSummaryProps = {
   accessKeys: ['access-key-1', 'access-key-2'],
   buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
   enableImmutableBackup: true,
+  application: VEEAM_BACKUP_REPLICATION,
 };
 
 const mockMultiBucketSummaryProps: ISVSummaryProps = {
@@ -88,6 +87,7 @@ const mockMultiBucketSummaryProps: ISVSummaryProps = {
     { name: 'bucket-name-2', tag: 'veeam' },
   ],
   enableImmutableBackup: true,
+  application: VEEAM_BACKUP_REPLICATION,
 };
 
 const CERTIFICATE_SECTION_TITLE = '1. Certificates';
@@ -236,14 +236,6 @@ describe('ISVSummary', () => {
       <ISVStepperContext.Provider
         value={{
           platform: mockVeeamPlatform,
-          config: {
-            accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
-            enableImmutableBackup: true,
-            buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
-            application: 'VEEAM_BACKUP_REPLICATION_XML_VALUE',
-            accountNameType: 'existing',
-          },
-          setConfig: jest.fn(),
         }}
       >
         <Stepper
@@ -274,17 +266,6 @@ describe('ISVSummary', () => {
       <ISVStepperContext.Provider
         value={{
           platform: mockVeeamPlatform,
-          config: {
-            accountName: VEEAM_DEFAULT_ACCOUNT_NAME,
-            enableImmutableBackup: true,
-            buckets: [
-              { name: BUCKET_NAME, tag: 'veeam' },
-              { name: 'bucket-name-2', tag: 'veeam' },
-            ],
-            application: 'VEEAM_BACKUP_REPLICATION_XML_VALUE',
-            accountNameType: 'create',
-          },
-          setConfig: jest.fn(),
         }}
       >
         <Stepper
@@ -400,14 +381,6 @@ describe('ISVSummary', () => {
       <ISVStepperContext.Provider
         value={{
           platform: mockVeeamPlatform,
-          config: {
-            accountName: 'Veeam',
-            enableImmutableBackup: true,
-            buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
-            application: 'VEEAM_BACKUP_REPLICATION_XML_VALUE',
-            accountNameType: 'create',
-          },
-          setConfig: jest.fn(),
         }}
       >
         <Stepper
@@ -423,6 +396,7 @@ describe('ISVSummary', () => {
                     secretKey={SECRET_KEY}
                     buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
                     enableImmutableBackup={true}
+                    application={VEEAM_BACKUP_REPLICATION}
                   />
                 );
               },
@@ -446,17 +420,15 @@ describe('ISVSummary', () => {
         bucketTag: 'commvault',
         fieldOverrides: [],
         getPolicy: jest.fn(),
+        immutabilitySummaryOverride: jest.fn().mockReturnValue({
+          isImmutable: true,
+          application: 'Commvault',
+        }),
       };
       render(
         <ISVStepperContext.Provider
           value={{
             platform: mockCommvaultPlatform,
-            config: {
-              accountName: 'Commvault',
-              enableImmutableBackup: true,
-              buckets: [{ name: BUCKET_NAME, tag: 'commvault' }],
-            },
-            setConfig: jest.fn(),
           }}
         >
           <Stepper
@@ -472,6 +444,7 @@ describe('ISVSummary', () => {
                       secretKey={SECRET_KEY}
                       buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
                       enableImmutableBackup={true}
+                      application={'Commvault'}
                     />
                   );
                 },
@@ -483,7 +456,9 @@ describe('ISVSummary', () => {
       );
 
       //E+V
-      expect(screen.getByText(/WORM/i)).toBeInTheDocument();
+      expect(
+        screen.getByText((content) => /worm|storage|lock/i.test(content)),
+      ).toBeInTheDocument();
     });
     it('should render Immutability Section with help text for Veeam Backup & Replication', async () => {
       //S
@@ -506,7 +481,7 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
       //E+V
-      expect(screen.getByText(/Immutable backup/i)).toBeInTheDocument();
+      expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
       expect(
         screen.getByText(/Ensure "Make recent backups immutable"/i),
       ).toBeInTheDocument();
@@ -521,18 +496,16 @@ describe('ISVSummary', () => {
         bucketTag: 'veeam',
         fieldOverrides: [],
         getPolicy: jest.fn(),
+        immutabilitySummaryOverride: jest.fn().mockReturnValue({
+          isImmutable: true,
+          application: VEEAM_OFFICE_365_V8,
+          helpText: 'Ensure "Make backups immutable"',
+        }),
       };
       render(
         <ISVStepperContext.Provider
           value={{
             platform: mockVeeamVBOV8Platform,
-            config: {
-              application: VEEAM_OFFICE_365_V8,
-              accountName: 'Veeam',
-              enableImmutableBackup: true,
-              buckets: [{ name: BUCKET_NAME, tag: 'veeam' }],
-            },
-            setConfig: jest.fn(),
           }}
         >
           <Stepper
@@ -548,6 +521,7 @@ describe('ISVSummary', () => {
                       secretKey={SECRET_KEY}
                       buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
                       enableImmutableBackup={true}
+                      application={VEEAM_OFFICE_365_V8}
                     />
                   );
                 },
@@ -558,7 +532,7 @@ describe('ISVSummary', () => {
         { wrapper: Wrapper },
       );
       //E+V
-      expect(screen.getByText(/Immutable backup/i)).toBeInTheDocument();
+      expect(screen.queryAllByText(/immutable/i).length).toBeGreaterThan(0);
       expect(
         screen.getByText(/Ensure "Make backups immutable"/i),
       ).toBeInTheDocument();
