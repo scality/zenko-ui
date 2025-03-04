@@ -218,7 +218,7 @@ describe('ISVConfiguration', () => {
       renderComponent(VeeamVBO);
 
       const continueButton = screen.getByRole('button', {
-        name: /Continue/i,
+        name: /Arrow-right Continue/i,
       });
       expect(continueButton).toBeDisabled();
 
@@ -248,7 +248,7 @@ describe('ISVConfiguration', () => {
         name: 'Veeam application',
       });
       await userEvent.click(applicationInput);
-      await userEvent.click(screen.getByText(VEEAM_OFFICE_365));
+      await userEvent.click(screen.getByRole('option', { name: VEEAM_OFFICE_365 }));
 
       // Wait for validation to complete and form to be valid
       await waitFor(() => {

@@ -1,26 +1,19 @@
-import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WelcomeModalInternal } from './WelcomeModal';
 import {
   TEST_API_BASE_URL,
+  Wrapper,
   expectElementNotToBeInDocument,
   mockOffsetSize,
-  mockShellAlerts,
-  mockShellHooks,
   queryClient,
-  theme,
 } from '../../../utils/testUtil';
-import { InternalRouter } from '../../../FederableApp';
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/constants';
 import { useNextLogin } from '../../hooks/useNextLogin';
 import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
-import { QueryClientProvider } from '../../../../QueryClientProvider';
-import { ShellHooksProvider } from '@scality/module-federation';
-import { ThemeProvider } from 'styled-components';
 
 jest.mock('../../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
@@ -84,18 +77,9 @@ describe('WelcomeModal', () => {
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
   const WelcomeModalComponent = (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <ShellHooksProvider
-          shellHooks={mockShellHooks}
-          shellAlerts={mockShellAlerts}
-        >
-          <InternalRouter>
-            <WelcomeModalInternal isFirstTimeLogin={true} />
-          </InternalRouter>
-        </ShellHooksProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <Wrapper>
+      <WelcomeModalInternal isFirstTimeLogin={true} />
+    </Wrapper>
   );
   const renderWelcomeModal = () => {
     const { unmount, rerender } = render(WelcomeModalComponent);
@@ -227,13 +211,9 @@ describe('WelcomeModal', () => {
     ]);
     mockUseNextLogin.mockReturnValue({ isNextLogin: true });
     render(
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <InternalRouter>
-            <WelcomeModalInternal isFirstTimeLogin={false} />
-          </InternalRouter>
-        </ThemeProvider>
-      </QueryClientProvider>,
+      <Wrapper>
+        <WelcomeModalInternal isFirstTimeLogin={false} />
+      </Wrapper>,
     );
     //E+V
     await waitFor(() => {
