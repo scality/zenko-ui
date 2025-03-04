@@ -45,9 +45,11 @@ const CapacityTooltip = () => (
 export const CapacityFormWithXcore = ({
   useClusterCapacity,
   index,
+  bucketNumber,
 }: {
   useClusterCapacity: UseClusterCapacityHooks;
   index: number;
+  bucketNumber: number;
 }) => {
   const { useAuth } = useShellHooks();
   const { getToken } = useAuth();
@@ -59,7 +61,7 @@ export const CapacityFormWithXcore = ({
   const { setValue } = useFormContext();
   const { capacityValue, capacityUnit } = useCapacityUnit(
     clusterCapacityStatus === 'success'
-      ? clusterCapacity * (0.8 / index + 1)
+      ? clusterCapacity * (0.8 / bucketNumber)
       : 0,
   );
   useEffect(() => {

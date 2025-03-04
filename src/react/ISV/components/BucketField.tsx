@@ -151,6 +151,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       <CapacityFormWithXcore
         useClusterCapacity={useClusterCapacity}
         index={index}
+        bucketNumber={fields.length}
       />
     ) : (
       <CapacityFormSection index={index} />
