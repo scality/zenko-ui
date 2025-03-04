@@ -25,7 +25,9 @@ interface NameFieldProps {
   status: 'loading' | 'success' | string;
   options: Option[];
   platform: string;
-  type: 'create' | 'existing';
+  type:
+    | (typeof accountTypeOptions)[number]['value']
+    | (typeof IAMUserTypeOptions)[number]['value'];
   fieldName: string;
   label: string;
   tooltip?: JSX.Element;
