@@ -112,24 +112,20 @@ export const ISVConfiguration = () => {
     return _accounts.some((account) => account.name === accountName);
   }, [_accounts, accountName]);
 
-  const {
-    isIAMUserExist,
-    IAMUsers,
-    getIAMUsersMutation,
-    accessKeys,
-  } = useIAMUser({
-    IAMUserName,
-    IAMUserNameType,
-    onIAMUsersLoaded: (users) => {
-      if (users.length > 0) {
-        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
-      }
-    },
-    onShouldGenerateKey: (shouldGenerateKey) => {
-      formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
-    },
-  });
+  const { isIAMUserExist, IAMUsers, getIAMUsersMutation, accessKeys } =
+    useIAMUser({
+      IAMUserName,
+      IAMUserNameType,
+      onIAMUsersLoaded: (users) => {
+        if (users.length > 0) {
+          formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+          formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+        }
+      },
+      onShouldGenerateKey: (shouldGenerateKey) => {
+        formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+      },
+    });
 
   const onSubmit = async (data: ISVConfig) => {
     next({
@@ -265,6 +261,11 @@ export const ISVConfiguration = () => {
                 options={IAMUsers}
                 type={IAMUserNameType}
                 platform={platform.id}
+                tooltip={
+                  platform.fieldOverrides.find(
+                    (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
+                  ).tooltip
+                }
                 fieldName={FORM_FIELDS.IAM_USER_NAME}
                 label="IAM User Management"
               />
