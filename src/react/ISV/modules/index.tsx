@@ -24,7 +24,9 @@ export const checkDecimals = (value: number, helpers: Joi.CustomHelpers) => {
   return value;
 };
 
-export const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
+
+export const isvModules: () => ISVPlatformConfig[] = () => [Veeam, Commvault, VeeamVBO];
+
 
 export const commonValidator = {
   accountName: accountNameValidationSchema,

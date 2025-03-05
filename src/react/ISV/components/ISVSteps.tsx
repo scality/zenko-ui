@@ -12,6 +12,7 @@ import ISVApplyActions from './ISVApplyActions';
 import { useSearchParams } from 'react-router';
 import { isvModules } from '../modules';
 
+
 export enum ISVStepsIndexes {
   Configuration,
   ApplyActions,
@@ -55,7 +56,7 @@ export const ISVSteps = () => {
   const id = searchParams.get('platform');
 
   const platform = useMemo(() => {
-    return isvModules.find((p) => p.id === id);
+    return isvModules().find((p) => p.id === id);
   }, [id]);
 
   const contextValue = useMemo(

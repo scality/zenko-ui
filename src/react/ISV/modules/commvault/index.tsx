@@ -1,9 +1,7 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { ListItem } from '..';
-import { accountNameValidationSchema } from '../../../account/AccountCreate';
-import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
+import { commonValidator, ListItem } from '..';
 import { CommvaultLogo } from './components/CommvaultLogo';
 import { GET_COMMVAULT_POLICY } from '../../utils/ISVPolicy';
 
@@ -113,31 +111,6 @@ export const Commvault: ISVPlatformConfig = {
   ],
 
   validator: Joi.object({
-    accountName: accountNameValidationSchema,
-    accountNameType: Joi.string().required(),
-    IAMUserName: Joi.when('accountNameType', {
-      is: Joi.equal('existing'),
-      then: accountNameValidationSchema,
-      otherwise: Joi.valid(),
-    }),
-    IAMUserNameType: Joi.when('accountNameType', {
-      is: Joi.equal('existing'),
-      then: Joi.string().required(),
-      otherwise: Joi.valid(),
-    }),
-    generateKey: Joi.when('accountNameType', {
-      is: Joi.equal('existing'),
-      then: Joi.boolean(),
-      otherwise: Joi.valid(),
-    }),
-    enableImmutableBackup: Joi.boolean().required(),
-    buckets: Joi.array().items(
-      Joi.object({
-        name: bucketNameValidationSchema,
-        tag: Joi.string(),
-        capacity: Joi.valid(),
-        capacityUnit: Joi.valid(),
-      }),
-    ),
+    ...commonValidator,
   }),
 };
