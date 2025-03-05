@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from 'react-query';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useIAMClient } from '../../IAMProvider';
 import { useAssumeRoleQuery } from '../../next-architecture/ui/S3ClientProvider';
 
@@ -23,19 +23,14 @@ export const useIAMUser = ({
 }: UseIAMUserProps) => {
   const IAMClient = useIAMClient();
   const { getQuery } = useAssumeRoleQuery();
-  const [users, setUsers] = useState<IAMUser[]>([]);
-  const [accessKeys, setAccessKeys] = useState<string[] | null>(null);
 
-  useQuery(
-    ['userAccessKeys', IAMUserName],
-    async () => {
+  const { data: accessKeysData } = useQuery({
+    queryKey: ['userAccessKeys', IAMUserName],
+    queryFn: async () => {
       try {
-        const userExists = users.some((user) => user.name === IAMUserName);
-        if (!userExists) {
-          return { shouldGenerateKey: true, activeKeys: [] };
-        }
-
-        const { AccessKeyMetadata } = await IAMClient.listAccessKeys(IAMUserName);
+        const { AccessKeyMetadata } = await IAMClient.listAccessKeys(
+          IAMUserName,
+        );
         const activeKeys = AccessKeyMetadata.filter(
           (key) => key.Status === 'Active',
         );
@@ -47,16 +42,11 @@ export const useIAMUser = ({
         return { shouldGenerateKey: true, activeKeys: [] };
       }
     },
-    {
-      enabled: IAMUserNameType === 'existing' && Boolean(IAMUserName),
-      onSuccess: (data) => {
-        if (data.activeKeys.length > 0) {
-          setAccessKeys(data.activeKeys.map((key) => key.AccessKeyId));
-        }
-        onShouldGenerateKey?.(data.shouldGenerateKey);
-      },
+    enabled: IAMUserNameType === 'existing' && Boolean(IAMUserName),
+    onSuccess: (data) => {
+      onShouldGenerateKey?.(data.shouldGenerateKey);
     },
-  );
+  });
 
   const mutation = useMutation({
     mutationFn: async (roleArn: string) => {
@@ -78,7 +68,6 @@ export const useIAMUser = ({
           tags,
         }),
       );
-      setUsers(mappedUsers);
 
       if (mappedUsers.length > 0) {
         onIAMUsersLoaded?.(mappedUsers);
@@ -89,15 +78,20 @@ export const useIAMUser = ({
   const isUserExist = useMemo(
     () =>
       mutation.status === 'success' &&
-      users.some((user) => user.name === IAMUserName),
-    [IAMUserName, mutation.status, users],
+      mutation.data?.Users.some((user) => user.UserName === IAMUserName),
+    [IAMUserName, mutation.status, mutation.data],
   );
 
   return {
     isIAMUserExist: isUserExist,
-    IAMUsers: users,
+    IAMUsers:
+      mutation.data?.Users.map(({ UserId: id, UserName: name }) => ({
+        id,
+        name,
+      })) ?? [],
     IAMUserNameType,
     getIAMUsersMutation: mutation,
-    accessKeys,
+    accessKeys:
+      accessKeysData?.activeKeys.map((key) => key.AccessKeyId) ?? null,
   } as const;
 };
