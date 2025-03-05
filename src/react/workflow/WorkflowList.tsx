@@ -138,7 +138,9 @@ function WorkflowList({ workflows, workflowId }: Props) {
           separationLineVariant="backgroundLevel1"
           selectedId={workflowId}
           onRowSelected={(selectedRow: Row<Workflow>) =>
-            navigate(`./${selectedRow.original.id}`)
+            navigate(
+              `/accounts/${accountName}/workflows/${selectedRow.original.id}`,
+            )
           }
         />
       </Table>

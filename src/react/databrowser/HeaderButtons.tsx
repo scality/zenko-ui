@@ -6,14 +6,16 @@ import { useDispatch } from 'react-redux';
 import { usePrefixWithSlash } from '../utils/hooks';
 import { Icon } from '@scality/core-ui';
 import { useQueryClient } from 'react-query';
+import { useConfig } from '../next-architecture/ui/ConfigProvider';
 
 export function RefreshButton() {
   const params = useParams<{ bucketName?: string }>();
   const { pathname } = useLocation();
   const prefixWithSlash = usePrefixWithSlash();
   const dispatch = useDispatch();
+  const config = useConfig();
   const isBrowsingObjects = !!matchPath(
-    '/accounts/:accountName/buckets/:bucketName/objects',
+    config.basePath + '/accounts/:accountName/buckets/:bucketName/objects',
     pathname,
   );
   const queryClient = useQueryClient();

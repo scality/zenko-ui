@@ -225,7 +225,9 @@ const CreateWorkflow = () => {
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          navigate(`./replication-${success.streamId}`);
+          navigate(
+            `/accounts/${account.Name}/workflows/replication-${success.streamId}`,
+          );
         }
       },
       onError: (error) => {
@@ -273,7 +275,9 @@ const CreateWorkflow = () => {
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          navigate(`./expiration-${success.workflowId}`);
+          navigate(
+            `/accounts/${account.Name}/workflows/expiration-${success.workflowId}`,
+          );
         }
       },
       onError: (error) => {
@@ -321,7 +325,9 @@ const CreateWorkflow = () => {
             `/accounts/${account?.Name}/buckets/${bucketName}?tab=workflow`,
           );
         } else {
-          navigate(`./transition-${success.workflowId}`);
+          navigate(
+            `/accounts/${account.Name}/workflows/transition-${success.workflowId}`,
+          );
         }
       },
       onError: (error) => {

@@ -4,13 +4,7 @@ import { IAM } from 'aws-sdk';
 import { Bucket } from 'aws-sdk/clients/s3';
 import { PropsWithChildren, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
-import {
-  MemoryRouter,
-  Route,
-  Routes,
-  useLocation,
-  useParams,
-} from 'react-router';
+import { useParams } from 'react-router';
 import DataServiceRoleProvider, {
   useAssumedRole,
   useSetAssumedRole,
@@ -27,7 +21,11 @@ import {
 import { AccountsLocationsEndpointsAdapterProvider } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { getListRolesQuery } from '../queries';
 import { SCALITY_IAM_ROLES, regexArn } from '../utils/hooks';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { ShellHooksProvider } from '@scality/module-federation';
+import {
+  ShellAlerts,
+  ShellHooks,
+} from 'shell/compiled-types/src/hooks/useShellHooks';
 
 export class NoOpMetricsAdapter implements IMetricsAdapter {
   async listBucketsLatestUsedCapacity(
@@ -71,17 +69,6 @@ export const extractAccountIdFromARN = (arn: string) => {
   return regexArn.exec(arn)?.groups?.['account_id'] ?? '';
 };
 
-/**
- * DataServiceRoleProvider is using the path to figure out what is the current account.
- * In order to reuse this logic, we need to have a router and set DataServiceRoleProvider under
- * the path /accounts/:accountName
- * Without this INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION, it won't render.
- *
- * We assume the user won't have an account with this name.
- */
-const INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION =
-  '__INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION__';
-
 const AssumeDefaultIAMRole = ({
   defaultValue,
 }: Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>) => {
@@ -91,19 +78,9 @@ const AssumeDefaultIAMRole = ({
     accessibleAccountsAdapter,
     metricsAdapter,
   });
-  const navigate = useBasenameRelativeNavigate();
   const setAssumeRole = useSetAssumedRole();
-  const location = useLocation();
 
-  const isInternalDefaultAccountSelected =
-    location.pathname ===
-    '/accounts/' + INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION;
-
-  if (
-    accounts.accounts.status === 'success' &&
-    defaultValue &&
-    isInternalDefaultAccountSelected
-  ) {
+  if (accounts.accounts.status === 'success' && defaultValue) {
     const acc = accounts.accounts.value.find(
       (acc) => acc.name === defaultValue?.accountName,
     );
@@ -117,7 +94,6 @@ const AssumeDefaultIAMRole = ({
     setAssumeRole({
       roleArn: acc?.preferredAssumableRoleArn ?? '',
     });
-    navigate('/accounts/' + defaultValue?.accountName, { replace: true });
   }
 
   return <></>;
@@ -130,34 +106,18 @@ const InternalProvider = ({
   Pick<SelectAccountIAMRoleWithAccountProps, 'defaultValue'>
 >) => {
   return (
-    <MemoryRouter
-      initialEntries={[
-        `/accounts/${INTERNAL_DEFAULT_ACCOUNT_NAME_FOR_INITIALIZATION}`,
-      ]}
-    >
-      <Routes>
-        <Route
-          path="/accounts/:accountName"
-          element={
-            <DataServiceRoleProvider
-              DoNotChangePropsWithRedux={false}
-              inlineLoader
-            >
-              <AccountsLocationsEndpointsAdapterProvider>
-                <AccessibleAccountsAdapterProvider
-                  DoNotChangePropsWithEventDispatcher={false}
-                >
-                  <>
-                    <AssumeDefaultIAMRole defaultValue={defaultValue} />
-                    {children}
-                  </>
-                </AccessibleAccountsAdapterProvider>
-              </AccountsLocationsEndpointsAdapterProvider>
-            </DataServiceRoleProvider>
-          }
-        ></Route>
-      </Routes>
-    </MemoryRouter>
+    <DataServiceRoleProvider DoNotChangePropsWithRedux={false} inlineLoader>
+      <AccountsLocationsEndpointsAdapterProvider>
+        <AccessibleAccountsAdapterProvider
+          DoNotChangePropsWithEventDispatcher={false}
+        >
+          <>
+            <AssumeDefaultIAMRole defaultValue={defaultValue} />
+            {children}
+          </>
+        </AccessibleAccountsAdapterProvider>
+      </AccountsLocationsEndpointsAdapterProvider>
+    </DataServiceRoleProvider>
   );
 };
 
@@ -181,13 +141,14 @@ type SelectAccountIAMRoleWithAccountProps = SelectAccountIAMRoleProps & {
 const SelectAccountIAMRoleWithAccount = (
   props: SelectAccountIAMRoleWithAccountProps,
 ) => {
-  const navigate = useBasenameRelativeNavigate();
   const IAMClient = useIAMClient();
   const setAssumedRole = useSetAssumedRole();
   const { accounts, defaultValue, hideAccountRoles, onChange } = props;
-  const defaultAccountName = useParams<{ accountName: string }>().accountName;
+  const defaultAccountName = useParams<{ accountName: string }>()?.accountName;
   const defaultAccount =
-    accounts.find((account) => account.name === defaultAccountName) ?? null;
+    (defaultAccountName
+      ? accounts.find((account) => account.name === defaultAccountName)
+      : null) ?? null;
   const [account, setAccount] = useState<Account | null>(defaultAccount);
   const [role, setRole] = useState<IAM.Role | null>(null);
   const assumedRole = useAssumedRole();
@@ -271,7 +232,6 @@ const SelectAccountIAMRoleWithAccount = (
                 setAssumedRole({
                   roleArn: selectedAccount.preferredAssumableRoleArn,
                 });
-                navigate(`/accounts/${accountName}`);
 
                 setAccount(selectedAccount);
                 setRole(null);
@@ -293,7 +253,7 @@ const SelectAccountIAMRoleWithAccount = (
           label="Role"
           id="select-account-role"
           content={
-            roles.length > 0 ? (
+            account ? (
               <Select
                 id="select-account-role"
                 value={role?.RoleName ?? defaultRole}
@@ -408,6 +368,18 @@ export const SelectAccountIAMRoleInternal = (
   );
 };
 
-export default function SelectAccountIAMRole(props: SelectAccountIAMRoleProps) {
-  return <SelectAccountIAMRoleInternal {...props} />;
+export default function SelectAccountIAMRole(
+  props: SelectAccountIAMRoleProps & {
+    shellAlerts: ShellAlerts;
+    shellHooks: ShellHooks;
+  },
+) {
+  return (
+    <ShellHooksProvider
+      shellAlerts={props.shellAlerts}
+      shellHooks={props.shellHooks}
+    >
+      <SelectAccountIAMRoleInternal {...props} />
+    </ShellHooksProvider>
+  );
 }

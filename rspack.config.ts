@@ -118,7 +118,7 @@ const config: Configuration = {
   plugins: [
     new ModuleFederationPlugin({
       name: 'zenko',
-      filename: 'static/js/remoteEntry.js',
+      filename: `static/js/remoteEntry.${revision}.js`,
       exposes: {
         './FederableApp': './src/react/FederableApp.tsx',
         './WelcomeModal': './src/react/ISV/components/Modal/WelcomeModal.tsx',

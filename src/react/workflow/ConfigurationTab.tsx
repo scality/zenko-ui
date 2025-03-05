@@ -163,7 +163,10 @@ function useReplicationMutations({
     },
     {
       onSuccess: (success) => {
-        navigate(`./replication-${success.streamId}`, { replace: true });
+        navigate(
+          `/accounts/${account.Name}/workflows/replication-${success.streamId}`,
+          { replace: true },
+        );
 
         if (onEditSuccess) {
           //@ts-expect-error fix this when you are working on it
@@ -268,7 +271,10 @@ function useExpirationMutations({
     },
     {
       onSuccess: (success) => {
-        navigate(`./expiration-${success.workflowId}`, { replace: true });
+        navigate(
+          `/accounts/${account.Name}/workflows/expiration-${success.workflowId}`,
+          { replace: true },
+        );
 
         if (onEditSuccess) {
           onEditSuccess(success);
@@ -378,7 +384,10 @@ function useTransitionMutations(
     },
     {
       onSuccess: (success) => {
-        navigate(`./transition-${success.workflowId}`, { replace: true });
+        navigate(
+          `/accounts/${account.Name}/workflows/transition-${success.workflowId}`,
+          { replace: true },
+        );
 
         if (onEditSuccess) {
           onEditSuccess(success);

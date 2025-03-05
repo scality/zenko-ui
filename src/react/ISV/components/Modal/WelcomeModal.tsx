@@ -13,10 +13,14 @@ import { useNextLogin } from '../../hooks/useNextLogin';
 import AlertProvider, {
   useAlerts,
 } from '../../../next-architecture/ui/AlertProvider';
-import { useShellHooks } from '@scality/module-federation';
+import { ShellHooksProvider, useShellHooks } from '@scality/module-federation';
 import { ISVModalContent } from './ISVModal';
 import { ISVCardConfig } from '../../types';
 import { useLocation } from 'react-router';
+import {
+  ShellAlerts,
+  ShellHooks,
+} from 'shell/compiled-types/src/hooks/useShellHooks';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -29,9 +33,13 @@ const CustomModal = styled(Modal)`
 const TRIAL_LICENSE = 'TrialLicense';
 type NavbarUpdaterComponentProps = {
   isFirstTimeLogin: boolean;
+  shellHooks: ShellHooks;
+  shellAlerts: ShellAlerts;
 };
 
-export const WelcomeModalInternal = (props: NavbarUpdaterComponentProps) => {
+export const WelcomeModalInternal = (
+  props: Omit<NavbarUpdaterComponentProps, 'shellHooks' | 'shellAlerts'>,
+) => {
   const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const { accounts, status } = useAccounts();
   const { alerts } = useAlerts({
@@ -183,10 +191,15 @@ const ModalComponent = () => {
 
 export default function WelcomeModal(props: NavbarUpdaterComponentProps) {
   return (
-    <InternalRouter>
-      <AlertProvider>
-        <WelcomeModalInternal {...props} />
-      </AlertProvider>
-    </InternalRouter>
+    <ShellHooksProvider
+      shellHooks={props.shellHooks}
+      shellAlerts={props.shellAlerts}
+    >
+      <InternalRouter>
+        <AlertProvider>
+          <WelcomeModalInternal {...props} />
+        </AlertProvider>
+      </InternalRouter>
+    </ShellHooksProvider>
   );
 }

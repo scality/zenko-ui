@@ -112,7 +112,7 @@ const DataServiceRoleProvider = ({
   });
   const { accounts } = useAccounts(noopBasedEventDispatcher); //TODO: use a real event dispatcher
   const params = useParams();
-  const accountName = params.accountName;
+  const accountName = params?.accountName;
 
   const { getQuery } = useAssumeRoleQuery();
   const [assumedRole, setAssumedRole] =

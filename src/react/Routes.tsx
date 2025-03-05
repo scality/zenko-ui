@@ -103,6 +103,7 @@ function PrivateRoutes() {
     (state: AppState) => state.auth.isClientsLoaded,
   );
   const user = useSelector((state: AppState) => state.oidc.user);
+  const config = useConfig();
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
@@ -159,73 +160,219 @@ function PrivateRoutes() {
 
   return (
     <Routes>
-      <Route path="create-location/*" element={<LocationEditor />} />
+      <Route
+        path="create-location/*"
+        element={
+          <DataServiceRoleProvider>
+            <LocationEditor />
+          </DataServiceRoleProvider>
+        }
+      />
       <Route
         path="locations/:locationName/edit/*"
-        element={<LocationEditor />}
+        element={
+          <DataServiceRoleProvider>
+            <LocationEditor />
+          </DataServiceRoleProvider>
+        }
       />
-      <Route path="workflows/*" element={<RedirectToAccount />} />
-      <Route path={`create-user/*`} element={<AccountCreateUser />} />
-      <Route path={`create-policy/*`} element={<CreateAccountPolicy />} />
-      <Route path="create-account/*" element={<AccountCreate />} />
-      <Route path="create-dataservice/*" element={<EndpointCreate />} />
-      <Route path="dataservices/*" element={<Endpoints />} />
-      <Route path="locations/*" element={<Locations />} />
-
-      <Route path="isv/configuration" element={<ISVSteps />} />
-
-      <Route path="isv/configuration" element={<ISVSteps />} />
+      <Route
+        path="workflows/*"
+        element={
+          <DataServiceRoleProvider>
+            <RedirectToAccount />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path={`create-user/*`}
+        element={
+          <DataServiceRoleProvider>
+            <AccountCreateUser />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path={`create-policy/*`}
+        element={
+          <DataServiceRoleProvider>
+            <CreateAccountPolicy />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="create-account/*"
+        element={
+          <DataServiceRoleProvider>
+            <AccountCreate />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="create-dataservice/*"
+        element={
+          <DataServiceRoleProvider>
+            <EndpointCreate />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="dataservices/*"
+        element={
+          <DataServiceRoleProvider>
+            <Endpoints />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="locations/*"
+        element={
+          <DataServiceRoleProvider>
+            <Locations />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="isv/configuration/*"
+        element={
+          <DataServiceRoleProvider>
+            <ISVSteps />
+          </DataServiceRoleProvider>
+        }
+      />
       <Route
         path={`accounts/:accountName/policies/:policyArn/attachments/*`}
-        element={<Attachments />}
+        element={
+          <DataServiceRoleProvider>
+            <Attachments />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={`accounts/:accountName/users/:IAMUserName/update-user/*`}
-        element={<AccountUpdateUser />}
+        element={
+          <DataServiceRoleProvider>
+            <AccountUpdateUser />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={`accounts/:accountName/policies/:policyArn/:defaultVersionId/update-policy/*`}
-        element={<UpdateAccountPolicy />}
+        element={
+          <DataServiceRoleProvider>
+            <UpdateAccountPolicy />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={`accounts/:accountName/users/:IAMUserName/access-keys/*`}
-        element={<AccountUserAccessKeys />}
+        element={
+          <DataServiceRoleProvider>
+            <AccountUserAccessKeys />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path="accounts/:accountName/users/:IAMUserName/attachments/*"
-        element={<Attachments />}
+        element={
+          <DataServiceRoleProvider>
+            <Attachments />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={'accounts/:accountName/workflows/:workflowId/*'}
-        element={<Workflows />}
+        element={
+          <DataServiceRoleProvider>
+            <Workflows />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={'accounts/:accountName/workflows/create-workflow/*'}
-        element={<CreateWorkflow />}
+        element={
+          <DataServiceRoleProvider>
+            <CreateWorkflow />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path="accounts/:accountName/data/workflows/*"
-        element={<Workflows />}
+        element={
+          <DataServiceRoleProvider>
+            <Workflows />
+          </DataServiceRoleProvider>
+        }
       />
-      <Route path="accounts/:accountName/workflows/*" element={<Workflows />} />
+      <Route
+        path="accounts/:accountName/workflows/*"
+        element={
+          <DataServiceRoleProvider>
+            <Workflows />
+          </DataServiceRoleProvider>
+        }
+      />
       <Route
         path="accounts/:accountName/create-bucket/*"
-        element={<BucketCreate />}
+        element={
+          <DataServiceRoleProvider>
+            <BucketCreate />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path={'accounts/:accountName/buckets/:bucketName/objects'}
-        element={<Objects />}
+        element={
+          <DataServiceRoleProvider>
+            <Objects />
+          </DataServiceRoleProvider>
+        }
       />
       <Route
         path="accounts/:accountName/data/buckets/*"
-        element={<DataBrowser />}
+        element={
+          <DataServiceRoleProvider>
+            <DataBrowser />
+          </DataServiceRoleProvider>
+        }
       />
-      <Route path="accounts/:accountName/buckets/*" element={<DataBrowser />} />
-      <Route path="accounts/:accountName/*" element={<AccountContent />} />
-      <Route path="accounts/*" element={<Accounts />} />
-      <Route path="buckets/*" element={<RedirectToAccount />} />
+      <Route
+        path="accounts/:accountName/buckets/*"
+        element={
+          <DataServiceRoleProvider>
+            <DataBrowser />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="accounts/:accountName/*"
+        element={
+          <DataServiceRoleProvider>
+            <AccountContent />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="accounts/*"
+        element={
+          <DataServiceRoleProvider>
+            <Accounts />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
+        path="buckets/*"
+        element={
+          <DataServiceRoleProvider>
+            <RedirectToAccount />
+          </DataServiceRoleProvider>
+        }
+      />
       <Route path="/" element={<Navigate to="accounts" replace />} />
-      <Route path="*" element={<NoMatch />} />
+      <Route
+        path="*"
+        element={<Navigate to={config.basePath + `/accounts`} replace />}
+      />
     </Routes>
   );
 }
@@ -344,24 +491,20 @@ function InternalRoutes() {
   };
 
   return (
-    <DataServiceRoleProvider>
-      <>
-        <ReauthDialog />
-        <AppContainer
-          hasPadding
-          sidebarNavigation={
-            hideSideBar ? <></> : <Sidebar {...sidebarConfig} />
-          }
-          //@ts-expect-error fix this when you are working on it
-          style={{ color: theme.textPrimary }}
-        >
-          <RemoveTrailingSlash />
-          <ManagementProvider>
-            <PrivateRoutes />
-          </ManagementProvider>
-        </AppContainer>
-      </>
-    </DataServiceRoleProvider>
+    <>
+      <ReauthDialog />
+      <AppContainer
+        hasPadding
+        sidebarNavigation={hideSideBar ? <></> : <Sidebar {...sidebarConfig} />}
+        //@ts-expect-error fix this when you are working on it
+        style={{ color: theme.textPrimary }}
+      >
+        <RemoveTrailingSlash />
+        <ManagementProvider>
+          <PrivateRoutes />
+        </ManagementProvider>
+      </AppContainer>
+    </>
   );
 }
 

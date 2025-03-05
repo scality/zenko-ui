@@ -13,7 +13,7 @@ import {
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 import { useMemo, useState } from 'react';
 import { useMutation, useQueryClient } from 'react-query';
-import { Route, useLocation, useParams } from 'react-router';
+import { Route, Routes, useLocation, useParams } from 'react-router';
 import { Column } from 'react-table';
 import { useTheme } from 'styled-components';
 import { useIAMClient } from '../IAMProvider';
@@ -28,6 +28,7 @@ import {
 } from '../utils/IAMhooks';
 import AccountUserSecretKeyModal from './AccountUserSecretKeyModal';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useCurrentAccount } from '../DataServiceRoleProvider';
 
 const CreatedOnCell = (rowValue) => {
   const outdatedAlert = useAccessKeyOutdatedStatus(rowValue);
@@ -257,6 +258,8 @@ const AccountUserAccessKeys = () => {
       return `Access Keys ${accessKeysResultLength}`;
     }
   }, [accessKeysStatus, accessKeysResultLength]);
+
+  const currentAccount = useCurrentAccount();
   return (
     <div
       style={{
@@ -276,7 +279,7 @@ const AccountUserAccessKeys = () => {
               size="2x"
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                navigate('../');
+                navigate(`/accounts/${currentAccount.account.Name}/users`);
               }}
             />
             <Icon name="Key" size="2x" color={theme.infoPrimary} />
@@ -305,7 +308,11 @@ const AccountUserAccessKeys = () => {
                 icon={<Icon name="Create-add" />}
                 label="Create Access Keys"
                 variant="primary"
-                onClick={() => navigate('access-keys/create')}
+                onClick={() =>
+                  navigate(
+                    `/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys/create`,
+                  )
+                }
                 type="submit"
               />
             }
@@ -316,9 +323,12 @@ const AccountUserAccessKeys = () => {
           ></Table.SingleSelectableContent>
         </Table>
       </AppContainer.MainContent>
-      <Route path={`${pathname}/create`}>
-        <AccountUserSecretKeyModal IAMUserName={IAMUserName} />
-      </Route>
+      <Routes>
+        <Route
+          path={`create`}
+          element={<AccountUserSecretKeyModal IAMUserName={IAMUserName} />}
+        />
+      </Routes>
     </div>
   );
 };

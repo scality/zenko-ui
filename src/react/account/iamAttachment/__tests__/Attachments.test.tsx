@@ -247,7 +247,7 @@ describe('Policy Attachments', () => {
     const firstRow = screen.getAllByRole('row')[1];
     expect(
       getByRole(firstRow, 'gridcell', {
-        name: /attached-user/i,
+        name: /attached-group/i,
       }),
     ).toBeInTheDocument();
     expect(

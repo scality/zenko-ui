@@ -50,8 +50,11 @@ function AccountUserSecretKeyModal({ IAMUserName }: Props) {
     },
   );
 
+  const currentAccount = useCurrentAccount();
   const handleClose = () => {
-    navigate('.');
+    navigate(
+      `/accounts/${currentAccount.account.Name}/users/${IAMUserName}/access-keys`,
+    );
   };
 
   const handleAccessKeyCreate = () => {
