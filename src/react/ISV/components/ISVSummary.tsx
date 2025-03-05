@@ -71,8 +71,8 @@ export const ISVSummary = ({
   });
 
   const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
-    secretKey ? 'Access key ID' : 'Access key IDs'
-  }\t${secretKey ? accessKey : accessKeys.join(', ')}\n${
+    accessKey ? 'Access key ID' : 'Access key IDs'
+  }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
   }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`;
   return (
