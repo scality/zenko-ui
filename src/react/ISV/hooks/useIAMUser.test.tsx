@@ -77,8 +77,8 @@ describe('useIAMUser', () => {
   it('should get IAM user list through mutation', async () => {
     mockIAMClient.listUsers.mockResolvedValue({
       Users: [
-        { UserId: 'user1', UserName: 'test-user', Tags: [] },
-        { UserId: 'user2', UserName: 'other-user', Tags: [] },
+        { UserId: 'user1', UserName: 'test-user' },
+        { UserId: 'user2', UserName: 'other-user' },
       ],
     });
 
@@ -109,8 +109,8 @@ describe('useIAMUser', () => {
     // verify status update
     expect(result.current.getIAMUsersMutation.status).toBe('success');
     expect(result.current.IAMUsers).toEqual([
-      { id: 'user1', name: 'test-user', tags: [] },
-      { id: 'user2', name: 'other-user', tags: [] },
+      { id: 'user1', name: 'test-user' },
+      { id: 'user2', name: 'other-user' },
     ]);
     expect(result.current.isIAMUserExist).toBe(true);
   });
@@ -118,7 +118,7 @@ describe('useIAMUser', () => {
   it('should check user access keys when IAMUserNameType is existing', async () => {
     // Setup mocks
     mockIAMClient.listUsers.mockResolvedValue({
-      Users: [{ UserId: 'user1', UserName: 'test-user', Tags: [] }],
+      Users: [{ UserId: 'user1', UserName: 'test-user' }],
     });
 
     mockIAMClient.listAccessKeys.mockResolvedValue({
@@ -134,7 +134,7 @@ describe('useIAMUser', () => {
     const accessKeySpy = jest.spyOn(mockIAMClient, 'listAccessKeys');
 
     // Directly test the checkUserAccessKeys function to avoid async timing issues
-    const users = [{ id: 'user1', name: 'test-user', tags: [] }];
+    const users = [{ id: 'user1', name: 'test-user' }];
 
     const checkUserAccessKeys = async (userName: string) => {
       try {
@@ -215,7 +215,7 @@ describe('useIAMUser', () => {
   it('should set shouldGenerateKey to true when listAccessKeys fails', async () => {
     // Setup
     mockIAMClient.listUsers.mockResolvedValue({
-      Users: [{ UserId: 'user1', UserName: 'test-user', Tags: [] }],
+      Users: [{ UserId: 'user1', UserName: 'test-user' }],
     });
 
     mockIAMClient.listAccessKeys.mockRejectedValue(new Error('Access denied'));
@@ -278,8 +278,8 @@ describe('useIAMUser', () => {
   it('should trigger onIAMUsersLoaded callback when users are loaded', async () => {
     mockIAMClient.listUsers.mockResolvedValue({
       Users: [
-        { UserId: 'user1', UserName: 'test-user', Tags: [] },
-        { UserId: 'user2', UserName: 'other-user', Tags: [] },
+        { UserId: 'user1', UserName: 'test-user' },
+        { UserId: 'user2', UserName: 'other-user' },
       ],
     });
 
@@ -304,8 +304,8 @@ describe('useIAMUser', () => {
 
     // Verify callback was triggered with user data
     expect(mockOnIAMUsersLoaded).toHaveBeenCalledWith([
-      { id: 'user1', name: 'test-user', tags: [] },
-      { id: 'user2', name: 'other-user', tags: [] },
+      { id: 'user1', name: 'test-user' },
+      { id: 'user2', name: 'other-user' },
     ]);
   });
 });
