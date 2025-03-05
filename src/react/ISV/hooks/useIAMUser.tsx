@@ -10,21 +10,19 @@ interface IAMUser {
 
 interface UseIAMUserProps {
   IAMUserName: string;
-  IAMUserNameType: 'create' | 'existing';
   onIAMUsersLoaded?: (users: IAMUser[]) => void;
   onShouldGenerateKey?: (shouldGenerate: boolean) => void;
 }
 
 export const useIAMUser = ({
   IAMUserName,
-  IAMUserNameType,
   onIAMUsersLoaded,
   onShouldGenerateKey,
 }: UseIAMUserProps) => {
   const IAMClient = useIAMClient();
   const { getQuery } = useAssumeRoleQuery();
 
-  const { data: accessKeysData } = useQuery({
+  const { data: accessKeysData, status: accessKeysStatus } = useQuery({
     queryKey: ['userAccessKeys', IAMUserName],
     queryFn: async () => {
       try {
@@ -42,7 +40,6 @@ export const useIAMUser = ({
         return { shouldGenerateKey: true, activeKeys: [] };
       }
     },
-    enabled: IAMUserNameType === 'existing' && Boolean(IAMUserName),
     onSuccess: (data) => {
       onShouldGenerateKey?.(data.shouldGenerateKey);
     },
@@ -61,13 +58,10 @@ export const useIAMUser = ({
       return IAMClient.listUsers(100);
     },
     onSuccess: async ({ Users }) => {
-      const mappedUsers = Users.map(
-        ({ UserId: id, UserName: name, Tags: tags }) => ({
-          id,
-          name,
-          tags,
-        }),
-      );
+      const mappedUsers = Users.map(({ UserId: id, UserName: name }) => ({
+        id,
+        name,
+      }));
 
       if (mappedUsers.length > 0) {
         onIAMUsersLoaded?.(mappedUsers);
@@ -89,9 +83,9 @@ export const useIAMUser = ({
         id,
         name,
       })) ?? [],
-    IAMUserNameType,
     getIAMUsersMutation: mutation,
     accessKeys:
       accessKeysData?.activeKeys.map((key) => key.AccessKeyId) ?? null,
+    accessKeysStatus,
   } as const;
 };

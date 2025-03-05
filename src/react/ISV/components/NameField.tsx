@@ -1,5 +1,3 @@
-import { Checkbox } from '@scality/core-ui/dist/components/checkbox/Checkbox.component';
-
 import { FormGroup } from '@scality/core-ui/dist/components/form/Form.component';
 import { Stack } from '@scality/core-ui/dist/spacing';
 import { Controller, useFormContext } from 'react-hook-form';
@@ -32,6 +30,7 @@ interface NameFieldProps {
   label: string;
   tooltip?: JSX.Element;
   onFieldNameChange?: OnFieldNameChangeProps | null;
+  children?: React.ReactNode;
 }
 
 const FORM_FIELDS = {
@@ -72,6 +71,7 @@ export const NameField = ({
   label,
   tooltip = null,
   onFieldNameChange = null,
+  children = null,
 }: NameFieldProps) => {
   const {
     register,
@@ -185,24 +185,7 @@ export const NameField = ({
                 )}
               />
             )}
-
-            {!isAccount && type === 'existing' && (
-              <Controller
-                name={FORM_FIELDS.GENERATE_KEY}
-                control={control}
-                render={({ field: { onChange, value } }) => {
-                  return (
-                    <Checkbox
-                      id={FORM_FIELDS.GENERATE_KEY}
-                      value={value}
-                      label="Generate a new set of AK/SK"
-                      onChange={onChange}
-                      checked={value}
-                    />
-                  );
-                }}
-              />
-            )}
+            {children}
           </Stack>
         }
       />

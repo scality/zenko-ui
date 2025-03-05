@@ -25,6 +25,8 @@ import { unitChoices } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { NameField } from './NameField';
+import { Checkbox } from '../../ui-elements/FormLayout';
+
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
   ACCOUNT_NAME_TYPE: 'accountNameType',
@@ -102,20 +104,27 @@ export const ISVConfiguration = () => {
     return _accounts.some((account) => account.name === accountName);
   }, [_accounts, accountName]);
 
-  const { isIAMUserExist, IAMUsers, getIAMUsersMutation, accessKeys } =
-    useIAMUser({
-      IAMUserName,
-      IAMUserNameType,
-      onIAMUsersLoaded: (users) => {
-        if (users.length > 0) {
-          formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-          formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
-        }
-      },
-      onShouldGenerateKey: (shouldGenerateKey) => {
-        formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
-      },
-    });
+  const {
+    isIAMUserExist,
+    IAMUsers,
+    getIAMUsersMutation,
+    accessKeys,
+    accessKeysStatus,
+  } = useIAMUser({
+    IAMUserName,
+    onIAMUsersLoaded: (users) => {
+      console.log('users', users.length);
+      if (users.length > 0) {
+        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+      } else {
+        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+      }
+    },
+    onShouldGenerateKey: (shouldGenerateKey) => {
+      formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+    },
+  });
 
   const onSubmit = async (data: ISVConfig) => {
     next({
@@ -208,7 +217,30 @@ export const ISVConfiguration = () => {
                 }
                 fieldName={FORM_FIELDS.IAM_USER_NAME}
                 label="IAM User Management"
-              />
+              >
+                {IAMUserNameType === 'existing' && (
+                  <Controller
+                    name={FORM_FIELDS.GENERATE_KEY}
+                    control={control}
+                    render={({ field: { onChange, value } }) => {
+                      console.log('value', value);
+                      return (
+                        <Checkbox
+                          id={FORM_FIELDS.GENERATE_KEY}
+                          label={`${
+                            accessKeysStatus === 'loading'
+                              ? 'Loading...'
+                              : 'Generate a new set of AK/SK'
+                          }`}
+                          onChange={onChange}
+                          disabled={accessKeysStatus === 'loading'}
+                          checked={value}
+                        />
+                      );
+                    }}
+                  />
+                )}
+              </NameField>
             </Accordion>
           )}
 

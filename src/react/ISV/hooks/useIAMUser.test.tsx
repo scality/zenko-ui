@@ -63,7 +63,6 @@ describe('useIAMUser', () => {
       () =>
         useIAMUser({
           IAMUserName: 'test-user',
-          IAMUserNameType: 'create',
         }),
       { wrapper },
     );
@@ -86,7 +85,6 @@ describe('useIAMUser', () => {
       () =>
         useIAMUser({
           IAMUserName: 'test-user',
-          IAMUserNameType: 'create',
         }),
       { wrapper },
     );
@@ -259,7 +257,6 @@ describe('useIAMUser', () => {
       () =>
         useIAMUser({
           IAMUserName: 'test-user',
-          IAMUserNameType: 'create',
         }),
       { wrapper },
     );
@@ -289,7 +286,6 @@ describe('useIAMUser', () => {
       () =>
         useIAMUser({
           IAMUserName: 'test-user',
-          IAMUserNameType: 'create',
           onIAMUsersLoaded: mockOnIAMUsersLoaded,
         }),
       { wrapper },
