@@ -2,6 +2,10 @@ import Joi from '@hapi/joi';
 import styled from 'styled-components';
 import { accountNameValidationSchema } from '../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../databrowser/buckets/BucketCreate';
+import { Commvault } from './commvault';
+import { ISVPlatformConfig } from '../types';
+import { VeeamVBO } from './veeam-vbo';
+import { Veeam } from './veeam';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -19,6 +23,8 @@ export const checkDecimals = (value: number, helpers: Joi.CustomHelpers) => {
   }
   return value;
 };
+
+export const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
 
 export const commonValidator = {
   accountName: accountNameValidationSchema,

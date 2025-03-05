@@ -10,9 +10,7 @@ import { ISVSummary } from './ISVSummary';
 import ISVApplyActions from './ISVApplyActions';
 
 import { useSearchParams } from 'react-router';
-import { Veeam } from '../modules/veeam';
-import { Commvault } from '../modules/commvault';
-import { VeeamVBO } from '../modules/veeam-vbo';
+import { isvModules } from '../modules';
 
 export enum ISVStepsIndexes {
   Configuration,
@@ -55,8 +53,6 @@ export const ISVSteps = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
   const id = searchParams.get('platform');
-
-  const isvModules: ISVPlatformConfig[] = [Veeam, Commvault, VeeamVBO];
 
   const platform = useMemo(() => {
     return isvModules.find((p) => p.id === id);
