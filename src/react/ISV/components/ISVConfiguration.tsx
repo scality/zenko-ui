@@ -218,7 +218,6 @@ export const ISVConfiguration = () => {
                     name={FORM_FIELDS.GENERATE_KEY}
                     control={control}
                     render={({ field: { onChange, value } }) => {
-                      console.log('value', value);
                       return (
                         <Checkbox
                           id={FORM_FIELDS.GENERATE_KEY}
