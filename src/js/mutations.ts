@@ -234,12 +234,10 @@ const useCreateOrAddBucketToPolicyMutation = () => {
       );
       if (statementIndex !== -1) {
         policyJSON.Statement[statementIndex].Resource.push(
-          ...bucketsName
-            .map((bucket) => [
-              `arn:aws:s3:::${bucket}/*`,
-              `arn:aws:s3:::${bucket}`,
-            ])
-            .flat(),
+          ...bucketsName.flatMap((bucket) => [
+            `arn:aws:s3:::${bucket}/*`,
+            `arn:aws:s3:::${bucket}`,
+          ]),
         );
       } else {
         const newStatement = JSON.parse(newPolicyDocument).Statement[0];

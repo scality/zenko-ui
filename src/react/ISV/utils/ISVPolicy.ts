@@ -33,12 +33,10 @@ export const GET_VEEAM_POLICY = (buckets: string[], isImmutable: boolean) => {
         Effect: 'Allow',
         Action: getAllowedActions(isImmutable),
         Resource: [
-          ...buckets
-            .map((bucket) => [
-              `arn:aws:s3:::${bucket}/*`,
-              `arn:aws:s3:::${bucket}`,
-            ])
-            .flat(),
+          ...buckets.flatMap((bucket) => [
+            `arn:aws:s3:::${bucket}/*`,
+            `arn:aws:s3:::${bucket}`,
+          ]),
         ],
       },
       {
@@ -58,12 +56,10 @@ export const GET_COMMVAULT_POLICY = (buckets: string[], isImmutable: boolean) =>
         Effect: 'Allow',
         Action: getAllowedActions(isImmutable),
         Resource: [
-          ...buckets
-            .map((bucket) => [
-              `arn:aws:s3:::${bucket}/*`,
-              `arn:aws:s3:::${bucket}`,
-            ])
-            .flat(),
+          ...buckets.flatMap((bucket) => [
+            `arn:aws:s3:::${bucket}/*`,
+            `arn:aws:s3:::${bucket}`,
+          ]),
         ],
       },
       {
