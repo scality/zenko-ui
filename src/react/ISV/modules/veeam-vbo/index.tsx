@@ -2,7 +2,9 @@ import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../veeam/components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { FormGroup, Text } from '@scality/core-ui';
-import { commonValidator, ListItem } from '../index';
+import { ListItem } from '../index';
+import { accountNameValidationSchema } from '../../../account/AccountCreate';
+import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { Select } from '@scality/core-ui/dist/next';
@@ -197,8 +199,32 @@ export const VeeamVBO: ISVPlatformConfig = {
   additionalFields: [<OfficeVersion />],
   isObjectLockEnabled: (props) => props.application === VEEAM_OFFICE_365_V8,
   validator: Joi.object({
-    ...commonValidator,
+    accountName: accountNameValidationSchema,
+    accountNameType: Joi.string().required(),
+    IAMUserName: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: accountNameValidationSchema,
+      otherwise: Joi.valid(),
+    }),
+    IAMUserNameType: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    generateKey: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.boolean(),
+      otherwise: Joi.valid(),
+    }),
     application: Joi.string().required(),
+    buckets: Joi.array().items(
+      Joi.object({
+        name: bucketNameValidationSchema,
+        tag: Joi.string(),
+        capacity: Joi.valid(),
+        capacityUnit: Joi.valid(),
+      }),
+    ),
     enableImmutableBackup: Joi.when('application', {
       is: Joi.equal(VEEAM_OFFICE_365_V8),
       then: Joi.boolean().required(),

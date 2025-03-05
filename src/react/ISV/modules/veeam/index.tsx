@@ -2,7 +2,8 @@ import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, commonValidator, ListItem } from '../index';
+import { checkDecimals, ListItem } from '../index';
+import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
@@ -149,7 +150,24 @@ export const Veeam: ISVPlatformConfig = {
       : undefined,
   }),
   validator: Joi.object({
-    ...commonValidator,
+    accountName: accountNameValidationSchema,
+    accountNameType: Joi.string().required(),
+    IAMUserName: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: accountNameValidationSchema,
+      otherwise: Joi.valid(),
+    }),
+    IAMUserNameType: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.string().required(),
+      otherwise: Joi.valid(),
+    }),
+    generateKey: Joi.when('accountNameType', {
+      is: Joi.equal('existing'),
+      then: Joi.boolean(),
+      otherwise: Joi.valid(),
+    }),
+    enableImmutableBackup: Joi.boolean().required().default(false),
     buckets: Joi.array().items(
       Joi.object({
         name: bucketNameValidationSchema,
