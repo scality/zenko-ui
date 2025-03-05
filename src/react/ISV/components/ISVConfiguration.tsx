@@ -24,7 +24,7 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { unitChoices } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { NameField } from './NameField';
+import { CreateOrSelectNameField } from './CreateOrSelectNameField';
 import { Checkbox } from '../../ui-elements/FormLayout';
 
 const FORM_FIELDS = {
@@ -42,10 +42,6 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
-
-  if (!platform.id) {
-    return null;
-  }
 
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
@@ -113,7 +109,6 @@ export const ISVConfiguration = () => {
   } = useIAMUser({
     IAMUserName,
     onIAMUsersLoaded: (users) => {
-      console.log('users', users.length);
       if (users.length > 0) {
         formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
         formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
@@ -186,7 +181,7 @@ export const ISVConfiguration = () => {
             <Text variant="Large">{platform.description}</Text> {platform.logo}
           </Stack>
 
-          <NameField
+          <CreateOrSelectNameField
             isExist={isAccountExist}
             status={accounts.status}
             options={_accounts}
@@ -204,7 +199,7 @@ export const ISVConfiguration = () => {
 
           {accountNameType === 'existing' && accountName && (
             <Accordion title="Advanced settings" id="advanced-settings">
-              <NameField
+              <CreateOrSelectNameField
                 isExist={isIAMUserExist}
                 status={getIAMUsersMutation.status}
                 options={IAMUsers}
@@ -240,7 +235,7 @@ export const ISVConfiguration = () => {
                     }}
                   />
                 )}
-              </NameField>
+              </CreateOrSelectNameField>
             </Accordion>
           )}
 

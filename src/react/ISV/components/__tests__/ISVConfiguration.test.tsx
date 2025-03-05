@@ -93,15 +93,6 @@ describe('ISVConfiguration', () => {
   });
 
   describe('Basic Rendering', () => {
-    it('should render nothing when platform id is missing', () => {
-      const platformWithoutId = {
-        ...Veeam,
-        id: undefined,
-      };
-
-      const { container } = renderComponent(platformWithoutId);
-      expect(container).toBeEmptyDOMElement();
-    });
 
     it('should render form with basic fields', () => {
       renderComponent();

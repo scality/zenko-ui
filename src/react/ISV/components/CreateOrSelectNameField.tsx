@@ -18,7 +18,7 @@ interface OnFieldNameChangeProps {
   setAccount?: (account: Option) => void;
 }
 
-interface NameFieldProps {
+interface CreateOrSelectNameFieldProps {
   isExist: boolean;
   status: 'loading' | 'success' | string;
   options: Option[];
@@ -61,7 +61,7 @@ const IAMUserTypeOptions = [
   },
 ];
 
-export const NameField = ({
+export const CreateOrSelectNameField = ({
   isExist,
   status,
   options,
@@ -72,7 +72,7 @@ export const NameField = ({
   tooltip = null,
   onFieldNameChange = null,
   children = null,
-}: NameFieldProps) => {
+}: CreateOrSelectNameFieldProps) => {
   const {
     register,
     control,
