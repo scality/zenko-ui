@@ -10,16 +10,18 @@ import {
 } from '../../constants';
 
 import {
+  mockComponent,
   mockShellHooks,
   renderWithCustomRoute,
   Wrapper,
 } from '../../../utils/testUtil';
 import { ISVStepperContext, ISVStepperContextType } from '../ISVSteps';
 import { ISVPlatformConfig } from '../../types';
-
 import { Route, Routes, useParams } from 'react-router';
 
 const useAuth = mockShellHooks.useAuth;
+const useDeployedApps = mockShellHooks.useDeployedApps;
+const useConfigRetriever = mockShellHooks.useConfigRetriever;
 
 jest.mock('../../hooks/useGetS3ServicePoint', () => ({
   useGetS3ServicePoint: () => {
@@ -347,24 +349,31 @@ describe('ISVSummary', () => {
     //V
   });
 
-  describe.skip('Certificate button', () => {
-    it('should render the ISVSummary with certificate download button with artesca', async () => {
-      useAuth.mockImplementation(() => {
+  describe('Certificate button', () => {
+    beforeEach(() => {
+      useAuth.mockImplementation(() => mockAuthUserData);
+      useConfigRetriever.mockImplementation(() => {
         return {
-          userData: {
-            original: {
-              session_state: 'xxx-yyy-zzzz-id',
+          retrieveConfiguration: jest.fn().mockReturnValue({
+            spec: {
+              remoteEntryPath: '/remoteEntry.js',
             },
-            id: 'xxx-yyy-zzzz-id',
-            token: 'xxx-yyy-zzz-token',
-            username: 'Renard ADMIN',
-            email: 'renard.admin@scality.com',
-            groups: ['user', 'PlatformAdmin'],
-          },
-          getToken: async (): Promise<string> => {
-            return 'xxx-yyy-zzz-token';
-          },
+          }),
         };
+      });
+      mockComponent.mockImplementation(() => <button>Download</button>);
+    });
+    it('should render the ISVSummary with certificate download button with artesca', async () => {
+      useDeployedApps.mockImplementation(() => {
+        return [
+          {
+            kind: 'artesca-base-ui',
+            name: 'artesca-base-ui',
+            url: 'https://artesca-base-ui',
+            version: '1.0.0',
+            appHistoryBasePath: '/app-history',
+          },
+        ];
       });
 
       render(
@@ -396,27 +405,15 @@ describe('ISVSummary', () => {
         </ISVStepperContext.Provider>,
         { wrapper: Wrapper },
       );
+
       expect(selectors.certificateSection()).toBeInTheDocument();
       expect(selectors.certificateButton()).toBeInTheDocument();
     });
-    it('should not render the ISVSummary with certificate download button without artesca', async () => {
-      useAuth.mockImplementation(() => {
-        return {
-          userData: {
-            original: {
-              session_state: 'xxx-yyy-zzzz-id',
-            },
-            id: 'xxx-yyy-zzzz-id',
-            token: 'xxx-yyy-zzz-token',
-            username: 'Renard ADMIN',
-            email: 'renard.admin@scality.com',
-            groups: ['user', 'PlatformAdmin'],
-          },
-          getToken: async (): Promise<string> => {
-            return 'xxx-yyy-zzz-token';
-          },
-        };
+    it('should not render the certificate download button without artesca', async () => {
+      useDeployedApps.mockImplementation(() => {
+        return [];
       });
+
       render(
         <ISVStepperContext.Provider
           value={{
@@ -446,6 +443,7 @@ describe('ISVSummary', () => {
         </ISVStepperContext.Provider>,
         { wrapper: Wrapper },
       );
+
       expect(selectors.certificateButton()).not.toBeInTheDocument();
     });
   });

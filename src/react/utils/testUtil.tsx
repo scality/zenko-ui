@@ -226,6 +226,7 @@ export const mockShellHooks = {
   }),
   useNotificationCenter: jest.fn(),
 };
+export const mockComponent = jest.fn(() => <div>Mocked Component</div>);
 
 export const mockShellAlerts = {
   AlertsProvider: ({

@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import fetch from 'node-fetch';
 import {
+  mockComponent,
   mockShellAlerts,
   mockShellHooks,
   queryClient,
@@ -166,7 +167,6 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
 });
 
 jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });
-
 jest.mock('@scality/module-federation', () => {
   const router = jest.requireActual('react-router');
   return {
@@ -178,5 +178,6 @@ jest.mock('@scality/module-federation', () => {
     useShellHooks: () => mockShellHooks,
     useShellAlerts: () => mockShellAlerts,
     useBasenameRelativeNavigate: router.useNavigate,
+    FederatedComponent: () => mockComponent(),
   };
 });
