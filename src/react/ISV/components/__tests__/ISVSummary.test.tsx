@@ -1,5 +1,5 @@
 import { Stepper } from '@scality/core-ui';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 import { DEFAULT_REGION, ISVSummary, ISVSummaryProps } from '../ISVSummary';
 import userEvent from '@testing-library/user-event';
@@ -9,13 +9,25 @@ import {
   VEEAM_OFFICE_365_V8,
 } from '../../constants';
 
-import { mockShellHooks, Wrapper } from '../../../utils/testUtil';
+import {
+  mockShellHooks,
+  renderWithCustomRoute,
+  Wrapper,
+} from '../../../utils/testUtil';
 import { ISVStepperContext, ISVStepperContextType } from '../ISVSteps';
 import { ISVPlatformConfig } from '../../types';
 
-import * as modFed from '@scality/module-federation';
+import { Route, Routes, useParams } from 'react-router';
 
 const useAuth = mockShellHooks.useAuth;
+
+jest.mock('../../hooks/useGetS3ServicePoint', () => ({
+  useGetS3ServicePoint: () => {
+    return {
+      s3ServicePoint: SERVICE_POINT,
+    };
+  },
+}));
 
 const mockAuthUserData = {
   userData: {
@@ -156,21 +168,8 @@ describe('ISVSummary', () => {
     expect(selectors.credentialsSection()).toBeInTheDocument();
     expect(selectors.bucketSection()).toBeInTheDocument();
     expect(selectors.certificateSection()).toBeInTheDocument();
-    // // Verify the copy buttons
-    // await user.click(selectors.copyServicePointButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(SERVICE_POINT);
-    // await user.click(selectors.copyAccessKeyButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(ACCESS_KEY);
-    // await user.click(selectors.copySecretKeyButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(SECRET_KEY);
-    // await user.click(selectors.copyBucketNameButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(BUCKET_NAME);
-    // await user.click(selectors.copyRegionButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(DEFAULT_REGION);
-    // await user.click(selectors.copyAllButton());
-    // await expect(navigator.clipboard.readText()).resolves.toBe(
-    //   `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
-    // );
+    expect(selectors.informationSection(platformName)).toBeInTheDocument();
+    expect(screen.getByText(/2. /i)).toBeInTheDocument();
   });
 
   it('should not render certificate section if user is not PlatformAdmin', async () => {
@@ -202,6 +201,8 @@ describe('ISVSummary', () => {
 
     //E+V
     expect(selectors.certificateSection()).not.toBeInTheDocument();
+    expect(selectors.informationSection(platformName)).toBeInTheDocument();
+    expect(screen.queryByText(/2. /i)).not.toBeInTheDocument();
   });
   it('should render secret key for new account', async () => {
     //S
@@ -286,129 +287,265 @@ describe('ISVSummary', () => {
     expect(selectors.bucketSection()).toBeInTheDocument();
     expect(screen.queryAllByText(/bucket-name/i)).toHaveLength(2);
   });
-  it.skip('should copy all information to the clipboard when clicking on the copy all button in single bucket case', async () => {
+
+  it('should redirect to the first bucket overview page when clicking on the finish button', async () => {
     //S
     useAuth.mockImplementation(() => {
       return mockAuthUserData;
     });
 
-    render(
-      <ISVStepperContext.Provider value={mockStepperContext}>
-        <Stepper
-          steps={[
-            {
-              label: 'Summary',
-              Component: ({ children }: { children: React.ReactNode }) => {
-                return <ISVSummary {...mockSummaryProps} />;
-              },
-            },
-          ]}
-        />
-      </ISVStepperContext.Provider>,
-      { wrapper: Wrapper },
-    );
+    const ExpectedComponent = () => {
+      const { accountName, bucketName } = useParams();
+      return (
+        <>
+          <div>Account Name: {accountName}</div>
+          <div>Bucket Name: {bucketName}</div>
+        </>
+      );
+    };
 
-    //E
-    const copyAllButton = selectors.copyAllButton();
-    expect(copyAllButton).toBeInTheDocument();
-    expect(copyAllButton).toBeEnabled();
-    await userEvent.click(copyAllButton);
-    expect(window.navigator.clipboard.writeText).toHaveBeenCalled();
-    //V
-    const copiedText = await window.navigator.clipboard.readText();
-    expect(copiedText).toBe(
-      `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
-    );
-  });
-  it.skip('should copy all information to the clipboard when clicking on the copy all button in multiple bucket case', async () => {});
-  it.skip('should redirect to the first bucket overview page when clicking on the finish button', async () => {
-    //S
-    useAuth.mockImplementation(() => {
-      return mockAuthUserData;
-    });
-    const mockNavigate = jest.fn();
-    jest.spyOn(modFed, 'useBasenameRelativeNavigate').mockImplementation(() => {
-      console.log('mocked navigate');
-      return mockNavigate;
-    });
-
-    render(
-      <ISVStepperContext.Provider value={mockStepperContext}>
-        <Stepper
-          steps={[
-            {
-              label: 'Summary',
-              Component: ({ children }: { children: React.ReactNode }) => {
-                return <ISVSummary {...mockSummaryProps} />;
-              },
-            },
-          ]}
+    renderWithCustomRoute(
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ISVStepperContext.Provider value={mockStepperContext}>
+              <Stepper
+                steps={[
+                  {
+                    label: 'Summary',
+                    Component: ({
+                      children,
+                    }: {
+                      children: React.ReactNode;
+                    }) => {
+                      return <ISVSummary {...mockSummaryProps} />;
+                    },
+                  },
+                ]}
+              />
+            </ISVStepperContext.Provider>
+          }
         />
-      </ISVStepperContext.Provider>,
-      { wrapper: Wrapper },
+        <Route
+          path="/accounts/:accountName/buckets/:bucketName"
+          element={<ExpectedComponent />}
+        ></Route>
+      </Routes>,
+      '/',
     );
     //E
 
     const finishButton = screen.getByRole('button', { name: /Finish/i });
     expect(finishButton).toBeInTheDocument();
     expect(finishButton).toBeEnabled();
+
     await userEvent.click(finishButton);
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/buckets/bucket-name');
-    });
-    expect(finishButton).toBeDisabled();
+
+    expect(screen.getByText(/Account Name: Veeam/i)).toBeInTheDocument();
+    expect(screen.getByText(/Bucket Name: bucket-name/i)).toBeInTheDocument();
     //V
   });
-  it.skip('should render the ISVSummary with certificate download button', async () => {
-    useAuth.mockImplementation(() => {
-      return {
-        userData: {
-          original: {
-            session_state: 'xxx-yyy-zzzz-id',
-          },
-          id: 'xxx-yyy-zzzz-id',
-          token: 'xxx-yyy-zzz-token',
-          username: 'Renard ADMIN',
-          email: 'renard.admin@scality.com',
-          groups: ['user', 'PlatformAdmin'],
-        },
-        getToken: async (): Promise<string> => {
-          return 'xxx-yyy-zzz-token';
-        },
-      };
-    });
-    render(
-      <ISVStepperContext.Provider
-        value={{
-          platform: mockVeeamPlatform,
-        }}
-      >
-        <Stepper
-          steps={[
-            {
-              label: 'Summary',
-              Component: ({ children }: { children: React.ReactNode }) => {
-                return (
-                  <ISVSummary
-                    platform={mockVeeamPlatform}
-                    accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
-                    accessKey={ACCESS_KEY}
-                    secretKey={SECRET_KEY}
-                    buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
-                    enableImmutableBackup={true}
-                    application={VEEAM_BACKUP_REPLICATION}
-                  />
-                );
-              },
+
+  describe.skip('Certificate button', () => {
+    it('should render the ISVSummary with certificate download button with artesca', async () => {
+      useAuth.mockImplementation(() => {
+        return {
+          userData: {
+            original: {
+              session_state: 'xxx-yyy-zzzz-id',
             },
-          ]}
-        />
-      </ISVStepperContext.Provider>,
-      { wrapper: Wrapper },
-    );
-    expect(selectors.certificateSection()).toBeInTheDocument();
-    expect(selectors.certificateButton()).toBeInTheDocument();
+            id: 'xxx-yyy-zzzz-id',
+            token: 'xxx-yyy-zzz-token',
+            username: 'Renard ADMIN',
+            email: 'renard.admin@scality.com',
+            groups: ['user', 'PlatformAdmin'],
+          },
+          getToken: async (): Promise<string> => {
+            return 'xxx-yyy-zzz-token';
+          },
+        };
+      });
+
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockVeeamPlatform,
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockVeeamPlatform}
+                      accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      enableImmutableBackup={true}
+                      application={VEEAM_BACKUP_REPLICATION}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+      expect(selectors.certificateSection()).toBeInTheDocument();
+      expect(selectors.certificateButton()).toBeInTheDocument();
+    });
+    it('should not render the ISVSummary with certificate download button without artesca', async () => {
+      useAuth.mockImplementation(() => {
+        return {
+          userData: {
+            original: {
+              session_state: 'xxx-yyy-zzzz-id',
+            },
+            id: 'xxx-yyy-zzzz-id',
+            token: 'xxx-yyy-zzz-token',
+            username: 'Renard ADMIN',
+            email: 'renard.admin@scality.com',
+            groups: ['user', 'PlatformAdmin'],
+          },
+          getToken: async (): Promise<string> => {
+            return 'xxx-yyy-zzz-token';
+          },
+        };
+      });
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockVeeamPlatform,
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockVeeamPlatform}
+                      accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      enableImmutableBackup={true}
+                      application={VEEAM_BACKUP_REPLICATION}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+      expect(selectors.certificateButton()).not.toBeInTheDocument();
+    });
   });
+  describe('Copy buttons', () => {
+    it('should copy correct data when clicking on the copy buttons', async () => {
+      //S
+
+      render(
+        <ISVStepperContext.Provider value={mockStepperContext}>
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return <ISVSummary {...mockSummaryProps} />;
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      const user = userEvent.setup();
+      // Verify the copy buttons
+      await user.click(selectors.copyServicePointButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(SERVICE_POINT);
+      await user.click(selectors.copyAccessKeyButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(ACCESS_KEY);
+      await user.click(selectors.copySecretKeyButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(SECRET_KEY);
+      await user.click(selectors.copyBucketNameButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(BUCKET_NAME);
+      await user.click(selectors.copyRegionButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        DEFAULT_REGION,
+      );
+      await user.click(selectors.copyAllButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
+      );
+      await user.click(selectors.copyAllButton());
+
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
+      );
+    });
+
+    it('should copy all information to the clipboard when clicking on the copy all button in multiple bucket case', async () => {
+      //S
+      render(
+        <ISVStepperContext.Provider value={mockStepperContext}>
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return <ISVSummary {...mockMultiBucketSummaryProps} />;
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      const user = userEvent.setup();
+      // Verify the copy buttons
+      await user.click(selectors.copyAllButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}, bucket-name-2`,
+      );
+    });
+    it('should copy all data when displaying access keys for existing account', async () => {
+      //S
+      render(
+        <ISVStepperContext.Provider value={mockStepperContext}>
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return <ISVSummary {...mockExistingAccountSummaryProps} />;
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      const user = userEvent.setup();
+      // Verify the copy buttons
+      await user.click(selectors.copyAllButton());
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBuckets name\t${BUCKET_NAME}`,
+      );
+    });
+  });
+
   describe('Immutability Section', () => {
     it('should render WORM storage lock for Commvault', async () => {
       //S

@@ -135,9 +135,9 @@ export const ISVSummary = ({
 
       <Level4FormSection>
         <Wrap>
-          <Text
-            isEmphazed
-          >{`2. Information for the ${platform.name} configuration`}</Text>
+          <Text isEmphazed>{`${
+            isPlatformAdmin ? '2. ' : ''
+          }Information for the ${platform.name} configuration`}</Text>
           <CopyButton
             textToCopy={textToCopy}
             label="all"
@@ -159,7 +159,7 @@ export const ISVSummary = ({
             required
             content={
               <WrapperWithWidth>
-                <Text>{s3ServicePoint}</Text>{' '}
+                <Text>{s3ServicePoint}</Text>
                 <CopyButton
                   textToCopy={s3ServicePoint}
                   aria-label="copy service point"
@@ -173,7 +173,7 @@ export const ISVSummary = ({
             label="Region"
             content={
               <WrapperWithWidth>
-                <Text>{DEFAULT_REGION}</Text>{' '}
+                <Text>{DEFAULT_REGION}</Text>
                 <CopyButton
                   textToCopy={DEFAULT_REGION}
                   aria-label="copy region"
