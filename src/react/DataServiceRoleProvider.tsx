@@ -13,7 +13,6 @@ import Loader from './ui-elements/Loader';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { AWSError, S3, STS } from 'aws-sdk';
 import { useShellHooks } from '@scality/module-federation';
-import { genClientEndpoint } from './utils';
 
 export const _DataServiceRoleContext = createContext<null | {
   role: { roleArn: string };
