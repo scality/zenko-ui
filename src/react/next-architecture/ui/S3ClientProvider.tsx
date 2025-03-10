@@ -42,13 +42,9 @@ export const S3ClientProvider = ({
   const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, basePath } =
     useConfig();
   const { s3Client, zenkoClient, iamClient } = useMemo(() => {
-    const s3Config = {
-      ...configuration,
-      endpoint: genClientEndpoint(configuration.endpoint as string),
-    };
-    const s3Client = new S3(s3Config);
+    const s3Client = new S3(configuration);
     const zenkoClient = new ZenkoClient(
-      s3Config.endpoint,
+      configuration.endpoint as string,
       iamInternalFQDN,
       s3InternalFQDN,
       basePath,
@@ -101,13 +97,9 @@ export const S3ClientWithoutReduxProvider = ({
   const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, basePath } =
     useConfig();
   const { s3Client, zenkoClient, iamClient } = useMemo(() => {
-    const s3Config = {
-      ...configuration,
-      endpoint: genClientEndpoint(configuration.endpoint as string),
-    };
-    const s3Client = new S3(s3Config);
+    const s3Client = new S3(configuration);
     const zenkoClient = new ZenkoClient(
-      s3Config.endpoint,
+      configuration.endpoint as string,
       iamInternalFQDN,
       s3InternalFQDN,
       basePath,
@@ -184,9 +176,10 @@ export const useS3ConfigFromAssumeRoleResult = (): {
   ) => S3.Types.ClientConfiguration;
 } => {
   const { zenkoEndpoint } = useConfig();
+  const endpoint = genClientEndpoint(zenkoEndpoint);
   return {
     getS3Config: (assumeRoleResult) => ({
-      endpoint: zenkoEndpoint,
+      endpoint,
       s3ForcePathStyle: true,
       credentials: {
         accessKeyId: assumeRoleResult?.Credentials?.AccessKeyId || '',
