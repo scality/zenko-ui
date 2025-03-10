@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from 'react-query';
 import { getListPoliciesQuery } from '../queries';
 import { useIAMClient } from '../IAMProvider';
 
-import { useParams } from 'react-router';
 import { handleApiError, handleClientError } from '../actions';
 import { useDispatch } from 'react-redux';
 import { ApiError } from '../../types/actions';
@@ -58,10 +57,13 @@ const CreateAccountPolicy = () => {
     {
       onSuccess: () => {
         basenameNavigate(`/accounts/${currentAccount.account?.Name}/policies`);
-        queryClient.invalidateQueries(
-          getListPoliciesQuery(currentAccount.account?.Name, IAMClient)
-            .queryKey,
-        );
+        queryClient.invalidateQueries({
+          queryKey: getListPoliciesQuery(
+            currentAccount.account?.Name,
+            IAMClient,
+          ).queryKey,
+          refetchInactive: true,
+        });
       },
       onError: (error) => {
         try {
