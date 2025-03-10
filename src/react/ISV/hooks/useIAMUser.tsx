@@ -63,9 +63,7 @@ export const useIAMUser = ({
         name,
       }));
 
-      if (mappedUsers.length > 0) {
-        onIAMUsersLoaded?.(mappedUsers);
-      }
+      onIAMUsersLoaded?.(mappedUsers);
     },
   });
 
