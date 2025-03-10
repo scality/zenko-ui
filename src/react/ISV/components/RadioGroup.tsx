@@ -6,6 +6,7 @@ type RadioOption = {
   value: string;
   label: string;
   description?: string;
+  disabled?: boolean;
 };
 
 type RadioGroupProps = {
@@ -36,7 +37,7 @@ const RadioWrapper = styled.label`
 
   &[data-disabled='true'] {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.8;
   }
 `;
 
@@ -78,7 +79,10 @@ export const RadioGroup = ({
       {options.map((option) => {
         const optionId = `${groupName}-${option.value}`;
         return (
-          <RadioWrapper key={option.value} data-disabled={disabled}>
+          <RadioWrapper
+            key={option.value}
+            data-disabled={disabled || option.disabled}
+          >
             <RadioInput
               type="radio"
               id={optionId}
@@ -86,7 +90,7 @@ export const RadioGroup = ({
               value={option.value}
               checked={value === option.value}
               onChange={(e) => onChange(e.target.value)}
-              disabled={disabled}
+              disabled={disabled || option.disabled}
             />
             <RadioContent>
               <RadioLabel htmlFor={optionId}>{option.label}</RadioLabel>

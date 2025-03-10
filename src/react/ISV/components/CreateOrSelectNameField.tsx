@@ -18,14 +18,14 @@ interface OnFieldNameChangeProps {
   setAccount?: (account: Option) => void;
 }
 
+type OptionValue = 'create' | 'existing';
+
 interface CreateOrSelectNameFieldProps {
   isExist: boolean;
   status: 'loading' | 'success' | string;
   options: Option[];
   platform: string;
-  type:
-    | (typeof accountTypeOptions)[number]['value']
-    | (typeof IAMUserTypeOptions)[number]['value'];
+  type: OptionValue;
   fieldName: string;
   label: string;
   tooltip?: JSX.Element;
@@ -39,27 +39,19 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const accountTypeOptions = [
-  {
-    value: 'create',
-    label: 'Create a new account',
-  },
-  {
-    value: 'existing',
-    label: 'Use an existing Account',
-  },
-];
-
-const IAMUserTypeOptions = [
-  {
-    value: 'create',
-    label: 'Create a new IAM User',
-  },
-  {
-    value: 'existing',
-    label: 'Use an existing IAM User',
-  },
-];
+const getRadioOptions = (isAccount: boolean, options: Option[]) => {
+  return [
+    {
+      value: 'create',
+      label: `Create a new ${isAccount ? 'Account' : 'IAM User'}`,
+    },
+    {
+      value: 'existing',
+      label: `Use an existing ${isAccount ? 'Account' : 'IAM User'}`,
+      disabled: options.length === 0,
+    },
+  ];
+};
 
 export const CreateOrSelectNameField = ({
   isExist,
@@ -82,7 +74,7 @@ export const CreateOrSelectNameField = ({
   const typeFieldName = isAccount
     ? FORM_FIELDS.ACCOUNT_NAME_TYPE
     : FORM_FIELDS.IAM_USER_NAME_TYPE;
-  const radioOptions = isAccount ? accountTypeOptions : IAMUserTypeOptions;
+  const radioOptions = getRadioOptions(isAccount, options);
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -99,7 +91,7 @@ export const CreateOrSelectNameField = ({
             render={({ field: { onChange, value } }) => (
               <RadioGroup
                 options={radioOptions}
-                value={value}
+                value={options.length === 0 ? radioOptions[0].value : value}
                 onChange={onChange}
                 direction="vertical"
               />
@@ -120,7 +112,7 @@ export const CreateOrSelectNameField = ({
         }
         content={
           <Stack gap="r8" direction="vertical">
-            {type === 'create' ? (
+            {type === 'create' || options.length === 0 ? (
               <Input
                 id={fieldName}
                 type="text"

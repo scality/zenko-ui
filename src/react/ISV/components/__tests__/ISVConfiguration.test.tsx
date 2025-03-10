@@ -93,7 +93,6 @@ describe('ISVConfiguration', () => {
   });
 
   describe('Basic Rendering', () => {
-
     it('should render form with basic fields', () => {
       renderComponent();
 
@@ -103,7 +102,7 @@ describe('ISVConfiguration', () => {
       ).toBeInTheDocument();
 
       // Check basic form fields
-      expect(screen.getByText('Create a new account')).toBeInTheDocument();
+      expect(screen.getByText('Create a new Account')).toBeInTheDocument();
       expect(screen.getByText('Use an existing Account')).toBeInTheDocument();
       expect(
         screen.getByText(/Skip Use case configuration/i),
@@ -116,7 +115,7 @@ describe('ISVConfiguration', () => {
     it('should show account name input for new account', async () => {
       renderComponent();
 
-      const createNewRadio = screen.getByText('Create a new account');
+      const createNewRadio = screen.getByText('Create a new Account');
       await userEvent.click(createNewRadio);
 
       expect(screen.getByLabelText(/Account Name/i)).toBeInTheDocument();
@@ -279,7 +278,7 @@ describe('ISVConfiguration', () => {
       renderComponent();
 
       // Select create new account
-      userEvent.click(screen.getByText('Create a new account'));
+      userEvent.click(screen.getByText('Create a new Account'));
 
       // Advanced settings should not be present
       expect(screen.queryByText('Advanced settings')).not.toBeInTheDocument();
@@ -299,9 +298,6 @@ describe('ISVConfiguration', () => {
       expect(
         screen.getByLabelText('Create a new IAM User'),
       ).toBeInTheDocument();
-
-      await userEvent.click(screen.getByText('Use an existing IAM User'));
-      expect(screen.getByText('Select existing user')).toBeInTheDocument();
     });
 
     it('should show generate key checkbox for existing IAM user', async () => {
