@@ -12,8 +12,8 @@ import { VeeamCardInfo } from './modules/veeam';
 import { CommvaultCardInfo } from './modules/commvault';
 
 export const ISVList: ISVCardConfig[] = [
-  VeeamVBOCardInfo,
   VeeamCardInfo,
+  VeeamVBOCardInfo,
   CommvaultCardInfo,
   {
     id: 'kasten',
