@@ -7,6 +7,7 @@ import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
+import { useCheckSOSAPIStatus } from '../../hooks/useCheckSOSAPIStatus';
 
 const AccountTooltip = () => {
   return (
@@ -85,11 +86,30 @@ const EnableImmutableBackupTooltip = () => {
     </ul>
   );
 };
-
+const getVeeamVBRDisabledMessage = () => {
+  const status = useCheckSOSAPIStatus();
+  if (status === 'wrongAccess') {
+    return (
+      <Text>
+        Smart Object Storage API is not available <br />
+        Ensure to connect to the UI from the Management IP
+      </Text>
+    );
+  } else if (status === 'unauthorized') {
+    return (
+      <Text>
+        As Smart Object Storage API is not available, you need to be a platform
+        admin to configure Veeam Backup and Replication. You can also contact
+        your platform admin to enable the Smart Object Storage API.
+      </Text>
+    );
+  }
+};
 export const VeeamInfo: ISVInfo = {
   id: 'veeam',
   name: 'Veeam',
   logo: <VeeamLogo />,
+  getDisabledMessage: getVeeamVBRDisabledMessage,
 };
 
 export const VeeamCardInfo: ISVCardConfig = {
