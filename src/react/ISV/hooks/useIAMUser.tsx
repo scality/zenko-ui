@@ -32,9 +32,7 @@ export const useIAMUser = ({
         const activeKeys = AccessKeyMetadata.filter(
           (key) => key.Status === 'Active',
         );
-        const shouldGenerateKey = !AccessKeyMetadata.some(
-          (key) => key.Status === 'Active',
-        );
+        const shouldGenerateKey = !activeKeys.length;
         return { shouldGenerateKey, activeKeys };
       } catch (error) {
         return { shouldGenerateKey: true, activeKeys: [] };

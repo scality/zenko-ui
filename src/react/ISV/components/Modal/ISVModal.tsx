@@ -17,6 +17,7 @@ import { ISVList } from '../../ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ArtescaLogo } from '../ArtescaLogo';
 import { ISVCardConfig } from '../../types';
+import { useLocation } from 'react-router';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -156,10 +157,17 @@ export const ISVModalContent = ({
 const ISVModal = ({ isOpen, setIsOpen }) => {
   const navigate = useBasenameRelativeNavigate();
   const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
+  const url = useLocation();
+  const match = url.pathname.match(/accounts\/([^/]+)\/buckets/);
+  const accountName = match ? match[1] : null;
 
   const handleContinueClick = () => {
     if (selectedISV?.assistant) {
-      navigate(`/isv/configuration?platform=${selectedISV.id}`);
+      navigate(
+        `/isv/configuration?platform=${selectedISV.id}${
+          accountName ? `&account=${accountName}` : ''
+        }`,
+      );
     } else {
       navigate(`/create-account`);
     }

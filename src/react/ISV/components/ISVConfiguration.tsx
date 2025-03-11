@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
@@ -26,6 +26,7 @@ import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { CreateOrSelectNameField } from './CreateOrSelectNameField';
 import { Checkbox } from '../../ui-elements/FormLayout';
+import { useSearchParams } from 'react-router';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
@@ -42,12 +43,14 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
+  const [searchParams] = useSearchParams();
+  const _accountName = searchParams.get('account');
 
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
     defaultValues: {
-      accountName: '',
-      accountNameType: 'create',
+      accountName: _accountName || '',
+      accountNameType: _accountName ? 'existing' : 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -113,6 +116,28 @@ export const ISVConfiguration = () => {
     },
   });
 
+  const iamRequestSentRef = useRef(false);
+  useEffect(() => {
+    if (
+      iamRequestSentRef.current ||
+      !_accountName ||
+      accountNameType !== 'existing' ||
+      _accounts.length === 0 ||
+      getIAMUsersMutation.status === 'loading'
+    ) {
+      return;
+    }
+
+    const selectedAccount = _accounts.find(
+      (account) => account.name === _accountName,
+    );
+    if (selectedAccount && selectedAccount.preferredAssumableRoleArn) {
+      setAccount(selectedAccount);
+      getIAMUsersMutation.mutate(selectedAccount.preferredAssumableRoleArn);
+      iamRequestSentRef.current = true;
+    }
+  }, [_accountName, _accounts, accountNameType, getIAMUsersMutation]);
+
   const onSubmit = async (data: ISVConfig) => {
     next({
       ...data,
@@ -143,7 +168,9 @@ export const ISVConfiguration = () => {
       <ISVSkipModal
         isOpen={skipConfirmationModalIsDisplayed}
         close={() => setSkipConfirmationModalIsDisplayed(false)}
-        exitAction={() => navigate('/accounts')}
+        exitAction={() =>
+          navigate(`${_accountName ? '/buckets' : '/accounts'}`)
+        }
         title={`Exit ${platform.name} assistant?`}
         modalContent={platform.skipModalContent}
       />

@@ -5,9 +5,9 @@ import {
   Loader,
   TwoPanelLayout,
 } from '@scality/core-ui';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Navigate, useLocation, useParams } from 'react-router';
+import { Navigate, useParams } from 'react-router';
 import { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/business/buckets';
@@ -19,10 +19,12 @@ import { Warning } from '../../ui-elements/Warning';
 import BucketDetails from './BucketDetails';
 import BucketList from './BucketList';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
+import ISVModal from '../../ISV/components/Modal/ISVModal';
 
 export default function Buckets() {
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
+  const [isISVModalOpen, setIsISVModalOpen] = useState(false);
 
   const ingestionStates = useSelector(
     (state: AppState) =>
@@ -42,7 +44,6 @@ export default function Buckets() {
   );
 
   const { basePath } = useConfig();
-  const { pathname } = useLocation();
 
   if (buckets.status === 'error') {
     return (
@@ -114,6 +115,7 @@ export default function Buckets() {
         />
       </AppContainer.OverallSummary>
       <AppContainer.MainContent background="backgroundLevel1">
+        <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
         <TwoPanelLayout
           panelsRatio="65-35"
           leftPanel={{
@@ -122,6 +124,7 @@ export default function Buckets() {
                 selectedBucketName={bucketNameParam}
                 buckets={buckets.value}
                 ingestionStates={ingestionStates}
+                setIsISVModalOpen={setIsISVModalOpen}
               />
             ),
           }}
