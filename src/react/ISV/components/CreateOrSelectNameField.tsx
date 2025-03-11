@@ -16,6 +16,7 @@ interface OnFieldNameChangeProps {
     mutate: (roleArn: string) => void;
   };
   setAccount?: (account: Option) => void;
+  reset?: () => void;
 }
 
 type OptionValue = 'create' | 'existing';
@@ -35,6 +36,7 @@ interface CreateOrSelectNameFieldProps {
 
 const FORM_FIELDS = {
   ACCOUNT_NAME_TYPE: 'accountNameType',
+  IAM_USER_NAME: 'IAMUserName',
   IAM_USER_NAME_TYPE: 'IAMUserNameType',
   GENERATE_KEY: 'generateKey',
 };
@@ -92,7 +94,12 @@ export const CreateOrSelectNameField = ({
               <RadioGroup
                 options={radioOptions}
                 value={options.length === 0 ? radioOptions[0].value : value}
-                onChange={onChange}
+                onChange={(value) => {
+                  onChange(value);
+                  if (isAccount) {
+                    onFieldNameChange.reset();
+                  }
+                }}
                 direction="vertical"
               />
             )}

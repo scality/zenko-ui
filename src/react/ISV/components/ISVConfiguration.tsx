@@ -47,6 +47,7 @@ export const ISVConfiguration = () => {
     mode: 'all',
     defaultValues: {
       accountName: '',
+      accountNameType: 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -56,11 +57,9 @@ export const ISVConfiguration = () => {
           capacityUnit: unitChoices.TiB.toString(),
         },
       ],
-
-      accountNameType: 'create',
     },
     resolver: joiResolver(platform.validator),
-    shouldUnregister: true,
+    shouldUnregister: false,
   });
 
   const {
@@ -68,6 +67,7 @@ export const ISVConfiguration = () => {
     control,
     formState: { isValid },
     watch,
+    setValue,
   } = formMethods;
   const formValues = watch();
   const isObjectLockEnabled = platform.isObjectLockEnabled
@@ -110,14 +110,14 @@ export const ISVConfiguration = () => {
     IAMUserName,
     onIAMUsersLoaded: (users) => {
       if (users.length > 0) {
-        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
+        setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+        setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
       } else {
-        formMethods.setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+        setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
       }
     },
     onShouldGenerateKey: (shouldGenerateKey) => {
-      formMethods.setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
+      setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
     },
   });
 
@@ -133,6 +133,12 @@ export const ISVConfiguration = () => {
       account,
       accessKeys,
     });
+  };
+
+  const reset = () => {
+    setValue(FORM_FIELDS.IAM_USER_NAME, '');
+    setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+    setAccount(null);
   };
 
   const [
@@ -194,7 +200,7 @@ export const ISVConfiguration = () => {
                 (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
               )?.tooltip
             }
-            onFieldNameChange={{ getIAMUsersMutation, setAccount }}
+            onFieldNameChange={{ getIAMUsersMutation, setAccount, reset }}
           />
 
           {accountNameType === 'existing' && accountName && (
