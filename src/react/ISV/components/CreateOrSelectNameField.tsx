@@ -11,14 +11,6 @@ interface Option {
   preferredAssumableRoleArn?: string;
 }
 
-interface OnFieldNameChangeProps {
-  getIAMUsersMutation?: {
-    mutate: (roleArn: string) => void;
-  };
-  setAccount?: (account: Option) => void;
-  reset?: () => void;
-}
-
 type OptionValue = 'create' | 'existing';
 
 interface CreateOrSelectNameFieldProps {
@@ -30,7 +22,8 @@ interface CreateOrSelectNameFieldProps {
   fieldName: string;
   label: string;
   tooltip?: JSX.Element;
-  onFieldNameChange?: OnFieldNameChangeProps | null;
+  onFieldNameChange?: (fieldValue: string) => void;
+  onOptionChange?: (value: string) => void;
   children?: React.ReactNode;
 }
 
@@ -65,6 +58,7 @@ export const CreateOrSelectNameField = ({
   label,
   tooltip = null,
   onFieldNameChange = null,
+  onOptionChange = null,
   children = null,
 }: CreateOrSelectNameFieldProps) => {
   const {
@@ -96,8 +90,8 @@ export const CreateOrSelectNameField = ({
                 value={options.length === 0 ? radioOptions[0].value : value}
                 onChange={(value) => {
                   onChange(value);
-                  if (isAccount) {
-                    onFieldNameChange.reset();
+                  if (onOptionChange) {
+                    onOptionChange(value);
                   }
                 }}
                 direction="vertical"
@@ -142,20 +136,7 @@ export const CreateOrSelectNameField = ({
                     id={fieldName}
                     onChange={(value) => {
                       if (onFieldNameChange) {
-                        const { getIAMUsersMutation, setAccount } =
-                          onFieldNameChange;
-                        if (getIAMUsersMutation) {
-                          const roleArn = options.find(
-                            (option) => option.name === value,
-                          ).preferredAssumableRoleArn;
-                          getIAMUsersMutation.mutate(roleArn);
-                        }
-                        if (isAccount) {
-                          const account = options.find(
-                            (option) => option.name === value,
-                          );
-                          setAccount(account);
-                        }
+                        onFieldNameChange(value);
                       }
                       onChange(value);
                     }}
