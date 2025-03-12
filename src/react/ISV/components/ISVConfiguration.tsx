@@ -108,14 +108,6 @@ export const ISVConfiguration = () => {
     accessKeysStatus,
   } = useIAMUser({
     IAMUserName,
-    onIAMUsersLoaded: (users) => {
-      if (users.length > 0) {
-        setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-        setValue(FORM_FIELDS.IAM_USER_NAME, users[0].name);
-      } else {
-        setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
-      }
-    },
     onShouldGenerateKey: (shouldGenerateKey) => {
       setValue(FORM_FIELDS.GENERATE_KEY, shouldGenerateKey);
     },
@@ -200,7 +192,33 @@ export const ISVConfiguration = () => {
                 (field) => field.name === FORM_FIELDS.ACCOUNT_NAME,
               )?.tooltip
             }
-            onFieldNameChange={{ getIAMUsersMutation, setAccount, reset }}
+            onOptionChange={() => {
+              reset();
+            }}
+            onFieldNameChange={(value) => {
+              if (getIAMUsersMutation) {
+                const roleArn = _accounts.find(
+                  (option) => option.name === value,
+                ).preferredAssumableRoleArn;
+                getIAMUsersMutation.mutate(roleArn, {
+                  onSuccess: (data) => {
+                    if (data.Users.length > 0) {
+                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+                      setValue(
+                        FORM_FIELDS.IAM_USER_NAME,
+                        data.Users[0].UserName,
+                      );
+                    } else {
+                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+                      console.log('IAM User not found', accountName, value);
+                      setValue(FORM_FIELDS.IAM_USER_NAME, value);
+                    }
+                  },
+                });
+              }
+              const account = _accounts.find((option) => option.name === value);
+              setAccount(account);
+            }}
           />
 
           {accountNameType === 'existing' && accountName && (
