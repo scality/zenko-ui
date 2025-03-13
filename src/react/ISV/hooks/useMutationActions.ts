@@ -7,6 +7,7 @@ import {
   useCreateIAMUserMutation,
   useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
+  useEnableSOSAPIMutation,
 } from '../../../js/mutations';
 import { useChainedMutations } from '../../../js/useChainedMutations';
 import { useSetAssumedRolePromise } from '../../../react/DataServiceRoleProvider';
@@ -19,6 +20,8 @@ import { Mutation } from './useMultiMutation';
 import { VEEAM_XML_PREFIX } from '../../ISV/constants';
 import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
 import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
+import {} from '../modules/veeam';
+import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
 
 type Result = {
   data: {
@@ -52,7 +55,12 @@ export const useMutationActions = (
   } = props;
   const instanceId = useInstanceId();
   const { useAuth } = useShellHooks();
+
   const { userData } = useAuth();
+  const sosApiStatus = useCheckSOSAPIStatus();
+
+  const shouldEnableSOSAPI =
+    sosApiStatus === 'available' && platform.id === 'veeam';
 
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -71,10 +79,18 @@ export const useMutationActions = (
   const createUserAccessKeyMutation = useCreateUserAccessKeyMutation();
   const createPolicyMutation = useCreateOrAddBucketToPolicyMutation();
   const attachPolicyToUserMutation = useAttachPolicyToUserMutation();
+  const enableSOSAPIMutation = useEnableSOSAPIMutation();
 
   const generateStepsAndActions = () => {
     const steps = [];
     const actions = [];
+    if (shouldEnableSOSAPI) {
+      actions.push('Enable Veeam Smart Object Storage API');
+      steps.push({
+        ...enableSOSAPIMutation,
+        key: 'enableSOSAPI',
+      });
+    }
     if (!account) {
       actions.push('Create an Account');
       steps.push({
@@ -168,8 +184,10 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`createBucket-${bucket.name}`]: (results) => {
+          const s3Client = results.find((result) => result?.config);
+
           return {
-            s3Client: account ? results[0] : results[2],
+            s3Client,
             request: {
               ObjectLockEnabledForBucket: enableImmutableBackup,
               Bucket: bucket.name,
@@ -186,8 +204,9 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`putBucketTagging-${bucket.name}`]: (results) => {
+          const s3Client = results.find((result) => result?.config);
           return {
-            s3Client: account ? results[0] : results[2],
+            s3Client,
             bucketName: bucket.name,
             tagSet: [
               {
@@ -237,6 +256,7 @@ export const useMutationActions = (
   const { mutate, mutationsWithRetry } = useChainedMutations({
     mutations: steps,
     computeVariablesForNext: {
+      enableSOSAPI: () => ({}),
       createAccount: () => ({
         user: {
           userName: accountName,
@@ -247,10 +267,9 @@ export const useMutationActions = (
       refetchAccountsLocationsEndpoints: () => ({}),
       assumeRole: (results) => {
         if (!account) {
+          const accountResponse = results.find((result) => result?.email);
           return {
-            roleArn: `arn:aws:iam::${
-              (results[0] as { id: string }).id
-            }:role/scality-internal/storage-manager-role`,
+            roleArn: `arn:aws:iam::${accountResponse.id}:role/scality-internal/storage-manager-role`,
           };
         } else {
           return {
@@ -269,9 +288,8 @@ export const useMutationActions = (
         const policyName = `${IAMUserName || accountName}-${platform.id}-${
           enableImmutableBackup ? 'immutable' : 'non-immutable'
         }`;
-        const accountId = account
-          ? account.id
-          : (results[0] as { id: string }).id;
+        const accountResponse = results.find((result) => result?.email);
+        const accountId = account ? account.id : accountResponse.id;
         return {
           policyName,
           bucketsName: buckets.map((bucket) => bucket.name),
@@ -283,13 +301,12 @@ export const useMutationActions = (
       attachPolicyToUser: (results) => {
         if (!account) {
           const name = getIAMUserName(results);
+          const accountResponse = results.find((result) => result?.arn);
           return {
             userName: name,
-            policyArn: `arn:aws:iam::${
-              (results[0] as { id: string }).id
-            }:policy/${name}-${platform.id}-${
-              enableImmutableBackup ? 'immutable' : 'non-immutable'
-            }`,
+            policyArn: `arn:aws:iam::${accountResponse.id}:policy/${name}-${
+              platform.id
+            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
           };
         } else {
           return {
@@ -314,10 +331,9 @@ export const useMutationActions = (
       step: index + 1,
       action: actions[index],
       status:
-        steps
-          .slice(0, index)
-          .map((step) => step.status)
-          .filter((status) => status !== 'success').length > 0
+        steps.slice(0, index).filter(({ status }) => {
+          return status !== 'success';
+        }).length > 0
           ? 'idle'
           : step.status,
       retry: mutationsWithRetry[index].retry,

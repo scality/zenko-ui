@@ -13,6 +13,7 @@ import { EndpointV1 } from './managementClient/api';
 import { useShellHooks } from '@scality/module-federation';
 import { getPolicyInfoQuery } from '../react/queries';
 import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
+import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -334,6 +335,54 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
+const useEnableSOSAPIMutation = () => {
+  const { useConfigRetriever, useAuth } = useShellHooks();
+  const { getToken } = useAuth();
+
+  const { retrieveConfiguration } = useConfigRetriever();
+  const instances = useDeployedMetalk8sInstances();
+  const getURL = (instances) => {
+    if (instances.length) {
+      const runTimeConfig = retrieveConfiguration({
+        configType: 'run',
+        name: instances[0].name,
+      });
+      const url = runTimeConfig?.spec.selfConfiguration.url;
+      return (
+        url +
+        '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data?fieldManager=kubectl-patch'
+      );
+    }
+  };
+  return useMutation({
+    mutationFn: async () => {
+      return await fetch(getURL(instances), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json-patch+json',
+          authorization: `Bearer ${await getToken()}`,
+        },
+        body: JSON.stringify([
+          {
+            op: 'replace',
+            path: '/spec/veeamSosApi',
+            value: { enable: true },
+          },
+        ]),
+      }).then(async (res) => {
+        const response = await res.json();
+        if (response.status === 'Success') {
+          return response;
+        }
+        if (response.status === 'Failure') {
+          throw new Error(response.message);
+        }
+        return response;
+      });
+    },
+  });
+};
+
 export {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
@@ -345,4 +394,5 @@ export {
   usePutBucketTaggingMutationByS3Client,
   usePutObjectMutation,
   useCreateOrAddBucketToPolicyMutation,
+  useEnableSOSAPIMutation,
 };

@@ -6,7 +6,10 @@ type SOSAPIStatus = 'activated' | 'available' | 'unauthorized' | 'wrongAccess';
 
 /**
  *
- * @returns 'activated' if the SOS API is activated, 'available' if the SOS API is available but not activated, 'unavailable' if the SOS API is not available
+ * @returns 'activated' if the SOS API is activated,
+ * 'available' if the SOS API is available but not activated,
+ * 'unauthorized' if the user is not a platform admin,
+ * 'wrongAccess' if the user is a platform admin but has no MetalK8s instances
  */
 export const useCheckSOSAPIStatus: () => SOSAPIStatus = () => {
   const { features } = useConfig();
