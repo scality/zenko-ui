@@ -357,8 +357,7 @@ const useEnableSOSAPIMutation = () => {
       });
       const url = runTimeConfig?.spec.selfConfiguration.url;
       return (
-        url +
-        '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data?fieldManager=kubectl-patch'
+        url + '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data'
       );
     }
   };
