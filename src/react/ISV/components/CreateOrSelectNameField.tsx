@@ -5,6 +5,7 @@ import { RadioGroup } from './RadioGroup';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
 import { JSX } from 'react';
+import { useSearchParams } from 'react-router';
 
 interface Option {
   name: string;
@@ -34,11 +35,16 @@ const FORM_FIELDS = {
   GENERATE_KEY: 'generateKey',
 };
 
-const getRadioOptions = (isAccount: boolean, options: Option[]) => {
+const getRadioOptions = (
+  isAccount: boolean,
+  options: Option[],
+  disabled = false,
+) => {
   return [
     {
       value: 'create',
       label: `Create a new ${isAccount ? 'Account' : 'IAM User'}`,
+      disabled,
     },
     {
       value: 'existing',
@@ -70,7 +76,9 @@ export const CreateOrSelectNameField = ({
   const typeFieldName = isAccount
     ? FORM_FIELDS.ACCOUNT_NAME_TYPE
     : FORM_FIELDS.IAM_USER_NAME_TYPE;
-  const radioOptions = getRadioOptions(isAccount, options);
+  const [searchParams] = useSearchParams();
+  const disabled = !!searchParams.get('account');
+  const radioOptions = getRadioOptions(isAccount, options, disabled);
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -141,6 +149,7 @@ export const CreateOrSelectNameField = ({
                       onChange(value);
                     }}
                     value={value}
+                    disabled={disabled && isAccount}
                     placeholder={`Select existing ${
                       isAccount ? 'account' : 'user'
                     }`}

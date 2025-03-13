@@ -128,15 +128,24 @@ export const ISVConfiguration = () => {
       return;
     }
 
-    const selectedAccount = _accounts.find(
-      (account) => account.name === _accountName,
-    );
-    if (selectedAccount && selectedAccount.preferredAssumableRoleArn) {
-      setAccount(selectedAccount);
-      getIAMUsersMutation.mutate(selectedAccount.preferredAssumableRoleArn);
-      iamRequestSentRef.current = true;
-    }
+    onFieldNameChange(_accountName);
+    iamRequestSentRef.current = true;
   }, [_accountName, _accounts, accountNameType, getIAMUsersMutation]);
+
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
+
+  useEffect(() => {
+    if (isAccordionExpanded) {
+      setTimeout(() => {
+        const selectElement = document.getElementById(
+          FORM_FIELDS.IAM_USER_NAME,
+        );
+        if (selectElement) {
+          selectElement.focus();
+        }
+      }, 300);
+    }
+  }, [isAccordionExpanded]);
 
   const onSubmit = async (data: ISVConfig) => {
     next({
@@ -162,6 +171,33 @@ export const ISVConfiguration = () => {
     skipConfirmationModalIsDisplayed,
     setSkipConfirmationModalIsDisplayed,
   ] = useState<boolean>(false);
+
+  const onFieldNameChange = (value: string) => {
+    setIsAccordionExpanded(false);
+    if (getIAMUsersMutation) {
+      const roleArn = _accounts.find(
+        (option) => option.name === value,
+      ).preferredAssumableRoleArn;
+      getIAMUsersMutation.mutate(roleArn, {
+        onSuccess: (data) => {
+          if (data.Users.length > 0) {
+            setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+            const user = data.Users.find((user) => user.UserName === value);
+            if (user) {
+              setValue(FORM_FIELDS.IAM_USER_NAME, user.UserName);
+            } else {
+              setIsAccordionExpanded(true);
+            }
+          } else {
+            setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+            setValue(FORM_FIELDS.IAM_USER_NAME, value);
+          }
+        },
+      });
+    }
+    const account = _accounts.find((option) => option.name === value);
+    setAccount(account);
+  };
 
   return (
     <FormProvider {...formMethods}>
@@ -222,33 +258,16 @@ export const ISVConfiguration = () => {
             onOptionChange={() => {
               reset();
             }}
-            onFieldNameChange={(value) => {
-              if (getIAMUsersMutation) {
-                const roleArn = _accounts.find(
-                  (option) => option.name === value,
-                ).preferredAssumableRoleArn;
-                getIAMUsersMutation.mutate(roleArn, {
-                  onSuccess: (data) => {
-                    if (data.Users.length > 0) {
-                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-                      setValue(
-                        FORM_FIELDS.IAM_USER_NAME,
-                        data.Users[0].UserName,
-                      );
-                    } else {
-                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
-                      setValue(FORM_FIELDS.IAM_USER_NAME, value);
-                    }
-                  },
-                });
-              }
-              const account = _accounts.find((option) => option.name === value);
-              setAccount(account);
-            }}
+            onFieldNameChange={onFieldNameChange}
           />
 
           {accountNameType === 'existing' && accountName && (
-            <Accordion title="Advanced settings" id="advanced-settings">
+            <Accordion
+              title="Advanced settings"
+              id="advanced-settings"
+              open={isAccordionExpanded}
+              isEmphazed={false}
+            >
               <CreateOrSelectNameField
                 isExist={isIAMUserExist}
                 status={getIAMUsersMutation.status}
