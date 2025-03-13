@@ -184,7 +184,9 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`createBucket-${bucket.name}`]: (results) => {
-          const s3Client = results.find((result) => result?.config);
+          const s3Client = results.find(
+            (result) => result?.config?.key === 's3Config',
+          );
 
           return {
             s3Client,
@@ -204,7 +206,10 @@ export const useMutationActions = (
       (acc, bucket) => ({
         ...acc,
         [`putBucketTagging-${bucket.name}`]: (results) => {
-          const s3Client = results.find((result) => result?.config);
+          const s3Client = results.find(
+            (result) => result?.config?.key === 's3Config',
+          );
+
           return {
             s3Client,
             bucketName: bucket.name,
@@ -267,7 +272,10 @@ export const useMutationActions = (
       refetchAccountsLocationsEndpoints: () => ({}),
       assumeRole: (results) => {
         if (!account) {
-          const accountResponse = results.find((result) => result?.email);
+          const accountResponse = results.find(
+            (result) => result?.key === 'createAccount',
+          );
+
           return {
             roleArn: `arn:aws:iam::${accountResponse.id}:role/scality-internal/storage-manager-role`,
           };
@@ -288,7 +296,9 @@ export const useMutationActions = (
         const policyName = `${IAMUserName || accountName}-${platform.id}-${
           enableImmutableBackup ? 'immutable' : 'non-immutable'
         }`;
-        const accountResponse = results.find((result) => result?.email);
+        const accountResponse = results.find(
+          (result) => result?.key === 'createAccount',
+        );
         const accountId = account ? account.id : accountResponse.id;
         return {
           policyName,
@@ -301,7 +311,9 @@ export const useMutationActions = (
       attachPolicyToUser: (results) => {
         if (!account) {
           const name = getIAMUserName(results);
-          const accountResponse = results.find((result) => result?.arn);
+          const accountResponse = results.find(
+            (result) => result?.key === 'createAccount',
+          );
           return {
             userName: name,
             policyArn: `arn:aws:iam::${accountResponse.id}:policy/${name}-${

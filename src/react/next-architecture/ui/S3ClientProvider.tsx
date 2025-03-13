@@ -186,6 +186,7 @@ export const useS3ConfigFromAssumeRoleResult = (): {
         secretAccessKey: assumeRoleResult?.Credentials?.SecretAccessKey || '',
         sessionToken: assumeRoleResult?.Credentials?.SessionToken || '',
       },
+      key: 's3Config',
     }),
   };
 };

@@ -133,6 +133,14 @@ const useCreateAccountMutation = () => {
       };
       return notFalsyTypeGuard(client)
         .createConfigurationOverlayUser(params.user, params.uuid)
+        .then((res) => {
+          const key = 'createAccount';
+          const responseWithKey = {
+            ...res,
+            key,
+          };
+          return responseWithKey;
+        })
         .catch(async (error: Response) => {
           if (error.status === 409) {
             throw {
