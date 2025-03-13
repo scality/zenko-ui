@@ -1,7 +1,7 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { ListItem } from '..';
+import { IAMUSerTooltip, ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { CommvaultLogo } from './components/CommvaultLogo';
@@ -109,6 +109,11 @@ export const Commvault: ISVPlatformConfig = {
       name: 'enableImmutableBackup',
       label: 'WORM bucket',
       tooltip: <EnableImmutableBackupTooltip />,
+    },
+    {
+      name: 'IAMUserName',
+      label: 'IAM User Name',
+      tooltip: <IAMUSerTooltip platform="Commvault" />,
     },
   ],
 

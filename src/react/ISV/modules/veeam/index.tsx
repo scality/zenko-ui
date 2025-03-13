@@ -2,7 +2,7 @@ import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, ListItem } from '../index';
+import { checkDecimals, IAMUSerTooltip, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
@@ -141,6 +141,11 @@ export const Veeam: ISVPlatformConfig = {
       name: 'enableImmutableBackup',
       label: 'Immutable Backup',
       tooltip: <EnableImmutableBackupTooltip />,
+    },
+    {
+      name: 'IAMUserName',
+      label: 'IAM User Name',
+      tooltip: <IAMUSerTooltip platform="Veeam" />,
     },
   ],
   immutabilitySummaryOverride: ({ isImmutable }) => ({
