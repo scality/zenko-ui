@@ -210,7 +210,6 @@ export const ISVConfiguration = () => {
                       );
                     } else {
                       setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
-                      console.log('IAM User not found', accountName, value);
                       setValue(FORM_FIELDS.IAM_USER_NAME, value);
                     }
                   },
