@@ -10,6 +10,7 @@ import {
   useCreateUserAccessKeyMutation,
   useCreateOrAddBucketToPolicyMutation,
   useAttachPolicyToUserMutation,
+  useEnableSOSAPIMutation,
 } from '../../../js/mutations';
 import { useMutation } from 'react-query';
 import { useAccountsLocationsEndpointsAdapter } from '../../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
@@ -44,6 +45,7 @@ jest.mock('../../../js/mutations', () => ({
   useCreateUserAccessKeyMutation: jest.fn(),
   useCreateOrAddBucketToPolicyMutation: jest.fn(),
   useAttachPolicyToUserMutation: jest.fn(),
+  useEnableSOSAPIMutation: jest.fn(),
 }));
 
 jest.mock('react-query', () => ({

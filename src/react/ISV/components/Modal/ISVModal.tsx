@@ -17,6 +17,11 @@ import { ISVList } from '../../ISVList';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ArtescaLogo } from '../ArtescaLogo';
 import { ISVCardConfig } from '../../types';
+import {
+  useConfig,
+  useDeployedMetalk8sInstances,
+} from '../../../next-architecture/ui/ConfigProvider';
+import { useAuthGroups } from '../../../utils/hooks';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -29,12 +34,12 @@ const CustomModal = styled(Modal)`
 export const StyledGrid = styled.div`
   display: grid;
   gap: ${spacing.r8};
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(12rem, 1fr));
   grid-auto-rows: 7rem;
   border-radius: ${spacing.f8};
 `;
 
-const StyledForm = styled(Form)`
+const StyledForm = styled.form`
   background-color: ${(props) => props.theme.backgroundLevel2};
   border-radius: ${spacing.f8};
   overflow-y: auto;
@@ -64,11 +69,7 @@ export const ISVModalContent = ({
         Which application would you like to configure with your ARTESCA?
       </Text>
 
-      <StyledForm
-        layout={{
-          kind: 'tab',
-        }}
-      >
+      <StyledForm>
         <Stack
           direction="vertical"
           gap="r8"
@@ -89,6 +90,7 @@ export const ISVModalContent = ({
                   logo={isv.logo}
                   application={isv.application}
                   link={isv.documentationLink}
+                  disabledMessage={isv.getDisabledMessage?.()}
                   selected={selectedISV?.id === isv.id}
                   onChange={() => setSelectedISV(isv)}
                 ></CardISV>
@@ -108,7 +110,7 @@ export const ISVModalContent = ({
                   link={isv.documentationLink}
                   selected={selectedISV?.id === isv.id}
                   onChange={() => setSelectedISV(isv)}
-                ></CardISV>
+                />
               );
             })}
           </StyledGrid>
