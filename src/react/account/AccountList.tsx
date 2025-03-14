@@ -60,7 +60,8 @@ function AccountList({
         text={
           <Link
             href="#"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
               setRole({ roleArn: row.original.preferredAssumableRoleArn });
               navigate(`/accounts/${value}`);
             }}

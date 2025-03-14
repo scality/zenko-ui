@@ -1,6 +1,6 @@
 import { Icon } from '@scality/core-ui';
 import { Tabs } from '@scality/core-ui/dist/next';
-import { useLocation, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import { Account } from '../../types/account';
 import { Warning } from '../ui-elements/Warning';
@@ -29,7 +29,7 @@ function AccountDetails({ account }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
   const { isStorageManager } = useAuthGroups();
   const { pathname } = useLocation();
-  const navigate = useBasenameRelativeNavigate();
+  const basenameRelativeNavigate = useBasenameRelativeNavigate();
 
   const customTabStyle = {
     inactiveTabColor: theme.backgroundLevel2,
@@ -48,7 +48,9 @@ function AccountDetails({ account }: Props) {
         pathname.includes('/policies')
       )
     ) {
-      navigate(`/accounts/${accountName}/properties`, { replace: true });
+      basenameRelativeNavigate(`/accounts/${accountName}/properties`, {
+        replace: true,
+      });
     }
   }, []);
 
