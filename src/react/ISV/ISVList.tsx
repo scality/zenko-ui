@@ -18,7 +18,6 @@ export const ISVList: ISVCardConfig[] = [
   {
     id: 'kasten',
     name: 'Kasten',
-    application: 'Veeam Kasten',
     documentationLink:
       '/docs/partner_applications/validated_designs/kasten.html',
     logo: <VeeamKastenLogo />,
