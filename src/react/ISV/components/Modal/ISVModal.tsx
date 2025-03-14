@@ -169,6 +169,12 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
     return <></>;
   }
 
+  const continueLabel = !selectedISV
+    ? 'Continue'
+    : selectedISV?.assistant
+    ? 'Continue to assistant'
+    : 'Continue to create account';
+
   return (
     <CustomModal
       title={
@@ -185,15 +191,12 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
               variant="outline"
               label="Skip"
               onClick={() => setIsOpen(false)}
+              style={{ width: '80px' }}
             ></Button>
             <Button
               disabled={!selectedISV}
               variant="primary"
-              label={
-                selectedISV?.assistant
-                  ? 'Continue to assistant'
-                  : 'Continue to create account'
-              }
+              label={continueLabel}
               icon={<Icon name="Arrow-right"></Icon>}
               onClick={() => handleContinueClick()}
             ></Button>
