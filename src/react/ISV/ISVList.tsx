@@ -3,13 +3,13 @@ import { ISVCardConfig } from './types';
 import CohesityLogo from './components/Modal/Logos/CohesityLogo';
 import CteraLogo from './components/Modal/Logos/CteraLogo';
 import HycuLogo from './components/Modal/Logos/HycuLogo';
-import KastenLogo from './components/Modal/Logos/KastenLogo';
 import RubrikLogo from './components/Modal/Logos/RubrikLogo';
 import SplunkLogo from './components/Modal/Logos/SplunkLogo';
 import VeritasLogo from './components/Modal/Logos/VeritasLogo';
 import ZertoLogo from './components/Modal/Logos/ZertoLogo';
 import { VeeamCardInfo } from './modules/veeam';
 import { CommvaultCardInfo } from './modules/commvault';
+import { VeeamKastenLogo } from './components/Modal/Logos/VeeamKastenLogo';
 
 export const ISVList: ISVCardConfig[] = [
   VeeamCardInfo,
@@ -21,7 +21,7 @@ export const ISVList: ISVCardConfig[] = [
     application: 'Veeam Kasten',
     documentationLink:
       '/docs/partner_applications/validated_designs/kasten.html',
-    logo: <KastenLogo />,
+    logo: <VeeamKastenLogo />,
   },
   {
     id: 'rubrik',
