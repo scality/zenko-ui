@@ -7,7 +7,7 @@ import {
 } from '@scality/core-ui';
 import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useNavigate, useParams } from 'react-router';
 import { AppState } from '../../../types/state';
 import { useCurrentAccount } from '../../DataServiceRoleProvider';
 import { useListBucketsForCurrentAccount } from '../../next-architecture/domain/business/buckets';
@@ -15,16 +15,18 @@ import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { useMetricsAdapter } from '../../next-architecture/ui/MetricsAdapterProvider';
 import { EmptyStateContainer } from '../../ui-elements/Container';
 import Header from '../../ui-elements/EntityHeader';
-import { Warning } from '../../ui-elements/Warning';
+import { NoBucketsWarning, Warning } from '../../ui-elements/Warning';
 import BucketDetails from './BucketDetails';
 import BucketList from './BucketList';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
 import ISVModal from '../../ISV/components/Modal/ISVModal';
+import { Button } from '@scality/core-ui/dist/next';
 
 export default function Buckets() {
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
   const [isISVModalOpen, setIsISVModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const ingestionStates = useSelector(
     (state: AppState) =>
@@ -69,14 +71,31 @@ export default function Buckets() {
 
   if (buckets.value.length === 0) {
     return (
-      <EmptyState
-        icon="Bucket"
-        link={`${basePath}/accounts/${account?.Name}/create-bucket`}
-        listedResource={{
-          singular: 'Bucket',
-          plural: 'Buckets',
-        }}
-      ></EmptyState>
+      <>
+        <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
+        <NoBucketsWarning
+          buttonSection={
+            <>
+              <Button
+                label="Start ISV Connector"
+                variant="primary"
+                onClick={() => setIsISVModalOpen(true)}
+              />
+              or
+              <Button
+                label="Create Bucket"
+                icon={<Icon name="Create-add" />}
+                variant="outline"
+                onClick={() =>
+                  navigate(
+                    `${basePath}/accounts/${account?.Name}/create-bucket`,
+                  )
+                }
+              />
+            </>
+          }
+        />
+      </>
     );
   }
 

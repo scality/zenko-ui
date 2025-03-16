@@ -119,3 +119,24 @@ export const NoAccountWarning = ({
     <ActionWrapper>{buttonSection}</ActionWrapper>
   </Container>
 );
+
+export const NoBucketsWarning = ({
+  buttonSection,
+}: {
+  buttonSection: ReactNode;
+}) => (
+  <Container style={{ justifyContent: 'center', paddingTop: '10%' }}>
+    <EmptyStateRow>
+      <Icon name="Bucket" size="5x" withWrapper />
+    </EmptyStateRow>
+    <EmptyStateRow>
+      <LargeText>You don't have any bucket yet.</LargeText>
+    </EmptyStateRow>
+    <EmptyStateRow>
+      <LargeText>
+        Create a bucket to start using Data Browser.
+      </LargeText>
+    </EmptyStateRow>
+    <ActionWrapper>{buttonSection}</ActionWrapper>
+  </Container>
+);
