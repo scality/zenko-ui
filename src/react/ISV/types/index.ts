@@ -24,6 +24,7 @@ export type ISVInfo = {
   name: string;
   logo: React.JSX.Element;
   id: ISVPlatform | ISVValidatedDesign;
+  getDisabledMessage?: () => React.ReactNode;
 };
 
 export type ISVCardConfig = ISVInfo & {

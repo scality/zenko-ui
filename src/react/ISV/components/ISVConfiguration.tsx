@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
+  Banner,
   Form,
   FormGroup,
   FormSection,
@@ -171,6 +172,7 @@ export const ISVConfiguration = () => {
     skipConfirmationModalIsDisplayed,
     setSkipConfirmationModalIsDisplayed,
   ] = useState<boolean>(false);
+  const disabledMessage = platform.getDisabledMessage?.();
 
   const onFieldNameChange = (value: string) => {
     setIsAccordionExpanded(false);
@@ -217,6 +219,16 @@ export const ISVConfiguration = () => {
           title: 'Configure ARTESCA for your Use case',
           kind: 'page',
         }}
+        banner={
+          disabledMessage && (
+            <Banner
+              variant="danger"
+              icon={<Icon name="Exclamation-circle" color="statusCritical" />}
+            >
+              {disabledMessage}
+            </Banner>
+          )
+        }
         rightActions={
           <Stack gap="r16">
             <Button
@@ -231,7 +243,7 @@ export const ISVConfiguration = () => {
               type="submit"
               variant="primary"
               label="Continue"
-              disabled={!isValid}
+              disabled={!isValid || !!disabledMessage}
               icon={<Icon name="Arrow-right" />}
             />
           </Stack>
