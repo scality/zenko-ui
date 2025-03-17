@@ -1,6 +1,5 @@
 import {
   Banner,
-  Form,
   Icon,
   Link,
   Modal,
@@ -18,11 +17,6 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ArtescaLogo } from '../ArtescaLogo';
 import { ISVCardConfig } from '../../types';
 import { useLocation } from 'react-router';
-import {
-  useConfig,
-  useDeployedMetalk8sInstances,
-} from '../../../next-architecture/ui/ConfigProvider';
-import { useAuthGroups } from '../../../utils/hooks';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -170,6 +164,8 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
           accountName ? `&account=${accountName}` : ''
         }`,
       );
+    } else if (accountName) {
+      navigate(`/accounts/${accountName}/create-bucket`);
     } else {
       navigate(`/create-account`);
     }
@@ -183,6 +179,8 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
     ? 'Continue'
     : selectedISV?.assistant
     ? 'Continue to assistant'
+    : accountName
+    ? 'Continue to create bucket'
     : 'Continue to create account';
 
   return (
