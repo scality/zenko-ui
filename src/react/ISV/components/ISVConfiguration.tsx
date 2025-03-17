@@ -25,16 +25,16 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { unitChoices } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { CreateOrSelectNameField } from './CreateOrSelectNameField';
+import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
 import { Checkbox } from '../../ui-elements/FormLayout';
 import { useSearchParams } from 'react-router';
+import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
   ACCOUNT_NAME_TYPE: 'accountNameType',
   IAM_USER_NAME: 'IAMUserName',
   IAM_USER_NAME_TYPE: 'IAMUserNameType',
-  APPLICATION: 'application',
   BUCKET_NAME: 'bucketName',
   ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
   GENERATE_KEY: 'generateKey',
@@ -44,6 +44,9 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
+  const selectRef = useRef<SelectRef<Option, false, null>>(null);
+
   const [searchParams] = useSearchParams();
   const _accountName = searchParams.get('account');
 
@@ -133,18 +136,9 @@ export const ISVConfiguration = () => {
     iamRequestSentRef.current = true;
   }, [_accountName, _accounts, accountNameType, getIAMUsersMutation]);
 
-  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
-
   useEffect(() => {
     if (isAccordionExpanded) {
-      setTimeout(() => {
-        const selectElement = document.getElementById(
-          FORM_FIELDS.IAM_USER_NAME,
-        );
-        if (selectElement) {
-          selectElement.focus();
-        }
-      }, 300);
+      selectRef.current?.focus();
     }
   }, [isAccordionExpanded]);
 
@@ -280,42 +274,45 @@ export const ISVConfiguration = () => {
               open={isAccordionExpanded}
               isEmphazed={false}
             >
-              <CreateOrSelectNameField
-                isExist={isIAMUserExist}
-                status={getIAMUsersMutation.status}
-                options={IAMUsers}
-                type={IAMUserNameType}
-                platform={platform.id}
-                tooltip={
-                  platform.fieldOverrides.find(
-                    (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
-                  )?.tooltip
-                }
-                fieldName={FORM_FIELDS.IAM_USER_NAME}
-                label="IAM User Management"
-              >
-                {IAMUserNameType === 'existing' && (
-                  <Controller
-                    name={FORM_FIELDS.GENERATE_KEY}
-                    control={control}
-                    render={({ field: { onChange, value } }) => {
-                      return (
-                        <Checkbox
-                          id={FORM_FIELDS.GENERATE_KEY}
-                          label={`${
-                            accessKeysStatus === 'loading'
-                              ? 'Loading...'
-                              : 'Generate a new set of AK/SK'
-                          }`}
-                          onChange={onChange}
-                          disabled={accessKeysStatus === 'loading'}
-                          checked={value}
-                        />
-                      );
-                    }}
-                  />
-                )}
-              </CreateOrSelectNameField>
+              <FormSection forceLabelWidth={264}>
+                <CreateOrSelectNameField
+                  isExist={isIAMUserExist}
+                  status={getIAMUsersMutation.status}
+                  options={IAMUsers}
+                  selectRef={selectRef}
+                  type={IAMUserNameType}
+                  platform={platform.id}
+                  tooltip={
+                    platform.fieldOverrides.find(
+                      (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
+                    )?.tooltip
+                  }
+                  fieldName={FORM_FIELDS.IAM_USER_NAME}
+                  label="IAM User Management"
+                >
+                  {IAMUserNameType === 'existing' && (
+                    <Controller
+                      name={FORM_FIELDS.GENERATE_KEY}
+                      control={control}
+                      render={({ field: { onChange, value } }) => {
+                        return (
+                          <Checkbox
+                            id={FORM_FIELDS.GENERATE_KEY}
+                            label={`${
+                              accessKeysStatus === 'loading'
+                                ? 'Loading...'
+                                : 'Generate a new set of AK/SK'
+                            }`}
+                            onChange={onChange}
+                            disabled={accessKeysStatus === 'loading'}
+                            checked={value}
+                          />
+                        );
+                      }}
+                    />
+                  )}
+                </CreateOrSelectNameField>
+              </FormSection>
             </Accordion>
           )}
 

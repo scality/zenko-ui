@@ -4,10 +4,11 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { RadioGroup } from './RadioGroup';
 import { Input, Select } from '@scality/core-ui/dist/next';
 import { Loader } from '@scality/core-ui/dist/components/loader/Loader.component';
-import { JSX } from 'react';
+import { JSX, Ref } from 'react';
 import { useSearchParams } from 'react-router';
+import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 
-interface Option {
+export interface Option {
   name: string;
   preferredAssumableRoleArn?: string;
 }
@@ -26,6 +27,7 @@ interface CreateOrSelectNameFieldProps {
   onFieldNameChange?: (fieldValue: string) => void;
   onOptionChange?: (value: string) => void;
   children?: React.ReactNode;
+  selectRef?: Ref<SelectRef<Option, false, null>>;
 }
 
 const FORM_FIELDS = {
@@ -65,6 +67,7 @@ export const CreateOrSelectNameField = ({
   tooltip = null,
   onFieldNameChange = null,
   onOptionChange = null,
+  selectRef,
   children = null,
 }: CreateOrSelectNameFieldProps) => {
   const {
@@ -138,40 +141,43 @@ export const CreateOrSelectNameField = ({
                 name={fieldName}
                 control={control}
                 defaultValue={options.length > 0 ? options[0].name : ''}
-                render={({ field: { onChange, value } }) => (
-                  <Select
-                    menuPosition="fixed"
-                    id={fieldName}
-                    onChange={(value) => {
-                      if (onFieldNameChange) {
-                        onFieldNameChange(value);
-                      }
-                      onChange(value);
-                    }}
-                    value={value}
-                    disabled={disabled && isAccount}
-                    placeholder={`Select existing ${
-                      isAccount ? 'account' : 'user'
-                    }`}
-                  >
-                    {status === 'loading' && (
-                      <Select.Option
-                        disabled
-                        disabledReason="Please wait until the list is loaded"
-                        key="loading"
-                        value="loading"
-                        icon={<Loader size="small" />}
-                      >
-                        Loading...
-                      </Select.Option>
-                    )}
-                    {options.map((item) => (
-                      <Select.Option key={item.name} value={item.name}>
-                        {item.name}
-                      </Select.Option>
-                    ))}
-                  </Select>
-                )}
+                render={({ field: { onChange, value } }) => {
+                  return (
+                    <Select
+                      menuPosition="fixed"
+                      ref={selectRef}
+                      id={fieldName}
+                      onChange={(value) => {
+                        if (onFieldNameChange) {
+                          onFieldNameChange(value);
+                        }
+                        onChange(value);
+                      }}
+                      value={value}
+                      disabled={disabled && isAccount}
+                      placeholder={`Select existing ${
+                        isAccount ? 'account' : 'user'
+                      }`}
+                    >
+                      {status === 'loading' && (
+                        <Select.Option
+                          disabled
+                          disabledReason="Please wait until the list is loaded"
+                          key="loading"
+                          value="loading"
+                          icon={<Loader size="small" />}
+                        >
+                          Loading...
+                        </Select.Option>
+                      )}
+                      {options.map((item) => (
+                        <Select.Option key={item.name} value={item.name}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  );
+                }}
               />
             )}
             {children}
