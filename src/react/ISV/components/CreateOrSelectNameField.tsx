@@ -80,8 +80,16 @@ export const CreateOrSelectNameField = ({
     ? FORM_FIELDS.ACCOUNT_NAME_TYPE
     : FORM_FIELDS.IAM_USER_NAME_TYPE;
   const [searchParams] = useSearchParams();
-  const disabled = !!searchParams.get('account');
-  const radioOptions = getRadioOptions(isAccount, options, disabled);
+  const paramsAccountName = searchParams.get('accountName');
+  const doesAccountExist = options.some(
+    (option) => option.name === paramsAccountName,
+  );
+  const isSelectAccountDisabled = !!paramsAccountName && !doesAccountExist;
+  const radioOptions = getRadioOptions(
+    isAccount,
+    options,
+    isSelectAccountDisabled,
+  );
 
   return (
     <Stack gap="r8" direction="vertical">
@@ -154,7 +162,7 @@ export const CreateOrSelectNameField = ({
                         onChange(value);
                       }}
                       value={value}
-                      disabled={disabled && isAccount}
+                      disabled={isSelectAccountDisabled && isAccount}
                       placeholder={`Select existing ${
                         isAccount ? 'account' : 'user'
                       }`}

@@ -46,15 +46,20 @@ export const ISVConfiguration = () => {
   const [account, setAccount] = useState<Account | null>(null);
   const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
   const selectRef = useRef<SelectRef<Option, false, null>>(null);
-
   const [searchParams] = useSearchParams();
-  const _accountName = searchParams.get('account');
+  const paramsAccountName = searchParams.get('account');
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const metricsAdapter = new NoOpMetricsAdapter();
 
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
     defaultValues: {
-      accountName: _accountName || '',
-      accountNameType: _accountName ? 'existing' : 'create',
+      accountName: paramsAccountName || '',
+      accountNameType: paramsAccountName ? 'existing' : 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -82,12 +87,6 @@ export const ISVConfiguration = () => {
     : true;
 
   const navigate = useBasenameRelativeNavigate();
-  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOpMetricsAdapter();
-  const { accounts } = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
 
   const accountName = watch(FORM_FIELDS.ACCOUNT_NAME);
   const accountNameType = watch(FORM_FIELDS.ACCOUNT_NAME_TYPE);
@@ -124,7 +123,7 @@ export const ISVConfiguration = () => {
   useEffect(() => {
     if (
       iamRequestSentRef.current ||
-      !_accountName ||
+      !paramsAccountName ||
       accountNameType !== 'existing' ||
       _accounts.length === 0 ||
       getIAMUsersMutation.status === 'loading'
@@ -132,9 +131,9 @@ export const ISVConfiguration = () => {
       return;
     }
 
-    onFieldNameChange(_accountName);
+    onFieldNameChange(paramsAccountName);
     iamRequestSentRef.current = true;
-  }, [_accountName, _accounts, accountNameType, getIAMUsersMutation]);
+  }, [paramsAccountName, _accounts, accountNameType, getIAMUsersMutation]);
 
   useEffect(() => {
     if (isAccordionExpanded) {
@@ -173,7 +172,7 @@ export const ISVConfiguration = () => {
     if (getIAMUsersMutation) {
       const roleArn = _accounts.find(
         (option) => option.name === value,
-      ).preferredAssumableRoleArn;
+      )?.preferredAssumableRoleArn;
       getIAMUsersMutation.mutate(roleArn, {
         onSuccess: (data) => {
           if (data.Users.length > 0) {
@@ -201,7 +200,7 @@ export const ISVConfiguration = () => {
         isOpen={skipConfirmationModalIsDisplayed}
         close={() => setSkipConfirmationModalIsDisplayed(false)}
         exitAction={() =>
-          navigate(`${_accountName ? '/buckets' : '/accounts'}`)
+          navigate(`${paramsAccountName ? '/buckets' : '/accounts'}`)
         }
         title={`Exit ${platform.name} assistant?`}
         modalContent={platform.skipModalContent}
