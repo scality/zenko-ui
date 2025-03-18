@@ -125,6 +125,7 @@ const useCreateAccountMutation = () => {
       user: { userName: string; email: string };
       instanceId: string;
     }) => {
+      user.email = user.email.replace(/ /g, '-');
       const client = notFalsyTypeGuard(managementClient);
       client.setToken(await getToken());
       const params = {
