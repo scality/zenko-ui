@@ -1,11 +1,12 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { IAMUSerTooltip, ListItem } from '..';
+import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { CommvaultLogo } from './components/CommvaultLogo';
 import { GET_COMMVAULT_POLICY } from '../../utils/ISVPolicy';
+import { IAMUSerTooltip } from '../../components/IAMUserTooltip';
 
 const AccountTooltip = () => {
   return (

@@ -2,13 +2,14 @@ import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../veeam/components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { FormGroup, Text } from '@scality/core-ui';
-import { IAMUSerTooltip, ListItem } from '../index';
+import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_OFFICE_365, VEEAM_OFFICE_365_V8 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { Select } from '@scality/core-ui/dist/next';
 import { Controller, useFormContext } from 'react-hook-form';
+import { IAMUSerTooltip } from '../../components/IAMUserTooltip';
 
 const AccountTooltip = () => {
   return (

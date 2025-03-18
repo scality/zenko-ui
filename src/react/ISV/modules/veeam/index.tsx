@@ -2,12 +2,13 @@ import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
 import Joi from '@hapi/joi';
 import { Text } from '@scality/core-ui';
-import { checkDecimals, IAMUSerTooltip, ListItem } from '../index';
+import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
 import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { useCheckSOSAPIStatus } from '../../hooks/useCheckSOSAPIStatus';
+import { IAMUSerTooltip } from '../../components/IAMUserTooltip';
 
 const AccountTooltip = () => {
   return (
@@ -18,20 +19,6 @@ const AccountTooltip = () => {
       </ListItem>
       <ListItem>
         This information won’t be required by the Veeam console.
-      </ListItem>
-    </ul>
-  );
-};
-
-const ApplicationTooltip = () => {
-  return (
-    <ul>
-      <ListItem>Choose the Veeam application you're setting up.</ListItem>
-      <ListItem>
-        Features such as Immutable Backup and Max Repository Capacity (that
-        provides notification via Smart Object Storage API) are only supported
-        in Veeam Backup and Replication, and not in Veeam Backup for Microsoft
-        365.
       </ListItem>
     </ul>
   );
@@ -139,12 +126,7 @@ export const Veeam: ISVPlatformConfig = {
       placeholder: 'Enter account name',
       tooltip: <AccountTooltip />,
     },
-    {
-      name: 'application',
-      label: 'Veeam application',
-      placeholder: 'Select Veeam application',
-      tooltip: <ApplicationTooltip />,
-    },
+
     {
       name: 'bucketName',
       label: 'Bucket name',

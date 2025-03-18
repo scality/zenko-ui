@@ -25,6 +25,9 @@ export const useIAMUser = ({
   const { data: accessKeysData, status: accessKeysStatus } = useQuery({
     queryKey: ['userAccessKeys', IAMUserName],
     queryFn: async () => {
+      if (!IAMUserName) {
+        return { shouldGenerateKey: true, activeKeys: [] };
+      }
       try {
         const { AccessKeyMetadata } = await IAMClient.listAccessKeys(
           IAMUserName,
@@ -32,9 +35,7 @@ export const useIAMUser = ({
         const activeKeys = AccessKeyMetadata.filter(
           (key) => key.Status === 'Active',
         );
-        const shouldGenerateKey = !AccessKeyMetadata.some(
-          (key) => key.Status === 'Active',
-        );
+        const shouldGenerateKey = !activeKeys.length;
         return { shouldGenerateKey, activeKeys };
       } catch (error) {
         return { shouldGenerateKey: true, activeKeys: [] };

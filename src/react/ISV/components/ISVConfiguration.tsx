@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { useListAccounts } from '../../next-architecture/domain/business/accounts';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
@@ -25,15 +25,16 @@ import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
 import { unitChoices } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { CreateOrSelectNameField } from './CreateOrSelectNameField';
+import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
 import { Checkbox } from '../../ui-elements/FormLayout';
+import { useSearchParams } from 'react-router';
+import { SelectRef } from '@scality/core-ui/dist/components/selectv2/Selectv2.component';
 
 const FORM_FIELDS = {
   ACCOUNT_NAME: 'accountName',
   ACCOUNT_NAME_TYPE: 'accountNameType',
   IAM_USER_NAME: 'IAMUserName',
   IAM_USER_NAME_TYPE: 'IAMUserNameType',
-  APPLICATION: 'application',
   BUCKET_NAME: 'bucketName',
   ENABLE_IMMUTABLE_BACKUP: 'enableImmutableBackup',
   GENERATE_KEY: 'generateKey',
@@ -43,12 +44,22 @@ export const ISVConfiguration = () => {
   const { platform } = useISVStepper();
   const { next } = useStepper(ISVStepsIndexes.Configuration);
   const [account, setAccount] = useState<Account | null>(null);
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
+  const selectRef = useRef<SelectRef<Option, false, null>>(null);
+  const [searchParams] = useSearchParams();
+  const paramsAccountName = searchParams.get('account');
+  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
+  const metricsAdapter = new NoOpMetricsAdapter();
 
+  const { accounts } = useListAccounts({
+    accessibleAccountsAdapter,
+    metricsAdapter,
+  });
   const formMethods = useForm<ISVConfig>({
     mode: 'all',
     defaultValues: {
-      accountName: '',
-      accountNameType: 'create',
+      accountName: paramsAccountName || '',
+      accountNameType: paramsAccountName ? 'existing' : 'create',
       enableImmutableBackup: true,
       buckets: [
         {
@@ -76,12 +87,6 @@ export const ISVConfiguration = () => {
     : true;
 
   const navigate = useBasenameRelativeNavigate();
-  const accessibleAccountsAdapter = useAccessibleAccountsAdapter();
-  const metricsAdapter = new NoOpMetricsAdapter();
-  const { accounts } = useListAccounts({
-    accessibleAccountsAdapter,
-    metricsAdapter,
-  });
 
   const accountName = watch(FORM_FIELDS.ACCOUNT_NAME);
   const accountNameType = watch(FORM_FIELDS.ACCOUNT_NAME_TYPE);
@@ -114,6 +119,28 @@ export const ISVConfiguration = () => {
     },
   });
 
+  const iamRequestSentRef = useRef(false);
+  useEffect(() => {
+    if (
+      iamRequestSentRef.current ||
+      !paramsAccountName ||
+      accountNameType !== 'existing' ||
+      _accounts.length === 0 ||
+      getIAMUsersMutation.status === 'loading'
+    ) {
+      return;
+    }
+
+    onFieldNameChange(paramsAccountName);
+    iamRequestSentRef.current = true;
+  }, [paramsAccountName, _accounts, accountNameType, getIAMUsersMutation]);
+
+  useEffect(() => {
+    if (isAccordionExpanded) {
+      selectRef.current?.focus();
+    }
+  }, [isAccordionExpanded]);
+
   const onSubmit = async (data: ISVConfig) => {
     next({
       ...data,
@@ -140,12 +167,41 @@ export const ISVConfiguration = () => {
   ] = useState<boolean>(false);
   const disabledMessage = platform.getDisabledMessage?.();
 
+  const onFieldNameChange = (value: string) => {
+    setIsAccordionExpanded(false);
+    if (getIAMUsersMutation) {
+      const roleArn = _accounts.find(
+        (option) => option.name === value,
+      )?.preferredAssumableRoleArn;
+      getIAMUsersMutation.mutate(roleArn, {
+        onSuccess: (data) => {
+          if (data.Users.length > 0) {
+            setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
+            const user = data.Users.find((user) => user.UserName === value);
+            if (user) {
+              setValue(FORM_FIELDS.IAM_USER_NAME, user.UserName);
+            } else {
+              setIsAccordionExpanded(true);
+            }
+          } else {
+            setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
+            setValue(FORM_FIELDS.IAM_USER_NAME, value);
+          }
+        },
+      });
+    }
+    const account = _accounts.find((option) => option.name === value);
+    setAccount(account);
+  };
+
   return (
     <FormProvider {...formMethods}>
       <ISVSkipModal
         isOpen={skipConfirmationModalIsDisplayed}
         close={() => setSkipConfirmationModalIsDisplayed(false)}
-        exitAction={() => navigate('/accounts')}
+        exitAction={() =>
+          navigate(`${paramsAccountName ? '/buckets' : '/accounts'}`)
+        }
         title={`Exit ${platform.name} assistant?`}
         modalContent={platform.skipModalContent}
       />
@@ -207,69 +263,55 @@ export const ISVConfiguration = () => {
             onOptionChange={() => {
               reset();
             }}
-            onFieldNameChange={(value) => {
-              if (getIAMUsersMutation) {
-                const roleArn = _accounts.find(
-                  (option) => option.name === value,
-                ).preferredAssumableRoleArn;
-                getIAMUsersMutation.mutate(roleArn, {
-                  onSuccess: (data) => {
-                    if (data.Users.length > 0) {
-                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'existing');
-                      setValue(
-                        FORM_FIELDS.IAM_USER_NAME,
-                        data.Users[0].UserName,
-                      );
-                    } else {
-                      setValue(FORM_FIELDS.IAM_USER_NAME_TYPE, 'create');
-                      setValue(FORM_FIELDS.IAM_USER_NAME, value);
-                    }
-                  },
-                });
-              }
-              const account = _accounts.find((option) => option.name === value);
-              setAccount(account);
-            }}
+            onFieldNameChange={onFieldNameChange}
           />
 
           {accountNameType === 'existing' && accountName && (
-            <Accordion title="Advanced settings" id="advanced-settings">
-              <CreateOrSelectNameField
-                isExist={isIAMUserExist}
-                status={getIAMUsersMutation.status}
-                options={IAMUsers}
-                type={IAMUserNameType}
-                platform={platform.id}
-                tooltip={
-                  platform.fieldOverrides.find(
-                    (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
-                  )?.tooltip
-                }
-                fieldName={FORM_FIELDS.IAM_USER_NAME}
-                label="IAM User Management"
-              >
-                {IAMUserNameType === 'existing' && (
-                  <Controller
-                    name={FORM_FIELDS.GENERATE_KEY}
-                    control={control}
-                    render={({ field: { onChange, value } }) => {
-                      return (
-                        <Checkbox
-                          id={FORM_FIELDS.GENERATE_KEY}
-                          label={`${
-                            accessKeysStatus === 'loading'
-                              ? 'Loading...'
-                              : 'Generate a new set of AK/SK'
-                          }`}
-                          onChange={onChange}
-                          disabled={accessKeysStatus === 'loading'}
-                          checked={value}
-                        />
-                      );
-                    }}
-                  />
-                )}
-              </CreateOrSelectNameField>
+            <Accordion
+              title="Advanced settings"
+              id="advanced-settings"
+              open={isAccordionExpanded}
+              isEmphazed={false}
+            >
+              <FormSection forceLabelWidth={264}>
+                <CreateOrSelectNameField
+                  isExist={isIAMUserExist}
+                  status={getIAMUsersMutation.status}
+                  options={IAMUsers}
+                  selectRef={selectRef}
+                  type={IAMUserNameType}
+                  platform={platform.id}
+                  tooltip={
+                    platform.fieldOverrides.find(
+                      (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
+                    )?.tooltip
+                  }
+                  fieldName={FORM_FIELDS.IAM_USER_NAME}
+                  label="IAM User Management"
+                >
+                  {IAMUserNameType === 'existing' && (
+                    <Controller
+                      name={FORM_FIELDS.GENERATE_KEY}
+                      control={control}
+                      render={({ field: { onChange, value } }) => {
+                        return (
+                          <Checkbox
+                            id={FORM_FIELDS.GENERATE_KEY}
+                            label={`${
+                              accessKeysStatus === 'loading'
+                                ? 'Loading...'
+                                : 'Generate a new set of AK/SK'
+                            }`}
+                            onChange={onChange}
+                            disabled={accessKeysStatus === 'loading'}
+                            checked={value}
+                          />
+                        );
+                      }}
+                    />
+                  )}
+                </CreateOrSelectNameField>
+              </FormSection>
             </Accordion>
           )}
 

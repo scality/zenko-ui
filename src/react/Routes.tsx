@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Route, Routes, matchPath, useLocation } from 'react-router';
-import { useTheme } from 'styled-components';
+
 import makeMgtClient from '../js/managementClient';
 import { AppState } from '../types/state';
 import DataServiceRoleProvider, {
@@ -383,7 +383,6 @@ function InternalRoutes() {
       localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
-  const theme = useTheme();
   const { isStorageManager } = useAuthGroups();
   const config = useConfig();
   const navigate = useBasenameRelativeNavigate();
@@ -417,7 +416,6 @@ function InternalRoutes() {
     '/accounts/:accountName/create-bucket',
     '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
-
     '/isv/configuration',
   ];
 
@@ -492,12 +490,12 @@ function InternalRoutes() {
 
   return (
     <>
-      <ReauthDialog />
+      <DataServiceRoleProvider>
+        <ReauthDialog />
+      </DataServiceRoleProvider>
       <AppContainer
         hasPadding
         sidebarNavigation={hideSideBar ? <></> : <Sidebar {...sidebarConfig} />}
-        //@ts-expect-error fix this when you are working on it
-        style={{ color: theme.textPrimary }}
       >
         <RemoveTrailingSlash />
         <ManagementProvider>

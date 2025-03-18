@@ -4,6 +4,7 @@ import {
   Icon,
   Link,
   spacing,
+  Stack,
 } from '@scality/core-ui';
 import { EmptyCell } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Box, Button, Table } from '@scality/core-ui/dist/next';
@@ -30,11 +31,13 @@ type Props = {
   buckets: Bucket[];
   selectedBucketName: string | null | undefined;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
+  setIsISVModalOpen: (value: boolean) => void;
 };
 export default function BucketList({
   selectedBucketName,
   buckets,
   ingestionStates,
+  setIsISVModalOpen,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
   const { features } = useConfig();
@@ -173,13 +176,23 @@ export default function BucketList({
             <Table.SearchWithQueryParams queryParams={SEARCH_QUERY_PARAM} />
           }
           actions={
-            <Button
-              icon={<Icon name="Create-add" />}
-              label="Create Bucket"
-              variant="primary"
-              onClick={() => navigate(`/accounts/${accountName}/create-bucket`)}
-              type="submit"
-            />
+            <Stack>
+              <Button
+                label="Start ISV Connector"
+                variant="secondary"
+                onClick={() => setIsISVModalOpen(true)}
+                type="button"
+              />
+              <Button
+                icon={<Icon name="Create-add" />}
+                label="Create Bucket"
+                variant="primary"
+                onClick={() =>
+                  navigate(`/accounts/${accountName}/create-bucket`)
+                }
+                type="submit"
+              />
+            </Stack>
           }
         />
 
