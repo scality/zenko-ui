@@ -85,6 +85,7 @@ export const ISVSummary = ({
       rightActions={
         <Button
           variant="primary"
+          type="button"
           label="Finish"
           onClick={() => {
             navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
