@@ -1,8 +1,8 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
-import React from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { Input } from '@scality/core-ui/dist/next';
 import { FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
-import { useTheme } from 'styled-components';
+import styled from 'styled-components';
 
 import { XCORE_NOT_AVAILABLE } from '../../next-architecture/ui/XCoreLibraryProvider';
 import { useXCoreLibrary } from '../../next-architecture/ui/XCoreLibraryProvider';
@@ -15,41 +15,51 @@ import { unitChoices } from '../constants';
 const MIN_BUCKETS = 1;
 const MAX_BUCKETS = 20;
 
-const defaultBucketNameTooltip = (
-  <Text>Choose an unique name for your bucket</Text>
-);
-
-type BucketFieldProps = {
-  bucketNameTooltip?: React.JSX.Element;
+interface BucketFieldProps {
+  bucketNameTooltip?: React.ReactElement;
   platform?: string;
-};
+}
 
-type BucketField = {
+interface BucketField {
   name: string;
   tag?: string;
   capacity?: string;
   capacityUnit?: string;
-};
+}
 
-type FormValues = {
+interface FormValues {
   buckets: BucketField[];
   bucketNumber?: number;
-};
+}
 
-const BucketNameFormGroup = ({
+const defaultBucketNameTooltip = (
+  <Text>Choose an unique name for your bucket</Text>
+);
+
+const BucketContainer = styled.div`
+  background-color: ${({ theme }) => theme.backgroundLevel2};
+  padding: ${spacing.f16};
+  padding-left: ${spacing.f8};
+  padding-bottom: ${spacing.f8};
+  border-radius: ${spacing.f4};
+  margin-bottom: ${spacing.f4};
+`;
+
+const BucketNameFormGroup: React.FC<{
+  index: number;
+  errors: FieldErrors<FormValues>;
+  bucketNamePlaceholder: string;
+  bucketNumber: number;
+  bucketNameTooltip: React.ReactElement;
+}> = ({
   index,
   errors,
   bucketNamePlaceholder,
   bucketNumber,
   bucketNameTooltip,
-}: {
-  index: number;
-  errors: FieldErrors<FormValues>;
-  bucketNamePlaceholder: string;
-  bucketNumber: number;
-  bucketNameTooltip: React.JSX.Element;
 }) => {
   const { register } = useFormContext<FormValues>();
+
   return (
     <FormGroup
       id={`bucketName-${index}`}
@@ -71,12 +81,12 @@ const BucketNameFormGroup = ({
   );
 };
 
-const BucketField = (fieldOverrides: BucketFieldProps) => {
-  const { bucketNameTooltip = defaultBucketNameTooltip, platform } =
-    fieldOverrides;
-
-  const theme = useTheme();
-
+const BucketField: React.FC<BucketFieldProps> = ({
+  bucketNameTooltip = defaultBucketNameTooltip,
+  platform,
+}) => {
+  const bucketNumberInputRef = useRef<HTMLInputElement>(null);
+  const shouldFocusRef = useRef(false);
   const {
     control,
     formState: { errors },
@@ -87,31 +97,46 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
     control,
   });
 
-  const handleBucketNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newNumber = e.target.valueAsNumber;
-
-    if (
-      newNumber < MIN_BUCKETS ||
-      newNumber > MAX_BUCKETS ||
-      isNaN(newNumber)
-    ) {
-      return;
+  useEffect(() => {
+    if (shouldFocusRef.current) {
+      bucketNumberInputRef.current?.focus();
+      shouldFocusRef.current = false;
     }
+  }, [fields.length]);
 
-    if (newNumber < fields.length) {
-      replace(fields.slice(0, newNumber));
-    } else if (newNumber > fields.length) {
-      const newFields = Array(newNumber - fields.length).fill({
-        name: '',
-        tag: platform,
-        capacity: '0',
-        capacityUnit: unitChoices.TiB.toString(),
-      });
-      append(newFields);
-    }
-  };
+  const handleBucketNumberChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newNumber = e.target.valueAsNumber;
 
-  const bucketNamePlaceholder = `${platform}-bucket-name`;
+      if (
+        newNumber < MIN_BUCKETS ||
+        newNumber > MAX_BUCKETS ||
+        isNaN(newNumber)
+      ) {
+        return;
+      }
+
+      shouldFocusRef.current = true;
+
+      if (newNumber < fields.length) {
+        replace(fields.slice(0, newNumber));
+      } else if (newNumber > fields.length) {
+        const newFields = Array(newNumber - fields.length).fill({
+          name: '',
+          tag: platform,
+          capacity: '0',
+          capacityUnit: unitChoices.TiB.toString(),
+        });
+        append(newFields);
+      }
+    },
+    [fields.length, replace, append, platform],
+  );
+
+  const bucketNamePlaceholder = useMemo(
+    () => `${platform}-bucket-name`,
+    [platform],
+  );
 
   const xCoreLibrary = useXCoreLibrary();
   const { useClusterCapacity } =
@@ -119,23 +144,26 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       ? { useClusterCapacity: undefined }
       : xCoreLibrary;
 
-  const renderCapacitySection = (index: number) => {
-    if (platform !== 'veeam-vbr') {
-      return null;
-    }
+  const renderCapacitySection = useCallback(
+    (index: number) => {
+      if (platform !== 'veeam-vbr') {
+        return null;
+      }
 
-    return useClusterCapacity ? (
-      <CapacityFormWithXcore
-        useClusterCapacity={useClusterCapacity}
-        index={index}
-        bucketNumber={fields.length}
-      />
-    ) : (
-      <CapacityFormSection index={index} />
-    );
-  };
+      return useClusterCapacity ? (
+        <CapacityFormWithXcore
+          useClusterCapacity={useClusterCapacity}
+          index={index}
+          bucketNumber={fields.length}
+        />
+      ) : (
+        <CapacityFormSection index={index} />
+      );
+    },
+    [platform, useClusterCapacity, fields.length],
+  );
 
-  const renderBucketNameFormSection = () => {
+  const renderBucketNameFormSection = useMemo(() => {
     if (fields.length === 1) {
       return (
         <FormSection forceLabelWidth={280}>
@@ -150,33 +178,29 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
         </FormSection>
       );
     } else if (fields.length > 1) {
-      return fields.map((field, index) => {
-        return (
-          <FormSection forceLabelWidth={272} key={field.id}>
-            <div
-              style={{
-                backgroundColor: theme.backgroundLevel2,
-                padding: spacing.f16,
-                paddingLeft: spacing.f8,
-                paddingBottom: spacing.f8,
-                borderRadius: spacing.f4,
-                marginBottom: spacing.f4,
-              }}
-            >
-              <BucketNameFormGroup
-                index={index}
-                errors={errors}
-                bucketNamePlaceholder={bucketNamePlaceholder}
-                bucketNumber={fields.length}
-                bucketNameTooltip={bucketNameTooltip}
-              />
-              {renderCapacitySection(index)}
-            </div>
-          </FormSection>
-        );
-      });
+      return fields.map((field, index) => (
+        <FormSection forceLabelWidth={272} key={field.id}>
+          <BucketContainer>
+            <BucketNameFormGroup
+              index={index}
+              errors={errors}
+              bucketNamePlaceholder={bucketNamePlaceholder}
+              bucketNumber={fields.length}
+              bucketNameTooltip={bucketNameTooltip}
+            />
+            {renderCapacitySection(index)}
+          </BucketContainer>
+        </FormSection>
+      ));
     }
-  };
+    return null;
+  }, [
+    fields,
+    errors,
+    bucketNamePlaceholder,
+    bucketNameTooltip,
+    renderCapacitySection,
+  ]);
 
   return (
     <>
@@ -190,6 +214,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
           helpErrorPosition="bottom"
           content={
             <Input
+              ref={bucketNumberInputRef}
               id="bucketNumber"
               type="number"
               value={fields.length}
@@ -201,7 +226,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
           }
         />
       </FormSection>
-      {renderBucketNameFormSection()}
+      {renderBucketNameFormSection}
     </>
   );
 };
