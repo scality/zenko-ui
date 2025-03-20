@@ -60,7 +60,7 @@ export const useMutationActions = (
   const sosApiStatus = useCheckSOSAPIStatus();
 
   const shouldEnableSOSAPI =
-    sosApiStatus === 'available' && platform.id === 'veeam';
+    sosApiStatus === 'available' && platform.id === 'veeam-vbr';
 
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
@@ -120,7 +120,7 @@ export const useMutationActions = (
         bucketMutations[`putBucketTagging-${bucket.name}`],
       );
 
-      if (platform.id === 'veeam') {
+      if (platform.id === 'veeam-vbr') {
         actions.push(
           'Prepare Veeam integrated object repository',
           'Enforce Veeam integrated object repository',
@@ -330,7 +330,7 @@ export const useMutationActions = (
         }
       },
       ...putBucketTaggingArray,
-      ...(platform.id === 'veeam' ? putVeeamFolderArray : {}),
+      ...(platform.id === 'veeam-vbr' ? putVeeamFolderArray : {}),
     },
   });
 

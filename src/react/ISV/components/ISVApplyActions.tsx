@@ -235,7 +235,7 @@ const Main = ({
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
   const { buckets, platform } = props;
-  const isVeeamVBR = platform.id === 'veeam';
+  const isVeeamVBR = platform.id === 'veeam-vbr';
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(
       buckets,

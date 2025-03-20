@@ -15,12 +15,14 @@ jest.mock('../../../next-architecture/ui/XCoreLibraryProvider', () => {
 const TestWrapper = ({ children }) => {
   const methods = useForm({
     defaultValues: {
-      buckets: [{
-        name: '',
-        tag: '',
-        capacity: '0',
-        capacityUnit: 'TiB',
-      }],
+      buckets: [
+        {
+          name: '',
+          tag: '',
+          capacity: '0',
+          capacityUnit: 'TiB',
+        },
+      ],
     },
   });
 
@@ -41,7 +43,7 @@ describe('BucketField', () => {
 
     const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
     expect(bucketNumberInput).toBeInTheDocument();
-    expect(bucketNumberInput).toHaveValue(1); 
+    expect(bucketNumberInput).toHaveValue(1);
   });
 
   it('should add a default bucket on initial render', () => {
@@ -97,7 +99,7 @@ describe('BucketField', () => {
   it('should render capacity fields for veeam platform', () => {
     render(
       <TestWrapper>
-        <BucketField platform="veeam" />
+        <BucketField platform="veeam-vbr" />
       </TestWrapper>,
     );
 

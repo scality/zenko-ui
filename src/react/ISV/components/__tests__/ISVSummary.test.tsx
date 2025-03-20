@@ -50,7 +50,7 @@ const mockAuthUserData = {
 const mockVeeamPlatform: ISVPlatformConfig = {
   name: 'Veeam',
   logo: <div />,
-  id: 'veeam',
+  id: 'veeam-vbr',
   description: 'Veeam Backup & Replication',
   bucketTag: 'veeam',
   fieldOverrides: [],
@@ -626,7 +626,7 @@ describe('ISVSummary', () => {
       const mockVeeamVBOV8Platform: ISVPlatformConfig = {
         name: 'Veeam',
         logo: <div />,
-        id: 'veeam',
+        id: 'veeam-vbo',
         description: 'Veeam Backup for Microsoft Office 365 V8',
         bucketTag: 'veeam',
         fieldOverrides: [],

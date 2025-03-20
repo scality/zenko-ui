@@ -1,7 +1,7 @@
 import Joi from '@hapi/joi';
 import React from 'react';
 
-export type ISVPlatform = 'veeam' | 'commvault' | 'veeam-vbo';
+export type ISVPlatform = 'veeam-vbr' | 'commvault' | 'veeam-vbo';
 export type ISVValidatedDesign =
   | 'kasten'
   | 'rubrik'

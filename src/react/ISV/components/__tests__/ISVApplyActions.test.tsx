@@ -62,7 +62,7 @@ describe('ISVApplyActions', () => {
     accountName: 'test-account',
     application: 'Test App',
     platform: {
-      id: 'veeam',
+      id: 'veeam-vbr',
       name: 'Test Platform',
       logo: <div>Test Logo</div>,
       skipModalContent: <div>skip</div>,

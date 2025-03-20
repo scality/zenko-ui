@@ -65,7 +65,7 @@ describe('ISVSteps', () => {
     ISVSteps.mockImplementation(({ children }) => {
       let platform: ISVPlatformConfig | undefined;
 
-      if (platformId === 'veeam') {
+      if (platformId === 'veeam-vbr') {
         platform = Veeam;
       } else if (platformId === 'commvault') {
         platform = Commvault;
@@ -110,7 +110,7 @@ describe('ISVSteps', () => {
     );
   };
 
-  it.each([['veeam'], ['veeam-vbo'], ['commvault'], [null]])(
+  it.each([['veeam-vbr'], ['veeam-vbo'], ['commvault'], [null]])(
     'should set correct context for %s platform',
     (platformId) => {
       setupMockISVSteps(platformId);
@@ -124,7 +124,7 @@ describe('ISVSteps', () => {
   );
 
   it('should render stepper with correct steps', () => {
-    setupMockISVSteps('veeam');
+    setupMockISVSteps('veeam-vbr');
     renderWithThemeAndContextReader();
 
     // Check UI components

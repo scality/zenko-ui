@@ -73,7 +73,7 @@ describe('useMutationActions', () => {
     enableImmutableBackup: true,
     accountName: 'test-account',
     platform: {
-      id: 'veeam',
+      id: 'veeam-vbr',
       name: 'Veeam',
       bucketTag: 'veeam',
     },

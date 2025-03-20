@@ -93,7 +93,7 @@ const getVeeamVBRDisabledMessage = () => {
   }
 };
 export const VeeamInfo: ISVInfo = {
-  id: 'veeam',
+  id: 'veeam-vbr',
   name: 'Veeam',
   logo: <VeeamLogo />,
   getDisabledMessage: getVeeamVBRDisabledMessage,

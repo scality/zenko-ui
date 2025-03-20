@@ -120,7 +120,7 @@ const BucketField = (fieldOverrides: BucketFieldProps) => {
       : xCoreLibrary;
 
   const renderCapacitySection = (index: number) => {
-    if (platform !== 'veeam') {
+    if (platform !== 'veeam-vbr') {
       return null;
     }
 
