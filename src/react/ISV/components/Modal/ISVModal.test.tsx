@@ -12,7 +12,7 @@ describe('ISVModal', () => {
       </Wrapper>,
     );
 
-    expect(screen.getByText(/Welcome to/)).toBeInTheDocument();
+    expect(screen.getByText(/Select an ISV/)).toBeInTheDocument();
   });
   it('should display cards for every isv with documentation link and application name', () => {
     render(
@@ -21,7 +21,7 @@ describe('ISVModal', () => {
       </Wrapper>,
     );
 
-    expect(screen.getByText(/Welcome to/)).toBeInTheDocument();
+    expect(screen.getByText(/Select an ISV/)).toBeInTheDocument();
     expect(screen.queryAllByRole('radio')).toHaveLength(ISVList.length);
     const links = screen.queryAllByRole('link');
     expect(links).toHaveLength(ISVList.length);
