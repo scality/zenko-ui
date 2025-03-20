@@ -69,7 +69,7 @@ export const CapacityFormWithXcore = ({
       setValue(`buckets.${index}.capacity`, capacityValue);
       setValue(`buckets.${index}.capacityUnit`, capacityUnit);
     }
-  }, [clusterCapacityStatus]);
+  }, [clusterCapacityStatus, bucketNumber, index, setValue, capacityValue, capacityUnit]);
 
   return <CapacityFormSection index={index} />;
 };
