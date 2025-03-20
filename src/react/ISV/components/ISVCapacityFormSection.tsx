@@ -69,17 +69,26 @@ export const CapacityFormWithXcore = ({
       setValue(`buckets.${index}.capacity`, capacityValue);
       setValue(`buckets.${index}.capacityUnit`, capacityUnit);
     }
-  }, [clusterCapacityStatus, bucketNumber, index, setValue, capacityValue, capacityUnit]);
+  }, [
+    clusterCapacityStatus,
+    bucketNumber,
+    index,
+    setValue,
+    capacityValue,
+    capacityUnit,
+  ]);
 
-  return <CapacityFormSection index={index} />;
+  return <CapacityFormSection index={index} bucketNumber={bucketNumber} />;
 };
 
 export const CapacityFormSection = ({
   autoFocusEnabled,
   index,
+  bucketNumber,
 }: {
   autoFocusEnabled?: boolean;
   index: number;
+  bucketNumber: number;
 }) => {
   const {
     register,
@@ -88,7 +97,7 @@ export const CapacityFormSection = ({
   } = useFormContext();
 
   return (
-    <FormSection forceLabelWidth={280}>
+    <FormSection forceLabelWidth={bucketNumber > 1 ? 262 : 280}>
       <FormGroup
         id={`buckets.${index}.capacity`}
         label="Max Veeam Repository Capacity"

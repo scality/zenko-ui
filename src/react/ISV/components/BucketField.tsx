@@ -39,10 +39,11 @@ const defaultBucketNameTooltip = (
 const BucketContainer = styled.div`
   background-color: ${({ theme }) => theme.backgroundLevel2};
   padding: ${spacing.f16};
-  padding-left: ${spacing.f8};
-  padding-bottom: ${spacing.f8};
+  padding-bottom: 0;
   border-radius: ${spacing.f4};
   margin-bottom: ${spacing.f4};
+  position: relative;
+  top: -${spacing.f16};
 `;
 
 const BucketNameFormGroup: React.FC<{
@@ -157,7 +158,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
           bucketNumber={fields.length}
         />
       ) : (
-        <CapacityFormSection index={index} />
+        <CapacityFormSection index={index} bucketNumber={fields.length} />
       );
     },
     [platform, useClusterCapacity, fields.length],
@@ -179,7 +180,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
       );
     } else if (fields.length > 1) {
       return fields.map((field, index) => (
-        <FormSection forceLabelWidth={272} key={field.id}>
+        <FormSection forceLabelWidth={262} key={field.id}>
           <BucketContainer>
             <BucketNameFormGroup
               index={index}
