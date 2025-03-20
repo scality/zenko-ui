@@ -39,7 +39,7 @@ const defaultBucketNameTooltip = (
 const BucketContainer = styled.div`
   background-color: ${({ theme }) => theme.backgroundLevel2};
   padding: ${spacing.f16};
-  padding-bottom: 0;
+  padding-bottom: ${spacing.f8};
   border-radius: ${spacing.f4};
   margin-bottom: ${spacing.f4};
   position: relative;
@@ -189,7 +189,13 @@ const BucketField: React.FC<BucketFieldProps> = ({
               bucketNumber={fields.length}
               bucketNameTooltip={bucketNameTooltip}
             />
-            {renderCapacitySection(index)}
+            <div
+              style={{
+                marginTop: spacing.f8,
+              }}
+            >
+              {renderCapacitySection(index)}
+            </div>
           </BucketContainer>
         </FormSection>
       ));
