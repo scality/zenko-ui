@@ -17,6 +17,11 @@ import { HideCredential } from '../../ui-elements/Hide';
 import { useGetS3ServicePoint } from '../hooks/useGetS3ServicePoint';
 import { useISVStepper } from './ISVSteps';
 import { ISVConfig, ISVPlatformConfig } from '../types';
+import { queries } from '../../next-architecture/domain/business/buckets';
+import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
+import { useAssumedRole } from '../../DataServiceRoleProvider';
+import { useQueryClient } from 'react-query';
+import { useCallback } from 'react';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -64,11 +69,22 @@ export const ISVSummary = ({
   const { isPlatformAdmin } = useAuthGroups();
   const { s3ServicePoint } = useGetS3ServicePoint();
   const { platform } = useISVStepper();
+  const assumedRole = useAssumedRole();
+  const s3Client = useS3Client();
+  const queryClient = useQueryClient();
 
   const immutableSectionInfos = platform.immutabilitySummaryOverride({
     isImmutable: enableImmutableBackup,
     application: application,
   });
+
+  const finish = useCallback(async () => {
+    const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
+    await queryClient.resetQueries(
+      queries.listBuckets(s3Client, assumedRoleArn).queryKey,
+    );
+    navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
+  }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
   const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     accessKey ? 'Access key ID' : 'Access key IDs'
@@ -87,9 +103,7 @@ export const ISVSummary = ({
           variant="primary"
           type="button"
           label="Finish"
-          onClick={() => {
-            navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
-          }}
+          onClick={finish}
         />
       }
     >
