@@ -72,7 +72,7 @@ export type ImmutabilitySummaryOverride = (options?: {
 };
 
 export type ISVPlatformConfig = ISVInfo & {
-  description: string;
+  description: React.ReactNode;
   bucketTag: string;
   skipModalContent?: React.JSX.Element;
   fieldOverrides: FieldOverride[];

@@ -1,7 +1,7 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
 import Joi from '@hapi/joi';
-import { Text } from '@scality/core-ui';
+import { Stack, Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
@@ -109,7 +109,15 @@ export const VeeamCardInfo: ISVCardConfig = {
 
 export const Veeam: ISVPlatformConfig = {
   ...VeeamInfo,
-  description: 'Prepare ARTESCA for ',
+  description: (
+    <Stack gap="r8">
+      <Text variant="Large">Prepare ARTESCA for</Text>
+      <VeeamLogo />
+      <Text variant="Large" isEmphazed>
+        Veeam Backup & Replication
+      </Text>
+    </Stack>
+  ),
   bucketTag: VEEAM_BACKUP_REPLICATION,
   skipModalContent: (
     <Text>

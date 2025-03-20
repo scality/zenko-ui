@@ -8,10 +8,9 @@ import {
   FormSection,
   Icon,
   Stack,
-  Text,
   Toggle,
 } from '@scality/core-ui';
-import { Accordion, Button } from '@scality/core-ui/dist/next';
+import { Accordion, Box, Button } from '@scality/core-ui/dist/next';
 import { FormProvider, useForm, Controller } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { ISVConfig } from '../types';
@@ -243,9 +242,7 @@ export const ISVConfiguration = () => {
         }
       >
         <FormSection forceLabelWidth={280}>
-          <Stack style={{ paddingBottom: '1rem' }}>
-            <Text variant="Large">{platform.description}</Text> {platform.logo}
-          </Stack>
+          <Box style={{ paddingBottom: '1rem' }}>{platform.description}</Box>
 
           <CreateOrSelectNameField
             isExist={isAccountExist}

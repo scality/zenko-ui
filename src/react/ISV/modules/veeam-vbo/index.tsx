@@ -1,7 +1,7 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from '../veeam/components/VeeamLogo';
 import Joi from '@hapi/joi';
-import { FormGroup, Text } from '@scality/core-ui';
+import { FormGroup, Stack, Text } from '@scality/core-ui';
 import { ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
@@ -148,7 +148,15 @@ export const VeeamVBOCardInfo: ISVCardConfig = {
 
 export const VeeamVBO: ISVPlatformConfig = {
   ...VeeamVBOInfo,
-  description: 'Prepare ARTESCA for ',
+  description: (
+    <Stack gap="r8">
+      <Text variant="Large">Prepare ARTESCA for</Text>
+      <VeeamLogo />
+      <Text variant="Large" isEmphazed>
+        Veeam Backup for Microsoft 365
+      </Text>
+    </Stack>
+  ),
   bucketTag: VEEAM_VBO_APPLICATION,
   getPolicy: GET_VEEAM_POLICY,
   immutabilitySummaryOverride: ({ isImmutable, application }) => ({

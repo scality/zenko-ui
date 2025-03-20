@@ -1,6 +1,6 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import Joi from '@hapi/joi';
-import { Text } from '@scality/core-ui';
+import { Stack, Text } from '@scality/core-ui';
 import { ListItem } from '..';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
@@ -79,7 +79,12 @@ export const CommvaultCardInfo: ISVCardConfig = {
 
 export const Commvault: ISVPlatformConfig = {
   ...CommvaultInfo,
-  description: 'Prepare ARTESCA for ',
+  description: (
+    <Stack gap="r8">
+      <Text variant="Large">Prepare ARTESCA for</Text>
+      <CommvaultLogo />
+    </Stack>
+  ),
   bucketTag: 'Commvault',
   getPolicy: GET_COMMVAULT_POLICY,
   immutabilitySummaryOverride: () => ({
