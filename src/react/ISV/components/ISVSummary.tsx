@@ -78,12 +78,13 @@ export const ISVSummary = ({
     application: application,
   });
 
-  const finish = useCallback(async () => {
+  const finish = useCallback(() => {
     const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
-    await queryClient.resetQueries(
-      queries.listBuckets(s3Client, assumedRoleArn).queryKey,
-    );
-    navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`);
+    queryClient
+      .resetQueries(queries.listBuckets(s3Client, assumedRoleArn).queryKey)
+      .then(() =>
+        navigate(`/accounts/${accountName}/buckets/${buckets[0].name}`),
+      );
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
   const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
