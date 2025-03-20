@@ -7,6 +7,7 @@ import {
   FormGroup,
   FormSection,
   Icon,
+  spacing,
   Stack,
   Toggle,
 } from '@scality/core-ui';
@@ -264,52 +265,54 @@ export const ISVConfiguration = () => {
           />
 
           {accountNameType === 'existing' && accountName && (
-            <Accordion
-              title="Advanced settings"
-              id="advanced-settings"
-              open={isAccordionExpanded}
-              isEmphazed={false}
-            >
-              <FormSection forceLabelWidth={264}>
-                <CreateOrSelectNameField
-                  isExist={isIAMUserExist}
-                  status={getIAMUsersMutation.status}
-                  options={IAMUsers}
-                  selectRef={selectRef}
-                  type={IAMUserNameType}
-                  platform={platform.id}
-                  tooltip={
-                    platform.fieldOverrides.find(
-                      (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
-                    )?.tooltip
-                  }
-                  fieldName={FORM_FIELDS.IAM_USER_NAME}
-                  label="IAM User Management"
-                >
-                  {IAMUserNameType === 'existing' && (
-                    <Controller
-                      name={FORM_FIELDS.GENERATE_KEY}
-                      control={control}
-                      render={({ field: { onChange, value } }) => {
-                        return (
-                          <Checkbox
-                            id={FORM_FIELDS.GENERATE_KEY}
-                            label={`${
-                              accessKeysStatus === 'loading'
-                                ? 'Loading...'
-                                : 'Generate a new set of AK/SK'
-                            }`}
-                            onChange={onChange}
-                            disabled={accessKeysStatus === 'loading'}
-                            checked={value}
-                          />
-                        );
-                      }}
-                    />
-                  )}
-                </CreateOrSelectNameField>
-              </FormSection>
-            </Accordion>
+            <div style={{ position: 'relative', bottom: spacing.f8 }}>
+              <Accordion
+                title="Advanced settings"
+                id="advanced-settings"
+                open={isAccordionExpanded}
+                isEmphazed={false}
+              >
+                <FormSection forceLabelWidth={264}>
+                  <CreateOrSelectNameField
+                    isExist={isIAMUserExist}
+                    status={getIAMUsersMutation.status}
+                    options={IAMUsers}
+                    selectRef={selectRef}
+                    type={IAMUserNameType}
+                    platform={platform.id}
+                    tooltip={
+                      platform.fieldOverrides.find(
+                        (field) => field.name === FORM_FIELDS.IAM_USER_NAME,
+                      )?.tooltip
+                    }
+                    fieldName={FORM_FIELDS.IAM_USER_NAME}
+                    label="IAM User Management"
+                  >
+                    {IAMUserNameType === 'existing' && (
+                      <Controller
+                        name={FORM_FIELDS.GENERATE_KEY}
+                        control={control}
+                        render={({ field: { onChange, value } }) => {
+                          return (
+                            <Checkbox
+                              id={FORM_FIELDS.GENERATE_KEY}
+                              label={`${
+                                accessKeysStatus === 'loading'
+                                  ? 'Loading...'
+                                  : 'Generate a new set of AK/SK'
+                              }`}
+                              onChange={onChange}
+                              disabled={accessKeysStatus === 'loading'}
+                              checked={value}
+                            />
+                          );
+                        }}
+                      />
+                    )}
+                  </CreateOrSelectNameField>
+                </FormSection>
+              </Accordion>
+            </div>
           )}
 
           {platform.additionalFields && (
