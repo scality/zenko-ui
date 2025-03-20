@@ -45,6 +45,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
   BUCKET_TAG_APPLICATION,
   BUCKET_TAG_VEEAM_APPLICATION,
+  COMMVAULT_APPLICATION,
   VEEAM_BACKUP_REPLICATION,
 } from '../../../ISV/constants';
 import { VeeamApplicationType } from '../../../ISV/constants';
@@ -253,6 +254,7 @@ function Overview({ bucket, ingestionStates }: Props) {
   const isISVBucketTagAsVeeam =
     ISVApplicationTag === VEEAM_BACKUP_REPLICATION ||
     ISVApplicationTag === VEEAM_VBO_APPLICATION;
+  const isISVCommvault = ISVApplicationTag === COMMVAULT_APPLICATION;
 
   useEffect(() => {
     dispatch(getBucketInfo(bucket.name));
@@ -370,26 +372,33 @@ function Overview({ bucket, ingestionStates }: Props) {
                     <T.Key> Default Object-lock Retention </T.Key>
                     <T.GroupValues>
                       <div>{getDefaultBucketRetention(bucketInfo)}</div>
-                      <Button
-                        id="edit-retention-btn"
-                        variant="outline"
-                        label="Edit"
-                        aria-label="Edit default retention"
-                        icon={<Icon name="Pencil" />}
-                        type="button"
-                        onClick={() => {
-                          navigate(
-                            `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
-                          );
-                        }}
-                        disabled={isVeeamBucket || isISVBucketTagAsVeeam}
-                        tooltip={{
-                          overlay:
-                            isVeeamBucket || isISVBucketTagAsVeeam
+                      {tags.status === 'success' && (
+                        <Button
+                          id="edit-retention-btn"
+                          variant="outline"
+                          label="Edit"
+                          aria-label="Edit default retention"
+                          icon={<Icon name="Pencil" />}
+                          type="button"
+                          onClick={() => {
+                            navigate(
+                              `/accounts/${account?.Name}/buckets/${bucket.name}/retention-setting`,
+                            );
+                          }}
+                          disabled={
+                            isVeeamBucket ||
+                            isISVBucketTagAsVeeam ||
+                            isISVCommvault
+                          }
+                          tooltip={{
+                            overlay: isISVCommvault
+                              ? 'Edition is disabled as it is managed by Commvault.'
+                              : isVeeamBucket || isISVBucketTagAsVeeam
                               ? 'Edition is disabled as it is managed by Veeam.'
                               : '',
-                        }}
-                      />
+                          }}
+                        />
+                      )}
                     </T.GroupValues>
                   </T.Row>
                 </>

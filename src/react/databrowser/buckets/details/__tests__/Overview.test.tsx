@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  waitFor,
-  waitForElementToBeRemoved,
-  within,
-} from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Immutable from 'immutable';
 import {
@@ -325,9 +319,7 @@ describe('Overview', () => {
       //V
       await waitFor(() => {
         expect(
-          screen.getByText(
-            new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
-          ),
+          screen.getByText(new RegExp(`${VEEAM_BACKUP_REPLICATION}`, 'i')),
         ).toBeInTheDocument();
       });
     });
@@ -350,9 +342,7 @@ describe('Overview', () => {
       //V
       await waitFor(() => {
         expect(
-          screen.getByText(
-            new RegExp(`Backup - ${VEEAM_VBO_APPLICATION}`, 'i'),
-          ),
+          screen.getByText(new RegExp(`${VEEAM_VBO_APPLICATION}`, 'i')),
         ).toBeInTheDocument();
       });
     });
@@ -566,9 +556,7 @@ describe('Overview', () => {
     //Verify
     await waitFor(() => {
       expect(
-        screen.getByText(
-          new RegExp(`Backup - ${VEEAM_BACKUP_REPLICATION}`, 'i'),
-        ),
+        screen.getByText(new RegExp(`${VEEAM_BACKUP_REPLICATION}`, 'i')),
       ).toBeInTheDocument();
     });
     expect(selectors.editDefaultRetentionButton()).toBeDisabled();
@@ -593,7 +581,7 @@ describe('Overview', () => {
     //Verify
     await waitFor(() => {
       expect(
-        screen.getByText(new RegExp(`Backup - ${VEEAM_VBO_APPLICATION}`, 'i')),
+        screen.getByText(new RegExp(`${VEEAM_VBO_APPLICATION}`, 'i')),
       ).toBeInTheDocument();
     });
     expect(selectors.editDefaultRetentionButton()).toBeDisabled();
