@@ -187,7 +187,7 @@ const ISVModal = ({ isOpen, setIsOpen }) => {
     <CustomModal
       title={
         <Stack direction="horizontal" gap="r8">
-          <Text variant="Large">Welcome to ARTESCA</Text> <ArtescaLogo />
+          <Text variant="Large">Select an ISV</Text> <ArtescaLogo />
         </Stack>
       }
       isOpen={isOpen}
