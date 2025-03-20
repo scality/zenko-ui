@@ -39,19 +39,19 @@ const FORM_FIELDS = {
 
 const getRadioOptions = (
   isAccount: boolean,
-  options: Option[],
-  disabled = false,
+  disableCreate: boolean,
+  disableExisting: boolean,
 ) => {
   return [
     {
       value: 'create',
       label: `Create a new ${isAccount ? 'Account' : 'IAM User'}`,
-      disabled,
+      disabled: disableCreate,
     },
     {
       value: 'existing',
       label: `Use an existing ${isAccount ? 'Account' : 'IAM User'}`,
-      disabled: options.length === 0,
+      disabled: disableExisting,
     },
   ];
 };
@@ -80,15 +80,21 @@ export const CreateOrSelectNameField = ({
     ? FORM_FIELDS.ACCOUNT_NAME_TYPE
     : FORM_FIELDS.IAM_USER_NAME_TYPE;
   const [searchParams] = useSearchParams();
-  const paramsAccountName = searchParams.get('accountName');
-  const doesAccountExist = options.some(
+  const paramsAccountName = searchParams.get('account');
+  const isParamsAccountNameInOptions = options.some(
     (option) => option.name === paramsAccountName,
   );
-  const isSelectAccountDisabled = !!paramsAccountName && !doesAccountExist;
+  const isExistingDisabled =
+    (isAccount && isParamsAccountNameInOptions && isExist) ||
+    options.length === 0;
+  const isCreateDisabled = isAccount && isExist && isParamsAccountNameInOptions;
+  const isSelectAccountDisabled =
+    isAccount && isParamsAccountNameInOptions && isExist;
+
   const radioOptions = getRadioOptions(
     isAccount,
-    options,
-    isSelectAccountDisabled,
+    isCreateDisabled,
+    isExistingDisabled,
   );
 
   return (
