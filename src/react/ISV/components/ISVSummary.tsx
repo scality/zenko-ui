@@ -97,7 +97,7 @@ export const ISVSummary = ({
         Your ARTESCA is now configured and ready to integrate with{' '}
         {platform.name}. <br />
         The next steps involve managing Certificates and entering specific
-        ARTESCA details within the {platform.name} application
+        ARTESCA details within the {platform.name} application.
       </Text>
 
       {isPlatformAdmin ? (
@@ -231,7 +231,7 @@ export const ISVSummary = ({
             <Text isEmphazed>{`Credentials`}</Text>
             <Banner icon={<Icon name="Exclamation-circle" />} variant="warning">
               An existing user has been chosen and no new Access Key has been
-              created
+              created.
               <br />
               You must use an Access Key and Secret key already created. Here is
               a list of Access keys that can be used for this user:
