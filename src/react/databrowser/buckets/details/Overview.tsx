@@ -344,7 +344,7 @@ function Overview({ bucket, ingestionStates }: Props) {
               <T.Key> Application </T.Key>
               <T.Value>
                 {isISVBucketTagAsVeeam || isVeeamBucket
-                  ? `Backup - ${ISVApplicationTag || veeamTagApplication}`
+                  ? `${ISVApplicationTag || veeamTagApplication}`
                   : ISVApplicationTag || 'S3 Generic'}
               </T.Value>
             </T.Row>
