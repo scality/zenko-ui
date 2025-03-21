@@ -1,6 +1,5 @@
 import {
   AppContainer,
-  EmptyState,
   Icon,
   Loader,
   TwoPanelLayout,
