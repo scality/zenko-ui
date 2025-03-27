@@ -132,7 +132,7 @@ const OfficeVersion = () => {
 
 export const VeeamVBOInfo: ISVInfo = {
   id: 'veeam-vbo',
-  name: 'Veeam VBO',
+  name: 'Veeam VB365',
   logo: <VeeamLogo />,
 };
 
