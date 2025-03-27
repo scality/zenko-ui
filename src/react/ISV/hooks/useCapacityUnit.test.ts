@@ -64,4 +64,10 @@ describe('getCapacityBytes', () => {
     const result = getCapacityBytes('2.25', BYTES_IN_TIB);
     expect(result).toBe('2473901162496');
   });
+
+  it('should return "0" when inputs are invalid', () => {
+    expect(getCapacityBytes('invalid', BYTES_IN_GIB)).toBe('0');
+    expect(getCapacityBytes('1', 'invalid')).toBe('0');
+    expect(getCapacityBytes('', '')).toBe('0');
+  });
 }); 
