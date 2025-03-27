@@ -170,8 +170,8 @@ export const VeeamVBO: ISVPlatformConfig = {
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}
-      <b>Accounts</b> page. If the platform doesn't have any accounts, it will
-      also prompt you on your next login.
+      <b>Accounts</b> page or <b>Data Browser</b> page. If the platform doesn't
+      have any accounts, it will also prompt you on your next login.
     </Text>
   ),
   fieldOverrides: [
