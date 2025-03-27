@@ -23,7 +23,12 @@ export const getCapacityBytes = (
   capacityValue: string,
   capacityUnit: string,
 ) => {
-  return Math.round(
-    parseFloat(capacityValue) * parseFloat(capacityUnit),
-  ).toString();
+  const parsedValue = parseFloat(capacityValue);
+  const parsedUnit = parseFloat(capacityUnit);
+
+  if (isNaN(parsedValue) || isNaN(parsedUnit)) {
+    return '0';
+  }
+
+  return Math.round(parsedValue * parsedUnit).toString();
 };
