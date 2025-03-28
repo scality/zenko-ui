@@ -45,6 +45,57 @@ const RadioInput = styled.input`
   margin-top: 4px;
   margin-left: 0;
   cursor: inherit;
+  width: ${spacing.r14};
+  height: ${spacing.r14};
+  position: relative;
+
+  &:checked {
+    appearance: none;
+    width: ${spacing.r14};
+    height: ${spacing.r14};
+    border-radius: 50%;
+    outline: none;
+    position: relative;
+    box-shadow: 0 0 0 1px rgba(74, 144, 226, 1);
+    background-color: #ffffff;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: ${spacing.r8};
+      height: ${spacing.r8};
+      background-color: rgba(74, 144, 226, 1);
+      border-radius: 50%;
+      display: block;
+    }
+  }
+
+  &:checked:disabled {
+    appearance: none;
+    width: ${spacing.r14};
+    height: ${spacing.r14};
+    border-radius: 50%;
+    outline: none;
+    position: relative;
+    box-shadow: 0 0 0 1px rgba(74, 144, 226, 0.4);
+    background-color: #f0f8ff;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: ${spacing.r8};
+      height: ${spacing.r8};
+      background-color: rgba(74, 144, 226, 0.7);
+      border-radius: 50%;
+      display: block;
+    }
+  }
 `;
 
 const RadioContent = styled.div`
