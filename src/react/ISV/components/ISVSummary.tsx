@@ -119,7 +119,7 @@ export const ISVSummary = ({
         <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
             title={'How to manage Certificates?'}
-            link="/docs/standard_operations/security/manage_ingress_certificate/index.html"
+            link="/docs/standard_operations/manage_ingress_certificate/index.html"
             content={
               <ul>
                 <li>
