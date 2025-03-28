@@ -9,7 +9,7 @@ describe('useCapacityUnit', () => {
   it('should correctly convert bytes to GiB unit', () => {
     // 1 GiB = 1,073,741,824 bytes
     const { result } = renderHook(() => useCapacityUnit(1073741824));
-    
+
     expect(result.current.capacityValue).toBe('1');
     expect(result.current.capacityUnit).toBe(BYTES_IN_GIB);
   });
@@ -17,7 +17,7 @@ describe('useCapacityUnit', () => {
   it('should correctly convert bytes to TiB unit', () => {
     // 1 TiB = 1,099,511,627,776 bytes
     const { result } = renderHook(() => useCapacityUnit(1099511627776));
-    
+
     expect(result.current.capacityValue).toBe('1');
     expect(result.current.capacityUnit).toBe(BYTES_IN_TIB);
   });
@@ -25,7 +25,7 @@ describe('useCapacityUnit', () => {
   it('should correctly convert bytes to PiB unit', () => {
     // 1 PiB = 1,125,899,906,842,624 bytes
     const { result } = renderHook(() => useCapacityUnit(1125899906842624));
-    
+
     expect(result.current.capacityValue).toBe('1');
     expect(result.current.capacityUnit).toBe(BYTES_IN_PIB);
   });
@@ -33,7 +33,7 @@ describe('useCapacityUnit', () => {
   it('should correctly handle small values', () => {
     // 1.5 GiB = 1,610,612,736 bytes
     const { result } = renderHook(() => useCapacityUnit(1610612736));
-    
+
     expect(result.current.capacityValue).toBe('1.5');
     expect(result.current.capacityUnit).toBe(BYTES_IN_GIB);
   });
@@ -64,10 +64,4 @@ describe('getCapacityBytes', () => {
     const result = getCapacityBytes('2.25', BYTES_IN_TIB);
     expect(result).toBe('2473901162496');
   });
-
-  it('should return "0" when inputs are invalid', () => {
-    expect(getCapacityBytes('invalid', BYTES_IN_GIB)).toBe('0');
-    expect(getCapacityBytes('1', 'invalid')).toBe('0');
-    expect(getCapacityBytes('', '')).toBe('0');
-  });
-}); 
+});

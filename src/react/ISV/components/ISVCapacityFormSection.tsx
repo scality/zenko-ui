@@ -59,13 +59,19 @@ export const CapacityFormWithXcore = ({
     getToken,
   );
   const { setValue } = useFormContext();
-  const { capacityValue, capacityUnit } = useCapacityUnit(
-    clusterCapacityStatus === 'success'
+
+  const safeCapacity =
+    clusterCapacityStatus === 'success' &&
+    typeof clusterCapacity === 'number' &&
+    !isNaN(clusterCapacity) &&
+    isFinite(clusterCapacity) &&
+    bucketNumber > 0
       ? clusterCapacity * (0.8 / bucketNumber)
-      : 0,
-  );
+      : 0;
+  const { capacityValue, capacityUnit } = useCapacityUnit(safeCapacity);
+
   useEffect(() => {
-    if (clusterCapacityStatus === 'success') {
+    if (clusterCapacityStatus === 'success' && safeCapacity > 0) {
       setValue(`buckets.${index}.capacity`, capacityValue);
       setValue(`buckets.${index}.capacityUnit`, capacityUnit);
     }
