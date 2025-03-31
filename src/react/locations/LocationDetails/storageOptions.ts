@@ -16,6 +16,7 @@ import LocationDetailsNFS from './LocationDetailsNFS';
 import LocationDetailsOracle from './LocationDetailsOracle';
 import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
+import LocationDetailsTapeMiria from './LocationDetailsTapeMiria';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
 import { JSX } from 'react';
 
@@ -145,6 +146,15 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     name: 'Tape DMF',
     short: 'DMF',
     formDetails: LocationDetailsTapeDMF,
+    supportsVersioning: true,
+    supportsReplicationTarget: false,
+    supportsReplicationSource: true,
+    hasIcon: false,
+  },
+  'location-miria-v1': {
+    name: 'Tape Atempo Miria',
+    short: 'Miria',
+    formDetails: LocationDetailsTapeMiria,
     supportsVersioning: true,
     supportsReplicationTarget: false,
     supportsReplicationSource: true,

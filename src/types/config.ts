@@ -41,7 +41,8 @@ type LocationFSType =
   | 'location-nfs-mount-v1'
   | 'location-scality-sproxyd-v1'
   | 'location-wasabi-v1'
-  | 'location-dmf-v1';
+  | 'location-dmf-v1'
+  | 'location-miria-v1';
 
 export type LocationTypeKey = LocationS3Type | LocationFSType;
 
