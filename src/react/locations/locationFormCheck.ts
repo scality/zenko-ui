@@ -101,11 +101,38 @@ function _checkNFSDetails(details) {
   return null;
 }
 
+function _checkTapeMiriaDetails(details) {
+  if (
+    !details.endpoint ||
+    !details.username ||
+    !details.password ||
+    !details.repoId.length ||
+    !details.repoId[0]
+  ) {
+    return {
+      disable: true,
+      errorMessage: '',
+    };
+  }
+
+  try {
+    new URL(details.endpoint);
+  } catch (error) {
+    return {
+      disable: true,
+      errorMessage: 'Error: Invalid endpoint URI',
+    };
+  }
+
+  return null;
+}
+
 function _checkLocationDetails(type, details) {
   switch (type) {
     case 'location-nfs-mount-v1':
       return _checkNFSDetails(details);
-
+    case 'location-miria-v1':
+      return _checkTapeMiriaDetails(details);
     default:
       return null;
   }

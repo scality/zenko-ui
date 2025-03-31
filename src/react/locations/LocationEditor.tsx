@@ -39,7 +39,6 @@ import {
   newLocationForm,
 } from './utils';
 import { Loader as LoaderCoreUI } from '@scality/core-ui';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useShellHooks } from '@scality/module-federation';
 
 //Temporary hack waiting for the layout
