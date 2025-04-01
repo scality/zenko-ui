@@ -153,9 +153,9 @@ export default function LocationDetailsTapeMiria({
     return error;
   };
 
-  const onInternalStateChange = (key: string, value: string | string[]) => {
+  const onInternalStateChange = (key: FieldNames, value: string | string[]) => {
     setFormState({ ...formState, [key]: value });
-    validateField(key as FieldNames, value);
+    validateField(key, value);
 
     if (onChange) {
       onChange({ ...formState, [key]: value });
