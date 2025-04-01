@@ -3,19 +3,27 @@ import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
 
-type State = {
+type FieldNames = 'endpoint' | 'repoId' | 'username' | 'password';
+export interface TapeMiriaDetails {
   endpoint: string;
   repoId: string[];
   username: string;
   password: string;
+}
+interface State extends TapeMiriaDetails {
   editingExisting?: boolean;
-};
+}
 
-type Errors = {
-  endpoint: string;
-  repoId: string;
-  username: string;
-  password: string;
+type Errors = Record<FieldNames, string>;
+
+type FieldConfig = {
+  name: FieldNames;
+  label: string;
+  placeholder: string;
+  type: string;
+  required: boolean;
+  isArray?: boolean;
+  validator: (value: string | string[]) => string;
 };
 
 const INIT_STATE: State = {
@@ -32,60 +40,122 @@ const INIT_ERRORS: Errors = {
   password: '',
 };
 
+export const tapeMiriaValidators = {
+  validateEndpoint: (endpoint: string): string => {
+    if (!endpoint) return 'Endpoint is required';
+    try {
+      new URL(endpoint);
+      return '';
+    } catch (e) {
+      return 'Invalid endpoint URL format';
+    }
+  },
+
+  validateUsername: (username: string): string => {
+    return !username ? 'Username is required' : '';
+  },
+
+  validatePassword: (password: string): string => {
+    return !password ? 'Password is required' : '';
+  },
+
+  validateRepoId: (repoId: string[]): string => {
+    return !repoId?.length || !repoId[0]
+      ? 'Atempo Miria Repository is required'
+      : '';
+  },
+
+  validateTapeMiriaDetails: (details: Partial<TapeMiriaDetails>) => {
+    if (
+      !details.endpoint ||
+      !details.username ||
+      !details.password ||
+      !details.repoId?.length ||
+      !details.repoId[0]
+    ) {
+      return {
+        disable: true,
+        errorMessage: '',
+      };
+    }
+
+    const endpointError = tapeMiriaValidators.validateEndpoint(
+      details.endpoint,
+    );
+    if (endpointError) {
+      return {
+        disable: true,
+        errorMessage:
+          endpointError === 'Endpoint is required'
+            ? ''
+            : 'Invalid endpoint URL format',
+      };
+    }
+
+    return null;
+  },
+};
+
 export default function LocationDetailsTapeMiria({
   details,
   onChange,
+  editingExisting,
 }: LocationDetailsFormProps) {
   const [formState, setFormState] = useState<State>(() => {
     const initialState = { ...Object.assign({}, INIT_STATE, details) };
-    if (initialState.editingExisting) {
+    if (editingExisting) {
       initialState.password = '';
     }
     return initialState;
   });
   const [errors, setErrors] = useState<Errors>(INIT_ERRORS);
 
-  const validateField = (name: string, value: string | string[]) => {
-    let error = '';
+  const fieldConfigs: FieldConfig[] = [
+    {
+      name: 'endpoint',
+      label: 'Endpoint',
+      placeholder: 'ws://path.to.my.miria',
+      type: 'text',
+      required: true,
+      validator: tapeMiriaValidators.validateEndpoint,
+    },
+    {
+      name: 'username',
+      label: 'Username',
+      placeholder: '',
+      type: 'text',
+      required: true,
+      validator: tapeMiriaValidators.validateUsername,
+    },
+    {
+      name: 'password',
+      label: 'Password',
+      placeholder: '',
+      type: 'password',
+      required: true,
+      validator: tapeMiriaValidators.validatePassword,
+    },
+    {
+      name: 'repoId',
+      label: 'Atempo Miria Repository',
+      placeholder: '',
+      type: 'text',
+      required: true,
+      isArray: true,
+      validator: tapeMiriaValidators.validateRepoId,
+    },
+  ];
 
-    switch (name) {
-      case 'endpoint':
-        if (!value) {
-          error = 'Endpoint is required';
-        } else {
-          try {
-            new URL(value as string);
-          } catch (e) {
-            error = 'Invalid endpoint URL format';
-          }
-        }
-        break;
-      case 'username':
-        if (!value) {
-          error = 'Username is required';
-        }
-        break;
-      case 'password':
-        if (!value) {
-          error = 'Password is required';
-        }
-        break;
-      case 'repoId':
-        if (!value || (Array.isArray(value) && (!value.length || !value[0]))) {
-          error = 'Atempo Miria Repository is required';
-        }
-        break;
-      default:
-        break;
-    }
-
+  const validateField = (name: FieldNames, value: string | string[]) => {
+    const field = fieldConfigs.find((f) => f.name === name);
+    const error = field ? field.validator(value) : '';
     setErrors((prev) => ({ ...prev, [name]: error }));
     return error;
   };
 
   const onInternalStateChange = (key: string, value: string | string[]) => {
     setFormState({ ...formState, [key]: value });
-    validateField(key, value);
+    validateField(key as FieldNames, value);
 
     if (onChange) {
       onChange({ ...formState, [key]: value });
@@ -94,101 +164,49 @@ export default function LocationDetailsTapeMiria({
 
   const onFormItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const name = target.name as FieldNames;
+    const value = target.value;
+    const field = fieldConfigs.find((f) => f.name === name);
+
     onInternalStateChange(
-      target.name,
-      target.name === 'repoId' ? [value as string] : (value as string),
+      name,
+      field?.isArray ? [value as string] : (value as string),
     );
   };
 
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    validateField(
-      e.target.name,
-      e.target.name === 'repoId' ? [e.target.value] : e.target.value,
-    );
+    const name = e.target.name as FieldNames;
+    const field = fieldConfigs.find((f) => f.name === name);
+
+    validateField(name, field?.isArray ? [e.target.value] : e.target.value);
   };
 
   return (
     <FormSection>
-      <FormGroup
-        id="endpoint"
-        label="Endpoint"
-        required
-        helpErrorPosition="bottom"
-        error={errors.endpoint}
-        content={
-          <Input
-            name="endpoint"
-            id="endpoint"
-            type="text"
-            value={formState.endpoint}
-            placeholder="ws://path.to.my.miria"
-            onChange={onFormItemChange}
-            onBlur={onBlur}
-            autoComplete="off"
-          />
-        }
-      />
-
-      <FormGroup
-        id="username"
-        label="Username"
-        required
-        helpErrorPosition="bottom"
-        error={errors.username}
-        content={
-          <Input
-            name="username"
-            id="username"
-            type="text"
-            placeholder=""
-            value={formState.username}
-            onChange={onFormItemChange}
-            onBlur={onBlur}
-            autoComplete="off"
-          />
-        }
-      />
-
-      <FormGroup
-        id="password"
-        label="Password"
-        required
-        helpErrorPosition="bottom"
-        error={errors.password}
-        content={
-          <Input
-            name="password"
-            id="password"
-            type="password"
-            placeholder=""
-            value={formState.password}
-            onChange={onFormItemChange}
-            onBlur={onBlur}
-            autoComplete="off"
-          />
-        }
-      />
-
-      <FormGroup
-        id="repoId"
-        label="Atempo Miria Repository"
-        required
-        helpErrorPosition="bottom"
-        error={errors.repoId}
-        content={
-          <Input
-            id="repoId"
-            name="repoId"
-            type="text"
-            placeholder=""
-            value={formState.repoId[0]}
-            onChange={onFormItemChange}
-            onBlur={onBlur}
-            autoComplete="off"
-          />
-        }
-      />
+      {fieldConfigs.map((field) => (
+        <FormGroup
+          key={field.name}
+          id={field.name}
+          label={field.label}
+          required={field.required}
+          helpErrorPosition="bottom"
+          error={errors[field.name]}
+          content={
+            <Input
+              name={field.name}
+              id={field.name}
+              type={field.type}
+              placeholder={field.placeholder}
+              value={
+                field.isArray ? formState[field.name][0] : formState[field.name]
+              }
+              onChange={onFormItemChange}
+              onBlur={onBlur}
+              autoComplete="off"
+            />
+          }
+        />
+      ))}
     </FormSection>
   );
 }

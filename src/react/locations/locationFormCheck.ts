@@ -5,6 +5,8 @@ import {
   NFS_V4_CONFLICTS,
   NFS_V4_OPTIONS,
 } from './constants';
+import { tapeMiriaValidators } from './LocationDetails/LocationDetailsTapeMiria';
+
 const v3ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V3_CONFLICTS);
 const v4ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V4_CONFLICTS);
 
@@ -102,29 +104,7 @@ function _checkNFSDetails(details) {
 }
 
 function _checkTapeMiriaDetails(details) {
-  if (
-    !details.endpoint ||
-    !details.username ||
-    !details.password ||
-    !details.repoId.length ||
-    !details.repoId[0]
-  ) {
-    return {
-      disable: true,
-      errorMessage: '',
-    };
-  }
-
-  try {
-    new URL(details.endpoint);
-  } catch (error) {
-    return {
-      disable: true,
-      errorMessage: 'Error: Invalid endpoint URI',
-    };
-  }
-
-  return null;
+  return tapeMiriaValidators.validateTapeMiriaDetails(details);
 }
 
 function _checkLocationDetails(type, details) {

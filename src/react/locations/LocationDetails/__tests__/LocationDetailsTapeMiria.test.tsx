@@ -193,7 +193,9 @@ describe('LocationDetailsTapeMiria', () => {
     expect(screen.getByText('Endpoint is required')).toBeInTheDocument();
     expect(screen.getByText('Username is required')).toBeInTheDocument();
     expect(screen.getByText('Password is required')).toBeInTheDocument();
-    expect(screen.getByText('Atempo Miria Repository is required')).toBeInTheDocument();
+    expect(
+      screen.getByText('Atempo Miria Repository is required'),
+    ).toBeInTheDocument();
   });
 
   it('should properly handle editing of existing location', () => {
@@ -210,6 +212,7 @@ describe('LocationDetailsTapeMiria', () => {
         locationType="location-miria-v1"
         details={sampleDetails}
         onChange={jest.fn()}
+        editingExisting={true}
       />,
       {},
     );
