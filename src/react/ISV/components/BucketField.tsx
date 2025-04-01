@@ -93,7 +93,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
     formState: { errors },
   } = useFormContext<FormValues>();
 
-  const { fields, append, replace } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     name: 'buckets',
     control,
   });
@@ -120,7 +120,12 @@ const BucketField: React.FC<BucketFieldProps> = ({
       shouldFocusRef.current = true;
 
       if (newNumber < fields.length) {
-        replace(fields.slice(0, newNumber));
+        const bucketsToRemove = fields.length - newNumber;
+        const indicesToRemove = Array.from(
+          { length: bucketsToRemove },
+          (_, i) => fields.length - 1 - i,
+        );
+        remove(indicesToRemove);
       } else if (newNumber > fields.length) {
         const newFields = Array(newNumber - fields.length).fill({
           name: '',
@@ -131,7 +136,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
         append(newFields);
       }
     },
-    [fields.length, replace, append, platform],
+    [fields.length, fields, remove, append, platform],
   );
 
   const bucketNamePlaceholder = useMemo(
