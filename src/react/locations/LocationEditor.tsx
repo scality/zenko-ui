@@ -322,6 +322,7 @@ function LocationEditor() {
         <Banner
           icon={
             <Icon
+              color={locations.length >= 10 ? 'statusCritical' : 'statusWarning'}
               name={
                 locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'
               }
