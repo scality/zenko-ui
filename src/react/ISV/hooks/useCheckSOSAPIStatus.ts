@@ -7,7 +7,7 @@ type SOSAPIStatus = 'activated' | 'available' | 'unauthorized' | 'wrongAccess';
 /**
  *
  * @returns 'activated' if the SOS API is activated,
- * 'available' if the SOS API is available but not activated,
+ * 'available' if the SOS API is available but not activated (MetalK8s available and user is Platform Admin),
  * 'unauthorized' if the user is not a platform admin,
  * 'wrongAccess' if the user is a platform admin but has no MetalK8s instances
  */
@@ -20,11 +20,19 @@ export const useCheckSOSAPIStatus: () => SOSAPIStatus = () => {
 
   const isMetalK8sEnabled = metalK8sInstances.length > 0;
 
+  let status: SOSAPIStatus = 'available';
+
   if (isSOSAPIActivated) {
-    return 'activated';
-  } else if (!isPlatformAdmin) {
-    return 'unauthorized';
-  } else if (!isMetalK8sEnabled) {
-    return 'wrongAccess';
-  } else 'available';
+    status = 'activated';
+  }
+
+  if (!isPlatformAdmin) {
+    status = 'unauthorized';
+  }
+
+  if (!isMetalK8sEnabled) {
+    status = 'wrongAccess';
+  }
+
+  return status;
 };
