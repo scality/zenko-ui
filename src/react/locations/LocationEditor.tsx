@@ -318,6 +318,22 @@ function LocationEditor() {
         </Stack>
       }
     >
+      {locations && locations.length >= 6 && (
+        <Banner
+          icon={
+            <Icon
+              name={
+                locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'
+              }
+            />
+          }
+          variant={locations.length >= 10 ? 'danger' : 'warning'}
+        >
+          {locations.length >= 10
+            ? `This instance has already ${locations.length} storage locations. It is strongly recommended not to exceed 10 per platform.`
+            : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
+        </Banner>
+      )}
       <FormSection title={{ name: 'General' }}>
         <FormGroup
           id="name"
