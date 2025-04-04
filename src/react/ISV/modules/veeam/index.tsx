@@ -123,10 +123,15 @@ export const Veeam: ISVPlatformConfig = {
   summaryBucketBanner: (
     <>
       <Banner variant="warning" title="Configuration warning">
-        “Automatic bucket creation” must be disabled when integrating Veeam.
-        You'll find this setting next to the Bucket name selection in the S3
-        compatible repository wizard Keeping it enabled will break the
-        integration.
+        When configuring Veeam Backup and Replication (VBR) application, the
+        option “Automatic bucket creation” must be disabled to ensure Veeam
+        connects properly.
+        <br />
+        In VBR v12.3.1.1139 and above, Automatic Bucket Creation is enabled by
+        default.
+        <br />
+        You'll find the option next to the Bucket name in the S3 compatible
+        repository wizard.
         <VeeamMultipleBucketCapture />
       </Banner>
     </>
