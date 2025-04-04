@@ -1,7 +1,7 @@
 import { ISVCardConfig, ISVInfo, ISVPlatformConfig } from '../../types';
 import { VeeamLogo } from './components/VeeamLogo';
 import Joi from '@hapi/joi';
-import { Stack, Text } from '@scality/core-ui';
+import { Banner, Stack, Text } from '@scality/core-ui';
 import { checkDecimals, ListItem } from '../index';
 import { accountNameValidationSchema } from '../../../account/AccountCreate';
 import { bucketNameValidationSchema } from '../../../databrowser/buckets/BucketCreate';
@@ -9,6 +9,7 @@ import { VEEAM_BACKUP_REPLICATION, VEEAM_OFFICE_365 } from '../../constants';
 import { GET_VEEAM_POLICY } from '../../utils/ISVPolicy';
 import { useCheckSOSAPIStatus } from '../../hooks/useCheckSOSAPIStatus';
 import { IAMUSerTooltip } from '../../components/IAMUserTooltip';
+import { VeeamMultipleBucketCapture } from './components/VeeamMultipleBucketCapture';
 
 const AccountTooltip = () => {
   return (
@@ -119,6 +120,17 @@ export const Veeam: ISVPlatformConfig = {
     </Stack>
   ),
   bucketTag: VEEAM_BACKUP_REPLICATION,
+  summaryBucketBanner: (
+    <>
+      <Banner variant="warning" title="Configuration warning">
+        “Automatic bucket creation” must be disabled when integrating Veeam.
+        You'll find this setting next to the Bucket name selection in the S3
+        compatible repository wizard Keeping it enabled will break the
+        integration.
+        <VeeamMultipleBucketCapture />
+      </Banner>
+    </>
+  ),
   skipModalContent: (
     <Text>
       To start Veeam assistant configuration again, you can go to the{' '}
