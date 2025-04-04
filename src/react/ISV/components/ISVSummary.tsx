@@ -277,23 +277,26 @@ export const ISVSummary = ({
         <Separator />
 
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
-          {buckets.map((bucket, index) => (
-            <FormGroup
-              key={bucket.name}
-              id="buckets-name"
-              label={`Bucket #${index + 1}`}
-              required
-              content={
-                <WrapperWithWidth key={bucket.name}>
-                  <Text>{bucket.name}</Text>
-                  <CopyButton
-                    textToCopy={bucket.name}
-                    aria-label="copy bucket name"
-                  />
-                </WrapperWithWidth>
-              }
-            />
-          ))}
+          <>
+            {platform.summaryBucketBanner ? platform.summaryBucketBanner : ''}
+            {buckets.map((bucket, index) => (
+              <FormGroup
+                key={bucket.name}
+                id="buckets-name"
+                label={`Bucket #${index + 1}`}
+                required
+                content={
+                  <WrapperWithWidth key={bucket.name}>
+                    <Text>{bucket.name}</Text>
+                    <CopyButton
+                      textToCopy={bucket.name}
+                      aria-label="copy bucket name"
+                    />
+                  </WrapperWithWidth>
+                }
+              />
+            ))}
+          </>
         </FormSection>
         <Separator />
         <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
