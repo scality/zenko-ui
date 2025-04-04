@@ -4,6 +4,10 @@ import { Wrapper } from '../../../utils/testUtil';
 import { ISVList } from '../../ISVList';
 import userEvent from '@testing-library/user-event';
 
+jest.mock('../../hooks/useCheckSOSAPIStatus', () => ({
+  useCheckSOSAPIStatus: jest.fn().mockReturnValue('activated'),
+}));
+
 describe('ISVModal', () => {
   it('should render', () => {
     render(
