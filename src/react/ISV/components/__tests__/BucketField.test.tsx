@@ -80,6 +80,63 @@ describe('BucketField', () => {
     expect(screen.getByLabelText(/number of buckets/i)).toBeInTheDocument();
   });
 
+  it('should ignore non-numeric values in bucket number input', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '3' } });
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+
+    fireEvent.change(bucketNumberInput, { target: { value: 'abc' } });
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+  });
+
+  it('should add new buckets with default values when increasing bucket number', () => {
+    render(
+      <TestWrapper>
+        <BucketField platform="test-platform" />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '2' } });
+
+    const bucketNameInputs = screen.getAllByLabelText(/bucket #\d+ name/i);
+    expect(bucketNameInputs).toHaveLength(2);
+
+    expect(bucketNameInputs[1]).toHaveValue('');
+    expect(bucketNameInputs[1]).toHaveAttribute(
+      'placeholder',
+      'Example: test-platform-bucket-name',
+    );
+  });
+
+  it('should remove buckets when decreasing bucket number', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '3' } });
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '2' } });
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2);
+
+    const remainingBuckets = screen.getAllByLabelText(/bucket #\d+ name/i);
+    expect(remainingBuckets[0]).toBeInTheDocument();
+    expect(remainingBuckets[1]).toBeInTheDocument();
+  });
+
   it('should update bucket tags when platform prop changes', () => {
     const { rerender } = render(
       <TestWrapper>
