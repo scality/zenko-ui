@@ -276,6 +276,7 @@ export const ISVSummary = ({
         )}
         <Separator />
 
+        {platform.summaryBucketBanner ? platform.summaryBucketBanner : <></>}
         <FormSection title={{ name: 'Buckets' }} forceLabelWidth={150}>
           {buckets.map((bucket, index) => (
             <FormGroup

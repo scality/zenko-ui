@@ -75,6 +75,7 @@ export type ISVPlatformConfig = ISVInfo & {
   description: React.ReactNode;
   bucketTag: string;
   skipModalContent?: React.JSX.Element;
+  summaryBucketBanner?: React.JSX.Element;
   fieldOverrides: FieldOverride[];
   validator?: Joi.ObjectSchema<ISVConfig>;
   getPolicy: (buckets: string[], isImmutable: boolean) => string;
