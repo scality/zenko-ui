@@ -18,6 +18,7 @@ import {
 import { ISVStepperContext, ISVStepperContextType } from '../ISVSteps';
 import { ISVPlatformConfig } from '../../types';
 import { Route, Routes, useParams } from 'react-router';
+import { Veeam } from '../../modules/veeam';
 
 const useAuth = mockShellHooks.useAuth;
 const useDeployedApps = mockShellHooks.useDeployedApps;
@@ -241,7 +242,7 @@ describe('ISVSummary', () => {
         value={{
           platform: {
             ...mockVeeamPlatform,
-            summaryBucketBanner: <>Expected banner</>,
+            summaryBucketBanner: Veeam.summaryBucketBanner,
           },
         }}
       >
@@ -260,7 +261,8 @@ describe('ISVSummary', () => {
     );
 
     //E+V
-    expect(screen.getByText('Expected banner')).toBeInTheDocument();
+    expect(selectors.bucketSection()).toBeInTheDocument();
+    expect(screen.getByText('Configuration warning')).toBeInTheDocument();
   });
 
   it('should render available access keys for existing account', async () => {
