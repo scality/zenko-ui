@@ -16,7 +16,7 @@ export const VeeamMultipleBucketCapture = () => {
         width="191"
         height="29"
         stroke="#E84855"
-        stroke-width="2"
+        strokeWidth="2"
       />
       <defs>
         <pattern
