@@ -144,6 +144,79 @@ describe('ISVConfiguration', () => {
     capacityMocks.getCapacityBytes.mockReturnValue(1073741824);
   });
 
+  it('should show skip modal when clicking Skip button', async () => {
+    renderComponent();
+
+    // Click the skip button
+    await userEvent.click(selectors.skipButton());
+
+    // Verify modal is shown
+    expect(screen.getByText('Exit Veeam assistant?')).toBeInTheDocument();
+  });
+
+  it('should disable Continue button if form is invalid', async () => {
+    renderComponent();
+
+    expect(selectors.continueButton()).toBeDisabled();
+  });
+
+  it('should navigate to next step when Continue button is clicked', async () => {
+    renderComponent(Commvault);
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+      'new-veeam-account',
+    );
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Bucket name \*/i }),
+      'veeam-bucket',
+    );
+
+    await waitFor(() => {
+      expect(selectors.continueButton()).not.toBeDisabled();
+    });
+
+    await userEvent.click(selectors.continueButton());
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('should navigate to next step when add mutiple buckets and remove one', async () => {
+    renderComponent(Commvault);
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    await userEvent.click(selectors.createAccountRadio());
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+      'new-account',
+    );
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Bucket name \*/i }),
+      'test-bucket-1',
+    );
+
+    fireEvent.change(bucketNumberInput, { target: { value: '3' } });
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Bucket #2 name \*/i }),
+      'test-bucket-2',
+    );
+
+    await userEvent.type(
+      screen.getByRole('textbox', { name: /Bucket #3 name \*/i }),
+      'test-bucket-3',
+    );
+
+    fireEvent.change(bucketNumberInput, { target: { value: '1' } });
+
+    await userEvent.click(selectors.continueButton());
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+
   describe('Basic Rendering', () => {
     it('should render form with basic fields', () => {
       renderComponent();
@@ -618,81 +691,6 @@ describe('ISVConfiguration', () => {
         expect(selectors.existingUserRadio()).not.toBeChecked();
         expect(selectors.createUserInput()).toHaveValue('test-account');
       });
-    });
-  });
-
-  describe.skip('Navigation', () => {
-    it('should show skip modal when clicking Skip button', async () => {
-      renderComponent();
-
-      // Click the skip button
-      await userEvent.click(selectors.skipButton());
-
-      // Verify modal is shown
-      expect(screen.getByText('Exit Veeam assistant?')).toBeInTheDocument();
-    });
-
-    it('should disable Continue button if form is invalid', async () => {
-      renderComponent();
-
-      expect(selectors.continueButton()).toBeDisabled();
-    });
-
-    it('should navigate to next step when Continue button is clicked', async () => {
-      renderComponent(Commvault);
-
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
-        'new-veeam-account',
-      );
-
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Bucket name \*/i }),
-        'veeam-bucket',
-      );
-
-      await waitFor(() => {
-        expect(selectors.continueButton()).not.toBeDisabled();
-      });
-
-      await userEvent.click(selectors.continueButton());
-
-      expect(mockNext).toHaveBeenCalled();
-    });
-
-    it('should navigate to next step when add mutiple buckets and remove one', async () => {
-      renderComponent(Commvault);
-
-      const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
-
-      await userEvent.click(selectors.createAccountRadio());
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
-        'new-account',
-      );
-
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Bucket name \*/i }),
-        'test-bucket-1',
-      );
-
-      fireEvent.change(bucketNumberInput, { target: { value: '3' } });
-
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Bucket #2 name \*/i }),
-        'test-bucket-2',
-      );
-
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /Bucket #3 name \*/i }),
-        'test-bucket-3',
-      );
-
-      fireEvent.change(bucketNumberInput, { target: { value: '1' } });
-
-      await userEvent.click(selectors.continueButton());
-
-      expect(mockNext).toHaveBeenCalled();
     });
   });
 });
