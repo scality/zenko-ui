@@ -31,6 +31,36 @@ beforeAll(() => {
 });
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+
+const generateMockLocations = (count: number) => {
+  const locations: Record<string, any> = {};
+  for (let i = 1; i <= count; i++) {
+    locations[`location-${i}`] = {
+      name: `location-${i}`,
+      locationType: 'location-test',
+      objectId: `id-${i}`,
+      details: {},
+    };
+  }
+  return locations;
+};
+
+const setupLocations = (count: number) => {
+  server.use(
+    rest.get(
+      `${TEST_API_BASE_URL}/api/v1/config/overlay/view/${INSTANCE_ID}`,
+      (_, res, ctx) =>
+        res(
+          ctx.json({
+            locations: generateMockLocations(count),
+            users: [],
+            endpoints: [],
+          }),
+        ),
+    ),
+  );
+};
+
 describe('LocationEditor', () => {
   it('should display storageOptions expect hidden options', async () => {
     const {
@@ -109,6 +139,58 @@ describe('LocationEditor', () => {
     //V
     await waitFor(() => {
       expect(screen.queryByText('Storage Service for ARTESCA')).toBeNull();
+    });
+  });
+
+  it('should not display a banner when fewer than 6 locations exist', async () => {
+    setupLocations(5);
+
+    reduxRender(<LocationEditor />);
+    await waitForElementToBeRemoved(() => selectors.loadingLocation());
+
+    expect(
+      screen.queryByText(/locations have been created on this instance/i),
+    ).toBeNull();
+    expect(
+      screen.queryByText(/storage locations. It is strongly recommended/i),
+    ).toBeNull();
+  });
+
+  it('should display a warning banner when 6-9 locations exist', async () => {
+    setupLocations(8);
+
+    reduxRender(<LocationEditor />);
+    await waitForElementToBeRemoved(() => selectors.loadingLocation());
+
+    await waitFor(() => {
+      const warningText = screen.getByText(
+        /8 of 10 locations have been created on this instance/i,
+      );
+      expect(warningText).toBeInTheDocument();
+
+      const bannerElement = screen
+        .getByText(/8 of 10 locations have been created on this instance/i)
+        .closest('.sc-banner');
+      expect(bannerElement).toBeInTheDocument();
+    });
+  });
+
+  it('should display a danger banner when 10 or more locations exist', async () => {
+    setupLocations(12);
+
+    reduxRender(<LocationEditor />);
+    await waitForElementToBeRemoved(() => selectors.loadingLocation());
+
+    await waitFor(() => {
+      const dangerText = screen.getByText(
+        /This instance has already 12 storage locations/i,
+      );
+      expect(dangerText).toBeInTheDocument();
+
+      const bannerElement = screen
+        .getByText(/This instance has already 12 storage locations/i)
+        .closest('.sc-banner');
+      expect(bannerElement).toBeInTheDocument();
     });
   });
 
