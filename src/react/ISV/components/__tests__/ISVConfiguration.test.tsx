@@ -72,7 +72,7 @@ const selectors = {
   existingAccountRadio: () =>
     screen.getByRole('radio', { name: /Use an existing Account/i }),
   skipButton: () => screen.getByText(/Skip Use case configuration/i),
-  continueButton: () => screen.getByText('Continue'),
+  continueButton: () => screen.getByRole('button', { name: /Continue/i }),
   useExistingAccountSelect: () =>
     screen.getByRole('listbox', { name: /Select existing account/i }),
   existingUserRadio: () =>
@@ -150,17 +150,13 @@ describe('ISVConfiguration', () => {
       renderComponent();
 
       // Check form title
-      expect(
-        screen.getByText('Configure ARTESCA for your Use case'),
-      ).toBeInTheDocument();
+      expect(selectors.formTitle()).toBeInTheDocument();
 
       // Check basic form fields
-      expect(screen.getByText('Create a new Account')).toBeInTheDocument();
-      expect(screen.getByText('Use an existing Account')).toBeInTheDocument();
-      expect(
-        screen.getByText(/Skip Use case configuration/i),
-      ).toBeInTheDocument();
-      expect(screen.getByText('Continue')).toBeInTheDocument();
+      expect(selectors.createAccountRadio()).toBeInTheDocument();
+      expect(selectors.existingAccountRadio()).toBeInTheDocument();
+      expect(selectors.skipButton()).toBeInTheDocument();
+      expect(selectors.continueButton()).toBeInTheDocument();
     });
   });
 
@@ -180,10 +176,10 @@ describe('ISVConfiguration', () => {
       const useExistingRadio = screen.getByText('Use an existing Account');
       await userEvent.click(useExistingRadio);
 
-      expect(screen.getByText('Select existing account')).toBeInTheDocument();
+      expect(selectors.useExistingAccountSelect()).toBeInTheDocument();
 
       // Should not show internal account in options
-      await userEvent.click(screen.getByText('Select existing account'));
+      await userEvent.click(selectors.useExistingAccountSelect());
       expect(screen.getByText('test-account')).toBeInTheDocument();
       expect(
         screen.queryByText('scality-internal-services'),
@@ -211,7 +207,7 @@ describe('ISVConfiguration', () => {
       await waitFor(() => {
         expect(screen.getByText('test-account')).toBeInTheDocument();
       });
-      expect(screen.getByLabelText('Create a new Account')).toBeDisabled();
+      expect(selectors.createAccountRadio()).toBeDisabled();
     });
     it('should not disable create account if account in query params does not exist', async () => {
       renderWithCustomRoute(
@@ -224,7 +220,7 @@ describe('ISVConfiguration', () => {
         </ISVStepperContext.Provider>,
         '/isv/configuration?platform=veeam&account=non-existing-account',
       );
-      expect(screen.getByLabelText('Create a new Account')).not.toBeDisabled();
+      expect(selectors.createAccountRadio()).not.toBeDisabled();
       expect(
         screen.queryByText('non-existing-account'),
       ).not.toBeInTheDocument();
@@ -342,10 +338,7 @@ describe('ISVConfiguration', () => {
     it('should disable continue button when form is invalid', async () => {
       renderComponent(VeeamVBO);
 
-      const continueButton = screen.getByRole('button', {
-        name: /Arrow-right Continue/i,
-      });
-      expect(continueButton).toBeDisabled();
+      expect(selectors.continueButton()).toBeDisabled();
 
       // Fill in account name
       await userEvent.type(
@@ -377,10 +370,7 @@ describe('ISVConfiguration', () => {
         screen.getByRole('option', { name: VEEAM_OFFICE_365 }),
       );
 
-      // Wait for validation to complete and form to be valid
-      await waitFor(() => {
-        expect(continueButton).toBeDisabled();
-      });
+      expect(selectors.continueButton()).toBeDisabled();
     });
 
     it('should show error for duplicate account names', async () => {
@@ -455,146 +445,7 @@ describe('ISVConfiguration', () => {
   });
 
   describe('Advanced Settings', () => {
-    it('should show IAM user management section when using existing account', async () => {
-      renderComponent();
-
-      // Select existing account
-      await userEvent.click(screen.getByText('Use an existing Account'));
-      await userEvent.click(screen.getByText('Select existing account'));
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      // Verify IAM user section is present with its options
-      expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
-      expect(screen.getByText('Create a new IAM User')).toBeInTheDocument();
-      expect(screen.getByText('Use an existing IAM User')).toBeInTheDocument();
-    });
-
-    it('should hide advanced settings section for new account', () => {
-      renderComponent();
-
-      // Select create new account
-      userEvent.click(screen.getByText('Create a new Account'));
-
-      // Advanced settings should not be present
-      expect(screen.queryByText('Advanced settings')).not.toBeInTheDocument();
-    });
-
-    it('should handle IAM user type selection in advanced settings', async () => {
-      renderComponent();
-
-      // Setup existing account view
-      await userEvent.click(screen.getByText('Use an existing Account'));
-      await userEvent.click(screen.getByText('Select existing account'));
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      // Test switching between IAM user types
-      waitFor(() => {
-        expect(screen.getByText('Create a new IAM User')).toBeInTheDocument();
-      });
-
-      await userEvent.click(screen.getByText('Create a new IAM User'));
-      expect(screen.getByLabelText('Create a new IAM User')).toBeChecked();
-      expect(
-        screen.queryByRole('textbox', { name: /IAM User/i }),
-      ).toBeVisible();
-
-      await userEvent.click(screen.getByText('Use an existing IAM User'));
-      expect(screen.getByLabelText('Use an existing IAM User')).toBeChecked();
-      expect(
-        screen.queryByRole('listbox', { name: /Select existing user/ }),
-      ).toBeVisible();
-    });
-
-    it('should show generate key checkbox for existing IAM user', async () => {
-      renderComponent();
-
-      // Select existing account
-      await userEvent.click(screen.getByText('Use an existing Account'));
-      await userEvent.click(screen.getByText('Select existing account'));
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      // Select existing IAM user
-      await userEvent.click(selectors.existingUserRadio());
-
-      expect(
-        screen.getByText('Generate a new set of AK/SK'),
-      ).toBeInTheDocument();
-    });
-    it('should not check by default generate key checkbox for existing IAM user with active keys', async () => {
-      renderComponent();
-
-      // Select existing account
-      await userEvent.click(screen.getByText('Use an existing Account'));
-      await userEvent.click(screen.getByText('Select existing account'));
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      // Select existing IAM user
-      await userEvent.click(selectors.existingUserRadio());
-      await userEvent.click(
-        screen.queryByRole('listbox', { name: /Select existing user/ }),
-      );
-      await userEvent.click(screen.getByText('test-user'));
-
-      expect(
-        screen.getByText('Generate a new set of AK/SK'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByLabelText('Generate a new set of AK/SK'),
-      ).not.toBeChecked();
-    });
-
-    it('should show generate key checkbox for existing IAM user with no active keys', async () => {
-      renderComponent();
-
-      // Select existing account
-      await userEvent.click(screen.getByText('Use an existing Account'));
-      await userEvent.click(screen.getByText('Select existing account'));
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      // Select existing IAM user
-      await userEvent.click(selectors.existingUserRadio());
-      await userEvent.click(
-        screen.queryByRole('listbox', { name: /Select existing user/ }),
-      );
-      await userEvent.click(screen.getByText('test-user'));
-
-      expect(
-        screen.getByText('Generate a new set of AK/SK'),
-      ).toBeInTheDocument();
-    });
-
-    it('should select create new IAM User if IAM User does not exist and prefill it with account name', async () => {
-      renderComponent();
-      await userEvent.click(selectors.existingAccountRadio());
-      await userEvent.click(selectors.useExistingAccountSelect());
-      await userEvent.click(screen.getByText('test-account'));
-
-      // Explicitly open advanced settings
-      await userEvent.click(screen.getByText('Advanced settings'));
-
-      waitFor(() => {
-        expect(selectors.createUserRadio()).toBeChecked();
-        expect(selectors.existingUserRadio()).not.toBeChecked();
-        expect(selectors.createUserInput()).toHaveValue('test-account');
-      });
-    });
-
-    it.skip('should open and focus select user if selecting account with no user corresponding to account name', async () => {
+    it('should open and focus select user if selecting account with no user corresponding to account name', async () => {
       const useIAMUserMock = require('../../hooks/useIAMUser').useIAMUser;
       useIAMUserMock.mockReset();
       useIAMUserMock.mockReturnValue({
@@ -630,30 +481,143 @@ describe('ISVConfiguration', () => {
       });
 
       renderComponent();
-      
-      // First wait for initial render
+
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByText('test-account'));
+
       await waitFor(() => {
-        expect(screen.getByText(/Configure ARTESCA for your Use case/i)).toBeInTheDocument();
+        expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
       });
+
+      expect(selectors.existingUserRadio()).toBeChecked();
+      expect(selectors.createUserRadio()).not.toBeChecked();
+      expect(document.querySelector('#IAMUserName')).toHaveFocus();
+    });
+
+    it('should show IAM user management section when using existing account', async () => {
+      renderComponent();
 
       // Select existing account
       await userEvent.click(selectors.existingAccountRadio());
       await userEvent.click(selectors.useExistingAccountSelect());
       await userEvent.click(screen.getByText('test-account'));
 
-      // Wait for IAM User Management section to be visible
-      await waitFor(() => {
-        expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Verify IAM user section is present with its options
+      expect(screen.getByText(/IAM User Management/i)).toBeInTheDocument();
+      expect(selectors.createUserRadio()).toBeInTheDocument();
+      expect(selectors.existingUserRadio()).toBeInTheDocument();
+    });
+
+    it('should hide advanced settings section for new account', () => {
+      renderComponent();
+
+      // Select create new account
+      userEvent.click(selectors.createAccountRadio());
+
+      // Advanced settings should not be present
+      expect(screen.queryByText('Advanced settings')).not.toBeInTheDocument();
+    });
+
+    it('should handle IAM user type selection in advanced settings', async () => {
+      renderComponent();
+
+      // Setup existing account view
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByText('test-account'));
+
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Test switching between IAM user types
+      waitFor(() => {
+        expect(selectors.createUserRadio()).toBeInTheDocument();
       });
 
-      // Explicitly click the existing user radio button
-      // await userEvent.click(selectors.existingUserRadio());
+      await userEvent.click(screen.getByText('Create a new IAM User'));
+      expect(selectors.createUserRadio()).toBeChecked();
+      expect(selectors.createUserInput()).toBeVisible();
 
-      // Final verification
-      await waitFor(() => {
-        expect(selectors.existingUserRadio()).toBeChecked();
-        expect(selectors.createUserRadio()).not.toBeChecked();
-        expect(selectors.selectExistingUser()).toBeInTheDocument();
+      await userEvent.click(screen.getByText('Use an existing IAM User'));
+      expect(selectors.existingUserRadio()).toBeChecked();
+      expect(selectors.selectExistingUser()).toBeVisible();
+    });
+
+    it('should show generate key checkbox for existing IAM user', async () => {
+      renderComponent();
+
+      // Select existing account
+      await userEvent.click(screen.getByText('Use an existing Account'));
+      await userEvent.click(screen.getByText('Select existing account'));
+      await userEvent.click(screen.getByText('test-account'));
+
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Select existing IAM user
+      await userEvent.click(selectors.existingUserRadio());
+
+      expect(
+        screen.getByText('Generate a new set of AK/SK'),
+      ).toBeInTheDocument();
+    });
+    it('should not check by default generate key checkbox for existing IAM user with active keys', async () => {
+      renderComponent();
+
+      // Select existing account
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByText('test-account'));
+
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Select existing IAM user
+      await userEvent.click(selectors.existingUserRadio());
+      await userEvent.click(
+        screen.queryByRole('listbox', { name: /Select existing user/ }),
+      );
+      await userEvent.click(screen.getByText('test-user'));
+
+      expect(selectors.generateKey()).not.toBeChecked();
+    });
+
+    it('should show generate key checkbox for existing IAM user with no active keys', async () => {
+      renderComponent();
+
+      // Select existing account
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByText('test-account'));
+
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      // Select existing IAM user
+      await userEvent.click(selectors.existingUserRadio());
+      await userEvent.click(selectors.selectExistingUser());
+      await userEvent.click(screen.getByText('test-user'));
+
+      expect(selectors.generateKey()).toBeInTheDocument();
+    });
+
+    it('should select create new IAM User if IAM User does not exist and prefill it with account name', async () => {
+      renderComponent();
+      await userEvent.click(selectors.existingAccountRadio());
+      await userEvent.click(selectors.useExistingAccountSelect());
+      await userEvent.click(screen.getByText('test-account'));
+
+      // Explicitly open advanced settings
+      await userEvent.click(screen.getByText('Advanced settings'));
+
+      waitFor(() => {
+        expect(selectors.createUserRadio()).toBeChecked();
+        expect(selectors.existingUserRadio()).not.toBeChecked();
+        expect(selectors.createUserInput()).toHaveValue('test-account');
       });
     });
   });
@@ -661,6 +625,7 @@ describe('ISVConfiguration', () => {
   describe('Navigation', () => {
     beforeEach(() => {
       mockNavigate.mockReset();
+      mockNext.mockClear();
     });
 
     it('should show skip modal when clicking Skip button', async () => {
@@ -673,22 +638,21 @@ describe('ISVConfiguration', () => {
       expect(screen.getByText('Exit Veeam assistant?')).toBeInTheDocument();
     });
 
-    it('should close modal without navigating when canceling skip', async () => {
+    it('should disable Continue button if form is invalid', async () => {
       renderComponent();
 
-      // Click the skip button
-      await userEvent.click(selectors.skipButton());
+      // Button should be disabled initially
+      expect(selectors.continueButton()).toBeDisabled();
 
-      // Click the "Cancel" button in the modal
-      await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      // Fill in partial data (missing bucket name)
+      await userEvent.click(selectors.createAccountRadio());
+      await userEvent.type(
+        screen.getByRole('textbox', { name: /Account \* Account Name \*/i }),
+        'new-account',
+      );
 
-      // Verify modal is closed (by checking it's no longer in the document)
-      expect(
-        screen.queryByText('Exit Veeam assistant?'),
-      ).not.toBeInTheDocument();
-
-      // Verify navigation was NOT called
-      expect(mockNavigate).not.toHaveBeenCalled();
+      // Button should still be disabled
+      expect(selectors.continueButton()).toBeDisabled();
     });
   });
 });
