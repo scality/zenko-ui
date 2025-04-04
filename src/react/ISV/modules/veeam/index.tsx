@@ -123,9 +123,9 @@ export const Veeam: ISVPlatformConfig = {
   summaryBucketBanner: (
     <>
       <Banner variant="warning" title="Configuration warning">
-        “Automatic bucket creation” must be disabled when integrating Veeam with
-        ARTESCA. You'll find this setting next to the Bucket name selection in
-        the S3 compatible repository wizard Keeping it enabled will break the
+        “Automatic bucket creation” must be disabled when integrating Veeam.
+        You'll find this setting next to the Bucket name selection in the S3
+        compatible repository wizard Keeping it enabled will break the
         integration.
         <VeeamMultipleBucketCapture />
       </Banner>

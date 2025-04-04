@@ -230,6 +230,39 @@ describe('ISVSummary', () => {
     //E+V
     expect(selectors.secretKeyOutput()).toBeInTheDocument();
   });
+
+  it('should render summary bucket banner when specified', async () => {
+    //S
+    useAuth.mockImplementation(() => {
+      return mockAuthUserData;
+    });
+    render(
+      <ISVStepperContext.Provider
+        value={{
+          platform: {
+            ...mockVeeamPlatform,
+            summaryBucketBanner: <>Expected banner</>,
+          },
+        }}
+      >
+        <Stepper
+          steps={[
+            {
+              label: 'Summary',
+              Component: ({ children }: { children: React.ReactNode }) => {
+                return <ISVSummary {...mockExistingAccountSummaryProps} />;
+              },
+            },
+          ]}
+        />
+      </ISVStepperContext.Provider>,
+      { wrapper: Wrapper },
+    );
+
+    //E+V
+    expect(screen.getByText('Expected banner')).toBeInTheDocument();
+  });
+
   it('should render available access keys for existing account', async () => {
     //S
     useAuth.mockImplementation(() => {

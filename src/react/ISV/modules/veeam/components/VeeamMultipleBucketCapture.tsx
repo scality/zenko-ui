@@ -7,6 +7,7 @@ export const VeeamMultipleBucketCapture = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
+      style={{ maxWidth: '100%' }}
     >
       <rect width="704" height="501.39" fill="url(#pattern0_12505_238784)" />
       <rect
