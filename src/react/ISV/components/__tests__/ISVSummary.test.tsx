@@ -518,12 +518,12 @@ describe('ISVSummary', () => {
       );
       await user.click(selectors.copyAllButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
       await user.click(selectors.copyAllButton());
 
       await expect(navigator.clipboard.readText()).resolves.toBe(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}`,
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
     });
 
@@ -549,7 +549,7 @@ describe('ISVSummary', () => {
       // Verify the copy buttons
       await user.click(selectors.copyAllButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBuckets name\t${BUCKET_NAME}, bucket-name-2`,
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}, bucket-name-2`,
       );
     });
     it('should copy all data when displaying access keys for existing account', async () => {
@@ -574,7 +574,7 @@ describe('ISVSummary', () => {
       // Verify the copy buttons
       await user.click(selectors.copyAllButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(
-        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBuckets name\t${BUCKET_NAME}`,
+        `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBucket names\t${BUCKET_NAME}`,
       );
     });
   });
