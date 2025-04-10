@@ -1,5 +1,11 @@
 import { FormGroup, FormSection, spacing, Text } from '@scality/core-ui';
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+  useState,
+} from 'react';
 import { Input } from '@scality/core-ui/dist/next';
 import { FieldErrors, useFieldArray, useFormContext } from 'react-hook-form';
 import styled from 'styled-components';
@@ -88,6 +94,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
 }) => {
   const bucketNumberInputRef = useRef<HTMLInputElement>(null);
   const shouldFocusRef = useRef(false);
+  const [inputValue, setInputValue] = useState<string>('');
   const {
     control,
     formState: { errors },
@@ -105,29 +112,32 @@ const BucketField: React.FC<BucketFieldProps> = ({
     }
   }, [fields.length]);
 
-  const handleBucketNumberChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newNumber = e.target.valueAsNumber;
+  useEffect(() => {
+    setInputValue(fields.length.toString());
+  }, [fields.length]);
 
+  const adjustBucketNumber = useCallback(
+    (targetNumber: number) => {
       if (
-        newNumber < MIN_BUCKETS ||
-        newNumber > MAX_BUCKETS ||
-        isNaN(newNumber)
+        targetNumber < MIN_BUCKETS ||
+        targetNumber > MAX_BUCKETS ||
+        isNaN(targetNumber) ||
+        targetNumber === fields.length
       ) {
         return;
       }
 
       shouldFocusRef.current = true;
 
-      if (newNumber < fields.length) {
-        const bucketsToRemove = fields.length - newNumber;
+      if (targetNumber < fields.length) {
+        const bucketsToRemove = fields.length - targetNumber;
         const indicesToRemove = Array.from(
           { length: bucketsToRemove },
           (_, i) => fields.length - 1 - i,
         );
         remove(indicesToRemove);
-      } else if (newNumber > fields.length) {
-        const newFields = Array(newNumber - fields.length).fill({
+      } else {
+        const newFields = Array(targetNumber - fields.length).fill({
           name: '',
           tag: platform,
           capacity: '0',
@@ -136,8 +146,34 @@ const BucketField: React.FC<BucketFieldProps> = ({
         append(newFields);
       }
     },
-    [fields.length, fields, remove, append, platform],
+    [fields.length, append, remove, platform],
   );
+
+  const handleBucketNumberChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setInputValue(value);
+
+      if (value === '') return;
+
+      const newNumber = parseInt(value, 10);
+      adjustBucketNumber(newNumber);
+    },
+    [adjustBucketNumber],
+  );
+
+  const handleInputBlur = useCallback(() => {
+    const validNumber = /^[0-9]+$/.test(inputValue);
+    const parsedValue = parseInt(inputValue, 10);
+
+    if (!validNumber || isNaN(parsedValue) || parsedValue < MIN_BUCKETS) {
+      setInputValue(MIN_BUCKETS.toString());
+      adjustBucketNumber(MIN_BUCKETS);
+    } else if (parsedValue > MAX_BUCKETS) {
+      setInputValue(MAX_BUCKETS.toString());
+      adjustBucketNumber(MAX_BUCKETS);
+    }
+  }, [inputValue, adjustBucketNumber]);
 
   const bucketNamePlaceholder = useMemo(
     () => `${platform}-bucket-name`,
@@ -229,8 +265,9 @@ const BucketField: React.FC<BucketFieldProps> = ({
               ref={bucketNumberInputRef}
               id="bucketNumber"
               type="number"
-              value={fields.length}
+              value={inputValue}
               onChange={handleBucketNumberChange}
+              onBlur={handleInputBlur}
               size="1/3"
               min={MIN_BUCKETS}
               max={MAX_BUCKETS}
