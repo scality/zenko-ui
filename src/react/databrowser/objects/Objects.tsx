@@ -26,6 +26,7 @@ import ObjectDetails from './ObjectDetails';
 import ObjectHead from './ObjectHead';
 import ObjectList from './ObjectList';
 import ObjectUpload from './ObjectUpload';
+import ListLayoutButtons from '../HeaderButtons';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 export default function Objects() {
   const dispatch = useDispatch();
@@ -153,6 +154,8 @@ export default function Objects() {
               basePath,
             )}
           />
+
+          <ListLayoutButtons />
         </Box>
       </AppContainer.ContextContainer>
       <AppContainer.OverallSummary>
