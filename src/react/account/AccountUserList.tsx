@@ -25,7 +25,7 @@ import { User } from 'aws-sdk/clients/iam';
 import { FormattedDateTime, Icon, spacing } from '@scality/core-ui';
 import { Row } from 'react-table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { useCurrentAccount, useDataServiceRole } from '../DataServiceRoleProvider';
 
 type InternalUser = {
   userName: string;
@@ -280,6 +280,9 @@ const DeleteUserAction = ({
 
 const AccountUserList = ({ accountName }: { accountName?: string }) => {
   const navigate = useBasenameRelativeNavigate();
+
+  const { roleArn } = useDataServiceRole();
+
   const listUsersQuery = (IAMClient?: IAMClient | null) =>
     getListUsersQuery(notFalsyTypeGuard(accountName), IAMClient);
   const getEntitiesFromResult = (page) => page.Users;
@@ -368,6 +371,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
   ];
   return (
     <AwsPaginatedResourceTable
+      key={`users-${roleArn}-${accountName}`}
       //@ts-expect-error fix this when you are working on it
       columns={columns}
       additionalHeaders={
@@ -389,6 +393,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
         getEntitiesFromResult,
         prepareData,
         filterData,
+        additionalDepsToUpdateQueryFn: [roleArn, accountName],
       }}
       labels={{
         singularResourceName: 'user',
