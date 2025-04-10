@@ -1,6 +1,6 @@
 import { Icon } from '@scality/core-ui';
 import { Tabs } from '@scality/core-ui/dist/next';
-import { useLocation, useNavigate, useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { useTheme } from 'styled-components';
 import { Account } from '../../types/account';
 import { Warning } from '../ui-elements/Warning';
