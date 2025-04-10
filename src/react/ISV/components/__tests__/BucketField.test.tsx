@@ -177,4 +177,95 @@ describe('BucketField', () => {
       'Example: test-platform-bucket-name',
     );
   });
+
+  it('should allow temporarily empty input but restore to min value on blur', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '' } });
+    expect((bucketNumberInput as HTMLInputElement).value).toBe('');
+
+    fireEvent.blur(bucketNumberInput);
+
+    expect(bucketNumberInput).toHaveValue(1);
+  });
+
+  it('should handle "e" character input and restore to min value on blur', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: 'e' } });
+
+    fireEvent.blur(bucketNumberInput);
+
+    expect(bucketNumberInput).toHaveValue(1);
+  });
+
+  it('should handle zero or negative input and restore to min value on blur', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '0' } });
+    expect(bucketNumberInput).toHaveValue(0);
+
+    fireEvent.blur(bucketNumberInput);
+
+    expect(bucketNumberInput).toHaveValue(1);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '-5' } });
+
+    fireEvent.blur(bucketNumberInput);
+
+    expect(bucketNumberInput).toHaveValue(1);
+  });
+
+  it('should handle input greater than max value and restore to max value on blur', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '25' } });
+    expect(bucketNumberInput).toHaveValue(25);
+
+    fireEvent.blur(bucketNumberInput);
+
+    expect(bucketNumberInput).toHaveValue(20);
+  });
+
+  it('should allow changing value by first deleting and then typing new value', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    fireEvent.change(bucketNumberInput, { target: { value: '' } });
+    expect((bucketNumberInput as HTMLInputElement).value).toBe('');
+
+    fireEvent.change(bucketNumberInput, { target: { value: '3' } });
+    expect(bucketNumberInput).toHaveValue(3);
+
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+  });
 });

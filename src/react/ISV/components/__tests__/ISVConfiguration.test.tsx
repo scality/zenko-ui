@@ -221,12 +221,6 @@ describe('ISVConfiguration', () => {
         '1',
       );
 
-      // Fill in bucket name
-      await userEvent.type(
-        screen.getByRole('textbox', { name: 'Bucket #1 name *' }),
-        'test-bucket',
-      );
-
       // Fill in Veeam application for VBO
       const applicationInput = screen.getByRole('textbox', {
         name: 'Veeam application',
