@@ -91,7 +91,7 @@ export const ISVSummary = ({
     accessKey ? 'Access key ID' : 'Access key IDs'
   }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
-  }Buckets name\t${buckets.map((bucket) => bucket.name).join(', ')}`;
+  }Bucket names\t${buckets.map((bucket) => bucket.name).join(', ')}`;
   return (
     <Form
       layout={{
