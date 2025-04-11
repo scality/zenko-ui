@@ -875,7 +875,7 @@ describe('mutations', () => {
       jest.restoreAllMocks();
     });
 
-    test('should successfully enable SOS API', async () => {
+    it('should successfully enable SOS API', async () => {
       mockFetch
         .mockResolvedValueOnce({
           status: 200,
@@ -918,7 +918,7 @@ describe('mutations', () => {
       ]);
     });
 
-    test('should handle API errors', async () => {
+    it('should handle API errors', async () => {
       mockFetch.mockResolvedValueOnce({
         status: 400,
         json: () =>
@@ -946,7 +946,7 @@ describe('mutations', () => {
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    test('should handle timeout when resource synchronization takes too long', async () => {
+    it('should handle timeout when resource synchronization takes too long', async () => {
       const originalSetTimeout = global.setTimeout;
       global.setTimeout = ((fn) => fn()) as unknown as typeof global.setTimeout;
 
