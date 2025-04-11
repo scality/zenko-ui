@@ -127,8 +127,9 @@ export const getUserListGroupsQuery = (
 export const getListUsersQuery = (
   accountName: string,
   IAMClient: IAMClient,
+  additionalDeps: unknown[] = [],
 ): AWS_PAGINATED_QUERY<ListUsersResponse, User, AWSError> => ({
-  queryKey: ['listIAMUsers', accountName],
+  queryKey: ['listIAMUsers', accountName, ...additionalDeps],
   queryFn: (_ctx, marker) => IAMClient.listUsers(1000, marker?.Marker),
   staleTime: Infinity,
   enabled: !!IAMClient && !!IAMClient.client,
@@ -139,8 +140,9 @@ export const getListUsersQuery = (
 export const getListPoliciesQuery = (
   accountName: string,
   IAMClient: IAMClient,
+  additionalDeps: unknown[] = [],
 ): AWS_PAGINATED_QUERY<ListPoliciesResponse, Policy, AWSError> => ({
-  queryKey: ['listPolicies', accountName],
+  queryKey: ['listPolicies', accountName, ...additionalDeps],
   queryFn: (_ctx, marker) => IAMClient.listPolicies(1000, marker?.Marker),
   enabled: !!IAMClient && !!IAMClient.client,
   refetchOnMount: false,
