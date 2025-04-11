@@ -19,6 +19,7 @@ import {
   usePutBucketTaggingMutation,
   usePutObjectMutation,
   useWaitForRunningConfigurationVersionToBeUpdated,
+  useEnableSOSAPIMutation,
 } from './mutations';
 
 //Subject Under Testing
@@ -833,5 +834,155 @@ describe('mutations', () => {
         Version: '2010-05-08',
       }),
     );
+  });
+
+  describe('useEnableSOSAPIMutation', () => {
+    let mockFetch;
+    let originalFetch;
+
+    beforeEach(() => {
+      originalFetch = global.fetch;
+      mockFetch = jest.fn();
+      global.fetch = mockFetch;
+
+      jest
+        .spyOn(require('@scality/module-federation'), 'useShellHooks')
+        .mockImplementation(() => ({
+          useAuth: () => ({
+            getToken: jest.fn().mockResolvedValue('test-token'),
+          }),
+          useConfigRetriever: () => ({
+            retrieveConfiguration: jest.fn().mockReturnValue({
+              spec: {
+                selfConfiguration: {
+                  url: 'https://test-url',
+                },
+              },
+            }),
+          }),
+        }));
+
+      jest
+        .spyOn(
+          require('../react/next-architecture/ui/ConfigProvider'),
+          'useDeployedMetalk8sInstances',
+        )
+        .mockImplementation(() => [{ name: 'test-instance' }]);
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+      jest.restoreAllMocks();
+    });
+
+    test('should successfully enable SOS API', async () => {
+      mockFetch
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => Promise.resolve({ status: 'Success' }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 5 },
+              status: { observedGeneration: 5 },
+            }),
+        });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let mutationPromise;
+
+      await act(async () => {
+        mutationPromise = result.current.mutateAsync();
+      });
+
+      await mutationPromise;
+
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.isError).toBe(false);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+
+      const [url, options] = mockFetch.mock.calls[0];
+      expect(url).toContain('artesca-data');
+      expect(options.method).toBe('PATCH');
+      expect(JSON.parse(options.body)).toEqual([
+        {
+          op: 'replace',
+          path: '/spec/veeamSosApi',
+          value: { enable: true },
+        },
+      ]);
+    });
+
+    test('should handle API errors', async () => {
+      mockFetch.mockResolvedValueOnce({
+        status: 400,
+        json: () =>
+          Promise.resolve({
+            status: 'Failure',
+            message: 'Operation failed',
+          }),
+      });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let error;
+      await act(async () => {
+        try {
+          await result.current.mutateAsync();
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      expect(error).toBeDefined();
+      expect(result.current.isError).toBe(true);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('should handle timeout when resource synchronization takes too long', async () => {
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = ((fn) => fn()) as unknown as typeof global.setTimeout;
+
+      mockFetch
+        .mockResolvedValueOnce({
+          status: 200,
+          json: () => Promise.resolve({ status: 'Success' }),
+        })
+        .mockResolvedValue({
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              metadata: { generation: 6 },
+              status: { observedGeneration: 5 },
+            }),
+        });
+
+      const { result } = renderHook(() => useEnableSOSAPIMutation(), {
+        wrapper: NewWrapper(),
+      });
+
+      let error;
+      await act(async () => {
+        try {
+          await result.current.mutateAsync();
+        } catch (e) {
+          error = e;
+        }
+      });
+
+      expect(error).toBeDefined();
+      expect(result.current.isError).toBe(true);
+      const errorMessage = String(error);
+      expect(errorMessage).toContain('timed out');
+
+      global.setTimeout = originalSetTimeout;
+    });
   });
 });
