@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import {
   useCurrentAccount,
   useDataServiceRole,
-  useSetAssumedRole,
+  useSetAssumedRolePromise,
 } from '../DataServiceRoleProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { CustomModal as Modal, ModalBody } from '../ui-elements/Modal';
@@ -99,7 +99,6 @@ export function AccountRoleSelectButtonAndModal({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const accountName = account?.Name;
   const [assumedAccount, setAssumedAccount] = useState(accountName);
-  const setRole = useSetAssumedRole();
 
   const accountRolesHash = accounts
     ?.map((acc) => acc.Name + acc.Roles.map((role) => role.Arn).join(''))
@@ -159,7 +158,6 @@ export function AccountRoleSelectButtonAndModal({
         close={handleClose}
         footer={
           <ModalFooter
-            setRole={setRole}
             handleClose={handleClose}
             roleArn={roleArn}
             assumedAccount={assumedAccount}
@@ -185,11 +183,11 @@ export function AccountRoleSelectButtonAndModal({
 
 const ModalFooter = ({
   handleClose,
-  setRole,
   assumedRoleArn,
   roleArn,
   assumedAccount,
 }) => {
+  const setRole = useSetAssumedRolePromise();
   const navigateWithBasename = useBasenameRelativeNavigate();
   const navigate = useNavigate();
   const { accountName } = useParams();

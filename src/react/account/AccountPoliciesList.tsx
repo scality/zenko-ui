@@ -22,6 +22,7 @@ import { AWS_PAGINATED_ENTITIES } from '../utils/IAMhooks';
 import { ListPoliciesResponse, Policy } from 'aws-sdk/clients/iam';
 import { CoreUIColumn } from 'react-table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useDataServiceRole } from '../DataServiceRoleProvider';
 
 const EditButton = ({
   policyName,
@@ -324,8 +325,11 @@ type InternalPolicy = {
 
 const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
   const navigate = useBasenameRelativeNavigate();
+
+  const { roleArn } = useDataServiceRole();
+
   const getQuery = (IAMClient?: IAMClient | null) =>
-    getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient);
+    getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient, [roleArn]);
   const getEntitiesFromResult = (data?: ListPoliciesResponse) =>
     data?.Policies || [];
 
@@ -415,6 +419,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
   ];
   return (
     <AwsPaginatedResourceTable
+      key={`policies-${roleArn}-${accountName}`}
       //@ts-expect-error fix this when you are working on it
       columns={columns}
       additionalHeaders={
