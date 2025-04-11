@@ -329,7 +329,7 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
   const { roleArn } = useDataServiceRole();
 
   const getQuery = (IAMClient?: IAMClient | null) =>
-    getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient);
+    getListPoliciesQuery(notFalsyTypeGuard(accountName), IAMClient, [roleArn]);
   const getEntitiesFromResult = (data?: ListPoliciesResponse) =>
     data?.Policies || [];
 
@@ -440,7 +440,6 @@ const AccountPoliciesList = ({ accountName }: { accountName: string }) => {
         getResourceQuery: getQuery,
         getEntitiesFromResult,
         prepareData,
-        additionalDepsToUpdateQueryFn: [roleArn, accountName],
       }}
       labels={{
         singularResourceName: 'policy',

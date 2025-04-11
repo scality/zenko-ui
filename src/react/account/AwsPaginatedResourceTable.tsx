@@ -46,7 +46,6 @@ export type Props<ENTITY, PREPARED_ENTITY = ENTITY> = {
       entities: PREPARED_ENTITY[],
       search?: string | null,
     ) => PREPARED_ENTITY[];
-    additionalDepsToUpdateQueryFn?: unknown[];
   };
   defaultSortingKey: string;
   getItemKey: string;
@@ -64,7 +63,7 @@ const SEARCH_QUERY_PARAM = 'search';
 const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   additionalHeaders,
   columns,
-  query: { getResourceQuery, getEntitiesFromResult, prepareData, filterData, additionalDepsToUpdateQueryFn },
+  query: { getResourceQuery, getEntitiesFromResult, prepareData, filterData },
   defaultSortingKey,
   getItemKey,
   labels: {
@@ -82,10 +81,7 @@ const AwsPaginatedResourceTable = <ENTITY, PREPARED_ENTITY = ENTITY>({
   const search = queryParams.get(SEARCH_QUERY_PARAM);
 
   const queryResult = useAwsPaginatedEntities(
-    {
-      ...getResourceQuery(IAMClient),
-      additionalDepsToUpdateQueryFn,
-    },
+    getResourceQuery(IAMClient),
     getEntitiesFromResult,
   );
   const preparedData = prepareData(queryResult);
