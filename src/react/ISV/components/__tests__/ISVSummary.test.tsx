@@ -7,6 +7,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
   VEEAM_DEFAULT_ACCOUNT_NAME,
   VEEAM_OFFICE_365_V8,
+  VEEAM_OFFICE_365,
 } from '../../constants';
 
 import {
@@ -517,6 +518,7 @@ describe('ISVSummary', () => {
         DEFAULT_REGION,
       );
       await user.click(selectors.copyAllButton());
+
       await expect(navigator.clipboard.readText()).resolves.toBe(
         `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
@@ -706,6 +708,59 @@ describe('ISVSummary', () => {
       expect(
         screen.getByText(/Ensure "Make backups immutable"/i),
       ).toBeInTheDocument();
+    });
+    
+    it('should hide Immutability Section for Veeam Office 365', async () => {
+      //S
+      const mockVeeamO365Platform: ISVPlatformConfig = {
+        name: 'Veeam',
+        logo: <div />,
+        id: 'veeam-vbo',
+        description: 'Veeam Backup for Microsoft Office 365',
+        bucketTag: 'veeam',
+        fieldOverrides: [],
+        getPolicy: jest.fn(),
+        immutabilitySummaryOverride: jest.fn().mockReturnValue({
+          isImmutable: true,
+          application: VEEAM_OFFICE_365,
+          helpText: 'This text should not be displayed',
+        }),
+      };
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockVeeamO365Platform,
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockVeeamO365Platform}
+                      accountName={VEEAM_DEFAULT_ACCOUNT_NAME}
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'veeam' }]}
+                      enableImmutableBackup={true}
+                      application={VEEAM_OFFICE_365}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+      //E+V
+      expect(screen.queryByText('Option')).not.toBeInTheDocument();
+      expect(screen.queryByText('Object-lock')).not.toBeInTheDocument();
+      expect(screen.queryByText('Active')).not.toBeInTheDocument();
+      // The help text from immutabilitySummaryOverride should not be visible
+      expect(screen.queryByText('This text should not be displayed')).not.toBeInTheDocument();
     });
   });
 });

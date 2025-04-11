@@ -22,6 +22,7 @@ import { useS3Client } from '../../next-architecture/ui/S3ClientProvider';
 import { useAssumedRole } from '../../DataServiceRoleProvider';
 import { useQueryClient } from 'react-query';
 import { useCallback } from 'react';
+import { VEEAM_OFFICE_365 } from '../constants';
 
 export const DEFAULT_REGION = 'us-east-1';
 
@@ -77,6 +78,8 @@ export const ISVSummary = ({
     isImmutable: enableImmutableBackup,
     application: application,
   });
+
+  const shouldHideImmutableSection = application === VEEAM_OFFICE_365;
 
   const finish = useCallback(() => {
     const assumedRoleArn = assumedRole?.AssumedRoleUser?.Arn;
@@ -297,18 +300,20 @@ export const ISVSummary = ({
           ))}
         </FormSection>
         <Separator />
-        <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
-          <FormGroup
-            id="immutable"
-            required
-            label={immutableSectionInfos.label || 'Object-lock'}
-            helpErrorPosition="bottom"
-            help={immutableSectionInfos.helpText}
-            content={
-              <Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
-            }
-          />
-        </FormSection>
+        {!shouldHideImmutableSection && (
+          <FormSection title={{ name: 'Option' }} forceLabelWidth={150}>
+            <FormGroup
+              id="immutable"
+              required
+              label={immutableSectionInfos.label || 'Object-lock'}
+              helpErrorPosition="bottom"
+              help={immutableSectionInfos.helpText}
+              content={
+                <Text>{enableImmutableBackup ? 'Active' : 'Inactive'}</Text>
+              }
+            />
+          </FormSection>
+        )}
       </Level4FormSection>
     </Form>
   );
