@@ -364,7 +364,7 @@ const useEnableSOSAPIMutation = () => {
   };
   return useMutation({
     mutationFn: async () => {
-      return await fetch(getURL(instances), {
+      const result = await fetch(getURL(instances), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json-patch+json',
@@ -387,6 +387,36 @@ const useEnableSOSAPIMutation = () => {
         }
         return response;
       });
+
+      let resourceSynchronized = false;
+      let pollAttempts = 0;
+      const MAX_POLL_ATTEMPTS = 60;
+
+      do {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const r = await fetch(getURL(instances), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: `Bearer ${await getToken()}`,
+          },
+        });
+        const response = await r.json();
+        if (
+          response.metadata.generation === response.status.observedGeneration
+        ) {
+          resourceSynchronized = true;
+        }
+        pollAttempts++;
+      } while (!resourceSynchronized && pollAttempts < MAX_POLL_ATTEMPTS);
+
+      if (!resourceSynchronized) {
+        throw new Error(
+          'Operation timed out: resource synchronization did not complete within the expected time frame',
+        );
+      }
+
+      return result;
     },
   });
 };
