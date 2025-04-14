@@ -12,7 +12,7 @@ export function WorkflowState({ locationName }: { locationName: string }) {
     instanceMetrics?.['ingest-schedule']?.states?.[locationName];
 
   const replicationState =
-    instanceMetrics?.['crr-schedule']?.states[locationName];
+    instanceMetrics?.['crr-schedule']?.states?.[locationName];
 
   if (ingestionState === 'disabled' || replicationState === 'disabled') {
     return (
