@@ -497,7 +497,7 @@ describe('ISVConfiguration', () => {
 
       expect(bucketNumberInput).toHaveValue();
 
-      waitFor(() => {
+      await waitFor(() => {
         expect(screen.getByText('Bucket #2 name *')).toBeInTheDocument();
       });
 
