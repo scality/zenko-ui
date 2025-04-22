@@ -389,6 +389,7 @@ const useEnableSOSAPIMutation = () => {
       });
 
       let resourceSynchronized = false;
+      let isReady = false;
       let pollAttempts = 0;
       const MAX_POLL_ATTEMPTS = 60;
 
@@ -407,10 +408,23 @@ const useEnableSOSAPIMutation = () => {
         ) {
           resourceSynchronized = true;
         }
-        pollAttempts++;
-      } while (!resourceSynchronized && pollAttempts < MAX_POLL_ATTEMPTS);
 
-      if (!resourceSynchronized) {
+        isReady = false;
+        if (response.status.conditions) {
+          const availableCondition = response.status.conditions.find(
+            (cond) => cond.type === 'Available',
+          );
+          if (availableCondition.status === 'True') {
+            isReady = true;
+          }
+        }
+        pollAttempts++;
+      } while (
+        !(resourceSynchronized && isReady) &&
+        pollAttempts < MAX_POLL_ATTEMPTS
+      );
+
+      if (!(resourceSynchronized && isReady)) {
         throw new Error(
           'Operation timed out: resource synchronization did not complete within the expected time frame',
         );
