@@ -886,7 +886,10 @@ describe('mutations', () => {
           json: () =>
             Promise.resolve({
               metadata: { generation: 5 },
-              status: { observedGeneration: 5 },
+              status: {
+                observedGeneration: 5,
+                conditions: [{ type: 'Available', status: 'True' }],
+              },
             }),
         });
 
@@ -960,7 +963,10 @@ describe('mutations', () => {
           json: () =>
             Promise.resolve({
               metadata: { generation: 6 },
-              status: { observedGeneration: 5 },
+              status: {
+                observedGeneration: 5,
+                conditions: [{ type: 'Available', status: 'True' }],
+              },
             }),
         });
 
