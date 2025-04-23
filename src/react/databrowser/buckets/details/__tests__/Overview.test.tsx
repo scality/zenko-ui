@@ -560,7 +560,16 @@ describe('Overview', () => {
   });
   it('should disable the edition of default retention for Veeam Bucket', async () => {
     //Setup
-    server.use(mockGetBucketTagging(bucketName));
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'success',
+          value: {
+            [`${BUCKET_TAG_APPLICATION}`]: VEEAM_BACKUP_REPLICATION,
+          },
+        },
+      };
+    });
     //Exercise
     render(<Overview bucket={bucketTest} ingestionStates={null} />, {
       wrapper: NewWrapper(),
