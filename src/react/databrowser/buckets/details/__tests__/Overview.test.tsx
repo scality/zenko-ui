@@ -517,20 +517,36 @@ describe('Overview', () => {
 
   it('should show error toast when loading bucket tagging failed', async () => {
     //Setup
-    server.use(mockGetBucketTaggingError(bucketName));
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'error',
+          title: 'An error occurred while fetching the tags',
+          reason: 'Internal Server Error',
+        },
+      };
+    });
+
     //Exercise
     render(<Overview bucket={bucketTest} ingestionStates={null} />, {
       wrapper: NewWrapper(),
     });
+
     //Verify
     await waitFor(() => {
-      expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
+      expect(
+        screen.getByText(/Encountered issues loading bucket tagging/i),
+      ).toBeInTheDocument();
     });
+
     //Exercise
-    await userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
+    await userEvent.click(screen.getByRole('button', { name: /close/i }));
+
     //Verify
     await waitFor(() => {
-      expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
+      expect(
+        screen.queryByText(/Encountered issues loading bucket tagging/i),
+      ).not.toBeInTheDocument();
     });
   });
 
