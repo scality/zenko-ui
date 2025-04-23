@@ -534,19 +534,15 @@ describe('Overview', () => {
 
     //Verify
     await waitFor(() => {
-      expect(
-        screen.getByText(/Encountered issues loading bucket tagging/i),
-      ).toBeInTheDocument();
+      expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
     });
 
     //Exercise
-    await userEvent.click(screen.getByRole('button', { name: /close/i }));
+    await userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
 
     //Verify
     await waitFor(() => {
-      expect(
-        screen.queryByText(/Encountered issues loading bucket tagging/i),
-      ).not.toBeInTheDocument();
+      expect(selectors.bucketTaggingErorToastQuery()).not.toBeInTheDocument();
     });
   });
 
