@@ -22,7 +22,7 @@ import BucketField from './BucketField';
 import { useIAMUser } from '../hooks/useIAMUser';
 import { useAccessibleAccountsAdapter } from '../../next-architecture/ui/AccessibleAccountsAdapterProvider';
 import { NoOpMetricsAdapter } from '../../ui-elements/SelectAccountIAMRole';
-import { unitChoices } from '../constants';
+import { unitChoices, VEEAM_OFFICE_365 } from '../constants';
 import { getCapacityBytes } from '../hooks/useCapacityUnit';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { CreateOrSelectNameField, Option } from './CreateOrSelectNameField';
@@ -142,6 +142,9 @@ export const ISVConfiguration = () => {
   }, [isAccordionExpanded]);
 
   const onSubmit = async (data: ISVConfig) => {
+    if (data.application === VEEAM_OFFICE_365) {
+      data.enableImmutableBackup = false;
+    }
     next({
       ...data,
       platform,
