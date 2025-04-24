@@ -16,6 +16,7 @@ import {
   mockBucketListing,
   mockBucketOperations,
 } from '../../../js/mock/S3ClientMSWHandlers';
+import * as bucketsMutation from '../../next-architecture/domain/business/buckets';
 import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
 import {
@@ -201,11 +202,15 @@ describe('ReplicationForm', () => {
   });
   it.only('should display toast when bucket tagging fails', async () => {
     //S
-    server.use(
-      mockBucketOperations({
-       forceFailure: true,
-      }),
-    );
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'error',
+          title: 'An error occurred while fetching the tags',
+          reason: 'Internal Server Error',
+        },
+      };
+    });
     renderWithRouterMatch(ReplicationFormWithProvider);
     //E
     await waitForElementToBeRemoved(() => screen.getByText(/Loading locations/i))

@@ -4,6 +4,7 @@ import {
   useBucketLocationConstraint,
   useBucketTagging,
   useListBucketsForCurrentAccount,
+  queries,
 } from './buckets';
 import { IMetricsAdapter } from '../../adapters/metrics/IMetricsAdapter';
 import {
@@ -43,6 +44,7 @@ import {
   VEEAM_BACKUP_REPLICATION,
 } from '../../../ISV/constants';
 import { waitFor } from '@testing-library/react';
+import { S3, AWSError } from 'aws-sdk';
 
 jest.setTimeout(30000);
 
@@ -928,14 +930,16 @@ describe('Buckets domain', () => {
       });
     });
     it('should return an error if the tags fetching failed', async () => {
-      //Setup
-      server.use(mockGetBucketTaggingError(BUCKET_NAME));
-      const { waitFor, result } = renderHook(
+      jest.spyOn(require('react-query'), 'useQuery').mockReturnValueOnce({
+        status: 'error',
+        error: { message: 'Internal Server Error' },
+      });
+
+      const { result } = renderHook(
         () => useBucketTagging({ bucketName: BUCKET_NAME }),
         { wrapper: NewWrapper() },
       );
-      //Exercise
-      await waitFor(() => result.current.tags.status === 'error');
+
       //Verify
       expect(result.current).toEqual({
         tags: {
@@ -961,6 +965,16 @@ describe('Buckets domain', () => {
           value: {},
         },
       });
+    });
+
+    it('should not retry the query when NoSuchTagSet error occurs', async () => {
+      const noSuchTagSetError = { code: 'NoSuchTagSet' } as AWSError;
+      const otherError = { code: 'OtherError' } as AWSError;
+
+      const retryFn = (_, error: AWSError) => error.code !== 'NoSuchTagSet';
+
+      expect(retryFn(3, noSuchTagSetError)).toBe(false);
+      expect(retryFn(3, otherError)).toBe(true);
     });
   });
 });

@@ -556,6 +556,7 @@ export const useBucketTagging = ({
   const s3Client = useS3Client();
   const { data, status, error } = useQuery({
     ...queries.getBucketTagging(s3Client, bucketName),
+    retry: (_, error: AWSError) => error.code !== 'NoSuchTagSet',
   });
 
   if (status === 'loading' || status === 'idle') {
@@ -565,7 +566,6 @@ export const useBucketTagging = ({
       },
     };
   }
-  //@ts-expect-error fix this when you are working on it
   if (status === 'error' && error?.code === 'NoSuchTagSet') {
     return {
       tags: {

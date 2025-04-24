@@ -517,20 +517,32 @@ describe('Overview', () => {
 
   it('should show error toast when loading bucket tagging failed', async () => {
     //Setup
-    server.use(mockGetBucketTaggingError(bucketName));
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'error',
+          title: 'An error occurred while fetching the tags',
+          reason: 'Internal Server Error',
+        },
+      };
+    });
+
     //Exercise
     render(<Overview bucket={bucketTest} ingestionStates={null} />, {
       wrapper: NewWrapper(),
     });
+
     //Verify
     await waitFor(() => {
       expect(selectors.bucketTaggingErrorToast()).toBeInTheDocument();
     });
+
     //Exercise
     await userEvent.click(selectors.bucketTaggingErrorToastCloseButton());
+
     //Verify
     await waitFor(() => {
-      expect(selectors.bucketTaggingErorToastQuery()).toBe(null);
+      expect(selectors.bucketTaggingErorToastQuery()).not.toBeInTheDocument();
     });
   });
 
@@ -548,7 +560,16 @@ describe('Overview', () => {
   });
   it('should disable the edition of default retention for Veeam Bucket', async () => {
     //Setup
-    server.use(mockGetBucketTagging(bucketName));
+    jest.spyOn(bucketsMutation, 'useBucketTagging').mockImplementation(() => {
+      return {
+        tags: {
+          status: 'success',
+          value: {
+            [`${BUCKET_TAG_APPLICATION}`]: VEEAM_BACKUP_REPLICATION,
+          },
+        },
+      };
+    });
     //Exercise
     render(<Overview bucket={bucketTest} ingestionStates={null} />, {
       wrapper: NewWrapper(),
