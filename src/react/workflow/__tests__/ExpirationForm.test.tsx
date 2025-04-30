@@ -1,27 +1,15 @@
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { Form, FormSection } from '@scality/core-ui';
 import {
-  mockOffsetSize,
-  reduxRender,
-  selectClick,
-  TEST_API_BASE_URL,
-  zenkoUITestConfig,
-} from '../../utils/testUtil';
-import {
-  act,
   fireEvent,
   screen,
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import React from 'react';
-import ExpirationForm from '../ExpirationForm';
-import { FormProvider, useForm } from 'react-hook-form';
 import userEvent from '@testing-library/user-event';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { PerLocationMap } from '../../../types/config';
-import { GeneralExpirationGroup } from '../ExpirationForm';
-import { Form, FormSection } from '@scality/core-ui';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import {
   mockBucketListing,
   mockBucketOperations,
@@ -30,11 +18,20 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
+import { PerLocationMap } from '../../../types/config';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import {
   INSTANCE_ID,
   waitForSelectOptionToBeEnabled,
 } from '../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
+import {
+  mockOffsetSize,
+  reduxRender,
+  selectClick,
+  TEST_API_BASE_URL,
+  zenkoUITestConfig,
+} from '../../utils/testUtil';
+import ExpirationForm, { GeneralExpirationGroup } from '../ExpirationForm';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -76,6 +73,7 @@ const server = setupServer(
   mockBucketOperations({
     isVersioningEnabled: (bucketName) =>
       bucketName === VERSIONED_BUCKET_NAME ? true : false,
+    isVeeamTagged: (bucketName) => (bucketName === 'bucket1' ? true : false),
   }),
   ...getStorageConsumptionMetricsHandlers(
     zenkoUITestConfig.managementEndpoint,
@@ -95,6 +93,7 @@ const WithFormProvider = ({ children }) => {
   const {
     formState: { isValid },
   } = formMethods;
+
   const childrenWithProps = React.Children.map(children, (child) => {
     return (
       <>
@@ -113,6 +112,8 @@ const selectors = {
     screen.getByRole('option', { name: new RegExp(VERSIONED_BUCKET_NAME) }),
   suspendedBucketOption: () =>
     screen.getByRole('option', { name: new RegExp(SUSPENDED_BUCKET_NAME) }),
+  understandISVRiskCheckbox: () =>
+    screen.getByRole('checkbox', { name: /I understand what I'm doing/i }),
 };
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
@@ -215,5 +216,58 @@ describe('ExpirationForm', () => {
 
     const formValidation = screen.getByTestId('form-expiration');
     expect(formValidation.textContent).toBe('form-valid');
+  });
+
+  it('should validate ISV bucket confirmation checkbox', async () => {
+    const { component: result } = reduxRender(
+      <WithFormProvider>
+        <Form layout={{ kind: 'tab' }}>
+          <FormSection title={{ name: 'General' }}>
+            <GeneralExpirationGroup />
+          </FormSection>
+          <ExpirationForm
+            //@ts-expect-error fix this when you are working on it
+            locations={locations}
+          />
+        </Form>
+      </WithFormProvider>,
+    );
+
+    await waitFor(() => screen.getByText(/General/i));
+
+    await waitForElementToBeRemoved(
+      () => [...screen.queryAllByText(/Loading/i)],
+      { timeout: 8000 },
+    );
+
+    await selectClick(selectors.bucketSelect());
+
+    await waitForSelectOptionToBeEnabled(() =>
+      selectors.versionedBucketOption(),
+    );
+
+    await userEvent.click(selectors.versionedBucketOption());
+
+    expect(
+      await screen.findByText(
+        /This bucket is tagged as being used in a ISV use-case/i,
+      ),
+    ).toBeInTheDocument();
+
+    const checkbox = selectors.understandISVRiskCheckbox();
+    await userEvent.click(checkbox);
+
+    const expireCurrentToggleState = result.container.querySelector(
+      '[for="expireCurrentVersions"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireCurrent = expireCurrentToggleState.querySelector(
+      'input[placeholder="currentVersionDelayDaysToggle"]',
+    );
+    await userEvent.click(notFalsyTypeGuard(expireCurrent));
+
+    const formValidationAfterCheck = screen.getByTestId('form-expiration');
+    await waitFor(() =>
+      expect(formValidationAfterCheck.textContent).toBe('form-valid'),
+    );
   });
 });

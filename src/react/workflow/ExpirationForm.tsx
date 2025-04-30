@@ -1,7 +1,10 @@
 import Joi from '@hapi/joi';
 import {
+  Banner,
+  Checkbox,
   FormGroup,
   FormSection,
+  Icon,
   IconHelp,
   Stack,
   Text,
@@ -14,9 +17,16 @@ import { flattenFormErrors, hasUniqueKeys } from './utils';
 import { Box, Input } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
 import { useMemo } from 'react';
-import { useBucketVersionning } from '../next-architecture/domain/business/buckets';
+import {
+  useBucketTagging,
+  useBucketVersionning,
+} from '../next-architecture/domain/business/buckets';
 import { SourceBucketSelect } from './SourceBucketOption';
 import TagsFilter from './TagsFilter';
+import {
+  BUCKET_TAG_APPLICATION,
+  BUCKET_TAG_VEEAM_APPLICATION,
+} from '../ISV/constants';
 
 type Props = {
   prefix?: string;
@@ -60,6 +70,7 @@ const commonSchema = {
 //At least one of currentVersion, previousVersion, expireDeleteMarkers and incompleteMutlipart are required
 export const expirationSchema = Joi.object({
   ...commonSchema,
+  understandISVRisk: Joi.boolean().invalid(false),
   currentVersionTriggerDelayDays: Joi.number()
     .min(1)
     .label('Expire Current version Days'),
@@ -144,6 +155,21 @@ export function ExpirationForm({ prefix = '' }: Props) {
   const errors = flattenFormErrors(formErrors);
   const isEditing = !!getValues(`${prefix}workflowId`);
 
+  const { tags } = useBucketTagging({ bucketName: sourceBucketName });
+  const isISVBucket =
+    tags.status === 'success' &&
+    (tags.value?.[BUCKET_TAG_APPLICATION] ||
+      tags.value?.[BUCKET_TAG_VEEAM_APPLICATION]);
+
+  useMemo(() => {
+    if (isISVBucket) {
+      setValue(`${prefix}understandISVRisk`, false);
+    } else {
+      setValue(`${prefix}understandISVRisk`, true);
+    }
+    trigger();
+  }, [isISVBucket, setValue, prefix, trigger]);
+
   return (
     <>
       <input
@@ -198,6 +224,33 @@ export function ExpirationForm({ prefix = '' }: Props) {
               />
             }
           />
+
+          {isISVBucket && (
+            <Stack direction="vertical" gap="r16">
+              <Banner
+                icon={<Icon name="Exclamation-circle" color="statusWarning" />}
+                variant="warning"
+              >
+                This bucket is tagged as being used in a ISV use-case.
+                Expiration is typically not possible on such buckets, as they
+                can corrupt the entire bucket data.
+              </Banner>
+              <Controller
+                control={control}
+                name={`${prefix}understandISVRisk`}
+                render={({ field: { onChange, value } }) => (
+                  <Checkbox
+                    label="I understand what I'm doing"
+                    checked={!!value}
+                    onChange={(e) => {
+                      onChange(e.target.checked);
+                      trigger();
+                    }}
+                  />
+                )}
+              />
+            </Stack>
+          )}
         </FormSection>
 
         <FormSection
