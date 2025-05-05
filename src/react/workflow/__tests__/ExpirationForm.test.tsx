@@ -113,7 +113,7 @@ const selectors = {
   suspendedBucketOption: () =>
     screen.getByRole('option', { name: new RegExp(SUSPENDED_BUCKET_NAME) }),
   understandISVRiskCheckbox: () =>
-    screen.getByRole('checkbox', { name: /I understand what I'm doing/i }),
+    screen.queryByRole('checkbox', { name: /I understand what I'm doing/i }),
 };
 describe('ExpirationForm', () => {
   it('should render a form for expiration workflow', async () => {
@@ -250,7 +250,7 @@ describe('ExpirationForm', () => {
 
     expect(
       await screen.findByText(
-        /This bucket is tagged as being used in a ISV use-case/i,
+        /This bucket is tagged as being used in a connector use-case/i,
       ),
     ).toBeInTheDocument();
 
@@ -269,5 +269,53 @@ describe('ExpirationForm', () => {
     await waitFor(() =>
       expect(formValidationAfterCheck.textContent).toBe('form-valid'),
     );
+  });
+
+  it('should not show ISV checkbox and allow submission for non-ISV buckets', async () => {
+    const { component: result } = reduxRender(
+      <WithFormProvider>
+        <Form layout={{ kind: 'tab' }}>
+          <FormSection title={{ name: 'General' }}>
+            <GeneralExpirationGroup />
+          </FormSection>
+          <ExpirationForm
+            //@ts-expect-error fix this when you are working on it
+            locations={locations}
+          />
+        </Form>
+      </WithFormProvider>,
+    );
+
+    await waitFor(() => screen.getByText(/General/i));
+
+    await waitForElementToBeRemoved(
+      () => [...screen.queryAllByText(/Loading/i)],
+      { timeout: 8000 },
+    );
+
+    await selectClick(selectors.bucketSelect());
+    await waitForSelectOptionToBeEnabled(() =>
+      selectors.suspendedBucketOption(),
+    );
+    await userEvent.click(selectors.suspendedBucketOption());
+
+    expect(
+      screen.queryByText(
+        /This bucket is tagged as being used in a connector use-case/,
+      ),
+    ).not.toBeInTheDocument();
+
+    expect(selectors.understandISVRiskCheckbox()).not.toBeInTheDocument();
+
+    const expireCurrentToggleState = result.container.querySelector(
+      '[for="expireCurrentVersions"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireCurrent = expireCurrentToggleState.querySelector(
+      'input[placeholder="currentVersionDelayDaysToggle"]',
+    );
+    await userEvent.click(notFalsyTypeGuard(expireCurrent));
+
+    const formValidation = screen.getByTestId('form-expiration');
+    await waitFor(() => expect(formValidation.textContent).toBe('form-valid'));
   });
 });

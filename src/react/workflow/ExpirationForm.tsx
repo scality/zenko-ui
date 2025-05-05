@@ -113,7 +113,6 @@ export function GeneralExpirationGroup({
               onBlur={onBlur}
               onChange={() => {
                 onChange(!enabled);
-                methods.trigger(`${prefix}enabled`);
               }}
             />
           )}
@@ -163,12 +162,11 @@ export function ExpirationForm({ prefix = '' }: Props) {
 
   useMemo(() => {
     if (isISVBucket) {
-      setValue(`${prefix}understandISVRisk`, false);
+      setValue(`${prefix}understandISVRisk`, false, { shouldValidate: true });
     } else {
-      setValue(`${prefix}understandISVRisk`, true);
+      setValue(`${prefix}understandISVRisk`, true, { shouldValidate: true });
     }
-    trigger();
-  }, [isISVBucket, setValue, prefix, trigger]);
+  }, [isISVBucket, setValue, prefix]);
 
   return (
     <>
@@ -231,7 +229,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                 icon={<Icon name="Exclamation-circle" color="statusWarning" />}
                 variant="warning"
               >
-                This bucket is tagged as being used in a ISV use-case.
+                This bucket is tagged as being used in a connector use-case.
                 Expiration is typically not possible on such buckets, as they
                 can corrupt the entire bucket data.
               </Banner>
@@ -244,7 +242,6 @@ export function ExpirationForm({ prefix = '' }: Props) {
                     checked={!!value}
                     onChange={(e) => {
                       onChange(e.target.checked);
-                      trigger();
                     }}
                   />
                 )}
