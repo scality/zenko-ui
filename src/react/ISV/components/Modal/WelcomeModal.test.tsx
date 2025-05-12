@@ -83,7 +83,7 @@ describe('WelcomeModal', () => {
     welcomeModal: () =>
       screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
     welcomeModalVeeamOnly: () =>
-      screen.getByRole('dialog', { name: /Welcome to/i }),
+      screen.getByRole('dialog', { name: /Welcome to Artesca Plus/i }),
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
   const WelcomeModalComponent = (
