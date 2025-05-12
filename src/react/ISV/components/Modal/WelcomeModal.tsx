@@ -23,9 +23,7 @@ import {
 } from 'shell/compiled-types/src/hooks/useShellHooks';
 import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
 import { ISVList } from '../../ISVList';
-import { VEEAM_BACKUP_REPLICATION } from '../../constants';
 import { VeeamInfo } from '../../modules/veeam';
-import { ModalBody } from 'src/react/ui-elements/Modal';
 import { ArtescaPlusLogo } from '../ArtescaPLusLogo';
 import VeeamLogo from './Logos/VeeamLogo';
 
@@ -194,31 +192,29 @@ const VeeamOnlyModalComponent = () => {
         </Wrap>
       }
     >
-      <ModalBody>
-        <Text>This appliance is ready to help you back up your data with:</Text>
-        <Stack direction="horizontal" gap="r8">
-          <VeeamLogo />
-          <Text isEmphazed>Backup & Replication</Text>
-        </Stack>
-        <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
+      <Text>This appliance is ready to help you back up your data with:</Text>
+      <Stack direction="horizontal" gap="r8">
+        <VeeamLogo />
+        <Text isEmphazed>Backup & Replication</Text>
+      </Stack>
+      <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
+        <Text>
           <Text>
-            <Text>
-              Start with the Veeam Assistant – a guided setup that creates the
-              resources needed to configure ARTESCA for Veeam. For more details,
-              you can follow the
-            </Text>{' '}
-            <Link href={veeamISV.documentationLink} target="_blank">
-              documentation <Icon name="External-link"></Icon>
-            </Link>
-          </Text>
-        </Banner>
-        <Text color="textSecondary" variant="Smaller">
-          If you skip now but want to start the assistant again, you can launch
-          it from the Accounts page or the Data Browser page.
-          <br /> If the platform doesn't have any accounts, it will also prompt
-          you on your next login.{' '}
+            Start with the Veeam Assistant – a guided setup that creates the
+            resources needed to configure ARTESCA for Veeam. For more details,
+            you can follow the
+          </Text>{' '}
+          <Link href={veeamISV.documentationLink} target="_blank">
+            documentation <Icon name="External-link"></Icon>
+          </Link>
         </Text>
-      </ModalBody>
+      </Banner>
+      <Text color="textSecondary" variant="Smaller">
+        If you skip now but want to start the assistant again, you can launch it
+        from the Accounts page or the Data Browser page.
+        <br /> If the platform doesn't have any accounts, it will also prompt
+        you on your next login.{' '}
+      </Text>
     </Modal>
   );
 };
