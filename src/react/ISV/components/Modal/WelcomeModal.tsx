@@ -76,7 +76,6 @@ export const WelcomeModalInternal = (
    4. The user skip it until the next login or login for the first time
    5. No trial license modal displays
    */
-  return <VeeamOnlyModalComponent />;
   const isWelcomeModalEnabled =
     isStorageManager &&
     isZeroAccountCreated &&
