@@ -25,7 +25,7 @@ import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { StartISVConnectorButton } from '../../../react/ISV/components/StartISVConnectorButton';
+import { StartISVConnectorButton } from '../../ISV/components/StartISVConnectorButton';
 const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
