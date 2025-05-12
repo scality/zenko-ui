@@ -1,10 +1,5 @@
-import {
-  AppContainer,
-  Icon,
-  Loader,
-  TwoPanelLayout,
-} from '@scality/core-ui';
-import { useMemo, useState } from 'react';
+import { AppContainer, Icon, Loader, TwoPanelLayout } from '@scality/core-ui';
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { AppState } from '../../../types/state';
@@ -18,13 +13,13 @@ import { NoBucketsWarning, Warning } from '../../ui-elements/Warning';
 import BucketDetails from './BucketDetails';
 import BucketList from './BucketList';
 import { MultiBucketsIcon } from './MutliBucketsIcon';
-import ISVModal from '../../ISV/components/Modal/ISVModal';
 import { Button } from '@scality/core-ui/dist/next';
+import { StartISVConnectorButton } from '../../ISV/components/StartISVConnectorButton';
 
 export default function Buckets() {
   const metricsAdapter = useMetricsAdapter();
   const { buckets } = useListBucketsForCurrentAccount({ metricsAdapter });
-  const [isISVModalOpen, setIsISVModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const ingestionStates = useSelector(
@@ -71,15 +66,10 @@ export default function Buckets() {
   if (buckets.value.length === 0) {
     return (
       <>
-        <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
         <NoBucketsWarning
           buttonSection={
             <>
-              <Button
-                label="Start ISV Connector"
-                variant="primary"
-                onClick={() => setIsISVModalOpen(true)}
-              />
+              <StartISVConnectorButton />
               or
               <Button
                 label="Create Bucket"
@@ -133,7 +123,6 @@ export default function Buckets() {
         />
       </AppContainer.OverallSummary>
       <AppContainer.MainContent background="backgroundLevel1">
-        <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
         <TwoPanelLayout
           panelsRatio="65-35"
           leftPanel={{
@@ -142,7 +131,6 @@ export default function Buckets() {
                 selectedBucketName={bucketNameParam}
                 buckets={buckets.value}
                 ingestionStates={ingestionStates}
-                setIsISVModalOpen={setIsISVModalOpen}
               />
             ),
           }}

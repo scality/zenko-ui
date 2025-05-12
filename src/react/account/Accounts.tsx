@@ -19,8 +19,7 @@ import AccountList from './AccountList';
 import { MultiAccountsIcon } from './MultiAccountsIcon';
 
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useState } from 'react';
-import ISVModal from '../ISV/components/Modal/ISVModal';
+import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 
 const Accounts = () => {
   const { pathname } = useLocation();
@@ -31,7 +30,6 @@ const Accounts = () => {
     accessibleAccountsAdapter,
   });
   const navigate = useBasenameRelativeNavigate();
-  const [isISVModalOpen, setIsISVModalOpen] = useState(false);
 
   const { isStorageManager } = useAuthGroups();
 
@@ -64,16 +62,11 @@ const Accounts = () => {
             ></Header>
           </AppContainer.OverallSummary>
           <AppContainer.MainContent background="backgroundLevel3">
-            <ISVModal isOpen={isISVModalOpen} setIsOpen={setIsISVModalOpen} />
             {accounts.value.length === 0 ? (
               <NoAccountWarning
                 buttonSection={
                   <>
-                    <Button
-                      label="Start ISV Connector"
-                      variant="primary"
-                      onClick={() => setIsISVModalOpen(true)}
-                    />
+                    <StartISVConnectorButton />
                     or
                     <Button
                       label="Create Account"
@@ -85,10 +78,7 @@ const Accounts = () => {
                 }
               />
             ) : (
-              <AccountList
-                accounts={accounts.value}
-                setIsISVModalOpen={setIsISVModalOpen}
-              />
+              <AccountList accounts={accounts.value} />
             )}
           </AppContainer.MainContent>
         </>

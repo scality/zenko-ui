@@ -25,19 +25,18 @@ import { useAuthGroups, useQueryParams } from '../../utils/hooks';
 import { getLocationIngestionState } from '../../utils/storageOptions';
 import { BucketLocationNameAndType } from '../../workflow/SourceBucketOption';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { StartISVConnectorButton } from '../../../react/ISV/components/StartISVConnectorButton';
 const SEARCH_QUERY_PARAM = 'search';
 
 type Props = {
   buckets: Bucket[];
   selectedBucketName: string | null | undefined;
   ingestionStates: WorkflowScheduleUnitState | null | undefined;
-  setIsISVModalOpen: (value: boolean) => void;
 };
 export default function BucketList({
   selectedBucketName,
   buckets,
   ingestionStates,
-  setIsISVModalOpen,
 }: Props) {
   const { accountName } = useParams<{ accountName: string }>();
   const { features } = useConfig();
@@ -177,12 +176,7 @@ export default function BucketList({
           }
           actions={
             <Stack>
-              <Button
-                label="Start ISV Connector"
-                variant="secondary"
-                onClick={() => setIsISVModalOpen(true)}
-                type="button"
-              />
+              <StartISVConnectorButton />
               <Button
                 icon={<Icon name="Create-add" />}
                 label="Create Bucket"

@@ -21,6 +21,7 @@ import { getDataUsedColumn } from '../next-architecture/ui/metrics/DataUsedColum
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useAuthGroups } from '../utils/hooks';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { StartISVConnectorButton } from '../ISV/components/StartISVConnectorButton';
 
 function useAutoAssumeRoleUponAccountDeletion({
   accounts,
@@ -36,14 +37,7 @@ function useAutoAssumeRoleUponAccountDeletion({
   }, [account]);
 }
 
-function AccountList({
-  accounts,
-  setIsISVModalOpen,
-}: {
-  accounts: Account[];
-
-  setIsISVModalOpen: (value: boolean) => void;
-}) {
+function AccountList({ accounts }: { accounts: Account[] }) {
   const navigate = useBasenameRelativeNavigate();
 
   const { isStorageManager } = useAuthGroups();
@@ -138,12 +132,7 @@ function AccountList({
           actions={
             isStorageManager && (
               <Stack>
-                <Button
-                  label="Start ISV Connector"
-                  variant="secondary"
-                  onClick={() => setIsISVModalOpen(true)}
-                  type="button"
-                />
+                <StartISVConnectorButton />
 
                 <Button
                   icon={<Icon name="Create-add" />}
