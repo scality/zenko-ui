@@ -35,6 +35,14 @@ const CustomModal = styled(Modal)`
     width: 60vw;
   }
 `;
+
+const SmallModal = styled(Modal)`
+  > div {
+    max-width: 40vw;
+    width: 40vw;
+  }
+`;
+
 const TRIAL_LICENSE = 'TrialLicense';
 type NavbarUpdaterComponentProps = {
   isFirstTimeLogin: boolean;
@@ -68,6 +76,7 @@ export const WelcomeModalInternal = (
    4. The user skip it until the next login or login for the first time
    5. No trial license modal displays
    */
+  return <VeeamOnlyModalComponent />;
   const isWelcomeModalEnabled =
     isStorageManager &&
     isZeroAccountCreated &&
@@ -167,7 +176,7 @@ const VeeamOnlyModalComponent = () => {
   const { isOpen, handleContinueClick, handleSkipClick } =
     useWelcomeModal(veeamISV);
   return (
-    <Modal
+    <SmallModal
       title={
         <Stack direction="horizontal" gap="r8">
           <Text variant="Large">Welcome to</Text>
@@ -197,6 +206,8 @@ const VeeamOnlyModalComponent = () => {
         <VeeamLogo />
         <Text isEmphazed>Backup & Replication</Text>
       </Stack>
+      <br />
+      <br />
       <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
         <Text>
           <Text>
@@ -209,13 +220,14 @@ const VeeamOnlyModalComponent = () => {
           </Link>
         </Text>
       </Banner>
+      <br />
       <Text color="textSecondary" variant="Smaller">
         If you skip now but want to start the assistant again, you can launch it
         from the Accounts page or the Data Browser page.
         <br /> If the platform doesn't have any accounts, it will also prompt
         you on your next login.{' '}
       </Text>
-    </Modal>
+    </SmallModal>
   );
 };
 
