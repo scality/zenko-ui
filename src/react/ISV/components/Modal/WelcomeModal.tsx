@@ -1,4 +1,4 @@
-import { Icon, Modal, Stack, Text, Wrap } from '@scality/core-ui';
+import { Banner, Icon, Link, Modal, Stack, Text, Wrap } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -21,6 +21,13 @@ import {
   ShellAlerts,
   ShellHooks,
 } from 'shell/compiled-types/src/hooks/useShellHooks';
+import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
+import { ISVList } from '../../ISVList';
+import { VEEAM_BACKUP_REPLICATION } from '../../constants';
+import { VeeamInfo } from '../../modules/veeam';
+import { ModalBody } from 'src/react/ui-elements/Modal';
+import { ArtescaPlusLogo } from '../ArtescaPLusLogo';
+import VeeamLogo from './Logos/VeeamLogo';
 
 const CustomModal = styled(Modal)`
   background-color: ${(props) => props.theme.backgroundLevel1};
@@ -47,6 +54,7 @@ export const WelcomeModalInternal = (
   });
   const { isNextLogin } = useNextLogin();
   const location = useLocation();
+  const isVeeamVBROnly = useIsVeeamVBROnly();
 
   const isZeroAccountCreated = status === 'success' && accounts.length === 0;
   const isAlreadyInConfigurationView =
@@ -73,12 +81,12 @@ export const WelcomeModalInternal = (
     return <></>;
   }
 
-  return <ModalComponent />;
+  return isVeeamVBROnly ? <VeeamOnlyModalComponent /> : <ModalComponent />;
 };
 
-const ModalComponent = () => {
+const useWelcomeModal = (defaultISV?: ISVCardConfig) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(null);
+  const [selectedISV, setSelectedISV] = useState<ISVCardConfig>(defaultISV);
   const { useLinkOpener, useDeployedApps, useAuth } = useShellHooks();
   const { openLink } = useLinkOpener();
   const deployedApps = useDeployedApps();
@@ -122,9 +130,6 @@ const ModalComponent = () => {
     isFederated: true as const,
   };
 
-  const user = useAuth();
-  const session_state = user?.userData?.original?.session_state;
-
   const handleContinueClick = () => {
     setIsOpen(false);
     // If we are already in zenko-ui context, we can't use the openLink function.
@@ -141,6 +146,91 @@ const ModalComponent = () => {
       openLink(configurationView);
     }
   };
+
+  const user = useAuth();
+  const session_state = user?.userData?.original?.session_state;
+  const handleSkipClick = () => {
+    setIsOpen(false);
+    setSessionState(session_state);
+  };
+
+  return {
+    isOpen,
+    setIsOpen,
+    selectedISV,
+    setSelectedISV,
+    handleContinueClick,
+    handleSkipClick,
+  };
+};
+
+const VeeamOnlyModalComponent = () => {
+  const veeamISV = ISVList.find((isv) => isv.id === VeeamInfo.id);
+  const { isOpen, handleContinueClick, handleSkipClick } =
+    useWelcomeModal(veeamISV);
+  return (
+    <Modal
+      title={
+        <Stack direction="horizontal" gap="r8">
+          <Text variant="Large">Welcome to</Text>
+          <ArtescaPlusLogo />
+        </Stack>
+      }
+      isOpen={isOpen}
+      footer={
+        <Wrap>
+          <p></p>
+
+          <Stack>
+            <Button variant="outline" label="Skip" onClick={handleSkipClick} />
+            <Button
+              variant="primary"
+              icon={<Icon name="Arrow-right"></Icon>}
+              type="button"
+              onClick={handleContinueClick}
+              label="Continue to assistant"
+            />
+          </Stack>
+        </Wrap>
+      }
+    >
+      <ModalBody>
+        <Text>This appliance is ready to help you back up your data with:</Text>
+        <Stack direction="horizontal" gap="r8">
+          <VeeamLogo />
+          <Text isEmphazed>Backup & Replication</Text>
+        </Stack>
+        <Banner variant="base" icon={<Icon name="Info-circle"></Icon>}>
+          <Text>
+            <Text>
+              Start with the Veeam Assistant – a guided setup that creates the
+              resources needed to configure ARTESCA for Veeam. For more details,
+              you can follow the
+            </Text>{' '}
+            <Link href={veeamISV.documentationLink} target="_blank">
+              documentation <Icon name="External-link"></Icon>
+            </Link>
+          </Text>
+        </Banner>
+        <Text color="textSecondary" variant="Smaller">
+          If you skip now but want to start the assistant again, you can launch
+          it from the Accounts page or the Data Browser page.
+          <br /> If the platform doesn't have any accounts, it will also prompt
+          you on your next login.{' '}
+        </Text>
+      </ModalBody>
+    </Modal>
+  );
+};
+
+const ModalComponent = () => {
+  const {
+    isOpen,
+    selectedISV,
+    setSelectedISV,
+    handleContinueClick,
+    handleSkipClick,
+  } = useWelcomeModal();
 
   return (
     <CustomModal
@@ -159,10 +249,7 @@ const ModalComponent = () => {
             <Button
               variant="outline"
               label={'Skip'}
-              onClick={() => {
-                setIsOpen(false);
-                setSessionState(session_state);
-              }}
+              onClick={handleSkipClick}
             />
             <Button
               variant="primary"
