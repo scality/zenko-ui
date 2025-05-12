@@ -14,6 +14,7 @@ import { ACCOUNT_ID } from '../../../../js/mock/managementClientMSWHandlers';
 import { VEEAM_DEFAULT_ACCOUNT_NAME } from '../../../ISV/constants';
 import { useNextLogin } from '../../hooks/useNextLogin';
 import { useAlerts } from '../../../next-architecture/ui/AlertProvider';
+import { useIsVeeamVBROnly } from '../../hooks/useIsVeeamVBROnly';
 
 jest.mock('../../hooks/useNextLogin', () => ({
   useNextLogin: jest.fn(),
@@ -34,6 +35,11 @@ jest.mock('./ISVModal', () => {
     ),
   };
 });
+
+// Add mock for useIsVeeamVBROnly - do this at the top with other mocks
+jest.mock('../../hooks/useIsVeeamVBROnly', () => ({
+  useIsVeeamVBROnly: jest.fn(),
+}));
 
 const TEST_ACCOUNT_CREATION_DATE = '2022-03-18T12:51:44Z';
 const server = setupServer(
@@ -60,6 +66,8 @@ const server = setupServer(
 
 const mockUseNextLogin = useNextLogin as jest.Mock;
 const mockUseAlerts = useAlerts as jest.Mock;
+const mockUseIsVeeamVBROnly = useIsVeeamVBROnly as jest.Mock;
+
 describe('WelcomeModal', () => {
   beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
@@ -74,6 +82,8 @@ describe('WelcomeModal', () => {
   const selectors = {
     welcomeModal: () =>
       screen.getByRole('dialog', { name: /Welcome to ARTESCA/i }),
+    welcomeModalVeeamOnly: () =>
+      screen.getByRole('dialog', { name: /Welcome to/i }),
     skipButton: () => screen.getByRole('button', { name: /Skip/i }),
   };
   const WelcomeModalComponent = (
@@ -218,6 +228,41 @@ describe('WelcomeModal', () => {
     //E+V
     await waitFor(() => {
       expect(selectors.welcomeModal()).toBeInTheDocument();
+    });
+  });
+
+  it('should display in case of Veeam only', async () => {
+    //S
+    server.use(
+      rest.post(`${TEST_API_BASE_URL}/`, (_, res, ctx) => {
+        return res(
+          ctx.json({
+            IsTruncated: false,
+            Accounts: [],
+          }),
+        );
+      }),
+    );
+    mockUseAlerts.mockReturnValue([
+      {
+        id: 'mock-trial-license-alert-id',
+        labels: {
+          alertname: 'TrialLicense',
+          severity: 'info',
+          selectors: [],
+        },
+      },
+    ]);
+    mockUseNextLogin.mockReturnValue({ isNextLogin: true });
+    mockUseIsVeeamVBROnly.mockReturnValue(true);
+    render(
+      <Wrapper>
+        <WelcomeModalInternal isFirstTimeLogin={false} />
+      </Wrapper>,
+    );
+    //E+V
+    await waitFor(() => {
+      expect(selectors.welcomeModalVeeamOnly()).toBeInTheDocument();
     });
   });
 });
