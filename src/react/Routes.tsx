@@ -98,7 +98,7 @@ const RedirectToAccount = () => {
   }
 };
 
-function PrivateRoutes() {
+export function PrivateRoutes() {
   const dispatch = useDispatch();
   const isClientsLoaded = useSelector(
     (state: AppState) => state.auth.isClientsLoaded,
