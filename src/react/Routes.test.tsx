@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useIsVeeamVBROnly } from './ISV/hooks/useIsVeeamVBROnly';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import { renderWithRouterMatch } from './utils/testUtil';
-import { debug } from 'jest-preview';
 
 // Mock the hooks
 jest.mock('./ISV/hooks/useIsVeeamVBROnly');
