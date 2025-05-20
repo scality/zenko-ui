@@ -46,6 +46,7 @@ import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import { ISVSteps } from './ISV/components/ISVSteps';
+import { useIsVeeamVBROnly } from './ISV/hooks/useIsVeeamVBROnly';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -104,6 +105,8 @@ function PrivateRoutes() {
   );
   const user = useSelector((state: AppState) => state.oidc.user);
   const config = useConfig();
+  const isArtescaPlusVeeamEnabled = useIsVeeamVBROnly();
+
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
@@ -208,22 +211,26 @@ function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
-      <Route
-        path="create-dataservice/*"
-        element={
-          <DataServiceRoleProvider>
-            <EndpointCreate />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path="dataservices/*"
-        element={
-          <DataServiceRoleProvider>
-            <Endpoints />
-          </DataServiceRoleProvider>
-        }
-      />
+      {!isArtescaPlusVeeamEnabled && (
+        <>
+          <Route
+            path="create-dataservice/*"
+            element={
+              <DataServiceRoleProvider>
+                <EndpointCreate />
+              </DataServiceRoleProvider>
+            }
+          />
+          <Route
+            path="dataservices/*"
+            element={
+              <DataServiceRoleProvider>
+                <Endpoints />
+              </DataServiceRoleProvider>
+            }
+          />
+        </>
+      )}
       <Route
         path="locations/*"
         element={
@@ -386,6 +393,7 @@ function InternalRoutes() {
   const { isStorageManager } = useAuthGroups();
   const config = useConfig();
   const navigate = useBasenameRelativeNavigate();
+  const isArtescaPlusVeeamEnabled = useIsVeeamVBROnly();
 
   const doesRouteMatch = useCallback(
     (paths: string | string[]) => {
@@ -475,14 +483,18 @@ function InternalRoutes() {
               },
               active: doesRouteMatch('/locations'),
             },
-            {
-              label: 'Data Services',
-              icon: <Icon name="Cubes" />,
-              onClick: () => {
-                navigate('/dataservices');
-              },
-              active: doesRouteMatch('/dataservices'),
-            },
+            ...(isArtescaPlusVeeamEnabled
+              ? []
+              : [
+                  {
+                    label: 'Data Services',
+                    icon: <Icon name="Cubes" />,
+                    onClick: () => {
+                      navigate('/dataservices');
+                    },
+                    active: doesRouteMatch('/dataservices'),
+                  },
+                ]),
           ]
         : []),
     ],
