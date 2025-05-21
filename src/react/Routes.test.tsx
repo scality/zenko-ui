@@ -4,7 +4,7 @@ import { useIsVeeamVBROnly } from './ISV/hooks/useIsVeeamVBROnly';
 import InternalRoutes, { PrivateRoutes } from './Routes';
 import { renderWithRouterMatch } from './utils/testUtil';
 
-// Mock the hooks
+// Mock useIsVeeamVBROnly as it comes from ShellHooks
 jest.mock('./ISV/hooks/useIsVeeamVBROnly');
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
@@ -92,7 +92,7 @@ describe('Routes component', () => {
     });
   });
 
-  it('should render the create-dataservice route when isArtescaPlusVeeamEnabled is false', async () => {
+  it('should render the Create Data Service page in standard configuration', async () => {
     // Mock the hook to return false
     mockUseIsVeeamVBROnly.mockReturnValue(false);
 
@@ -107,7 +107,7 @@ describe('Routes component', () => {
     });
   });
 
-  it('should not render the create-dataservice route when isArtescaPlusVeeamEnabled is true', async () => {
+  it('should not render the Create Data Service page in ARTESCA+VEEAM configuration', async () => {
     // Mock the hook to return true
     mockUseIsVeeamVBROnly.mockReturnValue(true);
 
@@ -124,7 +124,7 @@ describe('Routes component', () => {
     });
   });
 
-  it('should render the dataservices route when isArtescaPlusVeeamEnabled is false', async () => {
+  it('should render the Data Services page in standard configuration', async () => {
     // Mock the hook to return false
     mockUseIsVeeamVBROnly.mockReturnValue(false);
 
@@ -139,7 +139,7 @@ describe('Routes component', () => {
     });
   });
 
-  it('should not render the dataservices route when isArtescaPlusVeeamEnabled is true', async () => {
+  it('should not render the Data Services page in ARTESCA+VEEAM configuration', async () => {
     // Mock the hook to return true
     mockUseIsVeeamVBROnly.mockReturnValue(true);
 
@@ -153,7 +153,7 @@ describe('Routes component', () => {
       expect(selectors.loadingDataServices()).not.toBeInTheDocument();
     });
   });
-  it('should redirect incorrect routes to /accounts', async () => {
+  it('should redirect incorrect routes to Accounts page', async () => {
     renderWithRouterMatch(<PrivateRoutes />, {
       path: '/*',
       route: '/incorrect-route',
@@ -165,7 +165,7 @@ describe('Routes component', () => {
   });
 
   describe('sidebar entries', () => {
-    it('should hide dataservices from sidebar when isArtescaPlusVeeamEnabled is true', async () => {
+    it('should hide Data Services from sidebar in ARTESCA+VEEAM configuration', async () => {
       // Mock the hook to return true
       mockUseIsVeeamVBROnly.mockReturnValue(true);
 
@@ -181,7 +181,7 @@ describe('Routes component', () => {
       });
     });
 
-    it('should show dataservices in sidebar when isArtescaPlusVeeamEnabled is false', async () => {
+    it('should show Data Services in sidebar in standard configuration', async () => {
       // Mock the hook to return false
       mockUseIsVeeamVBROnly.mockReturnValue(false);
 
