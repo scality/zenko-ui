@@ -414,7 +414,13 @@ const useEnableSOSAPIMutation = () => {
           const availableCondition = response.status.conditions.find(
             (cond) => cond.type === 'Available',
           );
-          if (availableCondition.status === 'True') {
+          const deploymentCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentInProgress',
+          );
+          if (
+            availableCondition.status === 'True' &&
+            deploymentCondition.status === 'False'
+          ) {
             isReady = true;
           }
         }
