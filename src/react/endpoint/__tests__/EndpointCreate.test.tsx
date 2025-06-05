@@ -1,4 +1,8 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { setupServer } from 'msw/node';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
@@ -9,6 +13,8 @@ import {
 } from '../../utils/testUtil';
 import EndpointCreate from '../EndpointCreate';
 import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
+import { debug } from 'jest-preview';
+import userEvent from '@testing-library/user-event';
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
 
@@ -105,6 +111,31 @@ describe('EndpointCreate', () => {
     await waitForElementToBeRemoved(() =>
       screen.getByText('Loading locations...'),
     );
+
     expect(screen.getByRole('button', { name: /Create/ })).toBeDisabled();
+    await userEvent.hover(screen.getByRole('button', { name: /Create/ }));
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /The creation of a new Data Service is disabled for Artesca \+ Veeam/i,
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+  it('should enable the create data service button in Artesca+Veeam open mode', async () => {
+    mockUseArtescaLibrary.mockReturnValue({
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: 'open',
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
+    renderWithRouterMatch(<EndpointCreate />);
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading locations...'),
+    );
+    userEvent.type(screen.getByRole('textbox', { name: /Hostname/i }), 'test');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Create/ })).toBeEnabled();
+    });
   });
 });

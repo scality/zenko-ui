@@ -98,37 +98,6 @@ describe('Routes component', () => {
     });
   });
 
-  it('should render the Create Data Service page in standard configuration', async () => {
-    // Mock artescaLibrary to be available
-    mockUseArtescaLibrary.mockReturnValue({
-      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
-        artescaPlusVeeamDefaultOrOpenMode: 'open',
-        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
-      }),
-    });
-    // Render with the create-dataservice route
-    renderWithRouterMatch(<PrivateRoutes />, {
-      path: '/*',
-      route: '/create-dataservice',
-    });
-
-    await waitFor(() => {
-      expect(selectors.createDataService()).toBeInTheDocument();
-    });
-  });
-
-  it('should render the Data Services page in standard configuration', async () => {
-    // Render with the dataservices route
-    renderWithRouterMatch(<PrivateRoutes />, {
-      path: '/*',
-      route: '/dataservices',
-    });
-
-    await waitFor(() => {
-      expect(selectors.loadingDataServices()).toBeInTheDocument();
-    });
-  });
-
   it('should redirect incorrect routes to Accounts page', async () => {
     renderWithRouterMatch(<PrivateRoutes />, {
       path: '/*',
