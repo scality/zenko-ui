@@ -15,16 +15,31 @@ import {
   renderWithRouterMatch,
 } from '../../utils/testUtil';
 import Endpoints from '../Endpoints';
+import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
+import { debug } from 'jest-preview';
+jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
+
+const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 describe('Endpoints', () => {
+  const selectors = {
+    createDataServiceButton: () =>
+      screen.getByRole('button', { name: /Create Data Service/ }),
+  };
   beforeAll(() => {
-    server.listen();
+    server.listen({ onUnhandledRequest: 'error' });
     mockOffsetSize(200, 100);
   });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
   it('should render the table with the correct columns', async () => {
+    mockUseArtescaLibrary.mockReturnValue({
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: null,
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
     //S
     renderWithRouterMatch(<Endpoints />);
     //E
@@ -51,5 +66,20 @@ describe('Endpoints', () => {
             );
         });
     });
+    expect(selectors.createDataServiceButton()).toBeEnabled();
+  });
+  it('should disable the create data service button in Artesca+Veeam default mode', async () => {
+    mockUseArtescaLibrary.mockReturnValue({
+      isArtescaLibraryAvailable: true,
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: 'default',
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
+    renderWithRouterMatch(<Endpoints />);
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading Data Services...'),
+    );
+    expect(selectors.createDataServiceButton()).toBeDisabled();
   });
 });

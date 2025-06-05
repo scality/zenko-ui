@@ -1,11 +1,16 @@
 import { screen, waitFor } from '@testing-library/react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useIsVeeamVBROnly } from './ISV/hooks/useIsVeeamVBROnly';
 import InternalRoutes, { PrivateRoutes } from './Routes';
-import { renderWithRouterMatch } from './utils/testUtil';
+import {
+  FAKE_TOKEN,
+  mockShellHooks,
+  renderWithRouterMatch,
+} from './utils/testUtil';
+import { useArtescaLibrary } from './next-architecture/ui/ArtescaLibraryProvider';
 
-// Mock useIsVeeamVBROnly as it comes from ShellHooks
-jest.mock('./ISV/hooks/useIsVeeamVBROnly');
+// Mock useArtescaLibrary
+jest.mock('./next-architecture/ui/ArtescaLibraryProvider');
+
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
   useSelector: jest.fn(),
@@ -13,7 +18,7 @@ jest.mock('react-redux', () => ({
 }));
 
 describe('Routes component', () => {
-  const mockUseIsVeeamVBROnly = useIsVeeamVBROnly as jest.Mock;
+  const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
   const mockUseSelector = useSelector as jest.Mock;
   const mockUseDispatch = useDispatch as jest.Mock;
   const selectors = {
@@ -22,6 +27,7 @@ describe('Routes component', () => {
     createDataService: () => screen.queryByText(/Create new Data Service/i),
     loadingClients: () => screen.queryByText(/Loading clients/i),
     dataServicesLink: () => screen.queryByText(/Data Services/i),
+    locationsLink: () => screen.queryByText(/Locations/i),
   };
 
   beforeEach(() => {
@@ -93,9 +99,13 @@ describe('Routes component', () => {
   });
 
   it('should render the Create Data Service page in standard configuration', async () => {
-    // Mock the hook to return false
-    mockUseIsVeeamVBROnly.mockReturnValue(false);
-
+    // Mock artescaLibrary to be available
+    mockUseArtescaLibrary.mockReturnValue({
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: 'open',
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
     // Render with the create-dataservice route
     renderWithRouterMatch(<PrivateRoutes />, {
       path: '/*',
@@ -107,27 +117,7 @@ describe('Routes component', () => {
     });
   });
 
-  it('should not render the Create Data Service page in ARTESCA+VEEAM configuration', async () => {
-    // Mock the hook to return true
-    mockUseIsVeeamVBROnly.mockReturnValue(true);
-
-    // Render with the create-dataservice route
-    renderWithRouterMatch(<PrivateRoutes />, {
-      path: '/*',
-      route: '/create-dataservice',
-    });
-
-    // Verify that it redirects to accounts
-    await waitFor(() => {
-      expect(selectors.createDataService()).not.toBeInTheDocument();
-      expect(selectors.loadingAccounts()).toBeInTheDocument();
-    });
-  });
-
   it('should render the Data Services page in standard configuration', async () => {
-    // Mock the hook to return false
-    mockUseIsVeeamVBROnly.mockReturnValue(false);
-
     // Render with the dataservices route
     renderWithRouterMatch(<PrivateRoutes />, {
       path: '/*',
@@ -139,20 +129,6 @@ describe('Routes component', () => {
     });
   });
 
-  it('should not render the Data Services page in ARTESCA+VEEAM configuration', async () => {
-    // Mock the hook to return true
-    mockUseIsVeeamVBROnly.mockReturnValue(true);
-
-    // Render with the dataservices route
-    renderWithRouterMatch(<PrivateRoutes />, {
-      path: '/*',
-      route: '/dataservices',
-    });
-
-    await waitFor(() => {
-      expect(selectors.loadingDataServices()).not.toBeInTheDocument();
-    });
-  });
   it('should redirect incorrect routes to Accounts page', async () => {
     renderWithRouterMatch(<PrivateRoutes />, {
       path: '/*',
@@ -165,9 +141,8 @@ describe('Routes component', () => {
   });
 
   describe('sidebar entries', () => {
-    it('should hide Data Services from sidebar in ARTESCA+VEEAM configuration', async () => {
-      // Mock the hook to return true
-      mockUseIsVeeamVBROnly.mockReturnValue(true);
+    it('should show Data Services and Locations from sidebar for Storage Manager', async () => {
+      // Mock user Data Role to be Storage Manager
 
       // Render InternalRoutes with any route
       renderWithRouterMatch(<InternalRoutes />, {
@@ -177,14 +152,23 @@ describe('Routes component', () => {
 
       // Check that Data Services link is not in the sidebar
       await waitFor(() => {
-        expect(selectors.dataServicesLink()).not.toBeInTheDocument();
+        expect(selectors.dataServicesLink()).toBeInTheDocument();
+        expect(selectors.locationsLink()).toBeInTheDocument();
       });
     });
 
-    it('should show Data Services in sidebar in standard configuration', async () => {
+    it('should not show Data Services and Locations in sidebar for non Storage Manager', async () => {
       // Mock the hook to return false
-      mockUseIsVeeamVBROnly.mockReturnValue(false);
-
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: {
+            session_state: 'session-state-1',
+          },
+          groups: ['PlatformAdmin'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
       // Render InternalRoutes with any route
       renderWithRouterMatch(<InternalRoutes />, {
         path: '/*',
@@ -193,7 +177,8 @@ describe('Routes component', () => {
 
       // Check that Data Services link is in the sidebar
       await waitFor(() => {
-        expect(selectors.dataServicesLink()).toBeInTheDocument();
+        expect(selectors.dataServicesLink()).not.toBeInTheDocument();
+        expect(selectors.locationsLink()).not.toBeInTheDocument();
       });
     });
   });
