@@ -403,6 +403,7 @@ const useEnableSOSAPIMutation = () => {
           },
         });
         const response = await r.json();
+        console.log({ response });
         if (
           response.metadata.generation === response.status.observedGeneration
         ) {
