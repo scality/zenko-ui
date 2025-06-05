@@ -1,18 +1,25 @@
 import { ErrorPage500 } from '@scality/core-ui/dist/components/error-pages/ErrorPage500.component';
 import * as ModuleFederation from '@scality/module-federation';
 import { ErrorBoundary } from 'react-error-boundary';
-
+export type ArtescaLibraryHooks = {
+  useArtescaPlusVeeamDefaultOrOpenMode: () => {
+    artescaPlusVeeamDefaultOrOpenMode: 'default' | 'open' | null;
+    artescaPlusVeeamDefaultOrOpenModeStatus: 'loading' | 'error' | 'success';
+  };
+  ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: string;
+};
 export const ARTESCA_LIBRARY_NOT_AVAILABLE = 'Artesca library is not available';
 export class ArtescaLibraryNotAvailable extends Error {
   constructor() {
     super(ARTESCA_LIBRARY_NOT_AVAILABLE);
   }
 }
-const artescaLibraryGlobal = {};
+const artescaLibraryGlobal: { hooks: ArtescaLibraryHooks } = {
+  hooks: undefined,
+};
+
 export function useArtescaLibrary() {
-  //@ts-expect-error fix this when you are working on it
   if (artescaLibraryGlobal.hooks) {
-    //@ts-expect-error fix this when you are working on it
     return artescaLibraryGlobal.hooks;
   }
 
@@ -26,7 +33,6 @@ const InternalArtescaLibraryProvider = ({
   moduleExports: Record<string, never>;
   children: React.ReactNode;
 }) => {
-  //@ts-expect-error fix this when you are working on it
   artescaLibraryGlobal.hooks = moduleExports['./hooks/artescaLibrary'];
   return <>{children}</>;
 };
