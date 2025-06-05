@@ -10,6 +10,8 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
 import { useShellHooks } from '@scality/module-federation';
+import { ArtescaLibraryNotAvailable } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { useArtescaLibrary } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 export const DeleteEndpoint = ({
   hostname,
@@ -42,6 +44,25 @@ export const DeleteEndpoint = ({
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
 
+  const artescaLibrary = useArtescaLibrary();
+  const {
+    useArtescaPlusVeeamDefaultOrOpenMode,
+    ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
+  } =
+    artescaLibrary instanceof ArtescaLibraryNotAvailable
+      ? {
+          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
+          ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: undefined,
+        }
+      : artescaLibrary;
+  const {
+    artescaPlusVeeamDefaultOrOpenMode,
+    artescaPlusVeeamDefaultOrOpenModeStatus,
+  } = useArtescaPlusVeeamDefaultOrOpenMode();
+  const isDisabledForArtescaPlusVeeam =
+    artescaPlusVeeamDefaultOrOpenMode === 'default' &&
+    hostname === ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME;
+  const isDisabledForOpenMode = artescaPlusVeeamDefaultOrOpenMode === 'open';
   const handleDeleteApprove = () => {
     setReferenceVersion({
       onRefTaken: () => {
@@ -59,6 +80,14 @@ export const DeleteEndpoint = ({
       refetchAccountsLocationsEndpointsMutation.mutate(undefined);
     }
   }, [waiterStatus]);
+  const tooltipMessage = isBuiltin
+    ? 'This Data Service can not be deleted'
+    : isDisabledForArtescaPlusVeeam
+    ? 'This is the Data Service created for Artesca + Veeam and it should not be deleted'
+    : isDisabledForOpenMode
+    ? 'The deletion of Data Services has been disabled for Open Mode'
+    : 'Delete Data Service';
+
   return (
     <>
       <DeleteConfirmation
@@ -71,10 +100,13 @@ export const DeleteEndpoint = ({
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton
-        disabled={isBuiltin}
+        disabled={
+          isBuiltin || isDisabledForArtescaPlusVeeam || isDisabledForOpenMode
+        }
+        isLoading={artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'}
         icon={<Icon name="Delete" />}
         tooltip={{
-          overlay: 'Delete Data Service',
+          overlay: tooltipMessage,
           placement: 'top',
         }}
         onClick={() => setIsConfirmDeleteOpen(true)}

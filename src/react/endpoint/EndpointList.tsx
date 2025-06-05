@@ -13,6 +13,11 @@ import {
 import { DeleteEndpoint } from './DeleteEndpoint';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import {
+  useArtescaLibrary,
+  ArtescaLibraryNotAvailable,
+} from '../next-architecture/ui/ArtescaLibraryProvider';
+
 type CellProps = {
   row: {
     original: Endpoint;
@@ -33,6 +38,7 @@ function EndpointList({ endpoints, locations }: Props) {
    *   specified in the custom render (Cell function)
    *   Currently the API returns some objects without a `isBuiltin` property causing this undesired behavior
    */
+
   const strictSchemaEndpoints = useMemo(
     () =>
       endpoints.map((endpoint) => ({
@@ -41,6 +47,18 @@ function EndpointList({ endpoints, locations }: Props) {
       })),
     [endpoints],
   );
+
+  const artescaLibrary = useArtescaLibrary();
+  const { useArtescaPlusVeeamDefaultOrOpenMode } =
+    artescaLibrary instanceof ArtescaLibraryNotAvailable
+      ? {
+          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
+        }
+      : artescaLibrary;
+  const {
+    artescaPlusVeeamDefaultOrOpenMode,
+    artescaPlusVeeamDefaultOrOpenModeStatus,
+  } = useArtescaPlusVeeamDefaultOrOpenMode();
 
   const columns = useMemo(
     () => [
@@ -126,6 +144,16 @@ function EndpointList({ endpoints, locations }: Props) {
             <div style={{ marginLeft: 'auto' }}>
               <Button
                 icon={<Icon name="Create-add" />}
+                isLoading={
+                  artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'
+                }
+                disabled={artescaPlusVeeamDefaultOrOpenMode === 'default'}
+                tooltip={{
+                  overlay:
+                    artescaPlusVeeamDefaultOrOpenMode === 'default'
+                      ? 'This feature has been disabled for Artesca + Veeam'
+                      : undefined,
+                }}
                 label="Create Data Service"
                 variant="primary"
                 onClick={() => navigate('/create-dataservice')}
