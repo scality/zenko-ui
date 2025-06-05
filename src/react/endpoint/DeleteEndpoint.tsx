@@ -83,7 +83,7 @@ export const DeleteEndpoint = ({
   const tooltipMessage = isBuiltin
     ? 'This Data Service can not be deleted'
     : isDisabledForArtescaPlusVeeam
-    ? 'This is the Data Service created for Artesca + Veeam and it should not be deleted'
+    ? 'This is the Data Service created for Artesca + Veeam deployment and it should not be deleted'
     : isDisabledForOpenMode
     ? 'The deletion of Data Services has been disabled for Open Mode'
     : 'Delete Data Service';

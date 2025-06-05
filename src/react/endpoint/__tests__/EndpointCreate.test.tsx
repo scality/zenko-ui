@@ -13,7 +13,6 @@ import {
 } from '../../utils/testUtil';
 import EndpointCreate from '../EndpointCreate';
 import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
-import { debug } from 'jest-preview';
 import userEvent from '@testing-library/user-event';
 jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
 const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
@@ -117,7 +116,7 @@ describe('EndpointCreate', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          /The creation of a new Data Service is disabled for Artesca \+ Veeam/i,
+          /This action is disabled in the default ARTESCA \+ Veeam deployment due to enforced security settings. Please refer to the documentation to enable this functionality./i,
         ),
       ).toBeInTheDocument();
     });

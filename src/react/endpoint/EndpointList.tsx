@@ -16,6 +16,7 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import {
   useArtescaLibrary,
   ArtescaLibraryNotAvailable,
+  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
 } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 type CellProps = {
@@ -151,7 +152,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 tooltip={{
                   overlay:
                     artescaPlusVeeamDefaultOrOpenMode === 'default'
-                      ? 'This feature has been disabled for Artesca + Veeam'
+                      ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE
                       : undefined,
                 }}
                 label="Create Data Service"

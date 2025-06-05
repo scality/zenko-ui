@@ -22,7 +22,10 @@ import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/bu
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useArtescaLibrary } from '../next-architecture/ui/ArtescaLibraryProvider';
+import {
+  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
+  useArtescaLibrary,
+} from '../next-architecture/ui/ArtescaLibraryProvider';
 import { ArtescaLibraryNotAvailable } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 const BannerMessageList = styled.ul`
@@ -151,7 +154,7 @@ function EndpointCreate() {
             tooltip={{
               overlay:
                 artescaPlusVeeamDefaultOrOpenMode === 'default'
-                  ? 'The creation of a new Data Service is disabled for Artesca + Veeam'
+                  ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE
                   : undefined,
             }}
             id="create-endpoint-btn"

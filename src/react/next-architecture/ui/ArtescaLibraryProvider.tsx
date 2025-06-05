@@ -9,6 +9,9 @@ export type ArtescaLibraryHooks = {
   ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: string;
 };
 export const ARTESCA_LIBRARY_NOT_AVAILABLE = 'Artesca library is not available';
+
+export const TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE = `This action is disabled in the default ARTESCA + Veeam deployment due to enforced security settings. 
+              Please refer to the documentation to enable this functionality.`;
 export class ArtescaLibraryNotAvailable extends Error {
   constructor() {
     super(ARTESCA_LIBRARY_NOT_AVAILABLE);
