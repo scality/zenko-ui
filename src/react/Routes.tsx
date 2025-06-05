@@ -25,7 +25,6 @@ import ReauthDialog from './ui-elements/ReauthDialog';
 
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from './utils/hooks';
-import NoMatch from './NoMatch';
 import Accounts from './account/Accounts';
 import { Locations } from './locations/Locations';
 import Endpoints from './endpoint/Endpoints';
@@ -46,7 +45,6 @@ import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import { ISVSteps } from './ISV/components/ISVSteps';
-import { useIsVeeamVBROnly } from './ISV/hooks/useIsVeeamVBROnly';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -105,7 +103,6 @@ export function PrivateRoutes() {
   );
   const user = useSelector((state: AppState) => state.oidc.user);
   const config = useConfig();
-  const isArtescaPlusVeeamEnabled = useIsVeeamVBROnly();
 
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
@@ -211,26 +208,26 @@ export function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
-      {!isArtescaPlusVeeamEnabled && (
-        <>
-          <Route
-            path="create-dataservice/*"
-            element={
-              <DataServiceRoleProvider>
-                <EndpointCreate />
-              </DataServiceRoleProvider>
-            }
-          />
-          <Route
-            path="dataservices/*"
-            element={
-              <DataServiceRoleProvider>
-                <Endpoints />
-              </DataServiceRoleProvider>
-            }
-          />
-        </>
-      )}
+
+      <>
+        <Route
+          path="create-dataservice/*"
+          element={
+            <DataServiceRoleProvider>
+              <EndpointCreate />
+            </DataServiceRoleProvider>
+          }
+        />
+        <Route
+          path="dataservices/*"
+          element={
+            <DataServiceRoleProvider>
+              <Endpoints />
+            </DataServiceRoleProvider>
+          }
+        />
+      </>
+
       <Route
         path="locations/*"
         element={
@@ -393,7 +390,6 @@ function InternalRoutes() {
   const { isStorageManager } = useAuthGroups();
   const config = useConfig();
   const navigate = useBasenameRelativeNavigate();
-  const isArtescaPlusVeeamEnabled = useIsVeeamVBROnly();
 
   const doesRouteMatch = useCallback(
     (paths: string | string[]) => {
@@ -483,18 +479,15 @@ function InternalRoutes() {
               },
               active: doesRouteMatch('/locations'),
             },
-            ...(isArtescaPlusVeeamEnabled
-              ? []
-              : [
-                  {
-                    label: 'Data Services',
-                    icon: <Icon name="Cubes" />,
-                    onClick: () => {
-                      navigate('/dataservices');
-                    },
-                    active: doesRouteMatch('/dataservices'),
-                  },
-                ]),
+
+            {
+              label: 'Data Services',
+              icon: <Icon name="Cubes" />,
+              onClick: () => {
+                navigate('/dataservices');
+              },
+              active: doesRouteMatch('/dataservices'),
+            },
           ]
         : []),
     ],
