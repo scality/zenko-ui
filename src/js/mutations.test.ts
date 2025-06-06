@@ -888,7 +888,10 @@ describe('mutations', () => {
               metadata: { generation: 5 },
               status: {
                 observedGeneration: 5,
-                conditions: [{ type: 'Available', status: 'True' }],
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'False' },
+                ],
               },
             }),
         });
@@ -965,7 +968,10 @@ describe('mutations', () => {
               metadata: { generation: 6 },
               status: {
                 observedGeneration: 5,
-                conditions: [{ type: 'Available', status: 'True' }],
+                conditions: [
+                  { type: 'Available', status: 'True' },
+                  { type: 'DeploymentInProgress', status: 'True' },
+                ],
               },
             }),
         });
