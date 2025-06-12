@@ -1,12 +1,5 @@
-import { MouseEvent, MouseEventHandler, useRef } from 'react';
-import {
-  clearError,
-  handleErrorMessage,
-  networkEnd,
-  networkStart,
-} from '../actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppState } from '../../types/state';
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Banner,
   Form,
@@ -16,18 +9,26 @@ import {
   Stack,
 } from '@scality/core-ui';
 import { Button, Input } from '@scality/core-ui/dist/next';
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { useForm } from 'react-hook-form';
-import { useOutsideClick } from '../utils/hooks';
-import { useIAMClient } from '../IAMProvider';
-import { useMutation, InfiniteData, useQueryClient } from 'react-query';
-import { useNavigate, useParams } from 'react-router';
-import { getListUsersQuery } from '../queries';
-import { notFalsyTypeGuard } from '../../types/typeGuards';
-import { CreateUserResponse, ListUsersResponse } from 'aws-sdk/clients/iam';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useCurrentAccount } from '../DataServiceRoleProvider';
+import { MouseEvent, MouseEventHandler, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from 'react-query';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router';
+import { AppState } from '../../types/state';
+import {
+  clearError,
+  handleErrorMessage,
+  networkEnd,
+  networkStart,
+} from '../actions';
+import {
+  useCurrentAccount,
+  useDataServiceRole,
+} from '../DataServiceRoleProvider';
+import { useIAMClient } from '../IAMProvider';
+import { getListUsersQuery } from '../queries';
+import { useOutsideClick } from '../utils/hooks';
 
 const regexpName = /^[\w+=,.@ -]+$/;
 const schema = Joi.object({
@@ -44,6 +45,7 @@ const AccountCreateUser = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const baseNameRelativeNavigate = useBasenameRelativeNavigate();
+  const { accountName } = useParams<{ accountName: string }>();
   const IAMClient = useIAMClient();
   const {
     register,
@@ -57,33 +59,23 @@ const AccountCreateUser = () => {
   const queryClient = useQueryClient();
 
   const { account } = useCurrentAccount();
+  const { roleArn } = useDataServiceRole();
 
   const createUserMutation = useMutation(
     (userName: string) => {
       dispatch(networkStart('Creating User'));
-      return IAMClient.createUser(userName)
-        .then((newUser: CreateUserResponse) => {
-          queryClient.setQueryData<InfiniteData<ListUsersResponse> | undefined>(
-            getListUsersQuery(account.Name, IAMClient)?.queryKey,
-            (old: InfiniteData<ListUsersResponse> | undefined) => {
-              if (old) {
-                const pages = old.pages;
-                pages[pages.length - 1].Users.push({
-                  ...notFalsyTypeGuard(newUser.User),
-                  CreateDate: new Date(),
-                });
-                return { ...old, pages };
-              }
-            },
-          );
-        })
-        .finally(() => {
-          dispatch(networkEnd());
-        });
+      return IAMClient.createUser(userName).finally(() => {
+        dispatch(networkEnd());
+      });
     },
     {
-      onSuccess: () => {
-        baseNameRelativeNavigate(`/accounts/${account.Name}/users`);
+      onSuccess: async () => {
+        const targetAccountName = accountName || account.Name;
+        await queryClient.refetchQueries(
+          getListUsersQuery(targetAccountName, IAMClient, [roleArn]).queryKey,
+        );
+
+        baseNameRelativeNavigate(`/accounts/${targetAccountName}/users`);
       },
       onError: () => {
         const str = 'An error occurred during the user creation.';

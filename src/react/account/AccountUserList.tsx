@@ -382,7 +382,7 @@ const AccountUserList = ({ accountName }: { accountName?: string }) => {
           icon={<Icon name="Create-add" color="textSecondary" />}
           label="Create User"
           variant="primary"
-          onClick={() => navigate('/create-user')}
+          onClick={() => navigate(`/accounts/${accountName}/create-user`)}
           type="submit"
         />
       }

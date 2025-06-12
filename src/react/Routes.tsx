@@ -193,6 +193,14 @@ export function PrivateRoutes() {
         }
       />
       <Route
+        path={`accounts/:accountName/create-user/*`}
+        element={
+          <DataServiceRoleProvider>
+            <AccountCreateUser />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
         path={`create-policy/*`}
         element={
           <DataServiceRoleProvider>
