@@ -1,5 +1,5 @@
 import { Icon } from '@scality/core-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -23,10 +23,13 @@ export const DeleteEndpoint = ({
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const { refetchAccountsLocationsEndpointsMutation } =
-    useAccountsLocationsAndEndpoints({
-      accountsLocationsEndpointsAdapter,
-    });
+  const {
+    refetchAccountsLocationsEndpointsMutation,
+    accountsLocationsAndEndpoints,
+    status: accountsLocationsEndpointsStatus,
+  } = useAccountsLocationsAndEndpoints({
+    accountsLocationsEndpointsAdapter,
+  });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -59,10 +62,22 @@ export const DeleteEndpoint = ({
     artescaPlusVeeamDefaultOrOpenMode,
     artescaPlusVeeamDefaultOrOpenModeStatus,
   } = useArtescaPlusVeeamDefaultOrOpenMode();
+
   const isDisabledForArtescaPlusVeeam =
-    artescaPlusVeeamDefaultOrOpenMode === 'default' &&
     hostname === ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME;
-  const isDisabledForOpenMode = artescaPlusVeeamDefaultOrOpenMode === 'open';
+
+  // Disable endpoint deletion when there is only one non-Veeam, non-builtin endpoint remaining
+  // to avoid going back to default mode
+  const isLastNonVeeamEndpoint =
+    accountsLocationsEndpointsStatus === 'success' &&
+    accountsLocationsAndEndpoints.endpoints.filter(
+      (endpoint) =>
+        endpoint.hostname !== ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME &&
+        endpoint.isBuiltin === false,
+    ).length === 1;
+  const isDisabledForOpenMode =
+    artescaPlusVeeamDefaultOrOpenMode === 'open' && isLastNonVeeamEndpoint;
+
   const handleDeleteApprove = () => {
     setReferenceVersion({
       onRefTaken: () => {
@@ -74,12 +89,14 @@ export const DeleteEndpoint = ({
       },
     });
   };
-  useMemo(() => {
+
+  useEffect(() => {
     if (waiterStatus === 'success') {
       setIsConfirmDeleteOpen(false);
       refetchAccountsLocationsEndpointsMutation.mutate(undefined);
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
+
   const tooltipMessage = isBuiltin
     ? 'This Data Service can not be deleted'
     : isDisabledForArtescaPlusVeeam
