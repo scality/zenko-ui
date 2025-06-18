@@ -14,11 +14,9 @@ import { useShellHooks } from '@scality/module-federation';
 export const DeleteEndpoint = ({
   hostname,
   endpointsDeletionDisabledMap,
-  endpointsDeletionDisabledStatus,
 }: {
   hostname: string;
   endpointsDeletionDisabledMap: Record<string, boolean>;
-  endpointsDeletionDisabledStatus: 'idle' | 'loading' | 'error' | 'success';
 }) => {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
@@ -80,7 +78,6 @@ export const DeleteEndpoint = ({
       />
       <T.ActionButton
         disabled={endpointsDeletionDisabledMap[hostname]}
-        isLoading={endpointsDeletionDisabledStatus === 'loading'}
         icon={<Icon name="Delete" />}
         tooltip={{
           overlay: tooltipMessage,

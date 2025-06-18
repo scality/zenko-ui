@@ -1,4 +1,11 @@
-import { ConstrainedText, Icon, Wrap, spacing } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  Icon,
+  Loader,
+  Text,
+  Wrap,
+  spacing,
+} from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 
 import { useMemo } from 'react';
@@ -115,15 +122,22 @@ function EndpointList({ endpoints, locations }: Props) {
           flex: '0.1',
           paddingRight: '18px',
         },
-
         Cell({ row: { original } }: CellProps) {
-          return (
-            <DeleteEndpoint
-              hostname={original.hostname}
-              endpointsDeletionDisabledMap={endpointsDeletionDisabledMap}
-              endpointsDeletionDisabledStatus={endpointsDeletionDisabledStatus}
-            />
-          );
+          if (endpointsDeletionDisabledStatus === 'success') {
+            return (
+              <DeleteEndpoint
+                hostname={original.hostname}
+                endpointsDeletionDisabledMap={endpointsDeletionDisabledMap}
+              />
+            );
+          } else if (
+            endpointsDeletionDisabledStatus === 'idle' ||
+            endpointsDeletionDisabledStatus === 'loading'
+          ) {
+            return <Loader />;
+          } else if (endpointsDeletionDisabledStatus === 'error') {
+            return <Text>Error</Text>;
+          }
         },
       },
     ],
