@@ -18,6 +18,7 @@ import {
   ArtescaLibraryNotAvailable,
   TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
 } from '../next-architecture/ui/ArtescaLibraryProvider';
+import useEndpointsDeletionDisabled from './useEndpointsDeletionDisabled';
 
 type CellProps = {
   row: {
@@ -60,6 +61,11 @@ function EndpointList({ endpoints, locations }: Props) {
     artescaPlusVeeamDefaultOrOpenMode,
     artescaPlusVeeamDefaultOrOpenModeStatus,
   } = useArtescaPlusVeeamDefaultOrOpenMode();
+
+  const {
+    endpointsDeletionDisabledMap,
+    status: endpointsDeletionDisabledStatus,
+  } = useEndpointsDeletionDisabled();
 
   const columns = useMemo(
     () => [
@@ -114,13 +120,14 @@ function EndpointList({ endpoints, locations }: Props) {
           return (
             <DeleteEndpoint
               hostname={original.hostname}
-              isBuiltin={original.isBuiltin}
+              endpointsDeletionDisabledMap={endpointsDeletionDisabledMap}
+              endpointsDeletionDisabledStatus={endpointsDeletionDisabledStatus}
             />
           );
         },
       },
     ],
-    [locations],
+    [locations, endpointsDeletionDisabledMap, endpointsDeletionDisabledStatus],
   );
 
   return (

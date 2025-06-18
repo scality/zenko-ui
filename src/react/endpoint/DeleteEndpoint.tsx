@@ -10,26 +10,23 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import * as T from '../ui-elements/Table';
 import { useShellHooks } from '@scality/module-federation';
-import { ArtescaLibraryNotAvailable } from '../next-architecture/ui/ArtescaLibraryProvider';
-import { useArtescaLibrary } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 export const DeleteEndpoint = ({
   hostname,
-  isBuiltin,
+  endpointsDeletionDisabledMap,
+  endpointsDeletionDisabledStatus,
 }: {
   hostname: string;
-  isBuiltin: boolean;
+  endpointsDeletionDisabledMap: Record<string, boolean>;
+  endpointsDeletionDisabledStatus: 'idle' | 'loading' | 'error' | 'success';
 }) => {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
     useAccountsLocationsEndpointsAdapter();
-  const {
-    refetchAccountsLocationsEndpointsMutation,
-    accountsLocationsAndEndpoints,
-    status: accountsLocationsEndpointsStatus,
-  } = useAccountsLocationsAndEndpoints({
-    accountsLocationsEndpointsAdapter,
-  });
+  const { refetchAccountsLocationsEndpointsMutation } =
+    useAccountsLocationsAndEndpoints({
+      accountsLocationsEndpointsAdapter,
+    });
   const instanceId = useInstanceId();
   const managementClient = useManagementClient();
   const { useAuth } = useShellHooks();
@@ -46,37 +43,6 @@ export const DeleteEndpoint = ({
     waitForRunningConfigurationVersionToBeUpdated,
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
-
-  const artescaLibrary = useArtescaLibrary();
-  const {
-    useArtescaPlusVeeamDefaultOrOpenMode,
-    ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
-  } =
-    artescaLibrary instanceof ArtescaLibraryNotAvailable
-      ? {
-          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
-          ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: undefined,
-        }
-      : artescaLibrary;
-  const {
-    artescaPlusVeeamDefaultOrOpenMode,
-    artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamDefaultOrOpenMode();
-
-  const isDisabledForArtescaPlusVeeam =
-    hostname === ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME;
-
-  // Disable endpoint deletion when there is only one non-Veeam, non-builtin endpoint remaining
-  // to avoid going back to default mode
-  const isLastNonVeeamEndpoint =
-    accountsLocationsEndpointsStatus === 'success' &&
-    accountsLocationsAndEndpoints.endpoints.filter(
-      (endpoint) =>
-        endpoint.hostname !== ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME &&
-        endpoint.isBuiltin === false,
-    ).length === 1;
-  const isDisabledForOpenMode =
-    artescaPlusVeeamDefaultOrOpenMode === 'open' && isLastNonVeeamEndpoint;
 
   const handleDeleteApprove = () => {
     setReferenceVersion({
@@ -97,12 +63,8 @@ export const DeleteEndpoint = ({
     }
   }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
 
-  const tooltipMessage = isBuiltin
+  const tooltipMessage = endpointsDeletionDisabledMap[hostname]
     ? 'This Data Service can not be deleted'
-    : isDisabledForArtescaPlusVeeam
-    ? 'This is the Data Service created for Artesca + Veeam deployment and it should not be deleted'
-    : isDisabledForOpenMode
-    ? 'The deletion of Data Services has been disabled for Open Mode'
     : 'Delete Data Service';
 
   return (
@@ -117,10 +79,8 @@ export const DeleteEndpoint = ({
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton
-        disabled={
-          isBuiltin || isDisabledForArtescaPlusVeeam || isDisabledForOpenMode
-        }
-        isLoading={artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'}
+        disabled={endpointsDeletionDisabledMap[hostname]}
+        isLoading={endpointsDeletionDisabledStatus === 'loading'}
         icon={<Icon name="Delete" />}
         tooltip={{
           overlay: tooltipMessage,
