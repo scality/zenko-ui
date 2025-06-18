@@ -1,27 +1,15 @@
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+import { Form, FormSection } from '@scality/core-ui';
 import {
-  mockOffsetSize,
-  reduxRender,
-  selectClick,
-  TEST_API_BASE_URL,
-  zenkoUITestConfig,
-} from '../../utils/testUtil';
-import {
-  act,
   fireEvent,
   screen,
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import React from 'react';
-import ExpirationForm from '../ExpirationForm';
-import { FormProvider, useForm } from 'react-hook-form';
 import userEvent from '@testing-library/user-event';
-import { notFalsyTypeGuard } from '../../../types/typeGuards';
-import { PerLocationMap } from '../../../types/config';
-import { GeneralExpirationGroup } from '../ExpirationForm';
-import { Form, FormSection } from '@scality/core-ui';
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+import React from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
 import {
   mockBucketListing,
   mockBucketOperations,
@@ -30,11 +18,20 @@ import {
   getConfigOverlay,
   getStorageConsumptionMetricsHandlers,
 } from '../../../js/mock/managementClientMSWHandlers';
+import { PerLocationMap } from '../../../types/config';
+import { notFalsyTypeGuard } from '../../../types/typeGuards';
 import {
   INSTANCE_ID,
   waitForSelectOptionToBeEnabled,
 } from '../../actions/__tests__/utils/testUtil';
-import { debug } from 'jest-preview';
+import {
+  mockOffsetSize,
+  reduxRender,
+  selectClick,
+  TEST_API_BASE_URL,
+  zenkoUITestConfig,
+} from '../../utils/testUtil';
+import ExpirationForm, { GeneralExpirationGroup } from '../ExpirationForm';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -91,7 +88,23 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const WithFormProvider = ({ children }) => {
-  const formMethods = useForm();
+  const formMethods = useForm({
+    defaultValues: {
+      enabled: true,
+      bucketName: '',
+      name: 'Test Workflow',
+      type: 'expiration',
+      workflowId: '',
+      filter: {
+        objectKeyPrefix: '',
+        objectTags: [{ key: '', value: '' }],
+      },
+      currentVersionTriggerDelayDays: null,
+      previousVersionTriggerDelayDays: null,
+      expireDeleteMarkersTrigger: false,
+      incompleteMultipartUploadTriggerDelayDays: null,
+    },
+  });
   const {
     formState: { isValid },
   } = formMethods;
@@ -215,5 +228,39 @@ describe('ExpirationForm', () => {
 
     const formValidation = screen.getByTestId('form-expiration');
     expect(formValidation.textContent).toBe('form-valid');
+  });
+
+  it('should disable the delete markers and incomplete multipart upload when tags are edited', async () => {
+    const { component: result } = reduxRender(
+      <WithFormProvider>
+        <Form layout={{ kind: 'tab' }}>
+          <ExpirationForm />
+        </Form>
+      </WithFormProvider>,
+    );
+
+    const removeExpiredToggleState = result.container.querySelector(
+      '[for="deleteMarkers"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const removeExpired = removeExpiredToggleState.querySelector(
+      'input[placeholder="expireDeleteMarkersTrigger"]',
+    );
+    const expireIncompleteMultipartToggleState = result.container.querySelector(
+      '[for="expireIncompleteMultipart"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireIncompleteMultipart =
+      expireIncompleteMultipartToggleState.querySelector(
+        'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
+      );
+
+    expect(expireIncompleteMultipart).toBeEnabled();
+
+    const tag1Key = screen.getByLabelText(/Tag 1 key/i);
+    expect(tag1Key).toBeInTheDocument();
+
+    await userEvent.type(tag1Key, 'test-key');
+
+    expect(removeExpired).toBeDisabled();
+    expect(expireIncompleteMultipart).toBeDisabled();
   });
 });
