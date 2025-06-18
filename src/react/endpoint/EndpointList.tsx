@@ -127,7 +127,7 @@ function EndpointList({ endpoints, locations }: Props) {
             return (
               <DeleteEndpoint
                 hostname={original.hostname}
-                endpointsDeletionDisabledMap={endpointsDeletionDisabledMap}
+                disabled={endpointsDeletionDisabledMap[original.hostname]}
               />
             );
           } else if (

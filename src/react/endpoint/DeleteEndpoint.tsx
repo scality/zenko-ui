@@ -13,10 +13,10 @@ import { useShellHooks } from '@scality/module-federation';
 
 export const DeleteEndpoint = ({
   hostname,
-  endpointsDeletionDisabledMap,
+  disabled,
 }: {
   hostname: string;
-  endpointsDeletionDisabledMap: Record<string, boolean>;
+  disabled: boolean;
 }) => {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
@@ -61,7 +61,7 @@ export const DeleteEndpoint = ({
     }
   }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
 
-  const tooltipMessage = endpointsDeletionDisabledMap[hostname]
+  const tooltipMessage = disabled
     ? 'This Data Service can not be deleted'
     : 'Delete Data Service';
 
@@ -77,7 +77,7 @@ export const DeleteEndpoint = ({
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton
-        disabled={endpointsDeletionDisabledMap[hostname]}
+        disabled={disabled}
         icon={<Icon name="Delete" />}
         tooltip={{
           overlay: tooltipMessage,
