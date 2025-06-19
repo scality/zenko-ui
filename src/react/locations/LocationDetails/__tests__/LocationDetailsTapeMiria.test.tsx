@@ -257,4 +257,28 @@ describe('LocationDetailsTapeMiria', () => {
     // V
     expect(screen.getByText('Password is required')).toBeInTheDocument();
   });
+
+  it('should show temperature cold', async () => {
+    // S
+    const sampleDetails = {
+      endpoint: '',
+      repoId: [''],
+      username: '',
+      password: '',
+    };
+
+    reduxRender(
+      <LocationDetailsTapeMiria
+        locationType="location-miria-v1"
+        details={sampleDetails}
+        onChange={jest.fn()}
+      />,
+      {},
+    );
+
+    // V
+    expect(screen.getByText('Temperature')).toBeInTheDocument();
+    expect(screen.getByText('Cold')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Snowflake/)).toBeInTheDocument();
+  });
 });

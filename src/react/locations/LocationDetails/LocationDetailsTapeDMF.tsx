@@ -44,7 +44,7 @@ export default function LocationDetailsTapeDMF({
 
   return (
     <>
-      <FormSection>
+      <FormSection forceLabelWidth={175}>
         <FormGroup
           id="temperature"
           label="Temperature"
@@ -76,6 +76,7 @@ export default function LocationDetailsTapeDMF({
           helpTooltip:
             "repoId and namespace id identify where objects on the Tape come from.\n\nReview your Cold storage service provider's documentation to have more details.",
         }}
+        forceLabelWidth={175}
       >
         <InputList
           id="repoids"
@@ -110,6 +111,7 @@ export default function LocationDetailsTapeDMF({
           helpTooltip:
             'This location type requires credentials.\n\nIt is a best practice to enter credentials specifically generated for this access, with only the privileges needed to perform the desired tasks.',
         }}
+        forceLabelWidth={175}
       >
         <FormGroup
           id="username"

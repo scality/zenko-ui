@@ -2,6 +2,7 @@ import { FormGroup, FormSection } from '@scality/core-ui';
 import { Input } from '@scality/core-ui/dist/components/inputv2/inputv2';
 import React, { useState } from 'react';
 import { LocationDetailsFormProps } from '.';
+import { ColdStorageIconLabel } from '../../ui-elements/ColdStorageIcon';
 
 type FieldNames = 'endpoint' | 'repoId' | 'username' | 'password';
 export interface TapeMiriaDetails {
@@ -182,31 +183,41 @@ export default function LocationDetailsTapeMiria({
   };
 
   return (
-    <FormSection>
-      {fieldConfigs.map((field) => (
-        <FormGroup
-          key={field.name}
-          id={field.name}
-          label={field.label}
-          required={field.required}
-          helpErrorPosition="bottom"
-          error={errors[field.name]}
-          content={
-            <Input
-              name={field.name}
-              id={field.name}
-              type={field.type}
-              placeholder={field.placeholder}
-              value={
-                field.isArray ? formState[field.name][0] : formState[field.name]
-              }
-              onChange={onFormItemChange}
-              onBlur={onBlur}
-              autoComplete="off"
-            />
-          }
-        />
-      ))}
+    <FormSection forceLabelWidth={175}>
+      <FormGroup
+        id="temperature"
+        label="Temperature"
+        helpErrorPosition="bottom"
+        content={<ColdStorageIconLabel />}
+      />
+      <>
+        {fieldConfigs.map((field) => (
+          <FormGroup
+            key={field.name}
+            id={field.name}
+            label={field.label}
+            required={field.required}
+            helpErrorPosition="bottom"
+            error={errors[field.name]}
+            content={
+              <Input
+                name={field.name}
+                id={field.name}
+                type={field.type}
+                placeholder={field.placeholder}
+                value={
+                  field.isArray
+                    ? formState[field.name][0]
+                    : formState[field.name]
+                }
+                onChange={onFormItemChange}
+                onBlur={onBlur}
+                autoComplete="off"
+              />
+            }
+          />
+        ))}
+      </>
     </FormSection>
   );
 }
