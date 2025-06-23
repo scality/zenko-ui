@@ -53,22 +53,22 @@ export function ArtescaLibraryProvider({
   const instances = useDeployedApps({ kind: 'artesca-base-ui' });
 
   const { useConfig } = ModuleFederation.useShellHooks();
+
   const artescaWebfinger = useConfig({
     configType: 'build',
-    name: instances[0].name,
-  });
-
-  const federatedImports = instances.map((instance) => {
-    return {
-      scope: artescaWebfinger.spec.hooks.artescaLibrary.scope,
-      module: artescaWebfinger.spec.hooks.artescaLibrary.module,
-      remoteEntryUrl: `${instance.url}${artescaWebfinger.spec.remoteEntryPath}?version=${instance.version}`,
-    };
+    name: instances?.[0]?.name || '',
   });
 
   if (!instances.length) {
     return <>{children}</>;
   } else {
+    const federatedImports = instances.map((instance) => {
+      return {
+        scope: artescaWebfinger.spec.hooks.artescaLibrary.scope,
+        module: artescaWebfinger.spec.hooks.artescaLibrary.module,
+        remoteEntryUrl: `${instance.url}${artescaWebfinger.spec.remoteEntryPath}?version=${instance.version}`,
+      };
+    });
     return (
       <ErrorBoundary FallbackComponent={ErrorFallback}>
         <ModuleFederation.ComponentWithFederatedImports
