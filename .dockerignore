@@ -1,7 +1,13 @@
-# Ignore everything
-*
+node_modules
 
-# But not the conf and public directories
-!public
-!conf
-!build
+build
+build_ts/
+
+.gitignore
+README.md
+*.md
+
+coverage
+.idea
+.DS_Store
+yarn-error.log

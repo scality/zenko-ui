@@ -22,6 +22,7 @@
         "module": "./WelcomeModal",
         "scope": "zenko"
       }
-    ]
+    ],
+    "publicPath": "/data"
   }
 }
