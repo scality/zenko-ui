@@ -89,7 +89,23 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const WithFormProvider = ({ children }) => {
-  const formMethods = useForm();
+  const formMethods = useForm({
+    defaultValues: {
+      enabled: true,
+      bucketName: '',
+      name: 'Test Workflow',
+      type: 'expiration',
+      workflowId: '',
+      filter: {
+        objectKeyPrefix: '',
+        objectTags: [{ key: '', value: '' }],
+      },
+      currentVersionTriggerDelayDays: null,
+      previousVersionTriggerDelayDays: null,
+      expireDeleteMarkersTrigger: false,
+      incompleteMultipartUploadTriggerDelayDays: null,
+    },
+  });
   const {
     formState: { isValid },
   } = formMethods;
