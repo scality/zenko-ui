@@ -76,47 +76,12 @@ if [ ${#PROXY_LOCATIONS_SET[@]} -gt 0 ]; then
     echo "Adding proxy: $source_path -> $target"
 
     # Generate simple proxy configuration
-    case "$service" in
-    "s3")
-      cat >>"$TEMP_CONFIG" <<EOF
+    cat >>"$TEMP_CONFIG" <<EOF
 
     location $source_path {
-        set \$s3_endpoint $target;
-        proxy_pass \$s3_endpoint;
-        proxy_redirect off;
+        proxy_pass $target;
     }
 EOF
-      ;;
-    "iam")
-      cat >>"$TEMP_CONFIG" <<EOF
-
-    location $source_path {
-        set \$iam_endpoint $target;
-        proxy_pass \$iam_endpoint;
-    }
-EOF
-      ;;
-    "sts")
-      cat >>"$TEMP_CONFIG" <<EOF
-
-    location $source_path {
-        set \$sts_endpoint $target;
-        proxy_pass \$sts_endpoint;
-        proxy_set_header host \$host;
-        proxy_set_header proxy_path $source_path;
-    }
-EOF
-      ;;
-    *)
-      cat >>"$TEMP_CONFIG" <<EOF
-
-    location $source_path {
-        set \$upstream $target;
-        proxy_pass \$upstream;
-    }
-EOF
-      ;;
-    esac
   done
 fi
 
