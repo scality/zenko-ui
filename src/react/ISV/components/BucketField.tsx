@@ -152,26 +152,50 @@ const BucketField: React.FC<BucketFieldProps> = ({
   const handleBucketNumberChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
-      setInputValue(value);
 
-      if (value === '') return;
+      if (value === '') {
+        setInputValue(value);
+        return;
+      }
 
       const newNumber = parseInt(value, 10);
-      adjustBucketNumber(newNumber);
+
+      if (isNaN(newNumber)) {
+        return;
+      }
+
+      let validNumber = newNumber;
+      if (newNumber > MAX_BUCKETS) {
+        validNumber = MAX_BUCKETS;
+        setInputValue(validNumber.toString());
+      } else {
+        setInputValue(value);
+      }
+
+      if (validNumber >= MIN_BUCKETS && validNumber <= MAX_BUCKETS) {
+        adjustBucketNumber(validNumber);
+      }
     },
     [adjustBucketNumber],
   );
 
   const handleInputBlur = useCallback(() => {
-    const validNumber = /^[0-9]+$/.test(inputValue);
+    if (inputValue === '') {
+      setInputValue(MIN_BUCKETS.toString());
+      adjustBucketNumber(MIN_BUCKETS);
+      return;
+    }
+
     const parsedValue = parseInt(inputValue, 10);
 
-    if (!validNumber || isNaN(parsedValue) || parsedValue < MIN_BUCKETS) {
+    if (isNaN(parsedValue) || parsedValue < MIN_BUCKETS) {
       setInputValue(MIN_BUCKETS.toString());
       adjustBucketNumber(MIN_BUCKETS);
     } else if (parsedValue > MAX_BUCKETS) {
       setInputValue(MAX_BUCKETS.toString());
       adjustBucketNumber(MAX_BUCKETS);
+    } else {
+      setInputValue(parsedValue.toString());
     }
   }, [inputValue, adjustBucketNumber]);
 
