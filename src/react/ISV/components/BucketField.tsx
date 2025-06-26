@@ -21,6 +21,60 @@ import { unitChoices } from '../constants';
 const MIN_BUCKETS = 1;
 const MAX_BUCKETS = 20;
 
+const useBucketCountManager = ({
+  initialValue,
+  onCountChange,
+}: {
+  initialValue: number;
+  onCountChange: (count: number) => void;
+}) => {
+  const [inputValue, setInputValue] = useState(initialValue.toString());
+
+  useEffect(() => {
+    setInputValue(initialValue.toString());
+  }, [initialValue]);
+
+  const handleBucketNumberChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setInputValue(value);
+
+      if (value === '') return;
+
+      const newNumber = parseInt(value, 10);
+      if (isNaN(newNumber)) return;
+
+      if (newNumber > MAX_BUCKETS) {
+        setInputValue(MAX_BUCKETS.toString());
+        onCountChange(MAX_BUCKETS);
+      } else if (newNumber >= MIN_BUCKETS) {
+        onCountChange(newNumber);
+      }
+    },
+    [onCountChange],
+  );
+
+  const handleInputBlur = useCallback(() => {
+    const parsedValue = parseInt(inputValue, 10);
+    const valueWithFallback = isNaN(parsedValue) ? MIN_BUCKETS : parsedValue;
+    const clampedValue = Math.max(
+      MIN_BUCKETS,
+      Math.min(valueWithFallback, MAX_BUCKETS),
+    );
+
+    setInputValue(clampedValue.toString());
+    if (clampedValue !== initialValue) {
+      onCountChange(clampedValue);
+    }
+  }, [inputValue, onCountChange, initialValue]);
+
+  return {
+    inputValue,
+    handleBucketNumberChange,
+    handleInputBlur,
+  };
+};
+
 interface BucketFieldProps {
   bucketNameTooltip?: React.ReactElement;
   platform?: string;
@@ -94,7 +148,6 @@ const BucketField: React.FC<BucketFieldProps> = ({
 }) => {
   const bucketNumberInputRef = useRef<HTMLInputElement>(null);
   const shouldFocusRef = useRef(false);
-  const [inputValue, setInputValue] = useState<string>('');
   const {
     control,
     formState: { errors },
@@ -104,17 +157,6 @@ const BucketField: React.FC<BucketFieldProps> = ({
     name: 'buckets',
     control,
   });
-
-  useEffect(() => {
-    if (shouldFocusRef.current) {
-      bucketNumberInputRef.current?.focus();
-      shouldFocusRef.current = false;
-    }
-  }, [fields.length]);
-
-  useEffect(() => {
-    setInputValue(fields.length.toString());
-  }, [fields.length]);
 
   const adjustBucketNumber = useCallback(
     (targetNumber: number) => {
@@ -149,55 +191,18 @@ const BucketField: React.FC<BucketFieldProps> = ({
     [fields.length, append, remove, platform],
   );
 
-  const handleBucketNumberChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
+  const { inputValue, handleBucketNumberChange, handleInputBlur } =
+    useBucketCountManager({
+      initialValue: fields.length,
+      onCountChange: adjustBucketNumber,
+    });
 
-      if (value === '') {
-        setInputValue(value);
-        return;
-      }
-
-      const newNumber = parseInt(value, 10);
-
-      if (isNaN(newNumber)) {
-        return;
-      }
-
-      let validNumber = newNumber;
-      if (newNumber > MAX_BUCKETS) {
-        validNumber = MAX_BUCKETS;
-        setInputValue(validNumber.toString());
-      } else {
-        setInputValue(value);
-      }
-
-      if (validNumber >= MIN_BUCKETS && validNumber <= MAX_BUCKETS) {
-        adjustBucketNumber(validNumber);
-      }
-    },
-    [adjustBucketNumber],
-  );
-
-  const handleInputBlur = useCallback(() => {
-    if (inputValue === '') {
-      setInputValue(MIN_BUCKETS.toString());
-      adjustBucketNumber(MIN_BUCKETS);
-      return;
+  useEffect(() => {
+    if (shouldFocusRef.current) {
+      bucketNumberInputRef.current?.focus();
+      shouldFocusRef.current = false;
     }
-
-    const parsedValue = parseInt(inputValue, 10);
-
-    if (isNaN(parsedValue) || parsedValue < MIN_BUCKETS) {
-      setInputValue(MIN_BUCKETS.toString());
-      adjustBucketNumber(MIN_BUCKETS);
-    } else if (parsedValue > MAX_BUCKETS) {
-      setInputValue(MAX_BUCKETS.toString());
-      adjustBucketNumber(MAX_BUCKETS);
-    } else {
-      setInputValue(parsedValue.toString());
-    }
-  }, [inputValue, adjustBucketNumber]);
+  }, [fields.length]);
 
   const bucketNamePlaceholder = useMemo(
     () => `${platform}-bucket-name`,
