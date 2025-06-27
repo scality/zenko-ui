@@ -199,7 +199,7 @@ const BucketField: React.FC<BucketFieldProps> = ({
           bucketNumber={fields.length}
         />
       ) : (
-        <CapacityFormSection index={index} bucketNumber={fields.length} />
+        <CapacityFormSection index={index} />
       );
     },
     [platform, useClusterCapacity, fields.length],
