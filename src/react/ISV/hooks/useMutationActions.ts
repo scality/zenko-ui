@@ -156,7 +156,12 @@ export const useMutationActions = (
       });
     }
 
-    actions.push('Create Policy');
+    const isCreatingNewPolicy = !account || IAMUserNameType === 'create';
+    const policyAction = isCreatingNewPolicy
+      ? 'Create Policy'
+      : 'Update Policy';
+
+    actions.push(policyAction);
     steps.push({
       ...createPolicyMutation,
       key: 'createPolicy',

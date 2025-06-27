@@ -236,6 +236,85 @@ describe('useMutationActions', () => {
   });
 
   describe('Basic functionality tests', () => {
+    it.each([
+      [
+        'Create Policy',
+        'create',
+        {
+          id: 'existing-account-id',
+          preferredAssumableRoleArn:
+            'arn:aws:iam::existing-account-id:role/test-role',
+        },
+      ],
+      [
+        'Update Policy',
+        'existing',
+        {
+          id: 'existing-account-id',
+          preferredAssumableRoleArn:
+            'arn:aws:iam::existing-account-id:role/test-role',
+        },
+      ],
+      ['Create Policy', 'create', null], // Test when creating new account
+    ])(
+      'should show "%s" when IAMUserNameType is "%s" and account is %p',
+      (expectedPolicyAction, userNameType, accountValue) => {
+        const { mockMutate, mockMutationsWithRetry } = mockSetupCommonMocks();
+
+        const props = {
+          ...mockBaseProps,
+          ...(userNameType && { IAMUserNameType: userNameType }),
+          ...(userNameType === 'existing' && { IAMUserName: 'existing-user' }),
+          account: accountValue,
+        };
+
+        const actions = [
+          ...(!accountValue
+            ? ['Create an Account', 'Update Configuration']
+            : []),
+          'Assume Account Role',
+          'Create a Bucket: test-bucket-1',
+          'Tag Bucket: test-bucket-1',
+          'Prepare Veeam integrated object repository',
+          'Enforce Veeam integrated object repository',
+          'Set maximum repository capacity',
+          'Create a Bucket: test-bucket-2',
+          'Tag Bucket: test-bucket-2',
+          'Prepare Veeam integrated object repository',
+          'Enforce Veeam integrated object repository',
+          'Set maximum repository capacity',
+          ...(!accountValue || userNameType === 'create'
+            ? ['Create a User', 'Generate Access key and Secret key']
+            : []),
+          expectedPolicyAction,
+          'Attach Policy to User',
+        ];
+
+        const steps = actions.map((action, i) => ({
+          status: 'success',
+          data: { step: i },
+        }));
+
+        (useChainedMutations as jest.Mock).mockReturnValue({
+          mutate: mockMutate,
+          steps,
+          mutationsWithRetry: mockMutationsWithRetry,
+          actions,
+        });
+
+        const { result } = renderHook(() =>
+          useMutationActions(props as any, mockBucketMutations),
+        );
+
+        // Verify the expected policy action is in the actions
+        const policyAction = result.current.data.find(
+          (d) => d.action === expectedPolicyAction,
+        );
+        expect(policyAction).toBeDefined();
+        expect(policyAction.action).toBe(expectedPolicyAction);
+      },
+    );
+
     it('should return the correct data structure - create new account scenario', () => {
       const { mockMutate, mockMutationsWithRetry } = mockSetupCommonMocks();
 
@@ -297,6 +376,11 @@ describe('useMutationActions', () => {
         retry: expect.any(Function),
       });
 
+      // Verify it shows "Create Policy" for new user
+      expect(
+        result.current.data.some((d) => d.action === 'Create Policy'),
+      ).toBe(true);
+
       // Verify mutate was called
       expect(mockMutate).toHaveBeenCalled();
     });
@@ -328,7 +412,7 @@ describe('useMutationActions', () => {
         'Set maximum repository capacity',
         'Create a User',
         'Generate Access key and Secret key',
-        'Create Policy',
+        'Create Policy', // Since IAMUserNameType defaults to 'create', it's Create Policy
         'Attach Policy to User',
       ];
 
@@ -389,7 +473,7 @@ describe('useMutationActions', () => {
         'Prepare Veeam integrated object repository',
         'Enforce Veeam integrated object repository',
         'Set maximum repository capacity',
-        'Create Policy',
+        'Update Policy',
         'Attach Policy to User',
       ];
 
@@ -425,6 +509,11 @@ describe('useMutationActions', () => {
       // Verify returning existing key
       expect(result.current.accessKey).toBe('existing-access-key');
       expect(result.current.secretKey).toBe('');
+
+      // Verify it shows "Update Policy" for existing user
+      expect(
+        result.current.data.some((d) => d.action === 'Update Policy'),
+      ).toBe(true);
     });
   });
 
