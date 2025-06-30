@@ -1,0 +1,49 @@
+name: Test Deploy Script
+
+on:
+  push:
+    paths:
+      - 'deploy-script.sh'
+      - '.github/scripts/test-deploy-script.sh'
+      - '.github/workflows/test-deploy-script.yml'
+  pull_request:
+    paths:
+      - 'deploy-script.sh'
+      - '.github/scripts/test-deploy-script.sh'
+      - '.github/workflows/test-deploy-script.yml'
+
+jobs:
+  test-deploy-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq nginx
+
+      - name: Run tests
+        run: |
+          chmod +x .github/scripts/test-deploy-script.sh
+          sudo ./.github/scripts/test-deploy-script.sh
+
+      - name: Verify nginx config structure
+        run: |
+          # Just verify the structure without testing DNS resolution
+          if sudo cat /etc/nginx/conf.d/default.conf | grep -q "location.*{" && \
+             sudo cat /etc/nginx/conf.d/default.conf | grep -q "proxy_pass.*http"; then
+            echo "✅ Nginx config structure is correct"
+          else
+            echo "❌ Nginx config structure is invalid"
+            echo "Generated config:"
+            sudo cat /etc/nginx/conf.d/default.conf
+            exit 1
+          fi
+
+      - name: Show final config
+        run: |
+          echo "=== Final nginx configuration ==="
+          sudo cat /etc/nginx/conf.d/default.conf
