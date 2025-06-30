@@ -1,10 +1,10 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, render } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import {
   CapacityFormSection,
   CapacityFormWithXcore,
 } from '../ISVCapacityFormSection';
-import { Wrapper, simpleRender } from '../../../utils/testUtil';
+import { Wrapper } from '../../../utils/testUtil';
 import * as React from 'react';
 import { useCapacityUnit } from '../../hooks/useCapacityUnit';
 import { unitChoices } from '../../constants';
@@ -34,6 +34,18 @@ jest.mock('../../hooks/useCapacityUnit', () => ({
   useCapacityUnit: jest.fn(),
 }));
 
+jest.mock('@scality/core-ui', () => ({
+  ...jest.requireActual('@scality/core-ui'),
+  FormGroup: ({ id, label, content, error, children, labelHelpTooltip }) => (
+    <div data-testid={`form-group-${id}`}>
+      <label>{label}</label>
+      {labelHelpTooltip && <div data-testid="tooltip">{labelHelpTooltip}</div>}
+      {content || children}
+      {error && <div data-testid="error">{error}</div>}
+    </div>
+  ),
+}));
+
 const FormWrapper = ({ children, defaultValues = {} }) => {
   const methods = useForm({ defaultValues });
   return <FormProvider {...methods}>{children}</FormProvider>;
@@ -45,14 +57,16 @@ describe('CapacityFormSection', () => {
   });
 
   it('renders the form section with capacity input and unit selector', () => {
-    simpleRender(
-      <FormWrapper
-        defaultValues={{
-          buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
-        }}
-      >
-        <CapacityFormSection index={0} bucketNumber={1} />
-      </FormWrapper>,
+    render(
+      <Wrapper>
+        <FormWrapper
+          defaultValues={{
+            buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
+          }}
+        >
+          <CapacityFormSection index={0} />
+        </FormWrapper>
+      </Wrapper>,
     );
 
     expect(
@@ -67,14 +81,16 @@ describe('CapacityFormSection', () => {
   });
 
   it('renders capacity unit options correctly', () => {
-    simpleRender(
-      <FormWrapper
-        defaultValues={{
-          buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
-        }}
-      >
-        <CapacityFormSection index={0} bucketNumber={1} />
-      </FormWrapper>,
+    render(
+      <Wrapper>
+        <FormWrapper
+          defaultValues={{
+            buckets: [{ capacity: 100, capacityUnit: String(unitChoices.GiB) }],
+          }}
+        >
+          <CapacityFormSection index={0} />
+        </FormWrapper>
+      </Wrapper>,
     );
 
     expect(screen.getByText('GiB')).toBeInTheDocument();
@@ -105,7 +121,7 @@ describe('CapacityFormWithXcore', () => {
 
     jest.spyOn(React, 'useEffect').mockImplementationOnce((f) => f());
 
-    simpleRender(
+    render(
       <Wrapper>
         <FormWrapper>
           {React.createElement(() => {
@@ -149,7 +165,7 @@ describe('CapacityFormWithXcore', () => {
       clusterCapacityStatus: 'loading',
     });
 
-    simpleRender(
+    render(
       <Wrapper>
         <FormWrapper>
           <CapacityFormWithXcore
@@ -172,7 +188,7 @@ describe('CapacityFormWithXcore', () => {
       clusterCapacityStatus: 'error',
     });
 
-    simpleRender(
+    render(
       <Wrapper>
         <FormWrapper>
           <CapacityFormWithXcore
@@ -197,7 +213,7 @@ describe('CapacityFormWithXcore', () => {
       clusterCapacityStatus: 'loading',
     });
 
-    simpleRender(
+    render(
       <Wrapper>
         <FormWrapper>
           {React.createElement(() => {
@@ -234,7 +250,7 @@ describe('CapacityFormWithXcore', () => {
       capacityUnit: String(unitChoices.TiB),
     });
 
-    simpleRender(
+    render(
       <Wrapper>
         <FormWrapper>
           {React.createElement(() => {
