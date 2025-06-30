@@ -1095,7 +1095,7 @@ describe('mutations', () => {
       );
     });
 
-    it('should prevent duplicate resources when adding existing bucket', async () => {
+    it('should prevent duplicate resources and handle substring relationships', async () => {
       const existingResources = [
         'arn:aws:s3:::existing-bucket/*',
         'arn:aws:s3:::existing-bucket',
@@ -1135,13 +1135,49 @@ describe('mutations', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Verify no duplicates were added
-      const calledPolicyDocument = JSON.parse(
+      const firstCallDocument = JSON.parse(
         mockIAMClient.createPolicyVersion.mock.calls[0][1],
       );
-      expect(calledPolicyDocument.Statement[0].Resource).toEqual(
+      expect(firstCallDocument.Statement[0].Resource).toEqual(
         existingResources,
       );
-      expect(calledPolicyDocument.Statement[0].Resource.length).toBe(2);
+      expect(firstCallDocument.Statement[0].Resource.length).toBe(2);
+
+      // Use different bucket names to test substring logic
+      const { result: result2, waitFor: waitFor2 } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      result2.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['existing-bucket-new'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: (buckets) =>
+          JSON.stringify(
+            createMockPolicyDocument(
+              buckets.flatMap((b) => [
+                `arn:aws:s3:::${b}/*`,
+                `arn:aws:s3:::${b}`,
+              ]),
+            ),
+          ),
+      });
+
+      await waitFor2(() => expect(result2.current.isSuccess).toBe(true));
+
+      // Verify substring relationships are handled correctly (no false duplicates)
+      const secondCallDocument = JSON.parse(
+        mockIAMClient.createPolicyVersion.mock.calls[1][1],
+      );
+      const resources = secondCallDocument.Statement[0].Resource;
+
+      expect(resources).toContain('arn:aws:s3:::existing-bucket/*');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket-new/*');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket-new');
+      expect(resources.length).toBe(4);
     });
 
     it('should handle Resource as string and add new bucket', async () => {

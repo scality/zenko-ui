@@ -257,19 +257,17 @@ const useCreateOrAddBucketToPolicyMutation = () => {
         ]);
 
         // Filter out resources that already exist to avoid duplicates
+        const existingResourcesSet = new Set(existingResources);
         const resourcesToAdd = newResources.filter(
-          (resource) => !existingResources.includes(resource),
+          (resource) => !existingResourcesSet.has(resource),
         );
 
-        // Only add resources that don't already exist
+        // Only update if there are new resources to add
         if (resourcesToAdd.length > 0) {
-          // Ensure Resource is an array before pushing
-          if (!Array.isArray(policyJSON.Statement[statementIndex].Resource)) {
-            policyJSON.Statement[statementIndex].Resource = [
-              policyJSON.Statement[statementIndex].Resource,
-            ];
-          }
-          policyJSON.Statement[statementIndex].Resource.push(...resourcesToAdd);
+          policyJSON.Statement[statementIndex].Resource = [
+            ...existingResources,
+            ...resourcesToAdd,
+          ];
         }
       } else {
         const newStatement = JSON.parse(newPolicyDocument).Statement[0];
