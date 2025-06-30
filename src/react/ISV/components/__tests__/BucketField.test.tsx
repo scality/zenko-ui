@@ -69,15 +69,38 @@ describe('BucketField', () => {
 
     // Increase to 3 buckets
     fireEvent.change(bucketNumberInput, { target: { value: '3' } });
+    expect(bucketNumberInput).toHaveValue(3);
     expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
 
-    // Try to exceed maximum (20)
-    fireEvent.change(bucketNumberInput, { target: { value: '21' } });
-    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(3);
+    // Decrease to 2 buckets
+    fireEvent.change(bucketNumberInput, { target: { value: '2' } });
+    expect(bucketNumberInput).toHaveValue(2);
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2);
 
-    // Try to go below minimum (1)
+    // Try to go below minimum (1) - should allow input but not create buckets
     fireEvent.change(bucketNumberInput, { target: { value: '0' } });
-    expect(screen.getByLabelText(/number of buckets/i)).toBeInTheDocument();
+    expect(bucketNumberInput).toHaveValue(0);
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(2); // Keeps previous buckets
+  });
+
+  it('should handle exceeding maximum value by limiting to max', () => {
+    render(
+      <TestWrapper>
+        <BucketField />
+      </TestWrapper>,
+    );
+
+    const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
+
+    // Try to exceed maximum (20) - should immediately limit to 20
+    fireEvent.change(bucketNumberInput, { target: { value: '21' } });
+    expect(bucketNumberInput).toHaveValue(20);
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(20);
+
+    // Try even higher value
+    fireEvent.change(bucketNumberInput, { target: { value: '100' } });
+    expect(bucketNumberInput).toHaveValue(20); // Should stay at 20
+    expect(screen.getAllByLabelText(/bucket #\d+ name/i)).toHaveLength(20);
   });
 
   it('should ignore non-numeric values in bucket number input', () => {
@@ -243,8 +266,9 @@ describe('BucketField', () => {
 
     const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
 
+    // Input greater than max (20) - should immediately limit to 20
     fireEvent.change(bucketNumberInput, { target: { value: '25' } });
-    expect(bucketNumberInput).toHaveValue(25);
+    expect(bucketNumberInput).toHaveValue(20);
 
     fireEvent.blur(bucketNumberInput);
 
