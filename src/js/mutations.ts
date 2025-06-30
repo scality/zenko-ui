@@ -243,12 +243,32 @@ const useCreateOrAddBucketToPolicyMutation = () => {
             : true),
       );
       if (statementIndex !== -1) {
-        policyJSON.Statement[statementIndex].Resource.push(
-          ...bucketsName.flatMap((bucket) => [
-            `arn:aws:s3:::${bucket}/*`,
-            `arn:aws:s3:::${bucket}`,
-          ]),
+        // Get existing resources and ensure it's an array
+        const existingResources = Array.isArray(
+          policyJSON.Statement[statementIndex].Resource,
+        )
+          ? policyJSON.Statement[statementIndex].Resource
+          : [policyJSON.Statement[statementIndex].Resource];
+
+        // Create new resources to add
+        const newResources = bucketsName.flatMap((bucket) => [
+          `arn:aws:s3:::${bucket}/*`,
+          `arn:aws:s3:::${bucket}`,
+        ]);
+
+        // Filter out resources that already exist to avoid duplicates
+        const existingResourcesSet = new Set(existingResources);
+        const resourcesToAdd = newResources.filter(
+          (resource) => !existingResourcesSet.has(resource),
         );
+
+        // Only update if there are new resources to add
+        if (resourcesToAdd.length > 0) {
+          policyJSON.Statement[statementIndex].Resource = [
+            ...existingResources,
+            ...resourcesToAdd,
+          ];
+        }
       } else {
         const newStatement = JSON.parse(newPolicyDocument).Statement[0];
         policyJSON.Statement.push(newStatement);

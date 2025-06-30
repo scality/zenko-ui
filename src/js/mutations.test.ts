@@ -20,6 +20,7 @@ import {
   usePutObjectMutation,
   useWaitForRunningConfigurationVersionToBeUpdated,
   useEnableSOSAPIMutation,
+  useCreateOrAddBucketToPolicyMutation,
 } from './mutations';
 
 //Subject Under Testing
@@ -995,6 +996,301 @@ describe('mutations', () => {
       expect(errorMessage).toContain('timed out');
 
       global.setTimeout = originalSetTimeout;
+    });
+  });
+
+  describe('useCreateOrAddBucketToPolicyMutation', () => {
+    let mockIAMClient;
+    let mockQueryClient;
+
+    const mockPolicyArn = 'arn:aws:iam::123456789012:policy/test-policy';
+    const mockExistingPolicy = {
+      Policy: {
+        Arn: mockPolicyArn,
+        DefaultVersionId: 'v1',
+      },
+    };
+
+    const createMockPolicyDocument = (resources: string[]) => ({
+      Version: '2012-10-17',
+      Statement: [
+        {
+          Effect: 'Allow',
+          Action: [
+            's3:GetObject',
+            's3:PutObject',
+            's3:DeleteObject',
+            's3:GetBucketLocation',
+            's3:GetBucketVersioning',
+            's3:GetBucketObjectLockConfiguration',
+          ],
+          Resource: resources,
+        },
+        {
+          Effect: 'Allow',
+          Action: ['s3:ListAllMyBuckets', 's3:ListBucket'],
+          Resource: '*',
+        },
+      ],
+    });
+
+    beforeEach(() => {
+      mockIAMClient = {
+        createPolicy: jest
+          .fn()
+          .mockResolvedValue({ Policy: { Arn: mockPolicyArn } }),
+        listPolicyVersions: jest.fn().mockResolvedValue({
+          Versions: [{ VersionId: 'v1', IsDefaultVersion: true }],
+        }),
+        getPolicyVersion: jest.fn(),
+        deletePolicyVersion: jest.fn().mockResolvedValue({}),
+        createPolicyVersion: jest
+          .fn()
+          .mockResolvedValue({ PolicyVersion: { VersionId: 'v2' } }),
+      };
+
+      mockQueryClient = {
+        fetchQuery: jest.fn(),
+      };
+
+      jest
+        .spyOn(require('../react/IAMProvider'), 'useIAMClient')
+        .mockReturnValue(mockIAMClient);
+      jest
+        .spyOn(require('react-query'), 'useQueryClient')
+        .mockReturnValue(mockQueryClient);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should create a new policy when policy does not exist', async () => {
+      mockQueryClient.fetchQuery.mockRejectedValue(new Error('NoSuchEntity'));
+
+      const { result, waitFor } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      const policyDocument = JSON.stringify(
+        createMockPolicyDocument([
+          'arn:aws:s3:::test-bucket/*',
+          'arn:aws:s3:::test-bucket',
+        ]),
+      );
+
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['test-bucket'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: () => policyDocument,
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(mockIAMClient.createPolicy).toHaveBeenCalledWith(
+        'test-policy',
+        policyDocument,
+      );
+    });
+
+    it('should prevent duplicate resources and handle substring relationships', async () => {
+      const existingResources = [
+        'arn:aws:s3:::existing-bucket/*',
+        'arn:aws:s3:::existing-bucket',
+      ];
+
+      mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
+      mockIAMClient.getPolicyVersion.mockResolvedValue({
+        PolicyVersion: {
+          Document: encodeURIComponent(
+            JSON.stringify(createMockPolicyDocument(existingResources)),
+          ),
+        },
+      });
+
+      const { result, waitFor } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      // Try to add the same bucket that already exists
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['existing-bucket'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: (buckets) =>
+          JSON.stringify(
+            createMockPolicyDocument(
+              buckets.flatMap((b) => [
+                `arn:aws:s3:::${b}/*`,
+                `arn:aws:s3:::${b}`,
+              ]),
+            ),
+          ),
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      // Verify no duplicates were added
+      const firstCallDocument = JSON.parse(
+        mockIAMClient.createPolicyVersion.mock.calls[0][1],
+      );
+      expect(firstCallDocument.Statement[0].Resource).toEqual(
+        existingResources,
+      );
+      expect(firstCallDocument.Statement[0].Resource.length).toBe(2);
+
+      // Use different bucket names to test substring logic
+      const { result: result2, waitFor: waitFor2 } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      result2.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['existing-bucket-new'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: (buckets) =>
+          JSON.stringify(
+            createMockPolicyDocument(
+              buckets.flatMap((b) => [
+                `arn:aws:s3:::${b}/*`,
+                `arn:aws:s3:::${b}`,
+              ]),
+            ),
+          ),
+      });
+
+      await waitFor2(() => expect(result2.current.isSuccess).toBe(true));
+
+      // Verify substring relationships are handled correctly (no false duplicates)
+      const secondCallDocument = JSON.parse(
+        mockIAMClient.createPolicyVersion.mock.calls[1][1],
+      );
+      const resources = secondCallDocument.Statement[0].Resource;
+
+      expect(resources).toContain('arn:aws:s3:::existing-bucket/*');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket-new/*');
+      expect(resources).toContain('arn:aws:s3:::existing-bucket-new');
+      expect(resources.length).toBe(4);
+    });
+
+    it('should handle Resource as string and add new bucket', async () => {
+      // Test both string conversion and adding new bucket in one test
+      mockQueryClient.fetchQuery.mockResolvedValue(mockExistingPolicy);
+      mockIAMClient.getPolicyVersion.mockResolvedValue({
+        PolicyVersion: {
+          Document: encodeURIComponent(
+            JSON.stringify({
+              ...createMockPolicyDocument([]),
+              Statement: [
+                {
+                  ...createMockPolicyDocument([]).Statement[0],
+                  Resource: 'arn:aws:s3:::single-bucket/*', // Single string
+                },
+                createMockPolicyDocument([]).Statement[1],
+              ],
+            }),
+          ),
+        },
+      });
+
+      const { result, waitFor } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['new-bucket'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: (buckets) =>
+          JSON.stringify(
+            createMockPolicyDocument(
+              buckets.flatMap((b) => [
+                `arn:aws:s3:::${b}/*`,
+                `arn:aws:s3:::${b}`,
+              ]),
+            ),
+          ),
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      // Verify string was converted to array and new bucket was added
+      const calledPolicyDocument = JSON.parse(
+        mockIAMClient.createPolicyVersion.mock.calls[0][1],
+      );
+      expect(calledPolicyDocument.Statement[0].Resource).toContain(
+        'arn:aws:s3:::single-bucket/*',
+      );
+      expect(calledPolicyDocument.Statement[0].Resource).toContain(
+        'arn:aws:s3:::new-bucket/*',
+      );
+      expect(calledPolicyDocument.Statement[0].Resource).toContain(
+        'arn:aws:s3:::new-bucket',
+      );
+    });
+
+    it('should handle policy version limit', async () => {
+      mockQueryClient.fetchQuery.mockResolvedValue({
+        ...mockExistingPolicy,
+        Policy: { ...mockExistingPolicy.Policy, DefaultVersionId: 'v5' },
+      });
+
+      // Mock 5 versions (AWS limit)
+      mockIAMClient.listPolicyVersions.mockResolvedValue({
+        Versions: [
+          { VersionId: 'v1', IsDefaultVersion: false },
+          { VersionId: 'v2', IsDefaultVersion: false },
+          { VersionId: 'v3', IsDefaultVersion: false },
+          { VersionId: 'v4', IsDefaultVersion: false },
+          { VersionId: 'v5', IsDefaultVersion: true },
+        ],
+      });
+
+      mockIAMClient.getPolicyVersion.mockResolvedValue({
+        PolicyVersion: {
+          Document: encodeURIComponent(
+            JSON.stringify(createMockPolicyDocument([])),
+          ),
+        },
+      });
+
+      const { result, waitFor } = renderHook(
+        () => useCreateOrAddBucketToPolicyMutation(),
+        { wrapper: NewWrapper() },
+      );
+
+      result.current.mutate({
+        policyName: 'test-policy',
+        bucketsName: ['test-bucket'],
+        isImmutable: false,
+        policyArn: mockPolicyArn,
+        getPolicy: (buckets) =>
+          JSON.stringify(
+            createMockPolicyDocument(
+              buckets.flatMap((b) => [
+                `arn:aws:s3:::${b}/*`,
+                `arn:aws:s3:::${b}`,
+              ]),
+            ),
+          ),
+      });
+
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+      // Verify oldest non-default version was deleted
+      expect(mockIAMClient.deletePolicyVersion).toHaveBeenCalledWith(
+        mockPolicyArn,
+        'v1',
+      );
     });
   });
 });
