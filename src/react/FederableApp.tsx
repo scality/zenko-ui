@@ -15,6 +15,7 @@ import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvide
 import zenkoUIReducer from './reducers';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { ShellHooksProvider } from '@scality/module-federation';
+import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 
 //@ts-expect-error fix this when you are working on it
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -57,21 +58,23 @@ const FederableApp = (props) => {
       shellAlerts={props.shellAlerts}
     >
       <XCoreLibraryProvider>
-        <InternalRouter>
-          <HistoryPushEventListener />
-          <AccountsLocationsEndpointsAdapterProvider>
-            <LocationAdapterProvider>
-              <AccessibleAccountsAdapterProvider>
-                <MetricsAdapterProvider>
-                  <ToastProvider>
-                    <ZenkoUI />
-                  </ToastProvider>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </MetricsAdapterProvider>
-              </AccessibleAccountsAdapterProvider>
-            </LocationAdapterProvider>
-          </AccountsLocationsEndpointsAdapterProvider>
-        </InternalRouter>
+        <ArtescaLibraryProvider>
+          <InternalRouter>
+            <HistoryPushEventListener />
+            <AccountsLocationsEndpointsAdapterProvider>
+              <LocationAdapterProvider>
+                <AccessibleAccountsAdapterProvider>
+                  <MetricsAdapterProvider>
+                    <ToastProvider>
+                      <ZenkoUI />
+                    </ToastProvider>
+                    <ReactQueryDevtools initialIsOpen={false} />
+                  </MetricsAdapterProvider>
+                </AccessibleAccountsAdapterProvider>
+              </LocationAdapterProvider>
+            </AccountsLocationsEndpointsAdapterProvider>
+          </InternalRouter>
+        </ArtescaLibraryProvider>
       </XCoreLibraryProvider>
     </ShellHooksProvider>
   );

@@ -1,5 +1,5 @@
 import { Icon } from '@scality/core-ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation } from 'react-query';
 import { useWaitForRunningConfigurationVersionToBeUpdated } from '../../js/mutations';
 import { notFalsyTypeGuard } from '../../types/typeGuards';
@@ -13,10 +13,10 @@ import { useShellHooks } from '@scality/module-federation';
 
 export const DeleteEndpoint = ({
   hostname,
-  isBuiltin,
+  disabled,
 }: {
   hostname: string;
-  isBuiltin: boolean;
+  disabled: boolean;
 }) => {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const accountsLocationsEndpointsAdapter =
@@ -53,12 +53,18 @@ export const DeleteEndpoint = ({
       },
     });
   };
-  useMemo(() => {
+
+  useEffect(() => {
     if (waiterStatus === 'success') {
       setIsConfirmDeleteOpen(false);
       refetchAccountsLocationsEndpointsMutation.mutate(undefined);
     }
-  }, [waiterStatus]);
+  }, [waiterStatus, refetchAccountsLocationsEndpointsMutation]);
+
+  const tooltipMessage = disabled
+    ? 'This Data Service can not be deleted'
+    : 'Delete Data Service';
+
   return (
     <>
       <DeleteConfirmation
@@ -71,10 +77,10 @@ export const DeleteEndpoint = ({
         titleText={`Are you sure you want to delete Data Service: ${hostname} ?`}
       />
       <T.ActionButton
-        disabled={isBuiltin}
+        disabled={disabled}
         icon={<Icon name="Delete" />}
         tooltip={{
-          overlay: 'Delete Data Service',
+          overlay: tooltipMessage,
           placement: 'top',
         }}
         onClick={() => setIsConfirmDeleteOpen(true)}

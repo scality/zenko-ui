@@ -168,6 +168,13 @@ export function ExpirationForm({ prefix = '' }: Props) {
     }
   }, [isISVBucket, setValue, prefix]);
 
+  const tagsInput = watch(`${prefix}filter.objectTags`);
+
+  const areTagsEdited = useMemo(() => {
+    if (!tags) return false;
+    return tagsInput.some((tag) => tag.key !== '' || tag.value !== '');
+  }, [tags]);
+
   return (
     <>
       <input
@@ -529,7 +536,8 @@ export function ExpirationForm({ prefix = '' }: Props) {
             disabled={
               (currentVersionTriggerDelayDays !== null &&
                 currentVersionTriggerDelayDays !== undefined) ||
-              !isSourceBucketVersionned
+              !isSourceBucketVersionned ||
+              areTagsEdited
             }
             content={
               //@ts-expect-error fix this when you are working on it
@@ -554,7 +562,8 @@ export function ExpirationForm({ prefix = '' }: Props) {
                         disabled={
                           (currentVersionTriggerDelayDays !== null &&
                             currentVersionTriggerDelayDays !== undefined) ||
-                          !isSourceBucketVersionned
+                          !isSourceBucketVersionned ||
+                          areTagsEdited
                         }
                         id="expireDeleteMarkersTrigger"
                         placeholder="expireDeleteMarkersTrigger"
@@ -613,6 +622,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                 These multiparts are not visible in the browser until the operation is complete.
                 Removing these incomplete multipart uploads after a number of days after the initiating the operation prevents you from having unused S3 storage.
                     `}
+            disabled={areTagsEdited}
             content={
               <Stack>
                 <Box
@@ -639,6 +649,7 @@ export function ExpirationForm({ prefix = '' }: Props) {
                           incompleteMultipartUploadTriggerDelayDays !==
                             undefined
                         }
+                        disabled={areTagsEdited}
                         onBlur={onBlur}
                         onChange={(e) => {
                           onChange(e.target.checked ? 7 : null);

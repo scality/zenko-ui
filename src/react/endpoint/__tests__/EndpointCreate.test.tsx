@@ -1,4 +1,8 @@
-import { screen, waitForElementToBeRemoved } from '@testing-library/react';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { setupServer } from 'msw/node';
 import { getConfigOverlay } from '../../../js/mock/managementClientMSWHandlers';
 import { INSTANCE_ID } from '../../actions/__tests__/utils/testUtil';
@@ -8,11 +12,23 @@ import {
   selectClick,
 } from '../../utils/testUtil';
 import EndpointCreate from '../EndpointCreate';
+import { useArtescaLibrary } from '../../next-architecture/ui/ArtescaLibraryProvider';
+import userEvent from '@testing-library/user-event';
+jest.mock('../../next-architecture/ui/ArtescaLibraryProvider');
+const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
 
 const server = setupServer(getConfigOverlay(TEST_API_BASE_URL, INSTANCE_ID));
 
 describe('EndpointCreate', () => {
   beforeAll(() => server.listen());
+  beforeEach(() => {
+    mockUseArtescaLibrary.mockReturnValue({
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: 'default',
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
+  });
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
   it('should disable cold location as a source storage location when creating a data service', async () => {
@@ -87,6 +103,38 @@ describe('EndpointCreate', () => {
 
     warningMessages.forEach((message) => {
       expect(screen.getByText(message)).toBeInTheDocument();
+    });
+  });
+  it('should disable the create data service button in Artesca+Veeam default mode', async () => {
+    renderWithRouterMatch(<EndpointCreate />);
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading locations...'),
+    );
+
+    expect(screen.getByRole('button', { name: /Create/ })).toBeDisabled();
+    await userEvent.hover(screen.getByRole('button', { name: /Create/ }));
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /This action is disabled in the default ARTESCA \+ Veeam deployment due to enforced security settings. Please refer to the documentation to enable this functionality./i,
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+  it('should enable the create data service button in Artesca+Veeam open mode', async () => {
+    mockUseArtescaLibrary.mockReturnValue({
+      useArtescaPlusVeeamDefaultOrOpenMode: () => ({
+        artescaPlusVeeamDefaultOrOpenMode: 'open',
+        artescaPlusVeeamDefaultOrOpenModeStatus: 'success',
+      }),
+    });
+    renderWithRouterMatch(<EndpointCreate />);
+    await waitForElementToBeRemoved(() =>
+      screen.getByText('Loading locations...'),
+    );
+    userEvent.type(screen.getByRole('textbox', { name: /Hostname/i }), 'test');
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Create/ })).toBeEnabled();
     });
   });
 });

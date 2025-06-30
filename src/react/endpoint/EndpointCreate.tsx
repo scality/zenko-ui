@@ -22,6 +22,11 @@ import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/bu
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import {
+  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
+  useArtescaLibrary,
+} from '../next-architecture/ui/ArtescaLibraryProvider';
+import { ArtescaLibraryNotAvailable } from '../next-architecture/ui/ArtescaLibraryProvider';
 
 const BannerMessageList = styled.ul`
   margin: ${spacing.r8} 0;
@@ -68,6 +73,18 @@ function EndpointCreate() {
     waitForRunningConfigurationVersionToBeUpdated,
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
+
+  const artescaLibrary = useArtescaLibrary();
+  const { useArtescaPlusVeeamDefaultOrOpenMode } =
+    artescaLibrary instanceof ArtescaLibraryNotAvailable
+      ? {
+          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
+        }
+      : artescaLibrary;
+  const {
+    artescaPlusVeeamDefaultOrOpenMode,
+    artescaPlusVeeamDefaultOrOpenModeStatus,
+  } = useArtescaPlusVeeamDefaultOrOpenMode();
 
   const onSubmit = ({
     hostname,
@@ -126,11 +143,20 @@ function EndpointCreate() {
           />
           <Button
             disabled={
-              !isValid ||
-              createEndpointMutation.isLoading ||
-              loading ||
-              waiterStatus === 'waiting'
+              !isValid || artescaPlusVeeamDefaultOrOpenMode === 'default'
             }
+            isLoading={
+              createEndpointMutation.isLoading ||
+              waiterStatus === 'waiting' ||
+              artescaPlusVeeamDefaultOrOpenModeStatus === 'loading' ||
+              loading
+            }
+            tooltip={{
+              overlay:
+                artescaPlusVeeamDefaultOrOpenMode === 'default'
+                  ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE
+                  : undefined,
+            }}
             id="create-endpoint-btn"
             variant="primary"
             onClick={handleSubmit(onSubmit)}

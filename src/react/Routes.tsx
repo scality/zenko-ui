@@ -25,7 +25,6 @@ import ReauthDialog from './ui-elements/ReauthDialog';
 
 import { useConfig } from './next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from './utils/hooks';
-import NoMatch from './NoMatch';
 import Accounts from './account/Accounts';
 import { Locations } from './locations/Locations';
 import Endpoints from './endpoint/Endpoints';
@@ -97,13 +96,14 @@ const RedirectToAccount = () => {
   }
 };
 
-function PrivateRoutes() {
+export function PrivateRoutes() {
   const dispatch = useDispatch();
   const isClientsLoaded = useSelector(
     (state: AppState) => state.auth.isClientsLoaded,
   );
   const user = useSelector((state: AppState) => state.oidc.user);
   const config = useConfig();
+
   const managementEndpoint = useSelector(
     (state: AppState) => state.auth?.config?.managementEndpoint,
   );
@@ -193,6 +193,14 @@ function PrivateRoutes() {
         }
       />
       <Route
+        path={`accounts/:accountName/create-user/*`}
+        element={
+          <DataServiceRoleProvider>
+            <AccountCreateUser />
+          </DataServiceRoleProvider>
+        }
+      />
+      <Route
         path={`create-policy/*`}
         element={
           <DataServiceRoleProvider>
@@ -208,22 +216,26 @@ function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
-      <Route
-        path="create-dataservice/*"
-        element={
-          <DataServiceRoleProvider>
-            <EndpointCreate />
-          </DataServiceRoleProvider>
-        }
-      />
-      <Route
-        path="dataservices/*"
-        element={
-          <DataServiceRoleProvider>
-            <Endpoints />
-          </DataServiceRoleProvider>
-        }
-      />
+
+      <>
+        <Route
+          path="create-dataservice/*"
+          element={
+            <DataServiceRoleProvider>
+              <EndpointCreate />
+            </DataServiceRoleProvider>
+          }
+        />
+        <Route
+          path="dataservices/*"
+          element={
+            <DataServiceRoleProvider>
+              <Endpoints />
+            </DataServiceRoleProvider>
+          }
+        />
+      </>
+
       <Route
         path="locations/*"
         element={
@@ -475,6 +487,7 @@ function InternalRoutes() {
               },
               active: doesRouteMatch('/locations'),
             },
+
             {
               label: 'Data Services',
               icon: <Icon name="Cubes" />,

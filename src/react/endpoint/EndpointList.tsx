@@ -1,4 +1,11 @@
-import { ConstrainedText, Icon, Wrap, spacing } from '@scality/core-ui';
+import {
+  ConstrainedText,
+  Icon,
+  Loader,
+  Text,
+  Wrap,
+  spacing,
+} from '@scality/core-ui';
 import { Box, Button, CopyButton, Table } from '@scality/core-ui/dist/next';
 
 import { useMemo } from 'react';
@@ -13,6 +20,13 @@ import {
 import { DeleteEndpoint } from './DeleteEndpoint';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import {
+  useArtescaLibrary,
+  ArtescaLibraryNotAvailable,
+  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
+} from '../next-architecture/ui/ArtescaLibraryProvider';
+import useEndpointsDeletionDisabled from './useEndpointsDeletionDisabled';
+
 type CellProps = {
   row: {
     original: Endpoint;
@@ -33,6 +47,7 @@ function EndpointList({ endpoints, locations }: Props) {
    *   specified in the custom render (Cell function)
    *   Currently the API returns some objects without a `isBuiltin` property causing this undesired behavior
    */
+
   const strictSchemaEndpoints = useMemo(
     () =>
       endpoints.map((endpoint) => ({
@@ -41,6 +56,23 @@ function EndpointList({ endpoints, locations }: Props) {
       })),
     [endpoints],
   );
+
+  const artescaLibrary = useArtescaLibrary();
+  const { useArtescaPlusVeeamDefaultOrOpenMode } =
+    artescaLibrary instanceof ArtescaLibraryNotAvailable
+      ? {
+          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
+        }
+      : artescaLibrary;
+  const {
+    artescaPlusVeeamDefaultOrOpenMode,
+    artescaPlusVeeamDefaultOrOpenModeStatus,
+  } = useArtescaPlusVeeamDefaultOrOpenMode();
+
+  const {
+    endpointsDeletionDisabledMap,
+    status: endpointsDeletionDisabledStatus,
+  } = useEndpointsDeletionDisabled();
 
   const columns = useMemo(
     () => [
@@ -90,18 +122,26 @@ function EndpointList({ endpoints, locations }: Props) {
           flex: '0.1',
           paddingRight: '18px',
         },
-
         Cell({ row: { original } }: CellProps) {
-          return (
-            <DeleteEndpoint
-              hostname={original.hostname}
-              isBuiltin={original.isBuiltin}
-            />
-          );
+          if (endpointsDeletionDisabledStatus === 'success') {
+            return (
+              <DeleteEndpoint
+                hostname={original.hostname}
+                disabled={endpointsDeletionDisabledMap[original.hostname]}
+              />
+            );
+          } else if (
+            endpointsDeletionDisabledStatus === 'idle' ||
+            endpointsDeletionDisabledStatus === 'loading'
+          ) {
+            return <Loader />;
+          } else if (endpointsDeletionDisabledStatus === 'error') {
+            return <Text>Error</Text>;
+          }
         },
       },
     ],
-    [locations],
+    [locations, endpointsDeletionDisabledMap, endpointsDeletionDisabledStatus],
   );
 
   return (
@@ -126,6 +166,16 @@ function EndpointList({ endpoints, locations }: Props) {
             <div style={{ marginLeft: 'auto' }}>
               <Button
                 icon={<Icon name="Create-add" />}
+                isLoading={
+                  artescaPlusVeeamDefaultOrOpenModeStatus === 'loading'
+                }
+                disabled={artescaPlusVeeamDefaultOrOpenMode === 'default'}
+                tooltip={{
+                  overlay:
+                    artescaPlusVeeamDefaultOrOpenMode === 'default'
+                      ? TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE
+                      : undefined,
+                }}
                 label="Create Data Service"
                 variant="primary"
                 onClick={() => navigate('/create-dataservice')}
