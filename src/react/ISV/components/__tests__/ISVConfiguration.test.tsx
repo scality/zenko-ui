@@ -483,11 +483,9 @@ describe('ISVConfiguration', () => {
       );
 
       // Add buckets
-      const bucketNumberInput = screen.getByRole('spinbutton', {
-        name: 'Number of buckets *',
-      });
+      const bucketNumberInput = screen.getByLabelText(/number of buckets/i);
 
-      await userEvent.type(bucketNumberInput, '2');
+      fireEvent.change(bucketNumberInput, { target: { value: '2' } });
 
       expect(bucketNumberInput).toHaveValue();
 
