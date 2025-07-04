@@ -125,7 +125,7 @@ type SelectAccountIAMRoleProps = {
   onChange: (
     account: Account,
     role: IAM.Role,
-    keycloakRoleName: string,
+    keycloakRoleName?: string,
   ) => void;
   defaultValue?: { accountName: string; roleName: string };
   hideAccountRoles?: { accountName: string; roleName: string }[];
@@ -158,7 +158,8 @@ const SelectAccountIAMRoleWithAccount = (
     mutationFn: (roleName: string) => {
       return IAMClient.getRole(roleName);
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error fetching role', error);
       showToast({
         status: 'error',
         open: true,
@@ -264,7 +265,7 @@ const SelectAccountIAMRoleWithAccount = (
                   getIAMRoleMutation.mutate(roleName, {
                     onSuccess: (data) => {
                       const assumeRolePolicyDocument: {
-                        Statement: {
+                        Statement?: {
                           Effect: 'Allow' | 'Deny';
                           Principal: { Federated?: string };
                           Action: 'sts:AssumeRoleWithWebIdentity';
@@ -276,20 +277,20 @@ const SelectAccountIAMRoleWithAccount = (
                         decodeURIComponent(data.Role.AssumeRolePolicyDocument),
                       );
                       const keycloakRoleName =
-                        assumeRolePolicyDocument.Statement.find(
+                        assumeRolePolicyDocument?.Statement?.find(
                           (statement) =>
                             (props.identityProviderUrl
                               ? statement.Principal?.Federated?.startsWith(
                                   props.identityProviderUrl,
                                 )
                               : true) &&
-                            statement.Condition.StringEquals[
+                            statement.Condition?.StringEquals?.[
                               'keycloak:roles'
                             ] &&
                             statement.Effect === 'Allow' &&
                             statement.Action ===
                               'sts:AssumeRoleWithWebIdentity',
-                        ).Condition.StringEquals['keycloak:roles'];
+                        )?.Condition?.StringEquals['keycloak:roles'];
                       onChange(account, selectedRole, keycloakRoleName);
                     },
                   });
