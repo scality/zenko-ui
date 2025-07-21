@@ -305,6 +305,38 @@ export const hasUniqueKeys = (value: Array<Tag>, helper: CustomHelpers) => {
   }
 };
 
+export const areObjectTagsEdited = (
+  objectTags?: Array<{ key?: string; value?: string }>,
+): boolean => {
+  return (
+    objectTags?.some(
+      (tag) => (tag.key && tag.key !== '') || (tag.value && tag.value !== ''),
+    ) ?? false
+  );
+};
+
+export const validateExpirationWithTags = (
+  value: BucketWorkflowExpirationV1,
+  helper: CustomHelpers,
+) => {
+  const areTagsEdited = areObjectTagsEdited(value.filter?.objectTags);
+
+  if (areTagsEdited) {
+    const hasExpireDeleteMarkers = value.expireDeleteMarkersTrigger === true;
+    const hasIncompleteMultipart =
+      value.incompleteMultipartUploadTriggerDelayDays !== null &&
+      value.incompleteMultipartUploadTriggerDelayDays !== undefined;
+
+    if (hasExpireDeleteMarkers || hasIncompleteMultipart) {
+      return helper.message({
+        en: `"Remove expired Delete markers" and "Expire incomplete Multipart uploads" actions are not compatible with tag filters`,
+      });
+    }
+  }
+
+  return value;
+};
+
 const hasIdenticalTags = (tagsA: Array<Tag>, tagsB: Array<Tag>): boolean => {
   tagsA.sort((tag1: Tag, tag2: Tag) => {
     if (tag1 > tag2) return 1;

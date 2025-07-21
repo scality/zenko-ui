@@ -1,3 +1,5 @@
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import { Form, FormSection } from '@scality/core-ui';
 import {
   fireEvent,
@@ -32,6 +34,7 @@ import {
   zenkoUITestConfig,
 } from '../../utils/testUtil';
 import ExpirationForm, { GeneralExpirationGroup } from '../ExpirationForm';
+import { validateExpirationWithTags } from '../utils';
 
 const instanceId = 'instanceId';
 const accountName = 'pat';
@@ -333,5 +336,117 @@ describe('ExpirationForm', () => {
 
     const formValidation = screen.getByTestId('form-expiration');
     await waitFor(() => expect(formValidation.textContent).toBe('form-valid'));
+  });
+
+  it('should disable the delete markers and incomplete multipart upload when tags are edited', async () => {
+    const { component: result } = reduxRender(
+      <WithFormProvider>
+        <Form layout={{ kind: 'tab' }}>
+          <ExpirationForm />
+        </Form>
+      </WithFormProvider>,
+    );
+
+    const removeExpiredToggleState = result.container.querySelector(
+      '[for="deleteMarkers"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const removeExpired = removeExpiredToggleState.querySelector(
+      'input[placeholder="expireDeleteMarkersTrigger"]',
+    );
+    const expireIncompleteMultipartToggleState = result.container.querySelector(
+      '[for="expireIncompleteMultipart"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireIncompleteMultipart =
+      expireIncompleteMultipartToggleState.querySelector(
+        'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
+      );
+
+    expect(expireIncompleteMultipart).toBeEnabled();
+
+    const tag1Key = screen.getByLabelText(/Tag 1 key/i);
+    expect(tag1Key).toBeInTheDocument();
+
+    await userEvent.type(tag1Key, 'test-key');
+
+    expect(removeExpired).toBeDisabled();
+    expect(expireIncompleteMultipart).toBeDisabled();
+  });
+
+  it('should invalidate form when delete markers or incomplete multipart are enabled with edited tags', async () => {
+    const minimalSchema = Joi.object({
+      filter: Joi.object({
+        objectTags: Joi.array().optional(),
+        objectKeyPrefix: Joi.string().optional().allow(''),
+      }).optional(),
+      expireDeleteMarkersTrigger: Joi.boolean().optional(),
+      incompleteMultipartUploadTriggerDelayDays: Joi.number()
+        .optional()
+        .allow(null),
+    })
+      .unknown(true)
+      .custom(validateExpirationWithTags);
+
+    const WithFormProviderValidation = ({ children }) => {
+      const formMethods = useForm({
+        mode: 'all',
+        resolver: joiResolver(minimalSchema),
+        defaultValues: {
+          filter: {
+            objectTags: [{ key: '', value: '' }],
+          },
+          expireDeleteMarkersTrigger: false,
+          incompleteMultipartUploadTriggerDelayDays: null,
+        },
+      });
+      const {
+        formState: { isValid },
+      } = formMethods;
+
+      const childrenWithProps = React.Children.map(children, (child) => {
+        return (
+          <>
+            <div data-testid="form-expiration">
+              {isValid ? 'form-valid' : 'form-invalid'}
+            </div>
+            {child}
+          </>
+        );
+      });
+      return <FormProvider {...formMethods}>{childrenWithProps}</FormProvider>;
+    };
+
+    const { component: result } = reduxRender(
+      <WithFormProviderValidation>
+        <Form layout={{ kind: 'tab' }}>
+          <FormSection title={{ name: 'General' }}>
+            <GeneralExpirationGroup />
+          </FormSection>
+          <ExpirationForm />
+        </Form>
+      </WithFormProviderValidation>,
+    );
+
+    let formValidation = screen.getByTestId('form-expiration');
+    await waitFor(() => expect(formValidation.textContent).toBe('form-valid'));
+
+    // Enable incomplete multipart upload action
+    const expireIncompleteMultipartToggleState = result.container.querySelector(
+      '[for="expireIncompleteMultipart"]',
+    )!.parentElement!.parentElement!.parentElement!;
+    const expireIncompleteMultipart =
+      expireIncompleteMultipartToggleState.querySelector(
+        'input[placeholder="incompleteMultipartUploadDelayDaysToggle"]',
+      );
+
+    await userEvent.click(notFalsyTypeGuard(expireIncompleteMultipart));
+
+    await waitFor(() => expect(formValidation.textContent).toBe('form-valid'));
+
+    const tag1Key = screen.getByLabelText(/Tag 1 key/i);
+    await userEvent.type(tag1Key, 'test-key');
+
+    await waitFor(() =>
+      expect(formValidation.textContent).toBe('form-invalid'),
+    );
   });
 });
