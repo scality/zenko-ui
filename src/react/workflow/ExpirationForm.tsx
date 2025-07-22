@@ -12,7 +12,12 @@ import {
   spacing,
 } from '@scality/core-ui';
 import { Controller, useFormContext } from 'react-hook-form';
-import { flattenFormErrors, hasUniqueKeys } from './utils';
+import {
+  areObjectTagsEdited,
+  flattenFormErrors,
+  hasUniqueKeys,
+  validateExpirationWithTags,
+} from './utils';
 
 import { Box, Input } from '@scality/core-ui/dist/next';
 import { convertRemToPixels } from '@scality/core-ui/dist/utils';
@@ -81,12 +86,14 @@ export const expirationSchema = Joi.object({
   incompleteMultipartUploadTriggerDelayDays: Joi.number()
     .min(1)
     .label('Expire Previous version Days'),
-}).or(
-  'currentVersionTriggerDelayDays',
-  'previousVersionTriggerDelayDays',
-  'expireDeleteMarkersTrigger',
-  'incompleteMultipartUploadTriggerDelayDays',
-);
+})
+  .or(
+    'currentVersionTriggerDelayDays',
+    'previousVersionTriggerDelayDays',
+    'expireDeleteMarkersTrigger',
+    'incompleteMultipartUploadTriggerDelayDays',
+  )
+  .custom(validateExpirationWithTags);
 
 export function GeneralExpirationGroup({
   prefix = '',
@@ -172,8 +179,8 @@ export function ExpirationForm({ prefix = '' }: Props) {
 
   const areTagsEdited = useMemo(() => {
     if (!tags) return false;
-    return tagsInput.some((tag) => tag.key !== '' || tag.value !== '');
-  }, [tags]);
+    return areObjectTagsEdited(tagsInput);
+  }, [tags, tagsInput]);
 
   return (
     <>
