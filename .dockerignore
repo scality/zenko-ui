@@ -5,3 +5,5 @@
 !public
 !conf
 !build
+
+!deploy-script.sh

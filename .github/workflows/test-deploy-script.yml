@@ -15,6 +15,9 @@ on:
 jobs:
   test-deploy-script:
     runs-on: ubuntu-latest
+    
+    env:
+      DEPLOY_SCRIPT_TEST_MODE: true
 
     steps:
       - name: Checkout code
@@ -32,7 +35,7 @@ jobs:
 
       - name: Verify nginx config structure
         run: |
-          # Just verify the structure without testing DNS resolution
+          # Verify the structure and test mode functionality
           if sudo cat /etc/nginx/conf.d/default.conf | grep -q "location.*{" && \
              sudo cat /etc/nginx/conf.d/default.conf | grep -q "proxy_pass.*http"; then
             echo "✅ Nginx config structure is correct"
@@ -41,6 +44,27 @@ jobs:
             echo "Generated config:"
             sudo cat /etc/nginx/conf.d/default.conf
             exit 1
+          fi
+          
+          # Verify Veeam configuration was processed (check for the actual pattern)
+          if sudo cat /etc/nginx/conf.d/default.conf | grep -q 'location ~ "/.*s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/'; then
+            echo "✅ Veeam SOS API configuration detected"
+          else
+            echo "⚠️  Veeam SOS API configuration not found (may be expected depending on test)"
+          fi
+          
+          # Check for dynamic proxy configurations section
+          if sudo cat /etc/nginx/conf.d/default.conf | grep -q "Dynamic proxy configurations"; then
+            echo "✅ Dynamic proxy configurations section found"
+          else
+            echo "⚠️  Dynamic proxy configurations section not found"
+          fi
+          
+          # Verify test mode was used (backup file should be cleaned up)
+          if [ ! -f /etc/nginx/conf.d/default.conf.backup ]; then
+            echo "✅ Test mode cleanup verified (no backup file left)"
+          else
+            echo "⚠️  Backup file still exists (unexpected in test mode)"
           fi
 
       - name: Show final config

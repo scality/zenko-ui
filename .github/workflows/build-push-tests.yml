@@ -73,6 +73,7 @@ jobs:
         with:
           push: true
           context: .
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{env.REGISTRY}}/${{env.NAMESPACE}}:${{ github.sha }}
           cache-from: type=gha
