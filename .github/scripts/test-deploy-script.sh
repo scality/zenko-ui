@@ -313,7 +313,6 @@ sudo tee /usr/share/nginx/html/.well-known/configs/test6.json > /dev/null << 'EO
   "spec": {
     "selfConfiguration": {
       "basePath": "/",
-      "features": ["Veeam"],
       "proxy": {
         "veeam": {
           "cloudserverEndpoint": "http://127.0.0.1:8000"
@@ -383,7 +382,6 @@ sudo tee /usr/share/nginx/html/.well-known/configs/test7.json > /dev/null << 'EO
   "spec": {
     "selfConfiguration": {
       "basePath": "/custom",
-      "features": ["Veeam"],
       "proxy": {
         "veeam": {
           "cloudserverEndpoint": "http://127.0.0.1:8000"
@@ -431,17 +429,16 @@ else
 fi
 
 echo ""
-echo "=== Test 8: Veeam with features array only (no cloudserverEndpoint) ==="
+echo "=== Test 8: Veeam proxy section without cloudserverEndpoint ==="
 # Clean up config files before Test 8
 sudo rm -f /usr/share/nginx/html/.well-known/configs/*.json
 
-# Test Veeam with only features array and no cloudserverEndpoint
+# Test Veeam proxy section with empty config (no cloudserverEndpoint)
 sudo tee /usr/share/nginx/html/.well-known/configs/test8.json > /dev/null << 'EOF'
 {
   "spec": {
     "selfConfiguration": {
       "basePath": "/",
-      "features": ["Veeam"],
       "proxy": {
         "veeam": {},
         "s3": {
@@ -470,7 +467,7 @@ EOF
 # Run the actual deploy script
 output=$(sudo DEPLOY_SCRIPT_TEST_MODE="$DEPLOY_SCRIPT_TEST_MODE" bash deploy-script.sh 2>&1)
 if echo "$output" | grep -q "Adding proxy"; then
-  echo "✅ Test 8 passed: Script processes configuration with Veeam in features but no cloudserverEndpoint"
+  echo "✅ Test 8 passed: Script processes configuration with Veeam proxy section but no cloudserverEndpoint"
 else
   echo "❌ Test 8 failed: Script should process proxy configuration"
   echo "Deploy script output:"

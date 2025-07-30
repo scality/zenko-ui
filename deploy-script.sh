@@ -44,10 +44,9 @@ for config_file in "${CONFIG_FILES[@]}"; do
     # Check for Veeam configuration
     if jq -e '.spec.selfConfiguration.proxy.veeam' "$config_file" >/dev/null 2>&1; then
       cloudserver_endpoint=$(jq -r '.spec.selfConfiguration.proxy.veeam.cloudserverEndpoint // ""' "$config_file")
-      features=$(jq -r '.spec.selfConfiguration.features[]? // empty' "$config_file" 2>/dev/null)
       
-      # Veeam is enabled if: cloudserverEndpoint exists OR "Veeam" in features
-      if [ ! -z "$cloudserver_endpoint" ] && [ "$cloudserver_endpoint" != "null" ] || echo "$features" | grep -q "Veeam"; then
+      # Veeam is enabled if: cloudserverEndpoint exists
+      if [ ! -z "$cloudserver_endpoint" ] && [ "$cloudserver_endpoint" != "null" ]; then
         HAS_VEEAM_CONFIG=true
         base_path=$(jq -r '.spec.selfConfiguration.basePath // "/"' "$config_file")
         
