@@ -186,6 +186,26 @@ EOF
     fi
   done
   
+  # Function to generate proxy headers based on service type
+  generate_proxy_headers() {
+    local source_path="$1"
+    local headers=""
+    
+    # Add special headers for specific services (based on production environment)
+    case "$source_path" in
+      "/sts"|"*/sts")
+        headers="        proxy_set_header   host \$host;
+        proxy_set_header   proxy_path $source_path;"
+        ;;
+      "/utilization"|"*/utilization")
+        headers="        proxy_set_header   host \$host;
+        proxy_set_header   proxy_path $source_path;"
+        ;;
+    esac
+    
+    echo "$headers"
+  }
+
   # Add proxy configurations in organized order
   
   # 1. Root path proxies (except S3)
@@ -195,10 +215,15 @@ EOF
       source_path="${PROXY_SOURCES[$i]}"
       target="${PROXY_TARGETS[$i]}"
       echo "Adding proxy: $source_path -> $target"
+      
+      # Generate any special headers for this service
+      proxy_headers=$(generate_proxy_headers "$source_path")
+      
       cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
         proxy_pass $target;
+$([ ! -z "$proxy_headers" ] && echo "$proxy_headers")
     }
 EOF
     done
@@ -212,10 +237,15 @@ EOF
       source_path="${PROXY_SOURCES[$i]}"
       target="${PROXY_TARGETS[$i]}"
       echo "Adding proxy: $source_path -> $target"
+      
+      # Generate any special headers for this service
+      proxy_headers=$(generate_proxy_headers "$source_path")
+      
       cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
         proxy_pass $target;
+$([ ! -z "$proxy_headers" ] && echo "$proxy_headers")
     }
 EOF
     done
