@@ -5,7 +5,7 @@ on:
   release:
     types: [published]
 env:
-  DEV_NAMESPACE: "scality/zenko-ui/dev"
+  DEV_NAMESPACE: "scality/zenko-ui-dev"
   PROD_NAMESPACE: "scality/zenko-ui"
   REGISTRY: "ghcr.io"
   CONFIG_IMAGE: "zenko-ui-config"
