@@ -23,7 +23,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
     "@babel/preset-typescript": "^7.16.7",
-    "@module-federation/enhanced": "^0.2.3",
+    "@module-federation/enhanced": "^0.18.0",
     "@rsdoctor/rspack-plugin": "^0.3.6",
     "@rspack/cli": "^0.7.5",
     "@rspack/core": "^0.7.5",
