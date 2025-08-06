@@ -241,22 +241,10 @@ EOF
       # Generate any special headers for this service
       proxy_headers=$(generate_proxy_headers "$source_path")
       
-      # Extract the path after /data for proper rewriting
-      # For example: /data/api -> /api/
-      data_subpath="${source_path#/data}"
-      # Ensure the target has trailing slash if data_subpath is not empty
-      if [ ! -z "$data_subpath" ] && [ "$data_subpath" != "/" ]; then
-        # Remove trailing slash from target if it exists, then add the subpath with trailing slash
-        target_clean="${target%/}"
-        proxy_target="${target_clean}${data_subpath}/"
-      else
-        proxy_target="$target"
-      fi
-      
       cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
-        proxy_pass $proxy_target;
+        proxy_pass $target;
 $([ ! -z "$proxy_headers" ] && echo "$proxy_headers")
     }
 EOF
