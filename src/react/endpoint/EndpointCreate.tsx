@@ -22,11 +22,8 @@ import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/bu
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
 import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import {
-  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
-  useArtescaLibrary,
-} from '../next-architecture/ui/ArtescaLibraryProvider';
-import { ArtescaLibraryNotAvailable } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { useArtescaPlusVeeamMode } from './hooks';
 
 const BannerMessageList = styled.ul`
   margin: ${spacing.r8} 0;
@@ -74,17 +71,10 @@ function EndpointCreate() {
     status: waiterStatus,
   } = useWaitForRunningConfigurationVersionToBeUpdated();
 
-  const artescaLibrary = useArtescaLibrary();
-  const { useArtescaPlusVeeamDefaultOrOpenMode } =
-    artescaLibrary instanceof ArtescaLibraryNotAvailable
-      ? {
-          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
-        }
-      : artescaLibrary;
   const {
     artescaPlusVeeamDefaultOrOpenMode,
     artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamDefaultOrOpenMode();
+  } = useArtescaPlusVeeamMode();
 
   const onSubmit = ({
     hostname,

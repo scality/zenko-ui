@@ -1,10 +1,7 @@
 import { useMemo } from 'react';
 import { useAccountsLocationsAndEndpoints } from '../next-architecture/domain/business/accounts';
 import { useAccountsLocationsEndpointsAdapter } from '../next-architecture/ui/AccountsLocationsEndpointsAdapterProvider';
-import {
-  ArtescaLibraryNotAvailable,
-  useArtescaLibrary,
-} from '../next-architecture/ui/ArtescaLibraryProvider';
+import { useArtescaPlusVeeamMode } from './hooks';
 import { Endpoint } from '../../types/config';
 
 // Helper function to check if endpoint deletion should be disabled
@@ -39,22 +36,11 @@ const useEndpointsDeletionDisabled = (): {
     accountsLocationsEndpointsAdapter,
   });
 
-  const artescaLibrary = useArtescaLibrary();
-  const {
-    useArtescaPlusVeeamDefaultOrOpenMode,
-    ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
-  } =
-    artescaLibrary instanceof ArtescaLibraryNotAvailable
-      ? {
-          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
-          ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME: undefined,
-        }
-      : artescaLibrary;
-
   const {
     artescaPlusVeeamDefaultOrOpenMode,
     artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamDefaultOrOpenMode();
+    ARTESCA_PLUS_VEEAM_S3_ENDPOINT_NAME,
+  } = useArtescaPlusVeeamMode();
 
   // Calculate if deletion is disabled for open mode
   const isDisabledForOpenMode = useMemo(() => {
