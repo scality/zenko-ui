@@ -20,11 +20,8 @@ import {
 import { DeleteEndpoint } from './DeleteEndpoint';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import {
-  useArtescaLibrary,
-  ArtescaLibraryNotAvailable,
-  TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE,
-} from '../next-architecture/ui/ArtescaLibraryProvider';
+import { TOOLTIP_ARTESCA_PLUS_VEEAM_DEFAULT_MODE } from '../next-architecture/ui/ArtescaLibraryProvider';
+import { useArtescaPlusVeeamMode } from './hooks';
 import useEndpointsDeletionDisabled from './useEndpointsDeletionDisabled';
 
 type CellProps = {
@@ -57,17 +54,10 @@ function EndpointList({ endpoints, locations }: Props) {
     [endpoints],
   );
 
-  const artescaLibrary = useArtescaLibrary();
-  const { useArtescaPlusVeeamDefaultOrOpenMode } =
-    artescaLibrary instanceof ArtescaLibraryNotAvailable
-      ? {
-          useArtescaPlusVeeamDefaultOrOpenMode: undefined,
-        }
-      : artescaLibrary;
   const {
     artescaPlusVeeamDefaultOrOpenMode,
     artescaPlusVeeamDefaultOrOpenModeStatus,
-  } = useArtescaPlusVeeamDefaultOrOpenMode();
+  } = useArtescaPlusVeeamMode();
 
   const {
     endpointsDeletionDisabledMap,
