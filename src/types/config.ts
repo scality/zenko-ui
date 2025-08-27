@@ -42,7 +42,8 @@ type LocationFSType =
   | 'location-scality-sproxyd-v1'
   | 'location-wasabi-v1'
   | 'location-dmf-v1'
-  | 'location-miria-v1';
+  | 'location-miria-v1'
+  | 'location-scality-crr-v1';
 
 export type LocationTypeKey = LocationS3Type | LocationFSType;
 
@@ -133,6 +134,7 @@ export type LocationS3Details = {
   endpoint: string;
   region: string;
   secretKey: string;
+  stsEndpoint?: string;
 };
 
 export type LocationFSDetails = {

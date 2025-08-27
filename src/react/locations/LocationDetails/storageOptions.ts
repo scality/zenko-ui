@@ -18,6 +18,7 @@ import LocationDetailsSproxyd from './LocationDetailsSproxyd';
 import LocationDetailsTapeDMF from './LocationDetailsTapeDMF';
 import LocationDetailsTapeMiria from './LocationDetailsTapeMiria';
 import LocationDetailsWasabi from './LocationDetailsWasabi';
+import LocationDetailsCRR from './LocationDetailsCRR';
 import { JSX } from 'react';
 
 export type StorageOptionValues = {
@@ -234,5 +235,14 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+  },
+  'location-scality-crr-v1': {
+    name: 'Cross-Region Replication',
+    short: 'CRR',
+    formDetails: LocationDetailsCRR,
+    supportsVersioning: true,
+    supportsReplicationTarget: true,
+    supportsReplicationSource: false,
+    hasIcon: false,
   },
 };

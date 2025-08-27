@@ -6,6 +6,7 @@ import {
   NFS_V4_OPTIONS,
 } from './constants';
 import { tapeMiriaValidators } from './LocationDetails/LocationDetailsTapeMiria';
+import { crrValidators } from './LocationDetails/LocationDetailsCRR';
 
 const v3ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V3_CONFLICTS);
 const v4ConflictOpts = Object.assign({}, NFS_OPT_CONFLICT, NFS_V4_CONFLICTS);
@@ -107,12 +108,18 @@ function _checkTapeMiriaDetails(details) {
   return tapeMiriaValidators.validateTapeMiriaDetails(details);
 }
 
+function _checkCRRDetails(details) {
+  return crrValidators.validateCRRDetails(details);
+}
+
 function _checkLocationDetails(type, details) {
   switch (type) {
     case 'location-nfs-mount-v1':
       return _checkNFSDetails(details);
     case 'location-miria-v1':
       return _checkTapeMiriaDetails(details);
+    case 'location-scality-crr-v1':
+      return _checkCRRDetails(details);
     default:
       return null;
   }
