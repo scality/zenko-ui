@@ -2170,6 +2170,12 @@ export interface Locationv1Details {
    * @memberof Locationv1Details
    */
   queue?: LocationAzureQueue;
+  /**
+   *
+   * @type {string}
+   * @memberof Locationv1Details
+   */
+  stsEndpoint?: string;
 }
 
 /**
