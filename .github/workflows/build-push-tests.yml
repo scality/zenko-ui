@@ -47,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.3.5
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.5
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"
