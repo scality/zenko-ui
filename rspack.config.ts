@@ -40,7 +40,7 @@ const config: Configuration = {
     assetModuleFilename: 'static/assets/[name].[hash][ext][query]',
     cssFilename: 'static/css/[name].[contenthash].css',
     path: path.resolve(__dirname, 'build'),
-    publicPath: '/data/',
+    publicPath: '/zenko/',
   },
   module: {
     rules: [
@@ -155,7 +155,7 @@ const config: Configuration = {
       },
     }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'public/assets/data' }],
+      patterns: [{ from: 'public/assets/zenko' }],
     }),
     process.env.RSDOCTOR && new RsdoctorRspackPlugin({}),
   ].filter(Boolean),
@@ -169,7 +169,7 @@ const config: Configuration = {
         errors: true,
       },
     },
-    static: path.join(__dirname, 'public/assets/data'),
+    static: path.join(__dirname, 'public/assets/zenko'),
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods':
