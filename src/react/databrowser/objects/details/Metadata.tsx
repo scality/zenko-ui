@@ -120,9 +120,9 @@ function Metadata({
     value: '',
     mdKey: '',
     type: METADATA_SYSTEM_TYPE,
-  };
+  } as MetadataItem & { mdKey: string };
+
   const defaultValues = prepareFormData(
-    //@ts-expect-error fix this when you are working on it
     metadata && metadata.length > 0 ? metadata : [EMPTY_ITEM],
   );
   const {
@@ -136,7 +136,8 @@ function Metadata({
     defaultValues,
   });
   useEffect(() => {
-    reset(prepareFormData(metadata));
+    const formData = metadata && metadata.length > 0 ? metadata : [EMPTY_ITEM];
+    reset(prepareFormData(formData));
   }, [metadata]);
 
   const { metadata: metadataFormValues } = getValues();
@@ -162,14 +163,8 @@ function Metadata({
     name: 'metadata',
   });
 
-  if (fields.length === 0) {
-    //@ts-expect-error fix this when you are working on it
-    append([EMPTY_ITEM]);
-  }
-
   const deleteEntry = () => {
     remove(0);
-    //@ts-expect-error fix this when you are working on it
     append(EMPTY_ITEM);
   };
 
