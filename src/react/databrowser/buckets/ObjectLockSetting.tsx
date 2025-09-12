@@ -40,6 +40,7 @@ export default function ObjectLockSetting() {
     mode: 'all',
     resolver: joiResolver(schema),
     defaultValues: {
+      isObjectLockEnabled: isObjectLockEnabled,
       isDefaultRetentionEnabled: isDefaultRetentionEnabled,
       retentionMode: retentionMode,
       retentionPeriod: retentionPeriod,

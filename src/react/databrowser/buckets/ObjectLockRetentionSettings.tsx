@@ -65,7 +65,6 @@ export default function ObjectLockRetentionSettings({
             id="isObjectLockEnabled"
             label={isObjectLockEnabled ? 'Enabled' : 'Disabled'}
             disabled={isEditRetentionSetting && isObjectLockEnabled}
-            defaultChecked={isEditRetentionSetting}
             {...register('isObjectLockEnabled', {
               onChange(e: ChangeEvent<HTMLInputElement>) {
                 matchVersioning(e.target.checked);
