@@ -21,7 +21,7 @@ const Btn = styled.button`
 export type IconCopyProps = IconProps & { onClick: () => void };
 export const IconCopy = ({ onClick, ...props }: IconCopyProps) => {
   return (
-    <Btn onClick={onClick}>
+    <Btn onClick={onClick} aria-label="Copy">
       <Icon {...props} color="textSecondary" />
     </Btn>
   );

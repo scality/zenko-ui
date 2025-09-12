@@ -101,9 +101,7 @@ describe('ISVApplyActions', () => {
     renderComponent();
 
     expect(screen.getAllByText('Success')).toHaveLength(2);
-    expect(
-      screen.getByRole('button', { name: 'Arrow-right Continue' }),
-    ).not.toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Continue' })).not.toBeDisabled();
   });
 
   it('shows error state and retry option when a step fails', () => {
@@ -144,8 +142,6 @@ describe('ISVApplyActions', () => {
 
     renderComponent();
 
-    expect(
-      screen.getByRole('button', { name: 'Arrow-right Continue' }),
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
   });
 });
