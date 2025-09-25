@@ -23,6 +23,6 @@
         "scope": "zenko"
       }
     ],
-    "publicPath": "/data"
+    "publicPath": "/zenko"
   }
 }
