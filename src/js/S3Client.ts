@@ -16,17 +16,17 @@ export default class S3Client {
     endpoint: string,
     iamInternalFQDN: string,
     s3InternalFQDN: string,
-    basePath: string,
+    zenkoEndpoint: string,
+    iamEndpoint: string,
   ) {
     //@ts-expect-error - Signers is not typed
     AWS.Signers.V4 = function V4(request, serviceName, options) {
       const originalRequest = JSON.parse(JSON.stringify(request));
-      const s3Path = `${basePath}/s3`;
-      const iamPath = `${basePath}/iam`;
-      if (request.path.startsWith(s3Path)) {
-        request.path = request.path.replace(s3Path, '');
-        request.endpoint.path = request.path.replace(s3Path, '');
-        request.endpoint.pathname = request.path.replace(s3Path, '');
+
+      if (request.path.startsWith(zenkoEndpoint)) {
+        request.path = request.path.replace(zenkoEndpoint, '');
+        request.endpoint.path = request.path.replace(zenkoEndpoint, '');
+        request.endpoint.pathname = request.path.replace(zenkoEndpoint, '');
         request.endpoint.port = 80;
 
         request.headers.Host = s3InternalFQDN;
@@ -34,10 +34,10 @@ export default class S3Client {
         request.endpoint.host = s3InternalFQDN;
         request.endpoint.hostname = s3InternalFQDN;
         request.endpoint.href = `https://${s3InternalFQDN}`;
-      } else if (request.path.startsWith(iamPath)) {
-        request.path = request.path.replace(iamPath, '/');
-        request.endpoint.path = request.path.replace(iamPath, '/');
-        request.endpoint.pathname = request.path.replace(iamPath, '/');
+      } else if (request.path.startsWith(iamEndpoint)) {
+        request.path = request.path.replace(iamEndpoint, '/');
+        request.endpoint.path = request.path.replace(iamEndpoint, '/');
+        request.endpoint.pathname = request.path.replace(iamEndpoint, '/');
         request.endpoint.port = 80;
 
         request.headers.Host = iamInternalFQDN;
@@ -75,7 +75,7 @@ export default class S3Client {
             ...request.headers,
             Host: originalRequest.headers.Host,
           };
-          request.path = s3Path + request.path;
+          request.path = zenkoEndpoint + request.path;
         }
         return result;
       };

@@ -23,9 +23,16 @@ class ZenkoClient extends S3Client implements ZenkoClientInterface {
     endpoint: string,
     iamInternalFQDN: string,
     s3InternalFQDN: string,
-    basePath: string,
+    zenkoEndpoint: string,
+    iamEndpoint: string,
   ) {
-    super(endpoint, iamInternalFQDN, s3InternalFQDN, basePath);
+    super(
+      endpoint,
+      iamInternalFQDN,
+      s3InternalFQDN,
+      zenkoEndpoint,
+      iamEndpoint,
+    );
 
     this.endpoint = genClientEndpoint(endpoint);
 
