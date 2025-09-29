@@ -350,12 +350,12 @@ else
   exit 1
 fi
 
-# Verify Veeam regex location is present (check for the actual pattern generated)
-if grep -q 'location ~ "/s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/' /etc/nginx/conf.d/default.conf; then
-  echo "✅ Test 6 passed: Veeam SOS API regex location correctly inserted"
+# Verify Veeam regex location is present as separate location block
+if grep -q 'location ~ "/s3/.*system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c.*system\\\.xml.*capacity\\\.xml' /etc/nginx/conf.d/default.conf; then
+  echo "✅ Test 6 passed: Veeam SOS API regex location correctly inserted as separate location block"
 else
-  echo "❌ Test 6 failed: Veeam regex location not found"
-  echo "Expected pattern: location ~ \"/s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/"
+  echo "❌ Test 6 failed: Veeam regex location not found as separate location block"
+  echo "Expected pattern: location ~ \"/s3/.*system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c.*system\\.xml.*capacity\\.xml"
   echo "Generated config:"
   cat /etc/nginx/conf.d/default.conf
   echo ""
@@ -369,6 +369,16 @@ if grep -A5 -B5 "location /s3" /etc/nginx/conf.d/default.conf | grep -q "arg_pre
   echo "✅ Test 6 passed: S3 location with Veeam query parameter handling correctly inserted"
 else
   echo "⚠️  Test 6 warning: S3 location with Veeam query parameter handling not found (may be expected based on configuration)"
+fi
+
+# Verify resolver is added for /s3 path with Veeam
+if grep -A2 -B2 "location /s3" /etc/nginx/conf.d/default.conf | grep -q "resolver coredns.kube-system.svc"; then
+  echo "✅ Test 6 passed: Resolver correctly added for /s3 path with Veeam"
+else
+  echo "❌ Test 6 failed: Resolver should be added for /s3 path with Veeam"
+  echo "S3 location context:"
+  grep -A10 -B5 "location /s3" /etc/nginx/conf.d/default.conf || echo "Location /s3 not found"
+  exit 1
 fi
 
 echo ""
@@ -417,14 +427,24 @@ else
   exit 1
 fi
 
-# Verify Veeam regex location with custom path is present
-if grep -q 'location ~ "/custom/s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/' /etc/nginx/conf.d/default.conf; then
-  echo "✅ Test 7 passed: Veeam SOS API regex location with custom basePath correctly inserted"
+# Verify Veeam regex location is still present with hardcoded /s3/ path (current behavior)
+if grep -q 'location ~ "/s3/.*system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c.*system\\\.xml.*capacity\\\.xml' /etc/nginx/conf.d/default.conf; then
+  echo "✅ Test 7 passed: Veeam SOS API regex location correctly inserted (uses hardcoded /s3/ path)"
 else
-  echo "❌ Test 7 failed: Veeam regex location with custom basePath not found"
-  echo "Expected pattern: location ~ \"/custom/s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/"
+  echo "❌ Test 7 failed: Veeam regex location not found"
+  echo "Expected pattern: location ~ \"/s3/.*system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c.*system\\.xml.*capacity\\.xml"
   echo "Generated config:"
   cat /etc/nginx/conf.d/default.conf
+  exit 1
+fi
+
+# Verify resolver is NOT added for /custom/s3 path (only for exact /s3 path)
+if ! grep -A2 -B2 "location /custom/s3" /etc/nginx/conf.d/default.conf | grep -q "resolver coredns.kube-system.svc"; then
+  echo "✅ Test 7 passed: Resolver correctly NOT added for /custom/s3 path"
+else
+  echo "❌ Test 7 failed: Resolver should NOT be added for /custom/s3 path (only for exact /s3)"
+  echo "/custom/s3 location context:"
+  grep -A10 -B5 "location /custom/s3" /etc/nginx/conf.d/default.conf || echo "Location /custom/s3 not found"
   exit 1
 fi
 
@@ -476,7 +496,7 @@ else
 fi
 
 # In this case, there should be no Veeam regex location since no cloudserverEndpoint
-if ! grep -q 'location ~ "/s3/.*/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/' /etc/nginx/conf.d/default.conf; then
+if ! grep -q 'location ~ "/s3/.*system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c.*system\\\.xml.*capacity\\\.xml' /etc/nginx/conf.d/default.conf; then
   echo "✅ Test 8 passed: No Veeam regex location when cloudserverEndpoint is missing"
 else
   echo "❌ Test 8 failed: Veeam regex location should not be present without cloudserverEndpoint"
@@ -490,6 +510,16 @@ if grep -q "location /s3" /etc/nginx/conf.d/default.conf; then
 else
   echo "❌ Test 8 failed: Regular S3 proxy location should be present"
   cat /etc/nginx/conf.d/default.conf
+  exit 1
+fi
+
+# Verify resolver is NOT added for /s3 path in test mode (simplified config)
+if ! grep -A2 -B2 "location /s3" /etc/nginx/conf.d/default.conf | grep -q "resolver coredns.kube-system.svc"; then
+  echo "✅ Test 8 passed: Resolver correctly NOT added for /s3 path in test mode"
+else
+  echo "❌ Test 8 failed: Resolver should NOT be added in test mode"
+  echo "S3 location context:"
+  grep -A10 -B5 "location /s3" /etc/nginx/conf.d/default.conf || echo "Location /s3 not found"
   exit 1
 fi
 

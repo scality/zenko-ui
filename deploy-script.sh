@@ -127,46 +127,6 @@ if [ ${#PROXY_SOURCES[@]} -gt 0 ] || [ "$HAS_VEEAM_CONFIG" = true ]; then
     # ===========================================
 EOF
 
-  # Add Veeam configurations first (they need higher priority)
-  if [ "$HAS_VEEAM_CONFIG" = true ] && [ ! -z "$VEEAM_CONFIG" ]; then
-    IFS='|' read -r base_path cloudserver_endpoint <<<"$VEEAM_CONFIG"
-    
-    # Construct s3 path based on base path
-    if [ "$base_path" = "/" ]; then
-      s3_path="/s3"
-    else
-      s3_path="${base_path}/s3"
-    fi
-    
-    echo "Adding Veeam SOS API configuration for path: $s3_path"
-    
-    # Add Veeam regex location block (test mode uses simplified pattern)
-    if [ "${DEPLOY_SCRIPT_TEST_MODE:-false}" = "true" ]; then
-      # Simplified pattern for testing
-      cat >> "$PROXY_TEMP" << EOF
-
-    # Veeam SOS API support (test mode)
-    location ~ "${s3_path}/(.*)/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(system\\.xml|capacity\\.xml).*?" {
-        set \$escaped_proxied_path \$1;
-        rewrite "${s3_path}/(.*)/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(.*)" /_/veeam/\$1/.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/\$2 break;
-        proxy_pass ${cloudserver_endpoint};
-        proxy_redirect off;
-    }
-EOF
-    else
-      # Production pattern with S3-compliant bucket name validation
-      cat >> "$PROXY_TEMP" << EOF
-
-    # Veeam SOS API support with S3-compliant bucket name validation
-    location ~ "${s3_path}/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(system\\.xml|capacity\\.xml).*?" {
-        set \$escaped_proxied_path \$1;
-        rewrite "${s3_path}/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(.*)" /_/veeam/\$1/.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/\$2 break;
-        proxy_pass ${cloudserver_endpoint};
-        proxy_redirect off;
-    }
-EOF
-    fi
-  fi
 
   # Sort proxy locations for better organization
   # Create arrays for different types of proxies (store indices)
@@ -237,10 +197,10 @@ EOF
       source_path="${PROXY_SOURCES[$i]}"
       target="${PROXY_TARGETS[$i]}"
       echo "Adding proxy: $source_path -> $target"
-      
+
       # Generate any special headers for this service
       proxy_headers=$(generate_proxy_headers "$source_path")
-      
+
       cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
@@ -250,8 +210,25 @@ $([ ! -z "$proxy_headers" ] && echo "$proxy_headers")
 EOF
     done
   fi
-  
-  # 3. S3 proxies (with special Veeam handling)
+
+  # 3. Veeam location block (when S3 proxies with Veeam are enabled)
+  if [ "$HAS_VEEAM_CONFIG" = true ] && [ ${#S3_PROXY_INDICES[@]} -gt 0 ]; then
+    echo "" >> "$PROXY_TEMP"
+    echo "    # Veeam proxy" >> "$PROXY_TEMP"
+    IFS='|' read -r base_path cloudserver_endpoint <<<"$VEEAM_CONFIG"
+
+    cat >> "$PROXY_TEMP" << EOF
+
+    location ~ "/s3/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9]\/\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c\/(system\.xml|capacity\.xml).*?)" {
+        set                \$escaped_proxied_path \$1;
+        rewrite            "/s3/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9]\/\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c\/(system\.xml|capacity\.xml).*?)" /_/veeam/\$1  break;
+        proxy_pass         ${cloudserver_endpoint};
+        proxy_redirect     off;
+    }
+EOF
+  fi
+
+  # 4. S3 proxies (with special Veeam handling)
   if [ ${#S3_PROXY_INDICES[@]} -gt 0 ]; then
     echo "" >> "$PROXY_TEMP"
     echo "    # S3 proxies" >> "$PROXY_TEMP"
@@ -263,13 +240,15 @@ EOF
       # Check if this is an S3 proxy and we have Veeam enabled
       if [ "$HAS_VEEAM_CONFIG" = true ] && [ ! -z "$VEEAM_CONFIG" ]; then
         IFS='|' read -r base_path cloudserver_endpoint <<<"$VEEAM_CONFIG"
-        
-        # S3 location with Veeam handling (test mode uses simplified config)
-        if [ "${DEPLOY_SCRIPT_TEST_MODE:-false}" = "true" ]; then
-          # Simplified configuration for testing
-          cat >> "$PROXY_TEMP" << EOF
+
+        # Special handling for /s3 path with Veeam
+        if [ "$source_path" = "/s3" ]; then
+          if [ "${DEPLOY_SCRIPT_TEST_MODE:-false}" = "true" ]; then
+            # Simplified configuration for testing
+            cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
+        resolver coredns.kube-system.svc;
         # Veeam SOS API: Handle special prefix parameter
         if ( \$arg_prefix = ".system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c%2F" ) {
             proxy_pass ${cloudserver_endpoint};
@@ -279,17 +258,27 @@ EOF
         proxy_pass $target;
     }
 EOF
-        else
-          # Full production configuration with advanced features
-          cat >> "$PROXY_TEMP" << EOF
+          else
+            # Full production configuration with advanced features
+            cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
+        resolver coredns.kube-system.svc;
+
+        # Veeam SOS API support with S3-compliant bucket name validation
+        location ~ "${s3_path}/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(system\\.xml|capacity\\.xml).*?" {
+            set \$escaped_proxied_path \$1;
+            rewrite "${s3_path}/([a-z0-9][a-z0-9-.]{1,61}[a-z0-9])/\\.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/(.*)" /_/veeam/\$1/.system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c/\$2 break;
+            proxy_pass ${cloudserver_endpoint};
+            proxy_redirect off;
+        }
+
         # Veeam SOS API: Handle special prefix parameter
         if ( \$arg_prefix = ".system-d26a9498-cb7c-4a87-a44a-8ae204f5ba6c%2F" ) {
             proxy_pass ${cloudserver_endpoint};
             rewrite "${source_path}/(.*)" /_/veeam/\$1 break;
         }
-        
+
         # URL encoding handling for plus signs in S3 requests
         set_by_lua_block \$urlencore_proxy_uri {
             local uri = ngx.var.request_uri
@@ -297,12 +286,43 @@ EOF
             local encoded_uri = ngx.re.gsub(proxy_uri, "\\\\+", "%2B", "jo")
             return encoded_uri
         }
-        
+
         # Standard S3 requests with URL encoding
         proxy_pass ${target}\$urlencore_proxy_uri;
         proxy_redirect off;
     }
 EOF
+          fi
+        else
+          # Regular S3 proxy with Veeam (not /s3 path)
+          if [ "${DEPLOY_SCRIPT_TEST_MODE:-false}" = "true" ]; then
+            # Simplified configuration for testing
+            cat >> "$PROXY_TEMP" << EOF
+
+    location $source_path {
+        # Standard S3 requests
+        proxy_pass $target;
+    }
+EOF
+          else
+            # Full production configuration with advanced features
+            cat >> "$PROXY_TEMP" << EOF
+
+    location $source_path {
+        # URL encoding handling for plus signs in S3 requests
+        set_by_lua_block \$urlencore_proxy_uri {
+            local uri = ngx.var.request_uri
+            local proxy_uri = ngx.re.gsub(uri, "^${source_path}", "")
+            local encoded_uri = ngx.re.gsub(proxy_uri, "\\\\+", "%2B", "jo")
+            return encoded_uri
+        }
+
+        # Standard S3 requests with URL encoding
+        proxy_pass ${target}\$urlencore_proxy_uri;
+        proxy_redirect off;
+    }
+EOF
+          fi
         fi
       else
         # Regular S3 proxy without Veeam (test mode uses simplified config)
@@ -319,6 +339,7 @@ EOF
           cat >> "$PROXY_TEMP" << EOF
 
     location $source_path {
+        resolver coredns.kube-system.svc;
         # URL encoding handling for plus signs in S3 requests
         set_by_lua_block \$urlencore_proxy_uri {
             local uri = ngx.var.request_uri
