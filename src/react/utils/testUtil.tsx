@@ -70,6 +70,7 @@ export const realStoreWithInitState = (state) => {
     'iam.internal',
     's3.internal',
     '/',
+    '/',
   );
   zenkoClient.login({
     accessKey: 'accessKey',

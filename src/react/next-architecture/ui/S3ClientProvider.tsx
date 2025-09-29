@@ -95,7 +95,7 @@ export const S3ClientWithoutReduxProvider = ({
 }: PropsWithChildren<{
   configuration: S3.Types.ClientConfiguration;
 }>) => {
-  const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, basePath } =
+  const { iamEndpoint, iamInternalFQDN, s3InternalFQDN, zenkoEndpoint } =
     useConfig();
   const { s3Client, zenkoClient, iamClient } = useMemo(() => {
     const s3Client = new S3(configuration);
@@ -103,7 +103,8 @@ export const S3ClientWithoutReduxProvider = ({
       configuration.endpoint as string,
       iamInternalFQDN,
       s3InternalFQDN,
-      basePath,
+      zenkoEndpoint,
+      iamEndpoint,
     );
     const iamClient = new IAMClient(iamEndpoint);
 
