@@ -8,10 +8,10 @@
   "spec": {
     "title": "Data Management",
     "selfConfiguration": {
-      "managementEndpoint": "http://127.0.0.1:8383/management",
-      "stsEndpoint": "http://127.0.0.1:8383/sts",
-      "zenkoEndpoint": "http://127.0.0.1:8383/data/s3",
-      "iamEndpoint": "http://127.0.0.1:8383/data/iam",
+      "managementEndpoint": "/zenko/management",
+      "stsEndpoint": "/zenko/sts",
+      "zenkoEndpoint": "/zenko/s3",
+      "iamEndpoint": "/zenko/iam",
       "features": [],
       "basePath": ""
     },
