@@ -178,9 +178,9 @@ const config: Configuration = {
       'Access-Control-Expose-Headers': 'ETag',
     },
     proxy: {
-      '/data/s3': {
+      '/zenko/s3': {
         target: `https://s3.${zenkoDNS}`,
-        pathRewrite: { '^/data/s3': '' },
+        pathRewrite: { '^/zenko/s3': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
@@ -191,9 +191,9 @@ const config: Configuration = {
           }
         },
       },
-      '/data/iam': {
+      '/zenko/iam': {
         target: `https://iam.${zenkoDNS}`,
-        pathRewrite: { '^/data/iam': '' },
+        pathRewrite: { '^/zenko/iam': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
@@ -204,9 +204,9 @@ const config: Configuration = {
           }
         },
       },
-      '/sts': {
+      '/zenko/sts': {
         target: `https://sts.${zenkoDNS}`,
-        pathRewrite: { '^/sts': '' },
+        pathRewrite: { '^/zenko/sts': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
@@ -217,9 +217,9 @@ const config: Configuration = {
           }
         },
       },
-      '/management': {
+      '/zenko/management': {
         target: `https://management.${zenkoDNS}`,
-        pathRewrite: { '^/management': '' },
+        pathRewrite: { '^/zenko/management': '' },
         secure: false,
         changeOrigin: true,
         logLevel: 'debug',
