@@ -171,9 +171,7 @@ function EndpointList({ endpoints, locations }: Props) {
                 onClick={() => navigate('/create-dataservice')}
                 type="submit"
               />
-              <AuthorizedAdvancedMetricsButton
-                dashboard={cloudServerDashboard}
-              />
+              <AuthorizedAdvancedMetricsButton />
             </div>
           }
         />

@@ -69,22 +69,17 @@ export function useXcoreBuildtimeConfig(): BuildtimeWebFinger | null {
   return null;
 }
 
-// FIXME this is a temporary (hopefully) solution to get the Grafana URL
-type Config = {
-  url_grafana: string;
-};
 export function useGrafanaURL() {
   const { useConfigRetriever } = useShellHooks();
   const { retrieveConfiguration } = useConfigRetriever();
   const instances = useDeployedMetalk8sInstances();
 
   if (instances.length) {
-    const baseUrl = new URL(instances[0].url).origin;
     const runTimeConfig = retrieveConfiguration({
       configType: 'run',
       name: instances[0].name,
     });
-    return baseUrl + runTimeConfig.spec.selfConfiguration.url_grafana;
+    return runTimeConfig.spec.selfConfiguration.url_grafana;
   }
   console.log('There is no Metalk8s instance deployed yet.');
   return '';

@@ -37,7 +37,6 @@ import { Breadcrumb } from '../ui-elements/Breadcrumb';
 import { useShellHooks } from '@scality/module-federation';
 import {
   AuthorizedAdvancedMetricsButton,
-  replicationDashboard,
 } from '../endpoint/AdvancedMetricsButton';
 import { useConfig } from '../next-architecture/ui/ConfigProvider';
 import { useAccounts, useRolePathName } from '../utils/hooks';
@@ -190,11 +189,9 @@ export default function Workflows() {
       }
 
       const searchString = searchParams.toString();
-      const targetPath = `${
-        config.basePath
-      }/accounts/${accountName}/workflows/${firstWorkflowId}${
-        searchString ? `?${searchString}` : ''
-      }`;
+      const targetPath = `${config.basePath
+        }/accounts/${accountName}/workflows/${firstWorkflowId}${searchString ? `?${searchString}` : ''
+        }`;
 
       const currentPath = `${location.pathname}${location.search}`;
 
@@ -221,7 +218,7 @@ export default function Workflows() {
               <Icon name="Workflow" color="infoPrimary" size="2x" withWrapper />
               <Text variant="Larger">Workflows</Text>
             </Stack>
-            <AuthorizedAdvancedMetricsButton dashboard={replicationDashboard} />
+            <AuthorizedAdvancedMetricsButton />
           </Wrap>
         </AppContainer.OverallSummary>
         <AppContainer.MainContent background="backgroundLevel3">

@@ -1,5 +1,5 @@
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import { spacing } from '@scality/core-ui/dist/style/theme';
+import { spacing } from '@scality/core-ui/dist/spacing';
 import { Icon } from '@scality/core-ui';
 import { useGrafanaURL } from '../next-architecture/ui/ConfigProvider';
 import { useAuthGroups } from '../utils/hooks';
@@ -13,11 +13,7 @@ export const cloudServerDashboard =
 export const replicationDashboard =
   'replication_dashboard-2258C34356CF94C1/replication';
 
-export function AuthorizedAdvancedMetricsButton({
-  dashboard,
-}: {
-  dashboard: string;
-}) {
+export function AuthorizedAdvancedMetricsButton() {
   /// Try to retrieve shell config and guess grafana url from there
   const grafanaURL = useGrafanaURL();
 
@@ -25,12 +21,12 @@ export function AuthorizedAdvancedMetricsButton({
 
   return (
     <>
-      {isStorageManager ? (
+      {isStorageManager && grafanaURL != '' ? (
         <a
           href={`${grafanaURL}/d/${cloudServerDashboard}`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ marginLeft: spacing.sp8 }}
+          style={{ marginLeft: spacing.r8 }}
         >
           <Button
             label="Advanced Metrics"
