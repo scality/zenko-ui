@@ -6,10 +6,7 @@ import {
   mockShellHooks,
   renderWithRouterMatch,
 } from './utils/testUtil';
-import { useArtescaLibrary } from './next-architecture/ui/ArtescaLibraryProvider';
-
-// Mock useArtescaLibrary
-jest.mock('./next-architecture/ui/ArtescaLibraryProvider');
+import { useConfig } from './next-architecture/ui/ConfigProvider';
 
 jest.mock('react-redux', () => ({
   ...jest.requireActual('react-redux'),
@@ -17,10 +14,14 @@ jest.mock('react-redux', () => ({
   useDispatch: jest.fn(),
 }));
 
+jest.mock('./next-architecture/ui/ConfigProvider', () => ({
+  useConfig: jest.fn(),
+}));
+
 describe('Routes component', () => {
-  const mockUseArtescaLibrary = useArtescaLibrary as jest.Mock;
   const mockUseSelector = useSelector as jest.Mock;
   const mockUseDispatch = useDispatch as jest.Mock;
+  const mockUseConfig = useConfig as jest.Mock;
   const selectors = {
     loadingAccounts: () => screen.queryByText(/Loading accounts/i),
     loadingDataServices: () => screen.queryByText(/Loading Data Services/i),
@@ -28,6 +29,7 @@ describe('Routes component', () => {
     loadingClients: () => screen.queryByText(/Loading clients/i),
     dataServicesLink: () => screen.queryByText(/Data Services/i),
     locationsLink: () => screen.queryByText(/Locations/i),
+    truststoreLink: () => screen.queryByText(/Truststore/i),
   };
 
   beforeEach(() => {
@@ -60,7 +62,6 @@ describe('Routes component', () => {
           },
         },
       };
-
       // Pass the mock state to the selector function
       return selector(mockState);
     });
@@ -148,6 +149,61 @@ describe('Routes component', () => {
       await waitFor(() => {
         expect(selectors.dataServicesLink()).not.toBeInTheDocument();
         expect(selectors.locationsLink()).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show Truststore in sidebar for Platform Admin', async () => {
+      // Mock the hook to return PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: {
+            session_state: 'session-state-1',
+          },
+          groups: ['PlatformAdmin'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+      // TODO: To remove it when removing the feature flag
+      mockUseConfig.mockReturnValue({
+        basePath: '/data',
+        features: ['Truststore'],
+        zenkoEndpoint: '/zenko/s3',
+        iamEndpoint: '/zenko/iam',
+        stsEndpoint: '/zenko/sts',
+        managementEndpoint: '/zenko/management',
+        s3InternalFQDN: 's3.test.local',
+        iamInternalFQDN: 'iam.test.local',
+      });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
+      });
+
+      await waitFor(() => {
+        expect(selectors.truststoreLink()).toBeInTheDocument();
+      });
+    });
+
+    it('should not show Truststore in sidebar for non Platform Admin', async () => {
+      // Setup Mock the hook to return non PlatformAdmin user
+      mockShellHooks.useAuth.mockReturnValue({
+        userData: {
+          token: FAKE_TOKEN,
+          original: {
+            session_state: 'session-state-1',
+          },
+          groups: ['StorageManager'],
+        },
+        getToken: () => Promise.resolve(FAKE_TOKEN),
+      });
+      renderWithRouterMatch(<InternalRoutes />, {
+        path: '/*',
+        route: '/accounts',
+      });
+      // V
+      await waitFor(() => {
+        expect(selectors.truststoreLink()).not.toBeInTheDocument();
       });
     });
   });
