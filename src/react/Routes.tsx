@@ -244,6 +244,7 @@ export function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
+      <Route path="truststore/*" element={<></>} />
       <Route
         path="isv/configuration/*"
         element={
@@ -395,8 +396,9 @@ function InternalRoutes() {
       localStorage.getItem('isSideBarOpen') === 'true',
   );
   const location = useLocation();
-  const { isStorageManager } = useAuthGroups();
+  const { isStorageManager, isPlatformAdmin } = useAuthGroups();
   const config = useConfig();
+  const { features } = config;
   const navigate = useBasenameRelativeNavigate();
 
   const doesRouteMatch = useCallback(
@@ -477,6 +479,19 @@ function InternalRoutes() {
           doesRouteMatch('/accounts/:accountName/workflows/*') ||
           doesRouteMatch('/accounts/:accountName/data/workflows/*'),
       },
+      //TODO: Put Truststore behind a feature flag for the moment until it is fully ready.
+      ...(isPlatformAdmin && features.includes('Truststore')
+        ? [
+            {
+              label: 'Truststore',
+              icon: <Icon name="ID-card" />,
+              onClick: () => {
+                navigate('/truststore');
+              },
+              active: doesRouteMatch('/truststore'),
+            },
+          ]
+        : []),
       ...(isStorageManager
         ? [
             {
