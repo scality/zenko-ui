@@ -10,12 +10,11 @@ import { LocationAdapterProvider } from './next-architecture/ui/LocationAdapterP
 import MetricsAdapterProvider from './next-architecture/ui/MetricsAdapterProvider';
 import ZenkoUI from './ZenkoUI';
 
+import { ShellHooksProvider, useBasenameRelativeNavigate, useCurrentApp } from '@scality/module-federation';
 import React, { useEffect, useMemo } from 'react';
+import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 import { XCoreLibraryProvider } from './next-architecture/ui/XCoreLibraryProvider';
 import zenkoUIReducer from './reducers';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { ShellHooksProvider } from '@scality/module-federation';
-import { ArtescaLibraryProvider } from './next-architecture/ui/ArtescaLibraryProvider';
 
 //@ts-expect-error fix this when you are working on it
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -51,6 +50,18 @@ const HistoryPushEventListener = () => {
   return <></>;
 };
 
+// This component prevent the app to be rendered if the current app is not a zenko-ui
+// This happens when the app is in transition to another app
+const ZenkoUIGuard = ({ children }: { children: React.ReactNode }) => {
+  const { kind } = useCurrentApp();
+
+  if (kind !== 'zenko-ui') {
+    return null;
+  }
+  return <>{children}</>;
+};
+
+
 const FederableApp = (props) => {
   return (
     <ShellHooksProvider
@@ -61,18 +72,20 @@ const FederableApp = (props) => {
         <ArtescaLibraryProvider>
           <InternalRouter>
             <HistoryPushEventListener />
-            <AccountsLocationsEndpointsAdapterProvider>
-              <LocationAdapterProvider>
-                <AccessibleAccountsAdapterProvider>
-                  <MetricsAdapterProvider>
-                    <ToastProvider>
-                      <ZenkoUI />
-                    </ToastProvider>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  </MetricsAdapterProvider>
-                </AccessibleAccountsAdapterProvider>
-              </LocationAdapterProvider>
-            </AccountsLocationsEndpointsAdapterProvider>
+            <ZenkoUIGuard>
+              <AccountsLocationsEndpointsAdapterProvider>
+                <LocationAdapterProvider>
+                  <AccessibleAccountsAdapterProvider>
+                    <MetricsAdapterProvider>
+                      <ToastProvider>
+                        <ZenkoUI />
+                      </ToastProvider>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </MetricsAdapterProvider>
+                  </AccessibleAccountsAdapterProvider>
+                </LocationAdapterProvider>
+              </AccountsLocationsEndpointsAdapterProvider>
+            </ZenkoUIGuard>
           </InternalRouter>
         </ArtescaLibraryProvider>
       </XCoreLibraryProvider>
