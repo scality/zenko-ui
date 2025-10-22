@@ -45,7 +45,7 @@ import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import { ISVSteps } from './ISV/components/ISVSteps';
-import { CertificateSteps } from './truststore/CertificateSteps';
+import ImportCertificate from './truststore/ImportCertificate';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -248,7 +248,7 @@ export function PrivateRoutes() {
       <Route path="truststore/*" element={<></>} />
       <Route
         path="truststore/import-certificate/*"
-        element={<CertificateSteps />}
+        element={<ImportCertificate />}
       />
       <Route
         path="isv/configuration/*"

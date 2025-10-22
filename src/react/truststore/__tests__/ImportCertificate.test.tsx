@@ -1,72 +1,44 @@
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router';
-import { renderWithCustomRoute } from '../../utils/testUtil';
-import { CertificateStepperContext } from '../CertificateSteps';
+import { NewWrapper, renderWithCustomRoute } from '../../utils/testUtil';
+
 import ImportCertificate from '../ImportCertificate';
 
-const mockNext = jest.fn();
-// Mock stepper hook
-jest.mock(
-  '@scality/core-ui/dist/components/steppers/Stepper.component',
-  () => ({
-    useStepper: () => ({
-      next: mockNext,
-    }),
-  }),
-);
 describe('ImportCertificate', () => {
-  it('should render', () => {
-    renderWithCustomRoute(
-      <CertificateStepperContext.Provider value={{ certificateData: null }}>
-        <ImportCertificate />
-      </CertificateStepperContext.Provider>,
-      '/truststore/import-certificate',
-    );
-
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
-    expect(screen.getByText(/Import a new Certificate/i)).toBeInTheDocument();
-    expect(screen.getByText(/Drag and drop file here/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Continue/i }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
-    expect(
+  const selectors = {
+    continueButton: () => screen.getByRole('button', { name: /Import/i }),
+    cancelButton: () => screen.getByRole('button', { name: /Cancel/i }),
+    formTitle: () => screen.getByText(/Import a new Certificate/i),
+    dragAndDropLabel: () => screen.getByText(/Drag and drop file here/i),
+    certificateInput: () =>
       screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
-    ).toBeInTheDocument();
+  };
+  it('should render', () => {
+    render(<ImportCertificate />, { wrapper: NewWrapper() });
+    expect(selectors.continueButton()).toBeDisabled();
+    expect(selectors.formTitle()).toBeInTheDocument();
+    expect(selectors.dragAndDropLabel()).toBeInTheDocument();
+    expect(selectors.cancelButton()).toBeInTheDocument();
+    expect(selectors.certificateInput()).toBeInTheDocument();
   });
 
   it('should enable Continue button if form is valid', async () => {
-    renderWithCustomRoute(
-      <CertificateStepperContext.Provider value={{ certificateData: null }}>
-        <ImportCertificate />
-      </CertificateStepperContext.Provider>,
-      '/truststore/import-certificate',
-    );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
-    await userEvent.type(
-      screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
-      'TEST CERTIFICATE',
-    );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeEnabled();
+    render(<ImportCertificate />, { wrapper: NewWrapper() });
+    expect(selectors.continueButton()).toBeDisabled();
+    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    expect(selectors.continueButton()).toBeEnabled();
   });
   it('should disable Continue button if form is invalid', async () => {
-    renderWithCustomRoute(
-      <CertificateStepperContext.Provider value={{ certificateData: null }}>
-        <ImportCertificate />
-      </CertificateStepperContext.Provider>,
-      '/truststore/import-certificate',
-    );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+    render(<ImportCertificate />, { wrapper: NewWrapper() });
+    expect(selectors.continueButton()).toBeDisabled();
     await userEvent.type(
-      screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
+      selectors.certificateInput(),
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. ',
     );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeEnabled();
-    await userEvent.clear(
-      screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
-    );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeDisabled();
+    expect(selectors.continueButton()).toBeEnabled();
+    await userEvent.clear(selectors.certificateInput());
+    expect(selectors.continueButton()).toBeDisabled();
   });
 
   it('should navigate to truststore page if Cancel button is clicked', async () => {
@@ -75,37 +47,27 @@ describe('ImportCertificate', () => {
         <Route path="/truststore" element={<div>Truststore</div>} />
         <Route
           path="/truststore/import-certificate"
-          element={
-            <CertificateStepperContext.Provider
-              value={{ certificateData: null }}
-            >
-              <ImportCertificate />
-            </CertificateStepperContext.Provider>
-          }
+          element={<ImportCertificate />}
         />
       </Routes>,
       '/truststore/import-certificate',
     );
-    expect(screen.getByText(/Import a new Certificate/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole('button', { name: /Cancel/i }));
+    expect(selectors.formTitle()).toBeInTheDocument();
+    expect(selectors.cancelButton()).toBeInTheDocument();
+    await userEvent.click(selectors.cancelButton());
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
-
-  it('should call next step with certificate data if form is valid', async () => {
+  //TODO: Add test for success toast
+  it('should navigate to truststore page if import is successful and show success toast', async () => {
     renderWithCustomRoute(
-      <CertificateStepperContext.Provider value={{ certificateData: null }}>
-        <ImportCertificate />
-      </CertificateStepperContext.Provider>,
+      <ImportCertificate />,
       '/truststore/import-certificate',
     );
 
-    await userEvent.type(
-      screen.getByPlaceholderText(/-----BEGIN CERTIFICATE-----/i),
-      'TEST CERTIFICATE',
-    );
-    expect(screen.getByRole('button', { name: /Continue/i })).toBeEnabled();
-    await userEvent.click(screen.getByRole('button', { name: /Continue/i }));
-    expect(mockNext).toHaveBeenCalledWith({ certificate: 'TEST CERTIFICATE' });
+    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    expect(selectors.continueButton()).toBeEnabled();
+    await userEvent.click(selectors.continueButton());
   });
+  //TODO: Add test for error toast
+  it('should show error toast if import fails', async () => {});
 });

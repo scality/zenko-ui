@@ -1,12 +1,20 @@
-import { Dropzone, Form, Icon, Stack, Text, TextArea } from '@scality/core-ui';
+import {
+  Dropzone,
+  Form,
+  Icon,
+  Stack,
+  Text,
+  TextArea,
+  useToast,
+} from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import { CertificateStepsIndexes, CertificateData } from './CertificateSteps';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from '@hapi/joi';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useChainedMutations } from '@scality/react-chained-query';
+import { useMutation } from 'react-query';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
@@ -15,11 +23,12 @@ ARTESCA Certificate Authority
 
 const ImportCertificate = () => {
   const navigate = useBasenameRelativeNavigate();
-  const { next } = useStepper(CertificateStepsIndexes.ImportCertificate);
-  const formMethods = useForm<CertificateData>({
+  const { showToast } = useToast();
+  const [importCert, setImportCert] = useState<string | undefined>(undefined);
+  const formMethods = useForm<{ certificate: string | undefined }>({
     mode: 'all',
     defaultValues: {
-      certificate: '',
+      certificate: undefined,
     },
     resolver: joiResolver(
       Joi.object({
@@ -31,14 +40,89 @@ const ImportCertificate = () => {
   const { isValid } = formMethods.formState;
   const { setValue, handleSubmit } = formMethods;
 
-  const [importCert, setImportCert] = useState<string | undefined>(undefined);
+  const createSecretWithCertificateMutation = useMutation({
+    mutationFn: async (variables: { certificate: string }) => {
+      console.log('DEBUG: Create Secret With Certificate', variables);
+    },
+    mutationKey: ['createSecretWithCertificate'],
+  });
+
+  const updateCRWithSecretMutation = useMutation({
+    mutationFn: async (variables: { certificate: string }) => {
+      console.log('DEBUG: Update CR With Secret', variables);
+      return await new Promise((resolve) => setTimeout(resolve, 1000));
+    },
+    mutationKey: ['updateCRWithSecret'],
+  });
+
+  const waitForZenkoConfigurationToBeUpdated = useMutation({
+    mutationFn: async () => {
+      console.log('DEBUG: Wait For Zenko Configuration To Be Updated');
+      return await new Promise((resolve) => setTimeout(resolve, 1000));
+    },
+    mutationKey: ['waitForZenkoConfigurationToBeUpdated'],
+  });
+  const mutations = [
+    {
+      ...createSecretWithCertificateMutation,
+      key: 'createSecretWithCertificate',
+    },
+    {
+      ...updateCRWithSecretMutation,
+      key: 'updateCRWithSecret',
+    },
+    {
+      ...waitForZenkoConfigurationToBeUpdated,
+      key: 'waitForZenkoConfigurationToBeUpdated',
+    },
+  ];
+  const isSuccess = useMemo(
+    () => mutations.every((mutation) => mutation.isSuccess),
+    [mutations],
+  );
+  const isLoading = useMemo(
+    () => mutations.some((mutation) => mutation.isLoading),
+    [mutations],
+  );
+  const isError = useMemo(
+    () => mutations.some((mutation) => mutation.isError),
+    [mutations],
+  );
+
+  const { mutate } = useChainedMutations({
+    mutations,
+    computeVariablesForNext: {
+      createSecretWithCertificate: () => ({ certificate: importCert }),
+      updateCRWithSecret: () => ({
+        certificate: importCert,
+      }),
+    },
+  });
+
+  useEffect(() => {
+    if (isError) {
+      showToast({
+        open: true,
+        status: 'error',
+        message: 'An error occurred while importing the certificate',
+      });
+    }
+    if (isSuccess) {
+      showToast({
+        open: true,
+        status: 'success',
+        message: 'Certificate imported successfully',
+      });
+      navigate('/truststore');
+    }
+  }, [isError, isSuccess, showToast, navigate]);
 
   useEffect(() => {
     setValue('certificate', importCert, { shouldValidate: true });
   }, [importCert]);
 
-  const onSubmit = (data: CertificateData) => {
-    next(data);
+  const onSubmit = () => {
+    mutate();
   };
 
   return (
@@ -61,14 +145,16 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label="Continue"
+              label={isLoading ? 'Importing...' : 'Import'}
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
                   ? 'Import a certificate before proceeding to the next step'
+                  : isLoading
+                  ? 'Importing certificate...'
                   : undefined,
               }}
-              icon={<Icon name="Arrow-right" />}
+              isLoading={isLoading}
             />
           </Stack>
         }
@@ -103,7 +189,7 @@ const ImportCertificate = () => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               setImportCert(e.currentTarget.value)
             }
-            rows={20}
+            rows={10}
           />
         </Stack>
       </Form>
