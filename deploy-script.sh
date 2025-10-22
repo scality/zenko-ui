@@ -480,16 +480,7 @@ else
   echo "❌ Generated nginx configuration is invalid!"
   echo "Nginx validation output:"
   echo "$nginx_output"
-  echo "Configuration validation failed. Reverting to backup."
-  
-  # Restore original config if we have a backup
-  if [ -f "${NGINX_CONFIG}.backup" ]; then
-    cp "${NGINX_CONFIG}.backup" "$NGINX_CONFIG"
-    echo "Original configuration restored"
-  fi
-  
-  echo "Invalid config that was generated:"
-  cat "$TEMP_CONFIG"
+  echo "Configuration validation failed. exiting..."
   exit 1
 fi
 
