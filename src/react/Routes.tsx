@@ -45,6 +45,7 @@ import AccountUserAccessKeys from './account/AccountUserAccessKeys';
 import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import { ISVSteps } from './ISV/components/ISVSteps';
+import { CertificateSteps } from './truststore/CertificateSteps';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -246,6 +247,10 @@ export function PrivateRoutes() {
       />
       <Route path="truststore/*" element={<></>} />
       <Route
+        path="truststore/import-certificate/*"
+        element={<CertificateSteps />}
+      />
+      <Route
         path="isv/configuration/*"
         element={
           <DataServiceRoleProvider>
@@ -431,6 +436,7 @@ function InternalRoutes() {
     '/accounts/:accountName/workflows/create-workflow',
     '/accounts/:accountName/create-policy',
     '/isv/configuration',
+    '/truststore/import-certificate',
   ];
 
   const hideSideBar = doesRouteMatch(routeWithoutSideBars);
