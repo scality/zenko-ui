@@ -57,17 +57,26 @@ describe('ImportCertificate', () => {
     await userEvent.click(selectors.cancelButton());
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
-  //TODO: Add test for success toast
+
   it('should navigate to truststore page if import is successful and show success toast', async () => {
     renderWithCustomRoute(
-      <ImportCertificate />,
+      <Routes>
+        <Route path="/truststore" element={<div>Truststore</div>} />
+        <Route
+          path="/truststore/import-certificate"
+          element={<ImportCertificate />}
+        />
+      </Routes>,
       '/truststore/import-certificate',
     );
 
     await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
     expect(selectors.continueButton()).toBeEnabled();
     await userEvent.click(selectors.continueButton());
+    //TODO: Add test for success toast
   });
-  //TODO: Add test for error toast
-  it('should show error toast if import fails', async () => {});
+
+  it('should show error toast if import fails', async () => {
+    //TODO: Add test for error toast
+  });
 });

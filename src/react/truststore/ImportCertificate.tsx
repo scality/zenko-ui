@@ -13,8 +13,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from '@hapi/joi';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useChainedMutations } from '@scality/react-chained-query';
-import { useMutation } from 'react-query';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
@@ -40,90 +38,20 @@ const ImportCertificate = () => {
   const { isValid } = formMethods.formState;
   const { setValue, handleSubmit } = formMethods;
 
-  const createSecretWithCertificateMutation = useMutation({
-    mutationFn: async (variables: { certificate: string }) => {
-      console.log('DEBUG: Create Secret With Certificate', variables);
-    },
-    mutationKey: ['createSecretWithCertificate'],
-  });
-
-  const updateCRWithSecretMutation = useMutation({
-    mutationFn: async (variables: { certificate: string }) => {
-      console.log('DEBUG: Update CR With Secret', variables);
-      return await new Promise((resolve) => setTimeout(resolve, 1000));
-    },
-    mutationKey: ['updateCRWithSecret'],
-  });
-
-  const waitForZenkoConfigurationToBeUpdated = useMutation({
-    mutationFn: async () => {
-      console.log('DEBUG: Wait For Zenko Configuration To Be Updated');
-      return await new Promise((resolve) => setTimeout(resolve, 1000));
-    },
-    mutationKey: ['waitForZenkoConfigurationToBeUpdated'],
-  });
-  const mutations = [
-    {
-      ...createSecretWithCertificateMutation,
-      key: 'createSecretWithCertificate',
-    },
-    {
-      ...updateCRWithSecretMutation,
-      key: 'updateCRWithSecret',
-    },
-    {
-      ...waitForZenkoConfigurationToBeUpdated,
-      key: 'waitForZenkoConfigurationToBeUpdated',
-    },
-  ];
-  const isSuccess = useMemo(
-    () => mutations.every((mutation) => mutation.isSuccess),
-    [mutations],
-  );
-  const isLoading = useMemo(
-    () => mutations.some((mutation) => mutation.isLoading),
-    [mutations],
-  );
-  const isError = useMemo(
-    () => mutations.some((mutation) => mutation.isError),
-    [mutations],
-  );
-
-  const { mutate } = useChainedMutations({
-    mutations,
-    computeVariablesForNext: {
-      createSecretWithCertificate: () => ({ certificate: importCert }),
-      updateCRWithSecret: () => ({
-        certificate: importCert,
-      }),
-    },
-  });
-
-  useEffect(() => {
-    if (isError) {
-      showToast({
-        open: true,
-        status: 'error',
-        message: 'An error occurred while importing the certificate',
-      });
-    }
-    if (isSuccess) {
-      showToast({
-        open: true,
-        status: 'success',
-        message: 'Certificate imported successfully',
-      });
-      navigate('/truststore');
-    }
-  }, [isError, isSuccess, showToast, navigate]);
+  //TODO Create hook with mutation to update CR with certificate + wait for zenko configuration to be updated query
 
   useEffect(() => {
     setValue('certificate', importCert, { shouldValidate: true });
   }, [importCert]);
 
   const onSubmit = () => {
-    mutate();
+    console.log('DEBUG: On Submit', importCert);
   };
+
+  //TODO: Add loading state
+  const isLoading = useMemo(() => {
+    return false;
+  }, []);
 
   return (
     <FormProvider {...formMethods}>
@@ -149,7 +77,7 @@ const ImportCertificate = () => {
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
-                  ? 'Import a certificate before proceeding to the next step'
+                  ? 'Import a valid certificate'
                   : isLoading
                   ? 'Importing certificate...'
                   : undefined,
