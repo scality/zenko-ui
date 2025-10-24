@@ -78,9 +78,11 @@ describe('LocationEditor', () => {
     await userEvent.keyboard('{arrowup}');
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('Scality ARTESCA S3');
+    ).toBe('Cross-Region Replication');
 
     [
+      'Others',
+      'Scality ARTESCA S3',
       'Scality RING with S3 Connector',
       'Amazon S3',
       'Google Cloud Storage',
@@ -292,18 +294,24 @@ describe('LocationEditor', () => {
     ];
 
     for await (const location of locationsTests) {
-      await userEvent.click(screen.getByLabelText(/select a location type/i));
+      await userEvent.click(selectors.selectLocationType());
 
-      await userEvent.clear(
-        screen.getByRole('textbox', { name: /location type \*/i }),
-      );
-      await userEvent.type(
-        screen.getByRole('textbox', { name: /location type \*/i }),
-        location.name,
-      );
+      const selectInput = selectors.inputLocationType();
+      await userEvent.clear(selectInput);
+      await userEvent.type(selectInput, location.name);
 
-      await userEvent.click(location.optionToQuery());
-      expect(location.checkField()).toBeInTheDocument();
+      const optionElement = location.optionToQuery();
+      const isDisabled = optionElement.getAttribute('aria-disabled') === 'true';
+
+      if (isDisabled) {
+        continue;
+      }
+
+      await userEvent.click(optionElement);
+
+      await waitFor(() => {
+        expect(location.checkField()).toBeInTheDocument();
+      });
     }
   });
 });

@@ -75,12 +75,27 @@ function LocationEditor() {
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
   const selectOptions = useMemo(() => {
-    return selectStorageOptions(
+    const options = selectStorageOptions(
       capabilities,
       locations,
       makeLabel,
       !editingExisting,
     );
+
+    const hasOthersOption = options.some((opt) => opt.label === 'Others');
+    if (options.length > 0 && !hasOthersOption) {
+      return [
+        options[0],
+        {
+          label: 'Others',
+          value: 'others',
+          disabled: true,
+        },
+        ...options.slice(1),
+      ];
+    }
+
+    return options;
   }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {
@@ -322,7 +337,9 @@ function LocationEditor() {
         <Banner
           icon={
             <Icon
-              color={locations.length >= 10 ? 'statusCritical' : 'statusWarning'}
+              color={
+                locations.length >= 10 ? 'statusCritical' : 'statusWarning'
+              }
               name={
                 locations.length >= 10 ? 'Times-circle' : 'Exclamation-circle'
               }
@@ -383,7 +400,11 @@ function LocationEditor() {
               value={locationTypeKey}
             >
               {selectOptions.map((opt, i) => (
-                <Select.Option key={i} value={opt.value}>
+                <Select.Option
+                  key={i}
+                  value={opt.value}
+                  disabled={opt.disabled}
+                >
                   {opt.label}
                 </Select.Option>
               ))}
