@@ -1,7 +1,7 @@
 import {
   Dropzone,
   Form,
-  Icon,
+  InfoMessage,
   Stack,
   Text,
   TextArea,
@@ -16,7 +16,11 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
-ARTESCA Certificate Authority
+intermediate1
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+CA
 -----END CERTIFICATE-----`;
 
 const ImportCertificate = () => {
@@ -88,9 +92,23 @@ const ImportCertificate = () => {
         }
       >
         <Stack direction="vertical" gap="r16">
-          <label htmlFor="Certificate">
-            <Text isEmphazed>{`Certificate import`}</Text>
-          </label>
+          <InfoMessage
+            title="Certificate import"
+            content={
+              <Text>
+                Choose a file or paste the Certificate chain bundle in order to
+                import a certificate.
+                <br />
+                The certificate chain bundle should be PEM x509 formatted and
+                follow this order: optional intermediate(s) then the root
+                certificate.
+                <br />
+                This action will update the ARTESCA configuration to add the
+                certificate to the truststore. This operation may take some
+                time.
+              </Text>
+            }
+          />
           <Dropzone
             variant="large"
             labels={{
