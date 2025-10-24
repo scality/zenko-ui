@@ -26,6 +26,8 @@ import {
   generateTransitionName,
 } from './workflow/utils';
 import { UiFacingApiWrapper } from '../js/managementClient';
+import { useShellHooks } from '@scality/module-federation';
+import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -307,3 +309,32 @@ export const getObjectQuery = ({
   refetchOnMount: false,
   refetchOnWindowFocus: false,
 });
+
+export const getZenkoCRQuery = () => {
+  const { useAuth } = useShellHooks();
+  const { getToken } = useAuth();
+  const { useConfigRetriever } = useShellHooks();
+  const { retrieveConfiguration } = useConfigRetriever();
+  const instances = useDeployedMetalk8sInstances();
+  const getURL = (instances) => {
+    if (instances.length) {
+      const runTimeConfig = retrieveConfiguration({
+        configType: 'run',
+        name: instances[0].name,
+      });
+      const url = runTimeConfig?.spec.selfConfiguration.url;
+      return (
+        url + '/apis/zenko.io/v1alpha2/namespaces/zenko/zenkos/artesca-data'
+      );
+    }
+  };
+  return {
+    queryKey: ['zenkoCR'],
+    queryFn: async () => {
+      return fetch(getURL(instances), {
+        method: 'GET',
+        headers: { authorization: `Bearer ${await getToken()}` },
+      }).then(async (res) => await res.json());
+    },
+  };
+};

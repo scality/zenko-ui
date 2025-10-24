@@ -12,7 +12,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from '@hapi/joi';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import {
+  useBasenameRelativeNavigate,
+  useShellHooks,
+} from '@scality/module-federation';
+import { useQuery } from 'react-query';
+import { useDeployedMetalk8sInstances } from '../next-architecture/ui/ConfigProvider';
+import { useAddCertificateToZenkoConfigurationMutation } from '../../js/mutations';
+import { getZenkoCRQuery } from '../queries';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
@@ -26,6 +33,7 @@ CA
 const ImportCertificate = () => {
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
+
   const [importCert, setImportCert] = useState<string | undefined>(undefined);
   const formMethods = useForm<{ certificate: string | undefined }>({
     mode: 'all',
@@ -42,20 +50,50 @@ const ImportCertificate = () => {
   const { isValid } = formMethods.formState;
   const { setValue, handleSubmit } = formMethods;
 
-  //TODO Create hook with mutation to update CR with certificate + wait for zenko configuration to be updated query
+  const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
+    getZenkoCRQuery(),
+  );
+
+  const hasExtraCACerts = useMemo(
+    () => !!zenkoCR?.spec?.egress?.extraCACerts,
+    [zenkoCR],
+  );
+
+  const addCertificateToZenkoConfigurationMutation =
+    useAddCertificateToZenkoConfigurationMutation(hasExtraCACerts);
 
   useEffect(() => {
     setValue('certificate', importCert, { shouldValidate: true });
   }, [importCert]);
 
   const onSubmit = () => {
-    console.log('DEBUG: On Submit', importCert);
+    addCertificateToZenkoConfigurationMutation.mutate(
+      {
+        certificate: importCert,
+      },
+      {
+        onSuccess: () => {
+          showToast({
+            open: true,
+            message: 'Certificate imported successfully',
+            status: 'success',
+          });
+          navigate('/truststore');
+        },
+        onError: () => {
+          showToast({
+            message: 'Failed to import certificate',
+            status: 'error',
+            open: true,
+          });
+        },
+      },
+    );
   };
 
-  //TODO: Add loading state
-  const isLoading = useMemo(() => {
-    return false;
-  }, []);
+  const isImportingCertificate = useMemo(() => {
+    return addCertificateToZenkoConfigurationMutation.isLoading;
+  }, [addCertificateToZenkoConfigurationMutation.isLoading]);
 
   return (
     <FormProvider {...formMethods}>
@@ -77,16 +115,16 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label={isLoading ? 'Importing...' : 'Import'}
+              label={isImportingCertificate ? 'Importing...' : 'Import'}
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
                   ? 'Import a valid certificate'
-                  : isLoading
+                  : isImportingCertificate
                   ? 'Importing certificate...'
                   : undefined,
               }}
-              isLoading={isLoading}
+              isLoading={isImportingCertificate || isLoadingZenkoCR}
             />
           </Stack>
         }
