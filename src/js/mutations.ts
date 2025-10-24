@@ -506,4 +506,5 @@ export {
   useCreateOrAddBucketToPolicyMutation,
   useEnableSOSAPIMutation,
   useAddCertificateToZenkoConfigurationMutation,
+  usePatchZenkoConfigurationMutation,
 };
