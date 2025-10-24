@@ -1,25 +1,36 @@
-import { Dropzone, Form, Icon, Stack, Text, TextArea } from '@scality/core-ui';
+import {
+  Dropzone,
+  Form,
+  InfoMessage,
+  Stack,
+  Text,
+  TextArea,
+  useToast,
+} from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
-import { CertificateStepsIndexes, CertificateData } from './CertificateSteps';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from '@hapi/joi';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
-ARTESCA Certificate Authority
+intermediate1
+-----END CERTIFICATE-----
+
+-----BEGIN CERTIFICATE-----
+CA
 -----END CERTIFICATE-----`;
 
 const ImportCertificate = () => {
   const navigate = useBasenameRelativeNavigate();
-  const { next } = useStepper(CertificateStepsIndexes.ImportCertificate);
-  const formMethods = useForm<CertificateData>({
+  const { showToast } = useToast();
+  const [importCert, setImportCert] = useState<string | undefined>(undefined);
+  const formMethods = useForm<{ certificate: string | undefined }>({
     mode: 'all',
     defaultValues: {
-      certificate: '',
+      certificate: undefined,
     },
     resolver: joiResolver(
       Joi.object({
@@ -31,15 +42,20 @@ const ImportCertificate = () => {
   const { isValid } = formMethods.formState;
   const { setValue, handleSubmit } = formMethods;
 
-  const [importCert, setImportCert] = useState<string | undefined>(undefined);
+  //TODO Create hook with mutation to update CR with certificate + wait for zenko configuration to be updated query
 
   useEffect(() => {
     setValue('certificate', importCert, { shouldValidate: true });
   }, [importCert]);
 
-  const onSubmit = (data: CertificateData) => {
-    next(data);
+  const onSubmit = () => {
+    console.log('DEBUG: On Submit', importCert);
   };
+
+  //TODO: Add loading state
+  const isLoading = useMemo(() => {
+    return false;
+  }, []);
 
   return (
     <FormProvider {...formMethods}>
@@ -61,26 +77,42 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label="Continue"
+              label={isLoading ? 'Importing...' : 'Import'}
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
-                  ? 'Import a certificate before proceeding to the next step'
+                  ? 'Import a valid certificate'
+                  : isLoading
+                  ? 'Importing certificate...'
                   : undefined,
               }}
-              icon={<Icon name="Arrow-right" />}
+              isLoading={isLoading}
             />
           </Stack>
         }
       >
         <Stack direction="vertical" gap="r16">
-          <label htmlFor="Certificate">
-            <Text isEmphazed>{`Certificate import`}</Text>
-          </label>
+          <InfoMessage
+            title="Certificate import"
+            content={
+              <Text>
+                Choose a file or paste the Certificate chain bundle in order to
+                import a certificate.
+                <br />
+                The certificate chain bundle should be PEM x509 formatted and
+                follow this order: optional intermediate(s) then the root
+                certificate.
+                <br />
+                This action will update the ARTESCA configuration to add the
+                certificate to the truststore. This operation may take some
+                time.
+              </Text>
+            }
+          />
           <Dropzone
-            variant="large"
+            variant="inline"
             labels={{
-              label: 'Drag and drop file here',
+              label: 'Drag and drop file here OR',
               buttonLabel: 'Browse',
             }}
             multiple={false}
@@ -103,7 +135,7 @@ const ImportCertificate = () => {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               setImportCert(e.currentTarget.value)
             }
-            rows={20}
+            rows={10}
           />
         </Stack>
       </Form>

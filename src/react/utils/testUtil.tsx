@@ -571,57 +571,59 @@ export const renderWithCustomRoute = (
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>
-            <ShellHooksProvider
-              shellHooks={mockShellHooks}
-              shellAlerts={mockShellAlerts}
-            >
-              <MemoryRouter initialEntries={[route]}>
-                <_ConfigContext.Provider
-                  //@ts-expect-error fix this when you are working on it
-                  value={zenkoUITestConfig}
-                >
-                  <_DataServiceRoleContext.Provider
+        <ToastProvider>
+          <ThemeProvider theme={theme}>
+            <Provider store={store}>
+              <ShellHooksProvider
+                shellHooks={mockShellHooks}
+                shellAlerts={mockShellAlerts}
+              >
+                <MemoryRouter initialEntries={[route]}>
+                  <_ConfigContext.Provider
                     //@ts-expect-error fix this when you are working on it
-                    value={{ role, setRole: jest.fn() }}
+                    value={zenkoUITestConfig}
                   >
-                    <_ManagementContext.Provider
-                      value={{
-                        managementClient: TEST_MANAGEMENT_CLIENT,
-                      }}
+                    <_DataServiceRoleContext.Provider
+                      //@ts-expect-error fix this when you are working on it
+                      value={{ role, setRole: jest.fn() }}
                     >
-                      <LocationAdapterProvider>
-                        <MetricsAdapterProvider>
-                          <AccountsLocationsEndpointsAdapterProvider>
-                            <AccessibleAccountsAdapterProvider>
-                              <S3ClientProvider
-                                configuration={{
-                                  endpoint: zenkoUITestConfig.zenkoEndpoint,
-                                  s3ForcePathStyle: true,
-                                  credentials: {
-                                    accessKeyId: 'accessKey',
-                                    secretAccessKey: 'secretKey',
-                                    sessionToken: 'sessionToken',
-                                  },
-                                }}
-                              >
-                                {component}
-                                {/* FIXME We are going to manage error differently
+                      <_ManagementContext.Provider
+                        value={{
+                          managementClient: TEST_MANAGEMENT_CLIENT,
+                        }}
+                      >
+                        <LocationAdapterProvider>
+                          <MetricsAdapterProvider>
+                            <AccountsLocationsEndpointsAdapterProvider>
+                              <AccessibleAccountsAdapterProvider>
+                                <S3ClientProvider
+                                  configuration={{
+                                    endpoint: zenkoUITestConfig.zenkoEndpoint,
+                                    s3ForcePathStyle: true,
+                                    credentials: {
+                                      accessKeyId: 'accessKey',
+                                      secretAccessKey: 'secretKey',
+                                      sessionToken: 'sessionToken',
+                                    },
+                                  }}
+                                >
+                                  {component}
+                                  {/* FIXME We are going to manage error differently
                               I keep it here to pass some tests */}
-                                <ErrorHandlerModal />
-                              </S3ClientProvider>
-                            </AccessibleAccountsAdapterProvider>
-                          </AccountsLocationsEndpointsAdapterProvider>
-                        </MetricsAdapterProvider>
-                      </LocationAdapterProvider>
-                    </_ManagementContext.Provider>
-                  </_DataServiceRoleContext.Provider>
-                </_ConfigContext.Provider>
-              </MemoryRouter>
-            </ShellHooksProvider>
-          </Provider>
-        </ThemeProvider>
+                                  <ErrorHandlerModal />
+                                </S3ClientProvider>
+                              </AccessibleAccountsAdapterProvider>
+                            </AccountsLocationsEndpointsAdapterProvider>
+                          </MetricsAdapterProvider>
+                        </LocationAdapterProvider>
+                      </_ManagementContext.Provider>
+                    </_DataServiceRoleContext.Provider>
+                  </_ConfigContext.Provider>
+                </MemoryRouter>
+              </ShellHooksProvider>
+            </Provider>
+          </ThemeProvider>
+        </ToastProvider>
       </QueryClientProvider>,
     ),
   };
