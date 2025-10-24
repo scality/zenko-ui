@@ -110,9 +110,9 @@ const ImportCertificate = () => {
             }
           />
           <Dropzone
-            variant="large"
+            variant="inline"
             labels={{
-              label: 'Drag and drop file here',
+              label: 'Drag and drop file here OR',
               buttonLabel: 'Browse',
             }}
             multiple={false}
