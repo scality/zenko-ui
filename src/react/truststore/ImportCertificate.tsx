@@ -1,23 +1,18 @@
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Dropzone,
   Form,
-  InfoMessage,
   Stack,
   Text,
   TextArea,
   useToast,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { joiResolver } from '@hookform/resolvers/joi';
-import Joi from '@hapi/joi';
-import {
-  useBasenameRelativeNavigate,
-  useShellHooks,
-} from '@scality/module-federation';
 import { useQuery } from 'react-query';
-import { useDeployedMetalk8sInstances } from '../next-architecture/ui/ConfigProvider';
 import { useAddCertificateToZenkoConfigurationMutation } from '../../js/mutations';
 import { getZenkoCRQuery } from '../queries';
 
@@ -25,7 +20,6 @@ const CertificatePlaceholder = `Example:
 -----BEGIN CERTIFICATE-----
 intermediate1
 -----END CERTIFICATE-----
-
 -----BEGIN CERTIFICATE-----
 CA
 -----END CERTIFICATE-----`;
@@ -115,7 +109,11 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label={isImportingCertificate ? 'Importing...' : 'Import'}
+              label={
+                isImportingCertificate
+                  ? 'Importing certificate...'
+                  : 'Import certificate'
+              }
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
@@ -130,27 +128,25 @@ const ImportCertificate = () => {
         }
       >
         <Stack direction="vertical" gap="r16">
-          <InfoMessage
-            title="Certificate import"
-            content={
-              <Text>
-                Choose a file or paste the Certificate chain bundle in order to
-                import a certificate.
-                <br />
-                The certificate chain bundle should be PEM x509 formatted and
-                follow this order: optional intermediate(s) then the root
-                certificate.
-                <br />
-                This action will update the ARTESCA configuration to add the
-                certificate to the truststore. This operation may take some
-                time.
-              </Text>
-            }
-          />
+          <Stack direction="vertical" gap="r8">
+            <Text>
+              Choose a file or paste the Certificate chain bundle in order to
+              import a certificate.
+            </Text>
+            <Text>
+              The certificate chain bundle should be PEM x509 formatted and
+              follow this order: <br /> optional intermediate(s) then the root
+              certificate.
+            </Text>
+            <Text>
+              This action will update the ARTESCA configuration to add the
+              certificate to the truststore. This operation may take some time.
+            </Text>
+          </Stack>
           <Dropzone
             variant="inline"
             labels={{
-              label: 'Drag and drop file here OR',
+              label: 'Drag and drop file here or',
               buttonLabel: 'Browse',
             }}
             multiple={false}
