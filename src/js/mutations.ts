@@ -364,7 +364,9 @@ const useCreateUserAccessKeyMutation = () => {
   });
 };
 
-const useEnableSOSAPIMutation = () => {
+const usePatchZenkoConfigurationMutation = <T>(
+  getJsonPatch: (args: T) => string,
+) => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
 
@@ -383,20 +385,14 @@ const useEnableSOSAPIMutation = () => {
     }
   };
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (args: T) => {
       const result = await fetch(getURL(instances), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json-patch+json',
           authorization: `Bearer ${await getToken()}`,
         },
-        body: JSON.stringify([
-          {
-            op: 'replace',
-            path: '/spec/veeamSosApi',
-            value: { enable: true },
-          },
-        ]),
+        body: getJsonPatch(args),
       }).then(async (res) => {
         const response = await res.json();
         if (response.status === 'Success') {
@@ -461,6 +457,42 @@ const useEnableSOSAPIMutation = () => {
   });
 };
 
+const useEnableSOSAPIMutation = () => {
+  return usePatchZenkoConfigurationMutation(() =>
+    JSON.stringify([
+      {
+        op: 'replace',
+        path: '/spec/veeamSosApi',
+        value: { enable: true },
+      },
+    ]),
+  );
+};
+
+const useAddCertificateToZenkoConfigurationMutation = (
+  hasExtraCACerts: boolean,
+) => {
+  return usePatchZenkoConfigurationMutation((args: { certificate: string }) => {
+    const patch = hasExtraCACerts
+      ? [
+          {
+            op: 'add',
+            path: '/spec/egress/extraCACerts/-',
+            value: { 'ca.crt': args.certificate },
+          },
+        ]
+      : [
+          {
+            op: 'add',
+            path: '/spec/egress/extraCACerts',
+            value: [{ 'ca.crt': args.certificate }],
+          },
+        ];
+
+    return JSON.stringify(patch);
+  });
+};
+
 export {
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
@@ -473,4 +505,6 @@ export {
   usePutObjectMutation,
   useCreateOrAddBucketToPolicyMutation,
   useEnableSOSAPIMutation,
+  useAddCertificateToZenkoConfigurationMutation,
+  usePatchZenkoConfigurationMutation,
 };

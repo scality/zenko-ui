@@ -571,31 +571,31 @@ export const renderWithCustomRoute = (
   return {
     ...render(
       <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <ThemeProvider theme={theme}>
-            <Provider store={store}>
-              <ShellHooksProvider
-                shellHooks={mockShellHooks}
-                shellAlerts={mockShellAlerts}
-              >
-                <MemoryRouter initialEntries={[route]}>
-                  <_ConfigContext.Provider
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <ShellHooksProvider
+              shellHooks={mockShellHooks}
+              shellAlerts={mockShellAlerts}
+            >
+              <MemoryRouter initialEntries={[route]}>
+                <_ConfigContext.Provider
+                  //@ts-expect-error fix this when you are working on it
+                  value={zenkoUITestConfig}
+                >
+                  <_DataServiceRoleContext.Provider
                     //@ts-expect-error fix this when you are working on it
-                    value={zenkoUITestConfig}
+                    value={{ role, setRole: jest.fn() }}
                   >
-                    <_DataServiceRoleContext.Provider
-                      //@ts-expect-error fix this when you are working on it
-                      value={{ role, setRole: jest.fn() }}
+                    <_ManagementContext.Provider
+                      value={{
+                        managementClient: TEST_MANAGEMENT_CLIENT,
+                      }}
                     >
-                      <_ManagementContext.Provider
-                        value={{
-                          managementClient: TEST_MANAGEMENT_CLIENT,
-                        }}
-                      >
-                        <LocationAdapterProvider>
-                          <MetricsAdapterProvider>
-                            <AccountsLocationsEndpointsAdapterProvider>
-                              <AccessibleAccountsAdapterProvider>
+                      <LocationAdapterProvider>
+                        <MetricsAdapterProvider>
+                          <AccountsLocationsEndpointsAdapterProvider>
+                            <AccessibleAccountsAdapterProvider>
+                              <ToastProvider>
                                 <S3ClientProvider
                                   configuration={{
                                     endpoint: zenkoUITestConfig.zenkoEndpoint,
@@ -612,18 +612,18 @@ export const renderWithCustomRoute = (
                               I keep it here to pass some tests */}
                                   <ErrorHandlerModal />
                                 </S3ClientProvider>
-                              </AccessibleAccountsAdapterProvider>
-                            </AccountsLocationsEndpointsAdapterProvider>
-                          </MetricsAdapterProvider>
-                        </LocationAdapterProvider>
-                      </_ManagementContext.Provider>
-                    </_DataServiceRoleContext.Provider>
-                  </_ConfigContext.Provider>
-                </MemoryRouter>
-              </ShellHooksProvider>
-            </Provider>
-          </ThemeProvider>
-        </ToastProvider>
+                              </ToastProvider>
+                            </AccessibleAccountsAdapterProvider>
+                          </AccountsLocationsEndpointsAdapterProvider>
+                        </MetricsAdapterProvider>
+                      </LocationAdapterProvider>
+                    </_ManagementContext.Provider>
+                  </_DataServiceRoleContext.Provider>
+                </_ConfigContext.Provider>
+              </MemoryRouter>
+            </ShellHooksProvider>
+          </Provider>
+        </ThemeProvider>
       </QueryClientProvider>,
     ),
   };

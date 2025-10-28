@@ -1,24 +1,25 @@
+import Joi from '@hapi/joi';
+import { joiResolver } from '@hookform/resolvers/joi';
 import {
   Dropzone,
   Form,
-  InfoMessage,
   Stack,
   Text,
   TextArea,
   useToast,
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
+import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { joiResolver } from '@hookform/resolvers/joi';
-import Joi from '@hapi/joi';
-import { useBasenameRelativeNavigate } from '@scality/module-federation';
+import { useQuery } from 'react-query';
+import { useAddCertificateToZenkoConfigurationMutation } from '../../js/mutations';
+import { getZenkoCRQuery } from '../queries';
 
 const CertificatePlaceholder = `Example: 
 -----BEGIN CERTIFICATE-----
 intermediate1
 -----END CERTIFICATE-----
-
 -----BEGIN CERTIFICATE-----
 CA
 -----END CERTIFICATE-----`;
@@ -26,6 +27,7 @@ CA
 const ImportCertificate = () => {
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
+
   const [importCert, setImportCert] = useState<string | undefined>(undefined);
   const formMethods = useForm<{ certificate: string | undefined }>({
     mode: 'all',
@@ -42,20 +44,50 @@ const ImportCertificate = () => {
   const { isValid } = formMethods.formState;
   const { setValue, handleSubmit } = formMethods;
 
-  //TODO Create hook with mutation to update CR with certificate + wait for zenko configuration to be updated query
+  const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
+    getZenkoCRQuery(),
+  );
+
+  const hasExtraCACerts = useMemo(
+    () => !!zenkoCR?.spec?.egress?.extraCACerts,
+    [zenkoCR],
+  );
+
+  const addCertificateToZenkoConfigurationMutation =
+    useAddCertificateToZenkoConfigurationMutation(hasExtraCACerts);
 
   useEffect(() => {
     setValue('certificate', importCert, { shouldValidate: true });
   }, [importCert]);
 
   const onSubmit = () => {
-    console.log('DEBUG: On Submit', importCert);
+    addCertificateToZenkoConfigurationMutation.mutate(
+      {
+        certificate: importCert,
+      },
+      {
+        onSuccess: () => {
+          showToast({
+            open: true,
+            message: 'Certificate imported successfully',
+            status: 'success',
+          });
+          navigate('/truststore');
+        },
+        onError: () => {
+          showToast({
+            message: 'Failed to import certificate',
+            status: 'error',
+            open: true,
+          });
+        },
+      },
+    );
   };
 
-  //TODO: Add loading state
-  const isLoading = useMemo(() => {
-    return false;
-  }, []);
+  const isImportingCertificate = useMemo(() => {
+    return addCertificateToZenkoConfigurationMutation.isLoading;
+  }, [addCertificateToZenkoConfigurationMutation.isLoading]);
 
   return (
     <FormProvider {...formMethods}>
@@ -77,42 +109,44 @@ const ImportCertificate = () => {
             <Button
               type="submit"
               variant="primary"
-              label={isLoading ? 'Importing...' : 'Import'}
+              label={
+                isImportingCertificate
+                  ? 'Importing certificate...'
+                  : 'Import certificate'
+              }
               disabled={!isValid}
               tooltip={{
                 overlay: !isValid
                   ? 'Import a valid certificate'
-                  : isLoading
+                  : isImportingCertificate
                   ? 'Importing certificate...'
                   : undefined,
               }}
-              isLoading={isLoading}
+              isLoading={isImportingCertificate || isLoadingZenkoCR}
             />
           </Stack>
         }
       >
         <Stack direction="vertical" gap="r16">
-          <InfoMessage
-            title="Certificate import"
-            content={
-              <Text>
-                Choose a file or paste the Certificate chain bundle in order to
-                import a certificate.
-                <br />
-                The certificate chain bundle should be PEM x509 formatted and
-                follow this order: optional intermediate(s) then the root
-                certificate.
-                <br />
-                This action will update the ARTESCA configuration to add the
-                certificate to the truststore. This operation may take some
-                time.
-              </Text>
-            }
-          />
+          <Stack direction="vertical" gap="r8">
+            <Text>
+              Choose a file or paste the Certificate chain bundle in order to
+              import a certificate.
+            </Text>
+            <Text>
+              The certificate chain bundle should be PEM x509 formatted and
+              follow this order: <br /> optional intermediate(s) then the root
+              certificate.
+            </Text>
+            <Text>
+              This action will update the ARTESCA configuration to add the
+              certificate to the truststore. This operation may take some time.
+            </Text>
+          </Stack>
           <Dropzone
             variant="inline"
             labels={{
-              label: 'Drag and drop file here OR',
+              label: 'Drag and drop file here or',
               buttonLabel: 'Browse',
             }}
             multiple={false}
