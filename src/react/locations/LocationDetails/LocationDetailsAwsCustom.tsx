@@ -24,6 +24,7 @@ import {
 } from '../../../types/config';
 import { useConfig } from '../../next-architecture/ui/ConfigProvider';
 import { checkIsRingS3Reseller } from '../utils';
+import { Icon, Link } from '@scality/core-ui';
 
 const computeInitialEndpoint = (locationType: LocationTypeKey) => {
   if (locationType === JAGUAR_S3_LOCATION_KEY) {
@@ -152,25 +153,35 @@ export default function LocationDetailsAwsCustom({
         />
 
         {!isRingS3Reseller ? (
-          <FormGroup
-            content={
-              //@ts-expect-error fix this when you are working on it
-              <Input
-                name="endpoint"
-                type="text"
-                value={formState.endpoint}
-                onChange={onFormItemChange}
-                autoComplete="off"
-                placeholder="https://hosted-s3-server.internal.example.com:4443"
-              />
-            }
-            label="Endpoint"
-            id="endpoint"
-            required
-            labelHelpTooltip="Endpoint to reach the S3 server, including scheme and port. The
+          <>
+            <FormGroup
+              content={
+                <Input
+                  name="endpoint"
+                  id="endpoint"
+                  type="text"
+                  value={formState.endpoint}
+                  onChange={onFormItemChange}
+                  autoComplete="off"
+                  placeholder="https://hosted-s3-server.internal.example.com:4443"
+                />
+              }
+              label="Endpoint"
+              id="endpoint"
+              required
+              labelHelpTooltip="Endpoint to reach the S3 server, including scheme and port. The
         buckets will have a path-style access."
-            helpErrorPosition="bottom"
-          />
+              helpErrorPosition="bottom"
+            />
+            {/* 
+            //TODO: add context to the link to explain truststore 
+            //TODO and why it is needed for Scality S3 locations
+            */}
+
+            <Link href="/data/truststore" target="_blank">
+              Open trust store <Icon name="External-link" />
+            </Link>
+          </>
         ) : (
           <></>
         )}
