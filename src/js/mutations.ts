@@ -1,19 +1,19 @@
+import { useShellHooks } from '@scality/module-federation';
 import { S3 } from 'aws-sdk';
 import { useEffect, useRef, useState } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { MutationOptions, useMutation, useQueryClient } from 'react-query';
 import { useIAMClient } from '../react/IAMProvider';
+import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
 import { useManagementClient } from '../react/ManagementProvider';
 import { useInstanceId } from '../react/next-architecture/ui/AuthProvider';
+import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
 import { useS3Client } from '../react/next-architecture/ui/S3ClientProvider';
+import { getPolicyInfoQuery } from '../react/queries';
 import { ApiError } from '../types/actions';
 import { TagSetItem } from '../types/s3';
 import { notFalsyTypeGuard } from '../types/typeGuards';
 import { MULTIPART_UPLOAD } from './S3Client';
 import { EndpointV1 } from './managementClient/api';
-import { useShellHooks } from '@scality/module-federation';
-import { getPolicyInfoQuery } from '../react/queries';
-import { defaultActions, immutableActions } from '../react/ISV/utils/ISVPolicy';
-import { useDeployedMetalk8sInstances } from '../react/next-architecture/ui/ConfigProvider';
 
 export const useWaitForRunningConfigurationVersionToBeUpdated = () => {
   const managementClient = useManagementClient();
@@ -366,6 +366,7 @@ const useCreateUserAccessKeyMutation = () => {
 
 const usePatchZenkoConfigurationMutation = <T>(
   getJsonPatch: (args: T) => string,
+  options?: MutationOptions<T, ApiError, T>,
 ) => {
   const { useConfigRetriever, useAuth } = useShellHooks();
   const { getToken } = useAuth();
@@ -454,6 +455,7 @@ const usePatchZenkoConfigurationMutation = <T>(
 
       return result;
     },
+    ...(options ?? {}),
   });
 };
 
@@ -493,18 +495,39 @@ const useAddCertificateToZenkoConfigurationMutation = (
   });
 };
 
+const useToggleTLSVerificationMutation = (
+  options?: MutationOptions<
+    { skipTLSVerify: boolean },
+    ApiError,
+    { skipTLSVerify: boolean }
+  >,
+) => {
+  const patch = (args: { skipTLSVerify: boolean }) => {
+    return JSON.stringify([
+      {
+        op: 'replace',
+        path: '/spec/egress/skipTLSVerify',
+        value: args.skipTLSVerify,
+      },
+    ]);
+  };
+
+  return usePatchZenkoConfigurationMutation(patch, options);
+};
+
 export {
+  useAddCertificateToZenkoConfigurationMutation,
   useAttachPolicyToUserMutation,
   useCreateAccountMutation,
   useCreateEndpointMutation,
   useCreateIAMUserMutation,
+  useCreateOrAddBucketToPolicyMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
+  useEnableSOSAPIMutation,
+  usePatchZenkoConfigurationMutation,
   usePutBucketTaggingMutation,
   usePutBucketTaggingMutationByS3Client,
   usePutObjectMutation,
-  useCreateOrAddBucketToPolicyMutation,
-  useEnableSOSAPIMutation,
-  useAddCertificateToZenkoConfigurationMutation,
-  usePatchZenkoConfigurationMutation,
+  useToggleTLSVerificationMutation,
 };
