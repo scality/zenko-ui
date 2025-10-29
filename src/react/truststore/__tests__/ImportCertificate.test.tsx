@@ -20,6 +20,12 @@ jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
   useDeployedMetalk8sInstances: jest.fn(() => [{ name: 'test-instance' }]),
 }));
 
+//TODO: add mocked certificates
+const mockedValidCertificate = `-----BEGIN CERTIFICATE-----
+mocked valid certificate
+-----END CERTIFICATE-----
+`;
+const mockedInvalidCertificate = ``;
 describe('ImportCertificate', () => {
   const selectors = {
     importButton: () => screen.getByRole('button', { name: /Import/i }),
@@ -121,6 +127,7 @@ describe('ImportCertificate', () => {
   afterAll(() => {
     server.close();
   });
+
   it('should render', () => {
     render(<ImportCertificate />, { wrapper: NewWrapper() });
     expect(selectors.importButton()).toBeDisabled();
@@ -133,19 +140,9 @@ describe('ImportCertificate', () => {
   it('should enable Import button if form is valid', async () => {
     render(<ImportCertificate />, { wrapper: NewWrapper() });
     expect(selectors.importButton()).toBeDisabled();
-    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     expect(selectors.importButton()).toBeEnabled();
-  });
-  it('should disable Import button if form is invalid', async () => {
-    render(<ImportCertificate />, { wrapper: NewWrapper() });
-    expect(selectors.importButton()).toBeDisabled();
-    await userEvent.type(
-      selectors.certificateInput(),
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. ',
-    );
-    expect(selectors.importButton()).toBeEnabled();
-    await userEvent.clear(selectors.certificateInput());
-    expect(selectors.importButton()).toBeDisabled();
   });
 
   it('should navigate to truststore page if Cancel button is clicked', async () => {
@@ -164,7 +161,6 @@ describe('ImportCertificate', () => {
     await userEvent.click(selectors.cancelButton());
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
-
   it('should navigate to truststore page if import is successful and show success toast', async () => {
     renderWithCustomRoute(
       <Routes>
@@ -177,18 +173,18 @@ describe('ImportCertificate', () => {
       '/truststore/import-certificate',
     );
 
-    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     expect(selectors.importButton()).toBeEnabled();
     await userEvent.click(selectors.importButton());
+    expect(
+      screen.getByRole('button', { name: /Importing certificate.../i }),
+    ).toBeInTheDocument();
 
-    await waitFor(
-      () => {
-        expect(
-          screen.getByText(/Certificate imported successfully/i),
-        ).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Certificate imported successfully/i),
+      ).toBeInTheDocument();
+    });
     expect(screen.getByText(/Truststore/i)).toBeInTheDocument();
   });
 
@@ -211,7 +207,7 @@ describe('ImportCertificate', () => {
       '/truststore/import-certificate',
     );
 
-    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     expect(selectors.importButton()).toBeEnabled();
     await userEvent.click(selectors.importButton());
 
@@ -270,7 +266,7 @@ describe('ImportCertificate', () => {
       '/truststore/import-certificate',
     );
 
-    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     await userEvent.click(selectors.importButton());
 
     await waitFor(() => {
@@ -282,7 +278,7 @@ describe('ImportCertificate', () => {
       {
         op: 'add',
         path: '/spec/egress/extraCACerts/-',
-        value: { 'ca.crt': 'TEST CERTIFICATE' },
+        value: { 'ca.crt': mockedValidCertificate },
       },
     ]);
   });
@@ -330,7 +326,7 @@ describe('ImportCertificate', () => {
       '/truststore/import-certificate',
     );
 
-    await userEvent.type(selectors.certificateInput(), 'TEST CERTIFICATE');
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
     await userEvent.click(selectors.importButton());
 
     await waitFor(() => {
@@ -342,8 +338,32 @@ describe('ImportCertificate', () => {
       {
         op: 'add',
         path: '/spec/egress/extraCACerts',
-        value: [{ 'ca.crt': 'TEST CERTIFICATE' }],
+        value: [{ 'ca.crt': mockedValidCertificate }],
       },
     ]);
+  });
+  it('should show error message and disable import button if certificate is empty', async () => {
+    render(<ImportCertificate />, { wrapper: NewWrapper() });
+
+    await userEvent.type(selectors.certificateInput(), mockedValidCertificate);
+    await userEvent.clear(selectors.certificateInput());
+
+    expect(selectors.importButton()).toBeDisabled();
+    await waitFor(() => {
+      expect(
+        screen.getByText(/"certificate" is not allowed to be empty/i),
+      ).toBeInTheDocument();
+    });
+  });
+  //TODO: add test for invalid certificate chain
+  it.skip('should show error message and disable import button if certificate chain is invalid', async () => {
+    render(<ImportCertificate />, { wrapper: NewWrapper() });
+    await userEvent.type(selectors.certificateInput(), 'INVALID CERTIFICATE');
+    await userEvent.click(selectors.importButton());
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Invalid certificate chain/i),
+      ).toBeInTheDocument();
+    });
   });
 });

@@ -1,5 +1,6 @@
 import Joi from '@hapi/joi';
 import { joiResolver } from '@hookform/resolvers/joi';
+import { isCertificateChainValid } from '@scality/certchain';
 import {
   Dropzone,
   Form,
@@ -10,7 +11,7 @@ import {
 } from '@scality/core-ui';
 import { Button } from '@scality/core-ui/dist/components/buttonv2/Buttonv2.component';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { useAddCertificateToZenkoConfigurationMutation } from '../../js/mutations';
@@ -28,7 +29,6 @@ const ImportCertificate = () => {
   const navigate = useBasenameRelativeNavigate();
   const { showToast } = useToast();
 
-  const [importCert, setImportCert] = useState<string | undefined>(undefined);
   const formMethods = useForm<{ certificate: string | undefined }>({
     mode: 'all',
     defaultValues: {
@@ -36,13 +36,25 @@ const ImportCertificate = () => {
     },
     resolver: joiResolver(
       Joi.object({
-        certificate: Joi.string().required(),
+        certificate: Joi.string()
+          .required()
+          .custom((value, helpers) => {
+            const isValid = isCertificateChainValid(value);
+            if (!isValid) {
+              return helpers.message({ custom: 'Invalid certificate chain' });
+            }
+            return value;
+          }),
       }),
     ),
     shouldUnregister: false,
   });
-  const { isValid } = formMethods.formState;
-  const { setValue, handleSubmit } = formMethods;
+  const {
+    setValue,
+    handleSubmit,
+    register,
+    formState: { isValid, errors },
+  } = formMethods;
 
   const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
     getZenkoCRQuery(),
@@ -56,14 +68,10 @@ const ImportCertificate = () => {
   const addCertificateToZenkoConfigurationMutation =
     useAddCertificateToZenkoConfigurationMutation(hasExtraCACerts);
 
-  useEffect(() => {
-    setValue('certificate', importCert, { shouldValidate: true });
-  }, [importCert]);
-
-  const onSubmit = () => {
+  const onSubmit = (data: { certificate: string }) => {
     addCertificateToZenkoConfigurationMutation.mutate(
       {
-        certificate: importCert,
+        certificate: data.certificate,
       },
       {
         onSuccess: () => {
@@ -93,7 +101,6 @@ const ImportCertificate = () => {
     <FormProvider {...formMethods}>
       <Form
         onSubmit={handleSubmit(onSubmit)}
-        requireMode="all"
         layout={{ kind: 'page', title: 'Import a new Certificate' }}
         rightActions={
           <Stack gap="r16">
@@ -143,34 +150,52 @@ const ImportCertificate = () => {
               certificate to the truststore. This operation may take some time.
             </Text>
           </Stack>
-          <Dropzone
-            variant="inline"
-            labels={{
-              label: 'Drag and drop file here or',
-              buttonLabel: 'Browse',
-            }}
-            multiple={false}
-            onChange={(files: File[]) => {
-              const reader = new FileReader();
-              reader.onload = () => {
-                setImportCert(reader.result as string);
-              };
-              if (files[0]) {
-                reader.readAsText(files[0], 'utf-8');
-              } else {
-                setImportCert('');
-              }
-            }}
-          />
-          <TextArea
-            id="Certificate"
-            placeholder={CertificatePlaceholder}
-            value={importCert}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setImportCert(e.currentTarget.value)
-            }
-            rows={10}
-          />
+          <Stack direction="vertical" gap="r8">
+            <Dropzone
+              variant="inline"
+              labels={{
+                label: 'Drag and drop file here or',
+                buttonLabel: 'Browse',
+              }}
+              multiple={false}
+              onChange={(files: File[]) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  setValue('certificate', reader.result as string, {
+                    shouldValidate: true,
+                  });
+                };
+                reader.onerror = () => {
+                  setValue('certificate', undefined, {
+                    shouldValidate: true,
+                  });
+                  showToast({
+                    message:
+                      'Failed to read certificate file. Import a valid certificate PEM file',
+                    status: 'error',
+                    open: true,
+                  });
+                };
+                if (files[0]) {
+                  reader.readAsText(files[0], 'utf-8');
+                } else {
+                  setValue('certificate', undefined, {
+                    shouldValidate: true,
+                  });
+                }
+              }}
+            />
+
+            <TextArea
+              {...register('certificate')}
+              id="Certificate"
+              placeholder={CertificatePlaceholder}
+              rows={15}
+            />
+            <Text isEmphazed variant="Smaller" color="statusCritical">
+              {errors.certificate?.message}
+            </Text>
+          </Stack>
         </Stack>
       </Form>
     </FormProvider>

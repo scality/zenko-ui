@@ -385,6 +385,7 @@ const usePatchZenkoConfigurationMutation = <T>(
       );
     }
   };
+
   return useMutation({
     mutationFn: async (args: T) => {
       const result = await fetch(getURL(instances), {
@@ -428,6 +429,12 @@ const usePatchZenkoConfigurationMutation = <T>(
 
         isReady = false;
         if (response.status.conditions) {
+          const errorCondition = response.status.conditions.find(
+            (cond) => cond.type === 'DeploymentFailure',
+          );
+          if (errorCondition && errorCondition.status === 'True') {
+            throw new Error(errorCondition.message);
+          }
           const availableCondition = response.status.conditions.find(
             (cond) => cond.type === 'Available',
           );
@@ -452,7 +459,6 @@ const usePatchZenkoConfigurationMutation = <T>(
           'Operation timed out: resource synchronization did not complete within the expected time frame',
         );
       }
-
       return result;
     },
     ...(options ?? {}),
