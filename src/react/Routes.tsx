@@ -46,6 +46,7 @@ import AccountCreateUser from './account/AccountCreateUser';
 import CreateAccountPolicy from './account/CreateAccountPolicy';
 import { ISVSteps } from './ISV/components/ISVSteps';
 import ImportCertificate from './truststore/ImportCertificate';
+import Truststore from './truststore/Truststore';
 
 export const RemoveTrailingSlash = ({ ...rest }) => {
   const location = useLocation();
@@ -245,7 +246,7 @@ export function PrivateRoutes() {
           </DataServiceRoleProvider>
         }
       />
-      <Route path="truststore/*" element={<></>} />
+      <Route path="truststore/*" element={<Truststore />} />
       <Route
         path="truststore/import-certificate/*"
         element={<ImportCertificate />}
@@ -485,19 +486,7 @@ function InternalRoutes() {
           doesRouteMatch('/accounts/:accountName/workflows/*') ||
           doesRouteMatch('/accounts/:accountName/data/workflows/*'),
       },
-      //TODO: Put Truststore behind a feature flag for the moment until it is fully ready.
-      ...(isPlatformAdmin && features.includes('Truststore')
-        ? [
-            {
-              label: 'Truststore',
-              icon: <Icon name="ID-card" />,
-              onClick: () => {
-                navigate('/truststore');
-              },
-              active: doesRouteMatch('/truststore'),
-            },
-          ]
-        : []),
+
       ...(isStorageManager
         ? [
             {
@@ -516,6 +505,19 @@ function InternalRoutes() {
                 navigate('/dataservices');
               },
               active: doesRouteMatch('/dataservices'),
+            },
+          ]
+        : []),
+      //TODO: Put Truststore behind a feature flag for the moment until it is fully ready.
+      ...(isPlatformAdmin && features.includes('Truststore')
+        ? [
+            {
+              label: 'Truststore',
+              icon: <Icon name="ID-card" />,
+              onClick: () => {
+                navigate('/truststore');
+              },
+              active: doesRouteMatch('/truststore'),
             },
           ]
         : []),
