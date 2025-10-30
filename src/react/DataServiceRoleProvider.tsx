@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useState, JSX } from 'react';
+import { flushSync } from 'react-dom';
 import { useParams } from 'react-router';
 import { noopBasedEventDispatcher, regexArn, useAccounts } from './utils/hooks';
 import { getRoleArnStored, setRoleArnStored } from './utils/localStorage';
@@ -118,16 +119,37 @@ const DataServiceRoleProvider = ({
   const [assumedRole, setAssumedRole] =
     useState<PromiseResult<STS.AssumeRoleWithWebIdentityResponse, AWSError>>();
   const assumeRoleMutation = useMutation({
-    mutationFn: (roleArn: string) => getQuery(roleArn).queryFn(),
-    onSuccess: (data) => {
-      setAssumedRole(data);
+    mutationFn: (roleArn: string) => {
+      return getQuery(roleArn).queryFn();
+    },
+    onSuccess: (data, roleArn) => {
+      setAssumedRole((prevAssumedRole) => {
+        if (role.roleArn !== roleArn) {
+          console.warn('Ignoring stale assume role response for', roleArn);
+          return prevAssumedRole;
+        }
+
+        const prevCreds = prevAssumedRole?.Credentials;
+        const newCreds = data?.Credentials;
+
+        if (
+          prevCreds?.AccessKeyId &&
+          newCreds?.AccessKeyId &&
+          prevCreds.AccessKeyId === newCreds.AccessKeyId &&
+          prevCreds.SecretAccessKey === newCreds.SecretAccessKey &&
+          prevCreds.SessionToken === newCreds.SessionToken
+        ) {
+          return prevAssumedRole;
+        }
+
+        return data;
+      });
     },
   });
 
   const { useAuth } = useShellHooks();
   const { userData } = useAuth();
 
-  // invalide the stored ARN if it's not in the list accountsWithRoles
   useMemo(() => {
     const storedRole = getRoleArnStored();
     if (accountName) {
@@ -150,12 +172,28 @@ const DataServiceRoleProvider = ({
       setRoleState({ roleArn: accounts[0].Roles[0].Arn });
     }
 
-    if (role.roleArn) {
+    if (role.roleArn && !assumedRole) {
       assumeRoleMutation.mutate(role.roleArn);
     }
-  }, [role.roleArn, JSON.stringify(accounts), userData?.token, accountName]);
+  }, [
+    role.roleArn,
+    accounts.length,
+    userData?.token,
+    accountName,
+    assumedRole,
+  ]);
 
   const { getS3Config } = useS3ConfigFromAssumeRoleResult();
+
+  const s3Configuration = useMemo(
+    () => getS3Config(assumedRole),
+    [
+      assumedRole?.Credentials?.AccessKeyId,
+      assumedRole?.Credentials?.SecretAccessKey,
+      assumedRole?.Credentials?.SessionToken,
+      getS3Config,
+    ],
+  );
 
   const setRole = (role: { roleArn: string }) => {
     setRoleArnStored(role.roleArn);
@@ -165,16 +203,23 @@ const DataServiceRoleProvider = ({
     }
   };
 
-  const setRolePromise = async (role: { roleArn: string }) => {
-    if (!role.roleArn) {
+  const setRolePromise = async (roleParam: { roleArn: string }) => {
+    if (!roleParam.roleArn) {
       return Promise.reject('Invalid role arn');
     }
-    return getQuery(role.roleArn)
+
+    if (assumedRole && role.roleArn === roleParam.roleArn) {
+      return new S3(getS3Config(assumedRole));
+    }
+
+    return getQuery(roleParam.roleArn)
       .queryFn()
       .then((data) => {
-        setAssumedRole(data);
-        setRoleArnStored(role.roleArn);
-        setRoleState(role);
+        flushSync(() => {
+          setAssumedRole(data);
+          setRoleArnStored(roleParam.roleArn);
+          setRoleState(roleParam);
+        });
 
         return new S3(getS3Config(data));
       });
@@ -187,7 +232,7 @@ const DataServiceRoleProvider = ({
 
   if (DoNotChangePropsWithRedux) {
     return (
-      <S3ClientProvider configuration={getS3Config(assumedRole)}>
+      <S3ClientProvider configuration={s3Configuration}>
         <_DataServiceRoleContext.Provider
           value={{
             role,
@@ -203,7 +248,7 @@ const DataServiceRoleProvider = ({
   }
 
   return (
-    <S3ClientWithoutReduxProvider configuration={getS3Config(assumedRole)}>
+    <S3ClientWithoutReduxProvider configuration={s3Configuration}>
       <_DataServiceRoleContext.Provider
         value={{
           role,
