@@ -176,11 +176,11 @@ const CreateWorkflow = () => {
       });
       const joiValidator = joiResolver(schema);
       if (['replication', 'transition'].includes(values.type)) {
-        const validation = await joiValidator(values, context, options);
+        const validation = await joiValidator(values, context, options as any);
         return validation;
       } else {
         const expiration = prepareExpirationQuery(values.expiration);
-        return joiValidator({ ...values, expiration }, context, options);
+        return joiValidator({ ...values, expiration }, context, options as any);
       }
     },
     defaultValues: defaultFormValues,
