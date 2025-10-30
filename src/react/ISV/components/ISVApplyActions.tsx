@@ -12,12 +12,15 @@ import { ISVSkipModal } from './ISVSkipModal';
 import { useMutationActions } from '../hooks/useMutationActions';
 import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
-import { useCreateBucketByS3Client } from '../../next-architecture/domain/business/buckets';
-import {
-  usePutBucketTaggingMutationByS3Client,
-  usePutObjectMutation,
-} from '../../../js/mutations';
 import { useMultiMutation, Mutation } from '../hooks/useMultiMutation';
+import { useS3Hooks } from '../../next-architecture/ui/S3HookFactoryProvider';
+import { S3OperationConfig } from '../../next-architecture/domain/interfaces/IS3Operations';
+import { getISVOperationConfig } from '../config/ISVOperationConfig';
+import { DataBrowserIsolatedWrapper } from '../DataBrowserIsolatedWrapper';
+import { useAssumedRole } from '../../DataServiceRoleProvider';
+import { useConfig } from '../../next-architecture/ui/ConfigProvider';
+import { createDataBrowserS3Config } from '../../next-architecture/adapters/s3/createDataBrowserS3Config';
+import Loader from '../../ui-elements/Loader';
 
 export const ListItem = styled.li`
   padding: 0.5rem;
@@ -40,20 +43,23 @@ type ISVApplyActionsProps = ISVConfig & {
 const BucketMutation = ({
   bucket,
   onMutationReady,
+  config,
 }: {
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
+  config: S3OperationConfig;
 }) => {
-  const createBucketMutation = useCreateBucketByS3Client();
-  const putBucketTaggingMutation = usePutBucketTaggingMutationByS3Client();
+  const s3Hooks = useS3Hooks(config);
+  const createBucketMutation = s3Hooks.useCreateBucket();
+  const setBucketTaggingMutation = s3Hooks.useSetBucketTagging();
 
   useMemo(() => {
     onMutationReady(`createBucket-${bucket.name}`, createBucketMutation);
     onMutationReady(
       `putBucketTagging-${bucket.name}`,
-      putBucketTaggingMutation,
+      setBucketTaggingMutation,
     );
-  }, [createBucketMutation.status, putBucketTaggingMutation.status]);
+  }, [createBucketMutation.status, setBucketTaggingMutation.status]);
 
   return <></>;
 };
@@ -61,13 +67,16 @@ const BucketMutation = ({
 const BucketVeeamMutation = ({
   bucket,
   onMutationReady,
+  config,
 }: {
   bucket: Bucket;
   onMutationReady: (key: string, mutation: Mutation) => void;
+  config: S3OperationConfig;
 }) => {
-  const putVeeamFolderMutation = usePutObjectMutation();
-  const putVeeamSystemXmlMutation = usePutObjectMutation();
-  const putVeeamCapacityXmlMutation = usePutObjectMutation();
+  const s3Hooks = useS3Hooks(config);
+  const putVeeamFolderMutation = s3Hooks.usePutObject();
+  const putVeeamSystemXmlMutation = s3Hooks.usePutObject();
+  const putVeeamCapacityXmlMutation = s3Hooks.usePutObject();
 
   useMemo(() => {
     onMutationReady(`putVeeamFolder-${bucket.name}`, putVeeamFolderMutation);
@@ -234,7 +243,7 @@ const Main = ({
 };
 
 export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
-  const { buckets, platform } = props;
+  const { buckets, platform, enableImmutableBackup } = props;
   const isVeeamVBR = platform.id === 'veeam-vbr';
   const { mutations, handleMutationReady, isAllMutationsReady } =
     useMultiMutation(
@@ -242,22 +251,64 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
       isVeeamVBR ? buckets.length * 5 : buckets.length * 2,
     );
 
+  const isvConfig = useMemo(() => {
+    return getISVOperationConfig(platform, enableImmutableBackup);
+  }, [platform, enableImmutableBackup]);
+
+  // Get S3 configuration from assumed role context to avoid react-query v3 conflicts
+  const assumedRole = useAssumedRole();
+  const { zenkoEndpoint } = useConfig();
+
+  const s3Config = useMemo(() => {
+    const credentials = assumedRole?.Credentials;
+    if (
+      !credentials?.AccessKeyId ||
+      !credentials?.SecretAccessKey ||
+      !credentials?.SessionToken
+    ) {
+      return null;
+    }
+
+    return createDataBrowserS3Config({
+      zenkoEndpoint,
+      credentials: {
+        accessKeyId: credentials.AccessKeyId,
+        secretAccessKey: credentials.SecretAccessKey,
+        sessionToken: credentials.SessionToken,
+      },
+      region: isvConfig.region,
+    });
+  }, [assumedRole?.Credentials, zenkoEndpoint, isvConfig.region]);
+
+  // Show loading if credentials are not available yet
+  if (!s3Config) {
+    return (
+      <Loader>
+        <>Loading S3 credentials...</>
+      </Loader>
+    );
+  }
+
   return (
     <>
-      {buckets.map((bucket) => (
-        <Fragment key={bucket.name}>
-          <BucketMutation
-            bucket={bucket}
-            onMutationReady={handleMutationReady}
-          />
-          {isVeeamVBR && (
-            <BucketVeeamMutation
+      <DataBrowserIsolatedWrapper config={isvConfig} s3Config={s3Config}>
+        {buckets.map((bucket) => (
+          <Fragment key={bucket.name}>
+            <BucketMutation
               bucket={bucket}
               onMutationReady={handleMutationReady}
+              config={isvConfig}
             />
-          )}
-        </Fragment>
-      ))}
+            {isVeeamVBR && (
+              <BucketVeeamMutation
+                bucket={bucket}
+                onMutationReady={handleMutationReady}
+                config={isvConfig}
+              />
+            )}
+          </Fragment>
+        ))}
+      </DataBrowserIsolatedWrapper>
 
       {isAllMutationsReady && <Main mutations={mutations} props={props} />}
     </>
