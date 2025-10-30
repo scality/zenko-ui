@@ -114,6 +114,9 @@ const config: Configuration = {
   resolve: {
     modules: ['node_modules'],
     extensions: ['.js', '.jsx', '.css', '.json', '.ts', '.tsx'],
+    alias: {
+      'redux-thunk': path.resolve(__dirname, 'node_modules/redux-thunk'),
+    },
   },
   plugins: [
     new ModuleFederationPlugin({
