@@ -33,7 +33,7 @@ const Editor = ({
   }, [themeMode]);
 
   useMemo(() => {
-    const path = process.env.NODE_ENV === 'development' ? '/zenko' : basePath;
+    const path = '/zenko';
     loader.config({ paths: { vs: path + '/vs' } });
   }, []);
 
