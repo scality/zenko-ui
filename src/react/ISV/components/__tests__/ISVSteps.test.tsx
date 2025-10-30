@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { ISVStepperContext, useISVStepper } from '../ISVSteps';

@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ISVApplyActions from '../ISVApplyActions';
 import { Wrapper } from '../../../utils/testUtil';
@@ -40,6 +41,7 @@ jest.mock('../../hooks/useMultiMutation', () => ({
   useMultiMutation: () => ({
     isAllMutationsReady: true,
     handleMutationReady: jest.fn(),
+    mutations: {},
   }),
 }));
 

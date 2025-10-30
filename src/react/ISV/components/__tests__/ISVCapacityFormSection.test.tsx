@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { screen, waitFor, render } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import {

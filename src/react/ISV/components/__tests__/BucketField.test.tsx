@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import BucketField from '../BucketField';

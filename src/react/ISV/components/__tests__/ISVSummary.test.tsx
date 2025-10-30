@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { Stepper } from '@scality/core-ui';
 import { render, screen } from '@testing-library/react';
 

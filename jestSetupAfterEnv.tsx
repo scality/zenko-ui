@@ -166,6 +166,8 @@ jest.mock('./src/react/next-architecture/ui/XCoreLibraryProvider', () => {
   };
 });
 
+jest.mock('@scality/data-browser-library', () => {}, { virtual: true });
+
 jest.mock('@module-federation/enhanced/runtime', () => {}, { virtual: true });
 jest.mock('@scality/module-federation', () => {
   const router = jest.requireActual('react-router');

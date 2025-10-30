@@ -1,3 +1,4 @@
+import '../../__tests__/testSetup.tsx';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ISVConfiguration } from '../ISVConfiguration';
