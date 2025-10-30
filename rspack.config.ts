@@ -109,6 +109,14 @@ const config: Configuration = {
         test: /\.css$/,
         type: 'css',
       },
+      {
+        test: /\.js$/,
+        include: [/data-browser-library/],
+        resolve: {
+          fullySpecified: false,
+        },
+        type: 'javascript/auto',
+      },
     ],
   },
   resolve: {
