@@ -1,5 +1,5 @@
 import { useShellHooks } from '@scality/module-federation';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useMutation } from 'react-query';
 import {
   useAttachPolicyToUserMutation,
@@ -20,14 +20,13 @@ import { Mutation } from './useMultiMutation';
 import { VEEAM_XML_PREFIX } from '../../ISV/constants';
 import { SYSTEM_XML_CONTENT } from '../../ISV/constants';
 import { GET_CAPACITY_XML_CONTENT } from '../../ISV/constants';
-import {} from '../modules/veeam';
 import { useCheckSOSAPIStatus } from './useCheckSOSAPIStatus';
 
 type Result = {
   data: {
     step: number;
     action: string;
-    status: 'success' | 'error' | 'loading' | 'idle';
+    status: 'success' | 'error' | 'pending' | 'idle';
     retry: () => void;
   }[];
   accessKey: string;
@@ -188,48 +187,32 @@ export const useMutationActions = (
     return buckets?.reduce(
       (acc, bucket) => ({
         ...acc,
-        [`createBucket-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
-            (result) => result?.config?.key === 's3Config',
-          );
-
+        [`createBucket-${bucket.name}`]: () => {
           return {
-            s3Client,
-            request: {
-              ObjectLockEnabledForBucket: enableImmutableBackup,
-              Bucket: bucket.name,
+            Bucket: bucket.name,
+          };
+        },
+      }),
+      {},
+    );
+  }, [buckets]);
+
+  const putBucketTaggingArray = useMemo(() => {
+    return buckets?.reduce(
+      (acc, bucket) => ({
+        ...acc,
+        [`putBucketTagging-${bucket.name}`]: () => {
+          return {
+            Bucket: bucket.name,
+            Tagging: {
+              TagSet: [],
             },
           };
         },
       }),
       {},
     );
-  }, [buckets, enableImmutableBackup]);
-
-  const putBucketTaggingArray = useMemo(() => {
-    return buckets?.reduce(
-      (acc, bucket) => ({
-        ...acc,
-        [`putBucketTagging-${bucket.name}`]: (results) => {
-          const s3Client = results.find(
-            (result) => result?.config?.key === 's3Config',
-          );
-
-          return {
-            s3Client,
-            bucketName: bucket.name,
-            tagSet: [
-              {
-                Key: 'X-Scality-Application',
-                Value: platform.bucketTag,
-              },
-            ],
-          };
-        },
-      }),
-      {},
-    );
-  }, [buckets, platform]);
+  }, [buckets]);
 
   const putVeeamFolderArray = useMemo(() => {
     return buckets?.reduce(
@@ -314,23 +297,25 @@ export const useMutationActions = (
         };
       },
       attachPolicyToUser: (results) => {
+        const policyName = `${IAMUserName || accountName}-${platform.id}-${
+          enableImmutableBackup ? 'immutable' : 'non-immutable'
+        }`;
+        const accountResponse = results.find(
+          (result) => result?.key === 'createAccount',
+        );
+        const accountId = account ? account.id : accountResponse?.id;
+        const policyArn = `arn:aws:iam::${accountId}:policy/${policyName}`;
+
         if (!account) {
           const name = getIAMUserName(results);
-          const accountResponse = results.find(
-            (result) => result?.key === 'createAccount',
-          );
           return {
             userName: name,
-            policyArn: `arn:aws:iam::${accountResponse.id}:policy/${name}-${
-              platform.id
-            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
+            policyArn: policyArn,
           };
         } else {
           return {
-            userName: IAMUserName,
-            policyArn: `arn:aws:iam::${account.id}:policy/${IAMUserName}-${
-              platform.id
-            }-${enableImmutableBackup ? 'immutable' : 'non-immutable'}`,
+            userName: IAMUserName || accountName,
+            policyArn: policyArn,
           };
         }
       },
@@ -339,7 +324,7 @@ export const useMutationActions = (
     },
   });
 
-  useMemo(() => {
+  useEffect(() => {
     mutate();
   }, []);
 
