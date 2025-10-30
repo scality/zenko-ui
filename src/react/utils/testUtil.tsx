@@ -347,6 +347,26 @@ export function mockOffsetSize(width: number, height: number) {
     return originalStyle;
   });
 
+  // Mock ResizeObserver for virtual scrolling
+  global.ResizeObserver = jest.fn().mockImplementation(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+  }));
+
+  // Mock getBoundingClientRect for virtual scrolling
+  Element.prototype.getBoundingClientRect = jest.fn(() => ({
+    width: width || 100,
+    height: height || 100,
+    top: 0,
+    left: 0,
+    bottom: height || 100,
+    right: width || 100,
+    x: 0,
+    y: 0,
+    toJSON: jest.fn(),
+  }));
+
   Object.defineProperties(window.HTMLElement.prototype, {
     offsetHeight: {
       get: () => {

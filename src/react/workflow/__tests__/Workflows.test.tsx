@@ -178,10 +178,9 @@ describe('Workflows', () => {
       { timeout: 8000 },
     );
     //V
-    expect(
-      screen.getByRole('checkbox', {
-        name: /Expire Previous version of objects/i,
-      }),
-    ).toBeChecked();
+    const checkboxes = screen.getAllByRole('checkbox', {
+      name: /Expire Previous version of objects/i,
+    });
+    expect(checkboxes[0]).toBeChecked();
   });
 });
