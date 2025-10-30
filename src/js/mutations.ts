@@ -206,7 +206,7 @@ const useCreateOrAddBucketToPolicyMutation = () => {
       const newPolicyDocument = getPolicy(bucketsName, isImmutable);
 
       if (!policyData) {
-        return IAMClient.createPolicy(policyName, newPolicyDocument);
+        return await IAMClient.createPolicy(policyName, newPolicyDocument);
       }
 
       const policyVersions = await IAMClient.listPolicyVersions(policyData.Arn);
@@ -308,7 +308,9 @@ const useAttachPolicyToUserMutation = () => {
     }: {
       userName: string;
       policyArn: string;
-    }) => IAMClient.attachUserPolicy(userName, policyArn),
+    }) => {
+      return IAMClient.attachUserPolicy(userName, policyArn);
+    },
   });
 };
 
