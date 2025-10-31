@@ -1,23 +1,57 @@
 import { useState } from 'react';
-// Use a generic type to avoid React Query version conflicts
-// This allows both v3 and v5 mutation results to be used
-export type Mutation = {
-  mutate: (variables?: any, options?: any) => void;
-  mutateAsync: (variables?: any) => Promise<any>;
-  status: 'idle' | 'pending' | 'error' | 'success'; // React Query v5 uses 'pending' instead of 'loading'
-  data?: any;
-  error?: any;
+
+/**
+ * Generic mutation type compatible with React Query v3 and v5.
+ */
+export type Mutation<
+  TData = unknown,
+  TError = unknown,
+  TVariables = unknown,
+  TContext = unknown,
+> = {
+  mutate: (
+    variables?: TVariables,
+    options?: {
+      onSuccess?: (
+        data: TData,
+        variables: TVariables,
+        context: TContext,
+      ) => void;
+      onError?: (
+        error: TError,
+        variables: TVariables,
+        context: TContext,
+      ) => void;
+      onSettled?: (
+        data: TData | undefined,
+        error: TError | null,
+        variables: TVariables,
+        context: TContext,
+      ) => void;
+    },
+  ) => void;
+  mutateAsync: (variables?: TVariables) => Promise<TData>;
+  status: 'idle' | 'pending' | 'error' | 'success';
+  data?: TData;
+  error?: TError;
   isLoading?: boolean;
   isError?: boolean;
   isSuccess?: boolean;
-  isPending?: boolean; // React Query v5 property
+  isPending?: boolean;
   reset?: () => void;
 };
 
-export function useMultiMutation<T>(items: T[], expectedTotal?: number) {
-  const [mutations, setMutations] = useState<Record<string, Mutation>>({});
+type StoredMutation = Mutation<unknown, unknown, unknown, unknown>;
 
-  const handleMutationReady = (key: string, mutation: Mutation) => {
+export function useMultiMutation<T>(items: T[], expectedTotal?: number) {
+  const [mutations, setMutations] = useState<Record<string, StoredMutation>>(
+    {},
+  );
+
+  const handleMutationReady = <TData, TError, TVariables, TContext>(
+    key: string,
+    mutation: Mutation<TData, TError, TVariables, TContext>,
+  ): void => {
     setMutations((prev) => ({
       ...prev,
       [key]: {
