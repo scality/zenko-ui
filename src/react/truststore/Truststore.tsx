@@ -1,3 +1,4 @@
+import { Certificate, CertificateSubject } from '@scality/certchain';
 import {
   AppContainer,
   Icon,
@@ -17,31 +18,66 @@ import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo } from 'react';
 import { MutationOptions, useQuery, useQueryClient } from 'react-query';
+import { CoreUIColumn, Row } from 'react-table';
 import { useToggleTLSVerificationMutation } from '../../js/mutations';
 import { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import { TableHeaderWrapper } from '../ui-elements/Table';
-import { CoreUIColumn, Row } from 'react-table';
+import { useParseBundleCertificates } from './hooks';
 
-type CertificateData = {
-  metadata: string;
-  expireOn: string;
-  authority: string;
+const formatCertificateDataForTable = (
+  parsedCertificates: (Certificate & CertificateSubject)[][],
+) => {
+  const formattedCertificateData: CertificateData[] = parsedCertificates.map(
+    (certificateBundle) => {
+      const data: CertificateData = {
+        metadata: [],
+        expireOn: [],
+        certificates: certificateBundle,
+      };
+      certificateBundle.forEach((certificate) => {
+        data.metadata.push(certificate.commonName);
+        data.expireOn.push(certificate.expiresOn);
+      });
+      return data;
+    },
+  );
+
+  return formattedCertificateData;
 };
 
-const fakeData = [
-  {
-    metadata: 'Certificate 1',
-    expireOn: '2025-01-01',
-    authority: 'Authority 1',
-  },
-];
+type CertificateData = {
+  metadata: string[];
+  expireOn: Date[];
+  certificates: (Certificate & CertificateSubject)[];
+};
 
 const columns: CoreUIColumn<CertificateData>[] = [
   {
     Header: 'Name',
     accessor: 'metadata',
     cellStyle: { flex: 1 },
+    Cell: ({ value }: { value: string[] }) => {
+      return (
+        <Stack gap="r8">
+          {value.map((v, index) => {
+            return (
+              <Stack
+                key={v}
+                direction="horizontal"
+                gap="r8"
+                style={{ alignItems: 'center' }}
+              >
+                <Text>{v}</Text>
+                {index < value.length - 1 && (
+                  <Icon name="Chevron-right" size="sm" />
+                )}
+              </Stack>
+            );
+          })}
+        </Stack>
+      );
+    },
   },
   {
     Header: 'Expire On',
@@ -51,24 +87,24 @@ const columns: CoreUIColumn<CertificateData>[] = [
       flex: 1,
       paddingRight: spacing.f36,
     },
-    Cell: ({ value }: { value: string }) => {
-      return <Text>{value}</Text>;
+    Cell: ({ value }: { value: Date[] }) => {
+      const closestExpireDate =
+        value.length > 1
+          ? value.sort((a, b) => {
+              return a.getTime() - b.getTime();
+            })[0]
+          : value[0];
+      return <Text>{new Date(closestExpireDate).toLocaleDateString()}</Text>;
     },
   },
   {
-    Header: 'Authority',
-    accessor: 'authority',
-    cellStyle: { flex: 1 },
-  },
-  {
-    Header: '',
     id: 'actions',
     cellStyle: { flex: 0.75 },
     Cell: ({ row }: { row: Row<CertificateData> }) => {
       return (
-        <Stack>
+        <Stack style={{ justifyContent: 'flex-end', marginRight: spacing.r16 }}>
           <Button
-            label="View Certificate"
+            label="View Details"
             variant="outline"
             icon={<Icon name="Eye" />}
             onClick={() => {
@@ -106,9 +142,11 @@ const Truststore = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
   const navigate = useBasenameRelativeNavigate();
-  const { data: zenkoCR, isLoading: isLoadingZenkoCR } = useQuery(
-    getZenkoCRQuery(),
-  );
+  const {
+    data: zenkoCR,
+    status: zenkoCRStatus,
+    isLoading: isLoadingZenkoCR,
+  } = useQuery(getZenkoCRQuery());
   const toggleTLSVerificationMutationOptions: MutationOptions<
     { skipTLSVerify: boolean },
     ApiError,
@@ -138,6 +176,21 @@ const Truststore = () => {
   const isSkippingTLSVerification = useMemo(() => {
     return zenkoCR?.spec?.egress?.skipTLSVerify ?? false;
   }, [zenkoCR]);
+
+  const extraCACerts = useMemo(() => {
+    return zenkoCR?.spec?.egress?.extraCACerts ?? [];
+  }, [zenkoCR]);
+
+  const {
+    parsedCertificates: parsedExtraCACerts,
+    isLoading: isParsingCertificates,
+  } = useParseBundleCertificates(extraCACerts);
+
+  const formattedCertificateDataForTable = useMemo(() => {
+    return parsedExtraCACerts
+      ? formatCertificateDataForTable(parsedExtraCACerts)
+      : [];
+  }, [parsedExtraCACerts]);
 
   const toggleTLSVerification = (skipTLSVerify: boolean) => {
     toggleTLSVerificationMutation({ skipTLSVerify });
@@ -170,12 +223,12 @@ const Truststore = () => {
         <Box width="100%">
           <Table
             columns={columns}
-            data={fakeData}
+            status={zenkoCRStatus}
+            data={formattedCertificateDataForTable}
             entityName={{
               en: { singular: 'certificate', plural: 'certificates' },
               fr: { singular: 'certificat', plural: 'certificats' },
             }}
-            status="success"
           >
             <TableHeaderWrapper
               actions={

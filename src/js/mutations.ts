@@ -429,12 +429,6 @@ const usePatchZenkoConfigurationMutation = <T>(
 
         isReady = false;
         if (response.status.conditions) {
-          const errorCondition = response.status.conditions.find(
-            (cond) => cond.type === 'DeploymentFailure',
-          );
-          if (errorCondition && errorCondition.status === 'True') {
-            throw new Error(errorCondition.message);
-          }
           const availableCondition = response.status.conditions.find(
             (cond) => cond.type === 'Available',
           );
