@@ -1,13 +1,13 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useContext, createContext } from 'react';
 import {
   useCreateBucket as useDBCreateBucket,
   usePutObject as useDBPutObject,
   useSetBucketTagging as useDBSetBucketTagging,
-  useBuckets as useDBBuckets,
-  useDeleteBucket as useDBDeleteBucket,
-  useDeleteObjects as useDBDeleteObjects,
-  useGetObject as useDBGetObject,
-  useObjectMetadata as useDBObjectMetadata,
+  useBuckets,
+  useDeleteBucket,
+  useDeleteObjects,
+  useGetObject,
+  useObjectMetadata,
 } from '@scality/data-browser-library';
 
 import type {
@@ -15,289 +15,215 @@ import type {
   PutObjectCommandInput,
   PutBucketTaggingCommandInput,
   BucketLocationConstraint,
-  GetObjectCommandInput,
-  HeadObjectCommandInput,
 } from '@scality/data-browser-library';
 
 import {
   IS3Hooks,
-  IS3HookFactory,
   S3OperationConfig,
   mergeConfigs,
 } from '../../domain/interfaces/IS3Operations';
 
+const S3ConfigContext = createContext<S3OperationConfig>({});
+
+export const S3ConfigProvider = S3ConfigContext.Provider;
+
 /**
- * DataBrowser Hook Factory Adapter
+ * Hook to use S3 operations with optional config override
  *
- * Wraps data-browser-library hooks with config hierarchy support.
- * Implements the IS3HookFactory port interface.
- */
-export class DataBrowserHookFactory implements IS3HookFactory {
-  /**
-   * Provider-level config (Priority 1 - lowest)
-   * Set when factory is created
-   */
-  private providerConfig: S3OperationConfig;
-
-  constructor(providerConfig: S3OperationConfig = {}) {
-    this.providerConfig = providerConfig;
-  }
-
-  /**
-   * Get the merged base config (Provider + Factory levels)
-   */
-  getBaseConfig(factoryConfig?: S3OperationConfig): S3OperationConfig {
-    return mergeConfigs(this.providerConfig, factoryConfig);
-  }
-}
-
-/**
- * Enrich CreateBucket parameters with config values
- * Mutation params have highest priority (only apply config if param is undefined)
- */
-function enrichCreateBucketParams(
-  params: CreateBucketCommandInput,
-  config: S3OperationConfig,
-): CreateBucketCommandInput {
-  const enrichedParams = { ...params };
-
-  if (
-    config.locationConstraint &&
-    !params.CreateBucketConfiguration?.LocationConstraint
-  ) {
-    enrichedParams.CreateBucketConfiguration = {
-      ...params.CreateBucketConfiguration,
-      LocationConstraint: config.locationConstraint as BucketLocationConstraint,
-    };
-  }
-
-  if (
-    config.objectLockEnabled !== undefined &&
-    params.ObjectLockEnabledForBucket === undefined
-  ) {
-    enrichedParams.ObjectLockEnabledForBucket = config.objectLockEnabled;
-  }
-
-  return enrichedParams;
-}
-
-/**
- * Enrich PutObject parameters with config values
- * Mutation params have highest priority
- */
-function enrichPutObjectParams(
-  params: PutObjectCommandInput,
-  config: S3OperationConfig,
-): PutObjectCommandInput {
-  const hasMetadata =
-    (config.metadata && Object.keys(config.metadata).length > 0) ||
-    (params.Metadata && Object.keys(params.Metadata).length > 0);
-
-  return {
-    ...params,
-    ContentType: params.ContentType ?? config.contentType,
-    ...(hasMetadata && {
-      Metadata: {
-        ...(config.metadata || {}),
-        ...(params.Metadata || {}),
-      },
-    }),
-  };
-}
-
-/**
- * Enrich SetBucketTagging parameters with config values
- * Mutation params have highest priority
- */
-function enrichSetBucketTaggingParams(
-  params: PutBucketTaggingCommandInput,
-  config: S3OperationConfig,
-): PutBucketTaggingCommandInput {
-  if (!config.bucketTags || config.bucketTags.length === 0) {
-    return params;
-  }
-
-  const existingTags = params.Tagging?.TagSet || [];
-  const configTags = config.bucketTags;
-
-  const mergedTagsMap = new Map<string, string>();
-  configTags.forEach((tag) => mergedTagsMap.set(tag.Key, tag.Value));
-  existingTags.forEach((tag) => mergedTagsMap.set(tag.Key, tag.Value));
-
-  const mergedTags = Array.from(mergedTagsMap.entries()).map(
-    ([Key, Value]) => ({ Key, Value }),
-  );
-
-  return {
-    ...params,
-    Tagging: {
-      TagSet: mergedTags,
-    },
-  };
-}
-
-/**
- * React Hook to create S3 hooks bundle with proper Rules of Hooks compliance
+ * Directly wraps data-browser-library hooks without unnecessary factory pattern.
+ * Only wraps hooks that actually need config enrichment.
  *
- * This hook wraps the DataBrowserHookFactory and creates React hooks correctly.
- * It must be called at the component level, not inside the factory class.
- *
- * Configuration Priority (highest to lowest):
- * 4. Mutation params: mutation.mutate({ Bucket: 'x', ObjectLockEnabledForBucket: true })
- * 3. Hook config: s3Hooks.useCreateBucket({ objectLockEnabled: true })
- * 2. Factory config: useDataBrowserHooks(factory, { region: 'us-east-1' })  ← This level
- * 1. Provider config: new DataBrowserHookFactory({ region: 'us-west-1' })
- *
- * @param factory - The DataBrowserHookFactory instance
- * @param factoryConfig - Priority 2 configuration
- * @returns Bundle of S3 hooks with config support
+ * @param config - Optional config to override provider defaults
+ * @returns Bundle of S3 hooks
  *
  * @example
  * ```typescript
- * const factory = new DataBrowserHookFactory({ region: 'us-west-1' });
- * const s3Hooks = useDataBrowserHooks(factory, { region: 'eu-west-1' });
- * const createBucket = s3Hooks.useCreateBucket({ objectLockEnabled: true });
+ * const s3Hooks = useS3Hooks({ locationConstraint: 'us-east-1' });
+ * const createBucket = s3Hooks.useCreateBucket();
  * await createBucket.mutateAsync({ Bucket: 'my-bucket' });
  * ```
  */
-export function useDataBrowserHooks(
-  factory: IS3HookFactory,
-  factoryConfig?: S3OperationConfig,
-): IS3Hooks {
-  const baseConfig = useMemo(
-    () => factory.getBaseConfig(factoryConfig),
-    [factory, factoryConfig],
+export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
+  const providerConfig = useContext(S3ConfigContext);
+  const finalConfig = useMemo(
+    () => mergeConfigs(providerConfig, config),
+    [providerConfig, config],
   );
 
-  const hooks = {
-    useCreateBucket: (hookConfig?: S3OperationConfig) => {
-      const dbMutation = useDBCreateBucket();
-      const finalConfig = useMemo(
-        () => mergeConfigs(baseConfig, hookConfig),
-        [hookConfig],
-      );
+  return useMemo(
+    () => ({
+      useCreateBucket: (hookConfig?: S3OperationConfig) => {
+        const mutation = useDBCreateBucket();
+        const cfg = useMemo(
+          () => mergeConfigs(finalConfig, hookConfig),
+          [hookConfig],
+        );
 
-      const mutate = useCallback(
-        (params: CreateBucketCommandInput, options?: any) => {
-          dbMutation.mutate(
-            enrichCreateBucketParams(params, finalConfig),
-            options,
-          );
-        },
-        [dbMutation.mutate, finalConfig],
-      );
+        const mutate = useCallback(
+          (params: CreateBucketCommandInput, options?: any) => {
+            mutation.mutate(
+              {
+                ...params,
+                ...(cfg.locationConstraint &&
+                  !params.CreateBucketConfiguration?.LocationConstraint && {
+                    CreateBucketConfiguration: {
+                      ...params.CreateBucketConfiguration,
+                      LocationConstraint:
+                        cfg.locationConstraint as BucketLocationConstraint,
+                    },
+                  }),
+                ...(cfg.objectLockEnabled !== undefined &&
+                  params.ObjectLockEnabledForBucket === undefined && {
+                    ObjectLockEnabledForBucket: cfg.objectLockEnabled,
+                  }),
+              },
+              options,
+            );
+          },
+          [mutation.mutate, cfg],
+        );
 
-      const mutateAsync = useCallback(
-        async (params: CreateBucketCommandInput) => {
-          return dbMutation.mutateAsync(
-            enrichCreateBucketParams(params, finalConfig),
-          );
-        },
-        [dbMutation.mutateAsync, finalConfig],
-      );
+        const mutateAsync = useCallback(
+          async (params: CreateBucketCommandInput) => {
+            return mutation.mutateAsync({
+              ...params,
+              ...(cfg.locationConstraint &&
+                !params.CreateBucketConfiguration?.LocationConstraint && {
+                  CreateBucketConfiguration: {
+                    ...params.CreateBucketConfiguration,
+                    LocationConstraint:
+                      cfg.locationConstraint as BucketLocationConstraint,
+                  },
+                }),
+              ...(cfg.objectLockEnabled !== undefined &&
+                params.ObjectLockEnabledForBucket === undefined && {
+                  ObjectLockEnabledForBucket: cfg.objectLockEnabled,
+                }),
+            });
+          },
+          [mutation.mutateAsync, cfg],
+        );
 
-      return {
-        ...dbMutation,
-        mutate,
-        mutateAsync,
-      };
-    },
+        return { ...mutation, mutate, mutateAsync };
+      },
 
-    usePutObject: (hookConfig?: S3OperationConfig) => {
-      const dbMutation = useDBPutObject();
-      const finalConfig = useMemo(
-        () => mergeConfigs(baseConfig, hookConfig),
-        [hookConfig],
-      );
+      usePutObject: (hookConfig?: S3OperationConfig) => {
+        const mutation = useDBPutObject();
+        const cfg = useMemo(
+          () => mergeConfigs(finalConfig, hookConfig),
+          [hookConfig],
+        );
 
-      const mutate = useCallback(
-        (params: PutObjectCommandInput, options?: any) => {
-          dbMutation.mutate(
-            enrichPutObjectParams(params, finalConfig),
-            options,
-          );
-        },
-        [dbMutation.mutate, finalConfig],
-      );
+        const mutate = useCallback(
+          (params: PutObjectCommandInput, options?: any) => {
+            const mergedMetadata = {
+              ...(cfg.metadata || {}),
+              ...(params.Metadata || {}),
+            };
+            const hasMetadata = Object.keys(mergedMetadata).length > 0;
 
-      const mutateAsync = useCallback(
-        async (params: PutObjectCommandInput) => {
-          return dbMutation.mutateAsync(
-            enrichPutObjectParams(params, finalConfig),
-          );
-        },
-        [dbMutation.mutateAsync, finalConfig],
-      );
+            mutation.mutate(
+              {
+                ...params,
+                ...(params.ContentType && { ContentType: params.ContentType }),
+                ...(hasMetadata && { Metadata: mergedMetadata }),
+              },
+              options,
+            );
+          },
+          [mutation.mutate, cfg],
+        );
 
-      return {
-        ...dbMutation,
-        mutate,
-        mutateAsync,
-      };
-    },
+        const mutateAsync = useCallback(
+          async (params: PutObjectCommandInput) => {
+            const mergedMetadata = {
+              ...(cfg.metadata || {}),
+              ...(params.Metadata || {}),
+            };
+            const hasMetadata = Object.keys(mergedMetadata).length > 0;
 
-    useSetBucketTagging: (hookConfig?: S3OperationConfig) => {
-      const dbMutation = useDBSetBucketTagging();
-      const finalConfig = useMemo(
-        () => mergeConfigs(baseConfig, hookConfig),
-        [hookConfig],
-      );
+            return mutation.mutateAsync({
+              ...params,
+              ...(params.ContentType && { ContentType: params.ContentType }),
+              ...(hasMetadata && { Metadata: mergedMetadata }),
+            });
+          },
+          [mutation.mutateAsync, cfg],
+        );
 
-      const mutate = useCallback(
-        (params: PutBucketTaggingCommandInput, options?: any) => {
-          const enrichedParams = enrichSetBucketTaggingParams(
-            params,
-            finalConfig,
-          );
-          dbMutation.mutate(enrichedParams, options);
-        },
-        [dbMutation.mutate, finalConfig],
-      );
+        return { ...mutation, mutate, mutateAsync };
+      },
 
-      const mutateAsync = useCallback(
-        async (params: PutBucketTaggingCommandInput) => {
-          const enrichedParams = enrichSetBucketTaggingParams(
-            params,
-            finalConfig,
-          );
-          return dbMutation.mutateAsync(enrichedParams);
-        },
-        [dbMutation.mutateAsync, finalConfig],
-      );
+      useSetBucketTagging: (hookConfig?: S3OperationConfig) => {
+        const mutation = useDBSetBucketTagging();
+        const cfg = useMemo(
+          () => mergeConfigs(finalConfig, hookConfig),
+          [hookConfig],
+        );
 
-      return {
-        ...dbMutation,
-        mutate,
-        mutateAsync,
-      };
-    },
+        const mutate = useCallback(
+          (params: PutBucketTaggingCommandInput, options?: any) => {
+            if (!cfg.bucketTags?.length) {
+              mutation.mutate(params, options);
+              return;
+            }
 
-    useBuckets: (_hookConfig?: S3OperationConfig) => {
-      return useDBBuckets({});
-    },
+            const tagMap = new Map<string, string>();
+            cfg.bucketTags.forEach((tag) => tagMap.set(tag.Key, tag.Value));
+            (params.Tagging?.TagSet || []).forEach((tag) =>
+              tagMap.set(tag.Key, tag.Value),
+            );
 
-    useDeleteBucket: (_hookConfig?: S3OperationConfig) => {
-      return useDBDeleteBucket();
-    },
+            mutation.mutate(
+              {
+                ...params,
+                Tagging: {
+                  TagSet: Array.from(tagMap.entries()).map(([Key, Value]) => ({
+                    Key,
+                    Value,
+                  })),
+                },
+              },
+              options,
+            );
+          },
+          [mutation.mutate, cfg],
+        );
 
-    useDeleteObjects: (_hookConfig?: S3OperationConfig) => {
-      return useDBDeleteObjects();
-    },
+        const mutateAsync = useCallback(
+          async (params: PutBucketTaggingCommandInput) => {
+            if (!cfg.bucketTags?.length) {
+              return mutation.mutateAsync(params);
+            }
 
-    useGetObject: (
-      params: GetObjectCommandInput,
-      _hookConfig?: S3OperationConfig,
-    ) => {
-      return useDBGetObject(params);
-    },
+            const tagMap = new Map<string, string>();
+            cfg.bucketTags.forEach((tag) => tagMap.set(tag.Key, tag.Value));
+            (params.Tagging?.TagSet || []).forEach((tag) =>
+              tagMap.set(tag.Key, tag.Value),
+            );
 
-    useObjectMetadata: (
-      params: HeadObjectCommandInput,
-      _hookConfig?: S3OperationConfig,
-    ) => {
-      return useDBObjectMetadata(params);
-    },
-  } as unknown as IS3Hooks;
+            return mutation.mutateAsync({
+              ...params,
+              Tagging: {
+                TagSet: Array.from(tagMap.entries()).map(([Key, Value]) => ({
+                  Key,
+                  Value,
+                })),
+              },
+            });
+          },
+          [mutation.mutateAsync, cfg],
+        );
 
-  return hooks;
+        return { ...mutation, mutate, mutateAsync };
+      },
+
+      useBuckets,
+      useDeleteBucket,
+      useDeleteObjects,
+      useGetObject,
+      useObjectMetadata,
+    }),
+    [finalConfig],
+  );
 }

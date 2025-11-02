@@ -1,10 +1,10 @@
-jest.mock('../../next-architecture/ui/S3HookFactoryProvider', () => ({
+jest.mock('../../next-architecture/adapters/s3/DataBrowserHookFactory', () => ({
   useS3Hooks: () => ({
     useCreateBucket: () => ({ status: 'idle', mutate: jest.fn() }),
     useSetBucketTagging: () => ({ status: 'idle', mutate: jest.fn() }),
     usePutObject: () => ({ status: 'idle', mutate: jest.fn() }),
   }),
-  S3HookFactoryProvider: ({ children }: { children: React.ReactNode }) => (
+  S3ConfigProvider: ({ children }: { children: React.ReactNode }) => (
     <>{children}</>
   ),
 }));

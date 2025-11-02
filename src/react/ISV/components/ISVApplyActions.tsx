@@ -13,7 +13,7 @@ import { useMutationActions } from '../hooks/useMutationActions';
 import { Bucket, ISVConfig, ISVPlatformConfig } from '../types';
 import { Account } from '../../next-architecture/domain/entities/account';
 import { useMultiMutation, Mutation } from '../hooks/useMultiMutation';
-import { useS3Hooks } from '../../next-architecture/ui/S3HookFactoryProvider';
+import { useS3Hooks } from '../../next-architecture/adapters/s3/DataBrowserHookFactory';
 import { S3OperationConfig } from '../../next-architecture/domain/interfaces/IS3Operations';
 import { getISVOperationConfig } from '../config/ISVOperationConfig';
 import { DataBrowserIsolatedWrapper } from '../DataBrowserIsolatedWrapper';

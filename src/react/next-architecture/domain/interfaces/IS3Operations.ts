@@ -1,4 +1,3 @@
-// Use data-browser-library's React Query v5 types directly to avoid conflicts
 import type {
   CreateBucketCommandInput,
   CreateBucketCommandOutput,
@@ -18,7 +17,11 @@ import type {
   EnhancedS3Error,
 } from '@scality/data-browser-library';
 
-import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type {
+  UseMutationResult,
+  UseQueryResult,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 
 type S3HookError = EnhancedS3Error;
 
@@ -87,21 +90,26 @@ export interface IS3Hooks {
   >;
 
   useBuckets: (
-    config?: S3OperationConfig,
+    params?: Record<string, unknown>,
+    options?: Omit<
+      UseQueryOptions<
+        ListBucketsCommandOutput,
+        S3HookError,
+        ListBucketsCommandOutput,
+        readonly unknown[]
+      >,
+      'queryFn' | 'queryKey'
+    >,
   ) => UseQueryResult<ListBucketsCommandOutput, S3HookError>;
 
-  useDeleteBucket: (
-    config?: S3OperationConfig,
-  ) => UseMutationResult<
+  useDeleteBucket: () => UseMutationResult<
     DeleteBucketCommandOutput,
     S3HookError,
     DeleteBucketCommandInput,
     unknown
   >;
 
-  useDeleteObjects: (
-    config?: S3OperationConfig,
-  ) => UseMutationResult<
+  useDeleteObjects: () => UseMutationResult<
     DeleteObjectsCommandOutput,
     S3HookError,
     DeleteObjectsCommandInput,
@@ -110,15 +118,28 @@ export interface IS3Hooks {
 
   useGetObject: (
     params: GetObjectCommandInput,
-    config?: S3OperationConfig,
+    options?: Omit<
+      UseQueryOptions<
+        GetObjectCommandOutput,
+        S3HookError,
+        GetObjectCommandOutput,
+        readonly unknown[]
+      >,
+      'queryFn' | 'queryKey'
+    >,
   ) => UseQueryResult<GetObjectCommandOutput, S3HookError>;
 
   useObjectMetadata: (
     params: HeadObjectCommandInput,
-    config?: S3OperationConfig,
+    options?: Omit<
+      UseQueryOptions<
+        HeadObjectCommandOutput,
+        S3HookError,
+        HeadObjectCommandOutput,
+        readonly unknown[]
+      >,
+      'queryFn' | 'queryKey'
+    >,
   ) => UseQueryResult<HeadObjectCommandOutput, S3HookError>;
 }
 
-export interface IS3HookFactory {
-  getBaseConfig(factoryConfig?: S3OperationConfig): S3OperationConfig;
-}
