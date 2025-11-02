@@ -115,8 +115,14 @@ export const useMutationActions = (
         `Tag Bucket: ${bucket.name}`,
       );
       steps.push(
-        bucketMutations[`createBucket-${bucket.name}`],
-        bucketMutations[`putBucketTagging-${bucket.name}`],
+        {
+          ...bucketMutations[`createBucket-${bucket.name}`],
+          key: `createBucket-${bucket.name}`,
+        },
+        {
+          ...bucketMutations[`putBucketTagging-${bucket.name}`],
+          key: `putBucketTagging-${bucket.name}`,
+        },
       );
 
       if (platform.id === 'veeam-vbr') {
@@ -126,9 +132,18 @@ export const useMutationActions = (
           'Set maximum repository capacity',
         );
         steps.push(
-          bucketMutations[`putVeeamFolder-${bucket.name}`],
-          bucketMutations[`putVeeamSystemXml-${bucket.name}`],
-          bucketMutations[`putVeeamCapacityXml-${bucket.name}`],
+          {
+            ...bucketMutations[`putVeeamFolder-${bucket.name}`],
+            key: `putVeeamFolder-${bucket.name}`,
+          },
+          {
+            ...bucketMutations[`putVeeamSystemXml-${bucket.name}`],
+            key: `putVeeamSystemXml-${bucket.name}`,
+          },
+          {
+            ...bucketMutations[`putVeeamCapacityXml-${bucket.name}`],
+            key: `putVeeamCapacityXml-${bucket.name}`,
+          },
         );
       }
     });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 /**
  * Generic mutation type compatible with React Query v3 and v5.
@@ -48,18 +48,21 @@ export function useMultiMutation<T>(items: T[], expectedTotal?: number) {
     {},
   );
 
-  const handleMutationReady = <TData, TError, TVariables, TContext>(
-    key: string,
-    mutation: Mutation<TData, TError, TVariables, TContext>,
-  ): void => {
-    setMutations((prev) => ({
-      ...prev,
-      [key]: {
-        key,
-        ...mutation,
-      },
-    }));
-  };
+  const mutationRefs = useRef<Record<string, StoredMutation>>({});
+
+  const handleMutationReady = useCallback(
+    <TData, TError, TVariables, TContext>(
+      key: string,
+      mutation: Mutation<TData, TError, TVariables, TContext>,
+    ): void => {
+      mutationRefs.current[key] = mutation as StoredMutation;
+      setMutations((prev) => ({
+        ...prev,
+        [key]: mutation as StoredMutation,
+      }));
+    },
+    [],
+  );
 
   const targetCount = expectedTotal ?? items.length;
   const isAllMutationsReady =

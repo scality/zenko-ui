@@ -2,7 +2,7 @@ import { Form, Icon, Stack, Text } from '@scality/core-ui';
 import { useStepper } from '@scality/core-ui/dist/components/steppers/Stepper.component';
 import Table, * as T from '../../ui-elements/Table';
 import { Box, Button } from '@scality/core-ui/dist/next';
-import { useState, useMemo, useCallback, Fragment } from 'react';
+import { useState, useMemo, useCallback, useEffect, Fragment } from 'react';
 import { useQueryClient } from 'react-query';
 import styled, { useTheme } from 'styled-components';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
@@ -53,13 +53,16 @@ const BucketMutation = ({
   const createBucketMutation = s3Hooks.useCreateBucket();
   const setBucketTaggingMutation = s3Hooks.useSetBucketTagging();
 
-  useMemo(() => {
+  useEffect(() => {
     onMutationReady(`createBucket-${bucket.name}`, createBucketMutation);
+  }, [bucket.name, onMutationReady, createBucketMutation.status]);
+
+  useEffect(() => {
     onMutationReady(
       `putBucketTagging-${bucket.name}`,
       setBucketTaggingMutation,
     );
-  }, [createBucketMutation.status, setBucketTaggingMutation.status]);
+  }, [bucket.name, onMutationReady, setBucketTaggingMutation.status]);
 
   return <></>;
 };
@@ -78,21 +81,23 @@ const BucketVeeamMutation = ({
   const putVeeamSystemXmlMutation = s3Hooks.usePutObject();
   const putVeeamCapacityXmlMutation = s3Hooks.usePutObject();
 
-  useMemo(() => {
+  useEffect(() => {
     onMutationReady(`putVeeamFolder-${bucket.name}`, putVeeamFolderMutation);
+  }, [bucket.name, onMutationReady, putVeeamFolderMutation.status]);
+
+  useEffect(() => {
     onMutationReady(
       `putVeeamSystemXml-${bucket.name}`,
       putVeeamSystemXmlMutation,
     );
+  }, [bucket.name, onMutationReady, putVeeamSystemXmlMutation.status]);
+
+  useEffect(() => {
     onMutationReady(
       `putVeeamCapacityXml-${bucket.name}`,
       putVeeamCapacityXmlMutation,
     );
-  }, [
-    putVeeamFolderMutation.status,
-    putVeeamSystemXmlMutation.status,
-    putVeeamCapacityXmlMutation.status,
-  ]);
+  }, [bucket.name, onMutationReady, putVeeamCapacityXmlMutation.status]);
 
   return <></>;
 };
