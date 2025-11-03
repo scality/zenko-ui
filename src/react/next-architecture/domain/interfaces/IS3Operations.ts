@@ -26,13 +26,10 @@ import type {
 type S3HookError = EnhancedS3Error;
 
 export interface S3OperationConfig {
-  region?: string;
   locationConstraint?: string;
   objectLockEnabled?: boolean;
   contentType?: string;
-  metadata?: Record<string, string>;
   bucketTags?: Array<{ Key: string; Value: string }>;
-  [key: string]: unknown;
 }
 
 export function mergeConfigs(
@@ -51,10 +48,6 @@ export function mergeConfigs(
         Key,
         Value,
       }));
-    }
-
-    if (merged.metadata && config.metadata) {
-      result.metadata = { ...merged.metadata, ...config.metadata };
     }
 
     return result;

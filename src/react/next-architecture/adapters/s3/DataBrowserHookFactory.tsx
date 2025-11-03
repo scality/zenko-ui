@@ -59,49 +59,35 @@ export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
           [hookConfig],
         );
 
+        const enrichParams = useCallback(
+          (params: CreateBucketCommandInput): CreateBucketCommandInput => ({
+            ...params,
+            ...(cfg.locationConstraint &&
+              !params.CreateBucketConfiguration?.LocationConstraint && {
+                CreateBucketConfiguration: {
+                  ...params.CreateBucketConfiguration,
+                  LocationConstraint:
+                    cfg.locationConstraint as BucketLocationConstraint,
+                },
+              }),
+            ...(cfg.objectLockEnabled !== undefined &&
+              params.ObjectLockEnabledForBucket === undefined && {
+                ObjectLockEnabledForBucket: cfg.objectLockEnabled,
+              }),
+          }),
+          [cfg],
+        );
+
         const mutate = useCallback(
-          (params: CreateBucketCommandInput, options?: any) => {
-            mutation.mutate(
-              {
-                ...params,
-                ...(cfg.locationConstraint &&
-                  !params.CreateBucketConfiguration?.LocationConstraint && {
-                    CreateBucketConfiguration: {
-                      ...params.CreateBucketConfiguration,
-                      LocationConstraint:
-                        cfg.locationConstraint as BucketLocationConstraint,
-                    },
-                  }),
-                ...(cfg.objectLockEnabled !== undefined &&
-                  params.ObjectLockEnabledForBucket === undefined && {
-                    ObjectLockEnabledForBucket: cfg.objectLockEnabled,
-                  }),
-              },
-              options,
-            );
-          },
-          [mutation.mutate, cfg],
+          (params: CreateBucketCommandInput, options?: any) =>
+            mutation.mutate(enrichParams(params), options),
+          [mutation.mutate, enrichParams],
         );
 
         const mutateAsync = useCallback(
-          async (params: CreateBucketCommandInput) => {
-            return mutation.mutateAsync({
-              ...params,
-              ...(cfg.locationConstraint &&
-                !params.CreateBucketConfiguration?.LocationConstraint && {
-                  CreateBucketConfiguration: {
-                    ...params.CreateBucketConfiguration,
-                    LocationConstraint:
-                      cfg.locationConstraint as BucketLocationConstraint,
-                  },
-                }),
-              ...(cfg.objectLockEnabled !== undefined &&
-                params.ObjectLockEnabledForBucket === undefined && {
-                  ObjectLockEnabledForBucket: cfg.objectLockEnabled,
-                }),
-            });
-          },
-          [mutation.mutateAsync, cfg],
+          async (params: CreateBucketCommandInput) =>
+            mutation.mutateAsync(enrichParams(params)),
+          [mutation.mutateAsync, enrichParams],
         );
 
         return { ...mutation, mutate, mutateAsync };
@@ -114,41 +100,25 @@ export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
           [hookConfig],
         );
 
-        const mutate = useCallback(
-          (params: PutObjectCommandInput, options?: any) => {
-            const mergedMetadata = {
-              ...(cfg.metadata || {}),
-              ...(params.Metadata || {}),
-            };
-            const hasMetadata = Object.keys(mergedMetadata).length > 0;
+        const enrichParams = useCallback(
+          (params: PutObjectCommandInput): PutObjectCommandInput => ({
+            ...params,
+            ...(cfg.contentType &&
+              !params.ContentType && { ContentType: cfg.contentType }),
+          }),
+          [cfg],
+        );
 
-            mutation.mutate(
-              {
-                ...params,
-                ...(params.ContentType && { ContentType: params.ContentType }),
-                ...(hasMetadata && { Metadata: mergedMetadata }),
-              },
-              options,
-            );
-          },
-          [mutation.mutate, cfg],
+        const mutate = useCallback(
+          (params: PutObjectCommandInput, options?: any) =>
+            mutation.mutate(enrichParams(params), options),
+          [mutation.mutate, enrichParams],
         );
 
         const mutateAsync = useCallback(
-          async (params: PutObjectCommandInput) => {
-            const mergedMetadata = {
-              ...(cfg.metadata || {}),
-              ...(params.Metadata || {}),
-            };
-            const hasMetadata = Object.keys(mergedMetadata).length > 0;
-
-            return mutation.mutateAsync({
-              ...params,
-              ...(params.ContentType && { ContentType: params.ContentType }),
-              ...(hasMetadata && { Metadata: mergedMetadata }),
-            });
-          },
-          [mutation.mutateAsync, cfg],
+          async (params: PutObjectCommandInput) =>
+            mutation.mutateAsync(enrichParams(params)),
+          [mutation.mutateAsync, enrichParams],
         );
 
         return { ...mutation, mutate, mutateAsync };
@@ -161,11 +131,12 @@ export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
           [hookConfig],
         );
 
-        const mutate = useCallback(
-          (params: PutBucketTaggingCommandInput, options?: any) => {
+        const enrichParams = useCallback(
+          (
+            params: PutBucketTaggingCommandInput,
+          ): PutBucketTaggingCommandInput => {
             if (!cfg.bucketTags?.length) {
-              mutation.mutate(params, options);
-              return;
+              return params;
             }
 
             const tagMap = new Map<string, string>();
@@ -174,35 +145,7 @@ export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
               tagMap.set(tag.Key, tag.Value),
             );
 
-            mutation.mutate(
-              {
-                ...params,
-                Tagging: {
-                  TagSet: Array.from(tagMap.entries()).map(([Key, Value]) => ({
-                    Key,
-                    Value,
-                  })),
-                },
-              },
-              options,
-            );
-          },
-          [mutation.mutate, cfg],
-        );
-
-        const mutateAsync = useCallback(
-          async (params: PutBucketTaggingCommandInput) => {
-            if (!cfg.bucketTags?.length) {
-              return mutation.mutateAsync(params);
-            }
-
-            const tagMap = new Map<string, string>();
-            cfg.bucketTags.forEach((tag) => tagMap.set(tag.Key, tag.Value));
-            (params.Tagging?.TagSet || []).forEach((tag) =>
-              tagMap.set(tag.Key, tag.Value),
-            );
-
-            return mutation.mutateAsync({
+            return {
               ...params,
               Tagging: {
                 TagSet: Array.from(tagMap.entries()).map(([Key, Value]) => ({
@@ -210,9 +153,21 @@ export function useS3Hooks(config?: S3OperationConfig): IS3Hooks {
                   Value,
                 })),
               },
-            });
+            };
           },
-          [mutation.mutateAsync, cfg],
+          [cfg],
+        );
+
+        const mutate = useCallback(
+          (params: PutBucketTaggingCommandInput, options?: any) =>
+            mutation.mutate(enrichParams(params), options),
+          [mutation.mutate, enrichParams],
+        );
+
+        const mutateAsync = useCallback(
+          async (params: PutBucketTaggingCommandInput) =>
+            mutation.mutateAsync(enrichParams(params)),
+          [mutation.mutateAsync, enrichParams],
         );
 
         return { ...mutation, mutate, mutateAsync };

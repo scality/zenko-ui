@@ -281,9 +281,8 @@ export default memo(function ISVApplyActions(props: ISVApplyActionsProps) {
         secretAccessKey: credentials.SecretAccessKey,
         sessionToken: credentials.SessionToken,
       },
-      region: isvConfig.region,
     });
-  }, [assumedRole?.Credentials, zenkoEndpoint, isvConfig.region]);
+  }, [assumedRole?.Credentials, zenkoEndpoint]);
 
   // Show loading if credentials are not available yet
   if (!s3Config) {
