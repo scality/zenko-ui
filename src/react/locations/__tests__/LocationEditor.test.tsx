@@ -78,12 +78,14 @@ describe('LocationEditor', () => {
     await userEvent.keyboard('{arrowup}');
     expect(
       container.querySelector('.sc-select__option--is-focused')?.textContent,
-    ).toBe('Cross-Region Replication');
+    ).toBe('CRR Location');
 
     [
-      'Others',
+      'Cross-Region Replication',
+      'Scality S3 Locations',
       'Scality ARTESCA S3',
       'Scality RING with S3 Connector',
+      'Public Cloud Locations',
       'Amazon S3',
       'Google Cloud Storage',
       'Microsoft Azure Blob Storage',
@@ -92,7 +94,13 @@ describe('LocationEditor', () => {
       '3DS Outscale OOS Public',
       '3DS Outscale OOS SNC',
       'Flexible Datastore',
+      'Wasabi',
+      'Oracle Cloud Object Storage',
+      'On Prem Locations',
       'Tape DMF',
+      'Tape Atempo Miria',
+      'Ceph RADOS Gateway',
+      'Scality RING with Sproxyd Connector',
     ].forEach((locationName) => {
       fireEvent.keyDown(selector, { key: 'ArrowDown', which: 40, keyCode: 40 });
       expect(

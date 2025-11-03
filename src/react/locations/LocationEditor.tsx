@@ -25,7 +25,7 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import Loader from '../ui-elements/Loader';
 import {
   getLocationTypeKey,
-  selectStorageOptions,
+  selectStorageOptionsGrouped,
 } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import LocationOptions from './LocationOptions';
@@ -74,28 +74,13 @@ function LocationEditor() {
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
-  const selectOptions = useMemo(() => {
-    const options = selectStorageOptions(
+  const selectOptionsGrouped = useMemo(() => {
+    return selectStorageOptionsGrouped(
       capabilities,
       locations,
       makeLabel,
       !editingExisting,
     );
-
-    const hasOthersOption = options.some((opt) => opt.label === 'Others');
-    if (options.length > 0 && !hasOthersOption) {
-      return [
-        options[0],
-        {
-          label: 'Others',
-          value: 'others',
-          disabled: true,
-        },
-        ...options.slice(1),
-      ];
-    }
-
-    return options;
   }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {
@@ -399,15 +384,24 @@ function LocationEditor() {
               //@ts-expect-error fix this when you are working on it
               value={locationTypeKey}
             >
-              {selectOptions.map((opt, i) => (
+              {selectOptionsGrouped.flatMap((group, groupIndex) => [
                 <Select.Option
-                  key={i}
-                  value={opt.value}
-                  disabled={opt.disabled}
+                  key={`group-${groupIndex}`}
+                  value={`__group_${groupIndex}__`}
+                  disabled={true}
                 >
-                  {opt.label}
-                </Select.Option>
-              ))}
+                  {group.label}
+                </Select.Option>,
+                ...group.options.map((opt, i) => (
+                  <Select.Option
+                    key={`${groupIndex}-${i}`}
+                    value={opt.value}
+                    disabled={opt.disabled}
+                  >
+                    {opt.label}
+                  </Select.Option>
+                )),
+              ])}
             </Select>
           }
         />

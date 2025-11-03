@@ -33,6 +33,7 @@ export type StorageOptionValues = {
   ingestCapability?: string;
   hidden?: boolean;
   supportsVersion?: string;
+  category?: 'crr' | 'scality' | 'public-cloud' | 'on-prem';
 };
 export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
   'location-scality-crr-v1': {
@@ -43,6 +44,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
+    category: 'crr',
   },
   'location-scality-hdclient-v2': {
     name: 'Storage Service for ARTESCA',
@@ -53,6 +55,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeHyperdriveV2',
+    category: 'scality',
   },
   'location-scality-artesca-s3-v1': {
     name: 'Scality ARTESCA S3',
@@ -63,6 +66,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'scality',
   },
   'location-scality-ring-s3-v1': {
     name: 'Scality RING with S3 Connector',
@@ -74,6 +78,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
     ingestCapability: 's3cIngestLocation',
+    category: 'scality',
   },
   'location-aws-s3-v1': {
     name: 'Amazon S3',
@@ -84,6 +89,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     ingestCapability: 'awsIngestLocation',
+    category: 'public-cloud',
   },
   'location-gcp-v1': {
     name: 'Google Cloud Storage',
@@ -93,6 +99,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
+    category: 'public-cloud',
   },
   'location-azure-v1': {
     name: 'Microsoft Azure Blob Storage',
@@ -102,6 +109,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
+    category: 'public-cloud',
   },
   'location-azure-archive-v1': {
     name: 'Microsoft Azure Archive',
@@ -111,6 +119,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: false,
     hasIcon: false,
+    category: 'public-cloud',
   },
   [JAGUAR_S3_LOCATION_KEY]: {
     name: 'Atlas Object Storage (Free Pro)',
@@ -121,6 +130,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'public-cloud',
   },
   [OUTSCALE_PUBLIC_S3_LOCATION_KEY]: {
     name: '3DS Outscale OOS Public',
@@ -131,6 +141,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'public-cloud',
   },
   [OUTSCALE_SNC_S3_LOCATION_KEY]: {
     name: '3DS Outscale OOS SNC',
@@ -141,6 +152,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'public-cloud',
   },
   [ORANGE_S3_LOCATION_KEY]: {
     name: 'Flexible Datastore',
@@ -151,6 +163,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'public-cloud',
   },
   'location-dmf-v1': {
     name: 'Tape DMF',
@@ -160,6 +173,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
     hasIcon: false,
+    category: 'on-prem',
   },
   'location-miria-v1': {
     name: 'Tape Atempo Miria',
@@ -169,6 +183,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: false,
     supportsReplicationSource: true,
     hasIcon: false,
+    category: 'on-prem',
   },
   'location-file-v1': {
     name: 'Local Filesystem',
@@ -180,6 +195,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     checkCapability: 'locationTypeLocal',
     hidden: true,
+    category: 'on-prem',
   },
   'location-ceph-radosgw-s3-v1': {
     name: 'Ceph RADOS Gateway',
@@ -192,6 +208,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     checkCapability: 'locationTypeCephRadosGW',
     ingestCapability: 'cephIngestLocation',
     hidden: false,
+    category: 'on-prem',
   },
   'location-do-spaces-v1': {
     name: 'DigitalOcean Spaces',
@@ -203,6 +220,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     hasIcon: false,
     checkCapability: 'locationTypeDigitalOcean',
     hidden: true,
+    category: 'public-cloud',
   },
   'location-nfs-mount-v1': {
     name: 'NFS Mount',
@@ -215,6 +233,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     checkCapability: 'locationTypeNFS',
     ingestCapability: 'nfsIngestLocation',
     hidden: true,
+    category: 'on-prem',
   },
   'location-scality-sproxyd-v1': {
     name: 'Scality RING with Sproxyd Connector',
@@ -225,6 +244,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeSproxyd',
+    category: 'on-prem',
   },
   'location-wasabi-v1': {
     name: 'Wasabi',
@@ -234,6 +254,7 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationTarget: true,
     supportsReplicationSource: true,
     hasIcon: false,
+    category: 'public-cloud',
   },
   'location-oracle-ring-s3-v1': {
     name: 'Oracle Cloud Object Storage',
@@ -244,5 +265,6 @@ export const storageOptions: Record<LocationTypeKey, StorageOptionValues> = {
     supportsReplicationSource: true,
     hasIcon: false,
     checkCapability: 'locationTypeS3Custom',
+    category: 'public-cloud',
   },
 };
