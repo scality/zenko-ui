@@ -126,8 +126,8 @@ describe('ISVSummary', () => {
     certificateSection: () => screen.queryByText(CERTIFICATE_SECTION_TITLE),
     certificateButton: () =>
       screen.queryByRole('button', { name: /Download/i }),
-    copyServicePointButton: () =>
-      screen.getByRole('button', { name: /copy service point/i }),
+    copyServiceEndpointButton: () =>
+      screen.getByRole('button', { name: /copy service (point|host)/i }),
     copySecretKeyButton: () =>
       screen.getByRole('button', { name: /copy secret access key/i }),
     copyAccessKeyButton: () =>
@@ -505,7 +505,7 @@ describe('ISVSummary', () => {
 
       const user = userEvent.setup();
       // Verify the copy buttons
-      await user.click(selectors.copyServicePointButton());
+      await user.click(selectors.copyServiceEndpointButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(SERVICE_POINT);
       await user.click(selectors.copyAccessKeyButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(ACCESS_KEY);
@@ -577,6 +577,112 @@ describe('ISVSummary', () => {
       await user.click(selectors.copyAllButton());
       await expect(navigator.clipboard.readText()).resolves.toBe(
         `Service point\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key IDs\taccess-key-1, access-key-2\nBucket names\t${BUCKET_NAME}`,
+      );
+    });
+  });
+
+  describe('Service Endpoint Label', () => {
+    it('should render "Service Host" label for Commvault', async () => {
+      //S
+      const mockCommvaultPlatform: ISVPlatformConfig = {
+        name: 'Commvault',
+        logo: <div />,
+        id: 'commvault',
+        description: 'Commvault',
+        bucketTag: 'commvault',
+        fieldOverrides: [],
+        getPolicy: jest.fn(),
+        serviceEndpointLabel: 'Service Host',
+        immutabilitySummaryOverride: jest.fn().mockReturnValue({
+          label: 'WORM Storage lock',
+        }),
+      };
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockCommvaultPlatform,
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockCommvaultPlatform}
+                      accountName="commvault-account"
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      enableImmutableBackup={true}
+                      application={'Commvault'}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      //E+V
+      expect(screen.getByText('Service Host')).toBeInTheDocument();
+      expect(screen.queryByText('Service point')).not.toBeInTheDocument();
+    });
+
+    it('should copy "Service Host" label for Commvault when copying all', async () => {
+      //S
+      const mockCommvaultPlatform: ISVPlatformConfig = {
+        name: 'Commvault',
+        logo: <div />,
+        id: 'commvault',
+        description: 'Commvault',
+        bucketTag: 'commvault',
+        fieldOverrides: [],
+        getPolicy: jest.fn(),
+        serviceEndpointLabel: 'Service Host',
+        immutabilitySummaryOverride: jest.fn().mockReturnValue({
+          label: 'WORM Storage lock',
+        }),
+      };
+      render(
+        <ISVStepperContext.Provider
+          value={{
+            platform: mockCommvaultPlatform,
+          }}
+        >
+          <Stepper
+            steps={[
+              {
+                label: 'Summary',
+                Component: ({ children }: { children: React.ReactNode }) => {
+                  return (
+                    <ISVSummary
+                      platform={mockCommvaultPlatform}
+                      accountName="commvault-account"
+                      accessKey={ACCESS_KEY}
+                      secretKey={SECRET_KEY}
+                      buckets={[{ name: BUCKET_NAME, tag: 'commvault' }]}
+                      enableImmutableBackup={true}
+                      application={'Commvault'}
+                    />
+                  );
+                },
+              },
+            ]}
+          />
+        </ISVStepperContext.Provider>,
+        { wrapper: Wrapper },
+      );
+
+      const user = userEvent.setup();
+      await user.click(selectors.copyAllButton());
+
+      //E+V
+      await expect(navigator.clipboard.readText()).resolves.toBe(
+        `Service Host\t${SERVICE_POINT}\nRegion\t${DEFAULT_REGION}\nAccess key ID\t${ACCESS_KEY}\nSecret Access key\t${SECRET_KEY}\nBucket names\t${BUCKET_NAME}`,
       );
     });
   });

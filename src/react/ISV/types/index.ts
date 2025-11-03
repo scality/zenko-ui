@@ -82,6 +82,7 @@ export type ISVPlatformConfig = ISVInfo & {
   immutabilitySummaryOverride?: ImmutabilitySummaryOverride;
   additionalFields?: React.ReactNode[];
   isObjectLockEnabled?: (props: ISVConfig) => boolean;
+  serviceEndpointLabel?: string;
 };
 
 export type ISVSummaryData = {

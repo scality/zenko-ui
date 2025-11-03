@@ -87,6 +87,7 @@ export const Commvault: ISVPlatformConfig = {
   ),
   bucketTag: 'Commvault',
   getPolicy: GET_COMMVAULT_POLICY,
+  serviceEndpointLabel: 'Service Host',
   immutabilitySummaryOverride: () => ({
     label: 'WORM Storage lock',
   }),

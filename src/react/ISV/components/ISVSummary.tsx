@@ -90,7 +90,9 @@ export const ISVSummary = ({
       );
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
-  const textToCopy = `Service point\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
+  const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
+  
+  const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     accessKey ? 'Access key ID' : 'Access key IDs'
   }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
     secretKey ? `Secret Access key\t${secretKey}\n` : ''
@@ -173,15 +175,15 @@ export const ISVSummary = ({
         <Separator />
         <FormSection forceLabelWidth={150}>
           <FormGroup
-            id="service-point"
-            label="Service point"
+            id="service-endpoint"
+            label={serviceEndpointLabel}
             required
             content={
               <WrapperWithWidth>
                 <Text>{s3ServicePoint}</Text>
                 <CopyButton
                   textToCopy={s3ServicePoint}
-                  aria-label="copy service point"
+                  aria-label={`copy ${serviceEndpointLabel.toLowerCase()}`}
                 />
               </WrapperWithWidth>
             }
