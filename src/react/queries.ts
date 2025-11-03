@@ -14,7 +14,7 @@ import {
   User,
 } from 'aws-sdk/clients/iam';
 import { ListObjectVersionsOutput } from 'aws-sdk/clients/s3';
-import { InfiniteData } from 'react-query';
+import { InfiniteData, useQueries, useQuery } from 'react-query';
 import IAMClient from '../js/IAMClient';
 import { getAccountSeeds } from '../js/vault';
 import { notFalsyTypeGuard } from '../types/typeGuards';
@@ -28,6 +28,7 @@ import {
 import { UiFacingApiWrapper } from '../js/managementClient';
 import { useShellHooks } from '@scality/module-federation';
 import { useDeployedMetalk8sInstances } from './next-architecture/ui/ConfigProvider';
+import { useMemo } from 'react';
 
 // Copy paste form legacy redux workflow
 export const makeWorkflows = (apiWorkflows: APIWorkflows): Workflows => {
@@ -337,4 +338,59 @@ export const getZenkoCRQuery = () => {
       }).then(async (res) => await res.json());
     },
   };
+};
+
+export const useK8sSecretQueries = (secretNames: string[]) => {
+  const { useAuth, useConfigRetriever } = useShellHooks();
+  const { getToken } = useAuth();
+  const { retrieveConfiguration } = useConfigRetriever();
+  const instances = useDeployedMetalk8sInstances();
+
+  const getURL = useMemo(() => {
+    if (instances.length) {
+      const runTimeConfig = retrieveConfiguration({
+        configType: 'run',
+        name: instances[0].name,
+      });
+      const url = runTimeConfig?.spec.selfConfiguration.url;
+      return (secretName: string) =>
+        url ? `${url}/api/v1/namespaces/zenko/secrets/${secretName}` : null;
+    }
+    return () => null;
+  }, [instances, retrieveConfiguration]);
+
+  const queryConfig = useMemo(
+    () => ({
+      queryKey: ['secret', secretNames],
+      queryFn: async () => {
+        return Promise.all(
+          secretNames.map(async (secretName) => {
+            const url = getURL(secretName);
+            if (!url) {
+              throw new Error('Unable to retrieve Kubernetes API URL');
+            }
+
+            const token = await getToken();
+            if (!token) {
+              throw new Error('Authentication token not available');
+            }
+            const response = await fetch(url, {
+              method: 'GET',
+              headers: { authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch secret: ${response.statusText}`);
+            }
+
+            return response.json();
+          }),
+        );
+      },
+      enabled: !!secretNames.length && instances.length > 0,
+    }),
+    [getURL, getToken, instances.length],
+  );
+
+  return useQuery(queryConfig);
 };

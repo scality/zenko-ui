@@ -23,8 +23,11 @@ import { useToggleTLSVerificationMutation } from '../../js/mutations';
 import { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import { TableHeaderWrapper } from '../ui-elements/Table';
-import { useParseBundleCertificates } from './hooks';
 import CertificateDetails from './CertificateDetails';
+import {
+  useParseBundleCertificates,
+  useParseSecretCertificates,
+} from './hooks';
 
 const formatCertificateDataForTable = (
   parsedCertificates: ParsedCertificate[][],
@@ -122,6 +125,9 @@ const Truststore = () => {
     isLoading: isParsingCertificates,
   } = useParseBundleCertificates(extraCACerts);
 
+  const { parsedSecretCertificates, isLoading: isParsingSecretCertificates } =
+    useParseSecretCertificates(extraCACerts);
+  console.log(parsedSecretCertificates, isParsingSecretCertificates);
   const formattedCertificateDataForTable = useMemo(() => {
     return parsedExtraCACerts
       ? formatCertificateDataForTable(parsedExtraCACerts)
