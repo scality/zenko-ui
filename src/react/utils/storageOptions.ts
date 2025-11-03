@@ -106,6 +106,18 @@ export const getLocationTypeShort = (
   return storageLocation?.short ?? '';
 };
 
+export type GroupedStorageOption = {
+  label: string;
+  options: Array<StorageOptionSelect>;
+};
+
+const categoryLabels = {
+  'crr': 'CRR Location',
+  'scality': 'Scality S3 Locations',
+  'public-cloud': 'Public Cloud Locations',
+  'on-prem': 'On Prem Locations',
+};
+
 export function selectStorageOptions(
   capabilities: Capabilities,
   locations?: LocationInfo[],
@@ -136,8 +148,33 @@ export function selectStorageOptions(
         value: o,
         label: labelFn ? labelFn(o) : o,
         disabled: !!check && !!capabilities && !capabilities[check],
+        category: storageOptions[o].category,
       };
     });
+}
+
+export function selectStorageOptionsGrouped(
+  capabilities: Capabilities,
+  locations?: LocationInfo[],
+  labelFn?: LabelFunction,
+  exceptHidden = true,
+): Array<GroupedStorageOption> {
+  const options = selectStorageOptions(capabilities, locations, labelFn, exceptHidden);
+  
+  const groupedOptions: Array<GroupedStorageOption> = [];
+  const categoryOrder: Array<'crr' | 'scality' | 'public-cloud' | 'on-prem'> = ['crr', 'scality', 'public-cloud', 'on-prem'];
+  
+  categoryOrder.forEach((category) => {
+    const categoryOptions = options.filter((opt) => opt.category === category);
+    if (categoryOptions.length > 0) {
+      groupedOptions.push({
+        label: categoryLabels[category],
+        options: categoryOptions,
+      });
+    }
+  });
+  
+  return groupedOptions;
 }
 export function isIngestLocation(location, capabilities) {
   const locationType = location.locationType || location.type;

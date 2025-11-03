@@ -25,7 +25,7 @@ import { useInstanceId } from '../next-architecture/ui/AuthProvider';
 import Loader from '../ui-elements/Loader';
 import {
   getLocationTypeKey,
-  selectStorageOptions,
+  selectStorageOptionsGrouped,
 } from '../utils/storageOptions';
 import { LocationDetails, storageOptions } from './LocationDetails';
 import LocationOptions from './LocationOptions';
@@ -44,6 +44,13 @@ import { useShellHooks } from '@scality/module-federation';
 //Temporary hack waiting for the layout
 const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
+`;
+
+const StyledSelect = styled(Select)`
+  .sc-select__option--is-disabled > * {
+    font-style: italic !important;
+    padding-left: 4px !important;
+  }
 `;
 
 const makeLabel = (locationType: LocationTypeKey) => {
@@ -74,28 +81,13 @@ function LocationEditor() {
   const [location, setLocation] = useState(
     convertToForm({ ...newLocationDetails(), ...locationEditing }),
   );
-  const selectOptions = useMemo(() => {
-    const options = selectStorageOptions(
+  const selectOptionsGrouped = useMemo(() => {
+    return selectStorageOptionsGrouped(
       capabilities,
       locations,
       makeLabel,
       !editingExisting,
     );
-
-    const hasOthersOption = options.some((opt) => opt.label === 'Others');
-    if (options.length > 0 && !hasOthersOption) {
-      return [
-        options[0],
-        {
-          label: 'Others',
-          value: 'others',
-          disabled: true,
-        },
-        ...options.slice(1),
-      ];
-    }
-
-    return options;
   }, [capabilities, editingExisting, locations]);
   useMemo(() => {
     if (locationEditing) {
@@ -391,7 +383,7 @@ function LocationEditor() {
           required
           label="Location Type"
           content={
-            <Select
+            <StyledSelect
               id="locationType"
               placeholder="Select a location type..."
               onChange={onTypeChange}
@@ -399,16 +391,25 @@ function LocationEditor() {
               //@ts-expect-error fix this when you are working on it
               value={locationTypeKey}
             >
-              {selectOptions.map((opt, i) => (
-                <Select.Option
-                  key={i}
-                  value={opt.value}
-                  disabled={opt.disabled}
+              {selectOptionsGrouped.flatMap((group, groupIndex) => [
+                <StyledSelect.Option
+                  key={`group-${groupIndex}`}
+                  value={`__group_${groupIndex}__`}
+                  disabled={true}
                 >
-                  {opt.label}
-                </Select.Option>
-              ))}
-            </Select>
+                  {group.label}
+                </StyledSelect.Option>,
+                ...group.options.map((opt, i) => (
+                  <StyledSelect.Option
+                    key={`${groupIndex}-${i}`}
+                    value={opt.value}
+                    disabled={opt.disabled}
+                  >
+                    {opt.label}
+                  </StyledSelect.Option>
+                )),
+              ])}
+            </StyledSelect>
           }
         />
       </FormSection>

@@ -3,4 +3,5 @@ export type StorageOptionSelect = {
   value: string;
   label: string;
   disabled: boolean;
+  category?: 'crr' | 'scality' | 'public-cloud' | 'on-prem';
 };
