@@ -46,6 +46,13 @@ const StyledForm = styled(Form)`
   height: calc(100vh - 48px);
 `;
 
+const StyledSelect = styled(Select)`
+  .sc-select__option--is-disabled > * {
+    font-style: italic !important;
+    padding-left: 4px !important;
+  }
+`;
+
 const makeLabel = (locationType: LocationTypeKey) => {
   const details = storageOptions[locationType];
   return details.name;
@@ -376,7 +383,7 @@ function LocationEditor() {
           required
           label="Location Type"
           content={
-            <Select
+            <StyledSelect
               id="locationType"
               placeholder="Select a location type..."
               onChange={onTypeChange}
@@ -385,24 +392,24 @@ function LocationEditor() {
               value={locationTypeKey}
             >
               {selectOptionsGrouped.flatMap((group, groupIndex) => [
-                <Select.Option
+                <StyledSelect.Option
                   key={`group-${groupIndex}`}
                   value={`__group_${groupIndex}__`}
                   disabled={true}
                 >
                   {group.label}
-                </Select.Option>,
+                </StyledSelect.Option>,
                 ...group.options.map((opt, i) => (
-                  <Select.Option
+                  <StyledSelect.Option
                     key={`${groupIndex}-${i}`}
                     value={opt.value}
                     disabled={opt.disabled}
                   >
                     {opt.label}
-                  </Select.Option>
+                  </StyledSelect.Option>
                 )),
               ])}
-            </Select>
+            </StyledSelect>
           }
         />
       </FormSection>
