@@ -19,7 +19,7 @@ export const ISVList: ISVCardConfig[] = [
     id: 'kasten',
     name: 'Kasten',
     documentationLink:
-      '/docs/partner_applications/validated_designs/kasten.html',
+      '/artesca/docs/partner_applications/backup_and_archives/kasten.html',
     logo: <VeeamKastenLogo />,
   },
   {
@@ -27,7 +27,7 @@ export const ISVList: ISVCardConfig[] = [
     name: 'Rubrik',
     logo: <RubrikLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/rubrik_security_cloud.html',
+      '/artesca/docs/partner_applications/backup_and_archives/rubrik_security_cloud.html',
   },
 
   {
@@ -35,7 +35,7 @@ export const ISVList: ISVCardConfig[] = [
     name: 'Zerto',
     logo: <ZertoLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/zerto/zerto.html',
+      '/artesca/docs/partner_applications/backup_and_archives/zerto/zerto.html',
   },
   {
     id: 'splunk',
@@ -43,21 +43,21 @@ export const ISVList: ISVCardConfig[] = [
     logo: <SplunkLogo />,
 
     documentationLink:
-      '/docs/partner_applications/validated_designs/splunk.html',
+      '/artesca/docs/partner_applications/backup_and_archives/splunk.html',
   },
   {
     id: 'hycu',
     name: 'Hycu',
     logo: <HycuLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/hycu_enterprise-clouds.html',
+      '/artesca/docs/partner_applications/backup_and_archives/hycu_enterprise-clouds.html',
   },
   {
     id: 'ctera',
     name: 'Ctera',
     logo: <CteraLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/ctera/index.html',
+      '/artesca/docs/partner_applications/cloud_and_edge_storage/ctera/index.html',
   },
 
   {
@@ -65,7 +65,7 @@ export const ISVList: ISVCardConfig[] = [
     name: 'Veritas NetBackup',
     logo: <VeritasLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/veritas_netbackup.html',
+      '/artesca/docs/partner_applications/backup_and_archives/veritas_netbackup.html',
   },
 
   {
@@ -73,6 +73,6 @@ export const ISVList: ISVCardConfig[] = [
     name: 'Cohesity',
     logo: <CohesityLogo />,
     documentationLink:
-      '/docs/partner_applications/validated_designs/cohesity_cloud_archive.html',
+      '/artesca/docs/partner_applications/backup_and_archives/cohesity_cloud_archive.html',
   },
 ];

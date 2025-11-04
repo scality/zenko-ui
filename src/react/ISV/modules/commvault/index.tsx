@@ -74,7 +74,7 @@ export const CommvaultCardInfo: ISVCardConfig = {
   assistant: true,
   ...CommvaultInfo,
   documentationLink:
-    '/docs/partner_applications/validated_designs/commvault.html',
+    '/artesca/docs/partner_applications/backup_and_archives/commvault.html',
 };
 
 export const Commvault: ISVPlatformConfig = {

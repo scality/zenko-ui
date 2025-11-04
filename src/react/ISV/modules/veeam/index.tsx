@@ -105,7 +105,7 @@ export const VeeamCardInfo: ISVCardConfig = {
   assistant: true,
   application: VEEAM_BACKUP_REPLICATION,
   documentationLink:
-    '/docs/partner_applications/validated_designs/veeam/index.html',
+    '/artesca/docs/partner_applications/backup_and_archives/veeam/index.html',
 };
 
 export const Veeam: ISVPlatformConfig = {

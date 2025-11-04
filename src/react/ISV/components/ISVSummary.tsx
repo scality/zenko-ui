@@ -91,7 +91,7 @@ export const ISVSummary = ({
   }, [assumedRole, s3Client, queryClient, accountName, buckets, navigate]);
 
   const serviceEndpointLabel = platform.serviceEndpointLabel || 'Service point';
-  
+
   const textToCopy = `${serviceEndpointLabel}\t${s3ServicePoint}\nRegion\t${DEFAULT_REGION}\n${
     accessKey ? 'Access key ID' : 'Access key IDs'
   }\t${accessKey ? accessKey : accessKeys.join(', ')}\n${
@@ -124,7 +124,7 @@ export const ISVSummary = ({
         <Level4FormSection title={{ name: '1. Certificates' }}>
           <InfoMessage
             title={'How to manage Certificates?'}
-            link="/docs/standard_operations/manage_ingress_certificate/index.html"
+            link="/artesca/docs/standard_operations/manage_ingress_certificate/index.html"
             content={
               <ul>
                 <li>

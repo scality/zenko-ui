@@ -143,7 +143,7 @@ export const VeeamVBOCardInfo: ISVCardConfig = {
   assistant: true,
   application: VEEAM_VBO_APPLICATION,
   documentationLink:
-    '/docs/partner_applications/validated_designs/veeam_backup_for_ms_365.html',
+    '/artesca/docs/partner_applications/backup_and_archives/veeam_backup_for_ms_365.html',
 };
 
 export const VeeamVBO: ISVPlatformConfig = {
