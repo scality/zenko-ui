@@ -8,6 +8,8 @@ import {
   mockOffsetSize,
   mockShellHooks,
 } from '../../utils/testUtil';
+import { useParseBundleCertificates } from '../hooks';
+import { ParsedCertificate } from '@scality/certchain';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -23,10 +25,6 @@ jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
 jest.mock('../hooks', () => ({
   useParseBundleCertificates: jest.fn(),
 }));
-
-import { useParseBundleCertificates } from '../hooks';
-import { debug } from 'jest-preview';
-import { ParsedCertificate } from '@scality/certchain';
 
 const mockUseParseBundleCertificates =
   useParseBundleCertificates as jest.MockedFunction<

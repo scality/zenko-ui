@@ -20,12 +20,31 @@ jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
   useDeployedMetalk8sInstances: jest.fn(() => [{ name: 'test-instance' }]),
 }));
 
-//TODO: add mocked certificates
+// Mock certificate validation
+jest.mock('@scality/certchain', () => ({
+  isValidTrustedCACertificate: jest.fn((pemBundle: string) => {
+    // Return true if it looks like a proper PEM format and doesn't contain 'INVALID'
+    return (
+      pemBundle.includes('-----BEGIN CERTIFICATE-----') &&
+      pemBundle.includes('-----END CERTIFICATE-----') &&
+      !pemBundle.includes('INVALID')
+    );
+  }),
+}));
+
+// Mock certificates for testing
 const mockedValidCertificate = `-----BEGIN CERTIFICATE-----
-mocked valid certificate
------END CERTIFICATE-----
-`;
-const mockedInvalidCertificate = ``;
+MIIDXTCCAkWgAwIBAgIJAKL0UG+mRkmUMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNV
+BAYTAlVTMQ0wCwYDVQQIDARUZXN0MQ0wCwYDVQQHDARUZXN0MQ0wCwYDVQQKDART
+ZXN0MRkwFwYDVQQDDBBUZXN0IFJvb3QgQ0EwHhcNMjUwMTAxMDAwMDAwWhcNMzUw
+MTAxMDAwMDAwWjBFMQswCQYDVQQGEwJVUzENMAsGA1UECAwEVGVzdDENMAsGA1UE
+BwwEVGVzdDENMAsGA1UECgwEVGVzdDEZMBcGA1UEAwwQVGVzdCBSb290IENBMIIB
+IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwVw8fPxT
+-----END CERTIFICATE-----`;
+
+const mockedInvalidCertificate = `-----BEGIN CERTIFICATE-----
+INVALID CERTIFICATE
+-----END CERTIFICATE-----`;
 describe('ImportCertificate', () => {
   const selectors = {
     importButton: () => screen.getByRole('button', { name: /Import/i }),
@@ -350,20 +369,20 @@ describe('ImportCertificate', () => {
 
     expect(selectors.importButton()).toBeDisabled();
     await waitFor(() => {
-      expect(
-        screen.getByText(/"certificate" is not allowed to be empty/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Certificate is required/i)).toBeInTheDocument();
     });
   });
-  //TODO: add test for invalid certificate chain
-  it.skip('should show error message and disable import button if certificate chain is invalid', async () => {
+
+  it('should show error message and disable import button if certificate chain is invalid', async () => {
     render(<ImportCertificate />, { wrapper: NewWrapper() });
-    await userEvent.type(selectors.certificateInput(), 'INVALID CERTIFICATE');
-    await userEvent.click(selectors.importButton());
+    await userEvent.type(
+      selectors.certificateInput(),
+      mockedInvalidCertificate,
+    );
+
     await waitFor(() => {
-      expect(
-        screen.getByText(/Invalid certificate chain/i),
-      ).toBeInTheDocument();
+      expect(selectors.importButton()).toBeDisabled();
+      expect(screen.getByText(/Invalid certificate./i)).toBeInTheDocument();
     });
   });
 });
