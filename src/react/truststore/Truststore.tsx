@@ -127,12 +127,11 @@ const Truststore = () => {
 
   const { parsedSecretCertificates, isLoading: isParsingSecretCertificates } =
     useParseSecretCertificates(extraCACerts);
-  console.log(parsedSecretCertificates, isParsingSecretCertificates);
+
   const formattedCertificateDataForTable = useMemo(() => {
-    return parsedExtraCACerts
-      ? formatCertificateDataForTable(parsedExtraCACerts)
-      : [];
-  }, [parsedExtraCACerts]);
+    const list = [...parsedExtraCACerts, ...parsedSecretCertificates];
+    return list.length > 0 ? formatCertificateDataForTable(list) : [];
+  }, [parsedExtraCACerts, parsedSecretCertificates]);
 
   const toggleTLSVerification = (skipTLSVerify: boolean) => {
     toggleTLSVerificationMutation({ skipTLSVerify });
