@@ -8,7 +8,10 @@ import {
   mockOffsetSize,
   mockShellHooks,
 } from '../../utils/testUtil';
-import { useParseBundleCertificates } from '../hooks';
+import {
+  useParseBundleCertificates,
+  useParseSecretCertificates,
+} from '../hooks';
 import { ParsedCertificate } from '@scality/certchain';
 import { debug } from 'jest-preview';
 
@@ -22,14 +25,20 @@ jest.mock('../../next-architecture/ui/ConfigProvider', () => ({
   useDeployedMetalk8sInstances: jest.fn(() => [{ name: 'test-instance' }]),
 }));
 
-// Mock useParseBundleCertificates hook
+// Mock hooks
 jest.mock('../hooks', () => ({
   useParseBundleCertificates: jest.fn(),
+  useParseSecretCertificates: jest.fn(),
 }));
 
 const mockUseParseBundleCertificates =
   useParseBundleCertificates as jest.MockedFunction<
     typeof useParseBundleCertificates
+  >;
+
+const mockUseParseSecretCertificates =
+  useParseSecretCertificates as jest.MockedFunction<
+    typeof useParseSecretCertificates
   >;
 
 describe('Truststore', () => {
@@ -124,6 +133,10 @@ describe('Truststore', () => {
       parsedCertificates: [],
       isLoading: false,
     });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
+      isLoading: false,
+    });
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
     //V
@@ -144,6 +157,10 @@ describe('Truststore', () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
       isLoading: false,
     });
 
@@ -191,6 +208,16 @@ describe('Truststore', () => {
       parsedCertificates: [[mockCertificate1]],
       isLoading: false,
     });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
+      isLoading: false,
+    });
+
+    server.use(
+      rest.get(ZENKO_CR_URL, (req, res, ctx) =>
+        res(ctx.status(500), ctx.json({ error: 'Internal server error' })),
+      ),
+    );
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
 

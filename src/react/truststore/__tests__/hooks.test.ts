@@ -1,7 +1,11 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
-import { useParseBundleCertificates, ZenkoCRCertificateBundle } from '../hooks';
-import type { Certificate, CertificateSubject } from '@scality/certchain';
+import {
+  useParseBundleCertificates,
+  ZenkoCRCertificateBundle,
+  useParseSecretCertificates,
+} from '../hooks';
+import type { ParsedCertificate } from '@scality/certchain';
 
 // Mock @scality/certchain module
 jest.mock('@scality/certchain');
@@ -17,7 +21,7 @@ const mockExtractPemParts = extractPemParts as jest.MockedFunction<
   typeof extractPemParts
 >;
 
-const mockCertificate1: Certificate & CertificateSubject = {
+const mockCertificate1: ParsedCertificate = {
   name: 'Test Certificate 1',
   authority: 'Test Authority 1',
   expiresOn: new Date('2025-01-01'),
@@ -37,7 +41,7 @@ const mockCertificate1: Certificate & CertificateSubject = {
     '-----BEGIN PUBLIC KEY-----\nMockPublicKey1\n-----END PUBLIC KEY----- ',
 };
 
-const mockCertificate2: Certificate & CertificateSubject = {
+const mockCertificate2: ParsedCertificate = {
   name: 'Test Certificate 2',
   authority: 'Test Authority 2',
   expiresOn: new Date('2025-01-01'),
@@ -236,3 +240,5 @@ describe('useParseBundleCertificates', () => {
     consoleErrorSpy.mockRestore();
   });
 });
+
+describe('useParseSecretCertificates', () => {});
