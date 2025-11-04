@@ -1,6 +1,4 @@
-import Joi from '@hapi/joi';
-import { joiResolver } from '@hookform/resolvers/joi';
-import { isCertificateChainValid } from '@scality/certchain';
+import { isValidTrustedCACertificate } from '@scality/certchain';
 import {
   Dropzone,
   Form,
@@ -34,19 +32,6 @@ const ImportCertificate = () => {
     defaultValues: {
       certificate: undefined,
     },
-    resolver: joiResolver(
-      Joi.object({
-        certificate: Joi.string()
-          .required()
-          .custom((value, helpers) => {
-            const isValid = isCertificateChainValid(value);
-            if (!isValid) {
-              return helpers.message({ custom: 'Invalid certificate chain' });
-            }
-            return value;
-          }),
-      }),
-    ),
     shouldUnregister: false,
   });
   const {
@@ -187,7 +172,16 @@ const ImportCertificate = () => {
             />
 
             <TextArea
-              {...register('certificate')}
+              {...register('certificate', {
+                required: 'Certificate is required',
+                validate: async (value) => {
+                  if (!value) return true;
+                  const isValid = await isValidTrustedCACertificate(value);
+                  return isValid
+                    ? true
+                    : 'Invalid certificate. The certificate should be a valid PEM x509 file';
+                },
+              })}
               id="Certificate"
               placeholder={CertificatePlaceholder}
               rows={15}
