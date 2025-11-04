@@ -16,7 +16,7 @@ import { Box } from '@scality/core-ui/dist/components/box/Box';
 import { Table } from '@scality/core-ui/dist/components/tablev2/Tablev2.component';
 import { Button } from '@scality/core-ui/dist/next';
 import { useBasenameRelativeNavigate } from '@scality/module-federation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { MutationOptions, useQuery, useQueryClient } from 'react-query';
 import { CoreUIColumn, Row } from 'react-table';
 import { useToggleTLSVerificationMutation } from '../../js/mutations';
@@ -24,6 +24,7 @@ import { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useParseBundleCertificates } from './hooks';
+import CertificateDetails from './CertificateDetails';
 
 const formatCertificateDataForTable = (
   parsedCertificates: ParsedCertificate[][],
@@ -52,78 +53,6 @@ type CertificateData = {
   certificates: ParsedCertificate[];
 };
 
-const columns: CoreUIColumn<CertificateData>[] = [
-  {
-    Header: 'Name',
-    accessor: 'metadata',
-    cellStyle: { flex: 1 },
-    Cell: ({ value }: { value: string[] }) => {
-      return (
-        <Stack gap="r8">
-          {value.map((v, index) => {
-            return (
-              <Stack
-                key={v}
-                direction="horizontal"
-                gap="r8"
-                style={{ alignItems: 'center' }}
-              >
-                <Text>{v}</Text>
-                {index < value.length - 1 && (
-                  <Icon name="Chevron-right" size="sm" />
-                )}
-              </Stack>
-            );
-          })}
-        </Stack>
-      );
-    },
-  },
-  {
-    Header: 'Expire On',
-    accessor: 'expireOn',
-    cellStyle: {
-      textAlign: 'right',
-      flex: 1,
-      paddingRight: spacing.f36,
-    },
-    Cell: ({ value }: { value: Date[] }) => {
-      const closestExpireDate =
-        value.length > 1
-          ? value.sort((a, b) => {
-              return a.getTime() - b.getTime();
-            })[0]
-          : value[0];
-      return <Text>{new Date(closestExpireDate).toLocaleDateString()}</Text>;
-    },
-  },
-  {
-    id: 'actions',
-    cellStyle: { flex: 0.75 },
-    Cell: ({ row }: { row: Row<CertificateData> }) => {
-      return (
-        <Stack style={{ justifyContent: 'flex-end', marginRight: spacing.r16 }}>
-          <Button
-            label="View Details"
-            variant="outline"
-            icon={<Icon name="Eye" />}
-            onClick={() => {
-              console.log(row.original);
-            }}
-          />
-          <Button
-            label="Delete"
-            variant="danger"
-            onClick={() => {
-              console.log(row.original);
-            }}
-          />
-        </Stack>
-      );
-    },
-  },
-];
-
 const skipTLSVerificationTooltipMessage = (
   <Stack direction="vertical">
     <SmallerText>
@@ -141,6 +70,11 @@ const skipTLSVerificationTooltipMessage = (
 const Truststore = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const [isCertificateDetailsModalOpen, setIsCertificateDetailsModalOpen] =
+    useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<
+    ParsedCertificate[] | null
+  >(null);
   const navigate = useBasenameRelativeNavigate();
   const {
     data: zenkoCR,
@@ -195,6 +129,80 @@ const Truststore = () => {
   const toggleTLSVerification = (skipTLSVerify: boolean) => {
     toggleTLSVerificationMutation({ skipTLSVerify });
   };
+  const columns: CoreUIColumn<CertificateData>[] = [
+    {
+      Header: 'Name',
+      accessor: 'metadata',
+      cellStyle: { flex: 1 },
+      Cell: ({ value }: { value: string[] }) => {
+        return (
+          <Stack gap="r8">
+            {value.map((v, index) => {
+              return (
+                <Stack
+                  key={v}
+                  direction="horizontal"
+                  gap="r8"
+                  style={{ alignItems: 'center' }}
+                >
+                  <Text>{v}</Text>
+                  {index < value.length - 1 && (
+                    <Icon name="Chevron-right" size="sm" />
+                  )}
+                </Stack>
+              );
+            })}
+          </Stack>
+        );
+      },
+    },
+    {
+      Header: 'Expire On',
+      accessor: 'expireOn',
+      cellStyle: {
+        textAlign: 'right',
+        flex: 1,
+        paddingRight: spacing.f36,
+      },
+      Cell: ({ value }: { value: Date[] }) => {
+        const closestExpireDate =
+          value.length > 1
+            ? value.sort((a, b) => {
+                return a.getTime() - b.getTime();
+              })[0]
+            : value[0];
+        return <Text>{new Date(closestExpireDate).toLocaleDateString()}</Text>;
+      },
+    },
+    {
+      id: 'actions',
+      cellStyle: { flex: 0.75 },
+      Cell: ({ row }: { row: Row<CertificateData> }) => {
+        return (
+          <Stack
+            style={{ justifyContent: 'flex-end', marginRight: spacing.r16 }}
+          >
+            <Button
+              label="View Details"
+              variant="outline"
+              icon={<Icon name="Eye" />}
+              onClick={() => {
+                setSelectedCertificate(row.original.certificates);
+                setIsCertificateDetailsModalOpen(true);
+              }}
+            />
+            <Button
+              label="Delete"
+              variant="danger"
+              onClick={() => {
+                console.log(row.original);
+              }}
+            />
+          </Stack>
+        );
+      },
+    },
+  ];
   return (
     <AppContainer>
       <AppContainer.OverallSummary>
@@ -220,6 +228,14 @@ const Truststore = () => {
         </Wrap>
       </AppContainer.OverallSummary>
       <AppContainer.MainContent hasPadding>
+        <CertificateDetails
+          selectedCertificate={selectedCertificate ?? []}
+          isModalOpen={isCertificateDetailsModalOpen}
+          handleClose={() => {
+            setIsCertificateDetailsModalOpen(false);
+            setSelectedCertificate(null);
+          }}
+        />
         <Box width="100%">
           <Table
             columns={columns}

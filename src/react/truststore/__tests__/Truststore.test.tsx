@@ -254,4 +254,114 @@ describe('Truststore', () => {
       expect(screen.getByText(/Error/)).toBeInTheDocument();
     });
   });
+
+  it('should open certificate details modal when View Details is clicked', async () => {
+    //S
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [[mockCertificate1]],
+      isLoading: false,
+    });
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+
+    await waitFor(() => {
+      expect(selectors.viewDetailsButton()).toBeInTheDocument();
+    });
+
+    await userEvent.click(selectors.viewDetailsButton());
+
+    //V
+    await waitFor(() => {
+      expect(screen.getByText('Certificate Details')).toBeInTheDocument();
+    });
+
+    // Check that certificate data is displayed in modal
+    expect(screen.getByText('Test Certificate 1')).toBeInTheDocument();
+  });
+
+  it('should close certificate details modal when modal is closed', async () => {
+    //S
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [[mockCertificate1]],
+      isLoading: false,
+    });
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+
+    await waitFor(() => {
+      expect(selectors.viewDetailsButton()).toBeInTheDocument();
+    });
+
+    // Open modal
+    await userEvent.click(selectors.viewDetailsButton());
+
+    await waitFor(() => {
+      expect(screen.getByText('Certificate Details')).toBeInTheDocument();
+    });
+
+    // Find and click the modal backdrop or close mechanism
+    // The modal should close when clicking outside or pressing Escape
+    await userEvent.keyboard('{Escape}');
+
+    //V
+    await waitFor(() => {
+      expect(screen.queryByText('Certificate Details')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should display earliest expiration date when multiple certificates in chain', async () => {
+    //S
+    const mockCertificate2: ParsedCertificate = {
+      ...mockCertificate1,
+      name: 'Root CA',
+      authority: 'Root CA',
+      expiresOn: new Date('2024-06-30'), // Earlier than mockCertificate1
+      commonName: 'root.example.com',
+    };
+
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      isLoading: false,
+    });
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/Loading certificates/i),
+      ).not.toBeInTheDocument();
+    });
+
+    //V
+    // Should display the earliest expiration date (2024-06-30)
+    expect(screen.getByText('6/30/2024')).toBeInTheDocument();
+  });
+
+  it('should display certificate common names with chevron separators', async () => {
+    //S
+    const mockCertificate2: ParsedCertificate = {
+      ...mockCertificate1,
+      name: 'Intermediate CA',
+      authority: 'Root CA',
+      commonName: 'intermediate.example.com',
+    };
+
+    mockUseParseBundleCertificates.mockReturnValue({
+      parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      isLoading: false,
+    });
+    //E
+    render(<Truststore />, { wrapper: NewWrapper() });
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/Loading certificates/i),
+      ).not.toBeInTheDocument();
+    });
+
+    //V
+    // Both certificate common names should be visible
+    expect(screen.getByText('test1.example.com')).toBeInTheDocument();
+    expect(screen.getByText('intermediate.example.com')).toBeInTheDocument();
+  });
 });
