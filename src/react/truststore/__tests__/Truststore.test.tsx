@@ -8,7 +8,6 @@ import {
   mockOffsetSize,
   mockShellHooks,
 } from '../../utils/testUtil';
-import { Certificate, CertificateSubject } from '@scality/certchain';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -26,6 +25,8 @@ jest.mock('../hooks', () => ({
 }));
 
 import { useParseBundleCertificates } from '../hooks';
+import { debug } from 'jest-preview';
+import { ParsedCertificate } from '@scality/certchain';
 
 const mockUseParseBundleCertificates =
   useParseBundleCertificates as jest.MockedFunction<
@@ -44,7 +45,7 @@ describe('Truststore', () => {
       screen.getByRole('button', { name: /View Details/i }),
     deleteButton: () => screen.getByRole('button', { name: /Delete/i }),
   };
-  const mockCertificate1: Certificate & CertificateSubject = {
+  const mockCertificate1: ParsedCertificate = {
     name: 'Test Certificate 1',
     authority: 'Test Authority 1',
     expiresOn: new Date('2025-12-31'),
@@ -154,15 +155,13 @@ describe('Truststore', () => {
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
     //V
-    // Wait for data to load
-    await waitFor(
-      () => {
-        expect(selectors.nameColumn()).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
 
-    /********** Certificate name and expiration date displayed: ************/
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/Loading certificates/i),
+      ).not.toBeInTheDocument();
+    });
+
     expect(selectors.nameColumn()).toBeInTheDocument();
     expect(screen.getByText('12/31/2025')).toBeInTheDocument();
 

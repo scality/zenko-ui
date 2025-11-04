@@ -1,4 +1,4 @@
-import { Certificate, CertificateSubject } from '@scality/certchain';
+import { ParsedCertificate } from '@scality/certchain';
 import {
   AppContainer,
   Icon,
@@ -26,7 +26,7 @@ import { TableHeaderWrapper } from '../ui-elements/Table';
 import { useParseBundleCertificates } from './hooks';
 
 const formatCertificateDataForTable = (
-  parsedCertificates: (Certificate & CertificateSubject)[][],
+  parsedCertificates: ParsedCertificate[][],
 ) => {
   const formattedCertificateData: CertificateData[] = parsedCertificates.map(
     (certificateBundle) => {
@@ -49,7 +49,7 @@ const formatCertificateDataForTable = (
 type CertificateData = {
   metadata: string[];
   expireOn: Date[];
-  certificates: (Certificate & CertificateSubject)[];
+  certificates: ParsedCertificate[];
 };
 
 const columns: CoreUIColumn<CertificateData>[] = [

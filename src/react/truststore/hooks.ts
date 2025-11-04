@@ -1,10 +1,9 @@
 import {
-  parseCertificateFromPEM,
   extractPemParts,
-  Certificate,
-  CertificateSubject,
+  parseCertificateFromPEM,
+  ParsedCertificate,
 } from '@scality/certchain';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export type ZenkoCRCertificateBundle = {
   'ca.crt': string;
@@ -35,7 +34,7 @@ const parseCertificateBundles = async (
 export const useParseBundleCertificates = (
   certificateBundles: ZenkoCRCertificateBundle[],
 ) => {
-  const [data, setData] = useState<(Certificate & CertificateSubject)[][]>([]);
+  const [data, setData] = useState<ParsedCertificate[][]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
