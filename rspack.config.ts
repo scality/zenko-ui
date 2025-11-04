@@ -116,9 +116,6 @@ const config: Configuration = {
     extensions: ['.js', '.jsx', '.css', '.json', '.ts', '.tsx'],
   },
   plugins: [
-    new rspack.ProvidePlugin({
-      Buffer: ['buffer', 'Buffer'],
-    }),
     new ModuleFederationPlugin({
       name: 'zenko',
       filename: `static/js/remoteEntry.${revision}.js`,
