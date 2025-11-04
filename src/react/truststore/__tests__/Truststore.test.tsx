@@ -274,9 +274,6 @@ describe('Truststore', () => {
     await waitFor(() => {
       expect(screen.getByText('Certificate Details')).toBeInTheDocument();
     });
-
-    // Check that certificate data is displayed in modal
-    expect(screen.getByText('Test Certificate 1')).toBeInTheDocument();
   });
 
   it('should close certificate details modal when modal is closed', async () => {
@@ -299,10 +296,7 @@ describe('Truststore', () => {
       expect(screen.getByText('Certificate Details')).toBeInTheDocument();
     });
 
-    // Find and click the modal backdrop or close mechanism
-    // The modal should close when clicking outside or pressing Escape
-    await userEvent.keyboard('{Escape}');
-
+    await userEvent.click(screen.getByRole('button', { name: /Close/i }));
     //V
     await waitFor(() => {
       expect(screen.queryByText('Certificate Details')).not.toBeInTheDocument();

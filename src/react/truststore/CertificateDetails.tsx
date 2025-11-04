@@ -89,7 +89,6 @@ const CertificateDetails = ({
   isModalOpen: boolean;
   handleClose: () => void;
 }) => {
-  console.log('DEBUG: selectedCertificate', selectedCertificate);
   return (
     <Modal
       close={handleClose}
