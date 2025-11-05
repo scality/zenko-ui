@@ -344,7 +344,7 @@ function LocationEditor() {
             : `${locations.length} of 10 locations have been created on this instance. You are approaching the platform limit.`}
         </Banner>
       )}
-      <FormSection title={{ name: 'General' }}>
+      <FormSection title={{ name: 'General' }} forceLabelWidth={180}>
         <FormGroup
           id="name"
           content={
