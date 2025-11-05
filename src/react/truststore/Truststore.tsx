@@ -4,7 +4,6 @@ import {
   Icon,
   IconHelp,
   Loader,
-  SmallerText,
   spacing,
   Stack,
   Text,
@@ -57,16 +56,26 @@ type CertificateData = {
 };
 
 const skipTLSVerificationTooltipMessage = (
-  <Stack direction="vertical">
-    <SmallerText>
-      Skip TLS Verification will allow you to access the bucket without
-      verifying the TLS certificate.
-    </SmallerText>
-    <SmallerText>Consequences?</SmallerText>
-    <SmallerText>
-      Toggling this setting will require to update the configuration of Data
-      Managmement Component. This action will take some time to complete.
-    </SmallerText>
+  <Stack direction="vertical" gap="r8">
+    <Text variant="Small">
+      Skip TLS Verification will allow you to access external locations without
+      verifying their TLS certificates.
+    </Text>
+    <Text variant="Small">
+      Without TLS verification, you lose the ability to:
+      <ul style={{ marginLeft: spacing.r16 }}>
+        <li style={{ marginBottom: spacing.r4 }}>
+          verify the external location's identity
+        </li>
+        <li style={{ marginBottom: spacing.r4 }}>ensure non-repudiation</li>
+      </ul>
+      Your data remains encrypted, but the secure channel verification is
+      bypassed.
+    </Text>
+    <Text variant="Small">
+      Toggling this setting will update the Data Management Component
+      configuration. This action will take some time to complete.
+    </Text>
   </Stack>
 );
 
@@ -281,6 +290,10 @@ const Truststore = () => {
             }}
           >
             <TableHeaderWrapper
+              search={
+                isSkippingTLSVerification &&
+                'Imported certificates are ignored when Skip TLS Verification is enabled.'
+              }
               actions={
                 <Button
                   label="Import Certificate"

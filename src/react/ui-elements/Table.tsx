@@ -36,7 +36,7 @@ export const TableHeaderWrapper = ({
   actions,
 }: TableHeaderWrapperProps) => {
   return (
-    <Wrap padding={spacing.r16}>
+    <Wrap padding={spacing.r16} style={{ alignItems: 'center' }}>
       <Box>{search}</Box>
       <Box gap="r16">{actions}</Box>
     </Wrap>
