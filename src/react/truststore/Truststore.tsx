@@ -17,9 +17,13 @@ import { useBasenameRelativeNavigate } from '@scality/module-federation';
 import { useMemo, useState } from 'react';
 import { MutationOptions, useQuery, useQueryClient } from 'react-query';
 import { CoreUIColumn, Row } from 'react-table';
-import { useToggleTLSVerificationMutation } from '../../js/mutations';
+import {
+  useDeleteCertificateFromZenkoConfigurationMutation,
+  useToggleTLSVerificationMutation,
+} from '../../js/mutations';
 import { ApiError } from '../../types/actions';
 import { getZenkoCRQuery } from '../queries';
+import DeleteConfirmation from '../ui-elements/DeleteConfirmation';
 import { TableHeaderWrapper } from '../ui-elements/Table';
 import CertificateDetails from './CertificateDetails';
 import {
@@ -104,6 +108,12 @@ const Truststore = () => {
   const [selectedCertificate, setSelectedCertificate] = useState<
     CertificateWithPEM[] | null
   >(null);
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState<{
+    index: number;
+    metadata: string[];
+  } | null>(null);
   const navigate = useBasenameRelativeNavigate();
   const {
     data: zenkoCR,
@@ -138,6 +148,37 @@ const Truststore = () => {
     isLoading: isLoadingToggleTLSVerification,
   } = useToggleTLSVerificationMutation(toggleTLSVerificationMutationOptions);
 
+  const deleteCertificateMutationOptions: MutationOptions<
+    { certificateIndex: number },
+    ApiError,
+    { certificateIndex: number }
+  > = {
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ['zenkoCR'] });
+      showToast({
+        message: 'Certificate deleted successfully',
+        status: 'success',
+        open: true,
+      });
+      setIsDeleteConfirmationOpen(false);
+      setCertificateToDelete(null);
+    },
+    onError: () => {
+      showToast({
+        message: 'Failed to delete certificate',
+        status: 'error',
+        open: true,
+      });
+    },
+  };
+
+  const {
+    mutate: deleteCertificateMutation,
+    isLoading: isLoadingDeleteCertificate,
+  } = useDeleteCertificateFromZenkoConfigurationMutation(
+    deleteCertificateMutationOptions,
+  );
+
   const isSkippingTLSVerification = useMemo(() => {
     return zenkoCR?.spec?.egress?.skipTLSVerify ?? false;
   }, [zenkoCR]);
@@ -171,6 +212,27 @@ const Truststore = () => {
 
   const toggleTLSVerification = (skipTLSVerify: boolean) => {
     toggleTLSVerificationMutation({ skipTLSVerify });
+  };
+
+  const handleDeleteClick = (certificateData: CertificateData) => {
+    setCertificateToDelete({
+      index: certificateData.index,
+      metadata: certificateData.metadata,
+    });
+    setIsDeleteConfirmationOpen(true);
+  };
+
+  const handleDeleteApprove = () => {
+    if (certificateToDelete) {
+      deleteCertificateMutation({
+        certificateIndex: certificateToDelete.index,
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteConfirmationOpen(false);
+    setCertificateToDelete(null);
   };
 
   const status = useMemo(() => {
@@ -279,9 +341,7 @@ const Truststore = () => {
             <Button
               label="Delete"
               variant="danger"
-              onClick={() => {
-                console.log(row.original);
-              }}
+              onClick={() => handleDeleteClick(row.original)}
             />
           </Stack>
         );
@@ -314,6 +374,18 @@ const Truststore = () => {
         </Wrap>
       </AppContainer.OverallSummary>
       <AppContainer.MainContent hasPadding>
+        <DeleteConfirmation
+          show={isDeleteConfirmationOpen}
+          approve={handleDeleteApprove}
+          cancel={handleDeleteCancel}
+          isLoading={isLoadingDeleteCertificate}
+          titleText={`Remove ${
+            certificateToDelete?.metadata &&
+            certificateToDelete.metadata.length > 0
+              ? ` "${certificateToDelete.metadata.join(' → ')}"`
+              : ''
+          } from the truststore?`}
+        />
         <CertificateDetails
           selectedCertificate={selectedCertificate ?? []}
           isModalOpen={isCertificateDetailsModalOpen}

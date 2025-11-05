@@ -515,6 +515,25 @@ const useToggleTLSVerificationMutation = (
   return usePatchZenkoConfigurationMutation(patch, options);
 };
 
+const useDeleteCertificateFromZenkoConfigurationMutation = (
+  options?: MutationOptions<
+    { certificateIndex: number },
+    ApiError,
+    { certificateIndex: number }
+  >,
+) => {
+  const patch = (args: { certificateIndex: number }) => {
+    return JSON.stringify([
+      {
+        op: 'remove',
+        path: `/spec/egress/extraCACerts/${args.certificateIndex}`,
+      },
+    ]);
+  };
+
+  return usePatchZenkoConfigurationMutation(patch, options);
+};
+
 export {
   useAddCertificateToZenkoConfigurationMutation,
   useAttachPolicyToUserMutation,
@@ -524,6 +543,7 @@ export {
   useCreateOrAddBucketToPolicyMutation,
   useCreatePolicyMutation,
   useCreateUserAccessKeyMutation,
+  useDeleteCertificateFromZenkoConfigurationMutation,
   useEnableSOSAPIMutation,
   usePatchZenkoConfigurationMutation,
   usePutBucketTaggingMutation,
