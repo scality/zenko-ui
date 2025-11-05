@@ -164,7 +164,7 @@ const CertificateDetails = ({
       isOpen={isModalOpen}
       title="Certificate Details"
     >
-      <ModalBody style={{ maxHeight: '32rem' }}>
+      <ModalBody style={{ maxHeight: '24rem' }}>
         <Stack direction="vertical" gap="r16" withSeparators>
           {selectedCertificate.map((certificate, index) => (
             <Stack
