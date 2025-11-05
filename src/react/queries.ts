@@ -335,7 +335,12 @@ export const getZenkoCRQuery = () => {
       return fetch(getURL(instances), {
         method: 'GET',
         headers: { authorization: `Bearer ${await getToken()}` },
-      }).then(async (res) => await res.json());
+      }).then(async (res) => {
+        if (!res.ok) {
+          throw new Error(res.statusText);
+        }
+        return await res.json();
+      });
     },
   };
 };

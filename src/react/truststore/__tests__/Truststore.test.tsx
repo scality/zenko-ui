@@ -13,7 +13,6 @@ import {
   useParseSecretCertificates,
 } from '../hooks';
 import { ParsedCertificate } from '@scality/certchain';
-import { debug } from 'jest-preview';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -359,8 +358,7 @@ describe('Truststore', () => {
       expect(selectors.importButton()).toBeInTheDocument();
       expect(screen.getByText(/Loading certificates/i)).toBeInTheDocument();
     });
-    //TODO: check how error is handled by zenko CR query
-    it.skip('should return "error" when Zenko CR fails to load', async () => {
+    it('should return "error" when Zenko CR fails to load', async () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
         parsedCertificates: [],
@@ -368,19 +366,19 @@ describe('Truststore', () => {
       });
 
       server.use(
-        rest.get(ZENKO_CR_URL, (req, res, ctx) =>
-          res(ctx.status(500), ctx.json({ error: 'Internal server error' })),
-        ),
+        rest.get(ZENKO_CR_URL, (req, res, ctx) => {
+          return res(ctx.status(500), ctx.text('Internal server error'));
+        }),
       );
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
 
       //V
       // Component should render with table in error state
+      expect(selectors.pageTitle()).toBeInTheDocument();
       await waitFor(() => {
-        expect(selectors.pageTitle()).toBeInTheDocument();
+        expect(screen.getByText(/An error occurred/i)).toBeInTheDocument();
       });
-      expect(screen.getByText(/Error/i)).toBeInTheDocument();
     });
 
     it('should return table data when Zenko CR and certificates are loaded successfully', async () => {
@@ -399,7 +397,7 @@ describe('Truststore', () => {
           screen.queryByText(/Loading certificates/i),
         ).not.toBeInTheDocument();
       });
-      debug();
+
       // Component should render with data in table
       expect(screen.getByText(mockCertificate1.commonName)).toBeInTheDocument();
       //TODO: Add test with correct formatting for date
