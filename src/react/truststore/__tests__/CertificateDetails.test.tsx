@@ -3,13 +3,14 @@ import { ParsedCertificate } from '@scality/certchain';
 import CertificateDetails from '../CertificateDetails';
 import { NewWrapper } from '../../utils/testUtil';
 
+const now = new Date();
 describe('CertificateDetails', () => {
   const mockCertificate: ParsedCertificate = {
     name: 'TEST CERTIFICATE NAME',
     authority: 'Test CA',
     commonName: 'TEST CERTIFICATE COMMON NAME',
-    expiresOn: new Date('2025-12-31'),
-    issuedOn: new Date('2024-01-01'),
+    expiresOn: new Date('2026-10-05T00:00:00Z'),
+    issuedOn: new Date('2025-10-05T00:00:00Z'),
     altNames: ['Test Certificate Alt Name', 'www.example.com'],
     organizations: ['Test Org'],
     organizationalUnits: ['IT Department'],
@@ -155,8 +156,8 @@ describe('CertificateDetails', () => {
     const rootCAElements = screen.getAllByText(/Root CA/i);
     expect(rootCAElements.length).toBeGreaterThanOrEqual(3);
   });
-  //TODO: Add correct formatting for date
-  it.skip('should format date correctly', () => {
+
+  it('should display date fields', () => {
     render(
       <CertificateDetails
         selectedCertificate={[mockCertificate]}
@@ -165,6 +166,11 @@ describe('CertificateDetails', () => {
       />,
       { wrapper: NewWrapper() },
     );
+
+    expect(screen.getByText('Expires On')).toBeInTheDocument();
+    expect(screen.getByText('Issued On')).toBeInTheDocument();
+    expect(screen.getByText(/- 2026-10-05/i)).toBeInTheDocument();
+    expect(screen.getByText('2025-10-05')).toBeInTheDocument();
   });
 
   it('should handle arrays with empty string elements', () => {

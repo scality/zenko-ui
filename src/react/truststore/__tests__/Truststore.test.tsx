@@ -13,6 +13,7 @@ import {
   useParseSecretCertificates,
 } from '../hooks';
 import { ParsedCertificate } from '@scality/certchain';
+import { debug } from 'jest-preview';
 
 // Mock Zenko CR endpoint URL
 const TEST_URL = 'https://test-url';
@@ -52,12 +53,13 @@ describe('Truststore', () => {
       screen.getByRole('button', { name: /View Details/i }),
     deleteButton: () => screen.getByRole('button', { name: /Delete/i }),
   };
+  const now = new Date();
   const mockCertificate1: ParsedCertificate = {
     name: 'Test Certificate 1',
     authority: 'Test Authority 1',
-    expiresOn: new Date('2025-12-31'),
+    expiresOn: new Date('2026-10-05T00:00:00Z'),
     altNames: ['test1.com'],
-    issuedOn: new Date('2024-01-01'),
+    issuedOn: new Date('2025-10-05T00:00:00Z'),
     commonName: 'test1.example.com',
     organizations: ['Test Org 1'],
     organizationalUnits: ['Test Unit 1'],
@@ -114,7 +116,7 @@ describe('Truststore', () => {
     });
 
     server.listen({ onUnhandledRequest: 'warn' });
-    mockOffsetSize(200, 100);
+    mockOffsetSize(200, 200);
   });
 
   afterEach(() => {
@@ -212,14 +214,14 @@ describe('Truststore', () => {
       isLoading: false,
     });
 
-    server.use(
-      rest.get(ZENKO_CR_URL, (req, res, ctx) =>
-        res(ctx.status(500), ctx.json({ error: 'Internal server error' })),
-      ),
-    );
     //E
     render(<Truststore />, { wrapper: NewWrapper() });
-
+    await waitFor(() => {
+      expect(
+        screen.queryByText(/Loading certificates/i),
+      ).not.toBeInTheDocument();
+    });
+    debug();
     await waitFor(() => {
       expect(selectors.viewDetailsButton()).toBeInTheDocument();
     });
@@ -236,6 +238,10 @@ describe('Truststore', () => {
     //S
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [[mockCertificate1]],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
       isLoading: false,
     });
     //E
@@ -265,12 +271,16 @@ describe('Truststore', () => {
       ...mockCertificate1,
       name: 'Root CA',
       authority: 'Root CA',
-      expiresOn: new Date('2024-06-30'), // Earlier than mockCertificate1
+      expiresOn: new Date(2035, 10, 6), // Later than mockCertificate1
       commonName: 'root.example.com',
     };
 
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
       isLoading: false,
     });
     //E
@@ -283,9 +293,7 @@ describe('Truststore', () => {
     });
 
     //V
-    // Should display the earliest expiration date (2024-06-30)
-    //TODO: Add correct formatting for date
-    //expect(screen.getByText('6/30/2024')).toBeInTheDocument();
+    expect(screen.getByText(/- 2026-10-05/i)).toBeInTheDocument();
   });
 
   it('should display certificate common names with chevron separators', async () => {
@@ -299,6 +307,10 @@ describe('Truststore', () => {
 
     mockUseParseBundleCertificates.mockReturnValue({
       parsedCertificates: [[mockCertificate1, mockCertificate2]],
+      isLoading: false,
+    });
+    mockUseParseSecretCertificates.mockReturnValue({
+      parsedSecretCertificates: [],
       isLoading: false,
     });
     //E
@@ -321,6 +333,10 @@ describe('Truststore', () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
         parsedCertificates: [],
+        isLoading: false,
+      });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
         isLoading: false,
       });
 
@@ -348,6 +364,10 @@ describe('Truststore', () => {
         parsedCertificates: [],
         isLoading: true,
       });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
+        isLoading: false,
+      });
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
 
@@ -362,6 +382,10 @@ describe('Truststore', () => {
       //S
       mockUseParseBundleCertificates.mockReturnValue({
         parsedCertificates: [],
+        isLoading: false,
+      });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
         isLoading: false,
       });
 
@@ -387,6 +411,10 @@ describe('Truststore', () => {
         parsedCertificates: [[mockCertificate1]],
         isLoading: false,
       });
+      mockUseParseSecretCertificates.mockReturnValue({
+        parsedSecretCertificates: [],
+        isLoading: false,
+      });
       //E
       render(<Truststore />, { wrapper: NewWrapper() });
 
@@ -397,10 +425,10 @@ describe('Truststore', () => {
           screen.queryByText(/Loading certificates/i),
         ).not.toBeInTheDocument();
       });
-
+      debug();
       // Component should render with data in table
       expect(screen.getByText(mockCertificate1.commonName)).toBeInTheDocument();
-      //TODO: Add test with correct formatting for date
+      expect(screen.getByText(/- 2026-10-05/i)).toBeInTheDocument();
       expect(selectors.viewDetailsButton()).toBeInTheDocument();
       expect(selectors.deleteButton()).toBeInTheDocument();
     });
